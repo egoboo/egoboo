@@ -31,6 +31,11 @@
 #include "egolib/egoboo_setup.h"
 #include "egolib/Graphics/ColourDepth.hpp"
 
+// Forward declaration.
+namespace Ego {
+struct GraphicsWindow;
+}
+
 //--------------------------------------------------------------------------------------------
 
 /// A structure holding information about a window.
@@ -123,16 +128,20 @@ Log::Entry& operator<<(Log::Entry& e, const SDLX_sdl_gl_attrib_t& s);
 /// A representation of a SDL Screen state
     struct SDLX_screen_info_t
     {
-        SDL_Window *window;
+        Ego::GraphicsWindow *window;
 
         std::vector<SDL_DisplayMode> video_mode_list;
 
         std::string szDriver;    ///< graphics driver name;
 
-        int x;                ///< Screen X size @todo rename to width
-        int y;                ///< Screen Y size @todo rename to height
-        int drawWidth;        ///< Framebuffer width (may be different with high DPI on)
-        int drawHeight;       ///< Framebuffer height (may be different with high DPI on)
+        /// Screen width.
+        int width;
+        /// Screen height.
+        int height;
+        /// Framebuffer width (may be different with high DPI on)
+        int drawWidth; 
+        /// Framebuffer height(may be different with high DPI on)
+        int drawHeight; 
 
         /// Context properties.
         /// @todo Rename gl_att to contextProperties.
@@ -158,7 +167,7 @@ Log::Entry& operator<<(Log::Entry& e, const SDLX_sdl_gl_attrib_t& s);
         SDLX_sdl_video_flags_t flags;
         SDLX_sdl_gl_attrib_t gl_att;
 
-        SDL_Window *surface;
+        Ego::GraphicsWindow *surface;
 
         static void report(SDLX_video_parameters_t& self);
         static void defaults(SDLX_video_parameters_t& self);
@@ -178,7 +187,7 @@ Log::Entry& operator<<(Log::Entry& e, const SDLX_sdl_gl_attrib_t& s);
     bool      SDLX_Get_Screen_Info( SDLX_screen_info_t& psi, bool display );
 
 /// Use a SDLX_video_parameters_t structure to create window
-    SDL_Window * SDLX_CreateWindow( SDLX_video_parameters_t& v, bool make_report );
+    Ego::GraphicsWindow *SDLX_CreateWindow( SDLX_video_parameters_t& v, bool make_report );
 
 /// Use a SDLX_video_parameters_t structure to try to set a SDL video mode directly
 /// on success, it returns a pointer to the actual data used to set the mode. On failure,
@@ -186,4 +195,4 @@ Log::Entry& operator<<(Log::Entry& e, const SDLX_sdl_gl_attrib_t& s);
     SDLX_video_parameters_t * SDLX_set_mode( SDLX_video_parameters_t * v_old, SDLX_video_parameters_t * v_new, bool has_valid_mode, bool make_report );
 
 /// Dump the info on the given surface to whatever FILE SDL_extensions is using for stdout
-    void   SDLX_report_mode( SDL_Window * surface, SDLX_video_parameters_t& v );
+    void   SDLX_report_mode( Ego::GraphicsWindow * surface, SDLX_video_parameters_t& v );

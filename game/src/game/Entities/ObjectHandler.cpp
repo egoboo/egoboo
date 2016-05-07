@@ -333,7 +333,7 @@ void ObjectHandler::updateQuadTree(float minX, float minY, float maxX, float max
 
 std::vector<std::shared_ptr<Object>> ObjectHandler::findObjects(const float x, const float y, const float distance, bool includeSceneryObjects) const { 
     std::vector<std::shared_ptr<Object>> result;
-	AABB2f searchArea = AABB2f(Vector2f(x-distance, y-distance), Vector2f(x+distance, y+distance));
+	AABB2f searchArea = AABB2f(Point2f(x-distance, y-distance), Point2f(x+distance, y+distance));
     _dynamicObjects.find(searchArea, result);
     if(includeSceneryObjects) _staticObjects.find(searchArea, result);
     return result;

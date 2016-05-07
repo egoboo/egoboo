@@ -2002,7 +2002,7 @@ float get_chr_level( ego_mesh_t *mesh, Object *object )
 
     // otherwise, use the small collision volume to determine which tiles the object overlaps
     // move the collision volume so that it surrounds the object
-    oct_bb_t::translate(object->chr_min_cv, object->getPosition(), bump);
+    bump = oct_bb_t::translate(object->chr_min_cv, object->getPosition());
 
     // determine the size of this object in tiles
     ixmin = bump._mins[OCT_X] / Info<float>::Grid::Size(); ixmin = Ego::Math::constrain( ixmin, 0, int(mesh->_info.getTileCountX()) - 1 );

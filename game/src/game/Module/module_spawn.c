@@ -390,8 +390,8 @@ void tilt_characters_to_terrain()
         }
         else
         {
-            object->ori.map_twist_facing_y = Facing(orientation_t::MAP_TURN_OFFSET);
-            object->ori.map_twist_facing_x = Facing(orientation_t::MAP_TURN_OFFSET);
+            object->ori.map_twist_facing_y = orientation_t::MAP_TURN_OFFSET;
+            object->ori.map_twist_facing_x = orientation_t::MAP_TURN_OFFSET;
         }
     }
 }

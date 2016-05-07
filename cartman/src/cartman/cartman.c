@@ -57,7 +57,6 @@ static void cart_mouse_data_rect_unselect();
 static void cart_mouse_data_mesh_replace_fx();
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 
 STRING egoboo_path = { "" };
 
@@ -65,8 +64,6 @@ int     onscreen_count = 0;
 Uint32  onscreen_vert[MAXPOINTS];
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
 
 static float cartman_zoom_hrz = 1.0f;
 static float cartman_zoom_vrt = 1.0f;
@@ -90,7 +87,6 @@ static int direct = 16;
 
 static bool _ttf_atexit_registered = false;
 
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 // ui functions
@@ -130,9 +126,6 @@ Cartman::FxView Views::fxView;
 Cartman::VertexView Views::vertexView;
 Cartman::SideView Views::sideView;
 
-
-static void draw_window_background(std::shared_ptr<Cartman::Window> pwin);
-static void draw_all_windows();
 static void draw_lotsa_stuff( cartman_mpd_t * pmesh );
 
 static void draw_main( cartman_mpd_t * pmesh );
@@ -163,12 +156,10 @@ static void cartman_check_mouse_vertex(std::shared_ptr<Cartman::Window> pwin, fl
 static void main_end();
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 
 #include "cartman/Clocks.h"
 #include "cartman/standard.inl"           // Some functions that I always use
 
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 struct LightModel {
@@ -212,6 +203,7 @@ struct LightModel {
 };
 
 //--------------------------------------------------------------------------------------------
+
 void draw_cursor_in_window(Cartman::Window& pwin)
 {
     using namespace Cartman;
@@ -231,6 +223,7 @@ void draw_cursor_in_window(Cartman::Window& pwin)
 }
 
 //--------------------------------------------------------------------------------------------
+
 int cartman_get_vertex( cartman_mpd_t * pmesh, int mapx, int mapy, int num )
 {
     if ( NULL == pmesh ) pmesh = &mesh;
@@ -248,6 +241,7 @@ int cartman_get_vertex( cartman_mpd_t * pmesh, int mapx, int mapy, int num )
 }
 
 //--------------------------------------------------------------------------------------------
+
 void onscreen_add_fan( cartman_mpd_t * pmesh, Uint32 fan )
 {
     // ZZ> This function flags a fan's points as being "onscreen"
@@ -284,6 +278,7 @@ void onscreen_add_fan( cartman_mpd_t * pmesh, Uint32 fan )
 }
 
 //--------------------------------------------------------------------------------------------
+
 void make_onscreen( cartman_mpd_t * pmesh )
 {
     if ( NULL == pmesh ) pmesh = &mesh;
@@ -312,6 +307,7 @@ void make_onscreen( cartman_mpd_t * pmesh )
 }
 
 //--------------------------------------------------------------------------------------------
+
 void gfx_system_load_basic_textures( const char *modname )
 {
     // ZZ> This function loads the standard textures for a module
@@ -346,6 +342,7 @@ void gfx_system_load_basic_textures( const char *modname )
 }
 
 //--------------------------------------------------------------------------------------------
+
 bool load_module( const char *modname, cartman_mpd_t * pmesh )
 {
     STRING mod_path = EMPTY_CSTR;
@@ -382,6 +379,7 @@ bool load_module( const char *modname, cartman_mpd_t * pmesh )
 }
 
 //--------------------------------------------------------------------------------------------
+
 void Cartman::Window::render()
 {
     if ( !on ) return;
@@ -390,7 +388,7 @@ void Cartman::Window::render()
     {
         auto& renderer = Ego::Renderer::get();
 		renderer.setScissorTestEnabled(true);
-        renderer.setScissorRectangle(x, sdl_scr.y - ( y + surfacey ), surfacex, surfacey);
+        renderer.setScissorRectangle(x, sdl_scr.height - ( y + surfacey ), surfacex, surfacey);
 
         make_onscreen( pmesh );
 
@@ -422,7 +420,6 @@ void Cartman::Window::render()
 
 //--------------------------------------------------------------------------------------------
 
-//--------------------------------------------------------------------------------------------
 void load_all_windows( cartman_mpd_t& mesh )
 {
     static const int border_width = 7;
@@ -434,23 +431,7 @@ void load_all_windows( cartman_mpd_t& mesh )
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_window_background(std::shared_ptr<Cartman::Window> pwin)
-{
-    if (!pwin || !pwin->on ) return;
 
-    ogl_draw_sprite_2d(pwin->border.texture, pwin->x, pwin->y, pwin->surfacex, pwin->surfacey );
-}
-
-//--------------------------------------------------------------------------------------------
-void draw_all_windows()
-{
-    for (auto window : _window_lst)
-    {
-        draw_window_background(window);
-    }
-}
-
-//--------------------------------------------------------------------------------------------
 void bound_camera( cartman_mpd_info_t * pinfo )
 {
 	cam.x = Ego::Math::constrain(cam.x, 0.0f, pinfo->getEdgeX());
@@ -459,6 +440,7 @@ void bound_camera( cartman_mpd_info_t * pinfo )
 }
 
 //--------------------------------------------------------------------------------------------
+
 void unbound_mouse()
 {
     using namespace Cartman;
@@ -466,12 +448,13 @@ void unbound_mouse()
     {
         Input::get()._mouse.tlx = 0;
         Input::get()._mouse.tly = 0;
-        Input::get()._mouse.brx = sdl_scr.x - 1;
-        Input::get()._mouse.bry = sdl_scr.y - 1;
+        Input::get()._mouse.brx = sdl_scr.width - 1;
+        Input::get()._mouse.bry = sdl_scr.height - 1;
     }
 }
 
 //--------------------------------------------------------------------------------------------
+
 void bound_mouse()
 {
     using namespace Cartman;
@@ -486,6 +469,7 @@ void bound_mouse()
 }
 
 //--------------------------------------------------------------------------------------------
+
 int vertex_calc_vrta( cartman_mpd_t * pmesh, Uint32 vert )
 {
     int newa, cnt;
@@ -547,6 +531,7 @@ int vertex_calc_vrta( cartman_mpd_t * pmesh, Uint32 vert )
 }
 
 //--------------------------------------------------------------------------------------------
+
 void fan_calc_vrta( cartman_mpd_t * pmesh, int fan )
 {
     int num, cnt;
@@ -575,6 +560,7 @@ void fan_calc_vrta( cartman_mpd_t * pmesh, int fan )
 }
 
 //--------------------------------------------------------------------------------------------
+
 void mesh_calc_vrta(cartman_mpd_t *self)
 {
     if (NULL == self) self = &mesh;
@@ -591,6 +577,7 @@ void mesh_calc_vrta(cartman_mpd_t *self)
 }
 
 //--------------------------------------------------------------------------------------------
+
 void move_camera( cartman_mpd_info_t * pinfo )
 {
     using namespace Cartman;
@@ -607,6 +594,7 @@ void move_camera( cartman_mpd_info_t * pinfo )
 }
 
 //--------------------------------------------------------------------------------------------
+
 void cartman_check_mouse_side(std::shared_ptr<Cartman::Window> pwin, float zoom_hrz, float zoom_vrt)
 {
     using namespace Cartman;
@@ -773,6 +761,7 @@ void cartman_check_mouse_side(std::shared_ptr<Cartman::Window> pwin, float zoom_
 }
 
 //--------------------------------------------------------------------------------------------
+
 void cartman_check_mouse_tile(std::shared_ptr<Cartman::Window> pwin, float zoom_hrz, float zoom_vrt)
 {
     using namespace Cartman;
@@ -885,6 +874,7 @@ void cartman_check_mouse_tile(std::shared_ptr<Cartman::Window> pwin, float zoom_
 }
 
 //--------------------------------------------------------------------------------------------
+
 void cartman_check_mouse_fx(std::shared_ptr<Cartman::Window> pwin, float zoom_hrz, float zoom_vrt)
 {
     using namespace Cartman;
@@ -985,6 +975,7 @@ void cartman_check_mouse_fx(std::shared_ptr<Cartman::Window> pwin, float zoom_hr
 }
 
 //--------------------------------------------------------------------------------------------
+
 void cartman_check_mouse_vertex(std::shared_ptr<Cartman::Window> pwin, float zoom_hrz, float zoom_vrt)
 {
     using namespace Cartman;
@@ -1126,6 +1117,7 @@ void cartman_check_mouse_vertex(std::shared_ptr<Cartman::Window> pwin, float zoo
 }
 
 //--------------------------------------------------------------------------------------------
+
 bool cartman_check_mouse( const char * modulename, cartman_mpd_t * pmesh )
 {
     using namespace Cartman;
@@ -1166,6 +1158,7 @@ bool cartman_check_mouse( const char * modulename, cartman_mpd_t * pmesh )
 }
 
 //--------------------------------------------------------------------------------------------
+
 void ease_up_mesh( cartman_mpd_t * pmesh, float zoom_vrt )
 {
     // ZZ> This function lifts the entire mesh
@@ -1179,6 +1172,7 @@ void ease_up_mesh( cartman_mpd_t * pmesh, float zoom_vrt )
 }
 
 //--------------------------------------------------------------------------------------------
+
 bool cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
 {
     using namespace Cartman;
@@ -1480,8 +1474,6 @@ bool cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
 
 //--------------------------------------------------------------------------------------------
 
-
-//--------------------------------------------------------------------------------------------
 void draw_lotsa_stuff( cartman_mpd_t * pmesh )
 {
     int x, cnt, todo, tile, add;
@@ -1503,24 +1495,24 @@ void draw_lotsa_stuff( cartman_mpd_t * pmesh )
 #endif
 
     // Tell user what keys are important
-    gfx_font_ptr->drawText("O = Overlay (Water)", 0, sdl_scr.y - 120);
-    gfx_font_ptr->drawText("R = Reflective", 0, sdl_scr.y - 112);
-    gfx_font_ptr->drawText("D = Draw Reflection", 0, sdl_scr.y - 104);
-    gfx_font_ptr->drawText("A = Animated", 0, sdl_scr.y - 96);
-    gfx_font_ptr->drawText("B = Barrier (Slit)", 0, sdl_scr.y - 88);
-    gfx_font_ptr->drawText("I = Impassable (Wall)", 0, sdl_scr.y - 80);
-    gfx_font_ptr->drawText("H = Hurt", 0, sdl_scr.y - 72);
-    gfx_font_ptr->drawText("S = Slippy", 0, sdl_scr.y - 64);
+    gfx_font_ptr->drawText("O = Overlay (Water)", 0, sdl_scr.height - 120);
+    gfx_font_ptr->drawText("R = Reflective", 0, sdl_scr.height - 112);
+    gfx_font_ptr->drawText("D = Draw Reflection", 0, sdl_scr.height - 104);
+    gfx_font_ptr->drawText("A = Animated", 0, sdl_scr.height - 96);
+    gfx_font_ptr->drawText("B = Barrier (Slit)", 0, sdl_scr.height - 88);
+    gfx_font_ptr->drawText("I = Impassable (Wall)", 0, sdl_scr.height - 80);
+    gfx_font_ptr->drawText("H = Hurt", 0, sdl_scr.height - 72);
+    gfx_font_ptr->drawText("S = Slippy", 0, sdl_scr.height - 64);
 
     // Vertices left
-    gfx_font_ptr->drawText("Vertices " + std::to_string(pmesh->vrt_free), 0, sdl_scr.y - 56);
+    gfx_font_ptr->drawText("Vertices " + std::to_string(pmesh->vrt_free), 0, sdl_scr.height - 56);
 
     // Misc data
-    gfx_font_ptr->drawText("Ambient   " + std::to_string(ambi), 0, sdl_scr.y - 40);
-    gfx_font_ptr->drawText("Ambicut   " + std::to_string(ambicut), 0, sdl_scr.y - 32);
-    gfx_font_ptr->drawText("Direct    " + std::to_string(direct), 0, sdl_scr.y - 24);
-    gfx_font_ptr->drawText("Brush amount " + std::to_string(brushamount), 0, sdl_scr.y - 16);
-    gfx_font_ptr->drawText("Brush size   " + std::to_string(brushsize), 0, sdl_scr.y - 8);
+    gfx_font_ptr->drawText("Ambient   " + std::to_string(ambi), 0, sdl_scr.height - 40);
+    gfx_font_ptr->drawText("Ambicut   " + std::to_string(ambicut), 0, sdl_scr.height - 32);
+    gfx_font_ptr->drawText("Direct    " + std::to_string(direct), 0, sdl_scr.height - 24);
+    gfx_font_ptr->drawText("Brush amount " + std::to_string(brushamount), 0, sdl_scr.height - 16);
+    gfx_font_ptr->drawText("Brush size   " + std::to_string(brushsize), 0, sdl_scr.height - 8);
 
     // Cursor
     //if (mos.x >= 0 && mos.x < sdl_scr.x && mos.y >= 0 && mos.y < sdl_scr.y)
@@ -1609,21 +1601,20 @@ void draw_lotsa_stuff( cartman_mpd_t * pmesh )
 }
 
 //--------------------------------------------------------------------------------------------
+
 void draw_main( cartman_mpd_t * pmesh )
 {
     bool recalc_lighting = false;
 
     if ( NULL == pmesh ) pmesh = &mesh;
 
-    glClear( GL_COLOR_BUFFER_BIT );
+    Ego::Renderer::get().getColourBuffer().clear();
 
     ogl_beginFrame();
     {
         int itmp;
 
-        Cartman::GUI::renderAllWindows();
-
-        draw_all_windows();
+        Cartman::GUI::render();
 
         itmp = ambi;
         draw_slider( 0, 250, 19, 350, &ambi,          0, 200 );
@@ -1653,10 +1644,11 @@ void draw_main( cartman_mpd_t * pmesh )
     dunframe++;
     secframe++;
 
-    SDL_GL_SwapWindow(sdl_scr.window);
+    SDL_GL_SwapWindow(sdl_scr.window->get());
 }
 
 //--------------------------------------------------------------------------------------------
+
 void main_end( void )
 {
     // Ending statistics
@@ -1667,6 +1659,7 @@ void main_end( void )
 }
 
 //--------------------------------------------------------------------------------------------
+
 int SDL_main( int argcnt, char* argtext[] )
 {
     char modulename[100];
@@ -1752,6 +1745,7 @@ int SDL_main( int argcnt, char* argtext[] )
 }
 
 //--------------------------------------------------------------------------------------------
+
 void cartman_create_mesh( cartman_mpd_t * pmesh )
 {
     cartman_mpd_create_info_t map_info;
@@ -1789,6 +1783,7 @@ void cartman_create_mesh( cartman_mpd_t * pmesh )
 }
 
 //--------------------------------------------------------------------------------------------
+
 void cartman_save_mesh( const char * modname, cartman_mpd_t * pmesh )
 {
     STRING newloadname;
@@ -1820,6 +1815,7 @@ void cartman_save_mesh( const char * modname, cartman_mpd_t * pmesh )
 }
 
 //--------------------------------------------------------------------------------------------
+
 void cartman_check_input( const char * modulename, cartman_mpd_t * pmesh )
 {
     if ( NULL == pmesh ) pmesh = &mesh;
@@ -1834,20 +1830,19 @@ void cartman_check_input( const char * modulename, cartman_mpd_t * pmesh )
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+
 bool config_download(egoboo_config_t * pcfg)
 {
     return setup_download(pcfg);
 }
 
-//--------------------------------------------------------------------------------------------
 bool config_upload(egoboo_config_t * pcfg)
 {
     return setup_upload( pcfg );
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+
 Cartman_MouseData *Cartman_MouseData::ctor(Cartman_MouseData *self)
 {
     if (!self)
@@ -1870,61 +1865,51 @@ Cartman_MouseData *Cartman_MouseData::ctor(Cartman_MouseData *self)
     return self;
 }
 
-//--------------------------------------------------------------------------------------------
 void cart_mouse_data_mesh_set_tile( Uint16 tiletoset )
 {
     MeshEditor::mesh_set_tile( mdata.win_mesh, tiletoset, mdata.upper, mdata.presser, mdata.tx );
 }
 
-//--------------------------------------------------------------------------------------------
 void cart_mouse_data_flatten_mesh()
 {
     MeshEditor::flatten_mesh( mdata.win_mesh, mdata.win_mpos_y );
 }
 
-//--------------------------------------------------------------------------------------------
 void cart_mouse_data_clear_mesh()
 {
 	MeshEditor::clear_mesh(mdata.win_mesh, mdata.upper, mdata.presser, mdata.tx, mdata.type);
 }
 
-//--------------------------------------------------------------------------------------------
 void cart_mouse_data_three_e_mesh()
 {
     MeshEditor::three_e_mesh( mdata.win_mesh, mdata.upper, mdata.tx );
 }
 
-//--------------------------------------------------------------------------------------------
 void cart_mouse_data_mesh_replace_tile( bool tx_only, bool at_floor_level )
 {
     MeshEditor::mesh_replace_tile( mdata.win_mesh, mdata.win_fan_x, mdata.win_fan_y, mdata.win_fan, mdata.tx, mdata.upper, mdata.fx, mdata.type, mdata.presser, tx_only, at_floor_level );
 }
 
-//--------------------------------------------------------------------------------------------
 void cart_mouse_data_mesh_set_fx()
 {
     MeshEditor::setFX( mdata.win_mesh, mdata.win_fan, mdata.fx );
 }
 
-//--------------------------------------------------------------------------------------------
 void cart_mouse_data_toggle_fx( int fxmask )
 {
     mdata.fx ^= fxmask;
 }
 
-//--------------------------------------------------------------------------------------------
 void cart_mouse_data_rect_select()
 {
     select_lst_add_rect( mdata.win_select, mdata.rect_x0, mdata.rect_y0, mdata.rect_z0, mdata.rect_x1, mdata.rect_y1, mdata.rect_z1, mdata.win_mode );
 }
 
-//--------------------------------------------------------------------------------------------
 void cart_mouse_data_rect_unselect()
 {
     select_lst_remove_rect( mdata.win_select, mdata.rect_x0, mdata.rect_y0, mdata.rect_z0, mdata.rect_x1, mdata.rect_y1, mdata.rect_z1, mdata.win_mode );
 }
 
-//--------------------------------------------------------------------------------------------
 void cart_mouse_data_mesh_replace_fx()
 {
     if ( !VALID_MPD_TILE_RANGE( mdata.win_fan ) ) return;

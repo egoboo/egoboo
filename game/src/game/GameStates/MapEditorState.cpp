@@ -116,7 +116,7 @@ void MapEditorState::beginState()
 {
     // in-game settings
     SDL_ShowCursor(SDL_ENABLE);
-    SDL_SetWindowGrab(sdl_scr.window, egoboo_config_t::get().debug_grabMouse.getValue() ? SDL_TRUE : SDL_FALSE);
+    sdl_scr.window->setGrabEnabled(egoboo_config_t::get().debug_grabMouse.getValue());
 }
 
 bool MapEditorState::notifyKeyDown(const int keyCode)

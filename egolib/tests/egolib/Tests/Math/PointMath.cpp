@@ -17,8 +17,11 @@
 //*
 //********************************************************************************************
 
-#include "EgoTest/EgoTest.hpp"
-#include "egolib/egolib.h"
+#include "egolib/Tests/Math/MathTestUtilities.hpp"
+
+namespace Ego {
+namespace Math {
+namespace Test {
 
 EgoTest_TestCase(PointMath) {
 
@@ -49,3 +52,7 @@ EgoTest_Test(sub) {
 }
 
 };
+
+} // namespace Test
+} // namespace Math
+} // namespace Ego

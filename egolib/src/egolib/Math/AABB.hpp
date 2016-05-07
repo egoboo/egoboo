@@ -23,10 +23,10 @@
 
 #pragma once
 
-#include "egolib/Math/Vector.hpp"
-#include "egolib/Math/Translatable.hpp"
 #include "egolib/Math/EuclideanSpace.hpp"
-#include "egolib/Math/Sphere.h"
+#include "egolib/Math/Translatable.hpp"
+
+#include "egolib/Math/Sphere.hpp"
 
 namespace Ego {
 namespace Math {
@@ -56,6 +56,8 @@ public:
     typedef typename EuclideanSpaceType::VectorType VectorType;
     /// The scalar type (of the scalar field).
     typedef typename EuclideanSpaceType::ScalarType ScalarType;
+    /// The point type (of the Euclidean space).
+    typedef typename EuclideanSpaceType::PointType PointType;
     /// @brief @a MyType is the type of this template/template specialization.
     typedef AABB<_EuclideanSpaceType> MyType;
 
@@ -64,13 +66,13 @@ private:
      * @brief
      *  The minimum along each axis.
      */
-    VectorType _min;
+    PointType _min;
 
     /**
      * @brief
      *  The maximum along each axis.
      */
-    VectorType _max;
+    PointType _max;
 
 public:
     /**
@@ -94,7 +96,7 @@ public:
      * @throw std::logic_error
      *  if the minimum along an axis is greater than the maximum along that axis
      */
-    AABB(const VectorType& min, const VectorType& max)
+    AABB(const PointType& min, const PointType& max)
         : _min(min), _max(max) {
         for (size_t i = 0; i < EuclideanSpaceType::dimensionality(); ++i) {
             if (min[i] > max[i]) {
@@ -117,7 +119,7 @@ public:
      * @return
      *  the minimum
      */
-    const VectorType& getMin() const {
+    const PointType& getMin() const {
         return _min;
     }
 
@@ -127,7 +129,7 @@ public:
      * @return
      *  the maximum
      */
-    const VectorType& getMax() const {
+    const PointType& getMax() const {
         return _max;
     }
 
@@ -137,8 +139,8 @@ public:
      * @return
      *  the center
      */
-    VectorType getCenter() const {
-        return (_min + _max) * 0.5f;
+    PointType getCenter() const {
+        return _min + getSize() * 0.5f;
     }
 
 	/**
@@ -177,55 +179,6 @@ public:
             _min[i] = std::min(_min[i], other._min[i]);
             _max[i] = std::max(_max[i], other._max[i]);
         }
-    }
-
-    /**
-     * @brief
-     *  Get if this AABB contains another AABB.
-     * @param other
-     *  the other AABB
-     * @return
-     *  @a true if this AABB contains the other AABB,
-     *  @a false otherwise
-     * @remark
-     *  This function is <em>not</em> commutative.
-     */
-    bool contains(const MyType& other) const {
-        for (size_t i = 0; i < EuclideanSpaceType::dimensionality(); ++i) {
-            if (_max[i] > other._max[i]) return false;
-            if (_min[i] < other._min[i]) return false;
-        }
-        return true;
-    }
-
-    /**
-     * @brief
-     *  Get if an AABB overlaps with another AABB.
-     * @param other
-     *  the other AABB
-     * @return
-     *  @a true if this AABB and the other AABB,
-     *  @a false otherwise
-     * @remark
-     *  The function is commutative.
-     * @remark
-     *  Two AABBs x and y overlap if
-     *  for each axis k x.min[k] >= y.min[k] and x
-     */
-    inline bool overlaps(const MyType& other) const {
-        for (size_t i = 0; i < EuclideanSpaceType::dimensionality(); ++i) {
-            // If the minimum of the LHS is greater than the maximum of the RHS along one axis,
-            // then they can not overlap.
-            if (_min[i] > other._max[i]) {
-                return false;
-            }
-            // If the maximum of the LHS is smaller than the minimum of the RHS along one axis,
-            // then they can not overlap.
-            if (_max[i] < other._min[i]) {
-                return false;
-            }
-        }
-        return true;
     }
 
     /**

@@ -25,6 +25,8 @@
 
 #include "egolib/Math/_Tuple.hpp"
 #include "egolib/Math/_Generator.hpp"
+#include "egolib/Math/Vector.hpp"
+#include "egolib/Math/VectorSpace.hpp"
 
 namespace Ego {
 namespace Math {

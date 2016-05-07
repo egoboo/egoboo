@@ -135,7 +135,7 @@
       <UndefinePreprocessorDefinitions>__cplusplus;</UndefinePreprocessorDefinitions>
       <DisableSpecificWarnings>
       </DisableSpecificWarnings>
-      <AdditionalIncludeDirectories>$(SolutionDir);_CRT_SECURE_NO_WARNINGS;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <SDLCheck>true</SDLCheck>
       <StringPooling>false</StringPooling>
@@ -277,7 +277,7 @@
       <OmitFramePointers>false</OmitFramePointers>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <CompileAs>CompileAsCpp</CompileAs>
-      <AdditionalIncludeDirectories>$(SolutionDir);_CRT_SECURE_NO_WARNINGS;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MinimalRebuild>true</MinimalRebuild>
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
       <SDLCheck>true</SDLCheck>
@@ -305,6 +305,8 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\App.cpp" />
+    <ClCompile Include="src\egolib\Graphics\GraphicsWindow.cpp" />
     <ClCompile Include="src\egolib\Graphics\IndexBuffer.cpp" />
     <ClCompile Include="src\egolib\Graphics\IndexDescriptor.cpp" />
     <ClCompile Include="src\egolib\Graphics\VertexDescriptor.cpp" />
@@ -494,6 +496,28 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\App.hpp" />
+    <ClInclude Include="src\egolib\Math\Intersects_Cube_Point.hpp" />
+    <ClInclude Include="src\egolib\Math\Intersects_Point_Cube.hpp" />
+    <ClInclude Include="src\egolib\Graphics\GraphicsWindow.hpp" />
+    <ClInclude Include="src\egolib\Math\Contains_Cube_Cube.hpp" />
+    <ClInclude Include="src\egolib\Math\Intersects_Cube_Cube.hpp" />
+    <ClInclude Include="src\egolib\Math\Intersects_AABB_Cube.hpp" />
+    <ClInclude Include="src\egolib\Math\Intersects_Cube_AABB.hpp" />
+    <ClInclude Include="src\egolib\Math\Intersects_Point_AABB.hpp" />
+    <ClInclude Include="src\egolib\Math\Intersects_Point_Sphere.hpp" />
+    <ClInclude Include="src\egolib\Math\Contains_Sphere_Sphere.hpp" />
+    <ClInclude Include="src\egolib\Math\Intersects_AABB_Point.hpp" />
+    <ClInclude Include="src\egolib\Math\Contains_Point_Point.hpp" />
+    <ClInclude Include="src\egolib\Math\Contains.hpp" />
+    <ClInclude Include="src\egolib\Math\Contains_AABB_AABB.hpp" />
+    <ClInclude Include="src\egolib\Math\Contains_AABB_Point.hpp" />
+    <ClInclude Include="src\egolib\Math\Contains_Sphere_Point.hpp" />
+    <ClInclude Include="src\egolib\Math\Intersects_AABB_AABB.hpp" />
+    <ClInclude Include="src\egolib\Math\Intersects_Sphere_Point.hpp" />
+    <ClInclude Include="src\egolib\Math\Intersects_Sphere_Sphere.hpp" />
+    <ClInclude Include="src\egolib\Math\Intersects.hpp" />
+    <ClInclude Include="src\egolib\Math\Intersects_Point_Point.hpp" />
     <ClInclude Include="src\egolib\Math\Colour.hpp" />
     <ClInclude Include="src\egolib\Math\ColourLa.hpp" />
     <ClInclude Include="src\egolib\Math\ColourComponents.hpp" />
@@ -663,7 +687,7 @@
     <ClInclude Include="src\egolib\math\ColourRgba.hpp" />
     <ClInclude Include="src\egolib\math\Vector.hpp" />
     <ClInclude Include="src\egolib\math\Cube.hpp" />
-    <ClInclude Include="src\egolib\math\Sphere.h" />
+    <ClInclude Include="src\egolib\math\Sphere.hpp" />
     <ClInclude Include="src\egolib\math\Plane.hpp" />
     <ClInclude Include="src\egolib\math\Random.hpp" />
     <ClInclude Include="src\egolib\bbox.h" />

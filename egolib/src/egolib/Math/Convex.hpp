@@ -22,7 +22,7 @@
 #include "egolib/Math/VectorSpace.hpp"
 #include "egolib/Math/AABB.hpp"
 #include "egolib/Math/Cube.hpp"
-#include "egolib/Math/Sphere.h"
+#include "egolib/Math/Sphere.hpp"
 
 namespace Ego {
 namespace Math {

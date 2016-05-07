@@ -22,8 +22,8 @@
 
 #pragma once
 
-#include "egolib/Math/Vector.hpp"
 #include "egolib/Math/EuclideanSpace.hpp"
+#include "egolib/Math/Translatable.hpp"
 
 namespace Ego {
 namespace Math {
@@ -47,6 +47,8 @@ public:
     typedef typename EuclideanSpaceType::VectorType VectorType;
     /// The scalar type (of the scalar field).
     typedef typename EuclideanSpaceType::ScalarType ScalarType;
+    /// The point type (of the Euclidean space).
+    typedef typename EuclideanSpaceType::PointType PointType;
     /// @brief @a MyType is the type of this template/template specialization.
     typedef Sphere<_EuclideanSpaceType> MyType;
 
@@ -56,7 +58,7 @@ private:
      * @brief
      *  The center of the sphere.
      */
-    VectorType _center;
+    PointType _center;
 
     /**
      * @brief
@@ -77,7 +79,7 @@ public:
      *  The default values of a sphere are the center of @a (0,0,0) and the radius of @a 0.
      */
     Sphere()
-        : _center(VectorType::zero()), _radius(0) {
+        : _center(PointType::zero()), _radius(0) {
         /* Intentionally empty. */
     }
 
@@ -95,7 +97,7 @@ public:
     * @post
     *  The sphere was constructed with the specified values.
     */
-    Sphere(const VectorType& center, const ScalarType& radius)
+    Sphere(const PointType& center, const ScalarType& radius)
         : _center(center), _radius(radius) {
         if (_radius < 0) {
             throw std::domain_error("sphere radius is negative");
@@ -123,7 +125,7 @@ public:
      * @return
      *  the center of this sphere
      */
-    const VectorType& getCenter() const {
+    const PointType& getCenter() const {
         return _center;
     }
 
@@ -135,18 +137,49 @@ public:
      * @post
      *  The sphere was assigned with the center.
      */
-    void setCenter(const VectorType& center) {
+    void setCenter(const PointType& center) {
         _center = center;
     }
 
     /**
      * @brief
-     *  Get the radius of this  sphere.
+     *  Get the radius of this sphere.
      * @return
      *  the radius of this sphere
      */
     const ScalarType& getRadius() const {
         return _radius;
+    }
+
+    /**
+     * @brief
+     *  Get the squared radius of this sphere.
+     * @return
+     *  the squared radius of this sphere
+     */
+    ScalarType getRadiusSquared() const {
+        return _radius * _radius;
+    }
+
+    /**
+     * @brief
+     *  Get the diameter of this sphere.
+     * @return
+     *  the diameter of this sphere
+     */
+    ScalarType getDiameter() const {
+        return getRadius() * 2.0;
+    }
+
+    /**
+     * @brief
+     *  Get the squared diameter of this sphere.
+     * @return
+     *  the squared diameter of this sphere
+     */
+    ScalarType getDiameterSquared() const {
+        auto diameter = getDiameter();
+        return diameter * diameter;
     }
 
     /**
@@ -181,69 +214,7 @@ public:
         _radius = other._radius;
         _center = other._center;
     }
-    
-    /**
-     * @brief
-     *  Get if this sphere intersects with a point.
-     * @param other
-     *  the point
-     * @return
-     *  @a true if this sphere intersects with the point,
-     *  @a false otherwise
-     * @remark
-     *  A sphere \f$(c,r)\f$ with the center $c$ and the radius $r$
-     *  and a point \f$p\f$ intersect if \f$|p - c| \leq r\f$ holds.
-     *  That condition is equivalent to the condition \f$|p - c|^2
-     *  \leq r^2\f$ but the latter is more efficient to test (two
-     *  multiplications vs. one square root).
-     */
-    bool intersects(const VectorType& other) const {
-        // Get the squared distance other the point and the center of the sphere.
-        float distance_2 = (_center - other).length_2();
-        // Get the squared radius of the sphere.
-        float radius_2 = _radius * _radius;
-        // If the squared distance beween the point and the center of the sphere
-        // is smaller than or equal to the squared radius of the sphere ...
-        if (distance_2 <= radius_2) {
-            // ... the sphere and the point intersect.
-            return true;
-        }
-        // Otherwise they don't intersect.
-        return false;
-    }
 
-    /**
-     * @brief
-     *  Get if this sphere intersects with another sphere.
-     * @param other
-     *  the other sphere
-     * @return
-     *  @a true if this sphere intersects with the other sphere,
-     *  @a false otherwise
-     * @remark
-     *  Two spheres \f$(c_0,r_0)\f$ and \f$(c_1,r_1)\f$ with the
-     *  centers \f$c_0\f$ and \f$c_1\f$ and the radii \f$r_0\f$
-     *  and \f$r_1\f$ intersect if \f$|c_1 - c_0| \leq r_0 + r_1\f$
-     *  holds. That condition is equivalent to the condition
-     *  \f$|c_1 - c_0|^2 \leq (r_0 + r_1)^2\f$ but the latter
-     *  is more efficient to test (two multiplications vs. one
-     *  square root).
-     */
-    bool intersects(const MyType& other) const {
-        // Get the squared distance between the centers of the two spheres.
-        float distance_2 = (_center - other._center).length_2();
-        // Get the squared sum of the radiis of the two spheres.
-        float sumOfRadii = _radius + other._radius;
-        float sumOfRadii_2 = sumOfRadii * sumOfRadii;
-        // If the squared distance beween the centers of the spheres
-        // is smaller than or equal to the squared sum of the radii of the spheres ...
-        if (distance_2 <= sumOfRadii_2) {
-            // ... the spheres intersect.
-            return true;
-        }
-        // Otherwise they don't intersect.
-        return false;
-    }
 
 	/** @copydoc Ego::Math::translatable */
 	void translate(const VectorType& t) override {

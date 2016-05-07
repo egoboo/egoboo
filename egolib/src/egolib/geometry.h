@@ -57,16 +57,16 @@ enum class Relation {
  * @todo
  *  Document return value.
  */
-Ego::Math::Relation point_intersects_aabb(const Vector3f& point, const Vector3f& corner1, const Vector3f& corner2);
+Ego::Math::Relation point_intersects_aabb(const Point3f& point, const Point3f& corner1, const Point3f& corner2);
 
 /** @internal */
 Ego::Math::Relation aabb_intersects_aabb(const AABB3f& lhs, const AABB3f& rhs);
 
 /** @internal */
-Ego::Math::Relation plane_intersects_aabb_min(const Plane3f& plane, const Vector3f& mins, const Vector3f& maxs);
+Ego::Math::Relation plane_intersects_aabb_min(const Plane3f& plane, const Point3f& mins, const Point3f& maxs);
 
 /** @internal */
-Ego::Math::Relation plane_intersects_aabb_max(const Plane3f& plane, const Vector3f& mins, const Vector3f& maxs);
+Ego::Math::Relation plane_intersects_aabb_max(const Plane3f& plane, const Point3f& mins, const Point3f& maxs);
 
 /**
  * @brief
@@ -80,7 +80,7 @@ Ego::Math::Relation plane_intersects_aabb_max(const Plane3f& plane, const Vector
  * @todo
  *	Rename <tt>plane</tt> to <tt>lhs</tt> and <tt>aabb</tt> to <tt>rhs</tt>.
  */
-Ego::Math::Relation plane_intersects_aabb(const Plane3f& plane, const Vector3f& mins, const Vector3f& maxs);
+Ego::Math::Relation plane_intersects_aabb(const Plane3f& plane, const AABB3f& aabb);
 
 /**
  * @brief
@@ -169,4 +169,4 @@ bool two_plane_intersection(Vector3f& dst_pos, Vector3f& dst_dir, const Plane3f&
  * @brief
  *  Find the point where 3 planes intersect.
  */
-bool three_plane_intersection(Vector3f& dst_pos, const Plane3f& p0, const Plane3f& p1, const Plane3f& p2);
+bool three_plane_intersection(Point3f& dst_pos, const Plane3f& p0, const Plane3f& p1, const Plane3f& p2);

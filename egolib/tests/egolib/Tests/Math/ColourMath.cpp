@@ -17,37 +17,37 @@
 //*
 //********************************************************************************************
 
-#include "EgoTest/EgoTest.hpp"
-#include "egolib/Math/_Include.hpp"
+#include "egolib/Tests/Math/MathTestUtilities.hpp"
 
 namespace Ego {
 namespace Math {
 namespace Test {
 
-EgoTest_TestCase(ColourMathTest) {
+EgoTest_TestCase(ColourMath) {
     
-    EgoTest_Test(Lb2Lb)
+    EgoTest_Test(Lb_Lb)
     {}
-    EgoTest_Test(Lf2Lf)
+    EgoTest_Test(Lf_Lf)
     {}
 
-    EgoTest_Test(LAb2LAb)
+    EgoTest_Test(LAb_LAb)
     {}
-    EgoTest_Test(LAf2LAf)
+    EgoTest_Test(LAf_LAf)
     {}
 
-    EgoTest_Test(RGBb2RGBb)
+    EgoTest_Test(RGBb_RGBb)
     {}
-    EgoTest_Test(RGBf2RGBf)
+    EgoTest_Test(RGBf_RGBf)
     {}
     
-    EgoTest_Test(RGBAb2RGBAb)
+    EgoTest_Test(RGBAb_RGBAb)
     {}
-    EgoTest_Test(RGBAf2RGBAf)
+    EgoTest_Test(RGBAf_RGBAf)
     {}
 
 };
 
-}
-}
-} // end namespaces Ego::Math::Test
+} // namespace Test
+} // namespace Math
+} // namespaces Ego
+

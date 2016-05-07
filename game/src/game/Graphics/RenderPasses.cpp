@@ -624,14 +624,15 @@ void Foreground::doRun(::Camera& cam, const TileList& tl, const EntityList& el) 
 	if (alpha != 0.0f)
 	{
 		// Figure out the screen coordinates of its corners
-		float x = sdl_scr.x << 6;
-		float y = sdl_scr.y << 6;
+		float x = sdl_scr.width << 6;
+		float y = sdl_scr.height << 6;
 		float z = 0;
 		float size = x + y + 1;
 		static const Facing default_turn = Facing((3 * 2047) << 2);
 		float sinsize = std::sin(default_turn) * size;
 		float cossize = std::cos(default_turn) * size;
-		float loc_foregroundrepeat = _currentModule->getWater()._foregroundrepeat * std::min(x / sdl_scr.x, y / sdl_scr.x);
+        // TODO: Shouldn't this be std::min(x / sdl_scr.width, y / sdl_scr.height)?
+		float loc_foregroundrepeat = _currentModule->getWater()._foregroundrepeat * std::min(x / sdl_scr.width, y / sdl_scr.width);
 
 		{
 			BufferScopedLock lock(_vertexBuffer);

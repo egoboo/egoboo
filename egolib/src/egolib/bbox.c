@@ -328,7 +328,7 @@ void oct_bb_t::points_to_oct_bb(oct_bb_t& self, const Vector4f points[], const s
         }
     }
 
-    oct_bb_t::validate(self);
+    self._empty = oct_bb_t::empty_raw(self);
 }
 
 egolib_rv oct_bb_t::downgrade(const oct_bb_t& psrc_bb, const bumper_t& bump_stt, const bumper_t& bump_base, oct_bb_t& pdst_bb)
@@ -361,7 +361,7 @@ egolib_rv oct_bb_t::downgrade(const oct_bb_t& psrc_bb, const bumper_t& bump_stt,
 		pdst_bb._mins[OCT_YX] = pdst_bb._maxs[OCT_YX] = 0.0f;
 	}
 
-	oct_bb_t::validate(pdst_bb);
+    pdst_bb._empty = oct_bb_t::empty_raw(pdst_bb);
 
 	return rv_success;
 }
@@ -415,24 +415,25 @@ egolib_rv oct_bb_t::downgrade(const oct_bb_t& psrc_bb, const bumper_t& bump_stt,
 		return rv_success;
 }
 
-void oct_bb_t::interpolate(const oct_bb_t& src1, const oct_bb_t& src2, oct_bb_t& dst, float flip)
+oct_bb_t oct_bb_t::interpolate(const oct_bb_t& src1, const oct_bb_t& src2, float flip)
 {
 	if (src1._empty && src2._empty) {
-        dst = oct_bb_t();
+        return oct_bb_t();
     } else if (!src1._empty && 0.0f == flip) {
-        oct_bb_t::copy(dst, src1);
+        return src1;
     } else if (!src2._empty && 1.0f == flip) {
-        oct_bb_t::copy(dst, src2);
+        return src2;
     } else if (src1._empty || src2._empty) {
-        dst = oct_bb_t();
+        return oct_bb_t();
     }
 
+    oct_bb_t dst;
     for (size_t i = 0; i < (size_t)OCT_COUNT; ++i) {
         dst._mins[i] = src1._mins[i] + (src2._mins[i] - src1._mins[i]) * flip;
         dst._maxs[i] = src1._maxs[i] + (src2._maxs[i] - src1._maxs[i]) * flip;
     }
-
-    oct_bb_t::validate(dst);
+    dst._empty = oct_bb_t::empty_raw(dst);
+    return dst;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -441,7 +442,7 @@ void oct_bb_t::copy(oct_bb_t& self, const oct_bb_t& other)
     self._mins = other._mins;
     self._maxs = other._maxs;
     self._empty = other._empty;
-    oct_bb_t::validate(self);
+    self._empty = oct_bb_t::empty_raw(self);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -524,7 +525,7 @@ void oct_bb_t::join(const oct_bb_t& src1, const oct_bb_t& src2, oct_bb_t& dst)
 		dst._maxs[i] = std::max(src1._maxs[i], src2._maxs[i]);
 	}
 
-	oct_bb_t::validate(dst);
+    dst._empty = oct_bb_t::empty_raw(dst);
 }
 
 void oct_bb_t::join(const oct_vec_v2_t& v)
@@ -535,7 +536,7 @@ void oct_bb_t::join(const oct_vec_v2_t& v)
 		_mins[i] = std::min(_mins[i], v[i]);
 		_maxs[i] = std::max(_maxs[i], v[i]);
 	}
-	oct_bb_t::validate(*this);
+    this->_empty = oct_bb_t::empty_raw(*this);
 }
 
 void oct_bb_t::join(const oct_bb_t& other)
@@ -547,7 +548,7 @@ void oct_bb_t::join(const oct_bb_t& other)
 		_mins[i] = std::min(_mins[i], other._mins[i]);
 		_maxs[i] = std::max(_maxs[i], other._maxs[i]);
 	}
-	oct_bb_t::validate(*this);
+    this->_empty = oct_bb_t::empty_raw(*this);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -571,22 +572,22 @@ egolib_rv oct_bb_t::cut(const oct_bb_t& other, int index)
 	return rv_success;
 }
 
-egolib_rv oct_bb_t::intersection(const oct_bb_t& src1, const oct_bb_t& src2, oct_bb_t& dst)
+oct_bb_t oct_bb_t::intersection(const oct_bb_t& src1, const oct_bb_t& src2)
 {
-	/// @todo Obviously the author does not know how set intersection works.
+	// Intersection of two empty bounds is an empty bound.
     if (src1._empty && src2._empty) {
-        dst = oct_bb_t();
-        return rv_fail;
+        return oct_bb_t();
     }
 
-    // no simple case. do the hard work
+    /// @todo Rewrite this in some fluffy C++ fashion.
+    oct_bb_t dst;
     for (size_t i = 0; i < (size_t)OCT_COUNT; ++i) {
         dst._mins[i]  = std::max(src1._mins[i], src2._mins[i]);
         dst._maxs[i]  = std::min(src1._maxs[i], src2._maxs[i]);
     }
 
-    oct_bb_t::validate(dst);
-	return rv_success;
+    dst._empty = oct_bb_t::empty_raw(dst);
+	return dst;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -604,21 +605,21 @@ egolib_rv oct_bb_t::cut(const oct_bb_t& other)
         _maxs[i] = std::min(_maxs[i], other._maxs[i]);
     }
 
-    oct_bb_t::validate(*this);
+    this->_empty = oct_bb_t::empty_raw(*this);
 	return rv_success;
 }
 
 //--------------------------------------------------------------------------------------------
-void oct_bb_t::translate(const oct_bb_t& src, const Vector3f& t, oct_bb_t& dst) {
-    dst = src;
+oct_bb_t oct_bb_t::translate(const oct_bb_t& src, const Vector3f& t) {
+    auto dst = src;
     dst.translate(t);
-	oct_bb_t::validate(dst);
+    return dst;
 }
 
-void oct_bb_t::translate(const oct_bb_t& src, const oct_vec_v2_t& t, oct_bb_t& dst) {
-    dst = src;
-    dst.translate(oct_vec_v2_t(t));
-    oct_bb_t::validate(dst);
+oct_bb_t oct_bb_t::translate(const oct_bb_t& src, const oct_vec_v2_t& t) {
+    auto dst = src;
+    dst.translate(t);
+    return dst;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -630,7 +631,7 @@ void oct_bb_t::self_grow(oct_bb_t& self, const oct_vec_v2_t& v)
         self._maxs[i] += std::abs(v[i]);
     }
 
-    oct_bb_t::validate(self);
+    self._empty = oct_bb_t::empty_raw(self);
 }
 
 //--------------------------------------------------------------------------------------------

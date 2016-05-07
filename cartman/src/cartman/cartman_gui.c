@@ -17,14 +17,11 @@
 //*
 //********************************************************************************************
 
-#include "egolib/egolib.h"
-
 #include "cartman/cartman_gui.h"
 #include "cartman/cartman_input.h"
 #include "cartman/cartman_math.h"
 #include "cartman/cartman_gfx.h"
 
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 namespace Cartman {
@@ -77,19 +74,17 @@ void Cartman::GUI::uninitialize()
     _window_lst.clear();
 }
 
-
-
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+
 void do_cursor()
 {
     bool left_press;
 
     // This function implements a mouse cursor
     ui.cur_x = Cartman::Input::get()._mouse.x;
-    if ( ui.cur_x < 6 )  ui.cur_x = 6;  if ( ui.cur_x > sdl_scr.x - 6 )  ui.cur_x = sdl_scr.x - 6;
+    if ( ui.cur_x < 6 )  ui.cur_x = 6;  if ( ui.cur_x > sdl_scr.width - 6 )  ui.cur_x = sdl_scr.width - 6;
     ui.cur_y = Cartman::Input::get()._mouse.y;
-    if ( ui.cur_y < 6 )  ui.cur_y = 6;  if ( ui.cur_y > sdl_scr.y - 6 )  ui.cur_y = sdl_scr.y - 6;
+    if ( ui.cur_y < 6 )  ui.cur_y = 6;  if ( ui.cur_y > sdl_scr.height - 6 )  ui.cur_y = sdl_scr.height - 6;
 
     left_press = CART_BUTTONDOWN(SDL_BUTTON_LEFT);
 
@@ -102,6 +97,7 @@ void do_cursor()
 }
 
 //--------------------------------------------------------------------------------------------
+
 void draw_slider( int tlx, int tly, int brx, int bry, int* pvalue, int minvalue, int maxvalue )
 {
     int cnt;
@@ -133,8 +129,9 @@ void draw_slider( int tlx, int tly, int brx, int bry, int* pvalue, int minvalue,
 }
 
 //--------------------------------------------------------------------------------------------
+
 void show_name(const std::string& newLoadName, const Ego::Math::Colour4f& textColour) {
-	gfx_font_ptr->drawText(newLoadName, 0, sdl_scr.y - 16, textColour);
+	gfx_font_ptr->drawText(newLoadName, 0, sdl_scr.height - 16, textColour);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -181,6 +178,12 @@ bool Window::isOver(int x, int y) const {
     }
     return true;
 }
+
+void Window::renderBackground() const {
+    if (!on) return;
+    ogl_draw_sprite_2d(border.texture, x, y, surfacex, surfacey);
+}
+
 }
 
 std::shared_ptr<Cartman::Window> Cartman::GUI::findWindow(int x, int y)
@@ -197,8 +200,11 @@ std::shared_ptr<Cartman::Window> Cartman::GUI::findWindow(int x, int y)
     return result;
 }
 
-void Cartman::GUI::renderAllWindows() {
+void Cartman::GUI::render() {
     for (auto window : _window_lst) {
         window->render();
+    }
+    for (auto window : _window_lst) {
+        window->renderBackground();
     }
 }

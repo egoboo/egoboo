@@ -222,7 +222,7 @@ void Frustum::calculatePlanes(const Matrix4f4f& matrix, Plane3f& left, Plane3f& 
 
 void Frustum::calculate(const Matrix4f4f& projection, const Matrix4f4f& view)
 {
-	Vector3f pt1;
+	Point3f pt1;
 	Vector3f vlook;
 
     // Compute the 6 frustum planes.
@@ -268,7 +268,7 @@ void Frustum::calculate(const Matrix4f4f& projection, const Matrix4f4f& view)
     }
 }
 
-Math::Relation Frustum::intersects(const Vector3f& point, const bool doEnds) const {
+Math::Relation Frustum::intersects(const Point3f& point, const bool doEnds) const {
 	// Handle optional parameters.
 	int start = 0,
 		end = doEnds ? Planes::END : Planes::SIDES_END;
@@ -329,7 +329,7 @@ Math::Relation Frustum::intersects(const Cube3f& cube, const bool doEnds) const 
 
 	for (int i = start; i <= end; i++) {
 		const Plane3f& plane = _planes[i];
-		Vector3f vmin, vmax;
+		Point3f vmin, vmax;
 		// find the most-positive and most-negative points of the aabb
 		for (int j = 0; j < 3; j++) {
 			if (plane.getNormal()[j] > 0.0f) {
@@ -363,7 +363,7 @@ Math::Relation Frustum::intersects(const AABB3f& aabb, bool doEnds) const {
     return intersects_aabb(aabb.getMin(), aabb.getMax(), doEnds);
 }
 
-Math::Relation Frustum::intersects_aabb(const Vector3f& mins, const Vector3f& maxs, bool doEnds) const {
+Math::Relation Frustum::intersects_aabb(const Point3f& mins, const Point3f& maxs, bool doEnds) const {
     // Handle optional parameters.
     int start = 0,
         end = doEnds ? Planes::END : Planes::SIDES_END;

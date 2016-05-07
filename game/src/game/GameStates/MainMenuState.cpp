@@ -170,7 +170,7 @@ void MainMenuState::drawContainer()
 void MainMenuState::beginState()
 {
     // menu settings
-    SDL_SetWindowGrab(sdl_scr.window, SDL_FALSE);
+    sdl_scr.window->setGrabEnabled(false);
     _gameEngine->enableMouseCursor();
 
     //Play the Egoboo theme music

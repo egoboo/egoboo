@@ -339,8 +339,8 @@
             if (_empty) {
                 throw std::logic_error("unable to convert an empty OBB into an AABB");
             }
-            return AABB3f(Vector3f(_mins[OCT_X], _mins[OCT_Y], _mins[OCT_Z]),
-				          Vector3f(_maxs[OCT_X], _maxs[OCT_Y], _maxs[OCT_Z]));
+            return AABB3f(Point3f(_mins[OCT_X], _mins[OCT_Y], _mins[OCT_Z]),
+				          Point3f(_maxs[OCT_X], _maxs[OCT_Y], _maxs[OCT_Z]));
         }
 
         void assign(const bumper_t& other)
@@ -485,16 +485,16 @@
 		 * @param dst
 		 *	the target bounding box
 		 */
-		static void translate(const oct_bb_t& src, const Vector3f& t, oct_bb_t& dst);
-		static void translate(const oct_bb_t& src, const oct_vec_v2_t& t, oct_bb_t& dst);
+		static oct_bb_t translate(const oct_bb_t& src, const Vector3f& t);
+		static oct_bb_t translate(const oct_bb_t& src, const oct_vec_v2_t& t);
 
 		static egolib_rv downgrade(const oct_bb_t& psrc_bb, const bumper_t& bump_stt, const bumper_t& bump_base, oct_bb_t& pdst_bb);
 		static egolib_rv downgrade(const oct_bb_t& psrc_bb, const bumper_t& bump_stt, const bumper_t& bump_base, bumper_t& pdst_bump);
 
 
-		static egolib_rv intersection(const oct_bb_t& src1, const oct_bb_t& src2, oct_bb_t& dst);
+		static oct_bb_t intersection(const oct_bb_t& src1, const oct_bb_t& src2);
 
-		static void interpolate(const oct_bb_t& src1, const oct_bb_t& src2, oct_bb_t& dst, float flip);
+		static oct_bb_t interpolate(const oct_bb_t& src1, const oct_bb_t& src2, float flip);
 
 		static void validate_index(oct_bb_t& self, int index);
 		static bool empty_index_raw(const oct_bb_t& self, int index);

@@ -30,8 +30,8 @@ const ObjectRef Passage::SHOP_NOOWNER = ObjectRef::Invalid;
 
 Passage::Passage(GameModule &module, const int x0, const int y0, const int x1, const int y1, const uint8_t mask) :
     _module(module),
-    _area(Vector2f(x0 * Info<float>::Grid::Size(), y0 * Info<float>::Grid::Size()),
-          Vector2f((x1+1) * Info<float>::Grid::Size(), (y1+1) * Info<float>::Grid::Size())),
+    _area(Point2f(x0 * Info<float>::Grid::Size(), y0 * Info<float>::Grid::Size()),
+          Point2f((x1+1) * Info<float>::Grid::Size(), (y1+1) * Info<float>::Grid::Size())),
     _music(NO_MUSIC),
     _mask(mask),
     _open(true),
@@ -125,7 +125,8 @@ bool Passage::close()
 
 bool Passage::objectIsInPassage(const std::shared_ptr<Object> &object) const
 {
-    return _area.overlaps(object->getAABB2D());
+    Ego::Math::Intersects<AABB2f, AABB2f> intersects;
+    return intersects(_area, object->getAABB2D());
 }
 
 ObjectRef Passage::whoIsBlockingPassage( ObjectRef objRef, const IDSZ2& idsz, const BIT_FIELD targeting_bits, const IDSZ2& require_item ) const

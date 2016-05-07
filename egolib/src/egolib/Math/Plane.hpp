@@ -22,9 +22,10 @@
 
 #pragma once
 
+#include "egolib/Math/Point.hpp"
 #include "egolib/Math/Vector.hpp"
-#include "egolib/Math/Standard.hpp" /// @todo Remove this.
 #include "egolib/Math/EuclideanSpace.hpp"
+#include "egolib/Math/Translatable.hpp"
 
 namespace Ego {
 namespace Math {
@@ -53,6 +54,8 @@ public:
     typedef typename EuclideanSpaceType::VectorType VectorType;
     /// The scalar type (of the scalar field).
     typedef typename EuclideanSpaceType::ScalarType ScalarType;
+    /// The point type (of the Euclidean space).
+    typedef typename EuclideanSpaceType::PointType PointType;
     /// @brief @a MyType is the type of this template/template specialization.
     typedef Plane3<EuclideanSpaceType> MyType;
 
@@ -299,8 +302,8 @@ public:
      *  = &d'
      *  \f}
      */
-    ScalarType distance(const VectorType& point) const {
-        return _n.dot(point) + _d;
+    ScalarType distance(const PointType& point) const {
+        return _n.dot(EuclideanSpaceType::toVector(point)) + _d;
     }
 
 	/**

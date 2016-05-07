@@ -78,8 +78,8 @@ void Particle::reset(ParticleRef ref)
 
     PhysicsData::reset(this);
 
-    rotate = 0;
-    rotate_add = 0;
+    rotate = Facing(0);
+    rotate_add = Facing(0);
 
     size_stt = 0;
     size = 0;
@@ -476,7 +476,7 @@ void Particle::updateAnimation()
     }
 
     // rotate the particle
-    rotate += rotate_add;
+    rotate += Facing(rotate_add);
 
     // update the particle size
     if (0 != size_add)
@@ -961,8 +961,8 @@ bool Particle::initialize(const ParticleRef particleID, const Vector3f& spawnPos
     type = getProfile()->type;
 
     // Image data
-    rotate = (FACING_T)generate_irand_pair(getProfile()->rotate_pair);
-    rotate_add = getProfile()->rotate_add;
+    rotate = Facing((FACING_T)generate_irand_pair(getProfile()->rotate_pair));
+    rotate_add = Facing(getProfile()->rotate_add);
 
     size_stt = getProfile()->size_base;
     size_add = getProfile()->size_add;

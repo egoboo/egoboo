@@ -1,7 +1,6 @@
 #pragma once
 
 #include "egolib/platform.h"
-//#include "egolib/FileFormats/map_fx.hpp"
 
 #define CHAINEND 0xFFFFFFFF     // End of vertex chain
 #define VERTEXUNUSED 0          // Check mesh.vrta to see if used

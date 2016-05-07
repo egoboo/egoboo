@@ -19,12 +19,9 @@
 //*
 //********************************************************************************************
 
-#include "egolib/egolib.h"
-
 #include "cartman/cartman_typedef.h"
 #include "cartman/cartman_map.h"
 
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 namespace Cartman {
@@ -32,7 +29,6 @@ struct Window;
 struct GUI_Cursor;
 }
 
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 #define MAXWIN 8            // Number of windows
@@ -44,7 +40,6 @@ struct GUI_Cursor;
 #define SCREEN_TO_REAL(VAL,CAM,ZOOM) ( (VAL) * (float)DEFAULT_RESOLUTION * Info<float>::Grid::Size()  / (float)DEFAULT_WINDOW_W / (ZOOM) + (CAM) );
 #define REAL_TO_SCREEN(VAL,CAM,ZOOM) ( ( (VAL) - (CAM) ) / (float)DEFAULT_RESOLUTION / Info<float>::Grid::Size() * (float)DEFAULT_WINDOW_W * (ZOOM)  );
 
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 namespace Cartman {
@@ -96,10 +91,13 @@ struct Window {
      *  Render the window.
      */
     void render();
+    void renderBackground() const;
+
 };
 }
 
 //--------------------------------------------------------------------------------------------
+
 struct ui_state_t
 {
     /// @brief The cursor position.
@@ -115,9 +113,6 @@ struct ui_state_t
 };
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-
 
 namespace Cartman
 {
@@ -126,7 +121,7 @@ namespace Cartman
         static void initialize();
         static void uninitialize();
         static std::shared_ptr<Cartman::Window> findWindow(int x, int y);
-        static void renderAllWindows();
+        static void render();
 
     };
 }
@@ -153,7 +148,6 @@ struct GUI_Cursor {
 };
 }
 
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 void do_cursor();

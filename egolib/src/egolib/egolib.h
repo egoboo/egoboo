@@ -22,6 +22,8 @@
 
 #pragma once
 
+#include "egolib/App.hpp"
+
 #include "egolib/Audio/AudioSystem.hpp"
 
 //--------------------------------------------------------------------------------------------
@@ -92,6 +94,11 @@
 #include "egolib/Graphics/PixelFormat.hpp"
 #include "egolib/Graphics/VertexBuffer.hpp"
 #include "egolib/Graphics/ModelDescriptor.hpp"
+#include "egolib/Graphics/FontManager.hpp"
+#include "egolib/Graphics/GraphicsWindow.hpp"
+#include "egolib/Graphics/GraphicsSystem.hpp"
+
+#include "egolib/Image/ImageManager.hpp"
 
 //--------------------------------------------------------------------------------------------
 

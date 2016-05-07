@@ -17,14 +17,11 @@
 //*
 //********************************************************************************************
 
-#include "egolib/egolib.h"
-
 #include "egolib/FileFormats/Globals.hpp"
 #include "cartman/cartman_map.h"
 #include "cartman/cartman.h"
 #include "cartman/cartman_math.h"
 
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 cartman_mpd_t mesh;
@@ -150,7 +147,7 @@ cartman_mpd_info_t& cartman_mpd_info_t::operator=(const cartman_mpd_info_t& othe
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+
 void cartman_mpd_make_fanstart(cartman_mpd_t *pmesh) {
     // ZZ> This function builds a look up table to ease calculating the
     //     fan number given an x,y pair
@@ -160,7 +157,6 @@ void cartman_mpd_make_fanstart(cartman_mpd_t *pmesh) {
     }
 }
 
-//--------------------------------------------------------------------------------------------
 void cartman_mpd_make_twist(cartman_mpd_t *pmesh) {
     if (!pmesh) pmesh = &mesh;
 	/// @todo We could use pmesh->info.getTileCount() but as we do not know (yet)
@@ -173,10 +169,6 @@ void cartman_mpd_make_twist(cartman_mpd_t *pmesh) {
     }
 }
 
-
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 int cartman_mpd_t::get_ifan(int mapx, int mapy)
 {
     if (mapy >= 0 && mapy < info.getTileCountY() && mapy < MAP_TILE_MAX_Y)
@@ -190,7 +182,6 @@ int cartman_mpd_t::get_ifan(int mapx, int mapy)
     return -1;
 }
 
-//--------------------------------------------------------------------------------------------
 cartman_mpd_tile_t *cartman_mpd_t::get_pfan(int mapx, int mapy)
 {
     int ifan = get_ifan(mapx, mapy);
@@ -206,7 +197,6 @@ cartman_mpd_tile_t *cartman_mpd_t::get_pfan(int ifan)
     return &(fan2[ifan]);
 }
 
-//--------------------------------------------------------------------------------------------
 Cartman::mpd_vertex_t *cartman_mpd_t::get_pvrt_ivrt(cartman_mpd_t *pmesh, cartman_mpd_tile_t *pfan, int ivrt)
 {
     if (!pmesh || !pfan || !CART_VALID_VERTEX_RANGE(ivrt))
@@ -227,7 +217,6 @@ Cartman::mpd_vertex_t *cartman_mpd_t::get_pvrt_ivrt(cartman_mpd_t *pmesh, cartma
     return vertex;
 }
 
-//--------------------------------------------------------------------------------------------
 Cartman::mpd_vertex_t * cartman_mpd_t::get_pvrt_idx( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, int idx, int * ivrt_ptr )
 {
     int loc_ivrt;
@@ -247,7 +236,6 @@ Cartman::mpd_vertex_t * cartman_mpd_t::get_pvrt_idx( cartman_mpd_t * pmesh, cart
     return pvrt;
 }
 
-//--------------------------------------------------------------------------------------------
 void cartman_mpd_t::free_vertex_count()
 {
     int num = 0;
@@ -262,7 +250,6 @@ void cartman_mpd_t::free_vertex_count()
     vrt_free = num;
 }
 
-//--------------------------------------------------------------------------------------------
 int cartman_mpd_t::count_used_vertices()
 {
     int totalvert = 0;
@@ -291,7 +278,6 @@ int cartman_mpd_t::count_used_vertices()
     return totalvert;
 }
 
-//--------------------------------------------------------------------------------------------
 void cartman_mpd_free_vertices(cartman_mpd_t *self)
 {
     if (!self)
@@ -326,7 +312,6 @@ const Cartman::mpd_vertex_t *cartman_mpd_t::get_vertex(int ivrt) const
     return &(vrt2[ivrt]);
 }
 
-//--------------------------------------------------------------------------------------------
 bool cartman_mpd_link_vertex(cartman_mpd_t *self, int iparent, int ichild)
 {
     if (!self)
@@ -348,7 +333,6 @@ bool cartman_mpd_link_vertex(cartman_mpd_t *self, int iparent, int ichild)
     return true;
 }
 
-//--------------------------------------------------------------------------------------------
 int cartman_mpd_t::find_free_vertex()
 {
     if (vrt_free <= 0)
@@ -378,7 +362,6 @@ int cartman_mpd_t::find_free_vertex()
     return found ? vrt_at : -1;
 }
 
-//--------------------------------------------------------------------------------------------
 Uint8 cartman_mpd_get_fan_twist( cartman_mpd_t * pmesh, Uint32 fan )
 {
     int vt0 = pmesh->fan2[fan].vrtstart;
@@ -395,8 +378,6 @@ Uint8 cartman_mpd_get_fan_twist( cartman_mpd_t * pmesh, Uint32 fan )
 
     return twist;
 }
-
-//--------------------------------------------------------------------------------------------
 
 float cartman_mpd_t::get_level(int mapx, int mapy)
 {
@@ -463,7 +444,6 @@ float cartman_mpd_t::get_level(float x, float y)
     return get_level(mapx, mapy);
 }
 
-//--------------------------------------------------------------------------------------------
 int cartman_mpd_free_vertex_list(cartman_mpd_t *self, int list[], size_t size)
 {
     if (!self || !list || !size)
@@ -483,7 +463,6 @@ int cartman_mpd_free_vertex_list(cartman_mpd_t *self, int list[], size_t size)
     return size;
 }
 
-//--------------------------------------------------------------------------------------------
 int cartman_mpd_allocate_vertex_list(cartman_mpd_t * pmesh, int list[], size_t size, size_t count)
 {
 	size_t cnt, valid_verts;
@@ -561,7 +540,6 @@ int cartman_mpd_allocate_vertex_list(cartman_mpd_t * pmesh, int list[], size_t s
     return allocated;
 }
 
-//--------------------------------------------------------------------------------------------
 int cartman_mpd_allocate_verts(cartman_mpd_t *self, size_t count)
 {
     int vertexlist[MAP_FAN_VERTICES_MAX + 1];
@@ -579,7 +557,6 @@ int cartman_mpd_allocate_verts(cartman_mpd_t *self, size_t count)
     return vertexlist[0];
 }
 
-//--------------------------------------------------------------------------------------------
 int cartman_mpd_add_fan_verts(cartman_mpd_t *self, cartman_mpd_tile_t *pfan)
 {
     // ZZ> This function allocates the vertices needed for a fan_idx
@@ -627,7 +604,6 @@ int cartman_mpd_add_fan_verts(cartman_mpd_t *self, cartman_mpd_tile_t *pfan)
     return pfan->vrtstart;
 }
 
-//--------------------------------------------------------------------------------------------
 int cartman_mpd_t::add_pfan(cartman_mpd_tile_t *pfan, float x, float y)
 {
     // Check the fan.
@@ -682,13 +658,11 @@ int cartman_mpd_t::add_pfan(cartman_mpd_tile_t *pfan, float x, float y)
     return pfan->vrtstart;
 }
 
-//--------------------------------------------------------------------------------------------
 int cartman_mpd_t::add_ifan(int ifan, float x, float y)
 {
     return add_pfan(CART_MPD_FAN_PTR(this, ifan), x, y);
 }
 
-//--------------------------------------------------------------------------------------------
 void cartman_mpd_t::remove_pfan(cartman_mpd_tile_t *pfan)
 {
     if (!pfan) return;
@@ -714,13 +688,11 @@ void cartman_mpd_t::remove_pfan(cartman_mpd_tile_t *pfan)
     pfan->twist    = TWIST_FLAT;
 }
 
-//--------------------------------------------------------------------------------------------
 void cartman_mpd_t::remove_ifan(int ifan)
 {
     remove_pfan(CART_MPD_FAN_PTR(this, ifan));
 }
 
-//--------------------------------------------------------------------------------------------
 int cartman_mpd_t::get_ivrt_pfan(cartman_mpd_tile_t *pfan, int index)
 {
     // find the fan
@@ -747,7 +719,6 @@ int cartman_mpd_t::get_ivrt_pfan(cartman_mpd_tile_t *pfan, int index)
     return vert;
 }
 
-//--------------------------------------------------------------------------------------------
 int cartman_mpd_t::get_ivrt_fan(int ifan, int index)
 {
     cartman_mpd_tile_t *pfan = get_pfan(ifan);
@@ -756,7 +727,6 @@ int cartman_mpd_t::get_ivrt_fan(int ifan, int index)
     return get_ivrt_pfan(pfan, index);
 }
 
-//--------------------------------------------------------------------------------------------
 int cartman_mpd_t::get_ivrt_xy(int mapx, int mapy, int index)
 {
     // find the fan

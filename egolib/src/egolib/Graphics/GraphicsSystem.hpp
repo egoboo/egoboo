@@ -6,6 +6,9 @@
 
 namespace Ego {
 
+// Forward declaration.
+struct GraphicsWindow;
+
 struct GraphicsSystem {
 public:
     static int gfx_width;
@@ -16,7 +19,7 @@ public:
     /**
      * @brief A pointer to the (single) SDL window if it exists, a null pointer otherwise.
      */
-    static SDL_Window *window;
+    static GraphicsWindow *window;
     /**
      * @brief Initialize the graphics system.
      * @remark This method is a no-op if the graphics system is initialized.

@@ -1,4 +1,5 @@
 #include "egolib/Graphics/GraphicsSystem.hpp"
+#include "egolib/Graphics/GraphicsWindow.hpp"
 
 
 namespace Ego {
@@ -9,7 +10,7 @@ int GraphicsSystem::gfx_height = 600;
 SDLX_video_parameters_t GraphicsSystem::sdl_vparam;
 oglx_video_parameters_t GraphicsSystem::ogl_vparam;
 
-SDL_Window *GraphicsSystem::window = nullptr;
+GraphicsWindow *GraphicsSystem::window = nullptr;
 
 bool GraphicsSystem::initialized = false;
 
@@ -62,24 +63,25 @@ void GraphicsSystem::initialize() {
         Log::get().message("Success!\n");
     }
 
-    SDL_Window *window = sdl_scr.window;
+    GraphicsWindow *window = sdl_scr.window;
 
-#if !defined(ID_OSX)
     {
-        // Setup the cute windows manager icon, don't do this on Mac.
+        // Setup the cute windows manager icon.
         const std::string fileName = "icon.bmp";
         auto pathName = "mp_data/" + fileName;
         SDL_Surface *theSurface = IMG_Load_RW(vfs_openRWopsRead(pathName.c_str()), 1);
         if (!theSurface) {
             Log::get().warn("unable to load icon `%s` - reason: %s\n", pathName.c_str(), SDL_GetError());
         } else {
-            SDL_SetWindowIcon(window, theSurface);
+            window->setIcon(theSurface);
+            // ...and the surface containing the icon pixel data is no longer required.
+            SDL_FreeSurface(theSurface);
+
         }
     }
-#endif
 
     // Set the window title.
-    SDL_SetWindowTitle(window, "SDL OpenGL Window");
+    window->setTitle("SDL OpenGL Window");
 
     initialized = true;
 }
@@ -88,7 +90,7 @@ void GraphicsSystem::uninitialize() {
     if (!initialized) {
         return;
     }
-    SDL_DestroyWindow(sdl_scr.window);
+    delete sdl_scr.window;
     sdl_scr.window = nullptr;
 }
 
@@ -96,7 +98,7 @@ void GraphicsSystem::setTitle(const std::string& title) {
     if (!initialized) {
         return;
     }
-    SDL_SetWindowTitle(sdl_scr.window, title.c_str());
+    sdl_scr.window->setTitle(title);
 }
 
 } // namespace Ego

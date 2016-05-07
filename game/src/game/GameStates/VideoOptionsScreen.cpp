@@ -79,7 +79,7 @@ VideoOptionsScreen::VideoOptionsScreen() :
         //Change option effect
         []{
             egoboo_config_t::get().graphic_fullscreen.setValue(!egoboo_config_t::get().graphic_fullscreen.getValue());
-            SDL_SetWindowFullscreen(sdl_scr.window, egoboo_config_t::get().graphic_fullscreen.getValue() ? SDL_WINDOW_FULLSCREEN : 0);
+            SDL_SetWindowFullscreen(sdl_scr.window->get(), egoboo_config_t::get().graphic_fullscreen.getValue() ? SDL_WINDOW_FULLSCREEN : 0);
         }
     );
 
@@ -262,7 +262,7 @@ void VideoOptionsScreen::drawContainer()
 void VideoOptionsScreen::beginState()
 {
     // menu settings
-    SDL_SetWindowGrab(sdl_scr.window, SDL_FALSE);
+    sdl_scr.window->setGrabEnabled(false);
     _gameEngine->enableMouseCursor();
 }
 

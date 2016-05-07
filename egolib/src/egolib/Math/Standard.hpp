@@ -2,6 +2,8 @@
 
 #include "egolib/Math/AABB.hpp"
 #include "egolib/Math/Cone3.hpp"
+#include "egolib/Math/ColourL.hpp"
+#include "egolib/Math/ColourLa.hpp"
 #include "egolib/Math/ColourRgb.hpp"
 #include "egolib/Math/ColourRgba.hpp"
 #include "egolib/Math/Cube.hpp"
@@ -10,7 +12,7 @@
 #include "egolib/Math/Matrix.hpp"
 #include "egolib/Math/Plane.hpp"
 #include "egolib/Math/Point.hpp"
-#include "egolib/Math/Sphere.h"
+#include "egolib/Math/Sphere.hpp"
 #include "egolib/Math/Vector.hpp"
 #include "egolib/Math/VectorSpace.hpp"
 
@@ -74,6 +76,9 @@ typedef Ego::Math::Cube<EuclideanSpace3f> Cube3f;
 /// A 3D line.
 typedef Ego::Math::Line<EuclideanSpace3f> Line3f;
 
+/// A 2D point.
+typedef Ego::Math::Point<VectorSpace2f> Point2f;
+
 /// A 3D point.
 typedef Ego::Math::Point<VectorSpace3f> Point3f;
 
@@ -107,25 +112,66 @@ namespace Ego {
 namespace Debug {
 
 template <>
-void validate<float>(const char *file, int line, const float& object);
+struct Validate<float> {
+    void operator()(const char *file, int line, float object) const {
+        if (float_bad(object)) {
+            std::ostringstream os;
+            os << file << ":" << line << ": invalid floating point value" << std::endl;
+            Log::get().error("%s", os.str().c_str());
+            throw std::runtime_error(os.str());
+        }
+    }
+};
 
-template <>
-void validate<::Vector2f>(const char *file, int line, const ::Vector2f& object);
+template <typename EuclideanSpaceType>
+struct Validate<Ego::Math::Point<EuclideanSpaceType>> {
+    void operator()(const char *file, int line, const Ego::Math::Point<EuclideanSpaceType>& object) const {
+        static const Validate<EuclideanSpaceType::ScalarType> validate;
+        for (size_t i = 0; i < EuclideanSpaceType::dimensionality(); ++i) {
+            validate(file, line, object[i]);
+        }
+    }
+};
 
-template <>
-void validate<::Vector3f>(const char *file, int line, const ::Vector3f& object);
+template <typename ScalarFieldType, size_t Dimensionality>
+struct Validate<Ego::Math::Vector<ScalarFieldType, Dimensionality>> {
+    void operator()(const char *file, int line, const Ego::Math::Vector<ScalarFieldType, Dimensionality>& object) const {
+        static const Validate<typename ScalarFieldType::ScalarType> validate;
+        for (size_t i = 0; i < Dimensionality; ++i) {
+            validate(file, line, object[i]);
+        }
+    }
+};
 
-template <>
-void validate<::Vector4f>(const char *file, int line, const ::Vector4f& object);
+template <typename EuclidianSpaceType>
+struct Validate<Ego::Math::AABB<EuclidianSpaceType>> {
+    void operator()(const char *file, int line, const Ego::Math::AABB<EuclidianSpaceType>& object) const {
+        static const MakeValidate<decltype(object.getMin())> validateMin;
+        static const MakeValidate<decltype(object.getMax())> validateMax;
+        validateMin(file, line, object.getMin());
+        validateMax(file, line, object.getMax());
+    }
+};
 
-template <>
-void validate<::AABB3f>(const char *file, int line, const ::AABB3f& object);
+template <typename EuclidianSpaceType>
+struct Validate<Ego::Math::Sphere<EuclidianSpaceType>> {
+    void operator()(const char *file, int line, const Ego::Math::Sphere<EuclidianSpaceType>& object) const {
+        static const MakeValidate<decltype(object.getCenter())> validateCenter;
+        static const MakeValidate<decltype(object.getRadius())> validateRadius;
+        validateCenter(file, line, object.getCenter());
+        validateRadius(file, line, object.getRadius());
+    }
+};
 
-template <>
-void validate<::Sphere3f>(const char *file, int line, const ::Sphere3f& object);
-
-template <>
-void validate<::Cube3f>(const char *file, int line, const ::Cube3f& object);
+template <typename EuclidianSpaceType>
+struct Validate<Ego::Math::Cube<EuclidianSpaceType>> {
+    void operator()(const char *file, int line, const ::Cube3f& object) const {
+        static const MakeValidate<decltype(object.getCenter())> validateCenter;
+        static const MakeValidate<decltype(object.getSize())> validateSize;
+        validateCenter(file, line, object.getCenter());
+        validateSize(file, line, object.getSize());
+    }
+};
 
 } // namespace Debug
 } // namespace Ego

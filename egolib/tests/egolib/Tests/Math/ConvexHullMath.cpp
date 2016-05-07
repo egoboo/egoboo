@@ -17,50 +17,47 @@
 //*
 //********************************************************************************************
 
-#include "EgoTest/EgoTest.hpp"
-#include "egolib/Float.hpp"
-#include "egolib/Math/_Include.hpp"
-#include "egolib/_math.h" /// @todo Remove this.
+#include "egolib/Tests/Math/MathTestUtilities.hpp"
 
 namespace Ego {
 namespace Math {
 namespace Test {
 
-EgoTest_TestCase(ConvexHullTest) {
+EgoTest_TestCase(ConvexHull) {
 
-    EgoTest_Test(Sphere2Sphere) {
-        auto source = Sphere3f(Vector3f(3.0f, 5.0f, 7.0f), 3.0f);
-        ConvexHull<Sphere3f, Sphere3f> convex;
+    EgoTest_Test(Sphere3f_Sphere3f) {
+        auto source = Sphere3f(Point3f(3.0f, 5.0f, 7.0f), 3.0f);
+        Ego::Math::ConvexHull<Sphere3f, Sphere3f> convex;
         auto target = convex(source);
     }
 
-    EgoTest_Test(AABB2AABB) {
-        auto source = AABB3f(Vector3f(-1.0f, -2.0f, -3.0f), Vector3f(+1.0f, +2.0f, +3.0f));
-        ConvexHull<AABB3f, AABB3f> convex;
+    EgoTest_Test(AABB3f_AABB3f) {
+        auto source = AABB3f(Point3f(-1.0f, -2.0f, -3.0f), Point3f(+1.0f, +2.0f, +3.0f));
+        Ego::Math::ConvexHull<AABB3f, AABB3f> convex;
         auto target = convex(source);
     }
 
-    EgoTest_Test(Sphere2AABB) {
-        auto source = Sphere3f(Vector3f(3.0f, 5.0f, 7.0f), 3.0f);
-        ConvexHull<AABB3f, Sphere3f> convex;
+    EgoTest_Test(Sphere3f_AABB3f) {
+        auto source = Sphere3f(Point3f(3.0f, 5.0f, 7.0f), 3.0f);
+        Ego::Math::ConvexHull<AABB3f, Sphere3f> convex;
         auto target = convex(source);
     }
 
-    EgoTest_Test(AAABB2Sphere) {
-        auto source = AABB3f(Vector3f(-1.0f, -2.0f, -3.0f), Vector3f(+1.0f, +2.0f, 3.0f));
-        ConvexHull<Sphere3f, AABB3f> convex;
+    EgoTest_Test(AAABB3f_Sphere3f) {
+        auto source = AABB3f(Point3f(-1.0f, -2.0f, -3.0f), Point3f(+1.0f, +2.0f, 3.0f));
+        Ego::Math::ConvexHull<Sphere3f, AABB3f> convex;
         auto target = convex(source);
     }
 
-    EgoTest_Test(Cube2AABB) {
-        auto source = Cube3f(Vector3f(-1.0f, -2.0f, -3.0f), 3.0f);
-        ConvexHull<AABB3f, Cube3f> convex;
+    EgoTest_Test(Cube3f_AABB3f) {
+        auto source = Cube3f(Point3f(-1.0f, -2.0f, -3.0f), 3.0f);
+        Ego::Math::ConvexHull<AABB3f, Cube3f> convex;
         auto target = convex(source);
     }
 
-    EgoTest_Test(AABB2Cube) {
-        auto source = AABB3f(Vector3f(-1.0f, -2.0f, -3.0f), Vector3f(+1.0f, +2.0f, 3.0f));
-        ConvexHull<Cube3f, AABB3f> convex;
+    EgoTest_Test(AABB3f_Cube3f) {
+        auto source = AABB3f(Point3f(-1.0f, -2.0f, -3.0f), Point3f(+1.0f, +2.0f, 3.0f));
+        Ego::Math::ConvexHull<Cube3f, AABB3f> convex;
         auto target = convex(source);
     }
 

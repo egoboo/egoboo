@@ -386,8 +386,8 @@ public:
 
 	Vector3f offset;                           ///< The initial offset when spawning the particle
 
-    FACING_T          rotate;                  ///< Rotation direction
-    Sint16            rotate_add;              ///< Rotation rate
+    Facing          rotate;                  ///< Rotation direction
+    Facing          rotate_add;              ///< Rotation rate
 
     UFP8_T            size_stt;                ///< The initial size of particle (8.8 fixed point)
     UFP8_T            size;                    ///< Size of particle (8.8 fixed point)

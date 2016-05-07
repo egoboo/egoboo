@@ -120,6 +120,6 @@ void DebugParticlesScreen::update()
 void DebugParticlesScreen::beginState()
 {
     // menu settings
-    SDL_SetWindowGrab(sdl_scr.window, SDL_FALSE);
+    sdl_scr.window->setGrabEnabled(false);
     _gameEngine->enableMouseCursor();
 }

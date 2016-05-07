@@ -24,6 +24,7 @@
 
 #include "egolib/Math/Angle.hpp"
 #include "egolib/Math/EuclideanSpace.hpp"
+#include "egolib/Math/Translatable.hpp"
 
 namespace Ego {
 namespace Math {
@@ -79,12 +80,14 @@ public:
     typedef typename EuclideanSpaceType::VectorType VectorType;
     /// The scalar type (of the scalar field).
     typedef typename EuclideanSpaceType::ScalarType ScalarType;
+    /// The point type (of the Euclidean space).
+    typedef typename EuclideanSpaceType::PointType PointType;
     /// @brief @a MyType is the type of this template/template specialization.
     typedef Cone3<EuclideanSpaceType> MyType;
 
 public:
     /** @brief The origin point \f$P\f$ of the cone. */
-    VectorType origin;
+    PointType origin;
     /** @brief The unit axis vector \f$\hat{a}\f$ of the cone. */
     VectorType axis;
     /** @brief The angle, in degrees, \f$\theta \in \left(0,90\right)\f$. */
@@ -111,7 +114,7 @@ public:
      * @throw Id::RuntimeErrorException \f$\vec{a} = \vec{0}\f$
      * @throw Id::RuntimeErrorException \f$\theta\f$ is not an acute angle 
      */
-    Cone3(const VectorType& origin, const VectorType& axis, const Angle<AngleUnit::Degrees>& angle)
+    Cone3(const PointType& origin, const VectorType& axis, const Angle<AngleUnit::Degrees>& angle)
         : origin(origin), axis(axis), angle(angle) {
         this->axis.normalized();
         if (!angle.isAcute()) {
@@ -154,7 +157,7 @@ public:
      * @return
      *  the origin of this cone
      */
-    const VectorType& getOrigin() const {
+    const PointType& getOrigin() const {
         return origin;
     }
 

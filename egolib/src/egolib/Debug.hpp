@@ -27,22 +27,30 @@
 namespace Ego {
 namespace Debug {
 #ifdef _DEBUG
-        /**
-            * @remark
-            *	Validation functionality via template specialization.
-            *   See Ego::Math::Vector3 for an example.
-            * @brief
-            *	Assert that an object is valid.
-            * @param object
-            *	the object
-            * @post
-            *	If the object is not valid, an error is logged.
-            */
-        template <typename Type>
-        void validate(const char *file, int line, const Type& object);
+
+/**
+ * @remark
+ *	Validation functionality via template specialization.
+ *  See the specialization for Ego::Math::Vector for an example.
+ * @brief
+ *	Assert that an object is valid.
+ * @param object
+ *	the object
+ * @post
+ *	If the object is not valid, an error is logged.
+ */
+template <typename ... T>
+struct Validate;
+
+template <typename T>
+using MakeValidate = Validate<typename std::remove_const<typename std::remove_reference<T>::type>::type>;
+
 #endif
 #ifdef _DEBUG
-    #define EGO_DEBUG_VALIDATE(_object_) Ego::Debug::validate(__FILE__,__LINE__,_object_)
+    #define EGO_DEBUG_VALIDATE(_object_) { \
+        Ego::Debug::MakeValidate<decltype(_object_)> validate; \
+        validate(__FILE__, __LINE__, _object_); \
+    }
 #else
     #define EGO_DEBUG_VALIDATE(_object_)
 #endif

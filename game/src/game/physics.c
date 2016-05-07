@@ -54,9 +54,8 @@ bool phys_get_collision_depth(const oct_bb_t& bb_a, const oct_bb_t& bb_b, oct_ve
     if (bb_a._empty || bb_b._empty) return false;
 
     // is there any overlap?
-    oct_bb_t otmp;
-    if (rv_success != oct_bb_t::intersection(bb_a, bb_b, otmp))
-    {
+    oct_bb_t otmp = oct_bb_t::intersection(bb_a, bb_b);
+    if (otmp.isEmpty()) {
         return false;
     }
 
@@ -493,8 +492,8 @@ bool phys_intersect_oct_bb(const oct_bb_t& src1_orig, const Vector3f& pos1, cons
     oct_bb_t src1, src2;
 
     // shift the bounding boxes to their starting positions
-    oct_bb_t::translate(src1_orig, opos1, src1);
-    oct_bb_t::translate(src2_orig, opos2, src2);
+    src1 = oct_bb_t::translate(src1_orig, opos1);
+    src2 = oct_bb_t::translate(src2_orig, opos2);
 
     bool found = false;
     *tmin = +1.0e6;
@@ -565,7 +564,7 @@ bool phys_intersect_oct_bb(const oct_bb_t& src1_orig, const Vector3f& pos1, cons
         *tmax = 1.0f;
 
         // Determine the intersection of these two expanded volumes (for this frame).
-        oct_bb_t::intersection(src1, src2, dst);
+        dst = oct_bb_t::intersection(src1, src2);
     }
     else
     {
@@ -587,13 +586,13 @@ bool phys_intersect_oct_bb(const oct_bb_t& src1_orig, const Vector3f& pos1, cons
         phys_expand_oct_bb(src2, vel2, tmp_min, tmp_max, exp2);
 
         // determine the intersection of these two expanded volumes (for this frame)
-        oct_bb_t::intersection(exp1, exp2, dst);
+        dst = oct_bb_t::intersection(exp1, exp2);
     }
 
     if (0 != test_platform)
     {
         dst._maxs[OCT_Z] += PLATTOLERANCE;
-        oct_bb_t::validate(dst);
+        dst._empty = oct_bb_t::empty_raw(dst);
     }
 
     if (dst._empty) return false;
@@ -805,7 +804,7 @@ bool phys_expand_oct_bb(const oct_bb_t& src, const Vector3f& vel, const float tm
     {
 		Vector3f tmp_diff = vel * tmin;
         // Adjust the bounding box to take in the position at the next step.
-        oct_bb_t::translate(src, tmp_diff, tmp_min);
+        tmp_min = oct_bb_t::translate(src, tmp_diff);
     }
 
     // Determine the bounding volume at t == tmax.
@@ -817,7 +816,7 @@ bool phys_expand_oct_bb(const oct_bb_t& src, const Vector3f& vel, const float tm
     {
 		Vector3f tmp_diff = vel * tmax;
         // Adjust the bounding box to take in the position at the next step.
-		oct_bb_t::translate(src, tmp_diff, tmp_max);
+		tmp_max = oct_bb_t::translate(src, tmp_diff);
 	}
 
     // Determine bounding box for the range of times.
@@ -836,7 +835,7 @@ bool phys_expand_chr_bb(Object *pchr, float tmin, float tmax, oct_bb_t& dst)
 
     // add in the current position to the bounding volume
     oct_bb_t tmp_oct2;
-    oct_bb_t::translate(tmp_oct1, pchr->getPosition(), tmp_oct2);
+    tmp_oct2 = oct_bb_t::translate(tmp_oct1, pchr->getPosition());
 
     // streach the bounging volume to cover the path of the object
     return phys_expand_oct_bb(tmp_oct2, pchr->vel, tmin, tmax, dst);
@@ -855,7 +854,7 @@ bool phys_expand_prt_bb(Ego::Particle *pprt, float tmin, float tmax, oct_bb_t& d
 
     // add in the current position to the bounding volume
     oct_bb_t tmp_oct2;
-    oct_bb_t::translate(tmp_oct1, pprt->getPosition(), tmp_oct2);
+    tmp_oct2 = oct_bb_t::translate(tmp_oct1, pprt->getPosition());
 
     // streach the bounging volume to cover the path of the object
     return phys_expand_oct_bb(tmp_oct2, pprt->vel, tmin, tmax, dst);

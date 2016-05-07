@@ -22,13 +22,10 @@
 #include "cartman/cartman_map.h"
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 
 /// The default selection list.
 static select_lst_t g_selection;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 /// Get the default selection list.
 select_lst_t& select_lst_default()
 {
@@ -36,6 +33,7 @@ select_lst_t& select_lst_default()
 }
 
 //--------------------------------------------------------------------------------------------
+
 void select_lst_t::init(select_lst_t& self, cartman_mpd_t *pmesh)
 {
     // get proper mesh
@@ -131,7 +129,6 @@ int select_lst_t::count(const select_lst_t& self)
     return self._count;
 }
 
-//--------------------------------------------------------------------------------------------
 void select_lst_t::synch_mesh(select_lst_t& self, cartman_mpd_t *pmesh)
 {
     if ( NULL == self._pmesh ) self._pmesh = pmesh;
