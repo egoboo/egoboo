@@ -102,8 +102,8 @@ std::shared_ptr<Cartman::Gui::Cursor> g_cursor;
 
 namespace Cartman { namespace Gui {
 
-Border::Border(int width, int height)
-    : texture(std::make_shared<Ego::OpenGL::Texture>()), width(width), height(height) {}
+Border::Border(Size2i size)
+    : texture(std::make_shared<Ego::OpenGL::Texture>()), size(size) {}
 
 void Border::loadTexture(const std::string& textureFileName) {
     if (!texture->load(textureFileName, gfx_loadImage(textureFileName))) {
@@ -119,15 +119,13 @@ namespace Cartman { namespace Gui {
 
 Window::Window() : on(false), border() {}
 
-void Window::load_window(int id, const std::string& loadname, int x, int y, int bx, int by, int sx, int sy, Uint16 mode, cartman_mpd_t * pmesh) {
+void Window::load_window(int id, const std::string& loadname, Point2i position, Size2i borderSize, int sx, int sy, Uint16 mode, cartman_mpd_t * pmesh) {
     if (NULL == pmesh) pmesh = &mesh;
 
     this->border.loadTexture(loadname);
-    this->border.width = bx;
-    this->border.height = by;
+    this->border.size = borderSize;
 
-    this->x = x;
-    this->y = y;
+    this->position = position;
 
     this->surfacex = sx;
     this->surfacey = sy;
@@ -141,10 +139,16 @@ bool Window::isOver(int x, int y) const {
     if (!on) {
         return false;
     }
-    if (x < this->x + this->border.width || x > this->x + 2 * this->border.width + this->surfacex) {
+    /// @todo Shouldn't this be <tt>this->x + border.size.getWidth()</tt> (and
+    /// <tt>this->x + this->surfacex - 2 * borderSize.getWidth()</tt>?
+    if (x < this->position.getX() + this->border.size.getWidth() ||
+        x > this->position.getY() + 2 * this->border.size.getWidth() + this->surfacex) {
         return false;
     }
-    if (y < this->y + this->border.height || y > this->y + 2 * this->border.height + this->surfacey) {
+    /// @todo Shouldn't this be <tt>this->y + border.size.getHeight()</tt> (and
+    /// <tt>this->y + this->surfacex - 2 * borderSize.getHeight()</tt>?
+    if (y < this->position.getY() + this->border.size.getHeight() ||
+        y > this->position.getY() + 2 * this->border.size.getHeight() + this->surfacey) {
         return false;
     }
     return true;
@@ -152,7 +156,7 @@ bool Window::isOver(int x, int y) const {
 
 void Window::renderBackground() const {
     if (!on) return;
-    ogl_draw_sprite_2d(border.texture, x, y, surfacex, surfacey);
+    ogl_draw_sprite_2d(border.texture, position.getX(), position.getY(), surfacex, surfacey);
 }
 
 } } // namespace Cartman::Gui

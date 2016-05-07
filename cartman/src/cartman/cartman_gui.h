@@ -42,15 +42,14 @@ struct Border {
     /// @brief The border texutre.
     std::shared_ptr<Ego::Texture> texture;
 
-    /// @brief The border size.
-    /// @todo Should be <tt>Size2i size</tt>.
-    int width, height;
+    /// @brief The size of the border. Default is <tt>Size2i()</tt>.
+    Size2i size;
 
     /**
      * @brief Construct this border.
-     * @todo Should be <tt>Border(Size2i size = Size2i())</tt>.
+     * @param size the border size. Default is <tt>Size2i()</tt>.
      */
-    Border(int width = 0, int height = 0);
+    Border(Size2i size = Size2i());
 
     /**
      * @brief Load a texture to be used as the border texture.
@@ -72,8 +71,7 @@ struct Window {
     Uint8 on;
 
     /// @brief The window position.
-    /// @todo Should be <tt>Point2i position</tt>.
-    int x, y;
+    Point2i position;
 
     /// @brief The window border.
     Border border;
@@ -107,7 +105,7 @@ struct Window {
      */
     bool isOver(int x, int y) const;
 
-    void load_window(int id, const std::string& loadname, int mapx, int mapy, int bx, int by, int sx, int sy, Uint16 mode, cartman_mpd_t * pmesh);
+    void load_window(int id, const std::string& loadname, Point2i position, Size2i borderSize, int sx, int sy, Uint16 mode, cartman_mpd_t * pmesh);
     /**
      * @brief
      *  Render the window.
