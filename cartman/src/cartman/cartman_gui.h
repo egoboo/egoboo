@@ -31,8 +31,12 @@
 #define DEFAULT_WINDOW_H 200
 #define DEFAULT_RESOLUTION 8
 
-#define SCREEN_TO_REAL(VAL,CAM,ZOOM) ( (VAL) * (float)DEFAULT_RESOLUTION * Info<float>::Grid::Size()  / (float)DEFAULT_WINDOW_W / (ZOOM) + (CAM) );
-#define REAL_TO_SCREEN(VAL,CAM,ZOOM) ( ( (VAL) - (CAM) ) / (float)DEFAULT_RESOLUTION / Info<float>::Grid::Size() * (float)DEFAULT_WINDOW_W * (ZOOM)  );
+inline float SCREEN_TO_REAL(float VAL, float CAM, float ZOOM) {
+    return (VAL * (float)DEFAULT_RESOLUTION * Info<float>::Grid::Size() / (float)DEFAULT_WINDOW_W / ZOOM+CAM);
+}
+inline float REAL_TO_SCREEN(float VAL, float CAM, float ZOOM) {
+    return ((VAL-CAM) / (float)DEFAULT_RESOLUTION / Info<float>::Grid::Size() * (float)DEFAULT_WINDOW_W * ZOOM);
+}
 
 //--------------------------------------------------------------------------------------------
 
