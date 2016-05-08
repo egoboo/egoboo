@@ -31,10 +31,15 @@ public:
      */
     static void uninitialize();
     /**
-     * @brief Set the window title.
-     * @param title the window title
-     * @remark This method is a no-op if the graphics system is uninitialized.
+     * @brief Set the cursor visibility.
+     * @param visibility @a true shows the cursor, @a false hides the cursor
      */
-    static void setTitle(const std::string& title);
+    static void setCursorVisibility(bool show);
+    /**
+     * @brief Get the cursor visibility.
+     * @return @a true if the cursor is shown, @a false otherwise
+     */
+    static bool getCursorVisibility();
+
 };
 } // namespace Ego

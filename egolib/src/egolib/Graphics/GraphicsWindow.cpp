@@ -58,6 +58,12 @@ void GraphicsWindow::setGrabEnabled(bool enabled) {
     SDL_SetWindowGrab(window, enabled ? SDL_TRUE : SDL_FALSE);
 }
 
+SDLX_sdl_video_flags_t GraphicsWindow::getFlags() const {
+    SDLX_sdl_video_flags_t flags;
+    SDLX_sdl_video_flags_t::download(flags, SDL_GetWindowFlags(window));
+    return flags;
+}
+
 SDL_Window *GraphicsWindow::get() {
     return window;
 }

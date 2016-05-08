@@ -33,6 +33,8 @@ struct GraphicsWindow {
     int getDisplayIndex();
 
     void setGrabEnabled(bool enabled);
+
+    SDLX_sdl_video_flags_t getFlags() const;
 	
     SDL_Window *get();
 

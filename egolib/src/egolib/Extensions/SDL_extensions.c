@@ -97,7 +97,7 @@ bool SDLX_Get_Screen_Info( SDLX_screen_info_t& psi, bool make_report )
     SDLX_sdl_gl_attrib_t::download(psi.gl_att);
 
     // translate the surface flags into the bitfield
-    SDLX_sdl_video_flags_t::download(psi.flags, SDL_GetWindowFlags(window->get()));
+    psi.flags = window->getFlags();
 
     if (make_report)
     {
@@ -384,20 +384,21 @@ void SDLX_video_parameters_t::report(SDLX_video_parameters_t& self)
 }
 
 //--------------------------------------------------------------------------------------------
-void SDLX_synch_video_parameters( SDL_Window * ret, SDLX_video_parameters_t * v )
+void SDLX_synch_video_parameters( Ego::GraphicsWindow *window, SDLX_video_parameters_t& v )
 {
-    /// @author BB
-    /// @details synch values
+    /// @brief Read from SDL/GL window into the video parameters.
 
-    if ( NULL == ret || NULL == v ) return;
+    if ( NULL == window ) return;
 
-    SDL_GetWindowSize(ret, &(v->horizontalResolution), &(v->verticalResolution));
+    /// @todo Shouldn't this be getDrawableSize?
+    window->getSize(v.horizontalResolution, v.verticalResolution);
 
     // Download the video flags from SDL.
-    SDLX_sdl_video_flags_t::download(v->flags, SDL_GetWindowFlags(ret));
+    v.flags = window->getFlags();
 
     // Download the OpenGL attributes from SDL.
-    SDLX_sdl_gl_attrib_t::download(v->gl_att);
+    // @todo Call GraphicsContext::getFlags().
+    SDLX_sdl_gl_attrib_t::download(v.gl_att);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -528,7 +529,7 @@ Ego::GraphicsWindow *SDLX_CreateWindow( SDLX_video_parameters_t& v, bool make_re
     if ( NULL != ret )
     {
         SDLX_Get_Screen_Info( sdl_scr, make_report );
-        SDLX_synch_video_parameters( ret->get(), &v );
+        SDLX_synch_video_parameters( ret, v );
     }
     return ret;
 }

@@ -81,7 +81,7 @@ void GraphicsSystem::initialize() {
     }
 
     // Set the window title.
-    window->setTitle("SDL OpenGL Window");
+    window->setTitle("SDL 2.x OpenGL Window");
 
     initialized = true;
 }
@@ -94,11 +94,19 @@ void GraphicsSystem::uninitialize() {
     sdl_scr.window = nullptr;
 }
 
-void GraphicsSystem::setTitle(const std::string& title) {
-    if (!initialized) {
-        return;
+void GraphicsSystem::setCursorVisibility(bool show) {
+    int result = SDL_ShowCursor(show ? SDL_ENABLE : SDL_DISABLE);
+    if (result < 0) {
+        throw Id::EnvironmentErrorException(__FILE__, __LINE__, "SDL", std::string("SDL_ShowCursor(")  + (show ? "SDL_ENABLE" : "SDL_DISABLE") + ") failed - reason `" + SDL_GetError() + "`");
     }
-    sdl_scr.window->setTitle(title);
+}
+
+bool GraphicsSystem::getCursorVisibility() {
+    int result = SDL_ShowCursor(SDL_QUERY);
+    if (result < 0) {
+        throw Id::EnvironmentErrorException(__FILE__, __LINE__, "SDL", std::string("SDL_GetShowCursor(SDL_Query) failed - reason `") + SDL_GetError() + "`");
+    }
+    return result == SDL_ENABLE;
 }
 
 } // namespace Ego

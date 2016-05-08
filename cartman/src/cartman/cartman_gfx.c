@@ -78,7 +78,7 @@ void gfx_system_begin()
     Ego::App::initialize();
 
     // Set the window title.
-    Ego::GraphicsSystem::setTitle(NAME " " VERSION_STR);
+    Ego::GraphicsSystem::window->setTitle(NAME " " VERSION_STR);
 
     gfx_init_ogl();   
     gfx_font_ptr = Ego::FontManager::loadFont("editor/pc8x8.fon", 12);
