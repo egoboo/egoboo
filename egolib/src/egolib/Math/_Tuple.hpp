@@ -220,7 +220,7 @@ public:
         return ResultType((functor(x.at(Index)))...);
     }
     /**
-     * Given one tuple-like operand \$x\f$
+     * Given one tuple-like operand \f$x\f$
      * and one tuple-element-like operand \f$y\f$
      * compute a tuple-like result \f$z\f$ such that
      * \f$z = Z(f(x[n],y), ..., f(x[m],y))\f$ where \f$n \leq m\f$ and f is an unary functor

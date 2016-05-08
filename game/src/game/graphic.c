@@ -622,7 +622,6 @@ float draw_debug(float y)
         if (_currentModule->getPlayerList().size() > 0)
         {
             std::shared_ptr<Object> pchr = _currentModule->getPlayer(0)->getObject();
-            std::ostringstream os;
             os << "~~PLA0DEF"
                << " " << std::setw(4) << std::setprecision(2) << pchr->getRawDamageResistance(DAMAGE_SLASH)
                << " " << std::setw(4) << std::setprecision(2) << pchr->getRawDamageResistance(DAMAGE_CRUSH)

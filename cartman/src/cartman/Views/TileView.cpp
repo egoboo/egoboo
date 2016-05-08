@@ -37,7 +37,6 @@ void TileView::render(Gui::Window& window, float zoom_hrz, float zoom_vrt) {
         beginRender(window, zoom_hrz, zoom_vrt);
         cartman_begin_ortho_camera_hrz(window, &cam, zoom_hrz, zoom_hrz);
         {
-            int mapxstt, mapystt, mapxend, mapyend;
             std::vector<std::pair<int, int>> indices;
             getTileRange(cam, *window.pmesh, indices);
 
