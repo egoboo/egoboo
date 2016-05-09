@@ -27,16 +27,8 @@
 /// @brief The number of windows.
 #define MAXWIN 8
 
-#define DEFAULT_WINDOW_W 200
-#define DEFAULT_WINDOW_H 200
-#define DEFAULT_RESOLUTION 8
 
-inline float SCREEN_TO_REAL(float VAL, float CAM, float ZOOM) {
-    return (VAL * (float)DEFAULT_RESOLUTION * Info<float>::Grid::Size() / (float)DEFAULT_WINDOW_W / ZOOM+CAM);
-}
-inline float REAL_TO_SCREEN(float VAL, float CAM, float ZOOM) {
-    return ((VAL-CAM) / (float)DEFAULT_RESOLUTION / Info<float>::Grid::Size() * (float)DEFAULT_WINDOW_W * ZOOM);
-}
+#define DEFAULT_RESOLUTION 8
 
 //--------------------------------------------------------------------------------------------
 
@@ -70,6 +62,10 @@ struct Border {
 namespace Cartman { namespace Gui {
 
 struct Window {
+    /// @brief The default window width.
+    static constexpr int defaultWidth = 200;
+    /// @brief The default window height.
+    static constexpr int defaultHeight = 200;
     /// @brief Is the window enabled?
     /// @todo Should be <tt>bool enabled</tt>.
     Uint8 on;
@@ -82,7 +78,7 @@ struct Window {
 
     /// @brief The window size.
     /// @todo Should be <tt>Size2i size</tt>.
-    int surfacex, surfacey;
+	Size2i size;
 
     /// @brief Unique ID of this window.
     int id;
@@ -102,14 +98,14 @@ struct Window {
      *  Get if the cursor is over this window.
      * @param self
      *  the window
-     * @param x, y
+     * @param p
      *  the cursor position (world coordinates)
      * @return
      *  @a true if the mouse is over this window and the window is "on", @a false otherwise
      */
-    bool isOver(int x, int y) const;
+    bool isOver(Point2i p) const;
 
-    void load_window(int id, const std::string& loadname, Point2i position, Size2i borderSize, int sx, int sy, Uint16 mode, cartman_mpd_t * pmesh);
+    void load_window(int id, const std::string& loadname, Point2i position, Size2i borderSize, Size2i size, Uint16 mode, cartman_mpd_t * pmesh);
     /**
      * @brief
      *  Render the window.
@@ -183,3 +179,13 @@ void do_cursor();
 void draw_slider( int tlx, int tly, int brx, int bry, int* pvalue, int minvalue, int maxvalue );
 void show_name(const std::string& newLoadName, const Ego::Math::Colour4f& textColour);
 
+inline float SCREEN_TO_REAL(float VAL, float CAM, float ZOOM) {
+    const auto gridSize = Info<float>::Grid::Size();
+    const auto defaultWindowWidth = (float)Cartman::Gui::Window::defaultWidth;
+    return (VAL * (float)DEFAULT_RESOLUTION * gridSize / defaultWindowWidth / ZOOM + CAM);
+}
+inline float REAL_TO_SCREEN(float VAL, float CAM, float ZOOM) {
+    const auto gridSize = Info<float>::Grid::Size();
+    const auto defaultWindowWidth = (float)Cartman::Gui::Window::defaultWidth;
+    return ((VAL - CAM) / (float)DEFAULT_RESOLUTION / gridSize * defaultWindowWidth * ZOOM);
+}

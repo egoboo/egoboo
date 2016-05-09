@@ -7,6 +7,7 @@
 #include "egolib/Math/ColourRgb.hpp"
 #include "egolib/Math/ColourRgba.hpp"
 #include "egolib/Math/Cube.hpp"
+#include "egolib/Math/Discrete.hpp"
 #include "egolib/Math/OrderedField.hpp"
 #include "egolib/Math/Line.hpp"
 #include "egolib/Math/Matrix.hpp"
@@ -27,34 +28,40 @@ enum {
     kX = 0, kY, kZ, kW
 };
 
-typedef Ego::Math::Field<float> Fieldf;
+/// discrete size
+using Size2i = Ego::Math::Discrete::Size2<int>;
+/// discrete point
+using Point2i = Ego::Math::Discrete::Point2<int>;
+/// discrete vector
+using Vector2i = Ego::Math::Discrete::Vector2<int>;
 
-/// A 2D vector.
+/// single-precision floating-point field
+using Fieldf = Ego::Math::Field<float>;
+
+/// singl-precision floating-point 2d vector space
+using VectorSpace2f = Ego::Math::VectorSpace<Fieldf, 2>;
+/// single-precision floating-point 3d vector space
+using VectorSpace3f = Ego::Math::VectorSpace<Fieldf, 3>;
+/// single-precision floating-point 4d vector space
+using VectorSpace4f = Ego::Math::VectorSpace<Fieldf, 4>;
+
+/// single-precision floating-point 2d Euclidean space
+using EuclideanSpace2f = Ego::Math::EuclideanSpace<VectorSpace2f>;
+/// single-precision floating-point 3d Euclidean space
+using EuclideanSpace3f = Ego::Math::EuclideanSpace<VectorSpace3f>;
+/// single-precision floating-point 4d Euclidean space
+using EuclideanSpace4f = Ego::Math::EuclideanSpace<VectorSpace4f>;
+
+/// single-precision floating-point 2d vector
 typedef Ego::Math::Vector<Fieldf, 2> Vector2f;
-
-/// A 3D vector.
+/// single-precision floating-point 3d vector
 typedef Ego::Math::Vector<Fieldf, 3> Vector3f;
-
-/// A 4D vector.
+/// single-precision floating-point 4d vector
 typedef Ego::Math::Vector<Fieldf, 4> Vector4f;
 
-/// A 2D vector space.
-typedef Ego::Math::VectorSpace<Fieldf, 2> VectorSpace2f;
 
-/// A 3D vector space.
-typedef Ego::Math::VectorSpace<Fieldf, 3> VectorSpace3f;
 
-/// A 4D vector space.
-typedef Ego::Math::VectorSpace<Fieldf, 4> VectorSpace4f;
 
-/// A 2D Euclidean space.
-typedef Ego::Math::EuclideanSpace<VectorSpace2f> EuclideanSpace2f;
-
-/// A 3D Euclidean space.
-typedef Ego::Math::EuclideanSpace<VectorSpace3f> EuclideanSpace3f;
-
-/// A 4D Euclidean space.
-typedef Ego::Math::EuclideanSpace<VectorSpace4f> EuclideanSpace4f;
 
 /// A 3D sphere.
 typedef Ego::Math::Sphere<EuclideanSpace3f> Sphere3f;

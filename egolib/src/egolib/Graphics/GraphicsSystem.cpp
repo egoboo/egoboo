@@ -59,7 +59,7 @@ void GraphicsSystem::initialize() {
         Log::get().error("%s", os.str().c_str());
         throw std::runtime_error(os.str());
     } else {
-        gfx_width = (float)gfx_height / (float)sdl_vparam.verticalResolution * (float)sdl_vparam.horizontalResolution;
+        gfx_width = (float)gfx_height / (float)sdl_vparam.resolution.getHeight() * (float)sdl_vparam.resolution.getWidth();
         Log::get().message("Success!\n");
     }
 

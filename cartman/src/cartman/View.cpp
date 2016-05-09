@@ -27,9 +27,9 @@ void View::beginRender(Cartman::Gui::Window& window, float zoom_hrz, float zoom_
     auto& renderer = Ego::Renderer::get();
     // Compute left, bottom, width, height in pixels.
     int left = window.position.getX();
-    int bottom = sdl_scr.height - (window.position.getY() + window.surfacey);
-    int width = window.surfacex;
-    int height = window.surfacey;
+    int bottom = sdl_scr.size.getHeight() - (window.position.getY() + window.size.getHeight());
+    int width = window.size.getWidth();
+    int height = window.size.getHeight();
     // Set viewport.
     renderer.setViewportRectangle(left, bottom, width, height);
     // Enable scissor tests.

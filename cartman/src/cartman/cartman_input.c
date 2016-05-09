@@ -230,8 +230,7 @@ bool Cartman::Input::onMouse(SDL_Event *event)
             }
             else
             {
-                _mouse.x = event->motion.x;
-                _mouse.y = event->motion.y;
+                _mouse.position = Point2i(event->motion.x, event->motion.y);
             }
             break;
     }
@@ -249,14 +248,14 @@ bool Cartman::Input::onMouse(SDL_Event *event)
             _mouse.drag_begin = true;
 
             // initialize the drag rect
-            _mouse.tlx = _mouse.x;
-            _mouse.tly = _mouse.y;
+            _mouse.tlx = _mouse.position.getX();
+            _mouse.tly = _mouse.position.getY();
 
-            _mouse.brx = _mouse.x;
-            _mouse.bry = _mouse.y;
+            _mouse.brx = _mouse.position.getX();
+            _mouse.bry = _mouse.position.getY();
 
             // set the drag window
-            _mouse.drag_window = Cartman::Gui::Manager::findWindow(_mouse.x, _mouse.y);
+            _mouse.drag_window = Cartman::Gui::Manager::findWindow(_mouse.position.getX(), _mouse.position.getY());
             _mouse.drag_mode = (NULL == _mouse.drag_window)
                              ? 0 : _mouse.drag_mode;
         }
@@ -289,7 +288,7 @@ bool Cartman::Input::onKeyboard(SDL_Event *event)
 //--------------------------------------------------------------------------------------------
 Cartman::Mouse::Mouse() :
     on(true),
-    x(0), y(0), x_old(0), y_old(0),
+    position(), positionOld(),
     b(0), relative(false),
     cx(0), cy(0),
     drag(false), drag_begin(false),
@@ -307,8 +306,7 @@ void Cartman::Mouse::update(Cartman::Mouse& self)
 {
     if (!self.on) return;
 
-    self.x_old = self.x;
-    self.y_old = self.y;
+    self.positionOld = self.position;
 }
 
 bool Cartman::Mouse::isButtonDown(Cartman::Mouse& self, int button)

@@ -76,7 +76,7 @@ void Manager::uninitialize() {
 std::shared_ptr<Window> Manager::findWindow(int x, int y) {
     std::shared_ptr<Window> result = nullptr;
     for (auto& window : g_windowList) {
-        if (window->isOver(x, y)) {
+        if (window->isOver(Point2i(x, y))) {
             continue;
         }
         result = window;
@@ -119,7 +119,7 @@ namespace Cartman { namespace Gui {
 
 Window::Window() : on(false), border() {}
 
-void Window::load_window(int id, const std::string& loadname, Point2i position, Size2i borderSize, int sx, int sy, Uint16 mode, cartman_mpd_t * pmesh) {
+void Window::load_window(int id, const std::string& loadname, Point2i position, Size2i borderSize, Size2i size, Uint16 mode, cartman_mpd_t * pmesh) {
     if (NULL == pmesh) pmesh = &mesh;
 
     this->border.loadTexture(loadname);
@@ -127,28 +127,27 @@ void Window::load_window(int id, const std::string& loadname, Point2i position, 
 
     this->position = position;
 
-    this->surfacex = sx;
-    this->surfacey = sy;
+    this->size = size;
     this->on = true;
     this->mode = mode;
     this->id = id;
     this->pmesh = pmesh;
 }
 
-bool Window::isOver(int x, int y) const {
+bool Window::isOver(Point2i p) const {
     if (!on) {
         return false;
     }
     /// @todo Shouldn't this be <tt>this->x + border.size.getWidth()</tt> (and
-    /// <tt>this->x + this->surfacex - 2 * borderSize.getWidth()</tt>?
-    if (x < this->position.getX() + this->border.size.getWidth() ||
-        x > this->position.getY() + 2 * this->border.size.getWidth() + this->surfacex) {
+    /// <tt>this->x + this->size.getWidth() - 2 * borderSize.getWidth()</tt>?
+    if (p.getX() < this->position.getX() + this->border.size.getWidth() ||
+        p.getX() > this->position.getY() + 2 * this->border.size.getWidth() + this->size.getWidth()) {
         return false;
     }
     /// @todo Shouldn't this be <tt>this->y + border.size.getHeight()</tt> (and
-    /// <tt>this->y + this->surfacex - 2 * borderSize.getHeight()</tt>?
-    if (y < this->position.getY() + this->border.size.getHeight() ||
-        y > this->position.getY() + 2 * this->border.size.getHeight() + this->surfacey) {
+    /// <tt>this->y + this->size.getWidth() - 2 * borderSize.getHeight()</tt>?
+    if (p.getY() < this->position.getY() + this->border.size.getHeight() ||
+        p.getY() > this->position.getY() + 2 * this->border.size.getHeight() + this->size.getHeight()) {
         return false;
     }
     return true;
@@ -156,7 +155,7 @@ bool Window::isOver(int x, int y) const {
 
 void Window::renderBackground() const {
     if (!on) return;
-    ogl_draw_sprite_2d(border.texture, position.getX(), position.getY(), surfacex, surfacey);
+    ogl_draw_sprite_2d(border.texture, position.getX(), position.getY(), size.getWidth(), size.getHeight());
 }
 
 } } // namespace Cartman::Gui
@@ -167,10 +166,10 @@ void do_cursor() {
     bool left_press;
 
     // This function implements a mouse cursor
-    ui.cur_x = Cartman::Input::get()._mouse.x;
-    if (ui.cur_x < 6)  ui.cur_x = 6;  if (ui.cur_x > sdl_scr.width - 6)  ui.cur_x = sdl_scr.width - 6;
-    ui.cur_y = Cartman::Input::get()._mouse.y;
-    if (ui.cur_y < 6)  ui.cur_y = 6;  if (ui.cur_y > sdl_scr.height - 6)  ui.cur_y = sdl_scr.height - 6;
+    ui.cur_x = Cartman::Input::get()._mouse.position.getX();
+    if (ui.cur_x < 6)  ui.cur_x = 6;  if (ui.cur_x > sdl_scr.size.getWidth() - 6)  ui.cur_x = sdl_scr.size.getWidth() - 6;
+    ui.cur_y = Cartman::Input::get()._mouse.position.getY();
+    if (ui.cur_y < 6)  ui.cur_y = 6;  if (ui.cur_y > sdl_scr.size.getHeight() - 6)  ui.cur_y = sdl_scr.size.getHeight() - 6;
 
     left_press = CART_BUTTONDOWN(SDL_BUTTON_LEFT);
 
@@ -189,8 +188,8 @@ void draw_slider(int tlx, int tly, int brx, int bry, int* pvalue, int minvalue, 
 
     // Pick a new value
     value = *pvalue;
-    if ((Cartman::Input::get()._mouse.x >= tlx) && (Cartman::Input::get()._mouse.x <= brx) && (Cartman::Input::get()._mouse.y >= tly) && (Cartman::Input::get()._mouse.y <= bry) && (0 != Cartman::Input::get()._mouse.b)) {
-        value = (((Cartman::Input::get()._mouse.y - tly) * (maxvalue - minvalue)) / (bry - tly)) + minvalue;
+    if ((Cartman::Input::get()._mouse.position.getX() >= tlx) && (Cartman::Input::get()._mouse.position.getX() <= brx) && (Cartman::Input::get()._mouse.position.getY() >= tly) && (Cartman::Input::get()._mouse.position.getY() <= bry) && (0 != Cartman::Input::get()._mouse.b)) {
+        value = (((Cartman::Input::get()._mouse.position.getY() - tly) * (maxvalue - minvalue)) / (bry - tly)) + minvalue;
     }
     if (value < minvalue) value = minvalue;
     if (value > maxvalue) value = maxvalue;
@@ -208,5 +207,5 @@ void draw_slider(int tlx, int tly, int brx, int bry, int* pvalue, int minvalue, 
 }
 
 void show_name(const std::string& newLoadName, const Ego::Math::Colour4f& textColour) {
-    gfx_font_ptr->drawText(newLoadName, 0, sdl_scr.height - 16, textColour);
+    gfx_font_ptr->drawText(newLoadName, 0, sdl_scr.size.getHeight() - 16, textColour);
 }
