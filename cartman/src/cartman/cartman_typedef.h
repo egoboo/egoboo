@@ -27,7 +27,11 @@
 // Forward declarations.
 struct camera_t;
 struct cartman_mpd_t;
+struct cartman_mpd_tile_t;
 struct select_lst_t;
+struct ogl_surface_t;
+struct s_tile_definition_t;
+
 namespace Cartman { namespace Gui {
 struct Cursor;
 struct Manager;

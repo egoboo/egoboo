@@ -26,13 +26,6 @@
 
 //--------------------------------------------------------------------------------------------
 
-struct cartman_mpd_t;
-struct cartman_mpd_tile_t;
-struct s_tile_definition_t;
-struct select_lst_t;
-
-//--------------------------------------------------------------------------------------------
-
 // For autoweld
 #define NEAR_TOLERANCE 1.0f
 #define NEAR_LOW       (0.0f + NEAR_TOLERANCE)

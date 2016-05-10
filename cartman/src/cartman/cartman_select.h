@@ -24,8 +24,6 @@
 
 //--------------------------------------------------------------------------------------------
 
-struct cartman_mpd_t;
-
 struct select_lst_t
 {
 	/// The maximum number of points that can be selected.
