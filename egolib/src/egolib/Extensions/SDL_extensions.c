@@ -75,8 +75,8 @@ bool SDLX_Get_Screen_Info( SDLX_screen_info_t& psi, bool make_report )
     // store the screen info for everyone to use
     window = Ego::GraphicsSystem::window;
 	psi.window = window;
-    window->getSize(psi.width, psi.height);
-    window->getDrawableSize(psi.drawWidth, psi.drawHeight);
+    psi.size = window->getSize();
+    psi.drawableSize = window->getDrawableSize();
     
     // Grab all the available video modes
     psi.video_mode_list.clear();
@@ -97,7 +97,7 @@ bool SDLX_Get_Screen_Info( SDLX_screen_info_t& psi, bool make_report )
     SDLX_sdl_gl_attrib_t::download(psi.gl_att);
 
     // translate the surface flags into the bitfield
-    SDLX_sdl_video_flags_t::download(psi.flags, SDL_GetWindowFlags(window->get()));
+    psi.flags = window->getFlags();
 
     if (make_report)
     {
@@ -367,8 +367,7 @@ void SDLX_video_parameters_t::report(SDLX_video_parameters_t& self)
     Log::Entry e(Log::Level::Info, __FILE__, __LINE__);
 
     // Write the horizontal and vertical resolution and the color depth.
-    e << "horizontal resolution = " << self.horizontalResolution << Log::EndOfLine
-      << "vertical resolution = " << self.verticalResolution << Log::EndOfLine
+    e << "resolution = " << self.resolution.getWidth() << " x " << self.resolution.getHeight() << Log::EndOfLine
       << "color depth = " << self.colorBufferDepth << Log::EndOfLine;
     // Write the window properties.
     e << self.flags;
@@ -384,20 +383,21 @@ void SDLX_video_parameters_t::report(SDLX_video_parameters_t& self)
 }
 
 //--------------------------------------------------------------------------------------------
-void SDLX_synch_video_parameters( SDL_Window * ret, SDLX_video_parameters_t * v )
+void SDLX_synch_video_parameters( Ego::GraphicsWindow *window, SDLX_video_parameters_t& v )
 {
-    /// @author BB
-    /// @details synch values
+    /// @brief Read from SDL/GL window into the video parameters.
 
-    if ( NULL == ret || NULL == v ) return;
+    if ( NULL == window ) return;
 
-    SDL_GetWindowSize(ret, &(v->horizontalResolution), &(v->verticalResolution));
+    /// @todo Shouldn't this be getDrawableSize?
+    v.resolution = window->getSize();
 
     // Download the video flags from SDL.
-    SDLX_sdl_video_flags_t::download(v->flags, SDL_GetWindowFlags(ret));
+    v.flags = window->getFlags();
 
     // Download the OpenGL attributes from SDL.
-    SDLX_sdl_gl_attrib_t::download(v->gl_att);
+    // @todo Call GraphicsContext::getFlags().
+    SDLX_sdl_gl_attrib_t::download(v.gl_att);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -422,7 +422,7 @@ Ego::GraphicsWindow *SDLX_CreateWindow(const SDLX_sdl_video_flags_t& flags) {
 Ego::GraphicsWindow *SDLX_CreateWindow( SDLX_video_parameters_t& v, bool make_report )
 {
     Ego::GraphicsWindow *ret = nullptr;
-    int windowPos = SDL_WINDOWPOS_CENTERED;
+    static const Point2i windowPosition = Point2i();
     
     if (Ego::GraphicsSystem::window) return nullptr;
 
@@ -432,8 +432,8 @@ Ego::GraphicsWindow *SDLX_CreateWindow( SDLX_video_parameters_t& v, bool make_re
         if (!ret) {
             Log::get().message("SDL WARN: Unable to create SDL window: %s\n", SDL_GetError());
         } else {
-            ret->setSize(v.horizontalResolution, v.verticalResolution);
-            ret->setPosition(windowPos, windowPos);
+            ret->setSize(v.resolution);
+            ret->center();
         }
     }
     else
@@ -448,8 +448,8 @@ Ego::GraphicsWindow *SDLX_CreateWindow( SDLX_video_parameters_t& v, bool make_re
         if ( nullptr == ret ) {
 			Log::get().warn("unable to create SDL window: %s\n", SDL_GetError());
         } else {
-            ret->setSize(v.horizontalResolution, v.verticalResolution);
-            ret->setPosition(windowPos, windowPos);
+            ret->setSize(v.resolution);
+            ret->center();
             SDL_GLContext context = SDLX_CreateContext(ret->get(), v.gl_att);
             if (!context) {
 				Log::get().warn("unable to create GL context: %s\n", SDL_GetError());
@@ -470,8 +470,8 @@ Ego::GraphicsWindow *SDLX_CreateWindow( SDLX_video_parameters_t& v, bool make_re
                     if ( nullptr == ret ) {
 						Log::get().warn("unable to create SDL window (%d multisamples): %s\n", v.gl_att.multisampling.multisamples, SDL_GetError());
                     } else {
-                        ret->setSize(v.horizontalResolution, v.verticalResolution);
-                        ret->setPosition(windowPos, windowPos);
+                        ret->setSize(v.resolution);
+                        ret->center();
                         SDL_GLContext context = SDLX_CreateContext(ret->get(), v.gl_att);
                         if (!context) {
 							Log::get().warn("unable to create GL context (%d multisamples): %s\n", v.gl_att.multisampling.multisamples, SDL_GetError());
@@ -497,8 +497,8 @@ Ego::GraphicsWindow *SDLX_CreateWindow( SDLX_video_parameters_t& v, bool make_re
             if ( nullptr == ret ) {
 				Log::get().warn("unable to create SDL window (no multisamples): %s\n", SDL_GetError());
             } else {
-                ret->setSize(v.horizontalResolution, v.verticalResolution);
-                ret->setPosition(windowPos, windowPos);
+                ret->setSize(v.resolution);
+                ret->center();
                 SDL_GLContext context = SDLX_CreateContext(ret->get(), v.gl_att);
                 if (!context) {
 					Log::get().warn("unable to create GL context (no multisamples): %s\n", SDL_GetError());
@@ -528,7 +528,7 @@ Ego::GraphicsWindow *SDLX_CreateWindow( SDLX_video_parameters_t& v, bool make_re
     if ( NULL != ret )
     {
         SDLX_Get_Screen_Info( sdl_scr, make_report );
-        SDLX_synch_video_parameters( ret->get(), &v );
+        SDLX_synch_video_parameters( ret, v );
     }
     return ret;
 }
@@ -573,8 +573,7 @@ void SDLX_sdl_video_flags_t::defaults(SDLX_sdl_video_flags_t& self)
 void SDLX_video_parameters_t::defaults(SDLX_video_parameters_t& self)
 {
     self.surface = nullptr;
-    self.horizontalResolution = 640;
-    self.verticalResolution = 480;
+    self.resolution = Size2i(640, 480);
     self.colorBufferDepth = 32;
 
     SDLX_sdl_video_flags_t::defaults(self.flags);
@@ -583,8 +582,8 @@ void SDLX_video_parameters_t::defaults(SDLX_video_parameters_t& self)
 
 void SDLX_video_parameters_t::download(SDLX_video_parameters_t& self, egoboo_config_t& cfg)
 {
-    self.horizontalResolution = cfg.graphic_resolution_horizontal.getValue();
-    self.verticalResolution = cfg.graphic_resolution_vertical.getValue();
+    self.resolution = Size2i(cfg.graphic_resolution_horizontal.getValue(),
+                             cfg.graphic_resolution_vertical.getValue());
     self.colorBufferDepth = cfg.graphic_colorBuffer_bitDepth.getValue();
     self.flags.full_screen = cfg.graphic_fullscreen.getValue();
     self.gl_att.buffer_size = cfg.graphic_colorBuffer_bitDepth.getValue();

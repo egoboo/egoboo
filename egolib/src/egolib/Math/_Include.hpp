@@ -53,4 +53,6 @@
 #include "egolib/Math/Intersects_Cube_Point.hpp"
 #include "egolib/Math/Intersects_Point_Cube.hpp"
 
+#include "egolib/Math/Discrete.hpp"
+
 #undef EGOLIB_MATH_PRIVATE

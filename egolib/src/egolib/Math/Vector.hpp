@@ -55,9 +55,10 @@ public:
 public:
     /// @brief The tuple type.
     typedef Tuple<ScalarType, _Dimensionality> TupleType;
-
     /// @brief The type of this template/template specialization.
     typedef Vector<ScalarFieldType, _Dimensionality> MyType;
+
+    typedef std::make_index_sequence<MyType::dimensionality()> IndexSequence;
 
 public:
 	/**
@@ -111,7 +112,7 @@ public:
      */
     Vector()
         : Vector(ConstantGenerator<ScalarType>(ScalarFieldType::additiveNeutral()), 
-                 std::make_index_sequence<MyType::dimensionality()>{}) {
+                 IndexSequence{}) {
         /* Intentionally empty. */
     }
 
@@ -124,7 +125,7 @@ public:
      */
     static MyType unit(size_t index) {
         ConditionalGenerator<ScalarType> g(index, ScalarFieldType::multiplicativeNeutral(), ScalarFieldType::additiveNeutral());
-        return Vector(g, std::make_index_sequence<MyType::dimensionality()>{});
+        return Vector(g, IndexSequence{});
     }
 
 public:
@@ -159,6 +160,34 @@ public:
         return this->at(2);
     }
 
+private:
+    // TupleUtilities::foldT-compatible functor for the dot product.
+    struct DotProductFunctor {
+        typedef ScalarType ResultType;
+        ScalarType operator()(ScalarType a, ScalarType x, ScalarType y) const {
+            static const typename ScalarFieldType::SumFunctor sumFunctor;
+            static const typename ScalarFieldType::ProductFunctor productFunctor;
+            return sumFunctor(a, productFunctor(x, y));
+        }
+    };
+    // TupleUtilities::foldT-compatible functor for the squared Euclidean length.
+    struct EuclideanLengthSquaredFunctor {
+        typedef ScalarType ResultType;
+        ScalarType operator()(ScalarType a, ScalarType x) const {
+            static const typename ScalarFieldType::SumFunctor sumFunctor;
+            static const typename ScalarFieldType::ProductFunctor productFunctor;
+            return sumFunctor(a, productFunctor(x, x));
+        }
+    };
+    // TupleUtilities::foldT-compatible functor for the absolute length.
+    struct AbsoluteLengthFunctor {
+        typedef ScalarType ResultType;
+        ScalarType operator()(ScalarType a, ScalarType x) const {
+            static const typename ScalarFieldType::SumFunctor sumFunctor;
+            return sumFunctor(a, std::abs(x));
+        }
+    };
+
 public:
     /**
      * @brief
@@ -169,11 +198,29 @@ public:
      *  the dot product <tt>(*this) * other</tt> of this vector and the other vector
      */
     ScalarType dot(const MyType& other) const {
-        ScalarType t = ScalarFieldType::product(this->at(0), other.at(0));
-		for (size_t i = 1; i < MyType::dimensionality(); ++i) {
-            t = ScalarFieldType::sum(t, ScalarFieldType::product(this->at(i), other.at(i)));
-        }
-        return t;
+        return TupleUtilities::foldTT(DotProductFunctor(), *this, other);
+    }
+
+    /**
+     * @brief
+     *  Get the squared length of this vector
+     *  (using the Euclidean metric).
+     * @return
+     *  the squared length of this vector
+     */
+    ScalarType length_2() const {
+        return TupleUtilities::foldT(EuclideanLengthSquaredFunctor(), *this);
+    }
+
+    /**
+     * @brief
+     *  Get the length of this vector
+     *  (using the Manhattan metric).
+     * @return
+     *  the length of this vector
+     */
+    ScalarType length_abs() const {
+        return TupleUtilities::foldT(AbsoluteLengthFunctor(), *this);
     }
     
 public:
@@ -198,66 +245,6 @@ public:
         (*this) = MyType();
     }
 
-    /**
-     * @brief
-     *  Multiply this vector by a scalar,
-     *  assign the result to this vector.
-     * @param scalar
-     *  the scalar
-     * @post
-     *  The product <tt>scalar * (*this)</tt> was assigned to <tt>*this</tt>.
-     */
-    void multiply(ScalarType scalar) {
-        for (size_t i = 0; i < MyType::dimensionality(); ++i) {
-            this->at(i) = ScalarFieldType::product(this->at(i), scalar);
-        }
-    }
-
-    /**
-     * @brief
-     *  Divide this vector by a scalar,
-     *  assign the result to this vector.
-     * @param scalar
-     *  the scalar
-     * @post
-     *  The quotient <tt>(1/scalar) * (*this)</tt> was assigned to <tt>*this</tt>.
-     */
-    void divide(ScalarType scalar) {
-        for (size_t i = 0; i < MyType::dimensionality(); ++i) {
-            this->at(i) = ScalarFieldType::quotient(this->at(i), scalar);
-        }
-    }
-    
-    /**
-     * @brief
-     *  Add another vector to this vector,
-     *  assign the result to this vector.
-     * @param other
-     *  the other vector
-     * @post
-     *  The sum <tt>(*this) + other</tt> was assigned to <tt>*this</tt>.
-     */
-    void add(const MyType& other) {
-        for (size_t i = 0; i < MyType::dimensionality(); ++i) {
-            this->at(i) = ScalarFieldType::sum(this->at(i), other.at(i));
-        }
-    }
-
-    /**
-     * @brief
-     *  Subtract another vector from this vector,
-     *  assign the result to this vector.
-     * @param other
-     *  the other vector
-     * @post
-     *  The difference <tt>(*this) - other</tt> was assigned to <tt>*this</tt>.
-     */
-    void sub(const MyType& other) {
-		for (size_t i = 0; i < MyType::dimensionality(); ++i) {
-            this->at(i) = ScalarFieldType::difference(this->at(i), other.at(i));
-        }
-    }
-
 public:
     /**
      * @brief
@@ -271,7 +258,7 @@ public:
     void normalize(ScalarType length) {
         ScalarType l = this->length();
         if (ScalarFieldType::isPositive(l)) {
-            multiply(ScalarFieldType::quotient(length, l));
+            *this = *this * ScalarFieldType::quotient(length, l);
         }
     }
 
@@ -287,7 +274,7 @@ public:
     ScalarType normalize() {
         ScalarType l = length();
         if (ScalarFieldType::isPositive(l)) {
-            multiply(ScalarFieldType::quotient(1.0, l));
+            *this = *this * ScalarFieldType::quotient(1.0, l);
         }
         return l;
     }
@@ -370,7 +357,7 @@ public:
      *  \f]
      */
     MyType abs() const {
-        return abs(std::make_index_sequence<MyType::dimensionality()>{});
+        return abs(IndexSequence{});
     }
 
 private:
@@ -407,7 +394,7 @@ public:
      *  \f]
      */
     MyType max(const MyType& other) const {
-        return max(std::index_sequence<MyType::dimensionality()>{},other);
+        return max(IndexSequence{},other);
     }
     /**
      * @brief
@@ -423,26 +410,11 @@ public:
      *	\f]
      */
     MyType min(const MyType& other) const {
-        return min(std::index_sequence<MyType::dimensionality()>{}, other);
+        return min(IndexSequence{}, other);
     }
 
 
 public:
-
-    /**
-     * @brief
-     *  Get the squared length of this vector
-     *  (using the Euclidean metric).
-     * @return
-     *  the squared length of this vector
-     */
-    ScalarType length_2() const {
-        ScalarType t = ScalarFieldType::product(this->at(0), this->at(0));
-		for (size_t i = 1; i < MyType::dimensionality(); ++i) {
-            t = ScalarFieldType::sum(t, ScalarFieldType::product(this->at(i), this->at(i)));
-        }
-        return t;
-    }
 
     /**
      * @brief
@@ -453,21 +425,6 @@ public:
      */
     ScalarType length() const {
         return std::sqrt(length_2());
-    }
-
-    /**
-     * @brief
-     *  Get the length of this vector
-     *  (using the Manhattan metric).
-     * @return
-     *  the length of this vector
-     */
-    ScalarType length_abs() const {
-        ScalarType t = std::abs(this->at(0));
-		for (size_t i = 1; i < MyType::dimensionality(); ++i) {
-            t += std::abs(this->at(i));
-        }
-        return t;
     }
 
     /**
@@ -498,17 +455,6 @@ public:
     }
 
 public:
-    MyType& operator+=(const MyType& other) {
-        add(other);
-        return *this;
-    }
-
-    MyType& operator-=(const MyType& other) {
-        sub(other);
-        return *this;
-    }
-
-public:
     ScalarType& operator[](size_t const& index) {
         return this->at(index);
     }
@@ -518,39 +464,52 @@ public:
     }
 
 public:
+    // Core operators.
+    MyType operator+(const MyType& other) const {
+        static const typename ScalarFieldType::SumFunctor functor;
+        return TupleUtilities::mapTT<MyType>(functor, *this, other, IndexSequence{});
+    }
+    
+    MyType operator-(const MyType& other) const {
+        static const typename ScalarFieldType::DifferenceFunctor functor;
+        return TupleUtilities::mapTT<MyType>(functor, *this, other, IndexSequence{});
+    }
+
+    MyType operator*(ScalarType other) const {
+        static const typename ScalarFieldType::ProductFunctor functor;
+        return TupleUtilities::mapTe<MyType>(functor, *this, other, IndexSequence{});
+    }
+
+    MyType operator/(ScalarType other) const {
+        static const typename ScalarFieldType::QuotientFunctor functor;
+        return TupleUtilities::mapTe<MyType>(functor, *this, other, IndexSequence{});
+    }
+
+    MyType operator-() const {
+        static const typename ScalarFieldType::AdditiveInverseFunctor functor;
+        return TupleUtilities::mapT<MyType>(functor, *this, IndexSequence{});
+    }
+
+public:
+    // Derived operators.
+    MyType& operator+=(const MyType& other) {
+        *this = *this + other;
+        return *this;
+    }
+
+    MyType& operator-=(const MyType& other) {
+        *this = *this - other;
+        return *this;
+    }
+
     MyType& operator*=(ScalarType scalar) {
-        multiply(scalar);
+        *this = *this * scalar;
         return *this;
     }
 
     MyType& operator/=(ScalarType scalar) {
-        divide(scalar);
+        *this = *this / scalar;
         return *this;
-    }
-
-public:
-    MyType operator+(const MyType& other) const {
-        MyType t(*this);
-        t += other;
-        return t;
-    }
-    
-    MyType operator-(const MyType& other) const {
-        MyType t(*this);
-        t -= other;
-        return t;
-    }
-    
-public:
-    MyType operator*(ScalarType other) const {
-        MyType t(*this);
-        t *= other;
-        return t;
-    }
-
-public:
-    MyType operator-() const {
-        return (*this) * -1;
     }
 
 
@@ -586,8 +545,8 @@ public:
      *  the zero vector
      */
     static const MyType& zero() {
-		static ConstantGenerator<ScalarType> g(ScalarFieldType::additiveNeutral());
-        static const auto v = MyType(g, std::make_index_sequence<MyType::dimensionality()>{});
+		static const ConstantGenerator<ScalarType> g(ScalarFieldType::additiveNeutral());
+        static const auto v = MyType(g, IndexSequence{});
 		return v;
 	}
 

@@ -272,7 +272,7 @@ void GFX::initializeSDLGraphics()
 {
     Ego::App::initialize();
     // Set the window title.
-    Ego::GraphicsSystem::setTitle(std::string("Egoboo ") + GameEngine::GAME_VERSION);
+    Ego::GraphicsSystem::window->setTitle(std::string("Egoboo ") + GameEngine::GAME_VERSION);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -622,7 +622,6 @@ float draw_debug(float y)
         if (_currentModule->getPlayerList().size() > 0)
         {
             std::shared_ptr<Object> pchr = _currentModule->getPlayer(0)->getObject();
-            std::ostringstream os;
             os << "~~PLA0DEF"
                << " " << std::setw(4) << std::setprecision(2) << pchr->getRawDamageResistance(DAMAGE_SLASH)
                << " " << std::setw(4) << std::setprecision(2) << pchr->getRawDamageResistance(DAMAGE_CRUSH)
@@ -795,7 +794,7 @@ void draw_mouse_cursor()
 {
     //if (!mous.on)
     //{
-    //    SDL_ShowCursor(SDL_DISABLE);
+    //    Ego::GraphicsSystem::setCursorVisibility(false);
     //    return;
     //}
 
@@ -805,12 +804,12 @@ void draw_mouse_cursor()
     if (nullptr == pcursor)
     {
         // Show the system mouse cursor.
-        SDL_ShowCursor(SDL_ENABLE);
+        Ego::GraphicsSystem::setCursorVisibility(true);
     }
     else
     {
         // Hide the system mouse cursor.
-        SDL_ShowCursor(SDL_DISABLE);
+        Ego::GraphicsSystem::setCursorVisibility(false);
 
         //Get current mouse position
         int x, y;

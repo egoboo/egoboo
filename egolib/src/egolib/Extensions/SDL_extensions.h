@@ -29,6 +29,7 @@
 
 #include "egolib/file_common.h"
 #include "egolib/egoboo_setup.h"
+#include "egolib/Math/_Include.hpp"
 #include "egolib/Graphics/ColourDepth.hpp"
 
 // Forward declaration.
@@ -134,14 +135,10 @@ Log::Entry& operator<<(Log::Entry& e, const SDLX_sdl_gl_attrib_t& s);
 
         std::string szDriver;    ///< graphics driver name;
 
-        /// Screen width.
-        int width;
-        /// Screen height.
-        int height;
-        /// Framebuffer width (may be different with high DPI on)
-        int drawWidth; 
-        /// Framebuffer height(may be different with high DPI on)
-        int drawHeight; 
+        /// window client size, in pixels.
+        Size2i size;
+        /// framebuffer size (may be different from window client size with high DPI)
+        Size2i drawableSize;
 
         /// Context properties.
         /// @todo Rename gl_att to contextProperties.
@@ -160,8 +157,8 @@ Log::Entry& operator<<(Log::Entry& e, const SDLX_sdl_gl_attrib_t& s);
 /// Parameters for setting an SDL video state
     struct SDLX_video_parameters_t
     {
-        int horizontalResolution;
-        int verticalResolution;
+        /// horizontal and vertical resolution
+        Size2i resolution;
         int colorBufferDepth;
 
         SDLX_sdl_video_flags_t flags;

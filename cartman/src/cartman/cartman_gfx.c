@@ -78,7 +78,7 @@ void gfx_system_begin()
     Ego::App::initialize();
 
     // Set the window title.
-    Ego::GraphicsSystem::setTitle(NAME " " VERSION_STR);
+    Ego::GraphicsSystem::window->setTitle(NAME " " VERSION_STR);
 
     gfx_init_ogl();   
     gfx_font_ptr = Ego::FontManager::loadFont("editor/pc8x8.fon", 12);
@@ -479,7 +479,7 @@ void draw_side_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt 
 
 //--------------------------------------------------------------------------------------------
 
-void draw_schematic(std::shared_ptr<Cartman::Window> pwin, int fantype, int x, int y)
+void draw_schematic(std::shared_ptr<Cartman::Gui::Window> pwin, int fantype, int x, int y)
 {
     // ZZ> This function draws the line drawing preview of the tile type...
     //     The wireframe on the left side of the theSurface.
@@ -913,12 +913,12 @@ void ogl_beginFrame()
     renderer.setBlendingEnabled(true);
     renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
 
-    renderer.setViewportRectangle(0, 0, sdl_scr.width, sdl_scr.height);
+    renderer.setViewportRectangle(0, 0, sdl_scr.size.getWidth(), sdl_scr.size.getHeight());
 
     // Set up an ortho projection for the gui to use.  Controls are free to modify this
     // later, but most of them will need this, so it's done by default at the beginning
     // of a frame
-	Matrix4f4f projection = Ego::Math::Transform::ortho(0, sdl_scr.width, sdl_scr.height, 0, -1, 1);
+	Matrix4f4f projection = Ego::Math::Transform::ortho(0, sdl_scr.size.getWidth(), sdl_scr.size.getHeight(), 0, -1, 1);
     renderer.setProjectionMatrix(projection);
     renderer.setWorldMatrix(Matrix4f4f::identity());
     renderer.setViewMatrix(Matrix4f4f::identity());
@@ -976,28 +976,27 @@ SDL_Surface *cartman_LoadIMG(const char *name)
 }
 
 //--------------------------------------------------------------------------------------------
-void cartman_begin_ortho_camera_hrz(Cartman::Window& pwin, camera_t * pcam, float zoom_x, float zoom_y)
+void cartman_begin_ortho_camera_hrz(Cartman::Gui::Window& pwin, camera_t * pcam, float zoom_x, float zoom_y)
 {
-    float w, h, d;
-    float aspect;
-    float left, right, bottom, top, front, back;
-
-    w = ( float )DEFAULT_RESOLUTION * Info<float>::Grid::Size() * (( float )pwin.surfacex / ( float )DEFAULT_WINDOW_W ) / zoom_x;
-    h = ( float )DEFAULT_RESOLUTION * Info<float>::Grid::Size() * (( float )pwin.surfacey / ( float )DEFAULT_WINDOW_H ) / zoom_y;
-    d = DEFAULT_Z_SIZE;
+    using namespace Cartman::Gui;
+    static const float factor_x = (float)DEFAULT_RESOLUTION * Info<float>::Grid::Size() / (float)Window::defaultWidth,
+        factor_y = (float)DEFAULT_RESOLUTION * Info<float>::Grid::Size() / (float)Window::defaultHeight;
+    float w = (float)pwin.size.getWidth() * factor_x / zoom_x;
+    float h = (float)pwin.size.getHeight() * factor_y / zoom_y;
+    float d = DEFAULT_Z_SIZE;
 
     pcam->w = w;
     pcam->h = h;
     pcam->d = d;
 
-    left   = - w / 2;
-    right  =   w / 2;
-    bottom = - h / 2;
-    top    =   h / 2;
-    front  = -d;
-    back   =  d;
+    float left   = - w / 2;
+    float right  =   w / 2;
+    float bottom = - h / 2;
+    float top    =   h / 2;
+    float front  = -d;
+    float back   =  d;
 
-    aspect = ( float ) w / h;
+    float aspect = ( float ) w / h;
     if ( aspect < 1.0f )
     {
         // window taller than wide
@@ -1019,28 +1018,28 @@ void cartman_begin_ortho_camera_hrz(Cartman::Window& pwin, camera_t * pcam, floa
 }
 
 //--------------------------------------------------------------------------------------------
-void cartman_begin_ortho_camera_vrt(Cartman::Window& pwin, camera_t * pcam, float zoom_x, float zoom_z)
+void cartman_begin_ortho_camera_vrt(Cartman::Gui::Window& pwin, camera_t * pcam, float zoom_x, float zoom_z)
 {
-    float w, h, d;
-    float aspect;
-    float left, right, bottom, top, back, front;
+    using namespace Cartman::Gui;
 
-    w = pwin.surfacex * ( float )DEFAULT_RESOLUTION * Info<float>::Grid::Size() / ( float )DEFAULT_WINDOW_W / zoom_x;
-    h = w;
-    d = pwin.surfacey * ( float )DEFAULT_RESOLUTION * Info<float>::Grid::Size() / ( float )DEFAULT_WINDOW_H / zoom_z;
+    static const float factor_x = (float)DEFAULT_RESOLUTION * Info<float>::Grid::Size() / (float)Window::defaultWidth,
+        factor_y = (float)DEFAULT_RESOLUTION * Info<float>::Grid::Size() / (float)Window::defaultHeight;
+    float w = pwin.size.getWidth() * factor_x / zoom_x;
+    float h = w;
+    float d = pwin.size.getHeight() * factor_y / zoom_z;
 
     pcam->w = w;
     pcam->h = h;
     pcam->d = d;
 
-    left   = - w / 2;
-    right  =   w / 2;
-    bottom = - d / 2;
-    top    =   d / 2;
-    front  =   0;
-    back   =   h;
+    float left   = - w / 2;
+    float right  =   w / 2;
+    float bottom = - d / 2;
+    float top    =   d / 2;
+    float front  =   0;
+    float back   =   h;
 
-    aspect = ( float ) w / ( float ) d;
+    float aspect = ( float ) w / ( float ) d;
     if ( aspect < 1.0f )
     {
         // window taller than wide
@@ -1068,7 +1067,7 @@ void cartman_begin_ortho_camera_vrt(Cartman::Window& pwin, camera_t * pcam, floa
 void cartman_end_ortho_camera()
 {
     auto &renderer = Ego::Renderer::get();
-    Matrix4f4f projection = Ego::Math::Transform::ortho(0, sdl_scr.width, sdl_scr.height, 0, -1, 1);
+    Matrix4f4f projection = Ego::Math::Transform::ortho(0, sdl_scr.size.getWidth(), sdl_scr.size.getHeight(), 0, -1, 1);
     renderer.setProjectionMatrix(projection);
     renderer.setWorldMatrix(Matrix4f4f::identity());
     renderer.setViewMatrix(Matrix4f4f::identity());

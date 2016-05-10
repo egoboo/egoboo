@@ -90,7 +90,7 @@ static bool _ttf_atexit_registered = false;
 //--------------------------------------------------------------------------------------------
 
 // ui functions
-static void draw_cursor_in_window(Cartman::Window& pwin);
+static void draw_cursor_in_window(Cartman::Gui::Window& pwin);
 static void unbound_mouse();
 static void bound_mouse();
 static bool cartman_check_keys( const char *modname, cartman_mpd_t * pmesh );
@@ -147,10 +147,10 @@ static int cartman_get_vertex(cartman_mpd_t *pmesh, int mapx, int mapy, int num)
 
 
 
-static void cartman_check_mouse_side(std::shared_ptr<Cartman::Window> pwin, float zoom_hrz, float zoom_vrt);
-static void cartman_check_mouse_tile(std::shared_ptr<Cartman::Window> pwin, float zoom_hrz, float zoom_vrt);
-static void cartman_check_mouse_fx(std::shared_ptr<Cartman::Window> pwin, float zoom_hrz, float zoom_vrt);
-static void cartman_check_mouse_vertex(std::shared_ptr<Cartman::Window> pwin, float zoom_hrz, float zoom_vrt);
+static void cartman_check_mouse_side(std::shared_ptr<Cartman::Gui::Window> pwin, float zoom_hrz, float zoom_vrt);
+static void cartman_check_mouse_tile(std::shared_ptr<Cartman::Gui::Window> pwin, float zoom_hrz, float zoom_vrt);
+static void cartman_check_mouse_fx(std::shared_ptr<Cartman::Gui::Window> pwin, float zoom_hrz, float zoom_vrt);
+static void cartman_check_mouse_vertex(std::shared_ptr<Cartman::Gui::Window> pwin, float zoom_hrz, float zoom_vrt);
 
 // shutdown function
 static void main_end();
@@ -191,9 +191,9 @@ struct LightModel {
         numlight++;
     }
 
-    static void draw_light(int number, std::shared_ptr<Cartman::Window> pwin, float zoom_hrz) {
-        int xdraw = (light_lst[number].x / FOURNUM * zoom_hrz) - cam.x + (pwin->surfacex >> 1) - SMALLXY;
-        int ydraw = (light_lst[number].y / FOURNUM * zoom_hrz) - cam.y + (pwin->surfacey >> 1) - SMALLXY;
+    static void draw_light(int number, std::shared_ptr<Cartman::Gui::Window> pwin, float zoom_hrz) {
+        int xdraw = (light_lst[number].x / FOURNUM * zoom_hrz) - cam.x + (pwin->size.getWidth() / 2) - SMALLXY;
+        int ydraw = (light_lst[number].y / FOURNUM * zoom_hrz) - cam.y + (pwin->size.getHeight() / 2) - SMALLXY;
         int radius = std::abs(light_lst[number].radius) / FOURNUM * zoom_hrz;
         Uint8 color = light_lst[number].level;
 
@@ -204,7 +204,7 @@ struct LightModel {
 
 //--------------------------------------------------------------------------------------------
 
-void draw_cursor_in_window(Cartman::Window& pwin)
+void draw_cursor_in_window(Cartman::Gui::Window& pwin)
 {
     using namespace Cartman;
 
@@ -214,8 +214,8 @@ void draw_cursor_in_window(Cartman::Window& pwin)
     {
         int size = POINT_SIZE( 10 );
 
-        int x = pwin.x + ( Input::get()._mouse.x - _window_lst[mdata.win_id]->x );
-        int y = pwin.y + ( Input::get()._mouse.y - _window_lst[mdata.win_id]->y );
+        int x = pwin.position.getX() + ( Input::get()._mouse.position.getX() - g_windowList[mdata.win_id]->position.getX() );
+        int y = pwin.position.getY() + ( Input::get()._mouse.position.getY() - g_windowList[mdata.win_id]->position.getY() );
 
         ogl_draw_sprite_2d(Resources::get().tx_pointon, x - size / 2, y - size / 2, size, size );
     }
@@ -380,7 +380,7 @@ bool load_module( const char *modname, cartman_mpd_t * pmesh )
 
 //--------------------------------------------------------------------------------------------
 
-void Cartman::Window::render()
+void Cartman::Gui::Window::render()
 {
     if ( !on ) return;
 
@@ -388,7 +388,8 @@ void Cartman::Window::render()
     {
         auto& renderer = Ego::Renderer::get();
 		renderer.setScissorTestEnabled(true);
-        renderer.setScissorRectangle(x, sdl_scr.height - ( y + surfacey ), surfacex, surfacey);
+        renderer.setScissorRectangle(position.getX(), sdl_scr.size.getHeight() - ( position.getY() + size.getHeight() ),
+                                     size.getWidth(), size.getHeight());
 
         make_onscreen( pmesh );
 
@@ -422,12 +423,13 @@ void Cartman::Window::render()
 
 void load_all_windows( cartman_mpd_t& mesh )
 {
-    static const int border_width = 7;
-    static const int border_height = 9;
-    _window_lst[0]->load_window(0, "editor/window.png", 180, 16,  border_width, border_height, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_VERTEX, &mesh );
-    _window_lst[1]->load_window(1, "editor/window.png", 410, 16,  border_width, border_height, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_TILE,   &mesh );
-    _window_lst[2]->load_window(2, "editor/window.png", 180, 248, border_width, border_height, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_SIDE,   &mesh );
-    _window_lst[3]->load_window(3, "editor/window.png", 410, 248, border_width, border_height, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_FX,     &mesh );
+    using namespace Cartman;
+    static const auto windowSize = Size2i(Gui::Window::defaultWidth, Gui::Window::defaultHeight);
+    static const auto borderSize = Size2i(7, 9);
+    g_windowList[0]->load_window(0, "editor/window.png", Point2i(180, 16),  borderSize, windowSize, WINMODE_VERTEX, &mesh );
+    g_windowList[1]->load_window(1, "editor/window.png", Point2i(410, 16),  borderSize, windowSize, WINMODE_TILE,   &mesh );
+    g_windowList[2]->load_window(2, "editor/window.png", Point2i(180, 248), borderSize, windowSize, WINMODE_SIDE,   &mesh );
+    g_windowList[3]->load_window(3, "editor/window.png", Point2i(410, 248), borderSize, windowSize, WINMODE_FX,     &mesh );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -448,8 +450,8 @@ void unbound_mouse()
     {
         Input::get()._mouse.tlx = 0;
         Input::get()._mouse.tly = 0;
-        Input::get()._mouse.brx = sdl_scr.width - 1;
-        Input::get()._mouse.bry = sdl_scr.height - 1;
+        Input::get()._mouse.brx = sdl_scr.size.getWidth() - 1;
+        Input::get()._mouse.bry = sdl_scr.size.getHeight() - 1;
     }
 }
 
@@ -460,11 +462,11 @@ void bound_mouse()
     using namespace Cartman;
     if (mdata.win_id != -1)
     {
-        auto window = _window_lst[mdata.win_id];
-        Input::get()._mouse.tlx = window->x + window->border.width;
-        Input::get()._mouse.tly = window->y + window->border.height;
-        Input::get()._mouse.brx = Input::get()._mouse.tlx + window->surfacex - 1;
-        Input::get()._mouse.bry = Input::get()._mouse.tly + window->surfacey - 1;
+        auto window = g_windowList[mdata.win_id];
+        Input::get()._mouse.tlx = window->position.getX() + window->border.size.getWidth();
+        Input::get()._mouse.tly = window->position.getY() + window->border.size.getHeight();
+        Input::get()._mouse.brx = Input::get()._mouse.tlx + window->size.getWidth() - 1;
+        Input::get()._mouse.bry = Input::get()._mouse.tly + window->size.getHeight() - 1;
     }
 }
 
@@ -583,11 +585,11 @@ void move_camera( cartman_mpd_info_t * pinfo )
     using namespace Cartman;
     if ((-1 != mdata.win_id) && (CART_BUTTONDOWN(SDL_BUTTON_MIDDLE) || CART_KEYDOWN(SDLK_m)))
     {
-        cam.x += Input::get()._mouse.x - Input::get()._mouse.x_old;
-        cam.y += Input::get()._mouse.y - Input::get()._mouse.y_old;
+        auto delta = Input::get()._mouse.position - Input::get()._mouse.positionOld;
+        cam.x += delta.getX();
+        cam.y += delta.getY();
 
-        Input::get()._mouse.x = Input::get()._mouse.x_old;
-        Input::get()._mouse.y = Input::get()._mouse.y_old;
+        Input::get()._mouse.position = Input::get()._mouse.positionOld;
 
         bound_camera( pinfo );
     }
@@ -595,7 +597,7 @@ void move_camera( cartman_mpd_info_t * pinfo )
 
 //--------------------------------------------------------------------------------------------
 
-void cartman_check_mouse_side(std::shared_ptr<Cartman::Window> pwin, float zoom_hrz, float zoom_vrt)
+void cartman_check_mouse_side(std::shared_ptr<Cartman::Gui::Window> pwin, float zoom_hrz, float zoom_vrt)
 {
     using namespace Cartman;
     int    mpix_x, mpix_z;
@@ -607,39 +609,39 @@ void cartman_check_mouse_side(std::shared_ptr<Cartman::Window> pwin, float zoom_
 
     if ( NULL == pwin->pmesh ) pwin->pmesh = &mesh;
 
-    mpix_x = Input::get()._mouse.x - (pwin->x + pwin->surfacex / 2);
-    mpix_z = Input::get()._mouse.y - (pwin->y + pwin->surfacey / 2);
+    mpix_x = Input::get()._mouse.position.getX() - (pwin->position.getX() + pwin->size.getWidth() / 2);
+    mpix_z = Input::get()._mouse.position.getY() - (pwin->position.getY() + pwin->size.getHeight() / 2);
 
-    inside = ( mpix_x >= -( pwin->surfacex / 2 ) ) && ( mpix_x <= ( pwin->surfacex / 2 ) ) &&
-             ( mpix_z >= -( pwin->surfacey / 2 ) ) && ( mpix_z <= ( pwin->surfacey / 2 ) );
+    inside = ( mpix_x >= -( pwin->size.getWidth() / 2 ) ) && ( mpix_x <= ( pwin->size.getWidth() / 2 ) ) &&
+             ( mpix_z >= -( pwin->size.getHeight() / 2 ) ) && ( mpix_z <= ( pwin->size.getHeight() / 2 ) );
 
     mpos_x = SCREEN_TO_REAL( mpix_x, cam.x, zoom_hrz );
     mpos_z = SCREEN_TO_REAL( mpix_z, cam.z, zoom_vrt );
 
-    mpos_y0 = SCREEN_TO_REAL( - pwin->surfacex / 2, cam.y, zoom_hrz );
-    mpos_y1 = SCREEN_TO_REAL( + pwin->surfacex / 2, cam.y, zoom_hrz );
+    mpos_y0 = SCREEN_TO_REAL( - pwin->size.getWidth() / 2, cam.y, zoom_hrz );
+    mpos_y1 = SCREEN_TO_REAL( + pwin->size.getWidth() / 2, cam.y, zoom_hrz );
 
     if ( pwin->id == mdata.rect_drag && !inside )
     {
         // scroll the window
         int dmpix_x = 0, dmpix_z = 0;
 
-        if ( mpix_x < - pwin->surfacex / 2 )
+        if ( mpix_x < - pwin->size.getWidth() / 2 )
         {
-            dmpix_x = mpix_x + pwin->surfacex / 2;
+            dmpix_x = mpix_x + pwin->size.getWidth() / 2;
         }
-        else if ( mpix_x > pwin->surfacex / 2 )
+        else if ( mpix_x > pwin->size.getWidth() / 2 )
         {
-            dmpix_x = mpix_x - pwin->surfacex / 2;
+            dmpix_x = mpix_x - pwin->size.getWidth() / 2;
         }
 
-        if ( mpix_z < - pwin->surfacex / 2 )
+        if ( mpix_z < - pwin->size.getWidth() / 2 )
         {
-            dmpix_z = mpix_z + pwin->surfacey / 2;
+            dmpix_z = mpix_z + pwin->size.getHeight() / 2;
         }
-        else if ( mpix_z > pwin->surfacey / 2 )
+        else if ( mpix_z > pwin->size.getHeight() / 2 )
         {
-            dmpix_z = mpix_z - pwin->surfacey / 2;
+            dmpix_z = mpix_z - pwin->size.getHeight() / 2;
         }
 
         if ( 0 != dmpix_x && 0 != dmpix_z )
@@ -762,7 +764,7 @@ void cartman_check_mouse_side(std::shared_ptr<Cartman::Window> pwin, float zoom_
 
 //--------------------------------------------------------------------------------------------
 
-void cartman_check_mouse_tile(std::shared_ptr<Cartman::Window> pwin, float zoom_hrz, float zoom_vrt)
+void cartman_check_mouse_tile(std::shared_ptr<Cartman::Gui::Window> pwin, float zoom_hrz, float zoom_vrt)
 {
     using namespace Cartman;
     int fan_tmp;
@@ -774,11 +776,11 @@ void cartman_check_mouse_tile(std::shared_ptr<Cartman::Window> pwin, float zoom_
 
     if ( NULL == pwin->pmesh ) pwin->pmesh = &mesh;
 
-    mpix_x = Input::get()._mouse.x - (pwin->x + pwin->border.width + pwin->surfacex / 2);
-    mpix_y = Input::get()._mouse.y - (pwin->y + pwin->border.height + pwin->surfacey / 2);
+    mpix_x = Input::get()._mouse.position.getX() - (pwin->position.getX() + pwin->border.size.getWidth() + pwin->size.getWidth() / 2);
+    mpix_y = Input::get()._mouse.position.getY() - (pwin->position.getY() + pwin->border.size.getHeight() + pwin->size.getHeight() / 2);
 
-    inside = ( mpix_x >= -( pwin->surfacex / 2 ) ) && ( mpix_x <= ( pwin->surfacex / 2 ) ) &&
-             ( mpix_y >= -( pwin->surfacey / 2 ) ) && ( mpix_y <= ( pwin->surfacey / 2 ) );
+    inside = ( mpix_x >= -( pwin->size.getWidth() / 2 ) ) && ( mpix_x <= ( pwin->size.getWidth() / 2 ) ) &&
+             ( mpix_y >= -( pwin->size.getHeight() / 2 ) ) && ( mpix_y <= ( pwin->size.getHeight() / 2 ) );
 
     mpos_x = SCREEN_TO_REAL( mpix_x, cam.x, zoom_hrz );
     mpos_y = SCREEN_TO_REAL( mpix_y, cam.y, zoom_hrz );
@@ -788,22 +790,22 @@ void cartman_check_mouse_tile(std::shared_ptr<Cartman::Window> pwin, float zoom_
         // scroll the window
         int dmpix_x = 0, dmpix_y = 0;
 
-        if ( mpix_x < - pwin->surfacex / 2 )
+        if ( mpix_x < - pwin->size.getWidth() / 2 )
         {
-            dmpix_x = mpix_x + pwin->surfacex / 2;
+            dmpix_x = mpix_x + pwin->size.getWidth() / 2;
         }
-        else if ( mpix_x > pwin->surfacex / 2 )
+        else if ( mpix_x > pwin->size.getWidth() / 2 )
         {
-            dmpix_x = mpix_x - pwin->surfacex / 2;
+            dmpix_x = mpix_x - pwin->size.getWidth() / 2;
         }
 
-        if ( mpix_y < - pwin->surfacex / 2 )
+        if ( mpix_y < - pwin->size.getWidth() / 2 )
         {
-            dmpix_y = mpix_y + pwin->surfacey / 2;
+            dmpix_y = mpix_y + pwin->size.getHeight() / 2;
         }
-        else if ( mpix_y > pwin->surfacey / 2 )
+        else if ( mpix_y > pwin->size.getHeight() / 2 )
         {
-            dmpix_y = mpix_y - pwin->surfacey / 2;
+            dmpix_y = mpix_y - pwin->size.getHeight() / 2;
         }
 
         if ( 0 != dmpix_x && 0 != dmpix_y )
@@ -875,7 +877,7 @@ void cartman_check_mouse_tile(std::shared_ptr<Cartman::Window> pwin, float zoom_
 
 //--------------------------------------------------------------------------------------------
 
-void cartman_check_mouse_fx(std::shared_ptr<Cartman::Window> pwin, float zoom_hrz, float zoom_vrt)
+void cartman_check_mouse_fx(std::shared_ptr<Cartman::Gui::Window> pwin, float zoom_hrz, float zoom_vrt)
 {
     using namespace Cartman;
     int mpix_x, mpix_y;
@@ -886,11 +888,11 @@ void cartman_check_mouse_fx(std::shared_ptr<Cartman::Window> pwin, float zoom_hr
 
     if ( NULL == pwin->pmesh ) pwin->pmesh = &mesh;
 
-    mpix_x = Input::get()._mouse.x - (pwin->x + pwin->border.width + pwin->surfacex / 2);
-    mpix_y = Input::get()._mouse.y - (pwin->y + pwin->border.height + pwin->surfacey / 2);
+    mpix_x = Input::get()._mouse.position.getX() - (pwin->position.getX() + pwin->border.size.getWidth() + pwin->size.getWidth() / 2);
+    mpix_y = Input::get()._mouse.position.getY() - (pwin->position.getY() + pwin->border.size.getHeight() + pwin->size.getHeight() / 2);
 
-    inside = ( mpix_x >= -( pwin->surfacex / 2 ) ) && ( mpix_x <= ( pwin->surfacex / 2 ) ) &&
-             ( mpix_y >= -( pwin->surfacey / 2 ) ) && ( mpix_y <= ( pwin->surfacey / 2 ) );
+    inside = ( mpix_x >= -( pwin->size.getWidth() / 2 ) ) && ( mpix_x <= ( pwin->size.getWidth() / 2 ) ) &&
+             ( mpix_y >= -( pwin->size.getHeight() / 2 ) ) && ( mpix_y <= ( pwin->size.getHeight() / 2 ) );
 
     mpos_x = SCREEN_TO_REAL( mpix_x, cam.x, zoom_hrz );
     mpos_y = SCREEN_TO_REAL( mpix_y, cam.y, zoom_hrz );
@@ -900,22 +902,22 @@ void cartman_check_mouse_fx(std::shared_ptr<Cartman::Window> pwin, float zoom_hr
         // scroll the window
         int dmpix_x = 0, dmpix_y = 0;
 
-        if ( mpix_x < - pwin->surfacex / 2 )
+        if ( mpix_x < - pwin->size.getWidth() / 2 )
         {
-            dmpix_x = mpix_x + pwin->surfacex / 2;
+            dmpix_x = mpix_x + pwin->size.getWidth() / 2;
         }
-        else if ( mpix_x > pwin->surfacex / 2 )
+        else if ( mpix_x > pwin->size.getWidth() / 2 )
         {
-            dmpix_x = mpix_x - pwin->surfacex / 2;
+            dmpix_x = mpix_x - pwin->size.getWidth() / 2;
         }
 
-        if ( mpix_y < - pwin->surfacex / 2 )
+        if ( mpix_y < - pwin->size.getWidth() / 2 )
         {
-            dmpix_y = mpix_y + pwin->surfacey / 2;
+            dmpix_y = mpix_y + pwin->size.getHeight() / 2;
         }
-        else if ( mpix_y > pwin->surfacey / 2 )
+        else if ( mpix_y > pwin->size.getHeight() / 2 )
         {
-            dmpix_y = mpix_y - pwin->surfacey / 2;
+            dmpix_y = mpix_y - pwin->size.getHeight() / 2;
         }
 
         if ( 0 != dmpix_x && 0 != dmpix_y )
@@ -976,7 +978,7 @@ void cartman_check_mouse_fx(std::shared_ptr<Cartman::Window> pwin, float zoom_hr
 
 //--------------------------------------------------------------------------------------------
 
-void cartman_check_mouse_vertex(std::shared_ptr<Cartman::Window> pwin, float zoom_hrz, float zoom_vrt)
+void cartman_check_mouse_vertex(std::shared_ptr<Cartman::Gui::Window> pwin, float zoom_hrz, float zoom_vrt)
 {
     using namespace Cartman;
     int mpix_x, mpix_y;
@@ -988,39 +990,39 @@ void cartman_check_mouse_vertex(std::shared_ptr<Cartman::Window> pwin, float zoo
 
     if ( NULL == pwin->pmesh ) pwin->pmesh = &mesh;
 
-    mpix_x = Input::get()._mouse.x - (pwin->x + pwin->surfacex / 2);
-    mpix_y = Input::get()._mouse.y - (pwin->y + pwin->surfacey / 2);
+    mpix_x = Input::get()._mouse.position.getX() - (pwin->position.getX() + pwin->size.getWidth() / 2);
+    mpix_y = Input::get()._mouse.position.getY() - (pwin->position.getY() + pwin->size.getHeight() / 2);
 
-    inside = ( mpix_x >= -( pwin->surfacex / 2 ) ) && ( mpix_x <= ( pwin->surfacex / 2 ) ) &&
-             ( mpix_y >= -( pwin->surfacey / 2 ) ) && ( mpix_y <= ( pwin->surfacey / 2 ) );
+    inside = ( mpix_x >= -( pwin->size.getWidth() / 2 ) ) && ( mpix_x <= ( pwin->size.getWidth() / 2 ) ) &&
+             ( mpix_y >= -( pwin->size.getHeight() / 2 ) ) && ( mpix_y <= ( pwin->size.getHeight() / 2 ) );
 
     mpos_x = SCREEN_TO_REAL( mpix_x, cam.x, zoom_hrz );
     mpos_y = SCREEN_TO_REAL( mpix_y, cam.y, zoom_hrz );
 
-    mpos_z0 = SCREEN_TO_REAL( - pwin->surfacey / 2, cam.z, zoom_vrt );
-    mpos_z1 = SCREEN_TO_REAL( + pwin->surfacey / 2, cam.z, zoom_vrt );
+    mpos_z0 = SCREEN_TO_REAL( - pwin->size.getHeight() / 2, cam.z, zoom_vrt );
+    mpos_z1 = SCREEN_TO_REAL( + pwin->size.getHeight() / 2, cam.z, zoom_vrt );
 
     if ( pwin->id == mdata.rect_drag && !inside )
     {
         // scroll the window
         int dmpix_x = 0, dmpix_y = 0;
 
-        if ( mpix_x < - pwin->surfacex / 2 )
+        if ( mpix_x < - pwin->size.getWidth() / 2 )
         {
-            dmpix_x = mpix_x + pwin->surfacex / 2;
+            dmpix_x = mpix_x + pwin->size.getWidth() / 2;
         }
-        else if ( mpix_x > pwin->surfacex / 2 )
+        else if ( mpix_x > pwin->size.getWidth() / 2 )
         {
-            dmpix_x = mpix_x - pwin->surfacex / 2;
+            dmpix_x = mpix_x - pwin->size.getWidth() / 2;
         }
 
-        if ( mpix_y < - pwin->surfacex / 2 )
+        if ( mpix_y < - pwin->size.getWidth() / 2 )
         {
-            dmpix_y = mpix_y + pwin->surfacey / 2;
+            dmpix_y = mpix_y + pwin->size.getHeight() / 2;
         }
-        else if ( mpix_y > pwin->surfacey / 2 )
+        else if ( mpix_y > pwin->size.getHeight() / 2 )
         {
-            dmpix_y = mpix_y - pwin->surfacey / 2;
+            dmpix_y = mpix_y - pwin->size.getHeight() / 2;
         }
 
         if ( 0 != dmpix_x && 0 != dmpix_y )
@@ -1145,7 +1147,7 @@ bool cartman_check_mouse( const char * modulename, cartman_mpd_t * pmesh )
     {
         mdata.win_id = -1;
 
-        for (auto window : _window_lst)
+        for (auto& window : g_windowList)
         {
             cartman_check_mouse_tile(window, cartman_zoom_hrz, cartman_zoom_vrt);
             cartman_check_mouse_vertex(window, cartman_zoom_hrz, cartman_zoom_vrt);
@@ -1165,8 +1167,8 @@ void ease_up_mesh( cartman_mpd_t * pmesh, float zoom_vrt )
     using namespace Cartman;
     if ( NULL == pmesh ) pmesh = &mesh;
 
-    Input::get()._mouse.y = Input::get()._mouse.y_old;
-    Input::get()._mouse.x = Input::get()._mouse.x_old;
+    Input::get()._mouse.position = Input::get()._mouse.positionOld;
+
 
     MeshEditor::mesh_move( pmesh, 0, 0, -Input::get()._mouse.cy / zoom_vrt );
 }
@@ -1495,24 +1497,25 @@ void draw_lotsa_stuff( cartman_mpd_t * pmesh )
 #endif
 
     // Tell user what keys are important
-    gfx_font_ptr->drawText("O = Overlay (Water)", 0, sdl_scr.height - 120);
-    gfx_font_ptr->drawText("R = Reflective", 0, sdl_scr.height - 112);
-    gfx_font_ptr->drawText("D = Draw Reflection", 0, sdl_scr.height - 104);
-    gfx_font_ptr->drawText("A = Animated", 0, sdl_scr.height - 96);
-    gfx_font_ptr->drawText("B = Barrier (Slit)", 0, sdl_scr.height - 88);
-    gfx_font_ptr->drawText("I = Impassable (Wall)", 0, sdl_scr.height - 80);
-    gfx_font_ptr->drawText("H = Hurt", 0, sdl_scr.height - 72);
-    gfx_font_ptr->drawText("S = Slippy", 0, sdl_scr.height - 64);
+    int y = sdl_scr.size.getHeight() - 120, step = 8;
+    gfx_font_ptr->drawText("O = Overlay (Water)", 0, y); y -= step;
+    gfx_font_ptr->drawText("R = Reflective", 0, y); y -= step;
+    gfx_font_ptr->drawText("D = Draw Reflection", 0, y); y -= step;
+    gfx_font_ptr->drawText("A = Animated", 0, y); y -= step;
+    gfx_font_ptr->drawText("B = Barrier (Slit)", 0, y); y -= step;
+    gfx_font_ptr->drawText("I = Impassable (Wall)", 0, y); y -= step;
+    gfx_font_ptr->drawText("H = Hurt", 0, y); y -= step;
+    gfx_font_ptr->drawText("S = Slippy", 0, y); y -= step;
 
     // Vertices left
-    gfx_font_ptr->drawText("Vertices " + std::to_string(pmesh->vrt_free), 0, sdl_scr.height - 56);
+    gfx_font_ptr->drawText("Vertices " + std::to_string(pmesh->vrt_free), 0, y); y -= step;
 
     // Misc data
-    gfx_font_ptr->drawText("Ambient   " + std::to_string(ambi), 0, sdl_scr.height - 40);
-    gfx_font_ptr->drawText("Ambicut   " + std::to_string(ambicut), 0, sdl_scr.height - 32);
-    gfx_font_ptr->drawText("Direct    " + std::to_string(direct), 0, sdl_scr.height - 24);
-    gfx_font_ptr->drawText("Brush amount " + std::to_string(brushamount), 0, sdl_scr.height - 16);
-    gfx_font_ptr->drawText("Brush size   " + std::to_string(brushsize), 0, sdl_scr.height - 8);
+    gfx_font_ptr->drawText("Ambient   " + std::to_string(ambi), 0, y); y -= step;
+    gfx_font_ptr->drawText("Ambicut   " + std::to_string(ambicut), 0, y); y -= step;
+    gfx_font_ptr->drawText("Direct    " + std::to_string(direct), 0, y); y -= step;
+    gfx_font_ptr->drawText("Brush amount " + std::to_string(brushamount), 0, y); y -= step;
+    gfx_font_ptr->drawText("Brush size   " + std::to_string(brushsize), 0, y); y -= step;
 
     // Cursor
     //if (mos.x >= 0 && mos.x < sdl_scr.x && mos.y >= 0 && mos.y < sdl_scr.y)
@@ -1614,7 +1617,7 @@ void draw_main( cartman_mpd_t * pmesh )
     {
         int itmp;
 
-        Cartman::GUI::render();
+        Cartman::Gui::Manager::render();
 
         itmp = ambi;
         draw_slider( 0, 250, 19, 350, &ambi,          0, 200 );
@@ -1716,7 +1719,7 @@ int SDL_main( int argcnt, char* argtext[] )
     }
 
     fill_fpstext();                     // Make the FPS text
-    Cartman::GUI::initialize();
+    Cartman::Gui::Manager::initialize();
     load_all_windows( mesh );          // Load windows
     load_img();                         // Load cartman icons
 
@@ -1735,7 +1738,7 @@ int SDL_main( int argcnt, char* argtext[] )
 
         Clocks::update();
     }
-    Cartman::GUI::uninitialize();
+    Cartman::Gui::Manager::uninitialize();
     Ego::Core::ConsoleHandler::uninitialize();
     Resources::uninitialize();
     gfx_system_end();

@@ -57,6 +57,12 @@ public:
     static inline ScalarType quotient(const ScalarType& x, const ScalarType& y) {
         return x / y;
     }
+    struct QuotientFunctor {
+        typedef ScalarType ResultType;
+        ScalarType operator()(const ScalarType& a, const ScalarType& b) const {
+            return quotient(a, b);
+        }
+    };
  
 };
 

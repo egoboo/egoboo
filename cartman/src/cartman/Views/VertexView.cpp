@@ -1,3 +1,23 @@
+//********************************************************************************************
+//*
+//*    This file is part of Cartman.
+//*
+//*    Cartman is free software: you can redistribute it and/or modify it
+//*    under the terms of the GNU General Public License as published by
+//*    the Free Software Foundation, either version 3 of the License, or
+//*    (at your option) any later version.
+//*
+//*    Cartman is distributed in the hope that it will be useful, but
+//*    WITHOUT ANY WARRANTY; without even the implied warranty of
+//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//*    General Public License for more details.
+//*
+//*    You should have received a copy of the GNU General Public License
+//*    along with Cartman.  If not, see <http://www.gnu.org/licenses/>.
+//*
+//*
+//********************************************************************************************
+
 #include "cartman/Views/VertexView.hpp"
 #include "cartman/cartman_gui.h"
 #include "cartman/cartman_functions.h"
@@ -9,40 +29,25 @@
 
 namespace Cartman {
 
-void VertexView::render(Window& window, float zoom_hrz, float zoom_vrt) {
+void VertexView::render(Gui::Window& window, float zoom_hrz, float zoom_vrt) {
     if (!window.on || !HAS_BITS(window.mode, WINMODE_VERTEX)) return;
 
     if (NULL == window.pmesh) window.pmesh = &mesh;
 
     glPushAttrib(GL_SCISSOR_BIT | GL_VIEWPORT_BIT | GL_ENABLE_BIT);
     {
-        // set the viewport transformation
-        Ego::Renderer::get().setViewportRectangle(window.x, sdl_scr.height - (window.y + window.surfacey), window.surfacex, window.surfacey);
-
-        // clip the viewport
-        Ego::Renderer::get().setScissorTestEnabled(true);
-        Ego::Renderer::get().setScissorRectangle(window.x, sdl_scr.height - (window.y + window.surfacey), window.surfacex, window.surfacey);
-
+        beginRender(window, zoom_hrz, zoom_vrt);
         cartman_begin_ortho_camera_hrz(window, &cam, zoom_hrz, zoom_hrz);
         {
-            int mapxstt = std::floor((cam.x - cam.w * 0.5f) / Info<float>::Grid::Size()) - 1.0f;
-            int mapystt = std::floor((cam.y - cam.h * 0.5f) / Info<float>::Grid::Size()) - 1.0f;
+            std::vector<std::pair<int, int>> indices;
+            getTileRange(cam, *window.pmesh, indices);
 
-            int mapxend = std::ceil((cam.x + cam.w * 0.5f) / Info<float>::Grid::Size()) + 1;
-            int mapyend = std::ceil((cam.y + cam.h * 0.5f) / Info<float>::Grid::Size()) + 1;
 
-            for (int mapy = mapystt; mapy <= mapyend; mapy++) {
-                if (mapy < 0 || mapy >= window.pmesh->info.getTileCountY()) continue;
+            for (auto index : indices) {
+                int fan = window.pmesh->get_ifan(index.first, index.second);
+                if (!VALID_MPD_TILE_RANGE(fan)) continue;
 
-                for (int mapx = mapxstt; mapx <= mapxend; mapx++) {
-                    if (mapx < 0 || mapx >= window.pmesh->info.getTileCountX()) continue;
-
-                    int fan = window.pmesh->get_ifan(mapx, mapy);
-
-                    if (VALID_MPD_TILE_RANGE(fan)) {
-                        draw_top_fan(mdata.win_select, fan, zoom_hrz, zoom_vrt);
-                    }
-                }
+                draw_top_fan(mdata.win_select, fan, zoom_hrz, zoom_vrt);
             }
 
             if (mdata.rect_draw) {

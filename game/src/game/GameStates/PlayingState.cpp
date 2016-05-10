@@ -137,7 +137,7 @@ void PlayingState::drawContainer()
 void PlayingState::beginState()
 {
     // in-game settings
-    SDL_ShowCursor(egoboo_config_t::get().debug_hideMouse.getValue() ? SDL_DISABLE : SDL_ENABLE );
+    Ego::GraphicsSystem::setCursorVisibility(egoboo_config_t::get().debug_hideMouse.getValue());
     sdl_scr.window->setGrabEnabled(egoboo_config_t::get().debug_grabMouse.getValue());
 
 //    if(egoboo_config_t::get().debug_hideMouse.getValue())

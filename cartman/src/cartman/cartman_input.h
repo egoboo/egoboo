@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Cartman.
@@ -19,13 +17,9 @@
 //*
 //********************************************************************************************
 
+#pragma once
+
 #include "cartman/cartman_typedef.h"
-
-//--------------------------------------------------------------------------------------------
-
-namespace Cartman {
-struct Window;
-}
 
 //--------------------------------------------------------------------------------------------
 
@@ -35,15 +29,15 @@ namespace Cartman
     {
         bool on;
 
-        int   x, y;
-        int   x_old, y_old;
+		Point2i position;
+		Point2i positionOld;
         int   b;
 
         bool relative;
         int   cx, cy;
 
         bool drag, drag_begin;
-        std::shared_ptr<Cartman::Window> drag_window;
+        std::shared_ptr<Cartman::Gui::Window> drag_window;
         int drag_mode;
         int tlx, tly, brx, bry;
 
@@ -52,15 +46,15 @@ namespace Cartman
 
         static void update(Mouse& self);
         /**
-        * @brief
-        *  Get if a mouse button is down.
-        * @param self
-        *  the mouse
-        * @param button
-        *  the button
-        * @return
-        *  @a true if the mouse button is down
-        */
+         * @brief
+         *  Get if a mouse button is down.
+         * @param self
+         *  the mouse
+         * @param button
+         *  the button
+         * @return
+         *  @a true if the mouse button is down
+         */
         static bool isButtonDown(Mouse& self, int button);
     };
 }

@@ -115,7 +115,7 @@ void MapEditorState::drawContainer()
 void MapEditorState::beginState()
 {
     // in-game settings
-    SDL_ShowCursor(SDL_ENABLE);
+    Ego::GraphicsSystem::setCursorVisibility(true);
     sdl_scr.window->setGrabEnabled(egoboo_config_t::get().debug_grabMouse.getValue());
 }
 
