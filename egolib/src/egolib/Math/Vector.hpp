@@ -198,7 +198,7 @@ public:
      *  the dot product <tt>(*this) * other</tt> of this vector and the other vector
      */
     ScalarType dot(const MyType& other) const {
-        return TupleUtilities::foldTT(DotProductFunctor(), *this, other);
+        return TupleUtilities::foldTT(DotProductFunctor(), ScalarFieldType::additiveNeutral(), *this, other);
     }
 
     /**
@@ -209,7 +209,7 @@ public:
      *  the squared length of this vector
      */
     ScalarType length_2() const {
-        return TupleUtilities::foldT(EuclideanLengthSquaredFunctor(), *this);
+        return TupleUtilities::foldT(EuclideanLengthSquaredFunctor(), ScalarFieldType::additiveNeutral(), *this);
     }
 
     /**
@@ -220,7 +220,7 @@ public:
      *  the length of this vector
      */
     ScalarType length_abs() const {
-        return TupleUtilities::foldT(AbsoluteLengthFunctor(), *this);
+        return TupleUtilities::foldT(AbsoluteLengthFunctor(), ScalarFieldType::additiveNeutral(), *this);
     }
     
 public:

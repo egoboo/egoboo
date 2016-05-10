@@ -241,8 +241,8 @@ public:
 
 public:
     template <typename FunctorType, typename ElementType, size_t Dimensionality>
-    static decltype(auto) foldT(FunctorType functor, const Tuple<ElementType, Dimensionality>& x) {
-        auto t = typename FunctorType::ResultType();
+    static decltype(auto) foldT(FunctorType functor, const typename FunctorType::ResultType& initialValue, const Tuple<ElementType, Dimensionality>& x) {
+        auto t = initialValue;
         for (size_t i = 0; i < Dimensionality; ++i) {
             t = functor(t, x.at(i));
         }
@@ -250,8 +250,8 @@ public:
     }
 
     template <typename FunctorType, typename ElementType0, typename ElementType1, size_t Dimensionality>
-    static decltype(auto) foldTT(FunctorType functor, const Tuple<ElementType0, Dimensionality>& x, const Tuple<ElementType1, Dimensionality>& y) {
-        auto t = typename FunctorType::ResultType();
+    static decltype(auto) foldTT(FunctorType functor, const typename FunctorType::ResultType& initialValue, const Tuple<ElementType0, Dimensionality>& x, const Tuple<ElementType1, Dimensionality>& y) {
+        auto t = initialValue;
         for (size_t i = 0; i < Dimensionality; ++i) {
             t = functor(t, x.at(i), y.at(i));
         }
