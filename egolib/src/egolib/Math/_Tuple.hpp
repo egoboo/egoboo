@@ -86,7 +86,7 @@ protected:
 
 	/**
 	 * @brief Construct this tuple with the specified element values.
-	 * @param first, ... rest the specified element values
+	 * @param first, ... rest the element values
      * @pre The number of specified element values must be equal to the dimensionality of the tuple type.
      * @pre Each specified element value must be convertible into the element type of the tuple type.
 	 */
@@ -94,12 +94,12 @@ protected:
         typename ... ArgumentTypes,
         typename = 
             std::enable_if_t<
-                ((sizeof...(ArgumentTypes)) + 1) == MyType::dimensionality() &&
-                Core::AllTrue<std::is_convertible<ArgumentTypes, ElementType>::value ...>::value
+                (1 + sizeof...(ArgumentTypes)) == MyType::dimensionality() &&
+                Core::AllConvertible<ElementType, ArgumentTypes ...>::value
             >
     >
 	Tuple(ElementType&& first, ArgumentTypes&& ... rest)
-		: _elements{ first, static_cast<ElementType>(rest) ... } {
+		: _elements{ static_cast<ElementType>(first), static_cast<ElementType>(rest) ... } {
 		static_assert(dimensionality() == 1 + sizeof ... (rest), "wrong number of arguments");
 	}
 

@@ -67,8 +67,7 @@ void ParticlePhysics::updateMovement()
     bool touch_a_floor = false;
     bool touch_a_wall = false;
 
-    Vector3f nrm_total;
-    nrm_total.setZero();
+    Vector3f nrm_total = Vector3f::zero();
 
     // Move the particle
     float ftmp = tmp_pos.z();

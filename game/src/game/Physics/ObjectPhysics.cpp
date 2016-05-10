@@ -146,7 +146,7 @@ void ObjectPhysics::updateMovement()
     }
     else {
         //Try to stand still
-        _desiredVelocity.setZero();
+        _desiredVelocity = Vector2f::zero();
     }
 
     //Determine acceleration/deceleration
@@ -272,7 +272,7 @@ void ObjectPhysics::updatePhysics()
 
     //Cutoff for low velocities to make them truly stop
     if(_object.vel.length_abs() < 0.05f) {
-        _object.vel.setZero();
+        _object.vel = Vector3f::zero();
     }
 
     //Recalculate the altitude of the ground beneath our feet
@@ -455,7 +455,7 @@ void ObjectPhysics::detachFromPlatform()
     _object.onwhichplatform_update = 0;
     _object.targetplatform_ref     = ObjectRef::Invalid;
     _object.targetplatform_level   = -1e32;
-    _platformOffset.setZero();
+    _platformOffset = Vector2f::zero();
 }
 
 bool ObjectPhysics::attachToPlatform(const std::shared_ptr<Object> &platform)

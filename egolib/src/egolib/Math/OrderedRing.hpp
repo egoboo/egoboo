@@ -133,66 +133,75 @@ struct OrderedRing<_ElementType, std::enable_if_t<IsInteger<_ElementType>::value
     }
 
 	/**
-	 * @brief
-	 *  Addition.
-	 * @param x
-	 *  the augend
-	 * @param y
-	 *  the addend
-	 * @return
-	 *	the sum <tt>x + y</tt>
+	 * @brief Functor computing the sum of two elements.
 	 */
     struct SumFunctor {
+        /**
+         * @brief The result type.
+         */
         typedef ElementType ResultType;
+        /**
+         * @brief Compute the sum of two elements.
+         * @param a the augend
+         * @param b the addend
+         * @return the sum <tt>a + b</tt>
+         */
         ElementType operator()(const ElementType& a, const ElementType& b) const {
             return a + b;
         }
     };
 
 	/**
-	 * @brief
-	 *  Multiplication.
-	 * @param x
-	 *  the multiplier
-	 * @param y
-	 *  the multiplicand
-	 * @return
-	 *  the product <tt>x * y</tt>
+	 * @brief Functor computing the product of two elements.
 	 */
     struct ProductFunctor {
+        /**
+         * @brief The result type.
+         */
         typedef ElementType ResultType;
+        /**
+         * @brief Compute the product of two elements.
+         * @param a the multiplier
+         * @param b the multiplicand
+         * @return the product <tt>a * b</tt>
+         */
         ElementType operator()(const ElementType& a, const ElementType& b) const {
             return a * b;
         }
     };
 
 	/**
-	 * @brief
-	 *  Subtraction.
-	 * @param x
-	 *  the minuend
-	 * @param y
-	 *  the subtrahend
-	 * @return
-	 *  the difference <tt>x - y</tt>
+	 * @brief Functor computing the difference of two elements.
 	 */
     struct DifferenceFunctor {
+        /**
+         * @brief The result type.
+         */
         typedef ElementType ResultType;
+        /**
+         * @brief Compute the difference of two elements.
+         * @param a the minuend
+         * @param b the subtrahend
+         * @return the difference <tt>a - b</tt>
+         */
         ElementType operator()(const ElementType& a, const ElementType& b) const {
             return a - b;
         }
     };
 
     /**
-     * @brief
-     *  The additive inverse of an element.
-     * @param x
-     *  the element
-     * @return
-     *  the additive inverse of the element
+     * @brief Functor computing the additive inverse of an element.
      */
     struct AdditiveInverseFunctor {
+        /**
+         * @brief The result type.
+         */
         typedef ElementType ResultType;
+        /**
+         * @brief Compute the additive inverse of an element.
+         * @param a the element
+         * @return the additive inverse <tt>-a</tt> of the element
+         */
         ElementType operator()(const ElementType& a) const {
             return -a;
         }
@@ -211,16 +220,24 @@ struct OrderedRing<_ElementType, std::enable_if_t<IsInteger<_ElementType>::value
 	}
 
 	/**
-	 * @brief
-	 *  "equal to".
-	 * @param x, y
-	 *  the scalars
-	 * @return
-	 *  @a true if <tt>x == y</tt>, @a false otherwise
+	 * @brief Functor computing if two elements are equal.
 	 */
-	static inline bool equalTo(const ElementType& x, const ElementType& y) {
-		return x == y;
-	}
+    struct EqualsFunctor {
+        /**
+         * @brief The result type.
+         */
+        typedef bool ResultType;
+        /**
+         * @brief Compute if two elements are equal.
+         * @param acc the accumulator variable
+         * @param a, b the element
+         * @return @a true if <tt>a == b</tt>, @a false otherwise
+         */
+        bool operator()(bool acc, const ElementType& a, const ElementType& b) const {
+            return acc && (a == b);
+        }
+    };
+
 
 	/**
 	 * @brief

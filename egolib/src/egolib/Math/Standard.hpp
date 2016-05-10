@@ -9,6 +9,7 @@
 #include "egolib/Math/Cube.hpp"
 #include "egolib/Math/Discrete.hpp"
 #include "egolib/Math/OrderedField.hpp"
+#include "egolib/Math/OrderedRing.hpp"
 #include "egolib/Math/Line.hpp"
 #include "egolib/Math/Matrix.hpp"
 #include "egolib/Math/Plane.hpp"
@@ -28,6 +29,8 @@ enum {
     kX = 0, kY, kZ, kW
 };
 
+/// discrete ring
+using Ringi = Ego::Math::OrderedRing<int>;
 /// discrete size
 using Size2i = Ego::Math::Discrete::Size2<int>;
 /// discrete point
@@ -35,10 +38,12 @@ using Point2i = Ego::Math::Discrete::Point2<int>;
 /// discrete vector
 using Vector2i = Ego::Math::Discrete::Vector2<int>;
 
+
+
 /// single-precision floating-point field
 using OrderedFieldf = Ego::Math::OrderedField<float>;
 
-/// singl-precision floating-point 2d vector space
+/// single-precision floating-point 2d vector space
 using VectorSpace2f = Ego::Math::VectorSpace<OrderedFieldf, 2>;
 /// single-precision floating-point 3d vector space
 using VectorSpace3f = Ego::Math::VectorSpace<OrderedFieldf, 3>;
