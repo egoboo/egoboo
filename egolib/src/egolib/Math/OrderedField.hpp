@@ -24,10 +24,10 @@ namespace Math {
  *  Michael Heilmann
  */
 template <typename _ScalarType, typename _Enabled = void>
-struct Field;
+struct OrderedField;
 
 template <typename _ScalarType>
-struct Field<_ScalarType, typename std::enable_if<IsScalar<_ScalarType>::value>::type>
+struct OrderedField<_ScalarType, typename std::enable_if<IsScalar<_ScalarType>::value>::type>
 	: public OrderedIntegralDomain<_ScalarType>{
 
     /**
