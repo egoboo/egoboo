@@ -367,7 +367,7 @@ void SDLX_video_parameters_t::report(SDLX_video_parameters_t& self)
     Log::Entry e(Log::Level::Info, __FILE__, __LINE__);
 
     // Write the horizontal and vertical resolution and the color depth.
-    e << "resolution = " << self.resolution.getWidth() << " x " << self.resolution.getHeight() << Log::EndOfLine
+    e << "resolution = " << self.resolution.width() << " x " << self.resolution.height() << Log::EndOfLine
       << "color depth = " << self.colorBufferDepth << Log::EndOfLine;
     // Write the window properties.
     e << self.flags;

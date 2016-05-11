@@ -913,12 +913,12 @@ void ogl_beginFrame()
     renderer.setBlendingEnabled(true);
     renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
 
-    renderer.setViewportRectangle(0, 0, sdl_scr.size.getWidth(), sdl_scr.size.getHeight());
+    renderer.setViewportRectangle(0, 0, sdl_scr.size.width(), sdl_scr.size.height());
 
     // Set up an ortho projection for the gui to use.  Controls are free to modify this
     // later, but most of them will need this, so it's done by default at the beginning
     // of a frame
-	Matrix4f4f projection = Ego::Math::Transform::ortho(0, sdl_scr.size.getWidth(), sdl_scr.size.getHeight(), 0, -1, 1);
+	Matrix4f4f projection = Ego::Math::Transform::ortho(0, sdl_scr.size.width(), sdl_scr.size.height(), 0, -1, 1);
     renderer.setProjectionMatrix(projection);
     renderer.setWorldMatrix(Matrix4f4f::identity());
     renderer.setViewMatrix(Matrix4f4f::identity());
@@ -981,8 +981,8 @@ void cartman_begin_ortho_camera_hrz(Cartman::Gui::Window& pwin, camera_t * pcam,
     using namespace Cartman::Gui;
     static const float factor_x = (float)DEFAULT_RESOLUTION * Info<float>::Grid::Size() / (float)Window::defaultWidth,
         factor_y = (float)DEFAULT_RESOLUTION * Info<float>::Grid::Size() / (float)Window::defaultHeight;
-    float w = (float)pwin.size.getWidth() * factor_x / zoom_x;
-    float h = (float)pwin.size.getHeight() * factor_y / zoom_y;
+    float w = (float)pwin.size.width() * factor_x / zoom_x;
+    float h = (float)pwin.size.height() * factor_y / zoom_y;
     float d = DEFAULT_Z_SIZE;
 
     pcam->w = w;
@@ -1024,9 +1024,9 @@ void cartman_begin_ortho_camera_vrt(Cartman::Gui::Window& pwin, camera_t * pcam,
 
     static const float factor_x = (float)DEFAULT_RESOLUTION * Info<float>::Grid::Size() / (float)Window::defaultWidth,
         factor_y = (float)DEFAULT_RESOLUTION * Info<float>::Grid::Size() / (float)Window::defaultHeight;
-    float w = pwin.size.getWidth() * factor_x / zoom_x;
+    float w = pwin.size.width() * factor_x / zoom_x;
     float h = w;
-    float d = pwin.size.getHeight() * factor_y / zoom_z;
+    float d = pwin.size.height() * factor_y / zoom_z;
 
     pcam->w = w;
     pcam->h = h;
@@ -1067,7 +1067,7 @@ void cartman_begin_ortho_camera_vrt(Cartman::Gui::Window& pwin, camera_t * pcam,
 void cartman_end_ortho_camera()
 {
     auto &renderer = Ego::Renderer::get();
-    Matrix4f4f projection = Ego::Math::Transform::ortho(0, sdl_scr.size.getWidth(), sdl_scr.size.getHeight(), 0, -1, 1);
+    Matrix4f4f projection = Ego::Math::Transform::ortho(0, sdl_scr.size.width(), sdl_scr.size.height(), 0, -1, 1);
     renderer.setProjectionMatrix(projection);
     renderer.setWorldMatrix(Matrix4f4f::identity());
     renderer.setViewMatrix(Matrix4f4f::identity());

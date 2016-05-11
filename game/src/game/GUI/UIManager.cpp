@@ -93,7 +93,7 @@ void UIManager::beginRenderUI()
 	renderer.setAlphaTestEnabled(true);
 	renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
 
-	renderer.setViewportRectangle(0, 0, sdl_scr.drawableSize.getWidth(), sdl_scr.drawableSize.getHeight());
+	renderer.setViewportRectangle(0, 0, sdl_scr.drawableSize.width(), sdl_scr.drawableSize.height());
 
     // Set up an ortho projection for the gui to use.  Controls are free to modify this
     // later, but most of them will need this, so it's done by default at the beginning
@@ -120,12 +120,12 @@ void UIManager::endRenderUI()
 
 int UIManager::getScreenWidth() const
 {
-    return sdl_scr.size.getWidth();
+    return sdl_scr.size.width();
 }
 
 int UIManager::getScreenHeight() const
 {
-    return sdl_scr.size.getHeight();
+    return sdl_scr.size.height();
 }
 
 void UIManager::drawImage(const std::shared_ptr<const Ego::Texture>& img, float x, float y, float width, float height, const Ego::Colour4f& tint)
@@ -186,7 +186,7 @@ bool UIManager::dumpScreenshot()
 
             // create a SDL surface
             const auto& pixelFormatDescriptor = Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8>();
-            temp = SDL_CreateRGBSurface(0, sdl_scr.size.getWidth(), sdl_scr.size.getHeight(),
+            temp = SDL_CreateRGBSurface(0, sdl_scr.size.width(), sdl_scr.size.height(),
                                         pixelFormatDescriptor.getColourDepth().getDepth(),
                                         pixelFormatDescriptor.getRedMask(),
                                         pixelFormatDescriptor.getGreenMask(),

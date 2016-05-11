@@ -248,14 +248,14 @@ bool Cartman::Input::onMouse(SDL_Event *event)
             _mouse.drag_begin = true;
 
             // initialize the drag rect
-            _mouse.tlx = _mouse.position.getX();
-            _mouse.tly = _mouse.position.getY();
+            _mouse.tlx = _mouse.position.x();
+            _mouse.tly = _mouse.position.y();
 
-            _mouse.brx = _mouse.position.getX();
-            _mouse.bry = _mouse.position.getY();
+            _mouse.brx = _mouse.position.x();
+            _mouse.bry = _mouse.position.y();
 
             // set the drag window
-            _mouse.drag_window = Cartman::Gui::Manager::findWindow(_mouse.position.getX(), _mouse.position.getY());
+            _mouse.drag_window = Cartman::Gui::Manager::findWindow(_mouse.position.x(), _mouse.position.y());
             _mouse.drag_mode = (NULL == _mouse.drag_window)
                              ? 0 : _mouse.drag_mode;
         }

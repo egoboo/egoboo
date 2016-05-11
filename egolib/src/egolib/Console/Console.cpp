@@ -132,8 +132,8 @@ ConsoleHandler::ConsoleHandler() {
 
 	blah.x = 0;
 	blah.y = 0;
-	blah.w = sdl_scr.size.getWidth();
-	blah.h = sdl_scr.size.getHeight() * 0.25f;
+	blah.w = sdl_scr.size.width();
+	blah.h = sdl_scr.size.height() * 0.25f;
 
 	// without a callback, this console just dumps the input and generates no output
 	egolib_console_top = new Ego::Core::Console(blah, nullptr, nullptr);
@@ -226,14 +226,14 @@ void ConsoleHandler::draw_begin()
 	renderer.setBlendingEnabled(true);
 	renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
 
-	renderer.setViewportRectangle(0, 0, sdl_scr.size.getWidth(), sdl_scr.size.getHeight());
+	renderer.setViewportRectangle(0, 0, sdl_scr.size.width(), sdl_scr.size.height());
 
     // Set up an ortho projection for the gui to use.  Controls are free to modify this
     // later, but most of them will need this, so it's done by default at the beginning
     // of a frame
 
     // store the GL_PROJECTION matrix (this stack has a finite depth, minimum of 32)
-	Matrix4f4f matrix = Ego::Math::Transform::ortho(0, sdl_scr.size.getWidth(), sdl_scr.size.getHeight(), 0, -1, 1);
+	Matrix4f4f matrix = Ego::Math::Transform::ortho(0, sdl_scr.size.width(), sdl_scr.size.height(), 0, -1, 1);
 	renderer.setProjectionMatrix(matrix);
 
     // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
@@ -420,7 +420,7 @@ namespace Core {
 
 bool Console::draw()
 {
-	int windowHeight = sdl_scr.size.getHeight();
+	int windowHeight = sdl_scr.size.height();
 
 	if (!windowHeight || !this->on)
 	{
