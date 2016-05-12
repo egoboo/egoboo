@@ -181,7 +181,7 @@ void draw_slider(int tlx, int tly, int brx, int bry, int* pvalue, int minvalue, 
     int cnt;
     int value;
 
-    float color[4] = {1, 1, 1, 1};
+    Ego::Math::Colour4f colour = Ego::Math::Colour4f::white();
 
     // Pick a new value
     value = *pvalue;
@@ -199,7 +199,7 @@ void draw_slider(int tlx, int tly, int brx, int bry, int* pvalue, int minvalue, 
 
         amount = (value - minvalue) / (float)(maxvalue - minvalue);
 
-        ogl_draw_box_xy(tlx, amount *(bry - tly) + tly, 0, brx - tlx + 1, 5, color);
+        ogl_draw_box_xy(tlx, amount *(bry - tly) + tly, 0, brx - tlx + 1, 5, colour);
     }
 }
 

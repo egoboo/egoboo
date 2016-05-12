@@ -291,7 +291,7 @@ void draw_top_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt )
     static Uint32 faketoreal[MAP_FAN_VERTICES_MAX];
 
     int cnt, stt, end, vert;
-    float color[4];
+    Ego::Math::Colour4f color;
     float size;
 
     cart_vec_t vup    = { 0, 1, 0};
@@ -313,10 +313,10 @@ void draw_top_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt )
 
     if ( 0 == pdef->numvertices || pdef->numvertices > MAP_FAN_VERTICES_MAX ) return;
 
-    make_rgba(color, 255, 128, 128, 255);
+    color = make_rgba(255, 128, 128, 255);
     if ( pfan->type >= tile_dict.offset )
     {
-        make_rgba(color, 255, 255, 128, 128);
+        color = make_rgba(255, 255, 128, 128);
     }
 
     for ( cnt = 0, vert = pfan->vrtstart;
@@ -328,8 +328,8 @@ void draw_top_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt )
 
     glPushAttrib( GL_TEXTURE_BIT | GL_ENABLE_BIT );
     {
-        glColor4fv( color );
-        glDisable( GL_TEXTURE_2D );
+        Ego::Renderer::get().setColour(color);
+        Ego::Renderer::get().getTextureUnit().setActivated(nullptr);
 
         glBegin( GL_LINES );
         {
@@ -397,7 +397,7 @@ void draw_side_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt 
     cart_vec_t vpos;
 
     int cnt, stt, end, vert;
-    float color[4];
+    Ego::Math::Colour4f color;
     float size;
     float point_size;
 
@@ -414,10 +414,10 @@ void draw_side_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt 
 
 	tile_line_data_t *plines = tile_dict_lines + pfan->type;
 
-    make_rgba(color, 255, 128, 128, 255);
+    color = make_rgba(255, 128, 128, 255);
     if ( pfan->type >= tile_dict.offset )
     {
-        make_rgba(color, 255, 255, 128, 128);
+        color = make_rgba(255, 255, 128, 128);
     }
 
     for ( cnt = 0, vert = pfan->vrtstart;
@@ -429,8 +429,8 @@ void draw_side_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt 
 
     glPushAttrib( GL_TEXTURE_BIT | GL_ENABLE_BIT );
     {
-        glColor4fv( color );
-        glDisable( GL_TEXTURE_2D );
+        Ego::Renderer::get().setColour(color);
+        Ego::Renderer::get().getTextureUnit().setActivated(nullptr);
 
         glBegin( GL_LINES );
         {
@@ -485,7 +485,7 @@ void draw_schematic(std::shared_ptr<Cartman::Gui::Window> pwin, int fantype, int
     //     The wireframe on the left side of the theSurface.
 
     int cnt, stt, end;
-    float color[4];
+    Ego::Math::Colour4f color;
 
     // aliases
     tile_line_data_t     * plines = NULL;
@@ -496,16 +496,16 @@ void draw_schematic(std::shared_ptr<Cartman::Gui::Window> pwin, int fantype, int
 
     plines = tile_dict_lines + fantype;
 
-    make_rgba(color, 255, 128, 128, 255);
+    color = make_rgba(255, 128, 128, 255);
     if ( fantype >= tile_dict.offset )
     {
-        make_rgba(color, 255, 255, 128, 128);
-    };
+        color = make_rgba(255, 255, 128, 128);
+    }
 
     glPushAttrib( GL_TEXTURE_BIT | GL_ENABLE_BIT );
     {
-        glColor4fv( color );
-        glDisable( GL_TEXTURE_2D );
+        Ego::Renderer::get().setColour(color);
+        Ego::Renderer::get().getTextureUnit().setActivated(nullptr);
 
         glBegin( GL_LINES );
         {
@@ -748,13 +748,12 @@ void draw_tile_fx( float x, float y, Uint8 fx, float scale )
 
 void ogl_draw_sprite_2d(std::shared_ptr<Ego::Texture> img, float x, float y, float width, float height )
 {
-    float w, h;
     float min_s, max_s, min_t, max_t;
 
     const float dst = 1.0f / 64.0f;
 
-    w = width;
-    h = height;
+    float w = width;
+    float h = height;
 
     if ( NULL != img )
     {
@@ -782,7 +781,7 @@ void ogl_draw_sprite_2d(std::shared_ptr<Ego::Texture> img, float x, float y, flo
     // Draw the image
 	Ego::Renderer::get().getTextureUnit().setActivated(img.get());
 
-    Ego::Renderer::get().setColour(Ego::Math::Colour4f(1.0f, 1.0f, 1.0f, 1.0f));
+    Ego::Renderer::get().setColour(Ego::Math::Colour4f::white());
 
     glBegin( GL_TRIANGLE_STRIP );
     {
@@ -796,14 +795,13 @@ void ogl_draw_sprite_2d(std::shared_ptr<Ego::Texture> img, float x, float y, flo
 
 void ogl_draw_sprite_3d(std::shared_ptr<Ego::Texture> img, cart_vec_t pos, cart_vec_t vup, cart_vec_t vright, float width, float height )
 {
-    float w, h;
     float min_s, max_s, min_t, max_t;
     cart_vec_t bboard[4];
 
     const float dst = 1.0f / 64.0f;
 
-    w = width;
-    h = height;
+    float w = width;
+    float h = height;
 
     if ( NULL != img )
     {
@@ -861,13 +859,12 @@ void ogl_draw_sprite_3d(std::shared_ptr<Ego::Texture> img, cart_vec_t pos, cart_
 
 //--------------------------------------------------------------------------------------------
 
-void ogl_draw_box_xy( float x, float y, float z, float w, float h, float color[] )
+void ogl_draw_box_xy( float x, float y, float z, float w, float h, Ego::Math::Colour4f& colour )
 {
     glPushAttrib( GL_ENABLE_BIT );
     {
-        glDisable( GL_TEXTURE_2D );
-
-        glColor4fv( color );
+        Ego::Renderer::get().getTextureUnit().setActivated(nullptr);
+        Ego::Renderer::get().setColour(colour);
 
         glBegin( GL_QUADS );
         {
@@ -881,13 +878,12 @@ void ogl_draw_box_xy( float x, float y, float z, float w, float h, float color[]
     glPopAttrib();
 };
 
-void ogl_draw_box_xz( float x, float y, float z, float w, float d, float color[] )
+void ogl_draw_box_xz( float x, float y, float z, float w, float d, Ego::Math::Colour4f& colour )
 {
     glPushAttrib( GL_ENABLE_BIT );
     {
-        glDisable( GL_TEXTURE_2D );
-
-        glColor4fv( color );
+        Ego::Renderer::get().getTextureUnit().setActivated(nullptr);
+        Ego::Renderer::get().setColour(colour);
 
         glBegin( GL_QUADS );
         {
