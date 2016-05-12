@@ -28,26 +28,27 @@ struct Size2;
 template <typename T>
 struct Size2<T, std::enable_if_t<std::is_same<T, int>::value>> {
 private:
+    typedef Size2<T> MyType;
     std::array<T, 2> elements;
 
 public:
     Size2() : elements{0,0} {}
     Size2(T width, T height) : elements{width,height} {}
-    Size2(const Size2<T>& other) : elements(other.elements) {}
+    Size2(const MyType& other) : elements(other.elements) {}
 
 public:
-    const Size2<T>& operator=(const Size2<T>& other) {
+    const MyType& operator=(const MyType& other) {
         elements = other.elements;
         return *this;
     }
-    bool operator==(const Size2<T>& other) const {
+    bool operator==(const MyType& other) const {
         return elements[0] == other.elements[0]
             && elements[1] == other.elements[1];
     }
 
 public:
     // Derived operators
-    NotEqualTo(Size2<T>, Size2<T>);
+    NotEqualTo(MyType, MyType);
 
 public:
     T& width() {
@@ -71,6 +72,7 @@ struct Vector2;
 template <typename T>
 struct Vector2<T, std::enable_if_t<std::is_same<T, int>::value>> {
 private:
+    typedef Vector2<T> MyType;
     std::array<T, 2> elements;
 
 public:
@@ -79,28 +81,28 @@ public:
     Vector2(const Vector2<T>& other) : elements(other.elements) {}
 
 public:
-    const Vector2<T>& operator=(const Vector2<T>& other) {
+    const MyType& operator=(const MyType& other) {
         elements = other.elements;
         return *this;
     }
-    Vector2<T> operator+(const Vector2<T>& other) const {
-        return Vector2<T>(elements[0] + other.x(),
-                          elements[1] + other.y());
+    MyType operator+(const MyType& other) const {
+        return MyType(elements[0] + other.elements[0],
+                      elements[1] + other.elements[1]);
     }
-    Vector2<T> operator-(const Vector2<T>& other) const {
-        return Vector2<T>(elements[0] - other.x(),
-                          elements[1] - other.y());
+    MyType operator-(const MyType& other) const {
+        return MyType(elements[0] - other.elements[0],
+                      elements[1] - other.elements[1]);
     }
-    bool operator==(const Vector2<T>& other) const {
+    bool operator==(const MyType& other) const {
         return elements[0] == other.elements[0]
             && elements[1] == other.elements[1];
     }
 
 public:
     // Derived operators
-    Add(Vector2<T>, Vector2<T>, Vector2<T>);
-    Subtract(Vector2<T>, Vector2<T>, Vector2<T>);
-    NotEqualTo(Vector2<T>, Vector2<T>);
+    Add(MyType, MyType, MyType);
+    Subtract(MyType, MyType, MyType);
+    NotEqualTo(MyType, MyType);
 
 public:
     T& x() {
@@ -124,44 +126,43 @@ struct Point2;
 template <typename T>
 struct Point2<T, std::enable_if_t<std::is_same<T, int>::value>> {
 private:
+    typedef Vector2<T> VectorType;
+    typedef Point2<T> MyType;
     std::array<T, 2> elements;
 
 public:
-    Point2() : elements{0, 0} {}
+    Point2() : elements{0,0} {}
     Point2(T x, T y) : elements{x,y} {}
-    Point2(const Point2<T>& other) : elements(other.elements) {}
+    Point2(const MyType& other) : elements(other.elements) {}
 
 public:
-    const Point2<T>& operator=(const Point2<T>& other) {
+    const MyType& operator=(const MyType& other) {
         elements = other.elements;
         return *this;
     }
 
 public:
-    bool operator==(const Point2<T>& other) const {
+    bool operator==(const MyType& other) const {
         return elements[0] == other.elements[0]
             && elements[1] == other.elements[1];
     }
 
 public:
-    Point2<T> operator+(const Vector2<T>& t) const {
-        return Point2i(elements[0] + t.x(),
-                       elements[1] + t.y());
+    MyType operator+(const VectorType& t) const {
+        return MyType(elements[0] + t.x(), elements[1] + t.y());
     }
-    Point2<T> operator-(const Vector2<T>& t) const {
-        return Point2<T>(elements[0] - t.x(),
-                         elements[1] - t.y());
+    MyType operator-(const VectorType& t) const {
+        return MyType(elements[0] - t.x(), elements[1] - t.y());
     }
-    Vector2<T> operator-(const Point2<T>& other) const {
-        return Vector2<T>(elements[0] - other.x(),
-                          elements[1] - other.y());
+    VectorType operator-(const MyType& other) const {
+        return VectorType(elements[0] - other.x(), elements[1] - other.y());
     }
 
 public:
     // Derived operators
-    Add(Point2<T>, Point2<T>, Vector2<T>);
-    Subtract(Point2<T>, Point2<T>, Vector2<T>);
-    NotEqualTo(Point2<T>, Point2<T>);
+    Add(MyType, MyType, VectorType);
+    Subtract(MyType, MyType, VectorType);
+    NotEqualTo(MyType, MyType);
 
 public:
     T& x() {
