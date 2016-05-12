@@ -40,26 +40,26 @@ void select_lst_t::init(select_lst_t& self, cartman_mpd_t *pmesh)
     if (!pmesh) pmesh = &mesh;
 
     // clear the list
-    select_lst_t::clear(self);
+    self.clear();
 
     // attach the correct mesh
     self._pmesh = pmesh;
 }
 
-void select_lst_t::clear(select_lst_t& self)
+void select_lst_t::clear()
 {
-    self._count = 0;
-    self._which[0] = CHAINEND;
+    _count = 0;
+    _which[0] = CHAINEND;
 }
 
-bool select_lst_t::add(select_lst_t& self, int vertex)
+bool select_lst_t::add(int vertex)
 {
 	if (!CART_VALID_VERTEX_RANGE(vertex)) {
 		throw Id::RuntimeErrorException(__FILE__, __LINE__, "vertex index out of bounds");
 	}
 
     // Is the vertex index in the list?
-    int index = select_lst_t::find(self, vertex);
+    int index = find(vertex);
 	if (-1 != index)
 	{
 		// The vertex is already in the list. => Do nothing and return false.
@@ -68,20 +68,20 @@ bool select_lst_t::add(select_lst_t& self, int vertex)
 	else
 	{
 		// The vertex index is not in the list. => Append it and return true.
-        self._which[self._count] = vertex;
-        self._count++;
+        _which[_count] = vertex;
+        _count++;
 
-        if (self._count < MAP_VERTICES_MAX)
+        if (_count < MAP_VERTICES_MAX)
         {
-			self._which[self._count] = CHAINEND;
+			_which[_count] = CHAINEND;
         }
 		return true;
     }
 }
 
-bool select_lst_t::remove(select_lst_t& self, int vertex)
+bool select_lst_t::remove(int vertex)
 {
-    int index = select_lst_t::find(self, vertex);
+    int index = find(vertex);
 	if (-1 == index)
 	{
 		// The vertex is not in the list. => Do nothing and return false.
@@ -90,32 +90,32 @@ bool select_lst_t::remove(select_lst_t& self, int vertex)
 	else
 	{
         // The vertex is in the list. => Remove it and return true.
-        if (self._count > 1 )
+        if (_count > 1 )
         {
-            for (int i = index; i < self._count - 1; ++i)
+            for (int i = index; i < _count - 1; ++i)
             {
-				self._which[i] = self._which[i-1];
+				_which[i] = _which[i-1];
             }
         }
 
         // blank out the last vertex
-		self._which[self._count] = CHAINEND;
+		_which[_count] = CHAINEND;
 
         // shorten the chain
-        self._count--;
+        _count--;
 		return true;
     }
 }
 
-int select_lst_t::find(const select_lst_t& self, int vertex)
+int select_lst_t::find(int vertex) const
 {
 	if (!CART_VALID_VERTEX_RANGE(vertex)) {
 		throw Id::RuntimeErrorException(__FILE__, __LINE__, "vertex index out of bounds");
 	}
 
-    for (int i = 0; i < self._count; ++i)
+    for (int i = 0; i < _count; ++i)
     {
-        if (vertex == self._which[i])
+        if (vertex == _which[i])
         {
             return i;
         }
@@ -124,9 +124,9 @@ int select_lst_t::find(const select_lst_t& self, int vertex)
     return -1;
 }
 
-int select_lst_t::count(const select_lst_t& self)
+int select_lst_t::count() const
 {
-    return self._count;
+    return _count;
 }
 
 void select_lst_t::synch_mesh(select_lst_t& self, cartman_mpd_t *pmesh)
@@ -145,6 +145,6 @@ void select_lst_t::set_mesh( select_lst_t& self, cartman_mpd_t *pmesh )
     }
 }
 
-cartman_mpd_t *select_lst_t::get_mesh(select_lst_t& self) {
-	return self._pmesh;
+cartman_mpd_t *select_lst_t::get_mesh() {
+	return _pmesh;
 }

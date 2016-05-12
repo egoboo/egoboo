@@ -255,7 +255,7 @@ bool Cartman::Input::onMouse(SDL_Event *event)
             _mouse.bry = _mouse.position.y();
 
             // set the drag window
-            _mouse.drag_window = Cartman::Gui::Manager::findWindow(_mouse.position.x(), _mouse.position.y());
+            _mouse.drag_window = Cartman::Gui::Manager::get().findWindow(_mouse.position.x(), _mouse.position.y());
             _mouse.drag_mode = (NULL == _mouse.drag_window)
                              ? 0 : _mouse.drag_mode;
         }

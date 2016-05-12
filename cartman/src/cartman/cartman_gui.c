@@ -61,21 +61,21 @@ Cursor::~Cursor() {}
 namespace Cartman {
 namespace Gui {
 
-void Manager::initialize() {
+Manager::Manager() {
     for (size_t i = 0; i < MAXWIN; ++i) {
-       g_windowList.push_back(std::make_shared<Window>());
+       windowList.push_back(std::make_shared<Window>());
     }
-    g_cursor = std::make_shared<Cursor>();
+    cursor = std::make_shared<Cursor>();
 }
 
-void Manager::uninitialize() {
-    g_cursor = nullptr;
-    g_windowList.clear();
+Manager::~Manager() {
+    cursor = nullptr;
+    windowList.clear();
 }
 
 std::shared_ptr<Window> Manager::findWindow(int x, int y) {
     std::shared_ptr<Window> result = nullptr;
-    for (auto& window : g_windowList) {
+    for (auto& window : windowList) {
         if (window->isOver(Point2i(x, y))) {
             continue;
         }
@@ -85,18 +85,15 @@ std::shared_ptr<Window> Manager::findWindow(int x, int y) {
 }
 
 void Manager::render() {
-    for (auto& window : g_windowList) {
+    for (auto& window : windowList) {
         window->render();
     }
-    for (auto window : g_windowList) {
+    for (auto& window : windowList) {
         window->renderBackground();
     }
 }
 
 } }  // namespace Cartman::Gui
-
-std::vector<std::shared_ptr<Cartman::Gui::Window>> g_windowList;
-std::shared_ptr<Cartman::Gui::Cursor> g_cursor;
 
 //--------------------------------------------------------------------------------------------
 

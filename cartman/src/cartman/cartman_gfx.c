@@ -300,7 +300,7 @@ void draw_top_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt )
 
 	select_lst_t::synch_mesh(plst, &mesh);
 
-	cartman_mpd_t *pmesh = select_lst_t::get_mesh(plst);
+	cartman_mpd_t *pmesh = plst.get_mesh();
     if (!pmesh) return;
 
 	const cartman_mpd_tile_t *pfan = CART_MPD_FAN_PTR( pmesh, fan );
@@ -364,7 +364,7 @@ void draw_top_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt )
             int select_rv;
             std::shared_ptr<Ego::Texture> tx_tmp;
 
-            select_rv = select_lst_t::find(plst, vert);
+            select_rv = plst.find(vert);
             if ( select_rv < 0 )
             {
                 tx_tmp = Resources::get().tx_point;
@@ -403,7 +403,7 @@ void draw_side_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt 
 
 	select_lst_t::synch_mesh(plst, &mesh);
 
-	cartman_mpd_t *pmesh = select_lst_t::get_mesh(plst);
+	cartman_mpd_t *pmesh = plst.get_mesh();
     if (!pmesh) return;
 
 	cartman_mpd_tile_t *pfan = CART_MPD_FAN_PTR( pmesh, fan );
@@ -459,7 +459,7 @@ void draw_side_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt 
 
         vert = faketoreal[cnt];
 
-        select_rv = select_lst_t::find( plst, vert );
+        select_rv = plst.find( vert );
         if ( select_rv < 0 )
         {
             tx_tmp = Resources::get().tx_point;

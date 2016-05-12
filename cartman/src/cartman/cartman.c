@@ -214,8 +214,8 @@ void draw_cursor_in_window(Cartman::Gui::Window& pwin)
     {
         int size = POINT_SIZE( 10 );
 
-        int x = pwin.position.x() + ( Input::get()._mouse.position.x() - g_windowList[mdata.win_id]->position.x() );
-        int y = pwin.position.y() + ( Input::get()._mouse.position.y() - g_windowList[mdata.win_id]->position.y() );
+        int x = pwin.position.x() + ( Input::get()._mouse.position.x() - Gui::Manager::get().windowList[mdata.win_id]->position.x() );
+        int y = pwin.position.y() + ( Input::get()._mouse.position.y() - Gui::Manager::get().windowList[mdata.win_id]->position.y() );
 
         ogl_draw_sprite_2d(Resources::get().tx_pointon, x - size / 2, y - size / 2, size, size );
     }
@@ -426,10 +426,11 @@ void load_all_windows( cartman_mpd_t& mesh )
     using namespace Cartman;
     static const auto windowSize = Size2i(Gui::Window::defaultWidth, Gui::Window::defaultHeight);
     static const auto borderSize = Size2i(7, 9);
-    g_windowList[0]->load_window(0, "editor/window.png", Point2i(180, 16),  borderSize, windowSize, WINMODE_VERTEX, &mesh );
-    g_windowList[1]->load_window(1, "editor/window.png", Point2i(410, 16),  borderSize, windowSize, WINMODE_TILE,   &mesh );
-    g_windowList[2]->load_window(2, "editor/window.png", Point2i(180, 248), borderSize, windowSize, WINMODE_SIDE,   &mesh );
-    g_windowList[3]->load_window(3, "editor/window.png", Point2i(410, 248), borderSize, windowSize, WINMODE_FX,     &mesh );
+    auto& windowList = Gui::Manager::get().windowList;
+    windowList[0]->load_window(0, "editor/window.png", Point2i(180, 16),  borderSize, windowSize, WINMODE_VERTEX, &mesh );
+    windowList[1]->load_window(1, "editor/window.png", Point2i(410, 16),  borderSize, windowSize, WINMODE_TILE,   &mesh );
+    windowList[2]->load_window(2, "editor/window.png", Point2i(180, 248), borderSize, windowSize, WINMODE_SIDE,   &mesh );
+    windowList[3]->load_window(3, "editor/window.png", Point2i(410, 248), borderSize, windowSize, WINMODE_FX,     &mesh );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -462,7 +463,7 @@ void bound_mouse()
     using namespace Cartman;
     if (mdata.win_id != -1)
     {
-        auto window = g_windowList[mdata.win_id];
+        auto window = Gui::Manager::get().windowList[mdata.win_id];
         Input::get()._mouse.tlx = window->position.x() + window->border.size.width();
         Input::get()._mouse.tly = window->position.y() + window->border.size.height();
         Input::get()._mouse.brx = Input::get()._mouse.tlx + window->size.width() - 1;
@@ -701,10 +702,10 @@ void cartman_check_mouse_side(std::shared_ptr<Cartman::Gui::Window> pwin, float 
 
         if ( pwin->id == mdata.rect_done )
         {
-            if ( select_lst_t::count( mdata.win_select ) > 0 && !CART_KEYMOD( KMOD_ALT ) && !CART_KEYDOWN( SDLK_MODE ) &&
+            if ( mdata.win_select.count() > 0 && !CART_KEYMOD( KMOD_ALT ) && !CART_KEYDOWN( SDLK_MODE ) &&
                  !CART_KEYMOD( KMOD_LCTRL ) && !CART_KEYMOD( KMOD_RCTRL ) )
             {
-                select_lst_t::clear(mdata.win_select);
+                mdata.win_select.clear();
             }
 
             if ( CART_KEYMOD( KMOD_ALT ) || CART_KEYDOWN( SDLK_MODE ) )
@@ -1084,10 +1085,10 @@ void cartman_check_mouse_vertex(std::shared_ptr<Cartman::Gui::Window> pwin, floa
 
         if ( pwin->id == mdata.rect_done )
         {
-            if ( select_lst_t::count( mdata.win_select ) > 0 && !CART_KEYMOD( KMOD_ALT ) && !CART_KEYDOWN( SDLK_MODE ) &&
+            if ( mdata.win_select.count() > 0 && !CART_KEYMOD( KMOD_ALT ) && !CART_KEYDOWN( SDLK_MODE ) &&
                  !CART_KEYMOD( KMOD_LCTRL ) && !CART_KEYMOD( KMOD_RCTRL ) )
             {
-                select_lst_t::clear(mdata.win_select);
+                mdata.win_select.clear();
             }
             if ( CART_KEYMOD( KMOD_ALT ) || CART_KEYDOWN( SDLK_MODE ) )
             {
@@ -1115,7 +1116,7 @@ void cartman_check_mouse_vertex(std::shared_ptr<Cartman::Gui::Window> pwin, floa
             fix_vertices( pwin->pmesh,  std::floor( mdata.win_mpos_x / Info<float>::Grid::Size()), std::floor( mdata.win_mpos_y / Info<float>::Grid::Size()) );
         }
 
-        if (CART_KEYDOWN(SDLK_p) || (CART_BUTTONDOWN(SDL_BUTTON_RIGHT) && 0 == select_lst_t::count(mdata.win_select)))
+        if (CART_KEYDOWN(SDLK_p) || (CART_BUTTONDOWN(SDL_BUTTON_RIGHT) && 0 == mdata.win_select.count()))
         {
             MeshEditor::raise_mesh( mdata.win_mesh, onscreen_vert, onscreen_count, mdata.win_mpos_x, mdata.win_mpos_y, brushamount, brushsize );
         }
@@ -1151,7 +1152,7 @@ bool cartman_check_mouse( const char * modulename, cartman_mpd_t * pmesh )
     {
         mdata.win_id = -1;
 
-        for (auto& window : g_windowList)
+        for (auto& window : Cartman::Gui::Manager::get().windowList)
         {
             cartman_check_mouse_tile(window, cartman_zoom_hrz, cartman_zoom_vrt);
             cartman_check_mouse_vertex(window, cartman_zoom_hrz, cartman_zoom_vrt);
@@ -1285,7 +1286,7 @@ bool cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
     }
     if ( CART_KEYDOWN( SDLK_j ) )
     {
-        if ( 0 == select_lst_t::count( mdata.win_select ) ) { MeshEditor::jitter_mesh( pmesh ); }
+        if ( 0 == mdata.win_select.count() ) { MeshEditor::jitter_mesh( pmesh ); }
         else { mesh_select_jitter( &( mdata.win_select ) ); }
         Input::get()._keyboard.delay = KEYDELAY;
     }
@@ -1621,7 +1622,7 @@ void draw_main( cartman_mpd_t * pmesh )
     {
         int itmp;
 
-        Cartman::Gui::Manager::render();
+        Cartman::Gui::Manager::get().render();
 
         itmp = ambi;
         draw_slider( 0, 250, 19, 350, &ambi,          0, 200 );

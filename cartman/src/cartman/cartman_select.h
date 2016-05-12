@@ -40,7 +40,7 @@ public:
 		: _pmesh(nullptr), _count(0), _which{ CHAINEND } {
 	}
 	static int at(select_lst_t& self, int index) {
-		if (index < 0 || index >= count(self)) {
+		if (index < 0 || index >= self.count()) {
 			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
 		}
 		return self._which[index];
@@ -51,7 +51,7 @@ public:
 	 * @brief
 	 *  Ensure that no vertex is selected.
 	 */
-	static void clear(select_lst_t& self);
+	void clear();
 	/**
 	 * @brief
 	 *  Ensure that the specified vertex is selected.
@@ -61,7 +61,7 @@ public:
 	 *  @a true if the vertex was not in the list,
 	 *  @a false otherwise
 	 */
-	static bool add(select_lst_t& self, int vertex);
+	bool add(int vertex);
 	/**
 	 * @brief
 	 *  Ensure that the specified vertex is not selected.
@@ -71,7 +71,7 @@ public:
 	 *  @a true if the vertex was in the list,
 	 *  @a false otherwise
 	 */
-	static bool remove(select_lst_t& self, int vertex);
+	bool remove(int vertex);
 	/**
 	 * @brief
 	 *  Search a vertex in this selection list.
@@ -80,14 +80,14 @@ public:
 	 * @return
 	 *  the index of the vertex in the selection list if it was found, -1 otherwise
 	 */
-	static int find(const select_lst_t& self, int vertex);
+	int find(int vertex) const;
 	/**
 	 * @brief
 	 *  Get the number of vertices in this selection list.
 	 * @return
 	 *  the number of vertices in this selection list
 	 */
-	static int count(const select_lst_t& self);
+	int count() const;
 
 	static void synch_mesh(select_lst_t& self, cartman_mpd_t *mesh);
 	/**
@@ -103,7 +103,7 @@ public:
 	 * @return
 	 *  a pointer to the mesh or a  null pointer
 	 */
-	static cartman_mpd_t *get_mesh(select_lst_t& self);
+	cartman_mpd_t *get_mesh();
 };
 
 //--------------------------------------------------------------------------------------------
