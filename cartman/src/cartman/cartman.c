@@ -1137,7 +1137,7 @@ bool cartman_check_mouse( const char * modulename, cartman_mpd_t * pmesh )
     move_camera( &( pmesh->info ) );
 
     // place this after move_camera()
-    Mouse::update(Input::get()._mouse);
+    Input::get()._mouse.update();
 
     // handle all window-specific commands
     //if( mos.drag && NULL != mos.drag_window )
@@ -1910,12 +1910,16 @@ void cart_mouse_data_toggle_fx( int fxmask )
 
 void cart_mouse_data_rect_select()
 {
-    select_lst_add_rect( mdata.win_select, mdata.rect_x0, mdata.rect_y0, mdata.rect_z0, mdata.rect_x1, mdata.rect_y1, mdata.rect_z1, mdata.win_mode );
+    select_lst_add_rect( mdata.win_select, Vector3f(mdata.rect_x0, mdata.rect_y0, mdata.rect_z0),
+                                           Vector3f(mdata.rect_x1, mdata.rect_y1, mdata.rect_z1),
+                        mdata.win_mode );
 }
 
 void cart_mouse_data_rect_unselect()
 {
-    select_lst_remove_rect( mdata.win_select, mdata.rect_x0, mdata.rect_y0, mdata.rect_z0, mdata.rect_x1, mdata.rect_y1, mdata.rect_z1, mdata.win_mode );
+    select_lst_remove_rect( mdata.win_select, Vector3f(mdata.rect_x0, mdata.rect_y0, mdata.rect_z0),
+                                              Vector3f(mdata.rect_x1, mdata.rect_y1, mdata.rect_z1),
+                           mdata.win_mode );
 }
 
 void cart_mouse_data_mesh_replace_fx()

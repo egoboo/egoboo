@@ -44,18 +44,16 @@ namespace Cartman
         Mouse();
         virtual ~Mouse();
 
-        static void update(Mouse& self);
+        void update();
         /**
          * @brief
          *  Get if a mouse button is down.
-         * @param self
-         *  the mouse
          * @param button
          *  the button
          * @return
          *  @a true if the mouse button is down
          */
-        static bool isButtonDown(Mouse& self, int button);
+        bool isButtonDown(int button);
     };
 }
 
@@ -112,9 +110,9 @@ namespace Cartman
         Uint16 mod;
         Keyboard();
         virtual ~Keyboard();
-        static bool isKeyDown(Cartman::Keyboard& self, int key);
-        static bool isModDown(Cartman::Keyboard& self, int mod);
-        static bool isDown(Cartman::Keyboard& self, int key, int mod);
+        bool isKeyDown(int key);
+        bool isModDown(int mod);
+        bool isDown(int key, int mod);
     };
 }
 
@@ -179,13 +177,13 @@ bool check_keys(Uint32 resolution);
 
 
 #define CART_BUTTONDOWN(button) \
-    Cartman::Mouse::isButtonDown(Cartman::Input::get()._mouse,button)
+    Cartman::Input::get()._mouse.isButtonDown(button)
 
 #define CART_KEYDOWN(key) \
-    Cartman::Keyboard::isKeyDown(Cartman::Input::get()._keyboard,key)
+    Cartman::Input::get()._keyboard.isKeyDown(key)
 
 #define CART_KEYMOD(mod) \
-    Cartman::Keyboard::isModDown(Cartman::Input::get()._keyboard,mod)
+    Cartman::Input::get()._keyboard.isModDown(mod)
 
 #define CART_KEYDOWN_MOD(key,mod) \
-    Cartman::Keyboard::isDown(Cartman::Input::get()._keyboard,key,mod)
+    Cartman::Input::get()._keyboard.isDown(key,mod)

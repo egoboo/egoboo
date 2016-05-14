@@ -599,7 +599,7 @@ void weld_edge_verts( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, tile_def
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void select_lst_add_rect( select_lst_t& plst, float x0, float y0, float z0, float x1, float y1, float z1, int mode )
+void select_lst_add_rect( select_lst_t& plst, const Vector3f& a, const Vector3f& b, int mode )
 {
     // ZZ> This function checks the rectangular selection
 
@@ -615,15 +615,15 @@ void select_lst_add_rect( select_lst_t& plst, float x0, float y0, float z0, floa
 
 
     // if the selection is empty, we're done
-    if ( x0 == x1 || y0 == y1 || z0 == z1 ) return;
+    if ( a == b ) return;
 
     // make sure that the selection is ordered properly
-    if ( x0 < x1 ) { xmin = x0; xmax = x1; }
-    else { xmin = x1; xmax = x0; };
-    if ( y0 < y1 ) { ymin = y0; ymax = y1; }
-    else { ymin = y1; ymax = y0; };
-    if ( z0 < z1 ) { zmin = z0; zmax = z1; }
-    else { zmin = z1; zmax = z0; };
+    if ( a.x() < b.x() ) { xmin = a.x(); xmax = b.y(); }
+    else { xmin = b.x(); xmax = a.x(); };
+    if ( a.y() < b.y() ) { ymin = a.y(); ymax = b.y(); }
+    else { ymin = b.y(); ymax = a.y(); };
+    if ( a.z() < b.z() ) { zmin = a.z(); zmax = b.z(); }
+    else { zmin = b.z(); zmax = a.z(); };
 
     if ( mode == WINMODE_VERTEX )
     {
@@ -659,7 +659,7 @@ void select_lst_add_rect( select_lst_t& plst, float x0, float y0, float z0, floa
 }
 
 //--------------------------------------------------------------------------------------------
-void select_lst_remove_rect( select_lst_t& plst, float x0, float y0, float z0, float x1, float y1, float z1, int mode )
+void select_lst_remove_rect( select_lst_t& plst, const Vector3f& a, const Vector3f& b, int mode )
 {
     float xmin, ymin, zmin;
     float xmax, ymax, zmax;
@@ -672,16 +672,16 @@ void select_lst_remove_rect( select_lst_t& plst, float x0, float y0, float z0, f
     // get the vertex list
 
     // If the selection is empty, we're done.
-	if (x0 == x1 || y0 == y1 || z0 == z1) {
+	if (a == b) {
 		return;
 	}
     // Make sure the coordinates of the selection are properly ordered.
-    if ( x0 < x1 ) { xmin = x0; xmax = x1; }
-    else { xmin = x1; xmax = x0; };
-    if ( y0 < y1 ) { ymin = y0; ymax = y1; }
-    else { ymin = y1; ymax = y0; };
-    if ( z0 < z1 ) { zmin = z0; zmax = z1; }
-    else { zmin = z1; zmax = z0; };
+    if ( a.x() < b.x() ) { xmin = a.x(); xmax = b.x(); }
+    else { xmin = b.x(); xmax = a.x(); };
+    if ( a.y() < b.y() ) { ymin = a.y(); ymax = b.y(); }
+    else { ymin = b.y(); ymax = a.y(); };
+    if ( a.z() < b.z() ) { zmin = a.z(); zmax = b.z(); }
+    else { zmin = b.z(); zmax = a.z(); };
 
     if ( mode == WINMODE_VERTEX )
     {

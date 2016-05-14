@@ -55,9 +55,9 @@ void mesh_select_jitter( select_lst_t * plst );
 void mesh_select_verts_connected( select_lst_t& plst );
 
 // Ensure any vertex in the specified rectangular area is in the specified selection list.
-void select_lst_add_rect( select_lst_t& plst, float x0, float y0, float z0, float x1, float y1, float z1, int mode );
+void select_lst_add_rect( select_lst_t& plst, const Vector3f& a, const Vector3f& b, int mode );
 // Ensure no vertex in the specified rectangular area is in the specified selection list.
-void select_lst_remove_rect( select_lst_t& plst, float x0, float y0, float z0, float x1, float y1, float z1, int mode );
+void select_lst_remove_rect( select_lst_t& plst, const Vector3f& a, const Vector3f& b, int mode );
 
 
 struct MeshEditor {
