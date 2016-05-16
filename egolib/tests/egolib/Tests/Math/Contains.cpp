@@ -30,10 +30,8 @@ public:
         AABB3f x(Point3f(-1.0f, -1.0f, -1.0f), Point3f(+1.0f, +1.0f, +1.0f));
         AABB3f y = Ego::Tests::Math::Utilities::getContainedAABB3f(x);
         EgoTest_Assert(functor(x, y));
-#if 0
         y = Ego::Tests::Math::Utilities::getNonContainedAABB3f(x);
         EgoTest_Assert(!functor(x, y));
-#endif
     }
 
     EgoTest_Test(AABB3f_Point3f) {
@@ -74,6 +72,6 @@ public:
 
 };
 
-}
-}
-} // end namespaces Ego::Math::Test
+} // namespace Test
+} // namespace Math
+} // namespace Ego

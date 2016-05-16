@@ -181,7 +181,7 @@ public:
     //
     // Let \f$a\f$ be the specified axis-aligned bounding box with minimum point \f$m\f$
     // and edge lengths \f$\vec{l}\f$. The axis-aligned bounding box \f$b\f$ with
-    // minimum point \f$m' = m + \frac{1}{4}\vec{l}\f$ intersects with \f$a\f$.
+    // minimum point \f$m' = m + \frac{1}{4}\vec{l}\f$ and edge lengths \f$\vec{l}\f$ intersects with \f$a\f$.
     static AABB3f getOverlappingAABB3f(const AABB3f& a) {
         auto d = a.getSize() * 0.25f;
         return AABB3f(a.getMin() + d, a.getMax() + d);
@@ -199,6 +199,16 @@ public:
     // does not intersect \f$a\f$.
     static Point3f getNonOverlappingPoint3f(const AABB3f& a) {
         return a.getMin() + a.getSize() + unit() * pdelta(0.0f);
+    }
+
+    // Get an axis-aligned bounding box which is not contained in the specified axis-aligned bounding box.
+    //
+    // Let \f$a\f$ be the specified axis-aligned bounding box with minimum point \f$m\f$
+    // and edge lengths \f$\vec{l}\f$. The axis-aligned bounding box \f$b\f$ with
+    // minimum point \f$m' = m + \frac{1}{4}\vec{l}\f$ and edge lengths \f$\vec{l}\f$ is not contained in \f$a\f$.
+    static AABB3f getNonContainedAABB3f(const AABB3f& a) {
+        auto d = a.getSize() * 0.25f;
+        return AABB3f(a.getMin() + d, a.getMax() + d);
     }
 
     // Get a point which is not contained in the specified axis-aligned bounding box.

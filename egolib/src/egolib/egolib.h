@@ -32,6 +32,7 @@
 #include "egolib/Core/CollectionUtilities.hpp"
 #include "egolib/Core/System.hpp"
 #include "egolib/Core/Singleton.hpp"
+#include "egolib/Core/QuadTree.hpp"
 
 //--------------------------------------------------------------------------------------------
 
