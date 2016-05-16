@@ -86,7 +86,7 @@ protected:
 
 	/**
 	 * @brief Construct this tuple with the specified element values.
-	 * @param first, ... rest the specified element values
+	 * @param first, ... rest the element values
      * @pre The number of specified element values must be equal to the dimensionality of the tuple type.
      * @pre Each specified element value must be convertible into the element type of the tuple type.
 	 */
@@ -94,12 +94,12 @@ protected:
         typename ... ArgumentTypes,
         typename = 
             std::enable_if_t<
-                ((sizeof...(ArgumentTypes)) + 1) == MyType::dimensionality() &&
-                Core::AllTrue<std::is_convertible<ArgumentTypes, ElementType>::value ...>::value
+                (1 + sizeof...(ArgumentTypes)) == MyType::dimensionality() &&
+                Core::AllConvertible<ElementType, ArgumentTypes ...>::value
             >
     >
 	Tuple(ElementType&& first, ArgumentTypes&& ... rest)
-		: _elements{ first, static_cast<ElementType>(rest) ... } {
+		: _elements{ static_cast<ElementType>(first), static_cast<ElementType>(rest) ... } {
 		static_assert(dimensionality() == 1 + sizeof ... (rest), "wrong number of arguments");
 	}
 
@@ -241,8 +241,8 @@ public:
 
 public:
     template <typename FunctorType, typename ElementType, size_t Dimensionality>
-    static decltype(auto) foldT(FunctorType functor, const Tuple<ElementType, Dimensionality>& x) {
-        auto t = typename FunctorType::ResultType();
+    static decltype(auto) foldT(FunctorType functor, const typename FunctorType::ResultType& initialValue, const Tuple<ElementType, Dimensionality>& x) {
+        auto t = initialValue;
         for (size_t i = 0; i < Dimensionality; ++i) {
             t = functor(t, x.at(i));
         }
@@ -250,8 +250,8 @@ public:
     }
 
     template <typename FunctorType, typename ElementType0, typename ElementType1, size_t Dimensionality>
-    static decltype(auto) foldTT(FunctorType functor, const Tuple<ElementType0, Dimensionality>& x, const Tuple<ElementType1, Dimensionality>& y) {
-        auto t = typename FunctorType::ResultType();
+    static decltype(auto) foldTT(FunctorType functor, const typename FunctorType::ResultType& initialValue, const Tuple<ElementType0, Dimensionality>& x, const Tuple<ElementType1, Dimensionality>& y) {
+        auto t = initialValue;
         for (size_t i = 0; i < Dimensionality; ++i) {
             t = functor(t, x.at(i), y.at(i));
         }

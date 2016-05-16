@@ -66,14 +66,14 @@ public:
      */
     template<
         typename ... ArgumentTypes,
-        typename =
+        typename = 
             std::enable_if_t<
-                ((sizeof...(ArgumentTypes)) + 1) == MyType::dimensionality() &&
-                Core::AllTrue<std::is_convertible<ArgumentTypes, ScalarType>::value ...>::value
+                (1 + sizeof...(ArgumentTypes)) == MyType::dimensionality() &&
+                Core::AllConvertible<ScalarType, ArgumentTypes ...>::value
             >
     >
     Point(ScalarType first, ArgumentTypes&& ... rest)
-        : TupleType(std::forward<ScalarType>(first), rest ...) {
+        : TupleType(std::forward<ScalarType>(first), std::forward<ArgumentTypes>(rest) ...) {
         static_assert(dimensionality() == 1 + sizeof ... (rest), "wrong number of arguments");
     }
 
@@ -154,34 +154,7 @@ public:
         TupleType::assign(other);
     }
 
-    /**
-     * @brief
-     *  Set all elements in this point to zero.
-     * @todo
-     *  Remove this.
-     */
-    void setZero() {
-        (*this) = MyType();
-    }
-
 public:
-    /**
-    * @brief
-    *  Get if this point equals another point.
-    * @param other
-    *  the other point
-    * @return
-    *  @a true if this point equals the other point
-    */
-    bool equals(const MyType& other) const {
-        for (size_t i = 0; i < MyType::dimensionality(); ++i) {
-            if (ScalarFieldType::notEqualTo(this->at(i), other.at(i))) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     /**
      * @brief
      *  Get if this point equals another point.
@@ -222,11 +195,11 @@ public:
 
 public:
     bool operator==(const MyType& other) const {
-        return equals(other);
+        return TupleUtilities::foldTT(typename ScalarFieldType::EqualsFunctor(), true, *this, other);
     }
 
     bool operator!=(const MyType& other) const {
-        return !equals(other);
+        return !(*this == other);
     }
 
 public:

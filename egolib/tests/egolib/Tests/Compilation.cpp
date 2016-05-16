@@ -19,8 +19,6 @@
 
 #include "EgoTest/EgoTest.hpp"
 
-#include <iostream>
-
 EgoTest_TestCase(Compilation) {
 EgoTest_Test(compile) {
     EgoTest_Assert(1 == 1);

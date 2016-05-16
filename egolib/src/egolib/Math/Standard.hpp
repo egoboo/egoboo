@@ -9,6 +9,7 @@
 #include "egolib/Math/Cube.hpp"
 #include "egolib/Math/Discrete.hpp"
 #include "egolib/Math/OrderedField.hpp"
+#include "egolib/Math/OrderedRing.hpp"
 #include "egolib/Math/Line.hpp"
 #include "egolib/Math/Matrix.hpp"
 #include "egolib/Math/Plane.hpp"
@@ -28,6 +29,8 @@ enum {
     kX = 0, kY, kZ, kW
 };
 
+/// discrete ring
+using Ringi = Ego::Math::OrderedRing<int>;
 /// discrete size
 using Size2i = Ego::Math::Discrete::Size2<int>;
 /// discrete point
@@ -35,15 +38,17 @@ using Point2i = Ego::Math::Discrete::Point2<int>;
 /// discrete vector
 using Vector2i = Ego::Math::Discrete::Vector2<int>;
 
-/// single-precision floating-point field
-using Fieldf = Ego::Math::Field<float>;
 
-/// singl-precision floating-point 2d vector space
-using VectorSpace2f = Ego::Math::VectorSpace<Fieldf, 2>;
+
+/// single-precision floating-point field
+using OrderedFieldf = Ego::Math::OrderedField<float>;
+
+/// single-precision floating-point 2d vector space
+using VectorSpace2f = Ego::Math::VectorSpace<OrderedFieldf, 2>;
 /// single-precision floating-point 3d vector space
-using VectorSpace3f = Ego::Math::VectorSpace<Fieldf, 3>;
+using VectorSpace3f = Ego::Math::VectorSpace<OrderedFieldf, 3>;
 /// single-precision floating-point 4d vector space
-using VectorSpace4f = Ego::Math::VectorSpace<Fieldf, 4>;
+using VectorSpace4f = Ego::Math::VectorSpace<OrderedFieldf, 4>;
 
 /// single-precision floating-point 2d Euclidean space
 using EuclideanSpace2f = Ego::Math::EuclideanSpace<VectorSpace2f>;
@@ -53,11 +58,11 @@ using EuclideanSpace3f = Ego::Math::EuclideanSpace<VectorSpace3f>;
 using EuclideanSpace4f = Ego::Math::EuclideanSpace<VectorSpace4f>;
 
 /// single-precision floating-point 2d vector
-typedef Ego::Math::Vector<Fieldf, 2> Vector2f;
+typedef Ego::Math::Vector<OrderedFieldf, 2> Vector2f;
 /// single-precision floating-point 3d vector
-typedef Ego::Math::Vector<Fieldf, 3> Vector3f;
+typedef Ego::Math::Vector<OrderedFieldf, 3> Vector3f;
 /// single-precision floating-point 4d vector
-typedef Ego::Math::Vector<Fieldf, 4> Vector4f;
+typedef Ego::Math::Vector<OrderedFieldf, 4> Vector4f;
 
 
 

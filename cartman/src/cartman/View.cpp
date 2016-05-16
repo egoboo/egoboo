@@ -26,10 +26,10 @@ namespace Cartman {
 void View::beginRender(Cartman::Gui::Window& window, float zoom_hrz, float zoom_vrt) {
     auto& renderer = Ego::Renderer::get();
     // Compute left, bottom, width, height in pixels.
-    int left = window.position.getX();
-    int bottom = sdl_scr.size.getHeight() - (window.position.getY() + window.size.getHeight());
-    int width = window.size.getWidth();
-    int height = window.size.getHeight();
+    int left = window.position.x();
+    int bottom = sdl_scr.size.height() - (window.position.y() + window.size.height());
+    int width = window.size.width();
+    int height = window.size.height();
     // Set viewport.
     renderer.setViewportRectangle(left, bottom, width, height);
     // Enable scissor tests.

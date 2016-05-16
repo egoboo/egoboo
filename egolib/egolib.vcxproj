@@ -496,6 +496,8 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Math\One.hpp" />
+    <ClInclude Include="src\egolib\Math\Zero.hpp" />
     <ClInclude Include="src\egolib\Math\Discrete.hpp" />
     <ClInclude Include="src\egolib\App.hpp" />
     <ClInclude Include="src\egolib\Math\Intersects_Cube_Point.hpp" />

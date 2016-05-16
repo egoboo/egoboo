@@ -192,8 +192,8 @@ struct LightModel {
     }
 
     static void draw_light(int number, std::shared_ptr<Cartman::Gui::Window> pwin, float zoom_hrz) {
-        int xdraw = (light_lst[number].x / FOURNUM * zoom_hrz) - cam.x + (pwin->size.getWidth() / 2) - SMALLXY;
-        int ydraw = (light_lst[number].y / FOURNUM * zoom_hrz) - cam.y + (pwin->size.getHeight() / 2) - SMALLXY;
+        int xdraw = (light_lst[number].x / FOURNUM * zoom_hrz) - cam.x + (pwin->size.width() / 2) - SMALLXY;
+        int ydraw = (light_lst[number].y / FOURNUM * zoom_hrz) - cam.y + (pwin->size.height() / 2) - SMALLXY;
         int radius = std::abs(light_lst[number].radius) / FOURNUM * zoom_hrz;
         Uint8 color = light_lst[number].level;
 
@@ -214,8 +214,8 @@ void draw_cursor_in_window(Cartman::Gui::Window& pwin)
     {
         int size = POINT_SIZE( 10 );
 
-        int x = pwin.position.getX() + ( Input::get()._mouse.position.getX() - g_windowList[mdata.win_id]->position.getX() );
-        int y = pwin.position.getY() + ( Input::get()._mouse.position.getY() - g_windowList[mdata.win_id]->position.getY() );
+        int x = pwin.position.x() + ( Input::get()._mouse.position.x() - Gui::Manager::get().windowList[mdata.win_id]->position.x() );
+        int y = pwin.position.y() + ( Input::get()._mouse.position.y() - Gui::Manager::get().windowList[mdata.win_id]->position.y() );
 
         ogl_draw_sprite_2d(Resources::get().tx_pointon, x - size / 2, y - size / 2, size, size );
     }
@@ -388,8 +388,8 @@ void Cartman::Gui::Window::render()
     {
         auto& renderer = Ego::Renderer::get();
 		renderer.setScissorTestEnabled(true);
-        renderer.setScissorRectangle(position.getX(), sdl_scr.size.getHeight() - ( position.getY() + size.getHeight() ),
-                                     size.getWidth(), size.getHeight());
+        renderer.setScissorRectangle(position.x(), sdl_scr.size.height() - ( position.y() + size.height() ),
+                                     size.width(), size.height());
 
         make_onscreen( pmesh );
 
@@ -426,10 +426,11 @@ void load_all_windows( cartman_mpd_t& mesh )
     using namespace Cartman;
     static const auto windowSize = Size2i(Gui::Window::defaultWidth, Gui::Window::defaultHeight);
     static const auto borderSize = Size2i(7, 9);
-    g_windowList[0]->load_window(0, "editor/window.png", Point2i(180, 16),  borderSize, windowSize, WINMODE_VERTEX, &mesh );
-    g_windowList[1]->load_window(1, "editor/window.png", Point2i(410, 16),  borderSize, windowSize, WINMODE_TILE,   &mesh );
-    g_windowList[2]->load_window(2, "editor/window.png", Point2i(180, 248), borderSize, windowSize, WINMODE_SIDE,   &mesh );
-    g_windowList[3]->load_window(3, "editor/window.png", Point2i(410, 248), borderSize, windowSize, WINMODE_FX,     &mesh );
+    auto& windowList = Gui::Manager::get().windowList;
+    windowList[0]->load_window(0, "editor/window.png", Point2i(180, 16),  borderSize, windowSize, WINMODE_VERTEX, &mesh );
+    windowList[1]->load_window(1, "editor/window.png", Point2i(410, 16),  borderSize, windowSize, WINMODE_TILE,   &mesh );
+    windowList[2]->load_window(2, "editor/window.png", Point2i(180, 248), borderSize, windowSize, WINMODE_SIDE,   &mesh );
+    windowList[3]->load_window(3, "editor/window.png", Point2i(410, 248), borderSize, windowSize, WINMODE_FX,     &mesh );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -450,8 +451,8 @@ void unbound_mouse()
     {
         Input::get()._mouse.tlx = 0;
         Input::get()._mouse.tly = 0;
-        Input::get()._mouse.brx = sdl_scr.size.getWidth() - 1;
-        Input::get()._mouse.bry = sdl_scr.size.getHeight() - 1;
+        Input::get()._mouse.brx = sdl_scr.size.width() - 1;
+        Input::get()._mouse.bry = sdl_scr.size.height() - 1;
     }
 }
 
@@ -462,11 +463,11 @@ void bound_mouse()
     using namespace Cartman;
     if (mdata.win_id != -1)
     {
-        auto window = g_windowList[mdata.win_id];
-        Input::get()._mouse.tlx = window->position.getX() + window->border.size.getWidth();
-        Input::get()._mouse.tly = window->position.getY() + window->border.size.getHeight();
-        Input::get()._mouse.brx = Input::get()._mouse.tlx + window->size.getWidth() - 1;
-        Input::get()._mouse.bry = Input::get()._mouse.tly + window->size.getHeight() - 1;
+        auto window = Gui::Manager::get().windowList[mdata.win_id];
+        Input::get()._mouse.tlx = window->position.x() + window->border.size.width();
+        Input::get()._mouse.tly = window->position.y() + window->border.size.height();
+        Input::get()._mouse.brx = Input::get()._mouse.tlx + window->size.width() - 1;
+        Input::get()._mouse.bry = Input::get()._mouse.tly + window->size.height() - 1;
     }
 }
 
@@ -586,8 +587,8 @@ void move_camera( cartman_mpd_info_t * pinfo )
     if ((-1 != mdata.win_id) && (CART_BUTTONDOWN(SDL_BUTTON_MIDDLE) || CART_KEYDOWN(SDLK_m)))
     {
         auto delta = Input::get()._mouse.position - Input::get()._mouse.positionOld;
-        cam.x += delta.getX();
-        cam.y += delta.getY();
+        cam.x += delta.x();
+        cam.y += delta.y();
 
         Input::get()._mouse.position = Input::get()._mouse.positionOld;
 
@@ -609,39 +610,40 @@ void cartman_check_mouse_side(std::shared_ptr<Cartman::Gui::Window> pwin, float 
 
     if ( NULL == pwin->pmesh ) pwin->pmesh = &mesh;
 
-    mpix_x = Input::get()._mouse.position.getX() - (pwin->position.getX() + pwin->size.getWidth() / 2);
-    mpix_z = Input::get()._mouse.position.getY() - (pwin->position.getY() + pwin->size.getHeight() / 2);
+    mpix_x = Input::get()._mouse.position.x() - (pwin->position.x() + pwin->size.width() / 2);
+    mpix_z = Input::get()._mouse.position.y() - (pwin->position.y() + pwin->size.height() / 2);
 
-    inside = ( mpix_x >= -( pwin->size.getWidth() / 2 ) ) && ( mpix_x <= ( pwin->size.getWidth() / 2 ) ) &&
-             ( mpix_z >= -( pwin->size.getHeight() / 2 ) ) && ( mpix_z <= ( pwin->size.getHeight() / 2 ) );
+    inside = ( mpix_x >= -( pwin->size.width() / 2 ) ) && ( mpix_x <= ( pwin->size.width() / 2 ) ) &&
+             ( mpix_z >= -( pwin->size.height() / 2 ) ) && ( mpix_z <= ( pwin->size.height() / 2 ) );
 
     mpos_x = SCREEN_TO_REAL( mpix_x, cam.x, zoom_hrz );
     mpos_z = SCREEN_TO_REAL( mpix_z, cam.z, zoom_vrt );
 
-    mpos_y0 = SCREEN_TO_REAL( - pwin->size.getWidth() / 2, cam.y, zoom_hrz );
-    mpos_y1 = SCREEN_TO_REAL( + pwin->size.getWidth() / 2, cam.y, zoom_hrz );
+    mpos_y0 = SCREEN_TO_REAL( - pwin->size.width() / 2, cam.y, zoom_hrz );
+    mpos_y1 = SCREEN_TO_REAL( + pwin->size.width() / 2, cam.y, zoom_hrz );
 
     if ( pwin->id == mdata.rect_drag && !inside )
     {
         // scroll the window
         int dmpix_x = 0, dmpix_z = 0;
 
-        if ( mpix_x < - pwin->size.getWidth() / 2 )
+        if ( mpix_x < - pwin->size.width() / 2 )
         {
-            dmpix_x = mpix_x + pwin->size.getWidth() / 2;
+            dmpix_x = mpix_x + pwin->size.width() / 2;
         }
-        else if ( mpix_x > pwin->size.getWidth() / 2 )
+        else if ( mpix_x > pwin->size.width() / 2 )
         {
-            dmpix_x = mpix_x - pwin->size.getWidth() / 2;
+            dmpix_x = mpix_x - pwin->size.width() / 2;
         }
 
-        if ( mpix_z < - pwin->size.getWidth() / 2 )
+        /// @todo Shouldn't this be <tt>pwin->size.height()</tt>?
+        if ( mpix_z < - pwin->size.width() / 2 )
         {
-            dmpix_z = mpix_z + pwin->size.getHeight() / 2;
+            dmpix_z = mpix_z + pwin->size.height() / 2;
         }
-        else if ( mpix_z > pwin->size.getHeight() / 2 )
+        else if ( mpix_z > pwin->size.height() / 2 )
         {
-            dmpix_z = mpix_z - pwin->size.getHeight() / 2;
+            dmpix_z = mpix_z - pwin->size.height() / 2;
         }
 
         if ( 0 != dmpix_x && 0 != dmpix_z )
@@ -700,10 +702,10 @@ void cartman_check_mouse_side(std::shared_ptr<Cartman::Gui::Window> pwin, float 
 
         if ( pwin->id == mdata.rect_done )
         {
-            if ( select_lst_t::count( mdata.win_select ) > 0 && !CART_KEYMOD( KMOD_ALT ) && !CART_KEYDOWN( SDLK_MODE ) &&
+            if ( mdata.win_select.count() > 0 && !CART_KEYMOD( KMOD_ALT ) && !CART_KEYDOWN( SDLK_MODE ) &&
                  !CART_KEYMOD( KMOD_LCTRL ) && !CART_KEYMOD( KMOD_RCTRL ) )
             {
-                select_lst_t::clear(mdata.win_select);
+                mdata.win_select.clear();
             }
 
             if ( CART_KEYMOD( KMOD_ALT ) || CART_KEYDOWN( SDLK_MODE ) )
@@ -776,11 +778,11 @@ void cartman_check_mouse_tile(std::shared_ptr<Cartman::Gui::Window> pwin, float 
 
     if ( NULL == pwin->pmesh ) pwin->pmesh = &mesh;
 
-    mpix_x = Input::get()._mouse.position.getX() - (pwin->position.getX() + pwin->border.size.getWidth() + pwin->size.getWidth() / 2);
-    mpix_y = Input::get()._mouse.position.getY() - (pwin->position.getY() + pwin->border.size.getHeight() + pwin->size.getHeight() / 2);
+    mpix_x = Input::get()._mouse.position.x() - (pwin->position.x() + pwin->border.size.width() + pwin->size.width() / 2);
+    mpix_y = Input::get()._mouse.position.y() - (pwin->position.y() + pwin->border.size.height() + pwin->size.height() / 2);
 
-    inside = ( mpix_x >= -( pwin->size.getWidth() / 2 ) ) && ( mpix_x <= ( pwin->size.getWidth() / 2 ) ) &&
-             ( mpix_y >= -( pwin->size.getHeight() / 2 ) ) && ( mpix_y <= ( pwin->size.getHeight() / 2 ) );
+    inside = ( mpix_x >= -( pwin->size.width() / 2 ) ) && ( mpix_x <= ( pwin->size.width() / 2 ) ) &&
+             ( mpix_y >= -( pwin->size.height() / 2 ) ) && ( mpix_y <= ( pwin->size.height() / 2 ) );
 
     mpos_x = SCREEN_TO_REAL( mpix_x, cam.x, zoom_hrz );
     mpos_y = SCREEN_TO_REAL( mpix_y, cam.y, zoom_hrz );
@@ -790,22 +792,23 @@ void cartman_check_mouse_tile(std::shared_ptr<Cartman::Gui::Window> pwin, float 
         // scroll the window
         int dmpix_x = 0, dmpix_y = 0;
 
-        if ( mpix_x < - pwin->size.getWidth() / 2 )
+        if ( mpix_x < - pwin->size.width() / 2 )
         {
-            dmpix_x = mpix_x + pwin->size.getWidth() / 2;
+            dmpix_x = mpix_x + pwin->size.width() / 2;
         }
-        else if ( mpix_x > pwin->size.getWidth() / 2 )
+        else if ( mpix_x > pwin->size.width() / 2 )
         {
-            dmpix_x = mpix_x - pwin->size.getWidth() / 2;
+            dmpix_x = mpix_x - pwin->size.width() / 2;
         }
 
-        if ( mpix_y < - pwin->size.getWidth() / 2 )
+        /// @todo Shouldn't this be <tt>pwin->size.height()</tt>?
+        if ( mpix_y < - pwin->size.width() / 2 )
         {
-            dmpix_y = mpix_y + pwin->size.getHeight() / 2;
+            dmpix_y = mpix_y + pwin->size.height() / 2;
         }
-        else if ( mpix_y > pwin->size.getHeight() / 2 )
+        else if ( mpix_y > pwin->size.height() / 2 )
         {
-            dmpix_y = mpix_y - pwin->size.getHeight() / 2;
+            dmpix_y = mpix_y - pwin->size.height() / 2;
         }
 
         if ( 0 != dmpix_x && 0 != dmpix_y )
@@ -888,11 +891,11 @@ void cartman_check_mouse_fx(std::shared_ptr<Cartman::Gui::Window> pwin, float zo
 
     if ( NULL == pwin->pmesh ) pwin->pmesh = &mesh;
 
-    mpix_x = Input::get()._mouse.position.getX() - (pwin->position.getX() + pwin->border.size.getWidth() + pwin->size.getWidth() / 2);
-    mpix_y = Input::get()._mouse.position.getY() - (pwin->position.getY() + pwin->border.size.getHeight() + pwin->size.getHeight() / 2);
+    mpix_x = Input::get()._mouse.position.x() - (pwin->position.x() + pwin->border.size.width() + pwin->size.width() / 2);
+    mpix_y = Input::get()._mouse.position.y() - (pwin->position.y() + pwin->border.size.height() + pwin->size.height() / 2);
 
-    inside = ( mpix_x >= -( pwin->size.getWidth() / 2 ) ) && ( mpix_x <= ( pwin->size.getWidth() / 2 ) ) &&
-             ( mpix_y >= -( pwin->size.getHeight() / 2 ) ) && ( mpix_y <= ( pwin->size.getHeight() / 2 ) );
+    inside = ( mpix_x >= -( pwin->size.width() / 2 ) ) && ( mpix_x <= ( pwin->size.width() / 2 ) ) &&
+             ( mpix_y >= -( pwin->size.height() / 2 ) ) && ( mpix_y <= ( pwin->size.height() / 2 ) );
 
     mpos_x = SCREEN_TO_REAL( mpix_x, cam.x, zoom_hrz );
     mpos_y = SCREEN_TO_REAL( mpix_y, cam.y, zoom_hrz );
@@ -902,22 +905,23 @@ void cartman_check_mouse_fx(std::shared_ptr<Cartman::Gui::Window> pwin, float zo
         // scroll the window
         int dmpix_x = 0, dmpix_y = 0;
 
-        if ( mpix_x < - pwin->size.getWidth() / 2 )
+        if ( mpix_x < - pwin->size.width() / 2 )
         {
-            dmpix_x = mpix_x + pwin->size.getWidth() / 2;
+            dmpix_x = mpix_x + pwin->size.width() / 2;
         }
-        else if ( mpix_x > pwin->size.getWidth() / 2 )
+        else if ( mpix_x > pwin->size.width() / 2 )
         {
-            dmpix_x = mpix_x - pwin->size.getWidth() / 2;
+            dmpix_x = mpix_x - pwin->size.width() / 2;
         }
 
-        if ( mpix_y < - pwin->size.getWidth() / 2 )
+        /// @todo Shouldn't this be <tt>pwin->size.height()</tt>?
+        if ( mpix_y < - pwin->size.width() / 2 )
         {
-            dmpix_y = mpix_y + pwin->size.getHeight() / 2;
+            dmpix_y = mpix_y + pwin->size.height() / 2;
         }
-        else if ( mpix_y > pwin->size.getHeight() / 2 )
+        else if ( mpix_y > pwin->size.height() / 2 )
         {
-            dmpix_y = mpix_y - pwin->size.getHeight() / 2;
+            dmpix_y = mpix_y - pwin->size.height() / 2;
         }
 
         if ( 0 != dmpix_x && 0 != dmpix_y )
@@ -990,39 +994,40 @@ void cartman_check_mouse_vertex(std::shared_ptr<Cartman::Gui::Window> pwin, floa
 
     if ( NULL == pwin->pmesh ) pwin->pmesh = &mesh;
 
-    mpix_x = Input::get()._mouse.position.getX() - (pwin->position.getX() + pwin->size.getWidth() / 2);
-    mpix_y = Input::get()._mouse.position.getY() - (pwin->position.getY() + pwin->size.getHeight() / 2);
+    mpix_x = Input::get()._mouse.position.x() - (pwin->position.x() + pwin->size.width() / 2);
+    mpix_y = Input::get()._mouse.position.y() - (pwin->position.y() + pwin->size.height() / 2);
 
-    inside = ( mpix_x >= -( pwin->size.getWidth() / 2 ) ) && ( mpix_x <= ( pwin->size.getWidth() / 2 ) ) &&
-             ( mpix_y >= -( pwin->size.getHeight() / 2 ) ) && ( mpix_y <= ( pwin->size.getHeight() / 2 ) );
+    inside = ( mpix_x >= -( pwin->size.width() / 2 ) ) && ( mpix_x <= ( pwin->size.width() / 2 ) ) &&
+             ( mpix_y >= -( pwin->size.height() / 2 ) ) && ( mpix_y <= ( pwin->size.height() / 2 ) );
 
     mpos_x = SCREEN_TO_REAL( mpix_x, cam.x, zoom_hrz );
     mpos_y = SCREEN_TO_REAL( mpix_y, cam.y, zoom_hrz );
 
-    mpos_z0 = SCREEN_TO_REAL( - pwin->size.getHeight() / 2, cam.z, zoom_vrt );
-    mpos_z1 = SCREEN_TO_REAL( + pwin->size.getHeight() / 2, cam.z, zoom_vrt );
+    mpos_z0 = SCREEN_TO_REAL( - pwin->size.height() / 2, cam.z, zoom_vrt );
+    mpos_z1 = SCREEN_TO_REAL( + pwin->size.height() / 2, cam.z, zoom_vrt );
 
     if ( pwin->id == mdata.rect_drag && !inside )
     {
         // scroll the window
         int dmpix_x = 0, dmpix_y = 0;
 
-        if ( mpix_x < - pwin->size.getWidth() / 2 )
+        if ( mpix_x < - pwin->size.width() / 2 )
         {
-            dmpix_x = mpix_x + pwin->size.getWidth() / 2;
+            dmpix_x = mpix_x + pwin->size.width() / 2;
         }
-        else if ( mpix_x > pwin->size.getWidth() / 2 )
+        else if ( mpix_x > pwin->size.width() / 2 )
         {
-            dmpix_x = mpix_x - pwin->size.getWidth() / 2;
+            dmpix_x = mpix_x - pwin->size.width() / 2;
         }
 
-        if ( mpix_y < - pwin->size.getWidth() / 2 )
+        /// @todo Shouldn't this be <tt>pwin->size.height()</tt>?
+        if ( mpix_y < - pwin->size.width() / 2 )
         {
-            dmpix_y = mpix_y + pwin->size.getHeight() / 2;
+            dmpix_y = mpix_y + pwin->size.height() / 2;
         }
-        else if ( mpix_y > pwin->size.getHeight() / 2 )
+        else if ( mpix_y > pwin->size.height() / 2 )
         {
-            dmpix_y = mpix_y - pwin->size.getHeight() / 2;
+            dmpix_y = mpix_y - pwin->size.height() / 2;
         }
 
         if ( 0 != dmpix_x && 0 != dmpix_y )
@@ -1080,10 +1085,10 @@ void cartman_check_mouse_vertex(std::shared_ptr<Cartman::Gui::Window> pwin, floa
 
         if ( pwin->id == mdata.rect_done )
         {
-            if ( select_lst_t::count( mdata.win_select ) > 0 && !CART_KEYMOD( KMOD_ALT ) && !CART_KEYDOWN( SDLK_MODE ) &&
+            if ( mdata.win_select.count() > 0 && !CART_KEYMOD( KMOD_ALT ) && !CART_KEYDOWN( SDLK_MODE ) &&
                  !CART_KEYMOD( KMOD_LCTRL ) && !CART_KEYMOD( KMOD_RCTRL ) )
             {
-                select_lst_t::clear(mdata.win_select);
+                mdata.win_select.clear();
             }
             if ( CART_KEYMOD( KMOD_ALT ) || CART_KEYDOWN( SDLK_MODE ) )
             {
@@ -1111,7 +1116,7 @@ void cartman_check_mouse_vertex(std::shared_ptr<Cartman::Gui::Window> pwin, floa
             fix_vertices( pwin->pmesh,  std::floor( mdata.win_mpos_x / Info<float>::Grid::Size()), std::floor( mdata.win_mpos_y / Info<float>::Grid::Size()) );
         }
 
-        if (CART_KEYDOWN(SDLK_p) || (CART_BUTTONDOWN(SDL_BUTTON_RIGHT) && 0 == select_lst_t::count(mdata.win_select)))
+        if (CART_KEYDOWN(SDLK_p) || (CART_BUTTONDOWN(SDL_BUTTON_RIGHT) && 0 == mdata.win_select.count()))
         {
             MeshEditor::raise_mesh( mdata.win_mesh, onscreen_vert, onscreen_count, mdata.win_mpos_x, mdata.win_mpos_y, brushamount, brushsize );
         }
@@ -1132,7 +1137,7 @@ bool cartman_check_mouse( const char * modulename, cartman_mpd_t * pmesh )
     move_camera( &( pmesh->info ) );
 
     // place this after move_camera()
-    Mouse::update(Input::get()._mouse);
+    Input::get()._mouse.update();
 
     // handle all window-specific commands
     //if( mos.drag && NULL != mos.drag_window )
@@ -1147,7 +1152,7 @@ bool cartman_check_mouse( const char * modulename, cartman_mpd_t * pmesh )
     {
         mdata.win_id = -1;
 
-        for (auto& window : g_windowList)
+        for (auto& window : Cartman::Gui::Manager::get().windowList)
         {
             cartman_check_mouse_tile(window, cartman_zoom_hrz, cartman_zoom_vrt);
             cartman_check_mouse_vertex(window, cartman_zoom_hrz, cartman_zoom_vrt);
@@ -1281,7 +1286,7 @@ bool cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
     }
     if ( CART_KEYDOWN( SDLK_j ) )
     {
-        if ( 0 == select_lst_t::count( mdata.win_select ) ) { MeshEditor::jitter_mesh( pmesh ); }
+        if ( 0 == mdata.win_select.count() ) { MeshEditor::jitter_mesh( pmesh ); }
         else { mesh_select_jitter( &( mdata.win_select ) ); }
         Input::get()._keyboard.delay = KEYDELAY;
     }
@@ -1497,7 +1502,7 @@ void draw_lotsa_stuff( cartman_mpd_t * pmesh )
 #endif
 
     // Tell user what keys are important
-    int y = sdl_scr.size.getHeight() - 120, step = 8;
+    int y = sdl_scr.size.height() - 120, step = 8;
     gfx_font_ptr->drawText("O = Overlay (Water)", 0, y); y -= step;
     gfx_font_ptr->drawText("R = Reflective", 0, y); y -= step;
     gfx_font_ptr->drawText("D = Draw Reflection", 0, y); y -= step;
@@ -1617,7 +1622,7 @@ void draw_main( cartman_mpd_t * pmesh )
     {
         int itmp;
 
-        Cartman::Gui::Manager::render();
+        Cartman::Gui::Manager::get().render();
 
         itmp = ambi;
         draw_slider( 0, 250, 19, 350, &ambi,          0, 200 );
@@ -1905,12 +1910,16 @@ void cart_mouse_data_toggle_fx( int fxmask )
 
 void cart_mouse_data_rect_select()
 {
-    select_lst_add_rect( mdata.win_select, mdata.rect_x0, mdata.rect_y0, mdata.rect_z0, mdata.rect_x1, mdata.rect_y1, mdata.rect_z1, mdata.win_mode );
+    select_lst_add_rect( mdata.win_select, Vector3f(mdata.rect_x0, mdata.rect_y0, mdata.rect_z0),
+                                           Vector3f(mdata.rect_x1, mdata.rect_y1, mdata.rect_z1),
+                        mdata.win_mode );
 }
 
 void cart_mouse_data_rect_unselect()
 {
-    select_lst_remove_rect( mdata.win_select, mdata.rect_x0, mdata.rect_y0, mdata.rect_z0, mdata.rect_x1, mdata.rect_y1, mdata.rect_z1, mdata.win_mode );
+    select_lst_remove_rect( mdata.win_select, Vector3f(mdata.rect_x0, mdata.rect_y0, mdata.rect_z0),
+                                              Vector3f(mdata.rect_x1, mdata.rect_y1, mdata.rect_z1),
+                           mdata.win_mode );
 }
 
 void cart_mouse_data_mesh_replace_fx()

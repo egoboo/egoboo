@@ -31,10 +31,10 @@ namespace Core {
 /**
  * @brief Create an object of type @a Type.
  */
-template <typename Type>
+template <typename Type, typename ... ArgumentTypes>
 struct CreateFunctor {
-    Type *operator()() const {
-        return new Type();
+    Type *operator()(ArgumentTypes&& ... arguments) const {
+        return new Type(std::forward<ArgumentTypes>(arguments)...);
     }
 };
 
@@ -194,13 +194,14 @@ public:
      * @remark
      *  If the singleton is initialized, a call to this method is a no-op.
      */
-    static void initialize() {
+    template<typename ... ArgumentTypes>
+    static void initialize(ArgumentTypes&& ... arguments) {
         InstanceType *o = _instance.load();
         if (!o) { // 1st check.
             std::lock_guard<std::mutex> lock(_mutex);
             o = _instance.load();
             if (!o) { // 2nd check.
-                o = CreateFunctorType()();
+                o = CreateFunctorType()(std::forward<ArgumentTypes>(arguments) ...);
                 _instance.store(o);
             }
         }

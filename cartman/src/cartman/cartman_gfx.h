@@ -24,11 +24,6 @@
 
 //--------------------------------------------------------------------------------------------
 
-struct cartman_mpd_t;
-struct select_lst_t;
-
-//--------------------------------------------------------------------------------------------
-
 struct ogl_surface_t
 {
     GLint viewport[4];
@@ -62,11 +57,8 @@ struct simple_vertex_t
 
 #define MAXTILE 256
 
-inline void make_rgba(float *color, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
-    *(color + 0) = r / 255.0f;
-    *(color + 1) = g / 255.0f;
-    *(color + 2) = b / 255.0f;
-    *(color + 3) = a / 255.0f;
+inline Ego::Math::Colour4f make_rgba(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+    return (Ego::Math::Colour4f)Ego::Math::Colour4b(r, g, b, a);
 }
 
 inline uint32_t make_rgb(const std::shared_ptr<const SDL_Surface>& surface, uint8_t r, uint8_t g, uint8_t b) {
@@ -164,8 +156,8 @@ void draw_tile_fx( float x, float y, Uint8 fx, float scale );
 // ogl routines
 void ogl_draw_sprite_2d( std::shared_ptr<Ego::Texture> img, float x, float y, float width, float height );
 void ogl_draw_sprite_3d( std::shared_ptr<Ego::Texture> img, cart_vec_t pos, cart_vec_t vup, cart_vec_t vright, float width, float height );
-void ogl_draw_box_xy( float x, float y, float z, float w, float h, float color[] );
-void ogl_draw_box_xz( float x, float y, float z, float w, float d, float color[] );
+void ogl_draw_box_xy( float x, float y, float z, float w, float h, Ego::Math::Colour4f& colour );
+void ogl_draw_box_xz( float x, float y, float z, float w, float d, Ego::Math::Colour4f& colour );
 void ogl_beginFrame();
 void ogl_endFrame();
 

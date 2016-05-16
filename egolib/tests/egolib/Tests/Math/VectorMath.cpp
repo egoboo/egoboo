@@ -23,13 +23,11 @@ namespace Ego {
 namespace Math {
 namespace Test {
 
-EgoTest_TestCase(VectorMath)
-{
+EgoTest_TestCase(VectorMath) {
 
 #define TOLERANCE Vector3f::ScalarType(0.0001)
 
-EgoTest_Test(add)
-{
+EgoTest_Test(vectorVectorSum) {
     for (size_t i = 0; i < 1000; ++i) {
         Vector3f a = Vector3f(Random::nextFloat(), Random::nextFloat(), Random::nextFloat());
         Vector3f b = Vector3f(Random::nextFloat(), Random::nextFloat(), Random::nextFloat());
@@ -44,8 +42,7 @@ EgoTest_Test(add)
     }
 }
 
-EgoTest_Test(sub)
-{
+EgoTest_Test(vectorVectorDifference) {
     for (size_t i = 0; i < 1000; ++i) {
         Vector3f a = Vector3f(Random::nextFloat(), Random::nextFloat(), Random::nextFloat());
         Vector3f b = Vector3f(Random::nextFloat(), Random::nextFloat(), Random::nextFloat());
@@ -55,8 +52,7 @@ EgoTest_Test(sub)
     }
 }
 
-EgoTest_Test(muls)
-{
+EgoTest_Test(vectorScalarProduct) {
     for (size_t i = 0; i < 1000; ++i) {
         Vector3f a = Vector3f(Random::nextFloat(), Random::nextFloat(), Random::nextFloat());
         Vector3f b = Vector3f(Random::nextFloat(), Random::nextFloat(), Random::nextFloat());
@@ -69,8 +65,7 @@ EgoTest_Test(muls)
     }
 }
 
-EgoTest_Test(neg)
-{
+EgoTest_Test(vectorNegation) {
     for (size_t i = 0; i < 1000; ++i) {
         Vector3f a = Vector3f(Random::nextFloat(), Random::nextFloat(), Random::nextFloat());
         Vector3f b = -a;
@@ -79,7 +74,15 @@ EgoTest_Test(neg)
     }
 }
 
-EgoTest_Test(length) {
+EgoTest_Test(vectorEquality) {
+    for (size_t i = 0; i < 1000; ++i) {
+        Vector3f a = Vector3f(Random::nextFloat(), Random::nextFloat(), Random::nextFloat());
+        Vector3f b = a;
+        EgoTest_Assert(a == b);
+    }
+}
+
+EgoTest_Test(vectorLength) {
     Vector3f zero = Vector3f::zero();
     EgoTest_Assert(zero[0] == 0.0f && zero[1] == 0.0f && zero[2] == 0.0f);
     Vector3f x = Vector3f::unit(0); 

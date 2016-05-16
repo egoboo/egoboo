@@ -50,12 +50,12 @@ void SideView::render(Gui::Window& window, float zoom_hrz, float zoom_vrt) {
             }
 
             if (mdata.rect_draw) {
-                float color[4];
+                Ego::Math::Colour4f color;
                 float x_min, x_max;
                 float z_min, z_max;
 
-                make_rgba(color, 255, 128 + (Clocks::timePassed<Time::Unit::Ticks, int>() & 128),
-                                      128 + (Clocks::timePassed<Time::Unit::Ticks, int>() & 128), 0);
+                color = make_rgba(255, 128 + (Clocks::timePassed<Time::Unit::Ticks, int>() & 128),
+                                       128 + (Clocks::timePassed<Time::Unit::Ticks, int>() & 128), 0);
 
                 x_min = mdata.rect_x0;
                 x_max = mdata.rect_x1;

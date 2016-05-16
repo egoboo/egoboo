@@ -121,18 +121,17 @@ struct Window {
 
 namespace Cartman { namespace Gui {
 
-struct Manager {
-    static void initialize();
-    static void uninitialize();
-    static std::shared_ptr<Window> findWindow(int x, int y);
-    static void render();
-
+struct Manager : public Ego::Core::Singleton<Manager> {
+    Manager();
+    ~Manager();
+    std::shared_ptr<Window> findWindow(int x, int y);
+    void render();
+    std::vector<std::shared_ptr<Cartman::Gui::Window>> windowList;
+    std::shared_ptr<Cartman::Gui::Cursor> cursor;
 }; // struct Manager
 
 } } // namespace Cartman::Gui
 
-extern std::vector<std::shared_ptr<Cartman::Gui::Window>> g_windowList;
-extern std::shared_ptr<Cartman::Gui::Cursor> g_cursor;
 
 //--------------------------------------------------------------------------------------------
 

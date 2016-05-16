@@ -68,15 +68,15 @@ public:
      * @pre Each specified element value must be convertible into the element type of the vector type.
 	 */
     template<
-        typename ... ArgumentTypes, 
+        typename ... ArgumentTypes,
         typename =
             std::enable_if_t<
-                ((sizeof...(ArgumentTypes)) + 1) == MyType::dimensionality() &&
-                Core::AllTrue<std::is_convertible<ArgumentTypes, ScalarType>::value ...>::value
+                (1 + sizeof...(ArgumentTypes)) == MyType::dimensionality() &&
+                Core::AllConvertible<ScalarType, ArgumentTypes ...>::value
             >
     >
-    Vector(ScalarType first, ArgumentTypes&& ... rest) 
-		: TupleType(std::forward<ScalarType>(first), rest ...) {
+    Vector(ScalarType first, ArgumentTypes&& ... rest)
+        : TupleType(std::forward<ScalarType>(first), std::forward<ArgumentTypes>(rest) ...) {
         static_assert(dimensionality() == 1 + sizeof ... (rest), "wrong number of arguments");
     }
 
@@ -198,7 +198,7 @@ public:
      *  the dot product <tt>(*this) * other</tt> of this vector and the other vector
      */
     ScalarType dot(const MyType& other) const {
-        return TupleUtilities::foldTT(DotProductFunctor(), *this, other);
+        return TupleUtilities::foldTT(DotProductFunctor(), ScalarFieldType::additiveNeutral(), *this, other);
     }
 
     /**
@@ -209,7 +209,7 @@ public:
      *  the squared length of this vector
      */
     ScalarType length_2() const {
-        return TupleUtilities::foldT(EuclideanLengthSquaredFunctor(), *this);
+        return TupleUtilities::foldT(EuclideanLengthSquaredFunctor(), ScalarFieldType::additiveNeutral(), *this);
     }
 
     /**
@@ -220,7 +220,7 @@ public:
      *  the length of this vector
      */
     ScalarType length_abs() const {
-        return TupleUtilities::foldT(AbsoluteLengthFunctor(), *this);
+        return TupleUtilities::foldT(AbsoluteLengthFunctor(), ScalarFieldType::additiveNeutral(), *this);
     }
     
 public:
@@ -233,16 +233,6 @@ public:
      */
     void assign(const MyType& other) {
 		TupleType::assign(other);
-    }
-
-    /** 
-     * @brief
-     *  Set all elements in this point to zero.
-     * @todo
-     *  Remove this.
-     */
-    void setZero() {
-        (*this) = MyType();
     }
 
 public:
@@ -280,23 +270,6 @@ public:
     }
 
 public:
-    /**
-     * @brief
-     *  Get if this vector equals another vector.
-     * @param other
-     *  the other vector
-     * @return
-     *  @a true if this vector equals the other vector
-     */
-    bool equals(const MyType& other) const {
-		for (size_t i = 0; i < MyType::dimensionality(); ++i) {
-            if (ScalarFieldType::notEqualTo(this->at(i), other.at(i))) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     /**
      * @brief
      *  Get if this vector equals another vector.
@@ -440,11 +413,11 @@ public:
 
 public:
     bool operator==(const MyType& other) const {
-        return equals(other);
+        return TupleUtilities::foldTT(typename ScalarFieldType::EqualsFunctor(), true, *this, other);
     }
 
     bool operator!=(const MyType& other) const {
-        return !equals(other);
+        return !(*this == other);
     }
 
 public:

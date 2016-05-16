@@ -95,7 +95,7 @@ Camera::Camera(const CameraOptions &options) :
     _tileList->setMesh(_currentModule->getMeshPointer());
 
     // Assume that the camera is fullscreen.
-    setScreen(0, 0, sdl_scr.size.getWidth(), sdl_scr.size.getHeight());
+    setScreen(0, 0, sdl_scr.size.width(), sdl_scr.size.height());
 }
 
 Camera::~Camera()

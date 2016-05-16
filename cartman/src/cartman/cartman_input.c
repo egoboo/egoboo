@@ -248,14 +248,14 @@ bool Cartman::Input::onMouse(SDL_Event *event)
             _mouse.drag_begin = true;
 
             // initialize the drag rect
-            _mouse.tlx = _mouse.position.getX();
-            _mouse.tly = _mouse.position.getY();
+            _mouse.tlx = _mouse.position.x();
+            _mouse.tly = _mouse.position.y();
 
-            _mouse.brx = _mouse.position.getX();
-            _mouse.bry = _mouse.position.getY();
+            _mouse.brx = _mouse.position.x();
+            _mouse.bry = _mouse.position.y();
 
             // set the drag window
-            _mouse.drag_window = Cartman::Gui::Manager::findWindow(_mouse.position.getX(), _mouse.position.getY());
+            _mouse.drag_window = Cartman::Gui::Manager::get().findWindow(_mouse.position.x(), _mouse.position.y());
             _mouse.drag_mode = (NULL == _mouse.drag_window)
                              ? 0 : _mouse.drag_mode;
         }
@@ -285,7 +285,7 @@ bool Cartman::Input::onKeyboard(SDL_Event *event)
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+
 Cartman::Mouse::Mouse() :
     on(true),
     position(), positionOld(),
@@ -302,16 +302,16 @@ Cartman::Mouse::~Mouse()
 {
 }
 
-void Cartman::Mouse::update(Cartman::Mouse& self)
+void Cartman::Mouse::update()
 {
-    if (!self.on) return;
+    if (!on) return;
 
-    self.positionOld = self.position;
+    positionOld = position;
 }
 
-bool Cartman::Mouse::isButtonDown(Cartman::Mouse& self, int button)
+bool Cartman::Mouse::isButtonDown(int button)
 {
-    return HAS_BITS(self.b, SDL_BUTTON(button));
+    return HAS_BITS(b, SDL_BUTTON(button));
 }
 
 Cartman::Keyboard::Keyboard() :
@@ -323,23 +323,23 @@ Cartman::Keyboard::Keyboard() :
 Cartman::Keyboard::~Keyboard()
 {}
 
-bool Cartman::Keyboard::isKeyDown(Cartman::Keyboard& self,int key)
+bool Cartman::Keyboard::isKeyDown(int key)
 {
     SDL_Scancode actualKey = SDL_GetScancodeFromKey(key);
-    if (!self.on || self.override || (actualKey >= self.count)) return false;
-    if (!self.sdlbuffer) return false;
-    return self.sdlbuffer[actualKey];
+    if (!on || override || (actualKey >= count)) return false;
+    if (!sdlbuffer) return false;
+    return sdlbuffer[actualKey];
 }
 
-bool Cartman::Keyboard::isModDown(Cartman::Keyboard& self, int mod)
+bool Cartman::Keyboard::isModDown(int mod)
 {
-    if (!self.on || self.override) return false;
-    if (!self.sdlbuffer) return false;
-    return 0 != (self.mod & mod);
+    if (!on || override) return false;
+    if (!sdlbuffer) return false;
+    return 0 != (this->mod & mod);
 }
 
-bool Cartman::Keyboard::isDown(Cartman::Keyboard& self, int key, int mod)
+bool Cartman::Keyboard::isDown(int key, int mod)
 {
-    return Cartman::Keyboard::isKeyDown(self, key)
-        && Cartman::Keyboard::isModDown(self, mod);
+    return isKeyDown(key)
+        && isModDown(mod);
 }

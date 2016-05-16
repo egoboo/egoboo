@@ -28,34 +28,40 @@ struct Size2;
 template <typename T>
 struct Size2<T, std::enable_if_t<std::is_same<T, int>::value>> {
 private:
-    int width, height;
+    typedef Size2<T> MyType;
+    std::array<T, 2> elements;
 
 public:
-    Size2() : width(), height() {}
-    Size2(T width, T height) : width(width), height(height) {}
-    Size2(const Size2<T>& other) : width(other.width), height(other.height) {}
+    Size2() : elements{0,0} {}
+    Size2(T width, T height) : elements{width,height} {}
+    Size2(const MyType& other) : elements(other.elements) {}
 
 public:
-    const Size2<T>& operator=(const Size2<T>& other) {
-        width = other.width;
-        height = other.height;
+    const MyType& operator=(const MyType& other) {
+        elements = other.elements;
         return *this;
     }
-    bool operator==(const Size2<T>& other) const {
-        return width == other.width
-            && height == other.height;
+    bool operator==(const MyType& other) const {
+        return elements[0] == other.elements[0]
+            && elements[1] == other.elements[1];
     }
 
 public:
     // Derived operators
-    NotEqualTo(Size2<T>, Size2<T>);
+    NotEqualTo(MyType, MyType);
 
 public:
-    T getWidth() const {
-        return width;
+    T& width() {
+        return elements[0];
     }
-    T getHeight() const {
-        return height;
+    const T& width() const {
+        return elements[0];
+    }
+    T& height() {
+        return elements[1];
+    }
+    const T& height() const {
+        return elements[1];
     }
 
 }; // struct Size2
@@ -66,42 +72,50 @@ struct Vector2;
 template <typename T>
 struct Vector2<T, std::enable_if_t<std::is_same<T, int>::value>> {
 private:
-    T x, y;
+    typedef Vector2<T> MyType;
+    std::array<T, 2> elements;
 
 public:
-    Vector2() : x(), y() {}
-    Vector2(T x, T y) : x(x), y(y) {}
-    Vector2(const Vector2<T>& other) : x(other.x), y(other.y) {}
+    Vector2() : elements{0,0} {}
+    Vector2(T x, T y) : elements{x,y} {}
+    Vector2(const Vector2<T>& other) : elements(other.elements) {}
 
 public:
-    const Vector2<T>& operator=(const Vector2<T>& other) {
-        x = other.x;
-        y = other.y;
+    const MyType& operator=(const MyType& other) {
+        elements = other.elements;
         return *this;
     }
-    Vector2<T> operator+(const Vector2<T>& other) const {
-        return Vector2<T>(x + other.getX(), y + other.getY());
+    MyType operator+(const MyType& other) const {
+        return MyType(elements[0] + other.elements[0],
+                      elements[1] + other.elements[1]);
     }
-    Vector2<T> operator-(const Vector2<T>& other) const {
-        return Vector2<T>(x - other.getX(), y - other.getY());
+    MyType operator-(const MyType& other) const {
+        return MyType(elements[0] - other.elements[0],
+                      elements[1] - other.elements[1]);
     }
-    bool operator==(const Vector2<T>& other) const {
-        return x == other.x
-            && y == other.y;
+    bool operator==(const MyType& other) const {
+        return elements[0] == other.elements[0]
+            && elements[1] == other.elements[1];
     }
 
 public:
     // Derived operators
-    Add(Vector2<T>, Vector2<T>, Vector2<T>);
-    Subtract(Vector2<T>, Vector2<T>, Vector2<T>);
-    NotEqualTo(Vector2<T>, Vector2<T>);
+    Add(MyType, MyType, MyType);
+    Subtract(MyType, MyType, MyType);
+    NotEqualTo(MyType, MyType);
 
 public:
-    int getX() const {
-        return x;
+    T& x() {
+        return elements[0];
     }
-    int getY() const {
-        return y;
+    const T& x() const {
+        return elements[0];
+    }
+    T& y() {
+        return elements[1];
+    }
+    const T& y() const {
+        return elements[1];
     }
 
 }; // struct Vector2
@@ -112,49 +126,56 @@ struct Point2;
 template <typename T>
 struct Point2<T, std::enable_if_t<std::is_same<T, int>::value>> {
 private:
-    T x, y;
+    typedef Vector2<T> VectorType;
+    typedef Point2<T> MyType;
+    std::array<T, 2> elements;
 
 public:
-    Point2() : x(0), y(0) {}
-    Point2(T x, T y) : x(x), y(y) {}
-    Point2(const Point2<T>& other) : x(other.x), y(other.y) {}
+    Point2() : elements{0,0} {}
+    Point2(T x, T y) : elements{x,y} {}
+    Point2(const MyType& other) : elements(other.elements) {}
 
 public:
-    const Point2<T>& operator=(const Point2<T>& other) {
-        x = other.x;
-        y = other.y;
+    const MyType& operator=(const MyType& other) {
+        elements = other.elements;
         return *this;
     }
 
 public:
-    bool operator==(const Point2<T>& other) const {
-        return x == other.x
-            && y == other.y;
+    bool operator==(const MyType& other) const {
+        return elements[0] == other.elements[0]
+            && elements[1] == other.elements[1];
     }
 
 public:
-    Point2<T> operator+(const Vector2<T>& t) const {
-        return Point2i(x + t.getX(), y + t.getY());
+    MyType operator+(const VectorType& t) const {
+        return MyType(elements[0] + t.x(), elements[1] + t.y());
     }
-    Point2<T> operator-(const Vector2<T>& t) const {
-        return Point2<T>(x - t.getX(), y - t.getY());
+    MyType operator-(const VectorType& t) const {
+        return MyType(elements[0] - t.x(), elements[1] - t.y());
     }
-    Vector2<T> operator-(const Point2<T>& other) const {
-        return Vector2<T>(x - other.getX(), y - other.getY());
+    VectorType operator-(const MyType& other) const {
+        return VectorType(elements[0] - other.x(), elements[1] - other.y());
     }
 
 public:
     // Derived operators
-    Add(Point2<T>, Point2<T>, Vector2<T>);
-    Subtract(Point2<T>, Point2<T>, Vector2<T>);
-    NotEqualTo(Point2<T>, Point2<T>);
+    Add(MyType, MyType, VectorType);
+    Subtract(MyType, MyType, VectorType);
+    NotEqualTo(MyType, MyType);
 
 public:
-    int getX() const {
-        return x;
+    T& x() {
+        return elements[0];
     }
-    int getY() const {
-        return y;
+    const T& x() const {
+        return elements[0];
+    }
+    T& y() {
+        return elements[1];
+    }
+    const T& y() const {
+        return elements[1];
     }
 
 }; // struct Point2

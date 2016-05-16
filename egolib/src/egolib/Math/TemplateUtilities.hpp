@@ -39,18 +39,31 @@ namespace Core {
 template <bool...> struct BoolPack;
 /**
  * @brief
- *	Derived from std::true_type if all boolean values in the variadic template argument list are true,
- *  derived from std::false type otherwise.
+ *  Provide a member constant value <tt>value</tt>.
+ *  That constant is equal to <tt>true</tt> if
+ *  all boolean values in the variadic template argument list are true.
+ *  Otherwise it is equal to <tt>false</tt>.
  */
 template <bool... v>
 using AllTrue  = std::is_same<BoolPack<true, v...>, BoolPack<v..., true>>;
 /**
  * @brief
- *  Derived from std::true_type if all boolean values in the variadic template argument list are true,
- *  derived from std::false type otherwise.
+ *  Provide a mamber constant value <tt>value</tt>.
+ *  That constant is equal to <tt>true</tt> if
+ *  all boolean values in the variadic template argument list are true.
+ *  Otherwise it is equal to <tt>false</tt>.
  */
 template <bool... v>
 using AllFalse = std::is_same<BoolPack<false, v...>, BoolPack<v..., false>>;
+/** 
+ * @brief
+ *  Provide member constant value <tt>value</tt>.
+ *  That constant is equal to <tt>true</tt>
+ *  if the argument types in the variadic template argument list are convertible into the specified target type.
+ *  Otherwise it is equal to <tt>false</tt>.
+ */
+template <typename TargetType, typename ... ArgumentTypes>
+using AllConvertible = AllTrue<std::is_convertible<ArgumentTypes, TargetType>::value ...>;
 
 } // namespace Core
 } // namespace Ego

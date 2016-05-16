@@ -60,11 +60,11 @@ Point2i GraphicsWindow::getPosition() const {
 }
 
 void GraphicsWindow::setPosition(Point2i leftTop) {
-    SDL_SetWindowPosition(window, leftTop.getX(), leftTop.getY());
+    SDL_SetWindowPosition(window, leftTop.x(), leftTop.y());
 }
 
 void GraphicsWindow::setSize(Size2i size) {
-    SDL_SetWindowSize(window, size.getWidth(), size.getHeight());
+    SDL_SetWindowSize(window, size.width(), size.height());
 }
 
 int GraphicsWindow::getDisplayIndex() {

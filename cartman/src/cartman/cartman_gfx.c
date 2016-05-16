@@ -291,7 +291,7 @@ void draw_top_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt )
     static Uint32 faketoreal[MAP_FAN_VERTICES_MAX];
 
     int cnt, stt, end, vert;
-    float color[4];
+    Ego::Math::Colour4f color;
     float size;
 
     cart_vec_t vup    = { 0, 1, 0};
@@ -300,7 +300,7 @@ void draw_top_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt )
 
 	select_lst_t::synch_mesh(plst, &mesh);
 
-	cartman_mpd_t *pmesh = select_lst_t::get_mesh(plst);
+	cartman_mpd_t *pmesh = plst.get_mesh();
     if (!pmesh) return;
 
 	const cartman_mpd_tile_t *pfan = CART_MPD_FAN_PTR( pmesh, fan );
@@ -313,10 +313,10 @@ void draw_top_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt )
 
     if ( 0 == pdef->numvertices || pdef->numvertices > MAP_FAN_VERTICES_MAX ) return;
 
-    make_rgba(color, 255, 128, 128, 255);
+    color = make_rgba(255, 128, 128, 255);
     if ( pfan->type >= tile_dict.offset )
     {
-        make_rgba(color, 255, 255, 128, 128);
+        color = make_rgba(255, 255, 128, 128);
     }
 
     for ( cnt = 0, vert = pfan->vrtstart;
@@ -328,8 +328,8 @@ void draw_top_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt )
 
     glPushAttrib( GL_TEXTURE_BIT | GL_ENABLE_BIT );
     {
-        glColor4fv( color );
-        glDisable( GL_TEXTURE_2D );
+        Ego::Renderer::get().setColour(color);
+        Ego::Renderer::get().getTextureUnit().setActivated(nullptr);
 
         glBegin( GL_LINES );
         {
@@ -364,7 +364,7 @@ void draw_top_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt )
             int select_rv;
             std::shared_ptr<Ego::Texture> tx_tmp;
 
-            select_rv = select_lst_t::find(plst, vert);
+            select_rv = plst.find(vert);
             if ( select_rv < 0 )
             {
                 tx_tmp = Resources::get().tx_point;
@@ -397,13 +397,13 @@ void draw_side_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt 
     cart_vec_t vpos;
 
     int cnt, stt, end, vert;
-    float color[4];
+    Ego::Math::Colour4f color;
     float size;
     float point_size;
 
 	select_lst_t::synch_mesh(plst, &mesh);
 
-	cartman_mpd_t *pmesh = select_lst_t::get_mesh(plst);
+	cartman_mpd_t *pmesh = plst.get_mesh();
     if (!pmesh) return;
 
 	cartman_mpd_tile_t *pfan = CART_MPD_FAN_PTR( pmesh, fan );
@@ -414,10 +414,10 @@ void draw_side_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt 
 
 	tile_line_data_t *plines = tile_dict_lines + pfan->type;
 
-    make_rgba(color, 255, 128, 128, 255);
+    color = make_rgba(255, 128, 128, 255);
     if ( pfan->type >= tile_dict.offset )
     {
-        make_rgba(color, 255, 255, 128, 128);
+        color = make_rgba(255, 255, 128, 128);
     }
 
     for ( cnt = 0, vert = pfan->vrtstart;
@@ -429,8 +429,8 @@ void draw_side_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt 
 
     glPushAttrib( GL_TEXTURE_BIT | GL_ENABLE_BIT );
     {
-        glColor4fv( color );
-        glDisable( GL_TEXTURE_2D );
+        Ego::Renderer::get().setColour(color);
+        Ego::Renderer::get().getTextureUnit().setActivated(nullptr);
 
         glBegin( GL_LINES );
         {
@@ -459,7 +459,7 @@ void draw_side_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt 
 
         vert = faketoreal[cnt];
 
-        select_rv = select_lst_t::find( plst, vert );
+        select_rv = plst.find( vert );
         if ( select_rv < 0 )
         {
             tx_tmp = Resources::get().tx_point;
@@ -485,7 +485,7 @@ void draw_schematic(std::shared_ptr<Cartman::Gui::Window> pwin, int fantype, int
     //     The wireframe on the left side of the theSurface.
 
     int cnt, stt, end;
-    float color[4];
+    Ego::Math::Colour4f color;
 
     // aliases
     tile_line_data_t     * plines = NULL;
@@ -496,16 +496,16 @@ void draw_schematic(std::shared_ptr<Cartman::Gui::Window> pwin, int fantype, int
 
     plines = tile_dict_lines + fantype;
 
-    make_rgba(color, 255, 128, 128, 255);
+    color = make_rgba(255, 128, 128, 255);
     if ( fantype >= tile_dict.offset )
     {
-        make_rgba(color, 255, 255, 128, 128);
-    };
+        color = make_rgba(255, 255, 128, 128);
+    }
 
     glPushAttrib( GL_TEXTURE_BIT | GL_ENABLE_BIT );
     {
-        glColor4fv( color );
-        glDisable( GL_TEXTURE_2D );
+        Ego::Renderer::get().setColour(color);
+        Ego::Renderer::get().getTextureUnit().setActivated(nullptr);
 
         glBegin( GL_LINES );
         {
@@ -748,13 +748,12 @@ void draw_tile_fx( float x, float y, Uint8 fx, float scale )
 
 void ogl_draw_sprite_2d(std::shared_ptr<Ego::Texture> img, float x, float y, float width, float height )
 {
-    float w, h;
     float min_s, max_s, min_t, max_t;
 
     const float dst = 1.0f / 64.0f;
 
-    w = width;
-    h = height;
+    float w = width;
+    float h = height;
 
     if ( NULL != img )
     {
@@ -782,7 +781,7 @@ void ogl_draw_sprite_2d(std::shared_ptr<Ego::Texture> img, float x, float y, flo
     // Draw the image
 	Ego::Renderer::get().getTextureUnit().setActivated(img.get());
 
-    Ego::Renderer::get().setColour(Ego::Math::Colour4f(1.0f, 1.0f, 1.0f, 1.0f));
+    Ego::Renderer::get().setColour(Ego::Math::Colour4f::white());
 
     glBegin( GL_TRIANGLE_STRIP );
     {
@@ -796,14 +795,13 @@ void ogl_draw_sprite_2d(std::shared_ptr<Ego::Texture> img, float x, float y, flo
 
 void ogl_draw_sprite_3d(std::shared_ptr<Ego::Texture> img, cart_vec_t pos, cart_vec_t vup, cart_vec_t vright, float width, float height )
 {
-    float w, h;
     float min_s, max_s, min_t, max_t;
     cart_vec_t bboard[4];
 
     const float dst = 1.0f / 64.0f;
 
-    w = width;
-    h = height;
+    float w = width;
+    float h = height;
 
     if ( NULL != img )
     {
@@ -861,13 +859,12 @@ void ogl_draw_sprite_3d(std::shared_ptr<Ego::Texture> img, cart_vec_t pos, cart_
 
 //--------------------------------------------------------------------------------------------
 
-void ogl_draw_box_xy( float x, float y, float z, float w, float h, float color[] )
+void ogl_draw_box_xy( float x, float y, float z, float w, float h, Ego::Math::Colour4f& colour )
 {
     glPushAttrib( GL_ENABLE_BIT );
     {
-        glDisable( GL_TEXTURE_2D );
-
-        glColor4fv( color );
+        Ego::Renderer::get().getTextureUnit().setActivated(nullptr);
+        Ego::Renderer::get().setColour(colour);
 
         glBegin( GL_QUADS );
         {
@@ -881,13 +878,12 @@ void ogl_draw_box_xy( float x, float y, float z, float w, float h, float color[]
     glPopAttrib();
 };
 
-void ogl_draw_box_xz( float x, float y, float z, float w, float d, float color[] )
+void ogl_draw_box_xz( float x, float y, float z, float w, float d, Ego::Math::Colour4f& colour )
 {
     glPushAttrib( GL_ENABLE_BIT );
     {
-        glDisable( GL_TEXTURE_2D );
-
-        glColor4fv( color );
+        Ego::Renderer::get().getTextureUnit().setActivated(nullptr);
+        Ego::Renderer::get().setColour(colour);
 
         glBegin( GL_QUADS );
         {
@@ -913,12 +909,12 @@ void ogl_beginFrame()
     renderer.setBlendingEnabled(true);
     renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
 
-    renderer.setViewportRectangle(0, 0, sdl_scr.size.getWidth(), sdl_scr.size.getHeight());
+    renderer.setViewportRectangle(0, 0, sdl_scr.size.width(), sdl_scr.size.height());
 
     // Set up an ortho projection for the gui to use.  Controls are free to modify this
     // later, but most of them will need this, so it's done by default at the beginning
     // of a frame
-	Matrix4f4f projection = Ego::Math::Transform::ortho(0, sdl_scr.size.getWidth(), sdl_scr.size.getHeight(), 0, -1, 1);
+	Matrix4f4f projection = Ego::Math::Transform::ortho(0, sdl_scr.size.width(), sdl_scr.size.height(), 0, -1, 1);
     renderer.setProjectionMatrix(projection);
     renderer.setWorldMatrix(Matrix4f4f::identity());
     renderer.setViewMatrix(Matrix4f4f::identity());
@@ -981,8 +977,8 @@ void cartman_begin_ortho_camera_hrz(Cartman::Gui::Window& pwin, camera_t * pcam,
     using namespace Cartman::Gui;
     static const float factor_x = (float)DEFAULT_RESOLUTION * Info<float>::Grid::Size() / (float)Window::defaultWidth,
         factor_y = (float)DEFAULT_RESOLUTION * Info<float>::Grid::Size() / (float)Window::defaultHeight;
-    float w = (float)pwin.size.getWidth() * factor_x / zoom_x;
-    float h = (float)pwin.size.getHeight() * factor_y / zoom_y;
+    float w = (float)pwin.size.width() * factor_x / zoom_x;
+    float h = (float)pwin.size.height() * factor_y / zoom_y;
     float d = DEFAULT_Z_SIZE;
 
     pcam->w = w;
@@ -1024,9 +1020,9 @@ void cartman_begin_ortho_camera_vrt(Cartman::Gui::Window& pwin, camera_t * pcam,
 
     static const float factor_x = (float)DEFAULT_RESOLUTION * Info<float>::Grid::Size() / (float)Window::defaultWidth,
         factor_y = (float)DEFAULT_RESOLUTION * Info<float>::Grid::Size() / (float)Window::defaultHeight;
-    float w = pwin.size.getWidth() * factor_x / zoom_x;
+    float w = pwin.size.width() * factor_x / zoom_x;
     float h = w;
-    float d = pwin.size.getHeight() * factor_y / zoom_z;
+    float d = pwin.size.height() * factor_y / zoom_z;
 
     pcam->w = w;
     pcam->h = h;
@@ -1067,7 +1063,7 @@ void cartman_begin_ortho_camera_vrt(Cartman::Gui::Window& pwin, camera_t * pcam,
 void cartman_end_ortho_camera()
 {
     auto &renderer = Ego::Renderer::get();
-    Matrix4f4f projection = Ego::Math::Transform::ortho(0, sdl_scr.size.getWidth(), sdl_scr.size.getHeight(), 0, -1, 1);
+    Matrix4f4f projection = Ego::Math::Transform::ortho(0, sdl_scr.size.width(), sdl_scr.size.height(), 0, -1, 1);
     renderer.setProjectionMatrix(projection);
     renderer.setWorldMatrix(Matrix4f4f::identity());
     renderer.setViewMatrix(Matrix4f4f::identity());
