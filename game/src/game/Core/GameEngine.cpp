@@ -551,10 +551,10 @@ int SDL_main(int argc, char **argv)
 {
     try
     {
-        Ego::Core::System::initialize(argv[0],nullptr);
+        Ego::Core::System::initialize(std::string(argv[0]));
         try
         {
-            _gameEngine = std::unique_ptr<GameEngine>(new GameEngine());
+            _gameEngine = std::make_unique<GameEngine>();
 
             _gameEngine->start();
         }

@@ -24,7 +24,7 @@ namespace Ego {
 namespace Core {
 namespace Test {
 
-struct Bar : Ego::Core::Singleton<Bar> {
+struct Bar : public Ego::Core::Singleton<Bar> {
 protected:
     friend struct Ego::Core::CreateFunctor<Bar>;
     friend struct Ego::Core::DestroyFunctor<Bar>;
@@ -36,9 +36,9 @@ protected:
     }
 };
 
-struct Foo : Ego::Core::Singleton<Foo, Ego::Core::CreateFunctor<Foo, std::string>> {
+struct Foo : public Ego::Core::Singleton<Foo,Foo> {
 protected:
-    friend struct Ego::Core::CreateFunctor<Foo, std::string>;
+    friend struct Ego::Core::CreateFunctor<Foo>;
     friend struct Ego::Core::DestroyFunctor<Foo>;
     Foo(const std::string& p) {
         std::cout << "Foo::Foo(" << p << ")" << std::endl;
@@ -53,12 +53,20 @@ EgoTest_TestCase(Singleton) {
 EgoTest_Test(run) {
     Bar::initialize();
     Bar::uninitialize();
-    Foo::initialize("Hello, World!");
+    Foo::initialize(std::string("Hello, World!"));
     Foo::uninitialize();
 }
 
 }; // Singleton
 
 } // namespace Test
+
+template <>
+struct CreateFunctor<Ego::Core::Test::Foo> {
+    Ego::Core::Test::Foo *operator()(const std::string& x) const {
+        return new Ego::Core::Test::Foo(x);
+    }
+};
+
 } // namespace Core
 } // namespace Ego

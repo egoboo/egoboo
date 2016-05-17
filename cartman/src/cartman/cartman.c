@@ -1702,7 +1702,7 @@ int SDL_main( int argcnt, char* argtext[] )
         sprintf( modulename, "%s.mod", argtext[2] );
     }
 
-    Ego::Core::System::initialize(argtext[0], egoboo_path);
+    Ego::Core::System::initialize(std::string(argtext[0]), std::string(egoboo_path));
 
     // Construct the input system.
     Cartman::Input::initialize();

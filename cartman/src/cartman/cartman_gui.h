@@ -122,8 +122,12 @@ struct Window {
 namespace Cartman { namespace Gui {
 
 struct Manager : public Ego::Core::Singleton<Manager> {
+protected:
+    friend struct Ego::Core::CreateFunctor<Manager>;
+    friend struct Ego::Core::DestroyFunctor<Manager>;
     Manager();
     ~Manager();
+public:
     std::shared_ptr<Window> findWindow(int x, int y);
     void render();
     std::vector<std::shared_ptr<Cartman::Gui::Window>> windowList;

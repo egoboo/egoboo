@@ -17,27 +17,29 @@
 //*
 //********************************************************************************************
 
+/// @file   egolib/Core/System.hpp
+/// @brief  System services
+/// @author Michael Heilmann
+/// @todo   friend std::unique_ptr<T> std::make_unique<T>(); allows for an invocation of
+///         constructor T::T() which is undesirable. Using the attorney-client pattern
+///         might provide a solution.
+
 #pragma once
 
-#include "egolib/platform.h"
+#include "egolib/Core/Singleton.hpp"
 
-namespace Ego
-{
-namespace Core
-{
+namespace Ego {
+namespace Core {
 
 /**
- * @brief
- *  A timer service.
- * @author
- *  Michael Heilmann
+ * @brief A timer service.
  */
-class TimerService : public Id::NonCopyable
-{
+class TimerService : public Id::NonCopyable {
 protected:
     friend class System;
+    friend std::unique_ptr<TimerService> std::make_unique<TimerService>();
     friend std::unique_ptr<TimerService>::deleter_type;
-    TimerService();
+    explicit TimerService();
     virtual ~TimerService();
 public:
     /**
@@ -52,81 +54,67 @@ public:
 };
 
 /**
- * @brief
- *  An event threading service.
- * @author
- *  Michael Heilmann
+ * @brief An event threading service.
  */
-class EventService : public Id::NonCopyable
-{
+class EventService : public Id::NonCopyable {
 protected:
     friend class System;
-    EventService();
+    friend std::unique_ptr<EventService> std::make_unique<EventService>();
+    friend std::unique_ptr<EventService>::deleter_type;
+    explicit EventService();
     virtual ~EventService();
 };
 
 /**
- * @brief
- *	A video service.
- * @author
- *	Michael Heilmann
+ * @brief A video service.
  */
-class VideoService : public Id::NonCopyable
-{
+class VideoService : public Id::NonCopyable {
 protected:
 	friend class System;
-	VideoService();
+    friend std::unique_ptr<VideoService> std::make_unique<VideoService>();
+    friend std::unique_ptr<VideoService>::deleter_type;
+	explicit VideoService();
 	virtual ~VideoService();
 };
 
 /**
- * @brief
- *	An audio service.
- * @author
- *	Michael Heilmann
+ * @brief An audio service.
  */
-class AudioService : public Id::NonCopyable
-{
+class AudioService : public Id::NonCopyable {
 protected:
 	friend class System;
-	AudioService();
+    friend std::unique_ptr<AudioService> std::make_unique<AudioService>();
+    friend std::unique_ptr<AudioService>::deleter_type;
+	explicit AudioService();
 	virtual ~AudioService();
 };
 
 /**
- * @brief
- *	An input service.
- * @author
- *	Michael Heilmann
+ * @brief An input service.
  */
-class InputService : public Id::NonCopyable
-{
+class InputService : public Id::NonCopyable {
 protected:
 	friend class System;
-	InputService();
+    friend std::unique_ptr<InputService> std::make_unique<InputService>();
+    friend std::unique_ptr<InputService>::deleter_type;
+    explicit InputService();
 	virtual ~InputService();
 };
 
-class System : public Id::NonCopyable
-{
 
-private:
 
-    /**
-     * @brief
-     *  The singleton instance of the system.
-     */
-    static System *_singleton;
-
+class System : public Singleton<System> {
 protected:
-
+    friend struct CreateFunctor<System>;
+    friend struct DestroyFunctor<System>;
     /**
      * @brief
      *  Construct this system.
      * @remark
      *  Intentionally protected.
      */
-    System(const char *binaryPath, const char *egobooPath);
+    System(const std::string& binaryPath, const std::string& egobooPath);
+    System(const std::string& binaryPath);
 
     /**
      * @brief
@@ -144,61 +132,38 @@ public:
      */
     static const std::string VERSION;
 
-    /**
-     * @brief
-     *  Get the singleton instance of the system.
-     * @return
-     *  the singleton instance of the system
-     * @throw std::logic_error
-     *  if the system is not initialized
-     */
-    static System& get();
-
-    /**
-     * @brief
-     *  Initialize the system singleton.
-     * @remark
-     *  If the system singleton is initialized,
-     *  a call to this method is a no-op.
-     */
-    static void initialize(const char *binaryPath, const char *egobooPath);
-
-    /**
-     * @brief
-     *  Uninitialize the system singleton.
-     * @remark
-     *  If the system singleton is not initialized,
-     *  a call to this method is a no-op.
-     */
-    static void uninitialize();
-
 private:
-    TimerService *timerService;
-    EventService *eventService;
-    VideoService *videoService;
-    AudioService *audioService;
-    InputService *inputService;
+    std::unique_ptr<TimerService> timerService;
+    std::unique_ptr<EventService> eventService;
+    std::unique_ptr<VideoService> videoService;
+    std::unique_ptr<AudioService> audioService;
+    std::unique_ptr<InputService> inputService;
 public:
-    TimerService &getTimerService()
-    {
+    TimerService &getTimerService() {
         return *timerService;
     }
-    EventService& getEventService()
-    {
+    EventService& getEventService() {
         return *eventService;
     }
-	VideoService& getVideoService()
-	{
+	VideoService& getVideoService() {
 		return *videoService;
 	}
-	AudioService& getAudioService()
-	{
+	AudioService& getAudioService() {
 		return *audioService;
 	}
-	InputService& getInputService()
-	{
+	InputService& getInputService() {
 		return *inputService;
 	}
+};
+
+template <>
+struct CreateFunctor<System> {
+    System *operator()(const std::string& x) const {
+        return new System(x);
+    }
+    System *operator()(const std::string& x, const std::string& y) const {
+        return new System(x, y);
+    }
 };
 
 } // namespace Core

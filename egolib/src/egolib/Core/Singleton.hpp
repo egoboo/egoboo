@@ -113,8 +113,7 @@ struct DestroyFunctor {
  * @see
  *  Myers, Alexadrescu; "C++ and the Perils of Double-Checked Locking"; 2014
  */
-template < typename InstanceType, typename CreateFunctorType = CreateFunctor<InstanceType>,
-                                  typename DestroyFunctorType = DestroyFunctor<InstanceType>>
+template < typename InstanceType, typename Type = InstanceType>
 class Singleton
 #if defined(EGO_CORE_SINGLETON_NONCOPYABLE) && 1 == EGO_CORE_SINGLETON_NONCOPYABLE
     : Id::NonCopyable
@@ -181,7 +180,7 @@ public:
             o = _instance.load();
             if (o) {
                 _instance.store(nullptr);
-                DestroyFunctorType()(o);
+                DestroyFunctor<Type>()(o);
             }
         }
     }
@@ -201,7 +200,7 @@ public:
             std::lock_guard<std::mutex> lock(_mutex);
             o = _instance.load();
             if (!o) { // 2nd check.
-                o = CreateFunctorType()(std::forward<ArgumentTypes>(arguments) ...);
+                o = CreateFunctor<Type>()(std::forward<ArgumentTypes>(arguments) ...);
                 _instance.store(o);
             }
         }
@@ -209,11 +208,11 @@ public:
 
 };
 
-template <typename InstanceType, typename CreateFunctorType, typename DestroyFunctorType>
-std::mutex Singleton<InstanceType, CreateFunctorType, DestroyFunctorType>::_mutex;
+template <typename InstanceType, typename Type>
+std::mutex Singleton<InstanceType, Type>::_mutex;
 
-template <typename InstanceType, typename CreateFunctorType, typename DestroyFunctorType>
-std::atomic<InstanceType *> Singleton<InstanceType, CreateFunctorType, DestroyFunctorType>::_instance(nullptr);
+template <typename InstanceType, typename Type>
+std::atomic<InstanceType *> Singleton<InstanceType, Type>::_instance(nullptr);
 
 } // namespace Core
 } // namespace Ego
