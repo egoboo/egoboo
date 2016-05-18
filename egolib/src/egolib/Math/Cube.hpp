@@ -173,6 +173,17 @@ public:
         return *this;
     }
 
+public:
+    bool operator==(const MyType& other) const {
+        return _center == other._center
+            && _size == other._size;
+    }
+
+    bool operator!=(const MyType& other) const {
+        return _center != other._center
+            || _size != other._size;
+    }
+
 	/** @copydoc Ego::Math::translatable */
 	void translate(const VectorType& t) override {
 		_center += t;

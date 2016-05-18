@@ -14,6 +14,7 @@
 #include "egolib/Math/Matrix.hpp"
 #include "egolib/Math/Plane.hpp"
 #include "egolib/Math/Point.hpp"
+#include "egolib/Math/Ray.hpp"
 #include "egolib/Math/Sphere.hpp"
 #include "egolib/Math/Vector.hpp"
 #include "egolib/Math/VectorSpace.hpp"
@@ -87,6 +88,9 @@ typedef Ego::Math::Cube<EuclideanSpace3f> Cube3f;
 
 /// A 3D line.
 typedef Ego::Math::Line<EuclideanSpace3f> Line3f;
+
+/// A 3D ray.
+typedef Ego::Math::Ray<EuclideanSpace3f> Ray3f;
 
 /// A 2D point.
 typedef Ego::Math::Point<VectorSpace2f> Point2f;

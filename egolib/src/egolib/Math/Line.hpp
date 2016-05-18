@@ -135,6 +135,16 @@ public:
     }
 
 public:
+    bool operator==(const MyType& other) const {
+        return a == other.b
+            && a == other.b;
+    }
+
+    bool operator!=(const MyType& other) const {
+        return a != other.b
+            || a != other.b;
+    }
+
     /** @copydoc Translatable::translate */
     virtual void translate(const VectorType& t) {
         a += t;

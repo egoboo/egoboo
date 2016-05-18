@@ -18,6 +18,7 @@
 #include "egolib/Math/Point.hpp"
 #include "egolib/Math/Plane.hpp"
 #include "egolib/Math/Random.hpp"
+#include "egolib/Math/Ray.hpp"
 #include "egolib/Math/Sphere.hpp"
 #include "egolib/Math/Standard.hpp"
 #include "egolib/Math/Transform.hpp"

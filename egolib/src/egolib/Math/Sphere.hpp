@@ -202,6 +202,16 @@ public:
         _center = other._center;
     }
 
+public:
+    bool operator==(const MyType& other) const {
+        return _center == other._center
+            && _radius == other._radius;
+    }
+
+    bool operator!=(const MyType& other) const {
+        return _center != other._center
+            || _radius != other._radius;
+    }
 
 	/** @copydoc Ego::Math::translatable */
 	void translate(const VectorType& t) override {

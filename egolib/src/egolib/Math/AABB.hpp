@@ -199,6 +199,16 @@ public:
         return *this;
     }
 
+    bool operator==(const MyType& other) const {
+        return _min == other._min
+            && _max == other._max;
+    }
+
+    bool operator!=(const MyType& other) const {
+        return _min != other._min
+            || _max != other._max;
+    }
+
 	/** @copydoc Ego::Math::translatable */
 	void translate(const VectorType& t) override {
 		_min += t;

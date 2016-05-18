@@ -215,6 +215,18 @@ public:
     }
 
 public:
+    bool operator==(const MyType& other) const {
+        return origin == other.origin
+            && axis == other.axis
+            && angle == other.angle;
+    }
+
+    bool operator!=(const MyType& other) const {
+        return origin != other.origin
+            || axis != other.axis
+            || angle != other.angle;
+    }
+
     /** @copydoc Ego::Math::Translatable */
     void translate(const VectorType& t) override {
         origin += t;
