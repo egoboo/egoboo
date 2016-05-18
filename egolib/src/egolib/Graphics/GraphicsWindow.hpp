@@ -1,14 +1,14 @@
 #pragma once
 
 #include "egolib/Extensions/SDL_extensions.h"
+#include "egolib/Extensions/WindowProperties.hpp"
 #include "egolib/Math/_Include.hpp"
 
 namespace Ego {
 
 struct GraphicsWindow {
 	SDL_Window *window;
-    SDLX_sdl_video_flags_t flags;
-    GraphicsWindow(const SDLX_sdl_video_flags_t& flags);
+    GraphicsWindow(const WindowProperties& windowProperties);
     virtual ~GraphicsWindow();
 	
 	/** 
@@ -58,7 +58,7 @@ struct GraphicsWindow {
 
     void setGrabEnabled(bool enabled);
 
-    SDLX_sdl_video_flags_t getFlags() const;
+    WindowProperties getProperties() const;
 	
     SDL_Window *get();
 

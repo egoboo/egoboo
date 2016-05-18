@@ -305,6 +305,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\Extensions\WindowProperties.cpp" />
     <ClCompile Include="src\egolib\App.cpp" />
     <ClCompile Include="src\egolib\Graphics\GraphicsWindow.cpp" />
     <ClCompile Include="src\egolib\Graphics\IndexBuffer.cpp" />
@@ -496,6 +497,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Extensions\WindowProperties.hpp" />
     <ClInclude Include="src\egolib\Math\One.hpp" />
     <ClInclude Include="src\egolib\Math\Zero.hpp" />
     <ClInclude Include="src\egolib\Math\Discrete.hpp" />

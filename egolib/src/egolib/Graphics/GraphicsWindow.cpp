@@ -2,8 +2,8 @@
 
 namespace Ego {
 
-GraphicsWindow::GraphicsWindow(const SDLX_sdl_video_flags_t& flags) : window(nullptr), flags(flags) {
-    uint32_t flags_sdl = SDLX_sdl_video_flags_t::upload(flags);
+GraphicsWindow::GraphicsWindow(const WindowProperties& windowProperties) : window(nullptr) {
+    uint32_t flags_sdl = windowProperties.upload();
     window = SDL_CreateWindow("SDL 2.x Window",
                               SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                               320, 240, flags_sdl);
@@ -75,10 +75,10 @@ void GraphicsWindow::setGrabEnabled(bool enabled) {
     SDL_SetWindowGrab(window, enabled ? SDL_TRUE : SDL_FALSE);
 }
 
-SDLX_sdl_video_flags_t GraphicsWindow::getFlags() const {
-    SDLX_sdl_video_flags_t flags;
-    SDLX_sdl_video_flags_t::download(flags, SDL_GetWindowFlags(window));
-    return flags;
+WindowProperties GraphicsWindow::getProperties() const {
+    WindowProperties windowProperties;
+    windowProperties.download(SDL_GetWindowFlags(window));
+    return windowProperties;
 }
 
 SDL_Window *GraphicsWindow::get() {
