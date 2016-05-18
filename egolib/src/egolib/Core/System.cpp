@@ -20,130 +20,99 @@
 #include "egolib/Core/System.hpp"
 #include "egolib/egoboo_setup.h"
 
-namespace Ego
-{
-namespace Core
-{
+namespace Ego {
+namespace Core {
 
-TimerService::TimerService()
-{
-	Log::get().info("Intializing SDL timer services ... ");
-    if (SDL_InitSubSystem(SDL_INIT_TIMER) < 0)
-    {
-		Log::get().message(" failure!\n");
+TimerService::TimerService() {
+    Log::get().info("Intializing SDL timer services ... ");
+    if (SDL_InitSubSystem(SDL_INIT_TIMER) < 0) {
+        Log::get().message(" failure!\n");
         Id::EnvironmentErrorException error(__FILE__, __LINE__, "SDL timer", SDL_GetError());
-		Log::get().error("%s\n", ((std::string)error).c_str());
+        Log::get().error("%s\n", ((std::string)error).c_str());
         throw error;
-    }
-    else
-    {
-		Log::get().message(" success!\n");
+    } else {
+        Log::get().message(" success!\n");
     }
 
 }
 
-TimerService::~TimerService()
-{
+TimerService::~TimerService() {
     SDL_QuitSubSystem(SDL_INIT_TIMER);
 }
 
-uint32_t TimerService::getTicks()
-{
+uint32_t TimerService::getTicks() {
     return SDL_GetTicks();
 }
 
-EventService::EventService()
-{
-	Log::get().info("Intializing SDL event queue services ... ");
-    if (SDL_InitSubSystem(SDL_INIT_EVENTS) < 0)
-    {
-		Log::get().message(" failure!\n");
+EventService::EventService() {
+    Log::get().info("Intializing SDL event queue services ... ");
+    if (SDL_InitSubSystem(SDL_INIT_EVENTS) < 0) {
+        Log::get().message(" failure!\n");
         Id::EnvironmentErrorException error(__FILE__, __LINE__, "SDL events", SDL_GetError());
-		Log::get().error("%s\n", ((std::string)error).c_str());
+        Log::get().error("%s\n", ((std::string)error).c_str());
         throw error;
-    }
-    else
-    {
-		Log::get().message(" success!\n");
+    } else {
+        Log::get().message(" success!\n");
     }
 }
 
-EventService::~EventService()
-{
+EventService::~EventService() {
     SDL_QuitSubSystem(SDL_INIT_EVENTS);
 }
 
-VideoService::VideoService()
-{
-	Log::get().info("Intializing SDL Video ... ");
-	if (SDL_InitSubSystem(SDL_INIT_VIDEO) < 0)
-	{
-		Log::get().message(" failure!\n");
-		Id::EnvironmentErrorException error(__FILE__, __LINE__, "SDL Video", SDL_GetError());
-		Log::get().error("%s\n", ((std::string)error).c_str());
-		throw error;
-	}
-	else
-	{
-		Log::get().message(" success!\n");
-	}
+VideoService::VideoService() {
+    Log::get().info("Intializing SDL Video ... ");
+    if (SDL_InitSubSystem(SDL_INIT_VIDEO) < 0) {
+        Log::get().message(" failure!\n");
+        Id::EnvironmentErrorException error(__FILE__, __LINE__, "SDL Video", SDL_GetError());
+        Log::get().error("%s\n", ((std::string)error).c_str());
+        throw error;
+    } else {
+        Log::get().message(" success!\n");
+    }
 }
 
-VideoService::~VideoService()
-{
-	SDL_QuitSubSystem(SDL_INIT_VIDEO);
+VideoService::~VideoService() {
+    SDL_QuitSubSystem(SDL_INIT_VIDEO);
 }
 
-AudioService::AudioService()
-{
-	Log::get().info("Intializing SDL Audio ... ");
-	if (SDL_InitSubSystem(SDL_INIT_AUDIO) < 0)
-	{
-		Log::get().message(" failure!\n");
-		Id::EnvironmentErrorException error(__FILE__, __LINE__, "SDL Audio", SDL_GetError());
-		Log::get().error("%s\n", ((std::string)error).c_str());
-		throw error;
-	}
-	else
-	{
-		Log::get().message(" success!\n");
-	}
+AudioService::AudioService() {
+    Log::get().info("Intializing SDL Audio ... ");
+    if (SDL_InitSubSystem(SDL_INIT_AUDIO) < 0) {
+        Log::get().message(" failure!\n");
+        Id::EnvironmentErrorException error(__FILE__, __LINE__, "SDL Audio", SDL_GetError());
+        Log::get().error("%s\n", ((std::string)error).c_str());
+        throw error;
+    } else {
+        Log::get().message(" success!\n");
+    }
 }
 
-AudioService::~AudioService()
-{
-	SDL_QuitSubSystem(SDL_INIT_AUDIO);
+AudioService::~AudioService() {
+    SDL_QuitSubSystem(SDL_INIT_AUDIO);
 }
 
-InputService::InputService()
-{
-	Log::get().info("Intializing SDL Joystick/GameController/Haptic ... ");
-	if (SDL_InitSubSystem(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER | SDL_INIT_HAPTIC) < 0)
-	{
-		Log::get().message(" failure!\n");
-		Id::EnvironmentErrorException error(__FILE__, __LINE__, "SDL Joystick/GameController/Haptic", SDL_GetError());
-		Log::get().error("%s\n", ((std::string)error).c_str());
-		throw error;
-	}
-	else
-	{
-		Log::get().message(" success!\n");
-	}
+InputService::InputService() {
+    Log::get().info("Intializing SDL Joystick/GameController/Haptic ... ");
+    if (SDL_InitSubSystem(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER | SDL_INIT_HAPTIC) < 0) {
+        Log::get().message(" failure!\n");
+        Id::EnvironmentErrorException error(__FILE__, __LINE__, "SDL Joystick/GameController/Haptic", SDL_GetError());
+        Log::get().error("%s\n", ((std::string)error).c_str());
+        throw error;
+    } else {
+        Log::get().message(" success!\n");
+    }
 }
 
-InputService::~InputService()
-{
-	SDL_QuitSubSystem(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER | SDL_INIT_HAPTIC);
+InputService::~InputService() {
+    SDL_QuitSubSystem(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER | SDL_INIT_HAPTIC);
 }
 
 const std::string System::VERSION = "0.1.9";
 
-System *System::_singleton = nullptr;
-
-System::System(const char *binaryPath, const char *egobooPath)
-{
+System::System(const std::string& binaryPath) {
     // Initialize the virtual file system.
-    vfs_init(binaryPath, egobooPath);
+    vfs_init(binaryPath.c_str(), nullptr);
     /*
     // Uncomment to display the search paths.
     vfs_listSearchPaths();
@@ -157,8 +126,8 @@ System::System(const char *binaryPath, const char *egobooPath)
     Log::initialize("/debug/log.txt", Log::Level::Debug);
 
     // Start initializing the various subsystems.
-	Log::get().message("Starting Egoboo Engine %s\n", VERSION.c_str());
-	Log::get().info("PhysFS file system version %s has been initialized...\n", vfs_getVersion());
+    Log::get().message("Starting Egoboo Engine %s\n", VERSION.c_str());
+    Log::get().info("PhysFS file system version %s has been initialized...\n", vfs_getVersion());
 
     // Load "setup.txt".
     setup_begin();
@@ -167,13 +136,10 @@ System::System(const char *binaryPath, const char *egobooPath)
     setup_download(&egoboo_config_t::get());
 
     // Initialize SDL.
-	Log::get().message("Initializing SDL version %d.%d.%d ... ", SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL);
-    try
-    {
-        timerService = new TimerService();
-    }
-    catch (...)
-    {
+    Log::get().message("Initializing SDL version %d.%d.%d ... ", SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL);
+    try {
+        timerService = std::make_unique<TimerService>();
+    } catch (...) {
         SDL_Quit();
         setup_end();
         /*sys_uninitialize();*/
@@ -181,13 +147,9 @@ System::System(const char *binaryPath, const char *egobooPath)
         /*vfs_uninitialize();*/
         std::rethrow_exception(std::current_exception());
     }
-    try
-    {
-        eventService = new EventService();
-    }
-    catch (...)
-    {
-        delete timerService;
+    try {
+        eventService = std::make_unique<EventService>();
+    } catch (...) {
         timerService = nullptr;
         SDL_Quit();
         setup_end();
@@ -196,97 +158,148 @@ System::System(const char *binaryPath, const char *egobooPath)
         /*vfs_uninitialize();*/
         std::rethrow_exception(std::current_exception());
     }
-	try
-	{
-		videoService = new VideoService();
-	}
-	catch (...)
-	{
-        delete eventService; eventService = nullptr;
-        delete timerService; timerService = nullptr;
-		SDL_Quit();
-		setup_end();
-		/*sys_uninitialize();*/
-		Log::uninitialize();
-		/*vfs_uninitialize();*/
-		std::rethrow_exception(std::current_exception());
-	}
-	try
-	{
-		audioService = new AudioService();
-	}
-	catch (...)
-	{
-        delete videoService; videoService = nullptr;
-        delete eventService; eventService = nullptr;
-        delete timerService; timerService = nullptr;
-		SDL_Quit();
-		setup_end();
-		/*sys_uninitialize();*/
-		Log::uninitialize();
-		/*vfs_uninitialize();*/
-		std::rethrow_exception(std::current_exception());
-	}
-	try
-	{
-		inputService = new InputService();
-	}
-	catch (...)
-	{
-        delete audioService; audioService = nullptr;
-        delete videoService; videoService = nullptr;
-        delete eventService; eventService = nullptr;
-        delete timerService; timerService = nullptr;
-		SDL_Quit();
-		setup_end();
-		/*sys_uninitialize();*/
-		Log::uninitialize();
-		/*vfs_uninitialize();*/
-		std::rethrow_exception(std::current_exception());
-	}
+    try {
+        videoService = std::make_unique<VideoService>();
+    } catch (...) {
+        eventService = nullptr;
+        timerService = nullptr;
+        SDL_Quit();
+        setup_end();
+        /*sys_uninitialize();*/
+        Log::uninitialize();
+        /*vfs_uninitialize();*/
+        std::rethrow_exception(std::current_exception());
+    }
+    try {
+        audioService = std::make_unique<AudioService>();
+    } catch (...) {
+        videoService = nullptr;
+        eventService = nullptr;
+        timerService = nullptr;
+        SDL_Quit();
+        setup_end();
+        /*sys_uninitialize();*/
+        Log::uninitialize();
+        /*vfs_uninitialize();*/
+        std::rethrow_exception(std::current_exception());
+    }
+    try {
+        inputService = std::make_unique<InputService>();
+    } catch (...) {
+        audioService = nullptr;
+        videoService = nullptr;
+        eventService = nullptr;
+        timerService = nullptr;
+        SDL_Quit();
+        setup_end();
+        /*sys_uninitialize();*/
+        Log::uninitialize();
+        /*vfs_uninitialize();*/
+        std::rethrow_exception(std::current_exception());
+    }
 }
 
-System::~System()
-{
-    delete inputService; inputService = nullptr;
-    delete audioService; audioService = nullptr;
-    delete videoService; videoService = nullptr;
-    delete eventService; eventService = nullptr;
-    delete timerService; timerService = nullptr;
+System::System(const std::string& binaryPath, const std::string& egobooPath) {
+    // Initialize the virtual file system.
+    vfs_init(binaryPath.c_str(), egobooPath.c_str());
+    /*
+    // Uncomment to display the search paths.
+    vfs_listSearchPaths();
+    */
+    setup_init_base_vfs_paths();
+    /*
+    // Uncomment to display the search paths.
+    vfs_listSearchPaths();
+    */
+    // Initialize logging, so that we can use it everywhere.
+    Log::initialize("/debug/log.txt", Log::Level::Debug);
+
+    // Start initializing the various subsystems.
+    Log::get().message("Starting Egoboo Engine %s\n", VERSION.c_str());
+    Log::get().info("PhysFS file system version %s has been initialized...\n", vfs_getVersion());
+
+    // Load "setup.txt".
+    setup_begin();
+
+    // Download "setup.txt" into the Egoboo configuration.
+    setup_download(&egoboo_config_t::get());
+
+    // Initialize SDL.
+    Log::get().message("Initializing SDL version %d.%d.%d ... ", SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL);
+    try {
+        timerService = std::make_unique<TimerService>();
+    } catch (...) {
+        SDL_Quit();
+        setup_end();
+        /*sys_uninitialize();*/
+        Log::uninitialize();
+        /*vfs_uninitialize();*/
+        std::rethrow_exception(std::current_exception());
+    }
+    try {
+        eventService = std::make_unique<EventService>();
+    } catch (...) {
+        timerService = nullptr;
+        SDL_Quit();
+        setup_end();
+        /*sys_uninitialize();*/
+        Log::uninitialize();
+        /*vfs_uninitialize();*/
+        std::rethrow_exception(std::current_exception());
+    }
+    try {
+        videoService = std::make_unique<VideoService>();
+    } catch (...) {
+        eventService = nullptr;
+        timerService = nullptr;
+        SDL_Quit();
+        setup_end();
+        /*sys_uninitialize();*/
+        Log::uninitialize();
+        /*vfs_uninitialize();*/
+        std::rethrow_exception(std::current_exception());
+    }
+    try {
+        audioService = std::make_unique<AudioService>();
+    } catch (...) {
+        videoService = nullptr;
+        eventService = nullptr;
+        timerService = nullptr;
+        SDL_Quit();
+        setup_end();
+        /*sys_uninitialize();*/
+        Log::uninitialize();
+        /*vfs_uninitialize();*/
+        std::rethrow_exception(std::current_exception());
+    }
+    try {
+        inputService = std::make_unique<InputService>();
+    } catch (...) {
+        audioService = nullptr;
+        videoService = nullptr;
+        eventService = nullptr;
+        timerService = nullptr;
+        SDL_Quit();
+        setup_end();
+        /*sys_uninitialize();*/
+        Log::uninitialize();
+        /*vfs_uninitialize();*/
+        std::rethrow_exception(std::current_exception());
+    }
+}
+
+System::~System() {
+    inputService = nullptr;
+    audioService = nullptr;
+    videoService = nullptr;
+    eventService = nullptr;
+    timerService = nullptr;
     setup_end();
     /*sys_uninitialize();*/
-	Log::get().message("Exiting Egoboo Engine %s.\n", VERSION.c_str());
+    Log::get().message("Exiting Egoboo Engine %s.\n", VERSION.c_str());
     Log::uninitialize();
     setup_clear_base_vfs_paths();
     /*vfs_uninitialize();*/
-}
-
-System& System::get()
-{
-    if (!_singleton)
-    {
-        throw std::logic_error("system not initialized");
-    }
-    return *_singleton;
-}
-
-void System::initialize(const char *binaryPath, const char *egobooPath)
-{
-    if (_singleton)
-    {
-        return;
-    }
-    _singleton = new System(binaryPath, egobooPath);
-}
-
-void System::uninitialize()
-{
-    if (!_singleton)
-    {
-        return;
-    }
-    delete _singleton;
-    _singleton = nullptr;
 }
 
 } // namespace Core

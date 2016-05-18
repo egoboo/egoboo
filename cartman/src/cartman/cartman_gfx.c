@@ -60,8 +60,6 @@ Uint16 biganimtileframeand = 7;
 Uint16 biganimtilebaseand  = ( Uint16 )( ~7 );
 Uint16 animtileframeadd    = 0;
 
-std::unique_ptr<Resources> Resources::instance = nullptr;
-
 int     numsmalltile = 0;   //
 int     numbigtile = 0;     //
 

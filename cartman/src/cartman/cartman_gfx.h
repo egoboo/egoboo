@@ -76,24 +76,7 @@ inline uint32_t make_rgba(const std::shared_ptr<const SDL_Surface>& surface, uin
 
 extern camera_t cam;
 
-struct Resources {
-    static std::unique_ptr<Resources> instance;
-    static void initialize() {
-        if (!instance) {
-            instance = std::make_unique<Resources>();
-        }
-    }
-    static void uninitialize() {
-        if (instance) {
-            instance = nullptr;
-        }
-    }
-    static Resources& get() {
-        if (!instance) {
-            throw std::logic_error("resources not initialized");
-        }
-        return *instance;
-    }
+struct Resources : Ego::Core::Singleton<Resources> {
     std::shared_ptr<SDL_Surface> bmphitemap;     // Heightmap image
     std::shared_ptr<Ego::Texture> tx_point;      // Vertex image
     std::shared_ptr<Ego::Texture> tx_pointon;    // Vertex image ( select_vertsed )
