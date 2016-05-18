@@ -70,20 +70,7 @@ namespace Math {
 template <typename _EuclideanSpaceType, typename _EnabledType = std::enable_if_t<_EuclideanSpaceType::dimensionality() == 3>>
 struct Cone3 : public Translatable<typename _EuclideanSpaceType::VectorSpaceType> {
 public:
-    /// @brief The Euclidean space over which the cones are defined.
-    typedef _EuclideanSpaceType EuclideanSpaceType;
-    /// The vector space type (of the Euclidean space).
-    typedef typename EuclideanSpaceType::VectorSpaceType VectorSpaceType;
-    /// The scalar field type (of the vector space).
-    typedef typename EuclideanSpaceType::ScalarFieldType ScalarFieldType;
-    /// The vector type (of the vector space).
-    typedef typename EuclideanSpaceType::VectorType VectorType;
-    /// The scalar type (of the scalar field).
-    typedef typename EuclideanSpaceType::ScalarType ScalarType;
-    /// The point type (of the Euclidean space).
-    typedef typename EuclideanSpaceType::PointType PointType;
-    /// @brief @a MyType is the type of this template/template specialization.
-    typedef Cone3<EuclideanSpaceType> MyType;
+    Ego_Math_EuclideanSpace_CommonDefinitions(Cone3);
 
 public:
     /** @brief The origin point \f$P\f$ of the cone. */

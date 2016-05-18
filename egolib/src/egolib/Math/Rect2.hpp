@@ -20,32 +20,15 @@
 /// @file  egolib/Math/Rect2.hpp
 /// @brief 2D rectangle.
 
+#include "egolib/Math/EuclideanSpace.hpp"
+
 namespace Ego {
 namespace Math {
 
-template <typename _ScalarType>
-class Rect2 : public Internal::Entity<Ego::Math::VectorSpace<Ego::Math::Field<_ScalarType>, 2>> {
-	/**
-	 * @brief
-	 *  @a MyType is the type of this template/template specialization.
-	 */
-	typedef Rect2<_ScalarType> MyType;
-	/**
-	 * @brief
-	 *  The entity type.
-	 */
-	typedef typename Internal::Entity<Ego::Math::VectorSpace<Ego::Math::Field<_ScalarType>, 3>> EntityType;
-	/**
-	 * @brief
-	 *  The scalar type.
-	 */
-	typedef EntityType::ScalarType ScalarType;
-
-	/**
-	 * @brief
-	 *  The vector type.
-	 */
-	typedef EntityType::VectorType VectorType;
+template <typename _EuclideanSpaceType>
+class Rect2 : public Translatable<typename _EuclideanSpaceType::VectorSpaceType> {
+public:
+    Ego_Math_EuclideanSpace_CommonDefinitions(Rect2);
 };
 
 } // namespace Math

@@ -115,3 +115,32 @@ public:
 
 } // namespace Math
 } // namespace Ego
+
+/// @brief A macro to simplify the reoccuring type definitions for types defined over Euclidean space types.
+/// @param _Type the name of the type
+/// @remark The following code snipped demonstrates how the macro is used.
+/// @code
+/// template <typename _EuclideanSpaceType>
+/// struct Line : public Translatable<typename _EuclideanSpaceType::VectorSpaceType> {
+/// public:
+///   Ego_Math_EuclideanSpace_CommonDefinitions(Line);
+///   .
+///   .
+///   .
+/// };
+/// @endcode
+#define Ego_Math_EuclideanSpace_CommonDefinitions(_Type) \
+    /** @brief The Euclidean space type over which this type is defined. */ \
+    typedef _EuclideanSpaceType EuclideanSpaceType; \
+    /** @brief The vector space type (of the Euclidean space type). */ \
+    typedef typename EuclideanSpaceType::VectorSpaceType VectorSpaceType; \
+    /** @brief The scalar field type (of the vector space type). */ \
+    typedef typename EuclideanSpaceType::ScalarFieldType ScalarFieldType; \
+    /** @brief The vector type (of the vector space type). */ \
+    typedef typename EuclideanSpaceType::VectorType VectorType; \
+    /** @brief The scalar type (of the scalar field type). */ \
+    typedef typename EuclideanSpaceType::ScalarType ScalarType; \
+    /** @brief The point type (of the Euclidean space type). */ \
+    typedef typename EuclideanSpaceType::PointType PointType; \
+    /** @brief @a MyType is the type of this template/template specialization. */ \
+    typedef _Type<EuclideanSpaceType> MyType;

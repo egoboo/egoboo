@@ -46,20 +46,7 @@ namespace Math {
 template <typename _EuclideanSpaceType>
 struct AABB : public Translatable<typename _EuclideanSpaceType::VectorSpaceType> {
 public:
-    /// @brief The Euclidean space over which the AABBs are defined.
-    typedef _EuclideanSpaceType EuclideanSpaceType;
-    /// The vector space type (of the Euclidean space).
-    typedef typename EuclideanSpaceType::VectorSpaceType VectorSpaceType;
-    /// The scalar field type (of the vector space).
-    typedef typename EuclideanSpaceType::ScalarFieldType ScalarFieldType;
-    /// The vector type (of the vector space).
-    typedef typename EuclideanSpaceType::VectorType VectorType;
-    /// The scalar type (of the scalar field).
-    typedef typename EuclideanSpaceType::ScalarType ScalarType;
-    /// The point type (of the Euclidean space).
-    typedef typename EuclideanSpaceType::PointType PointType;
-    /// @brief @a MyType is the type of this template/template specialization.
-    typedef AABB<_EuclideanSpaceType> MyType;
+    Ego_Math_EuclideanSpace_CommonDefinitions(AABB);
 
 private:
     /**
