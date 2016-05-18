@@ -85,7 +85,7 @@ signed SFP8_TO_SINT(const T& val)
 #   define SINT_TO_SFP8(V1)   LAMBDA( (V1) < 0, -((signed)UINT_TO_UFP8(-V1)), (signed)UINT_TO_UFP8(V1) )
 
     /// version of V1 / 256.0f
-#   define FP8_TO_FLOAT(V1)   ( (float)(V1) * INV_0100 )
+#   define FP8_TO_FLOAT(V1)   ( (float)(V1) * INV_0100<float>() )
     /// version of V1 * 256.0f
 #   define FLOAT_TO_FP8(V1)   ( (Uint32)((V1) * (float)(0x0100) ) )
 

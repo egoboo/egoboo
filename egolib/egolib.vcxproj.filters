@@ -1172,6 +1172,9 @@
     <ClInclude Include="src\egolib\Extensions\WindowProperties.hpp">
       <Filter>Extensions</Filter>
     </ClInclude>
+    <ClInclude Include="src\egolib\Math\Constants.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\egolib\platform\NSFileManager+DirectoryLocations.m">

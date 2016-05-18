@@ -497,6 +497,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Math\Constants.hpp" />
     <ClInclude Include="src\egolib\Extensions\WindowProperties.hpp" />
     <ClInclude Include="src\egolib\Math\One.hpp" />
     <ClInclude Include="src\egolib\Math\Zero.hpp" />

@@ -1232,11 +1232,11 @@ BIT_FIELD ego_mesh_t::hit_wall(const Vector3f& pos, float radius, const BIT_FIEL
 			}
 			else if (0.0f == nrm[kX])
 			{
-				nrm[kY] = SGN(nrm[kY]);
+				nrm[kY] = sgn(nrm[kY]);
 			}
 			else if (0.0f == nrm[kY])
 			{
-				nrm[kX] = SGN(nrm[kX]);
+				nrm[kX] = sgn(nrm[kX]);
 			}
 			else
 			{
