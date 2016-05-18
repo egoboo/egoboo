@@ -28,35 +28,6 @@ Cartman_MouseData mdata = {-1};
 
 //--------------------------------------------------------------------------------------------
 
-Cartman::Input *Cartman::Input::_singleton = nullptr;
-
-Cartman::Input& Cartman::Input::get()
-{
-    if (!_singleton)
-    {
-        throw std::logic_error("input system not initialized");
-    }
-    return *_singleton;
-}
-
-void Cartman::Input::initialize()
-{
-    if (!_singleton)
-    {
-        _singleton = new Input();
-    }
-
-}
-
-void Cartman::Input::uninitialize()
-{
-    if (_singleton)
-    {
-        delete _singleton;
-        _singleton = nullptr;
-    }
-}
-
 Cartman::Input::Input() :
     _mouse(), _keyboard()
 {

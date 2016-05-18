@@ -162,7 +162,7 @@ void weld_TL( cartman_mpd_t * pmesh, int mapx, int mapy )
 		return;
 	}
 	select_lst_t loc_lst;
-    select_lst_t::init( loc_lst, pmesh );
+    loc_lst.init( pmesh );
 
     loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy(mapx, mapy, CORNER_TL));
     loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy(mapx - 1, mapy, CORNER_TR));
@@ -179,7 +179,7 @@ void weld_TR( cartman_mpd_t * pmesh, int mapx, int mapy )
 		return;
 	}
 	select_lst_t loc_lst;
-    select_lst_t::init( loc_lst, pmesh );
+    loc_lst.init( pmesh );
 
     loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy(mapx, mapy, CORNER_TR));
     loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy(mapx, mapy - 1, CORNER_BR));
@@ -196,7 +196,7 @@ void weld_BR( cartman_mpd_t * pmesh, int mapx, int mapy )
 		return;
 	}
     select_lst_t loc_lst;
-    select_lst_t::init( loc_lst, pmesh );
+    loc_lst.init( pmesh );
 
     loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy(mapx, mapy, CORNER_BR));
     loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy(mapx + 1, mapy, CORNER_BL));
@@ -213,7 +213,7 @@ void weld_BL( cartman_mpd_t * pmesh, int mapx, int mapy )
 		return;
 	}
 	select_lst_t loc_lst;
-    select_lst_t::init( loc_lst, pmesh );
+    loc_lst.init( pmesh );
 
     loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy(mapx, mapy, CORNER_BL));
     loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy(mapx, mapy + 1, CORNER_TL));
@@ -532,7 +532,7 @@ void weld_edge_verts( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, tile_def
         int added_vert;
 		select_lst_t loc_lst;
 
-        select_lst_t::init( loc_lst, pmesh );
+        loc_lst.init( pmesh );
 
         // add the point on this fan
         pfan = pmesh->get_pfan(mapx, mapy);
@@ -608,7 +608,7 @@ void select_lst_add_rect( select_lst_t& plst, const Vector3f& a, const Vector3f&
     float xmin, ymin, zmin;
     float xmax, ymax, zmax;
 
-	select_lst_t::synch_mesh(plst, &mesh);
+	plst.synch_mesh(&mesh);
 
 	cartman_mpd_t *pmesh = plst.get_mesh();
     if (!pmesh) return;
@@ -664,12 +664,10 @@ void select_lst_remove_rect( select_lst_t& plst, const Vector3f& a, const Vector
     float xmin, ymin, zmin;
     float xmax, ymax, zmax;
 
-	select_lst_t::synch_mesh(plst, &mesh);
+	plst.synch_mesh(&mesh);
 
 	cartman_mpd_t *pmesh = plst.get_mesh();
     if (!pmesh) return;
-
-    // get the vertex list
 
     // If the selection is empty, we're done.
 	if (a == b) {
@@ -1109,7 +1107,7 @@ void MeshEditor::jitter_mesh( cartman_mpd_t * pmesh )
     if ( NULL == pmesh ) pmesh = &mesh;
 
     // initialize the local selection
-    select_lst_t::init( loc_lst, pmesh );
+    loc_lst.init( pmesh );
 
     for ( int mapy = 0; mapy < pmesh->info.getTileCountY(); mapy++ )
     {

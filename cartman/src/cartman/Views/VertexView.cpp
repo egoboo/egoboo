@@ -51,19 +51,15 @@ void VertexView::render(Gui::Window& window, float zoom_hrz, float zoom_vrt) {
             }
 
             if (mdata.rect_draw) {
-                Ego::Math::Colour4f color;
-                float x_min, x_max;
-                float y_min, y_max;
+                auto color = make_rgba(255, 128 + (Clocks::timePassed<Time::Unit::Ticks, int>() & 128),
+                                            128 + (Clocks::timePassed<Time::Unit::Ticks, int>() & 128), 0);
 
-                color = make_rgba(255, 128 + (Clocks::timePassed<Time::Unit::Ticks, int>() & 128),
-                                       128 + (Clocks::timePassed<Time::Unit::Ticks, int>() & 128), 0);
-
-                x_min = mdata.rect_x0;
-                x_max = mdata.rect_x1;
+                float x_min = mdata.rect_x0;
+                float x_max = mdata.rect_x1;
                 if (x_min > x_max) std::swap(x_max, x_min);
 
-                y_min = mdata.rect_y0;
-                y_max = mdata.rect_y1;
+                float y_min = mdata.rect_y0;
+                float y_max = mdata.rect_y1;
                 if (y_min > y_max) std::swap(y_max, y_min);
 
                 ogl_draw_box_xy(x_min, y_min, cam.z, x_max - x_min, y_max - y_min, color);

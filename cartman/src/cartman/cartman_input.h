@@ -135,31 +135,9 @@ namespace Cartman
 
 namespace Cartman
 {
-    struct Input
+    struct Input : Ego::Core::Singleton<Input>
     {
-    private:
-        static Input *_singleton;
     public:
-        /**
-         * @brief
-         *  Get the input system singleton.
-         * @return
-         *  the input system singleton
-         * @throw std::logic_error
-         *  if the input system is not initialized
-         */
-        static Input& get();
-        /**
-         * @brief
-         *  Initialize the input system.
-         */
-        static void initialize();
-        /**
-         * @brief
-         *  Uninitialize the input system-
-         */
-        static void uninitialize();
-
         Mouse _mouse;
         Keyboard _keyboard;
         Input();

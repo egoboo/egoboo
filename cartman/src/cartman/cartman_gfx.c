@@ -252,7 +252,7 @@ void make_planmap( cartman_mpd_t * pmesh )
 
     Resources::get().bmphitemap = Ego::Graphics::SDL::createSurface( pmesh->info.getTileCountX() * TINYXY, pmesh->info.getTileCountY() * TINYXY );
 
-    SDL_FillRect( Resources::get().bmphitemap.get(), NULL, make_rgb(Resources::get().bmphitemap, 0, 0, 0) );
+    SDL_FillRect( Resources::get().bmphitemap.get(), NULL, make_rgb(Resources::get().bmphitemap, Ego::Math::Colour3b::black()) );
 
     puty = 0;
     for ( y = 0; y < pmesh->info.getTileCountY(); y++ )
@@ -296,7 +296,7 @@ void draw_top_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt )
     cart_vec_t vright = { -1, 0, 0};
     cart_vec_t vpos;
 
-	select_lst_t::synch_mesh(plst, &mesh);
+	plst.synch_mesh(&mesh);
 
 	cartman_mpd_t *pmesh = plst.get_mesh();
     if (!pmesh) return;
@@ -399,7 +399,7 @@ void draw_side_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt 
     float size;
     float point_size;
 
-	select_lst_t::synch_mesh(plst, &mesh);
+	plst.synch_mesh(&mesh);
 
 	cartman_mpd_t *pmesh = plst.get_mesh();
     if (!pmesh) return;
@@ -1158,7 +1158,7 @@ void get_small_tiles( SDL_Surface* bmpload )
             {
                 throw std::runtime_error("unable to create surface");
             }
-            SDL_FillRect( image.get(), NULL, make_rgb( image, 0, 0, 0 ) );
+            SDL_FillRect( image.get(), NULL, make_rgb( image, Ego::Math::Colour3b::black() ) );
             SDL_SoftStretch( bmpload, &src1, image.get(), NULL );
 
             Resources::get().tx_smalltile[numsmalltile]->load(image);
@@ -1208,7 +1208,7 @@ void get_big_tiles( SDL_Surface* bmpload )
             {
                 throw std::runtime_error("unable to create surface");
             }
-            SDL_FillRect( image.get(), NULL, make_rgb( image, 0, 0, 0 ) );
+            SDL_FillRect( image.get(), NULL, make_rgb( image, Ego::Math::Colour3b::black() ) );
 
             SDL_SoftStretch( bmpload, &src1, image.get(), NULL );
 
