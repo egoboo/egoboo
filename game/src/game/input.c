@@ -191,17 +191,17 @@ bool input_device_is_enabled(input_device_t *self)
 
     if ( INPUT_DEVICE_KEYBOARD == self->device_type )
     {
-        retval = TO_C_BOOL( keyb.on );
+        retval = keyb.on;
     }
     else if ( INPUT_DEVICE_MOUSE == self->device_type )
     {
-        retval = TO_C_BOOL( mous.on );
+        retval = mous.on;
     }
     else if ( IS_VALID_JOYSTICK( self->device_type ) )
     {
         int ijoy = self->device_type - INPUT_DEVICE_JOY;
 
-        retval = TO_C_BOOL( joy_lst[ijoy].on );
+        retval = joy_lst[ijoy].on;
     }
 
     return retval;

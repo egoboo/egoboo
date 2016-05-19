@@ -31,19 +31,6 @@
 // place the definition of the lambda operator in a macro
 #define LAMBDA(AA,BB,CC) ((AA) ? (BB) : (CC))
 
-//--------------------------------------------------------------------------------------------
-// BOOLEAN
-
-#if !defined(TO_EGO_BOOL)
-	#if defined(__cplusplus)
-		#define TO_C_BOOL(VAL)   LAMBDA(VAL, true, false)
-	#else
-		#define TO_C_BOOL(VAL) (VAL)
-	#endif
-#endif
-
-//--------------------------------------------------------------------------------------------
-
 	/**
 	 * @brief
 	 *	Special return values.

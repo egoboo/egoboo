@@ -683,7 +683,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t& pdata )
     //---- Damage the character, if necessary
     if ( 0 != std::abs( pdata.pprt->damage.base ) + std::abs( pdata.pprt->damage.rand ) )
     {
-        //bool prt_needs_impact = TO_C_BOOL( pdata->ppip->rotatetoface || pdata->pprt->isAttached() );
+        //bool prt_needs_impact = pdata->ppip->rotatetoface || pdata->pprt->isAttached();
         //if(spawnerProfile != nullptr) {
         //    if ( spawnerProfile->isRangedWeapon() ) prt_needs_impact = true;            
         //}
