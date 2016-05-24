@@ -17,16 +17,16 @@
 //*
 //********************************************************************************************
 
-/// @file  egolib/Math/AABB.hpp
+/// @file egolib/Math/AABB.hpp
 /// @brief Axis-aligned bounding boxes.
 /// @author Michael Heilmann
 
 #pragma once
 
-#include "egolib/Math/EuclideanSpace.hpp"
-#include "egolib/Math/Translatable.hpp"
 
+#include "egolib/Math/EuclideanSpace.hpp"
 #include "egolib/Math/Sphere.hpp"
+
 
 namespace Ego {
 namespace Math {
@@ -215,7 +215,7 @@ public:
 		_max += t;
 	}
 
-};
+}; // struct AABB
 
 } // namespace Math
 } // namespace Ego

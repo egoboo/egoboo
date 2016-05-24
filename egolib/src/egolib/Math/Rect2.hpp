@@ -17,10 +17,13 @@
 //*
 //********************************************************************************************
 
-/// @file  egolib/Math/Rect2.hpp
-/// @brief 2D rectangle.
+/// @file egolib/Math/Rect2.hpp
+/// @brief 2D rectangles.
+
+#pragma once
 
 #include "egolib/Math/EuclideanSpace.hpp"
+#include "egolib/Math/Translatable.hpp"
 
 namespace Ego {
 namespace Math {

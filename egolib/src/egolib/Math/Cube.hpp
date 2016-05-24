@@ -17,14 +17,16 @@
 //*
 //********************************************************************************************
 
-/// @file  egolib/Math/Cube.hpp
+/// @file egolib/Math/Cube.hpp
 /// @brief Cubes.
+/// @author Michael Heilmann
 
 #pragma once
 
-#include "egolib/Math/Vector.hpp"
-#include "egolib/Math/Translatable.hpp"
+
 #include "egolib/Math/EuclideanSpace.hpp"
+#include "egolib/Math/Translatable.hpp"
+
 
 namespace Ego {
 namespace Math {
@@ -189,7 +191,7 @@ public:
 		_center += t;
 	}
 
-};
+}; // struct Cube
 
 } // namespace Math
 } // namespace Ego

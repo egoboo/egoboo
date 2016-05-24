@@ -17,46 +17,31 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Math/Translatable.h
-/// @brief  Miscellaneous utilities for template metaprogramming
+/// @file egolib/Math/Translate_Rect2.hpp
+/// @brief Translation of 2D rectangles.
 /// @author Michael Heilmann
 
 #pragma once
 
-#include "egolib/Math/Vector.hpp"
+#include "egolib/Math/Rect2.hpp"
 
 namespace Ego {
 namespace Math {
 
-template <typename ... T>
-struct Translate;
-
-/** 
- * @brief
- *  The interface of an entity that can be translated.
- * @tparam _VectorSpaceType
- *  the vector space type
- */
-template <typename _VectorSpaceType>
-struct Translatable {
-    /**
-     * @brief
-     *  The vector space type.
-     */
-    typedef _VectorSpaceType VectorSpaceType;
-    /** 
-     * @brief
-     *  The vector type.
-     */
-    typedef Vector<typename VectorSpaceType::ScalarFieldType, VectorSpaceType::dimensionality()> VectorType;
-    /** 
-     * @brief
-     *  Translate this entity.
-     * @param t
-     *  the translation vector
-     */
-    virtual void translate(const VectorType& t) = 0;
+template <typename _EuclideanSpaceType>
+struct Translate<Rect2<_EuclideanSpaceType, void>> {
+    typedef Rect2<_EuclideanSpaceType, void> X;
+    typedef typename _EuclideanSpaceType::VectorType T;
+    X operator()(const X& x, const T& t) {
+        return X(x.getCenter() + t, x.getSize());
+    }
 };
+
+template <typename _EuclideanSpaceType>
+Rect2<_EuclideanSpaceType, void> translate(const Rect2<_EuclideanSpaceType, void>& x, const typename _EuclideanSpaceType::VectorType& t) {
+    Translate<Rect2<_EuclideanSpaceType, void>> f;
+    return f(x, t);
+}
 
 } // namespace Math
 } // namespace Ego

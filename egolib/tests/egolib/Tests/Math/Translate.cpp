@@ -22,31 +22,6 @@
 namespace Ego {
 namespace Math {
 
-template <typename _EuclideanSpaceType>
-AABB<_EuclideanSpaceType> translate(const AABB<_EuclideanSpaceType>& x, const typename _EuclideanSpaceType::VectorType& t) {
-    return AABB<_EuclideanSpaceType>(x.getMin() + t, x.getMax() + t);
-}
-
-template <typename _EuclideanSpaceType>
-Cube<_EuclideanSpaceType> translate(const Cube<_EuclideanSpaceType>& x, const typename _EuclideanSpaceType::VectorType& t) {
-    return Cube<_EuclideanSpaceType>(x.getCenter(), x.getSize());
-}
-
-template <typename _EuclideanSpaceType>
-Sphere<_EuclideanSpaceType> translate(const Sphere<_EuclideanSpaceType>& x, const typename _EuclideanSpaceType::VectorType& t) {
-    return Sphere<_EuclideanSpaceType>(x.getCenter(), x.getRadius());
-}
-
-template <typename _EuclideanSpaceType>
-Line<_EuclideanSpaceType> translate(const Line<_EuclideanSpaceType>& x, const typename _EuclideanSpaceType::VectorType& t) {
-    return Line<_EuclideanSpaceType>(x.getA() + t, x.getB() + t);
-}
-
-template <typename _EuclideanSpaceType>
-Ray<_EuclideanSpaceType> translate(const Ray<_EuclideanSpaceType>& x, const typename _EuclideanSpaceType::VectorType& t) {
-    return Ray<_EuclideanSpaceType>(x.getOrigin() + t, x.getDirection());
-}
-
 namespace Test {
 
 EgoTest_TestCase(Translate) {
@@ -81,6 +56,27 @@ EgoTest_TestCase(Translate) {
     EgoTest_Test(Ray3f) {
         auto t = Vector3f(+1.0f, +1.0f, +1.0f);
         auto x = ::Ray3f(Point3f(0.0f, 0.0f, 0.0f), Vector3f(+1.0f,+1.0f,+1.0f));
+        auto y = translate(x, t);
+        y = translate(y, -t);
+        EgoTest_Assert(x == y);
+    }
+    EgoTest_Test(Cone3f) {
+        auto t = Vector3f(+1.0f, +1.0f, +1.0f);
+        auto x = ::Cone3f();
+        auto y = translate(x, t);
+        y = translate(x, -t);
+        EgoTest_Assert(x == y);
+    }
+    EgoTest_Test(Plane3f) {
+        auto t = Vector3f(+1.0f, +1.0f, +1.0f);
+        auto x = ::Plane3f();
+        auto y = translate(x, t);
+        y = translate(y, -t);
+        EgoTest_Assert(x == y);
+    }
+    EgoTest_Test(Rect2f) {
+        auto t = Vector2f(+1.0f, +1.0f);
+        auto x = ::Rect2f();
         auto y = translate(x, t);
         y = translate(y, -t);
         EgoTest_Assert(x == y);

@@ -497,6 +497,14 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Math\Translate_Rect2.hpp" />
+    <ClInclude Include="src\egolib\Math\Translate_AABB.hpp" />
+    <ClInclude Include="src\egolib\Math\Translate_Cone3.hpp" />
+    <ClInclude Include="src\egolib\Math\Translate_Cube.hpp" />
+    <ClInclude Include="src\egolib\Math\Translate_Line.hpp" />
+    <ClInclude Include="src\egolib\Math\Translate_Plane.hpp" />
+    <ClInclude Include="src\egolib\Math\Translate_Point.hpp" />
+    <ClInclude Include="src\egolib\Math\Translate_Ray.hpp" />
     <ClInclude Include="src\egolib\Math\Constants.hpp" />
     <ClInclude Include="src\egolib\Extensions\WindowProperties.hpp" />
     <ClInclude Include="src\egolib\Math\One.hpp" />

@@ -17,8 +17,9 @@
 //*
 //********************************************************************************************
 
-/// @file  egolib/Math/Cone3.hpp
-/// @brief Single infinite cones.
+/// @file egolib/Math/Cone3.hpp
+/// @brief Single infinite 3D cones.
+/// @author Michael Heilmann
 
 #pragma once
 
@@ -232,7 +233,14 @@ public:
         origin += t;
     }
 
-};
+protected:
+    struct Cookie {};
+    friend struct Translate<MyType>;
+    Cone3(Cookie cookie, const PointType& origin, const VectorType& axis, const Angle<AngleUnit::Degrees>& angle)
+        : origin(origin), axis(axis), angle(angle) {
+    }
+
+}; // struct Cone3
 
 } // namespace Math
 } // namespace Ego

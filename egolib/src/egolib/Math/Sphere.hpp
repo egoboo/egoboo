@@ -17,8 +17,9 @@
 //*
 //********************************************************************************************
 
-/// @file  egolib/Math/Sphere.h
+/// @file egolib/Math/Sphere.hpp
 /// @brief Spheres.
+/// @author Michael Heilmann
 
 #pragma once
 
@@ -218,7 +219,22 @@ public:
 		_center += t;
 	}
 
+}; // struct Sphere
+
+template <typename _EuclideanSpaceType>
+struct Translate<Sphere<_EuclideanSpaceType>> {
+    typedef Sphere<_EuclideanSpaceType> X;
+    typedef typename _EuclideanSpaceType::VectorSpaceType T;
+    X operator()(const X& x, const T& t) const {
+        return X(x.getCenter() + t, x.getRadius());
+    }
 };
+
+template <typename _EuclideanSpaceType>
+Sphere<_EuclideanSpaceType> translate(const Sphere<_EuclideanSpaceType>& x, const typename _EuclideanSpaceType::VectorType& t) {
+    Translate<Sphere<_EuclideanSpaceType>> f;
+    return f(x, t);
+}
 
 } // namespace Math
 } // namespace Ego

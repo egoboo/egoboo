@@ -17,17 +17,15 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Math/Line.hpp
-/// @brief  Rays.
+/// @file egolib/Math/Line.hpp
+/// @brief Rays.
 /// @author Michael Heilmann
 
 #pragma once
 
-#include "egolib/Math/Point.hpp"
-#include "egolib/Math/Vector.hpp"
+
 #include "egolib/Math/Translatable.hpp"
 #include "egolib/Math/EuclideanSpace.hpp"
-
 
 
 namespace Ego {

@@ -17,46 +17,31 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Math/Translatable.h
-/// @brief  Miscellaneous utilities for template metaprogramming
+/// @file egolib/Math/Translate_AABB.hpp
+/// @brief Translation of axis-aligned bounding boxes.
 /// @author Michael Heilmann
 
 #pragma once
 
-#include "egolib/Math/Vector.hpp"
+#include "egolib/Math/AABB.hpp"
 
 namespace Ego {
 namespace Math {
 
-template <typename ... T>
-struct Translate;
-
-/** 
- * @brief
- *  The interface of an entity that can be translated.
- * @tparam _VectorSpaceType
- *  the vector space type
- */
-template <typename _VectorSpaceType>
-struct Translatable {
-    /**
-     * @brief
-     *  The vector space type.
-     */
-    typedef _VectorSpaceType VectorSpaceType;
-    /** 
-     * @brief
-     *  The vector type.
-     */
-    typedef Vector<typename VectorSpaceType::ScalarFieldType, VectorSpaceType::dimensionality()> VectorType;
-    /** 
-     * @brief
-     *  Translate this entity.
-     * @param t
-     *  the translation vector
-     */
-    virtual void translate(const VectorType& t) = 0;
+template <typename _EuclideanSpaceType>
+struct Translate<AABB<_EuclideanSpaceType>> {
+    typedef AABB<_EuclideanSpaceType> X;
+    typedef typename _EuclideanSpaceType::VectorType T;
+    X operator()(const X& x, const T& t) const {
+        return X(x.getMin() + t, x.getMax() + t);
+    }
 };
+
+template <typename _EuclideanSpaceType>
+AABB<_EuclideanSpaceType> translate(const AABB<_EuclideanSpaceType>& x, const typename _EuclideanSpaceType::VectorType& t) {
+    Translate<AABB<_EuclideanSpaceType>> f;
+    return f(x, t);
+}
 
 } // namespace Math
 } // namespace Ego
