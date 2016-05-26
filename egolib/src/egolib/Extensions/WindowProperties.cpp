@@ -42,12 +42,12 @@ uint32_t WindowProperties::upload() const {
 }
 
 void WindowProperties::download(uint32_t source) {
-    fullscreen = SDL_WINDOW_FULLSCREEN == source & SDL_WINDOW_FULLSCREEN;;
-    opengl = SDL_WINDOW_OPENGL == source & SDL_WINDOW_OPENGL;
-    resizable = SDL_WINDOW_RESIZABLE == source & SDL_WINDOW_RESIZABLE;
-    borderless = SDL_WINDOW_BORDERLESS == source & SDL_WINDOW_BORDERLESS;
-    highdpi = SDL_WINDOW_ALLOW_HIGHDPI == source & SDL_WINDOW_ALLOW_HIGHDPI;
-    fulldesktop = SDL_WINDOW_FULLSCREEN_DESKTOP == source & SDL_WINDOW_FULLSCREEN_DESKTOP;
+    fullscreen = SDL_WINDOW_FULLSCREEN == (source & SDL_WINDOW_FULLSCREEN);
+    opengl = SDL_WINDOW_OPENGL == (source & SDL_WINDOW_OPENGL);
+    resizable = SDL_WINDOW_RESIZABLE == (source & SDL_WINDOW_RESIZABLE);
+    borderless = SDL_WINDOW_BORDERLESS == (source & SDL_WINDOW_BORDERLESS);
+    highdpi = SDL_WINDOW_ALLOW_HIGHDPI == (source & SDL_WINDOW_ALLOW_HIGHDPI);
+    fulldesktop = SDL_WINDOW_FULLSCREEN_DESKTOP == (source & SDL_WINDOW_FULLSCREEN_DESKTOP);
 }
 
 } // namespace Ego
