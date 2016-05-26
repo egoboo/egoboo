@@ -25,16 +25,16 @@ namespace Math {
 namespace Test {
 
 EgoTest_TestCase(Translate) {
-    EgoTest_Test(AABB3f) {
+    EgoTest_Test(AxisAlignedBox3f) {
         auto t = Vector3f(+1.0f, +1.0f, +1.0f);
-        auto x = ::AABB3f(Point3f(-1.0f, -1.0f, -1.0f), Point3f(+1.0f, +1.0f, +1.0f));
+        auto x = ::AxisAlignedBox3f(Point3f(-1.0f, -1.0f, -1.0f), Point3f(+1.0f, +1.0f, +1.0f));
         auto y = translate(x, t);
         y = translate(y, -t);
         EgoTest_Assert(x == y);
     }
-    EgoTest_Test(Cube3f) {
+    EgoTest_Test(AxisAlignedCube3f) {
         auto t = Vector3f(+1.0f, +1.0f, +1.0f);
-        auto x = ::Cube3f(Point3f(0.0f, 0.0f, 0.0f), 1.0f);
+        auto x = ::AxisAlignedCube3f(Point3f(0.0f, 0.0f, 0.0f), 1.0f);
         auto y = translate(x, t);
         y = translate(y, -t);
         EgoTest_Assert(x == y);
@@ -64,19 +64,12 @@ EgoTest_TestCase(Translate) {
         auto t = Vector3f(+1.0f, +1.0f, +1.0f);
         auto x = ::Cone3f();
         auto y = translate(x, t);
-        y = translate(x, -t);
+        y = translate(y, -t);
         EgoTest_Assert(x == y);
     }
     EgoTest_Test(Plane3f) {
         auto t = Vector3f(+1.0f, +1.0f, +1.0f);
         auto x = ::Plane3f();
-        auto y = translate(x, t);
-        y = translate(y, -t);
-        EgoTest_Assert(x == y);
-    }
-    EgoTest_Test(Rect2f) {
-        auto t = Vector2f(+1.0f, +1.0f);
-        auto x = ::Rect2f();
         auto y = translate(x, t);
         y = translate(y, -t);
         EgoTest_Assert(x == y);

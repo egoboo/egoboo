@@ -224,7 +224,7 @@ public:
 template <typename _EuclideanSpaceType>
 struct Translate<Sphere<_EuclideanSpaceType>> {
     typedef Sphere<_EuclideanSpaceType> X;
-    typedef typename _EuclideanSpaceType::VectorSpaceType T;
+    typedef typename _EuclideanSpaceType::VectorType T;
     X operator()(const X& x, const T& t) const {
         return X(x.getCenter() + t, x.getRadius());
     }

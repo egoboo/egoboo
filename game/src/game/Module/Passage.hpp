@@ -126,12 +126,12 @@ public:
     * @brief
     *	Get the AABB for area that this passage covers.
     **/
-    const AABB2f& getAABB2f() const;
+    const AxisAlignedBox2f& getAxisAlignedBox2f() const;
 
 private:
     GameModule& _module;			   ///< Reference to the module we are inside
 
-    AABB2f _area;					   ///< Passage area
+    AxisAlignedBox2f _area;	           ///< Passage area
     int32_t _music;   				   ///< Music track appointed to the specific passage
     uint8_t _mask;  				   ///< Is it IMPASSABLE, SLIPPERY or whatever
     bool _open;   					   ///< Is the passage open?

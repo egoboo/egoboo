@@ -171,10 +171,10 @@ public:
     // The axis-aligned bounding box \f$b\f$ with minimum point
     // \f$\mathbf{m}' = \mathbf{m} + \delta^+(0)\vec{1} + \vec{l}\f$
     // and edge lengths \f$\vec{l}' = \vec{l}\f$ does not overlap with \f$a\f$.
-    static AABB3f getNonOverlappingAABB3f(const AABB3f& x) {
+    static AxisAlignedBox3f getNonOverlappingAxisAlignedBox3f(const AxisAlignedBox3f& x) {
         auto t = pdelta(0.0f);
         auto d = unit() * t + x.getSize();
-        return AABB3f(x.getMin() + d, x.getMax() + d);
+        return AxisAlignedBox3f(x.getMin() + d, x.getMax() + d);
     }
 
     // Get an axis-aligned bounding box which intersects with the specified axis-aligned bounding box.
@@ -182,13 +182,13 @@ public:
     // Let \f$a\f$ be the specified axis-aligned bounding box with minimum point \f$m\f$
     // and edge lengths \f$\vec{l}\f$. The axis-aligned bounding box \f$b\f$ with
     // minimum point \f$m' = m + \frac{1}{4}\vec{l}\f$ and edge lengths \f$\vec{l}\f$ intersects with \f$a\f$.
-    static AABB3f getOverlappingAABB3f(const AABB3f& a) {
+    static AxisAlignedBox3f getOverlappingAxisAlignedBox3f(const AxisAlignedBox3f& a) {
         auto d = a.getSize() * 0.25f;
-        return AABB3f(a.getMin() + d, a.getMax() + d);
+        return AxisAlignedBox3f(a.getMin() + d, a.getMax() + d);
     }
 
     // Get a point which overlaps with the specified AABB.
-    static Point3f getOverlappingPoint3f(const AABB3f& x) {
+    static Point3f getOverlappingPoint3f(const AxisAlignedBox3f& x) {
         return x.getCenter();
     }
 
@@ -197,7 +197,7 @@ public:
     // Let \f$a\f$ be the specified axis-aligned bounding box with minimum point \f$m\f$
     // and edge lengths \f$\vec{l}\f$. The point \f$b = min + l + \delta^+(0) \vec{1}\f$
     // does not intersect \f$a\f$.
-    static Point3f getNonOverlappingPoint3f(const AABB3f& a) {
+    static Point3f getNonOverlappingPoint3f(const AxisAlignedBox3f& a) {
         return a.getMin() + a.getSize() + unit() * pdelta(0.0f);
     }
 
@@ -206,9 +206,9 @@ public:
     // Let \f$a\f$ be the specified axis-aligned bounding box with minimum point \f$m\f$
     // and edge lengths \f$\vec{l}\f$. The axis-aligned bounding box \f$b\f$ with
     // minimum point \f$m' = m + \frac{1}{4}\vec{l}\f$ and edge lengths \f$\vec{l}\f$ is not contained in \f$a\f$.
-    static AABB3f getNonContainedAABB3f(const AABB3f& a) {
+    static AxisAlignedBox3f getNonContainedAxisAlignedBox3f(const AxisAlignedBox3f& a) {
         auto d = a.getSize() * 0.25f;
-        return AABB3f(a.getMin() + d, a.getMax() + d);
+        return AxisAlignedBox3f(a.getMin() + d, a.getMax() + d);
     }
 
     // Get a point which is not contained in the specified axis-aligned bounding box.
@@ -217,7 +217,7 @@ public:
     // The point
     // \f$b = a_{max} + \delta^+(0)\vec{1}\f$
     // is not contained in \f$a\f$.
-    static Point3f getNonContainedPoint3f(const AABB3f& a) {
+    static Point3f getNonContainedPoint3f(const AxisAlignedBox3f& a) {
         return a.getMax() + unit() * pdelta(0.0f);
     }
 
@@ -229,17 +229,17 @@ public:
     // and
     // maximum \f$max' = (max - c) \delta^-(1) + c\f$
     // is contained in \f$a\f$.
-    static AABB3f getContainedAABB3f(const AABB3f& a) {
+    static AxisAlignedBox3f getContainedAxisAlignedBox3f(const AxisAlignedBox3f& a) {
         auto s = ndelta(1.0f);
         auto min = a.getCenter() + (a.getMin() - a.getCenter())*s;
         auto max = a.getCenter() + (a.getMax() - a.getCenter())*s;
-        return AABB3f(min, max);
+        return AxisAlignedBox3f(min, max);
     }
 
     // Get a point which is contained in the specified axis-aligned bounding box.
     // Let \f$a\f$ be the specified axis-aligned bounding box with center \f$c\f$.
     // The point \f$b = c\f$ is contained in \f$a\f$.
-    static Point3f getContainedPoint3f(const AABB3f& a) {
+    static Point3f getContainedPoint3f(const AxisAlignedBox3f& a) {
         return a.getCenter();
     }
 
@@ -251,9 +251,9 @@ public:
     // The cube \f$b\f$ with minimum point
     // \f$\mathbf{m}' = \mathbf{m} + \delta^+(l)\vec{1}\f$
     // and edge length \f$l' = l\f$ does not overlap with \f$a\f$.
-    static Cube3f getNonOverlappingCube3f(const Cube3f& a) {
+    static AxisAlignedCube3f getNonOverlappingAxisAlignedCube3f(const AxisAlignedCube3f& a) {
         auto d = Vector3f(1.0f, 1.0f, 1.0f) * pdelta(a.getSize());
-        return Cube3f(a.getCenter() + d, a.getSize());
+        return AxisAlignedCube3f(a.getCenter() + d, a.getSize());
     }
 
     // Get an axis-aligned cube which intersects with the specified axis-aligned cube.
@@ -262,13 +262,13 @@ public:
     // and edge length \f$l\f$. The axis-aligned bounding cube \f$b\f$ with
     // minimum point \f$m' = m + \frac{1}{4}l\vec{1}\f$ and edge length \f$l' = l\f$
     // intersects with \f$a\f$.
-    static Cube3f getOverlappingCube3f(const Cube3f& a) {
+    static AxisAlignedCube3f getOverlappingAxisAlignedCube3f(const AxisAlignedCube3f& a) {
         auto d = unit() * (a.getSize() * 0.25f);
-        return Cube3f(a.getMin() + d, a.getSize());
+        return AxisAlignedCube3f(a.getMin() + d, a.getSize());
     }
 
     // Get a point which overlaps with the specified axis-aligned cube.
-    static Point3f getOverlappingPoint3f(const Cube3f& a) {
+    static Point3f getOverlappingPoint3f(const AxisAlignedCube3f& a) {
         return a.getCenter();
     }
 
@@ -277,7 +277,7 @@ public:
     // Let \f$a\f$ be the specified axis-aligned cube with minimum point \f$m\f$
     // and edge length \f$l\f$. The point \f$b = min + \delta^+(l) \vec{1}\f$
     // does not intersect \f$a\f$.
-    static Point3f getNonOverlappingPoint3f(const Cube3f& a) {
+    static Point3f getNonOverlappingPoint3f(const AxisAlignedCube3f& a) {
         return a.getMin() + unit() * a.getSize() + unit() * pdelta(a.getSize());
     }
 
@@ -287,12 +287,12 @@ public:
     // The point
     // \f$b = a_{max} + \delta^+(0.0f)\vec{1}\f$
     // is not contained in \f$a\f$.
-    static Point3f getNonContainedPoint3f(const Cube3f& a) {
+    static Point3f getNonContainedPoint3f(const AxisAlignedCube3f& a) {
         return a.getMax() + unit() * pdelta(0.0f);
     }
 
-
 };
+
 } // namespace Math
 } // namespace Tests
 } // namespace Ego

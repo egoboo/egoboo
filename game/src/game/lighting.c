@@ -444,7 +444,7 @@ float lighting_cache_base_t::evaluate( const lighting_cache_base_t& self, const 
     return dir + amb;
 }
 
-float lighting_cache_t::lighting_evaluate_cache( const lighting_cache_t& src, const Vector3f& nrm, const float z, const AABB3f& bbox, float * light_amb, float * light_dir )
+float lighting_cache_t::lighting_evaluate_cache( const lighting_cache_t& src, const Vector3f& nrm, const float z, const AxisAlignedBox3f& bbox, float * light_amb, float * light_dir )
 {
     float loc_light_amb = 0.0f, loc_light_dir = 0.0f;
     float light_tot;

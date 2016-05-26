@@ -335,12 +335,12 @@
          * @return
          *  the axis-aligned bounding box
          */
-		AABB3f toAABB() const {
+		AxisAlignedBox3f toAxisAlignedBox() const {
             if (_empty) {
                 throw std::logic_error("unable to convert an empty OBB into an AABB");
             }
-            return AABB3f(Point3f(_mins[OCT_X], _mins[OCT_Y], _mins[OCT_Z]),
-				          Point3f(_maxs[OCT_X], _maxs[OCT_Y], _maxs[OCT_Z]));
+            return AxisAlignedBox3f(Point3f(_mins[OCT_X], _mins[OCT_Y], _mins[OCT_Z]),
+				                    Point3f(_maxs[OCT_X], _maxs[OCT_Y], _maxs[OCT_Z]));
         }
 
         void assign(const bumper_t& other)

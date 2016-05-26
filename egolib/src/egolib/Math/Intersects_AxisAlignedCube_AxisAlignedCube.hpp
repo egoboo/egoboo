@@ -1,26 +1,25 @@
 #pragma once
 
 #include "egolib/Math/Intersects.hpp"
-#include "egolib/Math/AABB.hpp"
+#include "egolib/Math/AxisAlignedCube.hpp"
 
 namespace Ego {
 namespace Math {
-
 /**
- * @brief Functor which determines wether two axis-aligned bounding boxes intersect.
- * @remark Two AABBs \$x\f$ and \$y\f$ do <em>not</em> intersect if for at least one
- * axis \f$k\f$ at least one of the following conditions is true:
+ * @brief Functor which determines if two axis aligned cubes intersect.
+ * @remark Two axis aligned cubes \$x\f$ and \$y\f$ do <em>not</em> intersect
+ * if for at least one axis \f$k\f$ at least one of the following conditions is true:
  * - \f$x_{min_k} > y_{max_k}\f$
  * - \f$x_{max_k} < y_{min_k}\f$
  * Otherwise \f$x\f$ and \f$y\f$ intersect.
  * This is a variant of the Separating Axis Theorem (aka SAT).
  */
-template<typename EuclideanSpaceType>
+template <typename EuclideanSpaceType>
 struct Intersects<
-    AABB<EuclideanSpaceType>,
-    AABB<EuclideanSpaceType>
+    AxisAlignedCube<EuclideanSpaceType>,
+    AxisAlignedCube<EuclideanSpaceType>
 > {
-    typedef AABB<EuclideanSpaceType> Type;
+    typedef AxisAlignedCube<EuclideanSpaceType> Type;
     bool operator()(const Type& a, const Type& b) const {
         for (size_t i = 0; i < EuclideanSpaceType::dimensionality();  ++i) {
             // If the minimum of a is greater than the maximum of b along one axis,
@@ -37,6 +36,5 @@ struct Intersects<
         return true;
     }
 }; // struct Intersects
-
 } // namespace Math
 } // namespace Ego

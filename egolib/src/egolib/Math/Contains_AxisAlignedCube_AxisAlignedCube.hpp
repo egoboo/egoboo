@@ -1,15 +1,15 @@
 #pragma once
 
 #include "egolib/Math/Contains.hpp"
-#include "egolib/Math/Cube.hpp"
+#include "egolib/Math/AxisAlignedCube.hpp"
 
 namespace Ego {
 namespace Math {
 
 /**
- * @brief Functor which determines if a cube contains another cube.
- * @remark A cube \$x\f$ does <em>not</em> contain a cube \f$y\f$ if for at
- * least one axis \$k\f$ at least one of the following conditions is true:
+ * @brief Functor which determines if an axis aligned cube contains another axis aligned cube.
+ * @remark An axis aligned cube \$x\f$ does <em>not</em> contain an axis aligned cube \f$y\f$
+ * if for at least one axis \$k\f$ at least one of the following conditions is true:
  * - \f$x_{min_k} > y_{min_k}\f$
  * - \$x_{max_k} < y_{max_k}\f$
  * Otherwise \f$x\f$ contains \f$y\f$.
@@ -17,10 +17,10 @@ namespace Math {
  */
 template <typename EuclideanSpaceType>
 struct Contains<
-    Cube<EuclideanSpaceType>,
-    Cube<EuclideanSpaceType>
+    AxisAlignedCube<EuclideanSpaceType>,
+    AxisAlignedCube<EuclideanSpaceType>
 > {
-    typedef Cube<EuclideanSpaceType> Type;
+    typedef AxisAlignedCube<EuclideanSpaceType> Type;
     bool operator()(const Type& a, const Type& b) const {
         for (size_t i = 0; i < EuclideanSpaceType::Dimensionality; ++i) {
             // If a is the cube that is supposed to contain the

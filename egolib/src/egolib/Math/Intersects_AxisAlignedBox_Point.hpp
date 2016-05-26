@@ -1,20 +1,20 @@
 #pragma once
 
 #include "egolib/Math/Intersects.hpp"
-#include "egolib/Math/Cube.hpp"
+#include "egolib/Math/AxisAlignedBox.hpp"
 
 namespace Ego {
 namespace Math {
 
 /**
- * @brief Functor which determines if a cube and a point intersect.
+ * @brief Functor which determines if an axis aligned box and a point intersect.
  */
 template <typename EuclideanSpaceType>
 struct Intersects<
-    Cube<EuclideanSpaceType>,
+    AxisAlignedBox<EuclideanSpaceType>,
     Point<typename EuclideanSpaceType::VectorSpaceType>
 > {
-    typedef Cube<EuclideanSpaceType> FirstType;
+    typedef AxisAlignedBox<EuclideanSpaceType> FirstType;
     typedef Point<typename EuclideanSpaceType::VectorSpaceType> SecondType;
     bool operator()(const FirstType& a, const SecondType& b) const {
         for (size_t i = 0; i < EuclideanSpaceType::dimensionality(); ++i) {

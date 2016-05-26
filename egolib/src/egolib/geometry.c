@@ -55,10 +55,10 @@ Ego::Math::Relation point_intersects_aabb(const Vector3f& point, const Vector3f&
 }
 
 //--------------------------------------------------------------------------------------------
-// aabb functions
+// axis aligned box functions
 //--------------------------------------------------------------------------------------------
 
-Ego::Math::Relation aabb_intersects_aabb(const AABB3f& lhs, const AABB3f& rhs)
+Ego::Math::Relation aab_intersects_aab(const AxisAlignedBox3f& lhs, const AxisAlignedBox3f& rhs)
 {
     const size_t dimensions = 3;
 
@@ -92,7 +92,7 @@ Ego::Math::Relation aabb_intersects_aabb(const AABB3f& lhs, const AABB3f& rhs)
     return retval;
 }
 
-Ego::Math::Relation plane_intersects_aabb_max(const Plane3f& plane, const Point3f& mins, const Point3f& maxs)
+Ego::Math::Relation plane_intersects_aab_max(const Plane3f& plane, const Point3f& mins, const Point3f& maxs)
 {
     // find the point-plane distance for the most-positive points of the aabb
     float dist = 0.0f;
@@ -117,7 +117,7 @@ Ego::Math::Relation plane_intersects_aabb_max(const Plane3f& plane, const Point3
     }
 }
 
-Ego::Math::Relation plane_intersects_aabb_min(const Plane3f& plane, const Point3f& mins, const Point3f& maxs)
+Ego::Math::Relation plane_intersects_aab_min(const Plane3f& plane, const Point3f& mins, const Point3f& maxs)
 {
     // find the point-plane distance for the most-negative points of the aabb
     float dist = 0.0f;
@@ -142,24 +142,24 @@ Ego::Math::Relation plane_intersects_aabb_min(const Plane3f& plane, const Point3
     }
 }
 
-Ego::Math::Relation plane_intersects_aabb(const Plane3f& plane, const AABB3f& aabb)
+Ego::Math::Relation plane_intersects_aab(const Plane3f& plane, const AxisAlignedBox3f& aab)
 {
 	Ego::Math::Relation retval = Ego::Math::Relation::inside;
-    const auto mins = aabb.getMin(),
-               maxs = aabb.getMax();
-	if (Ego::Math::Relation::outside == plane_intersects_aabb_max(plane, mins, maxs))
+    const auto mins = aab.getMin(),
+               maxs = aab.getMax();
+	if (Ego::Math::Relation::outside == plane_intersects_aab_max(plane, mins, maxs))
     {
 		retval = Ego::Math::Relation::outside;
-        goto plane_intersects_aabb_done;
+        goto Done;
     }
 
-	if (Ego::Math::Relation::outside == plane_intersects_aabb_min(plane, mins, maxs))
+	if (Ego::Math::Relation::outside == plane_intersects_aab_min(plane, mins, maxs))
     {
 		retval = Ego::Math::Relation::intersect;
-        goto plane_intersects_aabb_done;
+        goto Done;
     }
 
-plane_intersects_aabb_done:
+Done:
 
     return retval;
 }

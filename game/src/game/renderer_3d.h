@@ -86,6 +86,6 @@ public:
     static PointList pointList;
     static void begin3D(Camera& camera);
     static void end3D();
-    static void renderAABB(const AABB3f& bv, const Ego::Math::Colour4f& colour);
+    static void renderAxisAlignedBox(const AxisAlignedBox3f& bv, const Ego::Math::Colour4f& colour);
     static void renderOctBB(const oct_bb_t &bv, bool drawSquare, bool drawDiamond, const Ego::Math::Colour4f& squareColour = Ego::Math::Colour4f(1, 0.5f, 1, 0.5f), const Ego::Math::Colour4f& diamondColour = Ego::Math::Colour4f(0.5f, 1, 1, 0.5f));
 };

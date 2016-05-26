@@ -178,7 +178,7 @@ public:
 	* @param includeSceneryObjects
 	*	if true, it will also include Scenery objects in the search as defined by Object::isScenery()
 	**/
-	void findObjects(const AABB2f &searchArea, std::vector<std::shared_ptr<Object>> &result, bool includeSceneryObjects = true) const;
+	void findObjects(const AxisAlignedBox2f &searchArea, std::vector<std::shared_ptr<Object>> &result, bool includeSceneryObjects = true) const;
 
 	/**
 	* @brief

@@ -1,8 +1,8 @@
 #pragma once
 
 #include "egolib/Math/Intersects.hpp"
-#include "egolib/Math/AABB.hpp"
-#include "egolib/Math/Cube.hpp"
+#include "egolib/Math/AxisAlignedBox.hpp"
+#include "egolib/Math/AxisAlignedCube.hpp"
 
 namespace Ego {
 namespace Math {
@@ -18,11 +18,11 @@ namespace Math {
  */
 template <typename EuclideanSpaceType>
 struct Intersects<
-    AABB<EuclideanSpaceType>,
-    Cube<EuclideanSpaceType>
+    AxisAlignedBox<EuclideanSpaceType>,
+    AxisAlignedCube<EuclideanSpaceType>
 > {
-    typedef AABB<EuclideanSpaceType> FirstType;
-	typedef Cube<EuclideanSpaceType> SecondType;
+    typedef AxisAlignedBox<EuclideanSpaceType> FirstType;
+	typedef AxisAlignedCube<EuclideanSpaceType> SecondType;
     bool operator()(const FirstType& a, const SecondType& b) const {
         for (size_t i = 0; i < EuclideanSpaceType::dimensionality();  ++i) {
             // If the minimum of a is greater than the maximum of b along one axis,

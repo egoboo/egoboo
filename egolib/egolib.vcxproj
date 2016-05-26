@@ -497,10 +497,9 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\egolib\Math\Translate_Rect2.hpp" />
-    <ClInclude Include="src\egolib\Math\Translate_AABB.hpp" />
+    <ClInclude Include="src\egolib\Math\Translate_AxisAlignedBox.hpp" />
     <ClInclude Include="src\egolib\Math\Translate_Cone3.hpp" />
-    <ClInclude Include="src\egolib\Math\Translate_Cube.hpp" />
+    <ClInclude Include="src\egolib\Math\Translate_AxisAlignedCube.hpp" />
     <ClInclude Include="src\egolib\Math\Translate_Line.hpp" />
     <ClInclude Include="src\egolib\Math\Translate_Plane.hpp" />
     <ClInclude Include="src\egolib\Math\Translate_Point.hpp" />
@@ -511,23 +510,23 @@
     <ClInclude Include="src\egolib\Math\Zero.hpp" />
     <ClInclude Include="src\egolib\Math\Discrete.hpp" />
     <ClInclude Include="src\egolib\App.hpp" />
-    <ClInclude Include="src\egolib\Math\Intersects_Cube_Point.hpp" />
-    <ClInclude Include="src\egolib\Math\Intersects_Point_Cube.hpp" />
+    <ClInclude Include="src\egolib\Math\Intersects_AxisAlignedCube_Point.hpp" />
+    <ClInclude Include="src\egolib\Math\Intersects_Point_AxisAlignedCube.hpp" />
     <ClInclude Include="src\egolib\Graphics\GraphicsWindow.hpp" />
-    <ClInclude Include="src\egolib\Math\Contains_Cube_Cube.hpp" />
-    <ClInclude Include="src\egolib\Math\Intersects_Cube_Cube.hpp" />
-    <ClInclude Include="src\egolib\Math\Intersects_AABB_Cube.hpp" />
-    <ClInclude Include="src\egolib\Math\Intersects_Cube_AABB.hpp" />
-    <ClInclude Include="src\egolib\Math\Intersects_Point_AABB.hpp" />
+    <ClInclude Include="src\egolib\Math\Contains_AxisAlignedCube_AxisAlignedCube.hpp" />
+    <ClInclude Include="src\egolib\Math\Intersects_AxisAlignedCube_AxisAlignedCube.hpp" />
+    <ClInclude Include="src\egolib\Math\Intersects_AxisAlignedBox_AxisAlignedCube.hpp" />
+    <ClInclude Include="src\egolib\Math\Intersects_AxisAlignedCube_AxisAlignedBox.hpp" />
+    <ClInclude Include="src\egolib\Math\Intersects_Point_AxisAlignedBox.hpp" />
     <ClInclude Include="src\egolib\Math\Intersects_Point_Sphere.hpp" />
     <ClInclude Include="src\egolib\Math\Contains_Sphere_Sphere.hpp" />
-    <ClInclude Include="src\egolib\Math\Intersects_AABB_Point.hpp" />
+    <ClInclude Include="src\egolib\Math\Intersects_AxisAlignedBox_Point.hpp" />
     <ClInclude Include="src\egolib\Math\Contains_Point_Point.hpp" />
     <ClInclude Include="src\egolib\Math\Contains.hpp" />
-    <ClInclude Include="src\egolib\Math\Contains_AABB_AABB.hpp" />
-    <ClInclude Include="src\egolib\Math\Contains_AABB_Point.hpp" />
+    <ClInclude Include="src\egolib\Math\Contains_AxisAlignedBox_AxisAlignedBox.hpp" />
+    <ClInclude Include="src\egolib\Math\Contains_AxisAlignedBox_Point.hpp" />
     <ClInclude Include="src\egolib\Math\Contains_Sphere_Point.hpp" />
-    <ClInclude Include="src\egolib\Math\Intersects_AABB_AABB.hpp" />
+    <ClInclude Include="src\egolib\Math\Intersects_AxisAlignedBox_AxisAlignedBox.hpp" />
     <ClInclude Include="src\egolib\Math\Intersects_Sphere_Point.hpp" />
     <ClInclude Include="src\egolib\Math\Intersects_Sphere_Sphere.hpp" />
     <ClInclude Include="src\egolib\Math\Intersects.hpp" />
@@ -577,7 +576,6 @@
     <ClInclude Include="src\egolib\Log\Target.hpp" />
     <ClInclude Include="src\egolib\Log\_Include.hpp" />
     <ClInclude Include="src\egolib\Log\Entry.hpp" />
-    <ClInclude Include="src\egolib\Math\Rect2.hpp" />
     <ClInclude Include="src\egolib\Script\Token.hpp" />
     <ClInclude Include="src\egolib\FileFormats\map_fx.hpp" />
     <ClInclude Include="src\egolib\Mesh\Info.hpp" />
@@ -609,7 +607,7 @@
     <ClInclude Include="src\egolib\Math\EuclideanSpace.hpp" />
     <ClInclude Include="src\egolib\Math\Scalar.hpp" />
     <ClInclude Include="src\egolib\Math\Standard.hpp" />
-    <ClInclude Include="src\egolib\Math\AABB.hpp" />
+    <ClInclude Include="src\egolib\Math\AxisAlignedBox.hpp" />
     <ClInclude Include="src\egolib\Math\Convex.hpp" />
     <ClInclude Include="src\egolib\VFS\Pathname.hpp" />
     <ClInclude Include="src\egolib\AI\WaypointList.h" />
@@ -700,7 +698,7 @@
     <ClInclude Include="src\egolib\math\ColourRgb.hpp" />
     <ClInclude Include="src\egolib\math\ColourRgba.hpp" />
     <ClInclude Include="src\egolib\math\Vector.hpp" />
-    <ClInclude Include="src\egolib\math\Cube.hpp" />
+    <ClInclude Include="src\egolib\math\AxisAlignedCube.hpp" />
     <ClInclude Include="src\egolib\math\Sphere.hpp" />
     <ClInclude Include="src\egolib\math\Plane.hpp" />
     <ClInclude Include="src\egolib\math\Random.hpp" />

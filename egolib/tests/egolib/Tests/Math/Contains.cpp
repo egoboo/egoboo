@@ -25,18 +25,18 @@ namespace Test {
 
 EgoTest_TestCase(Contains) {
 public:
-    EgoTest_Test(AABB3f_AABB3f) {
-        Ego::Math::Contains<AABB3f, AABB3f> functor;
-        AABB3f x(Point3f(-1.0f, -1.0f, -1.0f), Point3f(+1.0f, +1.0f, +1.0f));
-        AABB3f y = Ego::Tests::Math::Utilities::getContainedAABB3f(x);
+    EgoTest_Test(AxisAlignedBox3f_AxisAlignedBox3f) {
+        Ego::Math::Contains<AxisAlignedBox3f, AxisAlignedBox3f> functor;
+        AxisAlignedBox3f x(Point3f(-1.0f, -1.0f, -1.0f), Point3f(+1.0f, +1.0f, +1.0f));
+        AxisAlignedBox3f y = Ego::Tests::Math::Utilities::getContainedAxisAlignedBox3f(x);
         EgoTest_Assert(functor(x, y));
-        y = Ego::Tests::Math::Utilities::getNonContainedAABB3f(x);
+        y = Ego::Tests::Math::Utilities::getNonContainedAxisAlignedBox3f(x);
         EgoTest_Assert(!functor(x, y));
     }
 
-    EgoTest_Test(AABB3f_Point3f) {
-        Ego::Math::Contains<AABB3f, Point3f> functor;
-        AABB3f x(Point3f(-1.0f, -1.0f, -1.0f), Point3f(+1.0f, +1.0f, +1.0f));
+    EgoTest_Test(AxisAlignedBox3f_Point3f) {
+        Ego::Math::Contains<AxisAlignedBox3f, Point3f> functor;
+        AxisAlignedBox3f x(Point3f(-1.0f, -1.0f, -1.0f), Point3f(+1.0f, +1.0f, +1.0f));
         Point3f y = Ego::Tests::Math::Utilities::getContainedPoint3f(x);
         EgoTest_Assert(functor(x, y));
         y = Ego::Tests::Math::Utilities::getNonContainedPoint3f(x);

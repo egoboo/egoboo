@@ -17,20 +17,20 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/Math/Translate_AABB.hpp
-/// @brief Translation of axis-aligned bounding boxes.
+/// @file egolib/Math/Translate_AxisAlignedBox.hpp
+/// @brief Translation of axis aligned boxes.
 /// @author Michael Heilmann
 
 #pragma once
 
-#include "egolib/Math/AABB.hpp"
+#include "egolib/Math/AxisAlignedBox.hpp"
 
 namespace Ego {
 namespace Math {
 
 template <typename _EuclideanSpaceType>
-struct Translate<AABB<_EuclideanSpaceType>> {
-    typedef AABB<_EuclideanSpaceType> X;
+struct Translate<AxisAlignedBox<_EuclideanSpaceType>> {
+    typedef AxisAlignedBox<_EuclideanSpaceType> X;
     typedef typename _EuclideanSpaceType::VectorType T;
     X operator()(const X& x, const T& t) const {
         return X(x.getMin() + t, x.getMax() + t);
@@ -38,8 +38,8 @@ struct Translate<AABB<_EuclideanSpaceType>> {
 };
 
 template <typename _EuclideanSpaceType>
-AABB<_EuclideanSpaceType> translate(const AABB<_EuclideanSpaceType>& x, const typename _EuclideanSpaceType::VectorType& t) {
-    Translate<AABB<_EuclideanSpaceType>> f;
+AxisAlignedBox<_EuclideanSpaceType> translate(const AxisAlignedBox<_EuclideanSpaceType>& x, const typename _EuclideanSpaceType::VectorType& t) {
+    Translate<AxisAlignedBox<_EuclideanSpaceType>> f;
     return f(x, t);
 }
 

@@ -17,20 +17,20 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/Math/Translate_Cube.hpp
-/// @brief Translation of cubes.
+/// @file egolib/Math/Translate_AxisAlignedCube.hpp
+/// @brief Translation of axis aligned cubes.
 /// @author Michael Heilmann
 
 #pragma once
 
-#include "egolib/Math/Cube.hpp"
+#include "egolib/Math/AxisAlignedCube.hpp"
 
 namespace Ego {
 namespace Math {
 
 template <typename _EuclideanSpaceType>
-struct Translate<Cube<_EuclideanSpaceType>> {
-    typedef Cube<_EuclideanSpaceType> X;
+struct Translate<AxisAlignedCube<_EuclideanSpaceType>> {
+    typedef AxisAlignedCube<_EuclideanSpaceType> X;
     typedef typename _EuclideanSpaceType::VectorType T;
     X operator()(const X& x, const T& t) {
         return X(x.getCenter() + t, x.getSize());
@@ -38,8 +38,8 @@ struct Translate<Cube<_EuclideanSpaceType>> {
 };
 
 template <typename _EuclideanSpaceType>
-Cube<_EuclideanSpaceType> translate(const Cube<_EuclideanSpaceType>& x, const typename _EuclideanSpaceType::VectorType& t) {
-    Translate<Cube<_EuclideanSpaceType>> f;
+AxisAlignedCube<_EuclideanSpaceType> translate(const AxisAlignedCube<_EuclideanSpaceType>& x, const typename _EuclideanSpaceType::VectorType& t) {
+    Translate<AxisAlignedCube<_EuclideanSpaceType>> f;
     return f(x, t);
 }
 

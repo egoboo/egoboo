@@ -237,7 +237,7 @@ void Renderer3D::begin3D(Camera& camera) {
 void Renderer3D::end3D() {}
 
 
-void Renderer3D::renderAABB(const AABB3f& bv, const Ego::Math::Colour4f& colour)
+void Renderer3D::renderAxisAlignedBox(const AxisAlignedBox3f& bv, const Ego::Math::Colour4f& colour)
 {
     auto& renderer = Ego::Renderer::get();
 

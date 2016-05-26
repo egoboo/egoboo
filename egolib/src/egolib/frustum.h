@@ -140,7 +140,7 @@ public:
      * @todo
      *  Replace <tt>const Vector3f& position</tt> and <tt>const float size</tt> by <tt>const Cube3f& cube</tt>.
      */
-	Math::Relation intersects(const Cube3f& cube, const bool doEnds) const;
+	Math::Relation intersects(const AxisAlignedCube3f& cube, const bool doEnds) const;
 
     /**
      * @brief
@@ -156,8 +156,8 @@ public:
      *      <li>geometry_inside    - the AABB is completely inside the frustum</li>
      *	</ul>
      */
-	Math::Relation intersects_aabb(const Point3f& corner1, const Point3f& corner2, bool doEnds) const;
-	Math::Relation intersects(const AABB3f& aabb, bool doEnds) const;
+	Math::Relation intersects_aab(const Point3f& corner1, const Point3f& corner2, bool doEnds) const;
+	Math::Relation intersects(const AxisAlignedBox3f& aabb, bool doEnds) const;
 
 	/// @todo Should return geometry_rv.
 	bool intersects(const oct_bb_t& oct, const bool doEnds) const;

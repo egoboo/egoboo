@@ -225,8 +225,8 @@ MeshLookupTables::MeshLookupTables() {
 //--------------------------------------------------------------------------------------------
 void ego_mesh_t::make_bbox()
 {
-    _tmem._bbox = AABB3f(Point3f(_tmem._plst[0][XX], _tmem._plst[0][YY], _tmem._plst[0][ZZ]),
-		                 Point3f(_tmem._plst[0][XX], _tmem._plst[0][YY], _tmem._plst[0][ZZ]));
+    _tmem._bbox = AxisAlignedBox3f(Point3f(_tmem._plst[0][XX], _tmem._plst[0][YY], _tmem._plst[0][ZZ]),
+		                           Point3f(_tmem._plst[0][XX], _tmem._plst[0][YY], _tmem._plst[0][ZZ]));
 
 	for (Index1D cnt = 0; cnt < _info.getTileCount(); cnt++)
 	{
@@ -268,7 +268,7 @@ void ego_mesh_t::make_bbox()
         }
 
         // Add the bounds of the tile to the bounds of the mesh.
-        _tmem._bbox.join(poct.toAABB());
+        _tmem._bbox.join(poct.toAxisAlignedBox());
     }
 }
 
