@@ -78,7 +78,7 @@ int cmp_matrix_cache(const matrix_cache_t& lhs, const matrix_cache_t& rhs) {
         // handle differences in the scale of our mount
         for (int cnt = 0; cnt < 3; cnt++) {
             float ftmp = lhs.grip_scale[cnt] - rhs.grip_scale[cnt];
-            if (0.0f != ftmp) { itmp = SGN(ftmp); goto cmp_matrix_cache_end; }
+            if (0.0f != ftmp) { itmp = sgn(ftmp); goto cmp_matrix_cache_end; }
         }
     }
 
@@ -87,13 +87,13 @@ int cmp_matrix_cache(const matrix_cache_t& lhs, const matrix_cache_t& rhs) {
         // handle differences in the "Euler" rotation angles in 16-bit form
         for (int cnt = 0; cnt < 3; cnt++) {
             Facing ftmp = lhs.rotate[cnt] - rhs.rotate[cnt];
-            if (Facing(0) != ftmp) { itmp = SGN(ftmp); goto cmp_matrix_cache_end; }
+            if (Facing(0) != ftmp) { itmp = sgn(ftmp); goto cmp_matrix_cache_end; }
         }
 
         // handle differences in the translate vector
         for (int cnt = 0; cnt < 3; cnt++) {
             float ftmp = lhs.pos[cnt] - rhs.pos[cnt];
-            if (0.0f != ftmp) { itmp = SGN(ftmp); goto cmp_matrix_cache_end; }
+            if (0.0f != ftmp) { itmp = sgn(ftmp); goto cmp_matrix_cache_end; }
         }
     }
 
@@ -102,7 +102,7 @@ int cmp_matrix_cache(const matrix_cache_t& lhs, const matrix_cache_t& rhs) {
         // handle differences in our own scale
         for (int cnt = 0; cnt < 3; cnt++) {
             float ftmp = lhs.self_scale[cnt] - rhs.self_scale[cnt];
-            if (0.0f != ftmp) { itmp = SGN(ftmp); goto cmp_matrix_cache_end; }
+            if (0.0f != ftmp) { itmp = sgn(ftmp); goto cmp_matrix_cache_end; }
         }
     }
 
@@ -111,7 +111,7 @@ int cmp_matrix_cache(const matrix_cache_t& lhs, const matrix_cache_t& rhs) {
 
 cmp_matrix_cache_end:
 
-    return SGN(itmp);
+    return sgn(itmp);
 }
 
 //--------------------------------------------------------------------------------------------

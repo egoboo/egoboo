@@ -17,49 +17,32 @@
 //*
 //********************************************************************************************
 
-/// @file  egolib/Math/AABB.hpp
-/// @brief Axis-aligned bounding boxes.
+/// @file egolib/Math/AxisAlignedBox.hpp
+/// @brief Axis aligned boxes.
 /// @author Michael Heilmann
 
 #pragma once
 
-#include "egolib/Math/EuclideanSpace.hpp"
-#include "egolib/Math/Translatable.hpp"
 
+#include "egolib/Math/EuclideanSpace.hpp"
 #include "egolib/Math/Sphere.hpp"
+
 
 namespace Ego {
 namespace Math {
 
 /**
  * @brief
- *  An axis-aligned bounding box ("AABB").
+ *  An axis-aligned box ("AAB").
  * @param _ScalarType
  *  must fulfil the <em>scalar</em> concept
  * @param _Dimensionality
  *  must fulfil the <em>dimensionality</em> concept
- * @remark
- *  The terms "the/an axis-aligned bounding box (object)" and "the/an AABB (object)" are synonyms.
- * @author
- *  Michael Heilmann
  */
 template <typename _EuclideanSpaceType>
-struct AABB : public Translatable<typename _EuclideanSpaceType::VectorSpaceType> {
+struct AxisAlignedBox : public Translatable<typename _EuclideanSpaceType::VectorSpaceType> {
 public:
-    /// @brief The Euclidean space over which the AABBs are defined.
-    typedef _EuclideanSpaceType EuclideanSpaceType;
-    /// The vector space type (of the Euclidean space).
-    typedef typename EuclideanSpaceType::VectorSpaceType VectorSpaceType;
-    /// The scalar field type (of the vector space).
-    typedef typename EuclideanSpaceType::ScalarFieldType ScalarFieldType;
-    /// The vector type (of the vector space).
-    typedef typename EuclideanSpaceType::VectorType VectorType;
-    /// The scalar type (of the scalar field).
-    typedef typename EuclideanSpaceType::ScalarType ScalarType;
-    /// The point type (of the Euclidean space).
-    typedef typename EuclideanSpaceType::PointType PointType;
-    /// @brief @a MyType is the type of this template/template specialization.
-    typedef AABB<_EuclideanSpaceType> MyType;
+    Ego_Math_EuclideanSpace_CommonDefinitions(AxisAlignedBox);
 
 private:
     /**
@@ -77,18 +60,18 @@ private:
 public:
     /**
      * @brief
-     *  Construct this AABB with its default values.
+     *  Construct this axis aligned box with its default values.
      * @remark
-     *  The default values of an AABB are the center of @a (0,0,0) and the size of @a 0 along all axes.
+     *  The default values of an axis aligned box are the center of @a (0,0,0) and the size of @a 0 along all axes.
      */
-    AABB()
+    AxisAlignedBox()
         : _min(), _max() {
         /* Intentionally empty. */
     }
 
     /**
      * @brief
-     *  Construct this AABB with the given minima and maxima.
+     *  Construct this AxisAlignedBox with the given minima and maxima.
      * @param min
      *  the minimum along each axis
      * @param max
@@ -96,7 +79,7 @@ public:
      * @throw std::logic_error
      *  if the minimum along an axis is greater than the maximum along that axis
      */
-    AABB(const PointType& min, const PointType& max)
+    AxisAlignedBox(const PointType& min, const PointType& max)
         : _min(min), _max(max) {
         for (size_t i = 0; i < EuclideanSpaceType::dimensionality(); ++i) {
             if (min[i] > max[i]) {
@@ -106,10 +89,14 @@ public:
     }
 
     /**
-    * @brief
-    *   Copy constructor
-    **/
-    AABB(const AABB &other) : AABB(other._min, other._max) {
+     * @brief
+     *  Construct this axis aligned box with the values of another axis aligned box.
+     * @param other
+     *  the other axis aligned box
+     * @post
+     *  This axis aligned box was constructed with the values of the other axis aligned box.
+     */
+    AxisAlignedBox(const AxisAlignedBox &other) : AxisAlignedBox(other._min, other._max) {
         /* Intentionally empty. */        
     }
 
@@ -168,11 +155,11 @@ public:
 
     /**
      * @brief
-     *  Assign this AABB the join if itself with another AABB.
+     *  Assign this axis aligned box the join if itself with another axis aligned box.
      * @param other
-     *  the other AABB
+     *  the other axis aligned box
      * @post
-     *  The result of the join was assigned to this AABB.
+     *  The result of the join was assigned to this axis aligned box.
      */
     void join(const MyType& other) {
         for (size_t i = 0; i < EuclideanSpaceType::dimensionality(); ++i) {
@@ -183,13 +170,15 @@ public:
 
     /**
      * @brief
-     *  Get if this AABB is degenerated.
+     *  Get if this axis aligned box is degenerated.
      * @return
-     *  @a true if this AABB is degenerated,
+     *  @a true if this axis aligned is degenerated,
      *  @a false otherwise
      * @remark
-     *  An AABB is called "degenerated along an axis" if the minimum of the AABB at that axis equals the maximum of the AABB
-     *  at that axis. If an AABB is "degenerated" along all axes, then the AABB is called "degenerated".
+     *  An axis aligned box is called "degenerated along an axis" if its
+     *  minimum equals its maximum along that axis. If an axis aligned
+     *  box is "degenerated" along all axes, then the AABB is called
+     *  "degenerated".
      */
     bool isDegenerated() const {
         return _min == _max;
@@ -199,17 +188,27 @@ public:
 
     /**
      * @brief
-     *  Assign this bounding box the values of another bounding box.
+     *  Assign this axis aligned box the values of another axis aligned box.
      * @param other
-     *  the other bounding box
+     *  the other axis aligned box
      * @return
-     *  this bounding box
+     *  this axis aligned box
      * @post
-     *  This bounding box was assigned the values of the other bounding box.
+     *  This axis aligned box was assigned the values of the other axis aligned box.
      */
     MyType& operator=(const MyType& other) {
         assign(other);
         return *this;
+    }
+
+    bool operator==(const MyType& other) const {
+        return _min == other._min
+            && _max == other._max;
+    }
+
+    bool operator!=(const MyType& other) const {
+        return _min != other._min
+            || _max != other._max;
     }
 
 	/** @copydoc Ego::Math::translatable */
@@ -218,7 +217,7 @@ public:
 		_max += t;
 	}
 
-};
+}; // struct AxisAlignedBox
 
 } // namespace Math
 } // namespace Ego

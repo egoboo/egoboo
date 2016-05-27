@@ -20,8 +20,8 @@
 #pragma once
 
 #include "egolib/Math/VectorSpace.hpp"
-#include "egolib/Math/AABB.hpp"
-#include "egolib/Math/Cube.hpp"
+#include "egolib/Math/AxisAlignedBox.hpp"
+#include "egolib/Math/AxisAlignedCube.hpp"
 #include "egolib/Math/Sphere.hpp"
 
 namespace Ego {
@@ -48,12 +48,12 @@ namespace Math {
 template <typename _TargetType, typename _SourceType>
 struct ConvexHull;
 
-// Compute a sphere enclosing a specified AABB.
+// Compute a sphere enclosing a specified axis aligned box.
 template <typename _EuclideanSpaceType>
-struct ConvexHull<Sphere<_EuclideanSpaceType>, AABB<_EuclideanSpaceType>> {
+struct ConvexHull<Sphere<_EuclideanSpaceType>, AxisAlignedBox<_EuclideanSpaceType>> {
 public:
     typedef _EuclideanSpaceType EuclideanSpaceType;
-    typedef AABB<_EuclideanSpaceType> SourceType;
+    typedef AxisAlignedBox<_EuclideanSpaceType> SourceType;
     typedef Sphere<_EuclideanSpaceType> TargetType;
 public:
     inline TargetType operator()(const SourceType& source) const {
@@ -65,11 +65,11 @@ public:
 
 // Compute an AABB enclosing a specified sphere.
 template <typename _EuclideanSpaceType>
-struct ConvexHull<AABB<_EuclideanSpaceType>, Sphere<_EuclideanSpaceType>> {
+struct ConvexHull<AxisAlignedBox<_EuclideanSpaceType>, Sphere<_EuclideanSpaceType>> {
 public:
     typedef _EuclideanSpaceType EuclideanSpaceType;
     typedef Sphere<EuclideanSpaceType> SourceType;
-    typedef AABB<EuclideanSpaceType> TargetType;
+    typedef AxisAlignedBox<EuclideanSpaceType> TargetType;
 protected:
     typedef typename EuclideanSpaceType::VectorSpaceType VectorSpaceType;
     typedef typename EuclideanSpaceType::ScalarFieldType ScalarFieldType;
@@ -86,33 +86,33 @@ public:
     }
 };
 
-// Compute an AABB enclosing a specified cube.
-// Let \f$min\f$ be the minimal point of the cube and \f$max\f$ be the maximal point of the cube.
-// The AABB with the same minimal and maximal point is the smallest AABB enclosing that cube.
+// Compute an axis aligned box enclosing a specified axis aligned cube.
+// Let \f$min\f$ be the minimal point and \f$max\f$ be the maximal point of the axis aligned cube.
+// The axis aligned box with the same minimal and maximal point is the smallest axis aligned box enclosing that axis aligned cube.
 template <typename _EuclideanSpaceType>
-struct ConvexHull<AABB<_EuclideanSpaceType>, Cube<_EuclideanSpaceType>> {
+struct ConvexHull<AxisAlignedBox<_EuclideanSpaceType>, AxisAlignedCube<_EuclideanSpaceType>> {
 public:
     typedef _EuclideanSpaceType EuclideanSpaceType;
-    typedef Cube<EuclideanSpaceType> SourceType;
-    typedef AABB<EuclideanSpaceType> TargetType;
+    typedef AxisAlignedCube<EuclideanSpaceType> SourceType;
+    typedef AxisAlignedBox<EuclideanSpaceType> TargetType;
 public:
     inline TargetType operator()(const SourceType& source) const {
         return TargetType(source.getMin(), source.getMax());
     }
 };
 
-// Compute a cube enclosing a specified AABB.
-// The cube is computed by selecting the component-wise minimum \f$a\f$ of the minimal
-// point of the AABB and the component-wise maximum \f$b\f$ of the maximal point of the
-// AABB. From those, the vectors \f$\vec{a}=a\vec{1}\f$ and \f$\vec{b}=b\vec{1}\f$ are
-// computed and from those the center of the cube \f$C = \vec{a} + \frac{1}{2}\left(
-// \vec{b} - \vec{a}\right)\f$. The size of the cube is set to \f$|\vec{b}-\vec{a}|\f$.
+// Compute an axis aligned cube enclosing a specified axis aligned box.
+// The axis aligned cube is computed by selecting the component-wise minimum \f$a\f$ of the minimal
+// point component-wise maximum \f$b\f$ of the maximal point of the axis aligned box.
+// From those, the vectors \f$\vec{a}=a\vec{1}\f$ and \f$\vec{b}=b\vec{1}\f$ are computed and
+// from those the center of the cube \f$C = \vec{a} + \frac{1}{2}\left(\vec{b} - \vec{a}\right)\f$.
+// The size of the axis aligned cube is set to \f$|\vec{b}-\vec{a}|\f$.
 template <typename _EuclideanSpaceType>
-struct ConvexHull<Cube<_EuclideanSpaceType>, AABB<_EuclideanSpaceType>> {
+struct ConvexHull<AxisAlignedCube<_EuclideanSpaceType>, AxisAlignedBox<_EuclideanSpaceType>> {
 public:
     typedef _EuclideanSpaceType EuclideanSpaceType;
-    typedef AABB<EuclideanSpaceType> SourceType;
-    typedef Cube<EuclideanSpaceType> TargetType;
+    typedef AxisAlignedBox<EuclideanSpaceType> SourceType;
+    typedef AxisAlignedCube<EuclideanSpaceType> TargetType;
 protected:
     typedef typename EuclideanSpaceType::VectorSpaceType VectorSpaceType;
     typedef typename EuclideanSpaceType::ScalarFieldType ScalarFieldType;
@@ -142,25 +142,25 @@ public:
     }
 };
 
-// Compute a cube enclosing a specified cube (identity).
+// Compute an axis aligned cube enclosing a specified axis aligned cube (identity).
 template <typename _EuclideanSpaceType>
-struct ConvexHull<Cube<_EuclideanSpaceType>, Cube<_EuclideanSpaceType>> {
+struct ConvexHull<AxisAlignedCube<_EuclideanSpaceType>, AxisAlignedCube<_EuclideanSpaceType>> {
 public:
     typedef _EuclideanSpaceType EuclideanSpaceType;
-    typedef Cube<EuclideanSpaceType> SourceType;
-    typedef Cube<EuclideanSpaceType> TargetType;
+    typedef AxisAlignedCube<EuclideanSpaceType> SourceType;
+    typedef AxisAlignedCube<EuclideanSpaceType> TargetType;
 public:
     inline TargetType operator()(const SourceType& source) const {
         return source;
     }
 };
 
-// Compute an AABB enclosing a specified AABB (identity).
+// Compute an axis aligned box enclosing a specified axis aligned box (identity).
 template <typename _EuclideanSpaceType>
-struct ConvexHull<AABB<_EuclideanSpaceType>, AABB<_EuclideanSpaceType>> {
+struct ConvexHull<AxisAlignedBox<_EuclideanSpaceType>, AxisAlignedBox<_EuclideanSpaceType>> {
     typedef _EuclideanSpaceType EuclideanSpaceType;
-    typedef AABB<_EuclideanSpaceType> SourceType;
-    typedef AABB<_EuclideanSpaceType> TargetType;
+    typedef AxisAlignedBox<_EuclideanSpaceType> SourceType;
+    typedef AxisAlignedBox<_EuclideanSpaceType> TargetType;
 public:
     inline TargetType operator()(const SourceType& source) const {
         return source;

@@ -30,16 +30,16 @@ EgoTest_TestCase(QuadTree) {
             //ctor
         }
 
-        AABB2f& getAABB2D() { return _bounds; }
+        AxisAlignedBox2f& getAxisAlignedBox2D() { return _bounds; }
 
         bool isTerminated() { return false; }
 
     private:
-        AABB2f _bounds;
+        AxisAlignedBox2f _bounds;
     };
 
-    static AABB2f anAABBFromARect(float centerX, float centerY, float size) {
-        return AABB2f(Point2f(centerX - size, centerY - size), Point2f(centerX + size, centerY + size));
+    static AxisAlignedBox2f anAABFromARect(float centerX, float centerY, float size) {
+        return AxisAlignedBox2f(Point2f(centerX - size, centerY - size), Point2f(centerX + size, centerY + size));
     }
 
     EgoTest_Test(runQuadTreeTestStatic) {
@@ -64,34 +64,34 @@ EgoTest_TestCase(QuadTree) {
         std::vector<std::shared_ptr<QuadTreeElement>> findResults;
 
         //Searching outside the tree should produce no results
-        _quadTree.find(anAABBFromARect(-50, -50, 20), findResults);
+        _quadTree.find(anAABFromARect(-50, -50, 20), findResults);
         EgoTest_Assert(findResults.empty());
         findResults.clear();
 
         //Searching around each corner should find one element
-        _quadTree.find(anAABBFromARect(0, 0, 50), findResults);
+        _quadTree.find(anAABFromARect(0, 0, 50), findResults);
         EgoTest_Assert(findResults.size() == 1);
         findResults.clear();
 
-        _quadTree.find(anAABBFromARect(256, 0, 50), findResults);
+        _quadTree.find(anAABFromARect(256, 0, 50), findResults);
         EgoTest_Assert(findResults.size() == 1);
         findResults.clear();
 
-        _quadTree.find(anAABBFromARect(0, 256, 50), findResults);
+        _quadTree.find(anAABFromARect(0, 256, 50), findResults);
         EgoTest_Assert(findResults.size() == 1);
         findResults.clear();
 
-        _quadTree.find(anAABBFromARect(256, 256, 50), findResults);
+        _quadTree.find(anAABFromARect(256, 256, 50), findResults);
         EgoTest_Assert(findResults.size() == 1);
         findResults.clear();
 
         //Searching in the middle should find exactly one element
-        _quadTree.find(anAABBFromARect(128, 128, 50), findResults);
+        _quadTree.find(anAABFromARect(128, 128, 50), findResults);
         EgoTest_Assert(findResults.size() == 1);
         findResults.clear();
 
         //Searching whole tree should find all elements
-        _quadTree.find(anAABBFromARect(128, 128, 128), findResults);
+        _quadTree.find(anAABFromARect(128, 128, 128), findResults);
         EgoTest_Assert(findResults.size() == _testElements.size());
         findResults.clear();
 
@@ -99,7 +99,7 @@ EgoTest_TestCase(QuadTree) {
         for (int i = 0; i < _testElements.size(); ++i) {
             float x = Random::next(128, 256);
             float y = Random::next(128, 256);
-            _testElements[i]->getAABB2D() = AABB2f(Point2f(x, y), Point2f(x + 10, y + 10));
+            _testElements[i]->getAxisAlignedBox2D() = AxisAlignedBox2f(Point2f(x, y), Point2f(x + 10, y + 10));
         }
 
         //Rebuild the tree
@@ -110,13 +110,13 @@ EgoTest_TestCase(QuadTree) {
 
         //All elements should be found in bottom right now
         std::vector<std::shared_ptr<QuadTreeElement>> result;
-        AABB2f searchArea = AABB2f(Point2f(128, 128), Point2f(256, 256));
+        AxisAlignedBox2f searchArea = AxisAlignedBox2f(Point2f(128, 128), Point2f(256, 256));
         _quadTree.find(searchArea, result);
         EgoTest_Assert(result.size() == _testElements.size());
 
         //If we look top half, we should find nothing now
         result.clear();
-        searchArea = AABB2f(Point2f(0, 0), Point2f(256, 127));
+        searchArea = AxisAlignedBox2f(Point2f(0, 0), Point2f(256, 127));
         _quadTree.find(searchArea, result);
         EgoTest_Assert(result.empty());
     }

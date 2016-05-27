@@ -1,20 +1,20 @@
 #pragma once
 
-#include "egolib/Math/Contains.hpp"
-#include "egolib/Math/AABB.hpp"
+#include "egolib/Math/Intersects.hpp"
+#include "egolib/Math/AxisAlignedCube.hpp"
 
 namespace Ego {
 namespace Math {
 
 /**
- * @brief Functor which determines if an axis-aligned bounding box contains a point.
+ * @brief Functor which determines if an axis aligned cube and a point intersect.
  */
 template <typename EuclideanSpaceType>
-struct Contains<
-    AABB<EuclideanSpaceType>,
+struct Intersects<
+    AxisAlignedCube<EuclideanSpaceType>,
     Point<typename EuclideanSpaceType::VectorSpaceType>
 > {
-    typedef AABB<EuclideanSpaceType> FirstType;
+    typedef AxisAlignedCube<EuclideanSpaceType> FirstType;
     typedef Point<typename EuclideanSpaceType::VectorSpaceType> SecondType;
     bool operator()(const FirstType& a, const SecondType& b) const {
         for (size_t i = 0; i < EuclideanSpaceType::dimensionality(); ++i) {
@@ -23,7 +23,7 @@ struct Contains<
         }
         return true;
     }
-}; // struct Contains
+}; // struct Intersects
 
 } // namespace Math
 } // namespace Ego

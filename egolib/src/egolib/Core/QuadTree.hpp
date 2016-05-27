@@ -70,9 +70,9 @@ public:
     **/
     bool insert(const std::shared_ptr<T> &element)
     {
-        Ego::Math::Intersects<AABB2f,AABB2f> intersects;
+        Ego::Math::Intersects<AxisAlignedBox2f,AxisAlignedBox2f> intersects;
         //Element does not belong in this tree
-        if(!intersects(_bounds, element->getAABB2D())) {
+        if(!intersects(_bounds, element->getAxisAlignedBox2D())) {
             return false;
         }
 
@@ -106,9 +106,9 @@ public:
     * @param result
     *   Vector of all elements that fit within the search area
     **/
-    void find(const AABB2f &searchArea, std::vector<std::shared_ptr<T>> &result) const
+    void find(const AxisAlignedBox2f &searchArea, std::vector<std::shared_ptr<T>> &result) const
     {
-        Ego::Math::Intersects<AABB2f, AABB2f> intersects;
+        Ego::Math::Intersects<AxisAlignedBox2f, AxisAlignedBox2f> intersects;
         //Search grid is not part of our bounds
         if(!intersects(_bounds, searchArea)) {
             return;
@@ -127,7 +127,7 @@ public:
                 }
 
                 //Check if element is within search area
-                if(intersects(element->getAABB2D(), searchArea)) {
+                if(intersects(element->getAxisAlignedBox2D(), searchArea)) {
                     result.push_back(element);
                 }
             }
@@ -149,7 +149,7 @@ public:
     void clear(const float minX, const float minY, const float maxX, const float maxY)
     {
         //Reset bounds
-        _bounds = AABB2f(Point2f(minX, minY), Point2f(maxX, maxY));
+        _bounds = AxisAlignedBox2f(Point2f(minX, minY), Point2f(maxX, maxY));
 
         //Clear children and all elements
         _nodes.clear();
@@ -185,7 +185,7 @@ private:
 private:
     static const size_t QUAD_TREE_NODE_CAPACITY = 4;    //< Maximum number of nodes in tree before subdivision
 
-    AABB2f _bounds;                                     //< 2D AABB
+    AxisAlignedBox2f _bounds;                                     //< 2D AABB
 
     std::vector<std::weak_ptr<T>> _nodes;               //< List of nodes contained in this QuadTree
 

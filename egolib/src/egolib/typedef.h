@@ -31,19 +31,6 @@
 // place the definition of the lambda operator in a macro
 #define LAMBDA(AA,BB,CC) ((AA) ? (BB) : (CC))
 
-//--------------------------------------------------------------------------------------------
-// BOOLEAN
-
-#if !defined(TO_EGO_BOOL)
-	#if defined(__cplusplus)
-		#define TO_C_BOOL(VAL)   LAMBDA(VAL, true, false)
-	#else
-		#define TO_C_BOOL(VAL) (VAL)
-	#endif
-#endif
-
-//--------------------------------------------------------------------------------------------
-
 	/**
 	 * @brief
 	 *	Special return values.
@@ -85,7 +72,7 @@ signed SFP8_TO_SINT(const T& val)
 #   define SINT_TO_SFP8(V1)   LAMBDA( (V1) < 0, -((signed)UINT_TO_UFP8(-V1)), (signed)UINT_TO_UFP8(V1) )
 
     /// version of V1 / 256.0f
-#   define FP8_TO_FLOAT(V1)   ( (float)(V1) * INV_0100 )
+#   define FP8_TO_FLOAT(V1)   ( (float)(V1) * INV_0100<float>() )
     /// version of V1 * 256.0f
 #   define FLOAT_TO_FP8(V1)   ( (Uint32)((V1) * (float)(0x0100) ) )
 

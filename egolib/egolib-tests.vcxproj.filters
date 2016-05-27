@@ -65,5 +65,8 @@
     <ClCompile Include="tests\egolib\Tests\QuadTree.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="tests\egolib\Tests\Math\Translate.cpp">
+      <Filter>Source Files\Math</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

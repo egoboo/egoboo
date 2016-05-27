@@ -1,12 +1,12 @@
 #pragma once
 
-#include "egolib/Math/AABB.hpp"
+#include "egolib/Math/AxisAlignedBox.hpp"
 #include "egolib/Math/Cone3.hpp"
 #include "egolib/Math/ColourL.hpp"
 #include "egolib/Math/ColourLa.hpp"
 #include "egolib/Math/ColourRgb.hpp"
 #include "egolib/Math/ColourRgba.hpp"
-#include "egolib/Math/Cube.hpp"
+#include "egolib/Math/AxisAlignedCube.hpp"
 #include "egolib/Math/Discrete.hpp"
 #include "egolib/Math/OrderedField.hpp"
 #include "egolib/Math/OrderedRing.hpp"
@@ -14,6 +14,7 @@
 #include "egolib/Math/Matrix.hpp"
 #include "egolib/Math/Plane.hpp"
 #include "egolib/Math/Point.hpp"
+#include "egolib/Math/Ray.hpp"
 #include "egolib/Math/Sphere.hpp"
 #include "egolib/Math/Vector.hpp"
 #include "egolib/Math/VectorSpace.hpp"
@@ -71,22 +72,23 @@ typedef Ego::Math::Vector<OrderedFieldf, 4> Vector4f;
 /// A 3D sphere.
 typedef Ego::Math::Sphere<EuclideanSpace3f> Sphere3f;
 
-/// A 3D AABB.
-typedef Ego::Math::AABB<EuclideanSpace3f> AABB3f;
+/// A 3D axis aligned box.
+typedef Ego::Math::AxisAlignedBox<EuclideanSpace3f> AxisAlignedBox3f;
 
-/// A 2D AABB.
-typedef Ego::Math::AABB<EuclideanSpace2f> AABB2f;
-/// A 2D AABB can also be considered as a rectangle.
-typedef AABB2f Rectangle2f;
+/// A 2D axis aligned box.
+typedef Ego::Math::AxisAlignedBox<EuclideanSpace2f> AxisAlignedBox2f;
 
 /// A 3D cone.
 typedef Ego::Math::Cone3<EuclideanSpace3f> Cone3f;
 
-/// A 3D cube.
-typedef Ego::Math::Cube<EuclideanSpace3f> Cube3f;
+/// A 3D axis aligned cube.
+typedef Ego::Math::AxisAlignedCube<EuclideanSpace3f> AxisAlignedCube3f;
 
 /// A 3D line.
 typedef Ego::Math::Line<EuclideanSpace3f> Line3f;
+
+/// A 3D ray.
+typedef Ego::Math::Ray<EuclideanSpace3f> Ray3f;
 
 /// A 2D point.
 typedef Ego::Math::Point<VectorSpace2f> Point2f;
@@ -156,8 +158,8 @@ struct Validate<Ego::Math::Vector<ScalarFieldType, Dimensionality>> {
 };
 
 template <typename EuclidianSpaceType>
-struct Validate<Ego::Math::AABB<EuclidianSpaceType>> {
-    void operator()(const char *file, int line, const Ego::Math::AABB<EuclidianSpaceType>& object) const {
+struct Validate<Ego::Math::AxisAlignedBox<EuclidianSpaceType>> {
+    void operator()(const char *file, int line, const Ego::Math::AxisAlignedBox<EuclidianSpaceType>& object) const {
         static const MakeValidate<decltype(object.getMin())> validateMin;
         static const MakeValidate<decltype(object.getMax())> validateMax;
         validateMin(file, line, object.getMin());
@@ -176,8 +178,8 @@ struct Validate<Ego::Math::Sphere<EuclidianSpaceType>> {
 };
 
 template <typename EuclidianSpaceType>
-struct Validate<Ego::Math::Cube<EuclidianSpaceType>> {
-    void operator()(const char *file, int line, const ::Cube3f& object) const {
+struct Validate<Ego::Math::AxisAlignedCube<EuclidianSpaceType>> {
+    void operator()(const char *file, int line, const Ego::Math::AxisAlignedCube& object) const {
         static const MakeValidate<decltype(object.getCenter())> validateCenter;
         static const MakeValidate<decltype(object.getSize())> validateSize;
         validateCenter(file, line, object.getCenter());

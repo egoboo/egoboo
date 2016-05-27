@@ -141,8 +141,7 @@ public:
 
 struct ui_state_t {
     /// @brief The cursor position.
-    /// @todo Use Point2i and rename to cursorPosition;
-    int cur_x, cur_y;
+    Point2i cursorPosition;
 
     bool pressed;                //
     bool clicked;                //

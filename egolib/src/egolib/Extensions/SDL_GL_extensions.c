@@ -122,7 +122,7 @@ void SDL_GL_report_mode(SDLX_video_parameters_t& retval)
 
     SDLX_report_mode(surface, retval);
 
-    if (retval.flags.opengl)
+    if (retval.windowProperties.opengl)
     {
         oglx_report_caps();
     }
@@ -165,7 +165,7 @@ SDLX_video_parameters_t * SDL_GL_set_mode(SDLX_video_parameters_t * v_old, SDLX_
         // set the opengl parameters
         gl_new->multisample = GL_FALSE;
         gl_new->multisample_arb = GL_FALSE;
-        if (NULL != retval->surface && retval->flags.opengl)
+        if (NULL != retval->surface && retval->windowProperties.opengl)
         {
             // correct the multisampling
             gl_new->multisample_arb = retval->gl_att.multisampling.multisamples > 1;

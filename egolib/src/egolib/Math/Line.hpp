@@ -17,17 +17,15 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Math/Line.hpp
-/// @brief  Rays.
+/// @file egolib/Math/Line.hpp
+/// @brief Rays.
 /// @author Michael Heilmann
 
 #pragma once
 
-#include "egolib/Math/Point.hpp"
-#include "egolib/Math/Vector.hpp"
+
 #include "egolib/Math/Translatable.hpp"
 #include "egolib/Math/EuclideanSpace.hpp"
-
 
 
 namespace Ego {
@@ -46,20 +44,7 @@ namespace Math {
 template <typename _EuclideanSpaceType>
 struct Line : public Translatable<typename _EuclideanSpaceType::VectorSpaceType> {
 public:
-    /// @brief The Euclidean space over which the lines are defined.
-    typedef _EuclideanSpaceType EuclideanSpaceType;
-    /// The vector space type (of the Euclidean space).
-    typedef typename EuclideanSpaceType::VectorSpaceType VectorSpaceType;
-    /// The scalar field type (of the vector space).
-    typedef typename EuclideanSpaceType::ScalarFieldType ScalarFieldType;
-    /// The vector type (of the vector space).
-    typedef typename EuclideanSpaceType::VectorType VectorType;
-    /// The scalar type (of the scalar field).
-    typedef typename EuclideanSpaceType::ScalarType ScalarType;
-    /// The point type (of the Euclidean space).
-    typedef typename EuclideanSpaceType::PointType PointType;
-    /// @brief @a MyType is the type of this template/template specialization.
-    typedef Line<_EuclideanSpaceType> MyType;
+    Ego_Math_EuclideanSpace_CommonDefinitions(Line);
 
 private:
     /// The 1st \f$A\f$.
@@ -148,6 +133,16 @@ public:
     }
 
 public:
+    bool operator==(const MyType& other) const {
+        return a == other.b
+            && a == other.b;
+    }
+
+    bool operator!=(const MyType& other) const {
+        return a != other.b
+            || a != other.b;
+    }
+
     /** @copydoc Translatable::translate */
     virtual void translate(const VectorType& t) {
         a += t;

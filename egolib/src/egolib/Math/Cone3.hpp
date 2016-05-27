@@ -17,8 +17,9 @@
 //*
 //********************************************************************************************
 
-/// @file  egolib/Math/Cone3.hpp
-/// @brief Single infinite cones.
+/// @file egolib/Math/Cone3.hpp
+/// @brief Single infinite 3D cones.
+/// @author Michael Heilmann
 
 #pragma once
 
@@ -70,20 +71,7 @@ namespace Math {
 template <typename _EuclideanSpaceType, typename _EnabledType = std::enable_if_t<_EuclideanSpaceType::dimensionality() == 3>>
 struct Cone3 : public Translatable<typename _EuclideanSpaceType::VectorSpaceType> {
 public:
-    /// @brief The Euclidean space over which the cones are defined.
-    typedef _EuclideanSpaceType EuclideanSpaceType;
-    /// The vector space type (of the Euclidean space).
-    typedef typename EuclideanSpaceType::VectorSpaceType VectorSpaceType;
-    /// The scalar field type (of the vector space).
-    typedef typename EuclideanSpaceType::ScalarFieldType ScalarFieldType;
-    /// The vector type (of the vector space).
-    typedef typename EuclideanSpaceType::VectorType VectorType;
-    /// The scalar type (of the scalar field).
-    typedef typename EuclideanSpaceType::ScalarType ScalarType;
-    /// The point type (of the Euclidean space).
-    typedef typename EuclideanSpaceType::PointType PointType;
-    /// @brief @a MyType is the type of this template/template specialization.
-    typedef Cone3<EuclideanSpaceType> MyType;
+    Ego_Math_EuclideanSpace_CommonDefinitions(Cone3);
 
 public:
     /** @brief The origin point \f$P\f$ of the cone. */
@@ -228,12 +216,31 @@ public:
     }
 
 public:
+    bool operator==(const MyType& other) const {
+        return origin == other.origin
+            && axis == other.axis
+            && angle == other.angle;
+    }
+
+    bool operator!=(const MyType& other) const {
+        return origin != other.origin
+            || axis != other.axis
+            || angle != other.angle;
+    }
+
     /** @copydoc Ego::Math::Translatable */
     void translate(const VectorType& t) override {
         origin += t;
     }
 
-};
+protected:
+    struct Cookie {};
+    friend struct Translate<MyType>;
+    Cone3(Cookie cookie, const PointType& origin, const VectorType& axis, const Angle<AngleUnit::Degrees>& angle)
+        : origin(origin), axis(axis), angle(angle) {
+    }
+
+}; // struct Cone3
 
 } // namespace Math
 } // namespace Ego

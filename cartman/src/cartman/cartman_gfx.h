@@ -61,12 +61,12 @@ inline Ego::Math::Colour4f make_rgba(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
     return (Ego::Math::Colour4f)Ego::Math::Colour4b(r, g, b, a);
 }
 
-inline uint32_t make_rgb(const std::shared_ptr<const SDL_Surface>& surface, uint8_t r, uint8_t g, uint8_t b) {
-    return SDL_MapRGB(surface->format, r, g, b);
+inline uint32_t make_rgb(const std::shared_ptr<const SDL_Surface>& surface, const Ego::Math::Colour3b& colour) {
+    return SDL_MapRGB(surface->format, colour.getRed(), colour.getGreen(), colour.getBlue());
 }
 
-inline uint32_t make_rgba(const std::shared_ptr<const SDL_Surface>& surface, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
-    return SDL_MapRGBA(surface->format, r, g, b, a);
+inline uint32_t make_rgba(const std::shared_ptr<const SDL_Surface>& surface, const Ego::Math::Colour4b& colour) {
+    return SDL_MapRGBA(surface->format, colour.getRed(), colour.getGreen(), colour.getBlue(), colour.getAlpha());
 }
 
 #define POINT_SIZE(X) ( (X) * 0.5f + 4.0f )

@@ -125,8 +125,8 @@ bool Passage::close()
 
 bool Passage::objectIsInPassage(const std::shared_ptr<Object> &object) const
 {
-    Ego::Math::Intersects<AABB2f, AABB2f> intersects;
-    return intersects(_area, object->getAABB2D());
+    Ego::Math::Intersects<AxisAlignedBox2f, AxisAlignedBox2f> intersects;
+    return intersects(_area, object->getAxisAlignedBox2D());
 }
 
 ObjectRef Passage::whoIsBlockingPassage( ObjectRef objRef, const IDSZ2& idsz, const BIT_FIELD targeting_bits, const IDSZ2& require_item ) const
@@ -275,7 +275,7 @@ void Passage::removeShop()
     _shopOwner = SHOP_NOOWNER;
 }
 
-const AABB2f& Passage::getAABB2f() const
+const AxisAlignedBox2f& Passage::getAxisAlignedBox2f() const
 {
     return _area;
 }

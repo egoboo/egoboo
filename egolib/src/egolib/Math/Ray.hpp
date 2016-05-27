@@ -17,12 +17,14 @@
 //*
 //********************************************************************************************
 
-/// @file  egolib/Math/Ray.hpp
+/// @file egolib/Math/Ray.hpp
 /// @brief Rays.
+/// @author Michael Heilmann
 
 #pragma once
 
 #include "egolib/Math/EuclideanSpace.hpp"
+#include "egolib/Math/Translatable.hpp"
 
 namespace Ego {
 namespace Math {
@@ -34,20 +36,17 @@ namespace Math {
 template <typename _EuclideanSpaceType>
 struct Ray : public Translatable<typename _EuclideanSpaceType::VectorSpaceType> {
 public:
-    /// @brief The Euclidean space over which the cones are defined.
-    typedef _EuclideanSpaceType EuclideanSpaceType;
-    /// The vector space type (of the Euclidean space).
-    typedef typename EuclideanSpaceType::VectorSpaceType VectorSpaceType;
-    /// The scalar field type (of the vector space).
-    typedef typename EuclideanSpaceType::ScalarFieldType ScalarFieldType;
-    /// The vector type (of the vector space).
-    typedef typename EuclideanSpaceType::VectorType VectorType;
-    /// The scalar type (of the scalar field).
-    typedef typename EuclideanSpaceType::ScalarType ScalarType;
-    /// The point type (of the Euclidean space).
-    typedef typename EuclideanSpaceType::PointType PointType;
-    /// @brief @a MyType is the type of this template/template specialization.
-    typedef Ray<EuclideanSpaceType> MyType;
+    Ego_Math_EuclideanSpace_CommonDefinitions(Ray);
+
+private:
+    /**
+     * @brief The origin of this ray.
+     */
+    PointType origin;
+    /**
+     * @brief The direction of this ray.
+     */
+    VectorType direction;
 
 public:
     /**
@@ -56,9 +55,13 @@ public:
      * @param direction the direction vector \f$\vec{d}\f$
      * @throw Id::RuntimeErrorException if the direction vector \f$\vec{d}\f$ is the zero vector 
      */
-    Ray3(const PointType& origin, const VectorType& direction)
-        : origin(origin), direction(directio) {
-        direction = direction.normalize_new();
+    Ray(const PointType& origin, const VectorType& direction)
+        : origin(origin), direction(direction) {
+        auto length = this->direction.length();
+        if (length == Zero<ScalarType>()()) {
+            throw Id::RuntimeErrorException(__FILE__, __LINE__, "direction vector is zero vector");
+        }
+        this->direction *= One<ScalarType>()() / length;
     }
 
     /** 
@@ -66,7 +69,7 @@ public:
      * @param other the other ray
      */
     Ray(const Ray& other)
-        : origin(other.origin), axis(other.axis) {
+        : origin(other.origin), direction(other.direction) {
         /* Intentionally empty. */
     }
 
@@ -77,7 +80,7 @@ public:
      */
     Ray operator=(const Ray& other) {
         origin = other.origin;
-        axi = other.axis;
+        direction = other.direction;
         return *this;
     }
 
@@ -99,6 +102,16 @@ public:
     }
 
 public:
+    bool operator==(const MyType& other) const {
+        return origin == other.origin
+            && direction == other.direction;
+    }
+
+    bool operator!=(const MyType& other) const {
+        return origin != other.origin
+            || direction != other.direction;
+    }
+
     /** @copydoc Ego::Math::Translatable */
     void translate(const VectorType& t) override {
         origin += t;

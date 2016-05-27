@@ -17,35 +17,24 @@
 //*
 //********************************************************************************************
 
-/// @file  egolib/Math/Cube.hpp
-/// @brief Cubes.
+/// @file egolib/Math/AxisAlignedCube.hpp
+/// @brief Axis aligned cubes.
+/// @author Michael Heilmann
 
 #pragma once
 
-#include "egolib/Math/Vector.hpp"
-#include "egolib/Math/Translatable.hpp"
+
 #include "egolib/Math/EuclideanSpace.hpp"
+#include "egolib/Math/Translatable.hpp"
+
 
 namespace Ego {
 namespace Math {
 
 template <typename _EuclideanSpaceType>
-struct Cube : public Translatable<typename _EuclideanSpaceType::VectorSpaceType> {
+struct AxisAlignedCube : public Translatable<typename _EuclideanSpaceType::VectorSpaceType> {
 public:
-    /// @brief The Euclidean space over which the cubes are defined.
-    typedef _EuclideanSpaceType EuclideanSpaceType;
-    /// The vector space type (of the Euclidean space).
-    typedef typename EuclideanSpaceType::VectorSpaceType VectorSpaceType;
-    /// The scalar field type (of the vector space).
-    typedef typename EuclideanSpaceType::ScalarFieldType ScalarFieldType;
-    /// The vector type (of the vector space).
-    typedef typename EuclideanSpaceType::VectorType VectorType;
-    /// The scalar type (of the scalar field).
-    typedef typename EuclideanSpaceType::ScalarType ScalarType;
-    /// The point type (of the Euclidean space).
-    typedef typename EuclideanSpaceType::PointType PointType;
-    /// @brief @a MyType is the type of this template/template specialization.
-    typedef Cube<EuclideanSpaceType> MyType;
+    Ego_Math_EuclideanSpace_CommonDefinitions(AxisAlignedCube);
 
 private:
 
@@ -67,24 +56,24 @@ public:
 
     /**
      * @brief
-     *  Construct this cube with the default values of a cube.
+     *  Construct this axis aligned cube with the default values of an axis aligned cube.
      * @post
-     *  This cube was constructed with the default values of a cube.
+     *  This axis aligned cube was constructed with the default values of an axis aligned cube.
      * @remark
-     *  The default values of a cube are the center of @a (0,0,0) and the size of @a 0.
+     *  The default values of an axis aligned cube are the center of @a (0,0,0) and the size of @a 0.
      */
-    Cube()
+    AxisAlignedCube()
         : _center(), _size() {
         /* Intentionally empty. */
     }
 
     /**
      * @brief
-     *  Construct this cube with the specified values.
+     *  Construct this axis aligned cube with the specified values.
      * @param center
-     *  the center of the cube
+     *  the center of the axis aligned cube
      * @param size
-     *  the size of the cube
+     *  the size of the axis aligned cube
      * @throw std::domain_error
      *  if the size is negative
      * @pre
@@ -92,7 +81,7 @@ public:
      * @post
      *  The cube was constructed with the specified values.
      */
-    Cube(const PointType& center, const ScalarType& size)
+    AxisAlignedCube(const PointType& center, const ScalarType& size)
         : _center(center), _size(size) {
         if (_size < 0) {
             throw std::domain_error("cube size is negative");
@@ -101,13 +90,13 @@ public:
 
     /**
      * @brief
-     *  Construct this cube with the values of another cube.
+     *  Construct this axis aligned cube with the values of another axis aligned cube.
      * @param other
-     *  the other cube
+     *  the other axis aligned cube
      * @post
-     *  The cube was constructed with the values of the other cube.
+     *  This axis aligned cube was constructed with the values of the other axis aligned cube.
      */
-    Cube(const MyType& other)
+    AxisAlignedCube(const MyType& other)
         : _center(other._center), _size(other._size) {
         /* Intentionally empty. */
     }
@@ -116,9 +105,9 @@ public:
 
     /**
      * @brief
-     *  Get the center of this cube.
+     *  Get the center of this axis aligned cube.
      * @return
-     *  the center of this cube
+     *  the center of this axis aligned cube
      */
     const PointType& getCenter() const {
         return _center;
@@ -126,9 +115,9 @@ public:
 
     /**
      * @brief
-     *  Get the size of this cube.
+     *  Get the size of this axis aligned cube.
      * @return
-     *  the size of this cube
+     *  the size of this axis aligned cube
      */
     const ScalarType& getSize() const {
         return _size;
@@ -136,9 +125,9 @@ public:
 
     /**
     * @brief
-    *  Get the minimum of this cube.
+    *  Get the minimum of this axis aligned cube.
     * @return
-    *  the minimum of this cube
+    *  the minimum of this axis aligned cube
     */
     PointType getMin() const {
         typedef ConstantGenerator<ScalarType> MyGenerator;
@@ -147,9 +136,9 @@ public:
 
     /**
      * @brief
-     *  Get the maximum of this cube.
+     *  Get the maximum of this axis aligned cube.
      * @return
-     *  the maximum of this cube
+     *  the maximum of this axis aligned cube
      */
     PointType getMax() const {
         typedef ConstantGenerator<ScalarType> MyGenerator;
@@ -158,11 +147,11 @@ public:
 
     /**
      * @brief
-     *  Assign this cube with the values of another cube.
+     *  Assign this axis aligned cube with the values of another axis aligned cube.
      * @param other
-     *  the other cube
+     *  the other axis aligned cube
      * @post
-     *  This cube was assigned with the values of the other cube.
+     *  This axis aligned cube was assigned with the values of the other axis aligned cube.
      */
     void assign(const MyType& other) {
         _center = other._center;
@@ -173,17 +162,28 @@ public:
 
     /**
      * @brief
-     *  Assign this cube with the values of another cube.
+     *  Assign this axis aligned cube with the values of another axis aligned cube.
      * @param other
-     *  the other cube
+     *  the other axis aligned cube
      * @return
-     *  this cube
+     *  this axis aligned cube
      * @post
-     *  This cube was assigned the values of the other cube.
+     *  This axis aligned cube was assigned the values of the other axis aligned cube.
      */
     MyType& operator=(const MyType& other) {
         assign(other);
         return *this;
+    }
+
+public:
+    bool operator==(const MyType& other) const {
+        return _center == other._center
+            && _size == other._size;
+    }
+
+    bool operator!=(const MyType& other) const {
+        return _center != other._center
+            || _size != other._size;
     }
 
 	/** @copydoc Ego::Math::translatable */
@@ -191,7 +191,7 @@ public:
 		_center += t;
 	}
 
-};
+}; // struct AxisAlignedCube
 
 } // namespace Math
 } // namespace Ego

@@ -97,7 +97,7 @@ bool SDLX_Get_Screen_Info( SDLX_screen_info_t& psi, bool make_report )
     SDLX_sdl_gl_attrib_t::download(psi.gl_att);
 
     // translate the surface flags into the bitfield
-    psi.flags = window->getFlags();
+    psi.windowProperties = window->getProperties();
 
     if (make_report)
     {
@@ -151,10 +151,6 @@ SDLX_sdl_gl_attrib_t::SDLX_sdl_gl_attrib_t()
     accelerated_visual(1),
     buffer_size(32),
     depthBufferDepth(8) {
-}
-
-void SDLX_sdl_gl_attrib_t::defaults(SDLX_sdl_gl_attrib_t& self) {
-    self = SDLX_sdl_gl_attrib_t();
 }
 
 void SDLX_sdl_gl_attrib_t::validate(SDLX_sdl_gl_attrib_t& self) {
@@ -324,42 +320,6 @@ Log::Entry& operator<<(Log::Entry& e, const SDLX_sdl_gl_attrib_t& s) {
 }
 
 //--------------------------------------------------------------------------------------------
-
-uint32_t SDLX_sdl_video_flags_t::upload(const SDLX_sdl_video_flags_t& self) {
-    uint32_t bits = 0;
-    bits |= self.full_screen ? SDL_WINDOW_FULLSCREEN : 0;
-    bits |= self.opengl ? SDL_WINDOW_OPENGL : 0;
-    bits |= self.resizable ? SDL_WINDOW_RESIZABLE : 0;
-    bits |= self.borderless ? SDL_WINDOW_BORDERLESS : 0;
-    bits |= self.highdpi ? SDL_WINDOW_ALLOW_HIGHDPI : 0;
-    if (self.full_screen && self.use_desktop_size) {
-        bits |= SDL_WINDOW_FULLSCREEN_DESKTOP;
-    }
-    return bits;
-}
-
-void SDLX_sdl_video_flags_t::download(SDLX_sdl_video_flags_t& self, uint32_t bits) {
-    self.full_screen = HAS_SOME_BITS(bits, SDL_WINDOW_FULLSCREEN);
-    self.opengl = HAS_SOME_BITS(bits, SDL_WINDOW_OPENGL);
-    self.resizable = HAS_SOME_BITS(bits, SDL_WINDOW_RESIZABLE);
-    self.borderless = HAS_SOME_BITS(bits, SDL_WINDOW_BORDERLESS);
-    self.highdpi = HAS_SOME_BITS(bits, SDL_WINDOW_ALLOW_HIGHDPI);
-    if (self.full_screen) {
-        self.use_desktop_size = HAS_SOME_BITS(bits, SDL_WINDOW_FULLSCREEN_DESKTOP);
-    }
-}
-
-Log::Entry& operator<<(Log::Entry& e, const SDLX_sdl_video_flags_t& s) {
-    e << "window properties" << Log::EndOfLine;
-    e << " fullscreen = " << (s.full_screen ? "yes" : "no") << Log::EndOfLine
-      << " OpenGL = " << (s.opengl ? "yes" : "no") << Log::EndOfLine
-      << " resizable = " << (s.resizable ? "yes" : "no") << Log::EndOfLine
-      << " borderless = " << (s.borderless ? "yes" : "no") << Log::EndOfLine
-      << " high DPI (Apple 'Retina') = " << (s.highdpi ? "yes" : "no") << Log::EndOfLine;
-    return e;
-}
-
-//--------------------------------------------------------------------------------------------
 void SDLX_video_parameters_t::report(SDLX_video_parameters_t& self)
 {
     /// @author BB
@@ -370,10 +330,10 @@ void SDLX_video_parameters_t::report(SDLX_video_parameters_t& self)
     e << "resolution = " << self.resolution.width() << " x " << self.resolution.height() << Log::EndOfLine
       << "color depth = " << self.colorBufferDepth << Log::EndOfLine;
     // Write the window properties.
-    e << self.flags;
+    e << self.windowProperties;
 
     // Write the context properties.
-    if (self.flags.opengl)
+    if (self.windowProperties.opengl)
     {
         e << self.gl_att;
     }
@@ -393,7 +353,7 @@ void SDLX_synch_video_parameters( Ego::GraphicsWindow *window, SDLX_video_parame
     v.resolution = window->getSize();
 
     // Download the video flags from SDL.
-    v.flags = window->getFlags();
+    v.windowProperties = window->getProperties();
 
     // Download the OpenGL attributes from SDL.
     // @todo Call GraphicsContext::getFlags().
@@ -402,7 +362,7 @@ void SDLX_synch_video_parameters( Ego::GraphicsWindow *window, SDLX_video_parame
 
 //--------------------------------------------------------------------------------------------
 void SDLX_video_parameters_t::upload() const {
-    if (flags.opengl) {
+    if (windowProperties.opengl) {
         gl_att.upload();
     }
 }
@@ -412,9 +372,9 @@ SDL_GLContext SDLX_CreateContext(SDL_Window *window, const SDLX_sdl_gl_attrib_t&
     flags.upload();
     return SDL_GL_CreateContext(window);
 }
-Ego::GraphicsWindow *SDLX_CreateWindow(const SDLX_sdl_video_flags_t& flags) {
+Ego::GraphicsWindow *SDLX_CreateWindow(const Ego::WindowProperties& windowProperties) {
     try {
-        return new Ego::GraphicsWindow(flags);
+        return new Ego::GraphicsWindow(windowProperties);
     } catch(...) {
         return nullptr;
     }
@@ -426,9 +386,9 @@ Ego::GraphicsWindow *SDLX_CreateWindow( SDLX_video_parameters_t& v, bool make_re
     
     if (Ego::GraphicsSystem::window) return nullptr;
 
-    if (!v.flags.opengl) {
+    if (!v.windowProperties.opengl) {
         // do our one-and-only video initialization
-        ret = SDLX_CreateWindow(v.flags);
+        ret = SDLX_CreateWindow(v.windowProperties);
         if (!ret) {
             Log::get().message("SDL WARN: Unable to create SDL window: %s\n", SDL_GetError());
         } else {
@@ -444,7 +404,7 @@ Ego::GraphicsWindow *SDLX_CreateWindow( SDLX_video_parameters_t& v, bool make_re
         v.colorBufferDepth = v.gl_att.buffer_size;
         // try a softer video initialization
         // if it fails, then it tries to get the closest possible valid video mode
-        ret = SDLX_CreateWindow(v.flags);
+        ret = SDLX_CreateWindow(v.windowProperties);
         if ( nullptr == ret ) {
 			Log::get().warn("unable to create SDL window: %s\n", SDL_GetError());
         } else {
@@ -466,7 +426,7 @@ Ego::GraphicsWindow *SDLX_CreateWindow( SDLX_video_parameters_t& v, bool make_re
                 while ( v.gl_att.multisampling.multisamples > 1 && !ret )
                 {
                     v.gl_att.multisampling.multibuffers = 1;                 
-                    ret = SDLX_CreateWindow(v.flags);
+                    ret = SDLX_CreateWindow(v.windowProperties);
                     if ( nullptr == ret ) {
 						Log::get().warn("unable to create SDL window (%d multisamples): %s\n", v.gl_att.multisampling.multisamples, SDL_GetError());
                     } else {
@@ -493,7 +453,7 @@ Ego::GraphicsWindow *SDLX_CreateWindow( SDLX_video_parameters_t& v, bool make_re
             v.gl_att.multisampling.multibuffers = 0;
             v.gl_att.multisampling.multisamples = 0;
 
-            ret = SDLX_CreateWindow(v.flags);
+            ret = SDLX_CreateWindow(v.windowProperties);
             if ( nullptr == ret ) {
 				Log::get().warn("unable to create SDL window (no multisamples): %s\n", SDL_GetError());
             } else {
@@ -535,49 +495,14 @@ Ego::GraphicsWindow *SDLX_CreateWindow( SDLX_video_parameters_t& v, bool make_re
 
 //--------------------------------------------------------------------------------------------
 
-SDLX_sdl_video_flags_t::SDLX_sdl_video_flags_t() :
-    resizable(0),
-    borderless(0),
-    use_desktop_size(0), 
-    highdpi(0), 
-    full_screen(1), 
-    opengl(1) {
-}
-
-SDLX_sdl_video_flags_t::SDLX_sdl_video_flags_t(const SDLX_sdl_video_flags_t& other) :
-    resizable(other.resizable),
-    borderless(other.borderless),
-    use_desktop_size(other.use_desktop_size),
-    highdpi(other.highdpi),
-    full_screen(1),
-    opengl(1) {
-}
-
-const SDLX_sdl_video_flags_t& SDLX_sdl_video_flags_t::operator=(const SDLX_sdl_video_flags_t& other) {
-    resizable = other.resizable;
-    borderless = other.borderless;
-    use_desktop_size = other.use_desktop_size;
-    highdpi = other.highdpi;
-    full_screen = other.full_screen;
-    opengl = other.opengl;
-    return *this;
-}
-
-void SDLX_sdl_video_flags_t::defaults(SDLX_sdl_video_flags_t& self)
-{
-    self = SDLX_sdl_video_flags_t();
-}
-
-//--------------------------------------------------------------------------------------------
-
 void SDLX_video_parameters_t::defaults(SDLX_video_parameters_t& self)
 {
     self.surface = nullptr;
     self.resolution = Size2i(640, 480);
     self.colorBufferDepth = 32;
 
-    SDLX_sdl_video_flags_t::defaults(self.flags);
-    SDLX_sdl_gl_attrib_t::defaults(self.gl_att);
+    self.windowProperties = Ego::WindowProperties();
+    self.gl_att = SDLX_sdl_gl_attrib_t();
 }
 
 void SDLX_video_parameters_t::download(SDLX_video_parameters_t& self, egoboo_config_t& cfg)
@@ -585,7 +510,7 @@ void SDLX_video_parameters_t::download(SDLX_video_parameters_t& self, egoboo_con
     self.resolution = Size2i(cfg.graphic_resolution_horizontal.getValue(),
                              cfg.graphic_resolution_vertical.getValue());
     self.colorBufferDepth = cfg.graphic_colorBuffer_bitDepth.getValue();
-    self.flags.full_screen = cfg.graphic_fullscreen.getValue();
+    self.windowProperties.fullscreen = cfg.graphic_fullscreen.getValue();
     self.gl_att.buffer_size = cfg.graphic_colorBuffer_bitDepth.getValue();
     self.gl_att.depthBufferDepth = cfg.graphic_depthBuffer_bitDepth.getValue();
     self.gl_att.multisampling.multibuffers = (cfg.graphic_antialiasing.getValue() > 1) ? 1 : 0;

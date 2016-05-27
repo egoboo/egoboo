@@ -225,8 +225,8 @@ MeshLookupTables::MeshLookupTables() {
 //--------------------------------------------------------------------------------------------
 void ego_mesh_t::make_bbox()
 {
-    _tmem._bbox = AABB3f(Point3f(_tmem._plst[0][XX], _tmem._plst[0][YY], _tmem._plst[0][ZZ]),
-		                 Point3f(_tmem._plst[0][XX], _tmem._plst[0][YY], _tmem._plst[0][ZZ]));
+    _tmem._bbox = AxisAlignedBox3f(Point3f(_tmem._plst[0][XX], _tmem._plst[0][YY], _tmem._plst[0][ZZ]),
+		                           Point3f(_tmem._plst[0][XX], _tmem._plst[0][YY], _tmem._plst[0][ZZ]));
 
 	for (Index1D cnt = 0; cnt < _info.getTileCount(); cnt++)
 	{
@@ -268,7 +268,7 @@ void ego_mesh_t::make_bbox()
         }
 
         // Add the bounds of the tile to the bounds of the mesh.
-        _tmem._bbox.join(poct.toAABB());
+        _tmem._bbox.join(poct.toAxisAlignedBox());
     }
 }
 
@@ -1232,11 +1232,11 @@ BIT_FIELD ego_mesh_t::hit_wall(const Vector3f& pos, float radius, const BIT_FIEL
 			}
 			else if (0.0f == nrm[kX])
 			{
-				nrm[kY] = SGN(nrm[kY]);
+				nrm[kY] = sgn(nrm[kY]);
 			}
 			else if (0.0f == nrm[kY])
 			{
-				nrm[kX] = SGN(nrm[kX]);
+				nrm[kX] = sgn(nrm[kX]);
 			}
 			else
 			{

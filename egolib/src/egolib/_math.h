@@ -246,42 +246,8 @@ inline int sgn<Facing>(const Facing& x) {
 //--------------------------------------------------------------------------------------------
 // basic constants
 
-/**
- * @brief \f$\frac{1}{255}\f$.
- * @return \f$\frac{1}{255}\f$ as a value of type @a T.
- * @remark Specializations for single- and double-precision floating-point types are provided.
- */
-template <typename T>
-T INV_FF();
+#include "egolib/Math/Constants.hpp"
 
-template <>
-inline float INV_FF<float>() {
-    return 0.003921568627450980392156862745098f;
-}
-
-template <>
-inline double INV_FF<double>() {
-    return 0.003921568627450980392156862745098;
-}
-
-
-/**
-* @brief \f$\frac{1}{255^2}\f$.
-* @return \f$\frac{1}{255^2}\f$ as a value of type @a T.
-* @remark Specializations for single- and double-precision floating-point types are provided.
- */
-template <typename T>
-T INV_FFFF();
-
-template <>
-inline float INV_FFFF<float>() {
-    return 0.000015259021896696421759365224689097f;
-}
-
-template <>
-inline double INV_FFFF<double>() {
-    return 0.000015259021896696421759365224689097;
-}
 
 /**
  * @brief
@@ -350,16 +316,11 @@ Facing rotate(const Facing& source, const Facing& target, const int weight);
 
 //--------------------------------------------------------------------------------------------
 
-#if !defined(SGN)
-#    define SGN(X) sgn(X)
-#endif
-
 #if defined(__cplusplus)
 extern "C"
 {
 #endif
 
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 
@@ -370,21 +331,12 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 // FAST CONVERSIONS
 
-
-#if !defined(INV_0100)
-#   define INV_0100            0.00390625f
-#endif
-
-
 #define FF_TO_FLOAT( V1 )  ( (float)(V1) * INV_FF<float>() )
 
 #define FFFF_TO_FLOAT( V1 )  ( (float)(V1) * INV_FFFF<float>() )
 #define FLOAT_TO_FFFF( V1 )  ( (int)((V1) * 0xFFFF) )
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-
 
 // limiting functions
     void getadd_int( const int min, const int value, const int max, int* valuetoadd );
@@ -394,7 +346,6 @@ extern "C"
     int generate_irand_pair( const IPair num );
     int generate_irand_range( const FRange num );
 
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 #if defined(__cplusplus)

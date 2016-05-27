@@ -17,15 +17,16 @@
 //*
 //********************************************************************************************
 
-/// @file  egolib/Math/Plane.hpp
-/// @brief Planes.
+/// @file egolib/Math/Plane.hpp
+/// @brief 3D planes.
+/// @author Michael Heilmann
 
 #pragma once
 
-#include "egolib/Math/Point.hpp"
-#include "egolib/Math/Vector.hpp"
+
 #include "egolib/Math/EuclideanSpace.hpp"
 #include "egolib/Math/Translatable.hpp"
+
 
 namespace Ego {
 namespace Math {
@@ -44,20 +45,7 @@ namespace Math {
 template <typename _EuclideanSpaceType, typename _EnabledType = std::enable_if_t<_EuclideanSpaceType::dimensionality() == 3>>
 struct Plane3 : public Translatable<typename _EuclideanSpaceType::VectorSpaceType> {
 public:
-    /// @brief The Euclidean space over which the cones are defined.
-    typedef _EuclideanSpaceType EuclideanSpaceType;
-    /// The vector space type (of the Euclidean space).
-    typedef typename EuclideanSpaceType::VectorSpaceType VectorSpaceType;
-    /// The scalar field type (of the vector space).
-    typedef typename EuclideanSpaceType::ScalarFieldType ScalarFieldType;
-    /// The vector type (of the vector space).
-    typedef typename EuclideanSpaceType::VectorType VectorType;
-    /// The scalar type (of the scalar field).
-    typedef typename EuclideanSpaceType::ScalarType ScalarType;
-    /// The point type (of the Euclidean space).
-    typedef typename EuclideanSpaceType::PointType PointType;
-    /// @brief @a MyType is the type of this template/template specialization.
-    typedef Plane3<EuclideanSpaceType> MyType;
+    Ego_Math_EuclideanSpace_CommonDefinitions(Plane3);
 
 private:
 
@@ -78,11 +66,11 @@ private:
 public:
 
     /**
-    * @brief
-    *  Default constructor.
-    * @remark
-    *  The default plane has the plane normal @a (0,0,1) and a distance from the origin of @a 0.
-    */
+     * @brief
+     *  Default constructor.
+     * @remark
+     *  The default plane has the plane normal @a (0,0,1) and a distance from the origin of @a 0.
+     */
     Plane3() :
         _n(0.0f, 0.0f, 1.0f), _d(0.0f)
     {
@@ -208,21 +196,21 @@ public:
     }
 
     /**
-    * @brief
-    *  Construct a plane from a translation axis and a distance from the origin.
-    * @param t
-    *  the translation axis
-    * @param d
-    *  the distance from the origin
-    * @post
-    *  Given an axis \f$\vec{t}\f$ and a distance from the origin \f$d\f$
-    *  the plane equation is given by
-    *  \f{align*}{
-    *  \hat{n} \cdot p + d = 0, \hat{n}=\frac{\vec{t}}{|\vec{t}|}
-    *  \f}
-    * @throw std::domain_error
-    *    if the translation axis is the zero vector
-    */
+     * @brief
+     *  Construct a plane from a translation axis and a distance from the origin.
+     * @param t
+     *  the translation axis
+     * @param d
+     *  the distance from the origin
+     * @post
+     *  Given an axis \f$\vec{t}\f$ and a distance from the origin \f$d\f$
+     *  the plane equation is given by
+     *  \f{align*}{
+     *  \hat{n} \cdot p + d = 0, \hat{n}=\frac{\vec{t}}{|\vec{t}|}
+     *  \f}
+     * @throw std::domain_error
+     *    if the translation axis is the zero vector
+     */
     Plane3(const VectorType& t, const ScalarType& d)
         : _n(t), _d(d) {
         if (_n.normalize() == 0.0f) {
@@ -267,7 +255,17 @@ public:
     }
 
 public:
+    bool operator==(const MyType& other) const {
+        return _d == other._d
+            && _n == other._n;
+    }
 
+    bool operator!=(const MyType& other) const {
+        return _d != other._d
+            || _n != other._n;
+    }
+
+public:
     /**
      * @brief
      *  Get the distance of a point from this plane.
@@ -360,7 +358,7 @@ public:
 	 *	\f}
 	 *	The new plane can then be computed by
 	 *	\f{align*}{
-	 *	\hat{n} \cdot P + d' = 0, d' = -d - \hat{n} \cdot \vec{t}
+	 *	\hat{n} \cdot P + d' = 0, d' = d - \hat{n} \cdot \vec{t}
 	 *	\f}
 	 * @param t
 	 *	the translation vector
@@ -370,7 +368,13 @@ public:
 		_d -= _n.dot(t);
 	}
 
-};
+protected:
+    struct Cookie {};
+    friend struct Translate<MyType>;
+    Plane3(Cookie cookie, const VectorType& n, const ScalarType& d)
+        : _n(n), _d(d) {}
+
+}; // struct Plane3
 
 } // namespace Math
 } // namespace Ego

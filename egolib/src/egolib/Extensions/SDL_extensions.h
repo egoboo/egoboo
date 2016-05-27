@@ -31,47 +31,12 @@
 #include "egolib/egoboo_setup.h"
 #include "egolib/Math/_Include.hpp"
 #include "egolib/Graphics/ColourDepth.hpp"
+#include "egolib/Extensions/WindowProperties.hpp"
 
 // Forward declaration.
 namespace Ego {
 struct GraphicsWindow;
 }
-
-//--------------------------------------------------------------------------------------------
-
-/// A structure holding information about a window.
-/// A structure holding some of SDL's video data
-/// @todo Rename to Ego::Graphics::SDL::WindowProperties.
-struct SDLX_sdl_video_flags_t {
-    unsigned full_screen : 1;      ///< SDL_WINDOW_FULLSCREEN    - Window is a full screen display
-    unsigned opengl : 1;           ///< SDL_WINDOW_OPENGL        - Create an OpenGL rendering context
-    unsigned resizable : 1;        ///< SDL_WINDOW_RESIZABLE     - Window may be resized
-    unsigned borderless : 1;       ///< SDL_WINDOW_BORDERLESS    - No window caption or edge frame
-    unsigned use_desktop_size : 1; ///< SDL_WINDOW_FULLSCREEN_DESKTOP - Window uses desktop size in fullscreen, requires full_screen to be set
-    unsigned highdpi : 1;          ///< SDL_WINDOW_ALLOW_HIGHDPI - Supports High-DPI mode (Apple 'Retina')
-
-    /**
-     * @brief Construct this window flags with "reasonable" default values.
-     */
-    SDLX_sdl_video_flags_t();
-    /**
-     * @brief Copy-construct this window flags.
-     * @param other the other window flags
-     */
-    SDLX_sdl_video_flags_t(const SDLX_sdl_video_flags_t& other);
-    /**
-     * @brief Assign this window flags.
-     * @param other the other window flags
-     * @return this window flags
-     */
-    const SDLX_sdl_video_flags_t& operator=(const SDLX_sdl_video_flags_t& other);
-    
-    static void defaults(SDLX_sdl_video_flags_t& self);
-    static uint32_t upload(const SDLX_sdl_video_flags_t& self);
-    static void download(SDLX_sdl_video_flags_t& self, uint32_t bits);
-};
-
-Log::Entry& operator<<(Log::Entry& e, const SDLX_sdl_video_flags_t& s);
 
 //--------------------------------------------------------------------------------------------
 
@@ -115,7 +80,6 @@ struct SDLX_sdl_gl_attrib_t {
     SDLX_sdl_gl_attrib_t();
 
     static void validate(SDLX_sdl_gl_attrib_t& self);
-    static void defaults(SDLX_sdl_gl_attrib_t& self);
     // Upload the attributes to SDL.
     void upload() const;
     // Download the attributes from SDL.
@@ -145,8 +109,7 @@ Log::Entry& operator<<(Log::Entry& e, const SDLX_sdl_gl_attrib_t& s);
         SDLX_sdl_gl_attrib_t gl_att;
 
         /// Window properties.
-        /// @todo Rename flags to windowProperties.
-        SDLX_sdl_video_flags_t flags;
+        Ego::WindowProperties windowProperties;
 
         static void report(SDLX_screen_info_t& self);
     };
@@ -161,7 +124,7 @@ Log::Entry& operator<<(Log::Entry& e, const SDLX_sdl_gl_attrib_t& s);
         Size2i resolution;
         int colorBufferDepth;
 
-        SDLX_sdl_video_flags_t flags;
+        Ego::WindowProperties windowProperties;
         SDLX_sdl_gl_attrib_t gl_att;
 
         Ego::GraphicsWindow *surface;

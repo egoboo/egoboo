@@ -25,21 +25,21 @@ namespace Test {
 
 EgoTest_TestCase(Intersects) {
 public:
-    EgoTest_Test(AABB3f_AABB3f) {
-        Ego::Math::Intersects<AABB3f, AABB3f> functor;
-        AABB3f x(Point3f(-1.0f, -1.0f, -1.0f), Point3f(+1.0f, +1.0f, +1.0f));
-        AABB3f y = Tests::Math::Utilities::getOverlappingAABB3f(x);
+    EgoTest_Test(AxisAlignedBox3f_AxisAlignedBox3f) {
+        Ego::Math::Intersects<AxisAlignedBox3f, AxisAlignedBox3f> functor;
+        AxisAlignedBox3f x(Point3f(-1.0f, -1.0f, -1.0f), Point3f(+1.0f, +1.0f, +1.0f));
+        AxisAlignedBox3f y = Tests::Math::Utilities::getOverlappingAxisAlignedBox3f(x);
         EgoTest_Assert(functor(x, y));
-        y = Tests::Math::Utilities::getNonOverlappingAABB3f(x);
+        y = Tests::Math::Utilities::getNonOverlappingAxisAlignedBox3f(x);
         EgoTest_Assert(!functor(x, y));
     }
 	
-    EgoTest_Test(Cube3f_Cube3f) {
-        Ego::Math::Intersects<Cube3f, Cube3f> functor;
-        Cube3f x(Point3f(0.0f, 0.0f, 0.0f), 2.0);
-        Cube3f y = Tests::Math::Utilities::getOverlappingCube3f(x);
+    EgoTest_Test(AxisAlignedCube3f_AxisAlignedCube3f) {
+        Ego::Math::Intersects<AxisAlignedCube3f, AxisAlignedCube3f> functor;
+        AxisAlignedCube3f x(Point3f(0.0f, 0.0f, 0.0f), 2.0);
+        AxisAlignedCube3f y = Tests::Math::Utilities::getOverlappingAxisAlignedCube3f(x);
         EgoTest_Assert(functor(x, y));
-        y = Tests::Math::Utilities::getNonOverlappingCube3f(x);
+        y = Tests::Math::Utilities::getNonOverlappingAxisAlignedCube3f(x);
         EgoTest_Assert(!functor(x, y));
     }
 	
@@ -62,11 +62,11 @@ public:
     }
 
 public:
-    EgoTest_Test(AABB3f_Point3f) {
-        Ego::Math::Intersects<AABB3f, Point3f> functor;
-        Ego::Math::Intersects<Point3f, AABB3f> functor0;
-        AABB3f x(Point3f(-1.0f, -1.0f, -1.0f), 
-                 Point3f(+1.0f, +1.0f, +1.0f));
+    EgoTest_Test(AxisAlignedBox3f_Point3f) {
+        Ego::Math::Intersects<AxisAlignedBox3f, Point3f> functor;
+        Ego::Math::Intersects<Point3f, AxisAlignedBox3f> functor0;
+        AxisAlignedBox3f x(Point3f(-1.0f, -1.0f, -1.0f), 
+                           Point3f(+1.0f, +1.0f, +1.0f));
         Point3f y = Tests::Math::Utilities::getOverlappingPoint3f(x);
         EgoTest_Assert(functor(x, y) && functor0(y, x));
         y = Tests::Math::Utilities::getNonOverlappingPoint3f(x);
@@ -83,10 +83,10 @@ public:
         EgoTest_Assert(!functor(x, y) && !functor0(y, x));
     }
 	
-	EgoTest_Test(Cube3f_Point3f) {
-	    Ego::Math::Intersects<Cube3f, Point3f> functor;
-		Ego::Math::Intersects<Point3f, Cube3f> functor0;
-        Cube3f x(Point3f(0.0f, 0.0f, 0.0f), 2.0);
+	EgoTest_Test(AxisAlignedCube3f_Point3f) {
+	    Ego::Math::Intersects<AxisAlignedCube3f, Point3f> functor;
+		Ego::Math::Intersects<Point3f, AxisAlignedCube3f> functor0;
+        AxisAlignedCube3f x(Point3f(0.0f, 0.0f, 0.0f), 2.0);
         Point3f y = Tests::Math::Utilities::getOverlappingPoint3f(x);
         EgoTest_Assert(functor(x, y) && functor0(y, x));
         y = Tests::Math::Utilities::getNonOverlappingPoint3f(x);

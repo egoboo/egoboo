@@ -664,7 +664,7 @@ void cartman_check_mouse_side(std::shared_ptr<Cartman::Gui::Window> pwin, float 
         mdata.win_fan_x  = std::floor( mpix_x / Info<float>::Grid::Size());
         mdata.win_fan_y  = -1;
 
-        select_lst_t::set_mesh( mdata.win_select, pwin->pmesh );
+        mdata.win_select.set_mesh( pwin->pmesh );
 
         debugx = mpos_x;
         debugy = mpos_z;
@@ -829,7 +829,7 @@ void cartman_check_mouse_tile(std::shared_ptr<Cartman::Gui::Window> pwin, float 
         mdata.win_fan_x = std::floor( mpos_x / Info<float>::Grid::Size());
         mdata.win_fan_y = std::floor( mpos_y / Info<float>::Grid::Size());
 
-        select_lst_t::set_mesh( mdata.win_select, pwin->pmesh );
+        mdata.win_select.set_mesh( pwin->pmesh );
 
         debugx = mpos_x;
         debugy = mpos_y;
@@ -944,7 +944,7 @@ void cartman_check_mouse_fx(std::shared_ptr<Cartman::Gui::Window> pwin, float zo
         mdata.win_fan_x  = std::floor( mpos_x / Info<float>::Grid::Size());
         mdata.win_fan_y  = std::floor( mpos_y / Info<float>::Grid::Size());
 
-        select_lst_t::set_mesh( mdata.win_select, pwin->pmesh );
+        mdata.win_select.set_mesh( pwin->pmesh );
 
         debugx = mpos_x;
         debugy = mpos_y;
@@ -1048,7 +1048,7 @@ void cartman_check_mouse_vertex(std::shared_ptr<Cartman::Gui::Window> pwin, floa
         mdata.win_fan_x  = std::floor( mpos_x / Info<float>::Grid::Size());
         mdata.win_fan_y  = std::floor( mpos_y / Info<float>::Grid::Size());
 
-        select_lst_t::set_mesh( mdata.win_select, pwin->pmesh );
+        mdata.win_select.set_mesh( pwin->pmesh );
 
         debugx = mpos_x;
         debugy = mpos_y;

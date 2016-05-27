@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Math/Vector.hpp
-/// @brief  Vectors.
+/// @file egolib/Math/Vector.hpp
+/// @brief Vectors.
 /// @author Michael Heilmann
 
 #pragma once

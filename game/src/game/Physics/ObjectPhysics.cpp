@@ -1030,10 +1030,10 @@ void ObjectPhysics::updateCollisionSize(bool update_matrix)
     oct_bb_t::downgrade(bdst, _object.bump_stt, _object.bump, _object.bump_1);
 
     //Recalculate the fast 2D collision box
-    _aabb2D = AABB2f(Point2f(_object.getPosX() + _object.chr_min_cv.getMin()[OCT_X],
-                             _object.getPosY() + _object.chr_min_cv.getMin()[OCT_Y]),
-                     Point2f(_object.getPosX() + _object.chr_min_cv.getMax()[OCT_X],
-                             _object.getPosY() + _object.chr_min_cv.getMax()[OCT_Y]));
+    _aabb2D = AxisAlignedBox2f(Point2f(_object.getPosX() + _object.chr_min_cv.getMin()[OCT_X],
+                               _object.getPosY() + _object.chr_min_cv.getMin()[OCT_Y]),
+                               Point2f(_object.getPosX() + _object.chr_min_cv.getMax()[OCT_X],
+                               _object.getPosY() + _object.chr_min_cv.getMax()[OCT_Y]));
 }
 
 bool ObjectPhysics::floorIsSlippy() const
@@ -1060,7 +1060,7 @@ float ObjectPhysics::getGroundElevation() const
     return _groundElevation;
 }
 
-const AABB2f& ObjectPhysics::getAABB2D() const
+const AxisAlignedBox2f& ObjectPhysics::getAxisAlignedBox2D() const
 {
     return _aabb2D;
 }

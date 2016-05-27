@@ -272,9 +272,9 @@ void CollisionSystem::updateObjectCollisions()
         const std::shared_ptr<Object> &platform = _currentModule->getObjectHandler()[object->onwhichplatform_ref];
         if(platform)
         {
-            Ego::Math::Intersects<AABB2f, AABB2f> intersects;
+            Ego::Math::Intersects<AxisAlignedBox2f, AxisAlignedBox2f> intersects;
             //If we are no longer colliding in the horizontal plane, then we are disconnected
-            if(!intersects(object->getAABB2D(), platform->getAABB2D()))
+            if(!intersects(object->getAxisAlignedBox2D(), platform->getAxisAlignedBox2D()))
             {
                 object->getObjectPhysics().detachFromPlatform();
             }
@@ -285,7 +285,7 @@ void CollisionSystem::updateObjectCollisions()
         // convert the oct_bb_t to a correct BSP_aabb_t
         oct_bb_t tmp_oct;
         phys_expand_chr_bb(object.get(), 0.0f, 1.0f, tmp_oct);
-        const AABB2f aabb2d = AABB2f(Point2f(tmp_oct._mins[OCT_X], tmp_oct._mins[OCT_Y]), Point2f(tmp_oct._maxs[OCT_X], tmp_oct._maxs[OCT_Y]));
+        const AxisAlignedBox2f aabb2d = AxisAlignedBox2f(Point2f(tmp_oct._mins[OCT_X], tmp_oct._mins[OCT_Y]), Point2f(tmp_oct._maxs[OCT_X], tmp_oct._maxs[OCT_Y]));
 
         //Do not collide scenery with other scenery objects - unless they can use platforms,
         //for example boxes stacked on top of other boxes
@@ -333,7 +333,7 @@ void CollisionSystem::updateParticleCollisions()
         // convert the oct_bb_t to a correct AABB2f
         oct_bb_t   tmp_oct;
         phys_expand_prt_bb(particle.get(), 0.0f, 1.0f, tmp_oct);
-        const AABB2f aabb2d = AABB2f(Point2f(tmp_oct._mins[OCT_X], tmp_oct._mins[OCT_Y]), Point2f(tmp_oct._maxs[OCT_X], tmp_oct._maxs[OCT_Y]));
+        const AxisAlignedBox2f aabb2d = AxisAlignedBox2f(Point2f(tmp_oct._mins[OCT_X], tmp_oct._mins[OCT_Y]), Point2f(tmp_oct._maxs[OCT_X], tmp_oct._maxs[OCT_Y]));
 
         //Detect collisions with nearby Objects
         std::vector<std::shared_ptr<Object>> possibleCollisions;

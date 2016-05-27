@@ -32,9 +32,9 @@ namespace Cartman { namespace Gui {
 
 Cursor::Cursor() :
     _surface(Ego::Graphics::SDL::createSurface(8, 8)) {
-    uint32_t col = make_rgb(_surface, 255, 255, 255); // white (255,255,255), fully opaquw
-    uint32_t loc = make_rgb(_surface, 24, 24, 24);    // black-grey (24,24,24), fully opaque
-    uint32_t clr = make_rgba(_surface, 0, 0, 0, 64);  // black (0,0,0), almost transparent (64)
+    uint32_t col = make_rgb(_surface, Ego::Math::Colour3b::white()); // opaque (255) white (255,255,255)
+    uint32_t loc = make_rgb(_surface, Ego::Math::Colour3b(24, 24, 24)); // opaque (255) black-grey (24,24,24)
+    uint32_t clr = make_rgba(_surface, Ego::Math::Colour4b(0, 0, 0, 64)); // almost transparent (64) black (0,0,0)
 
     // Simple triangle
     SDL_Rect rtmp;
@@ -163,10 +163,8 @@ void do_cursor() {
     bool left_press;
 
     // This function implements a mouse cursor
-    ui.cur_x = Cartman::Input::get()._mouse.position.x();
-    if (ui.cur_x < 6)  ui.cur_x = 6;  if (ui.cur_x > sdl_scr.size.width() - 6)  ui.cur_x = sdl_scr.size.width() - 6;
-    ui.cur_y = Cartman::Input::get()._mouse.position.y();
-    if (ui.cur_y < 6)  ui.cur_y = 6;  if (ui.cur_y > sdl_scr.size.height() - 6)  ui.cur_y = sdl_scr.size.height() - 6;
+    ui.cursorPosition.x() = Ego::Math::constrain(Cartman::Input::get()._mouse.position.x(), 6, sdl_scr.size.width() - 6);
+    ui.cursorPosition.y() = Ego::Math::constrain(Cartman::Input::get()._mouse.position.y(), 6, sdl_scr.size.height() - 6);
 
     left_press = CART_BUTTONDOWN(SDL_BUTTON_LEFT);
 

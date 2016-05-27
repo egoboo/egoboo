@@ -17,46 +17,35 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Math/Translatable.h
-/// @brief  Miscellaneous utilities for template metaprogramming
+/// @file egolib/Math/Translate_Point.hpp
+/// @brief Translation of points.
 /// @author Michael Heilmann
 
 #pragma once
 
-#include "egolib/Math/Vector.hpp"
+#include "egolib/Math/Point.hpp"
 
 namespace Ego {
 namespace Math {
 
-template <typename ... T>
-struct Translate;
-
-/** 
- * @brief
- *  The interface of an entity that can be translated.
- * @tparam _VectorSpaceType
- *  the vector space type
- */
+#if 0
 template <typename _VectorSpaceType>
-struct Translatable {
-    /**
-     * @brief
-     *  The vector space type.
-     */
-    typedef _VectorSpaceType VectorSpaceType;
-    /** 
-     * @brief
-     *  The vector type.
-     */
-    typedef Vector<typename VectorSpaceType::ScalarFieldType, VectorSpaceType::dimensionality()> VectorType;
-    /** 
-     * @brief
-     *  Translate this entity.
-     * @param t
-     *  the translation vector
-     */
-    virtual void translate(const VectorType& t) = 0;
+struct Translate<Point<_VectorSpaceType>> {
+    typedef Point<_VectorSpaceType> X;
+    typedef typename _VectorSpaceType::VectorType T;
+    X operator()(const X& x, const T& t) const {
+        return X(x.getA() + t, x.getB() + t);
+    }
 };
+#endif
+
+#if 0
+template <typename _VectorSpaceType>
+Point<_VectorSpaceType> translate(const Point<_VectorSpaceType>& x, const typename _VectorSpaceType::VectorType& t) {
+    Translate<Point<_VectorSpaceType>> f;
+    return f(x, t);
+}
+#endif
 
 } // namespace Math
 } // namespace Ego

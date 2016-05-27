@@ -110,7 +110,7 @@ struct lighting_cache_t
 
 	static void lighting_project_cache(lighting_cache_t& dst, const lighting_cache_t& src, const Matrix4f4f& mat);
 	static bool lighting_cache_interpolate(lighting_cache_t& dst, const std::array<const lighting_cache_t *, 4>& src, const float u, const float v);
-	static float lighting_evaluate_cache(const lighting_cache_t& src, const Vector3f& nrm, const float z, const AABB3f& bbox, float *light_amb, float *light_dir);
+	static float lighting_evaluate_cache(const lighting_cache_t& src, const Vector3f& nrm, const float z, const AxisAlignedBox3f& bbox, float *light_amb, float *light_dir);
 
 };
 

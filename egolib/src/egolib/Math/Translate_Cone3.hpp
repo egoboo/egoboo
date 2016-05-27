@@ -17,46 +17,31 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Math/Translatable.h
-/// @brief  Miscellaneous utilities for template metaprogramming
+/// @file egolib/Math/Translate_Cone3.hpp
+/// @brief Translation of cones.
 /// @author Michael Heilmann
 
 #pragma once
 
-#include "egolib/Math/Vector.hpp"
+#include "egolib/Math/Cone3.hpp"
 
 namespace Ego {
 namespace Math {
 
-template <typename ... T>
-struct Translate;
-
-/** 
- * @brief
- *  The interface of an entity that can be translated.
- * @tparam _VectorSpaceType
- *  the vector space type
- */
-template <typename _VectorSpaceType>
-struct Translatable {
-    /**
-     * @brief
-     *  The vector space type.
-     */
-    typedef _VectorSpaceType VectorSpaceType;
-    /** 
-     * @brief
-     *  The vector type.
-     */
-    typedef Vector<typename VectorSpaceType::ScalarFieldType, VectorSpaceType::dimensionality()> VectorType;
-    /** 
-     * @brief
-     *  Translate this entity.
-     * @param t
-     *  the translation vector
-     */
-    virtual void translate(const VectorType& t) = 0;
+template <typename _EuclideanSpaceType>
+struct Translate<Cone3<_EuclideanSpaceType, void>> {
+    typedef Cone3<_EuclideanSpaceType, void> X;
+    typedef typename _EuclideanSpaceType::VectorType T;
+    X operator()(const X& x, const T& t) const {
+        return X(typename X::Cookie(), x.getOrigin() + t, x.getAxis(), x.getAngle());
+    }
 };
+
+template <typename _EuclideanSpaceType>
+Cone3<_EuclideanSpaceType, void> translate(const Cone3<_EuclideanSpaceType, void>& x, const typename _EuclideanSpaceType::VectorType& t) {
+    Translate<Cone3<_EuclideanSpaceType, void>> f;
+    return f(x, t);
+}
 
 } // namespace Math
 } // namespace Ego

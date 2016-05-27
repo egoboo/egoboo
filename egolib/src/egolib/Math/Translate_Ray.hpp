@@ -17,36 +17,31 @@
 //*
 //********************************************************************************************
 
-/// @file  egolib/Math/Rect2.hpp
-/// @brief 2D rectangle.
+/// @file egolib/Math/Translate_Ray.hpp
+/// @brief Translation of rays.
+/// @author Michael Heilmann
+
+#pragma once
+
+#include "egolib/Math/Ray.hpp"
 
 namespace Ego {
 namespace Math {
 
-template <typename _ScalarType>
-class Rect2 : public Internal::Entity<Ego::Math::VectorSpace<Ego::Math::Field<_ScalarType>, 2>> {
-	/**
-	 * @brief
-	 *  @a MyType is the type of this template/template specialization.
-	 */
-	typedef Rect2<_ScalarType> MyType;
-	/**
-	 * @brief
-	 *  The entity type.
-	 */
-	typedef typename Internal::Entity<Ego::Math::VectorSpace<Ego::Math::Field<_ScalarType>, 3>> EntityType;
-	/**
-	 * @brief
-	 *  The scalar type.
-	 */
-	typedef EntityType::ScalarType ScalarType;
-
-	/**
-	 * @brief
-	 *  The vector type.
-	 */
-	typedef EntityType::VectorType VectorType;
+template <typename _EuclideanSpaceType>
+struct Translate<Ray<_EuclideanSpaceType>> {
+    typedef Ray<_EuclideanSpaceType> X;
+    typedef typename _EuclideanSpaceType::VectorType T;
+    X operator()(const X& x, const T& t) const {
+        return X(x.getOrigin() + t, x.getDirection());
+    }
 };
+
+template <typename _EuclideanSpaceType>
+Ray<_EuclideanSpaceType> translate(const Ray<_EuclideanSpaceType>& x, const typename _EuclideanSpaceType::VectorType& t) {
+    Translate<Ray<_EuclideanSpaceType>> f;
+    return f(x, t);
+}
 
 } // namespace Math
 } // namespace Ego

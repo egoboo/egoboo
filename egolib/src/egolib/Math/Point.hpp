@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Math/Point.hpp
-/// @brief  Points.
+/// @file egolib/Math/Point.hpp
+/// @brief Points.
 /// @author Michael Heilmann
 
 #pragma once
@@ -259,7 +259,6 @@ public:
         static const auto v = MyType(g, IndexSequence{});
         return v;
     }
-
 
 }; // struct Point
 

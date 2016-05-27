@@ -94,7 +94,7 @@ void Frustum::calculatePlanes(const Matrix4f4f& projection, const Matrix4f4f& vi
  *  <tr><td>\f$z' < w'\f$ </td><td>inside half-space of far    clipping plane</td></tr>
  *	</table></center>
  *  in order to be rendered.
- *@remark
+ * @remark
  *	This relation allows for frustum plane extraction.
  *	Expanding those inequalities, we obtain
  *
@@ -319,7 +319,7 @@ Math::Relation Frustum::intersects(const Sphere3f& sphere, const bool doEnds) co
 	return result;
 }
 
-Math::Relation Frustum::intersects(const Cube3f& cube, const bool doEnds) const {
+Math::Relation Frustum::intersects(const AxisAlignedCube3f& aac, const bool doEnds) const {
 	// Assume the cube is inside the frustum.
 	Math::Relation result = Math::Relation::inside;
 
@@ -333,11 +333,11 @@ Math::Relation Frustum::intersects(const Cube3f& cube, const bool doEnds) const 
 		// find the most-positive and most-negative points of the aabb
 		for (int j = 0; j < 3; j++) {
 			if (plane.getNormal()[j] > 0.0f) {
-				vmin[j] = cube.getCenter()[j] - cube.getSize();
-				vmax[j] = cube.getCenter()[j] + cube.getSize();
+				vmin[j] = aac.getCenter()[j] - aac.getSize();
+				vmax[j] = aac.getCenter()[j] + aac.getSize();
 			} else {
-				vmin[j] = cube.getCenter()[j] + cube.getSize();
-				vmax[j] = cube.getCenter()[j] - cube.getSize();
+				vmin[j] = aac.getCenter()[j] + aac.getSize();
+				vmax[j] = aac.getCenter()[j] - aac.getSize();
 			}
 		}
 
@@ -359,11 +359,11 @@ Math::Relation Frustum::intersects(const Cube3f& cube, const bool doEnds) const 
 	return result;
 }
 
-Math::Relation Frustum::intersects(const AABB3f& aabb, bool doEnds) const {
-    return intersects_aabb(aabb.getMin(), aabb.getMax(), doEnds);
+Math::Relation Frustum::intersects(const AxisAlignedBox3f& aabb, bool doEnds) const {
+    return intersects_aab(aabb.getMin(), aabb.getMax(), doEnds);
 }
 
-Math::Relation Frustum::intersects_aabb(const Point3f& mins, const Point3f& maxs, bool doEnds) const {
+Math::Relation Frustum::intersects_aab(const Point3f& mins, const Point3f& maxs, bool doEnds) const {
     // Handle optional parameters.
     int start = 0,
         end = doEnds ? Planes::END : Planes::SIDES_END;
@@ -374,12 +374,12 @@ Math::Relation Frustum::intersects_aabb(const Point3f& mins, const Point3f& maxs
     // scan through the planes until something happens
     int i;
     for (i = start; i <= end; i++) {
-		if (Math::Relation::outside == plane_intersects_aabb_max(_planes[i], mins, maxs)) {
+		if (Math::Relation::outside == plane_intersects_aab_max(_planes[i], mins, maxs)) {
 			result = Math::Relation::outside;
             break;
         }
 
-		if (Math::Relation::outside == plane_intersects_aabb_min(_planes[i], mins, maxs)) {
+		if (Math::Relation::outside == plane_intersects_aab_min(_planes[i], mins, maxs)) {
 			result = Math::Relation::intersect;
             break;
         }
@@ -392,7 +392,7 @@ Math::Relation Frustum::intersects_aabb(const Point3f& mins, const Point3f& maxs
 
         // This eliminates a geometry_inside == retval test in every iteration of the loop
         for ( /* nothing */; i <= end; i++) {
-			if (Math::Relation::outside == plane_intersects_aabb_max(_planes[i], mins, maxs)) {
+			if (Math::Relation::outside == plane_intersects_aab_max(_planes[i], mins, maxs)) {
 				result = Math::Relation::outside;
                 break;
             }
@@ -403,8 +403,8 @@ Math::Relation Frustum::intersects_aabb(const Point3f& mins, const Point3f& maxs
 }
 
 bool Frustum::intersects(const oct_bb_t& oct, const bool doEnds) const {
-	AABB3f aabb = oct.toAABB();
-	Math::Relation result = intersects_aabb(aabb.getMin(), aabb.getMax(), doEnds);
+	auto aab = oct.toAxisAlignedBox();
+	Math::Relation result = intersects_aab(aab.getMin(), aab.getMax(), doEnds);
 
 	return result > Math::Relation::outside;
 }

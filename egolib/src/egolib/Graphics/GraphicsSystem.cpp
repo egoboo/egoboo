@@ -22,7 +22,7 @@ void GraphicsSystem::initialize() {
     SDLX_video_parameters_t::download(sdl_vparam, egoboo_config_t::get());
 
     // Set immutable parameters.
-    sdl_vparam.flags.opengl = true;
+    sdl_vparam.windowProperties.opengl = true;
     sdl_vparam.gl_att.doublebuffer = true;
     sdl_vparam.gl_att.accelerated_visual = GL_TRUE;
     sdl_vparam.gl_att.accumulationBufferDepth = Ego::ColourDepth(32, 8, 8, 8, 8);
@@ -40,7 +40,7 @@ void GraphicsSystem::initialize() {
         if (egoboo_config_t::get().graphic_fullscreen.getValue()) {
             Log::get().info("SDL error with fullscreen mode on: %s\n", SDL_GetError());
             Log::get().info("Trying again in windowed mode...\n");
-            sdl_vparam.flags.full_screen = SDL_FALSE;
+            sdl_vparam.windowProperties.fullscreen = false;
             if (!SDL_GL_set_mode(nullptr, &sdl_vparam, &ogl_vparam, Ego::GraphicsSystem::initialized)) {
                 Log::get().message("Failed!\n");
             } else {

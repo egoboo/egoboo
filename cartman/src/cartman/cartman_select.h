@@ -46,7 +46,7 @@ public:
 		return self._which[index];
 	}
 
-	static void init(select_lst_t& self, cartman_mpd_t *pmesh);
+	void init(cartman_mpd_t *pmesh);
 	/**
 	 * @brief
 	 *  Ensure that no vertex is selected.
@@ -89,14 +89,14 @@ public:
 	 */
 	int count() const;
 
-	static void synch_mesh(select_lst_t& self, cartman_mpd_t *mesh);
+	void synch_mesh(cartman_mpd_t *mesh);
 	/**
 	 * @brief
 	 *	Set the mesh of this selection list.
 	 * @param mesh
 	 *  a pointer to the mesh or a null pointer
 	 */
-	static void set_mesh(select_lst_t& self, cartman_mpd_t *mesh);
+	void set_mesh(cartman_mpd_t *mesh);
 	/**
 	 * @brief
 	 *  Get the mesh of this selection list.

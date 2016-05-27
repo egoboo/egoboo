@@ -1043,14 +1043,14 @@ void draw_passages(Camera& cam)
     Ego::Renderer::get().setWorldMatrix(Matrix4f4f::identity());
 
     for(int i = 0; i < _currentModule->getPassageCount(); ++i) {
-        const AABB2f& passageAABB = _currentModule->getPassageByID(i)->getAABB2f();
+        const AxisAlignedBox2f& passageABB = _currentModule->getPassageByID(i)->getAxisAlignedBox2f();
 
         //AABB2f to octagonal collision box
         oct_bb_t bb;
-        bb._mins[OCT_X] = passageAABB.getMin().x();
-        bb._maxs[OCT_X] = passageAABB.getMax().x();
-        bb._mins[OCT_Y] = passageAABB.getMin().y();
-        bb._maxs[OCT_Y] = passageAABB.getMax().y();
+        bb._mins[OCT_X] = passageABB.getMin().x();
+        bb._maxs[OCT_X] = passageABB.getMax().x();
+        bb._mins[OCT_Y] = passageABB.getMin().y();
+        bb._maxs[OCT_Y] = passageABB.getMax().y();
 
         bb._mins[OCT_XY] = bb._mins[OCT_X];
         bb._maxs[OCT_XY] = bb._maxs[OCT_X];

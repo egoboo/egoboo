@@ -454,7 +454,7 @@ public:
 	/** @override */
 	BIT_FIELD test_wall(const Vector3f& pos) override;
 
-    inline const AABB2f& getAABB2D() const { return _objectPhysics.getAABB2D(); }
+    inline const AxisAlignedBox2f& getAxisAlignedBox2D() const { return _objectPhysics.getAxisAlignedBox2D(); }
 
     /**
     * @brief

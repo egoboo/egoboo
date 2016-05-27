@@ -34,16 +34,16 @@ select_lst_t& select_lst_default()
 
 //--------------------------------------------------------------------------------------------
 
-void select_lst_t::init(select_lst_t& self, cartman_mpd_t *pmesh)
+void select_lst_t::init(cartman_mpd_t *pmesh)
 {
     // get proper mesh
     if (!pmesh) pmesh = &mesh;
 
     // clear the list
-    self.clear();
+    clear();
 
     // attach the correct mesh
-    self._pmesh = pmesh;
+    _pmesh = pmesh;
 }
 
 void select_lst_t::clear()
@@ -129,19 +129,19 @@ int select_lst_t::count() const
     return _count;
 }
 
-void select_lst_t::synch_mesh(select_lst_t& self, cartman_mpd_t *pmesh)
+void select_lst_t::synch_mesh(cartman_mpd_t *pmesh)
 {
-    if ( NULL == self._pmesh ) self._pmesh = pmesh;
-    if ( NULL == self._pmesh ) self._pmesh = &mesh;
+    if ( NULL == _pmesh ) _pmesh = pmesh;
+    if ( NULL == _pmesh ) _pmesh = &mesh;
 }
 
-void select_lst_t::set_mesh( select_lst_t& self, cartman_mpd_t *pmesh )
+void select_lst_t::set_mesh( cartman_mpd_t *pmesh )
 {
     if (!pmesh) pmesh = &mesh;
 
-    if (self._pmesh != pmesh)
+    if (_pmesh != pmesh)
     {
-        select_lst_t::init(self, pmesh);
+        init(pmesh);
     }
 }
 

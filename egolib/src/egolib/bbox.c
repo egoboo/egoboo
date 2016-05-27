@@ -23,7 +23,7 @@
 
 #include "egolib/bbox.h"
 #include "egolib/_math.h"
-#include "egolib/Math/AABB.hpp"
+#include "egolib/Math/_Include.hpp"
 
 const oct_vec_v2_t oct_vec_v2_t::Zero = oct_vec_v2_t();
 

@@ -263,7 +263,7 @@ private:
 public:
 	float _edge_x; ///< Limits.
 	float _edge_y;
-    AABB3f _bbox;                 ///< bounding box for the entire mesh
+    AxisAlignedBox3f _bbox;                 ///< bounding box for the entire mesh
 
 	std::unique_ptr<GLXvector3f[]> _plst;                 ///< the position list
     std::unique_ptr<GLXvector2f[]> _tlst;                 ///< the texture coordinate list
