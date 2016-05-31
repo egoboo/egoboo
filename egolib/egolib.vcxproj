@@ -429,7 +429,6 @@
     <ClCompile Include="src\egolib\FileFormats\spawn_file.c" />
     <ClCompile Include="src\egolib\FileFormats\template.c" />
     <ClCompile Include="src\egolib\FileFormats\wawalite_file.c" />
-    <ClCompile Include="src\egolib\math\LERP.cpp" />
     <ClCompile Include="src\egolib\IDSZ.cpp" />
     <ClCompile Include="src\egolib\Audio\AudioSystem.cpp" />
     <ClCompile Include="src\egolib\Script\Buffer.cpp" />
@@ -497,6 +496,12 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Math\Generator_ColourRgba.hpp" />
+    <ClInclude Include="src\egolib\Math\Generator_ColourRgb.hpp" />
+    <ClInclude Include="src\egolib\Math\LinearInterpolation_ColourRgba.hpp" />
+    <ClInclude Include="src\egolib\Math\LinearInterpolation_ColourRgb.hpp" />
+    <ClInclude Include="src\egolib\Math\LinearInterpolate_Real.hpp" />
+    <ClInclude Include="src\egolib\Math\LinearInterpolate_Point.hpp" />
     <ClInclude Include="src\egolib\Math\Translate_AxisAlignedBox.hpp" />
     <ClInclude Include="src\egolib\Math\Translate_Cone3.hpp" />
     <ClInclude Include="src\egolib\Math\Translate_AxisAlignedCube.hpp" />
@@ -671,7 +676,7 @@
     <ClInclude Include="src\egolib\FileFormats\template.h" />
     <ClInclude Include="src\egolib\FileFormats\wawalite_file.h" />
     <ClInclude Include="src\egolib\Math\Cone3.hpp" />
-    <ClInclude Include="src\egolib\math\LERP.hpp" />
+    <ClInclude Include="src\egolib\math\LinearInterpolate.hpp" />
     <ClInclude Include="src\egolib\Math\Math.hpp" />
     <ClInclude Include="src\egolib\Core\CollectionUtilities.hpp" />
     <ClInclude Include="src\egolib\Core\StringUtilities.hpp" />
@@ -756,6 +761,7 @@
       <FileType>Document</FileType>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</DeploymentContent>
     </ClInclude>
+    <None Include="src\egolib\Math\LinearInterpolate_Vector.hpp" />
     <None Include="src\egolib\Math\ColourL.hpp" />
     <None Include="src\egolib\Script\Functions.in" />
     <None Include="src\egolib\Script\Operators.in" />

@@ -23,6 +23,7 @@
 
 #pragma once
 
+#include "egolib/Math/TemplateUtilities.hpp"
 #include "egolib/Math/Zero.hpp"
 #include "egolib/Math/One.hpp"
 #include "egolib/Float.hpp"
@@ -30,20 +31,6 @@
 namespace Ego {
 namespace Math {
 
-template <typename T>
-struct IsReal {
-    static constexpr bool value =
-        std::is_floating_point<T>::value;
-};
-
-template <typename T>
-struct IsInteger {
-    static constexpr bool value =
-        std::is_same<short, T>::value ||
-        std::is_same<int, T>::value ||
-        std::is_same<long, T>::value ||
-        std::is_same<long long, T>::value;
-};
 
 /**
  * @brief

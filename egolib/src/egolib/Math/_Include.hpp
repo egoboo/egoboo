@@ -25,12 +25,19 @@
 //
 #include "egolib/Math/Math.hpp"
 #include "egolib/Math/Convex.hpp"
-#include "egolib/Math/LERP.hpp"
 #include "egolib/Math/Random.hpp"
 #include "egolib/Math/Standard.hpp"
 #include "egolib/Math/Transform.hpp"
 #include "egolib/Math/VectorProjection.hpp"
 #include "egolib/Math/VectorRejection.hpp"
+
+//
+#include "egolib/Math/LinearInterpolate.hpp"
+#include "egolib/Math/LinearInterpolate_Point.hpp"
+#include "egolib/Math/LinearInterpolate_Real.hpp"
+#include "egolib/Math/LinearInterpolate_Vector.hpp"
+#include "egolib/Math/LinearInterpolation_ColourRgb.hpp"
+#include "egolib/Math/LinearInterpolation_ColourRgba.hpp"
 
 //
 #include "egolib/Math/Contains_AxisAlignedBox_AxisAlignedBox.hpp"

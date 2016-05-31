@@ -301,7 +301,7 @@ public:
      *  \f}
      */
     ScalarType distance(const PointType& point) const {
-        return _n.dot(EuclideanSpaceType::toVector(point)) + _d;
+        return _n.dot(PointType::toVector(point)) + _d;
     }
 
 	/**

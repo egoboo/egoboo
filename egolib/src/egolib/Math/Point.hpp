@@ -51,6 +51,7 @@ public:
 
 public:
     /// @brief The type of this template/template specialization.
+    typedef Point<VectorSpaceType> PointType;
     typedef Point<VectorSpaceType> MyType;
     /// @brief The tuple type.
     typedef Tuple<ScalarType, MyType::dimensionality()> TupleType;
@@ -258,6 +259,27 @@ public:
         static const ConstantGenerator<ScalarType> g(ScalarFieldType::additiveNeutral());
         static const auto v = MyType(g, IndexSequence{});
         return v;
+    }
+
+
+private:
+    /**
+    * @brief Invoke the constructor of type <tt>TargetType</tt> with
+    * passing the arguments <tt>source[0]</tt>,<tt>source[1]</tt>, ...,
+    * <tt>source[n]</tt>.
+    * @todo Can we re-use this in other places?
+    */
+    template <typename TargetType, typename SourceType, std::size_t... Index>
+    static decltype(auto) invoke(const SourceType& source, std::index_sequence<Index ...>) {
+        return TargetType(source[Index]...);
+    }
+
+public:
+    static decltype(auto) toVector(const PointType& source) {
+        return invoke<VectorType>(source, std::make_index_sequence<MyType::dimensionality()>{});
+    }
+    static decltype(auto) toPoint(const VectorType& source) {
+        return invoke<PointType>(source, std::make_index_sequence<MyType::dimensionality()>{});
     }
 
 }; // struct Point

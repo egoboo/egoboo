@@ -228,9 +228,6 @@
     <ClCompile Include="src\egolib\IDSZ.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\math\LERP.cpp">
-      <Filter>Source Files\Math</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\FileFormats\configfile.c">
       <Filter>File Formats</Filter>
     </ClCompile>
@@ -640,9 +637,6 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Core\StringUtilities.hpp">
       <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\math\LERP.hpp">
-      <Filter>Header Files\Math</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\FileFormats\configfile.h">
       <Filter>File Formats</Filter>
@@ -1193,6 +1187,27 @@
     <ClInclude Include="src\egolib\Math\Translate_AxisAlignedCube.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
+    <ClInclude Include="src\egolib\Math\LinearInterpolate_Point.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\LinearInterpolate_Real.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\LinearInterpolation_ColourRgb.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\LinearInterpolation_ColourRgba.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\math\LinearInterpolate.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Generator_ColourRgba.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Generator_ColourRgb.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\egolib\platform\NSFileManager+DirectoryLocations.m">
@@ -1217,6 +1232,9 @@
       <Filter>Header Files\Script</Filter>
     </None>
     <None Include="src\egolib\Math\ColourL.hpp">
+      <Filter>Header Files\Math</Filter>
+    </None>
+    <None Include="src\egolib\Math\LinearInterpolate_Vector.hpp">
       <Filter>Header Files\Math</Filter>
     </None>
   </ItemGroup>

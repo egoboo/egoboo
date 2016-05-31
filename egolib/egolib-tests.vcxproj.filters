@@ -68,5 +68,8 @@
     <ClCompile Include="tests\egolib\Tests\Math\Translate.cpp">
       <Filter>Source Files\Math</Filter>
     </ClCompile>
+    <ClCompile Include="tests\egolib\Tests\Math\LinearInterpolation.cpp">
+      <Filter>Source Files\Math</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

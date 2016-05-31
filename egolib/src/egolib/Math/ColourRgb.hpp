@@ -215,6 +215,18 @@ public:
                       ColourSpaceType::max() - this->getBlue());
     }
 
+public:
+    bool operator==(const MyType& other) const {
+        return getRed() == other.getRed()
+            && getGreen() == other.getGreen()
+            && getBlue() == other.getBlue();
+    }
+    bool operator!=(const MyType& other) const {
+        return getRed() != other.getRed()
+            || getGreen() != other.getGreen()
+            || getBlue() != other.getBlue();
+    }
+
 }; // struct Colour
 
 } // Math

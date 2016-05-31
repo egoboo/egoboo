@@ -26,6 +26,26 @@
 #include "egolib/platform.h"
 
 namespace Ego {
+
+namespace Math {
+
+template <typename T>
+struct IsReal {
+    static constexpr bool value =
+        std::is_floating_point<T>::value;
+};
+
+template <typename T>
+struct IsInteger {
+    static constexpr bool value =
+        std::is_same<short, T>::value ||
+        std::is_same<int, T>::value ||
+        std::is_same<long, T>::value ||
+        std::is_same<long long, T>::value;
+};
+
+}
+
 namespace Core {
 
 /**
@@ -35,8 +55,8 @@ namespace Core {
  * @todo
  *  Make more general and simplify.
  */
-
 template <bool...> struct BoolPack;
+
 /**
  * @brief
  *  Provide a member constant value <tt>value</tt>.
@@ -46,6 +66,7 @@ template <bool...> struct BoolPack;
  */
 template <bool... v>
 using AllTrue  = std::is_same<BoolPack<true, v...>, BoolPack<v..., true>>;
+
 /**
  * @brief
  *  Provide a mamber constant value <tt>value</tt>.
@@ -55,6 +76,7 @@ using AllTrue  = std::is_same<BoolPack<true, v...>, BoolPack<v..., true>>;
  */
 template <bool... v>
 using AllFalse = std::is_same<BoolPack<false, v...>, BoolPack<v..., false>>;
+
 /** 
  * @brief
  *  Provide member constant value <tt>value</tt>.
