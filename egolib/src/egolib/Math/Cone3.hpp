@@ -25,7 +25,7 @@
 
 #include "egolib/Math/Angle.hpp"
 #include "egolib/Math/EuclideanSpace.hpp"
-#include "egolib/Math/Translatable.hpp"
+#include "egolib/Math/Functors/Translate.hpp"
 
 namespace Ego {
 namespace Math {
@@ -69,7 +69,7 @@ namespace Math {
  *  outside of the cone.
  */
 template <typename _EuclideanSpaceType, typename _EnabledType = std::enable_if_t<_EuclideanSpaceType::dimensionality() == 3>>
-struct Cone3 : public Translatable<typename _EuclideanSpaceType::VectorSpaceType> {
+struct Cone3 {
 public:
     Ego_Math_EuclideanSpace_CommonDefinitions(Cone3);
 
@@ -226,11 +226,6 @@ public:
         return origin != other.origin
             || axis != other.axis
             || angle != other.angle;
-    }
-
-    /** @copydoc Ego::Math::Translatable */
-    void translate(const VectorType& t) override {
-        origin += t;
     }
 
 protected:

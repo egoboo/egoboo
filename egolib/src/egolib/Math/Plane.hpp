@@ -25,7 +25,7 @@
 
 
 #include "egolib/Math/EuclideanSpace.hpp"
-#include "egolib/Math/Translatable.hpp"
+#include "egolib/Math/Functors/Translate.hpp"
 
 
 namespace Ego {
@@ -43,7 +43,7 @@ namespace Math {
  *  Michael Heilmann
  */
 template <typename _EuclideanSpaceType, typename _EnabledType = std::enable_if_t<_EuclideanSpaceType::dimensionality() == 3>>
-struct Plane3 : public Translatable<typename _EuclideanSpaceType::VectorSpaceType> {
+struct Plane3 {
 public:
     Ego_Math_EuclideanSpace_CommonDefinitions(Plane3);
 
@@ -325,47 +325,6 @@ public:
 	 */
 	VectorType getPoint() const {
 		return _n * (-_d);
-	}
-
-	/**
-	 * @remark
-	 *	The first (slow) method to compute the translation of a plane \f$\hat{n} \cdot P + d = 0\f$
-	 *	is to compute a point on the plane, translate the point, and compute from the new point and
-	 *	and the old plane normal the new plane:
-	 *	To translate a plane \f$\hat{n} \cdot P + d = 0\f$, compute a point on the plane
-	 *	\f$X\f$ (i.e. a point \f$\hat{n} \cdot X + d = 0\f$) by
-	 *	\f{align*}{
-	 *	X = (-d) \cdot \hat{n}
-	 *	\f}
-	 *	Translate the point \f$X\f$ by \f$\vec{t}\f$ into a new point \f$X'\f$:
-	 *	\f{align*}{
-	 *	X' = X + \vec{t}
-	 *	\f}
-	 *	and compute the new plane
-	 *	\f{align*}{
-	 *	\hat{n} \cdot P + d' = 0, d' = -\left(\hat{n} \cdot X'\right)
-	 *	\f}
-	 * @remark
-	 *	The above method is not the fastest method. Observing that the old and the new plane equation only
-	 *	differ by \f$d\f$ and \f$d'\f$, a faster method of translating a plane can be devised by computing
-	 *	\f$d'\f$ directly. Expanding \f$d'\f$ gives
-	 *	\f{align*}{
-	 *	d' =& -\left(\hat{n} \cdot X'\right)\\
-	 *     =& -\left[\hat{n} \cdot \left((-d) \cdot \hat{n} + \vec{t}\right)\right]\\
-	 *     =& -\left[(-d) \cdot \hat{n} \cdot \hat{n} + \hat{n} \cdot \vec{t}\right]\\
-	 *     =& -\left[-d + \hat{n} \cdot \vec{t}\right]\\
-	 *     =& d - \hat{n} \cdot \vec{t}
-	 *	\f}
-	 *	The new plane can then be computed by
-	 *	\f{align*}{
-	 *	\hat{n} \cdot P + d' = 0, d' = d - \hat{n} \cdot \vec{t}
-	 *	\f}
-	 * @param t
-	 *	the translation vector
-	 * @copydoc Ego::Math::translatable
-	 */
-	void translate(const VectorType& t) override {
-		_d -= _n.dot(t);
 	}
 
 protected:

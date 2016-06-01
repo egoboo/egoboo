@@ -25,14 +25,14 @@
 
 
 #include "egolib/Math/EuclideanSpace.hpp"
-#include "egolib/Math/Translatable.hpp"
+#include "egolib/Math/Functors/Translate.hpp"
 
 
 namespace Ego {
 namespace Math {
 
 template <typename _EuclideanSpaceType>
-struct AxisAlignedCube : public Translatable<typename _EuclideanSpaceType::VectorSpaceType> {
+struct AxisAlignedCube {
 public:
     Ego_Math_EuclideanSpace_CommonDefinitions(AxisAlignedCube);
 
@@ -185,11 +185,6 @@ public:
         return _center != other._center
             || _size != other._size;
     }
-
-	/** @copydoc Ego::Math::translatable */
-	void translate(const VectorType& t) override {
-		_center += t;
-	}
 
 }; // struct AxisAlignedCube
 

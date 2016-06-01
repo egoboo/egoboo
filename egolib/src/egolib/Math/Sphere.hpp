@@ -24,7 +24,6 @@
 #pragma once
 
 #include "egolib/Math/EuclideanSpace.hpp"
-#include "egolib/Math/Translatable.hpp"
 
 namespace Ego {
 namespace Math {
@@ -36,7 +35,7 @@ namespace Math {
  *  The terms the/a "sphere object" and the/a "sphere" are synonyms.
  */
 template <typename _EuclideanSpaceType>
-struct Sphere : public Translatable<typename _EuclideanSpaceType::VectorSpaceType> {
+struct Sphere {
 public:
     Ego_Math_EuclideanSpace_CommonDefinitions(Sphere);
 
@@ -214,27 +213,9 @@ public:
             || _radius != other._radius;
     }
 
-	/** @copydoc Ego::Math::translatable */
-	void translate(const VectorType& t) override {
-		_center += t;
-	}
-
 }; // struct Sphere
 
-template <typename _EuclideanSpaceType>
-struct Translate<Sphere<_EuclideanSpaceType>> {
-    typedef Sphere<_EuclideanSpaceType> X;
-    typedef typename _EuclideanSpaceType::VectorType T;
-    X operator()(const X& x, const T& t) const {
-        return X(x.getCenter() + t, x.getRadius());
-    }
-};
 
-template <typename _EuclideanSpaceType>
-Sphere<_EuclideanSpaceType> translate(const Sphere<_EuclideanSpaceType>& x, const typename _EuclideanSpaceType::VectorType& t) {
-    Translate<Sphere<_EuclideanSpaceType>> f;
-    return f(x, t);
-}
 
 } // namespace Math
 } // namespace Ego

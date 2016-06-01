@@ -217,14 +217,14 @@ public:
 
 public:
     bool operator==(const MyType& other) const {
-        return getRed() == other.getRed()
-            && getGreen() == other.getGreen()
-            && getBlue() == other.getBlue();
+        return this->getRed() == other.getRed()
+            && this->getGreen() == other.getGreen()
+            && this->getBlue() == other.getBlue();
     }
     bool operator!=(const MyType& other) const {
-        return getRed() != other.getRed()
-            || getGreen() != other.getGreen()
-            || getBlue() != other.getBlue();
+        return this->getRed() != other.getRed()
+            || this->getGreen() != other.getGreen()
+            || this->getBlue() != other.getBlue();
     }
 
 }; // struct Colour

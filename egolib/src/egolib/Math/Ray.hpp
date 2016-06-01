@@ -24,7 +24,6 @@
 #pragma once
 
 #include "egolib/Math/EuclideanSpace.hpp"
-#include "egolib/Math/Translatable.hpp"
 
 namespace Ego {
 namespace Math {
@@ -34,7 +33,7 @@ namespace Math {
  * The set of points of a ray is given by \f$\left\{ O + t \vec{d} | t \in \subseteq \mathbb{R}_{\geq 0} \right\}$.
  */
 template <typename _EuclideanSpaceType>
-struct Ray : public Translatable<typename _EuclideanSpaceType::VectorSpaceType> {
+struct Ray {
 public:
     Ego_Math_EuclideanSpace_CommonDefinitions(Ray);
 
@@ -110,11 +109,6 @@ public:
     bool operator!=(const MyType& other) const {
         return origin != other.origin
             || direction != other.direction;
-    }
-
-    /** @copydoc Ego::Math::Translatable */
-    void translate(const VectorType& t) override {
-        origin += t;
     }
 
 }; // struct Ray
