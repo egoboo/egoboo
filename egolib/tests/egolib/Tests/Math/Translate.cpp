@@ -25,37 +25,44 @@ namespace Math {
 namespace Test {
 
 EgoTest_TestCase(Translate) {
+    EgoTest_Test(Point3f) {
+        auto t = Vector3f(+1.0f, +1.0f, +1.0f);
+        auto x = ::Point3f(-1.0f, -1.0f, -1.0f);
+        auto y = translate(x, t);
+        y = translate(y, -t);
+        EgoTest_Assert(x == y);
+    }
     EgoTest_Test(AxisAlignedBox3f) {
         auto t = Vector3f(+1.0f, +1.0f, +1.0f);
-        auto x = ::AxisAlignedBox3f(Point3f(-1.0f, -1.0f, -1.0f), Point3f(+1.0f, +1.0f, +1.0f));
+        auto x = ::AxisAlignedBox3f(::Point3f(-1.0f, -1.0f, -1.0f), ::Point3f(+1.0f, +1.0f, +1.0f));
         auto y = translate(x, t);
         y = translate(y, -t);
         EgoTest_Assert(x == y);
     }
     EgoTest_Test(AxisAlignedCube3f) {
         auto t = Vector3f(+1.0f, +1.0f, +1.0f);
-        auto x = ::AxisAlignedCube3f(Point3f(0.0f, 0.0f, 0.0f), 1.0f);
+        auto x = ::AxisAlignedCube3f(::Point3f(0.0f, 0.0f, 0.0f), 1.0f);
         auto y = translate(x, t);
         y = translate(y, -t);
         EgoTest_Assert(x == y);
     }
     EgoTest_Test(Sphere3f) {
         auto t = Vector3f(+1.0f, +1.0f, +1.0f);
-        auto x = ::Sphere3f(Point3f(0.0f, 0.0f, 0.0f), +1.0f);
+        auto x = ::Sphere3f(::Point3f(0.0f, 0.0f, 0.0f), +1.0f);
         auto y = translate(x, t);
         y = translate(y, -t);
         EgoTest_Assert(x == y);
     }
     EgoTest_Test(Line3f) {
         auto t = Vector3f(+1.0f, +1.0f, +1.0f);
-        auto x = ::Line3f(Point3f(-1.0f, -1.0f, -1.0f), Point3f(-1.0f, -1.0f, -1.0f));
+        auto x = ::Line3f(::Point3f(-1.0f, -1.0f, -1.0f), ::Point3f(-1.0f, -1.0f, -1.0f));
         auto y = translate(x, t);
         y = translate(y, -t);
         EgoTest_Assert(x == y);
     }
     EgoTest_Test(Ray3f) {
         auto t = Vector3f(+1.0f, +1.0f, +1.0f);
-        auto x = ::Ray3f(Point3f(0.0f, 0.0f, 0.0f), Vector3f(+1.0f,+1.0f,+1.0f));
+        auto x = ::Ray3f(::Point3f(0.0f, 0.0f, 0.0f), Vector3f(+1.0f,+1.0f,+1.0f));
         auto y = translate(x, t);
         y = translate(y, -t);
         EgoTest_Assert(x == y);

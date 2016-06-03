@@ -40,7 +40,7 @@ namespace Math {
  *  must fulfil the <em>dimensionality</em> concept
  */
 template <typename _EuclideanSpaceType>
-struct AxisAlignedBox : public Translatable<typename _EuclideanSpaceType::VectorSpaceType> {
+struct AxisAlignedBox {
 public:
     Ego_Math_EuclideanSpace_CommonDefinitions(AxisAlignedBox);
 
@@ -210,12 +210,6 @@ public:
         return _min != other._min
             || _max != other._max;
     }
-
-	/** @copydoc Ego::Math::translatable */
-	void translate(const VectorType& t) override {
-		_min += t;
-		_max += t;
-	}
 
 }; // struct AxisAlignedBox
 

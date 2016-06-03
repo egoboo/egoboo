@@ -256,6 +256,19 @@ public:
                       this->getAlpha());
     }
 
+public:
+    bool operator==(const MyType& other) const {
+        return this->getRed() == other.getRed()
+            && this->getGreen() == other.getGreen()
+            && this->getBlue() == other.getBlue()
+            && this->getAlpha() == other.getAlpha();
+    }
+    bool operator!=(const MyType& other) const {
+        return this->getRed() != other.getRed()
+            || this->getGreen() != other.getGreen()
+            || this->getBlue() != other.getBlue()
+            || this->getAlpha() != other.getAlpha();
+    }
 };
 
 } // namespace Math

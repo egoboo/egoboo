@@ -24,7 +24,6 @@
 #pragma once
 
 
-#include "egolib/Math/Translatable.hpp"
 #include "egolib/Math/EuclideanSpace.hpp"
 
 
@@ -42,7 +41,7 @@ namespace Math {
 *  where \$A, B\f$ are location vectors in \f$\mathbb{R}^n\f$.
 */
 template <typename _EuclideanSpaceType>
-struct Line : public Translatable<typename _EuclideanSpaceType::VectorSpaceType> {
+struct Line {
 public:
     Ego_Math_EuclideanSpace_CommonDefinitions(Line);
 
@@ -141,12 +140,6 @@ public:
     bool operator!=(const MyType& other) const {
         return a != other.b
             || a != other.b;
-    }
-
-    /** @copydoc Translatable::translate */
-    virtual void translate(const VectorType& t) {
-        a += t;
-        b += t;
     }
 
 }; // struct Line

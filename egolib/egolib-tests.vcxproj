@@ -27,6 +27,7 @@
     <ClInclude Include="tests\egolib\Tests\Math\MathTestUtilities.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="tests\egolib\Tests\Math\Interpolate_Linear.cpp" />
     <ClCompile Include="tests\egolib\Tests\Math\Translate.cpp" />
     <ClCompile Include="tests\egolib\Tests\Compilation.cpp" />
     <ClCompile Include="tests\egolib\Tests\Math\ColourMath.cpp" />

@@ -130,6 +130,9 @@
     <Filter Include="Header Files\Signal">
       <UniqueIdentifier>{882ff1f1-8551-405a-9975-5ea8dbfdaf46}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Math\Functors">
+      <UniqueIdentifier>{0b01a8e7-fe6d-438a-8459-bd880b264074}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\egolib\_math.c">
@@ -227,9 +230,6 @@
     </ClCompile>
     <ClCompile Include="src\egolib\IDSZ.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\math\LERP.cpp">
-      <Filter>Source Files\Math</Filter>
     </ClCompile>
     <ClCompile Include="src\egolib\FileFormats\configfile.c">
       <Filter>File Formats</Filter>
@@ -641,9 +641,6 @@
     <ClInclude Include="src\egolib\Core\StringUtilities.hpp">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\math\LERP.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\FileFormats\configfile.h">
       <Filter>File Formats</Filter>
     </ClInclude>
@@ -849,9 +846,6 @@
       <Filter>Header Files\Math</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Math\VectorSpace.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Math\Translatable.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Math\Cone3.hpp">
@@ -1082,34 +1076,7 @@
     <ClInclude Include="src\egolib\Math\Colour.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Math\Contains.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Math\Contains_Sphere_Point.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Math\Intersects.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Math\Intersects_Point_Point.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\math\Sphere.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Math\Intersects_Sphere_Point.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Math\Intersects_Sphere_Sphere.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Math\Contains_Point_Point.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Math\Contains_Sphere_Sphere.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Math\Intersects_Point_Sphere.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Graphics\GraphicsWindow.hpp">
@@ -1133,65 +1100,122 @@
     <ClInclude Include="src\egolib\Math\Constants.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Math\Translate_Line.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Math\Translate_Plane.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Math\Translate_Point.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Math\Translate_Ray.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Math\Translate_Cone3.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Math\AxisAlignedBox.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Math\Contains_AxisAlignedBox_Point.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Math\Contains_AxisAlignedCube_AxisAlignedCube.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Math\Contains_AxisAlignedBox_AxisAlignedBox.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\math\AxisAlignedCube.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Math\Intersects_AxisAlignedBox_AxisAlignedBox.hpp">
+    <ClInclude Include="src\egolib\Math\Generator_ColourRgba.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Math\Intersects_AxisAlignedBox_AxisAlignedCube.hpp">
+    <ClInclude Include="src\egolib\Math\Generator_ColourRgb.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Math\Intersects_AxisAlignedCube_Point.hpp">
-      <Filter>Header Files\Math</Filter>
+    <ClInclude Include="src\egolib\Math\Functors\Contains.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Math\Intersects_AxisAlignedCube_AxisAlignedCube.hpp">
-      <Filter>Header Files\Math</Filter>
+    <ClInclude Include="src\egolib\Math\Functors\Contains_AxisAlignedBox_AxisAlignedBox.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Math\Intersects_AxisAlignedCube_AxisAlignedBox.hpp">
-      <Filter>Header Files\Math</Filter>
+    <ClInclude Include="src\egolib\Math\Functors\Contains_AxisAlignedBox_Point.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Math\Intersects_AxisAlignedBox_Point.hpp">
-      <Filter>Header Files\Math</Filter>
+    <ClInclude Include="src\egolib\Math\Functors\Contains_AxisAlignedCube_AxisAlignedCube.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Math\Intersects_Point_AxisAlignedBox.hpp">
-      <Filter>Header Files\Math</Filter>
+    <ClInclude Include="src\egolib\Math\Functors\Contains_Point_Point.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Math\Intersects_Point_AxisAlignedCube.hpp">
-      <Filter>Header Files\Math</Filter>
+    <ClInclude Include="src\egolib\Math\Functors\Contains_Sphere_Point.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Math\Translate_AxisAlignedBox.hpp">
-      <Filter>Header Files\Math</Filter>
+    <ClInclude Include="src\egolib\Math\Functors\Contains_Sphere_Sphere.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Math\Translate_AxisAlignedCube.hpp">
-      <Filter>Header Files\Math</Filter>
+    <ClInclude Include="src\egolib\Math\Functors\Intersects.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Intersects_AxisAlignedBox_AxisAlignedBox.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Intersects_AxisAlignedBox_AxisAlignedCube.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Intersects_AxisAlignedBox_Point.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Intersects_AxisAlignedCube_AxisAlignedBox.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Intersects_AxisAlignedCube_AxisAlignedCube.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Intersects_AxisAlignedCube_Point.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Intersects_Point_AxisAlignedBox.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Intersects_Point_AxisAlignedCube.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Intersects_Point_Point.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Intersects_Point_Sphere.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Intersects_Sphere_Point.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Intersects_Sphere_Sphere.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Translate.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Translate_AxisAlignedBox.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Translate_AxisAlignedCube.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Translate_Cone3.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Translate_Line.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Translate_Plane.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Translate_Point.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Translate_Ray.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Translate_Sphere.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Interpolate.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Interpolate_Linear_Real.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Interpolate_Linear_Point.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Interpolate_Linear_Vector.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Interpolate_Linear_ColourRgb.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Interpolate_Linear_ColourRgba.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
