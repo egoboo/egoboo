@@ -25,7 +25,6 @@
 #include "game/graphic_mad.h"
 #include "game/renderer_3d.h"
 #include "game/game.h"
-#include "game/input.h"
 #include "game/lighting.h"
 #include "game/egoboo.h"
 #include "egolib/Graphics/MD2Model.hpp"
@@ -718,8 +717,9 @@ void MadRenderer::draw_chr_bbox(const std::shared_ptr<Object>& pchr)
     static constexpr bool drawRightSlot = false;
     static constexpr bool drawCharacter = true;
     
+    auto& inputSystem = InputSystem::get();
     // Draw the object bounding box as a part of the graphics debug mode F7.
-    if (egoboo_config_t::get().debug_developerMode_enable.getValue() && keyb.is_key_down(SDLK_F7))
+    if (egoboo_config_t::get().debug_developerMode_enable.getValue() && inputSystem.keyboard.isKeyDown(SDLK_F7))
     {
         Ego::Renderer::get().setWorldMatrix(Matrix4f4f::identity());
 
@@ -744,7 +744,7 @@ void MadRenderer::draw_chr_bbox(const std::shared_ptr<Object>& pchr)
     }
 
     //// The grips and vertrices of all objects.
-    if (keyb.is_key_down(SDLK_F6))
+    if (InputSystem::get().keyboard.isKeyDown(SDLK_F6))
     {
         draw_chr_attached_grip( pchr );
 

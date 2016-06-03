@@ -44,9 +44,9 @@ public:
 
     bool isEnabled() const override;
 
-    bool notifyMouseMoved(const int x, const int y) override;
-    bool notifyMouseClicked(const int button, const int x, const int y) override;
-    bool notifyMouseReleased(const int button, const int x, const int y) override;
+    bool notifyMouseMoved(const Ego::Events::MouseMovedEventArgs& e) override;
+    bool notifyMouseClicked(const Ego::Events::MouseClickedEventArgs& e) override;
+    bool notifyMouseReleased(const Ego::Events::MouseReleasedEventArgs& e) override;
 
 private:
     Ego::DeferredTexture _sliderBarTexture;

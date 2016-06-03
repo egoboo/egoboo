@@ -84,8 +84,7 @@ void MapEditorState::addModeEditButton(EditorMode mode, const std::string &label
 void MapEditorState::update()
 {
     // Get immediate mode state for the rest of the game
-    InputSystem::read_keyboard();
-    InputSystem::read_mouse();
+    InputSystem::get().update();
 
     //Rebuild the quadtree for fast object lookup
     _currentModule->getObjectHandler().updateQuadTree(0.0f, 0.0f, _currentModule->getMeshPointer()->_info.getTileCountX()*Info<float>::Grid::Size(),

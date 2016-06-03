@@ -93,17 +93,18 @@ void InternalWindow::drawContainer()
     _closeButton->draw();
 }
 
-bool InternalWindow::notifyMouseMoved(const int x, const int y)
+bool InternalWindow::notifyMouseMoved(const Ego::Events::MouseMovedEventArgs& e)
 {
     if(_isDragging) {
-        setPosition( Ego::Math::constrain<int>(x+_mouseDragOffset[0], 0, _gameEngine->getUIManager()->getScreenWidth()-getWidth()), 
-                     Ego::Math::constrain<int>(y+_mouseDragOffset[1], _titleBar->getHeight()/2, _gameEngine->getUIManager()->getScreenHeight()-getHeight()) );
+        setPosition( Ego::Math::constrain<int>(e.getPosition().x()+_mouseDragOffset[0], 0, _gameEngine->getUIManager()->getScreenWidth()-getWidth()), 
+                     Ego::Math::constrain<int>(e.getPosition().y()+_mouseDragOffset[1], _titleBar->getHeight()/2, _gameEngine->getUIManager()->getScreenHeight()-getHeight()) );
         return true;
     }
     else {
-        _mouseOver = InternalWindow::contains(x, y) || _titleBar->contains(x, y);
+        _mouseOver = InternalWindow::contains(e.getPosition())
+                  || _titleBar->contains(e.getPosition());
 
-        if(_closeButton->contains(x, y)) {
+        if(_closeButton->contains(e.getPosition())) {
             _closeButton->setTint(Ego::Math::Colour4f::white());
         }
         else {
@@ -111,43 +112,41 @@ bool InternalWindow::notifyMouseMoved(const int x, const int y)
         }
     }
 
-    return ComponentContainer::notifyMouseMoved(x, y);
+    return ComponentContainer::notifyMouseMoved(e);
 }
 
-bool InternalWindow::notifyMouseClicked(const int button, const int x, const int y)
+bool InternalWindow::notifyMouseClicked(const Ego::Events::MouseClickedEventArgs& e)
 {
-    if(_mouseOver && button == SDL_BUTTON_LEFT)
+    if(_mouseOver && e.getButton() == SDL_BUTTON_LEFT)
     {
-        if(!_isDragging && _closeButton->contains(x, y)) {
+        if(!_isDragging && _closeButton->contains(e.getPosition())) {
             AudioSystem::get().playSoundFull(AudioSystem::get().getGlobalSound(GSND_BUTTON_CLICK));
             destroy();
             return true;
         }
 
-        //Bring the window in front of all other windows
+        // Bring the window in front of all other windows
         bringToFront();
 
-        //Only the top title bar triggers dragging
-        if(_titleBar->contains(x, y)) {
+        // Only the top title bar triggers dragging
+        if(_titleBar->contains(e.getPosition())) {
             _isDragging = true;
-            _mouseDragOffset[0] = getX() - x;
-            _mouseDragOffset[1] = getY() - y;
+            _mouseDragOffset[0] = getX() - e.getPosition().x();
+            _mouseDragOffset[1] = getY() - e.getPosition().y();
 
-            //Move the window immediatly
-            return notifyMouseMoved(x, y);
-        }
-        else {
+            // Move the window immediatly
+            return notifyMouseMoved(Ego::Events::MouseMovedEventArgs(e.getPosition()));
+        } else {
             _isDragging = false;
         }
-    }
-    else if(button == SDL_BUTTON_RIGHT) {
+    } else if(e.getButton() == SDL_BUTTON_RIGHT) {
         _isDragging = false;
     }
 
-    return ComponentContainer::notifyMouseClicked(button, x, y);
+    return ComponentContainer::notifyMouseClicked(e);
 }
 
-bool InternalWindow::notifyMouseReleased(const int button, const int x, const int y)
+bool InternalWindow::notifyMouseReleased(const Ego::Events::MouseReleasedEventArgs& e)
 {
     _isDragging = false;
     return false;

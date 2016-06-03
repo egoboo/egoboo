@@ -21,16 +21,10 @@
 /// @brief Routines for reading and writing the file "controls.txt" and "scancode.txt"
 /// @details
 
-#include "egolib/input_device.h"
-
+#include "egolib/Input/input_device.h"
 #include "egolib/Log/_Include.hpp"
-
 #include "egolib/strutil.h"
-#include "egolib/platform.h"
 
-#include "egolib/_math.h"
-
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 int translate_string_to_input_type( const char *string )
 {
@@ -187,27 +181,21 @@ void input_device_t::initialize(e_input_device req_type)
 }
 
 //--------------------------------------------------------------------------------------------
-void input_device_add_latch( input_device_t * pdevice, float newx, float newy )
+void input_device_t::add_latch( input_device_t * pdevice, const Vector2f& newInput )
 {
-    // Sustain old movements to ease mouse/keyboard play
-
     float dist;
 
     if ( NULL == pdevice ) return;
 
     pdevice->latch_old = pdevice->latch;
 
-    pdevice->latch.x = pdevice->latch.x * pdevice->sustain + newx * pdevice->cover;
-    pdevice->latch.y = pdevice->latch.y * pdevice->sustain + newy * pdevice->cover;
+    pdevice->latch.input = pdevice->latch.input * pdevice->sustain + newInput * pdevice->cover;
 
     // make sure that the latch never overflows
-    dist = pdevice->latch.x * pdevice->latch.x + pdevice->latch.y * pdevice->latch.y;
-    if ( dist > 1.0f )
-    {
-        float scale = 1.0f / std::sqrt( dist );
-
-        pdevice->latch.x *= scale;
-        pdevice->latch.y *= scale;
+    dist = pdevice->latch.input.length_2();
+    if (dist > 1.0f) {
+        float scale = 1.0f / std::sqrt(dist);
+        pdevice->latch.input *= scale;
     }
 }
 
@@ -252,4 +240,75 @@ Uint32 get_device_type_from_device_char( char tag_type )
     }
 
     return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+
+BIT_FIELD input_device_t::get_buttonmask(input_device_t *pdevice) {
+    // assume the worst
+    BIT_FIELD buttonmask = EMPTY_BIT_FIELD;
+
+    // make sure the idevice is valid
+    if (NULL == pdevice) return EMPTY_BIT_FIELD;
+
+    // scan for devices that use buttons
+    if (INPUT_DEVICE_MOUSE == pdevice->device_type) {
+        buttonmask = InputSystem::get().mouse.b;
+    } else if (IS_VALID_JOYSTICK(pdevice->device_type)) {
+        int ijoy = pdevice->device_type - INPUT_DEVICE_JOY;
+
+        buttonmask = InputSystem::get().joysticks[ijoy]->b;
+    }
+
+    return buttonmask;
+}
+
+bool input_device_t::is_enabled(input_device_t *self) {
+    // assume the worst
+    bool retval = false;
+
+    // make sure the idevice is valid
+    if (!self) return false;
+
+    if (INPUT_DEVICE_KEYBOARD == self->device_type) {
+        retval = InputSystem::get().keyboard.enabled
+            &&   InputSystem::get().keyboard.getConnected();
+    } else if (INPUT_DEVICE_MOUSE == self->device_type) {
+        retval = InputSystem::get().mouse.enabled
+            &&   InputSystem::get().mouse.getConnected();
+    } else if (IS_VALID_JOYSTICK(self->device_type)) {
+        int ijoy = self->device_type - INPUT_DEVICE_JOY;
+
+        retval = InputSystem::get().joysticks[ijoy]->enabled
+            &&   InputSystem::get().joysticks[ijoy]->getConnected();
+    }
+
+    return retval;
+}
+
+bool input_device_t::control_active(input_device_t *pdevice, CONTROL_BUTTON icontrol) {
+    // make sure the idevice is valid
+    if (NULL == pdevice) return false;
+    const control_t &pcontrol = pdevice->keyMap[icontrol];
+
+    // if no control information was loaded, it can't be pressed
+    if (!pcontrol.loaded) return false;
+
+    // test for bits
+    if (pcontrol.tag_bits.any()) {
+        BIT_FIELD bmask = input_device_t::get_buttonmask(pdevice);
+
+        if (!HAS_ALL_BITS(bmask, pcontrol.tag_bits.to_ulong())) {
+            return false;
+        }
+    }
+
+    // how many tags does this control have?
+    for (uint32_t keycode : pcontrol.mappedKeys) {
+        if (!InputSystem::get().keyboard.isKeyDown(keycode)) {
+            return false;
+        }
+    }
+
+    return true;
 }

@@ -27,7 +27,7 @@
 namespace Ego {
 
 /// The opaque type of a subscription.
-typedef void *Subscription;
+struct Subscription2;
 
 /// A node.
 /// @todo Hide within Signal or within Internal namespace.
@@ -85,6 +85,29 @@ public:
 template <class>
 struct Signal;
 
+struct Subscription2 {
+    void *ptr;
+    Subscription2()
+        : ptr(nullptr) {}
+    Subscription2(void *ptr)
+        : ptr(ptr) {}
+    Subscription2(const Subscription2& other)
+        : ptr(other.ptr) {}
+    const Subscription2& operator=(const Subscription2& other) {
+        ptr = other.ptr;
+        return *this;
+    }
+    bool operator==(const Subscription2& other) const {
+        return ptr == other.ptr;
+    }
+    bool operator!=(const Subscription2& other) const {
+        return ptr != other.ptr;
+    }
+    operator bool() const {
+        return nullptr != ptr;
+    }
+}; // struct Subscription2
+
 /// @tparam ReturnType the return type
 /// @tparam ... ParameterTypes the parameter types
 /// @remark Non-copyable.
@@ -125,11 +148,11 @@ public:
     /// Subscribe to this signal.
     /// @param function a non-empty function
     /// @return the subscription
-    Subscription subscribe(const FunctionType& function) {
+    Subscription2 subscribe(const FunctionType& function) {
         NodeType *node = new NodeType(function);
         node->next = head; head = node;
         liveCount++;
-        return node;
+        return Subscription2(static_cast<void *>(node));
     }
 
     /// Does the subscriber list need sweeping?
@@ -163,8 +186,11 @@ public:
     /// Unsubscribe from this signal.
     /// @param subscription the subscription
     /// @return @a true if the subscription was found and removed, @a false otherwise
-    void unsubscribe(const Subscription& subscription) noexcept {
-        if (static_cast<NodeType *>(subscription)->kill()) {
+    void unsubscribe(const Subscription2& subscription) noexcept {
+        if (!subscription) {
+            return;
+        }
+        if (static_cast<NodeType *>(subscription.ptr)->kill()) {
             deadCount++;
             liveCount--;
         }

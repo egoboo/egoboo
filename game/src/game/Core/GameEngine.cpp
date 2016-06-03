@@ -23,6 +23,7 @@
 #include "game/Graphics/CameraSystem.hpp"
 #include "game/GameStates/MainMenuState.hpp"
 #include "game/GameStates/PlayingState.hpp"
+#include "egolib/Events/MouseMovedEventArgs.hpp"
 #include "egolib/Profiles/_Include.hpp"
 #include "egolib/FileFormats/Globals.hpp"
 #include "game/GUI/UIManager.hpp"
@@ -66,7 +67,14 @@ GameEngine::GameEngine() :
     _estimatedFPS(GAME_TARGET_FPS),
     _estimatedUPS(GAME_TARGET_UPS),
 
-    //Submodules
+    // Subscriptions
+    resized(),
+    mouseEntered(),
+    mouseLeft(),
+    keyboardFocusReceived(),
+    keyboardFocusLost(),
+
+    // Submodules
     _uiManager(nullptr)
 {
     //ctor
@@ -208,7 +216,7 @@ void GameEngine::updateOneFrame()
     _currentGameState->update();
 
     // Check for screenshots
-    if (keyb.is_key_down(SDLK_F11))
+    if (InputSystem::get().keyboard.isKeyDown(SDLK_F11))
     {
         requestScreenshot();
     }
@@ -278,6 +286,15 @@ bool GameEngine::initialize()
     //      More recent systems like video or audio system pull their configuraiton data
     //      by the time they are initialized.
 
+    // Initialize the device list.
+    // TODO: Should be part of the input system.
+    device_list_t::initialize();
+    // Initialize the input system and enable mouse and keyboard.
+    InputSystem::initialize();
+    InputSystem::get().mouse.enabled = true;
+    InputSystem::get().keyboard.enabled = true;
+
+
     // camera options
     CameraSystem::getCameraOptions().turnMode = egoboo_config_t::get().camera_control.getValue();
 
@@ -290,11 +307,11 @@ bool GameEngine::initialize()
     // <<<
     /* ********************************************************************************** */
 
-    // Initialize the input system.
-    InputSystem::initialize();
 
-    // Initialize GFX system.
+    // Initialize the GFX system.
     GFX::initialize();
+    // Subscribe to window events.
+    subscribe();
 
 	// TODO: REMOVE THIS.
 	gfx_system_init_all_graphics();
@@ -367,6 +384,63 @@ bool GameEngine::initialize()
     return true;
 }
 
+void GameEngine::subscribe() {
+    auto window = Ego::GraphicsSystem::window;
+    shown = window->Shown.subscribe([](const Ego::Events::WindowEventArgs& e) {
+        /// @todo Is this still needed?
+        gfx_system_reload_all_textures();
+    });
+    hidden = window->Hidden.subscribe([](const Ego::Events::WindowEventArgs& e) {
+    });
+    resized = window->Resized.subscribe([](const Ego::Events::WindowEventArgs& e) {
+        SDLX_Get_Screen_Info(sdl_scr, false);
+    });
+    mouseEntered = window->MouseEntered.subscribe([](const Ego::Events::WindowEventArgs& e) {
+        InputSystem::get().mouse.enabled = true;
+    });
+    mouseLeft = window->MouseLeft.subscribe([](const Ego::Events::WindowEventArgs& e) {
+        InputSystem::get().mouse.enabled = false;
+    });
+    keyboardFocusReceived = window->KeyboardFocusReceived.subscribe([](const Ego::Events::WindowEventArgs& e) {
+        InputSystem::get().keyboard.enabled = true;
+    });
+    keyboardFocusLost = window->KeyboardFocusLost.subscribe([](const Ego::Events::WindowEventArgs& e) {
+        InputSystem::get().keyboard.enabled = false;
+    });
+}
+
+void GameEngine::unsubscribe() {
+    auto window = Ego::GraphicsSystem::window;
+    if (keyboardFocusLost) {
+        window->KeyboardFocusLost.unsubscribe(keyboardFocusLost);
+        keyboardFocusLost = Ego::Subscription2();
+    }
+    if (keyboardFocusReceived) {
+        window->KeyboardFocusReceived.unsubscribe(keyboardFocusReceived);
+        keyboardFocusReceived = Ego::Subscription2();
+    }
+    if (mouseLeft) {
+        window->MouseLeft.unsubscribe(mouseLeft);
+        mouseLeft = Ego::Subscription2();
+    }
+    if (mouseEntered) {
+        window->MouseEntered.unsubscribe(mouseEntered);
+        mouseEntered = Ego::Subscription2();
+    }
+    if (resized) {
+        window->Resized.unsubscribe(resized);
+        resized = Ego::Subscription2();
+    }
+    if (hidden) {
+        window->Hidden.unsubscribe(hidden);
+        hidden = Ego::Subscription2();
+    }
+    if (shown) {
+        window->Shown.unsubscribe(shown);
+        shown = Ego::Subscription2();
+    }
+}
+
 void GameEngine::uninitialize()
 {
 	Log::get().message("Uninitializing Egoboo %s\n",GAME_VERSION.c_str());
@@ -405,6 +479,8 @@ void GameEngine::uninitialize()
     // Uninitialize the audio system.
     AudioSystem::uninitialize();
 
+    // Unsubscribe from window events.
+    unsubscribe();
     // Uninitialize the GFX system.
     GFX::uninitialize();
 
@@ -413,6 +489,9 @@ void GameEngine::uninitialize()
 
 	// Uninitialize the input system.
 	InputSystem::uninitialize();
+    // Uninitialize the device list.
+    // TODO: Should be part of the input system.
+    device_list_t::uninitialize();
 
     // Shut down the log services.
 	Log::get().message("Exiting Egoboo %s. See you next time\n", GAME_VERSION.c_str());
@@ -435,11 +514,12 @@ void GameEngine::pushGameState(std::shared_ptr<GameState> gameState)
 
 void GameEngine::pollEvents()
 {
-    // message processing loop
+    Ego::GraphicsSystem::window->update();
+    // Message processing loop.
     SDL_Event event;
     while (SDL_PollEvent(&event))
     {
-        //Console has first say in events
+        // Console has first say in events.
         if (egoboo_config_t::get().debug_developerMode_enable.getValue())
         {
             if (!Ego::Core::ConsoleHandler::get().handle_event(&event))
@@ -448,65 +528,29 @@ void GameEngine::pollEvents()
             }
         }
 
-        // check for messages
+        // Check for messages.
         switch (event.type)
         {
-            // exit if the window is closed
+            // Exit if the window is closed.
             case SDL_QUIT:
                 shutdown();
                 return;
-                
-            case SDL_WINDOWEVENT:
-                switch (event.window.event) {
-                    case SDL_WINDOWEVENT_SHOWN:
-                        /// @todo: this shouldn't be needed?
-                        gfx_system_reload_all_textures();
-                    break;
-                    case SDL_WINDOWEVENT_ENTER:
-                        mous.on = true;
-                    break;
-                    case SDL_WINDOWEVENT_LEAVE:
-                        mous.on = false;
-                    break;
-                    case SDL_WINDOWEVENT_FOCUS_GAINED:
-                        keyb.on = true;
-                    break;
-                    case SDL_WINDOWEVENT_FOCUS_LOST:
-                        keyb.on = false;
-                    break;
-                    case SDL_WINDOWEVENT_RESIZED:
-                        // The video has been resized.
-                        // If the game is active, some camera info mught need to be recalculated
-                        // and possibly the auto-formatting for the menu system and the ui system
-                        
-                        // grab all the new SDL screen info
-                        SDLX_Get_Screen_Info(sdl_scr, false);
-                        break;
-                    case SDL_WINDOWEVENT_EXPOSED:
-                        // something has been done to the screen and it needs to be re-drawn.
-                        // For instance, a window above the app window was moved. This has no
-                        // effect on the game at the moment.
-                    break;
-                        
-                }
-                break;
-                
             case SDL_MOUSEWHEEL:
                 _currentGameState->notifyMouseScrolled(event.wheel.y);
             break;
                 
             case SDL_MOUSEBUTTONDOWN:
-                _currentGameState->notifyMouseClicked(event.button.button, event.button.x, event.button.y);
+                _currentGameState->notifyMouseClicked(Ego::Events::MouseClickedEventArgs(Point2f(event.button.x, event.button.y), event.button.button));
             break;
 
             case SDL_MOUSEBUTTONUP:
-                _currentGameState->notifyMouseReleased(event.button.button, event.button.x, event.button.y);
+                _currentGameState->notifyMouseReleased(Ego::Events::MouseReleasedEventArgs(Point2f(event.button.x, event.button.y), event.button.button));
             break;
                 
             case SDL_MOUSEMOTION:
-                mous.x = event.motion.x;
-                mous.y = event.motion.y;
-                _currentGameState->notifyMouseMoved(event.motion.x, event.motion.y);
+                InputSystem::get().mouse.offset.x() = event.motion.x;
+                InputSystem::get().mouse.offset.y() = event.motion.y;
+                _currentGameState->notifyMouseMoved(Ego::Events::MouseMovedEventArgs(Point2f(event.motion.x, event.motion.y)));
             break;
                 
             case SDL_KEYDOWN:

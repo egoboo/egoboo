@@ -25,7 +25,7 @@
 #include "egolib/FileFormats/scancode_file.h"
 
 #include "egolib/Log/_Include.hpp"
-#include "egolib/input_device.h"
+#include "egolib/Input/input_device.h"
 
 #include "egolib/typedef.h"
 #include "egolib/fileutil.h"
@@ -45,9 +45,9 @@ bool input_settings_load_vfs_2( const char* szFilename )
     for ( idevice = 0; idevice < MAX_LOCAL_PLAYERS; idevice++ )
     {
         // clear the input control
-        InputDevices.lst[idevice].clear();
+        device_list_t::get().lst[idevice].clear();
     }
-    InputDevices.count = 0;
+    device_list_t::get().count = 0;
 
     ReadContext ctxt(szFilename);
     if (!ctxt.ensureOpen())
@@ -58,7 +58,7 @@ bool input_settings_load_vfs_2( const char* szFilename )
     // Read input for each player
     for ( idevice = 0; idevice < MAX_LOCAL_PLAYERS; idevice++ )
     {
-        input_device_t &pdevice = InputDevices.lst[idevice];
+        input_device_t &pdevice = device_list_t::get().lst[idevice];
 
         // figure out how we move
         ctxt.skipToColon(false);
@@ -91,9 +91,9 @@ bool input_settings_load_vfs_2( const char* szFilename )
             }
         }
 
-        InputDevices.count++;
+        device_list_t::get().count++;
     }
-    return InputDevices.count > 0;
+    return device_list_t::get().count > 0;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -138,7 +138,7 @@ bool input_settings_save_vfs_2(const char* szFilename)
     // The actual settings
     for ( i = 0; i < MAX_LOCAL_PLAYERS; i++ )
     {
-        input_device_t &pdevice = InputDevices.lst[i];
+        input_device_t &pdevice = device_list_t::get().lst[i];
         snprintf( write, SDL_arraysize( write ), "\nPLAYER %i\n", i + 1 );
 
         //which player

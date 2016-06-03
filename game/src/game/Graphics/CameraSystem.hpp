@@ -21,7 +21,6 @@
 #pragma once
 
 #include "game/egoboo.h"
-#include "game/input.h"
 #include "game/Graphics/Camera.hpp"
 
 // Forward declaration.

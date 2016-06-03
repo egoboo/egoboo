@@ -13,8 +13,8 @@ class Button : public GUIComponent
         void setOnClickFunction(const std::function<void()> onClick);
         void setText(const std::string &buttonText);
 
-        bool notifyMouseMoved(const int x, const int y) override;
-        bool notifyMouseClicked(const int button, const int x, const int y) override;
+        bool notifyMouseMoved(const Ego::Events::MouseMovedEventArgs& e) override;
+        bool notifyMouseClicked(const Ego::Events::MouseClickedEventArgs& e) override;
         bool notifyKeyDown(const int keyCode) override;
 
         void doClick();

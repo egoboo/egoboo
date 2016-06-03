@@ -17,36 +17,31 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/input_device.h
+/// @file egolib/Input/input_device.h
 /// @details routines for reading and writing the file controls.txt and "scancode.txt"
 
 #pragma once
 
+#include "egolib/Input/input.h"
 #include "egolib/typedef.h"
 
 //--------------------------------------------------------------------------------------------
 /// The latch used by the input system
-struct latch_t
-{
+struct latch_t {
 public:
-    latch_t() :
-        x(0.0f),
-        y(0.0f),
-        b()
-    {
-        //ctor
+    latch_t()
+        : input(Vector2f::zero()), b() {
     }
 
-    void clear()
-    {
-        x = 0.0f;
-        y = 0.0f;
+    void clear() {
+        input = Vector2f();
         b.reset();
     }
 
 public:
-    float           x;         ///< the x input
-    float           y;         ///< the y input
+    /// The input.
+    Vector2f input;
+    /// The button bits.
     std::bitset<32> b;         ///< the button bits
 };
 
@@ -225,37 +220,27 @@ public:
 		e_input_device device_type;               ///< Device type - mouse, keyboard, etc.
         std::array<control_t, CONTROL_COMMAND_COUNT> keyMap;        ///< Key mappings
 
+        /// @brief Sustain old movements to ease mouse/keyboard play
+        static void add_latch(input_device_t *self, const Vector2f& newInput);
+
+        /// @brief special functions that must be implemented by the user
+        static BIT_FIELD get_buttonmask(input_device_t *self);
+        /// @brief Get if this input device is enabled.
+        static bool is_enabled(input_device_t *self);
+        /// @details This function returns true if the given icontrol is pressed...
+        static bool control_active(input_device_t *self, CONTROL_BUTTON icontrol);
     };
-
-    void input_device_add_latch(input_device_t *self, float newx, float newy);
-
-// special functions that must be implemented by the user
-    extern BIT_FIELD input_device_get_buttonmask(input_device_t *self);
-	/// @brief Get if this input device is enabled.
-	extern bool input_device_is_enabled(input_device_t *self);
-    extern bool input_device_control_active(input_device_t *self, CONTROL_BUTTON icontrol);
 
 //--------------------------------------------------------------------------------------------
 
-    struct device_list_t
-    {
-        device_list_t() :
-            count(0),
-            lst()
-        {
-            //ctor
+    struct device_list_t : public Ego::Core::Singleton<device_list_t> {
+        device_list_t()
+            : count(0), lst() {
         }
-
-        size_t         count;
+        size_t count;
         std::array<input_device_t, MAX_LOCAL_PLAYERS> lst;      // up to MAX_LOCAL_PLAYERS input controllers
     };
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-    extern device_list_t     InputDevices;
-
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
     int         translate_string_to_input_type( const char *string );

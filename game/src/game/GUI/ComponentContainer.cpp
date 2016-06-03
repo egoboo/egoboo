@@ -60,14 +60,14 @@ void ComponentContainer::drawAll()
     _gameEngine->getUIManager()->endRenderUI();
 }
 
-bool ComponentContainer::notifyMouseMoved(const int x, const int y)
+bool ComponentContainer::notifyMouseMoved(const Ego::Events::MouseMovedEventArgs& e)
 {
     //Iterate over GUI components in reverse order so GUI components added last (i.e on top) consume events first
     ComponentIterator it = iterator();
     for (auto i = it.rbegin(); i != it.rend(); ++i ) { 
         std::shared_ptr<GUIComponent> component = *i;
         if(!component->isEnabled()) continue;
-        if(component->notifyMouseMoved(x, y)) return true;
+        if(component->notifyMouseMoved(e)) return true;
     }
     return false;
 }
@@ -84,26 +84,26 @@ bool ComponentContainer::notifyKeyDown(const int keyCode)
     return false;
 }
 
-bool ComponentContainer::notifyMouseClicked(const int button, const int x, const int y)
+bool ComponentContainer::notifyMouseClicked(const Ego::Events::MouseClickedEventArgs& e)
 {
     //Iterate over GUI components in reverse order so GUI components added last (i.e on top) consume events first
     ComponentIterator it = iterator();
     for (auto i = it.rbegin(); i != it.rend(); ++i ) { 
         std::shared_ptr<GUIComponent> component = *i;
         if(!component->isEnabled()) continue;
-        if(component->notifyMouseClicked(button, x, y)) return true;
+        if(component->notifyMouseClicked(e)) return true;
     }
     return false;
 }
 
-bool ComponentContainer::notifyMouseReleased(const int button, const int x, const int y)
+bool ComponentContainer::notifyMouseReleased(const Ego::Events::MouseReleasedEventArgs& e)
 {
     //Iterate over GUI components in reverse order so GUI components added last (i.e on top) consume events first
     ComponentIterator it = iterator();
     for (auto i = it.rbegin(); i != it.rend(); ++i ) { 
         std::shared_ptr<GUIComponent> component = *i;
         if(!component->isEnabled()) continue;
-        if(component->notifyMouseReleased(button, x, y)) return true;
+        if(component->notifyMouseReleased(e)) return true;
     }
     return false;
 }

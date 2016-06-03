@@ -29,7 +29,7 @@
 #include "egolib/FileFormats/scancode_file.h"
 
 #include "egolib/Log/_Include.hpp"
-#include "egolib/input_device.h"
+#include "egolib/Input/input_device.h"
 
 #include "egolib/fileutil.h"
 #include "egolib/strutil.h"

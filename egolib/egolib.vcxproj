@@ -305,6 +305,8 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\Input\input.c" />
+    <ClCompile Include="src\egolib\Input\input_device.c" />
     <ClCompile Include="src\egolib\Extensions\WindowProperties.cpp" />
     <ClCompile Include="src\egolib\App.cpp" />
     <ClCompile Include="src\egolib\Graphics\GraphicsWindow.cpp" />
@@ -482,7 +484,6 @@
     <ClCompile Include="src\egolib\font_bmp.c" />
     <ClCompile Include="src\egolib\frustum.c" />
     <ClCompile Include="src\egolib\geometry.c" />
-    <ClCompile Include="src\egolib\input_device.c" />
     <ClCompile Include="src\egolib\map_functions.c" />
     <ClCompile Include="src\egolib\platform\file_linux.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -496,6 +497,15 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Input\Device.hpp" />
+    <ClInclude Include="src\egolib\Input\Mapping.hpp" />
+    <ClInclude Include="src\egolib\Input\DeviceEventArgs.hpp" />
+    <ClInclude Include="src\egolib\Events\WindowEventArgs.hpp" />
+    <ClInclude Include="src\egolib\Events\MouseReleasedEventArgs.hpp" />
+    <ClInclude Include="src\egolib\Events\MouseClickedEventArgs.hpp" />
+    <ClInclude Include="src\egolib\Events\MouseMovedEventArgs.hpp" />
+    <ClInclude Include="src\egolib\Input\input.h" />
+    <ClInclude Include="src\egolib\Input\input_device.h" />
     <ClInclude Include="src\egolib\Math\Functors\Contains.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\Contains_AxisAlignedBox_AxisAlignedBox.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\Contains_AxisAlignedBox_Point.hpp" />
@@ -725,7 +735,6 @@
     <ClInclude Include="src\egolib\font_bmp.h" />
     <ClInclude Include="src\egolib\frustum.h" />
     <ClInclude Include="src\egolib\geometry.h" />
-    <ClInclude Include="src\egolib\input_device.h" />
     <ClInclude Include="src\egolib\map_functions.h" />
     <ClInclude Include="src\egolib\platform.h" />
     <ClInclude Include="src\egolib\platform\NSFileManager+DirectoryLocations.h">

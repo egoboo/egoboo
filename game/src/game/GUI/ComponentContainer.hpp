@@ -105,10 +105,10 @@ public:
     **/
     void drawAll();
 
-    virtual bool notifyMouseMoved(const int x, const int y) override;
+    virtual bool notifyMouseMoved(const Ego::Events::MouseMovedEventArgs& e) override;
     virtual bool notifyKeyDown(const int keyCode) override;
-    virtual bool notifyMouseClicked(const int button, const int x, const int y) override;
-    virtual bool notifyMouseReleased(const int button, const int x, const int y) override;
+    virtual bool notifyMouseClicked(const Ego::Events::MouseClickedEventArgs& e) override;
+    virtual bool notifyMouseReleased(const Ego::Events::MouseReleasedEventArgs& e) override;
     virtual bool notifyMouseScrolled(const int amount) override;
 
     /**

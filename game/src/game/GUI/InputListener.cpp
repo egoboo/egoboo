@@ -5,32 +5,30 @@ InputListener::~InputListener()
     //dtor
 }
 
-bool InputListener::notifyMouseMoved(const int x, const int y)
-{
-    //default no implementation
+bool InputListener::notifyMouseMoved(const Ego::Events::MouseMovedEventArgs& e) {
+    // Default: Event is not handled.
     return false;
 }
 
 bool InputListener::notifyKeyDown(const int keyCode)
 {
-    //default no implementation
+    // Default: Event is not handled.
     return false;
 }
 
-bool InputListener::notifyMouseClicked(const int button, const int x, const int y)
-{
-    //default no implementation
+bool InputListener::notifyMouseClicked(const Ego::Events::MouseClickedEventArgs& e) {
+    // Default: Event is not handled.
     return false;
 }
 
 bool InputListener::notifyMouseScrolled(const int amount)
 {
-    //default no implementation
+    // Default: Event is not handled.
     return false;
 }
 
-bool InputListener::notifyMouseReleased(const int button, const int x, const int y)
+bool InputListener::notifyMouseReleased(const Ego::Events::MouseReleasedEventArgs& e)
 {
-    //default no implementation
+    // Default: Event is not handled.
     return false;
 }

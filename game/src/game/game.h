@@ -23,7 +23,6 @@
 
 #include "game/egoboo.h"
 #include "game/mesh.h"
-#include "game/input.h"
 #include "game/Inventory.hpp"
 #include "game/Shop.hpp"
 

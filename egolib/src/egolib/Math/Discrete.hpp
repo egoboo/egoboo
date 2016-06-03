@@ -97,6 +97,12 @@ public:
         return elements[0] == other.elements[0]
             && elements[1] == other.elements[1];
     }
+    MyType operator+() const {
+        return *this;
+    }
+    MyType operator-() const {
+        return MyType(-elements[0], -elements[1]);
+    }
 
 public:
     // Derived operators

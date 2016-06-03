@@ -26,7 +26,7 @@
 #include "egolib/Core/StringUtilities.hpp"
 
 #include "egolib/Log/_Include.hpp"
-#include "egolib/input_device.h"
+#include "egolib/Input/input_device.h"
 
 #include "egolib/vfs.h"
 #include "egolib/fileutil.h"

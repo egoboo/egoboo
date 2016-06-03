@@ -30,7 +30,6 @@
 #include "game/script_implementation.h"
 #include "game/GameStates/PlayingState.hpp"
 #include "game/link.h"
-#include "game/input.h"
 #include "game/game.h"
 #include "game/Logic/Player.hpp"
 #include "game/graphic_billboard.h"
