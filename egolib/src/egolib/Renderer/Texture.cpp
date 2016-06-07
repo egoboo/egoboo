@@ -165,7 +165,7 @@ struct CErrorTexture
     }
     // Construct this error texture.
     CErrorTexture(const String& name, Ego::TextureType type) :
-        name(name), type(type), image(ImageManager::get().getDefaultImage())
+        name(name), type(type), image(Ego::ImageManager::get().getDefaultImage())
     {
         namespace OpenGL = Ego::OpenGL;
         GLenum target_gl;

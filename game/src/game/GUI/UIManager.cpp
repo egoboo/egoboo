@@ -29,14 +29,14 @@
 UIManager::UIManager() :
     _fonts(),
     _renderSemaphore(0),
-    _bitmapFontTexture(TextureManager::get().getTexture("mp_data/font_new_shadow")),
+    _bitmapFontTexture(Ego::TextureManager::get().getTexture("mp_data/font_new_shadow")),
     _textureQuadVertexBuffer(4, Ego::GraphicsUtilities::get<Ego::VertexFormat::P2FT2F>())
 {
     //Load fonts from true-type files
-    _fonts[FONT_DEFAULT] = Ego::FontManager::loadFont("mp_data/Bo_Chen.ttf", 24);
-    _fonts[FONT_FLOATING_TEXT] = Ego::FontManager::loadFont("mp_data/FrostysWinterland.ttf", 24);
-    _fonts[FONT_DEBUG] = Ego::FontManager::loadFont("mp_data/DejaVuSansMono.ttf", 10);
-    _fonts[FONT_GAME] = Ego::FontManager::loadFont("mp_data/IMMORTAL.ttf", 14);
+    _fonts[FONT_DEFAULT] = Ego::FontManager::get().loadFont("mp_data/Bo_Chen.ttf", 24);
+    _fonts[FONT_FLOATING_TEXT] = Ego::FontManager::get().loadFont("mp_data/FrostysWinterland.ttf", 24);
+    _fonts[FONT_DEBUG] = Ego::FontManager::get().loadFont("mp_data/DejaVuSansMono.ttf", 10);
+    _fonts[FONT_GAME] = Ego::FontManager::get().loadFont("mp_data/IMMORTAL.ttf", 14);
 
     //Sanity check that all fonts are loaded properly
 #ifndef NDEBUG

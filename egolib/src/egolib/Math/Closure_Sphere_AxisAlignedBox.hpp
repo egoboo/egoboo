@@ -17,22 +17,31 @@
 //*
 //********************************************************************************************
 
-#include "egolib/Image/ImageLoader_SDL.hpp"
+/// @file egolib/Math/Closure_Sphere_AxisAlignedBox.hpp
+/// @brief Enclose axis aligned boxes in spheres.
+/// @author Michael Heilmann
+
+#pragma once
+
+#include "egolib/Math/ColourRgb.hpp"
 
 namespace Ego {
-namespace Internal {
+namespace Math {
 
-ImageLoader_SDL::ImageLoader_SDL(const Set<String>& extensions)
-    : ImageLoader(extensions) {
-}
-
-std::shared_ptr<SDL_Surface> ImageLoader_SDL::load(vfs_FILE *file) const {
-    SDL_Surface *surface = SDL_LoadBMP_RW(vfs_openRWops(file, false), 1);
-    if (!surface) {
-        return nullptr;
+/// Enclose an axis aligned box in a sphere.
+template <typename _EuclideanSpaceType>
+struct ConvexHull<Sphere<_EuclideanSpaceType>, AxisAlignedBox<_EuclideanSpaceType>> {
+public:
+    typedef _EuclideanSpaceType EuclideanSpaceType;
+    typedef AxisAlignedBox<_EuclideanSpaceType> SourceType;
+    typedef Sphere<_EuclideanSpaceType> TargetType;
+public:
+    inline TargetType operator()(const SourceType& source) const {
+        const auto center = source.getCenter();
+        const auto radius = (source.getMin() - center).length();
+        return TargetType(center, radius);
     }
-    return std::shared_ptr<SDL_Surface>(surface, [ ](SDL_Surface *pSurface) { SDL_FreeSurface(pSurface); });
-}
+}; // struct Closure
 
-} // namespace Internal
+} // namespace Math
 } // namespace Ego

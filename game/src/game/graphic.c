@@ -89,7 +89,6 @@ float            indextoenvirox[EGO_NORMAL_COUNT];
 //--------------------------------------------------------------------------------------------
 
 static gfx_error_stack_t gfx_error_stack = GFX_ERROR_STACK_INIT;
-static bool _ogl_initialized = false;
 
 // Interface stuff
 static irect_t tabrect[NUMBAR];            // The tab rectangles
@@ -170,30 +169,44 @@ static void   gfx_init_blip_data();
 //--------------------------------------------------------------------------------------------
 // GFX implementation
 //--------------------------------------------------------------------------------------------
-void GFX::initialize()
-{
-    // Initialize SDL and initialize OpenGL.
-    GFX::initializeSDLGraphics(); ///< @todo Error handling.
-    GFX::initializeOpenGL();      ///< @todo Error handling.
-
-
-
-    // initialize the dynalist frame
-    // otherwise, it will not update until the frame count reaches whatever
-    // left over or random value is in this counter
+GFX::GFX() {
+    // Initialize SDL.
+    GFX::initializeSDLGraphics();
+    try {
+        // Initialize OpenGL.
+        GFX::initializeOpenGL();
+    } catch (...) {
+        GFX::uninitializeSDLGraphics();
+        std::rethrow_exception(std::current_exception());
+    }
+                                  // initialize the dynalist frame
+                                  // otherwise, it will not update until the frame count reaches whatever
+                                  // left over or random value is in this counter
     _dynalist.frame = -1;
     _dynalist.size = 0;
 
-    // begin the billboard system
-    BillboardSystem::initialize();
-
+    // Initialize the billboard system.
+    try {
+        BillboardSystem::initialize();
+    } catch (...) {
+        GFX::uninitializeOpenGL();
+        GFX::uninitializeSDLGraphics();
+        std::rethrow_exception(std::current_exception());
+    }
     // Initialize the texture atlas manager.
-    Ego::Graphics::TextureAtlasManager::initialize();
+    try {
+        Ego::Graphics::TextureAtlasManager::initialize();
+    } catch (...) {
+        BillboardSystem::uninitialize();
+        GFX::uninitializeOpenGL();
+        GFX::uninitializeSDLGraphics();
+        std::rethrow_exception(std::current_exception());
+    }
 }
 
-void GFX::uninitialize()
+GFX::~GFX()
 {
-    // End the billboard system.
+    // Uninitialize the billboard system.
     BillboardSystem::uninitialize();
 
     // Uninitialize the texture atlas manager.
@@ -202,7 +215,10 @@ void GFX::uninitialize()
     // Uninitialize the profiling variables.
 	reinitClocks(); // Important: clear out the sliding windows of the clocks.
 
+    // Uninitialize OpenGL.
     GFX::uninitializeOpenGL();
+
+    // Uninitialize SDL graphics.
     GFX::uninitializeSDLGraphics();
 }
 
@@ -210,7 +226,7 @@ void GFX::uninitializeOpenGL()
 {
 }
 
-int GFX::initializeOpenGL()
+void GFX::initializeOpenGL()
 {
     using namespace Ego;
 
@@ -252,13 +268,6 @@ int GFX::initializeOpenGL()
     //Initialize the motion blur buffer
     renderer.getAccumulationBuffer().setClearValue(Colour4f(0.0f, 0.0f, 0.0f, 1.0f));
     renderer.getAccumulationBuffer().clear();
-
-    // Load the current graphical settings
-    // gfx_system_load_assets();
-
-    _ogl_initialized = true;
-
-    return _ogl_initialized && Ego::GraphicsSystem::initialized;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -388,7 +397,7 @@ void gfx_system_release_all_graphics()
     gfx_init_bar_data();
     gfx_init_blip_data();
     BillboardSystem::get().reset();
-    TextureManager::get().release_all();
+    Ego::TextureManager::get().release_all();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -413,7 +422,7 @@ void gfx_system_reload_all_textures()
     /// @details function is called when the graphics mode is changed or the program is
     /// restored from a minimized state. Otherwise, all OpenGL bitmaps return to a random state.
 
-    TextureManager::get().reupload();
+    Ego::TextureManager::get().reupload();
     Ego::Graphics::TextureAtlasManager::get().reupload();
 }
 
@@ -431,7 +440,7 @@ void draw_blip(float sizeFactor, Uint8 color, float x, float y)
     //Now draw it
     if (x > 0.0f && y > 0.0f)
     {
-        std::shared_ptr<const Ego::Texture> ptex = TextureManager::get().getTexture("mp_data/blip");
+        std::shared_ptr<const Ego::Texture> ptex = Ego::TextureManager::get().getTexture("mp_data/blip");
 
         tx_rect.xmin = (float)bliprect[color]._left / (float)ptex->getWidth();
         tx_rect.xmax = (float)bliprect[color]._right / (float)ptex->getWidth();
@@ -797,7 +806,7 @@ void draw_mouse_cursor()
     //    return;
     //}
 
-    const std::shared_ptr<Ego::Texture> &pcursor = TextureManager::get().getTexture("mp_data/cursor");
+    const std::shared_ptr<Ego::Texture> &pcursor = Ego::TextureManager::get().getTexture("mp_data/cursor");
 
     // Invalid texture?
     if (nullptr == pcursor)

@@ -17,52 +17,30 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Math/Rotatable.h
-/// @brief  Poor-man substitute for concepts.
-///         Concepts are not yet available in current C++ revisions.
+/// @file egolib/Math/Closure_AxisAlignedCube_AxisAlignedCube.hpp
+/// @brief Enclose a axis aligned cube in an axis aligned cube.
 /// @author Michael Heilmann
-
 
 #pragma once
 
-#include "egolib/Math/Vector.hpp"
+#include "egolib/Math/Closure.hpp"
 
 namespace Ego {
 namespace Math {
 
-/** 
- * @brief
- *  The interface of an entity that can be rotated.
- */
-template <typename _VectorSpaceType>
-struct Rotatable {
-    /**
-     * @brief
-     *  The vector space type.
-     */
-    typedef _VectorSpaceType VectorSpaceType;
-    /**
-     * @brief
-     *  The scalar field type.
-     */
-    typedef typename VectorSpaceType::ScalarFieldType ScalarFieldType;
-    /** 
-     * @brief
-     *  The vector type.
-     */
-    typedef typename VectorSpaceType::VectorType VectorType;
-    /**
-     * @brief
-     *  Rotate this entity.
-     * @param axis
-     *  the rotation axis
-     * @param angle
-     *  the rotation angle
-     * @throw std::invalid_argument
-     *  if the rotation axis is the zero vector
-     */
-    virtual void rotate(const VectorType& axis, float angle) = 0;
-};
+/// Enclose an axis aligned cube into an axis aligned cube.
+/// The axis aligned cube closure \f$C(A)\f$ of an axis aligned cube \f$A\f$ is \f$A\f$ itself i.e. \f$C(A) = A\f$.
+template <typename _EuclideanSpaceType>
+struct ConvexHull<AxisAlignedCube<_EuclideanSpaceType>, AxisAlignedCube<_EuclideanSpaceType>> {
+public:
+    typedef _EuclideanSpaceType EuclideanSpaceType;
+    typedef AxisAlignedCube<EuclideanSpaceType> SourceType;
+    typedef AxisAlignedCube<EuclideanSpaceType> TargetType;
+public:
+    inline TargetType operator()(const SourceType& source) const {
+        return source;
+    }
+}; // struct Closure
 
 } // namespace Math
 } // namespace Ego

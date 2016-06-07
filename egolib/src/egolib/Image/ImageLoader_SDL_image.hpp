@@ -21,24 +21,19 @@
 
 #include "egolib/Image/ImageLoader.hpp"
 
+namespace Ego {
+namespace Internal {
+
 struct ImageLoader_SDL_image : public ImageLoader {
+    using String = ImageLoader::String;
+    template <typename T> using Set = ImageLoader::Set<T>;
 
-protected:
-
-    using string = std::string;
-
-    // Befriend with ImageManager.
-    friend class ImageManager;
-
-#if 0
-    // Questionable style. std::make_unique is well-specified but it's actually not controlled by us and hence should not be "friended".
-    // Befriend with make unique.
-    /*template <typename ... Args>*/
-    friend std::unique_ptr<ImageLoader_SDL_Image> std::make_unique<ImageLoader_SDL_Image>(/*Args&&... args*/);
-#endif
-
-    ImageLoader_SDL_image(const string& extension);
+public:
+    ImageLoader_SDL_image(const Set<String>& extensions);
 
     virtual std::shared_ptr<SDL_Surface> load(vfs_FILE *file) const override;
 
 };
+
+} // namespace Internal
+} // namespace Ego

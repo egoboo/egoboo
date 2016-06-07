@@ -184,7 +184,7 @@ gfx_rv MadRenderer::render_enviro( Camera& cam, const std::shared_ptr<Object>& p
     std::shared_ptr<const Ego::Texture> ptex = nullptr;
 	if (HAS_SOME_BITS(bits, CHR_PHONG))
 	{
-		ptex = TextureManager::get().getTexture("mp_data/phong");
+		ptex = Ego::TextureManager::get().getTexture("mp_data/phong");
 	}
 
 	if (!GL_DEBUG(glIsEnabled)(GL_BLEND))

@@ -24,7 +24,6 @@
 
 //
 #include "egolib/Math/Math.hpp"
-#include "egolib/Math/Convex.hpp"
 #include "egolib/Math/Random.hpp"
 #include "egolib/Math/Standard.hpp"
 #include "egolib/Math/Transform.hpp"
@@ -70,6 +69,17 @@
 #include "egolib/Math/Functors/Translate_Point.hpp"
 #include "egolib/Math/Functors/Translate_Ray.hpp"
 #include "egolib/Math/Functors/Translate_Sphere.hpp"
+
+
+//
+#include "egolib/Math/Closure_AxisAlignedBox_AxisAlignedBox.hpp"
+#include "egolib/Math/Closure_AxisAlignedBox_AxisAlignedCube.hpp"
+#include "egolib/Math/Closure_AxisAlignedBox_Sphere.hpp"
+#include "egolib/Math/Closure_AxisAlignedCube_AxisAlignedBox.hpp"
+#include "egolib/Math/Closure_AxisAlignedCube_AxisAlignedCube.hpp"
+#include "egolib/Math/Closure_Sphere_AxisAlignedBox.hpp"
+#include "egolib/Math/Closure_Sphere_Sphere.hpp"
+
 
 //
 #include "egolib/Math/Discrete.hpp"

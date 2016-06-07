@@ -26,36 +26,30 @@
 
 #include "egolib/Log/_Include.hpp"
 
-namespace Ego
-{
-    void FontManager::initialize()
-    {
-        if (isInitialized()) return;
-		Log::get().info( "Initializing the SDL_ttf font handler version %i.%i.%i... ", SDL_TTF_MAJOR_VERSION, SDL_TTF_MINOR_VERSION, SDL_TTF_PATCHLEVEL );
-        if ( TTF_Init() < 0 )
-        {
-			Log::get().message( "Failed!\n" );
-        }
-        else
-        {
-			Log::get().message( "Success!\n" );
-        }
+namespace Ego {
+
+FontManager::FontManager() {
+    Log::get().info("[font manager]: SDL_ttf %i.%i.%i\n", SDL_TTF_MAJOR_VERSION, SDL_TTF_MINOR_VERSION, SDL_TTF_PATCHLEVEL);
+    if (TTF_Init() < 0) {
+        Log::Entry e(Log::Level::Warning, __FILE__, __LINE__);
+        e << "[font manager]: unable to initialized SDL_ttf: " << SDL_GetError() << Log::EndOfLine;
+        Log::get() << e;
+        throw Id::EnvironmentErrorException(__FILE__, __LINE__, "font manager",
+                                            std::string("unable to initialized SDL_ttf: ") + SDL_GetError());
     }
-    
-    void FontManager::uninitialize()
-    {
-        if (!isInitialized()) throw std::runtime_error("font manager not initialized!");
-        TTF_Quit();
-    }
-    
-    bool FontManager::isInitialized()
-    {
-        return 1 == TTF_WasInit();
-    }
-    
-    std::shared_ptr<Font> FontManager::loadFont(const std::string &fileName, int pointSize)
-    {
-        if (!isInitialized()) throw std::runtime_error("font manager not initialized!");
-        return std::shared_ptr<Font>(new Font(fileName, pointSize));
-    }    
 }
+
+FontManager::~FontManager() {
+    TTF_Quit();
+}
+
+std::shared_ptr<Font> FontManager::loadFont(const std::string &fileName, int pointSize) {
+    auto *font = new Font(fileName, pointSize);
+    try {
+        return std::shared_ptr<Font>(font);
+    } catch (...) {
+        delete font;
+        std::rethrow_exception(std::current_exception());
+    }
+}
+} // namespace Ego

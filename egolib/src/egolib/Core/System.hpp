@@ -105,8 +105,8 @@ protected:
 
 class System : public Singleton<System> {
 protected:
-    friend struct CreateFunctor<System>;
-    friend struct DestroyFunctor<System>;
+    friend Singleton<System>::CreateFunctorType;
+    friend Singleton<System>::DestroyFunctorType;
     /**
      * @brief
      *  Construct this system.

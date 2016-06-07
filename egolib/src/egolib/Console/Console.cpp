@@ -36,34 +36,10 @@
 #include "egolib/_math.h"
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
 
 Ego::Core::Console *egolib_console_top = nullptr;
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-/**
- * @brief
- *  This class is to wrap the font's std::shared_ptr for use in calloc and friends
- * @todo
- *  Remove this when egolib_console_t is a proper C++ class.
- */
-class egolib_console_FontWrapper final
-{
-public:
-    egolib_console_FontWrapper(const std::shared_ptr<Ego::Font> &font) :
-    _font(font)
-    {
-        // ctor
-    }
-    ~egolib_console_FontWrapper()
-    {
-        // dtor
-    }
-    std::shared_ptr<Ego::Font> _font;
-};
 
 namespace Ego {
 namespace Core {
@@ -478,9 +454,9 @@ bool Console::draw()
             strncat(buffer, this->buffer, 1022);
             buffer[1022] = CSTR_END;
 
-            this->pfont->_font->getTextSize(buffer, &textWidth, &textHeight);
+            this->pfont->getTextSize(buffer, &textWidth, &textHeight);
             height -= textHeight;
-            this->pfont->_font->drawText(buffer, pwin->x, height - textHeight, white);
+            this->pfont->drawText(buffer, pwin->x, height - textHeight, white);
 
             if (CSTR_END != this->output_buffer[0]) {
                 // grab the line offsets
@@ -510,9 +486,9 @@ bool Console::draw()
                     strncpy(buffer, this->output_buffer + console_line_offsets[j], len);
                     buffer[len] = CSTR_END;
 
-                    this->pfont->_font->getTextSize(buffer, &textWidth, &textHeight);
+                    this->pfont->getTextSize(buffer, &textWidth, &textHeight);
                     height -= textHeight;
-                    this->pfont->_font->drawText(buffer, pwin->x, height - textHeight, white);
+                    this->pfont->drawText(buffer, pwin->x, height - textHeight, white);
                 }
             }
         }
@@ -598,7 +574,7 @@ Console::Console(SDL_Rect rectangle, Console::Callback callback, void *data)
 	this->pnext = nullptr;
 
 	// set the console's font
-	this->pfont = new egolib_console_FontWrapper(Ego::FontManager::loadFont("mp_data/pc8x8.fon", 12));
+	this->pfont = Ego::FontManager::get().loadFont("mp_data/pc8x8.fon", 12);
 
 	// set the console's rectangle
 	this->rect = rectangle;
@@ -622,9 +598,6 @@ bool Console::run()
 
 Console::~Console()
 {
-	// Delete its font.
-	delete this->pfont;
-	this->pfont = nullptr;
 }
 
 void Console::show()

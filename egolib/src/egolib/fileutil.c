@@ -1633,66 +1633,17 @@ bool vfs_get_next_bool(ReadContext& ctxt) {
 bool ego_texture_exists_vfs(const std::string &filename)
 {
     // Try all different formats.
-    for (const auto& loader : ImageManager::get())
+    for (const auto& loader : Ego::ImageManager::get())
     {
-        // Build the full file name.
-        std::string fullFilename = filename + loader.getExtension();
-        if(vfs_exists(fullFilename)) {
-            return true;
+        for (const auto& extension : loader.getExtensions()) {
+            // Build the full file name.
+            std::string fullFilename = filename + extension;
+            if (vfs_exists(fullFilename)) {
+                return true;
+            }
         }
     }
     return false;
-}
-
-bool  ego_texture_load_vfs(std::shared_ptr<Ego::Texture> texture, const char *filename)
-{
-    // Get rid of any old data.
-    texture->release();
-
-    // Load the image.
-    bool retval = false;
-
-    // Try all different formats.
-    for (const auto& loader : ImageManager::get())
-    {
-        texture->release();
-        // Build the full file name.
-        std::string fullFilename = filename + loader.getExtension();
-        // Open the file.
-        vfs_FILE *file = vfs_openRead(fullFilename);
-        if (!file)
-        {
-            continue;
-        }
-        // Stream the surface.
-        std::shared_ptr<SDL_Surface> surface = nullptr;
-        try
-        {
-            surface = loader.load(file);
-        }
-        catch (...)
-        {
-            vfs_close(file);
-            continue;
-        }
-        vfs_close(file);
-        if (!surface)
-        {
-            continue;
-        }
-        // Create the texture from the surface.
-        retval = texture->load(fullFilename.c_str(), surface);
-        if (retval)
-        {
-            break;
-        }
-    }
-
-    if(!retval) {
-        Log::get().warn("unable to load texture: %s\n", vfs_resolveReadFilename(filename));
-    }
-
-    return retval;
 }
 
 //--------------------------------------------------------------------------------------------

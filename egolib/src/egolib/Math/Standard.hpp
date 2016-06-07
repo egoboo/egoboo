@@ -44,12 +44,16 @@ using Vector2i = Ego::Math::Discrete::Vector2<int>;
 /// single-precision floating-point field
 using OrderedFieldf = Ego::Math::OrderedField<float>;
 
+
+
 /// single-precision floating-point 2d vector space
 using VectorSpace2f = Ego::Math::VectorSpace<OrderedFieldf, 2>;
 /// single-precision floating-point 3d vector space
 using VectorSpace3f = Ego::Math::VectorSpace<OrderedFieldf, 3>;
 /// single-precision floating-point 4d vector space
 using VectorSpace4f = Ego::Math::VectorSpace<OrderedFieldf, 4>;
+
+
 
 /// single-precision floating-point 2d Euclidean space
 using EuclideanSpace2f = Ego::Math::EuclideanSpace<VectorSpace2f>;
@@ -58,46 +62,69 @@ using EuclideanSpace3f = Ego::Math::EuclideanSpace<VectorSpace3f>;
 /// single-precision floating-point 4d Euclidean space
 using EuclideanSpace4f = Ego::Math::EuclideanSpace<VectorSpace4f>;
 
-/// single-precision floating-point 2d vector
-typedef Ego::Math::Vector<OrderedFieldf, 2> Vector2f;
-/// single-precision floating-point 3d vector
-typedef Ego::Math::Vector<OrderedFieldf, 3> Vector3f;
-/// single-precision floating-point 4d vector
-typedef Ego::Math::Vector<OrderedFieldf, 4> Vector4f;
+
+
+/// single-precision floating-point 2d vector.
+using Vector2f = Ego::Math::Vector<OrderedFieldf, 2>;
+/// single-precision floating-point 3d vector.
+using Vector3f = Ego::Math::Vector<OrderedFieldf, 3>;
+/// single-precision floating-point 4d vector.
+using Vector4f = Ego::Math::Vector<OrderedFieldf, 4>;
 
 
 
+/// single-precision floating-point 2d point.
+using Point2f = Ego::Math::Point<VectorSpace2f>;
+/// single-precision floating-point 3d point.
+using Point3f = Ego::Math::Point<VectorSpace3f>;
+/// single-precision floating-point 4d point.
+using Point4f = Ego::Math::Point<VectorSpace4f>;
 
 
-/// A 3D sphere.
-typedef Ego::Math::Sphere<EuclideanSpace3f> Sphere3f;
 
+/// single-precision floating-point 2d axis aligned box.
+using AxisAlignedBox2f = Ego::Math::AxisAlignedBox<EuclideanSpace2f>;
+/// single-precision floating-point rectangle (i.e. an axis aligned box in 2d),
+using Rectangle2f = AxisAlignedBox2f;
 /// A 3D axis aligned box.
-typedef Ego::Math::AxisAlignedBox<EuclideanSpace3f> AxisAlignedBox3f;
+using AxisAlignedBox3f = Ego::Math::AxisAlignedBox<EuclideanSpace3f>;
 
-/// A 2D axis aligned box.
-typedef Ego::Math::AxisAlignedBox<EuclideanSpace2f> AxisAlignedBox2f;
+
+
+/// single-precision floating-point 2d sphere.
+using Sphere2f = Ego::Math::Sphere<EuclideanSpace2f>;
+/// single-precision floating-point circle (i.e. a sphere in 2d).
+using Circle2f = Sphere2f;
+/// single-precision floating-point 3d sphere.
+using Sphere3f = Ego::Math::Sphere<EuclideanSpace3f>;
+
+
+
+/// single-precision floating-point 2d line.
+using Line2f = Ego::Math::Line<EuclideanSpace2f>;
+/// single-precision floating-point 3d line.
+using Line3f = Ego::Math::Line<EuclideanSpace3f>;
+
+
+
+/// single-precision floating-point 2d ray.
+using Ray2f = Ego::Math::Ray<EuclideanSpace2f>;
+/// single-precision floating-point 3d ray.
+using Ray3f = Ego::Math::Ray<EuclideanSpace3f>;
+
+
+
+/// single-precision floating-point 2d plane.
+using Plane3f = Ego::Math::Plane3<EuclideanSpace3f>;
+
+
 
 /// A 3D cone.
 typedef Ego::Math::Cone3<EuclideanSpace3f> Cone3f;
-
 /// A 3D axis aligned cube.
 typedef Ego::Math::AxisAlignedCube<EuclideanSpace3f> AxisAlignedCube3f;
 
-/// A 3D line.
-typedef Ego::Math::Line<EuclideanSpace3f> Line3f;
 
-/// A 3D ray.
-typedef Ego::Math::Ray<EuclideanSpace3f> Ray3f;
-
-/// A 2D point.
-typedef Ego::Math::Point<VectorSpace2f> Point2f;
-
-/// A 3D point.
-typedef Ego::Math::Point<VectorSpace3f> Point3f;
-
-/// A 3D plane.
-typedef Ego::Math::Plane3<EuclideanSpace3f> Plane3f;
 
 namespace Ego {
 namespace Math {

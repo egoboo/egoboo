@@ -210,7 +210,7 @@ void GameEngine::updateOneFrame()
     pollEvents();
 
     //Deferred loading for any textures requested by other threads
-    TextureManager::get().updateDeferredLoading();
+    Ego::TextureManager::get().updateDeferredLoading();
 
     //Update current game state
     _currentGameState->update();
@@ -485,7 +485,7 @@ void GameEngine::uninitialize()
     GFX::uninitialize();
 
     // Uninitialize the image manager.
-    ImageManager::uninitialize();
+    Ego::ImageManager::uninitialize();
 
 	// Uninitialize the input system.
 	InputSystem::uninitialize();

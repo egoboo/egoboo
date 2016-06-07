@@ -497,6 +497,10 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Math\Closure_AxisAlignedCube_AxisAlignedBox.hpp" />
+    <ClInclude Include="src\egolib\Math\Closure_AxisAlignedBox_AxisAlignedCube.hpp" />
+    <ClInclude Include="src\egolib\Math\Closure_Sphere_Sphere.hpp" />
+    <ClInclude Include="src\egolib\Math\Closure_AxisAlignedBox_AxisAlignedBox.hpp" />
     <ClInclude Include="src\egolib\Input\Device.hpp" />
     <ClInclude Include="src\egolib\Input\Mapping.hpp" />
     <ClInclude Include="src\egolib\Input\DeviceEventArgs.hpp" />
@@ -541,8 +545,8 @@
     <ClInclude Include="src\egolib\Math\Functors\Translate_Point.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\Translate_Ray.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\Translate_Sphere.hpp" />
-    <ClInclude Include="src\egolib\Math\Generator_ColourRgba.hpp" />
-    <ClInclude Include="src\egolib\Math\Generator_ColourRgb.hpp" />
+    <ClInclude Include="src\egolib\Math\Closure_AxisAlignedBox_Sphere.hpp" />
+    <ClInclude Include="src\egolib\Math\Closure_Sphere_AxisAlignedBox.hpp" />
     <ClInclude Include="src\egolib\Math\Constants.hpp" />
     <ClInclude Include="src\egolib\Extensions\WindowProperties.hpp" />
     <ClInclude Include="src\egolib\Math\One.hpp" />
@@ -605,7 +609,7 @@
     <ClInclude Include="src\egolib\Graphics\Camera.hpp" />
     <ClInclude Include="src\egolib\Math\Transform.hpp" />
     <ClInclude Include="src\egolib\Math\Matrix.hpp" />
-    <ClInclude Include="src\egolib\Math\Rotatable.hpp" />
+    <ClInclude Include="src\egolib\Math\Closure_AxisAlignedCube_AxisAlignedCube.hpp" />
     <ClInclude Include="src\egolib\Math\OrderedField.hpp" />
     <ClInclude Include="src\egolib\Logic\Attribute.hpp" />
     <ClInclude Include="src\egolib\Logic\Perk.hpp" />
@@ -626,7 +630,7 @@
     <ClInclude Include="src\egolib\Math\Scalar.hpp" />
     <ClInclude Include="src\egolib\Math\Standard.hpp" />
     <ClInclude Include="src\egolib\Math\AxisAlignedBox.hpp" />
-    <ClInclude Include="src\egolib\Math\Convex.hpp" />
+    <ClInclude Include="src\egolib\Math\Closure.hpp" />
     <ClInclude Include="src\egolib\VFS\Pathname.hpp" />
     <ClInclude Include="src\egolib\AI\WaypointList.h" />
     <ClInclude Include="src\egolib\Graphics\ModelDescriptor.hpp" />

@@ -25,17 +25,13 @@
 #include "egolib/typedef.h"
 #include "egolib/Renderer/Renderer.hpp"
 
-//--------------------------------------------------------------------------------------------
+namespace Ego {
 
-struct TextureManager : public Ego::Core::Singleton <TextureManager>
-{
+struct TextureManager : public Core::Singleton<TextureManager> {
 protected:
-    using MyCreateFunctor = Ego::Core::CreateFunctor<TextureManager>;
-    friend MyCreateFunctor;
-
-    using MyDestroyFunctor = Ego::Core::DestroyFunctor<TextureManager>;
-    friend MyDestroyFunctor;
-
+    friend Core::Singleton<TextureManager>::CreateFunctorType;
+    friend Core::Singleton<TextureManager>::DestroyFunctorType;
+protected:
     /**
      * @brief
      *  Construct this texture manager.
@@ -78,17 +74,19 @@ public:
      *  File path of the texture to load
      * @return
      *  The texture loaded by this texture manager. Could be the error texture if the specified
-     *  path cannot be found. 
+     *  path cannot be found.
      */
-    const std::shared_ptr<Ego::Texture>& getTexture(const std::string &filePath);
+    const std::shared_ptr<Texture>& getTexture(const std::string &filePath);
 
     void updateDeferredLoading();
 
 private:
-	std::forward_list<std::shared_ptr<Ego::Texture>> _unload;
-    std::unordered_map<std::string, std::shared_ptr<Ego::Texture>> _textureCache;
+    std::forward_list<std::shared_ptr<Texture>> _unload;
+    std::unordered_map<std::string, std::shared_ptr<Texture>> _textureCache;
 
     std::mutex _deferredLoadingMutex;
     std::forward_list<std::string> _requestedLoadDeferredTextures;
     std::condition_variable _notifyDeferredLoadingComplete;
 };
+
+} // namespace Ego

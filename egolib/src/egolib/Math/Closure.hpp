@@ -17,29 +17,36 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/Graphics/FontManager.hpp
-/// @brief TTF management
-/// @details TrueType font drawing functionality.  Uses the SDL_ttf module
-///          to do its business. This depends on SDL_ttf and OpenGL.
-
 #pragma once
 
-#include "egolib/Core/Singleton.hpp"
-#include "egolib/typedef.h"
-#include "egolib/Graphics/Font.hpp"
+#include "egolib/Math/VectorSpace.hpp"
+#include "egolib/Math/AxisAlignedBox.hpp"
+#include "egolib/Math/AxisAlignedCube.hpp"
+#include "egolib/Math/Sphere.hpp"
 
 namespace Ego {
+namespace Math {
 
-class FontManager : public Core::Singleton<FontManager> {
-public:
-    std::shared_ptr<Font> loadFont(const std::string &fileName, int pointSize);
+/**
+ * @brief
+ *  Compute a volume enclosing a given volume.
+ * @tparam _SourceType
+ *  the type of the enclosed values.
+ *  A member typedef @a SourceType is provided.
+ *  the source volume
+ * @param _TargetType
+ *  the type of the enclosing values.
+ *  A member typedef @a TargetType is provided.
+ * @remark
+ *  If a specialization exists, then the specialization provides defines a `operator()` that
+ *  - accepts a single argument value of type @a _SourceType
+ *  - returns a single return value of type @a _TargetType
+ *  such that
+ *  - the returned value represents the value of type @a _TargetType enclosing the accepted value
+ *  of type @a _SourceType.
+ */
+template <typename _TargetType, typename _SourceType>
+struct ConvexHull;
 
-protected:
-    friend Core::Singleton<FontManager>::CreateFunctorType;
-    friend Core::Singleton<FontManager>::DestroyFunctorType;
-
-    FontManager();
-    ~FontManager();
-};
-
+} // namespace Math
 } // namespace Ego

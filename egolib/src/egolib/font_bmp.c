@@ -68,7 +68,7 @@ void font_bmp_load_vfs( const std::string& szBitmap, const char* szSpacing )
     ///    of each font on that bitmap...  Bitmap must have 16x6 fonts
     font_bmp_init();
 
-    const std::shared_ptr<Ego::Texture> &fontTexture = TextureManager::get().getTexture(szBitmap);
+    const std::shared_ptr<Ego::Texture> &fontTexture = Ego::TextureManager::get().getTexture(szBitmap);
 	if (fontTexture->isDefault())
     {
 		std::ostringstream os;

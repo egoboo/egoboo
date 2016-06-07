@@ -17,22 +17,29 @@
 //*
 //********************************************************************************************
 
-#include "egolib/Image/ImageLoader_SDL.hpp"
+/// @file egolib/Math/Closure_AxisAlignedBox_AxisAlignedBox.hpp
+/// @brief Enclose an axis aligned boxes in an axis aligned boxes.
+/// @author Michael Heilmann
+
+#pragma once
+
+#include "egolib/Math/Closure.hpp"
 
 namespace Ego {
-namespace Internal {
+namespace Math {
 
-ImageLoader_SDL::ImageLoader_SDL(const Set<String>& extensions)
-    : ImageLoader(extensions) {
-}
-
-std::shared_ptr<SDL_Surface> ImageLoader_SDL::load(vfs_FILE *file) const {
-    SDL_Surface *surface = SDL_LoadBMP_RW(vfs_openRWops(file, false), 1);
-    if (!surface) {
-        return nullptr;
+/// Enclose an axis aligned box into an axis aligned box.
+/// The axis aligned box closure \f$C(A)\f$ of an axis aligned box \f$A\f$ is \f$A\f$ itself i.e. \f$C(A) = A\f$.
+template <typename _EuclideanSpaceType>
+struct ConvexHull<AxisAlignedBox<_EuclideanSpaceType>, AxisAlignedBox<_EuclideanSpaceType>> {
+    typedef _EuclideanSpaceType EuclideanSpaceType;
+    typedef AxisAlignedBox<_EuclideanSpaceType> SourceType;
+    typedef AxisAlignedBox<_EuclideanSpaceType> TargetType;
+public:
+    inline TargetType operator()(const SourceType& source) const {
+        return source;
     }
-    return std::shared_ptr<SDL_Surface>(surface, [ ](SDL_Surface *pSurface) { SDL_FreeSurface(pSurface); });
-}
+}; // struct Closure
 
-} // namespace Internal
+} // namespace Math
 } // namespace Ego
