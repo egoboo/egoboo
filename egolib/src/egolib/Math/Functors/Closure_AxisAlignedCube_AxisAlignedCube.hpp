@@ -17,29 +17,28 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/Math/Closure_Sphere_AxisAlignedBox.hpp
-/// @brief Enclose axis aligned boxes in spheres.
+/// @file egolib/Math/Functors/Closure_AxisAlignedCube_AxisAlignedCube.hpp
+/// @brief Enclose a axis aligned cube in an axis aligned cube.
 /// @author Michael Heilmann
 
 #pragma once
 
-#include "egolib/Math/ColourRgb.hpp"
+#include "egolib/Math/Functors/Closure.hpp"
 
 namespace Ego {
 namespace Math {
 
-/// Enclose an axis aligned box in a sphere.
+/// Enclose an axis aligned cube into an axis aligned cube.
+/// The axis aligned cube closure \f$C(A)\f$ of an axis aligned cube \f$A\f$ is \f$A\f$ itself i.e. \f$C(A) = A\f$.
 template <typename _EuclideanSpaceType>
-struct ConvexHull<Sphere<_EuclideanSpaceType>, AxisAlignedBox<_EuclideanSpaceType>> {
+struct Closure<AxisAlignedCube<_EuclideanSpaceType>, AxisAlignedCube<_EuclideanSpaceType>> {
 public:
     typedef _EuclideanSpaceType EuclideanSpaceType;
-    typedef AxisAlignedBox<_EuclideanSpaceType> SourceType;
-    typedef Sphere<_EuclideanSpaceType> TargetType;
+    typedef AxisAlignedCube<EuclideanSpaceType> SourceType;
+    typedef AxisAlignedCube<EuclideanSpaceType> TargetType;
 public:
     inline TargetType operator()(const SourceType& source) const {
-        const auto center = source.getCenter();
-        const auto radius = (source.getMin() - center).length();
-        return TargetType(center, radius);
+        return source;
     }
 }; // struct Closure
 

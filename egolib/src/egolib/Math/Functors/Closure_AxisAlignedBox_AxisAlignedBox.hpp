@@ -17,27 +17,27 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/Math/Closure_AxisAlignedCube_AxisAlignedCube.hpp
-/// @brief Enclose a axis aligned cube in an axis aligned cube.
+/// @file egolib/Math/Functors/Closure_AxisAlignedBox_AxisAlignedBox.hpp
+/// @brief Enclose an axis aligned boxes in an axis aligned boxes.
 /// @author Michael Heilmann
 
 #pragma once
 
+#include "egolib/Math/Functors/Closure.hpp"
+
 namespace Ego {
 namespace Math {
 
-/// Enclose an axis aligned cube in an axis aligned box.
-/// Let \f$min\f$ be the minimal point and \f$max\f$ be the maximal point of the axis aligned cube.
-/// The axis aligned box with the same minimal and maximal point is the smallest axis aligned box enclosing that axis aligned cube.
+/// Enclose an axis aligned box into an axis aligned box.
+/// The axis aligned box closure \f$C(A)\f$ of an axis aligned box \f$A\f$ is \f$A\f$ itself i.e. \f$C(A) = A\f$.
 template <typename _EuclideanSpaceType>
-struct ConvexHull<AxisAlignedBox<_EuclideanSpaceType>, AxisAlignedCube<_EuclideanSpaceType>> {
-public:
+struct Closure<AxisAlignedBox<_EuclideanSpaceType>, AxisAlignedBox<_EuclideanSpaceType>> {
     typedef _EuclideanSpaceType EuclideanSpaceType;
-    typedef AxisAlignedCube<EuclideanSpaceType> SourceType;
-    typedef AxisAlignedBox<EuclideanSpaceType> TargetType;
+    typedef AxisAlignedBox<_EuclideanSpaceType> SourceType;
+    typedef AxisAlignedBox<_EuclideanSpaceType> TargetType;
 public:
     inline TargetType operator()(const SourceType& source) const {
-        return TargetType(source.getMin(), source.getMax());
+        return source;
     }
 }; // struct Closure
 

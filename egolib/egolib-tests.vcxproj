@@ -32,9 +32,9 @@
     <ClCompile Include="tests\egolib\Tests\Compilation.cpp" />
     <ClCompile Include="tests\egolib\Tests\Math\ColourMath.cpp" />
     <ClCompile Include="tests\egolib\Tests\Math\Contains.cpp" />
-    <ClCompile Include="tests\egolib\Tests\Math\ConvexHullMath.cpp" />
+    <ClCompile Include="tests\egolib\Tests\Math\Closure.cpp" />
     <ClCompile Include="tests\egolib\Tests\Math\Intersects.cpp" />
-    <ClCompile Include="tests\egolib\Tests\Math\MathConstants.cpp" />
+    <ClCompile Include="tests\egolib\Tests\Math\Constants.cpp" />
     <ClCompile Include="tests\egolib\Tests\Math\MatrixMath.cpp" />
     <ClCompile Include="tests\egolib\Tests\Math\PointMath.cpp" />
     <ClCompile Include="tests\egolib\Tests\Math\VectorMath.cpp" />

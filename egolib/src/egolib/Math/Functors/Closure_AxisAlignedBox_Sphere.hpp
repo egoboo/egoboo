@@ -17,30 +17,38 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/Math/Closure_AxisAlignedCube_AxisAlignedCube.hpp
-/// @brief Enclose a axis aligned cube in an axis aligned cube.
+/// @file egolib/Math/Functors/Closure_AxisAlignedBox_Sphere.hpp
+/// @brief Enclose spheres in axis aligned boxes.
 /// @author Michael Heilmann
 
 #pragma once
 
-#include "egolib/Math/Closure.hpp"
+#include "egolib/Math/Functors/Closure.hpp"
 
 namespace Ego {
 namespace Math {
 
-/// Enclose an axis aligned cube into an axis aligned cube.
-/// The axis aligned cube closure \f$C(A)\f$ of an axis aligned cube \f$A\f$ is \f$A\f$ itself i.e. \f$C(A) = A\f$.
+/// Enclose a sphere into an axis aligned box.
 template <typename _EuclideanSpaceType>
-struct ConvexHull<AxisAlignedCube<_EuclideanSpaceType>, AxisAlignedCube<_EuclideanSpaceType>> {
+struct Closure<AxisAlignedBox<_EuclideanSpaceType>, Sphere<_EuclideanSpaceType>> {
 public:
     typedef _EuclideanSpaceType EuclideanSpaceType;
-    typedef AxisAlignedCube<EuclideanSpaceType> SourceType;
-    typedef AxisAlignedCube<EuclideanSpaceType> TargetType;
+    typedef Sphere<EuclideanSpaceType> SourceType;
+    typedef AxisAlignedBox<EuclideanSpaceType> TargetType;
+protected:
+    typedef typename EuclideanSpaceType::VectorSpaceType VectorSpaceType;
+    typedef typename EuclideanSpaceType::ScalarFieldType ScalarFieldType;
+    typedef ConstantGenerator<typename ScalarFieldType::ScalarType> GeneratorType;
 public:
     inline TargetType operator()(const SourceType& source) const {
-        return source;
+        const auto center = source.getCenter();
+        const auto radius = source.getRadius();
+        static const auto one = typename VectorSpaceType::VectorType(GeneratorType(ScalarFieldType::multiplicativeNeutral()*radius),
+                                                                     std::make_index_sequence<VectorSpaceType::VectorType::dimensionality()>{});
+        const auto max = one;
+        const auto min = -max;
+        return TargetType(center + min, center + max);
     }
-}; // struct Closure
-
+};
 } // namespace Math
 } // namespace Ego

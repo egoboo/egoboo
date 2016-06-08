@@ -17,38 +17,31 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/Math/Closure_AxisAlignedBox_Sphere.hpp
-/// @brief Enclose spheres in axis aligned boxes.
+/// @file egolib/Math/Functors/Closure_Sphere_AxisAlignedBox.hpp
+/// @brief Enclose axis aligned boxes in spheres.
 /// @author Michael Heilmann
 
 #pragma once
 
-#include "egolib/Math/Closure.hpp"
+#include "egolib/Math/Functors/Closure.hpp"
 
 namespace Ego {
 namespace Math {
 
-/// Enclose a sphere into an axis aligned box.
+/// Enclose an axis aligned box in a sphere.
 template <typename _EuclideanSpaceType>
-struct ConvexHull<AxisAlignedBox<_EuclideanSpaceType>, Sphere<_EuclideanSpaceType>> {
+struct Closure<Sphere<_EuclideanSpaceType>, AxisAlignedBox<_EuclideanSpaceType>> {
 public:
     typedef _EuclideanSpaceType EuclideanSpaceType;
-    typedef Sphere<EuclideanSpaceType> SourceType;
-    typedef AxisAlignedBox<EuclideanSpaceType> TargetType;
-protected:
-    typedef typename EuclideanSpaceType::VectorSpaceType VectorSpaceType;
-    typedef typename EuclideanSpaceType::ScalarFieldType ScalarFieldType;
-    typedef ConstantGenerator<typename ScalarFieldType::ScalarType> GeneratorType;
+    typedef AxisAlignedBox<_EuclideanSpaceType> SourceType;
+    typedef Sphere<_EuclideanSpaceType> TargetType;
 public:
     inline TargetType operator()(const SourceType& source) const {
         const auto center = source.getCenter();
-        const auto radius = source.getRadius();
-        static const auto one = typename VectorSpaceType::VectorType(GeneratorType(ScalarFieldType::multiplicativeNeutral()*radius),
-                                                                     std::make_index_sequence<VectorSpaceType::VectorType::dimensionality()>{});
-        const auto max = one;
-        const auto min = -max;
-        return TargetType(center + min, center + max);
+        const auto radius = (source.getMin() - center).length();
+        return TargetType(center, radius);
     }
-};
+}; // struct Closure
+
 } // namespace Math
 } // namespace Ego

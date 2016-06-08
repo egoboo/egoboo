@@ -29,7 +29,16 @@ namespace Math {
 
 /**
  * @brief
- *  Compute a volume enclosing a given volume.
+ *  Functor computing the closure of a volume. The closure funcion $C[B,A]$ maps a volumes of type
+ *  \f$A\f$ to the set of volumes of type \f$B\f$. Considering volumes as sets of points for which
+ *  set equality relation \f$=\f$ and the subset relation are defined, then the following properties
+ *  hold: 
+ *  - \f$x \subseteq C[B,A](x)\f$
+ *  - \f$x \subseteq y \Rightarrow C[B,A](x) \subseteq C[B,A](y)\f$
+ *  - \f$C[B,A](x) = C[B,B](C[B,A](x))\f$ 
+ *  where \f$a\f$ and \f$b\f$ are volumes of type \f$a\f$ and \f$b\f$.
+ *  Assuming that \f$C[B,B]\f$ is defined for all supported types and
+ *  is simply the identity function \f$C[B,B](x) = Id[B](x)\f$
  * @tparam _SourceType
  *  the type of the enclosed values.
  *  A member typedef @a SourceType is provided.
@@ -46,7 +55,7 @@ namespace Math {
  *  of type @a _SourceType.
  */
 template <typename _TargetType, typename _SourceType>
-struct ConvexHull;
+struct Closure;
 
 } // namespace Math
 } // namespace Ego

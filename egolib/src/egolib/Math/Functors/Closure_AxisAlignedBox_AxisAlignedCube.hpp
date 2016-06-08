@@ -17,28 +17,27 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/Math/Closure_Sphere_Sphere.hpp
-/// @brief Enclose a sphere in a sphere.
+/// @file egolib/Math/Functors/Closure_AxisAlignedCube_AxisAlignedCube.hpp
+/// @brief Enclose a axis aligned cube in an axis aligned cube.
 /// @author Michael Heilmann
 
 #pragma once
 
-#include "egolib/Math/Closure.hpp"
-
 namespace Ego {
 namespace Math {
 
-/// Enclose a sphere into a sphere.
-/// The axis aligned box closure \f$C(A)\f$ of an axis aligned box \f$A\f$ is \f$A\f$ itself i.e. \f$C(A) = A\f$.
+/// Enclose an axis aligned cube in an axis aligned box.
+/// Let \f$min\f$ be the minimal point and \f$max\f$ be the maximal point of the axis aligned cube.
+/// The axis aligned box with the same minimal and maximal point is the smallest axis aligned box enclosing that axis aligned cube.
 template <typename _EuclideanSpaceType>
-struct ConvexHull<Sphere<_EuclideanSpaceType>, Sphere<_EuclideanSpaceType>> {
+struct Closure<AxisAlignedBox<_EuclideanSpaceType>, AxisAlignedCube<_EuclideanSpaceType>> {
 public:
     typedef _EuclideanSpaceType EuclideanSpaceType;
-    typedef Sphere<EuclideanSpaceType> SourceType;
-    typedef Sphere<EuclideanSpaceType> TargetType;
+    typedef AxisAlignedCube<EuclideanSpaceType> SourceType;
+    typedef AxisAlignedBox<EuclideanSpaceType> TargetType;
 public:
     inline TargetType operator()(const SourceType& source) const {
-        return source;
+        return TargetType(source.getMin(), source.getMax());
     }
 }; // struct Closure
 

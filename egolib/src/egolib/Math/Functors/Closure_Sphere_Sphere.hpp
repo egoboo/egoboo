@@ -17,24 +17,25 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/Math/Closure_AxisAlignedBox_AxisAlignedBox.hpp
-/// @brief Enclose an axis aligned boxes in an axis aligned boxes.
+/// @file egolib/Math/Functors/Closure_Sphere_Sphere.hpp
+/// @brief Enclose a sphere in a sphere.
 /// @author Michael Heilmann
 
 #pragma once
 
-#include "egolib/Math/Closure.hpp"
+#include "egolib/Math/Functors/Closure.hpp"
 
 namespace Ego {
 namespace Math {
 
-/// Enclose an axis aligned box into an axis aligned box.
+/// Enclose a sphere into a sphere.
 /// The axis aligned box closure \f$C(A)\f$ of an axis aligned box \f$A\f$ is \f$A\f$ itself i.e. \f$C(A) = A\f$.
 template <typename _EuclideanSpaceType>
-struct ConvexHull<AxisAlignedBox<_EuclideanSpaceType>, AxisAlignedBox<_EuclideanSpaceType>> {
+struct Closure<Sphere<_EuclideanSpaceType>, Sphere<_EuclideanSpaceType>> {
+public:
     typedef _EuclideanSpaceType EuclideanSpaceType;
-    typedef AxisAlignedBox<_EuclideanSpaceType> SourceType;
-    typedef AxisAlignedBox<_EuclideanSpaceType> TargetType;
+    typedef Sphere<EuclideanSpaceType> SourceType;
+    typedef Sphere<EuclideanSpaceType> TargetType;
 public:
     inline TargetType operator()(const SourceType& source) const {
         return source;

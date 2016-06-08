@@ -72,13 +72,13 @@
 
 
 //
-#include "egolib/Math/Closure_AxisAlignedBox_AxisAlignedBox.hpp"
-#include "egolib/Math/Closure_AxisAlignedBox_AxisAlignedCube.hpp"
-#include "egolib/Math/Closure_AxisAlignedBox_Sphere.hpp"
-#include "egolib/Math/Closure_AxisAlignedCube_AxisAlignedBox.hpp"
-#include "egolib/Math/Closure_AxisAlignedCube_AxisAlignedCube.hpp"
-#include "egolib/Math/Closure_Sphere_AxisAlignedBox.hpp"
-#include "egolib/Math/Closure_Sphere_Sphere.hpp"
+#include "egolib/Math/Functors/Closure_AxisAlignedBox_AxisAlignedBox.hpp"
+#include "egolib/Math/Functors/Closure_AxisAlignedBox_AxisAlignedCube.hpp"
+#include "egolib/Math/Functors/Closure_AxisAlignedBox_Sphere.hpp"
+#include "egolib/Math/Functors/Closure_AxisAlignedCube_AxisAlignedBox.hpp"
+#include "egolib/Math/Functors/Closure_AxisAlignedCube_AxisAlignedCube.hpp"
+#include "egolib/Math/Functors/Closure_Sphere_AxisAlignedBox.hpp"
+#include "egolib/Math/Functors/Closure_Sphere_Sphere.hpp"
 
 
 //

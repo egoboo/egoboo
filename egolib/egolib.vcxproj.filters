@@ -1241,29 +1241,29 @@
     <ClInclude Include="src\egolib\Input\Mapping.hpp">
       <Filter>Header Files\Input</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Math\Closure.hpp">
-      <Filter>Header Files\Math</Filter>
+    <ClInclude Include="src\egolib\Math\Functors\Closure.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Math\Closure_Sphere_AxisAlignedBox.hpp">
-      <Filter>Header Files\Math</Filter>
+    <ClInclude Include="src\egolib\Math\Functors\Closure_AxisAlignedBox_AxisAlignedBox.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Math\Closure_AxisAlignedBox_Sphere.hpp">
-      <Filter>Header Files\Math</Filter>
+    <ClInclude Include="src\egolib\Math\Functors\Closure_AxisAlignedBox_AxisAlignedCube.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Math\Closure_AxisAlignedBox_AxisAlignedBox.hpp">
-      <Filter>Header Files\Math</Filter>
+    <ClInclude Include="src\egolib\Math\Functors\Closure_AxisAlignedBox_Sphere.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Math\Closure_Sphere_Sphere.hpp">
-      <Filter>Header Files\Math</Filter>
+    <ClInclude Include="src\egolib\Math\Functors\Closure_AxisAlignedCube_AxisAlignedBox.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Math\Closure_AxisAlignedCube_AxisAlignedCube.hpp">
-      <Filter>Header Files\Math</Filter>
+    <ClInclude Include="src\egolib\Math\Functors\Closure_AxisAlignedCube_AxisAlignedCube.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Math\Closure_AxisAlignedBox_AxisAlignedCube.hpp">
-      <Filter>Header Files\Math</Filter>
+    <ClInclude Include="src\egolib\Math\Functors\Closure_Sphere_AxisAlignedBox.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Math\Closure_AxisAlignedCube_AxisAlignedBox.hpp">
-      <Filter>Header Files\Math</Filter>
+    <ClInclude Include="src\egolib\Math\Functors\Closure_Sphere_Sphere.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -17,13 +17,13 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/Math/Closure_AxisAlignedBox_AxisAlignedBox.hpp
+/// @file egolib/Math/Functors/Closure_AxisAlignedBox_AxisAlignedBox.hpp
 /// @brief Enclose an axis aligned cubes in an axis aligned boxes.
 /// @author Michael Heilmann
 
 #pragma once
 
-#include "egolib/Math/Closure.hpp"
+#include "egolib/Math/Functors/Closure.hpp"
 
 namespace Ego {
 namespace Math {
@@ -35,7 +35,7 @@ namespace Math {
 /// from those the center of the cube \f$C = \vec{a} + \frac{1}{2}\left(\vec{b} - \vec{a}\right)\f$.
 /// The size of the axis aligned cube is set to \f$|\vec{b}-\vec{a}|\f$.
 template <typename _EuclideanSpaceType>
-struct ConvexHull<AxisAlignedCube<_EuclideanSpaceType>, AxisAlignedBox<_EuclideanSpaceType>> {
+struct Closure<AxisAlignedCube<_EuclideanSpaceType>, AxisAlignedBox<_EuclideanSpaceType>> {
 public:
     typedef _EuclideanSpaceType EuclideanSpaceType;
     typedef AxisAlignedBox<EuclideanSpaceType> SourceType;
