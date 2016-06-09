@@ -93,14 +93,25 @@ AudioService::~AudioService() {
 }
 
 InputService::InputService() {
-    Log::get().info("Intializing SDL Joystick/GameController/Haptic ... ");
-    if (SDL_InitSubSystem(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER | SDL_INIT_HAPTIC) < 0) {
-        Log::get().message(" failure!\n");
-        Id::EnvironmentErrorException error(__FILE__, __LINE__, "SDL Joystick/GameController/Haptic", SDL_GetError());
-        Log::get().error("%s\n", ((std::string)error).c_str());
-        throw error;
+    Log::get().info("intializing SDL joystick/game controller/haptic support");
+    int result = SDL_InitSubSystem(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER | SDL_INIT_HAPTIC);
+    //
+    if (SDL_WasInit(SDL_INIT_JOYSTICK) == 0) {
+        Log::get().info("unable to initialize joystick support!\n");
     } else {
-        Log::get().message(" success!\n");
+        Log::get().message("joytick support initialized!\n");
+    }
+    //
+    if (SDL_WasInit(SDL_INIT_GAMECONTROLLER) == 0) {
+        Log::get().info("unable to initialize game controller support!\n");
+    } else {
+        Log::get().message("game controller support initialized!\n");
+    }
+    //
+    if (SDL_WasInit(SDL_INIT_HAPTIC) == 0) {
+        Log::get().info("unable to initialize haptic support");
+    } else {
+        Log::get().message("haptic support initialized!\n");
     }
 }
 
