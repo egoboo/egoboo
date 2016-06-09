@@ -9,10 +9,8 @@
 #include "game/Entities/_Include.hpp"
 #include "game/Logic/Player.hpp"
 
-namespace Ego
-{
-namespace GUI
-{
+namespace Ego {
+namespace GUI {
 
 static const int LINE_SPACING_OFFSET = -2; //To make space between lines less
 
@@ -116,14 +114,14 @@ int CharacterWindow::addResistanceLabel(const int x, const int y, const DamageTy
     return label->getHeight()-LINE_SPACING_OFFSET;
 }
 
-bool CharacterWindow::notifyMouseMoved(const int x, const int y)
+bool CharacterWindow::notifyMouseMoved(const Ego::Events::MouseMovedEventArgs& e)
 {
     //Make level up button visible if needed
     if(_character->isPlayer()) {
         _levelUpButton->setVisible(_levelUpWindow.expired() && _currentModule->getPlayer(_character->is_which_player)->hasUnspentLevel());
     }
 
-    return InternalWindow::notifyMouseMoved(x, y);
+    return InternalWindow::notifyMouseMoved(e);
 }
 
 void CharacterWindow::buildCharacterStatisticTab()

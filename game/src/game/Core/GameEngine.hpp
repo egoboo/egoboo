@@ -19,7 +19,7 @@
 /// @author Zefz aka Johan Jansen
 #pragma once
 
-#include "egolib/platform.h"
+#include "egolib/Signal/Signal.hpp"
 #include "egolib/egoboo_setup.h"
 
 //Forward declarations
@@ -36,6 +36,17 @@ class PlayingState;
 class GameEngine
 {
 public:
+    Ego::Subscription2 shown;
+    Ego::Subscription2 hidden;
+    Ego::Subscription2 resized;
+    Ego::Subscription2 mouseEntered;
+    Ego::Subscription2 mouseLeft;
+    Ego::Subscription2 keyboardFocusReceived;
+    Ego::Subscription2 keyboardFocusLost;
+
+    void subscribe();
+    void unsubscribe();
+
     static const uint32_t GAME_TARGET_FPS = 60;	///< Desired frame renders per second
     static const uint32_t GAME_TARGET_UPS = 50;	///< Desired game logic updates per second
 

@@ -93,16 +93,16 @@ void Button::draw()
     }
 }
 
-bool Button::notifyMouseMoved(const int x, const int y)
+bool Button::notifyMouseMoved(const Ego::Events::MouseMovedEventArgs& e)
 {
-    _mouseOver = contains(x, y);
+    _mouseOver = contains(e.getPosition());
 
     return false;
 }
 
-bool Button::notifyMouseClicked(const int button, const int x, const int y)
+bool Button::notifyMouseClicked(const Ego::Events::MouseClickedEventArgs& e)
 {
-    if(_mouseOver && button == SDL_BUTTON_LEFT)
+    if(_mouseOver && e.getButton() == SDL_BUTTON_LEFT)
     {
         doClick();
         return true;

@@ -67,6 +67,45 @@ void GraphicsWindow::setSize(Size2i size) {
     SDL_SetWindowSize(window, size.width(), size.height());
 }
 
+void GraphicsWindow::update() {
+    SDL_Event event;
+    int result;
+    SDL_PumpEvents();
+    // Process window events.
+    result = SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_WINDOWEVENT, SDL_WINDOWEVENT);
+    while (result == 1) {
+        switch (event.window.event) {
+            case SDL_WINDOWEVENT_ENTER:
+                this->MouseEntered(Events::WindowEventArgs(Events::WindowEventArgs::Kind::MouseEntered));
+                break;
+            case SDL_WINDOWEVENT_LEAVE:
+                this->MouseLeft(Events::WindowEventArgs(Events::WindowEventArgs::Kind::MouseLeft));
+                break;
+            case SDL_WINDOWEVENT_FOCUS_GAINED:
+                this->KeyboardFocusReceived(Events::WindowEventArgs(Events::WindowEventArgs::Kind::KeyboardFocusReceived));
+                break;
+            case SDL_WINDOWEVENT_FOCUS_LOST:
+                this->KeyboardFocusLost(Events::WindowEventArgs(Events::WindowEventArgs::Kind::KeyboardFocusLost));
+                break;
+            case SDL_WINDOWEVENT_RESIZED:
+                this->Resized(Events::WindowEventArgs(Events::WindowEventArgs::Kind::Resized));
+                break;
+            case SDL_WINDOWEVENT_SHOWN:
+                this->Shown(Events::WindowEventArgs(Events::WindowEventArgs::Kind::Shown));
+                break;
+            case SDL_WINDOWEVENT_HIDDEN:
+                this->Hidden(Events::WindowEventArgs(Events::WindowEventArgs::Kind::Hidden));
+                break;
+            case SDL_WINDOWEVENT_EXPOSED:
+                break;
+        }
+        result = SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_WINDOWEVENT, SDL_WINDOWEVENT);
+    }
+    if (result < 0) {
+        /* @todo Emit a warning. */
+    }
+}
+
 int GraphicsWindow::getDisplayIndex() {
     return SDL_GetWindowDisplayIndex(window);
 }

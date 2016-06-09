@@ -91,6 +91,7 @@ struct DestroyFunctor {
  *    friend MyCreateFunctor;
  *    using MyDestroyFunctor = DestroyFunctor<ConcreteAudioDevice>;
  *    using MyDestroyFunctor;
+ *  protected:
  *    AudioDevice() {}
  *    virtual ~AudioDevice() {}
  *  };
@@ -119,6 +120,9 @@ class Singleton
     : Id::NonCopyable
 #endif
 {
+public:
+    using CreateFunctorType = CreateFunctor<Type>;
+    using DestroyFunctorType = DestroyFunctor<Type>;
 protected:
     /// @brief Constructor.
     /// @remark Intentionally protected.
@@ -131,11 +135,11 @@ protected:
 protected:
     /// @brief Mutex protecting non-atomic operations.
     /// @remark Intentionally private.
-    static std::mutex _mutex;
+    static std::mutex mutex;
 
     /// @brief Singleton instance.
     /// @remark Intentionally private.
-    static std::atomic<InstanceType *> _instance;
+    static std::atomic<InstanceType *> instance;
 
 public:
     /**
@@ -145,7 +149,7 @@ public:
      *  the information, facts might already have changed.
      */
     static bool isInitialized() {
-        InstanceType *o = _instance.load();
+        InstanceType *o = instance.load();
         return nullptr != o;
     }
 
@@ -160,7 +164,7 @@ public:
      *  Uninitializing the singleton will invalidate any references returned by calls to this method prior to uninitialization.
      */
     static InstanceType& get() {
-        InstanceType *o = _instance.load();
+        InstanceType *o = instance.load();
         if (!o) {
             throw std::logic_error("singleton not initialized");
         }
@@ -174,13 +178,13 @@ public:
      *  If the singleton is not initialized, a call to this method is a no-op.
      */
     static void uninitialize() {
-        InstanceType *o = _instance.load();
+        InstanceType *o = instance.load();
         if (o) { // 1st check.
-            std::lock_guard<std::mutex> lock(_mutex); // 2nd check.
-            o = _instance.load();
+            std::lock_guard<std::mutex> lock(mutex); // 2nd check.
+            o = instance.load();
             if (o) {
-                _instance.store(nullptr);
-                DestroyFunctor<Type>()(o);
+                instance.store(nullptr);
+                DestroyFunctorType()(o);
             }
         }
     }
@@ -195,24 +199,23 @@ public:
      */
     template<typename ... ArgumentTypes>
     static void initialize(ArgumentTypes&& ... arguments) {
-        InstanceType *o = _instance.load();
+        InstanceType *o = instance.load();
         if (!o) { // 1st check.
-            std::lock_guard<std::mutex> lock(_mutex);
-            o = _instance.load();
+            std::lock_guard<std::mutex> lock(mutex);
+            o = instance.load();
             if (!o) { // 2nd check.
-                o = CreateFunctor<Type>()(std::forward<ArgumentTypes>(arguments) ...);
-                _instance.store(o);
+                o = CreateFunctorType()(std::forward<ArgumentTypes>(arguments) ...);
+                instance.store(o);
             }
         }
     }
-
 };
 
 template <typename InstanceType, typename Type>
-std::mutex Singleton<InstanceType, Type>::_mutex;
+std::mutex Singleton<InstanceType, Type>::mutex;
 
 template <typename InstanceType, typename Type>
-std::atomic<InstanceType *> Singleton<InstanceType, Type>::_instance(nullptr);
+std::atomic<InstanceType *> Singleton<InstanceType, Type>::instance(nullptr);
 
 } // namespace Core
 } // namespace Ego

@@ -266,7 +266,7 @@ std::shared_ptr<Object> activate_spawn_file_spawn(spawn_file_info_t& psp_info, c
         {
             // a single player module
 
-            bool player_added = _currentModule->addPlayer(pobject, &InputDevices.lst[local_stats.player_count] );
+            bool player_added = _currentModule->addPlayer(pobject, &device_list_t::get().lst[local_stats.player_count] );
 
             if ( _currentModule->getImportAmount() == 0 && player_added )
             {
@@ -296,7 +296,7 @@ std::shared_ptr<Object> activate_spawn_file_spawn(spawn_file_info_t& psp_info, c
             if ( -1 != local_index )
             {
                 // It's a local input
-                _currentModule->addPlayer(pobject, &InputDevices.lst[g_importList.lst[local_index].local_player_num]);
+                _currentModule->addPlayer(pobject, &device_list_t::get().lst[g_importList.lst[local_index].local_player_num]);
             }
             else
             {

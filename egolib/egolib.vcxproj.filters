@@ -133,6 +133,15 @@
     <Filter Include="Header Files\Math\Functors">
       <UniqueIdentifier>{0b01a8e7-fe6d-438a-8459-bd880b264074}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Input">
+      <UniqueIdentifier>{ea0f35ba-93bf-4cf9-9ff9-57266515620f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Input">
+      <UniqueIdentifier>{dd834c6a-7d93-4fa8-a78a-3549348c9474}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Events">
+      <UniqueIdentifier>{6a8ec327-4d9c-4158-8d0a-3b457c46b627}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\egolib\_math.c">
@@ -160,9 +169,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\egolib\geometry.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\input_device.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\egolib\map_functions.c">
@@ -498,6 +504,12 @@
     <ClCompile Include="src\egolib\Extensions\WindowProperties.cpp">
       <Filter>Extensions</Filter>
     </ClCompile>
+    <ClCompile Include="src\egolib\Input\input.c">
+      <Filter>Source Files\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Input\input_device.c">
+      <Filter>Source Files\Input</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\egolib\vfs.h">
@@ -513,9 +525,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\map_functions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\input_device.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\geometry.h">
@@ -827,9 +836,6 @@
     <ClInclude Include="src\egolib\VFS\Pathname.hpp">
       <Filter>Header Files\VFS</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Math\Convex.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Math\Scalar.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
@@ -885,9 +891,6 @@
       <Filter>Header Files\Math</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Math\OrderedField.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Math\Rotatable.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Math\Matrix.hpp">
@@ -1106,12 +1109,6 @@
     <ClInclude Include="src\egolib\math\AxisAlignedCube.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Math\Generator_ColourRgba.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Math\Generator_ColourRgb.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Math\Functors\Contains.hpp">
       <Filter>Header Files\Math\Functors</Filter>
     </ClInclude>
@@ -1215,6 +1212,57 @@
       <Filter>Header Files\Math\Functors</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Math\Functors\Interpolate_Linear_ColourRgba.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Input\input.h">
+      <Filter>Header Files\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Input\input_device.h">
+      <Filter>Header Files\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Events\MouseMovedEventArgs.hpp">
+      <Filter>Header Files\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Events\MouseClickedEventArgs.hpp">
+      <Filter>Header Files\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Events\MouseReleasedEventArgs.hpp">
+      <Filter>Header Files\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Events\WindowEventArgs.hpp">
+      <Filter>Header Files\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Input\Device.hpp">
+      <Filter>Header Files\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Input\DeviceEventArgs.hpp">
+      <Filter>Header Files\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Input\Mapping.hpp">
+      <Filter>Header Files\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Closure.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Closure_AxisAlignedBox_AxisAlignedBox.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Closure_AxisAlignedBox_AxisAlignedCube.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Closure_AxisAlignedBox_Sphere.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Closure_AxisAlignedCube_AxisAlignedBox.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Closure_AxisAlignedCube_AxisAlignedCube.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Closure_Sphere_AxisAlignedBox.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Closure_Sphere_Sphere.hpp">
       <Filter>Header Files\Math\Functors</Filter>
     </ClInclude>
   </ItemGroup>

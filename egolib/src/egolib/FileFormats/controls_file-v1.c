@@ -25,7 +25,7 @@
 #include "egolib/FileFormats/scancode_file.h"
 
 #include "egolib/Log/_Include.hpp"
-#include "egolib/input_device.h"
+#include "egolib/Input/input_device.h"
 
 #include "egolib/fileutil.h"
 #include "egolib/strutil.h"
@@ -47,9 +47,9 @@ bool input_settings_load_vfs_1(const char* szFilename)
     for ( cnt = 0; cnt < MAX_LOCAL_PLAYERS; cnt++ )
     {
         // clear the input control
-        InputDevices.lst[cnt].clear();
+        device_list_t::get().lst[cnt].clear();
     }
-    InputDevices.count = 0;
+    device_list_t::get().count = 0;
 
     // find the settings file
     ReadContext ctxt(szFilename);
@@ -61,7 +61,7 @@ bool input_settings_load_vfs_1(const char* szFilename)
 
     // Read the keyboard input devices.
     idevice = INPUT_DEVICE_KEYBOARD;
-    input_device_t &pdevice = InputDevices.lst[idevice];
+    input_device_t &pdevice = device_list_t::get().lst[idevice];
     for (size_t i = KEY_CONTROL_BEGIN; i <= KEY_CONTROL_END; ++i)
     {
         ctxt.skipToColon(false);
@@ -72,11 +72,11 @@ bool input_settings_load_vfs_1(const char* szFilename)
         }
     };
     pdevice.device_type = idevice;
-    InputDevices.count++;
+    device_list_t::get().count++;
 
     // Read the mouse input devices.
     idevice = INPUT_DEVICE_MOUSE;
-    pdevice = InputDevices.lst[idevice];
+    pdevice = device_list_t::get().lst[idevice];
     for (size_t i = MOS_CONTROL_BEGIN; i <= MOS_CONTROL_END; i++ )
     {
         ctxt.skipToColon(false);
@@ -87,13 +87,13 @@ bool input_settings_load_vfs_1(const char* szFilename)
         }
     };
     pdevice.device_type = idevice;
-    InputDevices.count++;
+    device_list_t::get().count++;
 
     // Read in however many joysticks there are...
     for (cnt = 0; !ctxt.is(ReadContext::Traits::endOfInput()) && cnt < MAX_JOYSTICK; cnt++)
     {
         idevice = ( INPUT_DEVICE )( INPUT_DEVICE_JOY + cnt );
-        pdevice = InputDevices.lst[idevice];
+        pdevice = device_list_t::get().lst[idevice];
         for (size_t i = JOY_CONTROL_BEGIN; i <= JOY_CONTROL_END; i++ )
         {
             ctxt.skipToColon(false);
@@ -105,10 +105,10 @@ bool input_settings_load_vfs_1(const char* szFilename)
         };
         pdevice.device_type = idevice;
 
-        InputDevices.count++;
+        device_list_t::get().count++;
     }
 
-    return InputDevices.count > 0;
+    return device_list_t::get().count > 0;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -151,7 +151,7 @@ bool input_settings_save_vfs_1(const char* szFilename)
 
     // The actual settings
     idevice = INPUT_DEVICE_KEYBOARD;
-    input_device_t &pdevice = InputDevices.lst[idevice];
+    input_device_t &pdevice = device_list_t::get().lst[idevice];
     vfs_puts( "Keyboard\n", filewrite );
     vfs_puts( "========\n", filewrite );
     export_control( filewrite, "Jump                ", idevice, pdevice.keyMap[CONTROL_JUMP] );
@@ -172,7 +172,7 @@ bool input_settings_save_vfs_1(const char* szFilename)
     export_control( filewrite, "Right                ", idevice, pdevice.keyMap[CONTROL_RIGHT] );
 
     idevice = INPUT_DEVICE_MOUSE;
-    pdevice = InputDevices.lst[idevice];
+    pdevice = device_list_t::get().lst[idevice];
     vfs_puts( "\n\nMouse\n", filewrite );
     vfs_puts( "========\n", filewrite );
     export_control( filewrite, "Jump                ", idevice, pdevice.keyMap[CONTROL_JUMP] );
@@ -185,9 +185,9 @@ bool input_settings_save_vfs_1(const char* szFilename)
     export_control( filewrite, "Camera Control Mode    ", idevice, pdevice.keyMap[CONTROL_CAMERA] );
 
     // export all known joysticks
-    for ( idevice = INPUT_DEVICE_JOY; idevice < InputDevices.count; idevice = ( INPUT_DEVICE )( idevice + 1 ) )
+    for ( idevice = INPUT_DEVICE_JOY; idevice < device_list_t::get().count; idevice = ( INPUT_DEVICE )( idevice + 1 ) )
     {
-        pdevice = InputDevices.lst[idevice];
+        pdevice = device_list_t::get().lst[idevice];
 
         snprintf( write, SDL_arraysize( write ), "\n\nJoystick %d\n", idevice - INPUT_DEVICE_JOY );
         vfs_puts( write, filewrite );

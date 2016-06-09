@@ -64,10 +64,10 @@ void Slider::setValue(const int value)
     _sliderPosition = (1.0f / (_maxValue-_minValue)) * (constrainedValue-_minValue);
 }
 
-bool Slider::notifyMouseMoved(const int x, const int y)
+bool Slider::notifyMouseMoved(const Ego::Events::MouseMovedEventArgs& e)
 {
     if(_isDragging) {
-        _sliderPosition = (1.0f / getWidth()) * (x-getX());
+        _sliderPosition = (1.0f / getWidth()) * (e.getPosition().x()-getX());
         _sliderPosition = Ego::Math::constrain(_sliderPosition, 0.0f, 1.0f);
         return true;
     }
@@ -80,11 +80,11 @@ int Slider::getValue() const
     return _minValue + (_maxValue-_minValue) * _sliderPosition;
 }
 
-bool Slider::notifyMouseClicked(const int button, const int x, const int y)
+bool Slider::notifyMouseClicked(const Ego::Events::MouseClickedEventArgs& e)
 {
-    if(button == SDL_BUTTON_LEFT && contains(x, y)) {
+    if(e.getButton() == SDL_BUTTON_LEFT && contains(e.getPosition())) {
         _isDragging = true;
-        notifyMouseMoved(x, y);
+        notifyMouseMoved(Ego::Events::MouseMovedEventArgs(e.getPosition()));
     }
     else {
         _isDragging = false;
@@ -93,9 +93,9 @@ bool Slider::notifyMouseClicked(const int button, const int x, const int y)
     return _isDragging;
 }
 
-bool Slider::notifyMouseReleased(const int button, const int x, const int y)
+bool Slider::notifyMouseReleased(const Ego::Events::MouseReleasedEventArgs& e)
 {
-    if(_isDragging && button == SDL_BUTTON_LEFT) {
+    if(_isDragging && e.getButton() == SDL_BUTTON_LEFT) {
         _isDragging = false;
         if(_onChangeFunction) {
             _onChangeFunction(getValue());

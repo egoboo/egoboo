@@ -19,11 +19,13 @@
 
 #pragma once
 
+#include "egolib/Core/Singleton.hpp"
 #include "egolib/platform.h"
 #include "egolib/vfs.h"
 #include "egolib/Graphics/PixelFormat.hpp"
 #include "egolib/Image/ImageLoader.hpp"
 
+namespace Ego {
 /**
  * @brief
  *  An image manager.
@@ -33,18 +35,20 @@
  *  The image manager currently abstracts away the SDL_image/SDL image loading facilities.
  *  It is - in the end - just a minor improvement over the previous code, just enough to get going.
  */
-class ImageManager {
+class ImageManager : public Core::Singleton<ImageManager> {
 private:
-    typedef std::vector<std::unique_ptr<ImageLoader>> Vector;
+    using Loaders = std::vector<std::unique_ptr<ImageLoader>>;
+    using String = std::string;
+    template <typename T>
+    using Set = std::unordered_set<T>;
     /// Vector of available image loaders, ordered by priority from highest to lowest.
-    Vector _loaders;
-    
+    Loaders loaders;
+
     struct Iterator : public std::iterator<std::forward_iterator_tag, ImageLoader> {
-        ImageManager::Vector::const_iterator _inner;
+        ImageManager::Loaders::const_iterator _inner;
     public:
-        Iterator(const ImageManager::Vector::const_iterator& inner) :
-            _inner(inner)
-        {}
+        Iterator(const ImageManager::Loaders::const_iterator& inner) :
+            _inner(inner) {}
     public:
         // Forward iterator.
 
@@ -66,12 +70,10 @@ private:
         // Any iterator.
 
         Iterator() :
-            _inner()
-        {}
+            _inner() {}
 
         Iterator(const Iterator& other) :
-            _inner(other._inner)
-        {}
+            _inner(other._inner) {}
 
         Iterator& operator=(const Iterator& other) {
             _inner = other._inner;
@@ -100,26 +102,12 @@ private:
 private:
     /**
      * @brief
-     *  The image manager singleton.
-     * @remark
-     *  Intentionally private.
-     */
-    static ImageManager *_singleton;
-
-    /**
-     * @brief
-     *  If the image manager was initialized with SDL_image support.
-     */
-    bool _withSDL_image;
-    
-    /**
-     * @brief
      *  Construct this image manager.
      * @remark
      *  Intentionally private.
      */
     ImageManager();
-    
+
     /**
      * @brief
      *  Destruct this image manager.
@@ -130,26 +118,25 @@ private:
 
 private:
     /**
-     * @brief
-     *  Register the image loaders supported by SDL image.
-     * @param flags
-     *  the return value of the call to IMG_init indicating which loaders are available.
+     * @brief Register the image loaders supported by SDL or SDL image.
      */
-    void registerImageLoaders(int flags);
+    void registerImageLoaders();
 
 public:
+    friend Singleton<ImageManager>::CreateFunctorType;
+    friend Singleton<ImageManager>::DestroyFunctorType;
     /**
      * @brief
      *  Get an iterator pointing to the first loader supporting one of the specified extensions
      *  if such a loader exists, <tt>end()</tt> otherwise. The search range is <tt>[start, end())</tt>.
      */
-    Iterator find(std::unordered_set<std::string> extensions, Iterator start) {
+    Iterator find(Set<String> extensions, Iterator start) {
         auto it = start;
-        while (it != end())
-        {
-            auto found = extensions.find((*it).getExtension());
-            if (found != extensions.end())
-            {
+        while (it != end()) {
+            auto supportedExtensions = (*it).getExtensions();
+            auto found = std::find_first_of(extensions.cbegin(), extensions.cend(),
+                                            supportedExtensions.cbegin(), supportedExtensions.cend());
+            if (found != extensions.end()) {
                 return it;
             }
         }
@@ -163,10 +150,10 @@ public:
      * @remark
      *  <tt>o.find(s)</tt> is equivalent to <tt>o.find(s,o.begin())</tt>.
      */
-    Iterator find(std::unordered_set<std::string> extensions) {
+    Iterator find(Set<String> extensions) {
         return find(extensions, begin());
     }
-    
+
     /**
      * @brief
      *  Get an iterator pointing to the beginning of the loader list.
@@ -175,9 +162,9 @@ public:
      *  (<tt>end</tt> is returned if the loader list is empty).
      */
     Iterator begin() const {
-        return Iterator(_loaders.begin());
+        return Iterator(loaders.begin());
     }
-    
+
     /**
      * @brief
      *  Get an iterator pointing to the end of the loader list.
@@ -185,34 +172,8 @@ public:
      *  an iterator pointing to the end of the loader list
      */
     Iterator end() const {
-        return Iterator(_loaders.end());
+        return Iterator(loaders.end());
     }
-    
-    /**
-     * @brief
-     *  Initialize the image manager singleton.
-     * @remark
-     *  No effect if the image manager is initialized.
-     */
-    static void initialize();
-    
-    /**
-     * @brief
-     *  Destruct the image manager singleton.
-     * @remark
-     *  No effect if the image manager is not initialized.
-     */
-    static void uninitialize();
-    
-    /**
-     * @brief
-     *  Get the image manager singleton.
-     * @return
-     *  the image loader singleton
-     * @throw logic_error
-     *  if the image manager singleton is not initialized.
-     */
-    static ImageManager& get();
 
     /**
      * @brief
@@ -240,3 +201,5 @@ public:
     std::shared_ptr<SDL_Surface> createImage(size_t width, size_t height, const Ego::PixelFormatDescriptor& pixelFormatDescriptor);
 
 };
+
+} // namespace Ego

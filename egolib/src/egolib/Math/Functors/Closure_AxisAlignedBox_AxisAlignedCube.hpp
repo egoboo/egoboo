@@ -17,52 +17,29 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Math/Rotatable.h
-/// @brief  Poor-man substitute for concepts.
-///         Concepts are not yet available in current C++ revisions.
+/// @file egolib/Math/Functors/Closure_AxisAlignedCube_AxisAlignedCube.hpp
+/// @brief Enclose a axis aligned cube in an axis aligned cube.
 /// @author Michael Heilmann
 
-
 #pragma once
-
-#include "egolib/Math/Vector.hpp"
 
 namespace Ego {
 namespace Math {
 
-/** 
- * @brief
- *  The interface of an entity that can be rotated.
- */
-template <typename _VectorSpaceType>
-struct Rotatable {
-    /**
-     * @brief
-     *  The vector space type.
-     */
-    typedef _VectorSpaceType VectorSpaceType;
-    /**
-     * @brief
-     *  The scalar field type.
-     */
-    typedef typename VectorSpaceType::ScalarFieldType ScalarFieldType;
-    /** 
-     * @brief
-     *  The vector type.
-     */
-    typedef typename VectorSpaceType::VectorType VectorType;
-    /**
-     * @brief
-     *  Rotate this entity.
-     * @param axis
-     *  the rotation axis
-     * @param angle
-     *  the rotation angle
-     * @throw std::invalid_argument
-     *  if the rotation axis is the zero vector
-     */
-    virtual void rotate(const VectorType& axis, float angle) = 0;
-};
+/// Enclose an axis aligned cube in an axis aligned box.
+/// Let \f$min\f$ be the minimal point and \f$max\f$ be the maximal point of the axis aligned cube.
+/// The axis aligned box with the same minimal and maximal point is the smallest axis aligned box enclosing that axis aligned cube.
+template <typename _EuclideanSpaceType>
+struct Closure<AxisAlignedBox<_EuclideanSpaceType>, AxisAlignedCube<_EuclideanSpaceType>> {
+public:
+    typedef _EuclideanSpaceType EuclideanSpaceType;
+    typedef AxisAlignedCube<EuclideanSpaceType> SourceType;
+    typedef AxisAlignedBox<EuclideanSpaceType> TargetType;
+public:
+    inline TargetType operator()(const SourceType& source) const {
+        return TargetType(source.getMin(), source.getMax());
+    }
+}; // struct Closure
 
 } // namespace Math
 } // namespace Ego

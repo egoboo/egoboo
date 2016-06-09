@@ -163,62 +163,44 @@ extern float           indextoenvirox[EGO_NORMAL_COUNT];                    ///<
 //--------------------------------------------------------------------------------------------
 // Function prototypes
 
-struct GFX
+struct GFX : public Ego::Core::Singleton<GFX>
 {
-#if 0
-    static GFX _singleton;
-#endif
-#if 0
-    /**
-     * @brief
-     *  Get the GFX singleton.
-     * @return
-     *  the GFX singleton.
-     * @warning
-     *  The behavior of this method is undefined if the GFX system is not initialized.
-     */
-    static GFX& get();
-#endif
-    /**
-     * @brief
-     *  Initialize the GFX system.
-     * @remark
-     *  This method has no effect if the GFX system is initialized.
-     * @todo
-     *  Rename to @a initialize.
-     */
-    static void initialize();
-    /**
-     * @brief
-     *  Uninitialize the GFX system.
-     * @remark
-     *  A call to this method has no effect if the GFX system is not initialized.
-     * @todo
-     *  Rename to @a uninitialize.
-     */
-    static void uninitialize();
-protected:
+    GFX();
+    ~GFX();
+private:
     /**
      * @brief
      *  Initialize the OpenGL graphics system.
+     * @remark
+     *  Virtual finally simply prevents the method from being overriden
+     *  if its visibility is (accidentially) changed to non-private.
      */
-    static int initializeOpenGL();
+    virtual void initializeOpenGL() final;
     /**
      * @brief
      *  Uninitialize the OpenGL graphics system.
+     * @remark
+     *  Virtual finally simply prevents the method from being overriden
+     *  if its visibility is (accidentially) changed to non-private.
      */
-    static void uninitializeOpenGL();
+    virtual void uninitializeOpenGL() final;
     /**
      * @brief
      *  Initialize the SDL graphics system.
+     * @remark
+     *  Virtual finally simply prevents the method from being overriden
+     *  if its visibility is (accidentially) changed to non-private.
      */
-    static void initializeSDLGraphics();
+    virtual void initializeSDLGraphics() final;
 
     /**
      * @brief
      *  Uninitialize the SDL graphics system.
+     * @remark
+     *  Virtual finally simply prevents the method from being overriden
+     *  if its visibility is (accidentially) changed to non-private.
      */
-    static void uninitializeSDLGraphics();
+    virtual void uninitializeSDLGraphics() final;
 };
 
 void gfx_system_main();

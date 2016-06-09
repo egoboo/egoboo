@@ -81,14 +81,14 @@ struct DebugModuleLoadingState::ModuleGUIContainer : public ComponentContainer, 
         _loadingText->setPosition(x + 215, y);
     }
     
-    bool notifyMouseClicked(const int button, const int x, const int y) override
+    bool notifyMouseClicked(const Ego::Events::MouseClickedEventArgs& e) override
     {
-        return ComponentContainer::notifyMouseClicked(button, x, y);
+        return ComponentContainer::notifyMouseClicked(e);
     }
     
-    bool notifyMouseMoved(const int x, const int y) override
+    bool notifyMouseMoved(const Ego::Events::MouseMovedEventArgs& e) override
     {
-        return ComponentContainer::notifyMouseMoved(x, y);
+        return ComponentContainer::notifyMouseMoved(e);
     }
     
     std::shared_ptr<ModuleProfile> _profile;

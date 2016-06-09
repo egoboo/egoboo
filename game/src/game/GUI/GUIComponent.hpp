@@ -36,7 +36,12 @@ class GUIComponent : public InputListener, public std::enable_shared_from_this<G
         virtual void setY(const int y);
         virtual void setPosition(const int x, const int y);
 
-        bool contains(const int x, const int y) const;
+        /**
+         * @brief Get if this component contains a point.
+         * @param point the point
+         * @return @a true if this component contains the specified point, @a false otherwise 
+         */
+        bool contains(const Point2f& point) const;
 
         ComponentContainer* getParent() const;
 

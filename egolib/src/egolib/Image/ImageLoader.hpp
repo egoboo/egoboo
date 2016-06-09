@@ -21,33 +21,31 @@
 
 #include "egolib/vfs.h"
 
+namespace Ego {
+
 class ImageLoader {
+protected:
+    using String = std::string;
+    template <typename T>
+    using Set = std::unordered_set<T>;
 
 private:
-
-    using string = std::string;
-
-    // Befriend with image manager.
-    friend class ImageManager;
-
-    // Befriend with std::default_delete.
     friend struct std::default_delete<ImageLoader>;
-
     /**
      * @brief
-     *  A file extension of the file format supported by this image loader e.g. <tt>.bmp</tt>, <tt>.png</tt>, ...
+     *  A set of file extensions supported by this image loader e.g. <tt>.bmp</tt>, <tt>.png</tt>, ...
      */
-    string _extension;
+    Set<String> extensions;
 
 protected:
 
     /**
      * @brief
      *  Construct this image loader.
-     * @param extension
-     *  a file extension of the file format supported by this image loader e.g. <tt>.bmp</tt>, <tt>.png</tt>, ...
+     * @param extensions
+     *  the set of file extensions supported by this image loader e.g. <tt>.bmp</tt>, <tt>.png</tt>, ...
      */
-    ImageLoader(const string& extension);
+    ImageLoader(const Set<String>& extensions);
 
     /**
      * @brief
@@ -59,11 +57,11 @@ public:
 
     /**
      * @brief
-     *  Get a file extension of the file format supported by this image loader.
+     *  Get the set of file extensions supported by this image loader.
      * @return
      *  a file extension e.g. <tt>.bmp</tt>, <tt>.png</tt>, ...
      */
-    const string getExtension() const;
+    Set<String> getExtensions() const;
 
     /**
      * @brief
@@ -78,3 +76,5 @@ public:
     virtual std::shared_ptr<SDL_Surface> load(vfs_FILE *file) const = 0;
 
 };
+
+} // namespace Ego

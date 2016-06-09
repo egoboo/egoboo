@@ -347,8 +347,10 @@ class ego_mesh_t;
 
 struct Rect2f {
 	Vector2f _min, _max;
-	Rect2f(const Vector2f& point, float radius)
-		: _min(point - Vector2f(radius, radius)), _max(point + Vector2f(radius, radius)) {}
+    Rect2f(const Circle2f& circle)
+        : _min(Point2f::toVector(circle.getCenter() - Vector2f(circle.getRadius(), circle.getRadius()))),
+          _max(Point2f::toVector(circle.getCenter() + Vector2f(circle.getRadius(), circle.getRadius())))
+    {}
 	Rect2f(const Rect2f& other)
 		: _min(other._min), _max(other._max) {}
 	Rect2f(const Vector2f& min, const Vector2f& max)
@@ -364,7 +366,7 @@ struct mesh_wall_data_t {
 	mesh_wall_data_t(const ego_mesh_t *mesh,
 		             const Rect2f& f,
 		             const IndexRect& i);
-	mesh_wall_data_t(const ego_mesh_t *mesh, const Vector2f& pos, float radius);
+	mesh_wall_data_t(const ego_mesh_t *mesh, const Circle2f& circle);
 };
 
 /// Egoboo's representation of the .mpd mesh file

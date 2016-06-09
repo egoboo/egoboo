@@ -82,12 +82,10 @@ const SDL_Rect& GUIComponent::getBounds() const
     return _bounds;
 }
 
-/**
-* Returns true if this component contains the specified X and Y point
-**/
-bool GUIComponent::contains(const int x, const int y) const
+bool GUIComponent::contains(const Point2f& point) const
 {
-    return x >= _bounds.x && y >= _bounds.y && x < _bounds.x+_bounds.w && y < _bounds.y+_bounds.h;
+    return point.x() >= _bounds.x && point.y() >= _bounds.y
+        && point.x() < _bounds.x + _bounds.w && point.y() < _bounds.y+_bounds.h;
 }
 
 ComponentContainer* GUIComponent::getParent() const

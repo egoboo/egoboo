@@ -51,10 +51,12 @@ public:
     /**
     * Ensure that this class inherits defaults for these methods from ComponentContainer and not GUIComponent
     **/
-    bool notifyKeyDown(const int keyCode) override 								 {return ComponentContainer::notifyKeyDown(keyCode);}
-    bool notifyMouseClicked(const int button, const int x, const int y) override;
-   	bool notifyMouseScrolled(const int amount) override;
-	bool notifyMouseMoved(const int x, const int y) override;
+    bool notifyKeyDown(const int keyCode) override {
+        return ComponentContainer::notifyKeyDown(keyCode);
+    }
+	bool notifyMouseClicked(const Ego::Events::MouseClickedEventArgs& e) override;
+	bool notifyMouseScrolled(const int amount) override;
+	bool notifyMouseMoved(const Ego::Events::MouseMovedEventArgs& e) override;
 
     void setWidth(const int width) override;
     void setHeight(const int height) override;

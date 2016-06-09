@@ -7,7 +7,7 @@ void App::initialize() {
     // Initialize the graphics system.
     Ego::GraphicsSystem::initialize();
     // Initialize the image manager.
-    ImageManager::initialize();
+    Ego::ImageManager::initialize();
     // Initialize the renderer.
     Ego::Renderer::initialize();
     // Initialize the texture manager.
@@ -24,7 +24,7 @@ void App::uninitialize() {
     // Uninitialize the renderer.
     Ego::Renderer::uninitialize();
     // Uninitialize the image manager.
-    ImageManager::uninitialize();
+    Ego::ImageManager::uninitialize();
     // Uninitialize the graphics system.
     Ego::GraphicsSystem::uninitialize();
 }

@@ -23,42 +23,42 @@ namespace Ego {
 namespace Math {
 namespace Test {
 
-EgoTest_TestCase(ConvexHull) {
+EgoTest_TestCase(Closure) {
 
     EgoTest_Test(Sphere3f_Sphere3f) {
         auto source = Sphere3f(Point3f(3.0f, 5.0f, 7.0f), 3.0f);
-        Ego::Math::ConvexHull<Sphere3f, Sphere3f> convex;
-        auto target = convex(source);
+        Ego::Math::Closure<Sphere3f, Sphere3f> closure;
+        auto target = closure(source);
     }
 
     EgoTest_Test(AABB3f_AABB3f) {
         auto source = AxisAlignedBox3f(Point3f(-1.0f, -2.0f, -3.0f), Point3f(+1.0f, +2.0f, +3.0f));
-        Ego::Math::ConvexHull<AxisAlignedBox3f, AxisAlignedBox3f> convex;
-        auto target = convex(source);
+        Ego::Math::Closure<AxisAlignedBox3f, AxisAlignedBox3f> closure;
+        auto target = closure(source);
     }
 
     EgoTest_Test(Sphere3f_AABB3f) {
         auto source = Sphere3f(Point3f(3.0f, 5.0f, 7.0f), 3.0f);
-        Ego::Math::ConvexHull<AxisAlignedBox3f, Sphere3f> convex;
-        auto target = convex(source);
+        Ego::Math::Closure<AxisAlignedBox3f, Sphere3f> closure;
+        auto target = closure(source);
     }
 
     EgoTest_Test(AxisAlignedBox3f_Sphere3f) {
         auto source = AxisAlignedBox3f(Point3f(-1.0f, -2.0f, -3.0f), Point3f(+1.0f, +2.0f, 3.0f));
-        Ego::Math::ConvexHull<Sphere3f, AxisAlignedBox3f> convex;
-        auto target = convex(source);
+        Ego::Math::Closure<Sphere3f, AxisAlignedBox3f> closure;
+        auto target = closure(source);
     }
 
     EgoTest_Test(AxisAlignedCube3f_AxisAlignedBox3f) {
         auto source = AxisAlignedCube3f(Point3f(-1.0f, -2.0f, -3.0f), 3.0f);
-        Ego::Math::ConvexHull<AxisAlignedBox3f, AxisAlignedCube3f> convex;
-        auto target = convex(source);
+        Ego::Math::Closure<AxisAlignedBox3f, AxisAlignedCube3f> closure;
+        auto target = closure(source);
     }
 
     EgoTest_Test(AxisAlignedBox3f_AxisAlignedCube3f) {
         auto source = AxisAlignedBox3f(Point3f(-1.0f, -2.0f, -3.0f), Point3f(+1.0f, +2.0f, 3.0f));
-        Ego::Math::ConvexHull<AxisAlignedCube3f, AxisAlignedBox3f> convex;
-        auto target = convex(source);
+        Ego::Math::Closure<AxisAlignedCube3f, AxisAlignedBox3f> closure;
+        auto target = closure(source);
     }
 
 };

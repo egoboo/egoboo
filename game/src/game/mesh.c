@@ -445,7 +445,7 @@ BIT_FIELD ego_mesh_t::test_wall(const BIT_FIELD bits, const mesh_wall_data_t& da
 	return pass;
 }
 BIT_FIELD ego_mesh_t::test_wall(const Vector3f& pos, const float radius, const BIT_FIELD bits) const {
-	return test_wall(bits, mesh_wall_data_t(this, Vector2f(pos[kX], pos[kY]), radius));
+	return test_wall(bits, mesh_wall_data_t(this, Circle2f(Point2f(pos[kX], pos[kY]), radius)));
 }
 
 float ego_mesh_t::get_pressure(const Vector3f& pos, float radius, const BIT_FIELD bits) const
@@ -583,9 +583,9 @@ float ego_mesh_t::get_pressure(const Vector3f& pos, float radius, const BIT_FIEL
 			throw std::runtime_error("nullptr == mesh");
 		}
 	}
-	mesh_wall_data_t::mesh_wall_data_t(const ego_mesh_t *mesh, const Vector2f& pos, float radius)
+	mesh_wall_data_t::mesh_wall_data_t(const ego_mesh_t *mesh, const Circle2f& circle)
 		: _mesh(mesh),
-		  _f(pos, std::max(std::abs(radius), Info<float>::Grid::Size() * 0.5f)),
+		  _f(Circle2f(circle.getCenter(), std::max(circle.getRadius(), Info<float>::Grid::Size() * 0.5f))),
 		  _i(Index2D(0, 0), Index2D(0, 0))
 	{
 		if (nullptr == mesh) {
@@ -1255,7 +1255,7 @@ BIT_FIELD ego_mesh_t::hit_wall(const Vector3f& pos, float radius, const BIT_FIEL
 
 BIT_FIELD ego_mesh_t::hit_wall(const Vector3f& pos, const float radius, const BIT_FIELD bits, Vector2f& nrm, float * pressure) const
 {
-	return hit_wall(pos, radius, bits, nrm, pressure, mesh_wall_data_t(this, Vector2f(pos[kX], pos[kY]), radius));
+	return hit_wall(pos, radius, bits, nrm, pressure, mesh_wall_data_t(this, Circle2f(Point2f(pos[kX], pos[kY]), radius)));
 }
 
 ego_mesh_t::ego_mesh_t(const Ego::MeshInfo& mesh_info)

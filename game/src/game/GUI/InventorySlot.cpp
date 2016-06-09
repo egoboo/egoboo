@@ -55,9 +55,9 @@ void InventorySlot::draw()
     }
 }
 
-bool InventorySlot::notifyMouseMoved(const int x, const int y)
+bool InventorySlot::notifyMouseMoved(const Ego::Events::MouseMovedEventArgs& e)
 {
-    bool mouseOver = contains(x, y);
+    bool mouseOver = contains(e.getPosition());
 
     if(mouseOver) 
     {
@@ -71,13 +71,13 @@ bool InventorySlot::notifyMouseMoved(const int x, const int y)
 }
 
 
-bool InventorySlot::notifyMouseClicked(const int button, const int x, const int y)
+bool InventorySlot::notifyMouseClicked(const Ego::Events::MouseClickedEventArgs& e)
 {
-    if (!_player || !contains(x, y)) {
+    if (!_player || !contains(e.getPosition())) {
         return false;
     }
 
-    if(button != SDL_BUTTON_LEFT && button != SDL_BUTTON_RIGHT) {
+    if(e.getButton() != SDL_BUTTON_LEFT && e.getButton() != SDL_BUTTON_RIGHT) {
         return false;
     }
 
@@ -85,7 +85,7 @@ bool InventorySlot::notifyMouseClicked(const int button, const int x, const int 
     if(pchr->isAlive() && pchr->inst.action_ready && 0 == pchr->reload_timer)
     {
         //put it away and swap with any existing item
-        Inventory::swap_item( pchr->getObjRef(), _slotNumber, button == SDL_BUTTON_LEFT ? SLOT_LEFT : SLOT_RIGHT, false );
+        Inventory::swap_item( pchr->getObjRef(), _slotNumber, e.getButton() == SDL_BUTTON_LEFT ? SLOT_LEFT : SLOT_RIGHT, false );
 
         // Make it take a little time
         chr_play_action( pchr.get(), ACTION_MG, false );

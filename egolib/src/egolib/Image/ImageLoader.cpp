@@ -19,15 +19,15 @@
 
 #include "egolib/Image/ImageLoader.hpp"
 
-using namespace std;
+namespace Ego {
 
-ImageLoader::ImageLoader(const string& extension) :
-    _extension(extension)
-{}
+ImageLoader::ImageLoader(const Set<String>& extensions) :
+    extensions(extensions) {}
 
-ImageLoader::~ImageLoader()
-{}
+ImageLoader::~ImageLoader() {}
 
-const string ImageLoader::getExtension() const {
-    return _extension;
+ImageLoader::Set<ImageLoader::String> ImageLoader::getExtensions() const {
+    return extensions;
 }
+
+} // namespace Ego

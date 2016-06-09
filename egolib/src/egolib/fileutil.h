@@ -450,23 +450,6 @@ bool copy_line_vfs(vfs_FILE * fileread, vfs_FILE * filewrite);
 char vfs_get_first_letter(ReadContext& ctxt);
 char * copy_to_delimiter_mem(char * pmem, char * pmem_end, vfs_FILE * filewrite, int delim, char * user_buffer, size_t user_buffer_len);
 bool copy_to_delimiter_vfs(vfs_FILE * fileread, vfs_FILE * filewrite, int delim, char * buffer, size_t bufflen);
-/**
- * @brief
- *  Load an image into a texture.
- * @param [out] texture
- *  the texture to load the image in
- * @param filename
- *  the filename of the image <em>without</em> extension.
- * @param key
- *  ?
- * @post
- *  the texture is released and - if loading succeeds - the loaded with a new image.
- *  The filenames this function considers are all combinations of the specified
- *  filename concatenated with supported file extensions until one combination
- *  succeeds (i.e. the image was successfully loaded into the texture) or all
- *  combinations failed.
- */
-bool ego_texture_load_vfs(std::shared_ptr<Ego::Texture> texture, const char *filename);
 
 bool ego_texture_exists_vfs(const std::string &filename);
 

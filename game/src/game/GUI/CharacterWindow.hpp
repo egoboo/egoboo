@@ -41,7 +41,7 @@ class CharacterWindow : public InternalWindow
         CharacterWindow(const std::shared_ptr<Object> &object);
         ~CharacterWindow();
 
-        bool notifyMouseMoved(const int x, const int y) override;
+        bool notifyMouseMoved(const Ego::Events::MouseMovedEventArgs& e) override;
         
     private:
         int addResistanceLabel(const int x, const int y, const DamageType type);

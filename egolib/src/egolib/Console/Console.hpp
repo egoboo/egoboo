@@ -24,15 +24,10 @@
 
 #include "egolib/typedef.h"
 
-//--------------------------------------------------------------------------------------------
-// GLOBAL FUNCTION PROTOTYPES
-//--------------------------------------------------------------------------------------------
-
-/// @todo: Remove when egolib_console_t is a proper C++ class
-class egolib_console_FontWrapper;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+namespace Ego {
+// Forward declaration.
+class Font;
+}
 
 namespace Ego {
 namespace Core {
@@ -124,7 +119,7 @@ struct Console {
     Callback run_func;
     void *run_data;
 
-    egolib_console_FontWrapper *pfont;
+    std::shared_ptr<Ego::Font> pfont;
 
     /**
      * @brief

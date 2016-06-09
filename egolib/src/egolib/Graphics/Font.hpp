@@ -31,8 +31,8 @@ namespace Ego {
 class Texture;
 } // namespace Ego
 
-namespace Ego
-{
+namespace Ego {
+
 class FontManager;
 
 /**
@@ -41,7 +41,7 @@ class FontManager;
  */
 class Font final : public Id::NonCopyable {
 public:
-    
+
     /**
      * @brief A container and renderer for laid out text.
      */
@@ -56,7 +56,7 @@ public:
          *  The colour of the rendered text; default is white
          */
         void render(int x, int y, const Ego::Math::Colour4f &colour = Ego::Math::Colour4f::white());
-        
+
     protected:
         LaidTextRenderer(const std::shared_ptr<Ego::Texture> &atlas, std::unique_ptr<VertexBuffer> &vertexBuffer);
         friend class Font;
@@ -64,19 +64,19 @@ public:
         std::shared_ptr<Ego::Texture> _atlas;
         std::unique_ptr<VertexBuffer> _vertexBuffer;
     };
-    
+
 private:
     /// This is the maximum size for the two caches as used by
     /// drawText and getTextSize, set this to 0 for no caching
     constexpr static size_t MAX_CACHE_SIZE = 20;
-    
+
 protected:
     Font(const std::string &fileName, int pointSize);
     friend class FontManager;
-    
+
 public:
     ~Font();
-    
+
     /**
      * @brief
      *  Get the size of the given text that only has one line.
@@ -88,7 +88,7 @@ public:
      *  the height of the text box (may be nullptr)
      */
     void getTextSize(const std::string &text, int *width, int *height);
-    
+
     /**
      * @brief
      *  Get the size of the given text that potentially has multiple lines.
@@ -102,8 +102,8 @@ public:
      *  the height of the text box (may be nullptr)
      */
     void getTextBoxSize(const std::string &text, int spacing, int *width, int *height);
-    
-    
+
+
     /**
      * @brief
      *  Draw text that only has one line to a texture.
@@ -116,7 +116,7 @@ public:
      */
     void drawTextToTexture(Ego::Texture *tex, const std::string &text,
                            const Ego::Math::Colour3f &color = Ego::Math::Colour3f::white());
-    
+
     /**
      * @brief
      *  Draw text that potentially has multiple lines to a texture.
@@ -135,8 +135,8 @@ public:
      */
     void drawTextBoxToTexture(Ego::Texture *tex, const std::string &text, int width, int height, int spacing,
                               const Ego::Math::Colour3f &color = Ego::Math::Colour3f::white());
-    
-    
+
+
     /**
      * @brief
      *  Draw text that only has one line to the screen.
@@ -151,7 +151,7 @@ public:
      */
     void drawText(const std::string &text, int x, int y,
                   const Ego::Math::Colour4f &colour = Ego::Math::Colour4f::white());
-    
+
     /**
      * @brief
      *  Draw text that potentially has multiple lines to the screen.
@@ -172,7 +172,7 @@ public:
      */
     void drawTextBox(const std::string &text, int x, int y, int width, int height, int spacing,
                      const Ego::Math::Colour4f &colour = Ego::Math::Colour4f::white());
-    
+
     /**
      * @brief
      *  Create a render cache to render text that only has one line.
@@ -184,7 +184,7 @@ public:
      *  drawText
      */
     std::shared_ptr<LaidTextRenderer> layoutText(const std::string &text, int *textWidth, int *textHeight);
-    
+
     /**
      * @brief
      *  Create a render cache to render text that may have multiple lines.
@@ -200,19 +200,19 @@ public:
      *  drawTextBox
      */
     std::shared_ptr<LaidTextRenderer> layoutTextBox(const std::string &text, int width, int height, int spacing,
-                                                     int *textWidth, int *textHeight);
-    
-    /** 
+                                                    int *textWidth, int *textHeight);
+
+    /**
      * @brief
      *  Get the suggested line spacing for this font.
      * @return
      *  number of pixels suggested for line spacing
      */
     int getLineSpacing() const;
-    
+
     /**
     * @brief
-    *   Get the maximum pixel height of all glyphs of the loaded font. You may use this height for rendering text as close together 
+    *   Get the maximum pixel height of all glyphs of the loaded font. You may use this height for rendering text as close together
     *   vertically as possible, though adding at least one pixel height to it will space it so they can't touch.
     * @return
     *   The maximum pixel height of all glyphs in the font
@@ -224,14 +224,14 @@ private:
     struct RenderedTextCache;
     /// Struct for cached text that has been sized
     struct SizedTextCache;
-    
+
     struct FontAtlas;
-    
+
     /// Internal representation of laid out text.
     struct LaidOutText;
-    
+
     struct LayoutOptions;
-    
+
     /**
      * @brief
      *  Find given values in the rendered text cache
@@ -244,7 +244,7 @@ private:
      */
     std::shared_ptr<RenderedTextCache> findInRenderedCache(const std::string &text, int width, int height,
                                                            int spacing, bool *update);
-    
+
     /**
      * @brief
      *  Find given values in the sized text cache
@@ -256,14 +256,14 @@ private:
      *  A cached struct that may need to be updated per @a update
      */
     std::shared_ptr<SizedTextCache> findInSizedCache(const std::string &text, int spacing, bool *update);
-    
+
     /**
      * @brief
      *  Layout text into a LaidTextRenderer.
      * @see layout
      */
     std::shared_ptr<LaidTextRenderer> layoutToBuffer(const std::string &text, const LayoutOptions &options);
-    
+
     /**
      * @brief
      *  Layout text into a SDL_Surface.
@@ -271,7 +271,7 @@ private:
      */
     std::shared_ptr<SDL_Surface> layoutToTexture(const std::string &text, const LayoutOptions &options,
                                                  const Ego::Math::Colour3f &colour);
-    
+
     /**
      * @brief
      *  Main function for laying out text.
@@ -283,7 +283,7 @@ private:
      *  The laid out text as a group of codepoints and their positions and sizes.
      */
     LaidOutText layout(const std::string &text, const LayoutOptions &options);
-    
+
     /**
      * @brief
      *  Layouts a single line
@@ -311,7 +311,7 @@ private:
     void layoutLine(const std::vector<uint16_t> &codepoints, size_t pos, int maxWidth, bool useNewlines,
                     const FontAtlas &atlas, size_t *endPos, std::vector<uint16_t> &usedCodepoints,
                     std::vector<SDL_Rect> &positions, int *lineWidth, int *lineHeight);
-    
+
     /**
      * @brief
      *  Creates a texture altas from the given codepoints.
@@ -321,14 +321,14 @@ private:
      *  The created texture atlas
      */
     FontAtlas createFontAtlas(const std::vector<uint16_t> &codepoints) const;
-    
+
     /**
      * @brief
      *  Creates a texture atlas from the given UTF-8 characters.
      * @see createFontAtlas(const std::vector<uint16_t> &)
      */
     FontAtlas createFontAtlas(const std::vector<std::string> &chars) const;
-    
+
     /**
      * @brief
      *  Gets the kerning between two given codepoints.
@@ -339,7 +339,7 @@ private:
      *  glyph indices instead of codepoints.
      */
     int getFontKerning(uint16_t prevCodepoint, uint16_t nextCodepoint) const;
-    
+
     /**
      * @brief
      *  Returns the given UTF-8 character's codepoint.
@@ -355,7 +355,7 @@ private:
      *  @c std::out_of_range if the character's codepoint is outside the the range of 16-bits
      */
     static uint16_t convertUTF8ToCodepoint(const std::string &string, size_t *pos = nullptr);
-    
+
     /**
      * @brief
      *  Returns the codepoints of the given UTF-8 string.
@@ -365,11 +365,12 @@ private:
      *  The list of codepoints of the given string.
      */
     static std::vector<uint16_t> splitUTF8StringToCodepoints(const std::string &text);
-    
+
     TTF_Font *_ttfFont;
-    
+
     std::vector<std::shared_ptr<RenderedTextCache>> _renderedCache;
     std::vector<std::shared_ptr<SizedTextCache>> _sizedCache;
     std::vector<FontAtlas> _atlases;
 };
-}
+
+} // namespace Ego

@@ -25,7 +25,6 @@
 #include "game/graphic_prt.h"
 #include "game/renderer_3d.h"
 #include "game/game.h"
-#include "game/input.h"
 #include "game/lighting.h"
 #include "game/egoboo.h"
 #include "game/Graphics/CameraSystem.hpp"
@@ -914,7 +913,7 @@ void render_prt_bbox(const std::shared_ptr<Ego::Particle>& particle)
     //if ( 50 != loc_ppip->vel_hrz_pair.base ) return;
 
     // draw the object bounding box as a part of the graphics debug mode F7
-    if ((egoboo_config_t::get().debug_developerMode_enable.getValue() && keyb.is_key_down(SDLK_F7)))
+    if ((egoboo_config_t::get().debug_developerMode_enable.getValue() && InputSystem::get().keyboard.isKeyDown(SDLK_F7)))
     {
         // copy the bounding volume
         oct_bb_t tmp_bb = particle->prt_max_cv;

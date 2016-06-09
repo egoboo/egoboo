@@ -32,13 +32,7 @@
     <ClCompile Include="tests\egolib\Tests\Math\Contains.cpp">
       <Filter>Source Files\Math</Filter>
     </ClCompile>
-    <ClCompile Include="tests\egolib\Tests\Math\ConvexHullMath.cpp">
-      <Filter>Source Files\Math</Filter>
-    </ClCompile>
     <ClCompile Include="tests\egolib\Tests\Math\Intersects.cpp">
-      <Filter>Source Files\Math</Filter>
-    </ClCompile>
-    <ClCompile Include="tests\egolib\Tests\Math\MathConstants.cpp">
       <Filter>Source Files\Math</Filter>
     </ClCompile>
     <ClCompile Include="tests\egolib\Tests\Math\MatrixMath.cpp">
@@ -69,6 +63,12 @@
       <Filter>Source Files\Math</Filter>
     </ClCompile>
     <ClCompile Include="tests\egolib\Tests\Math\Interpolate_Linear.cpp">
+      <Filter>Source Files\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\egolib\Tests\Math\Closure.cpp">
+      <Filter>Source Files\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\egolib\Tests\Math\Constants.cpp">
       <Filter>Source Files\Math</Filter>
     </ClCompile>
   </ItemGroup>

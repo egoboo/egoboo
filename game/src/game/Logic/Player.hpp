@@ -24,7 +24,7 @@
 
 #include "IdLib/IdLib.hpp"
 #include "egolib/IDSZ.hpp"
-#include "egolib/input_device.h"
+#include "egolib/Input/input_device.h"
 #include "game/Logic/QuestLog.hpp"
 
 //Forward declarations

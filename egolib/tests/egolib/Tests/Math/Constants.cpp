@@ -23,7 +23,7 @@ namespace Ego {
 namespace Math {
 namespace Test {
 
-EgoTest_TestCase(MathConstants) {
+EgoTest_TestCase(Constants) {
 
 EgoTest_Test(piFlt) {
     float x = Ego::Math::pi<float>();

@@ -83,7 +83,7 @@ void Player::updateLatches()
     }
 
     //No need to continue if device is not enabled
-    if ( !input_device_is_enabled(pdevice) ) {
+    if ( !input_device_t::is_enabled(pdevice) ) {
         return;
     }
 
@@ -114,24 +114,26 @@ void Player::updateLatches()
     {
         // Mouse routines
         case INPUT_DEVICE_MOUSE:
-            if (fast_camera_turn || !input_device_control_active(pdevice,  CONTROL_CAMERA))  // Don't allow movement in camera control mode
+            if (fast_camera_turn || !input_device_t::control_active(pdevice,  CONTROL_CAMERA))  // Don't allow movement in camera control mode
             {
-                float dist = std::sqrt( mous.x * mous.x + mous.y * mous.y );
+                // TODO: offset should be Vector2f. Then the distance functors can be used.
+                float dist = std::sqrt( InputSystem::get().mouse.offset.x() * InputSystem::get().mouse.offset.x() +
+                                        InputSystem::get().mouse.offset.y() * InputSystem::get().mouse.offset.y() );
                 if (dist > 0)
                 {
-                    scale = mous.sense / dist;
-                    if ( dist < mous.sense )
+                    scale = InputSystem::get().mouse.sense / dist;
+                    if ( dist < InputSystem::get().mouse.sense )
                     {
-                        scale = dist / mous.sense;
+                        scale = dist / InputSystem::get().mouse.sense;
                     }
 
-                    if ( mous.sense != 0 )
+                    if ( InputSystem::get().mouse.sense != 0 )
                     {
-                        scale /= mous.sense;
+                        scale /= InputSystem::get().mouse.sense;
                     }
 
-                    joy_pos[XX] = mous.x * scale;
-                    joy_pos[YY] = mous.y * scale;
+                    joy_pos[XX] = InputSystem::get().mouse.offset.x() * scale;
+                    joy_pos[YY] = InputSystem::get().mouse.offset.y() * scale;
 
                     //if ( fast_camera_turn && !input_device_control_active( pdevice,  CONTROL_CAMERA ) )  joy_pos.x = 0;
 
@@ -143,12 +145,12 @@ void Player::updateLatches()
 
         // Keyboard routines
         case INPUT_DEVICE_KEYBOARD:
-            if ( fast_camera_turn || !input_device_control_active( pdevice, CONTROL_CAMERA ) )
+            if ( fast_camera_turn || !input_device_t::control_active( pdevice, CONTROL_CAMERA ) )
             {
-                if ( input_device_control_active( pdevice,  CONTROL_RIGHT ) )   joy_pos[XX]++;
-                if ( input_device_control_active( pdevice,  CONTROL_LEFT ) )    joy_pos[XX]--;
-                if ( input_device_control_active( pdevice,  CONTROL_DOWN ) )    joy_pos[YY]++;
-                if ( input_device_control_active( pdevice,  CONTROL_UP ) )      joy_pos[YY]--;
+                if ( input_device_t::control_active( pdevice,  CONTROL_RIGHT ) )   joy_pos[XX]++;
+                if ( input_device_t::control_active( pdevice,  CONTROL_LEFT ) )    joy_pos[XX]--;
+                if ( input_device_t::control_active( pdevice,  CONTROL_DOWN ) )    joy_pos[YY]++;
+                if ( input_device_t::control_active( pdevice,  CONTROL_UP ) )      joy_pos[YY]--;
 
                 if ( fast_camera_turn )  joy_pos[XX] = 0;
 
@@ -163,9 +165,9 @@ void Player::updateLatches()
             {
                 //Figure out which joystick we are using
                 joystick_data_t *joystick;
-                joystick = joy_lst + ( pdevice->device_type - MAX_JOYSTICK );
+                joystick = InputSystem::get().joysticks[pdevice->device_type - MAX_JOYSTICK].get();
 
-                if ( fast_camera_turn || !input_device_control_active( pdevice, CONTROL_CAMERA ) )
+                if ( fast_camera_turn || !input_device_t::control_active( pdevice, CONTROL_CAMERA ) )
                 {
                     joy_pos[XX] = joystick->x;
                     joy_pos[YY] = joystick->y;
@@ -177,7 +179,7 @@ void Player::updateLatches()
                         joy_pos *= scale;
                     }
 
-                    if ( fast_camera_turn && !input_device_control_active( pdevice, CONTROL_CAMERA ) )  joy_pos[XX] = 0;
+                    if ( fast_camera_turn && !input_device_t::control_active( pdevice, CONTROL_CAMERA ) )  joy_pos[XX] = 0;
 
                     movementInput.x() = ( joy_pos[XX] * fcos + joy_pos[YY] * fsin );
                     movementInput.y() = ( -joy_pos[XX] * fsin + joy_pos[YY] * fcos );
@@ -193,28 +195,27 @@ void Player::updateLatches()
     }
 
     // Update movement (if any)
-    sum.x += movementInput.x();
-    sum.y += movementInput.y();
+    sum.input.x() += movementInput.x();
+    sum.input.y() += movementInput.y();
 
     // Read control buttons
     if (!_inventoryMode)
     {
-        if ( input_device_control_active( pdevice, CONTROL_JUMP ) ) 
+        if ( input_device_t::control_active( pdevice, CONTROL_JUMP ) ) 
             sum.b[LATCHBUTTON_JUMP] = true;
-        if ( input_device_control_active( pdevice, CONTROL_LEFT_USE ) )
+        if ( input_device_t::control_active( pdevice, CONTROL_LEFT_USE ) )
             sum.b[LATCHBUTTON_LEFT] = true;
-        if ( input_device_control_active( pdevice, CONTROL_LEFT_GET ) )
+        if ( input_device_t::control_active( pdevice, CONTROL_LEFT_GET ) )
             sum.b[LATCHBUTTON_ALTLEFT] = true;
-        if ( input_device_control_active( pdevice, CONTROL_RIGHT_USE ) )
+        if ( input_device_t::control_active( pdevice, CONTROL_RIGHT_USE ) )
             sum.b[LATCHBUTTON_RIGHT] = true;
-        if ( input_device_control_active( pdevice, CONTROL_RIGHT_GET ) )
+        if ( input_device_t::control_active( pdevice, CONTROL_RIGHT_GET ) )
             sum.b[LATCHBUTTON_ALTRIGHT] = true;
 
         // Now update movement and input
-        input_device_add_latch(pdevice, sum.x, sum.y);
+        input_device_t::add_latch(pdevice, sum.input);
 
-        _localLatch.x = pdevice->latch.x;
-        _localLatch.y = pdevice->latch.y;
+        _localLatch.input = pdevice->latch.input;
         _localLatch.b = sum.b;
     }
 
@@ -255,7 +256,7 @@ void Player::updateLatches()
         if ( object->inst.action_ready && 0 == object->reload_timer )
         {
             //handle LEFT hand control
-            if ( input_device_control_active( pdevice, CONTROL_LEFT_USE ) || input_device_control_active(pdevice, CONTROL_LEFT_GET) )
+            if ( input_device_t::control_active( pdevice, CONTROL_LEFT_USE ) || input_device_t::control_active(pdevice, CONTROL_LEFT_GET) )
             {
                 //put it away and swap with any existing item
                 Inventory::swap_item(object->getObjRef(), _inventorySlot, SLOT_LEFT, false);
@@ -266,7 +267,7 @@ void Player::updateLatches()
             }
 
             //handle RIGHT hand control
-            if ( input_device_control_active( pdevice, CONTROL_RIGHT_USE) || input_device_control_active( pdevice, CONTROL_RIGHT_GET) )
+            if ( input_device_t::control_active( pdevice, CONTROL_RIGHT_USE) || input_device_t::control_active( pdevice, CONTROL_RIGHT_GET) )
             {
                 // put it away and swap with any existing item
                 Inventory::swap_item(object->getObjRef(), _inventorySlot, SLOT_RIGHT, false);
@@ -278,12 +279,11 @@ void Player::updateLatches()
         }
 
         //empty any movement
-        _localLatch.x = 0;
-        _localLatch.y = 0;
+        _localLatch.input = Vector2f::zero();
     }
 
     //enable inventory mode?
-    if ( update_wld > _inventoryCooldown && input_device_control_active( pdevice, CONTROL_INVENTORY ) )
+    if ( update_wld > _inventoryCooldown && input_device_t::control_active( pdevice, CONTROL_INVENTORY ) )
     {
         for(uint8_t ipla = 0; ipla < _currentModule->getPlayerList().size(); ++ipla) {
             if(_currentModule->getPlayer(ipla).get() == this) {
@@ -295,7 +295,7 @@ void Player::updateLatches()
     }
 
     //Enter or exit stealth mode?
-    if(input_device_control_active(pdevice, CONTROL_SNEAK) && update_wld > _inventoryCooldown) {
+    if(input_device_t::control_active(pdevice, CONTROL_SNEAK) && update_wld > _inventoryCooldown) {
         if(!object->isStealthed()) {
             object->activateStealth();
         }

@@ -4,17 +4,6 @@
 
 namespace Tools {
 
-#if 0
-template <class CharT, class Traits>
-std::basic_ostream<CharT, Traits>& EndOfLine(std::basic_ostream<CharT, Traits>& os) {
-    os << std::endl;
-    return os;
-}
-//template<class CharT, class Traits> using EndOfLine(std::basic_ostream<CharT, Traits>&) = std::endl<CharT, Traits>(std::basic_ostream<CharT, Traits>&);
-using RuntimeError = std::runtime_error;
-using StringBuffer = std::ostringstream;
-template <typename T> using Deque = std::deque<T>;
-#endif
 using namespace Standard;
 using namespace CommandLine;
 

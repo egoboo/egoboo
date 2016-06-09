@@ -630,25 +630,22 @@ void scr_run_chr_script(Object *pchr) {
 
 		if (pchr->isMount() && _currentModule->getObjectHandler().exists(pchr->holdingwhich[SLOT_LEFT])) {
 			// Mount
-			pchr->latch.x = _currentModule->getObjectHandler().get(pchr->holdingwhich[SLOT_LEFT])->latch.x;
-			pchr->latch.y = _currentModule->getObjectHandler().get(pchr->holdingwhich[SLOT_LEFT])->latch.y;
+            pchr->latch.input = _currentModule->getObjectHandler().get(pchr->holdingwhich[SLOT_LEFT])->latch.input;
 		}
 		else if (aiState.wp_valid) {
 			// Normal AI
-			pchr->latch.x = (aiState.wp[kX] - pchr->getPosX()) / (Info<int>::Grid::Size() << 1);
-			pchr->latch.y = (aiState.wp[kY] - pchr->getPosY()) / (Info<int>::Grid::Size() << 1);
+			pchr->latch.input.x() = (aiState.wp[kX] - pchr->getPosX()) / (Info<int>::Grid::Size() << 1);
+			pchr->latch.input.y() = (aiState.wp[kY] - pchr->getPosY()) / (Info<int>::Grid::Size() << 1);
 		}
 		else {
 			// AI, but no valid waypoints
-			pchr->latch.x = 0;
-			pchr->latch.y = 0;
+            pchr->latch.input = Vector2f::zero();
 		}
 
-		latch2 = pchr->latch.x * pchr->latch.x + pchr->latch.y * pchr->latch.y;
+        latch2 = pchr->latch.input.length_2();
 		if (latch2 > 1.0f) {
 			float scale = 1.0f / std::sqrt(latch2);
-			pchr->latch.x *= scale;
-			pchr->latch.y *= scale;
+			pchr->latch.input *= scale;
 		}
 	}
 

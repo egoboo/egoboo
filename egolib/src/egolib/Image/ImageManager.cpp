@@ -25,104 +25,75 @@
 #include "egolib/Image/ImageLoader_SDL_image.hpp"
 #include "egolib/Graphics/PixelFormat.hpp"
 
-ImageManager *ImageManager::_singleton = nullptr;
+namespace Ego {
 
-void ImageManager::registerImageLoaders(int flags) {
-    if (flags & IMG_INIT_JPG) {
-        _loaders.push_back(move(unique_ptr<ImageLoader_SDL_image>(new ImageLoader_SDL_image(".jpg"))));
-        _loaders.push_back(move(unique_ptr<ImageLoader_SDL_image>(new ImageLoader_SDL_image(".jpeg"))));
+void ImageManager::registerImageLoaders() {
+    using namespace Ego::Internal;
+    using namespace Id;
+    using String = std::string;
+    using Set = std::unordered_set<string>;
+    if (egoboo_config_t::get().debug_sdlImage_enable.getValue()) {
+        Log::get().info("[image manager]: SDL_image %d.%d.%d\n", SDL_IMAGE_MAJOR_VERSION, SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL);
+        // JPG support is optional.
+        if ((IMG_Init(IMG_INIT_JPG) & IMG_INIT_JPG) == IMG_INIT_JPG) {
+            loaders.push_back(move(make_unique<ImageLoader_SDL_image>(Set{".jpg", ".jpeg"})));
+        }
+        // PNG support is mandatory.
+        if ((IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG) == IMG_INIT_PNG) {
+            loaders.push_back(move(make_unique<ImageLoader_SDL_image>(Set{".png"})));
+        } else {
+            Log::Entry e(Log::Level::Warning, __FILE__, __LINE__);
+            e << "[image manager]: SDL_image does not support PNG file format: " << SDL_GetError() << Log::EndOfLine;
+            Log::get() << e;
+            throw EnvironmentErrorException(__FILE__, __LINE__, "font manager", String("SDL_image does not support PNG file format: ") + SDL_GetError());
+        }
+        // WEBP support is optional and available in SDL_image 1.2.11 or higher.
+    #if SDL_VERSIONNUM(SDL_IMAGE_MAJOR_VERSION, SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL) >= SDL_VERSIONNUM(1, 2, 11)
+        if ((IMG_Init(IMG_INIT_WEBP) & IMG_INIT_WEBP) == IMG_INIT_WEBP) {
+            loaders.push_back(move(make_unique<ImageLoader_SDL_image>(Set{".webp"})));
+        }
+    #endif
+        // TIF support is optional.
+        if ((IMG_Init(IMG_INIT_TIF) & IMG_INIT_TIF) == IMG_INIT_TIF) {
+            loaders.push_back(move(make_unique<ImageLoader_SDL_image>(Set{".tif", ".tiff"})));
+        }
+        loaders.push_back(move(make_unique<ImageLoader_SDL_image>(Set{".gif"})));
+        loaders.push_back(move(make_unique<ImageLoader_SDL_image>(Set{".pcx"})));
+        loaders.push_back(move(make_unique<ImageLoader_SDL_image>(Set{".ppm"})));
+        loaders.push_back(move(make_unique<ImageLoader_SDL_image>(Set{".xpm"})));
+        loaders.push_back(move(make_unique<ImageLoader_SDL_image>(Set{".pnm"})));
+        loaders.push_back(move(make_unique<ImageLoader_SDL_image>(Set{".lbm"})));
+        // Loading TGA images using the standard method does not work according to SDL_Image documentation.
+        // @todo MH: A solution is to provide a subclass of ImageLoader_SDL_image for this special case.
+    #if 0
+        loaders.push_back(move(make_unique<ImageLoader_SDL_image>(Set{".tga"})));
+    #endif
+        loaders.push_back(move(make_unique<ImageLoader_SDL_image>(Set{".bmp"})));
+    } else {
+        Log::get().info("[image manager]: SDL_image disable by %s = \"false\" in `setup.txt` - using SDL -  only support for .bmp files\n",
+                        egoboo_config_t::get().debug_sdlImage_enable.getName().c_str());
     }
-    if (flags & IMG_INIT_PNG) {
-        _loaders.push_back(move(unique_ptr<ImageLoader_SDL_image>(new ImageLoader_SDL_image(".png"))));
-    }
-    if (flags & IMG_INIT_TIF) {
-        _loaders.push_back(move(unique_ptr<ImageLoader_SDL_image>(new ImageLoader_SDL_image(".tif"))));
-        _loaders.push_back(move(unique_ptr<ImageLoader_SDL_image>(new ImageLoader_SDL_image(".tiff"))));
-    }
-    _loaders.push_back(move(unique_ptr<ImageLoader_SDL_image>(new ImageLoader_SDL_image(".gif"))));
-    _loaders.push_back(move(unique_ptr<ImageLoader_SDL_image>(new ImageLoader_SDL_image(".pcx"))));
-    _loaders.push_back(move(unique_ptr<ImageLoader_SDL_image>(new ImageLoader_SDL_image(".ppm"))));
-    _loaders.push_back(move(unique_ptr<ImageLoader_SDL_image>(new ImageLoader_SDL_image(".xpm"))));
-    _loaders.push_back(move(unique_ptr<ImageLoader_SDL_image>(new ImageLoader_SDL_image(".pnm"))));
-    _loaders.push_back(move(unique_ptr<ImageLoader_SDL_image>(new ImageLoader_SDL_image(".lbm"))));
-    // Loading TGA images using the standard method does not work according to SDL_Image documentation.
-    // @todo MH: A solution is to provide a subclass of ImageLoader_SDL_image for this special case.
-#if 0
-    _loaders.push_back(move(unique_ptr<ImageLoader_SDL_image>(new ImageLoader_SDL_image(".tga"))));
-#endif
-    _loaders.push_back(move(unique_ptr<ImageLoader_SDL_image>(new ImageLoader_SDL_image(".bmp"))));
+    // These loaders are natively supported with SDL.
+    // Place them *after* the SDL_image loaders, such that the SDL_image loader loaders are preferred.
+    loaders.push_back(move(make_unique<ImageLoader_SDL>(Set{".bmp"})));
 }
 
 ImageManager::ImageManager() :
-    _loaders(),
-    _withSDL_image(egoboo_config_t::get().debug_sdlImage_enable.getValue()) {
-    using namespace std;
-    if (_withSDL_image) {
-        Log::get().info("initializing SDL_image imaging version %d.%d.%d ...", SDL_IMAGE_MAJOR_VERSION, SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL);
-        int flags = IMG_INIT_JPG | IMG_INIT_PNG | IMG_INIT_TIF;
-#if SDL_VERSIONNUM(SDL_IMAGE_MAJOR_VERSION, SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL) >= SDL_VERSIONNUM(1, 2, 11)
-        // WebP support added in SDL_image 1.2.11
-        flags |= IMG_INIT_WEBP;
-#endif
-        flags = IMG_Init(flags);
-        // PNG support is mandatory.
-        if (!(flags & IMG_INIT_PNG)) {
-            Id::EnvironmentErrorException error(__FILE__, __LINE__, "ImageManager", string("Failed to initialize SDL_Image subsystem (") + SDL_GetError() + ")");
-            _withSDL_image = false;
-            Log::get().warn(" %s\n", ((std::string)error).c_str());
-            throw error;
-        }
-        try {
-            registerImageLoaders(flags);
-        } catch (...) {
+    loaders() {
+    try {
+        registerImageLoaders();
+    } catch (...) {
+        if (0 != IMG_Init(0)) {
             IMG_Quit();
-            Log::get().warn(" failure");
-            _withSDL_image = false;
-            std::rethrow_exception(std::current_exception());
-        }
-    } else {
-        Log::get().info("SDL_image imaging disable by %s = \"false\" in `setup.txt` - only support for .bmp files\n",
-                        egoboo_config_t::get().debug_sdlImage_enable.getName().c_str());
-        Log::get().info("initializing standard SDL imaging ...");
-        try {
-            // These typed are natively supported with SDL.
-            // Place them *after* the SDL_image types, so that if both are present,
-            // the other types will be preferred over ".bmp".
-            _loaders.push_back(move(unique_ptr<ImageLoader_SDL>(new ImageLoader_SDL(".bmp"))));
-        } catch (...) {
-            Log::get().warn(" failure\n");
-            std::rethrow_exception(std::current_exception());
         }
     }
-    Log::get().info(" success\n");
 }
 
 ImageManager::~ImageManager() {
-    if (_withSDL_image) {
+    if (0 != IMG_Init(0)) {
         IMG_Quit();
     }
 }
-
-void ImageManager::initialize() {
-    if (!_singleton) {
-        _singleton = new ImageManager();
-    }
-}
-
-void ImageManager::uninitialize() {
-    if (_singleton) {
-        delete _singleton;
-        _singleton = nullptr;
-    }
-}
-
-ImageManager& ImageManager::get() {
-    if (!_singleton) {
-        throw logic_error("image manager not initialized");
-    }
-    return *_singleton;
-}
-
 
 std::shared_ptr<SDL_Surface> ImageManager::getDefaultImage() {
     /// Create a surface of 8 x 8 blocks each of 16 x 16 pixels.
@@ -167,3 +138,5 @@ std::shared_ptr<SDL_Surface> ImageManager::createImage(size_t width, size_t heig
     //       raises an exception.
     return std::shared_ptr<SDL_Surface>(surface, [](SDL_Surface *surface) { SDL_FreeSurface(surface); });
 }
+
+} // namespace Ego

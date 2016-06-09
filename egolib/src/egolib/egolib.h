@@ -50,13 +50,24 @@
 #include "egolib/fileutil.h"
 #include "egolib/font_bmp.h"
 #include "egolib/frustum.h"
-#include "egolib/input_device.h"
 #include "egolib/map_functions.h"
 #include "egolib/platform.h"
 #include "egolib/egoboo_setup.h"
 #include "egolib/strutil.h"
 #include "egolib/Time.hpp"
 #include "egolib/typedef.h"
+
+//--------------------------------------------------------------------------------------------
+
+#include "egolib/Input/input.h"
+#include "egolib/Input/input_device.h"
+
+//--------------------------------------------------------------------------------------------
+
+#include "egolib/Events/MouseMovedEventArgs.hpp"
+#include "egolib/Events/MouseClickedEventArgs.hpp"
+#include "egolib/Events/MouseReleasedEventArgs.hpp"
+#include "egolib/Events/WindowEventArgs.hpp"
 
 //--------------------------------------------------------------------------------------------
 

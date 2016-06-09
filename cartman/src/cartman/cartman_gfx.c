@@ -32,10 +32,6 @@
 
 //--------------------------------------------------------------------------------------------
 
-static bool _ogl_initialized = false;
-
-//--------------------------------------------------------------------------------------------
-
 const Ego::Math::Colour4f WHITE = Ego::Math::Colour4f::white();
 const Ego::Math::Colour4f BLACK = Ego::Math::Colour4f::black();
 
@@ -67,7 +63,7 @@ int     numbigtile = 0;     //
 
 static void get_small_tiles( SDL_Surface* bmpload );
 static void get_big_tiles( SDL_Surface* bmpload );
-static int  gfx_init_ogl();
+static void  gfx_init_ogl();
 
 //--------------------------------------------------------------------------------------------
 
@@ -79,7 +75,7 @@ void gfx_system_begin()
     Ego::GraphicsSystem::window->setTitle(NAME " " VERSION_STR);
 
     gfx_init_ogl();   
-    gfx_font_ptr = Ego::FontManager::loadFont("editor/pc8x8.fon", 12);
+    gfx_font_ptr = Ego::FontManager::get().loadFont("editor/pc8x8.fon", 12);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -941,7 +937,7 @@ void draw_sprite( SDL_Surface * dst, SDL_Surface * sprite, int x, int y )
 }
 
 //--------------------------------------------------------------------------------------------
-int cartman_BlitSurface( SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_Rect *dstrect )
+int cartman_BlitSurface( SDL_Surface *src, ::SDL_Rect *srcrect, SDL_Surface *dst, ::SDL_Rect *dstrect )
 {
     return SDL_BlitSurface( src, srcrect, dst, dstrect );
 }
@@ -1229,7 +1225,7 @@ void get_tiles( SDL_Surface* bmpload )
 //--------------------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------------------
-int gfx_init_ogl()
+void gfx_init_ogl()
 {
     using namespace Ego;
     using namespace Ego::Math;
@@ -1273,11 +1269,4 @@ int gfx_init_ogl()
     //Initialize the motion blur buffer
     renderer.getAccumulationBuffer().setClearValue(Colour4f(0.0f, 0.0f, 0.0f, 1.0f));
     renderer.getAccumulationBuffer().clear();
-
-    // Load the current graphical settings
-    // gfx_system_load_assets();
-
-    _ogl_initialized = true;
-
-    return _ogl_initialized && Ego::GraphicsSystem::initialized;
 }

@@ -305,6 +305,8 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\Input\input.c" />
+    <ClCompile Include="src\egolib\Input\input_device.c" />
     <ClCompile Include="src\egolib\Extensions\WindowProperties.cpp" />
     <ClCompile Include="src\egolib\App.cpp" />
     <ClCompile Include="src\egolib\Graphics\GraphicsWindow.cpp" />
@@ -482,7 +484,6 @@
     <ClCompile Include="src\egolib\font_bmp.c" />
     <ClCompile Include="src\egolib\frustum.c" />
     <ClCompile Include="src\egolib\geometry.c" />
-    <ClCompile Include="src\egolib\input_device.c" />
     <ClCompile Include="src\egolib\map_functions.c" />
     <ClCompile Include="src\egolib\platform\file_linux.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -496,6 +497,23 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Math\Functors\Closure.hpp" />
+    <ClInclude Include="src\egolib\Math\Functors\Closure_AxisAlignedBox_AxisAlignedBox.hpp" />
+    <ClInclude Include="src\egolib\Math\Functors\Closure_AxisAlignedBox_AxisAlignedCube.hpp" />
+    <ClInclude Include="src\egolib\Math\Functors\Closure_AxisAlignedBox_Sphere.hpp" />
+    <ClInclude Include="src\egolib\Math\Functors\Closure_AxisAlignedCube_AxisAlignedBox.hpp" />
+    <ClInclude Include="src\egolib\Math\Functors\Closure_AxisAlignedCube_AxisAlignedCube.hpp" />
+    <ClInclude Include="src\egolib\Math\Functors\Closure_Sphere_AxisAlignedBox.hpp" />
+    <ClInclude Include="src\egolib\Math\Functors\Closure_Sphere_Sphere.hpp" />
+    <ClInclude Include="src\egolib\Input\Device.hpp" />
+    <ClInclude Include="src\egolib\Input\Mapping.hpp" />
+    <ClInclude Include="src\egolib\Input\DeviceEventArgs.hpp" />
+    <ClInclude Include="src\egolib\Events\WindowEventArgs.hpp" />
+    <ClInclude Include="src\egolib\Events\MouseReleasedEventArgs.hpp" />
+    <ClInclude Include="src\egolib\Events\MouseClickedEventArgs.hpp" />
+    <ClInclude Include="src\egolib\Events\MouseMovedEventArgs.hpp" />
+    <ClInclude Include="src\egolib\Input\input.h" />
+    <ClInclude Include="src\egolib\Input\input_device.h" />
     <ClInclude Include="src\egolib\Math\Functors\Contains.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\Contains_AxisAlignedBox_AxisAlignedBox.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\Contains_AxisAlignedBox_Point.hpp" />
@@ -531,8 +549,6 @@
     <ClInclude Include="src\egolib\Math\Functors\Translate_Point.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\Translate_Ray.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\Translate_Sphere.hpp" />
-    <ClInclude Include="src\egolib\Math\Generator_ColourRgba.hpp" />
-    <ClInclude Include="src\egolib\Math\Generator_ColourRgb.hpp" />
     <ClInclude Include="src\egolib\Math\Constants.hpp" />
     <ClInclude Include="src\egolib\Extensions\WindowProperties.hpp" />
     <ClInclude Include="src\egolib\Math\One.hpp" />
@@ -595,7 +611,6 @@
     <ClInclude Include="src\egolib\Graphics\Camera.hpp" />
     <ClInclude Include="src\egolib\Math\Transform.hpp" />
     <ClInclude Include="src\egolib\Math\Matrix.hpp" />
-    <ClInclude Include="src\egolib\Math\Rotatable.hpp" />
     <ClInclude Include="src\egolib\Math\OrderedField.hpp" />
     <ClInclude Include="src\egolib\Logic\Attribute.hpp" />
     <ClInclude Include="src\egolib\Logic\Perk.hpp" />
@@ -616,7 +631,6 @@
     <ClInclude Include="src\egolib\Math\Scalar.hpp" />
     <ClInclude Include="src\egolib\Math\Standard.hpp" />
     <ClInclude Include="src\egolib\Math\AxisAlignedBox.hpp" />
-    <ClInclude Include="src\egolib\Math\Convex.hpp" />
     <ClInclude Include="src\egolib\VFS\Pathname.hpp" />
     <ClInclude Include="src\egolib\AI\WaypointList.h" />
     <ClInclude Include="src\egolib\Graphics\ModelDescriptor.hpp" />
@@ -725,7 +739,6 @@
     <ClInclude Include="src\egolib\font_bmp.h" />
     <ClInclude Include="src\egolib\frustum.h" />
     <ClInclude Include="src\egolib\geometry.h" />
-    <ClInclude Include="src\egolib\input_device.h" />
     <ClInclude Include="src\egolib\map_functions.h" />
     <ClInclude Include="src\egolib\platform.h" />
     <ClInclude Include="src\egolib\platform\NSFileManager+DirectoryLocations.h">

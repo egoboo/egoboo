@@ -17,8 +17,8 @@ class InventorySlot : public GUIComponent
 
         virtual void draw() override;
 
-        bool notifyMouseMoved(const int x, const int y) override;
-        bool notifyMouseClicked(const int button, const int x, const int y) override;
+        bool notifyMouseMoved(const Ego::Events::MouseMovedEventArgs& e) override;
+        bool notifyMouseClicked(const Ego::Events::MouseClickedEventArgs& e) override;
 
     private:
         const Inventory& _inventory;

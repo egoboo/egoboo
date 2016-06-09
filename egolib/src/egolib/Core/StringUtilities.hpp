@@ -246,10 +246,28 @@ vector< basic_string<CharType> > split(const basic_string<CharType>& str, const 
 
 /**
  * @brief
+ *  Get if a string is a prefix of another string.
+ * @param string
+ *  the string
+ * @param pre
+ *  the prefix
+ * @return
+ *  @a true if the string begins with the prefix,
+ *  @a false otherwise
+ */
+template <typename CharType>
+bool isPrefix(const basic_string<CharType>& string, const basic_string<CharType>& prefix) {
+    if (prefix.size() > string.size()) return false;
+    auto result = std::mismatch(prefix.begin(), prefix.end(), string.begin());
+    return result.first == prefix.end();
+}
+
+/**
+ * @brief
  *  Get if a string is a suffix of another string.
  * @param string
  *  the string
- * @param suf
+ * @param suffix
  *  the suffix
  * @return
  *  @a true if the string ends with the suffix,

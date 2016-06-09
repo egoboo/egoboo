@@ -30,7 +30,6 @@
 #include "game/renderer_3d.h"
 #include "game/Logic/Player.hpp"
 #include "egolib/Script/script.h"
-#include "game/input.h"
 #include "game/script_compile.h"
 #include "game/game.h"
 #include "game/lighting.h"

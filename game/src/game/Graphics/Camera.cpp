@@ -281,52 +281,53 @@ void Camera::updateCenter()
 
 void Camera::updateFreeControl()
 {
+    auto& inputSystem = InputSystem::get();
     float moveSpeed = 25.0f;
-    if(keyb.is_key_down(SDLK_LSHIFT) || keyb.is_key_down(SDLK_RSHIFT)) {
+    if(inputSystem.keyboard.isKeyDown(SDLK_LSHIFT) || inputSystem.keyboard.isKeyDown(SDLK_RSHIFT)) {
         moveSpeed += 25.0f;
     }
 
     //Forward and backwards
-    if (keyb.is_key_down(SDLK_KP_2) || keyb.is_key_down(SDLK_DOWN)) {
+    if (inputSystem.keyboard.isKeyDown(SDLK_KP_2) || inputSystem.keyboard.isKeyDown(SDLK_DOWN)) {
         _center.x() += std::sin(_turnZ_radians) * moveSpeed;
         _center.y() += std::cos(_turnZ_radians) * moveSpeed;
     }
-    else if (keyb.is_key_down(SDLK_KP_8) || keyb.is_key_down(SDLK_UP)) {
+    else if (inputSystem.keyboard.isKeyDown(SDLK_KP_8) || inputSystem.keyboard.isKeyDown(SDLK_UP)) {
         _center.x() -= std::sin(_turnZ_radians) * moveSpeed;
         _center.y() -= std::cos(_turnZ_radians) * moveSpeed;
     }
     
     //Left and right
-    if (keyb.is_key_down(SDLK_KP_4) || keyb.is_key_down(SDLK_LEFT)) {
+    if (inputSystem.keyboard.isKeyDown(SDLK_KP_4) || inputSystem.keyboard.isKeyDown(SDLK_LEFT)) {
         _center.x() -= std::sin(_turnZ_radians + Ego::Math::Radians(Ego::Math::pi<float>() * 0.5f)) * moveSpeed;
         _center.y() -= std::cos(_turnZ_radians + Ego::Math::Radians(Ego::Math::pi<float>() * 0.5f)) * moveSpeed;
     }
-    else if (keyb.is_key_down(SDLK_KP_6) || keyb.is_key_down(SDLK_RIGHT)) {
+    else if (inputSystem.keyboard.isKeyDown(SDLK_KP_6) || inputSystem.keyboard.isKeyDown(SDLK_RIGHT)) {
         _center.x() += std::sin(_turnZ_radians + Ego::Math::Radians(Ego::Math::pi<float>() * 0.5f)) * moveSpeed;
         _center.y() += std::cos(_turnZ_radians + Ego::Math::Radians(Ego::Math::pi<float>() * 0.5f)) * moveSpeed;
     }
     
     //Rotate left or right
-    if (keyb.is_key_down(SDLK_KP_7)) {
+    if (inputSystem.keyboard.isKeyDown(SDLK_KP_7)) {
         _turnZAdd += DEFAULT_TURN_KEY * 2.0f;
     }
-    else if (keyb.is_key_down(SDLK_KP_9)) {
+    else if (inputSystem.keyboard.isKeyDown(SDLK_KP_9)) {
         _turnZAdd -= DEFAULT_TURN_KEY * 2.0f;
     }
 
     //Up and down
-    if (keyb.is_key_down(SDLK_KP_PLUS) || keyb.is_key_down(SDLK_SPACE)) {
+    if (inputSystem.keyboard.isKeyDown(SDLK_KP_PLUS) || inputSystem.keyboard.isKeyDown(SDLK_SPACE)) {
         _center.z() -= moveSpeed * 0.2f;
     }
-    else if (keyb.is_key_down(SDLK_KP_MINUS) || keyb.is_key_down(SDLK_LCTRL)) {
+    else if (inputSystem.keyboard.isKeyDown(SDLK_KP_MINUS) || inputSystem.keyboard.isKeyDown(SDLK_LCTRL)) {
         _center.z() += moveSpeed * 0.2f;
     }
 
     //Pitch camera
-    if(keyb.is_key_down(SDLK_PAGEDOWN)) {
+    if(inputSystem.keyboard.isKeyDown(SDLK_PAGEDOWN)) {
         _pitch += Ego::Math::degToRad(7.5f);
     }
-    else if(keyb.is_key_down(SDLK_PAGEUP)) {
+    else if(inputSystem.keyboard.isKeyDown(SDLK_PAGEUP)) {
         _pitch -= Ego::Math::degToRad(7.5f);
     }
 
@@ -504,10 +505,12 @@ void Camera::readInput(input_device_t *pdevice)
 {
     // Don't do network players.
     if (!pdevice) return;
+
+    auto& inputSystem = InputSystem::get();
     int type = pdevice->device_type;
 
     // If the device isn't enabled there is no point in continuing.
-    if (!input_device_is_enabled(pdevice)) return;
+    if (!input_device_t::is_enabled(pdevice)) return;
 
     // Autoturn camera only works in single player and when it is enabled.
     bool autoturn_camera = (CameraTurnMode::Good == _turnMode) && (1 == local_stats.player_count);
@@ -520,16 +523,16 @@ void Camera::readInput(input_device_t *pdevice)
         // Autoturn camera.
         if (autoturn_camera)
         {
-            if (!input_device_control_active(pdevice, CONTROL_CAMERA))
+            if (!input_device_t::control_active(pdevice, CONTROL_CAMERA))
             {
-                _turnZAdd -= mous.x * 0.5f;
+                _turnZAdd -= inputSystem.mouse.offset.x() * 0.5f;
             }
         }
         // Normal camera.
-        else if (input_device_control_active(pdevice, CONTROL_CAMERA))
+        else if (input_device_t::control_active(pdevice, CONTROL_CAMERA))
         {
-            _turnZAdd += mous.x / 3.0f;
-            _zaddGoto += static_cast<float>(mous.y) / 3.0f;
+            _turnZAdd += inputSystem.mouse.offset.x() / 3.0f;
+            _zaddGoto += static_cast<float>(inputSystem.mouse.offset.y()) / 3.0f;
 
             _turnTime = DEFAULT_TURN_TIME;  // Sticky turn ...
         }
@@ -541,18 +544,18 @@ void Camera::readInput(input_device_t *pdevice)
         int ijoy = type - INPUT_DEVICE_JOY;
 
         // Figure out which joystick this is.
-        joystick_data_t *pjoy = joy_lst + ijoy;
+        joystick_data_t *pjoy = inputSystem.joysticks[ijoy].get();
 
         // Autoturn camera.
         if (autoturn_camera)
         {
-            if (!input_device_control_active(pdevice, CONTROL_CAMERA))
+            if (!input_device_t::control_active(pdevice, CONTROL_CAMERA))
             {
                 _turnZAdd -= pjoy->x * DEFAULT_TURN_JOY;
             }
         }
         // Normal camera.
-        else if (input_device_control_active( pdevice, CONTROL_CAMERA))
+        else if (input_device_t::control_active( pdevice, CONTROL_CAMERA))
         {
             _turnZAdd += pjoy->x * DEFAULT_TURN_JOY;
             _zaddGoto += pjoy->y * DEFAULT_TURN_JOY;
@@ -567,11 +570,11 @@ void Camera::readInput(input_device_t *pdevice)
         // Autoturn camera.
         if (autoturn_camera)
         {
-            if (input_device_control_active(pdevice,  CONTROL_LEFT))
+            if (input_device_t::control_active(pdevice,  CONTROL_LEFT))
             {
                 _turnZAdd += DEFAULT_TURN_KEY;
             }
-            if (input_device_control_active(pdevice,  CONTROL_RIGHT))
+            if (input_device_t::control_active(pdevice,  CONTROL_RIGHT))
             {
                 _turnZAdd -= DEFAULT_TURN_KEY;
             }
@@ -582,11 +585,11 @@ void Camera::readInput(input_device_t *pdevice)
             int _turn_z_diff = 0;
 
             // Rotation.
-            if (input_device_control_active(pdevice, CONTROL_CAMERA_LEFT))
+            if (input_device_t::control_active(pdevice, CONTROL_CAMERA_LEFT))
             {
                 _turn_z_diff += DEFAULT_TURN_KEY;
             }
-            if (input_device_control_active(pdevice, CONTROL_CAMERA_RIGHT))
+            if (input_device_t::control_active(pdevice, CONTROL_CAMERA_RIGHT))
             {
                 _turn_z_diff -= DEFAULT_TURN_KEY;
             }
@@ -599,11 +602,11 @@ void Camera::readInput(input_device_t *pdevice)
             }
 
             // Zoom.
-            if (input_device_control_active(pdevice, CONTROL_CAMERA_OUT))
+            if (input_device_t::control_active(pdevice, CONTROL_CAMERA_OUT))
             {
                 _zaddGoto += DEFAULT_TURN_KEY;
             }
-            if (input_device_control_active(pdevice,  CONTROL_CAMERA_IN))
+            if (input_device_t::control_active(pdevice,  CONTROL_CAMERA_IN))
             {
                 _zaddGoto -= DEFAULT_TURN_KEY;
             }

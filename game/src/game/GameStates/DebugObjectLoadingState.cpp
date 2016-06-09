@@ -121,14 +121,14 @@ struct DebugObjectLoadingState::ObjectGUIContainer : public ComponentContainer, 
         _loadingText->setPosition(x + 265, y + (getHeight() - _loadingText->getHeight()) / 2);
     }
     
-    bool notifyMouseClicked(const int button, const int x, const int y) override
+    bool notifyMouseClicked(const Ego::Events::MouseClickedEventArgs& e) override
     {
-        return ComponentContainer::notifyMouseClicked(button, x, y);
+        return ComponentContainer::notifyMouseClicked(e);
     }
     
-    bool notifyMouseMoved(const int x, const int y) override
+    bool notifyMouseMoved(const Ego::Events::MouseMovedEventArgs& e) override
     {
-        return ComponentContainer::notifyMouseMoved(x, y);
+        return ComponentContainer::notifyMouseMoved(e);
     }
     
     void relayout() {

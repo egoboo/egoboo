@@ -114,8 +114,8 @@ void ObjectPhysics::updateMovement()
 
     //Can it move?
     if (_object.isAlive() && _object.getAttribute(Ego::Attribute::ACCELERATION) > 0.0f)  {
-        _desiredVelocity.x() = _object.latch.x;
-        _desiredVelocity.y() = _object.latch.y;
+        _desiredVelocity.x() = _object.latch.input.x();
+        _desiredVelocity.y() = _object.latch.input.y();
 
         // Reverse movements for daze
         if (_object.daze_timer > 0) {
