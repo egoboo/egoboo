@@ -5,7 +5,6 @@
 
 EGO_SRC    := ${wildcard src/game/*.c} ${wildcard src/game/*/*.c}
 EGO_CPPSRC := ${wildcard src/game/*.cpp} ${wildcard src/game/*/*.cpp} ../unix/main.cpp
-EGO_CPPSRC := $(filter-out src/game/PhysicalConstants.cpp, $(EGO_CPPSRC))
 EGO_OBJ    := ${EGO_SRC:.c=.o} ${EGO_CPPSRC:.cpp=.o}
 
 #---------------------
@@ -17,20 +16,21 @@ IDLIB_L  := ../idlib/$(IDLIB_TARGET)
 #---------------------
 # the compiler options
 
-INC      := -Isrc -I../egolib/src -I../idlib/src
-
-CFLAGS   += $(INC)
-CXXFLAGS += $(INC)
+override CXXFLAGS += $(EGO_CXXFLAGS) -Isrc -I../egolib/src -I../idlib/src
+override LDFLAGS += $(EGO_LDFLAGS)
 
 #------------------------------------
 # definitions of the target projects
 
 .PHONY: all clean
 
+all: $(EGO_TARGET)
+
 $(EGO_TARGET): ${EGO_OBJ} ${EGOLIB_L} ${IDLIB_L}
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
-all: $(EGO_TARGET)
+%.o: %.c
+	$(CXX) -x c++ $(CXXFLAGS) -o $@ -c $^
 
 clean:
 	rm -f ${EGO_OBJ} $(EGO_TARGET)

@@ -48,7 +48,7 @@ endif
 
 #---------------------
 # the compiler options
-TMPFLAGS += -x c++ -std=c++14 $(LUA_CFLAGS)
+TMPFLAGS += -std=c++14 $(LUA_CFLAGS)
 
 # for now, find a better way to do this?
 ifeq ($(PREFIX),)
@@ -62,12 +62,10 @@ else
 	TMPFLAGS += -DPREFIX=\"$(PREFIX)\" -D_NIX_PREFIX
 endif
 
-CFLAGS   += $(TMPFLAGS)
-CXXFLAGS += $(TMPFLAGS)
-LDFLAGS  += $(LUA_LDFLAGS)
-LDFLAGS  += ${SDLCONF_L} -lSDL2_ttf -lSDL2_mixer -lSDL2_image -lphysfs -lenet -lGL
+EGO_CXXFLAGS = $(TMPFLAGS)
+EGO_LDFLAGS  = -pthread $(LUA_LDFLAGS) ${SDLCONF_L} -lSDL2_ttf -lSDL2_mixer -lSDL2_image -lphysfs -lGL
 
-export PREFIX CFLAGS CXXFLAGS LDFLAGS IDLIB_TARGET EGOLIB_TARGET EGO_TARGET CARTMAN_TARGET EGOTOOL_TARGET
+export PREFIX EGO_CXXFLAGS EGO_LDFLAGS IDLIB_TARGET EGOLIB_TARGET EGO_TARGET CARTMAN_TARGET EGOTOOL_TARGET
 
 #------------------------------------
 # definitions of the target projects
@@ -97,7 +95,7 @@ test: all
 
 external_lua:
 ifeq ($(USE_EXTERNAL_LUA), 1)
-	${MAKE} -C $(EXTERNAL_LUA) linux
+	${MAKE} -C $(EXTERNAL_LUA)/src liblua.a SYSCFLAGS="-DLUA_USE_POSIX"
 endif
 
 clean:
