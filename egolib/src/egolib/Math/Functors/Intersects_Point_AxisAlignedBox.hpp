@@ -17,7 +17,7 @@ struct Intersects<
     typedef Point<typename EuclideanSpaceType::VectorSpaceType> FirstType;
     typedef AxisAlignedBox<EuclideanSpaceType> SecondType;
     bool operator()(const FirstType& a, const SecondType& b) const {
-        static const Intersects<SecondType, FirstType> functor;
+        static const Intersects<SecondType, FirstType> functor{};
         return functor(b, a);
     }
 }; // struct Intersects

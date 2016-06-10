@@ -54,8 +54,8 @@ struct Interpolate<Point<_VectorSpaceType>, InterpolationMethod::Linear, void> {
     using A = Point<_VectorSpaceType>;
     using T = typename _VectorSpaceType::ScalarType;
     A operator()(A x, A y, T t) const {
-        static const One<T> one;
-        static const Zero<T> zero;
+        static const One<T> one{};
+        static const Zero<T> zero{};
         if (t < zero() || t > one()) {
             Log::Entry e(Log::Level::Error, __FILE__, __LINE__);
             e << "parameter t = " << t << " not within the interval of [0,1]" << Log::EndOfEntry;

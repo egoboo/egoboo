@@ -213,17 +213,17 @@ public:
 public:
     // Core operators.
     MyType operator+(const VectorType& other) const {
-        static const typename ScalarFieldType::SumFunctor functor;
+        static const typename ScalarFieldType::SumFunctor functor{};
         return TupleUtilities::mapTT<MyType>(functor, *this, other, IndexSequence{});
     }
 
     MyType operator-(const VectorType& other) const {
-        static const typename ScalarFieldType::DifferenceFunctor functor;
+        static const typename ScalarFieldType::DifferenceFunctor functor{};
         return TupleUtilities::mapTT<MyType>(functor, *this, other, IndexSequence{});
     }
 
     VectorType operator-(const MyType& other) const {
-        static const typename ScalarFieldType::DifferenceFunctor functor;
+        static const typename ScalarFieldType::DifferenceFunctor functor{};
         return TupleUtilities::mapTT<VectorType>(functor, *this, other, IndexSequence{});
     }
 

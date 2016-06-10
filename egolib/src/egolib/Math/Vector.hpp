@@ -165,8 +165,8 @@ private:
     struct DotProductFunctor {
         typedef ScalarType ResultType;
         ScalarType operator()(ScalarType a, ScalarType x, ScalarType y) const {
-            static const typename ScalarFieldType::SumFunctor sumFunctor;
-            static const typename ScalarFieldType::ProductFunctor productFunctor;
+            static const typename ScalarFieldType::SumFunctor sumFunctor{};
+            static const typename ScalarFieldType::ProductFunctor productFunctor{};
             return sumFunctor(a, productFunctor(x, y));
         }
     };
@@ -174,8 +174,8 @@ private:
     struct EuclideanLengthSquaredFunctor {
         typedef ScalarType ResultType;
         ScalarType operator()(ScalarType a, ScalarType x) const {
-            static const typename ScalarFieldType::SumFunctor sumFunctor;
-            static const typename ScalarFieldType::ProductFunctor productFunctor;
+            static const typename ScalarFieldType::SumFunctor sumFunctor{};
+            static const typename ScalarFieldType::ProductFunctor productFunctor{};
             return sumFunctor(a, productFunctor(x, x));
         }
     };
@@ -183,7 +183,7 @@ private:
     struct AbsoluteLengthFunctor {
         typedef ScalarType ResultType;
         ScalarType operator()(ScalarType a, ScalarType x) const {
-            static const typename ScalarFieldType::SumFunctor sumFunctor;
+            static const typename ScalarFieldType::SumFunctor sumFunctor{};
             return sumFunctor(a, std::abs(x));
         }
     };
@@ -439,27 +439,27 @@ public:
 public:
     // Core operators.
     MyType operator+(const MyType& other) const {
-        static const typename ScalarFieldType::SumFunctor functor;
+        static const typename ScalarFieldType::SumFunctor functor{};
         return TupleUtilities::mapTT<MyType>(functor, *this, other, IndexSequence{});
     }
     
     MyType operator-(const MyType& other) const {
-        static const typename ScalarFieldType::DifferenceFunctor functor;
+        static const typename ScalarFieldType::DifferenceFunctor functor{};
         return TupleUtilities::mapTT<MyType>(functor, *this, other, IndexSequence{});
     }
 
     MyType operator*(ScalarType other) const {
-        static const typename ScalarFieldType::ProductFunctor functor;
+        static const typename ScalarFieldType::ProductFunctor functor{};
         return TupleUtilities::mapTe<MyType>(functor, *this, other, IndexSequence{});
     }
 
     MyType operator/(ScalarType other) const {
-        static const typename ScalarFieldType::QuotientFunctor functor;
+        static const typename ScalarFieldType::QuotientFunctor functor{};
         return TupleUtilities::mapTe<MyType>(functor, *this, other, IndexSequence{});
     }
 
     MyType operator-() const {
-        static const typename ScalarFieldType::AdditiveInverseFunctor functor;
+        static const typename ScalarFieldType::AdditiveInverseFunctor functor{};
         return TupleUtilities::mapT<MyType>(functor, *this, IndexSequence{});
     }
 

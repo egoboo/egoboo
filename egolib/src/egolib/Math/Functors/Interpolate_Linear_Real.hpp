@@ -51,8 +51,8 @@ namespace Math {
 template <typename T>
 struct Interpolate<T, InterpolationMethod::Linear, std::enable_if_t<IsReal<T>::value>> {
     T operator()(T x, T y, T t) const {
-        static const One<T> one;
-        static const Zero<T> zero;
+        static const One<T> one{};
+        static const Zero<T> zero{};
         if (t < zero() || t > one()) {
             Log::Entry e(Log::Level::Error, __FILE__, __LINE__);
             e << "parameter t = " << t << " not within the interval of [0,1]" << Log::EndOfEntry;

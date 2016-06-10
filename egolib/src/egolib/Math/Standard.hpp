@@ -167,7 +167,7 @@ struct Validate<float> {
 template <typename EuclideanSpaceType>
 struct Validate<Ego::Math::Point<EuclideanSpaceType>> {
     void operator()(const char *file, int line, const Ego::Math::Point<EuclideanSpaceType>& object) const {
-        static const Validate<EuclideanSpaceType::ScalarType> validate;
+        static const Validate<typename EuclideanSpaceType::ScalarType> validate{};
         for (size_t i = 0; i < EuclideanSpaceType::dimensionality(); ++i) {
             validate(file, line, object[i]);
         }
@@ -177,7 +177,7 @@ struct Validate<Ego::Math::Point<EuclideanSpaceType>> {
 template <typename ScalarFieldType, size_t Dimensionality>
 struct Validate<Ego::Math::Vector<ScalarFieldType, Dimensionality>> {
     void operator()(const char *file, int line, const Ego::Math::Vector<ScalarFieldType, Dimensionality>& object) const {
-        static const Validate<typename ScalarFieldType::ScalarType> validate;
+        static const Validate<typename ScalarFieldType::ScalarType> validate{};
         for (size_t i = 0; i < Dimensionality; ++i) {
             validate(file, line, object[i]);
         }
@@ -206,7 +206,7 @@ struct Validate<Ego::Math::Sphere<EuclidianSpaceType>> {
 
 template <typename EuclidianSpaceType>
 struct Validate<Ego::Math::AxisAlignedCube<EuclidianSpaceType>> {
-    void operator()(const char *file, int line, const Ego::Math::AxisAlignedCube& object) const {
+    void operator()(const char *file, int line, const Ego::Math::AxisAlignedCube<EuclidianSpaceType>& object) const {
         static const MakeValidate<decltype(object.getCenter())> validateCenter;
         static const MakeValidate<decltype(object.getSize())> validateSize;
         validateCenter(file, line, object.getCenter());

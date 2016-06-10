@@ -31,7 +31,7 @@ public:
     using pair = std::pair<T1, T2>;
 
 public:
-    using Colour3f = Colour3f;
+    using Colour3f = Ego::Math::Colour3f;
 
     static void test(const Colour3f& x, const Colour3f& y) {
         auto f = Math::Interpolate<Colour3f, Math::InterpolationMethod::Linear>();
@@ -55,7 +55,7 @@ public:
 
 
 public:
-    using Colour4f = Colour4f;
+    using Colour4f = Ego::Math::Colour4f;
 
     static void test(const Colour4f& x, const Colour4f& y) {
         auto f = Math::Interpolate<Colour4f,Math::InterpolationMethod::Linear>();

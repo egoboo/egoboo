@@ -54,8 +54,8 @@ struct Interpolate<Vector<_ScalarFieldType, _Dimensionality>, InterpolationMetho
     using A = Vector<_ScalarFieldType, _Dimensionality>;
     using T = typename _ScalarFieldType::ScalarType;
     A operator()(A x, A y, T t) const {
-        static const One<T> one;
-        static const Zero<T> zero;
+        static const One<T> one{};
+        static const Zero<T> zero{};
         if (t < zero() || t > one()) {
             Log::Entry e(Log::Level::Error, __FILE__, __LINE__);
             e << "parameter t = " << t << " not within the interval of [0,1]" << Log::EndOfEntry;
