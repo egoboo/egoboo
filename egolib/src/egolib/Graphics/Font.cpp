@@ -758,38 +758,56 @@ std::vector<uint16_t> Font::splitUTF8StringToCodepoints(const std::string &text)
         retval.push_back(convertUTF8ToCodepoint(text, &pos));
     return retval;
 }
+    
+#define TTF_VERSION_NUM SDL_VERSIONNUM(SDL_TTF_MAJOR_VERSION, SDL_TTF_MINOR_VERSION, SDL_TTF_PATCHLEVEL)
+#define TTF_VERSION_2_0_14 SDL_VERSIONNUM(2, 0, 14)
+#define TTF_VERSION_2_0_13 SDL_VERSIONNUM(2, 0, 13)
+    
+// SDL_ttf 2.0.14 has the correct function we need, so just use that.
+#if TTF_VERSION_NUM >= TTF_VERSION_2_0_14
 
-// SDL_ttf 2.0.13 contains the fixed API
-#define IS_KERNING_FIXED(MAJOR, MINOR, PATCH) (SDL_VERSIONNUM(MAJOR, MINOR, PATCH) >= SDL_VERSIONNUM(2, 0, 13))
+int Font::getFontKerning(uint16_t prev, uint16_t curr) const {
+    return TTF_GetFontKerningSizeGlyphs(_ttfFont, prev, curr);
+}
 
-#define USING_FIXED_API IS_KERNING_FIXED(SDL_TTF_MAJOR_VERSION, SDL_TTF_MINOR_VERSION, SDL_TTF_PATCHLEVEL)
-
-int Font::getFontKerning(uint16_t prevCodepoint, uint16_t nextCodepoint) const {
-    const SDL_version *ttfVer = TTF_Linked_Version();
-    bool usingFixedLibrary = IS_KERNING_FIXED(ttfVer->major, ttfVer->minor, ttfVer->patch);
-    if (usingFixedLibrary != USING_FIXED_API)
-        throw Id::EnvironmentErrorException(__FILE__, __LINE__, "Ego::Font", "SDL_ttf compile version and linked version have different kerning APIs");
-#if USING_FIXED_API
-    // This errors-out if we're not actually compiling with the fixed API,
-    // if you get a error here, please file a bug!
-    static_assert(std::is_same<decltype(TTF_GetFontKerningSize), int(TTF_Font *, uint16_t, uint16_t)>::value,
-                  "Expected SDL_ttf 2.0.13's kerning API, got something different");
-
-    return TTF_GetFontKerningSize(_ttfFont, prevCodepoint, nextCodepoint);
 #else
-    // This errors-out if we're actually compiling with the fixed API,
-    // if you get an error here, please file a bug!
-    static_assert(std::is_same<decltype(TTF_GetFontKerningSize), int(TTF_Font *, int, int)>::value,
-                  "Expected SDL_ttf 2.0.11's kerning API, got something different");
 
+// This function is used when we're running with SDL_ttf 2.0.12
+int Font::getFontKerning_2_0_12(TTF_Font *font, uint16_t prev, uint16_t curr) {
+    static auto realKerningFunc =
+#if TTF_VERSION_NUM == TTF_VERSION_2_0_13
+        reinterpret_cast<int(*)(TTF_Font *, int, int)>(TTF_GetFontKerningSize);
+#else
+        TTF_GetFontKerningSize;
+#endif
+    
     // Abuse the fact that TTF_GlyphIsProvided just calls FT_Get_Char_Index and returns the value
     // instead of returning if the value is not equal to 0
-    int prev_index = TTF_GlyphIsProvided(_ttfFont, prevCodepoint);
-    int next_index = TTF_GlyphIsProvided(_ttfFont, nextCodepoint);
-
-    return TTF_GetFontKerningSize(_ttfFont, prev_index, next_index);
-#endif
+    int prev_index = TTF_GlyphIsProvided(font, prev);
+    int next_index = TTF_GlyphIsProvided(font, curr);
+    
+    return realKerningFunc(font, prev_index, next_index);
 }
+
+int Font::getFontKerning(uint16_t prev, uint16_t curr) const {
+    static int(*kerningFunc)(TTF_Font *, uint16_t, uint16_t) = nullptr;
+    
+    if (!kerningFunc) {
+        const SDL_version *ttfVer = TTF_Linked_Version();
+        if (SDL_VERSIONNUM(ttfVer->major, ttfVer->minor, ttfVer->patch) == TTF_VERSION_2_0_13) {
+#if TTF_VERSION_NUM == TTF_VERSION_2_0_13
+            kerningFunc = TTF_GetFontKerningSize;
+#else
+            kerningFunc = reinterpret_cast<int(*)(TTF_Font *, uint16_t, uint16_t)>(TTF_GetFontKerningSize);
+#endif
+        } else {
+            kerningFunc = getFontKerning_2_0_12;
+        }
+    }
+    
+    return kerningFunc(_ttfFont, prev, curr);
+}
+#endif
 
 #undef USING_FIXED_API
 #undef IS_KERNING_FIXED
