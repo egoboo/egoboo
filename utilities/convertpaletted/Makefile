@@ -16,20 +16,21 @@ IDLIB_L  := ../../idlib/$(IDLIB_TARGET)
 #---------------------
 # the compiler options
 
-INC      := -Isrc -I../../egolib/src -I../../idlib/src
-
-CFLAGS   += $(INC)
-CXXFLAGS += $(INC)
+override CXXFLAGS += $(EGO_CXXFLAGS) -Isrc -I../../egolib/src -I../../idlib/src
+override LDFLAGS += $(EGO_LDFLAGS)
 
 #------------------------------------
 # definitions of the target projects
 
 .PHONY: all clean
 
+all: $(EGOTOOL_TARGET)
+
 $(EGOTOOL_TARGET): ${EGOTOOL_OBJ} ${EGOLIB_L} ${IDLIB_L}
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
-all: $(EGOTOOL_TARGET)
+%.o: %.c
+	$(CXX) -x c++ $(CXXFLAGS) -o $@ -c $^
 
 clean:
 	rm -f ${EGOTOOL_OBJ} $(EGOTOOL_TARGET)

@@ -47,7 +47,7 @@ struct Interpolate<Colour<_ColourSpaceType>, InterpolationMethod::Linear, std::e
      *  the interpolated value
      */
     A operator()(const A& x, const A& y, float t) const {
-        static const Interpolate<float, InterpolationMethod::Linear> f;
+        static const Interpolate<float, InterpolationMethod::Linear> f{};
         /// @todo Use a cookie constructor: The values are within bounds.
         return A(constrain(f(x.getRed(), y.getRed(), t), ColourSpaceType::min(), ColourSpaceType::max()),
                  constrain(f(x.getGreen(), y.getGreen(), t), ColourSpaceType::min(), ColourSpaceType::max()),

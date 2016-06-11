@@ -257,7 +257,7 @@ void scantag_parse_control( const char * tag_string, control_t &pcontrol )
         if ( tag_index < 0 || tag_index >= scantag_count )
         {
             if(token != "N/A") {
-				Log::get().warn("%s - unknown tag token, \"%s\".\n", __FUNCTION__, tag_token);
+                Log::get().warn("%s - unknown tag token, \"%s\".\n", __FUNCTION__, tag_token);
             }
             break;
         }
@@ -265,15 +265,15 @@ void scantag_parse_control( const char * tag_string, control_t &pcontrol )
         tag_name = scantag_get_name( tag_index );
         if ( NULL == tag_name )
         {
+            Log::get().warn("%s - unknown tag name. tag_index == %d.\n", __FUNCTION__, tag_index);
             break;
         }
 
         if ( !scantag_get_value( tag_index, &tag_value ) )
         {
+            Log::get().warn("%s - unknown tag value. tag_index == %d.\n", __FUNCTION__, tag_index);
             break;
         }
-			Log::get().warn("%s - unknown tag name. tag_index == %d.\n", __FUNCTION__, tag_index);
-			Log::get().warn("%s - unknown tag value. tag_index == %d.\n", __FUNCTION__, tag_index);
 
         if ( 'K' == tag_name[0] )
         {

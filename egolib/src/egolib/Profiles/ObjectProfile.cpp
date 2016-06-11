@@ -216,6 +216,9 @@ ObjectProfile::ObjectProfile() :
 
 ObjectProfile::~ObjectProfile()
 {
+    // Don't try to release particles if we're in the process of cleaning up
+    if (!ProfileSystem::isInitialized()) return;
+    
     //Release particle profiles
     for(const auto &element : _particleProfiles)
     {
@@ -1220,7 +1223,7 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
     template_put_int( fileTemp, fileWrite, profile->_experienceForLevel[3] );
     template_put_int( fileTemp, fileWrite, profile->_experienceForLevel[4] );
     template_put_int( fileTemp, fileWrite, profile->_experienceForLevel[5] );
-    template_put_float( fileTemp, fileWrite, FLOAT_TO_FP8( character->experience ) );    //Note overriden by chr
+    template_put_float( fileTemp, fileWrite, character->experience );    //Note overriden by chr
     template_put_int( fileTemp, fileWrite, profile->_experienceWorth );
     template_put_float( fileTemp, fileWrite, profile->_experienceExchange );
     for(size_t i = 0; i < profile->_experienceRate.size(); ++i) {

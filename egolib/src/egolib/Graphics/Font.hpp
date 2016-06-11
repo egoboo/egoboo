@@ -339,6 +339,17 @@ private:
      *  glyph indices instead of codepoints.
      */
     int getFontKerning(uint16_t prevCodepoint, uint16_t nextCodepoint) const;
+    
+    /**
+     * @brief
+     *  Gets the kerning between two given codepoints.
+     * @return
+     *  The kerning in pixels
+     * @note
+     *  Helper function for Font::getFontKerning(uint16_t, uint16_t), used when not compiling for
+     *  SDL_ttf 2.0.14 and not running on SDL_ttf 2.0.13.
+     */
+    static int getFontKerning_2_0_12(TTF_Font *font, uint16_t prevCodepoint, uint16_t nextCodepoint);
 
     /**
      * @brief

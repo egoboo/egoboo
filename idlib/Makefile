@@ -14,10 +14,8 @@ IDLIB_CPPSRC += $(wildcard src/IdLib/*/*/*.cpp)
 
 IDLIB_OBJ := ${IDLIB_SOURCE:.c=.o} ${IDLIB_CPPSRC:.cpp=.o}
 
-INC := -Isrc
-
-CFLAGS   += $(INC)
-CXXFLAGS += $(INC)
+override CXXFLAGS += $(EGO_CXXFLAGS) -Isrc
+override LDFLAGS += $(EGO_LDFLAGS)
 
 # variables for EgoTest's makefile 
 
@@ -30,10 +28,13 @@ TEST_LDFLAGS := $(IDLIB_TARGET) $(LDFLAGS)
 
 .PHONY: all clean
 
+all: $(IDLIB_TARGET)
+
 $(IDLIB_TARGET): ${IDLIB_OBJ}
 	$(AR) -r $@ $^
 
-all: $(IDLIB_TARGET)
+%.o: %.c
+	$(CXX) -x c++ $(CXXFLAGS) -o $@ -c $^
 
 include $(EGOTEST_DIR)/EgoTest.makefile
 

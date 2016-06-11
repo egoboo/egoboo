@@ -98,11 +98,13 @@ void TextureAtlasManager::loadTileSet() {
 
 void TextureAtlasManager::reupload() {
     for (std::shared_ptr<Ego::Texture>& texture : _smallTiles) {
-        texture->load(texture->_source);
+        auto surface = texture->_source;
+        texture->load(surface);
     }
 
     for (std::shared_ptr<Ego::Texture>& texture : _bigTiles) {
-        texture->load(texture->_source);
+        auto surface = texture->_source;
+        texture->load(surface);
     }
 }
 
