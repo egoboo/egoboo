@@ -224,23 +224,11 @@ public:
         static void add_latch(input_device_t *self, const Vector2f& newInput);
 
         /// @brief special functions that must be implemented by the user
-        static BIT_FIELD get_buttonmask(input_device_t *self);
         /// @brief Get if this input device is enabled.
         static bool is_enabled(input_device_t *self);
         /// @details This function returns true if the given icontrol is pressed...
         static bool control_active(input_device_t *self, CONTROL_BUTTON icontrol);
     };
-
-//--------------------------------------------------------------------------------------------
-
-    struct device_list_t : public Ego::Core::Singleton<device_list_t> {
-        device_list_t()
-            : count(0), lst() {
-        }
-        size_t count;
-        std::array<input_device_t, MAX_LOCAL_PLAYERS> lst;      // up to MAX_LOCAL_PLAYERS input controllers
-    };
-
 //--------------------------------------------------------------------------------------------
 
     int         translate_string_to_input_type( const char *string );

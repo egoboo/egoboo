@@ -917,7 +917,7 @@ void chr_instance_t::update_lighting_base(chr_instance_t& self, Object *pchr, bo
 	}
 
     // force this function to be evaluated the 1st time through
-    if (self.lighting_frame_all < 0 || self.lighting_frame_all < 0) {
+    if (self.lighting_frame_all < 0) {
         force = true;
     }
 
