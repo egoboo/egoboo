@@ -48,16 +48,6 @@ bool input_settings_load_vfs(const char* szFilename)
         std::string currenttag;
         Ego::Input::InputDevice &device = Ego::Input::InputDevice::DeviceList[i];
 
-        //Try to skip to next line of information        
-        if(!ctxt.skipToColon(true)) {
-            return false;
-        }
-
-        currenttag = ctxt.readName();
-        if (currenttag.empty()) {
-            continue;
-        }
-
         // get the input device type from the tag
         //type = translate_string_to_input_type( currenttag.c_str() );
 
