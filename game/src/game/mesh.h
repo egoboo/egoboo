@@ -345,18 +345,6 @@ struct mpdfx_lists_t
 
 class ego_mesh_t;
 
-struct Rect2f {
-	Vector2f _min, _max;
-    Rect2f(const Circle2f& circle)
-        : _min(Point2f::toVector(circle.getCenter() - Vector2f(circle.getRadius(), circle.getRadius()))),
-          _max(Point2f::toVector(circle.getCenter() + Vector2f(circle.getRadius(), circle.getRadius())))
-    {}
-	Rect2f(const Rect2f& other)
-		: _min(other._min), _max(other._max) {}
-	Rect2f(const Vector2f& min, const Vector2f& max)
-		: _min(min), _max(max) {}
-};
-
 /// struct for caching fome values for wall collisions
 /// MH: This seems to be used like an iterator.
 struct mesh_wall_data_t {
