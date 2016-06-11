@@ -105,7 +105,6 @@ public:
     }
     explicit operator Ego::Math::Turns() const {
         static const int32_t s = static_cast<float>(static_cast<int32_t>(std::numeric_limits<uint16_t>::max())) + 1;
-        static const float inv_s = 1.0f / s;
         return Ego::Math::Turns(float(angle) * s);
     }
     explicit operator Ego::Math::Radians() const {
