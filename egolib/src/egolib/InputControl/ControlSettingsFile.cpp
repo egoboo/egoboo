@@ -48,16 +48,6 @@ bool input_settings_load_vfs(const char* szFilename)
         std::string currenttag;
         Ego::Input::InputDevice &device = Ego::Input::InputDevice::DeviceList[i];
 
-        // get the input device type from the tag
-        //type = translate_string_to_input_type( currenttag.c_str() );
-
-        // set the device type based on the control name
-        //pdevice.initialize(static_cast<e_input_device>(type));
-
-        //Find out how many fields we are to read
-        //if ( INPUT_DEVICE_KEYBOARD == pdevice.device_type ) count = CONTROL_COMMAND_COUNT;
-        //else                                                 count = CONTROL_CAMERA + 1;
-
         //Read each input control button
         for (size_t icontrol = 0; icontrol < static_cast<size_t>(Ego::Input::InputDevice::InputButton::COUNT); ++icontrol) {
             if(!ctxt.skipToColon(true)) {
@@ -69,7 +59,6 @@ bool input_settings_load_vfs(const char* szFilename)
             {
                 const SDL_Keycode keyCode = SDL_GetKeyFromName(currenttag.c_str());
                 device.setInputMapping(static_cast<Ego::Input::InputDevice::InputButton>(icontrol), keyCode);
-                Log::get().debug("Loaded %s\n", currenttag.c_str());
             }
         }
     }
