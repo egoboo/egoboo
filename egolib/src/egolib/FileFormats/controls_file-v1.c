@@ -68,7 +68,7 @@ bool input_settings_load_vfs_1(const char* szFilename)
         currenttag = ctxt.readToEndOfLine();
         if (!currenttag.empty())
         {
-            scantag_parse_control( currenttag.c_str(), pdevice.keyMap[i] );
+            scantag_parse_control( currenttag, pdevice.keyMap[i] );
         }
     };
     pdevice.device_type = idevice;
@@ -83,7 +83,7 @@ bool input_settings_load_vfs_1(const char* szFilename)
         currenttag = ctxt.readToEndOfLine();
         if (!currenttag.empty())
         {
-            scantag_parse_control( currenttag.c_str(), pdevice.keyMap[i] );
+            scantag_parse_control( currenttag, pdevice.keyMap[i] );
         }
     };
     pdevice.device_type = idevice;
@@ -100,7 +100,7 @@ bool input_settings_load_vfs_1(const char* szFilename)
             currenttag = ctxt.readToEndOfLine();
             if (!currenttag.empty())
             {
-                scantag_parse_control( currenttag.c_str(), pdevice.keyMap[i] );
+                scantag_parse_control( currenttag, pdevice.keyMap[i] );
             }
         };
         pdevice.device_type = idevice;

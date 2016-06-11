@@ -97,7 +97,7 @@ bool input_settings_load_vfs_3( const char* szFilename )
             currenttag = ctxt.readToEndOfLine();
             if (!currenttag.empty())
             {
-                scantag_parse_control( currenttag.c_str(), pdevice.keyMap[iactual] );
+                scantag_parse_control( currenttag, pdevice.keyMap[iactual] );
 
                 if ( pdevice.keyMap[iactual].loaded )
                 {

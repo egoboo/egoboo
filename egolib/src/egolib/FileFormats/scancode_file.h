@@ -33,24 +33,13 @@
 //--------------------------------------------------------------------------------------------
 
 /// A mapping between the state of an input device and an internal game latch
-    struct scantag_t
-    {
-        const char *name;      ///< tag name
-        uint32_t value;        ///< tag value
-    };
+struct scantag_t {
+    const char *name;      ///< tag name
+    uint32_t value;        ///< tag value
+};
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-    size_t scantag_get_count( void );
-    int scantag_find_index( const char *string );
-    const scantag_t  *scantag_get_tag( int index );
-	bool scantag_get_value(int index, Uint32 * pvalue);
-    const char *scantag_get_name( int index );
 
-    const char *scantag_get_string( int device, const control_t &control, char * buffer, size_t buffer_size );
-    void scantag_parse_control( const char * tag_string, control_t &control );
+std::string scantag_get_string( int device, const control_t &control );
+void scantag_parse_control( const std::string& tag_string, control_t &control );
 
-    Uint32 scancode_get_kmod( Uint32 scancode );
-
-    const scantag_t *scantag_find_bits( const scantag_t * ptag_src, char device_char, Uint32 tag_bits );
-    const scantag_t *scantag_find_value( const scantag_t * ptag_src, char device_char, Uint32 tag_value );

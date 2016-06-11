@@ -38,19 +38,16 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 void export_control( vfs_FILE * filewrite, const char * text, int device, const control_t &pcontrol )
-{
-    STRING write;
-
+{   
     if ( !pcontrol.loaded )
     {
-        snprintf( write, SDL_arraysize( write ), "%s : N/A", text );
+        vfs_printf( filewrite, "%s : N/A", text );
     }
     else
     {
-        snprintf( write, SDL_arraysize( write ), "%s : %s", text, scantag_get_string( device, pcontrol, NULL, 0 ) );
+        vfs_printf( filewrite, "%s : %s", text, 
+                    scantag_get_string(device, pcontrol).c_str());
     }
-
-    vfs_puts( write, filewrite );
     vfs_puts("\n", filewrite);
 }
 
