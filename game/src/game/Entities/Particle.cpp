@@ -406,7 +406,6 @@ void Particle::updateWater()
                         static constexpr int RIPPLEAND = 15;          ///< How often ripples spawn
                         if (0 == ((update_wld + _particleID.get()) & (RIPPLEAND << 1)))
                         {
-
                             spawn_valid = true;
                             global_pip_index = LocalParticleProfileRef(PIP_RIPPLE);
                         }
