@@ -94,7 +94,7 @@ AudioService::~AudioService() {
 
 InputService::InputService() {
     Log::get().info("intializing SDL joystick/game controller/haptic support");
-    int result = SDL_InitSubSystem(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER | SDL_INIT_HAPTIC);
+    SDL_InitSubSystem(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER | SDL_INIT_HAPTIC);
     //
     if (SDL_WasInit(SDL_INIT_JOYSTICK) == 0) {
         Log::get().info("unable to initialize joystick support!\n");

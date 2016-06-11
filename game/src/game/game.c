@@ -790,7 +790,7 @@ void readPlayerInput()
             && (local_stats.allpladead || _currentModule->canRespawnAnyTime())
             && _currentModule->isRespawnValid()
             && egoboo_config_t::get().game_difficulty.getValue() < Ego::GameDifficulty::Hard
-            && !InputSystem::get().keyboard.chat_mode
+            && !InputSystem::get().keyboard.chat_mode)
         {
             pchr->latch.b[LATCHBUTTON_RESPAWN] = true;
         }

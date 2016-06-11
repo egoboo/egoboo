@@ -109,7 +109,7 @@ void Player::updateLatches()
                 float dist = InputSystem::get().mouse.getOffset().length();
                 if (dist > 0)
                 {
-                    scale = InputSystem::get().mouse.sense / dist;
+                    float scale = InputSystem::get().mouse.sense / dist;
                     if ( dist < InputSystem::get().mouse.sense )
                     {
                         scale = dist / InputSystem::get().mouse.sense;
@@ -211,8 +211,8 @@ void Player::updateLatches()
             sum.b[LATCHBUTTON_ALTRIGHT] = true;
 
         // Now update movement and input
-        _localLatch.x = sum.x;
-        _localLatch.y = sum.y;
+        _localLatch.input.x() = sum.input.x();
+        _localLatch.input.y() = sum.input.y();
         _localLatch.b = sum.b;
     }
 

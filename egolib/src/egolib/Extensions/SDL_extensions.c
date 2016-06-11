@@ -378,7 +378,6 @@ Ego::GraphicsWindow *SDLX_CreateWindow(const Ego::WindowProperties& windowProper
 Ego::GraphicsWindow *SDLX_CreateWindow( SDLX_video_parameters_t& v, bool make_report )
 {
     Ego::GraphicsWindow *ret = nullptr;
-    static const Point2i windowPosition = Point2i();
     
     if (Ego::GraphicsSystem::window) return nullptr;
 

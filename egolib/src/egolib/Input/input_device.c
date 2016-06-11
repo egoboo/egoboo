@@ -244,7 +244,7 @@ Uint32 get_device_type_from_device_char( char tag_type )
 
 //--------------------------------------------------------------------------------------------
 
-BIT_FIELD input_device_t::get_buttonmask(input_device_t *pdevice) {
+static BIT_FIELD get_buttonmask(input_device_t *pdevice) {
     // assume the worst
     BIT_FIELD buttonmask = EMPTY_BIT_FIELD;
 
@@ -296,7 +296,7 @@ bool input_device_t::control_active(input_device_t *pdevice, CONTROL_BUTTON icon
 
     // test for bits
     if (pcontrol.tag_bits.any()) {
-        BIT_FIELD bmask = input_device_t::get_buttonmask(pdevice);
+        BIT_FIELD bmask = get_buttonmask(pdevice);
 
         if (!HAS_ALL_BITS(bmask, pcontrol.tag_bits.to_ulong())) {
             return false;

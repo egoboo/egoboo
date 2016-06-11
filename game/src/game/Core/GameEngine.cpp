@@ -287,9 +287,6 @@ bool GameEngine::initialize()
     //      More recent systems like video or audio system pull their configuraiton data
     //      by the time they are initialized.
 
-    // Initialize the device list.
-    // TODO: Should be part of the input system.
-    device_list_t::initialize();
     // Initialize the input system and enable mouse and keyboard.
     InputSystem::initialize();
     InputSystem::get().mouse.enabled = true;
@@ -469,9 +466,6 @@ void GameEngine::uninitialize()
 
 	// Uninitialize the input system.
 	InputSystem::uninitialize();
-    // Uninitialize the device list.
-    // TODO: Should be part of the input system.
-    device_list_t::uninitialize();
 
     // Shut down the log services.
 	Log::get().message("Exiting Egoboo %s. See you next time\n", GAME_VERSION.c_str());
