@@ -8,12 +8,8 @@ namespace Graphics {
 
 class TextureAtlasManager : public Ego::Core::Singleton<TextureAtlasManager> {
 protected:
-    using MyCreateFunctor = Ego::Core::CreateFunctor<TextureAtlasManager>;
-    friend MyCreateFunctor;
-
-    using MyDestroyFunctor = Ego::Core::DestroyFunctor<TextureAtlasManager>;
-    friend MyDestroyFunctor;
-
+    friend Ego::Core::Singleton<TextureAtlasManager>::CreateFunctorType;
+    friend Ego::Core::Singleton<TextureAtlasManager>::DestroyFunctorType;
     /**
      * @brief Construct this texture atlas manager.
      */

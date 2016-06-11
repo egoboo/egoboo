@@ -165,6 +165,9 @@ extern float           indextoenvirox[EGO_NORMAL_COUNT];                    ///<
 
 struct GFX : public Ego::Core::Singleton<GFX>
 {
+private:
+    friend Ego::Core::Singleton<GFX>::CreateFunctorType;
+    friend Ego::Core::Singleton<GFX>::DestroyFunctorType;
     GFX();
     ~GFX();
 private:

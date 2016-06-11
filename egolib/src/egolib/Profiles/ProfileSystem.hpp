@@ -58,18 +58,12 @@ struct pro_import_t
 #include "egolib/Profiles/EnchantProfile.hpp"
 #include "egolib/Profiles/ParticleProfile.hpp"
 
-class ProfileSystem : public Ego::Core::Singleton<ProfileSystem>
-{
-
+class ProfileSystem : public Ego::Core::Singleton<ProfileSystem> {
 protected:
-    using MyCreateFunctor = Ego::Core::CreateFunctor<ProfileSystem>;
-    friend MyCreateFunctor;
-
-    using MyDestroyFunctor = Ego::Core::DestroyFunctor<ProfileSystem>;
-    friend MyDestroyFunctor;
+    friend Ego::Core::Singleton<ProfileSystem>::CreateFunctorType;
+    friend Ego::Core::Singleton<ProfileSystem>::DestroyFunctorType;
 
     ProfileSystem();
-
     ~ProfileSystem();
 
 public:

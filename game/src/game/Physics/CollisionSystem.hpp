@@ -29,15 +29,8 @@ namespace Ego
 namespace Physics
 {
 
-class CollisionSystem : public Ego::Core::Singleton<CollisionSystem>
+class CollisionSystem : public Core::Singleton<CollisionSystem>
 {
-protected:
-    using MyCreateFunctor = Ego::Core::CreateFunctor<CollisionSystem>;
-    friend MyCreateFunctor;
-
-    using MyDestroyFunctor = Ego::Core::DestroyFunctor<CollisionSystem>;
-    friend MyDestroyFunctor;
-
 public:
     /**
     * @brief
@@ -106,12 +99,9 @@ private:
     **/
     bool handleMountingCollision(const std::shared_ptr<Object> &character, const std::shared_ptr<Object> &mount);
 
-protected:
-
-    // Befriend with singleton to grant access to ParticleProfileSystem::CollisionSystem and CollisionSystem::~CollisionSystem.
-    using TheSingleton = Ego::Core::Singleton<CollisionSystem>;
-    friend TheSingleton;
-
+private:
+    friend Core::Singleton<CollisionSystem>::CreateFunctorType;
+    friend Core::Singleton<CollisionSystem>::DestroyFunctorType;
     CollisionSystem();
     ~CollisionSystem();
 };

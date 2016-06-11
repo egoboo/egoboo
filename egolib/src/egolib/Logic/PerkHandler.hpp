@@ -33,14 +33,11 @@ namespace Ego
 namespace Perks
 {
 
-class PerkHandler : public Ego::Core::Singleton<Ego::Perks::PerkHandler>
+class PerkHandler : public Core::Singleton<PerkHandler>
 {
 protected:
-    using MyCreateFunctor = Ego::Core::CreateFunctor<PerkHandler>;
-    friend MyCreateFunctor;
-
-    using MyDestroyFunctor = Ego::Core::DestroyFunctor<PerkHandler>;
-    friend MyDestroyFunctor;
+    friend Core::Singleton<PerkHandler>::CreateFunctorType;
+    friend Core::Singleton<PerkHandler>::DestroyFunctorType;
 
     /**
     * @brief

@@ -293,11 +293,8 @@ protected:
     template <typename T> using SharedPtr = std::shared_ptr<T>;
 
 protected:
-    using MyCreateFunctor = Core::CreateFunctor<Renderer>;
-    friend MyCreateFunctor;
-
-    using MyDestroyFunctor = Core::DestroyFunctor<Renderer>;
-	friend MyDestroyFunctor;
+    friend Core::Singleton<Renderer>::CreateFunctorType;
+    friend Core::Singleton<Renderer>::DestroyFunctorType;
 
 protected:
     /**

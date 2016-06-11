@@ -471,11 +471,9 @@ namespace NativeInterface {
  */
 struct Runtime : public Core::Singleton<Runtime> {
 protected:
+    friend Core::Singleton<Runtime>::CreateFunctorType;
+    friend Core::Singleton<Runtime>::DestroyFunctorType;
 	using MyCreateFunctor = Core::CreateFunctor<Runtime>;
-    friend MyCreateFunctor;
-
-    using MyDestroyFunctor = Core::DestroyFunctor<Runtime>;
-    friend MyDestroyFunctor;
 
     /**
 	 * @brief
