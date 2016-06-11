@@ -86,9 +86,6 @@ void Player::updateLatches()
     bool fast_camera_turn = ( 1 == local_stats.player_count ) && ( CameraTurnMode::Good == pcam->getTurnMode() );
 
     // Clear the player's latch buffers
-    latch_t sum;
-    sum.clear();
-
     Vector2f movementInput = Vector2f::zero();
     Vector2f joy_pos = Vector2f::zero();
 
@@ -99,121 +96,26 @@ void Player::updateLatches()
 
     if(fast_camera_turn || !getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::CAMERA_CONTROL))
     {
+        joy_pos = getInputDevice().getInputMovement();
 
-        switch(getInputDevice().getDeviceType())
-        {
-            // Mouse routines
-            case Ego::Input::InputDevice::InputDeviceType::MOUSE:
-            {
-                // Get the distance the mouse was moved.
-                float dist = InputSystem::get().mouse.getOffset().length();
-                if (dist > 0)
-                {
-                    float scale = InputSystem::get().mouse.sense / dist;
-                    if ( dist < InputSystem::get().mouse.sense )
-                    {
-                        scale = dist / InputSystem::get().mouse.sense;
-                    }
-
-                    if ( InputSystem::get().mouse.sense != 0 )
-                    {
-                        scale /= InputSystem::get().mouse.sense;
-                    }
-
-                    joy_pos[XX] = InputSystem::get().mouse.getOffset().x() * scale;
-                    joy_pos[YY] = InputSystem::get().mouse.getOffset().y() * scale;
-
-                    //Rotate movement input from body frame to earth frame
-                    movementInput.x() = ( joy_pos[XX] * fcos + joy_pos[YY] * fsin );
-                    movementInput.y() = ( -joy_pos[XX] * fsin + joy_pos[YY] * fcos );
-                }
-            }
-            break;
-
-            // Keyboard routines
-            case Ego::Input::InputDevice::InputDeviceType::KEYBOARD:
-            {
-                if(getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::MOVE_RIGHT)) {
-                    joy_pos[XX]++;
-                }   
-                if(getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::MOVE_LEFT)) {
-                    joy_pos[XX]--;
-                }   
-                if(getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::MOVE_DOWN)) {
-                    joy_pos[YY]++;
-                }   
-                if(getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::MOVE_UP)) {
-                    joy_pos[YY]--;
-                }   
-
-                if (fast_camera_turn) {
-                    joy_pos[XX] = 0;
-                }
-
-                //Rotate movement input from body frame to earth frame
-                movementInput.x() = ( joy_pos[XX] * fcos + joy_pos[YY] * fsin );
-                movementInput.y() = ( -joy_pos[XX] * fsin + joy_pos[YY] * fcos );
-            }
-            break;
-
-            // Joystick routines
-            case Ego::Input::InputDevice::InputDeviceType::JOYSTICK:
-            {
-                //TODO: Not implemented yet
-                /*
-                //Figure out which joystick we are using
-                joystick_data_t *joystick;
-                joystick = InputSystem::get().joysticks[pdevice->device_type - MAX_JOYSTICK].get();
-
-                if ( fast_camera_turn || !input_device_t::control_active( pdevice, CONTROL_CAMERA ) )
-                {
-                    joy_pos[XX] = joystick->x;
-                    joy_pos[YY] = joystick->y;
-
-                    float dist = joy_pos.length_2();
-                    if ( dist > 1.0f )
-                    {
-                        scale = 1.0f / std::sqrt( dist );
-                        joy_pos *= scale;
-                    }
-
-                    if ( fast_camera_turn && !input_device_t::control_active( pdevice, CONTROL_CAMERA ) )  joy_pos[XX] = 0;
-
-                    movementInput.x() = ( joy_pos[XX] * fcos + joy_pos[YY] * fsin );
-                    movementInput.y() = ( -joy_pos[XX] * fsin + joy_pos[YY] * fcos );
-                }
-                */
-            }
-            break;
-
-            default:
-                //unknown device type.
-            return;
-        }
+        //Rotate movement input from body frame to earth frame
+        movementInput.x() = ( joy_pos[XX] * fcos + joy_pos[YY] * fsin );
+        movementInput.y() = ( -joy_pos[XX] * fsin + joy_pos[YY] * fcos );
     }
-
-    // Update movement (if any)
-    sum.input.x() += movementInput.x();
-    sum.input.y() += movementInput.y();
 
     // Read control buttons
     if (!_inventoryMode)
     {
-        if (getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::JUMP)) 
-            sum.b[LATCHBUTTON_JUMP] = true;
-        if (getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::USE_LEFT))
-            sum.b[LATCHBUTTON_LEFT] = true;
-        if (getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::GRAB_LEFT))
-            sum.b[LATCHBUTTON_ALTLEFT] = true;
-        if (getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::USE_RIGHT))
-            sum.b[LATCHBUTTON_RIGHT] = true;
-        if (getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::GRAB_RIGHT))
-            sum.b[LATCHBUTTON_ALTRIGHT] = true;
+        _localLatch.b.reset();
+        _localLatch.b[LATCHBUTTON_JUMP] = getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::JUMP);
+        _localLatch.b[LATCHBUTTON_LEFT] = getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::USE_LEFT);
+        _localLatch.b[LATCHBUTTON_ALTLEFT] = getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::GRAB_LEFT);
+        _localLatch.b[LATCHBUTTON_RIGHT] = getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::USE_RIGHT);
+        _localLatch.b[LATCHBUTTON_ALTRIGHT] = getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::GRAB_RIGHT);
 
         // Now update movement and input
-        _localLatch.input.x() = sum.input.x();
-        _localLatch.input.y() = sum.input.y();
-        _localLatch.b = sum.b;
+        _localLatch.input.x() = movementInput.x();
+        _localLatch.input.y() = movementInput.y();
     }
 
     //inventory mode
@@ -250,7 +152,7 @@ void Player::updateLatches()
         }
 
         //handle item control
-        if ( object->inst.actionState.action_ready && 0 == object->reload_timer )
+        if ( object->inst.action_ready && 0 == object->reload_timer )
         {
             //handle LEFT hand control
             if (getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::USE_LEFT) || getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::GRAB_LEFT))

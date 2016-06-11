@@ -1,4 +1,5 @@
 #include "InputDevice.hpp"
+#include <egolib/Input/input.h>
 
 namespace Ego
 {
@@ -19,6 +20,9 @@ InputDevice::InputDevice(const std::string &name) :
     _type(InputDeviceType::UNKNOWN)
 {
     _keyMap.fill(SDLK_UNKNOWN);
+
+    //TODO: only support keyboard for now
+    _type = InputDevice::InputDeviceType::KEYBOARD;
 }
 
 bool InputDevice::isButtonPressed(const InputButton button) const
@@ -57,6 +61,90 @@ std::string InputDevice::getMappedInputName(const InputButton button) const
 InputDevice::InputDeviceType InputDevice::getDeviceType() const
 {
     return _type;
+}
+
+Vector2f InputDevice::getInputMovement() const
+{
+    Vector2f result = Vector2f::zero();
+
+    switch(_type)
+    {
+        // Keyboard routines
+        case Ego::Input::InputDevice::InputDeviceType::KEYBOARD:
+        {
+            if(isButtonPressed(Ego::Input::InputDevice::InputButton::MOVE_RIGHT)) {
+                result.x()++;
+            }   
+            if(isButtonPressed(Ego::Input::InputDevice::InputButton::MOVE_LEFT)) {
+                result.x()--;
+            }
+            if(isButtonPressed(Ego::Input::InputDevice::InputButton::MOVE_DOWN)) {
+                result.y()++;
+            }   
+            if(isButtonPressed(Ego::Input::InputDevice::InputButton::MOVE_UP)) {
+                result.y()--;
+            }
+        }
+        break;
+
+        // Mouse routines
+        case Ego::Input::InputDevice::InputDeviceType::MOUSE:
+        {
+            float dist = InputSystem::get().mouse.offset.length();
+            if (dist > 0)
+            {
+                float scale = InputSystem::get().mouse.sense / dist;
+                if ( dist < InputSystem::get().mouse.sense )
+                {
+                    scale = dist / InputSystem::get().mouse.sense;
+                }
+
+                if ( InputSystem::get().mouse.sense != 0 )
+                {
+                    scale /= InputSystem::get().mouse.sense;
+                }
+
+                result.x() = InputSystem::get().mouse.offset.x() * scale;
+                result.y() = InputSystem::get().mouse.offset.y() * scale;
+            }
+        }
+        break;
+
+        case Ego::Input::InputDevice::InputDeviceType::JOYSTICK:
+        {
+            //TODO: Not implemented
+            /*
+            //Figure out which joystick we are using
+            joystick_data_t *joystick;
+            joystick = InputSystem::get().joysticks[pdevice->device_type - MAX_JOYSTICK].get();
+
+            if ( fast_camera_turn || !input_device_t::control_active( pdevice, CONTROL_CAMERA ) )
+            {
+                joy_pos[XX] = joystick->x;
+                joy_pos[YY] = joystick->y;
+
+                float dist = joy_pos.length_2();
+                if ( dist > 1.0f )
+                {
+                    scale = 1.0f / std::sqrt( dist );
+                    joy_pos *= scale;
+                }
+
+                if ( fast_camera_turn && !input_device_t::control_active( pdevice, CONTROL_CAMERA ) )  joy_pos[XX] = 0;
+
+                movementInput.x() = ( joy_pos[XX] * fcos + joy_pos[YY] * fsin );
+                movementInput.y() = ( -joy_pos[XX] * fsin + joy_pos[YY] * fcos );
+            }
+            */
+        }
+        break;
+
+        case Ego::Input::InputDevice::InputDeviceType::UNKNOWN:
+            //Should not happen... throw exception?
+        break;
+    }
+
+    return result;
 }
 
 } //Input

@@ -39,9 +39,6 @@ struct mouse_data_t : public Device
      */
     float sense;
 
-    // TODO: Use Vector2f.
-    using Vector2i = Ego::Math::Discrete::Vector2<int>;
-
 private:
     /**
      * @brief The mouse offset (difference between the current position and the last position).

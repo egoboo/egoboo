@@ -3,6 +3,7 @@
 #include "IdLib/IdLib.hpp"
 #include "egolib/platform.h"
 #include "egolib/egolib_config.h"
+#include "egolib/Math/_Include.hpp"
 
 namespace Ego
 {
@@ -54,6 +55,8 @@ public:
     };
 
     bool isButtonPressed(const InputButton button) const;
+
+    Vector2f getInputMovement() const;
 
     void setInputMapping(const InputButton button, const SDL_Keycode key);
 
