@@ -27,12 +27,11 @@ public:
 
         USE_LEFT,       //< Activate item in left hand (or unarmed attack)
         GRAB_LEFT,      //< Grab/Drop item in left hand
-        PACK_LEFT,      //< Put left hand item in inventory
 
         USE_RIGHT,      //< Activate item in left hand (or unarmed attack)
         GRAB_RIGHT,     //< Grab/Drop item in left hand
-        PACK_RIGHT,     //< Put left hand item in inventory
 
+        INVENTORY,      //< Put left hand item in inventory
         STEALTH,        //< Activates stealth mode
 
         CAMERA_LEFT,    //< Rotate camera counter-clockwise
@@ -41,7 +40,6 @@ public:
         CAMERA_ZOOM_OUT,//< Zoom camera out
 
         CAMERA_CONTROL, //< TODO: replace other camera stuff?
-        INVENTORY,      //< Open inventory
 
         COUNT           //< Always last
     };

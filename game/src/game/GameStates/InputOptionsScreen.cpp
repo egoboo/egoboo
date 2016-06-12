@@ -35,11 +35,10 @@ InputOptionsScreen::InputOptionsScreen() :
 
     addInputOption("Use Left: ", Ego::Input::InputDevice::InputButton::USE_LEFT);
     addInputOption("Grab Left: ", Ego::Input::InputDevice::InputButton::GRAB_LEFT);
-    addInputOption("Pack Left: ", Ego::Input::InputDevice::InputButton::PACK_LEFT);
 
     addInputOption("Use Right: ", Ego::Input::InputDevice::InputButton::USE_RIGHT);
     addInputOption("Grab Right: ", Ego::Input::InputDevice::InputButton::GRAB_RIGHT);
-    addInputOption("Pack Right: ", Ego::Input::InputDevice::InputButton::PACK_RIGHT);
+    addInputOption("Inventory: ", Ego::Input::InputDevice::InputButton::INVENTORY);
 
     addInputOption("Camera Zoom In: ", Ego::Input::InputDevice::InputButton::CAMERA_ZOOM_IN);
     addInputOption("Camera Zoom Out: ", Ego::Input::InputDevice::InputButton::CAMERA_ZOOM_OUT);

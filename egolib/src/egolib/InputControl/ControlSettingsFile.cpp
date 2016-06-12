@@ -139,17 +139,15 @@ std::string controlInputToString(const Ego::Input::InputDevice::InputButton &but
         case Ego::Input::InputDevice::InputButton::JUMP:              return "Jump";
         case Ego::Input::InputDevice::InputButton::USE_LEFT:          return "Use Left";
         case Ego::Input::InputDevice::InputButton::GRAB_LEFT:         return "Grab Left";
-        case Ego::Input::InputDevice::InputButton::PACK_LEFT:         return "Pack Left";
         case Ego::Input::InputDevice::InputButton::USE_RIGHT:         return "Use Right";
         case Ego::Input::InputDevice::InputButton::GRAB_RIGHT:        return "Grab Right";
-        case Ego::Input::InputDevice::InputButton::PACK_RIGHT:        return "Pack Right";
+        case Ego::Input::InputDevice::InputButton::INVENTORY:         return "Inventory";
         case Ego::Input::InputDevice::InputButton::STEALTH:           return "Stealth";
         case Ego::Input::InputDevice::InputButton::CAMERA_LEFT:       return "CAMERA_LEFT";
         case Ego::Input::InputDevice::InputButton::CAMERA_RIGHT:      return "CAMERA_RIGHT";
         case Ego::Input::InputDevice::InputButton::CAMERA_ZOOM_IN:    return "CAMERA_ZOOM_IN";
         case Ego::Input::InputDevice::InputButton::CAMERA_ZOOM_OUT:   return "CAMERA_ZOOM_OUT";
         case Ego::Input::InputDevice::InputButton::CAMERA_CONTROL:    return "Camera Control";
-        case Ego::Input::InputDevice::InputButton::INVENTORY:         return "Inventory";
         case Ego::Input::InputDevice::InputButton::COUNT:             return "UNKNOWN";
     }
 
