@@ -90,16 +90,16 @@ Vector2f InputDevice::getInputMovement() const
         // Mouse routines
         case Ego::Input::InputDevice::InputDeviceType::MOUSE:
         {
-            float dist = InputSystem::get().mouse.offset.length();
+            const float dist = InputSystem::get().mouse.offset.length();
             if (dist > 0)
             {
                 float scale = InputSystem::get().mouse.sense / dist;
-                if ( dist < InputSystem::get().mouse.sense )
+                if (dist < InputSystem::get().mouse.sense)
                 {
                     scale = dist / InputSystem::get().mouse.sense;
                 }
 
-                if ( InputSystem::get().mouse.sense != 0 )
+                if (InputSystem::get().mouse.sense > 0.0f)
                 {
                     scale /= InputSystem::get().mouse.sense;
                 }

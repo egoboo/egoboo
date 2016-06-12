@@ -130,7 +130,6 @@
 #include "egolib/FileFormats/id_md2.h"
 #include "egolib/FileFormats/map_file.h"
 #include "egolib/FileFormats/map_tile_dictionary.h"
-#include "egolib/FileFormats/scancode_file.h"
 #include "egolib/FileFormats/spawn_file.h"
 #include "egolib/FileFormats/template.h"
 #include "egolib/FileFormats/wawalite_file.h"

@@ -30,7 +30,6 @@ LoadPlayerElement::LoadPlayerElement(std::shared_ptr<ObjectProfile> profile) :
     _skinRef(profile->getSkinOverride()),
     _questLog(),
     _selectedByPlayer(-1),
-    _inputDevice(INPUT_DEVICE_UNKNOWN),
     _isSelected(false)
 {
     // load the quest info from "quest.txt" so we can determine the valid modules
