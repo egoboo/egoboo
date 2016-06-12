@@ -261,7 +261,7 @@ public:
 
     virtual bool decodeValue(const string& source) override
     {
-        ValueType temporary;
+        ValueType temporary = {};
         if (!Ego::Script::Decoder<ValueType>()(source, temporary))
         {
             return false;
