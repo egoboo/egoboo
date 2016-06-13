@@ -111,12 +111,8 @@ public:
 	static const float DEFAULT_MAX_DISTANCE;    ///< Default max hearing distance (10 tiles)
 
 protected:
-    using MyCreateFunctor = Ego::Core::CreateFunctor<AudioSystem>;
-    friend MyCreateFunctor;
-
-	using MyDestroyFunctor = Ego::Core::DestroyFunctor<AudioSystem>;
-	friend MyDestroyFunctor;
-
+    friend Ego::Core::Singleton<AudioSystem>::CreateFunctorType;
+    friend Ego::Core::Singleton<AudioSystem>::DestroyFunctorType;
     AudioSystem();
     virtual ~AudioSystem();
 

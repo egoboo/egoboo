@@ -140,8 +140,12 @@ namespace Cartman
     public:
         Mouse _mouse;
         Keyboard _keyboard;
+    private:
+        friend Ego::Core::Singleton<Input>::CreateFunctorType;
+        friend Ego::Core::Singleton<Input>::DestroyFunctorType;
         Input();
         virtual ~Input();
+    public:
         void checkInput();
     protected:
         bool onMouse(SDL_Event * event);

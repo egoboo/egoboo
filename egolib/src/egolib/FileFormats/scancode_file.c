@@ -33,8 +33,8 @@
 #include "egolib/strutil.h"
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-static const scantag_t scantag_lst[] = {
+
+static const std::vector<scantag_t> scantag_lst{
     // key scancodes
     {"KEY_BACK_SPACE", SDLK_BACKSPACE},
     {"KEY_TAB", SDLK_TAB},
@@ -195,19 +195,24 @@ static const scantag_t scantag_lst[] = {
     {"JOY_1_AND_3", 10},
     {"JOY_2_AND_3", 12},
 };
-static const size_t scantag_count = sizeof(scantag_lst) / sizeof(scantag_lst[0]);
 
-//static bool scantag_matches_control( scantag_t * ptag, control_t * pcontrol );
-//static bool scantag_matches_device( scantag_t * ptag, int device_type );
+using scantag_const_iter = std::vector<scantag_t>::const_iterator;
+using scantag_iter = std::vector<scantag_t>::iterator;
+
+static scantag_const_iter scantag_find_bits(char device_char, uint32_t tag_bits,
+                                            scantag_const_iter start = scantag_lst.cbegin());
+static scantag_const_iter scantag_find_value(char device_char, uint32_t tag_value,
+                                             scantag_const_iter start = scantag_lst.cbegin());
+static const scantag_t *scantag_get_tag(int index);
+static Uint32 scancode_get_kmod(Uint32 scancode);
+static int scantag_find_index(const std::string& string);
 
 //--------------------------------------------------------------------------------------------
-Uint32 scancode_get_kmod( Uint32 scancode )
-{
-    
+Uint32 scancode_get_kmod(Uint32 scancode) {
+
     Uint32 kmod = 0;
-    
-    switch ( scancode )
-    {
+
+    switch (scancode) {
         case SDLK_NUMLOCKCLEAR:  kmod = KMOD_NUM;    break;
         case SDLK_CAPSLOCK: kmod = KMOD_CAPS;   break;
         case SDLK_LSHIFT:   kmod = KMOD_LSHIFT; break;
@@ -219,74 +224,52 @@ Uint32 scancode_get_kmod( Uint32 scancode )
         case SDLK_LGUI:     kmod = KMOD_LGUI;  break;
         case SDLK_RGUI:     kmod = KMOD_RGUI;  break;
         case SDLK_MODE:     kmod = KMOD_MODE;  break;
-            
+
             // unhandled cases
         case SDLK_SCROLLLOCK:
         default:
             kmod = 0;
             break;
     }
-    
+
     return kmod;
 }
 
 //--------------------------------------------------------------------------------------------
-void scantag_parse_control( const char * tag_string, control_t &pcontrol )
-{
-    std::string delimiters = " ,|+&\t\n";
-    int    tag_index = -1;
-    const char * tag_token = NULL;
-    const char * tag_name  = NULL;
-    Uint32 tag_value = 0;
-
-    // reset the control
+void scantag_parse_control(const std::string& tag_string, control_t &pcontrol) {
+    static const std::string delimiters = " ,|+&\t\n";
+    // Clear the control.
     pcontrol.clear();
 
     // do we have a valid string?
-    if ( INVALID_CSTR( tag_string ) ) return;
+    if (tag_string.empty()) return;
 
-    // scan through the tag string for any valid commands
-    // terminate on any bad command
-    std::vector<std::string> tokens = Ego::split(std::string(tag_string), delimiters);
-    for (const auto &token : tokens)
-    {
+    // Scan through the tag string for any valid commands,
+    // terminate on any bad command.
+    auto tokens = Ego::split(tag_string, delimiters);
+    for (const auto &token : tokens) {
         if (delimiters.find(token) != std::string::npos) continue;
-        
-        tag_token = token.c_str();
-        tag_index = scantag_find_index( tag_token );
-        if ( tag_index < 0 || tag_index >= scantag_count )
-        {
-            if(token != "N/A") {
-                Log::get().warn("%s - unknown tag token, \"%s\".\n", __FUNCTION__, tag_token);
+
+        int tag_index = scantag_find_index(token);
+        if (tag_index < 0 || tag_index >= scantag_lst.size()) {
+            if (token != "N/A") {
+                Log::get().warn("%s - unknown tag token, \"%s\".\n", __FUNCTION__, token.c_str());
             }
             break;
         }
 
-        tag_name = scantag_get_name( tag_index );
-        if ( NULL == tag_name )
-        {
-            Log::get().warn("%s - unknown tag name. tag_index == %d.\n", __FUNCTION__, tag_index);
-            break;
-        }
+        auto tag_name = std::string(scantag_lst[tag_index].name);
+        if (tag_name.empty()) continue;
+        auto tag_value = scantag_lst[tag_index].value;
 
-        if ( !scantag_get_value( tag_index, &tag_value ) )
-        {
-            Log::get().warn("%s - unknown tag value. tag_index == %d.\n", __FUNCTION__, tag_index);
-            break;
-        }
-
-        if ( 'K' == tag_name[0] )
-        {
-            // add the key control to the list
+        if ('K' == tag_name[0]) {
+            // Addd the tag value to the list of mapped keys.
             pcontrol.mappedKeys.push_front(tag_value);
-
-            // add in any key modifiers
-            pcontrol.tag_key_mods |= scancode_get_kmod( tag_value );
-
+            // Add the tag value to the modifier keys.
+            pcontrol.tag_key_mods |= scancode_get_kmod(tag_value);
+            // Mark the control as loaded.
             pcontrol.loaded = true;
-        }
-        else
-        {
+        } else {
             pcontrol.tag_bits |= tag_value;
 
             pcontrol.loaded = true;
@@ -295,22 +278,17 @@ void scantag_parse_control( const char * tag_string, control_t &pcontrol )
 }
 
 //--------------------------------------------------------------------------------------------
-int scantag_find_index( const char *string )
-{
+int scantag_find_index(const std::string& string) {
     /// @author ZZ
     /// @details Find the index of the scantag that matches the given string.
     ///    It will return -1 if there are no matches.
 
-    int retval;
-
     // assume no matches
-    retval = -1;
+    int retval = -1;
 
     // find a match, if possible
-    for (size_t cnt = 0; cnt < scantag_count; cnt++ )
-    {
-        if ( 0 == strcmp( string, scantag_lst[cnt].name ) )
-        {
+    for (size_t cnt = 0; cnt < scantag_lst.size(); cnt++) {
+        if (string == std::string(scantag_lst[cnt].name)) {
             // They match
             retval = cnt;
             break;
@@ -321,359 +299,116 @@ int scantag_find_index( const char *string )
 }
 
 //--------------------------------------------------------------------------------------------
-size_t scantag_get_count( void )
-{
-    return scantag_count;
-}
-
-//--------------------------------------------------------------------------------------------
-const scantag_t *  scantag_get_tag( int index )
-{
-    if ( index >= 0 && index < scantag_count ) return NULL;
-
-    return scantag_lst + index;
-}
-
-//--------------------------------------------------------------------------------------------
-bool scantag_get_value( int index, Uint32 * pvalue )
-{
-    bool retval = false;
-
-    if ( index >= 0 && index < scantag_count && NULL != pvalue )
-    {
-        *pvalue = scantag_lst[index].value;
-        retval = true;
+static scantag_const_iter scantag_find_bits(char device_char, Uint32 tag_bits, scantag_const_iter start) {
+    auto begin = scantag_lst.cbegin();
+    auto end = scantag_lst.cend();
+    if (start == end) {
+        return start;
     }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-const char * scantag_get_name( int index )
-{
-    const char *  retval = NULL;
-
-    if ( index >= 0 && index < scantag_count )
-    {
-        retval = scantag_lst[index].name;
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-const scantag_t * scantag_find_bits( const scantag_t * ptag_src, char device_char, Uint32 tag_bits )
-{
-    const scantag_t * retval = NULL;
-
-    const scantag_t * ptag     = NULL;
-    const scantag_t * ptag_stt = NULL;
-    const scantag_t * ptag_end = NULL;
-
-    // get the correct start position in the list
-    if ( NULL == ptag_src )
-    {
-        ptag_stt = scantag_lst + 0;
-        ptag_end = scantag_lst + scantag_count;
-    }
-    else
-    {
-        ptag_stt = ptag_src;
-        ptag_end = scantag_lst + scantag_count;
-    }
-
-    // check for an ending condition
-    if ( ptag_stt < scantag_lst || ptag_stt >= ptag_end )
-    {
-        return NULL;
-    }
-
-    for ( ptag = ptag_stt; ptag < ptag_end; ptag++ )
-    {
-        if ( device_char != ptag->name[0] ) continue;
-
-        if ( HAS_ALL_BITS( tag_bits, ptag->value ) )
-        {
-            retval = ptag;
-            break;
+    for (auto current = start; current != end; ++current) {
+        if (device_char != (*current).name[0]) {
+            continue;
+        }
+        if (HAS_ALL_BITS(tag_bits, (*current).value)) {
+            return current;
         }
     }
-
-    return retval;
+    return end;
 }
 
-//--------------------------------------------------------------------------------------------
-const scantag_t * scantag_find_value( const scantag_t * ptag_src, char device_char, Uint32 tag_value )
-{
-    const scantag_t * retval = NULL;
-
-    const scantag_t * ptag     = NULL;
-    const scantag_t * ptag_stt = NULL;
-    const scantag_t * ptag_end = NULL;
-
-    // get the correct start position in the list
-    if ( NULL == ptag_src )
-    {
-        ptag_stt = scantag_lst + 0;
-        ptag_end = scantag_lst + scantag_count;
+static scantag_const_iter scantag_find_value(char device_char, Uint32 tag_value, scantag_const_iter start) {
+    auto begin = scantag_lst.cbegin();
+    auto end = scantag_lst.cend();
+    if (start == end) {
+        return start;
     }
-    else
-    {
-        ptag_stt = ptag_src;
-        ptag_end = scantag_lst + scantag_count;
-    }
-
-    // check for an ending condition
-    if ( ptag_stt < scantag_lst || ptag_stt >= ptag_end )
-    {
-        return NULL;
-    }
-
-    for ( ptag = ptag_stt; ptag < ptag_end; ptag++ )
-    {
-        if ( device_char != ptag->name[0] ) continue;
-
-        if ( tag_value == ptag->value )
-        {
-            retval = ptag;
-            break;
+    for (auto current = start; current != end; ++current) {
+        if (device_char != (*current).name[0]) {
+            continue;
+        }
+        if (tag_value == (*current).value) {
+            return current;
         }
     }
-
-    return retval;
+    return end;
 }
 
 //--------------------------------------------------------------------------------------------
-char * buffer_append_str( char * buffer_ptr, const char * buffer_end, const char * str_new )
-{
-    size_t buffer_size = 0;
-    size_t str_new_len = 0;
-
-    // is there a buffer
-    if ( NULL == buffer_ptr || NULL == buffer_end ) return NULL;
-
-    // is the buffer empty?
-    if ( buffer_ptr >= buffer_end ) return ( char * )buffer_end;
-
-    // is there any string to append?
-    if ( !VALID_CSTR( str_new ) ) return buffer_ptr;
-
-    // get the string length
-    str_new_len = strlen( str_new );
-
-    // append the string
-    strncat( buffer_ptr, str_new, buffer_size );
-
-    // if there is enough room left, stick it on the end of the string
-    if ( buffer_ptr + str_new_len >= buffer_end )
-    {
-        buffer_ptr = ( char * )buffer_end;
-    }
-    else
-    {
-        buffer_ptr += str_new_len;
-    }
-
-    // terminate the string if possible
-    if ( buffer_ptr < buffer_end )
-    {
-        *buffer_ptr = CSTR_END;
-    }
-
-    return buffer_ptr;
-}
-
-//--------------------------------------------------------------------------------------------
-const char * scantag_get_string( int device_type, const control_t &pcontrol, char * buffer, size_t buffer_size )
-{
+std::string scantag_get_string(int device_type, const control_t &pcontrol) {
     /// @author ZF
     /// @details This translates a input pcontrol->tag value to a string
 
-    static STRING tmp_buffer = EMPTY_CSTR;
+    // @todo Use a proper string buffer.
+    std::string loc_buffer = "";
 
-    char      device_char;
-
-    char * loc_buffer_stt = NULL;
-    char * loc_buffer_end = NULL;
-    char * loc_buffer_ptr = NULL;
-    size_t loc_buffer_size_remaining = 0;
-
+    // No tags yet.
     size_t tag_count = 0;
-    size_t tag_name_len = 0;
-    const char * tag_name = NULL;
 
-    const scantag_t * ptag = NULL;
+    // Get the device char.
+    char device_char = get_device_char_from_device_type(device_type);
 
-    if ( NULL == buffer || 0 == buffer_size )
-    {
-        loc_buffer_stt = tmp_buffer;
-        loc_buffer_end = tmp_buffer + SDL_arraysize( tmp_buffer );
-    }
-    else
-    {
-        loc_buffer_stt = buffer;
-        loc_buffer_end = buffer + buffer_size;
-    }
-    loc_buffer_ptr = loc_buffer_stt;
-
-    // do we have a valid buffer?
-    if ( loc_buffer_stt >= loc_buffer_end ) return loc_buffer_stt;
-    loc_buffer_size_remaining = loc_buffer_end - loc_buffer_stt;
-
-    // no tags yet
-    tag_count = 0;
-
-    // blank out the buffer
-    loc_buffer_stt[0] = CSTR_END;
-
-    // no tag decoded yet
-    tag_name = NULL;
-    tag_name_len = 0;
-
-    device_char = get_device_char_from_device_type( device_type );
-
-    // find all the tags for the bits
-    if ( pcontrol.tag_bits.any() )
-    {
+    // Find all the tags for the bits.
+    if (pcontrol.tag_bits.any()) {
         unsigned long tag_bits = pcontrol.tag_bits.to_ulong();
-        ptag = scantag_find_bits( NULL, device_char, tag_bits );
-        while ( NULL != ptag )
-        {
-            // get the string name
-            tag_name = ptag->name;
-            tag_name_len = strlen( ptag->name );
+        auto ptag = scantag_find_bits(device_char, tag_bits);
+        while (scantag_lst.cend() != ptag) {
+            // Get the tag name.
+            auto tag_name = std::string(ptag->name);
 
-            // remove the tag bits from the control bits
-            // so that similar tag bits are not counted multiple times.
-            // example: "joy_0 + joy_1" should not be decoded as "joy_0 + joy_1 + joy_0_and_1"
-            tag_bits &= ~( ptag->value );
+            // Remove the tag bits from the control bits so that similar tag bits are not
+            // counted multiple times.
+            // Example: "joy_0 + joy_1" should not be decoded as "joy_0 + joy_1 + joy_0_and_1"
+            tag_bits &= ~(ptag->value);
 
-            // append the string
-            if ( 0 == tag_name_len )
-            {
+            // Do not append empty tag names.
+            if (0 == tag_name.length()) {
                 /* do nothing */
             }
-            else if ( loc_buffer_ptr + tag_name_len > loc_buffer_end )
-            {
-                // we're too full
-                goto scantag_get_string_end;
-            }
-            else if ( 0 == tag_count )
-            {
-                strncat( loc_buffer_ptr, tag_name, loc_buffer_end - loc_buffer_ptr - 1 );
-                loc_buffer_ptr += tag_name_len;
-
+            // If this is the first tag name.
+            else if (0 == tag_count) {
+                loc_buffer += tag_name;
                 tag_count++;
             }
-            else
-            {
-                strncat( loc_buffer_ptr, " + ", loc_buffer_end - loc_buffer_ptr - 1 );
-                loc_buffer_ptr += 3;
-
-                strncat( loc_buffer_ptr, tag_name, loc_buffer_end - loc_buffer_ptr - 1 );
-                loc_buffer_ptr += tag_name_len;
-
+            // If this is not the first tag name.
+            else {
+                loc_buffer += " + ";
+                loc_buffer += tag_name;
                 tag_count++;
             }
 
-            ptag = scantag_find_bits( ptag + 1, device_char, tag_bits );
+            ptag = scantag_find_bits(device_char, tag_bits, ptag + 1);
         }
     }
 
-    // get the names for all the keyboard tags on this control
-    // and put them in a list
-    if ( !pcontrol.mappedKeys.empty() )
-    {
-        for(uint32_t keycode : pcontrol.mappedKeys)
-        {
-            ptag = scantag_find_value( NULL, 'K', keycode );
-            if ( NULL == ptag ) continue;
+    // Get the names for all the keyboard tags on this control
+    // and put them in a list.
+    if (!pcontrol.mappedKeys.empty()) {
+        for (uint32_t keycode : pcontrol.mappedKeys) {
+            auto ptag = scantag_find_value('K', keycode);
+            if (scantag_lst.cend() == ptag) continue;
 
-            // get the string name
-            tag_name = ptag->name;
-            tag_name_len = strlen( ptag->name );
+            // Get the tag name.
+            auto tag_name = std::string(ptag->name);
 
-            // append the string
-            if ( 0 == tag_name_len )
-            {
+            // Do not append empty tag names.
+            if (0 == tag_name.length()) {
                 /* do nothing */
             }
-            else if ( loc_buffer_ptr + tag_name_len > loc_buffer_end )
-            {
-                // we're too full
-                goto scantag_get_string_end;
-            }
-            else if ( 0 == tag_count )
-            {
-                strncat( loc_buffer_ptr, tag_name, loc_buffer_end - loc_buffer_ptr - 1 );
-                loc_buffer_ptr += tag_name_len;
-
+            // If this is the first tag name.
+            else if (0 == tag_count) {
+                loc_buffer += tag_name;
                 tag_count++;
             }
-            else
-            {
-                strncat( loc_buffer_ptr, " + ", loc_buffer_end - loc_buffer_ptr - 1 );
-                loc_buffer_ptr += 3;
-
-                strncat( loc_buffer_ptr, tag_name, loc_buffer_end - loc_buffer_ptr - 1 );
-                loc_buffer_ptr += tag_name_len;
-
+            // If this is not the first tag name.
+            else {
+                loc_buffer += " + ";
+                loc_buffer += tag_name;
                 tag_count++;
             }
         }
     }
-
-scantag_get_string_end:
-
-    if ( 0 == tag_count )
-    {
-        strncpy( loc_buffer_stt, "N/A", loc_buffer_size_remaining );
+    if (0 == tag_count) {
+        loc_buffer += "N/A";
     }
-
-    // return the result
-    return loc_buffer_stt;
+    return loc_buffer;
 }
-
-//--------------------------------------------------------------------------------------------
-//bool scantag_matches_control( scantag_t * ptag, control_t * pcontrol )
-//{
-//    // valid tag?
-//    if( NULL == ptag ) return false;
-//
-//    // valid control?
-//    if( NULL == pcontrol || !pcontrol->loaded ) return false;
-//
-//    // check the value
-//    if( ptag->value != pcontrol->tag ) return false;
-//
-//    // check the key type
-//    if( pcontrol->is_key && 'K' != ptag->name[0] ) return false;
-//
-//    // passed all the tests
-//    return true;
-//}
-
-//--------------------------------------------------------------------------------------------
-//bool scantag_matches_device( scantag_t * ptag, int device_type )
-//{
-//    bool matches;
-//
-//    if( NULL == ptag ) return false;
-//
-//    matches = false;
-//
-//    if ( INPUT_DEVICE_KEYBOARD == device_type )
-//    {
-//        matches = ( 'K' == ptag->name[0] );
-//    }
-//    else if ( INPUT_DEVICE_MOUSE == device_type )
-//    {
-//        matches = ( 'M' == ptag->name[0] );
-//    }
-//    else if ( IS_VALID_JOYSTICK( device_type ) )
-//    {
-//        matches = ( 'J' == ptag->name[0] );
-//    }
-//
-//    return matches;
-//}

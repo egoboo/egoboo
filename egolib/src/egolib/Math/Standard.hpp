@@ -148,6 +148,121 @@ typedef Colour<RGBAb> Colour4b;
 } // namespace Math
 } // namespace Ego
 
+
+struct Rect2f {
+    Vector2f _min, _max;
+    Rect2f(const Circle2f& circle)
+        : _min(Point2f::toVector(circle.getCenter() - Vector2f(circle.getRadius(), circle.getRadius()))),
+        _max(Point2f::toVector(circle.getCenter() + Vector2f(circle.getRadius(), circle.getRadius()))) {}
+    Rect2f(const Rect2f& other)
+        : _min(other._min), _max(other._max) {}
+    Rect2f(const Vector2f& min, const Vector2f& max)
+        : _min(min), _max(max) {}
+};
+
+namespace Ego {
+/**
+* @brief
+*	A rectangle in a 2 dimensional Cartesian coordinate system
+*  (positive x-axis from left to right, positive y-axis from top to bottom).
+*/
+template <typename Type>
+struct Rectangle {
+    Type _left;   ///< @brief The coordinate of the left side   of the rectangle.
+                  ///< @invariant <tt>left <= right</tt>.
+    Type _bottom; ///< @brief The coordinate of the bottom side of the rectangle.
+                  ///< @invariant <tt>top <= bottom</tt>.
+    Type _right;  ///< @brief The coordinate of the right side  of the rectangle.
+    Type _top;    ///< @brief The coordinate of the top side    of the rectangle.
+
+                  /**
+                  * @brief
+                  *	Construct an empty rectangle.
+                  */
+    Rectangle() :
+        _left{},
+        _bottom{},
+        _right{},
+        _top{} {}
+
+    /**
+    * @brief
+    *	Get left coordinate of this rectangle.
+    * @return
+    *	the left coordinate of this rectangle
+    */
+    inline Type getLeft() const { return _left; }
+
+    /**
+    * @brief
+    *	Get top coordinate of this rectangle.
+    * @return
+    *	the top coordinate of this rectangle
+    */
+    inline Type getTop() const { return _top; }
+
+    /**
+    * @brief
+    *	Get right coordinate of this rectangle.
+    * @return
+    *	the right coordinate of this rectangle
+    */
+    inline Type getRight() const { return _right; }
+
+    /**
+    * @brief
+    *	Get bottom coordinate of this rectangle.
+    * @return
+    *	the bottom coordinate of this rectangle
+    */
+    inline Type getBottom() const { return _bottom; }
+
+    /**
+    * @brief
+    *	Construct this rectangle with the specified sides.
+    * @param left
+    *	the coordinate of the left side
+    * @param bottom
+    *	the coordinate of the bottom side
+    * @param right
+    *	the coordinate of the right side
+    * @param top
+    *	the coordinate of the top side
+    * @throws std::domain_error
+    *	if <tt>left > right</tt> or <tt>bottom > top</tt>
+    */
+    Rectangle(const Type& left, const Type& bottom, const Type& right, const Type& top) :
+        _left(left),
+        _bottom(bottom),
+        _right(right),
+        _top(top) {
+        if (!(_left <= _right)) {
+            throw std::domain_error("the coordinate of the left side must be smaller than or equal to the coordinate of the right side");
+        }
+        if (!(_top <= _bottom)) {
+            throw std::domain_error("the coordinate of the top side must be smaller than or equal to the coordinate of the bottom side");
+        }
+    }
+
+    bool point_inside(const Type& x, const Type& y) const {
+        EGOBOO_ASSERT(_left <= _right && _top <= _bottom);
+        if (x < _left || x > _right) return false;
+        if (y < _top || y > _bottom) return false;
+        return true;
+    }
+};
+};
+
+/** @todo Remove this. */
+typedef Ego::Rectangle<int> irect_t;
+/** @todo Remove this. */
+typedef Ego::Rectangle<float> frect_t;
+
+struct ego_frect_t {
+    float xmin, ymin;
+    float xmax, ymax;
+};
+
 #ifdef _DEBUG
 namespace Ego {
 namespace Debug {
