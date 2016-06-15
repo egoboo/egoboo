@@ -413,31 +413,31 @@ void GameEngine::unsubscribe() {
     auto window = Ego::GraphicsSystem::window;
     if (keyboardFocusLost) {
         window->KeyboardFocusLost.unsubscribe(keyboardFocusLost);
-        keyboardFocusLost = Ego::Subscription2();
+        keyboardFocusLost = Ego::Subscription();
     }
     if (keyboardFocusReceived) {
         window->KeyboardFocusReceived.unsubscribe(keyboardFocusReceived);
-        keyboardFocusReceived = Ego::Subscription2();
+        keyboardFocusReceived = Ego::Subscription();
     }
     if (mouseLeft) {
         window->MouseLeft.unsubscribe(mouseLeft);
-        mouseLeft = Ego::Subscription2();
+        mouseLeft = Ego::Subscription();
     }
     if (mouseEntered) {
         window->MouseEntered.unsubscribe(mouseEntered);
-        mouseEntered = Ego::Subscription2();
+        mouseEntered = Ego::Subscription();
     }
     if (resized) {
         window->Resized.unsubscribe(resized);
-        resized = Ego::Subscription2();
+        resized = Ego::Subscription();
     }
     if (hidden) {
         window->Hidden.unsubscribe(hidden);
-        hidden = Ego::Subscription2();
+        hidden = Ego::Subscription();
     }
     if (shown) {
         window->Shown.unsubscribe(shown);
-        shown = Ego::Subscription2();
+        shown = Ego::Subscription();
     }
 }
 
