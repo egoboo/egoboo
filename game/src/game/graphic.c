@@ -92,7 +92,6 @@ static gfx_error_stack_t gfx_error_stack = GFX_ERROR_STACK_INIT;
 
 // Interface stuff
 static irect_t tabrect[NUMBAR];            // The tab rectangles
-static irect_t barrect[NUMBAR];            // The bar rectangles
 static irect_t bliprect[COLOR_MAX];        // The blip rectangles
 
 static bool  gfx_page_flip_requested = false;
@@ -1414,12 +1413,6 @@ void gfx_init_bar_data()
         tabrect[cnt]._right = TABX;
         tabrect[cnt]._top = cnt * BARY;
         tabrect[cnt]._bottom = (cnt + 1) * BARY;
-
-        barrect[cnt]._left = TABX;
-        barrect[cnt]._right = BARX;  // This is reset whenever a bar is drawn
-        barrect[cnt]._top = tabrect[cnt]._top;
-        barrect[cnt]._bottom = tabrect[cnt]._bottom;
-
     }
 }
 
