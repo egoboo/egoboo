@@ -106,10 +106,8 @@ public:
     /**
     * @brief
     *   Renders a text string using bitmap font
-    * @param startX
-    *   x screen coordinate
-    * @param startY
-    *   y screen coordinate
+    * @param start
+    *   the screen position at which to render the string
     * @param text
     *   the text string to render
     * @param maxWidth
@@ -120,25 +118,21 @@ public:
     * @return
     *   Y screen coordinate of the line below where the text was rendered
     **/
-    float drawBitmapFontString(const float startX, const float startY, const std::string &text, const uint32_t maxWidth = 0, const float alpha = 1.0f);
+    float drawBitmapFontString(const Vector2f& start, const std::string &text, const uint32_t maxWidth = 0, const float alpha = 1.0f);
 
     /**
     * @brief
     *   Fill a solid coloured rectangle
-    * @param x
-    *   x location of top left corner in rectangle
-    * @param y
-    *   y location of top left corner in rectangle
-    * @param width
-    *   the width of the rectangle in pixels
-    * @param height
-    *   the height of the rectangle in pixels
+    * @param position
+    *   location of top left corner in rectangle
+    * @param size
+    *   the size of the rectangle in pixels
     * @param useAlpha
     *   enable or disable alpha channel
     * @param tint
     *   colour of the rectangle (including alpha channel)
     **/
-    void fillRectangle(const float x, const float y, const float width, const float height, const bool useAlpha, const Ego::Colour4f& tint = Ego::Colour4f::white());
+    void fillRectangle(const Vector2f& position, const Vector2f& size, const bool useAlpha, const Ego::Colour4f& tint = Ego::Colour4f::white());
     
     /**
     * @brief
@@ -151,7 +145,7 @@ private:
     * @brief
     *   Render a single bitmap glyph at the specified location
     **/
-    void drawBitmapGlyph(int fonttype, float xPos, float yPos, const float alpha);
+    void drawBitmapGlyph(int fonttype, const Vector2f& position, const float alpha);
 
 private:
     std::array<std::shared_ptr<Ego::Font>, NR_OF_UI_FONTS> _fonts;
