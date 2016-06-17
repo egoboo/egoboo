@@ -320,8 +320,8 @@ void UIManager::drawBitmapGlyph(int fonttype, const Vector2f& position, const fl
 
     // shrink the texture size slightly
     tx_rect.xmin += BORDER;
-    tx_rect.xmax -= BORDER;
     tx_rect.ymin += BORDER;
+    tx_rect.xmax -= BORDER;
     tx_rect.ymax -= BORDER;
 
     drawQuad2D(_bitmapFontTexture, sc_rect, tx_rect, true, Ego::Colour4f(1.0f, 1.0f, 1.0f, alpha));

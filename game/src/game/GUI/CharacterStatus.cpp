@@ -114,16 +114,16 @@ float CharacterStatus::draw_one_bar(uint8_t bartype, float x_stt, float y_stt, i
 	tmp_bartype = bartype;
 
 	tx_rect.xmin = 0.0f / tx_width;
-	tx_rect.xmax = tab_width / tx_width;
 	tx_rect.ymin = tick_height * (tmp_bartype + 0) / tx_height;
-	tx_rect.ymax = tick_height * (tmp_bartype + 1) / tx_height;
+    tx_rect.xmax = tab_width / tx_width;
+    tx_rect.ymax = tick_height * (tmp_bartype + 1) / tx_height;
 
 	width = (tx_rect.xmax - tx_rect.xmin) * scale * tx_width;
 	height = (tx_rect.ymax - tx_rect.ymin) * scale * tx_height;
 
 	sc_rect.xmin = x;
-	sc_rect.xmax = x + width;
 	sc_rect.ymin = y;
+    sc_rect.xmax = x + width;
 	sc_rect.ymax = y + height;
 
 	_gameEngine->getUIManager()->drawQuad2D(tx_ptr, sc_rect, tx_rect, true);
@@ -138,16 +138,16 @@ float CharacterStatus::draw_one_bar(uint8_t bartype, float x_stt, float y_stt, i
 		tmp_bartype = bartype;
 
 		tx_rect.xmin = tab_width / tx_width;
-		tx_rect.xmax = img_width / tx_width;
 		tx_rect.ymin = tick_height * (tmp_bartype + 0) / tx_height;
+        tx_rect.xmax = img_width / tx_width;
 		tx_rect.ymax = tick_height * (tmp_bartype + 1) / tx_height;
 
 		width = (tx_rect.xmax - tx_rect.xmin) * scale * tx_width;
 		height = (tx_rect.ymax - tx_rect.ymin) * scale * tx_height;
 
 		sc_rect.xmin = x;
-		sc_rect.xmax = x + width;
 		sc_rect.ymin = y;
+        sc_rect.xmax = x + width;
 		sc_rect.ymax = y + height;
 
 		_gameEngine->getUIManager()->drawQuad2D(tx_ptr, sc_rect, tx_rect, true);
@@ -164,16 +164,16 @@ float CharacterStatus::draw_one_bar(uint8_t bartype, float x_stt, float y_stt, i
 
 		//---- draw a partial row of full ticks
 		tx_rect.xmin = tab_width / tx_width;
-		tx_rect.xmax = (img_width - tick_width * full_ticks) / tx_width;
 		tx_rect.ymin = tick_height * (tmp_bartype + 0) / tx_height;
+        tx_rect.xmax = (img_width - tick_width * full_ticks) / tx_width;
 		tx_rect.ymax = tick_height * (tmp_bartype + 1) / tx_height;
 
 		width = (tx_rect.xmax - tx_rect.xmin) * scale * tx_width;
 		height = (tx_rect.ymax - tx_rect.ymin) * scale * tx_height;
 
 		sc_rect.xmin = x;
-		sc_rect.xmax = x + width;
 		sc_rect.ymin = y;
+        sc_rect.xmax = x + width;
 		sc_rect.ymax = y + height;
 
 		_gameEngine->getUIManager()->drawQuad2D(tx_ptr, sc_rect, tx_rect, true);
@@ -185,16 +185,16 @@ float CharacterStatus::draw_one_bar(uint8_t bartype, float x_stt, float y_stt, i
 		tmp_bartype = 0;
 
 		tx_rect.xmin = tab_width / tx_width;
-		tx_rect.xmax = (img_width - tick_width * empty_ticks) / tx_width;
 		tx_rect.ymin = tick_height * (tmp_bartype + 0) / tx_height;
+        tx_rect.xmax = (img_width - tick_width * empty_ticks) / tx_width;
 		tx_rect.ymax = tick_height * (tmp_bartype + 1) / tx_height;
 
 		width = (tx_rect.xmax - tx_rect.xmin) * scale * tx_width;
 		height = (tx_rect.ymax - tx_rect.ymin) * scale * tx_height;
 
 		sc_rect.xmin = x;
-		sc_rect.xmax = x + width;
 		sc_rect.ymin = y;
+        sc_rect.xmax = x + width;
 		sc_rect.ymax = y + height;
 
 		_gameEngine->getUIManager()->drawQuad2D(tx_ptr, sc_rect, tx_rect, true);
@@ -213,16 +213,16 @@ float CharacterStatus::draw_one_bar(uint8_t bartype, float x_stt, float y_stt, i
 		tmp_bartype = 0;
 
 		tx_rect.xmin = tab_width / tx_width;
-		tx_rect.xmax = img_width / tx_width;
 		tx_rect.ymin = tick_height * (tmp_bartype + 0) / tx_height;
+        tx_rect.xmax = img_width / tx_width;
 		tx_rect.ymax = tick_height * (tmp_bartype + 1) / tx_height;
 
 		width = (tx_rect.xmax - tx_rect.xmin) * scale * tx_width;
 		height = (tx_rect.ymax - tx_rect.ymin) * scale * tx_height;
 
 		sc_rect.xmin = x;
-		sc_rect.xmax = x + width;
 		sc_rect.ymin = y;
+        sc_rect.xmax = x + width;
 		sc_rect.ymax = y + height;
 
 		_gameEngine->getUIManager()->drawQuad2D(tx_ptr, sc_rect, tx_rect, true);
@@ -240,16 +240,16 @@ float CharacterStatus::draw_one_bar(uint8_t bartype, float x_stt, float y_stt, i
 		tmp_bartype = 0;
 
 		tx_rect.xmin = tab_width / tx_width;
-		tx_rect.xmax = (img_width - tick_width * remaining) / tx_width;
 		tx_rect.ymin = tick_height * (tmp_bartype + 0) / tx_height;
-		tx_rect.ymax = tick_height * (tmp_bartype + 1) / tx_height;
+        tx_rect.xmax = (img_width - tick_width * remaining) / tx_width;
+        tx_rect.ymax = tick_height * (tmp_bartype + 1) / tx_height;
 
 		width = (tx_rect.xmax - tx_rect.xmin) * scale * tx_width;
 		height = (tx_rect.ymax - tx_rect.ymin) * scale * tx_height;
 
 		sc_rect.xmin = x;
+        sc_rect.ymin = y;
 		sc_rect.xmax = x + width;
-		sc_rect.ymin = y;
 		sc_rect.ymax = y + height;
 
 		_gameEngine->getUIManager()->drawQuad2D(tx_ptr, sc_rect, tx_rect, true);
@@ -281,14 +281,14 @@ float CharacterStatus::draw_one_xp_bar(float x, float y, uint8_t ticks)
 	height = XPTICK;
 
 	tx_rect.xmin = 0;
-	tx_rect.xmax = 32.00f / 128;
 	tx_rect.ymin = XPTICK / 16;
+    tx_rect.xmax = 32.00f / 128;
 	tx_rect.ymax = XPTICK * 2 / 16;
 
 	sc_rect.xmin = x;
-	sc_rect.xmax = x + width;
 	sc_rect.ymin = y;
-	sc_rect.ymax = y + height;
+    sc_rect.xmax = x + width;
+    sc_rect.ymax = y + height;
 
 	_gameEngine->getUIManager()->drawQuad2D(texture, sc_rect, tx_rect, true);
 
@@ -296,8 +296,8 @@ float CharacterStatus::draw_one_xp_bar(float x, float y, uint8_t ticks)
 
 	//---- Draw the filled ones
 	tx_rect.xmin = 0.0f;
-	tx_rect.xmax = 32 / 128.0f;
 	tx_rect.ymin = XPTICK / 16.0f;
+    tx_rect.xmax = 32 / 128.0f;
 	tx_rect.ymax = 2 * XPTICK / 16.0f;
 
 	width = XPTICK;
@@ -306,24 +306,24 @@ float CharacterStatus::draw_one_xp_bar(float x, float y, uint8_t ticks)
 	for (cnt = 0; cnt < ticks; cnt++)
 	{
 		sc_rect.xmin = x + (cnt * width);
-		sc_rect.xmax = x + (cnt * width) + width;
 		sc_rect.ymin = y;
-		sc_rect.ymax = y + height;
+        sc_rect.xmax = x + (cnt * width) + width;
+        sc_rect.ymax = y + height;
 
 		_gameEngine->getUIManager()->drawQuad2D(texture, sc_rect, tx_rect, true);
 	}
 
 	//---- Draw the remaining empty ones
 	tx_rect.xmin = 0;
-	tx_rect.xmax = 32 / 128.0f;
 	tx_rect.ymin = 0;
+    tx_rect.xmax = 32 / 128.0f;
 	tx_rect.ymax = XPTICK / 16.0f;
 
 	for ( /*nothing*/; cnt < NUMTICK; cnt++)
 	{
 		sc_rect.xmin = x + (cnt * width);
-		sc_rect.xmax = x + (cnt * width) + width;
 		sc_rect.ymin = y;
+        sc_rect.xmax = x + (cnt * width) + width;
 		sc_rect.ymax = y + height;
 
 		_gameEngine->getUIManager()->drawQuad2D(texture, sc_rect, tx_rect, true);
