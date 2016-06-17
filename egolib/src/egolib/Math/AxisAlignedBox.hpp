@@ -71,19 +71,25 @@ public:
 
     /**
      * @brief
-     *  Construct this AxisAlignedBox with the given minima and maxima.
-     * @param min
-     *  the minimum along each axis
-     * @param max
-     *  the maximum along each axis
-     * @throw std::logic_error
-     *  if the minimum along an axis is greater than the maximum along that axis
+     *  Construct this AxisAlignedBox from the given points.
+     * @param a
+     *  one point
+     * @param b
+     *  another point
+     * @remarks
+     *  Given the points \f$a\f$ and \f$b\f$, the minimum \f$min\f$
+     *  and the maximum \f$max\f$ of the axis aligned box are given
+     *  by
+     *  The minima and maxima of the axis aligned box are
+     *  \f{align*}{
+     *  min_i = \min\left(a_i,b_i\right) \;\; max_i = \max\left(a_i,b_i\right)
+     *  \f}
      */
-    AxisAlignedBox(const PointType& min, const PointType& max)
-        : _min(min), _max(max) {
+    AxisAlignedBox(const PointType& a, const PointType& b)
+        : _min(a), _max(b) {
         for (size_t i = 0; i < EuclideanSpaceType::dimensionality(); ++i) {
-            if (min[i] > max[i]) {
-                throw std::logic_error("minimum along an axis is greater than the maximum along that axis");
+            if (_min[i] > _max[i]) {
+                std::swap(_min[i], _max[i]);
             }
         }
     }
