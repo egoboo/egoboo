@@ -85,7 +85,6 @@ void                gfx_error_clear();
 #define XPTICK                          6.00f
 
 #define NUMBAR                          6               ///< Number of status bars
-#define NUMXPBAR                        2               ///< Number of xp bars
 
 #define MAXLIGHTLEVEL                   16          ///< Number of premade light intensities
 #define MAXSPEKLEVEL                    16          ///< Number of premade specularities

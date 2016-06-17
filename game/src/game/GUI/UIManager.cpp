@@ -308,14 +308,14 @@ void UIManager::drawBitmapGlyph(int fonttype, const Vector2f& position, const fl
 
     ego_frect_t sc_rect;
     sc_rect.xmin = position.x();
-    sc_rect.xmax = position.x() + fontrect[fonttype].w;
     sc_rect.ymin = position.y() + fontoffset - fontrect[fonttype].h;
+    sc_rect.xmax = position.x() + fontrect[fonttype].w;
     sc_rect.ymax = position.y() + fontoffset;
 
     ego_frect_t tx_rect;
     tx_rect.xmin = fontrect[fonttype].x * DX;
-    tx_rect.xmax = tx_rect.xmin + fontrect[fonttype].w * DX;
     tx_rect.ymin = fontrect[fonttype].y * DY;
+    tx_rect.xmax = tx_rect.xmin + fontrect[fonttype].w * DX;
     tx_rect.ymax = tx_rect.ymin + fontrect[fonttype].h * DY;
 
     // shrink the texture size slightly
@@ -327,44 +327,47 @@ void UIManager::drawBitmapGlyph(int fonttype, const Vector2f& position, const fl
     drawQuad2D(_bitmapFontTexture, sc_rect, tx_rect, true, Ego::Colour4f(1.0f, 1.0f, 1.0f, alpha));
 }
 
-void UIManager::drawQuad2D(const std::shared_ptr<const Ego::Texture>& texture, const ego_frect_t& scr_rect, const ego_frect_t& tx_rect, const bool useAlpha, const Ego::Colour4f& tint)
-{
-    Ego::OpenGL::PushAttrib pa(GL_CURRENT_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT);
+void UIManager::drawQuad2D(const std::shared_ptr<const Ego::Texture>& texture, const Rectangle2f& scr_rect, const Rectangle2f& tx_rect, const bool useAlpha, const Ego::Colour4f& tint) {
+    auto& renderer = Ego::Renderer::get();
+    renderer.getTextureUnit().setActivated(texture.get());
+    renderer.setColour(tint);
+
+    if (useAlpha) {
+        renderer.setBlendingEnabled(true);
+        renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
+
+        renderer.setAlphaTestEnabled(true);
+        renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
+    } else {
+        renderer.setBlendingEnabled(false);
+        renderer.setAlphaTestEnabled(false);
+    }
+
+    struct Vertex {
+        float x, y;
+        float s, t;
+    };
     {
-        auto& renderer = Ego::Renderer::get();
-        renderer.getTextureUnit().setActivated(texture.get());
-        renderer.setColour(tint);
-
-        if (useAlpha) {
-            renderer.setBlendingEnabled(true);
-            renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
-
-            renderer.setAlphaTestEnabled(true);
-            renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
-        }
-        else {
-            renderer.setBlendingEnabled(false);
-            renderer.setAlphaTestEnabled(false);
-        }
-
-        struct Vertex {
-            float x, y;
-            float s, t;
-        };
         Ego::VertexBufferScopedLock vblck(_textureQuadVertexBuffer);
         Vertex *vertices = vblck.get<Vertex>();
-        vertices[0].x = scr_rect.xmin; vertices[0].y = scr_rect.ymax; vertices[0].s = tx_rect.xmin; vertices[0].t = tx_rect.ymax;
-        vertices[1].x = scr_rect.xmax; vertices[1].y = scr_rect.ymax; vertices[1].s = tx_rect.xmax; vertices[1].t = tx_rect.ymax;
-        vertices[2].x = scr_rect.xmax; vertices[2].y = scr_rect.ymin; vertices[2].s = tx_rect.xmax; vertices[2].t = tx_rect.ymin;
-        vertices[3].x = scr_rect.xmin; vertices[3].y = scr_rect.ymin; vertices[3].s = tx_rect.xmin; vertices[3].t = tx_rect.ymin;
-
-        renderer.render(_textureQuadVertexBuffer, Ego::PrimitiveType::Quadriliterals, 0, 4);
+        vertices[0].x = scr_rect.getMin().x(); vertices[0].y = scr_rect.getMax().y(); vertices[0].s = tx_rect.getMin().x(); vertices[0].t = tx_rect.getMax().y();
+        vertices[1].x = scr_rect.getMax().x(); vertices[1].y = scr_rect.getMax().y(); vertices[1].s = tx_rect.getMax().x(); vertices[1].t = tx_rect.getMax().y();
+        vertices[2].x = scr_rect.getMax().x(); vertices[2].y = scr_rect.getMin().y(); vertices[2].s = tx_rect.getMax().x(); vertices[2].t = tx_rect.getMin().y();
+        vertices[3].x = scr_rect.getMin().x(); vertices[3].y = scr_rect.getMin().y(); vertices[3].s = tx_rect.getMin().x(); vertices[3].t = tx_rect.getMin().y();
     }
+    renderer.render(_textureQuadVertexBuffer, Ego::PrimitiveType::Quadriliterals, 0, 4);
+}
+
+void UIManager::drawQuad2D(const std::shared_ptr<const Ego::Texture>& texture, const ego_frect_t& scr_rect, const ego_frect_t& tx_rect, const bool useAlpha, const Ego::Colour4f& tint) {
+    auto scr_rect_2 = Rectangle2f(Point2f(scr_rect.xmin, scr_rect.ymin),
+                                  Point2f(scr_rect.xmax, scr_rect.ymax));
+    auto tx_rect_2 = Rectangle2f(Point2f(tx_rect.xmin, tx_rect.ymin),
+                                 Point2f(tx_rect.xmax, tx_rect.ymax));
+    drawQuad2D(texture, scr_rect_2, tx_rect_2, useAlpha, tint);
 }
 
 void UIManager::fillRectangle(const Vector2f& position, const Vector2f& size, const bool useAlpha, const Ego::Colour4f& tint)
 {
-    Ego::OpenGL::PushAttrib pa(GL_CURRENT_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT);
     {
         auto& renderer = Ego::Renderer::get();
         renderer.getTextureUnit().setActivated(nullptr);

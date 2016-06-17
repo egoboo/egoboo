@@ -46,12 +46,9 @@
 #include "game/Module/Passage.hpp"
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 
 #define SPARKLE_SIZE ICON_SIZE
 #define SPARKLE_AND  (SPARKLE_SIZE - 1)
-
-#define BLIPSIZE 6
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -92,7 +89,7 @@ static gfx_error_stack_t gfx_error_stack = GFX_ERROR_STACK_INIT;
 
 // Interface stuff
 static irect_t tabrect[NUMBAR];            // The tab rectangles
-static irect_t bliprect[COLOR_MAX];        // The blip rectangles
+
 
 static bool  gfx_page_flip_requested = false;
 static bool  gfx_page_clear_requested = true;
@@ -163,7 +160,6 @@ static gfx_rv gfx_update_flashing(Ego::Graphics::EntityList& el);
 static bool sum_global_lighting(std::array<float, LIGHTING_VEC_SIZE> &lighting);
 
 static void   gfx_init_bar_data();
-static void   gfx_init_blip_data();
 
 //--------------------------------------------------------------------------------------------
 // GFX implementation
@@ -382,7 +378,6 @@ void gfx_system_load_assets()
 void gfx_system_init_all_graphics()
 {
     gfx_init_bar_data();
-    gfx_init_blip_data();
     font_bmp_init();
 
 
@@ -394,7 +389,6 @@ void gfx_system_init_all_graphics()
 void gfx_system_release_all_graphics()
 {
     gfx_init_bar_data();
-    gfx_init_blip_data();
     BillboardSystem::get().reset();
     Ego::TextureManager::get().release_all();
 }
@@ -440,6 +434,17 @@ void draw_blip(float sizeFactor, Uint8 color, float x, float y)
     if (x > 0.0f && y > 0.0f)
     {
         std::shared_ptr<const Ego::Texture> ptex = Ego::TextureManager::get().getTexture("mp_data/blip");
+
+        #define BLIPSIZE 6
+        irect_t bliprect[COLOR_MAX];        // The blip rectangles
+
+        // Set up the rectangles
+        for (int cnt = 0; cnt < COLOR_MAX; cnt++) {
+            bliprect[cnt]._left = cnt * BLIPSIZE;
+            bliprect[cnt]._right = cnt * BLIPSIZE + BLIPSIZE;
+            bliprect[cnt]._top = 0;
+            bliprect[cnt]._bottom = BLIPSIZE;
+        }
 
         tx_rect.xmin = (float)bliprect[color]._left / (float)ptex->getWidth();
         tx_rect.xmax = (float)bliprect[color]._right / (float)ptex->getWidth();
@@ -1417,20 +1422,6 @@ void gfx_init_bar_data()
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_init_blip_data()
-{
-    int cnt;
-
-    // Set up the rectangles
-    for (cnt = 0; cnt < COLOR_MAX; cnt++)
-    {
-        bliprect[cnt]._left = cnt * BLIPSIZE;
-        bliprect[cnt]._right = cnt * BLIPSIZE + BLIPSIZE;
-        bliprect[cnt]._top = 0;
-        bliprect[cnt]._bottom = BLIPSIZE;
-    }
-}
-
 //--------------------------------------------------------------------------------------------
 // MODE CONTROL
 //--------------------------------------------------------------------------------------------

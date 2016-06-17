@@ -138,6 +138,7 @@ public:
     * @brief
     *   Render a 2D texture quad
     **/
+    void drawQuad2D(const std::shared_ptr<const Ego::Texture>& texture, const Rectangle2f& scr_rect, const Rectangle2f& tx_rect, const bool useAlpha, const Ego::Colour4f& tint = Ego::Colour4f::white());
     void drawQuad2D(const std::shared_ptr<const Ego::Texture>& texture, const ego_frect_t& scr_rect, const ego_frect_t& tx_rect, const bool useAlpha, const Ego::Colour4f& tint = Ego::Colour4f::white());
 
 private:
