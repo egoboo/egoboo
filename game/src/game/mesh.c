@@ -575,7 +575,7 @@ float ego_mesh_t::get_pressure(const Vector3f& pos, float radius, const BIT_FIEL
 
 
 	mesh_wall_data_t::mesh_wall_data_t(const ego_mesh_t *mesh,
-		                               const Rect2f& f,
+		                               const AxisAlignedBox2f& f,
 		                               const IndexRect& i)
 		: _mesh(mesh), _f(f), _i(i)
 	{
@@ -583,24 +583,33 @@ float ego_mesh_t::get_pressure(const Vector3f& pos, float radius, const BIT_FIEL
 			throw std::runtime_error("nullptr == mesh");
 		}
 	}
+
 	mesh_wall_data_t::mesh_wall_data_t(const ego_mesh_t *mesh, const Circle2f& circle)
 		: _mesh(mesh),
-		  _f(Circle2f(circle.getCenter(), std::max(circle.getRadius(), Info<float>::Grid::Size() * 0.5f))),
+		  _f(leastClosure(circle)),
 		  _i(Index2D(0, 0), Index2D(0, 0))
 	{
 		if (nullptr == mesh) {
 			throw std::runtime_error("nullptr == mesh");
 		}
 		_mesh = mesh;
-		// Limit the values to be in-bounds.
-		_f._min = Vector2f(std::max(_f._min[kX], 0.0f),
-			               std::max(_f._min[kY], 0.0f));
-		_f._max = Vector2f(std::min(_f._max[kX], _mesh->_tmem._edge_x),
-			               std::min(_f._max[kY], _mesh->_tmem._edge_y));
-		_i._min = Index2D(std::floor(_f._min[kX] / Info<float>::Grid::Size()),
-			              std::floor(_f._min[kY] / Info<float>::Grid::Size()));
-		_i._max = Index2D(std::floor(_f._max[kX] / Info<float>::Grid::Size()),
-			              std::floor(_f._max[kY] / Info<float>::Grid::Size()));
+		// Limit the coordinate rectangle to be in bounds.
+        {
+            auto min = Point2f(std::max(_f.getMin().x(), 0.0f),
+                               std::max(_f.getMin().y(), 0.0f));
+            auto max = Point2f(std::min(_f.getMax().x(), _mesh->_tmem._edge_x),
+                               std::min(_f.getMax().y(), _mesh->_tmem._edge_y));
+            _f = AxisAlignedBox2f(min, max);
+        }
+        // Limit the index rectangle to be in bounds.
+        {
+            auto min = Index2D(std::floor(_f.getMin().x() / Info<float>::Grid::Size()),
+                               std::floor(_f.getMin().y() / Info<float>::Grid::Size()));
+            auto max = Index2D(std::floor(_f.getMax().x() / Info<float>::Grid::Size()),
+                               std::floor(_f.getMax().y() / Info<float>::Grid::Size()));
+            _i._min = min;
+            _i._max = max;
+        }
 	}
 
 //--------------------------------------------------------------------------------------------

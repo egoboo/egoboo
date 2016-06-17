@@ -149,17 +149,6 @@ typedef Colour<RGBAb> Colour4b;
 } // namespace Ego
 
 
-struct Rect2f {
-    Vector2f _min, _max;
-    Rect2f(const Circle2f& circle)
-        : _min(Point2f::toVector(circle.getCenter() - Vector2f(circle.getRadius(), circle.getRadius()))),
-        _max(Point2f::toVector(circle.getCenter() + Vector2f(circle.getRadius(), circle.getRadius()))) {}
-    Rect2f(const Rect2f& other)
-        : _min(other._min), _max(other._max) {}
-    Rect2f(const Vector2f& min, const Vector2f& max)
-        : _min(min), _max(max) {}
-};
-
 namespace Ego {
 /**
 * @brief
@@ -255,8 +244,6 @@ struct Rectangle {
 
 /** @todo Remove this. */
 typedef Ego::Rectangle<int> irect_t;
-/** @todo Remove this. */
-typedef Ego::Rectangle<float> frect_t;
 
 struct ego_frect_t {
     float xmin, ymin;

@@ -238,16 +238,16 @@ bool UIManager::dumpScreenshot()
     return savefound && saved;
 }
 
-float UIManager::drawBitmapFontString(const float startX, const float startY, const std::string &text, const uint32_t maxWidth, const float alpha)
+float UIManager::drawBitmapFontString(const Vector2f& start, const std::string &text, const uint32_t maxWidth, const float alpha)
 {
     //Check if alpha is visible
     if(alpha <= 0.0f) {
-        return startY;
+        return start.y();
     }
 
     //Current render position
-    float x = startX;
-    float y = startY;
+    float x = start.x();
+    float y = start.y();
 
     for(size_t cnt = 0; cnt < text.length(); ++cnt)
     {
@@ -261,7 +261,7 @@ float UIManager::drawBitmapFontString(const float startX, const float startY, co
                 if (endx > maxWidth) {
 
                     // Wrap the end and cut off spaces and tabs
-                    x = startX + fontyspacing;
+                    x = start.x() + fontyspacing;
                     y += fontyspacing;
                     while (std::isspace(text[cnt]) || '~' == text[cnt]) {
                         cnt++;
@@ -279,7 +279,7 @@ float UIManager::drawBitmapFontString(const float startX, const float startY, co
 
         //Linefeed
         else if (C_LINEFEED_CHAR == cTmp) {
-            x = startX;
+            x = start.x();
             y += fontyspacing;
         }
 
@@ -292,7 +292,7 @@ float UIManager::drawBitmapFontString(const float startX, const float startY, co
         // Normal letter
         else {
             uint8_t iTmp = asciitofont[cTmp];
-            drawBitmapGlyph(iTmp, x, y, alpha);
+            drawBitmapGlyph(iTmp, Vector2f(x, y), alpha);
             x += fontxspacing[iTmp];
         }
     }
@@ -300,17 +300,17 @@ float UIManager::drawBitmapFontString(const float startX, const float startY, co
     return y + fontyspacing;
 }
 
-void UIManager::drawBitmapGlyph(int fonttype, float xPos, float yPos, const float alpha)
+void UIManager::drawBitmapGlyph(int fonttype, const Vector2f& position, const float alpha)
 {
-    static constexpr GLfloat DX = 2.0f / 512.0f;
-    static constexpr GLfloat DY = 1.0f / 256.0f;
-    static constexpr GLfloat BORDER = 1.0f / 512.0f;
+    static constexpr float DX = 2.0f / 512.0f;
+    static constexpr float DY = 1.0f / 256.0f;
+    static constexpr float BORDER = 1.0f / 512.0f;
 
     ego_frect_t sc_rect;
-    sc_rect.xmin = xPos;
-    sc_rect.xmax = xPos + fontrect[fonttype].w;
-    sc_rect.ymin = yPos + fontoffset - fontrect[fonttype].h;
-    sc_rect.ymax = yPos + fontoffset;
+    sc_rect.xmin = position.x();
+    sc_rect.xmax = position.x() + fontrect[fonttype].w;
+    sc_rect.ymin = position.y() + fontoffset - fontrect[fonttype].h;
+    sc_rect.ymax = position.y() + fontoffset;
 
     ego_frect_t tx_rect;
     tx_rect.xmin = fontrect[fonttype].x * DX;
@@ -362,7 +362,7 @@ void UIManager::drawQuad2D(const std::shared_ptr<const Ego::Texture>& texture, c
     }
 }
 
-void UIManager::fillRectangle(const float x, const float y, const float width, const float height, const bool useAlpha, const Ego::Colour4f& tint)
+void UIManager::fillRectangle(const Vector2f& position, const Vector2f& size, const bool useAlpha, const Ego::Colour4f& tint)
 {
     Ego::OpenGL::PushAttrib pa(GL_CURRENT_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT);
     {
@@ -387,11 +387,10 @@ void UIManager::fillRectangle(const float x, const float y, const float width, c
         };
         Ego::VertexBufferScopedLock vblck(*_vertexBuffer);
         Vertex *vertices = vblck.get<Vertex>();
-        vertices[0].x = x;         vertices[0].y = y + height;
-        vertices[1].x = x + width; vertices[1].y = y + height;
-        vertices[2].x = x + width; vertices[2].y = y;
-        vertices[3].x = x;         vertices[3].y = y;
-
+        vertices[0].x = position.x();            vertices[0].y = position.y() + size.y();
+        vertices[1].x = position.x() + size.x(); vertices[1].y = position.y() + size.y();
+        vertices[2].x = position.x() + size.x(); vertices[2].y = position.y();
+        vertices[3].x = position.x();            vertices[3].y = position.y();
         renderer.render(*_vertexBuffer, Ego::PrimitiveType::Quadriliterals, 0, 4);
     }
 }

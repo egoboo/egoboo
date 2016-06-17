@@ -45,8 +45,8 @@ public:
     }
     
     void draw() override {        
-        _gameEngine->getUIManager()->fillRectangle(getX(), getY(), _maxWidth, _maxHeight, true, _maxColor);
-        _gameEngine->getUIManager()->fillRectangle(getX(), getY(), _textWidth, _textHeight, true, _textColor);
+        _gameEngine->getUIManager()->fillRectangle(Vector2f(getX(), getY()), Vector2f(_maxWidth, _maxHeight), true, _maxColor);
+        _gameEngine->getUIManager()->fillRectangle(Vector2f(getX(), getY()), Vector2f(_textWidth, _textHeight), true, _textColor);
         
         _textRenderer->render(getX(), getY());
     }

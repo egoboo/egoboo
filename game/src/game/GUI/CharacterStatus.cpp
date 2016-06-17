@@ -59,7 +59,7 @@ void CharacterStatus::draw_one_character_icon(const ObjectRef item, float x, flo
 			if ((!pitem->getProfile()->isStackable()) || pitem->ammo > 1)
 			{
 				// Show amount of ammo left
-				_gameEngine->getUIManager()->drawBitmapFontString(x, y - 8, std::to_string(pitem->ammo));
+				_gameEngine->getUIManager()->drawBitmapFontString(Vector2f(x, y - 8), std::to_string(pitem->ammo));
 			}
 		}
 	}
@@ -373,12 +373,12 @@ void CharacterStatus::draw()
     int yOffset = getY();
 
     // draw the name
-    yOffset = _gameEngine->getUIManager()->drawBitmapFontString(getX() + 8, yOffset, pchr->getName(false, false, true));
+    yOffset = _gameEngine->getUIManager()->drawBitmapFontString(Vector2f(getX() + 8, yOffset), pchr->getName(false, false, true));
 
     // draw the character's money
     std::ostringstream os;
     os << '$' << std::setw(4) << pchr->getMoney();
-    yOffset = _gameEngine->getUIManager()->drawBitmapFontString(getX() + 8, yOffset, os.str()) + 8;
+    yOffset = _gameEngine->getUIManager()->drawBitmapFontString(Vector2f(getX() + 8, yOffset), os.str()) + 8;
 
     bool levelUp = false;
     if(pchr->isPlayer()) {

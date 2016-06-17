@@ -36,13 +36,13 @@ class PlayingState;
 class GameEngine
 {
 public:
-    Ego::Subscription2 shown;
-    Ego::Subscription2 hidden;
-    Ego::Subscription2 resized;
-    Ego::Subscription2 mouseEntered;
-    Ego::Subscription2 mouseLeft;
-    Ego::Subscription2 keyboardFocusReceived;
-    Ego::Subscription2 keyboardFocusLost;
+    Ego::Subscription shown;
+    Ego::Subscription hidden;
+    Ego::Subscription resized;
+    Ego::Subscription mouseEntered;
+    Ego::Subscription mouseLeft;
+    Ego::Subscription keyboardFocusReceived;
+    Ego::Subscription keyboardFocusLost;
 
     void subscribe();
     void unsubscribe();

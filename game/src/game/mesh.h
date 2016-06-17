@@ -348,13 +348,27 @@ class ego_mesh_t;
 /// struct for caching fome values for wall collisions
 /// MH: This seems to be used like an iterator.
 struct mesh_wall_data_t {
-	Rect2f _f;
+	AxisAlignedBox2f _f;
 	IndexRect _i;
 	const ego_mesh_t *_mesh;
 	mesh_wall_data_t(const ego_mesh_t *mesh,
-		             const Rect2f& f,
+		             const AxisAlignedBox2f& f,
 		             const IndexRect& i);
 	mesh_wall_data_t(const ego_mesh_t *mesh, const Circle2f& circle);
+private:
+    // Get \f$cl\left(\left\langle c, r' \right\rangle\right)\$ where
+    // \f$\left\langle c, r \right\rangle\f$ is the specified
+    // circle and \f$r' = \max\left(r,\frac{1}{2}g\right)\f$
+    // and \f$g\f$ is the grid size.
+    // @todo This can be replaced by
+    // creating the circles \f$\langle c, r \rangle> \cup
+    // \langle c, \frac{1}{2}g \rangle\f$.
+    static AxisAlignedBox2f leastClosure(const Circle2f& circle) {
+        auto circle0 = Circle2f(circle.getCenter(),
+                                std::max(circle.getRadius(), Info<float>::Grid::Size() * 0.5f));
+        static const Ego::Math::Closure<AxisAlignedBox2f, Circle2f> closure;
+        return closure(circle0);
+    }
 };
 
 /// Egoboo's representation of the .mpd mesh file

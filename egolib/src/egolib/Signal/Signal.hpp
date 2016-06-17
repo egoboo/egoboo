@@ -24,10 +24,27 @@
 
 #include "egolib/platform.h"
 
-namespace Ego {
+/**
+ *  @defgroup ego-signal
+ *  @brief C++ 11 signal-slot library.
+ * Features:
+ * - signals support arbitrary argument lists
+ * - signals need to provided single-thread re-entrancy i.e. it is possible to connect and disconnect
+ *   signal handlers and re-emit a signal from a running signal handler.
+ * - signals support void return values
+ * - a signal member in a user-defined type has moderate impact
+ * -- on the cost of a call to a constructor/destructor of that type and
+ *   -- on the size of an object of that type.
+ */
 
-/// The opaque type of a subscription.
-struct Subscription2;
+namespace Ego {
+/**
+ * @addtogroup ego-signal
+ * @{
+ */
+
+ /// The opaque type of a subscription.
+struct Subscription;
 
 /// A node.
 /// @todo Hide within Signal or within Internal namespace.
@@ -85,28 +102,28 @@ public:
 template <class>
 struct Signal;
 
-struct Subscription2 {
+struct Subscription {
     void *ptr;
-    Subscription2()
+    Subscription()
         : ptr(nullptr) {}
-    Subscription2(void *ptr)
+    Subscription(void *ptr)
         : ptr(ptr) {}
-    Subscription2(const Subscription2& other)
+    Subscription(const Subscription& other)
         : ptr(other.ptr) {}
-    const Subscription2& operator=(const Subscription2& other) {
+    const Subscription& operator=(const Subscription& other) {
         ptr = other.ptr;
         return *this;
     }
-    bool operator==(const Subscription2& other) const {
+    bool operator==(const Subscription& other) const {
         return ptr == other.ptr;
     }
-    bool operator!=(const Subscription2& other) const {
+    bool operator!=(const Subscription& other) const {
         return ptr != other.ptr;
     }
     operator bool() const {
         return nullptr != ptr;
     }
-}; // struct Subscription2
+}; // struct Subscription
 
 /// @tparam ReturnType the return type
 /// @tparam ... ParameterTypes the parameter types
@@ -148,11 +165,11 @@ public:
     /// Subscribe to this signal.
     /// @param function a non-empty function
     /// @return the subscription
-    Subscription2 subscribe(const FunctionType& function) {
+    Subscription subscribe(const FunctionType& function) {
         NodeType *node = new NodeType(function);
         node->next = head; head = node;
         liveCount++;
-        return Subscription2(static_cast<void *>(node));
+        return Subscription(static_cast<void *>(node));
     }
 
     /// Does the subscriber list need sweeping?
@@ -186,7 +203,7 @@ public:
     /// Unsubscribe from this signal.
     /// @param subscription the subscription
     /// @return @a true if the subscription was found and removed, @a false otherwise
-    void unsubscribe(const Subscription2& subscription) noexcept {
+    void unsubscribe(const Subscription& subscription) noexcept {
         if (!subscription) {
             return;
         }
@@ -225,4 +242,5 @@ public:
 
 }; // struct Signal
 
+/**@}*/
 } // namespace Ego

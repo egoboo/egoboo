@@ -43,11 +43,9 @@ public:
     inline TargetType operator()(const SourceType& source) const {
         const auto center = source.getCenter();
         const auto radius = source.getRadius();
-        static const auto one = typename VectorSpaceType::VectorType(GeneratorType(ScalarFieldType::multiplicativeNeutral()*radius),
-                                                                     std::make_index_sequence<VectorSpaceType::VectorType::dimensionality()>{});
-        const auto max = one;
-        const auto min = -max;
-        return TargetType(center + min, center + max);
+        static const auto extend = typename VectorSpaceType::VectorType(GeneratorType(ScalarFieldType::multiplicativeNeutral()),
+                                                                        std::make_index_sequence<VectorSpaceType::VectorType::dimensionality()>{}) * radius;
+        return TargetType(center - extend, center + extend);
     }
 };
 } // namespace Math
