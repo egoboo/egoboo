@@ -366,34 +366,32 @@ void UIManager::drawQuad2D(const std::shared_ptr<const Ego::Texture>& texture, c
     drawQuad2D(texture, scr_rect_2, tx_rect_2, useAlpha, tint);
 }
 
-void UIManager::fillRectangle(const Vector2f& position, const Vector2f& size, const bool useAlpha, const Ego::Colour4f& tint)
-{
+void UIManager::fillRectangle(const Rectangle2f& rectangle, const bool useAlpha, const Ego::Colour4f& tint) {
+    auto& renderer = Ego::Renderer::get();
+    renderer.getTextureUnit().setActivated(nullptr);
+    renderer.setColour(tint);
+
+    if (useAlpha) {
+        renderer.setBlendingEnabled(true);
+        renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
+
+        renderer.setAlphaTestEnabled(true);
+        renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
+    } else {
+        renderer.setBlendingEnabled(false);
+        renderer.setAlphaTestEnabled(false);
+    }
+
+    struct Vertex {
+        float x, y;
+    };
     {
-        auto& renderer = Ego::Renderer::get();
-        renderer.getTextureUnit().setActivated(nullptr);
-        renderer.setColour(tint);
-
-        if (useAlpha) {
-            renderer.setBlendingEnabled(true);
-            renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
-
-            renderer.setAlphaTestEnabled(true);
-            renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
-        }
-        else {
-            renderer.setBlendingEnabled(false);
-            renderer.setAlphaTestEnabled(false);
-        }
-
-        struct Vertex {
-            float x, y;
-        };
         Ego::VertexBufferScopedLock vblck(*_vertexBuffer);
         Vertex *vertices = vblck.get<Vertex>();
-        vertices[0].x = position.x();            vertices[0].y = position.y() + size.y();
-        vertices[1].x = position.x() + size.x(); vertices[1].y = position.y() + size.y();
-        vertices[2].x = position.x() + size.x(); vertices[2].y = position.y();
-        vertices[3].x = position.x();            vertices[3].y = position.y();
+        vertices[0].x = rectangle.getMin().x(); vertices[0].y = rectangle.getMax().y();
+        vertices[1].x = rectangle.getMax().x(); vertices[1].y = rectangle.getMax().y();
+        vertices[2].x = rectangle.getMax().x(); vertices[2].y = rectangle.getMin().y();
+        vertices[3].x = rectangle.getMin().x(); vertices[3].y = rectangle.getMin().y();
         renderer.render(*_vertexBuffer, Ego::PrimitiveType::Quadriliterals, 0, 4);
     }
 }

@@ -123,16 +123,14 @@ public:
     /**
     * @brief
     *   Fill a solid coloured rectangle
-    * @param position
-    *   location of top left corner in rectangle
-    * @param size
-    *   the size of the rectangle in pixels
+    * @param rectangle
+    *   the rectangle
     * @param useAlpha
     *   enable or disable alpha channel
     * @param tint
     *   colour of the rectangle (including alpha channel)
     **/
-    void fillRectangle(const Vector2f& position, const Vector2f& size, const bool useAlpha, const Ego::Colour4f& tint = Ego::Colour4f::white());
+    void fillRectangle(const Rectangle2f& rectangle, const bool useAlpha, const Ego::Colour4f& tint = Ego::Colour4f::white());
     
     /**
     * @brief
