@@ -72,8 +72,8 @@ float CharacterStatus::draw_one_bar(uint8_t bartype, float x_stt, float y_stt, i
 
 	const float scale = 1.0f;
 
-	float       width, height;
-	ego_frect_t tx_rect, sc_rect;
+    Vector2f size;
+	Rectangle2f tx_rect, sc_rect;
 
 	float tx_width, tx_height, img_width;
 	float tab_width, tick_width, tick_height;
@@ -113,23 +113,19 @@ float CharacterStatus::draw_one_bar(uint8_t bartype, float x_stt, float y_stt, i
 	//---- Draw the tab
 	tmp_bartype = bartype;
 
-	tx_rect.xmin = 0.0f / tx_width;
-	tx_rect.ymin = tick_height * (tmp_bartype + 0) / tx_height;
-    tx_rect.xmax = tab_width / tx_width;
-    tx_rect.ymax = tick_height * (tmp_bartype + 1) / tx_height;
+    tx_rect = Rectangle2f(Point2f(0.0f / tx_width, tick_height * (tmp_bartype + 0) / tx_height),
+                          Point2f(tab_width / tx_width, tick_height * (tmp_bartype + 1) / tx_height));
 
-	width = (tx_rect.xmax - tx_rect.xmin) * scale * tx_width;
-	height = (tx_rect.ymax - tx_rect.ymin) * scale * tx_height;
-
-	sc_rect.xmin = x;
-	sc_rect.ymin = y;
-    sc_rect.xmax = x + width;
-	sc_rect.ymax = y + height;
+    size = tx_rect.getSize() * scale;
+    size = Vector2f(size.x() * tx_width, size.y() * tx_height);
+    
+    sc_rect = Rectangle2f(Point2f(x, y),
+                          Point2f(x, y) + size);
 
 	_gameEngine->getUIManager()->drawQuad2D(tx_ptr, sc_rect, tx_rect, true);
 
 	// make the new left-hand margin after the tab
-	x_left = x_stt + width;
+	x_left = x_stt + size.x();
 	x = x_left;
 
 	//---- Draw the full rows of ticks
@@ -137,22 +133,18 @@ float CharacterStatus::draw_one_bar(uint8_t bartype, float x_stt, float y_stt, i
 	{
 		tmp_bartype = bartype;
 
-		tx_rect.xmin = tab_width / tx_width;
-		tx_rect.ymin = tick_height * (tmp_bartype + 0) / tx_height;
-        tx_rect.xmax = img_width / tx_width;
-		tx_rect.ymax = tick_height * (tmp_bartype + 1) / tx_height;
+        tx_rect = Rectangle2f(Point2f(tab_width / tx_width, tick_height * (tmp_bartype + 0) / tx_height),
+                              Point2f(img_width / tx_width, tick_height * (tmp_bartype + 1) / tx_height));
 
-		width = (tx_rect.xmax - tx_rect.xmin) * scale * tx_width;
-		height = (tx_rect.ymax - tx_rect.ymin) * scale * tx_height;
+        size = tx_rect.getSize() * scale;
+        size = Vector2f(size.x() * tx_width, size.y() * tx_height);
 
-		sc_rect.xmin = x;
-		sc_rect.ymin = y;
-        sc_rect.xmax = x + width;
-		sc_rect.ymax = y + height;
+        sc_rect = Rectangle2f(Point2f(x, y),
+                              Point2f(x, y) + size);
 
 		_gameEngine->getUIManager()->drawQuad2D(tx_ptr, sc_rect, tx_rect, true);
 
-		y += height;
+		y += size.y();
 		ticks -= NUMTICK;
 		total_ticks -= NUMTICK;
 	}
@@ -163,43 +155,35 @@ float CharacterStatus::draw_one_bar(uint8_t bartype, float x_stt, float y_stt, i
 		int empty_ticks = NUMTICK - (std::min(NUMTICK, total_ticks) - ticks);
 
 		//---- draw a partial row of full ticks
-		tx_rect.xmin = tab_width / tx_width;
-		tx_rect.ymin = tick_height * (tmp_bartype + 0) / tx_height;
-        tx_rect.xmax = (img_width - tick_width * full_ticks) / tx_width;
-		tx_rect.ymax = tick_height * (tmp_bartype + 1) / tx_height;
+        tx_rect = Rectangle2f(Point2f(tab_width / tx_width, tick_height * (tmp_bartype + 0) / tx_height),
+                              Point2f((img_width - tick_width * full_ticks) / tx_width, tick_height * (tmp_bartype + 1) / tx_height));
 
-		width = (tx_rect.xmax - tx_rect.xmin) * scale * tx_width;
-		height = (tx_rect.ymax - tx_rect.ymin) * scale * tx_height;
+        size = tx_rect.getSize() * scale;
+        size = Vector2f(size.x() * tx_width, size.y() * tx_height);
 
-		sc_rect.xmin = x;
-		sc_rect.ymin = y;
-        sc_rect.xmax = x + width;
-		sc_rect.ymax = y + height;
+        sc_rect = Rectangle2f(Point2f(x, y),
+                              Point2f(x, y) + size);
 
 		_gameEngine->getUIManager()->drawQuad2D(tx_ptr, sc_rect, tx_rect, true);
 
 		// move to the right after drawing the full ticks
-		x += width;
+		x += size.x();
 
 		//---- draw a partial row of empty ticks
 		tmp_bartype = 0;
 
-		tx_rect.xmin = tab_width / tx_width;
-		tx_rect.ymin = tick_height * (tmp_bartype + 0) / tx_height;
-        tx_rect.xmax = (img_width - tick_width * empty_ticks) / tx_width;
-		tx_rect.ymax = tick_height * (tmp_bartype + 1) / tx_height;
+        tx_rect = Rectangle2f(Point2f(tab_width / tx_width, tick_height * (tmp_bartype + 0) / tx_height),
+                              Point2f((img_width - tick_width * empty_ticks) / tx_width, tick_height * (tmp_bartype + 1) / tx_height));
 
-		width = (tx_rect.xmax - tx_rect.xmin) * scale * tx_width;
-		height = (tx_rect.ymax - tx_rect.ymin) * scale * tx_height;
+        size = tx_rect.getSize() * scale;
+        size = Vector2f(size.x() * tx_width, size.y() * tx_height);
 
-		sc_rect.xmin = x;
-		sc_rect.ymin = y;
-        sc_rect.xmax = x + width;
-		sc_rect.ymax = y + height;
+        sc_rect = Rectangle2f(Point2f(x, y),
+                              Point2f(x, y) + size);
 
 		_gameEngine->getUIManager()->drawQuad2D(tx_ptr, sc_rect, tx_rect, true);
 
-		y += height;
+		y += size.y();
 		ticks = 0;
 		total_ticks -= NUMTICK;
 	}
@@ -212,22 +196,18 @@ float CharacterStatus::draw_one_bar(uint8_t bartype, float x_stt, float y_stt, i
 	{
 		tmp_bartype = 0;
 
-		tx_rect.xmin = tab_width / tx_width;
-		tx_rect.ymin = tick_height * (tmp_bartype + 0) / tx_height;
-        tx_rect.xmax = img_width / tx_width;
-		tx_rect.ymax = tick_height * (tmp_bartype + 1) / tx_height;
+        tx_rect = Rectangle2f(Point2f(tab_width / tx_width, tick_height * (tmp_bartype + 0) / tx_height),
+                              Point2f(img_width / tx_width, tick_height * (tmp_bartype + 1) / tx_height));
 
-		width = (tx_rect.xmax - tx_rect.xmin) * scale * tx_width;
-		height = (tx_rect.ymax - tx_rect.ymin) * scale * tx_height;
+        size = tx_rect.getSize() * scale;
+        size = Vector2f(size.x() * tx_width, size.y() * tx_height);
 
-		sc_rect.xmin = x;
-		sc_rect.ymin = y;
-        sc_rect.xmax = x + width;
-		sc_rect.ymax = y + height;
+        sc_rect = Rectangle2f(Point2f(x, y),
+                              Point2f(x, y) + size);
 
 		_gameEngine->getUIManager()->drawQuad2D(tx_ptr, sc_rect, tx_rect, true);
 
-		y += height;
+		y += size.y();
 		total_ticks -= NUMTICK;
 	}
 
@@ -239,22 +219,18 @@ float CharacterStatus::draw_one_bar(uint8_t bartype, float x_stt, float y_stt, i
 		//---- draw a partial row of empty ticks
 		tmp_bartype = 0;
 
-		tx_rect.xmin = tab_width / tx_width;
-		tx_rect.ymin = tick_height * (tmp_bartype + 0) / tx_height;
-        tx_rect.xmax = (img_width - tick_width * remaining) / tx_width;
-        tx_rect.ymax = tick_height * (tmp_bartype + 1) / tx_height;
+        tx_rect = Rectangle2f(Point2f(tab_width / tx_width, tick_height * (tmp_bartype + 0) / tx_height),
+                              Point2f((img_width - tick_width * remaining) / tx_width, tick_height * (tmp_bartype + 1) / tx_height));
 
-		width = (tx_rect.xmax - tx_rect.xmin) * scale * tx_width;
-		height = (tx_rect.ymax - tx_rect.ymin) * scale * tx_height;
+        size = tx_rect.getSize() * scale;
+        size = Vector2f(size.x() * tx_width, size.y() * tx_height);
 
-		sc_rect.xmin = x;
-        sc_rect.ymin = y;
-		sc_rect.xmax = x + width;
-		sc_rect.ymax = y + height;
+        sc_rect = Rectangle2f(Point2f(x, y),
+                              Point2f(x, y) + size);
 
 		_gameEngine->getUIManager()->drawQuad2D(tx_ptr, sc_rect, tx_rect, true);
 
-		y += height;
+		y += size.y();
 	}
 
 	return y;
@@ -267,69 +243,54 @@ float CharacterStatus::draw_one_xp_bar(float x, float y, uint8_t ticks)
 
 	const std::shared_ptr<Ego::Texture> &texture = Ego::TextureManager::get().getTexture("mp_data/xpbar");
 
-	int width, height;
-	uint8_t cnt;
-	ego_frect_t tx_rect, sc_rect;
-
 	ticks = std::min(ticks, (uint8_t)NUMTICK);
 
 	Ego::Renderer::get().setColour(Ego::Math::Colour4f::white());
 
+    Vector2f size;
+    uint8_t cnt;
+    Rectangle2f tx_rect, sc_rect;
+
 	//---- Draw the tab (always colored)
 
-	width = 16;
-	height = XPTICK;
+    size = Vector2f(16, XPTICK);
 
-	tx_rect.xmin = 0;
-	tx_rect.ymin = XPTICK / 16;
-    tx_rect.xmax = 32.00f / 128;
-	tx_rect.ymax = XPTICK * 2 / 16;
+    tx_rect = Rectangle2f(Point2f(0, XPTICK / 16),
+                          Point2f(32.0f / 128, XPTICK * 2 / 16));
 
-	sc_rect.xmin = x;
-	sc_rect.ymin = y;
-    sc_rect.xmax = x + width;
-    sc_rect.ymax = y + height;
+    sc_rect = Rectangle2f(Point2f(x, y), Point2f(x, y) + size);
 
 	_gameEngine->getUIManager()->drawQuad2D(texture, sc_rect, tx_rect, true);
 
-	x += width;
+	x += size.x();
 
 	//---- Draw the filled ones
-	tx_rect.xmin = 0.0f;
-	tx_rect.ymin = XPTICK / 16.0f;
-    tx_rect.xmax = 32 / 128.0f;
-	tx_rect.ymax = 2 * XPTICK / 16.0f;
+    tx_rect = Rectangle2f(Point2f(0.0f, XPTICK / 16.0f),
+                          Point2f(32 / 128.0f, 2 * XPTICK / 16.0f));
 
-	width = XPTICK;
-	height = XPTICK;
+	size = Vector2f(XPTICK,XPTICK);
 
 	for (cnt = 0; cnt < ticks; cnt++)
 	{
-		sc_rect.xmin = x + (cnt * width);
-		sc_rect.ymin = y;
-        sc_rect.xmax = x + (cnt * width) + width;
-        sc_rect.ymax = y + height;
+        sc_rect = Rectangle2f(Point2f(x + (cnt * size.x()),y),
+                              Point2f(x + (cnt * size.x()) + size.x(), y + size.y()));
 
 		_gameEngine->getUIManager()->drawQuad2D(texture, sc_rect, tx_rect, true);
 	}
 
 	//---- Draw the remaining empty ones
-	tx_rect.xmin = 0;
-	tx_rect.ymin = 0;
-    tx_rect.xmax = 32 / 128.0f;
-	tx_rect.ymax = XPTICK / 16.0f;
+    tx_rect = Rectangle2f(Point2f(0.0f, 0.0f),
+                          Point2f(32 / 128.0f, XPTICK / 16.0f));
 
 	for ( /*nothing*/; cnt < NUMTICK; cnt++)
 	{
-		sc_rect.xmin = x + (cnt * width);
-		sc_rect.ymin = y;
-        sc_rect.xmax = x + (cnt * width) + width;
-		sc_rect.ymax = y + height;
+        sc_rect = Rectangle2f(Point2f(x + (cnt * size.x()), y),
+                              Point2f(x + (cnt * size.x()) + size.x(), y + size.y()));
 
 		_gameEngine->getUIManager()->drawQuad2D(texture, sc_rect, tx_rect, true);
 	}
 
-	return y + height;
+	return y + size.y();
 }
 
 float CharacterStatus::draw_character_xp_bar(const ObjectRef character, float x, float y)
