@@ -92,7 +92,7 @@ public:
      * @brief
      *  Convinience function to draw a 2D image
      */
-    void drawImage(const std::shared_ptr<const Ego::Texture>& img, float x, float y, float width, float height, const Ego::Colour4f& tint = Ego::Colour4f::white());
+    void drawImage(const std::shared_ptr<const Ego::Texture>& img, const Point2f& position, const Vector2f& size, const Ego::Colour4f& tint = Ego::Colour4f::white());
 
     /**
     * @brief 

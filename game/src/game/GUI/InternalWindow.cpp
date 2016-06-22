@@ -47,7 +47,7 @@ InternalWindow::TitleBar::TitleBar(const std::string &title) :
 void InternalWindow::TitleBar::draw()
 {
     //Background
-    _gameEngine->getUIManager()->drawImage(_titleBarTexture.get(), getX()-BORDER_PIXELS*2, getY(), getWidth()+BORDER_PIXELS*4, getHeight());
+    _gameEngine->getUIManager()->drawImage(_titleBarTexture.get(), Point2f(getX()-BORDER_PIXELS*2, getY()), Vector2f(getWidth()+BORDER_PIXELS*4, getHeight()));
 
     //Title String
     _font->drawText(_title, getX() + getWidth()/2 - _textWidth/2, getY() + 12, Ego::Colour4f(0.28f, 0.16f, 0.07f, 1.0f));
@@ -55,7 +55,7 @@ void InternalWindow::TitleBar::draw()
     //Draw the skull icon on top
     const int skullWidth = _titleSkull.get_ptr()->getWidth()/2;
     const int skullHeight = _titleSkull.get_ptr()->getHeight()/2;
-    _gameEngine->getUIManager()->drawImage(_titleSkull.get(), getX()+getWidth()/2 - skullWidth/2, getY() - skullHeight/2, skullWidth, skullHeight);
+    _gameEngine->getUIManager()->drawImage(_titleSkull.get(), Point2f(getX()+getWidth()/2 - skullWidth/2, getY() - skullHeight/2), Vector2f(skullWidth, skullHeight));
 }
 
 InternalWindow::InternalWindow(const std::string &title) :
@@ -84,7 +84,7 @@ InternalWindow::InternalWindow(const std::string &title) :
 void InternalWindow::drawContainer()
 {
     //Draw background first
-    _gameEngine->getUIManager()->drawImage(_background.get(), getX()-BORDER_PIXELS, getY()-BORDER_PIXELS, getWidth()+BORDER_PIXELS*2, getHeight()+BORDER_PIXELS*2, Ego::Colour4f(1.0f, 1.0f, 1.0f, 0.9f));
+    _gameEngine->getUIManager()->drawImage(_background.get(), Point2f(getX()-BORDER_PIXELS, getY()-BORDER_PIXELS), Vector2f(getWidth()+BORDER_PIXELS*2, getHeight()+BORDER_PIXELS*2), Ego::Colour4f(1.0f, 1.0f, 1.0f, 0.9f));
 
     //Draw window title
     _titleBar->draw();

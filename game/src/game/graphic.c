@@ -829,7 +829,7 @@ void draw_mouse_cursor()
 
         //Draw cursor
         _gameEngine->getUIManager()->beginRenderUI();
-            _gameEngine->getUIManager()->drawImage(pcursor, x, y, pcursor->getWidth(), pcursor->getHeight(), Ego::Colour4f::white());
+        _gameEngine->getUIManager()->drawImage(pcursor, Point2f(x, y), Vector2f(pcursor->getWidth(), pcursor->getHeight()), Ego::Colour4f::white());
         _gameEngine->getUIManager()->endRenderUI();
     }
 }

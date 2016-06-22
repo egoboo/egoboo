@@ -34,10 +34,10 @@ Image::Image(const Ego::DeferredTexture &image) :
 void Image::draw()
 {
     if(_image) {
-        _gameEngine->getUIManager()->drawImage(_image, getX(), getY(), getWidth(), getHeight(), _tint);
+        _gameEngine->getUIManager()->drawImage(_image, Point2f(getX(), getY()), Vector2f(getWidth(), getHeight()), _tint);
     }
     else if(_texture) {
-        _gameEngine->getUIManager()->drawImage(_texture.get_ptr(), getX(), getY(), getWidth(), getHeight(), _tint);
+        _gameEngine->getUIManager()->drawImage(_texture.get_ptr(), Point2f(getX(), getY()), Vector2f(getWidth(), getHeight()), _tint);
     }
 }
 

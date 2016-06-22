@@ -99,7 +99,7 @@ void UIManager::beginRenderUI()
     // later, but most of them will need this, so it's done by default at the beginning
     // of a frame
 
-	Matrix4f4f projection = Ego::Math::Transform::ortho(0.0f, getScreenWidth(), getScreenHeight(), 0.0f, -1.0f, +1.0f);
+	Matrix4f4f projection = Ego::Transform::ortho(0.0f, getScreenWidth(), getScreenHeight(), 0.0f, -1.0f, +1.0f);
     renderer.setProjectionMatrix(projection);
     renderer.setViewMatrix(Matrix4f4f::identity());
     renderer.setWorldMatrix(Matrix4f4f::identity());
@@ -128,22 +128,14 @@ int UIManager::getScreenHeight() const
     return sdl_scr.size.height();
 }
 
-void UIManager::drawImage(const std::shared_ptr<const Ego::Texture>& img, float x, float y, float width, float height, const Ego::Colour4f& tint)
-{
-    ego_frect_t source;
-    source.xmin = 0.0f;
-    source.ymin = 0.0f;
-    source.xmax = static_cast<float>(img->getSourceWidth())  / static_cast<float>(img->getWidth());
-    source.ymax = static_cast<float>(img->getSourceHeight()) / static_cast<float>(img->getHeight());
-
-    ego_frect_t destination;
-    destination.xmin  = x;
-    destination.ymin  = y;
-    destination.xmax  = x + width;
-    destination.ymax  = y + height;
-
+void UIManager::drawImage(const std::shared_ptr<const Ego::Texture>& img, const Point2f& position, const Vector2f& size, const Ego::Colour4f& tint) {
+    auto source = Rectangle2f(Point2f(0, 0),
+                              Point2f(static_cast<float>(img->getSourceWidth()) / static_cast<float>(img->getWidth()),
+                                      static_cast<float>(img->getSourceHeight()) / static_cast<float>(img->getHeight())));
+    auto target = Rectangle2f(position,
+                              position + size);
     // Draw the image
-    drawQuad2D(img, destination, source, true, tint);
+    drawQuad2D(img, target, source, true, tint);
 }
 
 bool UIManager::dumpScreenshot()
@@ -306,6 +298,9 @@ void UIManager::drawBitmapGlyph(int fonttype, const Vector2f& position, const fl
     static constexpr float DY = 1.0f / 256.0f;
     static constexpr float BORDER = 1.0f / 512.0f;
 
+    /// @todo This code is problematic as it seems
+    /// to rely on that (x|y)min can be greater than (x|y)max and
+    /// in some cases. 
     ego_frect_t sc_rect;
     sc_rect.xmin = position.x();
     sc_rect.ymin = position.y() + fontoffset - fontrect[fonttype].h;
@@ -324,7 +319,7 @@ void UIManager::drawBitmapGlyph(int fonttype, const Vector2f& position, const fl
     tx_rect.xmax -= BORDER;
     tx_rect.ymax -= BORDER;
 
-    drawQuad2D(_bitmapFontTexture, sc_rect, tx_rect, true, Ego::Colour4f(1.0f, 1.0f, 1.0f, alpha));
+    drawQuad2D(_bitmapFontTexture, sc_rect, tx_rect, true, Ego::Colour4f(Ego::Colour3f::white(), alpha));
 }
 
 void UIManager::drawQuad2D(const std::shared_ptr<const Ego::Texture>& texture, const Rectangle2f& scr_rect, const Rectangle2f& tx_rect, const bool useAlpha, const Ego::Colour4f& tint) {

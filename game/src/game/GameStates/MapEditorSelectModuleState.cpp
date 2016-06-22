@@ -142,7 +142,7 @@ void MapEditorSelectModuleState::drawContainer()
     _moduleDescription->render(_moduleName->getX(), yPos, Ego::Math::Colour4f::white());
 
     //Module image
-	UI->drawImage(_selectedModule->getIcon().get(), _moduleName->getX() + UI->getScreenWidth()/4 - 64, yPos + 200, 128, 128);    
+	UI->drawImage(_selectedModule->getIcon().get(), Point2f(_moduleName->getX() + UI->getScreenWidth()/4 - 64, yPos + 200), Vector2f(128, 128));    
 
     UI->endRenderUI();
 }
