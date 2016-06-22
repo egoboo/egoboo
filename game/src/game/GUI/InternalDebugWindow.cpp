@@ -39,7 +39,7 @@ void InternalDebugWindow::addWatchVariable(const std::string &variableName, std:
     _gameEngine->getUIManager()->getDebugFont()->getTextSize(variableName, &textWidth, &textHeight);
     textWidth = std::max(32, textWidth);
     textHeight = std::max(8, textHeight);
-    setSize(std::max(getWidth(), 5 + textWidth*2), getHeight()+textHeight+5);
+    setSize(std::max(getWidth(), 5.0f + textWidth * 2.0f), getHeight() + textHeight + 5.0f);
 }
 
 void InternalDebugWindow::drawContainer()

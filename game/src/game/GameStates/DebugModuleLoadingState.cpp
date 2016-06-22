@@ -74,7 +74,7 @@ struct DebugModuleLoadingState::ModuleGUIContainer : public ComponentContainer, 
     
     void drawContainer() override {}
     
-    void setPosition(const int x, const int y) override
+    void setPosition(float x, float y) override
     {
         GUIComponent::setPosition(x, y);
         _moduleName->setPosition(x, y);

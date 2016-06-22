@@ -58,11 +58,11 @@ public:
 	bool notifyMouseScrolled(const int amount) override;
 	bool notifyMouseMoved(const Ego::Events::MouseMovedEventArgs& e) override;
 
-    void setWidth(const int width) override;
-    void setHeight(const int height) override;
-    void setX(const int x) override;
-    void setY(const int y) override;
-    void setPosition(const int x, const int y) override;
+    void setWidth(float width) override;
+    void setHeight(float height) override;
+    void setX(float x) override;
+    void setY(float y) override;
+    void setPosition(float x, float y) override;
 
 protected:
 	void drawContainer() override;

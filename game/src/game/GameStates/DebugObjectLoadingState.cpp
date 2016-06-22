@@ -62,7 +62,7 @@ public:
         redraw();
     }
     
-    void setWidth(const int width) override {
+    void setWidth(float width) override {
         GUIComponent::setWidth(width);
         redraw();
     }
@@ -114,7 +114,7 @@ struct DebugObjectLoadingState::ObjectGUIContainer : public ComponentContainer, 
     
     void drawContainer() override {}
     
-    void setPosition(const int x, const int y) override
+    void setPosition(float x, float y) override
     {
         GUIComponent::setPosition(x, y);
         _objectName->setPosition(x, y);

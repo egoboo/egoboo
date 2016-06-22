@@ -6,7 +6,7 @@ OptionsButton::OptionsButton(const std::string &label) :
 
 }
 
-void OptionsButton::setPosition(const int x, const int y)
+void OptionsButton::setPosition(float x, float y)
 {
 	_label.setPosition(x, y);
 	GUIComponent::setPosition(x + 200, y-getHeight()/2);

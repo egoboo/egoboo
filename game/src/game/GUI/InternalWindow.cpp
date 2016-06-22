@@ -167,7 +167,7 @@ void InternalWindow::draw()
     drawAll();
 }
 
-void InternalWindow::setPosition(const int x, const int y)
+void InternalWindow::setPosition(float x, float y)
 {
     //Calculate offsets in position change
     int translateX = x - getX();
@@ -202,7 +202,7 @@ void InternalWindow::addComponent(std::shared_ptr<GUIComponent> component)
     ComponentContainer::addComponent(component);
 }
 
-void InternalWindow::setSize(const int width, const int height)
+void InternalWindow::setSize(float width, float height)
 {
     //Also update the width of the title bar if our with changes
     _titleBar->setSize(width, _titleBar->getHeight());
