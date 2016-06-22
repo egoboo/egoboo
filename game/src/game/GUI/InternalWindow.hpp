@@ -58,8 +58,8 @@ class InternalWindow : public GUIComponent, public ComponentContainer
 
         void draw() override;
 
-        virtual void setPosition(const int x, const int y) override;
-        virtual void setSize(const int width, const int height) override;
+        virtual void setPosition(float x, float y) override;
+        virtual void setSize(float width, float height) override;
 
         void setTransparency(float alpha);
 

@@ -92,7 +92,7 @@ public:
      * @brief
      *  Convinience function to draw a 2D image
      */
-    void drawImage(const std::shared_ptr<const Ego::Texture>& img, float x, float y, float width, float height, const Ego::Colour4f& tint = Ego::Colour4f::white());
+    void drawImage(const std::shared_ptr<const Ego::Texture>& img, const Point2f& position, const Vector2f& size, const Ego::Colour4f& tint = Ego::Colour4f::white());
 
     /**
     * @brief 
@@ -123,21 +123,20 @@ public:
     /**
     * @brief
     *   Fill a solid coloured rectangle
-    * @param position
-    *   location of top left corner in rectangle
-    * @param size
-    *   the size of the rectangle in pixels
+    * @param rectangle
+    *   the rectangle
     * @param useAlpha
     *   enable or disable alpha channel
     * @param tint
     *   colour of the rectangle (including alpha channel)
     **/
-    void fillRectangle(const Vector2f& position, const Vector2f& size, const bool useAlpha, const Ego::Colour4f& tint = Ego::Colour4f::white());
+    void fillRectangle(const Rectangle2f& rectangle, const bool useAlpha, const Ego::Colour4f& tint = Ego::Colour4f::white());
     
     /**
     * @brief
     *   Render a 2D texture quad
     **/
+    void drawQuad2D(const std::shared_ptr<const Ego::Texture>& texture, const Rectangle2f& scr_rect, const Rectangle2f& tx_rect, const bool useAlpha, const Ego::Colour4f& tint = Ego::Colour4f::white());
     void drawQuad2D(const std::shared_ptr<const Ego::Texture>& texture, const ego_frect_t& scr_rect, const ego_frect_t& tx_rect, const bool useAlpha, const Ego::Colour4f& tint = Ego::Colour4f::white());
 
 private:

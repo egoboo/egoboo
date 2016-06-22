@@ -5,9 +5,9 @@ GUIComponent::GUIComponent() :
     _destroyed(false),
     _enabled(true),
     _visible(true),
-    _parent(nullptr)
+    _parent(nullptr),
+    _bounds(Point2f(0.0f, 0.0f), Point2f(32.0f, 32.0f))
 {
-    _bounds.x = 0; _bounds.y = 0; _bounds.w = 32; _bounds.h = 32;
 }
 
 bool GUIComponent::isEnabled() const
@@ -20,72 +20,87 @@ void GUIComponent::setEnabled(const bool enabled)
     _enabled = enabled;
 }
 
-int GUIComponent::getX() const
+Point2f GUIComponent::getPosition() const
 {
-    return _bounds.x;
+    return _bounds.getMin();
 }
 
-int GUIComponent::getY() const
+Vector2f GUIComponent::getSize() const
 {
-    return _bounds.y;
+    return _bounds.getSize();
 }
 
-int GUIComponent::getWidth() const
+float GUIComponent::getX() const
 {
-    return _bounds.w;
+    return _bounds.getMin().x();
 }
 
-int GUIComponent::getHeight() const
+float GUIComponent::getY() const
 {
-    return _bounds.h;
+    return _bounds.getMin().y();
 }
 
-void GUIComponent::setWidth(const int width)
+float GUIComponent::getWidth() const
 {
-    _bounds.w = width;
+    return _bounds.getSize().x();
 }
 
-void GUIComponent::setHeight(const int height)
+float GUIComponent::getHeight() const
 {
-    _bounds.h = height;
+    return _bounds.getSize().y();
 }
 
-void GUIComponent::setSize(const int width, const int height)
+void GUIComponent::setWidth(float width)
+{
+    _bounds = Rectangle2f(_bounds.getMin(), _bounds.getMin() + Vector2f(width, _bounds.getSize().y()));
+}
+
+void GUIComponent::setHeight(float height)
+{
+    _bounds = Rectangle2f(_bounds.getMin(), _bounds.getMin() + Vector2f(_bounds.getSize().x(), height));
+}
+
+void GUIComponent::setSize(float width, float height)
 {
     setWidth(width);
     setHeight(height);
 }
 
-void GUIComponent::setX(const int x)
+void GUIComponent::setX(float x)
 {
-    _bounds.x = x;
+    Ego::Translate<Rectangle2f> t;
+    // Translate such that the left side is at x
+    _bounds = t(_bounds, Vector2f(-_bounds.getMin().x() + x, 0.0f));
 }
 
-void GUIComponent::setY(const int y)
+void GUIComponent::setY(float y)
 {
-    _bounds.y = y;
+    Ego::Translate<Rectangle2f> t;
+    // Translate such that the top side is at y.
+    _bounds = t(_bounds, Vector2f(0.0f, -_bounds.getMin().y() + y));
 }
 
-void GUIComponent::setPosition(const int x, const int y)
+void GUIComponent::setPosition(float x, float y)
 {
-    setX(x);
-    setY(y);
+    Ego::Translate<Rectangle2f> t;
+    // Translate such that the top/left corner is at (x,y).
+    _bounds = t(_bounds, Vector2f(-_bounds.getMin().x() + x, -_bounds.getMin().y() + y));
 }
 
-void GUIComponent::setCenterPosition(const int x, const int y, const bool onlyHorizontal)
+void GUIComponent::setCenterPosition(float x, float y, const bool onlyHorizontal)
 {
-    setPosition(x - getWidth() / 2, onlyHorizontal ? y : y - getHeight()/2);
+    setPosition(x - getWidth() / 2.0f, onlyHorizontal ? y : y - getHeight() / 2.0f);
 }
 
-const SDL_Rect& GUIComponent::getBounds() const
+const Rectangle2f& GUIComponent::getBounds() const
 {
     return _bounds;
 }
 
 bool GUIComponent::contains(const Point2f& point) const
 {
-    return point.x() >= _bounds.x && point.y() >= _bounds.y
-        && point.x() < _bounds.x + _bounds.w && point.y() < _bounds.y+_bounds.h;
+    Ego::Contains<Rectangle2f, Point2f> functor;
+    return functor(_bounds, point);
 }
 
 ComponentContainer* GUIComponent::getParent() const

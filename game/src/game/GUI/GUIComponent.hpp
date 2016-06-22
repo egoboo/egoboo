@@ -22,19 +22,21 @@ class GUIComponent : public InputListener, public std::enable_shared_from_this<G
 
         virtual bool isVisible() const;
 
-        const SDL_Rect& getBounds() const;
-        int getX() const;
-        int getY() const;
-        int getWidth() const;
-        int getHeight() const;
+        const Rectangle2f& getBounds() const;
+        Point2f getPosition() const;
+        Vector2f getSize() const;
+        float getX() const;
+        float getY() const;
+        float getWidth() const;
+        float getHeight() const;
 
-        void setCenterPosition(const int x, const int y, const bool onlyHorizontal = false);
-        virtual void setWidth(const int width);
-        virtual void setHeight(const int height);
-        virtual void setSize(const int width, const int height);
-        virtual void setX(const int x);
-        virtual void setY(const int y);
-        virtual void setPosition(const int x, const int y);
+        void setCenterPosition(float x, float y, const bool onlyHorizontal = false);
+        virtual void setWidth(float width);
+        virtual void setHeight(float height);
+        virtual void setSize(float width, float height);
+        virtual void setX(float x);
+        virtual void setY(float y);
+        virtual void setPosition(float x, float y);
 
         /**
          * @brief Get if this component contains a point.
@@ -61,7 +63,7 @@ class GUIComponent : public InputListener, public std::enable_shared_from_this<G
 
     private:
         bool _destroyed;
-        SDL_Rect _bounds;
+        Rectangle2f _bounds;
         bool _enabled;
         bool _visible;
         ComponentContainer* _parent;

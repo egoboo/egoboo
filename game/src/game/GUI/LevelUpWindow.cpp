@@ -60,7 +60,7 @@ public:
         renderer.render(*vb, Ego::PrimitiveType::Quadriliterals, 0, 4);
 
         //Icon
-        _gameEngine->getUIManager()->drawImage(_perk.getIcon().get_ptr(), shakeEffectX, shakeEffectY, getWidth(), getHeight(), Ego::Math::Colour4f(0, 0, 0, 0.75f));
+        _gameEngine->getUIManager()->drawImage(_perk.getIcon().get_ptr(), Point2f(shakeEffectX, shakeEffectY), Vector2f(getWidth(), getHeight()), Ego::Math::Colour4f(0, 0, 0, 0.75f));
     }
 
     bool notifyMouseMoved(const Ego::Events::MouseMovedEventArgs& e) override

@@ -44,9 +44,10 @@ public:
         redraw();
     }
     
-    void draw() override {        
-        _gameEngine->getUIManager()->fillRectangle(Vector2f(getX(), getY()), Vector2f(_maxWidth, _maxHeight), true, _maxColor);
-        _gameEngine->getUIManager()->fillRectangle(Vector2f(getX(), getY()), Vector2f(_textWidth, _textHeight), true, _textColor);
+    void draw() override {
+        auto min = Point2f(getX(), getY());
+        _gameEngine->getUIManager()->fillRectangle(Rectangle2f(min, min + Vector2f(_maxWidth, _maxHeight)), true, _maxColor);
+        _gameEngine->getUIManager()->fillRectangle(Rectangle2f(min, min + Vector2f(_textWidth, _textHeight)), true, _textColor);
         
         _textRenderer->render(getX(), getY());
     }

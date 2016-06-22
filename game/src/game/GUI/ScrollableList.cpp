@@ -60,25 +60,25 @@ void ScrollableList::updateScrollButtons()
 	_downButton->setPosition(getX() + getWidth() - _downButton->getWidth(), getY()+getHeight() - _downButton->getHeight());
 }
 
-void ScrollableList::setWidth(const int width)
+void ScrollableList::setWidth(float width)
 {
 	GUIComponent::setWidth(width);
 	updateScrollButtons();
 }
 
-void ScrollableList::setHeight(const int height)
+void ScrollableList::setHeight(float height)
 {
 	GUIComponent::setHeight(height);
 	updateScrollButtons();
 }
 
-void ScrollableList::setX(const int x)
+void ScrollableList::setX(float x)
 {
 	GUIComponent::setX(x);
 	updateScrollButtons();
 }
 
-void ScrollableList::setY(const int y)
+void ScrollableList::setY(float y)
 {
 	GUIComponent::setY(y);
 	updateScrollButtons();
@@ -141,7 +141,7 @@ void ScrollableList::forceUpdate()
     setScrollPosition(_currentIndex);
 }
 
-void ScrollableList::setPosition(const int x, const int y)
+void ScrollableList::setPosition(float x, float y)
 {
 	GUIComponent::setX(x);
 	GUIComponent::setY(y);

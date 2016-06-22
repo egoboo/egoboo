@@ -11,7 +11,7 @@ public:
 
     virtual void draw() override;
 
-    void setPosition(const int x, const int y) override;
+    void setPosition(float x, float y) override;
 
 private:
     Label _label;

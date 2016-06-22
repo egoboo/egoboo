@@ -111,6 +111,7 @@ void Font::LaidTextRenderer::render(int x, int y, const Ego::Math::Colour4f &col
     Matrix4f4f projMatrix = stack.matrix * transMat;
 
     renderer.setProjectionMatrix(projMatrix);
+    renderer.setBlendingEnabled(true);
     renderer.setColour(colour);
     renderer.getTextureUnit().setActivated(_atlas.get());
     renderer.render(*(_vertexBuffer.get()), Ego::PrimitiveType::Quadriliterals, 0, _vertexBuffer->getNumberOfVertices());

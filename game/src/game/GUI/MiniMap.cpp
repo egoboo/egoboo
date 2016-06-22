@@ -58,7 +58,7 @@ void MiniMap::draw()
     }
 
     //Draw the map image
-    _gameEngine->getUIManager()->drawImage(_minimapTexture->get(), getX(), getY(), getWidth(), getHeight(), Ego::Math::Colour4f(1.0f, 1.0f, 1.0f, 0.9f));
+    _gameEngine->getUIManager()->drawImage(_minimapTexture->get(), Point2f(getX(), getY()), Vector2f(getWidth(), getHeight()), Ego::Math::Colour4f(1.0f, 1.0f, 1.0f, 0.9f));
 
     // If one of the players can sense enemies via ESP, draw them as blips on the map
     if (Team::TEAM_MAX != local_stats.sense_enemies_team)

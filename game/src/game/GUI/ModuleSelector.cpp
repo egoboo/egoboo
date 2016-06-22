@@ -221,7 +221,7 @@ void ModuleSelector::ModuleButton::draw()
 	renderer.render(vb, Ego::PrimitiveType::Quadriliterals, 0, 4);
 
     //Draw module title image
-    _gameEngine->getUIManager()->drawImage(_moduleSelector->_modules[_moduleSelector->_startIndex + _offset]->getIcon().get(), getX() + 5, getY() + 5, getWidth()-10, getHeight()-10);
+    _gameEngine->getUIManager()->drawImage(_moduleSelector->_modules[_moduleSelector->_startIndex + _offset]->getIcon().get(), Point2f(getX() + 5, getY() + 5), Vector2f(getWidth()-10, getHeight()-10));
 }
 
 bool ModuleSelector::notifyMouseScrolled(const int amount)
