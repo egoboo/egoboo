@@ -24,44 +24,46 @@
 
 #include "game/GUI/InternalWindow.hpp"
 
-//Forward declarations
+// Forward declarations.
 class Object;
+
+namespace Ego {
+namespace GUI {
 class Button;
 class ScrollableList;
-namespace Ego { class Enchantment; }
+} // namespace GUI
+class Enchantment;
+} // namespace Ego
 
-namespace Ego
-{
-namespace GUI
-{
+namespace Ego {
+namespace GUI {
 
-class CharacterWindow : public InternalWindow
-{
-    public:
-        CharacterWindow(const std::shared_ptr<Object> &object);
-        ~CharacterWindow();
+class CharacterWindow : public InternalWindow {
+public:
+    CharacterWindow(const std::shared_ptr<Object> &object);
+    ~CharacterWindow();
 
-        bool notifyMouseMoved(const Ego::Events::MouseMovedEventArgs& e) override;
-        
-    private:
-        int addResistanceLabel(const int x, const int y, const DamageType type);
-        int addAttributeLabel(const int x, const int y, const Ego::Attribute::AttributeType type);
+    bool notifyMouseMoved(const Ego::Events::MouseMovedEventArgs& e) override;
 
-        void buildCharacterStatisticTab();
-        void buildKnownPerksTab();
-        void buildActiveEnchantsTab();
+private:
+    int addResistanceLabel(const int x, const int y, const DamageType type);
+    int addAttributeLabel(const int x, const int y, const Ego::Attribute::AttributeType type);
 
-        void describeEnchantEffects(const std::vector<std::shared_ptr<Ego::Enchantment>> &enchants, std::shared_ptr<ScrollableList> list);
+    void buildCharacterStatisticTab();
+    void buildKnownPerksTab();
+    void buildActiveEnchantsTab();
 
-    private:
-        std::shared_ptr<Object> _character;
-        std::shared_ptr<Button> _levelUpButton;
-        std::weak_ptr<InternalWindow> _levelUpWindow;
+    void describeEnchantEffects(const std::vector<std::shared_ptr<Ego::Enchantment>> &enchants, std::shared_ptr<ScrollableList> list);
 
-        std::vector<std::shared_ptr<GUIComponent>> _characterStatisticsTab;
-        std::vector<std::shared_ptr<GUIComponent>> _knownPerksTab;
-        std::vector<std::shared_ptr<GUIComponent>> _activeEnchantsTab;
+private:
+    std::shared_ptr<Object> _character;
+    std::shared_ptr<Button> _levelUpButton;
+    std::weak_ptr<InternalWindow> _levelUpWindow;
+
+    std::vector<std::shared_ptr<Component>> _characterStatisticsTab;
+    std::vector<std::shared_ptr<Component>> _knownPerksTab;
+    std::vector<std::shared_ptr<Component>> _activeEnchantsTab;
 };
 
-} //GUI
-} //Ego
+} // namespace GUI
+} // namespace Ego

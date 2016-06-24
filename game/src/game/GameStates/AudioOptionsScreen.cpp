@@ -29,7 +29,7 @@
 
 AudioOptionsScreen::AudioOptionsScreen()
 {
-    std::shared_ptr<Image> background = std::make_shared<Image>("mp_data/menu/menu_sound");
+    auto background = std::make_shared<Ego::GUI::Image>("mp_data/menu/menu_sound");
 
     const int SCREEN_WIDTH = _gameEngine->getUIManager()->getScreenWidth();
     const int SCREEN_HEIGHT = _gameEngine->getUIManager()->getScreenHeight();
@@ -43,12 +43,12 @@ AudioOptionsScreen::AudioOptionsScreen()
     int yPos = 30;
 
     //Music volume slider
-    std::shared_ptr<Label> musicVolumeLable = std::make_shared<Label>("Music Volume:");
+    auto musicVolumeLable = std::make_shared<Ego::GUI::Label>("Music Volume:");
     musicVolumeLable->setPosition(xPos, yPos);
     addComponent(musicVolumeLable);
     yPos += musicVolumeLable->getHeight() + 5;
 
-    std::shared_ptr<Ego::GUI::Slider> musicVolumeSlider = std::make_shared<Ego::GUI::Slider>(0, MIX_MAX_VOLUME);
+    auto musicVolumeSlider = std::make_shared<Ego::GUI::Slider>(0, MIX_MAX_VOLUME);
     musicVolumeSlider->setSize(std::min(200, SCREEN_WIDTH/3), 30);
     musicVolumeSlider->setPosition(xPos, yPos);
     musicVolumeSlider->setOnChangeFunction(
@@ -62,12 +62,12 @@ AudioOptionsScreen::AudioOptionsScreen()
     yPos += musicVolumeSlider->getHeight() + 20;
 
     //Sound Effect volume slider
-    std::shared_ptr<Label> soundEffectLabel = std::make_shared<Label>("Sound Effect Volume:");
+    auto soundEffectLabel = std::make_shared<Ego::GUI::Label>("Sound Effect Volume:");
     soundEffectLabel->setPosition(xPos, yPos);
     addComponent(soundEffectLabel);
     yPos += soundEffectLabel->getHeight() + 5;
 
-    std::shared_ptr<Ego::GUI::Slider> soundEffectVolumeSlider = std::make_shared<Ego::GUI::Slider>(0, MIX_MAX_VOLUME);
+    auto soundEffectVolumeSlider = std::make_shared<Ego::GUI::Slider>(0, MIX_MAX_VOLUME);
     soundEffectVolumeSlider->setSize(std::min(200, SCREEN_WIDTH/3), 30);
     soundEffectVolumeSlider->setPosition(xPos, yPos);
     soundEffectVolumeSlider->setOnChangeFunction(
@@ -81,8 +81,8 @@ AudioOptionsScreen::AudioOptionsScreen()
     addComponent(soundEffectVolumeSlider);
     yPos += soundEffectVolumeSlider->getHeight() + 20;
 
-    //Sound channels slider
-    std::shared_ptr<Label> soundChannelsLabel = std::make_shared<Label>("Sound Channels:");
+    // Sound channels slider
+    auto soundChannelsLabel = std::make_shared<Ego::GUI::Label>("Sound Channels:");
     soundChannelsLabel->setPosition(xPos, yPos);
     addComponent(soundChannelsLabel);
     yPos += soundChannelsLabel->getHeight() + 5;
@@ -99,13 +99,13 @@ AudioOptionsScreen::AudioOptionsScreen()
     addComponent(soundChannelsSlider);
     yPos += soundChannelsSlider->getHeight() + 20;
 
-    //Footstep button
-    std::shared_ptr<Label> footstepLabel = std::make_shared<Label>("Play Footsteps:");
+    // Footstep button
+    auto footstepLabel = std::make_shared<Ego::GUI::Label>("Play Footsteps:");
     footstepLabel->setPosition(xPos, yPos);
     addComponent(footstepLabel);
     yPos += footstepLabel->getHeight() + 5;
 
-    std::shared_ptr<Button> footstepButton = std::make_shared<Button>(egoboo_config_t::get().sound_footfallEffects_enable.getValue() ? "Yes" : "No");
+    std::shared_ptr<Ego::GUI::Button> footstepButton = std::make_shared<Ego::GUI::Button>(egoboo_config_t::get().sound_footfallEffects_enable.getValue() ? "Yes" : "No");
     footstepButton->setPosition(xPos + footstepLabel->getWidth() + 10, footstepLabel->getY());
     footstepButton->setSize(100, 30);
     footstepButton->setOnClickFunction(
@@ -115,21 +115,21 @@ AudioOptionsScreen::AudioOptionsScreen()
     });
     addComponent(footstepButton);
 
-    //Back button
-    std::shared_ptr<Button> backButton = std::make_shared<Button>("Back", SDLK_ESCAPE);
+    // Back button
+    auto backButton = std::make_shared<Ego::GUI::Button>("Back", SDLK_ESCAPE);
     backButton->setPosition(20, SCREEN_HEIGHT-80);
     backButton->setSize(200, 30);
     backButton->setOnClickFunction(
     [this]{
         endState();
 
-        // save the setup file
+        // Save the setup file
         setup_upload(&egoboo_config_t::get());
     });
     addComponent(backButton);
 
     //Add version label and copyright text
-    std::shared_ptr<Label> welcomeLabel = std::make_shared<Label>("Change audio settings here");
+    std::shared_ptr<Ego::GUI::Label> welcomeLabel = std::make_shared<Ego::GUI::Label>("Change audio settings here");
     welcomeLabel->setPosition(backButton->getX() + backButton->getWidth() + 40,
         SCREEN_HEIGHT - SCREEN_HEIGHT/60 - welcomeLabel->getHeight());
     addComponent(welcomeLabel);

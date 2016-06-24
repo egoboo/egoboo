@@ -24,39 +24,34 @@
 #include "game/GUI/IconButton.hpp"
 #include "egolib/Renderer/DeferredTexture.hpp"
 
+namespace Ego {
+namespace GUI {
+
 IconButton::IconButton(const std::string &buttonText, const Ego::DeferredTexture& icon, int hotkey) : Button(buttonText, hotkey),
-	_icon(icon),
-    _iconTint(Ego::Math::Colour4f::white())
-{
-	//ctor
+_icon(icon),
+_iconTint(Ego::Math::Colour4f::white()) {
+    //ctor
 }
 
-void IconButton::draw()
-{
+void IconButton::draw() {
     //Update slidy button effect
     updateSlidyButtonEffect();
-    
+
     auto &renderer = Ego::Renderer::get();
 
     // Draw the button
-	renderer.getTextureUnit().setActivated(nullptr);
+    renderer.getTextureUnit().setActivated(nullptr);
 
     //Determine button color
-    if(!isEnabled())
-    {
-        renderer.setColour( DISABLED_BUTTON_COLOUR );
-    }
-    else if(_mouseOver)
-    {
-        renderer.setColour( HOVER_BUTTON_COLOUR );
-    }
-    else
-    {
-        renderer.setColour( DEFAULT_BUTTON_COLOUR );
+    if (!isEnabled()) {
+        renderer.setColour(DISABLED_BUTTON_COLOUR);
+    } else if (_mouseOver) {
+        renderer.setColour(HOVER_BUTTON_COLOUR);
+    } else {
+        renderer.setColour(DEFAULT_BUTTON_COLOUR);
     }
 
-    struct Vertex
-    {
+    struct Vertex {
         float x, y;
     };
     auto vb = _gameEngine->getUIManager()->_vertexBuffer;
@@ -68,18 +63,19 @@ void IconButton::draw()
     vb->unlock();
     renderer.render(*vb, Ego::PrimitiveType::Quadriliterals, 0, 4);
 
- 	//Draw icon
- 	int iconSize = getHeight()-4;
+    //Draw icon
+    int iconSize = getHeight() - 4;
     _gameEngine->getUIManager()->drawImage(_icon.get_ptr(), Point2f(getX() + getWidth() - getHeight() - 2, getY() + 2), Vector2f(iconSize, iconSize), _iconTint);
 
     //Draw text on left side in button
-    if(_buttonTextRenderer)
-    {
+    if (_buttonTextRenderer) {
         _buttonTextRenderer->render(getX() + 5, getY() + (getHeight() - _buttonTextHeight) / 2);
     }
 }
 
-void IconButton::setIconTint(const Ego::Math::Colour4f &tint)
-{
+void IconButton::setIconTint(const Ego::Math::Colour4f &tint) {
     _iconTint = tint;
 }
+
+} // namespace GUI
+} // namespace Ego

@@ -28,9 +28,9 @@
 #include "game/GUI/ScrollableList.hpp"
 
 VideoOptionsScreen::VideoOptionsScreen() :
-    _resolutionList(std::make_shared<ScrollableList>())
+    _resolutionList(std::make_shared<Ego::GUI::ScrollableList>())
 {
-    std::shared_ptr<Image> background = std::make_shared<Image>("mp_data/menu/menu_video");
+    auto background = std::make_shared<Ego::GUI::Image>("mp_data/menu/menu_video");
 
     const int SCREEN_WIDTH = _gameEngine->getUIManager()->getScreenWidth();
     const int SCREEN_HEIGHT = _gameEngine->getUIManager()->getScreenHeight();
@@ -41,7 +41,7 @@ VideoOptionsScreen::VideoOptionsScreen() :
     addComponent(background);
 
     //Resolution
-    std::shared_ptr<Label> resolutionLabel = std::make_shared<Label>("Resolution");
+    auto resolutionLabel = std::make_shared<Ego::GUI::Label>("Resolution");
     resolutionLabel->setPosition(20, 5);
     addComponent(resolutionLabel);
 
@@ -210,8 +210,8 @@ VideoOptionsScreen::VideoOptionsScreen() :
         }
     );    
 
-    //Back button
-    std::shared_ptr<Button> backButton = std::make_shared<Button>("Back", SDLK_ESCAPE);
+    // Back button
+    auto backButton = std::make_shared<Ego::GUI::Button>("Back", SDLK_ESCAPE);
     backButton->setPosition(20, SCREEN_HEIGHT-80);
     backButton->setSize(200, 30);
     backButton->setOnClickFunction(
@@ -224,19 +224,19 @@ VideoOptionsScreen::VideoOptionsScreen() :
     addComponent(backButton);
 
     //Add version label and copyright text
-    std::shared_ptr<Label> welcomeLabel = std::make_shared<Label>("Change video settings here");
+    auto welcomeLabel = std::make_shared<Ego::GUI::Label>("Change video settings here");
     welcomeLabel->setPosition(backButton->getX() + backButton->getWidth() + 40,
-        SCREEN_HEIGHT - SCREEN_HEIGHT/60 - welcomeLabel->getHeight());
+                              SCREEN_HEIGHT - SCREEN_HEIGHT/60 - welcomeLabel->getHeight());
     addComponent(welcomeLabel);
 }
 
 int VideoOptionsScreen::addOptionsButton(int xPos, int yPos, const std::string &label, std::function<std::string()> labelFunction, std::function<void()> onClickFunction, bool enabled)
 {
-    std::shared_ptr<Label> optionLabel = std::make_shared<Label>(label + ": ");
+    auto optionLabel = std::make_shared<Ego::GUI::Label>(label + ": ");
     optionLabel->setPosition(xPos, yPos);
     addComponent(optionLabel);
 
-    std::shared_ptr<Button> optionButton = std::make_shared<Button>(labelFunction());
+    auto optionButton = std::make_shared<Ego::GUI::Button>(labelFunction());
     optionButton->setSize(150, 30);
     optionButton->setPosition(xPos+250, optionLabel->getY());
     optionButton->setOnClickFunction(
@@ -268,7 +268,7 @@ void VideoOptionsScreen::beginState()
 
 void VideoOptionsScreen::addResolutionButton(int width, int height)
 {
-    std::shared_ptr<Button> resolutionButton = std::make_shared<Button>(std::to_string(width) + "x" + std::to_string(height));
+    auto resolutionButton = std::make_shared<Ego::GUI::Button>(std::to_string(width) + "x" + std::to_string(height));
 
     resolutionButton->setSize(200, 30);
     resolutionButton->setOnClickFunction(
@@ -280,7 +280,7 @@ void VideoOptionsScreen::addResolutionButton(int width, int height)
             egoboo_config_t::get().graphic_resolution_vertical.setValue(height);
 
             // Enable all resolution buttons except the one we just selected.
-            for(const std::shared_ptr<GUIComponent> &button : _resolutionList->iterator())
+            for(const auto& button : _resolutionList->iterator())
             {
                 button->setEnabled(true);
             }

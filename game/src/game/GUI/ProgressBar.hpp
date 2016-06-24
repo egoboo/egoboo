@@ -1,24 +1,24 @@
 #pragma once
 
-#include "game/GUI/GUIComponent.hpp"
+#include "game/GUI/Component.hpp"
 
-namespace GUI
-{
+namespace Ego {
+namespace GUI {
 
-class ProgressBar : public GUIComponent
-{
-    public:
-        ProgressBar();
-        virtual void draw() override;
+class ProgressBar : public Component {
+public:
+    ProgressBar();
+    virtual void draw() override;
 
-        void setValue(float value);
-        void setMaxValue(float value);
-        void setTickWidth(float value);
+    void setValue(float value);
+    void setMaxValue(float value);
+    void setTickWidth(float value);
 
-    private:
-        float _currentValue;
-        float _maxValue;
-        float _tickWidth;
+private:
+    float _currentValue;
+    float _maxValue;
+    float _tickWidth;
 };
 
-} //namespace GUI
+} // namespace GUI
+} // namespace Ego

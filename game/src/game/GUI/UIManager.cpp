@@ -19,19 +19,21 @@
 
 /// @file game/GUI/UIManager.cpp
 /// @details The UIManager contains utilities for the GUI system and stores various shared resources
-///             and properties for GUIComponents.
+///             and properties for GUI components.
 /// @author Johan Jansen
 
 #include "game/GUI/UIManager.hpp"
 #include "game/graphic.h"
 #include "game/game.h" //TODO: Remove only for DisplayMessagePrintf
 
+namespace Ego {
+namespace GUI {
+
 UIManager::UIManager() :
     _fonts(),
     _renderSemaphore(0),
     _bitmapFontTexture(Ego::TextureManager::get().getTexture("mp_data/font_new_shadow")),
-    _textureQuadVertexBuffer(4, Ego::GraphicsUtilities::get<Ego::VertexFormat::P2FT2F>())
-{
+    _textureQuadVertexBuffer(4, Ego::GraphicsUtilities::get<Ego::VertexFormat::P2FT2F>()) {
     //Load fonts from true-type files
     _fonts[FONT_DEFAULT] = Ego::FontManager::get().loadFont("mp_data/Bo_Chen.ttf", 24);
     _fonts[FONT_FLOATING_TEXT] = Ego::FontManager::get().loadFont("mp_data/FrostysWinterland.ttf", 24);
@@ -40,14 +42,12 @@ UIManager::UIManager() :
 
     //Sanity check that all fonts are loaded properly
 #ifndef NDEBUG
-    for(int i = 0; i < _fonts.size(); ++i)
-    {
-        if(!_fonts[i])
-        {
-			std::ostringstream os;
-			os << __FILE__ << ":" << __LINE__ << ": UI manager is missing font with ID " << i << std::endl;
-			Log::get().error("%s",os.str().c_str());
-			throw std::runtime_error(os.str());
+    for (int i = 0; i < _fonts.size(); ++i) {
+        if (!_fonts[i]) {
+            std::ostringstream os;
+            os << __FILE__ << ":" << __LINE__ << ": UI manager is missing font with ID " << i << std::endl;
+            Log::get().error("%s", os.str().c_str());
+            throw std::runtime_error(os.str());
         }
     }
 #endif
@@ -56,75 +56,69 @@ UIManager::UIManager() :
     _vertexBuffer = std::make_shared<Ego::VertexBuffer>(4, vertexFormat);
 }
 
-UIManager::~UIManager()
-{
+UIManager::~UIManager() {
     _vertexBuffer = nullptr;
     // free fonts before font manager
-    for(std::shared_ptr<Ego::Font> &font : _fonts)
-    {
+    for (std::shared_ptr<Ego::Font> &font : _fonts) {
         font.reset();
     }
 }
 
-void UIManager::beginRenderUI()
-{
+void UIManager::beginRenderUI() {
     //Handle recusive loops that trigger beginRenderUI
     _renderSemaphore++;
-    if(_renderSemaphore > 1) {
+    if (_renderSemaphore > 1) {
         return;
     }
 
-	auto& renderer = Ego::Renderer::get();
+    auto& renderer = Ego::Renderer::get();
 
     // do not use the ATTRIB_PUSH macro, since the glPopAttrib() is in a different function
-    GL_DEBUG( glPushAttrib )( GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT );
+    GL_DEBUG(glPushAttrib)(GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT);
 
     // don't worry about hidden surfaces
-	renderer.setDepthTestEnabled(false);
+    renderer.setDepthTestEnabled(false);
 
     // draw draw front and back faces of polygons
-	renderer.setCullingMode(Ego::CullingMode::None);
+    renderer.setCullingMode(Ego::CullingMode::None);
 
     // use normal alpha blending
-	renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
-	renderer.setBlendingEnabled(true);
+    renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
+    renderer.setBlendingEnabled(true);
 
     // do not display the completely transparent portion
-	renderer.setAlphaTestEnabled(true);
-	renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
+    renderer.setAlphaTestEnabled(true);
+    renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
 
-	renderer.setViewportRectangle(0, 0, sdl_scr.drawableSize.width(), sdl_scr.drawableSize.height());
+    renderer.setViewportRectangle(0, 0, sdl_scr.drawableSize.width(), sdl_scr.drawableSize.height());
 
     // Set up an ortho projection for the gui to use.  Controls are free to modify this
     // later, but most of them will need this, so it's done by default at the beginning
     // of a frame
 
-	Matrix4f4f projection = Ego::Transform::ortho(0.0f, getScreenWidth(), getScreenHeight(), 0.0f, -1.0f, +1.0f);
+    Matrix4f4f projection = Ego::Transform::ortho(0.0f, getScreenWidth(), getScreenHeight(), 0.0f, -1.0f, +1.0f);
     renderer.setProjectionMatrix(projection);
     renderer.setViewMatrix(Matrix4f4f::identity());
     renderer.setWorldMatrix(Matrix4f4f::identity());
 }
 
-void UIManager::endRenderUI()
-{
+void UIManager::endRenderUI() {
     //Handle recusive loops that trigger beginRenderUI
     _renderSemaphore--;
-    if(_renderSemaphore > 0) {
+    if (_renderSemaphore > 0) {
         return;
     }
 
     // Re-enable any states disabled by gui_beginFrame
     // do not use the ATTRIB_POP macro, since the glPushAttrib() is in a different function
-    GL_DEBUG( glPopAttrib )();
+    GL_DEBUG(glPopAttrib)();
 }
 
-int UIManager::getScreenWidth() const
-{
+int UIManager::getScreenWidth() const {
     return sdl_scr.size.width();
 }
 
-int UIManager::getScreenHeight() const
-{
+int UIManager::getScreenHeight() const {
     return sdl_scr.size.height();
 }
 
@@ -138,35 +132,31 @@ void UIManager::drawImage(const std::shared_ptr<const Ego::Texture>& img, const 
     drawQuad2D(img, target, source, true, tint);
 }
 
-bool UIManager::dumpScreenshot()
-{
+bool UIManager::dumpScreenshot() {
     int i;
-    bool saved     = false;
+    bool saved = false;
     STRING szFilename, szResolvedFilename;
 
     // find a valid file name
     bool savefound = false;
     i = 0;
-    while ( !savefound && ( i < 100 ) )
-    {
-        snprintf( szFilename, SDL_arraysize( szFilename ), "ego%02d.png", i );
+    while (!savefound && (i < 100)) {
+        snprintf(szFilename, SDL_arraysize(szFilename), "ego%02d.png", i);
 
         // lame way of checking if the file already exists...
-        savefound = !vfs_exists( szFilename );
-        if ( !savefound )
-        {
+        savefound = !vfs_exists(szFilename);
+        if (!savefound) {
             i++;
         }
     }
 
-    if ( !savefound ) return false;
+    if (!savefound) return false;
 
     // convert the file path to the correct write path
-    strncpy( szResolvedFilename, szFilename, SDL_arraysize( szFilename ) );
+    strncpy(szResolvedFilename, szFilename, SDL_arraysize(szFilename));
 
     // if we are not using OpenGL, use SDL to dump the screen
-    if (HAS_NO_BITS(SDL_GetWindowFlags(sdl_scr.window->get()), SDL_WINDOW_OPENGL))
-    {
+    if (HAS_NO_BITS(SDL_GetWindowFlags(sdl_scr.window->get()), SDL_WINDOW_OPENGL)) {
         return IMG_SavePNG_RW(SDL_GetWindowSurface(sdl_scr.window->get()), vfs_openRWopsWrite(szResolvedFilename), 1);
     }
 
@@ -230,10 +220,9 @@ bool UIManager::dumpScreenshot()
     return savefound && saved;
 }
 
-float UIManager::drawBitmapFontString(const Vector2f& start, const std::string &text, const uint32_t maxWidth, const float alpha)
-{
+float UIManager::drawBitmapFontString(const Vector2f& start, const std::string &text, const uint32_t maxWidth, const float alpha) {
     //Check if alpha is visible
-    if(alpha <= 0.0f) {
+    if (alpha <= 0.0f) {
         return start.y();
     }
 
@@ -241,12 +230,11 @@ float UIManager::drawBitmapFontString(const Vector2f& start, const std::string &
     float x = start.x();
     float y = start.y();
 
-    for(size_t cnt = 0; cnt < text.length(); ++cnt)
-    {
+    for (size_t cnt = 0; cnt < text.length(); ++cnt) {
         const uint8_t cTmp = text[cnt];
 
         // Check each new word for wrapping
-        if(maxWidth > 0) {        
+        if (maxWidth > 0) {
             if ('~' == cTmp || C_LINEFEED_CHAR == cTmp || C_CARRIAGE_RETURN_CHAR == cTmp || std::isspace(cTmp)) {
                 int endx = x + font_bmp_length_of_word(text.c_str() + cnt - 1);
 
@@ -292,8 +280,7 @@ float UIManager::drawBitmapFontString(const Vector2f& start, const std::string &
     return y + fontyspacing;
 }
 
-void UIManager::drawBitmapGlyph(int fonttype, const Vector2f& position, const float alpha)
-{
+void UIManager::drawBitmapGlyph(int fonttype, const Vector2f& position, const float alpha) {
     static constexpr float DX = 2.0f / 512.0f;
     static constexpr float DY = 1.0f / 256.0f;
     static constexpr float BORDER = 1.0f / 512.0f;
@@ -390,3 +377,6 @@ void UIManager::fillRectangle(const Rectangle2f& rectangle, const bool useAlpha,
         renderer.render(*_vertexBuffer, Ego::PrimitiveType::Quadriliterals, 0, 4);
     }
 }
+
+} // namespace GUI
+} // namepsace Ego

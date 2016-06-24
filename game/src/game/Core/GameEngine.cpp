@@ -177,7 +177,7 @@ void GameEngine::estimateFrameRate()
 
 void GameEngine::updateOneFrame()
 {
-    //Handle clearing the game state stack first. Should be done before any GUIComponents
+    //Handle clearing the game state stack first. Should be done before any GUI components
     //become locked by the event or rendering loop
     if(_clearGameStateStackRequested) {
         _gameStateStack.clear();
@@ -331,7 +331,7 @@ bool GameEngine::initialize()
     font_bmp_load_vfs("mp_data/font_new_shadow", "mp_data/font.txt");
 
     // setup the system gui
-    _uiManager = std::unique_ptr<UIManager>(new UIManager());
+    _uiManager = std::make_unique<Ego::GUI::UIManager>();
 
     //Tell them we are loading the game (This is earliest point we can render text to screen)
     renderPreloadText("Initializing game...");

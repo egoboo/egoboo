@@ -23,12 +23,14 @@
 
 #pragma once
 
-#include "game/GUI/GUIComponent.hpp"
+#include "game/GUI/Component.hpp"
 
 namespace Ego { class DeferredTexture; }
 
-class MiniMap : public GUIComponent
-{
+namespace Ego {
+namespace GUI {
+
+class MiniMap : public Component {
 public:
     static const uint32_t MAPSIZE = 128;
 
@@ -42,39 +44,36 @@ public:
 
     void addBlip(const float x, const float y, const std::shared_ptr<Object> &object);
 
-    bool notifyMouseMoved(const Ego::Events::MouseMovedEventArgs& e) override;
-    bool notifyMouseClicked(const Ego::Events::MouseClickedEventArgs& e) override;
+    bool notifyMouseMoved(const Events::MouseMovedEventArgs& e) override;
+    bool notifyMouseClicked(const Events::MouseClickedEventArgs& e) override;
     bool notifyKeyDown(const int keyCode) override;
-    bool notifyMouseReleased(const Ego::Events::MouseReleasedEventArgs& e) override;
+    bool notifyMouseReleased(const Events::MouseReleasedEventArgs& e) override;
 
 private:
 
     //Private blip class
-    class Blip
-    {
+    class Blip {
     public:
         Blip(const float setX, const float setY, const HUDColors setColor) :
             x(setX),
             y(setY),
             color(setColor),
-            icon(nullptr)
-        {
+            icon(nullptr) {
             //ctor
         }
 
-        Blip(const float setX, const float setY, const std::shared_ptr<const Ego::Texture>& setIcon) :
+        Blip(const float setX, const float setY, const std::shared_ptr<const Texture>& setIcon) :
             x(setX),
             y(setY),
             color(COLOR_WHITE),
-            icon(setIcon)
-        {
+            icon(setIcon) {
             //ctor
         }
 
         float x;
         float y;
         HUDColors color;
-        std::shared_ptr<const Ego::Texture> icon;
+        std::shared_ptr<const Texture> icon;
     };
 
 private:
@@ -86,3 +85,6 @@ private:
     Vector2f _mouseDragOffset;
     std::shared_ptr<Ego::DeferredTexture> _minimapTexture;
 };
+
+} // namespace GUI
+} // namespace Ego

@@ -26,14 +26,16 @@
 
 static constexpr int BORDER_PIXELS = 5;
 
+namespace Ego {
+namespace GUI {
+
 InternalWindow::TitleBar::TitleBar(const std::string &title) :
     _titleBarTexture("mp_data/titlebar"),
     _titleSkull("mp_data/gui-skull"),
     _font(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME)),
     _title(title),
     _textWidth(0),
-    _textHeight(0)
-{
+    _textHeight(0) {
     //Make title upper case
     std::transform(_title.begin(), _title.end(), _title.begin(), ::toupper);
 
@@ -41,21 +43,20 @@ InternalWindow::TitleBar::TitleBar(const std::string &title) :
     _font->getTextSize(_title, &_textWidth, &_textHeight);
     _textWidth = std::max<int>(32, _textWidth);
     _textHeight = std::max<int>(32, _textHeight);
-    setSize(_textWidth + 20, _textHeight+5);
+    setSize(_textWidth + 20, _textHeight + 5);
 }
 
-void InternalWindow::TitleBar::draw()
-{
+void InternalWindow::TitleBar::draw() {
     //Background
-    _gameEngine->getUIManager()->drawImage(_titleBarTexture.get(), Point2f(getX()-BORDER_PIXELS*2, getY()), Vector2f(getWidth()+BORDER_PIXELS*4, getHeight()));
+    _gameEngine->getUIManager()->drawImage(_titleBarTexture.get(), Point2f(getX() - BORDER_PIXELS * 2, getY()), Vector2f(getWidth() + BORDER_PIXELS * 4, getHeight()));
 
     //Title String
-    _font->drawText(_title, getX() + getWidth()/2 - _textWidth/2, getY() + 12, Ego::Colour4f(0.28f, 0.16f, 0.07f, 1.0f));
+    _font->drawText(_title, getX() + getWidth() / 2 - _textWidth / 2, getY() + 12, Ego::Colour4f(0.28f, 0.16f, 0.07f, 1.0f));
 
     //Draw the skull icon on top
-    const int skullWidth = _titleSkull.get_ptr()->getWidth()/2;
-    const int skullHeight = _titleSkull.get_ptr()->getHeight()/2;
-    _gameEngine->getUIManager()->drawImage(_titleSkull.get(), Point2f(getX()+getWidth()/2 - skullWidth/2, getY() - skullHeight/2), Vector2f(skullWidth, skullHeight));
+    const int skullWidth = _titleSkull.get_ptr()->getWidth() / 2;
+    const int skullHeight = _titleSkull.get_ptr()->getHeight() / 2;
+    _gameEngine->getUIManager()->drawImage(_titleSkull.get(), Point2f(getX() + getWidth() / 2 - skullWidth / 2, getY() - skullHeight / 2), Vector2f(skullWidth, skullHeight));
 }
 
 InternalWindow::InternalWindow(const std::string &title) :
@@ -67,8 +68,7 @@ InternalWindow::InternalWindow(const std::string &title) :
     _isDragging(false),
     _mouseDragOffset(0.0f, 0.0f),
     _transparency(0.33f),
-    _firstDraw(true)
-{
+    _firstDraw(true) {
     //Add the close button
     //_closeButton->setOnClickFunction([this]{
     //    this->destroy();
@@ -81,10 +81,9 @@ InternalWindow::InternalWindow(const std::string &title) :
     _closeButton->setTint(Ego::Math::Colour4f(0.8f, 0.8f, 0.8f, 1.0f));
 }
 
-void InternalWindow::drawContainer()
-{
+void InternalWindow::drawContainer() {
     //Draw background first
-    _gameEngine->getUIManager()->drawImage(_background.get(), Point2f(getX()-BORDER_PIXELS, getY()-BORDER_PIXELS), Vector2f(getWidth()+BORDER_PIXELS*2, getHeight()+BORDER_PIXELS*2), Ego::Colour4f(1.0f, 1.0f, 1.0f, 0.9f));
+    _gameEngine->getUIManager()->drawImage(_background.get(), Point2f(getX() - BORDER_PIXELS, getY() - BORDER_PIXELS), Vector2f(getWidth() + BORDER_PIXELS * 2, getHeight() + BORDER_PIXELS * 2), Ego::Colour4f(1.0f, 1.0f, 1.0f, 0.9f));
 
     //Draw window title
     _titleBar->draw();
@@ -93,21 +92,18 @@ void InternalWindow::drawContainer()
     _closeButton->draw();
 }
 
-bool InternalWindow::notifyMouseMoved(const Ego::Events::MouseMovedEventArgs& e)
-{
-    if(_isDragging) {
-        setPosition( Ego::Math::constrain<int>(e.getPosition().x()+_mouseDragOffset[0], 0, _gameEngine->getUIManager()->getScreenWidth()-getWidth()), 
-                     Ego::Math::constrain<int>(e.getPosition().y()+_mouseDragOffset[1], _titleBar->getHeight()/2, _gameEngine->getUIManager()->getScreenHeight()-getHeight()) );
+bool InternalWindow::notifyMouseMoved(const Ego::Events::MouseMovedEventArgs& e) {
+    if (_isDragging) {
+        setPosition(Ego::Math::constrain<int>(e.getPosition().x() + _mouseDragOffset[0], 0, _gameEngine->getUIManager()->getScreenWidth() - getWidth()),
+                    Ego::Math::constrain<int>(e.getPosition().y() + _mouseDragOffset[1], _titleBar->getHeight() / 2, _gameEngine->getUIManager()->getScreenHeight() - getHeight()));
         return true;
-    }
-    else {
+    } else {
         _mouseOver = InternalWindow::contains(e.getPosition())
-                  || _titleBar->contains(e.getPosition());
+            || _titleBar->contains(e.getPosition());
 
-        if(_closeButton->contains(e.getPosition())) {
+        if (_closeButton->contains(e.getPosition())) {
             _closeButton->setTint(Ego::Math::Colour4f::white());
-        }
-        else {
+        } else {
             _closeButton->setTint(Ego::Math::Colour4f(0.8f, 0.8f, 0.8f, 1.0f));
         }
     }
@@ -115,11 +111,9 @@ bool InternalWindow::notifyMouseMoved(const Ego::Events::MouseMovedEventArgs& e)
     return ComponentContainer::notifyMouseMoved(e);
 }
 
-bool InternalWindow::notifyMouseClicked(const Ego::Events::MouseClickedEventArgs& e)
-{
-    if(_mouseOver && e.getButton() == SDL_BUTTON_LEFT)
-    {
-        if(!_isDragging && _closeButton->contains(e.getPosition())) {
+bool InternalWindow::notifyMouseClicked(const Ego::Events::MouseClickedEventArgs& e) {
+    if (_mouseOver && e.getButton() == SDL_BUTTON_LEFT) {
+        if (!_isDragging && _closeButton->contains(e.getPosition())) {
             AudioSystem::get().playSoundFull(AudioSystem::get().getGlobalSound(GSND_BUTTON_CLICK));
             destroy();
             return true;
@@ -129,7 +123,7 @@ bool InternalWindow::notifyMouseClicked(const Ego::Events::MouseClickedEventArgs
         bringToFront();
 
         // Only the top title bar triggers dragging
-        if(_titleBar->contains(e.getPosition())) {
+        if (_titleBar->contains(e.getPosition())) {
             _isDragging = true;
             _mouseDragOffset[0] = getX() - e.getPosition().x();
             _mouseDragOffset[1] = getY() - e.getPosition().y();
@@ -139,75 +133,71 @@ bool InternalWindow::notifyMouseClicked(const Ego::Events::MouseClickedEventArgs
         } else {
             _isDragging = false;
         }
-    } else if(e.getButton() == SDL_BUTTON_RIGHT) {
+    } else if (e.getButton() == SDL_BUTTON_RIGHT) {
         _isDragging = false;
     }
 
     return ComponentContainer::notifyMouseClicked(e);
 }
 
-bool InternalWindow::notifyMouseReleased(const Ego::Events::MouseReleasedEventArgs& e)
-{
+bool InternalWindow::notifyMouseReleased(const Ego::Events::MouseReleasedEventArgs& e) {
     _isDragging = false;
     return false;
 }
 
-void InternalWindow::draw()
-{
-    if(_firstDraw) {
+void InternalWindow::draw() {
+    if (_firstDraw) {
         _firstDraw = false;
 
         //Make sure that all components added to this window are placed relative to 
         //our position so that (0,0) is topleft corner in this InternalWindow
-        for(const std::shared_ptr<GUIComponent> &component : ComponentContainer::iterator())
-        {
-            component->setPosition(component->getX()+getX(), component->getY()+getY());
+        for (const std::shared_ptr<Component> &component : ComponentContainer::iterator()) {
+            component->setPosition(component->getX() + getX(), component->getY() + getY());
         }
     }
     drawAll();
 }
 
-void InternalWindow::setPosition(float x, float y)
-{
+void InternalWindow::setPosition(float x, float y) {
     //Calculate offsets in position change
     int translateX = x - getX();
     int translateY = y - getY();
 
     //Shift window position
-    GUIComponent::setPosition(x, y);
+    Component::setPosition(x, y);
 
     //Shift all child components as well
-    for(const std::shared_ptr<GUIComponent> &component : ComponentContainer::iterator())
-    {
+    for (const std::shared_ptr<Component> &component : ComponentContainer::iterator()) {
         component->setPosition(component->getX() + translateX, component->getY() + translateY);
     }
 
     //Finally update titlebar position
-    _titleBar->setPosition(x, y - _titleBar->getHeight()/2);
-    _closeButton->setPosition(_titleBar->getX() + _titleBar->getWidth() - _closeButton->getWidth(), _titleBar->getY() + _titleBar->getHeight()/2 - _closeButton->getHeight()/2);
+    _titleBar->setPosition(x, y - _titleBar->getHeight() / 2);
+    _closeButton->setPosition(_titleBar->getX() + _titleBar->getWidth() - _closeButton->getWidth(), _titleBar->getY() + _titleBar->getHeight() / 2 - _closeButton->getHeight() / 2);
 }
 
-void InternalWindow::setTransparency(float alpha)
-{
+void InternalWindow::setTransparency(float alpha) {
     _transparency = Ego::Math::constrain(alpha, 0.0f, 1.0f);
 }
 
-void InternalWindow::addComponent(std::shared_ptr<GUIComponent> component)
-{
+void InternalWindow::addComponent(std::shared_ptr<Component> component) {
     //Make sure that all components added to this window are placed relative to 
     //our position so that (0,0) is topleft corner in this InternalWindow
-    if(!_firstDraw) {
-        component->setPosition(component->getX()+getX(), component->getY()+getY());
+    if (!_firstDraw) {
+        component->setPosition(component->getX() + getX(), component->getY() + getY());
     }
     ComponentContainer::addComponent(component);
 }
 
-void InternalWindow::setSize(float width, float height)
-{
+void InternalWindow::setSize(float width, float height) {
     //Also update the width of the title bar if our with changes
     _titleBar->setSize(width, _titleBar->getHeight());
     _closeButton->setSize(22, 22);
-    _closeButton->setPosition(_titleBar->getX() + _titleBar->getWidth() - _closeButton->getWidth(), _titleBar->getY() + _titleBar->getHeight()/2 - _closeButton->getHeight()/2);
+    _closeButton->setPosition(_titleBar->getX() + _titleBar->getWidth() - _closeButton->getWidth(), _titleBar->getY() + _titleBar->getHeight() / 2 - _closeButton->getHeight() / 2);
 
-    GUIComponent::setSize(width, height);
+    Component::setSize(width, height);
 }
+
+} // namespace GUI
+} // namespace Ego
+

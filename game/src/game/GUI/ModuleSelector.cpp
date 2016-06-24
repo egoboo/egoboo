@@ -24,13 +24,15 @@
 #include "game/GUI/ModuleSelector.hpp"
 #include "game/GUI/Button.hpp"
 
+namespace Ego {
+namespace GUI {
+
 ModuleSelector::ModuleSelector(const std::vector<std::shared_ptr<ModuleProfile>> &modules) :
     _startIndex(0),
     _modules(modules),
     _nextModuleButton(std::make_shared<Button>("->", SDLK_RIGHT)),
     _previousModuleButton(std::make_shared<Button>("<-", SDLK_LEFT)),
-    _selectedModule(nullptr)
-{
+    _selectedModule(nullptr) {
     const int SCREEN_WIDTH = _gameEngine->getUIManager()->getScreenWidth();
     const int SCREEN_HEIGHT = _gameEngine->getUIManager()->getScreenHeight();
 
@@ -51,7 +53,7 @@ ModuleSelector::ModuleSelector(const std::vector<std::shared_ptr<ModuleProfile>>
     _nextModuleButton->setPosition(SCREEN_WIDTH - 50, moduleMenuOffsetY + 74);
     _nextModuleButton->setSize(30, 30);
     _nextModuleButton->setOnClickFunction(
-        [this]{
+        [this] {
         _startIndex++;
         _nextModuleButton->setEnabled(_modules.size() > _startIndex + 3);
         _previousModuleButton->setEnabled(true);
@@ -61,14 +63,14 @@ ModuleSelector::ModuleSelector(const std::vector<std::shared_ptr<ModuleProfile>>
     _previousModuleButton->setPosition(moduleMenuOffsetX + 20, moduleMenuOffsetY + 74);
     _previousModuleButton->setSize(30, 30);
     _previousModuleButton->setOnClickFunction(
-        [this]{
+        [this] {
         _startIndex--;
         _previousModuleButton->setEnabled(_startIndex > 0);
         _nextModuleButton->setEnabled(true);
     });
     addComponent(_previousModuleButton);
 
-    const int numberOfModuleButtons = ((_nextModuleButton->getX() - _previousModuleButton->getX() - _previousModuleButton->getWidth() - _nextModuleButton->getWidth()) / (MODULE_BUTTON_SIZE+20));
+    const int numberOfModuleButtons = ((_nextModuleButton->getX() - _previousModuleButton->getX() - _previousModuleButton->getWidth() - _nextModuleButton->getWidth()) / (MODULE_BUTTON_SIZE + 20));
 
     //Add as many modules as we can fit with current screen width
     for (int i = 0; i < numberOfModuleButtons; ++i) {
@@ -76,7 +78,7 @@ ModuleSelector::ModuleSelector(const std::vector<std::shared_ptr<ModuleProfile>>
         moduleButton->setSize(MODULE_BUTTON_SIZE, MODULE_BUTTON_SIZE);
         moduleButton->setPosition(moduleMenuOffsetX + 93, moduleMenuOffsetY + 20);
         moduleButton->setOnClickFunction(
-            [this, i]{
+            [this, i] {
             if (_startIndex + i >= _modules.size()) return;
             _selectedModule = _modules[_startIndex + i];
         });
@@ -86,78 +88,65 @@ ModuleSelector::ModuleSelector(const std::vector<std::shared_ptr<ModuleProfile>>
     }
 }
 
-void ModuleSelector::drawContainer()
-{
-    const Ego::Math::Colour4f backDrop = { 0.66f, 0.0f, 0.0f, 0.6f };
-    
+void ModuleSelector::drawContainer() {
+    const Ego::Math::Colour4f backDrop = {0.66f, 0.0f, 0.0f, 0.6f};
+
     auto &renderer = Ego::Renderer::get();
 
     //Draw backdrop
-	renderer.getTextureUnit().setActivated(nullptr);
-    
+    renderer.getTextureUnit().setActivated(nullptr);
+
     renderer.setColour(backDrop);
-	Ego::VertexBuffer vb(4, Ego::GraphicsUtilities::get<Ego::VertexFormat::P2F>());
-	{
-		struct Vertex {
-			float x, y;
-		};
-		Ego::VertexBufferScopedLock vblck(vb);
-		Vertex *vertices = vblck.get<Vertex>();
-		vertices[0].x = getX(); vertices[0].y = getY();
-		vertices[1].x = getX(); vertices[1].y = getY() + getHeight();
-		vertices[2].x = getX() + getWidth(); vertices[2].y = getY() + getHeight();
-		vertices[3].x = getX() + getWidth(); vertices[3].y = getY();
-	}
-	renderer.render(vb, Ego::PrimitiveType::Quadriliterals, 0, 4);
+    Ego::VertexBuffer vb(4, Ego::GraphicsUtilities::get<Ego::VertexFormat::P2F>());
+    {
+        struct Vertex {
+            float x, y;
+        };
+        Ego::VertexBufferScopedLock vblck(vb);
+        Vertex *vertices = vblck.get<Vertex>();
+        vertices[0].x = getX(); vertices[0].y = getY();
+        vertices[1].x = getX(); vertices[1].y = getY() + getHeight();
+        vertices[2].x = getX() + getWidth(); vertices[2].y = getY() + getHeight();
+        vertices[3].x = getX() + getWidth(); vertices[3].y = getY();
+    }
+    renderer.render(vb, Ego::PrimitiveType::Quadriliterals, 0, 4);
 
     // Module description
-    if(_selectedModule != nullptr)
-    {
+    if (_selectedModule != nullptr) {
 
         // Draw module Name first
         renderer.setColour(Ego::Colour4f::white());
         _gameEngine->getUIManager()->getDefaultFont()->drawTextBox(_selectedModule->getName(), getX() + 5, getY() + 5, getWidth() - 10, 26, 25);
-        
+
 
         // Now difficulty
-        if (_selectedModule->getRank() > 0)
-        {
+        if (_selectedModule->getRank() > 0) {
             int textWidth, textHeight;
             _gameEngine->getUIManager()->getDefaultFont()->getTextSize("Difficulty: ", &textWidth, &textHeight);
             _gameEngine->getUIManager()->getDefaultFont()->drawTextBox("Difficulty: ", getX() + 5, getY() + 30, getWidth() - 10, textHeight, 25);
 
             // Draw one skull per rated difficulty
             const std::shared_ptr<Ego::Texture> &skullTexture = Ego::TextureManager::get().getTexture("mp_data/skull");
-            for (int i = 0; i < _selectedModule->getRank(); ++i)
-            {
+            for (int i = 0; i < _selectedModule->getRank(); ++i) {
                 draw_icon_texture(skullTexture, getX() + 5 + textWidth + i*textHeight, getY() + 33, 0xFF, 0, textHeight - 4, true);
             }
         }
 
         // Module description
         std::stringstream buffer;
-        if (_selectedModule->getMaxPlayers() > 1)
-        {
-            if (_selectedModule->getMaxPlayers() == _selectedModule->getMinPlayers())
-            {
+        if (_selectedModule->getMaxPlayers() > 1) {
+            if (_selectedModule->getMaxPlayers() == _selectedModule->getMinPlayers()) {
                 buffer << _selectedModule->getMinPlayers() << " Players" << '\n';
-            }
-            else
-            {
+            } else {
                 buffer << std::to_string(_selectedModule->getMinPlayers()) << '-' << std::to_string(_selectedModule->getMaxPlayers()) << " Players" << '\n';
             }
-        }
-        else if (_selectedModule->isStarterModule())
-        {
+        } else if (_selectedModule->isStarterModule()) {
             buffer << "Starter Module" << '\n';
-        }
-        else
-        {
+        } else {
             buffer << "Single Player" << '\n';
         }
 
-        for (const std::string &line : _selectedModule->getSummary())
-        {
+        for (const std::string &line : _selectedModule->getSummary()) {
             buffer << line << '\n';;
         }
 
@@ -166,8 +155,7 @@ void ModuleSelector::drawContainer()
 }
 
 
-void ModuleSelector::notifyModuleListUpdated()
-{
+void ModuleSelector::notifyModuleListUpdated() {
     _startIndex = 0;
     _nextModuleButton->setEnabled(_modules.size() > 3);
     _previousModuleButton->setEnabled(false);
@@ -175,63 +163,53 @@ void ModuleSelector::notifyModuleListUpdated()
 
 ModuleSelector::ModuleButton::ModuleButton(ModuleSelector *selector, const uint8_t offset) : Button(),
 _moduleSelector(selector),
-_offset(offset)
-{
+_offset(offset) {
     // ctor
 }
 
-void ModuleSelector::ModuleButton::draw()
-{
+void ModuleSelector::ModuleButton::draw() {
     // Don't do "out of bounds" modules
     if (_moduleSelector->_startIndex + _offset >= _moduleSelector->_modules.size()) {
         return;
     }
-    
+
     auto &renderer = Ego::Renderer::get();
 
     // Draw backdrop
-	renderer.getTextureUnit().setActivated(nullptr);
-    
+    renderer.getTextureUnit().setActivated(nullptr);
+
     // Determine button color
-    if(!isEnabled())
-    {
-        renderer.setColour( DISABLED_BUTTON_COLOUR );
-    }
-    else if(_mouseOver)
-    {
-        renderer.setColour( HOVER_BUTTON_COLOUR );
-    }
-    else
-    {
-        renderer.setColour( DEFAULT_BUTTON_COLOUR );
+    if (!isEnabled()) {
+        renderer.setColour(DISABLED_BUTTON_COLOUR);
+    } else if (_mouseOver) {
+        renderer.setColour(HOVER_BUTTON_COLOUR);
+    } else {
+        renderer.setColour(DEFAULT_BUTTON_COLOUR);
     }
 
-	Ego::VertexBuffer vb(4, Ego::GraphicsUtilities::get<Ego::VertexFormat::P2F>());
-	{
-		struct Vertex {
-			float x, y;
-		};
-		Ego::VertexBufferScopedLock vblck(vb);
-		Vertex *vertices = vblck.get<Vertex>();
-		vertices[0].x = getX(); vertices[0].y = getY();
-		vertices[1].x = getX(); vertices[1].y = getY() + getHeight();
-		vertices[2].x = getX() + getWidth(); vertices[2].y = getY() + getHeight();
-		vertices[3].x = getX() + getWidth(); vertices[3].y = getY();
-	}
-	renderer.render(vb, Ego::PrimitiveType::Quadriliterals, 0, 4);
+    Ego::VertexBuffer vb(4, Ego::GraphicsUtilities::get<Ego::VertexFormat::P2F>());
+    {
+        struct Vertex {
+            float x, y;
+        };
+        Ego::VertexBufferScopedLock vblck(vb);
+        Vertex *vertices = vblck.get<Vertex>();
+        vertices[0].x = getX(); vertices[0].y = getY();
+        vertices[1].x = getX(); vertices[1].y = getY() + getHeight();
+        vertices[2].x = getX() + getWidth(); vertices[2].y = getY() + getHeight();
+        vertices[3].x = getX() + getWidth(); vertices[3].y = getY();
+    }
+    renderer.render(vb, Ego::PrimitiveType::Quadriliterals, 0, 4);
 
     //Draw module title image
-    _gameEngine->getUIManager()->drawImage(_moduleSelector->_modules[_moduleSelector->_startIndex + _offset]->getIcon().get(), Point2f(getX() + 5, getY() + 5), Vector2f(getWidth()-10, getHeight()-10));
+    _gameEngine->getUIManager()->drawImage(_moduleSelector->_modules[_moduleSelector->_startIndex + _offset]->getIcon().get(), Point2f(getX() + 5, getY() + 5), Vector2f(getWidth() - 10, getHeight() - 10));
 }
 
-bool ModuleSelector::notifyMouseScrolled(const int amount)
-{
-    if (amount < 0 && _startIndex == 0)
-    {
+bool ModuleSelector::notifyMouseScrolled(const int amount) {
+    if (amount < 0 && _startIndex == 0) {
         return false;
     }
-    if (amount > 0 && _startIndex >= _modules.size() - 3)
-    {
+    if (amount > 0 && _startIndex >= _modules.size() - 3) {
         return false;
     }
     _startIndex = Ego::Math::constrain<int>(_startIndex + amount, 0, _modules.size() - 3);
@@ -241,7 +219,9 @@ bool ModuleSelector::notifyMouseScrolled(const int amount)
     return true;
 }
 
-const std::shared_ptr<ModuleProfile>& ModuleSelector::getSelectedModule() const
-{
-    return _selectedModule;	
+const std::shared_ptr<ModuleProfile>& ModuleSelector::getSelectedModule() const {
+    return _selectedModule;
 }
+
+} // namespace GUI
+} // namespace Ego

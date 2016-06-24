@@ -27,16 +27,21 @@
 #include <typeindex>
 #include "game/GUI/InternalWindow.hpp"
 
-class InternalDebugWindow : public InternalWindow
-{
-    public:
-        InternalDebugWindow(const std::string &title);
+namespace Ego {
+namespace GUI {
 
-        void addWatchVariable(const std::string &variableName, std::function<std::string()> lambda);
+class InternalDebugWindow : public InternalWindow {
+public:
+    InternalDebugWindow(const std::string &title);
 
-    protected:
-        void drawContainer() override;
+    void addWatchVariable(const std::string &variableName, std::function<std::string()> lambda);
 
-    private:
-        std::unordered_map<std::string, std::function<std::string()>> _watchedVariables;
+protected:
+    void drawContainer() override;
+
+private:
+    std::unordered_map<std::string, std::function<std::string()>> _watchedVariables;
 };
+
+} // namespace GUI
+} // namespace Ego

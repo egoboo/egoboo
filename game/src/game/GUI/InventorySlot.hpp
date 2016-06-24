@@ -1,29 +1,29 @@
 #pragma once
 
-#include "GUIComponent.hpp"
+#include "game/GUI/Component.hpp"
 #include "game/Inventory.hpp"
 
-//Forward declarations
+// Forward declarations.
 namespace Ego { class Player; }
 
-namespace Ego
-{
-namespace GUI
-{
-class InventorySlot : public GUIComponent
-{
-    public:
-        InventorySlot(const Inventory &inventory, const size_t slotNumber, const std::shared_ptr<Ego::Player>& player);
+namespace Ego {
+namespace GUI {
 
-        virtual void draw() override;
+class InventorySlot : public Component {
+public:
+    InventorySlot(const Inventory &inventory, const size_t slotNumber, const std::shared_ptr<Ego::Player>& player);
 
-        bool notifyMouseMoved(const Ego::Events::MouseMovedEventArgs& e) override;
-        bool notifyMouseClicked(const Ego::Events::MouseClickedEventArgs& e) override;
+    virtual void draw() override;
 
-    private:
-        const Inventory& _inventory;
-        size_t _slotNumber;
-        std::shared_ptr<Ego::Player> _player;
+    bool notifyMouseMoved(const Ego::Events::MouseMovedEventArgs& e) override;
+    bool notifyMouseClicked(const Ego::Events::MouseClickedEventArgs& e) override;
+
+private:
+    const Inventory& _inventory;
+    size_t _slotNumber;
+    std::shared_ptr<Ego::Player> _player;
 };
-}
-}
+
+} // namespace GUI
+} // namespace Ego
+

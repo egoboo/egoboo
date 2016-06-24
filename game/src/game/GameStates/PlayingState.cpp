@@ -40,14 +40,14 @@
 
 PlayingState::PlayingState(std::shared_ptr<CameraSystem> cameraSystem) :
     _cameraSystem(cameraSystem),
-    _miniMap(std::make_shared<MiniMap>()),
+    _miniMap(std::make_shared<Ego::GUI::MiniMap>()),
     _messageLog(std::make_shared<Ego::GUI::MessageLog>()),
     _statusList()
 {
     //For debug only
     if (egoboo_config_t::get().debug_developerMode_enable.getValue())
     {
-        std::shared_ptr<InternalDebugWindow> debugWindow = std::make_shared<InternalDebugWindow>("CurrentModule");
+        auto debugWindow = std::make_shared<Ego::GUI::InternalDebugWindow>("CurrentModule");
         debugWindow->addWatchVariable("Passages", []{return std::to_string(_currentModule->getPassageCount());} );
         debugWindow->addWatchVariable("ExportValid", []{return _currentModule->isExportValid() ? "true" : "false";} );
         debugWindow->addWatchVariable("ModuleBeaten", []{return _currentModule->isBeaten() ? "true" : "false";} );
@@ -59,7 +59,7 @@ PlayingState::PlayingState(std::shared_ptr<CameraSystem> cameraSystem) :
     }
 
     //Add minimap to the list of GUI components to render
-    _miniMap->setSize(MiniMap::MAPSIZE, MiniMap::MAPSIZE);
+    _miniMap->setSize(Ego::GUI::MiniMap::MAPSIZE, Ego::GUI::MiniMap::MAPSIZE);
     _miniMap->setPosition(0, _gameEngine->getUIManager()->getScreenHeight()-_miniMap->getHeight());
     addComponent(_miniMap);
 
@@ -99,7 +99,7 @@ void PlayingState::updateStatusBarPosition()
         recalculateStatusBarPosition = Time::now<Time::Unit::Ticks>() + 200;
 
         std::unordered_map<std::shared_ptr<Camera>, float> maxY;
-        for(const std::weak_ptr<CharacterStatus> &weakStatus : _statusList)
+        for(const std::weak_ptr<Ego::GUI::CharacterStatus> &weakStatus : _statusList)
         {
             auto status = weakStatus.lock();
             if(status)
@@ -206,7 +206,7 @@ bool PlayingState::notifyKeyDown(const int keyCode)
     return ComponentContainer::notifyKeyDown(keyCode);
 }
 
-const std::shared_ptr<MiniMap>& PlayingState::getMiniMap() const
+const std::shared_ptr<Ego::GUI::MiniMap>& PlayingState::getMiniMap() const
 {
     return _miniMap;
 }
@@ -226,7 +226,7 @@ void PlayingState::addStatusMonitor(const std::shared_ptr<Object> &object)
     //Get the camera that is following this object (defaults to main camera)
     auto camera = CameraSystem::get()->getCamera(object->getObjRef());
 
-    auto status = std::make_shared<CharacterStatus>(object);
+    auto status = std::make_shared<Ego::GUI::CharacterStatus>(object);
 
     status->setSize(BARX, BARY);
     status->setPosition(camera->getScreen().xmax - status->getWidth(), camera->getScreen().ymin);
@@ -241,7 +241,7 @@ std::shared_ptr<Object> PlayingState::getStatusCharacter(size_t index)
 {
     //First remove all expired elements
     auto condition = 
-        [](const std::weak_ptr<CharacterStatus> &element)
+        [](const std::weak_ptr<Ego::GUI::CharacterStatus> &element)
         {   
             return element.expired();
         };
@@ -252,7 +252,7 @@ std::shared_ptr<Object> PlayingState::getStatusCharacter(size_t index)
         return nullptr;
     }
 
-    std::shared_ptr<CharacterStatus> status = _statusList[index].lock();
+    std::shared_ptr<Ego::GUI::CharacterStatus> status = _statusList[index].lock();
     if(!status) {
         return nullptr;
     }

@@ -30,7 +30,11 @@ class GameModule;
 class ObjectHandler;
 class ego_mesh_t;
 struct status_list_t;
+namespace Ego {
+namespace GUI {
 class UIManager;
+} // namespace GUI
+} // namespace Ego
 class PlayingState;
 
 class GameEngine
@@ -160,7 +164,7 @@ public:
     * @brief
     *	Get instance of the UIManager associated with the current GameEngine
     **/
-    inline const std::unique_ptr<UIManager>& getUIManager() const {
+    inline const std::unique_ptr<Ego::GUI::UIManager>& getUIManager() const {
         return _uiManager;
     }
 
@@ -190,7 +194,7 @@ private:
     /**
     * @brief
     *	Run one update frame of the current GameState. Also handles SDL_Events such as input
-    *	and controls the GameState flow. Input events will be propogated through any GUIComponents
+    *	and controls the GameState flow. Input events will be propogated through any GUI components
     *	contained in the current active GameState.
     **/
     void updateOneFrame();
@@ -257,7 +261,7 @@ private:
     float _estimatedUPS;
 
     //GameEngine Submodules
-    std::unique_ptr<UIManager> _uiManager;
+    std::unique_ptr<Ego::GUI::UIManager> _uiManager;
 };
 
 extern std::unique_ptr<GameEngine> _gameEngine;

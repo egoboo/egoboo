@@ -2,11 +2,16 @@
 
 #include "game/GameStates/GameState.hpp"
 
-//Forward declaration
+// Forward declarations.
 class CameraSystem;
+namespace Ego {
+namespace GUI {
 class MiniMap;
-class ModuleProfile;
 class Button;
+} // namespace GUI
+} // namespace Ego
+class ModuleProfile;
+
 
 namespace Ego
 {
@@ -45,8 +50,8 @@ private:
 
 private:
 	std::shared_ptr<CameraSystem> _cameraSystem;
-    std::shared_ptr<MiniMap> _miniMap;
-    std::vector<std::shared_ptr<Button>> _modeButtons;
+    std::shared_ptr<Ego::GUI::MiniMap> _miniMap;
+    std::vector<std::shared_ptr<Ego::GUI::Button>> _modeButtons;
     EditorMode _editMode;
 };
 

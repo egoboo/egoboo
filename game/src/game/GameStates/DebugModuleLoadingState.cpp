@@ -41,12 +41,12 @@
 #include "game/link.h"
 #include "egolib/fileutil.h"
 
-struct DebugModuleLoadingState::ModuleGUIContainer : public ComponentContainer, public GUIComponent
+struct DebugModuleLoadingState::ModuleGUIContainer : public ComponentContainer, public Ego::GUI::Component
 {
     ModuleGUIContainer(const std::shared_ptr<ModuleProfile> &profile) :
         _profile(profile),
-        _moduleName(std::make_shared<Button>(_profile->getFolderName())),
-        _loadingText(std::make_shared<Label>("Not Loaded"))
+        _moduleName(std::make_shared<Ego::GUI::Button>(_profile->getFolderName())),
+        _loadingText(std::make_shared<Ego::GUI::Label>("Not Loaded"))
     {
         _moduleName->setSize(200, 30);
         
@@ -76,7 +76,7 @@ struct DebugModuleLoadingState::ModuleGUIContainer : public ComponentContainer, 
     
     void setPosition(float x, float y) override
     {
-        GUIComponent::setPosition(x, y);
+        Component::setPosition(x, y);
         _moduleName->setPosition(x, y);
         _loadingText->setPosition(x + 215, y);
     }
@@ -92,8 +92,8 @@ struct DebugModuleLoadingState::ModuleGUIContainer : public ComponentContainer, 
     }
     
     std::shared_ptr<ModuleProfile> _profile;
-    std::shared_ptr<Button> _moduleName;
-    std::shared_ptr<Label> _loadingText;
+    std::shared_ptr<Ego::GUI::Button> _moduleName;
+    std::shared_ptr<Ego::GUI::Label> _loadingText;
 };
 
 DebugModuleLoadingState::DebugModuleLoadingState() :
@@ -110,7 +110,7 @@ DebugModuleLoadingState::DebugModuleLoadingState() :
     const int SCREEN_WIDTH = _gameEngine->getUIManager()->getScreenWidth();
     const int SCREEN_HEIGHT = _gameEngine->getUIManager()->getScreenHeight();
     
-    _scrollableList = std::make_shared<ScrollableList>();
+    _scrollableList = std::make_shared<Ego::GUI::ScrollableList>();
     _scrollableList->setPosition(8, 8);
     _scrollableList->setSize(SCREEN_WIDTH - 16, SCREEN_HEIGHT - 56);
     
@@ -128,13 +128,13 @@ DebugModuleLoadingState::DebugModuleLoadingState() :
     _scrollableList->forceUpdate();
     addComponent(_scrollableList);
     
-    std::shared_ptr<Button> back = std::make_shared<Button>("Back");
+    auto back = std::make_shared<Ego::GUI::Button>("Back");
     back->setPosition(8, SCREEN_HEIGHT - 30 - 8);
     back->setSize(150, 30);
     back->setOnClickFunction([this] { endState(); });
     addComponent(back);
     
-    std::shared_ptr<Button> loadAll = std::make_shared<Button>("Load All");
+    auto loadAll = std::make_shared<Ego::GUI::Button>("Load All");
     loadAll->setPosition(SCREEN_WIDTH - 150 - 8, SCREEN_HEIGHT - 30 - 8);
     loadAll->setSize(150, 30);
     loadAll->setOnClickFunction([this] { for (const auto &a : _moduleList) addToQueue(a); });

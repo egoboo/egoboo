@@ -25,8 +25,7 @@
 
 #include "game/GUI/ComponentContainer.hpp"
 
-class GameState : public ComponentContainer
-{
+class GameState : public Ego::GUI::ComponentContainer {
 
 public:
 

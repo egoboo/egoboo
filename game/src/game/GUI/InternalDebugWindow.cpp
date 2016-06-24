@@ -23,18 +23,19 @@
 
 #include "game/GUI/InternalDebugWindow.hpp"
 
+namespace Ego {
+namespace GUI {
+
 InternalDebugWindow::InternalDebugWindow(const std::string &title) : InternalWindow(title),
-	_watchedVariables()
-{
+_watchedVariables() {
     setSize(200, 75);
 }
 
-void InternalDebugWindow::addWatchVariable(const std::string &variableName, std::function<std::string()> lambda)
-{
-	//Add variable to watch list
-	_watchedVariables[variableName] = lambda;
+void InternalDebugWindow::addWatchVariable(const std::string &variableName, std::function<std::string()> lambda) {
+    //Add variable to watch list
+    _watchedVariables[variableName] = lambda;
 
-	//Make the window bigger
+    //Make the window bigger
     int textWidth, textHeight;
     _gameEngine->getUIManager()->getDebugFont()->getTextSize(variableName, &textWidth, &textHeight);
     textWidth = std::max(32, textWidth);
@@ -42,8 +43,7 @@ void InternalDebugWindow::addWatchVariable(const std::string &variableName, std:
     setSize(std::max(getWidth(), 5.0f + textWidth * 2.0f), getHeight() + textHeight + 5.0f);
 }
 
-void InternalDebugWindow::drawContainer()
-{
+void InternalDebugWindow::drawContainer() {
     //Draw the window itself
     InternalWindow::drawContainer();
 
@@ -53,11 +53,13 @@ void InternalDebugWindow::drawContainer()
     int yOffset = getY() + 32;
 
     //Draw all monitored variables
-    for(const auto &element : _watchedVariables)
-    {
+    for (const auto &element : _watchedVariables) {
         _gameEngine->getUIManager()->getDebugFont()->drawText(element.first + ": " + element.second(), xOffset, yOffset);
 
         _gameEngine->getUIManager()->getDebugFont()->getTextSize(element.first, &textWidth, &textHeight);
         yOffset += textHeight + 5;
     }
 }
+
+} // namespace GUI
+} // namespace Ego

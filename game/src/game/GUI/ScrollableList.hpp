@@ -18,27 +18,33 @@
 //********************************************************************************************
 
 /// @file game/GUI/ScrollableList.hpp
-/// @details GUI widget that can contain any number of GUIComponents and that can scroll through
+/// @details GUI widget that can contain any number of GUI components and that can scroll through
 ///			 each component contained within this list
 /// @author Johan Jansen
 
 #pragma once
 
 #include "game/GUI/ComponentContainer.hpp"
-#include "game/GUI/GUIComponent.hpp"
+#include "game/GUI/Component.hpp"
 
-//Forward declaration
+// Forward declaration.
+namespace Ego {
+namespace GUI {
 class Button;
+} // namespace GUI
+} // namespace Ego
 
-class ScrollableList : public GUIComponent, public ComponentContainer
-{
+namespace Ego {
+namespace GUI {
+
+class ScrollableList : public Component, public ComponentContainer {
 public:
-	static const size_t COMPONENT_LINE_SPACING;
+    static const size_t COMPONENT_LINE_SPACING;
 
-	ScrollableList();
+    ScrollableList();
 
-	void draw() override;
-    
+    void draw() override;
+
     /**
      * @brief
      *  Force this to update the scroll bars and child components.
@@ -49,14 +55,14 @@ public:
     void forceUpdate();
 
     /**
-    * Ensure that this class inherits defaults for these methods from ComponentContainer and not GUIComponent
+    * Ensure that this class inherits defaults for these methods from ComponentContainer and not GUI component
     **/
     bool notifyKeyDown(const int keyCode) override {
         return ComponentContainer::notifyKeyDown(keyCode);
     }
-	bool notifyMouseClicked(const Ego::Events::MouseClickedEventArgs& e) override;
-	bool notifyMouseScrolled(const int amount) override;
-	bool notifyMouseMoved(const Ego::Events::MouseMovedEventArgs& e) override;
+    bool notifyMouseClicked(const Events::MouseClickedEventArgs& e) override;
+    bool notifyMouseScrolled(const int amount) override;
+    bool notifyMouseMoved(const Events::MouseMovedEventArgs& e) override;
 
     void setWidth(float width) override;
     void setHeight(float height) override;
@@ -65,13 +71,16 @@ public:
     void setPosition(float x, float y) override;
 
 protected:
-	void drawContainer() override;
-	void updateScrollButtons();
-	void setScrollPosition(int position);
+    void drawContainer() override;
+    void updateScrollButtons();
+    void setScrollPosition(int position);
 
 private:
-	size_t _currentIndex;
-	bool _mouseOver;
-	std::shared_ptr<Button> _downButton;
-	std::shared_ptr<Button> _upButton;
+    size_t _currentIndex;
+    bool _mouseOver;
+    std::shared_ptr<Button> _downButton;
+    std::shared_ptr<Button> _upButton;
 };
+
+} // namespace GUI
+} // namespace Ego

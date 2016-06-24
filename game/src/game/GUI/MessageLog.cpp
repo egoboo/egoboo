@@ -23,36 +23,30 @@
 #include "game/GUI/MessageLog.hpp"
 #include "egolib/font_bmp.h"
 
-namespace Ego
-{
-namespace GUI 
-{
+namespace Ego {
+namespace GUI {
 
 MessageLog::MessageLog() :
-	_messages()
-{
-}
+    _messages() {}
 
-void MessageLog::draw()
-{
-	float yOffset = getY();
+void MessageLog::draw() {
+    float yOffset = getY();
 
-	//Render all text and remove old messages
-	_messages.remove_if([this, &yOffset](Message& message){
+    //Render all text and remove old messages
+    _messages.remove_if([this, &yOffset](Message& message) {
         const int millisRemaining = static_cast<int64_t>(message.lifeTime) - SDL_GetTicks();
-        if(millisRemaining <= 0) return true;
+        if (millisRemaining <= 0) return true;
         yOffset = _gameEngine->getUIManager()->drawBitmapFontString(Vector2f(getX(), yOffset), message.text, 0, millisRemaining > MESSAGE_FADE_TIME_MS ? 1.0f : millisRemaining / static_cast<float>(MESSAGE_FADE_TIME_MS));
-		return SDL_GetTicks() > message.lifeTime;
-	});
+        return SDL_GetTicks() > message.lifeTime;
+    });
 }
 
-void MessageLog::addMessage(const std::string &message)
-{
+void MessageLog::addMessage(const std::string &message) {
     //Insert new message at the back
-	_messages.emplace_back(message, SDL_GetTicks() + egoboo_config_t::get().hud_messageDuration.getValue() * 10);
+    _messages.emplace_back(message, SDL_GetTicks() + egoboo_config_t::get().hud_messageDuration.getValue() * 10);
 
     //Remove oldest messages if we have too many (FIFO)
-    while(_messages.size() > egoboo_config_t::get().hud_simultaneousMessages_max.getValue()) {
+    while (_messages.size() > egoboo_config_t::get().hud_simultaneousMessages_max.getValue()) {
         _messages.pop_front();
     }
 }

@@ -26,10 +26,15 @@
 
 #include "game/GameStates/GameState.hpp"
 
-// Forward declarations
+// Forward declarations.
 class ModuleProfile;
+
+namespace Ego {
+namespace GUI {
 class Label;
-namespace GUI { class ProgressBar; }
+class ProgressBar;
+} // namespace GUI
+} // namespace Ego
 
 class LoadingState : public GameState
 {
@@ -71,10 +76,10 @@ protected:
 
 private:
     std::thread _loadingThread;
-    std::shared_ptr<Label> _loadingLabel;
+    std::shared_ptr<Ego::GUI::Label> _loadingLabel;
     const std::shared_ptr<ModuleProfile> _loadModule;
     std::list<std::string> _playersToLoad;
-    std::shared_ptr<GUI::ProgressBar> _progressBar;
+    std::shared_ptr<Ego::GUI::ProgressBar> _progressBar;
 
     std::vector<std::string> _globalGameTips;        //Generic game tips for the whole game
     std::vector<std::string> _localGameTips;        //Game tips specific to this module

@@ -22,15 +22,12 @@
 
 #pragma once
 
-#include "game/GUI/GUIComponent.hpp"
+#include "game/GUI/Component.hpp"
 
-namespace Ego
-{
-namespace GUI 
-{
+namespace Ego {
+namespace GUI {
 
-class MessageLog : public GUIComponent
-{
+class MessageLog : public Component {
 public:
     MessageLog();
 
@@ -42,13 +39,11 @@ private:
     static constexpr uint32_t MESSAGE_DURATION_MS = 3000;       //How many milliseconds a message should be rendered before it is removed
     static constexpr uint32_t MESSAGE_FADE_TIME_MS = 700;       //How many milliseconds it takes to fade away completely
 
-    struct Message
-    {
+    struct Message {
     public:
         Message(const std::string& setText, uint32_t ticks) :
             text(setText),
-            lifeTime(ticks)
-        {
+            lifeTime(ticks) {
             //ctor
         }
 
@@ -59,5 +54,5 @@ private:
     std::list<Message> _messages;
 };
 
-} //GUI
-} //Ego
+} // namespace GUI
+} // namespace Ego

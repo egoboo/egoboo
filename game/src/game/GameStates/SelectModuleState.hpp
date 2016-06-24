@@ -27,13 +27,16 @@
 #include "game/GameStates/GameState.hpp"
 #include "egolib/Profiles/_Include.hpp"
 
-//Forward declarations
+// Forward declarations.
+namespace Ego {
+namespace GUI {
 class Image;
 class Button;
 class ModuleSelector;
+} // namespace GUI
+} // namespace Ego
 
-class SelectModuleState : public GameState
-{
+class SelectModuleState : public GameState {
 public:
     /**
     * @brief Constructor with no import players (starter modules)
@@ -57,10 +60,10 @@ protected:
 private:
     bool _onlyStarterModules;
     std::vector<std::shared_ptr<ModuleProfile>> _validModules;        ///< Current selectable modules (filtered, unlocked, etc.)
-    std::shared_ptr<Image> _background;
-    std::shared_ptr<Button> _filterButton;
-    std::shared_ptr<Button> _chooseModule;
-    std::shared_ptr<ModuleSelector> _moduleSelector;
+    std::shared_ptr<Ego::GUI::Image> _background;
+    std::shared_ptr<Ego::GUI::Button> _filterButton;
+    std::shared_ptr<Ego::GUI::Button> _chooseModule;
+    std::shared_ptr<Ego::GUI::ModuleSelector> _moduleSelector;
     ModuleFilter _moduleFilter;
     std::list<std::string> _selectedPlayerList;
 };

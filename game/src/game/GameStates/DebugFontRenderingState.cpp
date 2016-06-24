@@ -27,12 +27,12 @@
 #include "game/GUI/Label.hpp"
 #include "game/GUI/ScrollableList.hpp"
 
-class DebugFontRenderingState::DebugLabel : public GUIComponent
+class DebugFontRenderingState::DebugLabel : public Ego::GUI::Component
 {
 public:
     DebugLabel(const std::string &text) :
     _text(text),
-    _font(_gameEngine->getUIManager()->getFont(UIManager::FONT_DEFAULT)),
+    _font(_gameEngine->getUIManager()->getFont(Ego::GUI::UIManager::FONT_DEFAULT)),
     _textRenderer(),
     _maxColor(0, 0, .7, 1),
     _textColor(0, 1, 0, .4),
@@ -92,7 +92,6 @@ DebugFontRenderingState::DebugFontRenderingState()
 {
     const int SCREEN_WIDTH = _gameEngine->getUIManager()->getScreenWidth();
     const int SCREEN_HEIGHT = _gameEngine->getUIManager()->getScreenHeight();
-    using UIFontType = UIManager::UIFontType;
     
     int x = 125;
     int width = (SCREEN_WIDTH - 110) / 4 - 20;
@@ -109,35 +108,35 @@ DebugFontRenderingState::DebugFontRenderingState()
     _textLabel->setPosition(5, 5);
     addComponent(_textLabel);
     
-    auto button = std::make_shared<Button>("Back");
+    auto button = std::make_shared<Ego::GUI::Button>("Back");
     button->setOnClickFunction([this] { endState(); } );
     button->setWidth(100);
     button->setPosition(5, SCREEN_HEIGHT - button->getHeight() - 5);
     addComponent(button);
     
-    button = std::make_shared<Button>("Default");
-    button->setOnClickFunction([this] { setFont(UIFontType::FONT_DEFAULT); });
+    button = std::make_shared<Ego::GUI::Button>("Default");
+    button->setOnClickFunction([this] { setFont(Ego::GUI::UIManager::UIFontType::FONT_DEFAULT); });
     button->setWidth(width);
     button->setPosition(x, SCREEN_HEIGHT - button->getHeight() - 5);
     x += width + 20;
     addComponent(button);
     
-    button = std::make_shared<Button>("Floating Text");
-    button->setOnClickFunction([this] { setFont(UIFontType::FONT_FLOATING_TEXT); });
+    button = std::make_shared<Ego::GUI::Button>("Floating Text");
+    button->setOnClickFunction([this] { setFont(Ego::GUI::UIManager::UIFontType::FONT_FLOATING_TEXT); });
     button->setWidth(width);
     button->setPosition(x, SCREEN_HEIGHT - button->getHeight() - 5);
     x += width + 20;
     addComponent(button);
     
-    button = std::make_shared<Button>("Debug");
-    button->setOnClickFunction([this] { setFont(UIFontType::FONT_DEBUG); });
+    button = std::make_shared<Ego::GUI::Button>("Debug");
+    button->setOnClickFunction([this] { setFont(Ego::GUI::UIManager::UIFontType::FONT_DEBUG); });
     button->setWidth(width);
     button->setPosition(x, SCREEN_HEIGHT - button->getHeight() - 5);
     x += width + 20;
     addComponent(button);
     
-    button = std::make_shared<Button>("Game");
-    button->setOnClickFunction([this] { setFont(UIFontType::FONT_GAME); });
+    button = std::make_shared<Ego::GUI::Button>("Game");
+    button->setOnClickFunction([this] { setFont(Ego::GUI::UIManager::UIFontType::FONT_GAME); });
     button->setWidth(width);
     button->setPosition(x, SCREEN_HEIGHT - button->getHeight() - 5);
     x += width + 20;
@@ -153,78 +152,78 @@ DebugFontRenderingState::DebugFontRenderingState()
     _textLabel->setMaxWidth(_maxWidth);
     _textLabel->setMaxHeight(_maxHeight);
     
-    auto label = std::make_shared<Label>("Width");
+    auto label = std::make_shared<Ego::GUI::Label>("Width");
     label->setPosition(x, y);
     addComponent(label);
     x += label->getWidth() + 15;
     
-    button = std::make_shared<Button>("<<");
+    button = std::make_shared<Ego::GUI::Button>("<<");
     button->setPosition(x, y);
     button->setWidth(35);
     button->setOnClickFunction([this] { setMaxWidth(0); });
     addComponent(button);
     x += 40;
     
-    button = std::make_shared<Button>("<");
+    button = std::make_shared<Ego::GUI::Button>("<");
     button->setPosition(x, y);
     button->setWidth(35);
     button->setOnClickFunction([this] { setMaxWidth(_maxWidth - 1); });
     addComponent(button);
     x += 40;
     
-    _widthButton = std::make_shared<Button>(std::to_string(_maxWidth));
+    _widthButton = std::make_shared<Ego::GUI::Button>(std::to_string(_maxWidth));
     _widthButton->setPosition(x, y);
     _widthButton->setWidth(75);
     addComponent(_widthButton);
     x += 80;
     
-    button = std::make_shared<Button>(">");
+    button = std::make_shared<Ego::GUI::Button>(">");
     button->setPosition(x, y);
     button->setWidth(35);
     button->setOnClickFunction([this] { setMaxWidth(_maxWidth + 1); });
     addComponent(button);
     x += 40;
     
-    button = std::make_shared<Button>(">>");
+    button = std::make_shared<Ego::GUI::Button>(">>");
     button->setPosition(x, y);
     button->setWidth(35);
     button->setOnClickFunction([this] { setMaxWidth(std::numeric_limits<int>::max()); });
     addComponent(button);
     x += 55;
     
-    label = std::make_shared<Label>("Height");
+    label = std::make_shared<Ego::GUI::Label>("Height");
     label->setPosition(x, y);
     addComponent(label);
     x += label->getWidth() + 15;
     
-    button = std::make_shared<Button>("<<");
+    button = std::make_shared<Ego::GUI::Button>("<<");
     button->setPosition(x, y);
     button->setWidth(35);
     button->setOnClickFunction([this] { setMaxHeight(0); });
     addComponent(button);
     x += 40;
     
-    button = std::make_shared<Button>("<");
+    button = std::make_shared<Ego::GUI::Button>("<");
     button->setPosition(x, y);
     button->setWidth(35);
     button->setOnClickFunction([this] { setMaxHeight(_maxHeight - 1); });
     addComponent(button);
     x += 40;
     
-    _heightButton = std::make_shared<Button>(std::to_string(_maxHeight));
+    _heightButton = std::make_shared<Ego::GUI::Button>(std::to_string(_maxHeight));
     _heightButton->setPosition(x, y);
     _heightButton->setWidth(75);
     addComponent(_heightButton);
     x += 80;
     
-    button = std::make_shared<Button>(">");
+    button = std::make_shared<Ego::GUI::Button>(">");
     button->setPosition(x, y);
     button->setWidth(35);
     button->setOnClickFunction([this] { setMaxHeight(_maxHeight + 1); });
     addComponent(button);
     x += 40;
     
-    button = std::make_shared<Button>(">>");
+    button = std::make_shared<Ego::GUI::Button>(">>");
     button->setPosition(x, y);
     button->setWidth(35);
     button->setOnClickFunction([this] { setMaxHeight(std::numeric_limits<int>::max()); });
@@ -232,7 +231,7 @@ DebugFontRenderingState::DebugFontRenderingState()
     x += 55;
 }
 
-void DebugFontRenderingState::setFont(UIManager::UIFontType font) {
+void DebugFontRenderingState::setFont(Ego::GUI::UIManager::UIFontType font) {
     _textLabel->setFont(_gameEngine->getUIManager()->getFont(font));
 }
 

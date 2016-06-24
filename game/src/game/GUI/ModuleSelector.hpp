@@ -25,35 +25,38 @@
 #include "game/GUI/Button.hpp"
 #include "game/GUI/ComponentContainer.hpp"
 
-//Forward declarations
+// Forward declarations.
 class ModuleProfile;
-class Button;
 
-class ModuleSelector : public ComponentContainer, public GUIComponent
-{
+namespace Ego {
+namespace GUI {
+class Button;
+}
+}
+
+namespace Ego {
+namespace GUI {
+
+class ModuleSelector : public ComponentContainer, public Component {
 public:
     ModuleSelector(const std::vector<std::shared_ptr<ModuleProfile>> &modules);
 
-    void draw() override
-    {
+    void draw() override {
         drawAll();
     }
 
     void notifyModuleListUpdated();
 
     /**
-     * Ensure that this class inherits defaults for these methods from ComponentContainer and not GUIComponent
+     * Ensure that this class inherits defaults for these methods from ComponentContainer and not Component.
      */
-    bool notifyMouseMoved(const Ego::Events::MouseMovedEventArgs& e) override
-    {
+    bool notifyMouseMoved(const Events::MouseMovedEventArgs& e) override {
         return ComponentContainer::notifyMouseMoved(e);
     }
-    bool notifyKeyDown(const int keyCode) override 
-    {
+    bool notifyKeyDown(const int keyCode) override {
         return ComponentContainer::notifyKeyDown(keyCode);
     }
-    bool notifyMouseClicked(const Ego::Events::MouseClickedEventArgs& e) override
-    {
+    bool notifyMouseClicked(const Events::MouseClickedEventArgs& e) override {
         return ComponentContainer::notifyMouseClicked(e);
     }
     bool notifyMouseScrolled(const int amount) override;
@@ -64,8 +67,7 @@ protected:
     void drawContainer() override;
 
     //Local class
-    class ModuleButton : public Button
-    {
+    class ModuleButton : public Button {
     public:
         ModuleButton(ModuleSelector* selector, const uint8_t offset);
 
@@ -83,3 +85,6 @@ private:
     std::shared_ptr<Button> _previousModuleButton;
     std::shared_ptr<ModuleProfile> _selectedModule;
 };
+
+} // namespace GUI
+} // namespace Ego

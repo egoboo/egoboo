@@ -25,8 +25,12 @@
 
 #include "game/GameStates/GameState.hpp"
 
-//Forward declarations
+// Forward declarations.
+namespace Ego {
+namespace GUI {
 class ScrollableList;
+} // namespace GUI
+} // namespace Ego
 
 class VideoOptionsScreen : public GameState
 {
@@ -64,5 +68,5 @@ private:
 	int addOptionsButton(int xPos, int yPos, const std::string &label, std::function<std::string()> labelFunction, std::function<void()> onClickFunction, bool enabled = true);
 
 private:
-	std::shared_ptr<ScrollableList> _resolutionList;
+	std::shared_ptr<Ego::GUI::ScrollableList> _resolutionList;
 };

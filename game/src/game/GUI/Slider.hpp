@@ -21,17 +21,14 @@
 /// @details GUI widget of a moveable slider ranging between minimum and maximum value
 /// @author Johan Jansen
 
-#include "game/GUI/GUIComponent.hpp"
+#include "game/GUI/Component.hpp"
 
 #pragma once
 
-namespace Ego
-{
-namespace GUI
-{
+namespace Ego {
+namespace GUI {
 
-class Slider : public GUIComponent
-{
+class Slider : public Component {
 public:
     Slider(int minValue, int maxValue);
 
@@ -54,9 +51,9 @@ private:
     std::function<void(int)> _onChangeFunction;
     int _minValue;
     int _maxValue;
-    float _sliderPosition;  //from 0.0f to 1.0f
+    float _sliderPosition;  // from 0.0f to 1.0f
     bool _isDragging;
 };
 
-} //GUI
-} //Ego
+} // namespace GUI
+} // namespace Ego

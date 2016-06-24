@@ -37,14 +37,14 @@ SelectCharacterState::SelectCharacterState(std::shared_ptr<LoadPlayerElement> &s
     const int SCREEN_HEIGHT = _gameEngine->getUIManager()->getScreenHeight();
 
 	//Load background
-	std::shared_ptr<Image> background = std::make_shared<Image>("mp_data/menu/menu_selectplayers");
+	auto background = std::make_shared<Ego::GUI::Image>("mp_data/menu/menu_selectplayers");
     background->setSize(std::min(SCREEN_WIDTH, background->getTextureWidth()), std::min(SCREEN_HEIGHT, background->getTextureHeight()));
 	background->setPosition(SCREEN_WIDTH-background->getWidth(), SCREEN_HEIGHT-background->getHeight());
 	addComponent(background);
 
 	//Add the buttons
 	int yOffset = SCREEN_HEIGHT-80;
-	std::shared_ptr<Button> backButton = std::make_shared<Button>("No character", SDLK_ESCAPE);
+	auto backButton = std::make_shared<Ego::GUI::Button>("No character", SDLK_ESCAPE);
 	backButton->setPosition(20, yOffset);
 	backButton->setSize(200, 30);
 	backButton->setOnClickFunction(
@@ -62,7 +62,7 @@ SelectCharacterState::SelectCharacterState(std::shared_ptr<LoadPlayerElement> &s
 
 	yOffset -= backButton->getHeight() + 10;
 
-	std::shared_ptr<Button> selectButton = std::make_shared<Button>("Select Character", SDLK_RETURN);
+	auto selectButton = std::make_shared<Ego::GUI::Button>("Select Character", SDLK_RETURN);
 	selectButton->setPosition(20, yOffset);
 	selectButton->setSize(200, 30);
 	selectButton->setOnClickFunction(
@@ -74,23 +74,23 @@ SelectCharacterState::SelectCharacterState(std::shared_ptr<LoadPlayerElement> &s
 	addComponent(selectButton);
 
 	//Tell them what this screen is all about
-	std::shared_ptr<Label> infoText = std::make_shared<Label>("Select your character\nUse the mouse wheel to scroll.");
+	auto infoText = std::make_shared<Ego::GUI::Label>("Select your character\nUse the mouse wheel to scroll.");
 	infoText->setPosition(150, SCREEN_HEIGHT - 50);
 	addComponent(infoText);
 
 	//Players Label
-	std::shared_ptr<Label> playersLabel = std::make_shared<Label>("CHARACTERS");
+	auto playersLabel = std::make_shared<Ego::GUI::Label>("CHARACTERS");
 	playersLabel->setPosition(20, 20);
 	addComponent(playersLabel);
 
-	std::shared_ptr<ScrollableList> scrollableList = std::make_shared<ScrollableList>();
+	auto scrollableList = std::make_shared<Ego::GUI::ScrollableList>();
 	scrollableList->setSize(300, _gameEngine->getUIManager()->getScreenHeight() - playersLabel->getY() - 150);
 	scrollableList->setPosition(playersLabel->getX() + 20, playersLabel->getY() + playersLabel->getHeight() + 20);
 
 	//Make a button for each loadable character
     for (const std::shared_ptr<LoadPlayerElement> &character : ProfileSystem::get().getSavedPlayers())
 	{
-		std::shared_ptr<Button> characterButton = std::make_shared<IconButton>(character->getName(), character->getIcon());
+		auto characterButton = std::make_shared<Ego::GUI::IconButton>(character->getName(), character->getIcon());
 		characterButton->setSize(200, 40);
 
 		//Check if this already has been selected by another player

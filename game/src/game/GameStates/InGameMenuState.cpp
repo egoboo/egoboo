@@ -42,7 +42,7 @@ InGameMenuState::InGameMenuState(GameState &gameState) :
 {
     // Add the buttons
     int yOffset = Ego::GraphicsSystem::gfx_height-80;
-    std::shared_ptr<Button> exitButton = std::make_shared<Button>(_currentModule->isExportValid() ? "Save and Exit" : "Abort and Exit", SDLK_q);
+    auto exitButton = std::make_shared<Ego::GUI::Button>(_currentModule->isExportValid() ? "Save and Exit" : "Abort and Exit", SDLK_q);
     exitButton->setPosition(20, yOffset);
     exitButton->setSize(200, 30);
     exitButton->setOnClickFunction(
@@ -54,7 +54,7 @@ InGameMenuState::InGameMenuState(GameState &gameState) :
 
     yOffset -= exitButton->getHeight() + 10;
 
-    std::shared_ptr<Button> optionsButton = std::make_shared<Button>("Options", SDLK_o);
+    auto optionsButton = std::make_shared<Ego::GUI::Button>("Options", SDLK_o);
     optionsButton->setPosition(20, yOffset);
     optionsButton->setSize(200, 30);
     optionsButton->setOnClickFunction(
@@ -66,7 +66,7 @@ InGameMenuState::InGameMenuState(GameState &gameState) :
 
     yOffset -= optionsButton->getHeight() + 10;
 
-    std::shared_ptr<Button> restartModuleButton = std::make_shared<Button>("Restart Module", SDLK_r);
+    auto restartModuleButton = std::make_shared<Ego::GUI::Button>("Restart Module", SDLK_r);
     restartModuleButton->setPosition(20, yOffset);
     restartModuleButton->setSize(200, 30);
     restartModuleButton->setOnClickFunction(
@@ -79,7 +79,7 @@ InGameMenuState::InGameMenuState(GameState &gameState) :
 
     yOffset -= restartModuleButton->getHeight() + 10;
 
-    std::shared_ptr<Button> newGameButton = std::make_shared<Button>("Return to Module", SDLK_ESCAPE);
+    auto newGameButton = std::make_shared<Ego::GUI::Button>("Return to Module", SDLK_ESCAPE);
     newGameButton->setPosition(20, yOffset);
     newGameButton->setSize(200, 30);
     newGameButton->setOnClickFunction(
@@ -92,7 +92,7 @@ InGameMenuState::InGameMenuState(GameState &gameState) :
     yOffset -= newGameButton->getHeight() + 10;
 
 #ifdef _DEBUG
-    std::shared_ptr<Button> debugButton = std::make_shared<Button>("Debug Particles", SDLK_p);
+    auto debugButton = std::make_shared<Ego::GUI::Button>("Debug Particles", SDLK_p);
     debugButton->setPosition(20, yOffset);
     debugButton->setSize(200, 30);
     debugButton->setOnClickFunction(
@@ -124,7 +124,7 @@ void InGameMenuState::beginState()
 
     //Sliding buttons effect
     float offset = 0;
-    for(const std::shared_ptr<Button> &button : _slidyButtons)
+    for(const auto& button : _slidyButtons)
     {
         button->beginSlidyButtonEffect(button->getWidth() + offset);
         offset += 20;

@@ -25,9 +25,13 @@
 
 #include "game/GameStates/GameState.hpp"
 
-//Forward declaration
+// Forward declaration.
 class LoadPlayerElement;
+namespace Ego {
+namespace GUI {
 class Button;
+} // namespace GUI
+} // namespace Ego
 
 class SelectPlayersState : public GameState
 {
@@ -43,6 +47,6 @@ protected:
 
 private:
     std::vector<std::shared_ptr<LoadPlayerElement>> _selectedPlayers;
-    std::vector<std::shared_ptr<Button>>             _playerButtons;
-    std::shared_ptr<Button>                         _continueButton;
+    std::vector<std::shared_ptr<Ego::GUI::Button>>  _playerButtons;
+    std::shared_ptr<Ego::GUI::Button>               _continueButton;
 };

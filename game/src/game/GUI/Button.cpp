@@ -1,8 +1,11 @@
 #include "game/GUI/Button.hpp"
 
-const Ego::Math::Colour4f Button::DEFAULT_BUTTON_COLOUR  = {0.66f, 0.00f, 0.00f, 0.60f};
-const Ego::Math::Colour4f Button::HOVER_BUTTON_COLOUR    = {0.54f, 0.00f, 0.00f, 1.00f};
-const Ego::Math::Colour4f Button::DISABLED_BUTTON_COLOUR = {0.25f, 0.25f, 0.25f, 0.60f};
+namespace Ego {
+namespace GUI {
+
+const Colour4f Button::DEFAULT_BUTTON_COLOUR = {0.66f, 0.00f, 0.00f, 0.60f};
+const Colour4f Button::HOVER_BUTTON_COLOUR = {0.54f, 0.00f, 0.00f, 1.00f};
+const Colour4f Button::DISABLED_BUTTON_COLOUR = {0.25f, 0.25f, 0.25f, 0.60f};
 
 Button::Button(int hotkey) :
     _mouseOver(false),
@@ -13,17 +16,17 @@ Button::Button(int hotkey) :
     _onClickFunction(nullptr),
     _hotkey(hotkey),
     _slidyButtonTargetX(0.0f),
-    _slidyButtonCurrentX(0.0f)
-{
-}
+    _slidyButtonCurrentX(0.0f) {}
 
-Button::Button(const std::string &buttonText, int hotkey) : Button(hotkey)
-{
+Button::Button(const std::string &buttonText, int hotkey) : Button(hotkey) {
     setText(buttonText);
 }
 
-void Button::setText(const std::string &text)
-{
+const std::string& Button::getText() const {
+    return _buttonText;
+}
+
+void Button::setText(const std::string &text) {
     _buttonText = text;
     if (_buttonText.empty()) {
         _buttonTextRenderer = nullptr;
@@ -33,48 +36,39 @@ void Button::setText(const std::string &text)
     }
 }
 
-void Button::updateSlidyButtonEffect()
-{
-    if(getX() < _slidyButtonTargetX) {
+void Button::updateSlidyButtonEffect() {
+    if (getX() < _slidyButtonTargetX) {
         const float SLIDY_LERP = 2.0f*getWidth() / GameEngine::GAME_TARGET_FPS;
         _slidyButtonCurrentX += SLIDY_LERP;
         setX(_slidyButtonCurrentX);
-    }
-    else if(_slidyButtonTargetX > 0.0f) {
+    } else if (_slidyButtonTargetX > 0.0f) {
         setX(_slidyButtonTargetX);
         _slidyButtonTargetX = 0.0f;
     }
 }
 
-void Button::draw()
-{
+void Button::draw() {
     //Update slidy button effect
     updateSlidyButtonEffect();
-    
+
     auto &renderer = Ego::Renderer::get();
 
     // Draw the button
-	renderer.getTextureUnit().setActivated(nullptr);
+    renderer.getTextureUnit().setActivated(nullptr);
 
     // convert the virtual coordinates to screen coordinates
     //ui_virtual_to_screen( vx, vy, &x1, &y1 );
     //ui_virtual_to_screen( vx + vwidth, vy + vheight, &x2, &y2 );
 
     //Determine button color
-    if(!isEnabled())
-    {
+    if (!isEnabled()) {
         renderer.setColour(DISABLED_BUTTON_COLOUR);
-    }
-    else if(_mouseOver)
-    {
+    } else if (_mouseOver) {
         renderer.setColour(HOVER_BUTTON_COLOUR);
-    }
-    else
-    {
+    } else {
         renderer.setColour(DEFAULT_BUTTON_COLOUR);
     }
-    struct Vertex
-    {
+    struct Vertex {
         float x, y;
     };
     auto vb = _gameEngine->getUIManager()->_vertexBuffer;
@@ -87,33 +81,28 @@ void Button::draw()
     renderer.render(*vb, Ego::PrimitiveType::Quadriliterals, 0, 4);
 
     //Draw centered text in button
-    if(_buttonTextRenderer)
-    {
+    if (_buttonTextRenderer) {
         _buttonTextRenderer->render(getX() + (getWidth() - _buttonTextWidth) / 2, getY() + (getHeight() - _buttonTextHeight) / 2);
     }
 }
 
-bool Button::notifyMouseMoved(const Ego::Events::MouseMovedEventArgs& e)
-{
+bool Button::notifyMouseMoved(const Ego::Events::MouseMovedEventArgs& e) {
     _mouseOver = contains(e.getPosition());
 
     return false;
 }
 
-bool Button::notifyMouseClicked(const Ego::Events::MouseClickedEventArgs& e)
-{
-    if(_mouseOver && e.getButton() == SDL_BUTTON_LEFT)
-    {
+bool Button::notifyMouseClicked(const Ego::Events::MouseClickedEventArgs& e) {
+    if (_mouseOver && e.getButton() == SDL_BUTTON_LEFT) {
         doClick();
         return true;
-    }   
+    }
 
     return false;
 }
 
-void Button::doClick()
-{
-    if(!isEnabled()) return;
+void Button::doClick() {
+    if (!isEnabled()) return;
 
     AudioSystem::get().playSoundFull(AudioSystem::get().getGlobalSound(GSND_BUTTON_CLICK));
 
@@ -121,19 +110,16 @@ void Button::doClick()
     _onClickFunction();
 }
 
-void Button::setOnClickFunction(const std::function<void()> onClick)
-{
+void Button::setOnClickFunction(const std::function<void()> onClick) {
     _onClickFunction = onClick;
 }
 
-bool Button::notifyKeyDown(const int keyCode)
-{
+bool Button::notifyKeyDown(const int keyCode) {
     //No hotkey assigned to this button
-    if(_hotkey == SDLK_UNKNOWN) return false;
+    if (_hotkey == SDLK_UNKNOWN) return false;
 
     //Hotkey pressed?
-    if(keyCode == _hotkey)
-    {
+    if (keyCode == _hotkey) {
         doClick();
         return true;
     }
@@ -141,10 +127,9 @@ bool Button::notifyKeyDown(const int keyCode)
     return false;
 }
 
-void Button::beginSlidyButtonEffect(float offset)
-{
+void Button::beginSlidyButtonEffect(float offset) {
     //Finish any old SlidyButton first effect that might be in place
-    if(_slidyButtonTargetX > 0.0f) {
+    if (_slidyButtonTargetX > 0.0f) {
         setX(_slidyButtonTargetX);
     }
 
@@ -153,17 +138,17 @@ void Button::beginSlidyButtonEffect(float offset)
     _slidyButtonCurrentX = getX();
 }
 
-bool Button::isEnabled() const
-{
-    if(!_onClickFunction) return false;
-    return GUIComponent::isEnabled();
+bool Button::isEnabled() const {
+    if (!_onClickFunction) return false;
+    return Component::isEnabled();
 }
 
-void Button::setEnabled(const bool enabled)
-{
-    if(!enabled) {
+void Button::setEnabled(const bool enabled) {
+    if (!enabled) {
         _mouseOver = false;
     }
-
-    GUIComponent::setEnabled(enabled);
+    Component::setEnabled(enabled);
 }
+
+} // namespace GUI
+} // namespace Ego

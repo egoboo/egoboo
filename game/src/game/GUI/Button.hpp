@@ -1,47 +1,60 @@
 #pragma once
 
 #include "game/Core/GameEngine.hpp"
-#include "game/GUI/GUIComponent.hpp"
+#include "game/GUI/Component.hpp"
 
-class Button : public GUIComponent
-{
-    public:
-        Button(int hotkey = SDLK_UNKNOWN);
-        Button(const std::string &buttonText, int hotkey = SDLK_UNKNOWN);
+namespace Ego {
+namespace GUI {
 
-        virtual void draw() override;
-        void setOnClickFunction(const std::function<void()> onClick);
-        void setText(const std::string &buttonText);
+class Button : public Component {
+public:
+    Button(int hotkey = SDLK_UNKNOWN);
+    Button(const std::string &buttonText, int hotkey = SDLK_UNKNOWN);
 
-        bool notifyMouseMoved(const Ego::Events::MouseMovedEventArgs& e) override;
-        bool notifyMouseClicked(const Ego::Events::MouseClickedEventArgs& e) override;
-        bool notifyKeyDown(const int keyCode) override;
+    virtual void draw() override;
+    void setOnClickFunction(const std::function<void()> onClick);
 
-        void doClick();
+public:
+    /// @brief Get the button text.
+    /// @return the button text
+    const std::string& getText() const;
+    /// @brief Set the button text.
+    /// @param text the button text
+    void setText(const std::string& text);
 
-        void beginSlidyButtonEffect(float offset);
+public:
+    bool notifyMouseMoved(const Events::MouseMovedEventArgs& e) override;
+    bool notifyMouseClicked(const Events::MouseClickedEventArgs& e) override;
+    bool notifyKeyDown(const int keyCode) override;
 
-        bool isEnabled() const override;
+    void doClick();
 
-        void setEnabled(const bool enabled) override;
+    void beginSlidyButtonEffect(float offset);
 
-    protected:
-        void updateSlidyButtonEffect();
+    bool isEnabled() const override;
 
-    protected:
-        bool _mouseOver;
-        std::shared_ptr<Ego::Font::LaidTextRenderer> _buttonTextRenderer;
-        int _buttonTextWidth;
-        int _buttonTextHeight;
+    void setEnabled(const bool enabled) override;
 
-        static const Ego::Math::Colour4f DEFAULT_BUTTON_COLOUR;
-        static const Ego::Math::Colour4f HOVER_BUTTON_COLOUR;
-        static const Ego::Math::Colour4f DISABLED_BUTTON_COLOUR;
+protected:
+    void updateSlidyButtonEffect();
 
-    private:
-        std::string _buttonText;
-        std::function<void()> _onClickFunction;
-        int _hotkey;
-        float _slidyButtonTargetX;
-        float _slidyButtonCurrentX;
+protected:
+    bool _mouseOver;
+    std::shared_ptr<Font::LaidTextRenderer> _buttonTextRenderer;
+    int _buttonTextWidth;
+    int _buttonTextHeight;
+
+    static const Colour4f DEFAULT_BUTTON_COLOUR;
+    static const Colour4f HOVER_BUTTON_COLOUR;
+    static const Colour4f DISABLED_BUTTON_COLOUR;
+
+private:
+    std::string _buttonText;
+    std::function<void()> _onClickFunction;
+    int _hotkey;
+    float _slidyButtonTargetX;
+    float _slidyButtonCurrentX;
 };
+
+} // namespace GUI
+} // namespace Ego

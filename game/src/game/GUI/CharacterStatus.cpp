@@ -26,6 +26,9 @@
 #include "game/GUI/ProgressBar.hpp"
 #include "game/game.h" //for update_wld
 
+namespace Ego {
+namespace GUI {
+
 CharacterStatus::CharacterStatus(const std::shared_ptr<Object> &object) :
     _object(object),
     _chargeBar(std::make_shared<GUI::ProgressBar>())
@@ -322,11 +325,10 @@ float CharacterStatus::draw_character_xp_bar(const ObjectRef character, float x,
 }
 
 
-void CharacterStatus::draw()
-{
+void CharacterStatus::draw() {
     //If object we are monitoring no longer exist, then destroy this GUI component
     const std::shared_ptr<Object> pchr = _object.lock();
-    if(!pchr) {
+    if (!pchr) {
         destroy();
         return;
     }
@@ -342,7 +344,7 @@ void CharacterStatus::draw()
     yOffset = _gameEngine->getUIManager()->drawBitmapFontString(Vector2f(getX() + 8, yOffset), os.str()) + 8;
 
     bool levelUp = false;
-    if(pchr->isPlayer()) {
+    if (pchr->isPlayer()) {
         levelUp = _currentModule->getPlayer(pchr->is_which_player)->hasUnspentLevel();
     }
 
@@ -362,20 +364,16 @@ void CharacterStatus::draw()
     yOffset = draw_character_xp_bar(pchr->getObjRef(), getX() + 16, yOffset);
 
     // Draw the life bar
-    if (pchr->isAlive())
-    {
+    if (pchr->isAlive()) {
         yOffset = draw_one_bar(pchr->getAttribute(Ego::Attribute::LIFE_BARCOLOR), getX(), yOffset, pchr->getLife(), pchr->getAttribute(Ego::Attribute::MAX_LIFE));
-    }
-    else
-    {
+    } else {
         // Draw a black bar
         yOffset = draw_one_bar(0, getX(), yOffset, 0, pchr->getAttribute(Ego::Attribute::MAX_LIFE));
     }
 
     // Draw the mana bar
     int mana_pips_max = pchr->getAttribute(Ego::Attribute::MAX_MANA);
-    if (mana_pips_max > 0)
-    {
+    if (mana_pips_max > 0) {
         yOffset = draw_one_bar(pchr->getAttribute(Ego::Attribute::MANA_BARCOLOR), getX(), yOffset, pchr->getMana(), mana_pips_max);
     }
 
@@ -383,19 +381,21 @@ void CharacterStatus::draw()
     setHeight(yOffset - getY());
 
     //Finally draw charge bar if applicable
-    if(pchr->isPlayer()) {
+    if (pchr->isPlayer()) {
         const std::shared_ptr<Ego::Player> &player = _currentModule->getPlayer(pchr->is_which_player);
-        if(player->getChargeBarFrame() >= update_wld) {
+        if (player->getChargeBarFrame() >= update_wld) {
             _chargeBar->setVisible(true);
             _chargeBar->setMaxValue(player->getBarMaxCharge());
             _chargeBar->setValue(player->getBarCurrentCharge());
             _chargeBar->setTickWidth(player->getBarPipWidth());
             _chargeBar->setSize(getWidth(), 16);
-            _chargeBar->setPosition(getX() - _chargeBar->getWidth() - 5, getY() + getHeight() / 2 - _chargeBar->getHeight()/2);
+            _chargeBar->setPosition(getX() - _chargeBar->getWidth() - 5, getY() + getHeight() / 2 - _chargeBar->getHeight() / 2);
             _chargeBar->draw();
-        }
-        else {
+        } else {
             _chargeBar->setVisible(false);
         }
     }
 }
+
+} // namespace GUI
+} // namespace Ego

@@ -33,8 +33,8 @@ DebugParticlesScreen::DebugParticlesScreen()
     const int SCREEN_WIDTH = _gameEngine->getUIManager()->getScreenWidth();
     const int SCREEN_HEIGHT = _gameEngine->getUIManager()->getScreenHeight();
 
-    //Add the buttons
-    std::shared_ptr<Button> backButton = std::make_shared<Button>("Back", SDLK_ESCAPE);
+    // Add the buttons.
+    auto backButton = std::make_shared<Ego::GUI::Button>("Back", SDLK_ESCAPE);
     backButton->setPosition(20, SCREEN_HEIGHT-80);
     backButton->setSize(200, 30);
     backButton->setOnClickFunction(
@@ -43,15 +43,15 @@ DebugParticlesScreen::DebugParticlesScreen()
     });
     addComponent(backButton);
 
-    std::shared_ptr<Label> title = std::make_shared<Label>("==PARTICLE DEBUG SCREEN==");
+    auto title = std::make_shared<Ego::GUI::Label>("==PARTICLE DEBUG SCREEN==");
     title->setPosition(10, 10);
     addComponent(title);
 
-    std::shared_ptr<Label> usage = std::make_shared<Label>("Particle used: " + std::to_string(ParticleHandler::get().getCount()) + "/" + std::to_string(ParticleHandler::get().getDisplayLimit()));
+    auto usage = std::make_shared<Ego::GUI::Label>("Particle used: " + std::to_string(ParticleHandler::get().getCount()) + "/" + std::to_string(ParticleHandler::get().getDisplayLimit()));
     usage->setPosition(10, title->getY() + title->getHeight());
     addComponent(usage);
 
-    std::shared_ptr<Label> invalid = std::make_shared<Label>("Invalid active particles: ");
+    auto invalid = std::make_shared<Ego::GUI::Label>("Invalid active particles: ");
     invalid->setPosition(10, usage->getY() + usage->getHeight());
     invalid->setColor(Ego::Math::Colour4f::red());
     addComponent(invalid);
@@ -76,7 +76,7 @@ DebugParticlesScreen::DebugParticlesScreen()
         }
     }
 
-    std::shared_ptr<ScrollableList> scrollableList = std::make_shared<ScrollableList>();
+    auto scrollableList = std::make_shared<Ego::GUI::ScrollableList>();
     scrollableList->setPosition(invalid->getX(), invalid->getY() + invalid->getHeight() + 20);
     scrollableList->setSize(SCREEN_WIDTH-50, SCREEN_HEIGHT*0.75f-scrollableList->getY());
     addComponent(scrollableList);
@@ -89,8 +89,8 @@ DebugParticlesScreen::DebugParticlesScreen()
         labelString << element.second << " particle" << ((element.second > 0) ? "s: " : ":");
         labelString << particleProfile->getName();
 
-        std::shared_ptr<Label> label = std::make_shared<Label>(labelString.str());
-        label->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_DEBUG));
+        auto label = std::make_shared<Ego::GUI::Label>(labelString.str());
+        label->setFont(_gameEngine->getUIManager()->getFont(Ego::GUI::UIManager::FONT_DEBUG));
         scrollableList->addComponent(label);
     }
 
@@ -102,8 +102,8 @@ DebugParticlesScreen::DebugParticlesScreen()
         labelString << element.second << " terminated particle" << ((element.second > 0) ? "s: " : ":");
         labelString << particleProfile->getName();
 
-        std::shared_ptr<Label> label = std::make_shared<Label>(labelString.str());
-        label->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_DEBUG));
+        auto label = std::make_shared<Ego::GUI::Label>(labelString.str());
+        label->setFont(_gameEngine->getUIManager()->getFont(Ego::GUI::UIManager::FONT_DEBUG));
         label->setColor(Ego::Math::Colour4f::red());
         scrollableList->addComponent(label);
     }

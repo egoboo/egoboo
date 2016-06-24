@@ -463,7 +463,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClCompile Include="src\game\gamestates\VictoryScreen.cpp" />
     <ClCompile Include="src\game\gui\Button.cpp" />
     <ClCompile Include="src\game\gui\ComponentContainer.cpp" />
-    <ClCompile Include="src\game\gui\GUIComponent.cpp" />
+    <ClCompile Include="src\game\gui\Component.cpp" />
     <ClCompile Include="src\game\gui\IconButton.cpp" />
     <ClCompile Include="src\game\gui\Image.cpp" />
     <ClCompile Include="src\game\gui\InputListener.cpp" />
@@ -553,7 +553,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClInclude Include="src\game\gamestates\VictoryScreen.hpp" />
     <ClInclude Include="src\game\gui\Button.hpp" />
     <ClInclude Include="src\game\gui\ComponentContainer.hpp" />
-    <ClInclude Include="src\game\gui\GUIComponent.hpp" />
+    <ClInclude Include="src\game\gui\Component.hpp" />
     <ClInclude Include="src\game\gui\IconButton.hpp" />
     <ClInclude Include="src\game\gui\Image.hpp" />
     <ClInclude Include="src\game\gui\InputListener.hpp" />

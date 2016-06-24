@@ -26,10 +26,15 @@
 
 #include "game/GameStates/GameState.hpp"
 
-//Forward declarations
+// Forward declarations.
 class ModuleProfile;
+
+namespace Ego {
+namespace GUI {
 class Label;
 class ScrollableList;
+} // namespace GUI
+} // namespace Ego
 
 class DebugObjectLoadingState : public GameState
 {
@@ -54,7 +59,7 @@ protected:
 private:
     std::atomic_bool _finishedLoading;
     std::thread _loadingThread;
-    std::shared_ptr<ScrollableList> _scrollableList;
+    std::shared_ptr<Ego::GUI::ScrollableList> _scrollableList;
     
     struct ObjectGUIContainer;
     struct ModuleLoader;

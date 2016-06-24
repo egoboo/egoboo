@@ -1,10 +1,12 @@
 #pragma once
 
 #include "game/Core/GameEngine.hpp"
-#include "game/GUI/GUIComponent.hpp"
+#include "game/GUI/Component.hpp"
 
-class Label : public GUIComponent
-{
+namespace Ego {
+namespace GUI {
+
+class Label : public Component {
 public:
     /**
     * @brief
@@ -13,7 +15,7 @@ public:
     Label(const std::string &text = "", const UIManager::UIFontType font = UIManager::FONT_DEFAULT);
 
     virtual void draw() override;
-       
+
     void setText(const std::string &labelText);
 
     void setFont(const std::shared_ptr<Ego::Font> &font);
@@ -41,10 +43,13 @@ public:
     *   get the current colour of this Label
     **/
     const Ego::Math::Colour4f& getColour() const;
-    
+
 private:
     std::string _text;
     std::shared_ptr<Ego::Font> _font;
     std::shared_ptr<Ego::Font::LaidTextRenderer> _textRenderer;
     Ego::Math::Colour4f _color;
 };
+
+} // namespace GUI
+} // namespace Ego
