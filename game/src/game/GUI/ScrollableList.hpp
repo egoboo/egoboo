@@ -57,10 +57,10 @@ public:
     /**
     * Ensure that this class inherits defaults for these methods from ComponentContainer and not GUI component
     **/
-    bool notifyKeyDown(const int keyCode) override {
-        return ComponentContainer::notifyKeyDown(keyCode);
+    bool notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEventArgs& e) override {
+        return ComponentContainer::notifyKeyboardKeyPressed(e);
     }
-    bool notifyMouseClicked(const Events::MouseClickedEventArgs& e) override;
+    bool notifyMouseButtonClicked(const Events::MouseButtonClickedEventArgs& e) override;
     bool notifyMouseScrolled(const int amount) override;
     bool notifyMouseMoved(const Events::MouseMovedEventArgs& e) override;
 

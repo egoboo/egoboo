@@ -57,9 +57,9 @@ protected:
 public:
     InternalWindow(const std::string &title);
 
-    bool notifyMouseMoved(const Ego::Events::MouseMovedEventArgs& e) override;
-    bool notifyMouseClicked(const Ego::Events::MouseClickedEventArgs& e) override;
-    bool notifyMouseReleased(const Ego::Events::MouseReleasedEventArgs& e) override;
+    bool notifyMouseMoved(const Events::MouseMovedEventArgs& e) override;
+    bool notifyMouseButtonClicked(const Events::MouseButtonClickedEventArgs& e) override;
+    bool notifyMouseButtonReleased(const Events::MouseButtonReleasedEventArgs& e) override;
 
     void draw() override;
 

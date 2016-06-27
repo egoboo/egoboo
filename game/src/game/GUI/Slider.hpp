@@ -41,13 +41,13 @@ public:
 
     bool isEnabled() const override;
 
-    bool notifyMouseMoved(const Ego::Events::MouseMovedEventArgs& e) override;
-    bool notifyMouseClicked(const Ego::Events::MouseClickedEventArgs& e) override;
-    bool notifyMouseReleased(const Ego::Events::MouseReleasedEventArgs& e) override;
+    bool notifyMouseMoved(const Events::MouseMovedEventArgs& e) override;
+    bool notifyMouseButtonClicked(const Events::MouseButtonClickedEventArgs& e) override;
+    bool notifyMouseButtonReleased(const Events::MouseButtonReleasedEventArgs& e) override;
 
 private:
-    Ego::DeferredTexture _sliderBarTexture;
-    Ego::DeferredTexture _sliderTexture;
+    DeferredTexture _sliderBarTexture;
+    DeferredTexture _sliderTexture;
     std::function<void(int)> _onChangeFunction;
     int _minValue;
     int _maxValue;

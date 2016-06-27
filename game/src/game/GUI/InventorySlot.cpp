@@ -8,7 +8,7 @@
 namespace Ego {
 namespace GUI {
 
-InventorySlot::InventorySlot(const Inventory &inventory, const size_t slotNumber, const std::shared_ptr<Ego::Player>& player) :
+InventorySlot::InventorySlot(const Inventory &inventory, const size_t slotNumber, const std::shared_ptr<Player>& player) :
     _inventory(inventory),
     _slotNumber(slotNumber),
     _player(player) {
@@ -19,7 +19,7 @@ void InventorySlot::draw() {
     std::shared_ptr<Object> item = _inventory.getItem(_slotNumber);
 
     // grab the icon reference
-    std::shared_ptr<const Ego::Texture> icon_ref;
+    std::shared_ptr<const Texture> icon_ref;
 
 
     if (item) {
@@ -47,7 +47,7 @@ void InventorySlot::draw() {
     }
 }
 
-bool InventorySlot::notifyMouseMoved(const Ego::Events::MouseMovedEventArgs& e) {
+bool InventorySlot::notifyMouseMoved(const Events::MouseMovedEventArgs& e) {
     bool mouseOver = contains(e.getPosition());
 
     if (mouseOver) {
@@ -61,7 +61,7 @@ bool InventorySlot::notifyMouseMoved(const Ego::Events::MouseMovedEventArgs& e) 
 }
 
 
-bool InventorySlot::notifyMouseClicked(const Ego::Events::MouseClickedEventArgs& e) {
+bool InventorySlot::notifyMouseButtonClicked(const Events::MouseButtonClickedEventArgs& e) {
     if (!_player || !contains(e.getPosition())) {
         return false;
     }

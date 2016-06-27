@@ -118,16 +118,16 @@ void MapEditorState::beginState()
     sdl_scr.window->setGrabEnabled(egoboo_config_t::get().debug_grabMouse.getValue());
 }
 
-bool MapEditorState::notifyKeyDown(const int keyCode)
+bool MapEditorState::notifyKeyboardKeyPressed(const Ego::Events::KeyboardKeyPressedEventArgs& e)
 {
-    switch(keyCode)
+    switch(e.getKey())
     {
         case SDLK_ESCAPE:
             _gameEngine->pushGameState(std::make_shared<InGameMenuState>(*this));
         return true;
     }
 
-    return ComponentContainer::notifyKeyDown(keyCode);
+    return ComponentContainer::notifyKeyboardKeyPressed(e);
 }
 
 void MapEditorState::loadModuleData(std::shared_ptr<ModuleProfile> module)

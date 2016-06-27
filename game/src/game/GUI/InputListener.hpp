@@ -17,15 +17,27 @@ public:
      * @return @a true if the event was processed, @a false otherwise
      */
     virtual bool notifyMouseMoved(const Events::MouseMovedEventArgs& e);
-    virtual bool notifyKeyDown(const int keyCode);
     /**
-     * @brief Invoked if a mouse clicked event occurred.
+     * @brief Invoked if a keyboard key pressed event occurred.
      * @param e the event arguments
      * @return @a true if the event was processed, @a false otherwise
      */
-    virtual bool notifyMouseClicked(const Events::MouseClickedEventArgs& e);
+    virtual bool notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEventArgs& e);
+    /**
+     * @brief Invoked if a mouse button clicked event occurred.
+     * @param e the event arguments
+     * @return @a true if the event was processed, @a false otherwise
+     */
+    virtual bool notifyMouseButtonClicked(const Events::MouseButtonClickedEventArgs& e);
+    /**
+     * @brief Invoked if a mouse button released event occurred.
+     * @param e the event arguments
+     * @return @a true if the event was processed, @a false otherwise
+     */
+    virtual bool notifyMouseButtonReleased(const Events::MouseButtonReleasedEventArgs& e);
+
     virtual bool notifyMouseScrolled(const int amount);
-    virtual bool notifyMouseReleased(const Events::MouseReleasedEventArgs& e);
+    
 };
 
 } // namespace GUI

@@ -53,7 +53,7 @@ DebugParticlesScreen::DebugParticlesScreen()
 
     auto invalid = std::make_shared<Ego::GUI::Label>("Invalid active particles: ");
     invalid->setPosition(10, usage->getY() + usage->getHeight());
-    invalid->setColor(Ego::Math::Colour4f::red());
+    invalid->setColour(Ego::Math::Colour4f::red());
     addComponent(invalid);
 
     //Count who is using all the particles
@@ -104,7 +104,7 @@ DebugParticlesScreen::DebugParticlesScreen()
 
         auto label = std::make_shared<Ego::GUI::Label>(labelString.str());
         label->setFont(_gameEngine->getUIManager()->getFont(Ego::GUI::UIManager::FONT_DEBUG));
-        label->setColor(Ego::Math::Colour4f::red());
+        label->setColour(Ego::Math::Colour4f::red());
         scrollableList->addComponent(label);
     }
 

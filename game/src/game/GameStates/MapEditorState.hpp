@@ -27,7 +27,7 @@ public:
 
     void beginState() override;
 
-    bool notifyKeyDown(const int keyCode) override;
+    bool notifyKeyboardKeyPressed(const Ego::Events::KeyboardKeyPressedEventArgs& e) override;
 
 
 protected:

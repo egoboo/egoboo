@@ -36,7 +36,7 @@ ModuleSelector::ModuleSelector(const std::vector<std::shared_ptr<ModuleProfile>>
     const int SCREEN_WIDTH = _gameEngine->getUIManager()->getScreenWidth();
     const int SCREEN_HEIGHT = _gameEngine->getUIManager()->getScreenHeight();
 
-    const int MODULE_BUTTON_SIZE = Ego::Math::constrain((SCREEN_WIDTH) / 6, 138, 256);
+    const int MODULE_BUTTON_SIZE = Math::constrain((SCREEN_WIDTH) / 6, 138, 256);
 
     // Figure out at what offset we want to draw the module menu.
     int moduleMenuOffsetX = (800 - 640) / 2;
@@ -89,33 +89,33 @@ ModuleSelector::ModuleSelector(const std::vector<std::shared_ptr<ModuleProfile>>
 }
 
 void ModuleSelector::drawContainer() {
-    const Ego::Math::Colour4f backDrop = {0.66f, 0.0f, 0.0f, 0.6f};
+    const Math::Colour4f backDrop = {0.66f, 0.0f, 0.0f, 0.6f};
 
-    auto &renderer = Ego::Renderer::get();
+    auto &renderer = Renderer::get();
 
     //Draw backdrop
     renderer.getTextureUnit().setActivated(nullptr);
 
     renderer.setColour(backDrop);
-    Ego::VertexBuffer vb(4, Ego::GraphicsUtilities::get<Ego::VertexFormat::P2F>());
+    VertexBuffer vb(4, GraphicsUtilities::get<VertexFormat::P2F>());
     {
         struct Vertex {
             float x, y;
         };
-        Ego::VertexBufferScopedLock vblck(vb);
+        VertexBufferScopedLock vblck(vb);
         Vertex *vertices = vblck.get<Vertex>();
         vertices[0].x = getX(); vertices[0].y = getY();
         vertices[1].x = getX(); vertices[1].y = getY() + getHeight();
         vertices[2].x = getX() + getWidth(); vertices[2].y = getY() + getHeight();
         vertices[3].x = getX() + getWidth(); vertices[3].y = getY();
     }
-    renderer.render(vb, Ego::PrimitiveType::Quadriliterals, 0, 4);
+    renderer.render(vb, PrimitiveType::Quadriliterals, 0, 4);
 
     // Module description
     if (_selectedModule != nullptr) {
 
         // Draw module Name first
-        renderer.setColour(Ego::Colour4f::white());
+        renderer.setColour(Colour4f::white());
         _gameEngine->getUIManager()->getDefaultFont()->drawTextBox(_selectedModule->getName(), getX() + 5, getY() + 5, getWidth() - 10, 26, 25);
 
 
@@ -126,7 +126,7 @@ void ModuleSelector::drawContainer() {
             _gameEngine->getUIManager()->getDefaultFont()->drawTextBox("Difficulty: ", getX() + 5, getY() + 30, getWidth() - 10, textHeight, 25);
 
             // Draw one skull per rated difficulty
-            const std::shared_ptr<Ego::Texture> &skullTexture = Ego::TextureManager::get().getTexture("mp_data/skull");
+            const std::shared_ptr<Texture> &skullTexture = TextureManager::get().getTexture("mp_data/skull");
             for (int i = 0; i < _selectedModule->getRank(); ++i) {
                 draw_icon_texture(skullTexture, getX() + 5 + textWidth + i*textHeight, getY() + 33, 0xFF, 0, textHeight - 4, true);
             }
@@ -173,7 +173,7 @@ void ModuleSelector::ModuleButton::draw() {
         return;
     }
 
-    auto &renderer = Ego::Renderer::get();
+    auto &renderer = Renderer::get();
 
     // Draw backdrop
     renderer.getTextureUnit().setActivated(nullptr);
@@ -187,19 +187,19 @@ void ModuleSelector::ModuleButton::draw() {
         renderer.setColour(DEFAULT_BUTTON_COLOUR);
     }
 
-    Ego::VertexBuffer vb(4, Ego::GraphicsUtilities::get<Ego::VertexFormat::P2F>());
+    VertexBuffer vb(4, GraphicsUtilities::get<VertexFormat::P2F>());
     {
         struct Vertex {
             float x, y;
         };
-        Ego::VertexBufferScopedLock vblck(vb);
+        VertexBufferScopedLock vblck(vb);
         Vertex *vertices = vblck.get<Vertex>();
         vertices[0].x = getX(); vertices[0].y = getY();
         vertices[1].x = getX(); vertices[1].y = getY() + getHeight();
         vertices[2].x = getX() + getWidth(); vertices[2].y = getY() + getHeight();
         vertices[3].x = getX() + getWidth(); vertices[3].y = getY();
     }
-    renderer.render(vb, Ego::PrimitiveType::Quadriliterals, 0, 4);
+    renderer.render(vb, PrimitiveType::Quadriliterals, 0, 4);
 
     //Draw module title image
     _gameEngine->getUIManager()->drawImage(_moduleSelector->_modules[_moduleSelector->_startIndex + _offset]->getIcon().get(), Point2f(getX() + 5, getY() + 5), Vector2f(getWidth() - 10, getHeight() - 10));
@@ -212,7 +212,7 @@ bool ModuleSelector::notifyMouseScrolled(const int amount) {
     if (amount > 0 && _startIndex >= _modules.size() - 3) {
         return false;
     }
-    _startIndex = Ego::Math::constrain<int>(_startIndex + amount, 0, _modules.size() - 3);
+    _startIndex = Math::constrain<int>(_startIndex + amount, 0, _modules.size() - 3);
     AudioSystem::get().playSoundFull(AudioSystem::get().getGlobalSound(GSND_BUTTON_CLICK));
     _nextModuleButton->setEnabled(_startIndex < _modules.size() - 3);
     _previousModuleButton->setEnabled(_startIndex > 0);

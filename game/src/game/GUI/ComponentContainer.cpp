@@ -65,35 +65,35 @@ bool ComponentContainer::notifyMouseMoved(const Ego::Events::MouseMovedEventArgs
     return false;
 }
 
-bool ComponentContainer::notifyKeyDown(const int keyCode) {
+bool ComponentContainer::notifyKeyboardKeyPressed(const Ego::Events::KeyboardKeyPressedEventArgs& e) {
     //Iterate over GUI components in reverse order so GUI components added last (i.e on top) consume events first
     ComponentIterator it = iterator();
     for (auto i = it.rbegin(); i != it.rend(); ++i) {
         std::shared_ptr<Component> component = *i;
         if (!component->isEnabled()) continue;
-        if (component->notifyKeyDown(keyCode)) return true;
+        if (component->notifyKeyboardKeyPressed(e)) return true;
     }
     return false;
 }
 
-bool ComponentContainer::notifyMouseClicked(const Ego::Events::MouseClickedEventArgs& e) {
+bool ComponentContainer::notifyMouseButtonClicked(const Events::MouseButtonClickedEventArgs& e) {
     //Iterate over GUI components in reverse order so GUI components added last (i.e on top) consume events first
     ComponentIterator it = iterator();
     for (auto i = it.rbegin(); i != it.rend(); ++i) {
         std::shared_ptr<Component> component = *i;
         if (!component->isEnabled()) continue;
-        if (component->notifyMouseClicked(e)) return true;
+        if (component->notifyMouseButtonClicked(e)) return true;
     }
     return false;
 }
 
-bool ComponentContainer::notifyMouseReleased(const Ego::Events::MouseReleasedEventArgs& e) {
+bool ComponentContainer::notifyMouseButtonReleased(const Events::MouseButtonReleasedEventArgs& e) {
     //Iterate over GUI components in reverse order so GUI components added last (i.e on top) consume events first
     ComponentIterator it = iterator();
     for (auto i = it.rbegin(); i != it.rend(); ++i) {
         std::shared_ptr<Component> component = *i;
         if (!component->isEnabled()) continue;
-        if (component->notifyMouseReleased(e)) return true;
+        if (component->notifyMouseButtonReleased(e)) return true;
     }
     return false;
 }

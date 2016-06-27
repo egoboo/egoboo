@@ -3,50 +3,65 @@
 namespace Ego {
 namespace GUI {
 
+Label::Label() : Label(std::string()) {
+}
+
 Label::Label(const std::string &text, const UIManager::UIFontType font) :
     _text(text),
     _font(_gameEngine->getUIManager()->getFont(font)),
     _textRenderer(),
-    _color(Ego::Math::Colour4f::white()) {
+    _colour(Math::Colour4f::white()) {
     if (!text.empty()) {
         setText(text);
     }
 }
 
 void Label::draw() {
-    //Draw text
+    // Draw text.
     if (_textRenderer)
-        _textRenderer->render(getX(), getY(), _color);
+        _textRenderer->render(getX(), getY(), _colour);
 }
 
-void Label::setText(const std::string &text) {
+const std::string& Label::getText() const {
+    return _text;
+}
+
+void Label::setText(const std::string& text) {
     _text = text;
 
-    //Recalculate our size
+    // Recalculate our size.
     int textWidth, textHeight;
     _textRenderer = _font->layoutTextBox(_text, 0, 0, _font->getLineSpacing(), &textWidth, &textHeight);
     setSize(textWidth, textHeight);
 }
 
-void Label::setFont(const std::shared_ptr<Ego::Font> &font) {
+const std::shared_ptr<Font>& Label::getFont() const {
+    return _font;
+}
+
+void Label::setFont(const std::shared_ptr<Font>& font) {
     _font = font;
 
-    //Recalculate our size
+    // Recalculate our size.
     int textWidth, textHeight;
     _textRenderer = _font->layoutTextBox(_text, 0, 0, _font->getLineSpacing(), &textWidth, &textHeight);
     setSize(textWidth, textHeight);
 }
 
-void Label::setColor(const Ego::Math::Colour4f& color) {
-    _color = color;
+const Math::Colour4f& Label::getColour() const {
+    return _colour;
 }
 
-void Label::setAlpha(const float a) {
-    _color.setAlpha(a);
+void Label::setColour(const Math::Colour4f& colour) {
+    _colour = colour;
 }
 
-const Ego::Math::Colour4f& Label::getColour() const {
-    return _color;
+void Label::setAlpha(float a) {
+    _colour.setAlpha(a);
+}
+
+float Label::getAlpha() const {
+    return _colour.getAlpha();
 }
 
 } // namespace GUI

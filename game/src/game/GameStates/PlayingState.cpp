@@ -150,9 +150,9 @@ void PlayingState::beginState()
 //    }
 }
 
-bool PlayingState::notifyKeyDown(const int keyCode)
+bool PlayingState::notifyKeyboardKeyPressed(const Ego::Events::KeyboardKeyPressedEventArgs& e)
 {
-    switch(keyCode)
+    switch(e.getKey())
     {
         case SDLK_ESCAPE:
 
@@ -197,13 +197,13 @@ bool PlayingState::notifyKeyDown(const int keyCode)
         case SDLK_8:
         {
             //Ensure that the same character cannot open more than 1 character window
-            const size_t statusNumber = keyCode - SDLK_1;
+            const size_t statusNumber = e.getKey() - SDLK_1;
             displayCharacterWindow(statusNumber);
         }
         return true;
     }
 
-    return ComponentContainer::notifyKeyDown(keyCode);
+    return ComponentContainer::notifyKeyboardKeyPressed(e);
 }
 
 const std::shared_ptr<Ego::GUI::MiniMap>& PlayingState::getMiniMap() const

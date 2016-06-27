@@ -11,8 +11,8 @@ static const int PERK_THUMBNAIL_SIZE = 64;
 
 class PerkButton : public Component {
 public:
-    PerkButton(const Ego::Perks::PerkID id) :
-        _perk(Ego::Perks::PerkHandler::get().getPerk(id)),
+    PerkButton(const Perks::PerkID id) :
+        _perk(Perks::PerkHandler::get().getPerk(id)),
         _mouseOver(false),
         _hoverFadeEffect(0.0f) {
         //ctor
@@ -29,7 +29,7 @@ public:
         }
 
         // Draw backdrop
-        auto &renderer = Ego::Renderer::get();
+        auto &renderer = Renderer::get();
         renderer.getTextureUnit().setActivated(nullptr);
 
         if (_mouseOver && _hoverFadeEffect < 2.0f) {
@@ -51,13 +51,13 @@ public:
         v->x = shakeEffectX + getWidth(); v->y = shakeEffectY + getHeight(); v++;
         v->x = shakeEffectX + getWidth(); v->y = shakeEffectY;
         vb->unlock();
-        renderer.render(*vb, Ego::PrimitiveType::Quadriliterals, 0, 4);
+        renderer.render(*vb, PrimitiveType::Quadriliterals, 0, 4);
 
         //Icon
-        _gameEngine->getUIManager()->drawImage(_perk.getIcon().get_ptr(), Point2f(shakeEffectX, shakeEffectY), Vector2f(getWidth(), getHeight()), Ego::Math::Colour4f(0, 0, 0, 0.75f));
+        _gameEngine->getUIManager()->drawImage(_perk.getIcon().get_ptr(), Point2f(shakeEffectX, shakeEffectY), Vector2f(getWidth(), getHeight()), Math::Colour4f(0, 0, 0, 0.75f));
     }
 
-    bool notifyMouseMoved(const Ego::Events::MouseMovedEventArgs& e) override {
+    bool notifyMouseMoved(const Events::MouseMovedEventArgs& e) override {
         //Change perk description if mouse moves
         if (_mouseOver) {
             if (!contains(e.getPosition())) {
@@ -65,7 +65,7 @@ public:
 
                 LevelUpWindow *parentWindow = dynamic_cast<LevelUpWindow*>(getParent());
                 if (parentWindow->getCurrentPerk() == _perk.getID()) {
-                    parentWindow->setHoverPerk(Ego::Perks::NR_OF_PERKS);
+                    parentWindow->setHoverPerk(Perks::NR_OF_PERKS);
                 }
 
                 return true;
@@ -85,7 +85,7 @@ public:
         return false;
     }
 
-    bool notifyMouseClicked(const Ego::Events::MouseClickedEventArgs& e) override {
+    bool notifyMouseButtonClicked(const Events::MouseButtonClickedEventArgs& e) override {
         if (_mouseOver && e.getButton() == SDL_BUTTON_LEFT) {
             static_cast<LevelUpWindow*>(getParent())->doLevelUp(this);
             AudioSystem::get().playSoundFull(AudioSystem::get().getGlobalSound(GSND_PERK_SELECT));
@@ -94,15 +94,15 @@ public:
         return false;
     }
 
-    const Ego::Perks::Perk& getPerk() const {
+    const Perks::Perk& getPerk() const {
         return _perk;
     }
 
 private:
-    const Ego::Perks::Perk& _perk;
+    const Perks::Perk& _perk;
     const std::shared_ptr<Label> _descriptionLabel;
     const std::shared_ptr<Label> _perkIncreaseLabel;
-    Ego::DeferredTexture _texture;
+    DeferredTexture _texture;
     bool _mouseOver;
     float _hoverFadeEffect;
 };
@@ -110,7 +110,7 @@ private:
 LevelUpWindow::LevelUpWindow(const std::shared_ptr<Object> &object) : InternalWindow("Level Up!"),
 _character(object),
 
-_currentPerk(Ego::Perks::NR_OF_PERKS),
+_currentPerk(Perks::NR_OF_PERKS),
 _descriptionLabel(std::make_shared<Label>()),
 _perkIncreaseLabel(std::make_shared<Label>()),
 
@@ -177,10 +177,10 @@ _attributeRevealTime(0) {
     addComponent(selectPerkLabel);
 
     //Figure out what perks this player can learn
-    std::vector<Ego::Perks::PerkID> perkPool = _character->getValidPerks();
+    std::vector<Perks::PerkID> perkPool = _character->getValidPerks();
     for (size_t i = perkPool.size(); i < 5; ++i) {
         //Ensure at least 5 perks are selectable, add TOUGHNESS as default perk
-        perkPool.push_back(Ego::Perks::TOUGHNESS);
+        perkPool.push_back(Perks::TOUGHNESS);
     }
 
     _descriptionLabel->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
@@ -191,13 +191,13 @@ _attributeRevealTime(0) {
     addComponent(_perkIncreaseLabel);
 
     //No perk by default
-    setHoverPerk(Ego::Perks::NR_OF_PERKS);
+    setHoverPerk(Perks::NR_OF_PERKS);
 
     //Set random seed for deterministic level ups (no aborting or re-loading game for better results)
     Random::setSeed(_character->getLevelUpSeed());
 
     //Perk buttons (Jack of All Trades gives +2 perks)
-    const size_t NR_OF_PERKS = _character->hasPerk(Ego::Perks::JACK_OF_ALL_TRADES) ? 5 : 3;
+    const size_t NR_OF_PERKS = _character->hasPerk(Perks::JACK_OF_ALL_TRADES) ? 5 : 3;
     const int PERK_BUTTON_SIZE = (getWidth() - 40 - 10 * NR_OF_PERKS) / NR_OF_PERKS;
     for (size_t i = 0; i < NR_OF_PERKS; ++i) {
         //Select a random perk
@@ -224,9 +224,9 @@ void LevelUpWindow::doLevelUp(PerkButton *selectedPerk) {
     Random::setSeed(_character->getLevelUpSeed());
 
     //Calculate attribute improvements
-    std::array<float, Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES> increase;
-    for (uint8_t i = 0; i < Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES; ++i) {
-        const Ego::Attribute::AttributeType type = static_cast<Ego::Attribute::AttributeType>(i);
+    std::array<float, Attribute::NR_OF_PRIMARY_ATTRIBUTES> increase;
+    for (uint8_t i = 0; i < Attribute::NR_OF_PRIMARY_ATTRIBUTES; ++i) {
+        const Attribute::AttributeType type = static_cast<Attribute::AttributeType>(i);
         increase[i] = Random::next(_character->getProfile()->getAttributeGain(type));
     }
 
@@ -238,81 +238,81 @@ void LevelUpWindow::doLevelUp(PerkButton *selectedPerk) {
 
     //Some perks give flat attribute bonuses
     switch (selectedPerk->getPerk().getID()) {
-        case Ego::Perks::TOUGHNESS:
-            increase[Ego::Attribute::MAX_LIFE] += 2.0f;
+        case Perks::TOUGHNESS:
+            increase[Attribute::MAX_LIFE] += 2.0f;
             break;
 
-        case Ego::Perks::SOLDIERS_FORTITUDE:
-            increase[Ego::Attribute::LIFE_REGEN] += 0.15f;
+        case Perks::SOLDIERS_FORTITUDE:
+            increase[Attribute::LIFE_REGEN] += 0.15f;
             break;
 
-        case Ego::Perks::TROLL_BLOOD:
-            increase[Ego::Attribute::LIFE_REGEN] += 0.25f;
+        case Perks::TROLL_BLOOD:
+            increase[Attribute::LIFE_REGEN] += 0.25f;
             break;
 
-        case Ego::Perks::GIGANTISM:
-            increase[Ego::Attribute::MIGHT] += 2.00f;
-            increase[Ego::Attribute::AGILITY] -= 2.00f;
+        case Perks::GIGANTISM:
+            increase[Attribute::MIGHT] += 2.00f;
+            increase[Attribute::AGILITY] -= 2.00f;
             break;
 
-        case Ego::Perks::BRUTE:
-            increase[Ego::Attribute::MIGHT] += 1.00f;
-            increase[Ego::Attribute::INTELLECT] -= 2.00f;
+        case Perks::BRUTE:
+            increase[Attribute::MIGHT] += 1.00f;
+            increase[Attribute::INTELLECT] -= 2.00f;
             break;
 
-        case Ego::Perks::DRAGON_BLOOD:
-            increase[Ego::Attribute::MANA_REGEN] += 0.25f;
+        case Perks::DRAGON_BLOOD:
+            increase[Attribute::MANA_REGEN] += 0.25f;
             break;
 
-        case Ego::Perks::ACROBATIC:
-            _character->increaseBaseAttribute(Ego::Attribute::NUMBER_OF_JUMPS, 1.0f);
+        case Perks::ACROBATIC:
+            _character->increaseBaseAttribute(Attribute::NUMBER_OF_JUMPS, 1.0f);
             break;
 
-        case Ego::Perks::MASTER_ACROBAT:
-            _character->increaseBaseAttribute(Ego::Attribute::NUMBER_OF_JUMPS, 1.0f);
+        case Perks::MASTER_ACROBAT:
+            _character->increaseBaseAttribute(Attribute::NUMBER_OF_JUMPS, 1.0f);
             break;
 
-        case Ego::Perks::POWER:
-            increase[Ego::Attribute::MAX_MANA] += 2.00f;
+        case Perks::POWER:
+            increase[Attribute::MAX_MANA] += 2.00f;
             break;
 
-        case Ego::Perks::PERFECTION:
-            increase[Ego::Attribute::INTELLECT] += 1.00f;
-            increase[Ego::Attribute::AGILITY] += 1.00f;
+        case Perks::PERFECTION:
+            increase[Attribute::INTELLECT] += 1.00f;
+            increase[Attribute::AGILITY] += 1.00f;
             break;
 
-        case Ego::Perks::ANCIENT_BLUD:
-            increase[Ego::Attribute::LIFE_REGEN] += 0.25f;
+        case Perks::ANCIENT_BLUD:
+            increase[Attribute::LIFE_REGEN] += 0.25f;
             break;
 
-        case Ego::Perks::SPELL_MASTERY:
-            increase[Ego::Attribute::SPELL_POWER] += 1.0f;
+        case Perks::SPELL_MASTERY:
+            increase[Attribute::SPELL_POWER] += 1.0f;
             break;
 
-        case Ego::Perks::MYSTIC_INTELLECT:
-            increase[Ego::Attribute::MAX_MANA] += 1.0f;
-            increase[Ego::Attribute::MANA_REGEN] += 0.1f;
+        case Perks::MYSTIC_INTELLECT:
+            increase[Attribute::MAX_MANA] += 1.0f;
+            increase[Attribute::MANA_REGEN] += 0.1f;
             break;
 
-        case Ego::Perks::MEDITATION:
-            increase[Ego::Attribute::MANA_REGEN] += 0.15f;
+        case Perks::MEDITATION:
+            increase[Attribute::MANA_REGEN] += 0.15f;
             break;
 
-        case Ego::Perks::BOOKWORM:
-            increase[Ego::Attribute::INTELLECT] += 2.00f;
-            increase[Ego::Attribute::MIGHT] -= 2.00f;
+        case Perks::BOOKWORM:
+            increase[Attribute::INTELLECT] += 2.00f;
+            increase[Attribute::MIGHT] -= 2.00f;
             break;
 
-        case Ego::Perks::NIGHT_VISION:
-            _character->increaseBaseAttribute(Ego::Attribute::DARKVISION, 1.0f);
+        case Perks::NIGHT_VISION:
+            _character->increaseBaseAttribute(Attribute::DARKVISION, 1.0f);
             break;
 
-        case Ego::Perks::SENSE_KURSES:
-            _character->increaseBaseAttribute(Ego::Attribute::SENSE_KURSES, 1.0f);
+        case Perks::SENSE_KURSES:
+            _character->increaseBaseAttribute(Attribute::SENSE_KURSES, 1.0f);
             break;
 
-        case Ego::Perks::SENSE_INVISIBLE:
-            _character->increaseBaseAttribute(Ego::Attribute::SEE_INVISIBLE, 1.0f);
+        case Perks::SENSE_INVISIBLE:
+            _character->increaseBaseAttribute(Attribute::SEE_INVISIBLE, 1.0f);
             break;
 
         default:
@@ -329,8 +329,8 @@ void LevelUpWindow::doLevelUp(PerkButton *selectedPerk) {
     _character->randomizeLevelUpSeed();
 
     //Might slightly increases character size
-    if (increase[Ego::Attribute::MIGHT] != 0) {
-        _character->fat_goto += _character->getProfile()->getSizeGainPerMight() * 0.1f * increase[Ego::Attribute::MIGHT];
+    if (increase[Attribute::MIGHT] != 0) {
+        _character->fat_goto += _character->getProfile()->getSizeGainPerMight() * 0.1f * increase[Attribute::MIGHT];
         _character->fat_goto_time += Object::SIZETIME;
     }
 
@@ -356,7 +356,7 @@ void LevelUpWindow::doLevelUp(PerkButton *selectedPerk) {
     std::shared_ptr<Label> newPerkLabel = std::make_shared<Label>("NEW PERK: " + selectedPerk->getPerk().getName());
     newPerkLabel->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
     newPerkLabel->setPosition(20, getHeight() - PERK_THUMBNAIL_SIZE - 40);
-    newPerkLabel->setColor(Ego::Math::Colour4f::yellow());
+    newPerkLabel->setColour(Math::Colour4f::yellow());
     addComponent(newPerkLabel);
     _fadeInLabels.push_back(newPerkLabel);
 
@@ -375,27 +375,27 @@ void LevelUpWindow::doLevelUp(PerkButton *selectedPerk) {
 
     //Figure out the widest attribute name width
     int attributeWidthSpacing = 0;
-    for (uint8_t i = 0; i < Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES; ++i) {
+    for (uint8_t i = 0; i < Attribute::NR_OF_PRIMARY_ATTRIBUTES; ++i) {
         int width;
-        _gameEngine->getUIManager()->getFont(UIManager::FONT_GAME)->getTextSize(Ego::Attribute::toString(static_cast<Ego::Attribute::AttributeType>(i)), &width, nullptr);
+        _gameEngine->getUIManager()->getFont(UIManager::FONT_GAME)->getTextSize(Attribute::toString(static_cast<Attribute::AttributeType>(i)), &width, nullptr);
         attributeWidthSpacing = std::max(attributeWidthSpacing, width + 10);
     }
 
     //Attributes
-    for (uint8_t i = 0; i < Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES; ++i) {
-        const Ego::Attribute::AttributeType type = static_cast<Ego::Attribute::AttributeType>(i);
+    for (uint8_t i = 0; i < Attribute::NR_OF_PRIMARY_ATTRIBUTES; ++i) {
+        const Attribute::AttributeType type = static_cast<Attribute::AttributeType>(i);
 
         //Name
-        std::shared_ptr<Label> attributeLabel = std::make_shared<Label>(Ego::Attribute::toString(type));
+        std::shared_ptr<Label> attributeLabel = std::make_shared<Label>(Attribute::toString(type));
         attributeLabel->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
 
         float x, y;
-        if (i < Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES / 2) {
+        if (i < Attribute::NR_OF_PRIMARY_ATTRIBUTES / 2) {
             x = 20;
             y = 40 + attributeIncrease->getHeight() + i * 25;
         } else {
             x = 10 + getWidth() / 2;
-            y = 40 + attributeIncrease->getHeight() + (i - Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES / 2) * 25;
+            y = 40 + attributeIncrease->getHeight() + (i - Attribute::NR_OF_PRIMARY_ATTRIBUTES / 2) * 25;
         }
         attributeLabel->setPosition(x, y);
         attributeLabel->setAlpha(0.0f);
@@ -404,7 +404,7 @@ void LevelUpWindow::doLevelUp(PerkButton *selectedPerk) {
 
         //Value
         std::shared_ptr<Label> value = std::make_shared<Label>();
-        if (type == Ego::Attribute::MANA_REGEN || type == Ego::Attribute::LIFE_REGEN) { //special case for regen values (2 decimals)
+        if (type == Attribute::MANA_REGEN || type == Attribute::LIFE_REGEN) { //special case for regen values (2 decimals)
             std::stringstream valueString;
             valueString << std::setprecision(2) << std::fixed << _character->getAttribute(type);
             value->setText(valueString.str());
@@ -426,7 +426,7 @@ void LevelUpWindow::doLevelUp(PerkButton *selectedPerk) {
             _attributeIncrease[type]->setText(valueString.str());
             _attributeIncrease[type]->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
             _attributeIncrease[type]->setPosition(x + attributeWidthSpacing + 50, y);
-            _attributeIncrease[type]->setColor(increase[i] > 0 ? Ego::Math::Colour4f::yellow() : Ego::Math::Colour4f::red());
+            _attributeIncrease[type]->setColour(increase[i] > 0 ? Math::Colour4f::yellow() : Math::Colour4f::red());
             _attributeIncrease[type]->setVisible(false);
             addComponent(_attributeIncrease[type]);
         }
@@ -492,25 +492,25 @@ void LevelUpWindow::drawContainer() {
     }
 }
 
-void LevelUpWindow::setHoverPerk(Ego::Perks::PerkID id) {
+void LevelUpWindow::setHoverPerk(Perks::PerkID id) {
     _currentPerk = id;
 
-    if (id == Ego::Perks::NR_OF_PERKS) {
+    if (id == Perks::NR_OF_PERKS) {
         _descriptionLabel->setText("Select your new perk...");
         _perkIncreaseLabel->setText("Hover mouse over a perk to see the benefits.");
-        _perkIncreaseLabel->setColor(Ego::Math::Colour4f::purple());
+        _perkIncreaseLabel->setColour(Math::Colour4f::purple());
     } else {
-        const Ego::Perks::Perk &perk = Ego::Perks::PerkHandler::get().getPerk(id);
+        const Perks::Perk &perk = Perks::PerkHandler::get().getPerk(id);
         _descriptionLabel->setText(perk.getDescription());
-        _perkIncreaseLabel->setText(perk.getName() + "\n+1 " + Ego::Attribute::toString(perk.getType()));
-        _perkIncreaseLabel->setColor(perk.getColour());
+        _perkIncreaseLabel->setText(perk.getName() + "\n+1 " + Attribute::toString(perk.getType()));
+        _perkIncreaseLabel->setColour(perk.getColour());
     }
 
     _perkIncreaseLabel->setCenterPosition(getX() + getWidth() / 2, getY() + _desciptionLabelOffset + 10, true);
     _descriptionLabel->setCenterPosition(getX() + getWidth() / 2, _perkIncreaseLabel->getY() + _perkIncreaseLabel->getHeight() - 3, true);
 }
 
-Ego::Perks::PerkID LevelUpWindow::getCurrentPerk() const {
+Perks::PerkID LevelUpWindow::getCurrentPerk() const {
     return _currentPerk;
 }
 

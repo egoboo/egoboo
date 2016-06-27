@@ -65,8 +65,7 @@
 //--------------------------------------------------------------------------------------------
 
 #include "egolib/Events/MouseMovedEventArgs.hpp"
-#include "egolib/Events/MouseClickedEventArgs.hpp"
-#include "egolib/Events/MouseReleasedEventArgs.hpp"
+#include "egolib/Events/_Include.hpp"
 #include "egolib/Events/WindowEventArgs.hpp"
 
 //--------------------------------------------------------------------------------------------

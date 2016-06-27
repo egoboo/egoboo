@@ -103,9 +103,9 @@ public:
     void drawAll();
 
     virtual bool notifyMouseMoved(const Events::MouseMovedEventArgs& e) override;
-    virtual bool notifyKeyDown(const int keyCode) override;
-    virtual bool notifyMouseClicked(const Events::MouseClickedEventArgs& e) override;
-    virtual bool notifyMouseReleased(const Events::MouseReleasedEventArgs& e) override;
+    virtual bool notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEventArgs& ee) override;
+    virtual bool notifyMouseButtonClicked(const Events::MouseButtonClickedEventArgs& e) override;
+    virtual bool notifyMouseButtonReleased(const Events::MouseButtonReleasedEventArgs& e) override;
     virtual bool notifyMouseScrolled(const int amount) override;
 
     /**

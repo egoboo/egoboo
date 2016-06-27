@@ -88,21 +88,21 @@ int CharacterWindow::addResistanceLabel(const int x, const int y, const DamageTy
     std::shared_ptr<Label> label = std::make_shared<Label>(damageName + ":");
     label->setPosition(x, y);
     label->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
-    label->setColor(Ego::Math::Colour4f(DamageType_getColour(type), 1.0f));
+    label->setColour(Ego::Math::Colour4f(DamageType_getColour(type), 1.0f));
     _characterStatisticsTab.push_back(label);
 
     //Value
     std::shared_ptr<Label> value = std::make_shared<Label>(std::to_string(std::lround(_character->getRawDamageResistance(type))));
     value->setPosition(label->getX() + 50, label->getY());
     value->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
-    value->setColor(Ego::Math::Colour4f(DamageType_getColour(type), 1.0f));
+    value->setColour(Ego::Math::Colour4f(DamageType_getColour(type), 1.0f));
     _characterStatisticsTab.push_back(value);
 
     //Percent
     std::shared_ptr<Label> percent = std::make_shared<Label>("(" + std::to_string(std::lround(_character->getDamageReduction(type) * 100)) + "%)");
     percent->setPosition(label->getX() + 75, label->getY());
     percent->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
-    percent->setColor(Ego::Math::Colour4f(DamageType_getColour(type), 1.0f));
+    percent->setColour(Ego::Math::Colour4f(DamageType_getColour(type), 1.0f));
     _characterStatisticsTab.push_back(percent);
 
     return label->getHeight() - LINE_SPACING_OFFSET;
@@ -267,7 +267,7 @@ void CharacterWindow::buildKnownPerksTab() {
     std::shared_ptr<Label> newPerkLabel = std::make_shared<Label>("No Perk Selected");
     newPerkLabel->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
     newPerkLabel->setPosition(20, getHeight() - perkIcon->getHeight() - 40);
-    newPerkLabel->setColor(Ego::Math::Colour4f::yellow());
+    newPerkLabel->setColour(Ego::Math::Colour4f::yellow());
     _knownPerksTab.push_back(newPerkLabel);
 
     //Perk description
@@ -314,7 +314,7 @@ void CharacterWindow::buildActiveEnchantsTab() {
     std::shared_ptr<Label> enchantName = std::make_shared<Label>("No Enchant Selected");
     enchantName->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
     enchantName->setPosition(activeEnchants->getX() + activeEnchants->getWidth() + 5, activeEnchants->getY());
-    enchantName->setColor(Ego::Math::Colour4f::yellow());
+    enchantName->setColour(Ego::Math::Colour4f::yellow());
     _activeEnchantsTab.push_back(enchantName);
 
     //List of effects a given enchant has
@@ -375,7 +375,7 @@ void CharacterWindow::describeEnchantEffects(const std::vector<std::shared_ptr<E
 
             std::shared_ptr<Label> label = std::make_shared<Label>(out.str());
             label->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
-            label->setColor(element.second > 0 ? Ego::Math::Colour4f::green() : Ego::Math::Colour4f::red());
+            label->setColour(element.second > 0 ? Ego::Math::Colour4f::green() : Ego::Math::Colour4f::red());
             list->addComponent(label);
         } catch (Id::UnhandledSwitchCaseException &ex) {
             //Simply ignore effects that cannot be translated into a description

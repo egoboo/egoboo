@@ -1223,12 +1223,6 @@
     <ClInclude Include="src\egolib\Events\MouseMovedEventArgs.hpp">
       <Filter>Header Files\Events</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Events\MouseClickedEventArgs.hpp">
-      <Filter>Header Files\Events</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Events\MouseReleasedEventArgs.hpp">
-      <Filter>Header Files\Events</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Events\WindowEventArgs.hpp">
       <Filter>Header Files\Events</Filter>
     </ClInclude>
@@ -1264,6 +1258,15 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Math\Functors\Closure_Sphere_Sphere.hpp">
       <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Events\MouseButtonEventArgs.hpp">
+      <Filter>Header Files\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Events\_Include.hpp">
+      <Filter>Header Files\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Events\KeyboardKeyEventArgs.hpp">
+      <Filter>Header Files\Events</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -6,26 +6,26 @@ namespace GUI {
 Image::Image() :
     _texture(""),
     _image(nullptr),
-    _tint(Ego::Colour4f::white()) {
+    _tint(Colour4f::white()) {
 
 }
 
 Image::Image(const std::string &filePath) :
     _texture(filePath),
     _image(nullptr),
-    _tint(Ego::Colour4f::white()) {}
+    _tint(Colour4f::white()) {}
 
-Image::Image(std::shared_ptr<Ego::Texture> texture) :
+Image::Image(std::shared_ptr<Texture> texture) :
     _texture(""),
     _image(texture),
-    _tint(Ego::Colour4f::white()) {
+    _tint(Colour4f::white()) {
 
 }
 
-Image::Image(const Ego::DeferredTexture &image) :
+Image::Image(const DeferredTexture &image) :
     _texture(image),
     _image(nullptr),
-    _tint(Ego::Colour4f::white()) {
+    _tint(Colour4f::white()) {
 
 }
 
@@ -51,7 +51,7 @@ int Image::getTextureHeight() {
     return _texture.get()->getSourceHeight();
 }
 
-void Image::setTint(const Ego::Math::Colour4f &colour) {
+void Image::setTint(const Math::Colour4f &colour) {
     _tint = colour;
 }
 

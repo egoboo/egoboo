@@ -26,6 +26,7 @@
 
 #include "egolib/Core/StringUtilities.hpp"
 #include "egolib/Graphics/FontManager.hpp"
+#include "egolib/Core/System.hpp"
 #include "egolib/Renderer/Renderer.hpp"
 #include "egolib/Renderer/OpenGL/TextureUnit.hpp"
 #include "egolib/Log/_Include.hpp"
@@ -162,7 +163,7 @@ void Font::getTextSize(const std::string &text, int *width, int *height) {
     if (width) *width = cache->width;
     if (height) *height = cache->height;
 
-    cache->lastUseInTicks = SDL_GetTicks();
+    cache->lastUseInTicks = Ego::Core::System::get().getTimerService().getTicks();
 }
 
 void Font::getTextBoxSize(const std::string &text, int spacing, int *width, int *height) {
@@ -188,7 +189,7 @@ void Font::getTextBoxSize(const std::string &text, int spacing, int *width, int 
     if (width) *width = cache->width;
     if (height) *height = cache->height;
 
-    cache->lastUseInTicks = SDL_GetTicks();
+    cache->lastUseInTicks = Ego::Core::System::get().getTimerService().getTicks();
 }
 
 void Font::drawTextToTexture(Ego::Texture *tex, const std::string &text, const Ego::Math::Colour3f &colour) {
@@ -233,7 +234,7 @@ void Font::drawText(const std::string &text, int x, int y, const Ego::Math::Colo
 
     cache->cache->render(x, y, colour);
 
-    cache->lastUseInTicks = SDL_GetTicks();
+    cache->lastUseInTicks = Ego::Core::System::get().getTimerService().getTicks();
 }
 
 void Font::drawTextBox(const std::string &text, int x, int y, int width, int height, int spacing, const Ego::Math::Colour4f &colour) {
@@ -252,7 +253,7 @@ void Font::drawTextBox(const std::string &text, int x, int y, int width, int hei
 
     cache->cache->render(x, y, colour);
 
-    cache->lastUseInTicks = SDL_GetTicks();
+    cache->lastUseInTicks = Ego::Core::System::get().getTimerService().getTicks();
 }
 
 std::shared_ptr<Font::LaidTextRenderer> Font::layoutText(const std::string &text, int *textWidth, int *textHeight) {

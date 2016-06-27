@@ -53,11 +53,11 @@ public:
     bool notifyMouseMoved(const Events::MouseMovedEventArgs& e) override {
         return ComponentContainer::notifyMouseMoved(e);
     }
-    bool notifyKeyDown(const int keyCode) override {
-        return ComponentContainer::notifyKeyDown(keyCode);
+    bool notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEventArgs& e) override {
+        return ComponentContainer::notifyKeyboardKeyPressed(e);
     }
-    bool notifyMouseClicked(const Events::MouseClickedEventArgs& e) override {
-        return ComponentContainer::notifyMouseClicked(e);
+    bool notifyMouseButtonClicked(const Events::MouseButtonClickedEventArgs& e) override {
+        return ComponentContainer::notifyMouseButtonClicked(e);
     }
     bool notifyMouseScrolled(const int amount) override;
 

@@ -27,9 +27,9 @@
 namespace Ego {
 namespace GUI {
 
-IconButton::IconButton(const std::string &buttonText, const Ego::DeferredTexture& icon, int hotkey) : Button(buttonText, hotkey),
+IconButton::IconButton(const std::string &buttonText, const DeferredTexture& icon, int hotkey) : Button(buttonText, hotkey),
 _icon(icon),
-_iconTint(Ego::Math::Colour4f::white()) {
+_iconTint(Math::Colour4f::white()) {
     //ctor
 }
 
@@ -37,7 +37,7 @@ void IconButton::draw() {
     //Update slidy button effect
     updateSlidyButtonEffect();
 
-    auto &renderer = Ego::Renderer::get();
+    auto &renderer = Renderer::get();
 
     // Draw the button
     renderer.getTextureUnit().setActivated(nullptr);
@@ -61,7 +61,7 @@ void IconButton::draw() {
     v->x = getX() + getWidth(); v->y = getY() + getHeight(); v++;
     v->x = getX() + getWidth(); v->y = getY();
     vb->unlock();
-    renderer.render(*vb, Ego::PrimitiveType::Quadriliterals, 0, 4);
+    renderer.render(*vb, PrimitiveType::Quadriliterals, 0, 4);
 
     //Draw icon
     int iconSize = getHeight() - 4;
@@ -73,7 +73,7 @@ void IconButton::draw() {
     }
 }
 
-void IconButton::setIconTint(const Ego::Math::Colour4f &tint) {
+void IconButton::setIconTint(const Math::Colour4f &tint) {
     _iconTint = tint;
 }
 

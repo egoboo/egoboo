@@ -15,8 +15,8 @@ public:
 
     virtual void draw() override;
 
-    bool notifyMouseMoved(const Ego::Events::MouseMovedEventArgs& e) override;
-    bool notifyMouseClicked(const Ego::Events::MouseClickedEventArgs& e) override;
+    bool notifyMouseMoved(const Events::MouseMovedEventArgs& e) override;
+    bool notifyMouseButtonClicked(const Events::MouseButtonClickedEventArgs& e) override;
 
 private:
     const Inventory& _inventory;

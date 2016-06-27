@@ -24,8 +24,8 @@ public:
 
 public:
     bool notifyMouseMoved(const Events::MouseMovedEventArgs& e) override;
-    bool notifyMouseClicked(const Events::MouseClickedEventArgs& e) override;
-    bool notifyKeyDown(const int keyCode) override;
+    bool notifyMouseButtonClicked(const Events::MouseButtonClickedEventArgs& e) override;
+    bool notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEventArgs& e) override;
 
     void doClick();
 

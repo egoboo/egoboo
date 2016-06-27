@@ -51,7 +51,7 @@ void Button::draw() {
     //Update slidy button effect
     updateSlidyButtonEffect();
 
-    auto &renderer = Ego::Renderer::get();
+    auto &renderer = Renderer::get();
 
     // Draw the button
     renderer.getTextureUnit().setActivated(nullptr);
@@ -78,7 +78,7 @@ void Button::draw() {
     v->x = getX() + getWidth(); v->y = getY() + getHeight(); v++;
     v->x = getX() + getWidth(); v->y = getY();
     vb->unlock();
-    renderer.render(*vb, Ego::PrimitiveType::Quadriliterals, 0, 4);
+    renderer.render(*vb, PrimitiveType::Quadriliterals, 0, 4);
 
     //Draw centered text in button
     if (_buttonTextRenderer) {
@@ -86,13 +86,13 @@ void Button::draw() {
     }
 }
 
-bool Button::notifyMouseMoved(const Ego::Events::MouseMovedEventArgs& e) {
+bool Button::notifyMouseMoved(const Events::MouseMovedEventArgs& e) {
     _mouseOver = contains(e.getPosition());
 
     return false;
 }
 
-bool Button::notifyMouseClicked(const Ego::Events::MouseClickedEventArgs& e) {
+bool Button::notifyMouseButtonClicked(const Events::MouseButtonClickedEventArgs& e) {
     if (_mouseOver && e.getButton() == SDL_BUTTON_LEFT) {
         doClick();
         return true;
@@ -114,12 +114,12 @@ void Button::setOnClickFunction(const std::function<void()> onClick) {
     _onClickFunction = onClick;
 }
 
-bool Button::notifyKeyDown(const int keyCode) {
+bool Button::notifyKeyboardKeyPressed(const Ego::Events::KeyboardKeyPressedEventArgs& e) {
     //No hotkey assigned to this button
     if (_hotkey == SDLK_UNKNOWN) return false;
 
     //Hotkey pressed?
-    if (keyCode == _hotkey) {
+    if (e.getKey() == _hotkey) {
         doClick();
         return true;
     }

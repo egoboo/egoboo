@@ -32,13 +32,13 @@ namespace GUI {
 UIManager::UIManager() :
     _fonts(),
     _renderSemaphore(0),
-    _bitmapFontTexture(Ego::TextureManager::get().getTexture("mp_data/font_new_shadow")),
-    _textureQuadVertexBuffer(4, Ego::GraphicsUtilities::get<Ego::VertexFormat::P2FT2F>()) {
+    _bitmapFontTexture(TextureManager::get().getTexture("mp_data/font_new_shadow")),
+    _textureQuadVertexBuffer(4, GraphicsUtilities::get<VertexFormat::P2FT2F>()) {
     //Load fonts from true-type files
-    _fonts[FONT_DEFAULT] = Ego::FontManager::get().loadFont("mp_data/Bo_Chen.ttf", 24);
-    _fonts[FONT_FLOATING_TEXT] = Ego::FontManager::get().loadFont("mp_data/FrostysWinterland.ttf", 24);
-    _fonts[FONT_DEBUG] = Ego::FontManager::get().loadFont("mp_data/DejaVuSansMono.ttf", 10);
-    _fonts[FONT_GAME] = Ego::FontManager::get().loadFont("mp_data/IMMORTAL.ttf", 14);
+    _fonts[FONT_DEFAULT] = FontManager::get().loadFont("mp_data/Bo_Chen.ttf", 24);
+    _fonts[FONT_FLOATING_TEXT] = FontManager::get().loadFont("mp_data/FrostysWinterland.ttf", 24);
+    _fonts[FONT_DEBUG] = FontManager::get().loadFont("mp_data/DejaVuSansMono.ttf", 10);
+    _fonts[FONT_GAME] = FontManager::get().loadFont("mp_data/IMMORTAL.ttf", 14);
 
     //Sanity check that all fonts are loaded properly
 #ifndef NDEBUG
@@ -52,14 +52,14 @@ UIManager::UIManager() :
     }
 #endif
 
-    const auto& vertexFormat = Ego::GraphicsUtilities::get<Ego::VertexFormat::P2F>();
-    _vertexBuffer = std::make_shared<Ego::VertexBuffer>(4, vertexFormat);
+    const auto& vertexFormat = GraphicsUtilities::get<VertexFormat::P2F>();
+    _vertexBuffer = std::make_shared<VertexBuffer>(4, vertexFormat);
 }
 
 UIManager::~UIManager() {
     _vertexBuffer = nullptr;
     // free fonts before font manager
-    for (std::shared_ptr<Ego::Font> &font : _fonts) {
+    for (std::shared_ptr<Font> &font : _fonts) {
         font.reset();
     }
 }
@@ -71,7 +71,7 @@ void UIManager::beginRenderUI() {
         return;
     }
 
-    auto& renderer = Ego::Renderer::get();
+    auto& renderer = Renderer::get();
 
     // do not use the ATTRIB_PUSH macro, since the glPopAttrib() is in a different function
     GL_DEBUG(glPushAttrib)(GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT);
@@ -80,15 +80,15 @@ void UIManager::beginRenderUI() {
     renderer.setDepthTestEnabled(false);
 
     // draw draw front and back faces of polygons
-    renderer.setCullingMode(Ego::CullingMode::None);
+    renderer.setCullingMode(CullingMode::None);
 
     // use normal alpha blending
-    renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
+    renderer.setBlendFunction(BlendFunction::SourceAlpha, BlendFunction::OneMinusSourceAlpha);
     renderer.setBlendingEnabled(true);
 
     // do not display the completely transparent portion
     renderer.setAlphaTestEnabled(true);
-    renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
+    renderer.setAlphaFunction(CompareFunction::Greater, 0.0f);
 
     renderer.setViewportRectangle(0, 0, sdl_scr.drawableSize.width(), sdl_scr.drawableSize.height());
 
@@ -96,7 +96,7 @@ void UIManager::beginRenderUI() {
     // later, but most of them will need this, so it's done by default at the beginning
     // of a frame
 
-    Matrix4f4f projection = Ego::Transform::ortho(0.0f, getScreenWidth(), getScreenHeight(), 0.0f, -1.0f, +1.0f);
+    Matrix4f4f projection = Transform::ortho(0.0f, getScreenWidth(), getScreenHeight(), 0.0f, -1.0f, +1.0f);
     renderer.setProjectionMatrix(projection);
     renderer.setViewMatrix(Matrix4f4f::identity());
     renderer.setWorldMatrix(Matrix4f4f::identity());
@@ -122,7 +122,7 @@ int UIManager::getScreenHeight() const {
     return sdl_scr.size.height();
 }
 
-void UIManager::drawImage(const std::shared_ptr<const Ego::Texture>& img, const Point2f& position, const Vector2f& size, const Ego::Colour4f& tint) {
+void UIManager::drawImage(const std::shared_ptr<const Texture>& img, const Point2f& position, const Vector2f& size, const Colour4f& tint) {
     auto source = Rectangle2f(Point2f(0, 0),
                               Point2f(static_cast<float>(img->getSourceWidth()) / static_cast<float>(img->getWidth()),
                                       static_cast<float>(img->getSourceHeight()) / static_cast<float>(img->getHeight())));
@@ -162,12 +162,12 @@ bool UIManager::dumpScreenshot() {
 
     // we ARE using OpenGL
     {
-        Ego::OpenGL::PushClientAttrib pca(GL_CLIENT_PIXEL_STORE_BIT);
+        OpenGL::PushClientAttrib pca(GL_CLIENT_PIXEL_STORE_BIT);
         {
             SDL_Surface *temp;
 
             // create a SDL surface
-            const auto& pixelFormatDescriptor = Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8>();
+            const auto& pixelFormatDescriptor = PixelFormatDescriptor::get<PixelFormat::R8G8B8>();
             temp = SDL_CreateRGBSurface(0, sdl_scr.size.width(), sdl_scr.size.height(),
                                         pixelFormatDescriptor.getColourDepth().getDepth(),
                                         pixelFormatDescriptor.getRedMask(),
@@ -306,20 +306,20 @@ void UIManager::drawBitmapGlyph(int fonttype, const Vector2f& position, const fl
     tx_rect.xmax -= BORDER;
     tx_rect.ymax -= BORDER;
 
-    drawQuad2D(_bitmapFontTexture, sc_rect, tx_rect, true, Ego::Colour4f(Ego::Colour3f::white(), alpha));
+    drawQuad2D(_bitmapFontTexture, sc_rect, tx_rect, true, Colour4f(Colour3f::white(), alpha));
 }
 
-void UIManager::drawQuad2D(const std::shared_ptr<const Ego::Texture>& texture, const Rectangle2f& scr_rect, const Rectangle2f& tx_rect, const bool useAlpha, const Ego::Colour4f& tint) {
-    auto& renderer = Ego::Renderer::get();
+void UIManager::drawQuad2D(const std::shared_ptr<const Texture>& texture, const Rectangle2f& scr_rect, const Rectangle2f& tx_rect, const bool useAlpha, const Colour4f& tint) {
+    auto& renderer = Renderer::get();
     renderer.getTextureUnit().setActivated(texture.get());
     renderer.setColour(tint);
 
     if (useAlpha) {
         renderer.setBlendingEnabled(true);
-        renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
+        renderer.setBlendFunction(BlendFunction::SourceAlpha, BlendFunction::OneMinusSourceAlpha);
 
         renderer.setAlphaTestEnabled(true);
-        renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
+        renderer.setAlphaFunction(CompareFunction::Greater, 0.0f);
     } else {
         renderer.setBlendingEnabled(false);
         renderer.setAlphaTestEnabled(false);
@@ -330,17 +330,17 @@ void UIManager::drawQuad2D(const std::shared_ptr<const Ego::Texture>& texture, c
         float s, t;
     };
     {
-        Ego::VertexBufferScopedLock vblck(_textureQuadVertexBuffer);
+        VertexBufferScopedLock vblck(_textureQuadVertexBuffer);
         Vertex *vertices = vblck.get<Vertex>();
         vertices[0].x = scr_rect.getMin().x(); vertices[0].y = scr_rect.getMax().y(); vertices[0].s = tx_rect.getMin().x(); vertices[0].t = tx_rect.getMax().y();
         vertices[1].x = scr_rect.getMax().x(); vertices[1].y = scr_rect.getMax().y(); vertices[1].s = tx_rect.getMax().x(); vertices[1].t = tx_rect.getMax().y();
         vertices[2].x = scr_rect.getMax().x(); vertices[2].y = scr_rect.getMin().y(); vertices[2].s = tx_rect.getMax().x(); vertices[2].t = tx_rect.getMin().y();
         vertices[3].x = scr_rect.getMin().x(); vertices[3].y = scr_rect.getMin().y(); vertices[3].s = tx_rect.getMin().x(); vertices[3].t = tx_rect.getMin().y();
     }
-    renderer.render(_textureQuadVertexBuffer, Ego::PrimitiveType::Quadriliterals, 0, 4);
+    renderer.render(_textureQuadVertexBuffer, PrimitiveType::Quadriliterals, 0, 4);
 }
 
-void UIManager::drawQuad2D(const std::shared_ptr<const Ego::Texture>& texture, const ego_frect_t& scr_rect, const ego_frect_t& tx_rect, const bool useAlpha, const Ego::Colour4f& tint) {
+void UIManager::drawQuad2D(const std::shared_ptr<const Texture>& texture, const ego_frect_t& scr_rect, const ego_frect_t& tx_rect, const bool useAlpha, const Colour4f& tint) {
     auto scr_rect_2 = Rectangle2f(Point2f(scr_rect.xmin, scr_rect.ymin),
                                   Point2f(scr_rect.xmax, scr_rect.ymax));
     auto tx_rect_2 = Rectangle2f(Point2f(tx_rect.xmin, tx_rect.ymin),
@@ -348,17 +348,17 @@ void UIManager::drawQuad2D(const std::shared_ptr<const Ego::Texture>& texture, c
     drawQuad2D(texture, scr_rect_2, tx_rect_2, useAlpha, tint);
 }
 
-void UIManager::fillRectangle(const Rectangle2f& rectangle, const bool useAlpha, const Ego::Colour4f& tint) {
-    auto& renderer = Ego::Renderer::get();
+void UIManager::fillRectangle(const Rectangle2f& rectangle, const bool useAlpha, const Colour4f& tint) {
+    auto& renderer = Renderer::get();
     renderer.getTextureUnit().setActivated(nullptr);
     renderer.setColour(tint);
 
     if (useAlpha) {
         renderer.setBlendingEnabled(true);
-        renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
+        renderer.setBlendFunction(BlendFunction::SourceAlpha, BlendFunction::OneMinusSourceAlpha);
 
         renderer.setAlphaTestEnabled(true);
-        renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
+        renderer.setAlphaFunction(CompareFunction::Greater, 0.0f);
     } else {
         renderer.setBlendingEnabled(false);
         renderer.setAlphaTestEnabled(false);
@@ -368,13 +368,13 @@ void UIManager::fillRectangle(const Rectangle2f& rectangle, const bool useAlpha,
         float x, y;
     };
     {
-        Ego::VertexBufferScopedLock vblck(*_vertexBuffer);
+        VertexBufferScopedLock vblck(*_vertexBuffer);
         Vertex *vertices = vblck.get<Vertex>();
         vertices[0].x = rectangle.getMin().x(); vertices[0].y = rectangle.getMax().y();
         vertices[1].x = rectangle.getMax().x(); vertices[1].y = rectangle.getMax().y();
         vertices[2].x = rectangle.getMax().x(); vertices[2].y = rectangle.getMin().y();
         vertices[3].x = rectangle.getMin().x(); vertices[3].y = rectangle.getMin().y();
-        renderer.render(*_vertexBuffer, Ego::PrimitiveType::Quadriliterals, 0, 4);
+        renderer.render(*_vertexBuffer, PrimitiveType::Quadriliterals, 0, 4);
     }
 }
 

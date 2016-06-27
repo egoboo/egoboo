@@ -540,11 +540,11 @@ void GameEngine::pollEvents()
             break;
                 
             case SDL_MOUSEBUTTONDOWN:
-                _currentGameState->notifyMouseClicked(Ego::Events::MouseClickedEventArgs(Point2f(event.button.x, event.button.y), event.button.button));
+                _currentGameState->notifyMouseButtonClicked(Ego::Events::MouseButtonClickedEventArgs(Point2f(event.button.x, event.button.y), event.button.button));
             break;
 
             case SDL_MOUSEBUTTONUP:
-                _currentGameState->notifyMouseReleased(Ego::Events::MouseReleasedEventArgs(Point2f(event.button.x, event.button.y), event.button.button));
+                _currentGameState->notifyMouseButtonReleased(Ego::Events::MouseButtonReleasedEventArgs(Point2f(event.button.x, event.button.y), event.button.button));
             break;
                 
             case SDL_MOUSEMOTION:
@@ -554,7 +554,7 @@ void GameEngine::pollEvents()
             break;
                 
             case SDL_KEYDOWN:
-                _currentGameState->notifyKeyDown(event.key.keysym.sym);
+                _currentGameState->notifyKeyboardKeyPressed(Ego::Events::KeyboardKeyPressedEventArgs(event.key.keysym.sym));
             break;
         }
     } // end of message processing

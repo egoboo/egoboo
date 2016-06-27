@@ -110,7 +110,7 @@ bool ScrollableList::notifyMouseScrolled(const int amount) {
     return _mouseOver;
 }
 
-bool ScrollableList::notifyMouseMoved(const Ego::Events::MouseMovedEventArgs& e) {
+bool ScrollableList::notifyMouseMoved(const Events::MouseMovedEventArgs& e) {
     _mouseOver = contains(e.getPosition());
 
     if (_downButton->notifyMouseMoved(e)) return true;
@@ -119,10 +119,10 @@ bool ScrollableList::notifyMouseMoved(const Ego::Events::MouseMovedEventArgs& e)
     return ComponentContainer::notifyMouseMoved(e);
 }
 
-bool ScrollableList::notifyMouseClicked(const Ego::Events::MouseClickedEventArgs& e) {
-    if (_downButton->notifyMouseClicked(e)) return true;
-    if (_upButton->notifyMouseClicked(e)) return true;
-    return ComponentContainer::notifyMouseClicked(e);
+bool ScrollableList::notifyMouseButtonClicked(const Events::MouseButtonClickedEventArgs& e) {
+    if (_downButton->notifyMouseButtonClicked(e)) return true;
+    if (_upButton->notifyMouseButtonClicked(e)) return true;
+    return ComponentContainer::notifyMouseButtonClicked(e);
 }
 
 void ScrollableList::forceUpdate() {
