@@ -146,7 +146,7 @@ bool MiniMap::notifyMouseMoved(const Events::MouseMovedEventArgs& e) {
     return false;
 }
 
-bool MiniMap::notifyMouseButtonClicked(const Events::MouseButtonClickedEventArgs& e) {
+bool MiniMap::notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs& e) {
     if (_mouseOver && e.getButton() == SDL_BUTTON_LEFT) {
         // Bring the window in front of all other windows.
         bringToFront();

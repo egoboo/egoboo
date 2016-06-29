@@ -58,7 +58,7 @@ public:
     InternalWindow(const std::string &title);
 
     bool notifyMouseMoved(const Events::MouseMovedEventArgs& e) override;
-    bool notifyMouseButtonClicked(const Events::MouseButtonClickedEventArgs& e) override;
+    bool notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs& e) override;
     bool notifyMouseButtonReleased(const Events::MouseButtonReleasedEventArgs& e) override;
 
     void draw() override;

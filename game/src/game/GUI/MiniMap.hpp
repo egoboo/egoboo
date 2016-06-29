@@ -45,7 +45,7 @@ public:
     void addBlip(const float x, const float y, const std::shared_ptr<Object> &object);
 
     bool notifyMouseMoved(const Events::MouseMovedEventArgs& e) override;
-    bool notifyMouseButtonClicked(const Events::MouseButtonClickedEventArgs& e) override;
+    bool notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs& e) override;
     bool notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEventArgs& e) override;
     bool notifyMouseButtonReleased(const Events::MouseButtonReleasedEventArgs& e) override;
 

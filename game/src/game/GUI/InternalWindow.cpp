@@ -111,7 +111,7 @@ bool InternalWindow::notifyMouseMoved(const Events::MouseMovedEventArgs& e) {
     return ComponentContainer::notifyMouseMoved(e);
 }
 
-bool InternalWindow::notifyMouseButtonClicked(const Events::MouseButtonClickedEventArgs& e) {
+bool InternalWindow::notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs& e) {
     if (_mouseOver && e.getButton() == SDL_BUTTON_LEFT) {
         if (!_isDragging && _closeButton->contains(e.getPosition())) {
             AudioSystem::get().playSoundFull(AudioSystem::get().getGlobalSound(GSND_BUTTON_CLICK));
@@ -137,7 +137,7 @@ bool InternalWindow::notifyMouseButtonClicked(const Events::MouseButtonClickedEv
         _isDragging = false;
     }
 
-    return ComponentContainer::notifyMouseButtonClicked(e);
+    return ComponentContainer::notifyMouseButtonPressed(e);
 }
 
 bool InternalWindow::notifyMouseButtonReleased(const Events::MouseButtonReleasedEventArgs& e) {

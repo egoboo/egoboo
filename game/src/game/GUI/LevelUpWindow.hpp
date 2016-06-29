@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -22,6 +20,7 @@
 /// @file game/GUI/LevelUpWindow.hpp
 /// @details LevelUpWindow
 /// @author Johan Jansen
+
 #pragma once
 
 #include "game/GUI/InternalWindow.hpp"

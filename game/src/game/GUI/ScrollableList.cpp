@@ -99,9 +99,9 @@ void ScrollableList::draw() {
     _upButton->draw();
 }
 
-bool ScrollableList::notifyMouseScrolled(const int amount) {
+bool ScrollableList::notifyMouseWheelTurned(const Events::MouseWheelTurnedEventArgs& e) {
     if (_mouseOver) {
-        if (amount > 0) {
+        if (e.getDelta().y() > 0) {
             _upButton->doClick();
         } else {
             _downButton->doClick();
@@ -119,10 +119,10 @@ bool ScrollableList::notifyMouseMoved(const Events::MouseMovedEventArgs& e) {
     return ComponentContainer::notifyMouseMoved(e);
 }
 
-bool ScrollableList::notifyMouseButtonClicked(const Events::MouseButtonClickedEventArgs& e) {
-    if (_downButton->notifyMouseButtonClicked(e)) return true;
-    if (_upButton->notifyMouseButtonClicked(e)) return true;
-    return ComponentContainer::notifyMouseButtonClicked(e);
+bool ScrollableList::notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs& e) {
+    if (_downButton->notifyMouseButtonPressed(e)) return true;
+    if (_upButton->notifyMouseButtonPressed(e)) return true;
+    return ComponentContainer::notifyMouseButtonPressed(e);
 }
 
 void ScrollableList::forceUpdate() {

@@ -12,7 +12,18 @@ bool InputListener::notifyMouseMoved(const Events::MouseMovedEventArgs& e) {
     return false;
 }
 
-bool InputListener::notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEventArgs& e) {
+bool InputListener::notifyMouseWheelTurned(const Events::MouseWheelTurnedEventArgs& e) {
+    // Default: Event is not handled.
+    return false;
+}
+
+bool InputListener::notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs& e) {
+    // Default: Event is not handled.
+    return false;
+}
+
+
+bool InputListener::notifyMouseButtonReleased(const Events::MouseButtonReleasedEventArgs& e) {
     // Default: Event is not handled.
     return false;
 }
@@ -22,12 +33,17 @@ bool InputListener::notifyMouseButtonClicked(const Events::MouseButtonClickedEve
     return false;
 }
 
-bool InputListener::notifyMouseScrolled(const int amount) {
+bool InputListener::notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEventArgs& e) {
     // Default: Event is not handled.
     return false;
 }
 
-bool InputListener::notifyMouseButtonReleased(const Events::MouseButtonReleasedEventArgs& e) {
+bool InputListener::notifyKeyboardKeyReleased(const Events::KeyboardKeyReleasedEventArgs& e) {
+    // Default: Event is not handled.
+    return false;
+}
+
+bool InputListener::notifyKeyboardKeyTyped(const Events::KeyboardKeyTypedEventArgs& e) {
     // Default: Event is not handled.
     return false;
 }

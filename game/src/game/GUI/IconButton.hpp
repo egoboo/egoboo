@@ -34,15 +34,15 @@ namespace GUI {
 
 class IconButton : public Button {
 public:
-    IconButton(const std::string &buttonText, const Ego::DeferredTexture& icon, int hotkey = SDLK_UNKNOWN);
+    IconButton(const std::string &buttonText, const DeferredTexture& icon, int hotkey = SDLK_UNKNOWN);
 
     virtual void draw() override;
 
-    void setIconTint(const Ego::Math::Colour4f &tint);
+    void setIconTint(const Math::Colour4f &tint);
 
 private:
-    const Ego::DeferredTexture& _icon;
-    Ego::Math::Colour4f _iconTint;
+    const DeferredTexture& _icon;
+    Math::Colour4f _iconTint;
 };
 
 } // namespace GUI

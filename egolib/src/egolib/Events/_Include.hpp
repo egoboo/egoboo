@@ -24,7 +24,7 @@
 
 #include "egolib/Events/MouseButtonEventArgs.hpp"
 #include "egolib/Events/KeyboardKeyEventArgs.hpp"
-#include "egolib/Events/MouseWheelEventArgs.hpp"
+#include "egolib/Events/MouseWheelTurnedEventArgs.hpp"
 #include "egolib/Events/MouseMovedEventArgs.hpp"
 #include "egolib/Events/WindowEventArgs.hpp"
 

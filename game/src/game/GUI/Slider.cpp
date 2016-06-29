@@ -71,7 +71,7 @@ int Slider::getValue() const {
     return _minValue + (_maxValue - _minValue) * _sliderPosition;
 }
 
-bool Slider::notifyMouseButtonClicked(const Ego::Events::MouseButtonClickedEventArgs& e) {
+bool Slider::notifyMouseButtonPressed(const Ego::Events::MouseButtonPressedEventArgs& e) {
     if (e.getButton() == SDL_BUTTON_LEFT && contains(e.getPosition())) {
         _isDragging = true;
         notifyMouseMoved(Ego::Events::MouseMovedEventArgs(e.getPosition()));

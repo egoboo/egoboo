@@ -46,6 +46,12 @@ enum class KeyboardKeyEventKind {
     Typed,
 };
 
+
+/**
+ * @brief The event arguments for all kinds of keyboard key events.
+ * @remark KeyboardKeyEventArgs::getKey returns the key which was pressed/released/typed.
+ * In addition, the modifier keys which were active when the key was pressed can be obtained using KeyboardKeyEventArgs::getModifiers().
+ */
 template <KeyboardKeyEventKind _KeyboardKeyEventKind>
 struct KeyboardKeyEventArgs {
 private:

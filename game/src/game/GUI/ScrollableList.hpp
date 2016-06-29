@@ -60,8 +60,8 @@ public:
     bool notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEventArgs& e) override {
         return ComponentContainer::notifyKeyboardKeyPressed(e);
     }
-    bool notifyMouseButtonClicked(const Events::MouseButtonClickedEventArgs& e) override;
-    bool notifyMouseScrolled(const int amount) override;
+    bool notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs& e) override;
+    bool notifyMouseWheelTurned(const Events::MouseWheelTurnedEventArgs& e) override;
     bool notifyMouseMoved(const Events::MouseMovedEventArgs& e) override;
 
     void setWidth(float width) override;
