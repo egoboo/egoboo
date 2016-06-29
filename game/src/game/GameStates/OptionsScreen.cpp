@@ -33,7 +33,7 @@
 OptionsScreen::OptionsScreen() :
 	_slidyButtons()
 {
-	std::shared_ptr<Image> background = std::make_shared<Image>("mp_data/menu/menu_gnome");
+	auto background = std::make_shared<Ego::GUI::Image>("mp_data/menu/menu_gnome");
 
 	const int SCREEN_WIDTH = _gameEngine->getUIManager()->getScreenWidth();
 	const int SCREEN_HEIGHT = _gameEngine->getUIManager()->getScreenHeight();
@@ -45,7 +45,7 @@ OptionsScreen::OptionsScreen() :
 
 	//Add the buttons
 	int yOffset = SCREEN_HEIGHT-80;
-	std::shared_ptr<Button> backButton = std::make_shared<Button>("Back", SDLK_ESCAPE);
+	auto backButton = std::make_shared<Ego::GUI::Button>("Back", SDLK_ESCAPE);
 	backButton->setPosition(20, yOffset);
 	backButton->setSize(200, 30);
 	backButton->setOnClickFunction(
@@ -57,7 +57,7 @@ OptionsScreen::OptionsScreen() :
 
 	yOffset -= backButton->getHeight() + 10;
 
-	std::shared_ptr<Button> gameOptions = std::make_shared<Button>("Game Settings", SDLK_g);
+	auto gameOptions = std::make_shared<Ego::GUI::Button>("Game Settings", SDLK_g);
 	gameOptions->setPosition(20, yOffset);
 	gameOptions->setSize(200, 30);
 	addComponent(gameOptions);
@@ -65,7 +65,7 @@ OptionsScreen::OptionsScreen() :
 
 	yOffset -= gameOptions->getHeight() + 10;
 
-	std::shared_ptr<Button> videoOptions = std::make_shared<Button>("Video Settings", SDLK_v);
+	auto videoOptions = std::make_shared<Ego::GUI::Button>("Video Settings", SDLK_v);
 	videoOptions->setPosition(20, yOffset);
 	videoOptions->setSize(200, 30);
 	videoOptions->setOnClickFunction(
@@ -77,7 +77,7 @@ OptionsScreen::OptionsScreen() :
 
 	yOffset -= videoOptions->getHeight() + 10;
 
-	std::shared_ptr<Button> audioOptions = std::make_shared<Button>("Audio Settings", SDLK_a);
+	auto audioOptions = std::make_shared<Ego::GUI::Button>("Audio Settings", SDLK_a);
 	audioOptions->setPosition(20, yOffset);
 	audioOptions->setSize(200, 30);
 	audioOptions->setOnClickFunction(
@@ -89,7 +89,7 @@ OptionsScreen::OptionsScreen() :
 
 	yOffset -= audioOptions->getHeight() + 10;
 
-	std::shared_ptr<Button> inputOptions = std::make_shared<Button>("Input Controls", SDLK_i);
+	auto inputOptions = std::make_shared<Ego::GUI::Button>("Input Controls", SDLK_i);
 	inputOptions->setPosition(20, yOffset);
 	inputOptions->setSize(200, 30);
 	inputOptions->setOnClickFunction(
@@ -102,7 +102,7 @@ OptionsScreen::OptionsScreen() :
 	yOffset -= inputOptions->getHeight() + 10;
 
 	//Add version label and copyright text
-	std::shared_ptr<Label> welcomeLabel = std::make_shared<Label>("Select which settings to change");
+	auto welcomeLabel = std::make_shared<Ego::GUI::Label>("Select which settings to change");
 	welcomeLabel->setPosition(backButton->getX() + backButton->getWidth() + 40,
 		SCREEN_HEIGHT - SCREEN_HEIGHT/60 - welcomeLabel->getHeight());
 	addComponent(welcomeLabel);
@@ -124,7 +124,7 @@ void OptionsScreen::beginState()
     _gameEngine->enableMouseCursor();
 
     float offset = 0;
-    for(const std::shared_ptr<Button> &button : _slidyButtons)
+    for(const auto& button : _slidyButtons)
     {
 		button->beginSlidyButtonEffect(button->getWidth() + offset);
 		offset += 20;

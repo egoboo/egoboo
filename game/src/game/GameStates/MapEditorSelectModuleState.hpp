@@ -25,10 +25,14 @@
 #include "game/GameStates/GameState.hpp"
 #include "egolib/Graphics/Font.hpp"
 
-//Forward declarations
+// Forward declarations.
 class ModuleProfile;
+namespace Ego {
+namespace GUI {
 class Button;
 class Label;
+} // namespace GUI
+} // namespace Ego
 
 namespace Ego
 {
@@ -52,8 +56,8 @@ private:
 
 private:
 	std::shared_ptr<ModuleProfile> _selectedModule;
-	std::shared_ptr<Button> _selectedButton;
-	std::shared_ptr<Label> _moduleName;
+	std::shared_ptr<Ego::GUI::Button> _selectedButton;
+	std::shared_ptr<Ego::GUI::Label> _moduleName;
 
     std::shared_ptr<Ego::Font::LaidTextRenderer> _moduleDescription;
 };

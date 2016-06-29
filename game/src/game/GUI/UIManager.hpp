@@ -19,24 +19,25 @@
 
 /// @file game/GUI/UIManager.hpp
 /// @details The UIManager contains utilities for the GUI system and stores various shared resources
-///		     and properties for GUIComponents.
+///		     and properties for GUI components.
 /// @author Johan Jansen
 #pragma once
 
 #include "game/egoboo.h"
 
-//Forward declarations
+// Forward declarations.
 namespace Ego { class Font; }
 
-class UIManager : public Id::NonCopyable
-{
+namespace Ego {
+namespace GUI {
+
+class UIManager : public Id::NonCopyable {
 public:
     UIManager();
 
     ~UIManager();
 
-    enum UIFontType : uint8_t
-    {
+    enum UIFontType : uint8_t {
         FONT_DEFAULT,
         FONT_FLOATING_TEXT,
         FONT_DEBUG,
@@ -48,21 +49,21 @@ public:
      * @brief
      *  A vertex buffer to render components.
      */
-    std::shared_ptr<Ego::VertexBuffer> _vertexBuffer;
+    std::shared_ptr<VertexBuffer> _vertexBuffer;
 
     /**
     * @todo: REMOVE these functions
     **/
-    std::shared_ptr<Ego::Font> getDefaultFont() const {return getFont(FONT_DEFAULT);}
-    std::shared_ptr<Ego::Font> getFloatingTextFont() const {return getFont(FONT_FLOATING_TEXT);}
-    std::shared_ptr<Ego::Font> getDebugFont() const {return getFont(FONT_DEBUG);}
-    std::shared_ptr<Ego::Font> getGameFont() const {return getFont(FONT_GAME);}
+    std::shared_ptr<Font> getDefaultFont() const { return getFont(FONT_DEFAULT); }
+    std::shared_ptr<Font> getFloatingTextFont() const { return getFont(FONT_FLOATING_TEXT); }
+    std::shared_ptr<Font> getDebugFont() const { return getFont(FONT_DEBUG); }
+    std::shared_ptr<Font> getGameFont() const { return getFont(FONT_GAME); }
 
     /**
     * @return
     *   The Font loaded and cached by the UIManager
     **/
-    std::shared_ptr<Ego::Font> getFont(const UIFontType type) const { return _fonts[type]; }
+    std::shared_ptr<Font> getFont(const UIFontType type) const { return _fonts[type]; }
 
     /**
      * @return
@@ -92,13 +93,13 @@ public:
      * @brief
      *  Convinience function to draw a 2D image
      */
-    void drawImage(const std::shared_ptr<const Ego::Texture>& img, const Point2f& position, const Vector2f& size, const Ego::Colour4f& tint = Ego::Colour4f::white());
+    void drawImage(const std::shared_ptr<const Texture>& img, const Point2f& position, const Vector2f& size, const Colour4f& tint = Ego::Colour4f::white());
 
     /**
-    * @brief 
+    * @brief
     *   dumps the current screen (GL context) to a new bitmap file
     *   right now it dumps it to whatever the current directory is
-    * @return 
+    * @return
     *   true if successful, false otherwise
     **/
     bool dumpScreenshot();
@@ -130,14 +131,14 @@ public:
     * @param tint
     *   colour of the rectangle (including alpha channel)
     **/
-    void fillRectangle(const Rectangle2f& rectangle, const bool useAlpha, const Ego::Colour4f& tint = Ego::Colour4f::white());
-    
+    void fillRectangle(const Rectangle2f& rectangle, const bool useAlpha, const Colour4f& tint = Colour4f::white());
+
     /**
     * @brief
     *   Render a 2D texture quad
     **/
-    void drawQuad2D(const std::shared_ptr<const Ego::Texture>& texture, const Rectangle2f& scr_rect, const Rectangle2f& tx_rect, const bool useAlpha, const Ego::Colour4f& tint = Ego::Colour4f::white());
-    void drawQuad2D(const std::shared_ptr<const Ego::Texture>& texture, const ego_frect_t& scr_rect, const ego_frect_t& tx_rect, const bool useAlpha, const Ego::Colour4f& tint = Ego::Colour4f::white());
+    void drawQuad2D(const std::shared_ptr<const Texture>& texture, const Rectangle2f& scr_rect, const Rectangle2f& tx_rect, const bool useAlpha, const Colour4f& tint = Colour4f::white());
+    void drawQuad2D(const std::shared_ptr<const Texture>& texture, const ego_frect_t& scr_rect, const ego_frect_t& tx_rect, const bool useAlpha, const Colour4f& tint = Colour4f::white());
 
 private:
     /**
@@ -147,8 +148,11 @@ private:
     void drawBitmapGlyph(int fonttype, const Vector2f& position, const float alpha);
 
 private:
-    std::array<std::shared_ptr<Ego::Font>, NR_OF_UI_FONTS> _fonts;
+    std::array<std::shared_ptr<Font>, NR_OF_UI_FONTS> _fonts;
     int _renderSemaphore;
-    std::shared_ptr<Ego::Texture> _bitmapFontTexture;
-    Ego::VertexBuffer _textureQuadVertexBuffer;
+    std::shared_ptr<Texture> _bitmapFontTexture;
+    VertexBuffer _textureQuadVertexBuffer;
 };
+
+} // namespace GUI
+} // namespace Ego

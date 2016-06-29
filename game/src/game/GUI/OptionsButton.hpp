@@ -4,8 +4,10 @@
 #include "game/GUI/Label.hpp"
 #include "game/GUI/Button.hpp"
 
-class OptionsButton : public Button
-{
+namespace Ego {
+namespace GUI {
+
+class OptionsButton : public Button {
 public:
     OptionsButton(const std::string &label);
 
@@ -16,3 +18,6 @@ public:
 private:
     Label _label;
 };
+
+} // namespace GUI
+} // namespace Ego

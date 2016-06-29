@@ -17,35 +17,27 @@
 //*
 //********************************************************************************************
 
-/// @file game/GUI/CharacterStatus.hpp
-/// @author Johan Jansen
+/// @file egolib/Events/MouseClickedEventArgs.hpp
+/// @brief Arguments of a mouse clicked event.
 
 #pragma once
 
-#include "game/GUI/Component.hpp"
-
-class Object;
-namespace Ego { namespace GUI { class ProgressBar; } }
+#include "egolib/Events/MouseButtonEventArgs.hpp"
+#include "egolib/Events/KeyboardKeyEventArgs.hpp"
+#include "egolib/Events/MouseWheelEventArgs.hpp"
+#include "egolib/Events/MouseMovedEventArgs.hpp"
+#include "egolib/Events/WindowEventArgs.hpp"
 
 namespace Ego {
-namespace GUI {
+namespace Events {
 
-class CharacterStatus : public Component {
-public:
-    CharacterStatus(const std::shared_ptr<Object> &object);
+using MouseButtonClickedEventArgs = MouseButtonEventArgs<MouseButtonEventKind::Clicked>;
+using MouseButtonPressedEventArgs = MouseButtonEventArgs<MouseButtonEventKind::Pressed>;
+using MouseButtonReleasedEventArgs = MouseButtonEventArgs<MouseButtonEventKind::Released>;
 
-    virtual void draw() override;
+using KeyboardKeyTypedEventArgs = KeyboardKeyEventArgs<KeyboardKeyEventKind::Typed>;
+using KeyboardKeyPressedEventArgs = KeyboardKeyEventArgs<KeyboardKeyEventKind::Pressed>;
+using KeyboardKeyReleasedEventArgs = KeyboardKeyEventArgs<KeyboardKeyEventKind::Released>;
 
-    std::shared_ptr<Object> getObject() const { return _object.lock(); }
-
-private:
-    float draw_one_xp_bar(float x, float y, Uint8 ticks);
-    float draw_character_xp_bar(const ObjectRef character, float x, float y);
-    float draw_one_bar(Uint8 bartype, float x, float y, int ticks, int maxticks);
-    void  draw_one_character_icon(const ObjectRef item, float x, float y, bool draw_ammo, Uint8 sparkle_override);
-    std::weak_ptr<Object> _object;
-    std::shared_ptr<GUI::ProgressBar> _chargeBar;
-};
-
-} // namespace GUI
+} // namespace Events
 } // namespace Ego

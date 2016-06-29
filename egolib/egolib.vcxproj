@@ -497,6 +497,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Events\MouseButtonEventArgs.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\Closure.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\Closure_AxisAlignedBox_AxisAlignedBox.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\Closure_AxisAlignedBox_AxisAlignedCube.hpp" />
@@ -509,8 +510,8 @@
     <ClInclude Include="src\egolib\Input\Mapping.hpp" />
     <ClInclude Include="src\egolib\Input\DeviceEventArgs.hpp" />
     <ClInclude Include="src\egolib\Events\WindowEventArgs.hpp" />
-    <ClInclude Include="src\egolib\Events\MouseReleasedEventArgs.hpp" />
-    <ClInclude Include="src\egolib\Events\MouseClickedEventArgs.hpp" />
+    <ClInclude Include="src\egolib\Events\KeyboardKeyEventArgs.hpp" />
+    <ClInclude Include="src\egolib\Events\_Include.hpp" />
     <ClInclude Include="src\egolib\Events\MouseMovedEventArgs.hpp" />
     <ClInclude Include="src\egolib\Input\input.h" />
     <ClInclude Include="src\egolib\Input\input_device.h" />

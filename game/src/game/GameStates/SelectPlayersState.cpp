@@ -31,22 +31,22 @@
 #include "game/game.h"	//only for MAX_IMPORTS_PER_OBJECT constant
 #include "game/GameStates/LoadPlayerElement.hpp"
 
-SelectPlayersState::SelectPlayersState() :
-_playerButtons(),
-_continueButton(std::make_shared<Button>("Select Module", SDLK_RETURN))
+SelectPlayersState::SelectPlayersState()
+    : _playerButtons(),
+      _continueButton(std::make_shared<Ego::GUI::Button>("Select Module", SDLK_RETURN))
 {
     const int SCREEN_WIDTH = _gameEngine->getUIManager()->getScreenWidth();
     const int SCREEN_HEIGHT = _gameEngine->getUIManager()->getScreenHeight();
 
     //Load background
-    std::shared_ptr<Image> background = std::make_shared<Image>("mp_data/menu/menu_selectplayers");
+    auto background = std::make_shared<Ego::GUI::Image>("mp_data/menu/menu_selectplayers");
     background->setSize(std::min(SCREEN_WIDTH, background->getTextureWidth()), std::min(SCREEN_HEIGHT, background->getTextureHeight()));
     background->setPosition(SCREEN_WIDTH-background->getWidth(), SCREEN_HEIGHT-background->getHeight());
     addComponent(background);
 
     //Add the buttons
     int yOffset = SCREEN_HEIGHT - 80;
-    std::shared_ptr<Button> backButton = std::make_shared<Button>("Back", SDLK_ESCAPE);
+    auto backButton = std::make_shared<Ego::GUI::Button>("Back", SDLK_ESCAPE);
     backButton->setPosition(20, yOffset);
     backButton->setSize(200, 30);
     backButton->setOnClickFunction(
@@ -76,26 +76,26 @@ _continueButton(std::make_shared<Button>("Select Module", SDLK_RETURN))
     _continueButton->setEnabled(false);
 
     //Tell them what this screen is all about
-    std::shared_ptr<Label> infoText = std::make_shared<Label>("Select a character for each player that is going ot play.");
+    auto infoText = std::make_shared<Ego::GUI::Label>("Select a character for each player that is going ot play.");
     infoText->setPosition(150, SCREEN_HEIGHT - 40);
     addComponent(infoText);
 
     //Players Label
-    std::shared_ptr<Label> playersLabel = std::make_shared<Label>("PLAYERS");
+    auto playersLabel = std::make_shared<Ego::GUI::Label>("PLAYERS");
     playersLabel->setPosition(20, 20);
     addComponent(playersLabel);
 
-    std::shared_ptr<Label> characterLabel = std::make_shared<Label>("CHARACTER");
+    auto characterLabel = std::make_shared<Ego::GUI::Label>("CHARACTER");
     characterLabel->setPosition(SCREEN_WIDTH / 3, 20);
     addComponent(characterLabel);
 
     yOffset = playersLabel->getY() + playersLabel->getHeight() + 20;
     for (int i = 0; i < 4; ++i) {
-        std::shared_ptr<Label> playerLabel = std::make_shared<Label>(std::string("Player ") + std::to_string(i + 1));
+        auto playerLabel = std::make_shared<Ego::GUI::Label>(std::string("Player ") + std::to_string(i + 1));
         playerLabel->setPosition(40, yOffset);
         addComponent(playerLabel);
 
-        std::shared_ptr<Button> playerButton = std::make_shared<Button>("Not playing");
+        auto playerButton = std::make_shared<Ego::GUI::Button>("Not playing");
         playerButton->setSize(200, 42);
         playerButton->setPosition(SCREEN_WIDTH / 3, yOffset - 10);
         playerButton->setOnClickFunction(

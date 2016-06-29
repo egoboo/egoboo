@@ -36,28 +36,28 @@
 MainMenuState::MainMenuState() :
 	_slidyButtons()
 {
-	std::shared_ptr<Image> background;
-	std::shared_ptr<Image> gameLogo;
+	std::shared_ptr<Ego::GUI::Image> background;
+	std::shared_ptr<Ego::GUI::Image> gameLogo;
 
 	//Special xmas theme
 	if (Zeitgeist::CheckTime(Zeitgeist::Time::Christmas))
 	{
-	    background = std::make_shared<Image>("mp_data/menu/menu_xmas");
-	    gameLogo = std::make_shared<Image>("mp_data/menu/snowy_logo");
+	    background = std::make_shared<Ego::GUI::Image>("mp_data/menu/menu_xmas");
+	    gameLogo = std::make_shared<Ego::GUI::Image>("mp_data/menu/snowy_logo");
 	}
 
 	//Special Halloween theme
 	else if (Zeitgeist::CheckTime(Zeitgeist::Time::Halloween))
 	{
-	    background = std::make_shared<Image>("mp_data/menu/menu_halloween");
-	    gameLogo = std::make_shared<Image>("mp_data/menu/creepy_logo");
+	    background = std::make_shared<Ego::GUI::Image>("mp_data/menu/menu_halloween");
+	    gameLogo = std::make_shared<Ego::GUI::Image>("mp_data/menu/creepy_logo");
 	}
 
 	//Default egoboo theme
 	else
 	{
-	    background = std::make_shared<Image>("mp_data/menu/menu_main");
-	    gameLogo = std::make_shared<Image>("mp_data/menu/menu_logo");
+	    background = std::make_shared<Ego::GUI::Image>("mp_data/menu/menu_main");
+	    gameLogo = std::make_shared<Ego::GUI::Image>("mp_data/menu/menu_logo");
 	}
 
 	const int SCREEN_WIDTH = _gameEngine->getUIManager()->getScreenWidth();
@@ -75,7 +75,7 @@ MainMenuState::MainMenuState() :
 
 	//Add the buttons
 	int yOffset = SCREEN_HEIGHT-80;
-	std::shared_ptr<Button> exitButton = std::make_shared<Button>("Exit Game", SDLK_ESCAPE);
+    auto exitButton = std::make_shared<Ego::GUI::Button>("Exit Game", SDLK_ESCAPE);
 	exitButton->setPosition(20, yOffset);
 	exitButton->setSize(200, 30);
 	exitButton->setOnClickFunction(
@@ -87,7 +87,7 @@ MainMenuState::MainMenuState() :
 
 	yOffset -= exitButton->getHeight() + 10;
 
-	std::shared_ptr<Button> optionsButton = std::make_shared<Button>("Options", SDLK_o);
+	auto optionsButton = std::make_shared<Ego::GUI::Button>("Options", SDLK_o);
 	optionsButton->setPosition(20, yOffset);
 	optionsButton->setSize(200, 30);
 	optionsButton->setOnClickFunction(
@@ -99,7 +99,7 @@ MainMenuState::MainMenuState() :
 
 	yOffset -= optionsButton->getHeight() + 10;
 
-	std::shared_ptr<Button> loadGameButton = std::make_shared<Button>("Load Game", SDLK_l);
+	auto loadGameButton = std::make_shared<Ego::GUI::Button>("Load Game", SDLK_l);
 	loadGameButton->setPosition(20, yOffset);
 	loadGameButton->setSize(200, 30);
 	loadGameButton->setOnClickFunction(
@@ -111,7 +111,7 @@ MainMenuState::MainMenuState() :
 
 	yOffset -= loadGameButton->getHeight() + 10;
 
-	std::shared_ptr<Button> newGameButton = std::make_shared<Button>("New Game", SDLK_n);
+	auto newGameButton = std::make_shared<Ego::GUI::Button>("New Game", SDLK_n);
 	newGameButton->setPosition(20, yOffset);
 	newGameButton->setSize(200, 30);
 	newGameButton->setOnClickFunction(
@@ -125,7 +125,7 @@ MainMenuState::MainMenuState() :
     
     if (egoboo_config_t::get().debug_developerMode_enable.getValue())
     {
-        std::shared_ptr<Button> debugButton = std::make_shared<Button>("Debug", SDLK_UNKNOWN);
+        auto debugButton = std::make_shared<Ego::GUI::Button>("Debug", SDLK_UNKNOWN);
         debugButton->setPosition(20, yOffset);
         debugButton->setSize(200, 30);
         debugButton->setOnClickFunction(
@@ -137,7 +137,7 @@ MainMenuState::MainMenuState() :
 
 	    yOffset -= debugButton->getHeight() + 10;
 
-        std::shared_ptr<Button> mapEditorButton = std::make_shared<Button>("Map Editor", SDLK_m);
+        auto mapEditorButton = std::make_shared<Ego::GUI::Button>("Map Editor", SDLK_m);
         mapEditorButton->setPosition(20, yOffset);
         mapEditorButton->setSize(200, 30);
         mapEditorButton->setOnClickFunction(
@@ -149,12 +149,12 @@ MainMenuState::MainMenuState() :
     }
 
 	//Add version label and copyright text
-	std::shared_ptr<Label> welcomeLabel = std::make_shared<Label>(
+    auto welcomeLabel = std::make_shared<Ego::GUI::Label>(
 		"Welcome to Egoboo!\n"
 		"http://egoboo.sourceforge.net\n"
 		"Version 2.9.0");
 	welcomeLabel->setPosition(exitButton->getX() + exitButton->getWidth() + 40,
-		SCREEN_HEIGHT - SCREEN_HEIGHT/60 - welcomeLabel->getHeight());
+		                      SCREEN_HEIGHT - SCREEN_HEIGHT/60 - welcomeLabel->getHeight());
 	addComponent(welcomeLabel);
 }
 
@@ -177,7 +177,7 @@ void MainMenuState::beginState()
     playMainMenuSong();
 
     float offset = 0;
-    for(const std::shared_ptr<Button> &button : _slidyButtons)
+    for(const auto& button : _slidyButtons)
     {
         button->beginSlidyButtonEffect(button->getWidth() + offset);
         offset += 20;

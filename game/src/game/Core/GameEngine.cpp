@@ -177,7 +177,7 @@ void GameEngine::estimateFrameRate()
 
 void GameEngine::updateOneFrame()
 {
-    //Handle clearing the game state stack first. Should be done before any GUIComponents
+    //Handle clearing the game state stack first. Should be done before any GUI components
     //become locked by the event or rendering loop
     if(_clearGameStateStackRequested) {
         _gameStateStack.clear();
@@ -331,7 +331,7 @@ bool GameEngine::initialize()
     font_bmp_load_vfs("mp_data/font_new_shadow", "mp_data/font.txt");
 
     // setup the system gui
-    _uiManager = std::unique_ptr<UIManager>(new UIManager());
+    _uiManager = std::make_unique<Ego::GUI::UIManager>();
 
     //Tell them we are loading the game (This is earliest point we can render text to screen)
     renderPreloadText("Initializing game...");
@@ -540,11 +540,11 @@ void GameEngine::pollEvents()
             break;
                 
             case SDL_MOUSEBUTTONDOWN:
-                _currentGameState->notifyMouseClicked(Ego::Events::MouseClickedEventArgs(Point2f(event.button.x, event.button.y), event.button.button));
+                _currentGameState->notifyMouseButtonClicked(Ego::Events::MouseButtonClickedEventArgs(Point2f(event.button.x, event.button.y), event.button.button));
             break;
 
             case SDL_MOUSEBUTTONUP:
-                _currentGameState->notifyMouseReleased(Ego::Events::MouseReleasedEventArgs(Point2f(event.button.x, event.button.y), event.button.button));
+                _currentGameState->notifyMouseButtonReleased(Ego::Events::MouseButtonReleasedEventArgs(Point2f(event.button.x, event.button.y), event.button.button));
             break;
                 
             case SDL_MOUSEMOTION:
@@ -554,7 +554,7 @@ void GameEngine::pollEvents()
             break;
                 
             case SDL_KEYDOWN:
-                _currentGameState->notifyKeyDown(event.key.keysym.sym);
+                _currentGameState->notifyKeyboardKeyPressed(Ego::Events::KeyboardKeyPressedEventArgs(event.key.keysym.sym));
             break;
         }
     } // end of message processing

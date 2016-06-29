@@ -46,22 +46,22 @@ LoadingState::LoadingState(std::shared_ptr<ModuleProfile> module, const std::lis
     _playersToLoad(playersToLoad),
     _globalGameTips(),
     _localGameTips(),
-    _progressBar(std::make_shared<GUI::ProgressBar>())
+    _progressBar(std::make_shared<Ego::GUI::ProgressBar>())
 {
     const int SCREEN_WIDTH = _gameEngine->getUIManager()->getScreenWidth();
     const int SCREEN_HEIGHT = _gameEngine->getUIManager()->getScreenHeight();
 
-    //Load background
-    std::shared_ptr<Image> background = std::make_shared<Image>("mp_data/menu/menu_logo");
+    // Load background
+    auto background = std::make_shared<Ego::GUI::Image>("mp_data/menu/menu_logo");
     background->setSize(background->getTextureWidth(), background->getTextureHeight());
     background->setPosition(SCREEN_WIDTH/2-background->getTextureWidth()/2, SCREEN_HEIGHT/2-background->getTextureHeight()/2-100);
     addComponent(background);
 
-    std::shared_ptr<Label> mainLabel = std::make_shared<Label>("LOADING MODULE");
+    auto mainLabel = std::make_shared<Ego::GUI::Label>("LOADING MODULE");
     mainLabel->setPosition(SCREEN_WIDTH/2 - mainLabel->getWidth()/2, 20);
     addComponent(mainLabel);
 
-    _loadingLabel = std::make_shared<Label>("Initializing...");
+    _loadingLabel = std::make_shared<Ego::GUI::Label>("Initializing...");
     addComponent(_loadingLabel);
 
     //Load game hints. It's OK if we dont get any local hints
@@ -75,7 +75,7 @@ LoadingState::LoadingState(std::shared_ptr<ModuleProfile> module, const std::lis
     addComponent(_progressBar);
 
     //Add a random game tip
-    std::shared_ptr<Label> gameTip = std::make_shared<Label>(getRandomHint());
+    auto gameTip = std::make_shared<Ego::GUI::Label>(getRandomHint());
     gameTip->setPosition(SCREEN_WIDTH/2 - gameTip->getWidth()/2, SCREEN_HEIGHT/2);
     addComponent(gameTip);
 }
@@ -220,7 +220,7 @@ void LoadingState::loadModuleData()
     std::this_thread::sleep_for(std::chrono::seconds(2));
 
     //Add the start button once we are finished loading
-    std::shared_ptr<Button> startButton = std::make_shared<Button>("Press Space to begin", SDLK_SPACE);
+    auto startButton = std::make_shared<Ego::GUI::Button>("Press Space to begin", SDLK_SPACE);
     startButton->setSize(400, 30);
     startButton->setPosition(SCREEN_WIDTH/2 - startButton->getWidth()/2, SCREEN_HEIGHT-50);
     startButton->setOnClickFunction(

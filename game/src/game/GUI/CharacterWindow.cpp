@@ -15,13 +15,12 @@ namespace GUI {
 static const int LINE_SPACING_OFFSET = -2; //To make space between lines less
 
 CharacterWindow::CharacterWindow(const std::shared_ptr<Object> &object) : InternalWindow(object->getName()),
-    _character(object),
-    _levelUpButton(nullptr),
-    _levelUpWindow(),
-    _characterStatisticsTab(),
-    _knownPerksTab(),
-    _activeEnchantsTab()
-{
+_character(object),
+_levelUpButton(nullptr),
+_levelUpWindow(),
+_characterStatisticsTab(),
+_knownPerksTab(),
+_activeEnchantsTab() {
     setSize(420, 370);
 
     buildCharacterStatisticTab();
@@ -31,22 +30,20 @@ CharacterWindow::CharacterWindow(const std::shared_ptr<Object> &object) : Intern
     setComponentList(_characterStatisticsTab);
 }
 
-CharacterWindow::~CharacterWindow()
-{
+CharacterWindow::~CharacterWindow() {
     //If the character is a local player, then we no longer consume that players input events
-    if(_character->isPlayer()) {
+    if (_character->isPlayer()) {
         _currentModule->getPlayer(_character->is_which_player)->setInventoryMode(false);
     }
 
     //If the level up window is open, close it as well
     std::shared_ptr<InternalWindow> window = _levelUpWindow.lock();
-    if(window) {
+    if (window) {
         window->destroy();
     }
 }
 
-int CharacterWindow::addAttributeLabel(const int x, const int y, const Ego::Attribute::AttributeType type)
-{
+int CharacterWindow::addAttributeLabel(const int x, const int y, const Ego::Attribute::AttributeType type) {
     //Label
     std::shared_ptr<Label> label = std::make_shared<Label>(Ego::Attribute::toString(type) + ":");
     label->setPosition(x, y);
@@ -57,28 +54,25 @@ int CharacterWindow::addAttributeLabel(const int x, const int y, const Ego::Attr
     std::shared_ptr<Label> value = std::make_shared<Label>("");
 
     //Special case regeneration values, use decimals
-    if(type == Ego::Attribute::MANA_REGEN || type == Ego::Attribute::LIFE_REGEN) {
+    if (type == Ego::Attribute::MANA_REGEN || type == Ego::Attribute::LIFE_REGEN) {
         std::stringstream valueString;
         valueString << std::setprecision(2) << std::fixed << _character->getAttribute(type);
         value->setText(valueString.str());
-    }
-    else {
-        value->setText(std::to_string(std::lround(_character->getAttribute(type))));        
+    } else {
+        value->setText(std::to_string(std::lround(_character->getAttribute(type))));
     }
 
-    value->setPosition(getWidth()/2 - 20, label->getY());
+    value->setPosition(getWidth() / 2 - 20, label->getY());
     value->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
     _characterStatisticsTab.push_back(value);
 
-    return label->getHeight()-LINE_SPACING_OFFSET;
+    return label->getHeight() - LINE_SPACING_OFFSET;
 }
 
-int CharacterWindow::addResistanceLabel(const int x, const int y, const DamageType type)
-{
+int CharacterWindow::addResistanceLabel(const int x, const int y, const DamageType type) {
     //Enum to string
     std::string damageName;
-    switch(type)
-    {
+    switch (type) {
         case DAMAGE_POKE:  damageName = "Poke"; break;
         case DAMAGE_SLASH: damageName = "Slash"; break;
         case DAMAGE_CRUSH: damageName = "Crush"; break;
@@ -94,38 +88,36 @@ int CharacterWindow::addResistanceLabel(const int x, const int y, const DamageTy
     std::shared_ptr<Label> label = std::make_shared<Label>(damageName + ":");
     label->setPosition(x, y);
     label->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
-    label->setColor(Ego::Math::Colour4f(DamageType_getColour(type), 1.0f));
+    label->setColour(Ego::Math::Colour4f(DamageType_getColour(type), 1.0f));
     _characterStatisticsTab.push_back(label);
 
     //Value
     std::shared_ptr<Label> value = std::make_shared<Label>(std::to_string(std::lround(_character->getRawDamageResistance(type))));
     value->setPosition(label->getX() + 50, label->getY());
     value->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
-    value->setColor(Ego::Math::Colour4f(DamageType_getColour(type), 1.0f));
+    value->setColour(Ego::Math::Colour4f(DamageType_getColour(type), 1.0f));
     _characterStatisticsTab.push_back(value);
 
     //Percent
-    std::shared_ptr<Label> percent = std::make_shared<Label>("(" + std::to_string(std::lround(_character->getDamageReduction(type)*100)) + "%)");
+    std::shared_ptr<Label> percent = std::make_shared<Label>("(" + std::to_string(std::lround(_character->getDamageReduction(type) * 100)) + "%)");
     percent->setPosition(label->getX() + 75, label->getY());
     percent->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
-    percent->setColor(Ego::Math::Colour4f(DamageType_getColour(type), 1.0f));
+    percent->setColour(Ego::Math::Colour4f(DamageType_getColour(type), 1.0f));
     _characterStatisticsTab.push_back(percent);
 
-    return label->getHeight()-LINE_SPACING_OFFSET;
+    return label->getHeight() - LINE_SPACING_OFFSET;
 }
 
-bool CharacterWindow::notifyMouseMoved(const Ego::Events::MouseMovedEventArgs& e)
-{
+bool CharacterWindow::notifyMouseMoved(const Ego::Events::MouseMovedEventArgs& e) {
     //Make level up button visible if needed
-    if(_character->isPlayer()) {
+    if (_character->isPlayer()) {
         _levelUpButton->setVisible(_levelUpWindow.expired() && _currentModule->getPlayer(_character->is_which_player)->hasUnspentLevel());
     }
 
     return InternalWindow::notifyMouseMoved(e);
 }
 
-void CharacterWindow::buildCharacterStatisticTab()
-{
+void CharacterWindow::buildCharacterStatisticTab() {
     int yPos = 0;
 
     // draw the character's main icon
@@ -133,39 +125,35 @@ void CharacterWindow::buildCharacterStatisticTab()
     characterIcon->setPosition(5, 32);
     characterIcon->setSize(32, 32);
     _characterStatisticsTab.push_back(characterIcon);
-    
+
     std::stringstream buffer;
 
-    if(_character->isAlive())
-    {
+    if (_character->isAlive()) {
         //Level
         buffer << std::to_string(_character->getExperienceLevel());
-        switch(_character->getExperienceLevel())
-        {
+        switch (_character->getExperienceLevel()) {
             case 1:
                 buffer << "st";
-            break;
+                break;
 
             case 2:
                 buffer << "nd";
-            break;
+                break;
 
             case 3:
                 buffer << "rd";
-            break;
+                break;
 
             default:
                 buffer << "th";
-            break;
+                break;
         }
         buffer << " level ";
 
         //Gender
-        if     (_character->getGender() == Gender::Male)   buffer << "male ";
-        else if(_character->getGender() == Gender::Female) buffer << "female ";        
-    }
-    else
-    {
+        if (_character->getGender() == Gender::Male)   buffer << "male ";
+        else if (_character->getGender() == Gender::Female) buffer << "female ";
+    } else {
         buffer << "Dead ";
     }
 
@@ -184,26 +172,26 @@ void CharacterWindow::buildCharacterStatisticTab()
     _characterStatisticsTab.push_back(attributeLabel);
 
     yPos = attributeLabel->getY() + attributeLabel->getHeight() - LINE_SPACING_OFFSET;
-    for(int i = 0; i < Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES; ++i) {
+    for (int i = 0; i < Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES; ++i) {
         yPos += addAttributeLabel(attributeLabel->getX(), yPos, static_cast<Ego::Attribute::AttributeType>(i));
     }
 
     //Defences
     std::shared_ptr<Label> defenceLabel = std::make_shared<Label>("DEFENCES");
-    defenceLabel->setPosition(getX() + getWidth()/2 + 20, attributeLabel->getY());
+    defenceLabel->setPosition(getX() + getWidth() / 2 + 20, attributeLabel->getY());
     defenceLabel->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
-    _characterStatisticsTab.push_back(defenceLabel);    
+    _characterStatisticsTab.push_back(defenceLabel);
 
     yPos = defenceLabel->getY() + defenceLabel->getHeight() - LINE_SPACING_OFFSET;
-    for(int type = 0; type < DAMAGE_COUNT; ++type) {
+    for (int type = 0; type < DAMAGE_COUNT; ++type) {
         yPos += addResistanceLabel(defenceLabel->getX(), yPos, static_cast<DamageType>(type));
     }
 
     //Inventory
-    const int slotSize = (getWidth() - 15 - _character->getInventory().getMaxItems()*5) / _character->getInventory().getMaxItems();
+    const int slotSize = (getWidth() - 15 - _character->getInventory().getMaxItems() * 5) / _character->getInventory().getMaxItems();
     int xPos = 10;
     yPos += 5;
-    for(size_t i = 0; i < _character->getInventory().getMaxItems(); ++i) {
+    for (size_t i = 0; i < _character->getInventory().getMaxItems(); ++i) {
         std::shared_ptr<InventorySlot> slot = std::make_shared<InventorySlot>(_character->getInventory(), i, _character->isPlayer() ? _currentModule->getPlayer(_character->is_which_player) : nullptr);
         slot->setSize(slotSize, slotSize);
         slot->setPosition(xPos, yPos);
@@ -211,31 +199,30 @@ void CharacterWindow::buildCharacterStatisticTab()
         _characterStatisticsTab.push_back(slot);
 
         //Newline?
-        if(xPos + slot->getWidth() > getWidth()) {
+        if (xPos + slot->getWidth() > getWidth()) {
             yPos += slot->getHeight() + 5;
             xPos = 10;
         }
     }
 
     //If the character is a local player, then we consume that players input events for inventory managment
-    if(_character->isPlayer()) {
+    if (_character->isPlayer()) {
         _currentModule->getPlayer(_character->is_which_player)->setInventoryMode(true);
     }
 
     //LevelUp button
-    if(_character->isPlayer())
-    {
+    if (_character->isPlayer()) {
         _levelUpButton = std::make_shared<Button>("LEVEL UP");
         _levelUpButton->setSize(120, 30);
-        _levelUpButton->setPosition(getWidth()/2 - _levelUpButton->getWidth()/2, getHeight() - _levelUpButton->getHeight() - 15);
+        _levelUpButton->setPosition(getWidth() / 2 - _levelUpButton->getWidth() / 2, getHeight() - _levelUpButton->getHeight() - 15);
         _levelUpButton->setOnClickFunction(
-            [this](){
-                std::shared_ptr<LevelUpWindow> window = std::make_shared<LevelUpWindow>(_character);
-                getParent()->addComponent(window);
-                //destroy();
-                _levelUpWindow = window;
-                _levelUpButton->setVisible(false);
-            }
+            [this]() {
+            std::shared_ptr<LevelUpWindow> window = std::make_shared<LevelUpWindow>(_character);
+            getParent()->addComponent(window);
+            //destroy();
+            _levelUpWindow = window;
+            _levelUpButton->setVisible(false);
+        }
         );
         _characterStatisticsTab.push_back(_levelUpButton);
 
@@ -247,7 +234,7 @@ void CharacterWindow::buildCharacterStatisticTab()
     std::shared_ptr<Button> perksTab = std::make_shared<Button>("Perks");
     perksTab->setSize(120, 30);
     perksTab->setPosition(20, getHeight() - perksTab->getHeight() - 15);
-    perksTab->setOnClickFunction([this]{
+    perksTab->setOnClickFunction([this] {
         setComponentList(_knownPerksTab);
     });
     _characterStatisticsTab.push_back(perksTab);
@@ -256,14 +243,13 @@ void CharacterWindow::buildCharacterStatisticTab()
     std::shared_ptr<Button> enchantsTab = std::make_shared<Button>("Enchants");
     enchantsTab->setSize(120, 30);
     enchantsTab->setPosition(getWidth() - enchantsTab->getWidth() - 20, getHeight() - enchantsTab->getHeight() - 15);
-    enchantsTab->setOnClickFunction([this]{
+    enchantsTab->setOnClickFunction([this] {
         setComponentList(_activeEnchantsTab);
     });
     _characterStatisticsTab.push_back(enchantsTab);
 }
 
-void CharacterWindow::buildKnownPerksTab()
-{
+void CharacterWindow::buildKnownPerksTab() {
     //List of perks known
     std::shared_ptr<ScrollableList> perksKnown = std::make_shared<ScrollableList>();
     perksKnown->setSize(getWidth() - 60, getHeight() * 0.60f);
@@ -281,7 +267,7 @@ void CharacterWindow::buildKnownPerksTab()
     std::shared_ptr<Label> newPerkLabel = std::make_shared<Label>("No Perk Selected");
     newPerkLabel->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
     newPerkLabel->setPosition(20, getHeight() - perkIcon->getHeight() - 40);
-    newPerkLabel->setColor(Ego::Math::Colour4f::yellow());
+    newPerkLabel->setColour(Ego::Math::Colour4f::yellow());
     _knownPerksTab.push_back(newPerkLabel);
 
     //Perk description
@@ -291,21 +277,21 @@ void CharacterWindow::buildKnownPerksTab()
     _knownPerksTab.push_back(perkDescription);
 
     //Make list of all perks that this character knows
-    for(size_t i = 0; i < Ego::Perks::NR_OF_PERKS; ++i) {
+    for (size_t i = 0; i < Ego::Perks::NR_OF_PERKS; ++i) {
         const Ego::Perks::PerkID perkID = static_cast<Ego::Perks::PerkID>(i);
 
         //Do we know it?
-        if(_character->hasPerk(perkID)) {
+        if (_character->hasPerk(perkID)) {
             const Ego::Perks::Perk &perk = Ego::Perks::PerkHandler::get().getPerk(perkID);
-            
+
             std::shared_ptr<IconButton> perkButton = std::make_shared<IconButton>(perk.getName(), perk.getIcon());
             perkButton->setSize(perksKnown->getWidth() - 50, 32);
             perkButton->setIconTint(perk.getColour());
 
             //Display detailed info about this perk if clicked
-            perkButton->setOnClickFunction( [&perk, perkIcon, perkDescription] {
+            perkButton->setOnClickFunction([&perk, perkIcon, perkDescription] {
                 perkIcon->setVisible(true);
-                perkIcon->setImage(perk.getIcon().getFilePath());                
+                perkIcon->setImage(perk.getIcon().getFilePath());
                 perkIcon->setTint(perk.getColour());
                 perkDescription->setText(perk.getDescription());
             });
@@ -317,43 +303,41 @@ void CharacterWindow::buildKnownPerksTab()
     perksKnown->forceUpdate();
 }
 
-void CharacterWindow::buildActiveEnchantsTab()
-{
+void CharacterWindow::buildActiveEnchantsTab() {
     //List of active enchants
     std::shared_ptr<ScrollableList> activeEnchants = std::make_shared<ScrollableList>();
-    activeEnchants->setSize( (getWidth()-20) / 2, getHeight() * 0.60f);
+    activeEnchants->setSize((getWidth() - 20) / 2, getHeight() * 0.60f);
     activeEnchants->setPosition(10, 40);
     _activeEnchantsTab.push_back(activeEnchants);
 
     //Enchant Name
     std::shared_ptr<Label> enchantName = std::make_shared<Label>("No Enchant Selected");
     enchantName->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
-    enchantName->setPosition(activeEnchants->getX()+activeEnchants->getWidth()+5, activeEnchants->getY());
-    enchantName->setColor(Ego::Math::Colour4f::yellow());
+    enchantName->setPosition(activeEnchants->getX() + activeEnchants->getWidth() + 5, activeEnchants->getY());
+    enchantName->setColour(Ego::Math::Colour4f::yellow());
     _activeEnchantsTab.push_back(enchantName);
 
     //List of effects a given enchant has
     std::shared_ptr<ScrollableList> enchantEffects = std::make_shared<ScrollableList>();
-    enchantEffects->setSize( (getWidth()-20) /2, activeEnchants->getHeight() - enchantName->getHeight());
+    enchantEffects->setSize((getWidth() - 20) / 2, activeEnchants->getHeight() - enchantName->getHeight());
     enchantEffects->setPosition(enchantName->getX(), enchantName->getY() + enchantName->getHeight());
     _activeEnchantsTab.push_back(enchantEffects);
 
     //Count number of unique enchants and merge all others
     std::unordered_map<std::string, std::vector<std::shared_ptr<Ego::Enchantment>>> enchantCount;
-    for(const std::shared_ptr<Ego::Enchantment> &enchant : _character->getActiveEnchants()) {
-        if(!enchant->getProfile()->getEnchantName().empty()) {
+    for (const std::shared_ptr<Ego::Enchantment> &enchant : _character->getActiveEnchants()) {
+        if (!enchant->getProfile()->getEnchantName().empty()) {
             enchantCount[enchant->getProfile()->getEnchantName()].push_back(enchant);
-        }
-        else {
+        } else {
             enchantCount["Miscellaneous"].push_back(enchant);
         }
     }
 
-    for(const auto& element : enchantCount) {
-        std::string prefix = element.second.size() > 1 ? "x"+std::to_string(element.second.size()) + " " : "";
+    for (const auto& element : enchantCount) {
+        std::string prefix = element.second.size() > 1 ? "x" + std::to_string(element.second.size()) + " " : "";
 
         //Replace underscores with spaces
-        std::string name = element.first ;
+        std::string name = element.first;
         std::transform(name.begin(), name.end(), name.begin(), [](char ch) {
             return ch == '_' ? ' ' : ch;
         });
@@ -369,21 +353,20 @@ void CharacterWindow::buildActiveEnchantsTab()
     }
 }
 
-void CharacterWindow::describeEnchantEffects(const std::vector<std::shared_ptr<Ego::Enchantment>> &enchantments, std::shared_ptr<ScrollableList> list)
-{
+void CharacterWindow::describeEnchantEffects(const std::vector<std::shared_ptr<Ego::Enchantment>> &enchantments, std::shared_ptr<ScrollableList> list) {
     //Accumulate effects
     std::unordered_map<Ego::Attribute::AttributeType, float> effects;
-    for(const std::shared_ptr<Ego::Enchantment> &enchant : enchantments) {
-        for(const EnchantModifier& modifier : enchant->getModifiers()) {
+    for (const std::shared_ptr<Ego::Enchantment> &enchant : enchantments) {
+        for (const EnchantModifier& modifier : enchant->getModifiers()) {
             effects[modifier._type] += modifier._value;
         }
     }
 
     //Now describe each effect
     list->clearComponents();
-    for(const auto &element : effects) {
+    for (const auto &element : effects) {
         //No effect?
-        if(std::abs(element.second) < std::numeric_limits<float>::epsilon()) continue;
+        if (std::abs(element.second) < std::numeric_limits<float>::epsilon()) continue;
 
         //Add a label description
         try {
@@ -392,10 +375,9 @@ void CharacterWindow::describeEnchantEffects(const std::vector<std::shared_ptr<E
 
             std::shared_ptr<Label> label = std::make_shared<Label>(out.str());
             label->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
-            label->setColor(element.second > 0 ? Ego::Math::Colour4f::green() : Ego::Math::Colour4f::red());
+            label->setColour(element.second > 0 ? Ego::Math::Colour4f::green() : Ego::Math::Colour4f::red());
             list->addComponent(label);
-        }
-        catch(Id::UnhandledSwitchCaseException &ex) {
+        } catch (Id::UnhandledSwitchCaseException &ex) {
             //Simply ignore effects that cannot be translated into a description
             continue;
         }
@@ -403,5 +385,5 @@ void CharacterWindow::describeEnchantEffects(const std::vector<std::shared_ptr<E
     list->forceUpdate();
 }
 
-} //GUI
-} //Ego
+} // namespace GUI
+} // namespace Ego

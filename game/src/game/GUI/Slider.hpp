@@ -21,17 +21,14 @@
 /// @details GUI widget of a moveable slider ranging between minimum and maximum value
 /// @author Johan Jansen
 
-#include "game/GUI/GUIComponent.hpp"
+#include "game/GUI/Component.hpp"
 
 #pragma once
 
-namespace Ego
-{
-namespace GUI
-{
+namespace Ego {
+namespace GUI {
 
-class Slider : public GUIComponent
-{
+class Slider : public Component {
 public:
     Slider(int minValue, int maxValue);
 
@@ -44,19 +41,19 @@ public:
 
     bool isEnabled() const override;
 
-    bool notifyMouseMoved(const Ego::Events::MouseMovedEventArgs& e) override;
-    bool notifyMouseClicked(const Ego::Events::MouseClickedEventArgs& e) override;
-    bool notifyMouseReleased(const Ego::Events::MouseReleasedEventArgs& e) override;
+    bool notifyMouseMoved(const Events::MouseMovedEventArgs& e) override;
+    bool notifyMouseButtonClicked(const Events::MouseButtonClickedEventArgs& e) override;
+    bool notifyMouseButtonReleased(const Events::MouseButtonReleasedEventArgs& e) override;
 
 private:
-    Ego::DeferredTexture _sliderBarTexture;
-    Ego::DeferredTexture _sliderTexture;
+    DeferredTexture _sliderBarTexture;
+    DeferredTexture _sliderTexture;
     std::function<void(int)> _onChangeFunction;
     int _minValue;
     int _maxValue;
-    float _sliderPosition;  //from 0.0f to 1.0f
+    float _sliderPosition;  // from 0.0f to 1.0f
     bool _isDragging;
 };
 
-} //GUI
-} //Ego
+} // namespace GUI
+} // namespace Ego

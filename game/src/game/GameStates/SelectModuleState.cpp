@@ -38,10 +38,10 @@ SelectModuleState::SelectModuleState() : SelectModuleState( std::list<std::strin
 SelectModuleState::SelectModuleState(const std::list<std::string> &playersToLoad) :
 	_onlyStarterModules(playersToLoad.empty()),
 	_validModules(),
-	_background(std::make_shared<Image>()),
-	_filterButton(std::make_shared<Button>("All Modules", SDLK_TAB)),
-	_chooseModule(std::make_shared<Button>("Choose Module", SDLK_RETURN)),
-	_moduleSelector(std::make_shared<ModuleSelector>(_validModules)),
+	_background(std::make_shared<Ego::GUI::Image>()),
+	_filterButton(std::make_shared<Ego::GUI::Button>("All Modules", SDLK_TAB)),
+	_chooseModule(std::make_shared<Ego::GUI::Button>("Choose Module", SDLK_RETURN)),
+	_moduleSelector(std::make_shared<Ego::GUI::ModuleSelector>(_validModules)),
 	_moduleFilter(FILTER_OFF),
 	_selectedPlayerList(playersToLoad)
 {
@@ -60,7 +60,7 @@ SelectModuleState::SelectModuleState(const std::list<std::string> &playersToLoad
 	addComponent(_background);
 
 	//Add the buttons
-	_chooseModule = std::make_shared<Button>("Choose Module", SDLK_RETURN);
+	_chooseModule = std::make_shared<Ego::GUI::Button>("Choose Module", SDLK_RETURN);
 	_chooseModule->setPosition(_moduleSelector->getX() + _moduleSelector->getWidth() + 20, SCREEN_HEIGHT / 2 + 20);
 	_chooseModule->setSize(200, 30);
 	_chooseModule->setEnabled(false);
@@ -73,7 +73,7 @@ SelectModuleState::SelectModuleState(const std::list<std::string> &playersToLoad
 	});
 	addComponent(_chooseModule);
 
-	std::shared_ptr<Button> backButton = std::make_shared<Button>("Back", SDLK_ESCAPE);
+	auto backButton = std::make_shared<Ego::GUI::Button>("Back", SDLK_ESCAPE);
 	backButton->setPosition(_moduleSelector->getX() + _moduleSelector->getWidth() + 20, _chooseModule->getY() + 50);
 	backButton->setSize(200, 30);
 	backButton->setOnClickFunction(
@@ -99,8 +99,8 @@ SelectModuleState::SelectModuleState(const std::list<std::string> &playersToLoad
 	}
 
 	//Help text
-	std::shared_ptr<Label> infoText = std::make_shared<Label>("Press an icon to select a game.\n"
-															  "Use the mouse wheel or the <- and -> buttons to scroll.");
+	auto infoText = std::make_shared<Ego::GUI::Label>("Press an icon to select a game.\n"
+		  								              "Use the mouse wheel or the <- and -> buttons to scroll.");
 	infoText->setPosition(200, SCREEN_HEIGHT - 70);
 	addComponent(infoText);
 

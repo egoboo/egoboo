@@ -26,7 +26,11 @@
 #include "game/GameStates/GameState.hpp"
 #include "game/GUI/UIManager.hpp"
 
+namespace Ego {
+namespace GUI {
 class Button;
+} // namespace GUI
+} // namespace Ego
 
 class DebugFontRenderingState : public GameState
 {
@@ -39,16 +43,16 @@ protected:
     void drawContainer() override {}
     
 private:
-    void setFont(UIManager::UIFontType font);
+    void setFont(Ego::GUI::UIManager::UIFontType font);
     void setMaxWidth(int maxWidth);
     void setMaxHeight(int maxHeight);
     
     class DebugLabel;
     
     std::shared_ptr<DebugLabel> _textLabel;
-    std::shared_ptr<Button> _widthButton;
-    std::shared_ptr<Button> _heightButton;
-    std::shared_ptr<Button> _newlineButton;
+    std::shared_ptr<Ego::GUI::Button> _widthButton;
+    std::shared_ptr<Ego::GUI::Button> _heightButton;
+    std::shared_ptr<Ego::GUI::Button> _newlineButton;
     
     int _missingSpace;
     int _maxWidth, _maxHeight;

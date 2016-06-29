@@ -26,7 +26,11 @@
 #include "game/GameStates/GameState.hpp"
 
 //Forward declarations
+namespace Ego {
+namespace GUI {
 class Button;
+} // namespace GUI
+} // namespace Ego
 
 class OptionsScreen : public GameState
 {
@@ -41,5 +45,5 @@ protected:
     void drawContainer() override;
 
 private:
-    std::forward_list<std::shared_ptr<Button>> _slidyButtons;
+    std::forward_list<std::shared_ptr<Ego::GUI::Button>> _slidyButtons;
 };

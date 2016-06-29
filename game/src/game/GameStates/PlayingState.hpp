@@ -27,11 +27,14 @@
 
 //Forward declarations
 class CameraSystem;
-class MiniMap;
 class Object;
+
+namespace Ego { namespace GUI { 
+class CharacterWindow;
+class MiniMap;
 class CharacterStatus;
-namespace Ego { namespace GUI { class CharacterWindow; } }
-namespace Ego { namespace GUI { class MessageLog; } }
+class MessageLog;
+} }
 
 class PlayingState : public GameState
 {
@@ -44,9 +47,9 @@ public:
 
     void beginState() override;
 
-    bool notifyKeyDown(const int keyCode) override;
+    bool notifyKeyboardKeyPressed(const Ego::Events::KeyboardKeyPressedEventArgs& e) override;
 
-    const std::shared_ptr<MiniMap>& getMiniMap() const;
+    const std::shared_ptr<Ego::GUI::MiniMap>& getMiniMap() const;
 
     void addStatusMonitor(const std::shared_ptr<Object> &object);
 
@@ -64,8 +67,8 @@ private:
 
 private:
 	std::shared_ptr<CameraSystem> _cameraSystem;
-    std::shared_ptr<MiniMap> _miniMap;
+    std::shared_ptr<Ego::GUI::MiniMap> _miniMap;
     std::shared_ptr<Ego::GUI::MessageLog> _messageLog;
-    std::vector<std::weak_ptr<CharacterStatus>> _statusList;
+    std::vector<std::weak_ptr<Ego::GUI::CharacterStatus>> _statusList;
     std::array<std::weak_ptr<Ego::GUI::CharacterWindow>, 8> _characterWindows;
 };

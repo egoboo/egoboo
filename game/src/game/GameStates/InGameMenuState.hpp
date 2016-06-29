@@ -25,9 +25,13 @@
 
 #include "game/GameStates/GameState.hpp"
 
-//Forward declarations
+// Forward declarations.
+namespace Ego {
+namespace GUI {
 class Button;
 class PlayingState;
+} // namespace GUI
+} // namespace Ego
 
 class InGameMenuState : public GameState
 {
@@ -46,7 +50,7 @@ protected:
 
 private:
 
-    std::forward_list<std::shared_ptr<Button>> _slidyButtons;
+    std::forward_list<std::shared_ptr<Ego::GUI::Button>> _slidyButtons;
 
     GameState &_backgroundState;
 };

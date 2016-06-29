@@ -22,60 +22,68 @@
 /// @author Johan Jansen
 #pragma once
 
-#include "game/GUI/GUIComponent.hpp"
+#include "game/GUI/Component.hpp"
 #include "game/GUI/ComponentContainer.hpp"
 
-//Forward declarations
+namespace Ego {
+namespace GUI {
+// Forward declarations.
 class Image;
+} // namespace GUI
+} // namespace Ego
 
-class InternalWindow : public GUIComponent, public ComponentContainer
-{
-    protected:
-        class TitleBar : public GUIComponent
-        {
-        public:
-            TitleBar(const std::string &titleBar);
+namespace Ego {
+namespace GUI {
 
-            void draw() override;
-
-            int getTextHeight() const { return _textHeight; }
-
-        private:
-            Ego::DeferredTexture _titleBarTexture;
-            Ego::DeferredTexture _titleSkull;
-            std::shared_ptr<Ego::Font> _font;
-            std::string _title;
-            int _textWidth;
-            int _textHeight;
-        };
-
+class InternalWindow : public Component, public ComponentContainer {
+protected:
+    class TitleBar : public Component {
     public:
-        InternalWindow(const std::string &title);
-
-        bool notifyMouseMoved(const Ego::Events::MouseMovedEventArgs& e) override;
-        bool notifyMouseClicked(const Ego::Events::MouseClickedEventArgs& e) override;
-        bool notifyMouseReleased(const Ego::Events::MouseReleasedEventArgs& e) override;
+        TitleBar(const std::string &titleBar);
 
         void draw() override;
 
-        virtual void setPosition(float x, float y) override;
-        virtual void setSize(float width, float height) override;
-
-        void setTransparency(float alpha);
-
-        void addComponent(std::shared_ptr<GUIComponent> component) override;
-
-    protected:
-        void drawContainer() override;
+        int getTextHeight() const { return _textHeight; }
 
     private:
-        std::unique_ptr<TitleBar> _titleBar;
-        std::shared_ptr<Image> _closeButton;
-        Ego::DeferredTexture _background;
-        bool _mouseOver;
-        bool _mouseOverCloseButton;
-        bool _isDragging;
-        Vector2f _mouseDragOffset;
-        float _transparency;
-        bool _firstDraw;
+        DeferredTexture _titleBarTexture;
+        DeferredTexture _titleSkull;
+        std::shared_ptr<Font> _font;
+        std::string _title;
+        int _textWidth;
+        int _textHeight;
+    };
+
+public:
+    InternalWindow(const std::string &title);
+
+    bool notifyMouseMoved(const Events::MouseMovedEventArgs& e) override;
+    bool notifyMouseButtonClicked(const Events::MouseButtonClickedEventArgs& e) override;
+    bool notifyMouseButtonReleased(const Events::MouseButtonReleasedEventArgs& e) override;
+
+    void draw() override;
+
+    virtual void setPosition(float x, float y) override;
+    virtual void setSize(float width, float height) override;
+
+    void setTransparency(float alpha);
+
+    void addComponent(std::shared_ptr<Component> component) override;
+
+protected:
+    void drawContainer() override;
+
+private:
+    std::unique_ptr<TitleBar> _titleBar;
+    std::shared_ptr<Image> _closeButton;
+    Ego::DeferredTexture _background;
+    bool _mouseOver;
+    bool _mouseOverCloseButton;
+    bool _isDragging;
+    Vector2f _mouseDragOffset;
+    float _transparency;
+    bool _firstDraw;
 };
+
+} // namespace GUI
+} // namespace Ego

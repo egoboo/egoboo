@@ -2,113 +2,110 @@
 
 #include "game/GUI/InputListener.hpp"
 
-//Forward declarations
-class GUIComponent;
+namespace Ego {
+namespace GUI {
 
-class ComponentContainer : public InputListener, public Id::NonCopyable
-{
+// Forward declarations.
+class Component;
+
+} // namespace GUI
+} // namespace Ego
+
+
+namespace Ego {
+namespace GUI {
+
+class ComponentContainer : public InputListener, public Id::NonCopyable {
 public:
-    class ComponentIterator : public Id::NonCopyable
-    {
-        public:
+    class ComponentIterator : public Id::NonCopyable {
+    public:
 
-            inline std::vector<std::shared_ptr<GUIComponent>>::const_iterator cbegin() const 
-            {
-                return _container._componentList.cbegin();
-            }
+        inline std::vector<std::shared_ptr<Component>>::const_iterator cbegin() const {
+            return _container._componentList.cbegin();
+        }
 
-            inline std::vector<std::shared_ptr<GUIComponent>>::const_iterator cend() const 
-            {
-                return _container._componentList.cend();
-            }
+        inline std::vector<std::shared_ptr<Component>>::const_iterator cend() const {
+            return _container._componentList.cend();
+        }
 
-            inline std::vector<std::shared_ptr<GUIComponent>>::iterator begin()
-            {
-                return _container._componentList.begin();
-            }
+        inline std::vector<std::shared_ptr<Component>>::iterator begin() {
+            return _container._componentList.begin();
+        }
 
-            inline std::vector<std::shared_ptr<GUIComponent>>::iterator end()
-            {
-                return _container._componentList.end();
-            }   
+        inline std::vector<std::shared_ptr<Component>>::iterator end() {
+            return _container._componentList.end();
+        }
 
-            inline std::vector<std::shared_ptr<GUIComponent>>::const_reverse_iterator crbegin() const 
-            {
-                return _container._componentList.crbegin();
-            }
+        inline std::vector<std::shared_ptr<Component>>::const_reverse_iterator crbegin() const {
+            return _container._componentList.crbegin();
+        }
 
-            inline std::vector<std::shared_ptr<GUIComponent>>::const_reverse_iterator crend() const 
-            {
-                return _container._componentList.crend();
-            }
+        inline std::vector<std::shared_ptr<Component>>::const_reverse_iterator crend() const {
+            return _container._componentList.crend();
+        }
 
-            inline std::vector<std::shared_ptr<GUIComponent>>::reverse_iterator rbegin()
-            {
-                return _container._componentList.rbegin();
-            }
+        inline std::vector<std::shared_ptr<Component>>::reverse_iterator rbegin() {
+            return _container._componentList.rbegin();
+        }
 
-            inline std::vector<std::shared_ptr<GUIComponent>>::reverse_iterator rend()
-            {
-                return _container._componentList.rend();
-            }   
+        inline std::vector<std::shared_ptr<Component>>::reverse_iterator rend() {
+            return _container._componentList.rend();
+        }
 
-            ~ComponentIterator()
-            {
-                //Free the ComponentContainer lock
-                _container.unlock();
-            }
+        ~ComponentIterator() {
+            //Free the ComponentContainer lock
+            _container.unlock();
+        }
 
-            // Copy constructor
-            ComponentIterator(const ComponentIterator &other) : NonCopyable(),
-                _container(other._container)
-            {
-                _container.lock();
-            }
+        // Copy constructor
+        ComponentIterator(const ComponentIterator &other) : NonCopyable(),
+            _container(other._container) {
+            _container.lock();
+        }
 
-                
-        private:
-            ComponentIterator(ComponentContainer &container) :
-                _container(container)
-            {
-                // Ensure the ComponentContainer is locked as long as we are in existance.
-                _container.lock();
-            }
 
-            ComponentContainer &_container;
+    private:
+        ComponentIterator(ComponentContainer &container) :
+            _container(container) {
+            // Ensure the ComponentContainer is locked as long as we are in existance.
+            _container.lock();
+        }
 
-            friend class ComponentContainer;
+        ComponentContainer &_container;
+
+        friend class ComponentContainer;
     };
 
 public:
     ComponentContainer();
     ~ComponentContainer();
 
-    virtual void addComponent(std::shared_ptr<GUIComponent> component);
-    virtual void removeComponent(std::shared_ptr<GUIComponent> component);
+    virtual void addComponent(std::shared_ptr<Component> component);
+    virtual void removeComponent(std::shared_ptr<Component> component);
 
     /**
-    * @brief
-    *   Clears and removes all GUIComponents from this container. Components are not
-    *   destroyed (i.e they can still exist in another container). This method is thread-safe.
-    **/
+     * @brief
+     *  Clears and removes all GUI components from this container. GUI Components are not
+     *  destroyed (i.e they can still exist in another container). This method is thread-safe.
+     */
     virtual void clearComponents();
 
     /**
     * @return
-    *   Number of GUIComponents currently contained within this container
+    *   Number of GUI components currently contained within this container
     **/
     size_t getComponentCount() const;
 
     /**
     * @brief
-    *   Renders all GUIComponents contained inside this container
+    *   Renders all GUI components contained inside this container
     **/
     void drawAll();
 
-    virtual bool notifyMouseMoved(const Ego::Events::MouseMovedEventArgs& e) override;
-    virtual bool notifyKeyDown(const int keyCode) override;
-    virtual bool notifyMouseClicked(const Ego::Events::MouseClickedEventArgs& e) override;
-    virtual bool notifyMouseReleased(const Ego::Events::MouseReleasedEventArgs& e) override;
+    virtual bool notifyMouseMoved(const Events::MouseMovedEventArgs& e) override;
+    virtual bool notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEventArgs& ee) override;
+    virtual bool notifyMouseButtonClicked(const Events::MouseButtonClickedEventArgs& e) override;
+    virtual bool notifyMouseButtonReleased(const Events::MouseButtonReleasedEventArgs& e) override;
     virtual bool notifyMouseScrolled(const int amount) override;
 
     /**
@@ -122,8 +119,8 @@ public:
     * @brief
     *   Bring a GUI component to the front of this container, so that it is drawn on top of all
     *   others and consumes input events first
-    **/ 
-    void bringComponentToFront(std::shared_ptr<GUIComponent> component);
+    **/
+    void bringComponentToFront(std::shared_ptr<Component> component);
 
     /**
     * @brief
@@ -134,7 +131,7 @@ public:
 protected:
     virtual void drawContainer() = 0;
 
-    void setComponentList(const std::vector<std::shared_ptr<GUIComponent>> &list);
+    void setComponentList(const std::vector<std::shared_ptr<Component>> &list);
 
 private:
     /**
@@ -147,14 +144,17 @@ private:
 
     /**
     * @brief
-    *   Releases one lock from the container. If all locks are released, then any GUIComponents marked for destruction
+    *   Releases one lock from the container. If all locks are released, then any GUI components marked for destruction
     *   will be removed from the container.
     **/
     void unlock();
 
 private:
-    std::vector<std::shared_ptr<GUIComponent>> _componentList;
+    std::vector<std::shared_ptr<Component>> _componentList;
     bool _componentDestroyed;
     size_t _semaphoreLock;          //Ref counter does not need to be atomic because of mutex locks
     std::mutex _containerMutex;
 };
+
+} // namespace GUI
+} // namespace Ego

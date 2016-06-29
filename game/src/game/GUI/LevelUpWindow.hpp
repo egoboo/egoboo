@@ -26,51 +26,55 @@
 
 #include "game/GUI/InternalWindow.hpp"
 
-//Forward declarations
+// Forward declarations.
 class Object;
+
+namespace Ego {
+namespace GUI { 
+
 class Label;
 class Image;
-namespace Ego { namespace GUI { class PerkButton; } }
+class PerkButton; 
 
-namespace Ego
-{
-namespace GUI
-{
+} // namespace GUI 
+} // namespace Ego
 
-class LevelUpWindow : public InternalWindow
-{
-    public:
-        LevelUpWindow(const std::shared_ptr<Object> &object);
-        ~LevelUpWindow();
-        
-    protected:
-        void drawContainer() override;
+namespace Ego {
+namespace GUI {
 
-    private:
-        void doLevelUp(PerkButton *selectedPerk);
-        void setHoverPerk(Ego::Perks::PerkID id);
-        Ego::Perks::PerkID getCurrentPerk() const;
+class LevelUpWindow : public InternalWindow {
+public:
+    LevelUpWindow(const std::shared_ptr<Object> &object);
+    ~LevelUpWindow();
 
-    private:
-        std::shared_ptr<Object> _character;
+protected:
+    void drawContainer() override;
 
-        //Perk selection state
-        Ego::Perks::PerkID _currentPerk;
-        std::shared_ptr<Label> _descriptionLabel;
-        std::shared_ptr<Label> _perkIncreaseLabel;
-        int _desciptionLabelOffset;
+private:
+    void doLevelUp(PerkButton *selectedPerk);
+    void setHoverPerk(Ego::Perks::PerkID id);
+    Ego::Perks::PerkID getCurrentPerk() const;
 
-        //Attribute increase state
-        std::vector<std::shared_ptr<Label>> _fadeInLabels;
-        std::array<std::shared_ptr<Label>, Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES> _attributeValues;
-        std::array<std::shared_ptr<Label>, Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES> _attributeIncrease;
-        std::shared_ptr<Image> _selectedPerk;
-        Vector2f _animationSpeed;
-        Vector2f _animationPos;
-        uint32_t _attributeRevealTime;
+private:
+    std::shared_ptr<Object> _character;
 
-        friend class Ego::GUI::PerkButton;
+    //Perk selection state
+    Ego::Perks::PerkID _currentPerk;
+    std::shared_ptr<Label> _descriptionLabel;
+    std::shared_ptr<Label> _perkIncreaseLabel;
+    int _desciptionLabelOffset;
+
+    //Attribute increase state
+    std::vector<std::shared_ptr<Label>> _fadeInLabels;
+    std::array<std::shared_ptr<Label>, Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES> _attributeValues;
+    std::array<std::shared_ptr<Label>, Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES> _attributeIncrease;
+    std::shared_ptr<Image> _selectedPerk;
+    Vector2f _animationSpeed;
+    Vector2f _animationPos;
+    uint32_t _attributeRevealTime;
+
+    friend class Ego::GUI::PerkButton;
 };
 
-} //GUI
-} //Ego
+} // namespace GUI
+} // namespace Ego

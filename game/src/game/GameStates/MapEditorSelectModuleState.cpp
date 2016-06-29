@@ -13,7 +13,7 @@ namespace GameStates
 MapEditorSelectModuleState::MapEditorSelectModuleState() :
 	_selectedModule(nullptr),
 	_selectedButton(nullptr),
-	_moduleName(std::make_shared<Label>()),
+	_moduleName(std::make_shared<Ego::GUI::Label>()),
 	_moduleDescription(nullptr)
 {
     const int SCREEN_WIDTH = _gameEngine->getUIManager()->getScreenWidth();
@@ -24,7 +24,7 @@ MapEditorSelectModuleState::MapEditorSelectModuleState() :
     addComponent(_moduleName);
 
     //Scrollable list of all modules
-    std::shared_ptr<ScrollableList> scrollableList = std::make_shared<ScrollableList>();
+    auto scrollableList = std::make_shared<Ego::GUI::ScrollableList>();
     scrollableList->setPosition(8, 8);
     scrollableList->setSize(SCREEN_WIDTH / 2, SCREEN_HEIGHT - 56);
 
@@ -32,7 +32,7 @@ MapEditorSelectModuleState::MapEditorSelectModuleState() :
     {
     	const std::string folderName = loadModule->getPath().substr(loadModule->getPath().find_last_of('/') + 1);
 
-        std::shared_ptr<IconButton> module = std::make_shared<IconButton>(folderName, loadModule->getIcon());
+        auto module = std::make_shared<Ego::GUI::IconButton>(folderName, loadModule->getIcon());
        	module->setSize(scrollableList->getWidth()-50, 50); 
 
         module->setOnClickFunction([this, module, loadModule] { 
@@ -53,7 +53,7 @@ MapEditorSelectModuleState::MapEditorSelectModuleState() :
     scrollableList->forceUpdate();
     addComponent(scrollableList);
 
-    std::shared_ptr<Button> editModuleButton = std::make_shared<Button>("Open Editor", SDLK_RETURN);
+    auto editModuleButton = std::make_shared<Ego::GUI::Button>("Open Editor", SDLK_RETURN);
     editModuleButton->setSize(150, 40);
     editModuleButton->setPosition(SCREEN_WIDTH - editModuleButton->getWidth() - 5, SCREEN_HEIGHT - editModuleButton->getHeight() - 5);
     editModuleButton->setOnClickFunction([this]{
@@ -61,7 +61,7 @@ MapEditorSelectModuleState::MapEditorSelectModuleState() :
     });
     addComponent(editModuleButton);
 
-    std::shared_ptr<Button> newModuleButton = std::make_shared<Button>("New Module");
+    auto newModuleButton = std::make_shared<Ego::GUI::Button>("New Module");
     newModuleButton->setSize(150, 40);
     newModuleButton->setPosition(SCREEN_WIDTH/2 - newModuleButton->getWidth()/2, SCREEN_HEIGHT - newModuleButton->getHeight() - 5);
     //newModuleButton->setOnClickFunction([this]{
@@ -69,7 +69,7 @@ MapEditorSelectModuleState::MapEditorSelectModuleState() :
     //});
     addComponent(newModuleButton);
 
-    std::shared_ptr<Button> backButton = std::make_shared<Button>("Back", SDLK_ESCAPE);
+    auto backButton = std::make_shared<Ego::GUI::Button>("Back", SDLK_ESCAPE);
     backButton->setSize(150, 40);
     backButton->setPosition(5, SCREEN_HEIGHT - backButton->getHeight() - 5);
     backButton->setOnClickFunction([this]{
@@ -111,7 +111,7 @@ void MapEditorSelectModuleState::setSelectedModule(const std::shared_ptr<ModuleP
         buffer << line << '\n';;
     }
 
-    const std::shared_ptr<Ego::Font> &font = _gameEngine->getUIManager()->getFont(UIManager::FONT_DEBUG);
+    const std::shared_ptr<Ego::Font> &font = _gameEngine->getUIManager()->getFont(Ego::GUI::UIManager::FONT_DEBUG);
     _moduleDescription = font->layoutTextBox(buffer.str(), _gameEngine->getUIManager()->getScreenWidth() / 2 - 20, 0, font->getLineSpacing(), nullptr, nullptr);
 }
 
@@ -126,7 +126,7 @@ void MapEditorSelectModuleState::drawContainer()
     // Now difficulty
     if (_selectedModule->getRank() > 0)
     {
-        UI->getFont(UIManager::FONT_DEBUG)->drawTextBox("DIFFICULITY: ", _moduleName->getX(), yPos, 200, 50, 25);
+        UI->getFont(Ego::GUI::UIManager::FONT_DEBUG)->drawTextBox("DIFFICULITY: ", _moduleName->getX(), yPos, 200, 50, 25);
         yPos += 20;
 
         // Draw one skull per rated difficulty

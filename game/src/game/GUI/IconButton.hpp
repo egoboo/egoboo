@@ -26,10 +26,13 @@
 #include "game/Core/GameEngine.hpp"
 #include "game/GUI/Button.hpp"
 
+// Forward declarations.
 namespace Ego { class DeferredTexture; }
 
-class IconButton : public Button
-{
+namespace Ego {
+namespace GUI {
+
+class IconButton : public Button {
 public:
     IconButton(const std::string &buttonText, const Ego::DeferredTexture& icon, int hotkey = SDLK_UNKNOWN);
 
@@ -41,3 +44,6 @@ private:
     const Ego::DeferredTexture& _icon;
     Ego::Math::Colour4f _iconTint;
 };
+
+} // namespace GUI
+} // namespace Ego
