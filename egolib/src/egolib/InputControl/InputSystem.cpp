@@ -15,8 +15,7 @@ InputSystem::InputSystem() :
 
 void InputSystem::initialize()
 {
-	//This allows us to capture mouse events (e.g movement) outside the game window
-	SDL_CaptureMouse(SDL_TRUE);
+	
 }
 
 void InputSystem::update()
