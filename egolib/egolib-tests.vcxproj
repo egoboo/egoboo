@@ -150,7 +150,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)\egolib\tests;$(SolutionDir)\egotest\src;$(VCInstallDir)UnitTest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>EGOTEST_USE_VSCPPUNITTEST;WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <UseFullPaths>true</UseFullPaths>
-      <PrecompiledHeaderFile />
+      <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
       <CompileAsManaged>false</CompileAsManaged>
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
       <SDLCheck>true</SDLCheck>
@@ -185,7 +185,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)\egolib\tests;$(SolutionDir)\egotest\src;$(VCInstallDir)UnitTest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>EGOTEST_USE_VSCPPUNITTEST;WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <UseFullPaths>true</UseFullPaths>
-      <PrecompiledHeaderFile />
+      <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
       <SDLCheck>true</SDLCheck>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>

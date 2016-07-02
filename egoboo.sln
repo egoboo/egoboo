@@ -46,6 +46,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SDL2_mixer", "external\SDL2
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SDL2main", "external\SDL2-2.0.3\VisualC\SDLmain\SDLmain.vcxproj", "{DD761575-1F8D-4A59-AA3B-10C61629AA64}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "idlib-tests", "idlib\idlib-tests.vcxproj", "{53AA7468-E768-4CC9-A5ED-21A70C5FC36C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -174,6 +176,14 @@ Global
 		{DD761575-1F8D-4A59-AA3B-10C61629AA64}.Release|Win32.Build.0 = Release|Win32
 		{DD761575-1F8D-4A59-AA3B-10C61629AA64}.Release|x64.ActiveCfg = Release|x64
 		{DD761575-1F8D-4A59-AA3B-10C61629AA64}.Release|x64.Build.0 = Release|x64
+		{53AA7468-E768-4CC9-A5ED-21A70C5FC36C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{53AA7468-E768-4CC9-A5ED-21A70C5FC36C}.Debug|Win32.Build.0 = Debug|Win32
+		{53AA7468-E768-4CC9-A5ED-21A70C5FC36C}.Debug|x64.ActiveCfg = Debug|x64
+		{53AA7468-E768-4CC9-A5ED-21A70C5FC36C}.Debug|x64.Build.0 = Debug|x64
+		{53AA7468-E768-4CC9-A5ED-21A70C5FC36C}.Release|Win32.ActiveCfg = Release|Win32
+		{53AA7468-E768-4CC9-A5ED-21A70C5FC36C}.Release|Win32.Build.0 = Release|Win32
+		{53AA7468-E768-4CC9-A5ED-21A70C5FC36C}.Release|x64.ActiveCfg = Release|x64
+		{53AA7468-E768-4CC9-A5ED-21A70C5FC36C}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
