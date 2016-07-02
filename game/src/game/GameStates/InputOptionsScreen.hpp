@@ -27,7 +27,7 @@
 #include "egolib/InputControl/InputDevice.hpp"
 
 //Forward declarations
-class Button;
+namespace Ego { namespace GUI { class Button; } }
 
 namespace Ego
 {
@@ -43,7 +43,7 @@ public:
 
     void beginState() override;
 
-	virtual bool notifyKeyDown(const int keyCode) override;
+	virtual bool notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEventArgs& e) override;
 
 protected:
     void drawContainer() override;
@@ -58,7 +58,7 @@ private:
 	int _bindingButtonPosX;
 	int _bindingButtonPosY;
 
-	std::shared_ptr<Button> _activeButton;
+	std::shared_ptr<Ego::GUI::Button> _activeButton;
 	Ego::Input::InputDevice::InputButton _activeBinding;
 };
 

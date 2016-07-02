@@ -46,8 +46,8 @@ InputOptionsScreen::InputOptionsScreen() :
     addInputOption("Camera Rotate Right: ", Ego::Input::InputDevice::InputButton::CAMERA_RIGHT);
 
     //Shift all buttons to the right of the widest label
-    for(std::shared_ptr<GUIComponent> &component : ComponentContainer::iterator()) {
-        std::shared_ptr<Button> button = std::dynamic_pointer_cast<Button>(component);
+    for(std::shared_ptr<Ego::GUI::Component> &component : ComponentContainer::iterator()) {
+        std::shared_ptr<Ego::GUI::Button> button = std::dynamic_pointer_cast<Ego::GUI::Button>(component);
         if(button) {
             button->setPosition(button->getX() + _maxLabelWidth, button->getY());
         }
@@ -82,13 +82,13 @@ void InputOptionsScreen::drawContainer()
 
 }
 
-bool InputOptionsScreen::notifyKeyDown(const int keyCode)
+bool InputOptionsScreen::notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEventArgs& e)
 {
     if(_activeButton == nullptr) {
-        return ComponentContainer::notifyKeyDown(keyCode);
+        return ComponentContainer::notifyKeyboardKeyPressed(e.getKey());
     }
     else {
-        getActiveInputDevice().setInputMapping(_activeBinding, keyCode);
+        getActiveInputDevice().setInputMapping(_activeBinding, e.getKey());
         _activeButton->setText(getActiveInputDevice().getMappedInputName(_activeBinding));
         _activeBinding = Ego::Input::InputDevice::InputButton::COUNT;
         _activeButton->setEnabled(true);
@@ -107,7 +107,7 @@ void InputOptionsScreen::addInputOption(const std::string &label, const Ego::Inp
     _maxLabelWidth = std::max<float>(_maxLabelWidth, name->getWidth());
 
     //Button
-    std::shared_ptr<Button> inputOption = std::make_shared<Button>(getActiveInputDevice().getMappedInputName(binding));
+    std::shared_ptr<Ego::GUI::Button> inputOption = std::make_shared<Ego::GUI::Button>(getActiveInputDevice().getMappedInputName(binding));
     inputOption->setPosition(_bindingButtonPosX + 50, _bindingButtonPosY);
     inputOption->setSize(200, 25);
     inputOption->setOnClickFunction(

@@ -1,4 +1,4 @@
-#pragma
+#pragma once
 
 #include "egolib/Math/_Include.hpp"
 
