@@ -2774,6 +2774,9 @@ bool Object::hasSkillIDSZ(const IDSZ2& whichskill) const
 
         case IDSZ2::caseLabel('T', 'E', 'L', 'E'):
             return hasPerk(Ego::Perks::TELEPORT_MASTERY); 
+
+        case IDSZ2::caseLabel('G', 'N', 'O', 'M'):
+            return hasPerk(Ego::Perks::READ_GNOMISH);
     }
 
     //Skill not found
