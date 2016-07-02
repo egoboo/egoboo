@@ -83,7 +83,7 @@ private:
     bool _mouseOver;
     bool _isDragging;
     Vector2f _mouseDragOffset;
-    std::shared_ptr<Ego::DeferredTexture> _minimapTexture;
+    std::shared_ptr<DeferredTexture> _minimapTexture;
 };
 
 } // namespace GUI

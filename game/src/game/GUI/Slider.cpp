@@ -45,22 +45,22 @@ void Slider::setOnChangeFunction(const std::function<void(int)> onChange) {
 
 void Slider::draw() {
     //Draw the bar
-    _gameEngine->getUIManager()->drawImage(_sliderBarTexture.get_ptr(), Point2f(getX(), getY()), Vector2f(getWidth(), getHeight()), isEnabled() ? Ego::Math::Colour4f::white() : Ego::Math::Colour4f::grey());
+    _gameEngine->getUIManager()->drawImage(_sliderBarTexture.get_ptr(), Point2f(getX(), getY()), Vector2f(getWidth(), getHeight()), isEnabled() ? Math::Colour4f::white() : Math::Colour4f::grey());
 
     //Draw the moveable slider on top
     const int SLIDER_WIDTH = getWidth() / 10;
-    _gameEngine->getUIManager()->drawImage(_sliderTexture.get_ptr(), Point2f(getX() + SLIDER_WIDTH + (getWidth() - SLIDER_WIDTH * 2)*_sliderPosition - SLIDER_WIDTH / 2, getY()), Vector2f(SLIDER_WIDTH, getHeight()), isEnabled() ? Ego::Math::Colour4f::white() : Ego::Math::Colour4f::grey());
+    _gameEngine->getUIManager()->drawImage(_sliderTexture.get_ptr(), Point2f(getX() + SLIDER_WIDTH + (getWidth() - SLIDER_WIDTH * 2)*_sliderPosition - SLIDER_WIDTH / 2, getY()), Vector2f(SLIDER_WIDTH, getHeight()), isEnabled() ? Math::Colour4f::white() : Math::Colour4f::grey());
 }
 
 void Slider::setValue(const int value) {
-    int constrainedValue = Ego::Math::constrain(value, _minValue, _maxValue);
+    int constrainedValue = Math::constrain(value, _minValue, _maxValue);
     _sliderPosition = (1.0f / (_maxValue - _minValue)) * (constrainedValue - _minValue);
 }
 
-bool Slider::notifyMouseMoved(const Ego::Events::MouseMovedEventArgs& e) {
+bool Slider::notifyMouseMoved(const Events::MouseMovedEventArgs& e) {
     if (_isDragging) {
         _sliderPosition = (1.0f / getWidth()) * (e.getPosition().x() - getX());
-        _sliderPosition = Ego::Math::constrain(_sliderPosition, 0.0f, 1.0f);
+        _sliderPosition = Math::constrain(_sliderPosition, 0.0f, 1.0f);
         return true;
     }
 
@@ -71,10 +71,10 @@ int Slider::getValue() const {
     return _minValue + (_maxValue - _minValue) * _sliderPosition;
 }
 
-bool Slider::notifyMouseButtonPressed(const Ego::Events::MouseButtonPressedEventArgs& e) {
+bool Slider::notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs& e) {
     if (e.getButton() == SDL_BUTTON_LEFT && contains(e.getPosition())) {
         _isDragging = true;
-        notifyMouseMoved(Ego::Events::MouseMovedEventArgs(e.getPosition()));
+        notifyMouseMoved(Events::MouseMovedEventArgs(e.getPosition()));
     } else {
         _isDragging = false;
     }
@@ -82,7 +82,7 @@ bool Slider::notifyMouseButtonPressed(const Ego::Events::MouseButtonPressedEvent
     return _isDragging;
 }
 
-bool Slider::notifyMouseButtonReleased(const Ego::Events::MouseButtonReleasedEventArgs& e) {
+bool Slider::notifyMouseButtonReleased(const Events::MouseButtonReleasedEventArgs& e) {
     if (_isDragging && e.getButton() == SDL_BUTTON_LEFT) {
         _isDragging = false;
         if (_onChangeFunction) {

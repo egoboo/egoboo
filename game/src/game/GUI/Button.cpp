@@ -114,7 +114,7 @@ void Button::setOnClickFunction(const std::function<void()> onClick) {
     _onClickFunction = onClick;
 }
 
-bool Button::notifyKeyboardKeyPressed(const Ego::Events::KeyboardKeyPressedEventArgs& e) {
+bool Button::notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEventArgs& e) {
     //No hotkey assigned to this button
     if (_hotkey == SDLK_UNKNOWN) return false;
 

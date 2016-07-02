@@ -76,7 +76,7 @@ protected:
 private:
     std::unique_ptr<TitleBar> _titleBar;
     std::shared_ptr<Image> _closeButton;
-    Ego::DeferredTexture _background;
+    DeferredTexture _background;
     bool _mouseOver;
     bool _mouseOverCloseButton;
     bool _isDragging;

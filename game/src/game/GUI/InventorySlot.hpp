@@ -11,7 +11,7 @@ namespace GUI {
 
 class InventorySlot : public Component {
 public:
-    InventorySlot(const Inventory &inventory, const size_t slotNumber, const std::shared_ptr<Ego::Player>& player);
+    InventorySlot(const Inventory &inventory, const size_t slotNumber, const std::shared_ptr<Player>& player);
 
     virtual void draw() override;
 
@@ -21,7 +21,7 @@ public:
 private:
     const Inventory& _inventory;
     size_t _slotNumber;
-    std::shared_ptr<Ego::Player> _player;
+    std::shared_ptr<Player> _player;
 };
 
 } // namespace GUI

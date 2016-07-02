@@ -34,16 +34,16 @@ void MessageLog::draw() {
 
     //Render all text and remove old messages
     _messages.remove_if([this, &yOffset](Message& message) {
-        const int millisRemaining = static_cast<int64_t>(message.lifeTime) - Ego::Core::System::get().getTimerService().getTicks();
+        const int millisRemaining = static_cast<int64_t>(message.lifeTime) - Core::System::get().getTimerService().getTicks();
         if (millisRemaining <= 0) return true;
         yOffset = _gameEngine->getUIManager()->drawBitmapFontString(Vector2f(getX(), yOffset), message.text, 0, millisRemaining > MESSAGE_FADE_TIME_MS ? 1.0f : millisRemaining / static_cast<float>(MESSAGE_FADE_TIME_MS));
-        return Ego::Core::System::get().getTimerService().getTicks() > message.lifeTime;
+        return Core::System::get().getTimerService().getTicks() > message.lifeTime;
     });
 }
 
 void MessageLog::addMessage(const std::string &message) {
     //Insert new message at the back
-    _messages.emplace_back(message, Ego::Core::System::get().getTimerService().getTicks() + egoboo_config_t::get().hud_messageDuration.getValue() * 10);
+    _messages.emplace_back(message, Core::System::get().getTimerService().getTicks() + egoboo_config_t::get().hud_messageDuration.getValue() * 10);
 
     //Remove oldest messages if we have too many (FIFO)
     while (_messages.size() > egoboo_config_t::get().hud_simultaneousMessages_max.getValue()) {

@@ -165,7 +165,7 @@ bool MiniMap::notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs
     return false;
 }
 
-bool MiniMap::notifyKeyboardKeyPressed(const Ego::Events::KeyboardKeyPressedEventArgs& e) {
+bool MiniMap::notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEventArgs& e) {
     // Enlarge minimap
     if (e.getKey() == SDLK_m) {
         if (isVisible()) {
