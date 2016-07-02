@@ -121,7 +121,7 @@ _selectedPerk(nullptr),
 _animationSpeed(0.0f, 0.0f),
 _animationPos(0.0f, 0.0f),
 _attributeRevealTime(0) {
-    setSize(510, 340);
+    setSize(Vector2f(510, 340));
 
     //Place us in the center of the screen
     setCenterPosition(_gameEngine->getUIManager()->getScreenWidth() / 2, _gameEngine->getUIManager()->getScreenHeight() / 2);
@@ -129,7 +129,7 @@ _attributeRevealTime(0) {
     // draw the character's main icon
     std::shared_ptr<Image> characterIcon = std::make_shared<Image>(_character->getProfile()->getIcon(_character->skin));
     characterIcon->setPosition(5, 32);
-    characterIcon->setSize(32, 32);
+    characterIcon->setSize(Vector2f(32, 32));
     addComponent(characterIcon);
 
     std::stringstream buffer;
@@ -203,7 +203,7 @@ _attributeRevealTime(0) {
         //Select a random perk
         const size_t randomIndex = Random::next(perkPool.size() - 1);
         std::shared_ptr<PerkButton> perkButton = std::make_shared<PerkButton>(perkPool[randomIndex]);
-        perkButton->setSize(PERK_BUTTON_SIZE, PERK_BUTTON_SIZE);
+        perkButton->setSize(Vector2f(PERK_BUTTON_SIZE, PERK_BUTTON_SIZE));
         perkButton->setPosition(20 + i * (perkButton->getWidth() + 10), selectPerkLabel->getY() + selectPerkLabel->getHeight());
         addComponent(perkButton);
 
@@ -342,7 +342,7 @@ void LevelUpWindow::doLevelUp(PerkButton *selectedPerk) {
     //Selected perk animation
     _selectedPerk = std::make_shared<Image>(selectedPerk->getPerk().getIcon().getFilePath());
     _selectedPerk->setPosition(selectedPerk->getX() - getX(), selectedPerk->getY() - getY());
-    _selectedPerk->setSize(selectedPerk->getWidth(), selectedPerk->getHeight());
+    _selectedPerk->setSize(Vector2f(selectedPerk->getWidth(), selectedPerk->getHeight()));
     _selectedPerk->setTint(selectedPerk->getPerk().getColour());
     addComponent(_selectedPerk);
 
@@ -457,7 +457,7 @@ void LevelUpWindow::drawContainer() {
 
     //Make icon shrink
     if (_selectedPerk->getWidth() > PERK_THUMBNAIL_SIZE) {
-        _selectedPerk->setSize(_selectedPerk->getWidth() - 2, _selectedPerk->getHeight() - 2);
+        _selectedPerk->setSize(Vector2f(_selectedPerk->getWidth() - 2, _selectedPerk->getHeight() - 2));
     }
 
     //Move icon into corner (use about 1 second to get there)

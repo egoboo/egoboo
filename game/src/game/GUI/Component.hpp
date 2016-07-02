@@ -44,7 +44,7 @@ public:
     void setCenterPosition(float x, float y, const bool onlyHorizontal = false);
     virtual void setWidth(float width);
     virtual void setHeight(float height);
-    virtual void setSize(float width, float height);
+    virtual void setSize(const Vector2f& size);
     virtual void setX(float x);
     virtual void setY(float y);
     virtual void setPosition(float x, float y);

@@ -11,13 +11,13 @@ ScrollableList::ScrollableList() :
     _mouseOver(false),
     _downButton(std::make_shared<Button>("+")),
     _upButton(std::make_shared<Button>("-")) {
-    _downButton->setSize(32, 32);
+    _downButton->setSize(Vector2f(32, 32));
     _downButton->setOnClickFunction([this] {
         setScrollPosition(_currentIndex + 1);
     });
     _downButton->setEnabled(false);
 
-    _upButton->setSize(32, 32);
+    _upButton->setSize(Vector2f(32, 32));
     _upButton->setOnClickFunction([this] {
         setScrollPosition(_currentIndex - 1);
     });

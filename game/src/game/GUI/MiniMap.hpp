@@ -32,7 +32,9 @@ namespace GUI {
 
 class MiniMap : public Component {
 public:
-    static const uint32_t MAPSIZE = 128;
+    /// @brief The size of the minimap.
+    /// @default Default is @a 128.
+    static const uint32_t MAPSIZE;
 
     MiniMap();
 

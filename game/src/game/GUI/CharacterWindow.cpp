@@ -21,7 +21,7 @@ _levelUpWindow(),
 _characterStatisticsTab(),
 _knownPerksTab(),
 _activeEnchantsTab() {
-    setSize(420, 370);
+    setSize(Vector2f(420, 370));
 
     buildCharacterStatisticTab();
     buildKnownPerksTab();
@@ -123,7 +123,7 @@ void CharacterWindow::buildCharacterStatisticTab() {
     // draw the character's main icon
     std::shared_ptr<Image> characterIcon = std::make_shared<Image>(_character->getProfile()->getIcon(_character->skin));
     characterIcon->setPosition(5, 32);
-    characterIcon->setSize(32, 32);
+    characterIcon->setSize(Vector2f(32, 32));
     _characterStatisticsTab.push_back(characterIcon);
 
     std::stringstream buffer;
@@ -193,7 +193,7 @@ void CharacterWindow::buildCharacterStatisticTab() {
     yPos += 5;
     for (size_t i = 0; i < _character->getInventory().getMaxItems(); ++i) {
         std::shared_ptr<InventorySlot> slot = std::make_shared<InventorySlot>(_character->getInventory(), i, _character->isPlayer() ? _currentModule->getPlayer(_character->is_which_player) : nullptr);
-        slot->setSize(slotSize, slotSize);
+        slot->setSize(Vector2f(slotSize, slotSize));
         slot->setPosition(xPos, yPos);
         xPos += slot->getWidth() + 5;
         _characterStatisticsTab.push_back(slot);
@@ -213,7 +213,7 @@ void CharacterWindow::buildCharacterStatisticTab() {
     //LevelUp button
     if (_character->isPlayer()) {
         _levelUpButton = std::make_shared<Button>("LEVEL UP");
-        _levelUpButton->setSize(120, 30);
+        _levelUpButton->setSize(Vector2f(120, 30));
         _levelUpButton->setPosition(getWidth() / 2 - _levelUpButton->getWidth() / 2, getHeight() - _levelUpButton->getHeight() - 15);
         _levelUpButton->setOnClickFunction(
             [this]() {
@@ -232,7 +232,7 @@ void CharacterWindow::buildCharacterStatisticTab() {
 
     //Perks tab
     std::shared_ptr<Button> perksTab = std::make_shared<Button>("Perks");
-    perksTab->setSize(120, 30);
+    perksTab->setSize(Vector2f(120, 30));
     perksTab->setPosition(20, getHeight() - perksTab->getHeight() - 15);
     perksTab->setOnClickFunction([this] {
         setComponentList(_knownPerksTab);
@@ -241,7 +241,7 @@ void CharacterWindow::buildCharacterStatisticTab() {
 
     //Active enchants tab
     std::shared_ptr<Button> enchantsTab = std::make_shared<Button>("Enchants");
-    enchantsTab->setSize(120, 30);
+    enchantsTab->setSize(Vector2f(120, 30));
     enchantsTab->setPosition(getWidth() - enchantsTab->getWidth() - 20, getHeight() - enchantsTab->getHeight() - 15);
     enchantsTab->setOnClickFunction([this] {
         setComponentList(_activeEnchantsTab);
@@ -252,14 +252,14 @@ void CharacterWindow::buildCharacterStatisticTab() {
 void CharacterWindow::buildKnownPerksTab() {
     //List of perks known
     std::shared_ptr<ScrollableList> perksKnown = std::make_shared<ScrollableList>();
-    perksKnown->setSize(getWidth() - 60, getHeight() * 0.60f);
+    perksKnown->setSize(Vector2f(getWidth() - 60, getHeight() * 0.60f));
     perksKnown->setPosition(10, 40);
     _knownPerksTab.push_back(perksKnown);
 
     //Perk icon
     std::shared_ptr<Image> perkIcon = std::make_shared<Image>();
     perkIcon->setPosition(10, getHeight() - 80);
-    perkIcon->setSize(64, 64);
+    perkIcon->setSize(Vector2f(64, 64));
     perkIcon->setVisible(false);
     _knownPerksTab.push_back(perkIcon);
 
@@ -285,7 +285,7 @@ void CharacterWindow::buildKnownPerksTab() {
             const Perks::Perk &perk = Perks::PerkHandler::get().getPerk(perkID);
 
             std::shared_ptr<IconButton> perkButton = std::make_shared<IconButton>(perk.getName(), perk.getIcon());
-            perkButton->setSize(perksKnown->getWidth() - 50, 32);
+            perkButton->setSize(Vector2f(perksKnown->getWidth() - 50, 32));
             perkButton->setIconTint(perk.getColour());
 
             //Display detailed info about this perk if clicked
@@ -306,7 +306,7 @@ void CharacterWindow::buildKnownPerksTab() {
 void CharacterWindow::buildActiveEnchantsTab() {
     //List of active enchants
     std::shared_ptr<ScrollableList> activeEnchants = std::make_shared<ScrollableList>();
-    activeEnchants->setSize((getWidth() - 20) / 2, getHeight() * 0.60f);
+    activeEnchants->setSize(Vector2f((getWidth() - 20) / 2, getHeight() * 0.60f));
     activeEnchants->setPosition(10, 40);
     _activeEnchantsTab.push_back(activeEnchants);
 
@@ -319,7 +319,7 @@ void CharacterWindow::buildActiveEnchantsTab() {
 
     //List of effects a given enchant has
     std::shared_ptr<ScrollableList> enchantEffects = std::make_shared<ScrollableList>();
-    enchantEffects->setSize((getWidth() - 20) / 2, activeEnchants->getHeight() - enchantName->getHeight());
+    enchantEffects->setSize(Vector2f((getWidth() - 20) / 2, activeEnchants->getHeight() - enchantName->getHeight()));
     enchantEffects->setPosition(enchantName->getX(), enchantName->getY() + enchantName->getHeight());
     _activeEnchantsTab.push_back(enchantEffects);
 
@@ -343,7 +343,7 @@ void CharacterWindow::buildActiveEnchantsTab() {
         });
 
         std::shared_ptr<Button> button = std::make_shared<Button>(prefix + name);
-        button->setSize(activeEnchants->getWidth() - 50, activeEnchants->getHeight() / 6);
+        button->setSize(Vector2f(activeEnchants->getWidth() - 50, activeEnchants->getHeight() / 6));
         button->setOnClickFunction([this, element, name, enchantName, enchantEffects] {
             enchantName->setText(name);
             describeEnchantEffects(element.second, enchantEffects);

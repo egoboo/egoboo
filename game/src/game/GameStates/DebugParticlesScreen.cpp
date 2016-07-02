@@ -36,7 +36,7 @@ DebugParticlesScreen::DebugParticlesScreen()
     // Add the buttons.
     auto backButton = std::make_shared<Ego::GUI::Button>("Back", SDLK_ESCAPE);
     backButton->setPosition(20, SCREEN_HEIGHT-80);
-    backButton->setSize(200, 30);
+    backButton->setSize(Vector2f(200, 30));
     backButton->setOnClickFunction(
     [this]{
         endState();
@@ -78,7 +78,7 @@ DebugParticlesScreen::DebugParticlesScreen()
 
     auto scrollableList = std::make_shared<Ego::GUI::ScrollableList>();
     scrollableList->setPosition(invalid->getX(), invalid->getY() + invalid->getHeight() + 20);
-    scrollableList->setSize(SCREEN_WIDTH-50, SCREEN_HEIGHT*0.75f-scrollableList->getY());
+    scrollableList->setSize(Vector2f(SCREEN_WIDTH-50, SCREEN_HEIGHT*0.75f-scrollableList->getY()));
     addComponent(scrollableList);
 
     for(const auto &element : usageCount)

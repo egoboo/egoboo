@@ -64,20 +64,20 @@ MainMenuState::MainMenuState() :
 	const int SCREEN_HEIGHT = _gameEngine->getUIManager()->getScreenHeight();
 
 	// calculate the centered position of the background
-	background->setSize(background->getTextureWidth(), background->getTextureHeight());
+	background->setSize(Vector2f(background->getTextureWidth(), background->getTextureHeight()));
 	background->setCenterPosition(SCREEN_WIDTH/2, SCREEN_HEIGHT/2);
 	addComponent(background);
 
 	// calculate the position of the logo
 	gameLogo->setPosition(background->getX(), background->getY());
-	gameLogo->setSize(gameLogo->getTextureWidth(), gameLogo->getTextureHeight());
+	gameLogo->setSize(Vector2f(gameLogo->getTextureWidth(), gameLogo->getTextureHeight()));
 	addComponent(gameLogo);
 
 	//Add the buttons
 	int yOffset = SCREEN_HEIGHT-80;
     auto exitButton = std::make_shared<Ego::GUI::Button>("Exit Game", SDLK_ESCAPE);
 	exitButton->setPosition(20, yOffset);
-	exitButton->setSize(200, 30);
+	exitButton->setSize(Vector2f(200, 30));
 	exitButton->setOnClickFunction(
 	[]{
 		_gameEngine->shutdown();
@@ -89,7 +89,7 @@ MainMenuState::MainMenuState() :
 
 	auto optionsButton = std::make_shared<Ego::GUI::Button>("Options", SDLK_o);
 	optionsButton->setPosition(20, yOffset);
-	optionsButton->setSize(200, 30);
+	optionsButton->setSize(Vector2f(200, 30));
 	optionsButton->setOnClickFunction(
 	[]{
 		_gameEngine->pushGameState(std::make_shared<OptionsScreen>());
@@ -101,7 +101,7 @@ MainMenuState::MainMenuState() :
 
 	auto loadGameButton = std::make_shared<Ego::GUI::Button>("Load Game", SDLK_l);
 	loadGameButton->setPosition(20, yOffset);
-	loadGameButton->setSize(200, 30);
+	loadGameButton->setSize(Vector2f(200, 30));
 	loadGameButton->setOnClickFunction(
 	[]{
 		_gameEngine->pushGameState(std::make_shared<SelectPlayersState>());
@@ -113,7 +113,7 @@ MainMenuState::MainMenuState() :
 
 	auto newGameButton = std::make_shared<Ego::GUI::Button>("New Game", SDLK_n);
 	newGameButton->setPosition(20, yOffset);
-	newGameButton->setSize(200, 30);
+	newGameButton->setSize(Vector2f(200, 30));
 	newGameButton->setOnClickFunction(
 	[]{
 		_gameEngine->pushGameState(std::make_shared<SelectModuleState>());
@@ -127,7 +127,7 @@ MainMenuState::MainMenuState() :
     {
         auto debugButton = std::make_shared<Ego::GUI::Button>("Debug", SDLK_UNKNOWN);
         debugButton->setPosition(20, yOffset);
-        debugButton->setSize(200, 30);
+        debugButton->setSize(Vector2f(200, 30));
         debugButton->setOnClickFunction(
         []{
             _gameEngine->pushGameState(std::make_shared<DebugMainMenuState>());
@@ -139,7 +139,7 @@ MainMenuState::MainMenuState() :
 
         auto mapEditorButton = std::make_shared<Ego::GUI::Button>("Map Editor", SDLK_m);
         mapEditorButton->setPosition(20, yOffset);
-        mapEditorButton->setSize(200, 30);
+        mapEditorButton->setSize(Vector2f(200, 30));
         mapEditorButton->setOnClickFunction(
         []{
             _gameEngine->pushGameState(std::make_shared<Ego::GameStates::MapEditorSelectModuleState>());

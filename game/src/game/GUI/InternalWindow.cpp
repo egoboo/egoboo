@@ -43,7 +43,7 @@ InternalWindow::TitleBar::TitleBar(const std::string &title) :
     _font->getTextSize(_title, &_textWidth, &_textHeight);
     _textWidth = std::max<int>(32, _textWidth);
     _textHeight = std::max<int>(32, _textHeight);
-    setSize(_textWidth + 20, _textHeight + 5);
+    setSize(Vector2f(_textWidth + 20, _textHeight + 5));
 }
 
 void InternalWindow::TitleBar::draw() {
@@ -189,13 +189,13 @@ void InternalWindow::addComponent(std::shared_ptr<Component> component) {
     ComponentContainer::addComponent(component);
 }
 
-void InternalWindow::setSize(float width, float height) {
+void InternalWindow::setSize(const Vector2f& size) {
     //Also update the width of the title bar if our with changes
-    _titleBar->setSize(width, _titleBar->getHeight());
-    _closeButton->setSize(22, 22);
+    _titleBar->setSize(Vector2f(size.x(), _titleBar->getHeight()));
+    _closeButton->setSize(Vector2f(22, 22));
     _closeButton->setPosition(_titleBar->getX() + _titleBar->getWidth() - _closeButton->getWidth(), _titleBar->getY() + _titleBar->getHeight() / 2 - _closeButton->getHeight() / 2);
 
-    Component::setSize(width, height);
+    Component::setSize(size);
 }
 
 } // namespace GUI

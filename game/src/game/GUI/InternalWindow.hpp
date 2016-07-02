@@ -64,7 +64,7 @@ public:
     void draw() override;
 
     virtual void setPosition(float x, float y) override;
-    virtual void setSize(float width, float height) override;
+    virtual void setSize(const Vector2f& size) override;
 
     void setTransparency(float alpha);
 

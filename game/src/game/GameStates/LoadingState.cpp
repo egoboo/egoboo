@@ -53,7 +53,7 @@ LoadingState::LoadingState(std::shared_ptr<ModuleProfile> module, const std::lis
 
     // Load background
     auto background = std::make_shared<Ego::GUI::Image>("mp_data/menu/menu_logo");
-    background->setSize(background->getTextureWidth(), background->getTextureHeight());
+    background->setSize(Vector2f(background->getTextureWidth(), background->getTextureHeight()));
     background->setPosition(SCREEN_WIDTH/2-background->getTextureWidth()/2, SCREEN_HEIGHT/2-background->getTextureHeight()/2-100);
     addComponent(background);
 
@@ -69,7 +69,7 @@ LoadingState::LoadingState(std::shared_ptr<ModuleProfile> module, const std::lis
     loadGlobalHints();
 
     //Add the progress bar
-    _progressBar->setSize(400, 30);
+    _progressBar->setSize(Vector2f(400, 30));
     _progressBar->setPosition(SCREEN_WIDTH/2 - _progressBar->getWidth()/2, SCREEN_HEIGHT-50);
     _progressBar->setMaxValue(100);
     addComponent(_progressBar);
@@ -221,7 +221,7 @@ void LoadingState::loadModuleData()
 
     //Add the start button once we are finished loading
     auto startButton = std::make_shared<Ego::GUI::Button>("Press Space to begin", SDLK_SPACE);
-    startButton->setSize(400, 30);
+    startButton->setSize(Vector2f(400, 30));
     startButton->setPosition(SCREEN_WIDTH/2 - startButton->getWidth()/2, SCREEN_HEIGHT-50);
     startButton->setOnClickFunction(
         [cameraSystem]{

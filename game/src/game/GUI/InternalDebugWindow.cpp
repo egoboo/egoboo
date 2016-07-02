@@ -28,7 +28,7 @@ namespace GUI {
 
 InternalDebugWindow::InternalDebugWindow(const std::string &title) : InternalWindow(title),
 _watchedVariables() {
-    setSize(200, 75);
+    setSize(Vector2f(200, 75));
 }
 
 void InternalDebugWindow::addWatchVariable(const std::string &variableName, std::function<std::string()> lambda) {
@@ -40,7 +40,7 @@ void InternalDebugWindow::addWatchVariable(const std::string &variableName, std:
     _gameEngine->getUIManager()->getDebugFont()->getTextSize(variableName, &textWidth, &textHeight);
     textWidth = std::max(32, textWidth);
     textHeight = std::max(8, textHeight);
-    setSize(std::max(getWidth(), 5.0f + textWidth * 2.0f), getHeight() + textHeight + 5.0f);
+    setSize(Vector2f(std::max(getWidth(), 5.0f + textWidth * 2.0f), getHeight() + textHeight + 5.0f));
 }
 
 void InternalDebugWindow::drawContainer() {

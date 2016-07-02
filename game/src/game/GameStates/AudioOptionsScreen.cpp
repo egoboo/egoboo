@@ -35,7 +35,7 @@ AudioOptionsScreen::AudioOptionsScreen()
     const int SCREEN_HEIGHT = _gameEngine->getUIManager()->getScreenHeight();
 
     // calculate the centered position of the background
-    background->setSize(background->getTextureWidth() * 0.75f, background->getTextureHeight() * 0.75f);
+    background->setSize(Vector2f(background->getTextureWidth() * 0.75f, background->getTextureHeight() * 0.75f));
     background->setPosition(SCREEN_WIDTH- background->getWidth(), SCREEN_HEIGHT - background->getHeight());
     addComponent(background);
 
@@ -49,7 +49,7 @@ AudioOptionsScreen::AudioOptionsScreen()
     yPos += musicVolumeLable->getHeight() + 5;
 
     auto musicVolumeSlider = std::make_shared<Ego::GUI::Slider>(0, MIX_MAX_VOLUME);
-    musicVolumeSlider->setSize(std::min(200, SCREEN_WIDTH/3), 30);
+    musicVolumeSlider->setSize(Vector2f(std::min(200, SCREEN_WIDTH/3), 30));
     musicVolumeSlider->setPosition(xPos, yPos);
     musicVolumeSlider->setOnChangeFunction(
         [](int value) { 
@@ -68,7 +68,7 @@ AudioOptionsScreen::AudioOptionsScreen()
     yPos += soundEffectLabel->getHeight() + 5;
 
     auto soundEffectVolumeSlider = std::make_shared<Ego::GUI::Slider>(0, MIX_MAX_VOLUME);
-    soundEffectVolumeSlider->setSize(std::min(200, SCREEN_WIDTH/3), 30);
+    soundEffectVolumeSlider->setSize(Vector2f(std::min(200, SCREEN_WIDTH/3), 30));
     soundEffectVolumeSlider->setPosition(xPos, yPos);
     soundEffectVolumeSlider->setOnChangeFunction(
         [](int value) { 
@@ -88,7 +88,7 @@ AudioOptionsScreen::AudioOptionsScreen()
     yPos += soundChannelsLabel->getHeight() + 5;
 
     std::shared_ptr<Ego::GUI::Slider> soundChannelsSlider = std::make_shared<Ego::GUI::Slider>(8, 128);
-    soundChannelsSlider->setSize(std::min(200, SCREEN_WIDTH/3), 30);
+    soundChannelsSlider->setSize(Vector2f(std::min(200, SCREEN_WIDTH/3), 30));
     soundChannelsSlider->setPosition(xPos, yPos);
     soundChannelsSlider->setOnChangeFunction(
         [](int value) { 
@@ -107,7 +107,7 @@ AudioOptionsScreen::AudioOptionsScreen()
 
     std::shared_ptr<Ego::GUI::Button> footstepButton = std::make_shared<Ego::GUI::Button>(egoboo_config_t::get().sound_footfallEffects_enable.getValue() ? "Yes" : "No");
     footstepButton->setPosition(xPos + footstepLabel->getWidth() + 10, footstepLabel->getY());
-    footstepButton->setSize(100, 30);
+    footstepButton->setSize(Vector2f(100, 30));
     footstepButton->setOnClickFunction(
     [footstepButton]{
         egoboo_config_t::get().sound_footfallEffects_enable.setValue(!egoboo_config_t::get().sound_footfallEffects_enable.getValue());
@@ -118,7 +118,7 @@ AudioOptionsScreen::AudioOptionsScreen()
     // Back button
     auto backButton = std::make_shared<Ego::GUI::Button>("Back", SDLK_ESCAPE);
     backButton->setPosition(20, SCREEN_HEIGHT-80);
-    backButton->setSize(200, 30);
+    backButton->setSize(Vector2f(200, 30));
     backButton->setOnClickFunction(
     [this]{
         endState();

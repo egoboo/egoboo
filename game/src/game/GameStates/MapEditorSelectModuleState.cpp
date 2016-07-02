@@ -26,14 +26,14 @@ MapEditorSelectModuleState::MapEditorSelectModuleState() :
     //Scrollable list of all modules
     auto scrollableList = std::make_shared<Ego::GUI::ScrollableList>();
     scrollableList->setPosition(8, 8);
-    scrollableList->setSize(SCREEN_WIDTH / 2, SCREEN_HEIGHT - 56);
+    scrollableList->setSize(Vector2f(SCREEN_WIDTH / 2, SCREEN_HEIGHT - 56));
 
     for (const auto &loadModule : ProfileSystem::get().getModuleProfiles())
     {
     	const std::string folderName = loadModule->getPath().substr(loadModule->getPath().find_last_of('/') + 1);
 
         auto module = std::make_shared<Ego::GUI::IconButton>(folderName, loadModule->getIcon());
-       	module->setSize(scrollableList->getWidth()-50, 50); 
+       	module->setSize(Vector2f(scrollableList->getWidth()-50, 50)); 
 
         module->setOnClickFunction([this, module, loadModule] { 
         	module->setEnabled(false);
@@ -54,7 +54,7 @@ MapEditorSelectModuleState::MapEditorSelectModuleState() :
     addComponent(scrollableList);
 
     auto editModuleButton = std::make_shared<Ego::GUI::Button>("Open Editor", SDLK_RETURN);
-    editModuleButton->setSize(150, 40);
+    editModuleButton->setSize(Vector2f(150, 40));
     editModuleButton->setPosition(SCREEN_WIDTH - editModuleButton->getWidth() - 5, SCREEN_HEIGHT - editModuleButton->getHeight() - 5);
     editModuleButton->setOnClickFunction([this]{
     	_gameEngine->setGameState(std::make_shared<MapEditorState>(_selectedModule));
@@ -62,7 +62,7 @@ MapEditorSelectModuleState::MapEditorSelectModuleState() :
     addComponent(editModuleButton);
 
     auto newModuleButton = std::make_shared<Ego::GUI::Button>("New Module");
-    newModuleButton->setSize(150, 40);
+    newModuleButton->setSize(Vector2f(150, 40));
     newModuleButton->setPosition(SCREEN_WIDTH/2 - newModuleButton->getWidth()/2, SCREEN_HEIGHT - newModuleButton->getHeight() - 5);
     //newModuleButton->setOnClickFunction([this]{
     //	TODO
@@ -70,7 +70,7 @@ MapEditorSelectModuleState::MapEditorSelectModuleState() :
     addComponent(newModuleButton);
 
     auto backButton = std::make_shared<Ego::GUI::Button>("Back", SDLK_ESCAPE);
-    backButton->setSize(150, 40);
+    backButton->setSize(Vector2f(150, 40));
     backButton->setPosition(5, SCREEN_HEIGHT - backButton->getHeight() - 5);
     backButton->setOnClickFunction([this]{
     	this->endState();

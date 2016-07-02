@@ -36,7 +36,7 @@ VideoOptionsScreen::VideoOptionsScreen() :
     const int SCREEN_HEIGHT = _gameEngine->getUIManager()->getScreenHeight();
 
     // calculate the centered position of the background
-    background->setSize(background->getTextureWidth() * 0.75f, background->getTextureHeight() * 0.75f);
+    background->setSize(Vector2f(background->getTextureWidth() * 0.75f, background->getTextureHeight() * 0.75f));
     background->setPosition(SCREEN_WIDTH- background->getWidth(), SCREEN_HEIGHT - background->getHeight());
     addComponent(background);
 
@@ -45,7 +45,7 @@ VideoOptionsScreen::VideoOptionsScreen() :
     resolutionLabel->setPosition(20, 5);
     addComponent(resolutionLabel);
 
-    _resolutionList->setSize(SCREEN_WIDTH/3, SCREEN_HEIGHT/2);
+    _resolutionList->setSize(Vector2f(SCREEN_WIDTH/3, SCREEN_HEIGHT/2));
     _resolutionList->setPosition(resolutionLabel->getX(), resolutionLabel->getY() + resolutionLabel->getHeight());
     addComponent(_resolutionList);
 
@@ -213,7 +213,7 @@ VideoOptionsScreen::VideoOptionsScreen() :
     // Back button
     auto backButton = std::make_shared<Ego::GUI::Button>("Back", SDLK_ESCAPE);
     backButton->setPosition(20, SCREEN_HEIGHT-80);
-    backButton->setSize(200, 30);
+    backButton->setSize(Vector2f(200, 30));
     backButton->setOnClickFunction(
     [this]{
         endState();
@@ -237,7 +237,7 @@ int VideoOptionsScreen::addOptionsButton(int xPos, int yPos, const std::string &
     addComponent(optionLabel);
 
     auto optionButton = std::make_shared<Ego::GUI::Button>(labelFunction());
-    optionButton->setSize(150, 30);
+    optionButton->setSize(Vector2f(150, 30));
     optionButton->setPosition(xPos+250, optionLabel->getY());
     optionButton->setOnClickFunction(
         [optionButton, onClickFunction, labelFunction]{
@@ -270,7 +270,7 @@ void VideoOptionsScreen::addResolutionButton(int width, int height)
 {
     auto resolutionButton = std::make_shared<Ego::GUI::Button>(std::to_string(width) + "x" + std::to_string(height));
 
-    resolutionButton->setSize(200, 30);
+    resolutionButton->setSize(Vector2f(200, 30));
     resolutionButton->setOnClickFunction(
         [width, height, resolutionButton, this]
         {

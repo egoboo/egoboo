@@ -77,7 +77,7 @@ private:
             textWidth = _maxWidth;
         if (_maxHeight > 0)
             textHeight = _maxHeight;
-        setSize(textWidth, textHeight);
+        setSize(Vector2f(textWidth, textHeight));
     }
     
     std::string _text;

@@ -59,12 +59,12 @@ PlayingState::PlayingState(std::shared_ptr<CameraSystem> cameraSystem) :
     }
 
     //Add minimap to the list of GUI components to render
-    _miniMap->setSize(Ego::GUI::MiniMap::MAPSIZE, Ego::GUI::MiniMap::MAPSIZE);
+    _miniMap->setSize(Vector2f(Ego::GUI::MiniMap::MAPSIZE, Ego::GUI::MiniMap::MAPSIZE));
     _miniMap->setPosition(0, _gameEngine->getUIManager()->getScreenHeight()-_miniMap->getHeight());
     addComponent(_miniMap);
 
     //Add the message log
-    _messageLog->setSize(_gameEngine->getUIManager()->getScreenWidth() - WRAP_TOLERANCE, _gameEngine->getUIManager()->getScreenHeight() / 3);
+    _messageLog->setSize(Vector2f(_gameEngine->getUIManager()->getScreenWidth() - WRAP_TOLERANCE, _gameEngine->getUIManager()->getScreenHeight() / 3));
     _messageLog->setPosition(0, fontyspacing);
     addComponent(_messageLog);
 
@@ -228,7 +228,7 @@ void PlayingState::addStatusMonitor(const std::shared_ptr<Object> &object)
 
     auto status = std::make_shared<Ego::GUI::CharacterStatus>(object);
 
-    status->setSize(BARX, BARY);
+    status->setSize(Vector2f(BARX, BARY));
     status->setPosition(camera->getScreen().xmax - status->getWidth(), camera->getScreen().ymin);
 
     addComponent(status);

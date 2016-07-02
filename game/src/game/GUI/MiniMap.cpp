@@ -33,6 +33,9 @@ static const uint32_t MINIMAP_BLINK_RATE = 500; //milliseconds between each mini
 
 namespace Ego {
 namespace GUI {
+
+const uint32_t MiniMap::MAPSIZE = 128;
+
 MiniMap::MiniMap() :
     _markerBlinkTimer(0),
     _showPlayerPosition(false),
@@ -178,9 +181,9 @@ bool MiniMap::notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEventArgs
 
                 // Shift position when becoming smaller towards one of the screen corners
                 setPosition(getX() + offsetX, getY() + offsetY);
-                setSize(MiniMap::MAPSIZE, MiniMap::MAPSIZE);
+                setSize(Vector2f(MiniMap::MAPSIZE, MiniMap::MAPSIZE));
             } else {
-                setSize(HALF_SCREEN_WIDTH, HALF_SCREEN_HEIGHT);
+                setSize(Vector2f(HALF_SCREEN_WIDTH, HALF_SCREEN_HEIGHT));
             }
 
             // Keep minimap inside the screen

@@ -62,7 +62,7 @@ SelectModuleState::SelectModuleState(const std::list<std::string> &playersToLoad
 	//Add the buttons
 	_chooseModule = std::make_shared<Ego::GUI::Button>("Choose Module", SDLK_RETURN);
 	_chooseModule->setPosition(_moduleSelector->getX() + _moduleSelector->getWidth() + 20, SCREEN_HEIGHT / 2 + 20);
-	_chooseModule->setSize(200, 30);
+	_chooseModule->setSize(Vector2f(200, 30));
 	_chooseModule->setEnabled(false);
 	_chooseModule->setOnClickFunction(
 	[this]{
@@ -75,7 +75,7 @@ SelectModuleState::SelectModuleState(const std::list<std::string> &playersToLoad
 
 	auto backButton = std::make_shared<Ego::GUI::Button>("Back", SDLK_ESCAPE);
 	backButton->setPosition(_moduleSelector->getX() + _moduleSelector->getWidth() + 20, _chooseModule->getY() + 50);
-	backButton->setSize(200, 30);
+	backButton->setSize(Vector2f(200, 30));
 	backButton->setOnClickFunction(
 		[this]{
 			this->endState();
@@ -89,7 +89,7 @@ SelectModuleState::SelectModuleState(const std::list<std::string> &playersToLoad
 	if(!_onlyStarterModules)
 	{
 		_filterButton->setPosition(10 + SCREEN_WIDTH/2, 30);
-		_filterButton->setSize(200, 30);
+		_filterButton->setSize(Vector2f(200, 30));
 		_filterButton->setOnClickFunction(
 			[this]{
 				//Set next module filter (wrap around using modulo)
@@ -181,7 +181,7 @@ void SelectModuleState::setModuleFilter(const ModuleFilter filter)
 	}
 
 	//Place background in bottom right corner
-	_background->setSize(_background->getTextureWidth(), _background->getTextureHeight());
+	_background->setSize(Vector2f(_background->getTextureWidth(), _background->getTextureHeight()));
 	_background->setPosition((_gameEngine->getUIManager()->getScreenWidth()/2) - (_background->getWidth()/2), _gameEngine->getUIManager()->getScreenHeight() - _background->getHeight());
 }
 

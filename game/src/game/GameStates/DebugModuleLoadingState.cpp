@@ -48,13 +48,13 @@ struct DebugModuleLoadingState::ModuleGUIContainer : public ComponentContainer, 
         _moduleName(std::make_shared<Ego::GUI::Button>(_profile->getFolderName())),
         _loadingText(std::make_shared<Ego::GUI::Label>("Not Loaded"))
     {
-        _moduleName->setSize(200, 30);
+        _moduleName->setSize(Vector2f(200, 30));
         
         addComponent(_moduleName);
         addComponent(_loadingText);
         
         const int SCREEN_WIDTH = _gameEngine->getUIManager()->getScreenWidth();
-        setSize(SCREEN_WIDTH - 50, 30);
+        setSize(Vector2f(SCREEN_WIDTH - 50, 30));
     }
     
     void setOnClick(const std::function<void()> &onClick)
@@ -112,7 +112,7 @@ DebugModuleLoadingState::DebugModuleLoadingState() :
     
     _scrollableList = std::make_shared<Ego::GUI::ScrollableList>();
     _scrollableList->setPosition(8, 8);
-    _scrollableList->setSize(SCREEN_WIDTH - 16, SCREEN_HEIGHT - 56);
+    _scrollableList->setSize(Vector2f(SCREEN_WIDTH - 16, SCREEN_HEIGHT - 56));
     
     for (const auto &loadModule : ProfileSystem::get().getModuleProfiles())
     {
@@ -130,13 +130,13 @@ DebugModuleLoadingState::DebugModuleLoadingState() :
     
     auto back = std::make_shared<Ego::GUI::Button>("Back");
     back->setPosition(8, SCREEN_HEIGHT - 30 - 8);
-    back->setSize(150, 30);
+    back->setSize(Vector2f(150, 30));
     back->setOnClickFunction([this] { endState(); });
     addComponent(back);
     
     auto loadAll = std::make_shared<Ego::GUI::Button>("Load All");
     loadAll->setPosition(SCREEN_WIDTH - 150 - 8, SCREEN_HEIGHT - 30 - 8);
-    loadAll->setSize(150, 30);
+    loadAll->setSize(Vector2f(150, 30));
     loadAll->setOnClickFunction([this] { for (const auto &a : _moduleList) addToQueue(a); });
     addComponent(loadAll);
 }

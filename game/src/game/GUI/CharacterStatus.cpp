@@ -388,7 +388,7 @@ void CharacterStatus::draw() {
             _chargeBar->setMaxValue(player->getBarMaxCharge());
             _chargeBar->setValue(player->getBarCurrentCharge());
             _chargeBar->setTickWidth(player->getBarPipWidth());
-            _chargeBar->setSize(getWidth(), 16);
+            _chargeBar->setSize(Vector2f(getWidth(), 16));
             _chargeBar->setPosition(getX() - _chargeBar->getWidth() - 5, getY() + getHeight() / 2 - _chargeBar->getHeight() / 2);
             _chargeBar->draw();
         } else {

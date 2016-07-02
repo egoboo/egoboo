@@ -39,7 +39,7 @@ OptionsScreen::OptionsScreen() :
 	const int SCREEN_HEIGHT = _gameEngine->getUIManager()->getScreenHeight();
 
 	// calculate the centered position of the background
-	background->setSize(background->getTextureWidth(), background->getTextureHeight());
+	background->setSize(Vector2f(background->getTextureWidth(), background->getTextureHeight()));
 	background->setCenterPosition(SCREEN_WIDTH/2, SCREEN_HEIGHT/2);
 	addComponent(background);
 
@@ -47,7 +47,7 @@ OptionsScreen::OptionsScreen() :
 	int yOffset = SCREEN_HEIGHT-80;
 	auto backButton = std::make_shared<Ego::GUI::Button>("Back", SDLK_ESCAPE);
 	backButton->setPosition(20, yOffset);
-	backButton->setSize(200, 30);
+	backButton->setSize(Vector2f(200, 30));
 	backButton->setOnClickFunction(
 	[this]{
 		endState();
@@ -59,7 +59,7 @@ OptionsScreen::OptionsScreen() :
 
 	auto gameOptions = std::make_shared<Ego::GUI::Button>("Game Settings", SDLK_g);
 	gameOptions->setPosition(20, yOffset);
-	gameOptions->setSize(200, 30);
+	gameOptions->setSize(Vector2f(200, 30));
 	addComponent(gameOptions);
 	_slidyButtons.push_front(gameOptions);
 
@@ -67,7 +67,7 @@ OptionsScreen::OptionsScreen() :
 
 	auto videoOptions = std::make_shared<Ego::GUI::Button>("Video Settings", SDLK_v);
 	videoOptions->setPosition(20, yOffset);
-	videoOptions->setSize(200, 30);
+	videoOptions->setSize(Vector2f(200, 30));
 	videoOptions->setOnClickFunction(
 	[this]{
 		_gameEngine->pushGameState(std::make_shared<VideoOptionsScreen>());
@@ -79,7 +79,7 @@ OptionsScreen::OptionsScreen() :
 
 	auto audioOptions = std::make_shared<Ego::GUI::Button>("Audio Settings", SDLK_a);
 	audioOptions->setPosition(20, yOffset);
-	audioOptions->setSize(200, 30);
+	audioOptions->setSize(Vector2f(200, 30));
 	audioOptions->setOnClickFunction(
 	[this]{
 		_gameEngine->pushGameState(std::make_shared<AudioOptionsScreen>());
@@ -91,7 +91,7 @@ OptionsScreen::OptionsScreen() :
 
 	auto inputOptions = std::make_shared<Ego::GUI::Button>("Input Controls", SDLK_i);
 	inputOptions->setPosition(20, yOffset);
-	inputOptions->setSize(200, 30);
+	inputOptions->setSize(Vector2f(200, 30));
 	inputOptions->setOnClickFunction(
 	[this]{
 		_gameEngine->pushGameState(std::make_shared<Ego::GameStates::InputOptionsScreen>());

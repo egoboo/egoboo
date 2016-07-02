@@ -22,7 +22,7 @@ InputOptionsScreen::InputOptionsScreen()
     //Back button
     auto backButton = std::make_shared<Ego::GUI::Button>("Save Settings", SDLK_ESCAPE);
     backButton->setPosition(20, SCREEN_HEIGHT-80);
-    backButton->setSize(200, 30);
+    backButton->setSize(Vector2f(200, 30));
     backButton->setOnClickFunction(
     [this]{
         endState();
@@ -58,7 +58,7 @@ void InputOptionsScreen::addInputOption(const std::string& label)
     //Button
     auto inputOption = std::make_shared<Ego::GUI::Button>("N/A");
     inputOption->setPosition(20 + 100, 40);
-    inputOption->setSize(200, 30);
+    inputOption->setSize(Vector2f(200, 30));
     inputOption->setOnClickFunction(
     []{
     	//TODO

@@ -51,9 +51,9 @@ void Component::setHeight(float height) {
     _bounds = Rectangle2f(_bounds.getMin(), _bounds.getMin() + Vector2f(_bounds.getSize().x(), height));
 }
 
-void Component::setSize(float width, float height) {
-    setWidth(width);
-    setHeight(height);
+void Component::setSize(const Vector2f& size) {
+    setWidth(size.x());
+    setHeight(size.y());
 }
 
 void Component::setX(float x) {
