@@ -43,7 +43,7 @@ InGameMenuState::InGameMenuState(GameState &gameState) :
     // Add the buttons
     int yOffset = Ego::GraphicsSystem::gfx_height-80;
     auto exitButton = std::make_shared<Ego::GUI::Button>(_currentModule->isExportValid() ? "Save and Exit" : "Abort and Exit", SDLK_q);
-    exitButton->setPosition(20, yOffset);
+    exitButton->setPosition(Point2f(20, yOffset));
     exitButton->setSize(Vector2f(200, 30));
     exitButton->setOnClickFunction(
     []{
@@ -55,7 +55,7 @@ InGameMenuState::InGameMenuState(GameState &gameState) :
     yOffset -= exitButton->getHeight() + 10;
 
     auto optionsButton = std::make_shared<Ego::GUI::Button>("Options", SDLK_o);
-    optionsButton->setPosition(20, yOffset);
+    optionsButton->setPosition(Point2f(20, yOffset));
     optionsButton->setSize(Vector2f(200, 30));
     optionsButton->setOnClickFunction(
         []{
@@ -67,7 +67,7 @@ InGameMenuState::InGameMenuState(GameState &gameState) :
     yOffset -= optionsButton->getHeight() + 10;
 
     auto restartModuleButton = std::make_shared<Ego::GUI::Button>("Restart Module", SDLK_r);
-    restartModuleButton->setPosition(20, yOffset);
+    restartModuleButton->setPosition(Point2f(20, yOffset));
     restartModuleButton->setSize(Vector2f(200, 30));
     restartModuleButton->setOnClickFunction(
     [this]{
@@ -80,7 +80,7 @@ InGameMenuState::InGameMenuState(GameState &gameState) :
     yOffset -= restartModuleButton->getHeight() + 10;
 
     auto newGameButton = std::make_shared<Ego::GUI::Button>("Return to Module", SDLK_ESCAPE);
-    newGameButton->setPosition(20, yOffset);
+    newGameButton->setPosition(Point2f(20, yOffset));
     newGameButton->setSize(Vector2f(200, 30));
     newGameButton->setOnClickFunction(
     [this]{
@@ -93,7 +93,7 @@ InGameMenuState::InGameMenuState(GameState &gameState) :
 
 #ifdef _DEBUG
     auto debugButton = std::make_shared<Ego::GUI::Button>("Debug Particles", SDLK_p);
-    debugButton->setPosition(20, yOffset);
+    debugButton->setPosition(Point2f(20, yOffset));
     debugButton->setSize(Vector2f(200, 30));
     debugButton->setOnClickFunction(
     [this]{

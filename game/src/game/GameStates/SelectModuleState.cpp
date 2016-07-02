@@ -61,7 +61,7 @@ SelectModuleState::SelectModuleState(const std::list<std::string> &playersToLoad
 
 	//Add the buttons
 	_chooseModule = std::make_shared<Ego::GUI::Button>("Choose Module", SDLK_RETURN);
-	_chooseModule->setPosition(_moduleSelector->getX() + _moduleSelector->getWidth() + 20, SCREEN_HEIGHT / 2 + 20);
+	_chooseModule->setPosition(Point2f(_moduleSelector->getX() + _moduleSelector->getWidth() + 20, SCREEN_HEIGHT / 2 + 20));
 	_chooseModule->setSize(Vector2f(200, 30));
 	_chooseModule->setEnabled(false);
 	_chooseModule->setOnClickFunction(
@@ -74,7 +74,7 @@ SelectModuleState::SelectModuleState(const std::list<std::string> &playersToLoad
 	addComponent(_chooseModule);
 
 	auto backButton = std::make_shared<Ego::GUI::Button>("Back", SDLK_ESCAPE);
-	backButton->setPosition(_moduleSelector->getX() + _moduleSelector->getWidth() + 20, _chooseModule->getY() + 50);
+	backButton->setPosition(Point2f(_moduleSelector->getX() + _moduleSelector->getWidth() + 20, _chooseModule->getY() + 50));
 	backButton->setSize(Vector2f(200, 30));
 	backButton->setOnClickFunction(
 		[this]{
@@ -88,7 +88,7 @@ SelectModuleState::SelectModuleState(const std::list<std::string> &playersToLoad
 	//Only draw module filter for non-starter games
 	if(!_onlyStarterModules)
 	{
-		_filterButton->setPosition(10 + SCREEN_WIDTH/2, 30);
+		_filterButton->setPosition(Point2f(10 + SCREEN_WIDTH/2, 30));
 		_filterButton->setSize(Vector2f(200, 30));
 		_filterButton->setOnClickFunction(
 			[this]{
@@ -101,7 +101,7 @@ SelectModuleState::SelectModuleState(const std::list<std::string> &playersToLoad
 	//Help text
 	auto infoText = std::make_shared<Ego::GUI::Label>("Press an icon to select a game.\n"
 		  								              "Use the mouse wheel or the <- and -> buttons to scroll.");
-	infoText->setPosition(200, SCREEN_HEIGHT - 70);
+	infoText->setPosition(Point2f(200, SCREEN_HEIGHT - 70));
 	addComponent(infoText);
 
 }
@@ -182,7 +182,7 @@ void SelectModuleState::setModuleFilter(const ModuleFilter filter)
 
 	//Place background in bottom right corner
 	_background->setSize(Vector2f(_background->getTextureWidth(), _background->getTextureHeight()));
-	_background->setPosition((_gameEngine->getUIManager()->getScreenWidth()/2) - (_background->getWidth()/2), _gameEngine->getUIManager()->getScreenHeight() - _background->getHeight());
+	_background->setPosition(Point2f((_gameEngine->getUIManager()->getScreenWidth()/2) - (_background->getWidth()/2), _gameEngine->getUIManager()->getScreenHeight() - _background->getHeight()));
 }
 
 void SelectModuleState::update()

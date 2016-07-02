@@ -20,12 +20,12 @@ MapEditorSelectModuleState::MapEditorSelectModuleState() :
     const int SCREEN_HEIGHT = _gameEngine->getUIManager()->getScreenHeight();
 
     //Name of selected module
-    _moduleName->setPosition(SCREEN_WIDTH/2 + 20, 20);
+    _moduleName->setPosition(Point2f(SCREEN_WIDTH/2 + 20, 20));
     addComponent(_moduleName);
 
     //Scrollable list of all modules
     auto scrollableList = std::make_shared<Ego::GUI::ScrollableList>();
-    scrollableList->setPosition(8, 8);
+    scrollableList->setPosition(Point2f(8, 8));
     scrollableList->setSize(Vector2f(SCREEN_WIDTH / 2, SCREEN_HEIGHT - 56));
 
     for (const auto &loadModule : ProfileSystem::get().getModuleProfiles())
@@ -55,7 +55,7 @@ MapEditorSelectModuleState::MapEditorSelectModuleState() :
 
     auto editModuleButton = std::make_shared<Ego::GUI::Button>("Open Editor", SDLK_RETURN);
     editModuleButton->setSize(Vector2f(150, 40));
-    editModuleButton->setPosition(SCREEN_WIDTH - editModuleButton->getWidth() - 5, SCREEN_HEIGHT - editModuleButton->getHeight() - 5);
+    editModuleButton->setPosition(Point2f(SCREEN_WIDTH - editModuleButton->getWidth() - 5, SCREEN_HEIGHT - editModuleButton->getHeight() - 5));
     editModuleButton->setOnClickFunction([this]{
     	_gameEngine->setGameState(std::make_shared<MapEditorState>(_selectedModule));
     });
@@ -63,7 +63,7 @@ MapEditorSelectModuleState::MapEditorSelectModuleState() :
 
     auto newModuleButton = std::make_shared<Ego::GUI::Button>("New Module");
     newModuleButton->setSize(Vector2f(150, 40));
-    newModuleButton->setPosition(SCREEN_WIDTH/2 - newModuleButton->getWidth()/2, SCREEN_HEIGHT - newModuleButton->getHeight() - 5);
+    newModuleButton->setPosition(Point2f(SCREEN_WIDTH/2 - newModuleButton->getWidth()/2, SCREEN_HEIGHT - newModuleButton->getHeight() - 5));
     //newModuleButton->setOnClickFunction([this]{
     //	TODO
     //});
@@ -71,7 +71,7 @@ MapEditorSelectModuleState::MapEditorSelectModuleState() :
 
     auto backButton = std::make_shared<Ego::GUI::Button>("Back", SDLK_ESCAPE);
     backButton->setSize(Vector2f(150, 40));
-    backButton->setPosition(5, SCREEN_HEIGHT - backButton->getHeight() - 5);
+    backButton->setPosition(Point2f(5, SCREEN_HEIGHT - backButton->getHeight() - 5));
     backButton->setOnClickFunction([this]{
     	this->endState();
     });

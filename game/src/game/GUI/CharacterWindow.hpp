@@ -46,8 +46,8 @@ public:
     bool notifyMouseMoved(const Events::MouseMovedEventArgs& e) override;
 
 private:
-    int addResistanceLabel(const int x, const int y, const DamageType type);
-    int addAttributeLabel(const int x, const int y, const Attribute::AttributeType type);
+    int addResistanceLabel(const Point2f& position, const DamageType type);
+    int addAttributeLabel(const Point2f& position, const Attribute::AttributeType type);
 
     void buildCharacterStatisticTab();
     void buildKnownPerksTab();

@@ -114,11 +114,11 @@ struct DebugObjectLoadingState::ObjectGUIContainer : public ComponentContainer, 
     
     void drawContainer() override {}
     
-    void setPosition(float x, float y) override
+    void setPosition(const Point2f& position) override
     {
-        Component::setPosition(x, y);
-        _objectName->setPosition(x, y);
-        _loadingText->setPosition(x + 265, y + (getHeight() - _loadingText->getHeight()) / 2);
+        Component::setPosition(position);
+        _objectName->setPosition(position);
+        _loadingText->setPosition(position + Vector2f(265, (getHeight() - _loadingText->getHeight()) / 2));
     }
     
     bool notifyMouseButtonClicked(const Ego::Events::MouseButtonClickedEventArgs& e) override
@@ -221,7 +221,7 @@ _currentLoader()
     const int SCREEN_HEIGHT = _gameEngine->getUIManager()->getScreenHeight();
     
     _scrollableList = std::make_shared<Ego::GUI::ScrollableList>();
-    _scrollableList->setPosition(8, 8);
+    _scrollableList->setPosition(Point2f(8, 8));
     _scrollableList->setSize(Vector2f(SCREEN_WIDTH - 16, SCREEN_HEIGHT - 56));
     
     _moduleList.emplace_back(new GlobalLoader());
@@ -257,13 +257,13 @@ _currentLoader()
     addComponent(_scrollableList);
     
     auto back = std::make_shared<Ego::GUI::Button>("Back");
-    back->setPosition(8, SCREEN_HEIGHT - 30 - 8);
+    back->setPosition(Point2f(8, SCREEN_HEIGHT - 30 - 8));
     back->setSize(Vector2f(150, 30));
     back->setOnClickFunction([this] { endState(); });
     addComponent(back);
     
     auto loadAll = std::make_shared<Ego::GUI::Button>("Load All");
-    loadAll->setPosition(SCREEN_WIDTH - 150 - 8, SCREEN_HEIGHT - 30 - 8);
+    loadAll->setPosition(Point2f(SCREEN_WIDTH - 150 - 8, SCREEN_HEIGHT - 30 - 8));
     loadAll->setSize(Vector2f(150, 30));
     loadAll->setOnClickFunction([this] { for (const auto &a : _moduleList) addToQueue(a); });
     addComponent(loadAll);

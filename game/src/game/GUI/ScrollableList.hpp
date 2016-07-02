@@ -68,7 +68,7 @@ public:
     void setHeight(float height) override;
     void setX(float x) override;
     void setY(float y) override;
-    void setPosition(float x, float y) override;
+    void setPosition(const Point2f& position) override;
 
 protected:
     void drawContainer() override;

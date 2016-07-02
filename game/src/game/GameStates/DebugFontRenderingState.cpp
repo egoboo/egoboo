@@ -105,40 +105,40 @@ DebugFontRenderingState::DebugFontRenderingState()
     
     std::string debugText = debugTextStream.str();
     _textLabel = std::make_shared<DebugLabel>(debugText);
-    _textLabel->setPosition(5, 5);
+    _textLabel->setPosition(Point2f(5, 5));
     addComponent(_textLabel);
     
     auto button = std::make_shared<Ego::GUI::Button>("Back");
     button->setOnClickFunction([this] { endState(); } );
     button->setWidth(100);
-    button->setPosition(5, SCREEN_HEIGHT - button->getHeight() - 5);
+    button->setPosition(Point2f(5, SCREEN_HEIGHT - button->getHeight() - 5));
     addComponent(button);
     
     button = std::make_shared<Ego::GUI::Button>("Default");
     button->setOnClickFunction([this] { setFont(Ego::GUI::UIManager::UIFontType::FONT_DEFAULT); });
     button->setWidth(width);
-    button->setPosition(x, SCREEN_HEIGHT - button->getHeight() - 5);
+    button->setPosition(Point2f(x, SCREEN_HEIGHT - button->getHeight() - 5));
     x += width + 20;
     addComponent(button);
     
     button = std::make_shared<Ego::GUI::Button>("Floating Text");
     button->setOnClickFunction([this] { setFont(Ego::GUI::UIManager::UIFontType::FONT_FLOATING_TEXT); });
     button->setWidth(width);
-    button->setPosition(x, SCREEN_HEIGHT - button->getHeight() - 5);
+    button->setPosition(Point2f(x, SCREEN_HEIGHT - button->getHeight() - 5));
     x += width + 20;
     addComponent(button);
     
     button = std::make_shared<Ego::GUI::Button>("Debug");
     button->setOnClickFunction([this] { setFont(Ego::GUI::UIManager::UIFontType::FONT_DEBUG); });
     button->setWidth(width);
-    button->setPosition(x, SCREEN_HEIGHT - button->getHeight() - 5);
+    button->setPosition(Point2f(x, SCREEN_HEIGHT - button->getHeight() - 5));
     x += width + 20;
     addComponent(button);
     
     button = std::make_shared<Ego::GUI::Button>("Game");
     button->setOnClickFunction([this] { setFont(Ego::GUI::UIManager::UIFontType::FONT_GAME); });
     button->setWidth(width);
-    button->setPosition(x, SCREEN_HEIGHT - button->getHeight() - 5);
+    button->setPosition(Point2f(x, SCREEN_HEIGHT - button->getHeight() - 5));
     x += width + 20;
     addComponent(button);
     
@@ -153,78 +153,78 @@ DebugFontRenderingState::DebugFontRenderingState()
     _textLabel->setMaxHeight(_maxHeight);
     
     auto label = std::make_shared<Ego::GUI::Label>("Width");
-    label->setPosition(x, y);
+    label->setPosition(Point2f(x, y));
     addComponent(label);
     x += label->getWidth() + 15;
     
     button = std::make_shared<Ego::GUI::Button>("<<");
-    button->setPosition(x, y);
+    button->setPosition(Point2f(x, y));
     button->setWidth(35);
     button->setOnClickFunction([this] { setMaxWidth(0); });
     addComponent(button);
     x += 40;
     
     button = std::make_shared<Ego::GUI::Button>("<");
-    button->setPosition(x, y);
+    button->setPosition(Point2f(x, y));
     button->setWidth(35);
     button->setOnClickFunction([this] { setMaxWidth(_maxWidth - 1); });
     addComponent(button);
     x += 40;
     
     _widthButton = std::make_shared<Ego::GUI::Button>(std::to_string(_maxWidth));
-    _widthButton->setPosition(x, y);
+    _widthButton->setPosition(Point2f(x, y));
     _widthButton->setWidth(75);
     addComponent(_widthButton);
     x += 80;
     
     button = std::make_shared<Ego::GUI::Button>(">");
-    button->setPosition(x, y);
+    button->setPosition(Point2f(x, y));
     button->setWidth(35);
     button->setOnClickFunction([this] { setMaxWidth(_maxWidth + 1); });
     addComponent(button);
     x += 40;
     
     button = std::make_shared<Ego::GUI::Button>(">>");
-    button->setPosition(x, y);
+    button->setPosition(Point2f(x, y));
     button->setWidth(35);
     button->setOnClickFunction([this] { setMaxWidth(std::numeric_limits<int>::max()); });
     addComponent(button);
     x += 55;
     
     label = std::make_shared<Ego::GUI::Label>("Height");
-    label->setPosition(x, y);
+    label->setPosition(Point2f(x, y));
     addComponent(label);
     x += label->getWidth() + 15;
     
     button = std::make_shared<Ego::GUI::Button>("<<");
-    button->setPosition(x, y);
+    button->setPosition(Point2f(x, y));
     button->setWidth(35);
     button->setOnClickFunction([this] { setMaxHeight(0); });
     addComponent(button);
     x += 40;
     
     button = std::make_shared<Ego::GUI::Button>("<");
-    button->setPosition(x, y);
+    button->setPosition(Point2f(x, y));
     button->setWidth(35);
     button->setOnClickFunction([this] { setMaxHeight(_maxHeight - 1); });
     addComponent(button);
     x += 40;
     
     _heightButton = std::make_shared<Ego::GUI::Button>(std::to_string(_maxHeight));
-    _heightButton->setPosition(x, y);
+    _heightButton->setPosition(Point2f(x, y));
     _heightButton->setWidth(75);
     addComponent(_heightButton);
     x += 80;
     
     button = std::make_shared<Ego::GUI::Button>(">");
-    button->setPosition(x, y);
+    button->setPosition(Point2f(x, y));
     button->setWidth(35);
     button->setOnClickFunction([this] { setMaxHeight(_maxHeight + 1); });
     addComponent(button);
     x += 40;
     
     button = std::make_shared<Ego::GUI::Button>(">>");
-    button->setPosition(x, y);
+    button->setPosition(Point2f(x, y));
     button->setWidth(35);
     button->setOnClickFunction([this] { setMaxHeight(std::numeric_limits<int>::max()); });
     addComponent(button);

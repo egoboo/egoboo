@@ -40,13 +40,13 @@ OptionsScreen::OptionsScreen() :
 
 	// calculate the centered position of the background
 	background->setSize(Vector2f(background->getTextureWidth(), background->getTextureHeight()));
-	background->setCenterPosition(SCREEN_WIDTH/2, SCREEN_HEIGHT/2);
+	background->setCenterPosition(Point2f(SCREEN_WIDTH/2, SCREEN_HEIGHT/2));
 	addComponent(background);
 
 	//Add the buttons
 	int yOffset = SCREEN_HEIGHT-80;
 	auto backButton = std::make_shared<Ego::GUI::Button>("Back", SDLK_ESCAPE);
-	backButton->setPosition(20, yOffset);
+	backButton->setPosition(Point2f(20, yOffset));
 	backButton->setSize(Vector2f(200, 30));
 	backButton->setOnClickFunction(
 	[this]{
@@ -58,7 +58,7 @@ OptionsScreen::OptionsScreen() :
 	yOffset -= backButton->getHeight() + 10;
 
 	auto gameOptions = std::make_shared<Ego::GUI::Button>("Game Settings", SDLK_g);
-	gameOptions->setPosition(20, yOffset);
+	gameOptions->setPosition(Point2f(20, yOffset));
 	gameOptions->setSize(Vector2f(200, 30));
 	addComponent(gameOptions);
 	_slidyButtons.push_front(gameOptions);
@@ -66,7 +66,7 @@ OptionsScreen::OptionsScreen() :
 	yOffset -= gameOptions->getHeight() + 10;
 
 	auto videoOptions = std::make_shared<Ego::GUI::Button>("Video Settings", SDLK_v);
-	videoOptions->setPosition(20, yOffset);
+	videoOptions->setPosition(Point2f(20, yOffset));
 	videoOptions->setSize(Vector2f(200, 30));
 	videoOptions->setOnClickFunction(
 	[this]{
@@ -78,7 +78,7 @@ OptionsScreen::OptionsScreen() :
 	yOffset -= videoOptions->getHeight() + 10;
 
 	auto audioOptions = std::make_shared<Ego::GUI::Button>("Audio Settings", SDLK_a);
-	audioOptions->setPosition(20, yOffset);
+	audioOptions->setPosition(Point2f(20, yOffset));
 	audioOptions->setSize(Vector2f(200, 30));
 	audioOptions->setOnClickFunction(
 	[this]{
@@ -90,7 +90,7 @@ OptionsScreen::OptionsScreen() :
 	yOffset -= audioOptions->getHeight() + 10;
 
 	auto inputOptions = std::make_shared<Ego::GUI::Button>("Input Controls", SDLK_i);
-	inputOptions->setPosition(20, yOffset);
+	inputOptions->setPosition(Point2f(20, yOffset));
 	inputOptions->setSize(Vector2f(200, 30));
 	inputOptions->setOnClickFunction(
 	[this]{
@@ -103,8 +103,8 @@ OptionsScreen::OptionsScreen() :
 
 	//Add version label and copyright text
 	auto welcomeLabel = std::make_shared<Ego::GUI::Label>("Select which settings to change");
-	welcomeLabel->setPosition(backButton->getX() + backButton->getWidth() + 40,
-		SCREEN_HEIGHT - SCREEN_HEIGHT/60 - welcomeLabel->getHeight());
+	welcomeLabel->setPosition(Point2f(backButton->getX() + backButton->getWidth() + 40,
+		                      SCREEN_HEIGHT - SCREEN_HEIGHT/60 - welcomeLabel->getHeight()));
 	addComponent(welcomeLabel);
 }
 

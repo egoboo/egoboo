@@ -65,18 +65,18 @@ MainMenuState::MainMenuState() :
 
 	// calculate the centered position of the background
 	background->setSize(Vector2f(background->getTextureWidth(), background->getTextureHeight()));
-	background->setCenterPosition(SCREEN_WIDTH/2, SCREEN_HEIGHT/2);
+	background->setCenterPosition(Point2f(SCREEN_WIDTH/2, SCREEN_HEIGHT/2));
 	addComponent(background);
 
 	// calculate the position of the logo
-	gameLogo->setPosition(background->getX(), background->getY());
+	gameLogo->setPosition(background->getPosition());
 	gameLogo->setSize(Vector2f(gameLogo->getTextureWidth(), gameLogo->getTextureHeight()));
 	addComponent(gameLogo);
 
 	//Add the buttons
 	int yOffset = SCREEN_HEIGHT-80;
     auto exitButton = std::make_shared<Ego::GUI::Button>("Exit Game", SDLK_ESCAPE);
-	exitButton->setPosition(20, yOffset);
+	exitButton->setPosition(Point2f(20, yOffset));
 	exitButton->setSize(Vector2f(200, 30));
 	exitButton->setOnClickFunction(
 	[]{
@@ -88,7 +88,7 @@ MainMenuState::MainMenuState() :
 	yOffset -= exitButton->getHeight() + 10;
 
 	auto optionsButton = std::make_shared<Ego::GUI::Button>("Options", SDLK_o);
-	optionsButton->setPosition(20, yOffset);
+	optionsButton->setPosition(Point2f(20, yOffset));
 	optionsButton->setSize(Vector2f(200, 30));
 	optionsButton->setOnClickFunction(
 	[]{
@@ -100,7 +100,7 @@ MainMenuState::MainMenuState() :
 	yOffset -= optionsButton->getHeight() + 10;
 
 	auto loadGameButton = std::make_shared<Ego::GUI::Button>("Load Game", SDLK_l);
-	loadGameButton->setPosition(20, yOffset);
+	loadGameButton->setPosition(Point2f(20, yOffset));
 	loadGameButton->setSize(Vector2f(200, 30));
 	loadGameButton->setOnClickFunction(
 	[]{
@@ -112,7 +112,7 @@ MainMenuState::MainMenuState() :
 	yOffset -= loadGameButton->getHeight() + 10;
 
 	auto newGameButton = std::make_shared<Ego::GUI::Button>("New Game", SDLK_n);
-	newGameButton->setPosition(20, yOffset);
+	newGameButton->setPosition(Point2f(20, yOffset));
 	newGameButton->setSize(Vector2f(200, 30));
 	newGameButton->setOnClickFunction(
 	[]{
@@ -126,7 +126,7 @@ MainMenuState::MainMenuState() :
     if (egoboo_config_t::get().debug_developerMode_enable.getValue())
     {
         auto debugButton = std::make_shared<Ego::GUI::Button>("Debug", SDLK_UNKNOWN);
-        debugButton->setPosition(20, yOffset);
+        debugButton->setPosition(Point2f(20, yOffset));
         debugButton->setSize(Vector2f(200, 30));
         debugButton->setOnClickFunction(
         []{
@@ -138,7 +138,7 @@ MainMenuState::MainMenuState() :
 	    yOffset -= debugButton->getHeight() + 10;
 
         auto mapEditorButton = std::make_shared<Ego::GUI::Button>("Map Editor", SDLK_m);
-        mapEditorButton->setPosition(20, yOffset);
+        mapEditorButton->setPosition(Point2f(20, yOffset));
         mapEditorButton->setSize(Vector2f(200, 30));
         mapEditorButton->setOnClickFunction(
         []{
@@ -153,8 +153,8 @@ MainMenuState::MainMenuState() :
 		"Welcome to Egoboo!\n"
 		"http://egoboo.sourceforge.net\n"
 		"Version 2.9.0");
-	welcomeLabel->setPosition(exitButton->getX() + exitButton->getWidth() + 40,
-		                      SCREEN_HEIGHT - SCREEN_HEIGHT/60 - welcomeLabel->getHeight());
+	welcomeLabel->setPosition(Point2f(exitButton->getX() + exitButton->getWidth() + 40,
+		                      SCREEN_HEIGHT - SCREEN_HEIGHT/60 - welcomeLabel->getHeight()));
 	addComponent(welcomeLabel);
 }
 

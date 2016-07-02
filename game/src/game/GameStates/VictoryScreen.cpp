@@ -38,7 +38,7 @@ VictoryScreen::VictoryScreen(PlayingState *playingState, const bool forceExit) :
 	int yOffset = Ego::GraphicsSystem::gfx_height-80;
 	auto exitButton = std::make_shared<Ego::GUI::Button>(_currentModule->isExportValid() ? "Save and Exit" : "Exit Game", SDLK_SPACE);
 	exitButton->setSize(Vector2f(200, 30));
-	exitButton->setPosition(20, yOffset);
+	exitButton->setPosition(Point2f(20, yOffset));
 	exitButton->setOnClickFunction(
 	[]{
 		_gameEngine->setGameState(std::make_shared<SelectPlayersState>());
@@ -49,7 +49,7 @@ VictoryScreen::VictoryScreen(PlayingState *playingState, const bool forceExit) :
 	if(!forceExit) {
 		auto abortButton = std::make_shared<Ego::GUI::Button>("Continue Playing", SDLK_ESCAPE);
 		abortButton->setSize(Vector2f(200, 30));
-		abortButton->setPosition(exitButton->getX() + exitButton->getWidth() + 20, exitButton->getY());
+		abortButton->setPosition(exitButton->getPosition() + Vector2f(exitButton->getWidth() + 20, 0));
 		abortButton->setOnClickFunction(
 		[this]{
 			endState();
@@ -58,7 +58,7 @@ VictoryScreen::VictoryScreen(PlayingState *playingState, const bool forceExit) :
 	}
 
 	auto victoryText = std::make_shared<Ego::GUI::Label>(endtext);
-	victoryText->setPosition(50, 50);
+	victoryText->setPosition(Point2f(50, 50));
 	addComponent(victoryText);
 }
 

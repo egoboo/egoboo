@@ -35,7 +35,7 @@ DebugParticlesScreen::DebugParticlesScreen()
 
     // Add the buttons.
     auto backButton = std::make_shared<Ego::GUI::Button>("Back", SDLK_ESCAPE);
-    backButton->setPosition(20, SCREEN_HEIGHT-80);
+    backButton->setPosition(Point2f(20, SCREEN_HEIGHT-80));
     backButton->setSize(Vector2f(200, 30));
     backButton->setOnClickFunction(
     [this]{
@@ -44,15 +44,15 @@ DebugParticlesScreen::DebugParticlesScreen()
     addComponent(backButton);
 
     auto title = std::make_shared<Ego::GUI::Label>("==PARTICLE DEBUG SCREEN==");
-    title->setPosition(10, 10);
+    title->setPosition(Point2f(10, 10));
     addComponent(title);
 
     auto usage = std::make_shared<Ego::GUI::Label>("Particle used: " + std::to_string(ParticleHandler::get().getCount()) + "/" + std::to_string(ParticleHandler::get().getDisplayLimit()));
-    usage->setPosition(10, title->getY() + title->getHeight());
+    usage->setPosition(Point2f(10, title->getY() + title->getHeight()));
     addComponent(usage);
 
     auto invalid = std::make_shared<Ego::GUI::Label>("Invalid active particles: ");
-    invalid->setPosition(10, usage->getY() + usage->getHeight());
+    invalid->setPosition(Point2f(10, usage->getY() + usage->getHeight()));
     invalid->setColour(Ego::Math::Colour4f::red());
     addComponent(invalid);
 
@@ -77,7 +77,7 @@ DebugParticlesScreen::DebugParticlesScreen()
     }
 
     auto scrollableList = std::make_shared<Ego::GUI::ScrollableList>();
-    scrollableList->setPosition(invalid->getX(), invalid->getY() + invalid->getHeight() + 20);
+    scrollableList->setPosition(invalid->getPosition() + Vector2f(0, invalid->getHeight() + 20));
     scrollableList->setSize(Vector2f(SCREEN_WIDTH-50, SCREEN_HEIGHT*0.75f-scrollableList->getY()));
     addComponent(scrollableList);
 

@@ -54,11 +54,11 @@ LoadingState::LoadingState(std::shared_ptr<ModuleProfile> module, const std::lis
     // Load background
     auto background = std::make_shared<Ego::GUI::Image>("mp_data/menu/menu_logo");
     background->setSize(Vector2f(background->getTextureWidth(), background->getTextureHeight()));
-    background->setPosition(SCREEN_WIDTH/2-background->getTextureWidth()/2, SCREEN_HEIGHT/2-background->getTextureHeight()/2-100);
+    background->setPosition(Point2f(SCREEN_WIDTH/2-background->getTextureWidth()/2, SCREEN_HEIGHT/2-background->getTextureHeight()/2-100));
     addComponent(background);
 
     auto mainLabel = std::make_shared<Ego::GUI::Label>("LOADING MODULE");
-    mainLabel->setPosition(SCREEN_WIDTH/2 - mainLabel->getWidth()/2, 20);
+    mainLabel->setPosition(Point2f(SCREEN_WIDTH/2 - mainLabel->getWidth()/2, 20));
     addComponent(mainLabel);
 
     _loadingLabel = std::make_shared<Ego::GUI::Label>("Initializing...");
@@ -70,13 +70,13 @@ LoadingState::LoadingState(std::shared_ptr<ModuleProfile> module, const std::lis
 
     //Add the progress bar
     _progressBar->setSize(Vector2f(400, 30));
-    _progressBar->setPosition(SCREEN_WIDTH/2 - _progressBar->getWidth()/2, SCREEN_HEIGHT-50);
+    _progressBar->setPosition(Point2f(SCREEN_WIDTH/2 - _progressBar->getWidth()/2, SCREEN_HEIGHT-50));
     _progressBar->setMaxValue(100);
     addComponent(_progressBar);
 
     //Add a random game tip
     auto gameTip = std::make_shared<Ego::GUI::Label>(getRandomHint());
-    gameTip->setPosition(SCREEN_WIDTH/2 - gameTip->getWidth()/2, SCREEN_HEIGHT/2);
+    gameTip->setPosition(Point2f(SCREEN_WIDTH/2 - gameTip->getWidth()/2, SCREEN_HEIGHT/2));
     addComponent(gameTip);
 }
 
@@ -92,7 +92,7 @@ void LoadingState::setProgressText(const std::string &loadingText, const uint8_t
 {
     //Always make loading text centered
     _loadingLabel->setText(loadingText);
-    _loadingLabel->setPosition(_gameEngine->getUIManager()->getScreenWidth()/2 - _loadingLabel->getWidth()/2, 40);    
+    _loadingLabel->setPosition(Point2f(_gameEngine->getUIManager()->getScreenWidth()/2 - _loadingLabel->getWidth()/2, 40));    
 
     _progressBar->setValue(progress);
 }
@@ -222,7 +222,7 @@ void LoadingState::loadModuleData()
     //Add the start button once we are finished loading
     auto startButton = std::make_shared<Ego::GUI::Button>("Press Space to begin", SDLK_SPACE);
     startButton->setSize(Vector2f(400, 30));
-    startButton->setPosition(SCREEN_WIDTH/2 - startButton->getWidth()/2, SCREEN_HEIGHT-50);
+    startButton->setPosition(Point2f(SCREEN_WIDTH/2 - startButton->getWidth()/2, SCREEN_HEIGHT-50));
     startButton->setOnClickFunction(
         [cameraSystem]{
 

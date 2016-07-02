@@ -49,15 +49,15 @@ void ScrollableList::setScrollPosition(int position) {
         }
 
         component->setVisible(true);
-        component->setPosition(getX(), getY() + yOffset);
+        component->setPosition(getPosition() + Vector2f(0, yOffset));
         yOffset += component->getHeight() + COMPONENT_LINE_SPACING;
         componentCount++;
     }
 }
 
 void ScrollableList::updateScrollButtons() {
-    _upButton->setPosition(getX() + getWidth() - _upButton->getWidth(), getY());
-    _downButton->setPosition(getX() + getWidth() - _downButton->getWidth(), getY() + getHeight() - _downButton->getHeight());
+    _upButton->setPosition(getPosition() + Vector2f(getWidth() - _upButton->getWidth(), 0));
+    _downButton->setPosition(getPosition() + Vector2f(getWidth() - _downButton->getWidth(), getHeight() - _downButton->getHeight()));
 }
 
 void ScrollableList::setWidth(float width) {
@@ -129,9 +129,8 @@ void ScrollableList::forceUpdate() {
     setScrollPosition(_currentIndex);
 }
 
-void ScrollableList::setPosition(float x, float y) {
-    Component::setX(x);
-    Component::setY(y);
+void ScrollableList::setPosition(const Point2f& position) {
+    Component::setPosition(position);
     updateScrollButtons();
     setScrollPosition(_currentIndex);
 }

@@ -140,8 +140,9 @@ void MiniMap::addBlip(const float x, const float y, const std::shared_ptr<Object
 
 bool MiniMap::notifyMouseMoved(const Events::MouseMovedEventArgs& e) {
     if (_isDragging) {
-        setPosition(Math::constrain<int>(e.getPosition().x() + _mouseDragOffset[0], 0, _gameEngine->getUIManager()->getScreenWidth() - getWidth()),
-                    Math::constrain<int>(e.getPosition().y() + _mouseDragOffset[1], 0, _gameEngine->getUIManager()->getScreenHeight() - getHeight()));
+        int x = Math::constrain<int>(e.getPosition().x() + _mouseDragOffset[0], 0, _gameEngine->getUIManager()->getScreenWidth() - getWidth()),
+            y = Math::constrain<int>(e.getPosition().y() + _mouseDragOffset[1], 0, _gameEngine->getUIManager()->getScreenHeight() - getHeight());
+        setPosition(Point2f(x, y));
     } else {
         _mouseOver = contains(e.getPosition());
     }
@@ -180,7 +181,7 @@ bool MiniMap::notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEventArgs
                 float offsetY = (getY() >= HALF_SCREEN_HEIGHT) ? (getHeight() - MiniMap::MAPSIZE) : 0;
 
                 // Shift position when becoming smaller towards one of the screen corners
-                setPosition(getX() + offsetX, getY() + offsetY);
+                setPosition(getPosition() + Vector2f(offsetX, offsetY));
                 setSize(Vector2f(MiniMap::MAPSIZE, MiniMap::MAPSIZE));
             } else {
                 setSize(Vector2f(HALF_SCREEN_WIDTH, HALF_SCREEN_HEIGHT));
@@ -189,7 +190,7 @@ bool MiniMap::notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEventArgs
             // Keep minimap inside the screen
             int xPos = Math::constrain<int>(getX(), 0, _gameEngine->getUIManager()->getScreenWidth() - getWidth());
             int yPos = Math::constrain<int>(getY(), 0, _gameEngine->getUIManager()->getScreenHeight() - getHeight());
-            setPosition(xPos, yPos);
+            setPosition(Point2f(xPos, yPos));
         }
 
         return true;

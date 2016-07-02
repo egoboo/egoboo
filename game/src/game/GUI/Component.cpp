@@ -68,14 +68,15 @@ void Component::setY(float y) {
     _bounds = t(_bounds, Vector2f(0.0f, -_bounds.getMin().y() + y));
 }
 
-void Component::setPosition(float x, float y) {
+void Component::setPosition(const Point2f& position) {
     Translate<Rectangle2f> t;
     // Translate such that the top/left corner is at (x,y).
-    _bounds = t(_bounds, Vector2f(-_bounds.getMin().x() + x, -_bounds.getMin().y() + y));
+    _bounds = t(_bounds, Vector2f(-_bounds.getMin().x() + position.x(), -_bounds.getMin().y() + position.y()));
 }
 
-void Component::setCenterPosition(float x, float y, const bool onlyHorizontal) {
-    setPosition(x - getWidth() / 2.0f, onlyHorizontal ? y : y - getHeight() / 2.0f);
+void Component::setCenterPosition(const Point2f& position, const bool onlyHorizontal) {
+    auto t = Vector2f(-getWidth() / 2.0f, onlyHorizontal ? 0.0f : -getHeight() / 2.0f);
+    setPosition(position + t);
 }
 
 const Rectangle2f& Component::getBounds() const {
