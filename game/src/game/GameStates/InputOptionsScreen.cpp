@@ -104,7 +104,7 @@ void InputOptionsScreen::addInputOption(const std::string &label, const Ego::Inp
     auto name = std::make_shared<Ego::GUI::Label>(label);
     name->setPosition(_bindingButtonPosX, _bindingButtonPosY);
     addComponent(name);
-    _maxLabelWidth = std::max(_maxLabelWidth, name->getWidth());
+    _maxLabelWidth = std::max<float>(_maxLabelWidth, name->getWidth());
 
     //Button
     std::shared_ptr<Button> inputOption = std::make_shared<Button>(getActiveInputDevice().getMappedInputName(binding));
