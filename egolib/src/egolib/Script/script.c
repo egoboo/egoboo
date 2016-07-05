@@ -720,11 +720,11 @@ bool script_state_t::run_operation( script_state_t& state, ai_state_t& aiState, 
 
         for ( i = 0; i < script.indent; i++ ) { vfs_printf( debug_script_file, "  " ); }
 
-        for ( i = 0; i < MAX_OPCODE; i++ )
+        for ( i = 0; i < Opcodes.size(); i++ )
         {
-            if ( Token::Type::Variable == OpList.ary[i]._type && var_value == OpList.ary[i].iValue )
+            if ( Token::Type::Variable == Opcodes[i]._type && var_value == Opcodes[i].iValue )
             {
-                variable = OpList.ary[i].cName;
+                variable = Opcodes[i].cName;
                 break;
             };
         }
@@ -780,11 +780,11 @@ Uint8 script_state_t::run_function(script_state_t& self, ai_state_t& aiState, sc
     {
         for (uint32_t i = 0; i < script.indent; i++ ) { vfs_printf( debug_script_file,  "  " ); }
 
-        for (uint32_t i = 0; i < MAX_OPCODE; i++ )
+        for (uint32_t i = 0; i < Opcodes.size(); i++ )
         {
-            if ( Token::Type::Function == OpList.ary[i]._type && valuecode == OpList.ary[i].iValue )
+            if ( Token::Type::Function == Opcodes[i]._type && valuecode == Opcodes[i].iValue )
             {
-                vfs_printf( debug_script_file,  "%s\n", OpList.ary[i].cName );
+                vfs_printf( debug_script_file,  "%s\n", Opcodes[i].cName );
                 break;
             };
         }

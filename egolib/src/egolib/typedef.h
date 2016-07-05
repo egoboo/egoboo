@@ -201,15 +201,6 @@ signed SFP8_TO_SINT(const T& val)
     typedef char STRING[256];
 
 //--------------------------------------------------------------------------------------------
-
-/// the "base class" of Egoboo profiles
-#   define  EGO_PROFILE_STUFF \
-    bool loaded;                    /** Was the data read in? */ \
-    STRING name;                    /** Usually the source filename */ \
-    int    request_count;           /** the number of attempted spawnx */ \
-    int    create_count;            /** the number of successful spawns */
-
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // References
 
@@ -234,21 +225,6 @@ typedef Uint16 REF_T;
  */
 #define REF_TO_INT(ref) ((REF_T)(ref))
 
-namespace Ego
-{
-    /**
-     * @brief
-     *  A "globally unique" (lol) identifier.
-     */
-    typedef uint32_t GUID;
-    /**
-     * @brief
-     *  An invalid globally unique identifier.
-     */
-    #define EGO_GUID_INVALID (~((uint32_t)0))
-}
-
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 /**
  * @brief
@@ -259,14 +235,26 @@ namespace Ego
 template <typename ElementType,size_t Capacity>
 struct Stack
 {
+    /**
+     * @brief
+     *  A "globally unique" (lol) identifier.
+     */
+    using Guid = uint32_t;
+    /**
+     * @brief
+     *  An invalid globally unique identifier.
+     */
+    static constexpr Guid InvalidGuid() {
+        return std::numeric_limits<Guid>::max();
+    }
 	
-	Ego::GUID update_guid;
+	Guid updateGuid;
 	
 	int count; ///< @todo Rename to size. @todo Should be of type @a size_t.
 	
 	ElementType lst[Capacity];
 	
-	Stack() : update_guid(EGO_GUID_INVALID), count(0)
+	Stack() : updateGuid(InvalidGuid), count(0)
 	{
 	}
 
@@ -326,29 +314,6 @@ struct Stack
 
 };
 
-//--------------------------------------------------------------------------------------------
-
-/**
- * @brief
- *	An array with a fixed capacity specified at compile-time (cfg. std::array).
- * @todo
- *	Merge with Stack.
- */
-template <typename ElementType,size_t Capacity>
-struct StaticArray
-{
-	int count; ///< @todo Rename to size. @todo Should be of type @a size_t.
-	ElementType ary[Capacity];
-	StaticArray() : count(0)
-	{
-	}
-	ElementType *get_ptr(size_t index)
-	{
-		return (index >= Capacity) ? NULL : this->ary + index;
-	}
-};
-
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // some common data types and enums in egoboo
 
