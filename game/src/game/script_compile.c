@@ -599,12 +599,12 @@ size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_
     // is it a constant, opcode, or value?
     if ( !parsed )
     {
-        for ( cnt = 0; cnt < OpList.size(); cnt++ )
+        for ( cnt = 0; cnt < Opcodes.size(); cnt++ )
         {
-            if ( 0 == strncmp( tok.szWord, OpList[cnt].cName, MAXCODENAMESIZE ) )
+            if ( 0 == strncmp( tok.szWord, Opcodes[cnt].cName, MAXCODENAMESIZE ) )
             {
-                tok.setValue(OpList[cnt].iValue);
-                tok.setType(OpList[cnt]._type);
+                tok.setValue(Opcodes[cnt].iValue);
+                tok.setType(Opcodes[cnt]._type);
                 tok.setIndex(cnt);
 
                 // move on to the next thing
@@ -1587,9 +1587,10 @@ bool load_ai_codes_vfs()
 
     for (size_t i = 0, n = sizeof(AICODES) / sizeof(aicode_t); i < n; ++i)
     {
-        strncpy(OpList[i].cName, AICODES[i]._name, SDL_arraysize(OpList[i].cName));
-        OpList[i]._type = AICODES[i]._type;
-        OpList[i].iValue = AICODES[i]._value;
+        Opcodes.push_back(opcode_data_t());
+        strncpy(Opcodes[i].cName, AICODES[i]._name, SDL_arraysize(Opcodes[i].cName));
+        Opcodes[i]._type = AICODES[i]._type;
+        Opcodes[i].iValue = AICODES[i]._value;
     }
     return true;
 }
