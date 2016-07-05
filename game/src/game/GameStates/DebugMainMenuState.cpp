@@ -33,7 +33,7 @@ DebugMainMenuState::DebugMainMenuState() {
     const int SCREEN_HEIGHT = _gameEngine->getUIManager()->getScreenHeight();
     
     auto button = std::make_shared<Ego::GUI::Button>("Back");
-    button->setPosition(5, SCREEN_HEIGHT - button->getHeight() - 5);
+    button->setPosition(Point2f(5, SCREEN_HEIGHT - button->getHeight() - 5));
     button->setWidth(150);
     button->setOnClickFunction([this] { endState(); });
     addComponent(button);
@@ -41,21 +41,21 @@ DebugMainMenuState::DebugMainMenuState() {
     int y = 5;
     
     button = std::make_shared<Ego::GUI::Button>("Load Modules");
-    button->setPosition(5, y);
+    button->setPosition(Point2f(5, y));
     button->setWidth(300);
     button->setOnClickFunction([] { _gameEngine->pushGameState(std::make_shared<DebugModuleLoadingState>()); });
     addComponent(button);
     y += button->getHeight() + 10;
     
     button = std::make_shared<Ego::GUI::Button>("Load Objects");
-    button->setPosition(5, y);
+    button->setPosition(Point2f(5, y));
     button->setWidth(300);
     button->setOnClickFunction([] { _gameEngine->pushGameState(std::make_shared<DebugObjectLoadingState>()); });
     addComponent(button);
     y += button->getHeight() + 10;
     
     button = std::make_shared<Ego::GUI::Button>("Font Rendering");
-    button->setPosition(5, y);
+    button->setPosition(Point2f(5, y));
     button->setWidth(300);
     button->setOnClickFunction([] { _gameEngine->pushGameState(std::make_shared<DebugFontRenderingState>()); });
     addComponent(button);

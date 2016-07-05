@@ -536,25 +536,46 @@ void GameEngine::pollEvents()
                 shutdown();
                 return;
             case SDL_MOUSEWHEEL:
-                _currentGameState->notifyMouseScrolled(event.wheel.y);
+            {
+                auto e = Ego::Events::MouseWheelTurnedEventArgs(Vector2f(event.wheel.x, event.wheel.y));
+                _currentGameState->notifyMouseWheelTurned(e);
+            }
             break;
                 
             case SDL_MOUSEBUTTONDOWN:
-                _currentGameState->notifyMouseButtonClicked(Ego::Events::MouseButtonClickedEventArgs(Point2f(event.button.x, event.button.y), event.button.button));
+            {
+                auto e = Ego::Events::MouseButtonPressedEventArgs(Point2f(event.button.x, event.button.y), event.button.button);
+                _currentGameState->notifyMouseButtonPressed(e);
+            }
             break;
 
             case SDL_MOUSEBUTTONUP:
-                _currentGameState->notifyMouseButtonReleased(Ego::Events::MouseButtonReleasedEventArgs(Point2f(event.button.x, event.button.y), event.button.button));
+            {
+                auto e = Ego::Events::MouseButtonReleasedEventArgs(Point2f(event.button.x, event.button.y), event.button.button);
+                _currentGameState->notifyMouseButtonReleased(e);
+            }
             break;
                 
             case SDL_MOUSEMOTION:
+            {
                 InputSystem::get().mouse.offset.x() = event.motion.x;
                 InputSystem::get().mouse.offset.y() = event.motion.y;
-                _currentGameState->notifyMouseMoved(Ego::Events::MouseMovedEventArgs(Point2f(event.motion.x, event.motion.y)));
+                auto e = Ego::Events::MouseMovedEventArgs(Point2f(event.motion.x, event.motion.y));
+                _currentGameState->notifyMouseMoved(e);
+            }
             break;
                 
+            case SDL_KEYUP:
+            {
+                auto e = Ego::Events::KeyboardKeyReleasedEventArgs(event.key.keysym.sym);
+                _currentGameState->notifyKeyboardKeyReleased(e);
+            }
+            break;
             case SDL_KEYDOWN:
-                _currentGameState->notifyKeyboardKeyPressed(Ego::Events::KeyboardKeyPressedEventArgs(event.key.keysym.sym));
+            {
+                auto e = Ego::Events::KeyboardKeyPressedEventArgs(event.key.keysym.sym);
+                _currentGameState->notifyKeyboardKeyPressed(e);
+            }
             break;
         }
     } // end of message processing

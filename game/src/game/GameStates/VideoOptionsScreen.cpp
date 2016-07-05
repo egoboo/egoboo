@@ -36,17 +36,17 @@ VideoOptionsScreen::VideoOptionsScreen() :
     const int SCREEN_HEIGHT = _gameEngine->getUIManager()->getScreenHeight();
 
     // calculate the centered position of the background
-    background->setSize(background->getTextureWidth() * 0.75f, background->getTextureHeight() * 0.75f);
-    background->setPosition(SCREEN_WIDTH- background->getWidth(), SCREEN_HEIGHT - background->getHeight());
+    background->setSize(Vector2f(background->getTextureWidth() * 0.75f, background->getTextureHeight() * 0.75f));
+    background->setPosition(Point2f(SCREEN_WIDTH- background->getWidth(), SCREEN_HEIGHT - background->getHeight()));
     addComponent(background);
 
     //Resolution
     auto resolutionLabel = std::make_shared<Ego::GUI::Label>("Resolution");
-    resolutionLabel->setPosition(20, 5);
+    resolutionLabel->setPosition(Point2f(20, 5));
     addComponent(resolutionLabel);
 
-    _resolutionList->setSize(SCREEN_WIDTH/3, SCREEN_HEIGHT/2);
-    _resolutionList->setPosition(resolutionLabel->getX(), resolutionLabel->getY() + resolutionLabel->getHeight());
+    _resolutionList->setSize(Vector2f(SCREEN_WIDTH/3, SCREEN_HEIGHT/2));
+    _resolutionList->setPosition(resolutionLabel->getPosition() + Vector2f(0, resolutionLabel->getHeight()));
     addComponent(_resolutionList);
 
     //Build list of available resolutions
@@ -212,8 +212,8 @@ VideoOptionsScreen::VideoOptionsScreen() :
 
     // Back button
     auto backButton = std::make_shared<Ego::GUI::Button>("Back", SDLK_ESCAPE);
-    backButton->setPosition(20, SCREEN_HEIGHT-80);
-    backButton->setSize(200, 30);
+    backButton->setPosition(Point2f(20, SCREEN_HEIGHT-80));
+    backButton->setSize(Vector2f(200, 30));
     backButton->setOnClickFunction(
     [this]{
         endState();
@@ -225,20 +225,20 @@ VideoOptionsScreen::VideoOptionsScreen() :
 
     //Add version label and copyright text
     auto welcomeLabel = std::make_shared<Ego::GUI::Label>("Change video settings here");
-    welcomeLabel->setPosition(backButton->getX() + backButton->getWidth() + 40,
-                              SCREEN_HEIGHT - SCREEN_HEIGHT/60 - welcomeLabel->getHeight());
+    welcomeLabel->setPosition(Point2f(backButton->getX() + backButton->getWidth() + 40,
+                              SCREEN_HEIGHT - SCREEN_HEIGHT/60 - welcomeLabel->getHeight()));
     addComponent(welcomeLabel);
 }
 
 int VideoOptionsScreen::addOptionsButton(int xPos, int yPos, const std::string &label, std::function<std::string()> labelFunction, std::function<void()> onClickFunction, bool enabled)
 {
     auto optionLabel = std::make_shared<Ego::GUI::Label>(label + ": ");
-    optionLabel->setPosition(xPos, yPos);
+    optionLabel->setPosition(Point2f(xPos, yPos));
     addComponent(optionLabel);
 
     auto optionButton = std::make_shared<Ego::GUI::Button>(labelFunction());
-    optionButton->setSize(150, 30);
-    optionButton->setPosition(xPos+250, optionLabel->getY());
+    optionButton->setSize(Vector2f(150, 30));
+    optionButton->setPosition(Point2f(xPos + 250, optionLabel->getY()));
     optionButton->setOnClickFunction(
         [optionButton, onClickFunction, labelFunction]{
             onClickFunction();
@@ -270,7 +270,7 @@ void VideoOptionsScreen::addResolutionButton(int width, int height)
 {
     auto resolutionButton = std::make_shared<Ego::GUI::Button>(std::to_string(width) + "x" + std::to_string(height));
 
-    resolutionButton->setSize(200, 30);
+    resolutionButton->setSize(Vector2f(200, 30));
     resolutionButton->setOnClickFunction(
         [width, height, resolutionButton, this]
         {

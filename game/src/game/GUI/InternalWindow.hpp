@@ -58,13 +58,13 @@ public:
     InternalWindow(const std::string &title);
 
     bool notifyMouseMoved(const Events::MouseMovedEventArgs& e) override;
-    bool notifyMouseButtonClicked(const Events::MouseButtonClickedEventArgs& e) override;
+    bool notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs& e) override;
     bool notifyMouseButtonReleased(const Events::MouseButtonReleasedEventArgs& e) override;
 
     void draw() override;
 
-    virtual void setPosition(float x, float y) override;
-    virtual void setSize(float width, float height) override;
+    virtual void setPosition(const Point2f& position) override;
+    virtual void setSize(const Vector2f& size) override;
 
     void setTransparency(float alpha);
 
@@ -76,7 +76,7 @@ protected:
 private:
     std::unique_ptr<TitleBar> _titleBar;
     std::shared_ptr<Image> _closeButton;
-    Ego::DeferredTexture _background;
+    DeferredTexture _background;
     bool _mouseOver;
     bool _mouseOverCloseButton;
     bool _isDragging;

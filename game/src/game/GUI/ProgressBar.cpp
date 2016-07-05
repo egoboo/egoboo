@@ -15,12 +15,12 @@ void ProgressBar::draw() {
         float x, y;
     };
 
-    auto &renderer = Ego::Renderer::get();
+    auto &renderer = Renderer::get();
     const auto &vb = _gameEngine->getUIManager()->_vertexBuffer;
     renderer.getTextureUnit().setActivated(nullptr);
 
     // Draw the bar background
-    renderer.setColour(Ego::Math::Colour4f(Ego::Math::Colour3f::grey(), 0.5f));
+    renderer.setColour(Math::Colour4f(Math::Colour3f::grey(), 0.5f));
 
     Vertex *v = static_cast<Vertex *>(vb->lock());
     v->x = getX(); v->y = getY(); v++;
@@ -28,11 +28,11 @@ void ProgressBar::draw() {
     v->x = getX() + getWidth(); v->y = getY() + getHeight(); v++;
     v->x = getX() + getWidth(); v->y = getY();
     vb->unlock();
-    renderer.render(*vb, Ego::PrimitiveType::Quadriliterals, 0, 4);
+    renderer.render(*vb, PrimitiveType::Quadriliterals, 0, 4);
 
     //Draw progress
     const int BAR_EDGE = 2;
-    renderer.setColour(Ego::Math::Colour4f(Ego::Math::Colour3f::purple(), 0.8f));
+    renderer.setColour(Math::Colour4f(Math::Colour3f::purple(), 0.8f));
 
     const float progressWidth = (getWidth() - BAR_EDGE * 2) * (_currentValue / _maxValue);
 
@@ -42,14 +42,14 @@ void ProgressBar::draw() {
     v->x = getX() + BAR_EDGE + progressWidth; v->y = getY() + BAR_EDGE + getHeight() - BAR_EDGE * 2; v++;
     v->x = getX() + BAR_EDGE + progressWidth; v->y = getY() + BAR_EDGE;
     vb->unlock();
-    renderer.render(*vb, Ego::PrimitiveType::Quadriliterals, 0, 4);
+    renderer.render(*vb, PrimitiveType::Quadriliterals, 0, 4);
 
     //Draw ticks if needed
     if (_tickWidth > 0.0f) {
         const int numberOfTicks = _maxValue / _tickWidth;
         const float actualTickWidth = static_cast<float>(getWidth()) / numberOfTicks;
 
-        renderer.setColour(Ego::Math::Colour4f::black());
+        renderer.setColour(Math::Colour4f::black());
 
         for (int i = 1; i < numberOfTicks; ++i) {
             v = static_cast<Vertex *>(vb->lock());
@@ -58,7 +58,7 @@ void ProgressBar::draw() {
             v->x = getX() + BAR_EDGE + actualTickWidth*i + BAR_EDGE; v->y = getY() + getHeight(); v++;
             v->x = getX() + BAR_EDGE + actualTickWidth*i + BAR_EDGE; v->y = getY();
             vb->unlock();
-            renderer.render(*vb, Ego::PrimitiveType::Quadriliterals, 0, 4);
+            renderer.render(*vb, PrimitiveType::Quadriliterals, 0, 4);
         }
     }
 }

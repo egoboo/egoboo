@@ -121,15 +121,15 @@ _selectedPerk(nullptr),
 _animationSpeed(0.0f, 0.0f),
 _animationPos(0.0f, 0.0f),
 _attributeRevealTime(0) {
-    setSize(510, 340);
+    setSize(Vector2f(510, 340));
 
     //Place us in the center of the screen
-    setCenterPosition(_gameEngine->getUIManager()->getScreenWidth() / 2, _gameEngine->getUIManager()->getScreenHeight() / 2);
+    setCenterPosition(Point2f(_gameEngine->getUIManager()->getScreenWidth() / 2, _gameEngine->getUIManager()->getScreenHeight() / 2));
 
     // draw the character's main icon
     std::shared_ptr<Image> characterIcon = std::make_shared<Image>(_character->getProfile()->getIcon(_character->skin));
-    characterIcon->setPosition(5, 32);
-    characterIcon->setSize(32, 32);
+    characterIcon->setPosition(Point2f(5, 32));
+    characterIcon->setSize(Vector2f(32, 32));
     addComponent(characterIcon);
 
     std::stringstream buffer;
@@ -167,13 +167,13 @@ _attributeRevealTime(0) {
 
     std::shared_ptr<Label> classLevelLabel = std::make_shared<Label>(buffer.str());
     classLevelLabel->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
-    classLevelLabel->setPosition(characterIcon->getX() + characterIcon->getWidth() + 5, characterIcon->getY());
+    classLevelLabel->setPosition(characterIcon->getPosition() + Vector2f(characterIcon->getWidth() + 5, 0));
     addComponent(classLevelLabel);
 
     //Perk stuff
     std::shared_ptr<Label> selectPerkLabel = std::make_shared<Label>("Select your Perk:");
     selectPerkLabel->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_DEFAULT));
-    selectPerkLabel->setPosition(getWidth() / 2 - selectPerkLabel->getWidth() / 2, classLevelLabel->getY() + classLevelLabel->getHeight());
+    selectPerkLabel->setPosition(Point2f(getWidth() / 2 - selectPerkLabel->getWidth() / 2, classLevelLabel->getY() + classLevelLabel->getHeight()));
     addComponent(selectPerkLabel);
 
     //Figure out what perks this player can learn
@@ -184,7 +184,7 @@ _attributeRevealTime(0) {
     }
 
     _descriptionLabel->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
-    _descriptionLabel->setCenterPosition(getX() + getWidth() / 2, getHeight() - _descriptionLabel->getHeight(), true);
+    _descriptionLabel->setCenterPosition(Point2f(getX() + getWidth() / 2, getHeight() - _descriptionLabel->getHeight()), true);
     addComponent(_descriptionLabel);
 
     _perkIncreaseLabel->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
@@ -203,8 +203,8 @@ _attributeRevealTime(0) {
         //Select a random perk
         const size_t randomIndex = Random::next(perkPool.size() - 1);
         std::shared_ptr<PerkButton> perkButton = std::make_shared<PerkButton>(perkPool[randomIndex]);
-        perkButton->setSize(PERK_BUTTON_SIZE, PERK_BUTTON_SIZE);
-        perkButton->setPosition(20 + i * (perkButton->getWidth() + 10), selectPerkLabel->getY() + selectPerkLabel->getHeight());
+        perkButton->setSize(Vector2f(PERK_BUTTON_SIZE, PERK_BUTTON_SIZE));
+        perkButton->setPosition(Point2f(20 + i * (perkButton->getWidth() + 10), selectPerkLabel->getY() + selectPerkLabel->getHeight()));
         addComponent(perkButton);
 
         _desciptionLabelOffset = perkButton->getY() + perkButton->getHeight();
@@ -341,8 +341,8 @@ void LevelUpWindow::doLevelUp(PerkButton *selectedPerk) {
 
     //Selected perk animation
     _selectedPerk = std::make_shared<Image>(selectedPerk->getPerk().getIcon().getFilePath());
-    _selectedPerk->setPosition(selectedPerk->getX() - getX(), selectedPerk->getY() - getY());
-    _selectedPerk->setSize(selectedPerk->getWidth(), selectedPerk->getHeight());
+    _selectedPerk->setPosition(selectedPerk->getPosition() + Vector2f(-getX(), -getY()));
+    _selectedPerk->setSize(Vector2f(selectedPerk->getWidth(), selectedPerk->getHeight()));
     _selectedPerk->setTint(selectedPerk->getPerk().getColour());
     addComponent(_selectedPerk);
 
@@ -355,21 +355,21 @@ void LevelUpWindow::doLevelUp(PerkButton *selectedPerk) {
 
     std::shared_ptr<Label> newPerkLabel = std::make_shared<Label>("NEW PERK: " + selectedPerk->getPerk().getName());
     newPerkLabel->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
-    newPerkLabel->setPosition(20, getHeight() - PERK_THUMBNAIL_SIZE - 40);
+    newPerkLabel->setPosition(Point2f(20, getHeight() - PERK_THUMBNAIL_SIZE - 40));
     newPerkLabel->setColour(Math::Colour4f::yellow());
     addComponent(newPerkLabel);
     _fadeInLabels.push_back(newPerkLabel);
 
     std::shared_ptr<Label> perkDescription = std::make_shared<Label>(selectedPerk->getPerk().getDescription());
     perkDescription->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
-    perkDescription->setPosition(PERK_THUMBNAIL_SIZE + 60, DESIRED_ICON_POS[1] - getY());
+    perkDescription->setPosition(Point2f(PERK_THUMBNAIL_SIZE + 60, DESIRED_ICON_POS[1] - getY()));
     addComponent(perkDescription);
     _fadeInLabels.push_back(perkDescription);
 
     //Attribute Header Label
     std::shared_ptr<Label> attributeIncrease = std::make_shared<Label>("ATTRIBUTE INCREASE:");
     attributeIncrease->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
-    attributeIncrease->setPosition(20, 40);
+    attributeIncrease->setPosition(Point2f(20, 40));
     addComponent(attributeIncrease);
     _fadeInLabels.push_back(attributeIncrease);
 
@@ -397,7 +397,7 @@ void LevelUpWindow::doLevelUp(PerkButton *selectedPerk) {
             x = 10 + getWidth() / 2;
             y = 40 + attributeIncrease->getHeight() + (i - Attribute::NR_OF_PRIMARY_ATTRIBUTES / 2) * 25;
         }
-        attributeLabel->setPosition(x, y);
+        attributeLabel->setPosition(Point2f(x, y));
         attributeLabel->setAlpha(0.0f);
         addComponent(attributeLabel);
         _fadeInLabels.push_back(attributeLabel);
@@ -412,7 +412,7 @@ void LevelUpWindow::doLevelUp(PerkButton *selectedPerk) {
             value->setText(std::to_string(std::lround(_character->getAttribute(type))));
         }
         value->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
-        value->setPosition(x + attributeWidthSpacing, y);
+        value->setPosition(Point2f(x + attributeWidthSpacing, y));
         value->setAlpha(0.0f);
         _attributeValues[type] = value;
         _fadeInLabels.push_back(value);
@@ -425,7 +425,7 @@ void LevelUpWindow::doLevelUp(PerkButton *selectedPerk) {
             valueString << (increase[i] > 0 ? "+" : "") << std::setprecision(2) << std::fixed << increase[i];
             _attributeIncrease[type]->setText(valueString.str());
             _attributeIncrease[type]->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
-            _attributeIncrease[type]->setPosition(x + attributeWidthSpacing + 50, y);
+            _attributeIncrease[type]->setPosition(Point2f(x + attributeWidthSpacing + 50, y));
             _attributeIncrease[type]->setColour(increase[i] > 0 ? Math::Colour4f::yellow() : Math::Colour4f::red());
             _attributeIncrease[type]->setVisible(false);
             addComponent(_attributeIncrease[type]);
@@ -457,7 +457,7 @@ void LevelUpWindow::drawContainer() {
 
     //Make icon shrink
     if (_selectedPerk->getWidth() > PERK_THUMBNAIL_SIZE) {
-        _selectedPerk->setSize(_selectedPerk->getWidth() - 2, _selectedPerk->getHeight() - 2);
+        _selectedPerk->setSize(Vector2f(_selectedPerk->getWidth() - 2, _selectedPerk->getHeight() - 2));
     }
 
     //Move icon into corner (use about 1 second to get there)
@@ -506,8 +506,8 @@ void LevelUpWindow::setHoverPerk(Perks::PerkID id) {
         _perkIncreaseLabel->setColour(perk.getColour());
     }
 
-    _perkIncreaseLabel->setCenterPosition(getX() + getWidth() / 2, getY() + _desciptionLabelOffset + 10, true);
-    _descriptionLabel->setCenterPosition(getX() + getWidth() / 2, _perkIncreaseLabel->getY() + _perkIncreaseLabel->getHeight() - 3, true);
+    _perkIncreaseLabel->setCenterPosition(Point2f(getX() + getWidth() / 2, getY() + _desciptionLabelOffset + 10), true);
+    _descriptionLabel->setCenterPosition(Point2f(getX() + getWidth() / 2, _perkIncreaseLabel->getY() + _perkIncreaseLabel->getHeight() - 3), true);
 }
 
 Perks::PerkID LevelUpWindow::getCurrentPerk() const {

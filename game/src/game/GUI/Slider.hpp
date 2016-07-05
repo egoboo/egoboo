@@ -42,7 +42,7 @@ public:
     bool isEnabled() const override;
 
     bool notifyMouseMoved(const Events::MouseMovedEventArgs& e) override;
-    bool notifyMouseButtonClicked(const Events::MouseButtonClickedEventArgs& e) override;
+    bool notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs& e) override;
     bool notifyMouseButtonReleased(const Events::MouseButtonReleasedEventArgs& e) override;
 
 private:

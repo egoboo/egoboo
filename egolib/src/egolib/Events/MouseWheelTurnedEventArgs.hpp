@@ -28,31 +28,31 @@ namespace Ego {
 namespace Events {
 
 /**
- * @brief Event arguments of a mouse wheel event.
+ * @brief Event arguments of a mouse wheel turned event.
  */
-struct MouseWheelEventArgs {
+struct MouseWheelTurnedEventArgs {
 private:
     Vector2f delta;
 public:
     /**
-     * @brief Construct these mouse wheel event arguments with the specified values.
-     * @param delta scroll direction
+     * @brief Construct these mouse wheel turned event arguments with the specified values.
+     * @param delta turn direction and amount
      */
-    MouseWheelEventArgs(Vector2f& delta)
+    MouseWheelTurnedEventArgs(const Vector2f& delta)
         : delta(delta) {}
     /**
-     * @brief Construct these mouse wheel event arguments with the values of other mouse wheel event arguments.
-     * @param other the other mouse wheel event arguments
+     * @brief Construct these mouse wheel turned event arguments with the values of other mouse wheel turned event arguments.
+     * @param other the other mouse wheel turned event arguments
      */
-    MouseWheelEventArgs(const MouseWheelEventArgs& other)
+    MouseWheelTurnedEventArgs(const MouseWheelTurnedEventArgs& other)
         : delta(other.delta) {}
     /**
-     * @brief Assign these mouse wheel event arguments with the values of other mouse wheel event arguments.
-     * @param other the other mouse wheel event arguments
-     * @return these mouse wheel event arguments
+     * @brief Assign these mouse wheel turned event arguments with the values of other mouse wheel turned event arguments.
+     * @param other the other mouse wheel turned event arguments
+     * @return these mouse wheel turned event arguments
      */
-    MouseWheelEventArgs operator=(const MouseWheelEventArgs& other) {
-        MouseWheelEventArgs temporary(other);
+    MouseWheelTurnedEventArgs operator=(const MouseWheelTurnedEventArgs& other) {
+        MouseWheelTurnedEventArgs temporary(other);
         std::swap(*this, temporary);
         return *this;
     }

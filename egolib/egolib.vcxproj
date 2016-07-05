@@ -497,6 +497,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Events\MouseWheelTurnedEventArgs.hpp" />
     <ClInclude Include="src\egolib\Events\MouseButtonEventArgs.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\Closure.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\Closure_AxisAlignedBox_AxisAlignedBox.hpp" />

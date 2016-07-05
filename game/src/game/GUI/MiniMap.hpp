@@ -32,7 +32,9 @@ namespace GUI {
 
 class MiniMap : public Component {
 public:
-    static const uint32_t MAPSIZE = 128;
+    /// @brief The size of the minimap.
+    /// @default Default is @a 128.
+    static const uint32_t MAPSIZE;
 
     MiniMap();
 
@@ -45,7 +47,7 @@ public:
     void addBlip(const float x, const float y, const std::shared_ptr<Object> &object);
 
     bool notifyMouseMoved(const Events::MouseMovedEventArgs& e) override;
-    bool notifyMouseButtonClicked(const Events::MouseButtonClickedEventArgs& e) override;
+    bool notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs& e) override;
     bool notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEventArgs& e) override;
     bool notifyMouseButtonReleased(const Events::MouseButtonReleasedEventArgs& e) override;
 
@@ -83,7 +85,7 @@ private:
     bool _mouseOver;
     bool _isDragging;
     Vector2f _mouseDragOffset;
-    std::shared_ptr<Ego::DeferredTexture> _minimapTexture;
+    std::shared_ptr<DeferredTexture> _minimapTexture;
 };
 
 } // namespace GUI

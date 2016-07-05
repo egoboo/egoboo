@@ -44,8 +44,8 @@ MapEditorState::MapEditorState(std::shared_ptr<ModuleProfile> module) :
     _editMode(EditorMode::MAP_EDIT_NONE)
 {
     //Add minimap to the list of GUI components to render
-    _miniMap->setSize(Ego::GUI::MiniMap::MAPSIZE, Ego::GUI::MiniMap::MAPSIZE);
-    _miniMap->setPosition(0, _gameEngine->getUIManager()->getScreenHeight()-_miniMap->getHeight());
+    _miniMap->setSize(Vector2f(Ego::GUI::MiniMap::MAPSIZE, Ego::GUI::MiniMap::MAPSIZE));
+    _miniMap->setPosition(Point2f(0, _gameEngine->getUIManager()->getScreenHeight()-_miniMap->getHeight()));
     _miniMap->setVisible(true);
     addComponent(_miniMap);
 
@@ -68,8 +68,8 @@ MapEditorState::MapEditorState(std::shared_ptr<ModuleProfile> module) :
 void MapEditorState::addModeEditButton(EditorMode mode, const std::string &label)
 {
     auto editModeButton = std::make_shared<Ego::GUI::Button>(label);
-    editModeButton->setSize(120, 30);
-    editModeButton->setPosition(_modeButtons.size() * (editModeButton->getWidth() + 5), 0);
+    editModeButton->setSize(Vector2f(120, 30));
+    editModeButton->setPosition(Point2f(_modeButtons.size() * (editModeButton->getWidth() + 5), 0));
     editModeButton->setOnClickFunction([this, mode, editModeButton]{
         _editMode = mode;
         for(const auto& button : _modeButtons) {

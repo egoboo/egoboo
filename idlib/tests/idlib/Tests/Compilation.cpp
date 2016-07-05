@@ -17,33 +17,10 @@
 //*
 //********************************************************************************************
 
-/// @file game/GUI/IconButton.cpp
-/// @details A button with an small icon on the right side
-/// @author Johan Jansen
+#include "EgoTest/EgoTest.hpp"
 
-#pragma once
-
-#include "game/Core/GameEngine.hpp"
-#include "game/GUI/Button.hpp"
-
-// Forward declarations.
-namespace Ego { class DeferredTexture; }
-
-namespace Ego {
-namespace GUI {
-
-class IconButton : public Button {
-public:
-    IconButton(const std::string &buttonText, const DeferredTexture& icon, int hotkey = SDLK_UNKNOWN);
-
-    virtual void draw() override;
-
-    void setIconTint(const Math::Colour4f &tint);
-
-private:
-    const DeferredTexture& _icon;
-    Math::Colour4f _iconTint;
+EgoTest_TestCase(Compilation) {
+EgoTest_Test(compile) {
+    EgoTest_Assert(1 == 1);
+}
 };
-
-} // namespace GUI
-} // namespace Ego

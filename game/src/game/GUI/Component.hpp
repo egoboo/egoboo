@@ -41,13 +41,13 @@ public:
     float getWidth() const;
     float getHeight() const;
 
-    void setCenterPosition(float x, float y, const bool onlyHorizontal = false);
+    void setCenterPosition(const Point2f& position, const bool onlyHorizontal = false);
     virtual void setWidth(float width);
     virtual void setHeight(float height);
-    virtual void setSize(float width, float height);
+    virtual void setSize(const Vector2f& size);
     virtual void setX(float x);
     virtual void setY(float y);
-    virtual void setPosition(float x, float y);
+    virtual void setPosition(const Point2f& position);
 
     /**
      * @brief Get if this component contains a point.

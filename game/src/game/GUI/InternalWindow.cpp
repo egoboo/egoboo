@@ -43,7 +43,7 @@ InternalWindow::TitleBar::TitleBar(const std::string &title) :
     _font->getTextSize(_title, &_textWidth, &_textHeight);
     _textWidth = std::max<int>(32, _textWidth);
     _textHeight = std::max<int>(32, _textHeight);
-    setSize(_textWidth + 20, _textHeight + 5);
+    setSize(Vector2f(_textWidth + 20, _textHeight + 5));
 }
 
 void InternalWindow::TitleBar::draw() {
@@ -75,7 +75,7 @@ InternalWindow::InternalWindow(const std::string &title) :
     //});
 
     //Set initial window position, do after all components have been initialized
-    setPosition(20, 20);
+    setPosition(Point2f(20, 20));
 
     //Set default color
     _closeButton->setTint(Math::Colour4f(0.8f, 0.8f, 0.8f, 1.0f));
@@ -94,8 +94,8 @@ void InternalWindow::drawContainer() {
 
 bool InternalWindow::notifyMouseMoved(const Events::MouseMovedEventArgs& e) {
     if (_isDragging) {
-        setPosition(Math::constrain<int>(e.getPosition().x() + _mouseDragOffset[0], 0, _gameEngine->getUIManager()->getScreenWidth() - getWidth()),
-                    Math::constrain<int>(e.getPosition().y() + _mouseDragOffset[1], _titleBar->getHeight() / 2, _gameEngine->getUIManager()->getScreenHeight() - getHeight()));
+        setPosition(Point2f(Math::constrain<int>(e.getPosition().x() + _mouseDragOffset[0], 0, _gameEngine->getUIManager()->getScreenWidth() - getWidth()),
+                            Math::constrain<int>(e.getPosition().y() + _mouseDragOffset[1], _titleBar->getHeight() / 2, _gameEngine->getUIManager()->getScreenHeight() - getHeight())));
         return true;
     } else {
         _mouseOver = InternalWindow::contains(e.getPosition())
@@ -111,7 +111,7 @@ bool InternalWindow::notifyMouseMoved(const Events::MouseMovedEventArgs& e) {
     return ComponentContainer::notifyMouseMoved(e);
 }
 
-bool InternalWindow::notifyMouseButtonClicked(const Events::MouseButtonClickedEventArgs& e) {
+bool InternalWindow::notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs& e) {
     if (_mouseOver && e.getButton() == SDL_BUTTON_LEFT) {
         if (!_isDragging && _closeButton->contains(e.getPosition())) {
             AudioSystem::get().playSoundFull(AudioSystem::get().getGlobalSound(GSND_BUTTON_CLICK));
@@ -137,7 +137,7 @@ bool InternalWindow::notifyMouseButtonClicked(const Events::MouseButtonClickedEv
         _isDragging = false;
     }
 
-    return ComponentContainer::notifyMouseButtonClicked(e);
+    return ComponentContainer::notifyMouseButtonPressed(e);
 }
 
 bool InternalWindow::notifyMouseButtonReleased(const Events::MouseButtonReleasedEventArgs& e) {
@@ -152,28 +152,28 @@ void InternalWindow::draw() {
         //Make sure that all components added to this window are placed relative to 
         //our position so that (0,0) is topleft corner in this InternalWindow
         for (const std::shared_ptr<Component> &component : ComponentContainer::iterator()) {
-            component->setPosition(component->getX() + getX(), component->getY() + getY());
+            component->setPosition(component->getPosition() + Vector2f(getX(), getY()));
         }
     }
     drawAll();
 }
 
-void InternalWindow::setPosition(float x, float y) {
+void InternalWindow::setPosition(const Point2f& position) {
     //Calculate offsets in position change
-    int translateX = x - getX();
-    int translateY = y - getY();
+    int translateX = position.x() - getX();
+    int translateY = position.y() - getY();
 
     //Shift window position
-    Component::setPosition(x, y);
+    Component::setPosition(position);
 
     //Shift all child components as well
     for (const std::shared_ptr<Component> &component : ComponentContainer::iterator()) {
-        component->setPosition(component->getX() + translateX, component->getY() + translateY);
+        component->setPosition(component->getPosition() + Vector2f(translateX, translateY));
     }
 
     //Finally update titlebar position
-    _titleBar->setPosition(x, y - _titleBar->getHeight() / 2);
-    _closeButton->setPosition(_titleBar->getX() + _titleBar->getWidth() - _closeButton->getWidth(), _titleBar->getY() + _titleBar->getHeight() / 2 - _closeButton->getHeight() / 2);
+    _titleBar->setPosition(position + Vector2f(0, - _titleBar->getHeight() / 2));
+    _closeButton->setPosition(Point2f(_titleBar->getX() + _titleBar->getWidth() - _closeButton->getWidth(), _titleBar->getY() + _titleBar->getHeight() / 2 - _closeButton->getHeight() / 2));
 }
 
 void InternalWindow::setTransparency(float alpha) {
@@ -184,18 +184,19 @@ void InternalWindow::addComponent(std::shared_ptr<Component> component) {
     //Make sure that all components added to this window are placed relative to 
     //our position so that (0,0) is topleft corner in this InternalWindow
     if (!_firstDraw) {
-        component->setPosition(component->getX() + getX(), component->getY() + getY());
+        component->setPosition(component->getPosition() + Vector2f(getX(), getY()));
     }
     ComponentContainer::addComponent(component);
 }
 
-void InternalWindow::setSize(float width, float height) {
+void InternalWindow::setSize(const Vector2f& size) {
     //Also update the width of the title bar if our with changes
-    _titleBar->setSize(width, _titleBar->getHeight());
-    _closeButton->setSize(22, 22);
-    _closeButton->setPosition(_titleBar->getX() + _titleBar->getWidth() - _closeButton->getWidth(), _titleBar->getY() + _titleBar->getHeight() / 2 - _closeButton->getHeight() / 2);
+    _titleBar->setSize(Vector2f(size.x(), _titleBar->getHeight()));
+    _closeButton->setSize(Vector2f(22, 22));
+    _closeButton->setPosition(Point2f(_titleBar->getX() + _titleBar->getWidth() - _closeButton->getWidth(),
+                                      _titleBar->getY() + _titleBar->getHeight() / 2 - _closeButton->getHeight() / 2));
 
-    Component::setSize(width, height);
+    Component::setSize(size);
 }
 
 } // namespace GUI

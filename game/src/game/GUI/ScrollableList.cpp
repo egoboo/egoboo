@@ -11,13 +11,13 @@ ScrollableList::ScrollableList() :
     _mouseOver(false),
     _downButton(std::make_shared<Button>("+")),
     _upButton(std::make_shared<Button>("-")) {
-    _downButton->setSize(32, 32);
+    _downButton->setSize(Vector2f(32, 32));
     _downButton->setOnClickFunction([this] {
         setScrollPosition(_currentIndex + 1);
     });
     _downButton->setEnabled(false);
 
-    _upButton->setSize(32, 32);
+    _upButton->setSize(Vector2f(32, 32));
     _upButton->setOnClickFunction([this] {
         setScrollPosition(_currentIndex - 1);
     });
@@ -49,15 +49,15 @@ void ScrollableList::setScrollPosition(int position) {
         }
 
         component->setVisible(true);
-        component->setPosition(getX(), getY() + yOffset);
+        component->setPosition(getPosition() + Vector2f(0, yOffset));
         yOffset += component->getHeight() + COMPONENT_LINE_SPACING;
         componentCount++;
     }
 }
 
 void ScrollableList::updateScrollButtons() {
-    _upButton->setPosition(getX() + getWidth() - _upButton->getWidth(), getY());
-    _downButton->setPosition(getX() + getWidth() - _downButton->getWidth(), getY() + getHeight() - _downButton->getHeight());
+    _upButton->setPosition(getPosition() + Vector2f(getWidth() - _upButton->getWidth(), 0));
+    _downButton->setPosition(getPosition() + Vector2f(getWidth() - _downButton->getWidth(), getHeight() - _downButton->getHeight()));
 }
 
 void ScrollableList::setWidth(float width) {
@@ -99,9 +99,9 @@ void ScrollableList::draw() {
     _upButton->draw();
 }
 
-bool ScrollableList::notifyMouseScrolled(const int amount) {
+bool ScrollableList::notifyMouseWheelTurned(const Events::MouseWheelTurnedEventArgs& e) {
     if (_mouseOver) {
-        if (amount > 0) {
+        if (e.getDelta().y() > 0) {
             _upButton->doClick();
         } else {
             _downButton->doClick();
@@ -119,19 +119,18 @@ bool ScrollableList::notifyMouseMoved(const Events::MouseMovedEventArgs& e) {
     return ComponentContainer::notifyMouseMoved(e);
 }
 
-bool ScrollableList::notifyMouseButtonClicked(const Events::MouseButtonClickedEventArgs& e) {
-    if (_downButton->notifyMouseButtonClicked(e)) return true;
-    if (_upButton->notifyMouseButtonClicked(e)) return true;
-    return ComponentContainer::notifyMouseButtonClicked(e);
+bool ScrollableList::notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs& e) {
+    if (_downButton->notifyMouseButtonPressed(e)) return true;
+    if (_upButton->notifyMouseButtonPressed(e)) return true;
+    return ComponentContainer::notifyMouseButtonPressed(e);
 }
 
 void ScrollableList::forceUpdate() {
     setScrollPosition(_currentIndex);
 }
 
-void ScrollableList::setPosition(float x, float y) {
-    Component::setX(x);
-    Component::setY(y);
+void ScrollableList::setPosition(const Point2f& position) {
+    Component::setPosition(position);
     updateScrollButtons();
     setScrollPosition(_currentIndex);
 }

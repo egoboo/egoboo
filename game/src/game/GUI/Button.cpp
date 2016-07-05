@@ -92,7 +92,7 @@ bool Button::notifyMouseMoved(const Events::MouseMovedEventArgs& e) {
     return false;
 }
 
-bool Button::notifyMouseButtonClicked(const Events::MouseButtonClickedEventArgs& e) {
+bool Button::notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs& e) {
     if (_mouseOver && e.getButton() == SDL_BUTTON_LEFT) {
         doClick();
         return true;
@@ -114,7 +114,7 @@ void Button::setOnClickFunction(const std::function<void()> onClick) {
     _onClickFunction = onClick;
 }
 
-bool Button::notifyKeyboardKeyPressed(const Ego::Events::KeyboardKeyPressedEventArgs& e) {
+bool Button::notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEventArgs& e) {
     //No hotkey assigned to this button
     if (_hotkey == SDLK_UNKNOWN) return false;
 

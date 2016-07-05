@@ -46,12 +46,12 @@ ModuleSelector::ModuleSelector(const std::vector<std::shared_ptr<ModuleProfile>>
     moduleMenuOffsetY = std::max(0, moduleMenuOffsetY);
 
     //Set backdrop size and position
-    setSize(30 + SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
-    setPosition(moduleMenuOffsetX + 21, moduleMenuOffsetY + MODULE_BUTTON_SIZE + 40);
+    setSize(Vector2f(30 + SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2));
+    setPosition(Point2f(moduleMenuOffsetX, moduleMenuOffsetY) + Vector2f(21, MODULE_BUTTON_SIZE + 40));
 
     //Next and previous buttons
-    _nextModuleButton->setPosition(SCREEN_WIDTH - 50, moduleMenuOffsetY + 74);
-    _nextModuleButton->setSize(30, 30);
+    _nextModuleButton->setPosition(Point2f(SCREEN_WIDTH - 50, moduleMenuOffsetY + 74));
+    _nextModuleButton->setSize(Vector2f(30, 30));
     _nextModuleButton->setOnClickFunction(
         [this] {
         _startIndex++;
@@ -60,8 +60,8 @@ ModuleSelector::ModuleSelector(const std::vector<std::shared_ptr<ModuleProfile>>
     });
     addComponent(_nextModuleButton);
 
-    _previousModuleButton->setPosition(moduleMenuOffsetX + 20, moduleMenuOffsetY + 74);
-    _previousModuleButton->setSize(30, 30);
+    _previousModuleButton->setPosition(Point2f(moduleMenuOffsetX, moduleMenuOffsetY) + Vector2f(20, 74));
+    _previousModuleButton->setSize(Vector2f(30, 30));
     _previousModuleButton->setOnClickFunction(
         [this] {
         _startIndex--;
@@ -75,8 +75,8 @@ ModuleSelector::ModuleSelector(const std::vector<std::shared_ptr<ModuleProfile>>
     //Add as many modules as we can fit with current screen width
     for (int i = 0; i < numberOfModuleButtons; ++i) {
         std::shared_ptr<ModuleButton> moduleButton = std::make_shared<ModuleButton>(this, i);
-        moduleButton->setSize(MODULE_BUTTON_SIZE, MODULE_BUTTON_SIZE);
-        moduleButton->setPosition(moduleMenuOffsetX + 93, moduleMenuOffsetY + 20);
+        moduleButton->setSize(Vector2f(MODULE_BUTTON_SIZE, MODULE_BUTTON_SIZE));
+        moduleButton->setPosition(Point2f(moduleMenuOffsetX, moduleMenuOffsetY) + Vector2f(93, 20));
         moduleButton->setOnClickFunction(
             [this, i] {
             if (_startIndex + i >= _modules.size()) return;
@@ -205,14 +205,14 @@ void ModuleSelector::ModuleButton::draw() {
     _gameEngine->getUIManager()->drawImage(_moduleSelector->_modules[_moduleSelector->_startIndex + _offset]->getIcon().get(), Point2f(getX() + 5, getY() + 5), Vector2f(getWidth() - 10, getHeight() - 10));
 }
 
-bool ModuleSelector::notifyMouseScrolled(const int amount) {
-    if (amount < 0 && _startIndex == 0) {
+bool ModuleSelector::notifyMouseWheelTurned(const Events::MouseWheelTurnedEventArgs& e) {
+    if (e.getDelta().y() < 0 && _startIndex == 0) {
         return false;
     }
-    if (amount > 0 && _startIndex >= _modules.size() - 3) {
+    if (e.getDelta().y() > 0 && _startIndex >= _modules.size() - 3) {
         return false;
     }
-    _startIndex = Math::constrain<int>(_startIndex + amount, 0, _modules.size() - 3);
+    _startIndex = Math::constrain<int>(_startIndex + e.getDelta().y(), 0, _modules.size() - 3);
     AudioSystem::get().playSoundFull(AudioSystem::get().getGlobalSound(GSND_BUTTON_CLICK));
     _nextModuleButton->setEnabled(_startIndex < _modules.size() - 3);
     _previousModuleButton->setEnabled(_startIndex > 0);

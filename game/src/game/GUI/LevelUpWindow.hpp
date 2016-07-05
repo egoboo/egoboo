@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -22,6 +20,7 @@
 /// @file game/GUI/LevelUpWindow.hpp
 /// @details LevelUpWindow
 /// @author Johan Jansen
+
 #pragma once
 
 #include "game/GUI/InternalWindow.hpp"
@@ -52,14 +51,14 @@ protected:
 
 private:
     void doLevelUp(PerkButton *selectedPerk);
-    void setHoverPerk(Ego::Perks::PerkID id);
-    Ego::Perks::PerkID getCurrentPerk() const;
+    void setHoverPerk(Perks::PerkID id);
+    Perks::PerkID getCurrentPerk() const;
 
 private:
     std::shared_ptr<Object> _character;
 
     //Perk selection state
-    Ego::Perks::PerkID _currentPerk;
+    Perks::PerkID _currentPerk;
     std::shared_ptr<Label> _descriptionLabel;
     std::shared_ptr<Label> _perkIncreaseLabel;
     int _desciptionLabelOffset;

@@ -61,7 +61,7 @@ bool InventorySlot::notifyMouseMoved(const Events::MouseMovedEventArgs& e) {
 }
 
 
-bool InventorySlot::notifyMouseButtonClicked(const Events::MouseButtonClickedEventArgs& e) {
+bool InventorySlot::notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs& e) {
     if (!_player || !contains(e.getPosition())) {
         return false;
     }

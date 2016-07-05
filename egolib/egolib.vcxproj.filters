@@ -1268,6 +1268,9 @@
     <ClInclude Include="src\egolib\Events\KeyboardKeyEventArgs.hpp">
       <Filter>Header Files\Events</Filter>
     </ClInclude>
+    <ClInclude Include="src\egolib\Events\MouseWheelTurnedEventArgs.hpp">
+      <Filter>Header Files\Events</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\egolib\platform\NSFileManager+DirectoryLocations.m">

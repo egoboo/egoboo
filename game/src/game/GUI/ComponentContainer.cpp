@@ -54,7 +54,7 @@ void ComponentContainer::drawAll() {
     _gameEngine->getUIManager()->endRenderUI();
 }
 
-bool ComponentContainer::notifyMouseMoved(const Ego::Events::MouseMovedEventArgs& e) {
+bool ComponentContainer::notifyMouseMoved(const Events::MouseMovedEventArgs& e) {
     //Iterate over GUI components in reverse order so GUI components added last (i.e on top) consume events first
     ComponentIterator it = iterator();
     for (auto i = it.rbegin(); i != it.rend(); ++i) {
@@ -65,7 +65,7 @@ bool ComponentContainer::notifyMouseMoved(const Ego::Events::MouseMovedEventArgs
     return false;
 }
 
-bool ComponentContainer::notifyKeyboardKeyPressed(const Ego::Events::KeyboardKeyPressedEventArgs& e) {
+bool ComponentContainer::notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEventArgs& e) {
     //Iterate over GUI components in reverse order so GUI components added last (i.e on top) consume events first
     ComponentIterator it = iterator();
     for (auto i = it.rbegin(); i != it.rend(); ++i) {
@@ -76,13 +76,13 @@ bool ComponentContainer::notifyKeyboardKeyPressed(const Ego::Events::KeyboardKey
     return false;
 }
 
-bool ComponentContainer::notifyMouseButtonClicked(const Events::MouseButtonClickedEventArgs& e) {
+bool ComponentContainer::notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs& e) {
     //Iterate over GUI components in reverse order so GUI components added last (i.e on top) consume events first
     ComponentIterator it = iterator();
     for (auto i = it.rbegin(); i != it.rend(); ++i) {
         std::shared_ptr<Component> component = *i;
         if (!component->isEnabled()) continue;
-        if (component->notifyMouseButtonClicked(e)) return true;
+        if (component->notifyMouseButtonPressed(e)) return true;
     }
     return false;
 }
@@ -98,13 +98,13 @@ bool ComponentContainer::notifyMouseButtonReleased(const Events::MouseButtonRele
     return false;
 }
 
-bool ComponentContainer::notifyMouseScrolled(const int amount) {
+bool ComponentContainer::notifyMouseWheelTurned(const Events::MouseWheelTurnedEventArgs& e) {
     //Iterate over GUI components in reverse order so GUI components added last (i.e on top) consume events first
     ComponentIterator it = iterator();
     for (auto i = it.rbegin(); i != it.rend(); ++i) {
         std::shared_ptr<Component> component = *i;
         if (!component->isEnabled()) continue;
-        if (component->notifyMouseScrolled(amount)) return true;
+        if (component->notifyMouseWheelTurned(e)) return true;
     }
     return false;
 }

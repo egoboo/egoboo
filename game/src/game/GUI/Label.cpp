@@ -32,7 +32,7 @@ void Label::setText(const std::string& text) {
     // Recalculate our size.
     int textWidth, textHeight;
     _textRenderer = _font->layoutTextBox(_text, 0, 0, _font->getLineSpacing(), &textWidth, &textHeight);
-    setSize(textWidth, textHeight);
+    setSize(Vector2f(textWidth, textHeight));
 }
 
 const std::shared_ptr<Font>& Label::getFont() const {
@@ -45,7 +45,7 @@ void Label::setFont(const std::shared_ptr<Font>& font) {
     // Recalculate our size.
     int textWidth, textHeight;
     _textRenderer = _font->layoutTextBox(_text, 0, 0, _font->getLineSpacing(), &textWidth, &textHeight);
-    setSize(textWidth, textHeight);
+    setSize(Vector2f(textWidth, textHeight));
 }
 
 const Math::Colour4f& Label::getColour() const {

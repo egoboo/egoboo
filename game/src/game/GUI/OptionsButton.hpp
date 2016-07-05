@@ -13,7 +13,7 @@ public:
 
     virtual void draw() override;
 
-    void setPosition(float x, float y) override;
+    void setPosition(const Point2f& position) override;
 
 private:
     Label _label;

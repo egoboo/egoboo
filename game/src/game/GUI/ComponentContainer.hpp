@@ -104,9 +104,9 @@ public:
 
     virtual bool notifyMouseMoved(const Events::MouseMovedEventArgs& e) override;
     virtual bool notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEventArgs& ee) override;
-    virtual bool notifyMouseButtonClicked(const Events::MouseButtonClickedEventArgs& e) override;
     virtual bool notifyMouseButtonReleased(const Events::MouseButtonReleasedEventArgs& e) override;
-    virtual bool notifyMouseScrolled(const int amount) override;
+    virtual bool notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs& e) override;
+    virtual bool notifyMouseWheelTurned(const Events::MouseWheelTurnedEventArgs& e) override;
 
     /**
     * @brief

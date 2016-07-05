@@ -8,9 +8,9 @@ OptionsButton::OptionsButton(const std::string &label) :
 
 }
 
-void OptionsButton::setPosition(float x, float y) {
-    _label.setPosition(x, y);
-    Component::setPosition(x + 200, y - getHeight() / 2);
+void OptionsButton::setPosition(const Point2f& position) {
+    _label.setPosition(position);
+    Component::setPosition(position + Vector2f(200, - getHeight() / 2));
 }
 
 void OptionsButton::draw() {

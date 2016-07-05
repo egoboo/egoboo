@@ -56,10 +56,10 @@ public:
     bool notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEventArgs& e) override {
         return ComponentContainer::notifyKeyboardKeyPressed(e);
     }
-    bool notifyMouseButtonClicked(const Events::MouseButtonClickedEventArgs& e) override {
-        return ComponentContainer::notifyMouseButtonClicked(e);
+    bool notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs& e) override {
+        return ComponentContainer::notifyMouseButtonPressed(e);
     }
-    bool notifyMouseScrolled(const int amount) override;
+    bool notifyMouseWheelTurned(const Events::MouseWheelTurnedEventArgs& e) override;
 
     const std::shared_ptr<ModuleProfile>& getSelectedModule() const;
 

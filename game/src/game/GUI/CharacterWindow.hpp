@@ -43,17 +43,17 @@ public:
     CharacterWindow(const std::shared_ptr<Object> &object);
     ~CharacterWindow();
 
-    bool notifyMouseMoved(const Ego::Events::MouseMovedEventArgs& e) override;
+    bool notifyMouseMoved(const Events::MouseMovedEventArgs& e) override;
 
 private:
-    int addResistanceLabel(const int x, const int y, const DamageType type);
-    int addAttributeLabel(const int x, const int y, const Ego::Attribute::AttributeType type);
+    int addResistanceLabel(const Point2f& position, const DamageType type);
+    int addAttributeLabel(const Point2f& position, const Attribute::AttributeType type);
 
     void buildCharacterStatisticTab();
     void buildKnownPerksTab();
     void buildActiveEnchantsTab();
 
-    void describeEnchantEffects(const std::vector<std::shared_ptr<Ego::Enchantment>> &enchants, std::shared_ptr<ScrollableList> list);
+    void describeEnchantEffects(const std::vector<std::shared_ptr<Enchantment>> &enchants, std::shared_ptr<ScrollableList> list);
 
 private:
     std::shared_ptr<Object> _character;
