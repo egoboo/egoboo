@@ -22,7 +22,9 @@
 
 #pragma once
 
-#include "egolib/platform.h"
+#include "egolib/Signal/ConnectionBase.hpp"
+#include "egolib/Signal/NodeBase.hpp"
+#include "egolib/Signal/SignalBase.hpp"
 
 /**
  *  @defgroup ego-signal
@@ -54,7 +56,7 @@ struct Node;
 /// A node.
 /// @todo Hide within Signal or within Internal namespace.
 template <class ReturnType, class ... ParameterTypes>
-struct Node<ReturnType(ParameterTypes ...)> {
+struct Node<ReturnType(ParameterTypes ...)> : Ego::Internal::NodeBase {
 public:
     /// The node type.
     typedef Node<ReturnType(ParameterTypes ...)> NodeType;
@@ -62,10 +64,6 @@ public:
     typedef std::function<ReturnType(ParameterTypes ...)> FunctionType;
 
 public:
-    /// A pointer to the successor   of this node if it has a successor,   a null pointer otherwise.
-    NodeType *next;
-    /// Is this node dead?
-    bool dead;
     /// The function.
     FunctionType function;
 
@@ -76,7 +74,7 @@ public:
 public:
     /// Construct this node.
     explicit Node(const FunctionType& function)
-        : next(nullptr), dead(false), function(function) {}
+        : Ego::Internal::NodeBase(), function(function) {}
 
 public:
     /// Invoke this node
@@ -86,42 +84,27 @@ public:
     ReturnType operator()(ParameterTypes&& ... arguments) {
         function(std::forward<ParameterTypes>(arguments) ...);
     }
-
-public:
-    /// Kill this node.
-    /// @postcondition this node is dead
-    /// @return @a true if the node was killed by this call, @a false otherwise
-    bool kill() noexcept { bool temporary = dead; dead = true; return !temporary; }
-
-    /// Get if this node is dead.
-    /// @return @a true if this node is dead, @a false otherwise
-    bool isDead() const noexcept { return dead; }
-
 };
 
 template <class>
 struct Signal;
 
-struct Subscription {
-    void *ptr;
+struct Subscription : Ego::Internal::ConnectionBase {
     Subscription()
-        : ptr(nullptr) {}
-    Subscription(void *ptr)
-        : ptr(ptr) {}
+        : ConnectionBase(nullptr, nullptr) {}
+    Subscription(Ego::Internal::SignalBase *signal, Ego::Internal::NodeBase *node)
+        : ConnectionBase(signal, node) {}
     Subscription(const Subscription& other)
-        : ptr(other.ptr) {}
+        : ConnectionBase(other) {}
     const Subscription& operator=(const Subscription& other) {
-        ptr = other.ptr;
+        ConnectionBase::operator=(other);
         return *this;
     }
     bool operator==(const Subscription& other) const {
-        return ptr == other.ptr;
+        return ConnectionBase::operator==(other);
     }
     bool operator!=(const Subscription& other) const {
-        return ptr != other.ptr;
-    }
-    operator bool() const {
-        return nullptr != ptr;
+        return ConnectionBase::operator!=(other);
     }
 }; // struct Subscription
 
@@ -129,7 +112,7 @@ struct Subscription {
 /// @tparam ... ParameterTypes the parameter types
 /// @remark Non-copyable.
 template <class ReturnType, class ... ParameterTypes>
-struct Signal<ReturnType(ParameterTypes ...)> {
+struct Signal<ReturnType(ParameterTypes ...)> : Ego::Internal::SignalBase {
 public:
     /// The node type.
     typedef Node<ReturnType(ParameterTypes ...)> NodeType;
@@ -140,83 +123,25 @@ public:
     Signal(const Signal&) = delete; // Do not allow copying.
     const Signal& operator=(const Signal&) = delete; // Do not allow copying.
 
-private:
-    NodeType *head; ///< The head.
-    bool running;   ///< @a true if the signal is currently running, @a false otherwise
-    size_t deadCount; ///< The number of dead nodes.
-    size_t liveCount; ///< The number of live nodes.
-
 public:
     /// Construct this signal.
-    Signal() noexcept : head(nullptr), deadCount(0), liveCount(0), running(false) {}
+    Signal() noexcept : SignalBase() {}
 
     /// Destruct this signal
-    /// (disconnecting all subscribers).
-    ~Signal() noexcept {
-        while (nullptr != head) {
-            NodeType *node = head; head = node->next;
-            delete node;
-        }
-        deadCount = 0;
-        liveCount = 0;
-    }
+    /// Disconnects all subscribers.
+    ~Signal() noexcept {}
 
 public:
     /// Subscribe to this signal.
     /// @param function a non-empty function
     /// @return the subscription
     Subscription subscribe(const FunctionType& function) {
-        NodeType *node = new NodeType(function);
+        Ego::Internal::NodeBase *node = new NodeType(function);
         node->next = head; head = node;
         liveCount++;
-        return Subscription(static_cast<void *>(node));
+        return Subscription(this, node);
     }
 
-    /// Does the subscriber list need sweeping?
-    /// @return @a true if the subscriber list needs sweeping, @a false otherwise
-    bool needsSweep() const noexcept {
-        return deadCount > std::min(size_t(8), liveCount);
-    }
-
-    /// Remove all dead subscriptions if the number of dead nodes exceeds the number of live nodes.
-    /// @precondition The signal is not currently running.
-    /// @todo Make private.
-    void maybeSweep() noexcept {
-        assert(true == running); // Must be true!
-        if (needsSweep()) {
-            NodeType **pred = &head, *cur = head;
-            while (nullptr != cur) {
-                if (cur->isDead()) { // Does the subscription refer to this node?
-                    NodeType *node = cur;
-                    *pred = cur->next;
-                    cur = cur = cur->next;
-                    delete node;
-                    deadCount--;
-                } else {
-                    pred = &cur->next;
-                    cur = cur->next;
-                }
-            }
-        }
-    }
-
-    /// Unsubscribe from this signal.
-    /// @param subscription the subscription
-    /// @return @a true if the subscription was found and removed, @a false otherwise
-    void unsubscribe(const Subscription& subscription) noexcept {
-        if (!subscription) {
-            return;
-        }
-        if (static_cast<NodeType *>(subscription.ptr)->kill()) {
-            deadCount++;
-            liveCount--;
-        }
-        if (!running) {
-            running = true;
-            maybeSweep();
-            running = false;
-        }
-    }
 
 public:
     /// Notify all subscribers.
@@ -226,9 +151,9 @@ public:
         if (!running) { /// @todo Use ReentrantBarrier (not committed yet).
             running = true;
             try {
-                for (NodeType *cur = head; nullptr != cur; cur = cur->next) {
+                for (Ego::Internal::NodeBase *cur = head; nullptr != cur; cur = cur->next) {
                     if (!cur->isDead()) {
-                        (*cur)(std::forward<ParameterTypes>(arguments) ...);
+                        (*static_cast<NodeType *>(cur))(std::forward<ParameterTypes>(arguments) ...);
                     }
                 }
             } catch (...) {

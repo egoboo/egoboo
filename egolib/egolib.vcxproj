@@ -305,6 +305,9 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\Signal\ConnectionBase.cpp" />
+    <ClCompile Include="src\egolib\Signal\NodeBase.cpp" />
+    <ClCompile Include="src\egolib\Signal\SignalBase.cpp" />
     <ClCompile Include="src\egolib\Input\input.c" />
     <ClCompile Include="src\egolib\Input\input_device.c" />
     <ClCompile Include="src\egolib\Extensions\WindowProperties.cpp" />
@@ -497,6 +500,9 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Signal\ConnectionBase.hpp" />
+    <ClInclude Include="src\egolib\Signal\NodeBase.hpp" />
+    <ClInclude Include="src\egolib\Signal\SignalBase.hpp" />
     <ClInclude Include="src\egolib\Events\MouseWheelTurnedEventArgs.hpp" />
     <ClInclude Include="src\egolib\Events\MouseButtonEventArgs.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\Closure.hpp" />
