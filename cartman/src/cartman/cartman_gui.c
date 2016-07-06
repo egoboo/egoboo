@@ -161,10 +161,10 @@ void Window::renderBackground() const {
 
 void do_cursor() {
     bool left_press;
-
+    auto windowSize = Ego::GraphicsSystem::window->getSize();
     // This function implements a mouse cursor
-    ui.cursorPosition.x() = Ego::Math::constrain(Cartman::Input::get()._mouse.position.x(), 6, sdl_scr.size.width() - 6);
-    ui.cursorPosition.y() = Ego::Math::constrain(Cartman::Input::get()._mouse.position.y(), 6, sdl_scr.size.height() - 6);
+    ui.cursorPosition.x() = Ego::Math::constrain(Cartman::Input::get()._mouse.position.x(), 6, windowSize.width() - 6);
+    ui.cursorPosition.y() = Ego::Math::constrain(Cartman::Input::get()._mouse.position.y(), 6, windowSize.height() - 6);
 
     left_press = CART_BUTTONDOWN(SDL_BUTTON_LEFT);
 
@@ -202,5 +202,6 @@ void draw_slider(int tlx, int tly, int brx, int bry, int* pvalue, int minvalue, 
 }
 
 void show_name(const std::string& newLoadName, const Ego::Math::Colour4f& textColour) {
-    gfx_font_ptr->drawText(newLoadName, 0, sdl_scr.size.height() - 16, textColour);
+    auto windowSize = Ego::GraphicsSystem::window->getSize();
+    gfx_font_ptr->drawText(newLoadName, 0, windowSize.height() - 16, textColour);
 }

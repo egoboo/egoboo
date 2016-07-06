@@ -305,6 +305,17 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\Graphics\DisplayMode.cpp" />
+    <ClCompile Include="src\egolib\Graphics\SDL\DisplayMode.cpp">
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)\Graphics\SDL\DisplayMode.asm</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)\Graphics\SDL\DisplayMode.o</ObjectFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\Graphics\SDL\DisplayMode.asm</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\Graphics\SDL\DisplayMode.o</ObjectFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)\Graphics\SDL\DisplayMode.asm</AssemblerListingLocation>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\Graphics\SDL\DisplayMode.asm</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)\Graphics\SDL\DisplayMode.o</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\Graphics\SDL\DisplayMode.o</ObjectFileName>
+    </ClCompile>
     <ClCompile Include="src\egolib\Signal\ConnectionBase.cpp" />
     <ClCompile Include="src\egolib\Signal\NodeBase.cpp" />
     <ClCompile Include="src\egolib\Signal\SignalBase.cpp" />
@@ -500,6 +511,8 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Graphics\DisplayMode.hpp" />
+    <ClInclude Include="src\egolib\Graphics\SDL\DisplayMode.hpp" />
     <ClInclude Include="src\egolib\Signal\ConnectionBase.hpp" />
     <ClInclude Include="src\egolib\Signal\NodeBase.hpp" />
     <ClInclude Include="src\egolib\Signal\SignalBase.hpp" />

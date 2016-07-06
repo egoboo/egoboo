@@ -76,27 +76,29 @@ void UIManager::beginRenderUI() {
     // do not use the ATTRIB_PUSH macro, since the glPopAttrib() is in a different function
     GL_DEBUG(glPushAttrib)(GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT);
 
-    // don't worry about hidden surfaces
+    // Don't worry about hidden surfaces.
     renderer.setDepthTestEnabled(false);
 
-    // draw draw front and back faces of polygons
+    // Draw draw front and back faces of polygons.
     renderer.setCullingMode(CullingMode::None);
 
-    // use normal alpha blending
+    // Use normal alpha blending.
     renderer.setBlendFunction(BlendFunction::SourceAlpha, BlendFunction::OneMinusSourceAlpha);
     renderer.setBlendingEnabled(true);
 
-    // do not display the completely transparent portion
+    // Do not display the completely transparent portion.
     renderer.setAlphaTestEnabled(true);
     renderer.setAlphaFunction(CompareFunction::Greater, 0.0f);
 
-    renderer.setViewportRectangle(0, 0, sdl_scr.drawableSize.width(), sdl_scr.drawableSize.height());
+    /// Set the viewport rectangle.
+    auto drawableSize = Ego::GraphicsSystem::window->getDrawableSize();
+    renderer.setViewportRectangle(0, 0, drawableSize.width(), drawableSize.height());
 
     // Set up an ortho projection for the gui to use.  Controls are free to modify this
     // later, but most of them will need this, so it's done by default at the beginning
-    // of a frame
-
-    Matrix4f4f projection = Transform::ortho(0.0f, getScreenWidth(), getScreenHeight(), 0.0f, -1.0f, +1.0f);
+    // of a frame.
+    auto windowSize = Ego::GraphicsSystem::window->getSize();
+    Matrix4f4f projection = Transform::ortho(0.0f, windowSize.width(), windowSize.height(), 0.0f, -1.0f, +1.0f);
     renderer.setProjectionMatrix(projection);
     renderer.setViewMatrix(Matrix4f4f::identity());
     renderer.setWorldMatrix(Matrix4f4f::identity());
@@ -115,11 +117,11 @@ void UIManager::endRenderUI() {
 }
 
 int UIManager::getScreenWidth() const {
-    return sdl_scr.size.width();
+    return Ego::GraphicsSystem::window->getSize().width();
 }
 
 int UIManager::getScreenHeight() const {
-    return sdl_scr.size.height();
+    return Ego::GraphicsSystem::window->getSize().height();
 }
 
 void UIManager::drawImage(const std::shared_ptr<const Texture>& img, const Point2f& position, const Vector2f& size, const Colour4f& tint) {
@@ -156,8 +158,8 @@ bool UIManager::dumpScreenshot() {
     strncpy(szResolvedFilename, szFilename, SDL_arraysize(szFilename));
 
     // if we are not using OpenGL, use SDL to dump the screen
-    if (HAS_NO_BITS(SDL_GetWindowFlags(sdl_scr.window->get()), SDL_WINDOW_OPENGL)) {
-        return IMG_SavePNG_RW(SDL_GetWindowSurface(sdl_scr.window->get()), vfs_openRWopsWrite(szResolvedFilename), 1);
+    if (HAS_NO_BITS(SDL_GetWindowFlags(Ego::GraphicsSystem::window->get()), SDL_WINDOW_OPENGL)) {
+        return IMG_SavePNG_RW(SDL_GetWindowSurface(Ego::GraphicsSystem::window->get()), vfs_openRWopsWrite(szResolvedFilename), 1);
     }
 
     // we ARE using OpenGL
@@ -168,7 +170,8 @@ bool UIManager::dumpScreenshot() {
 
             // create a SDL surface
             const auto& pixelFormatDescriptor = PixelFormatDescriptor::get<PixelFormat::R8G8B8>();
-            temp = SDL_CreateRGBSurface(0, sdl_scr.size.width(), sdl_scr.size.height(),
+            auto drawableSize = Ego::GraphicsSystem::window->getDrawableSize();
+            temp = SDL_CreateRGBSurface(0, drawableSize.width(), drawableSize.height(),
                                         pixelFormatDescriptor.getColourDepth().getDepth(),
                                         pixelFormatDescriptor.getRedMask(),
                                         pixelFormatDescriptor.getGreenMask(),
@@ -183,7 +186,7 @@ bool UIManager::dumpScreenshot() {
 
             //Now lock the surface so that we can read it
             if (-1 != SDL_LockSurface(temp)) {
-                SDL_Rect rect = {0, 0, getScreenWidth(), getScreenHeight()};
+                SDL_Rect rect = {0, 0, drawableSize.width(), drawableSize.height()};
 
                 int y;
                 uint8_t * pixels;

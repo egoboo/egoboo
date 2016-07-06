@@ -134,5 +134,5 @@ void SelectCharacterState::drawContainer()
 void SelectCharacterState::beginState()
 {
     // menu settings
-    sdl_scr.window->setGrabEnabled(false);
+    Ego::GraphicsSystem::window->setGrabEnabled(false);
 }

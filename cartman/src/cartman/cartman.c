@@ -388,7 +388,8 @@ void Cartman::Gui::Window::render()
     {
         auto& renderer = Ego::Renderer::get();
 		renderer.setScissorTestEnabled(true);
-        renderer.setScissorRectangle(position.x(), sdl_scr.size.height() - ( position.y() + size.height() ),
+        auto drawableSize = Ego::GraphicsSystem::window->getDrawableSize();
+        renderer.setScissorRectangle(position.x(), drawableSize.height() - ( position.y() + size.height() ),
                                      size.width(), size.height());
 
         make_onscreen( pmesh );
@@ -451,8 +452,8 @@ void unbound_mouse()
     {
         Input::get()._mouse.tlx = 0;
         Input::get()._mouse.tly = 0;
-        Input::get()._mouse.brx = sdl_scr.size.width() - 1;
-        Input::get()._mouse.bry = sdl_scr.size.height() - 1;
+        Input::get()._mouse.brx = Ego::GraphicsSystem::window->getSize().width() - 1;
+        Input::get()._mouse.bry = Ego::GraphicsSystem::window->getSize().height() - 1;
     }
 }
 
@@ -1502,7 +1503,7 @@ void draw_lotsa_stuff( cartman_mpd_t * pmesh )
 #endif
 
     // Tell user what keys are important
-    int y = sdl_scr.size.height() - 120, step = 8;
+    int y = Ego::GraphicsSystem::window->getSize().height() - 120, step = 8;
     gfx_font_ptr->drawText("O = Overlay (Water)", 0, y); y -= step;
     gfx_font_ptr->drawText("R = Reflective", 0, y); y -= step;
     gfx_font_ptr->drawText("D = Draw Reflection", 0, y); y -= step;
@@ -1523,7 +1524,7 @@ void draw_lotsa_stuff( cartman_mpd_t * pmesh )
     gfx_font_ptr->drawText("Brush size   " + std::to_string(brushsize), 0, y); y -= step;
 
     // Cursor
-    //if (mos.x >= 0 && mos.x < sdl_scr.x && mos.y >= 0 && mos.y < sdl_scr.y)
+    //if (mos.x >= 0 && mos.x < Ego::GraphicsSystem::window->getDrawableSize().width() && mos.y >= 0 && mos.y < Ego::GraphicsSystem::window->getDrawableSize().height())
     //{
     //    draw_sprite(theSurface, bmpcursor, mos.x, mos.y);
     //}
@@ -1652,7 +1653,7 @@ void draw_main( cartman_mpd_t * pmesh )
     dunframe++;
     secframe++;
 
-    SDL_GL_SwapWindow(sdl_scr.window->get());
+    SDL_GL_SwapWindow(Ego::GraphicsSystem::window->get());
 }
 
 //--------------------------------------------------------------------------------------------

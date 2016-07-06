@@ -44,12 +44,14 @@ void SDLX_screen_info_t::report(SDLX_screen_info_t& self)
 {
 	Log::get().message("\nSDL using video driver - %s\n", self.szDriver.c_str());
 
-    if (!self.video_mode_list.empty())
+    if (!self.displayModes.empty())
     {
 		Log::get().message("\tAvailable full-screen video modes...\n");
-        for (const auto &mode : self.video_mode_list)
+        for (const auto &displayMode : self.displayModes)
         {
-			Log::get().message("    \tVideo Mode - %d x %d, %d Hz\n", mode.w, mode.h, mode.refresh_rate);
+			Log::get().message("    \tVideo Mode - %d x %d, %d Hz\n", displayMode->getHorizontalResolution(),
+                                                                      displayMode->getVerticalResolution(),
+                                                                      displayMode->getRefreshRate());
         }
     }
 }
@@ -58,7 +60,6 @@ void SDLX_screen_info_t::report(SDLX_screen_info_t& self)
 bool SDLX_Get_Screen_Info( SDLX_screen_info_t& psi, bool make_report )
 {
     Uint32 init_flags = 0;
-    Ego::GraphicsWindow *window;
 
     init_flags = SDL_WasInit( SDL_INIT_EVERYTHING );
     if ( 0 == init_flags )
@@ -73,13 +74,11 @@ bool SDLX_Get_Screen_Info( SDLX_screen_info_t& psi, bool make_report )
     }
 
     // store the screen info for everyone to use
-    window = Ego::GraphicsSystem::window;
-	psi.window = window;
-    psi.size = window->getSize();
-    psi.drawableSize = window->getDrawableSize();
+    auto window = Ego::GraphicsSystem::window;
+
     
     // Grab all the available video modes
-    psi.video_mode_list.clear();
+    psi.displayModes.clear();
     
     int displayNum = window->getDisplayIndex();
     int numDisplayModes = SDL_GetNumDisplayModes(displayNum);
@@ -87,7 +86,7 @@ bool SDLX_Get_Screen_Info( SDLX_screen_info_t& psi, bool make_report )
     for (int i = 0; i < numDisplayModes; i++) {
         SDL_DisplayMode mode;
         SDL_GetDisplayMode(displayNum, i, &mode);
-        psi.video_mode_list.push_back(mode);
+        psi.displayModes.push_back(std::make_shared<Ego::SDL::DisplayMode>(mode));
     }
     
     // log the video driver info
@@ -95,9 +94,6 @@ bool SDLX_Get_Screen_Info( SDLX_screen_info_t& psi, bool make_report )
 
     // grab all SDL_GL_* attributes
     SDLX_sdl_gl_attrib_t::download(psi.gl_att);
-
-    // translate the surface flags into the bitfield
-    psi.windowProperties = window->getProperties();
 
     if (make_report)
     {

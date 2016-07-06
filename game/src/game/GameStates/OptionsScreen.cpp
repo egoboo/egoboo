@@ -120,7 +120,7 @@ void OptionsScreen::drawContainer()
 void OptionsScreen::beginState()
 {
     // menu settings
-    sdl_scr.window->setGrabEnabled(false);
+    Ego::GraphicsSystem::window->setGrabEnabled(false);
     _gameEngine->enableMouseCursor();
 
     float offset = 0;

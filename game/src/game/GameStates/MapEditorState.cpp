@@ -115,7 +115,7 @@ void MapEditorState::beginState()
 {
     // in-game settings
     Ego::GraphicsSystem::setCursorVisibility(true);
-    sdl_scr.window->setGrabEnabled(egoboo_config_t::get().debug_grabMouse.getValue());
+    Ego::GraphicsSystem::window->setGrabEnabled(egoboo_config_t::get().debug_grabMouse.getValue());
 }
 
 bool MapEditorState::notifyKeyboardKeyPressed(const Ego::Events::KeyboardKeyPressedEventArgs& e)

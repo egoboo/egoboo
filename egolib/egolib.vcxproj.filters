@@ -145,6 +145,12 @@
     <Filter Include="Source Files\Signal">
       <UniqueIdentifier>{1645c3ca-cf4b-450b-bbe3-aeb3cb25deb3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Graphics\SDL">
+      <UniqueIdentifier>{d53e3288-889c-4583-bfc1-951f3aa4d996}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics\SDL">
+      <UniqueIdentifier>{678721b8-0cba-45a1-9259-593d7cb67403}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\egolib\_math.c">
@@ -521,6 +527,12 @@
     </ClCompile>
     <ClCompile Include="src\egolib\Signal\ConnectionBase.cpp">
       <Filter>Source Files\Signal</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Graphics\DisplayMode.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Graphics\SDL\DisplayMode.cpp">
+      <Filter>Source Files\Graphics\SDL</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1291,6 +1303,12 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Signal\ConnectionBase.hpp">
       <Filter>Header Files\Signal</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Graphics\DisplayMode.hpp">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Graphics\SDL\DisplayMode.hpp">
+      <Filter>Header Files\Graphics\SDL</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

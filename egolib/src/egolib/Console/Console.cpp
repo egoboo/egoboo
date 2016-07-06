@@ -28,6 +28,8 @@
 #include "egolib/vfs.h"
 
 #include "egolib/Graphics/FontManager.hpp"
+#include "egolib/Graphics/GraphicsSystem.hpp"
+#include "egolib/Graphics/GraphicsWindow.hpp"
 #include "egolib/Renderer/Renderer.hpp"
 #include "egolib/Extensions/ogl_debug.h"
 #include "egolib/Extensions/ogl_extensions.h"
@@ -100,16 +102,17 @@ ConsoleHandler *ConsoleHandler::_singleton = nullptr;
 
 ConsoleHandler::ConsoleHandler() {
 	/// @author BB
-	/// @details initialize the console. This must happen after the screen has been defines,
-	///     otherwise sdl_scr.x == sdl_scr.y == 0 and the screen will be defined to
+	/// @details initialize the console. This must happen after the screen has been defined,
+	///     otherwise windowSize.width() == windowSize.height() == 0 and the screen will be defined to
 	///     have no area...
 
 	SDL_Rect blah;
 
+    auto windowSize = Ego::GraphicsSystem::window->getSize();
 	blah.x = 0;
 	blah.y = 0;
-	blah.w = sdl_scr.size.width();
-	blah.h = sdl_scr.size.height() * 0.25f;
+	blah.w = windowSize.width();
+	blah.h = windowSize.height() * 0.25f;
 
 	// without a callback, this console just dumps the input and generates no output
 	egolib_console_top = new Ego::Core::Console(blah, nullptr, nullptr);
@@ -202,14 +205,16 @@ void ConsoleHandler::draw_begin()
 	renderer.setBlendingEnabled(true);
 	renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
 
-	renderer.setViewportRectangle(0, 0, sdl_scr.size.width(), sdl_scr.size.height());
+    auto drawableSize = Ego::GraphicsSystem::window->getDrawableSize();
+	renderer.setViewportRectangle(0, 0, drawableSize.width(), drawableSize.height());
 
     // Set up an ortho projection for the gui to use.  Controls are free to modify this
     // later, but most of them will need this, so it's done by default at the beginning
     // of a frame
 
     // store the GL_PROJECTION matrix (this stack has a finite depth, minimum of 32)
-	Matrix4f4f matrix = Ego::Math::Transform::ortho(0, sdl_scr.size.width(), sdl_scr.size.height(), 0, -1, 1);
+    auto windowSize = Ego::GraphicsSystem::window->getSize();
+	Matrix4f4f matrix = Ego::Math::Transform::ortho(0, windowSize.width(), windowSize.height(), 0, -1, 1);
 	renderer.setProjectionMatrix(matrix);
 
     // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
@@ -396,7 +401,7 @@ namespace Core {
 
 bool Console::draw()
 {
-	int windowHeight = sdl_scr.size.height();
+	int windowHeight = Ego::GraphicsSystem::window->getSize().height();
 
 	if (!windowHeight || !this->on)
 	{

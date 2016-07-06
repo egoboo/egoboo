@@ -81,7 +81,7 @@ void mouse_data_t::update()
 
     //Move mouse to the center of the screen since SDL does not detect motion outside the window
     //if (!egoboo_config_t::get().debug_developerMode_enable.getValue())
-    //    SDL_WarpMouseInWindow(sdl_scr.window, GFX_WIDTH >> 1, GFX_HEIGHT >> 1);
+    //    SDL_WarpMouseInWindow(Ego::GraphicsSystem::window->get(), GFX_WIDTH >> 1, GFX_HEIGHT >> 1);
 
     this->offset = -Vector2i(x, y);
     this->button[0] = ( b & SDL_BUTTON( 1 ) ) ? 1 : 0;
