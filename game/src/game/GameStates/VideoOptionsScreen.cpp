@@ -51,15 +51,15 @@ VideoOptionsScreen::VideoOptionsScreen() :
 
     //Build list of available resolutions
     std::unordered_set<uint32_t> resolutions;
-    for (const auto &mode : sdl_scr.video_mode_list)
+    for (const auto &displayMode : sdl_scr.displayModes)
     {
         //Skip duplicate resolutions (32-bit, 24-bit, 16-bit etc.)
-        if(resolutions.find(mode.w | mode.h << 16) != resolutions.end()) {
+        if(resolutions.find(displayMode->getHorizontalResolution() | displayMode->getVerticalResolution() << 16) != resolutions.end()) {
             continue;
         }
 
-        addResolutionButton(mode.w, mode.h);
-        resolutions.insert(mode.w | mode.h << 16);
+        addResolutionButton(displayMode->getHorizontalResolution(), displayMode->getVerticalResolution());
+        resolutions.insert(displayMode->getHorizontalResolution() | displayMode->getVerticalResolution() << 16);
     }
     
     _resolutionList->forceUpdate();
@@ -79,7 +79,7 @@ VideoOptionsScreen::VideoOptionsScreen() :
         //Change option effect
         []{
             egoboo_config_t::get().graphic_fullscreen.setValue(!egoboo_config_t::get().graphic_fullscreen.getValue());
-            SDL_SetWindowFullscreen(sdl_scr.window->get(), egoboo_config_t::get().graphic_fullscreen.getValue() ? SDL_WINDOW_FULLSCREEN : 0);
+            SDL_SetWindowFullscreen(Ego::GraphicsSystem::window->get(), egoboo_config_t::get().graphic_fullscreen.getValue() ? SDL_WINDOW_FULLSCREEN : 0);
         }
     );
 
@@ -262,7 +262,7 @@ void VideoOptionsScreen::drawContainer()
 void VideoOptionsScreen::beginState()
 {
     // menu settings
-    sdl_scr.window->setGrabEnabled(false);
+    Ego::GraphicsSystem::window->setGrabEnabled(false);
     _gameEngine->enableMouseCursor();
 }
 

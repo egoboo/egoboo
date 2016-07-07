@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\egoboo%40michaelheilmann%40github.com\idlib\tests\idlib\Tests\Compilation.cpp">
+    <ClCompile Include="tests\idlib\Tests\Compilation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

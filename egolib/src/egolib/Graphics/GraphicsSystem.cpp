@@ -63,7 +63,7 @@ void GraphicsSystem::initialize() {
         Log::get().message("Success!\n");
     }
 
-    GraphicsWindow *window = sdl_scr.window;
+    GraphicsWindow *window = Ego::GraphicsSystem::window;
 
     {
         // Setup the cute windows manager icon.
@@ -90,8 +90,8 @@ void GraphicsSystem::uninitialize() {
     if (!initialized) {
         return;
     }
-    delete sdl_scr.window;
-    sdl_scr.window = nullptr;
+    delete window;
+    window = nullptr;
 }
 
 void GraphicsSystem::setCursorVisibility(bool show) {

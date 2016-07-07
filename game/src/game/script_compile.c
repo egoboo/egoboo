@@ -83,7 +83,7 @@ parser_state_t * parser_state_t::_singleton = nullptr;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-StaticArray<opcode_data_t, MAX_OPCODE> OpList;
+std::vector<opcode_data_t> Opcodes;
 
 bool debug_scripts = false;
 vfs_FILE *debug_script_file = NULL;
@@ -599,12 +599,12 @@ size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_
     // is it a constant, opcode, or value?
     if ( !parsed )
     {
-        for ( cnt = 0; cnt < OpList.count; cnt++ )
+        for ( cnt = 0; cnt < Opcodes.size(); cnt++ )
         {
-            if ( 0 == strncmp( tok.szWord, OpList.ary[cnt].cName, MAXCODENAMESIZE ) )
+            if ( 0 == strncmp( tok.szWord, Opcodes[cnt].cName, MAXCODENAMESIZE ) )
             {
-                tok.setValue(OpList.ary[cnt].iValue);
-                tok.setType(OpList.ary[cnt]._type);
+                tok.setValue(Opcodes[cnt].iValue);
+                tok.setType(Opcodes[cnt]._type);
                 tok.setIndex(cnt);
 
                 // move on to the next thing
@@ -1585,13 +1585,12 @@ bool load_ai_codes_vfs()
 		{ Token::Type::Operator, 7, "%" },
 	};
 
-    OpList.count = 0;
     for (size_t i = 0, n = sizeof(AICODES) / sizeof(aicode_t); i < n; ++i)
     {
-        strncpy(OpList.ary[OpList.count].cName, AICODES[i]._name, SDL_arraysize(OpList.ary[OpList.count].cName));
-        OpList.ary[OpList.count]._type = AICODES[i]._type;
-        OpList.ary[OpList.count].iValue = AICODES[i]._value;
-        OpList.count++;
+        Opcodes.push_back(opcode_data_t());
+        strncpy(Opcodes[i].cName, AICODES[i]._name, SDL_arraysize(Opcodes[i].cName));
+        Opcodes[i]._type = AICODES[i]._type;
+        Opcodes[i].iValue = AICODES[i]._value;
     }
     return true;
 }

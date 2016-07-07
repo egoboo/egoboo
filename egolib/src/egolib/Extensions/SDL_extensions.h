@@ -90,31 +90,23 @@ Log::Entry& operator<<(Log::Entry& e, const SDLX_sdl_gl_attrib_t& s);
 
 //--------------------------------------------------------------------------------------------
 
+#include "egolib/Graphics/SDL/DisplayMode.hpp"
+
+
 /// A representation of a SDL Screen state
     struct SDLX_screen_info_t
     {
-        Ego::GraphicsWindow *window;
-
-        std::vector<SDL_DisplayMode> video_mode_list;
-
+        /// A list of shared pointers to display modes.
+        std::vector<std::shared_ptr<Ego::DisplayMode>> displayModes;
         std::string szDriver;    ///< graphics driver name;
-
-        /// window client size, in pixels.
-        Size2i size;
-        /// framebuffer size (may be different from window client size with high DPI)
-        Size2i drawableSize;
 
         /// Context properties.
         /// @todo Rename gl_att to contextProperties.
         SDLX_sdl_gl_attrib_t gl_att;
 
-        /// Window properties.
-        Ego::WindowProperties windowProperties;
-
         static void report(SDLX_screen_info_t& self);
     };
 
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 /// Parameters for setting an SDL video state

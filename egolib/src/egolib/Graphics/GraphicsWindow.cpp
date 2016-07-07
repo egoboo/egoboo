@@ -19,8 +19,32 @@ GraphicsWindow::~GraphicsWindow() {
     }
 }
 
+std::string GraphicsWindow::getTitle() const {
+    return SDL_GetWindowTitle(window);
+}
+
 void GraphicsWindow::setTitle(const std::string& title) {
     SDL_SetWindowTitle(window, title.c_str());
+}
+
+Size2i GraphicsWindow::getSize() const {
+    int width, height;
+    SDL_GetWindowSize(window, &width, &height);
+    return Size2i(width, height);
+}
+
+void GraphicsWindow::setSize(const Size2i& size) {
+    SDL_SetWindowSize(window, size.width(), size.height());
+}
+
+Point2i GraphicsWindow::getPosition() const {
+    int x, y;
+    SDL_GetWindowPosition(window, &x, &y);
+    return Point2i(x, y);
+}
+
+void GraphicsWindow::setPosition(const Point2i& position) {
+    SDL_SetWindowPosition(window, position.x(), position.y());
 }
 
 void GraphicsWindow::center() {
@@ -31,12 +55,6 @@ void GraphicsWindow::setIcon(SDL_Surface *icon) {
 #if !defined(ID_OSX)
     SDL_SetWindowIcon(window, icon);
 #endif
-}
-
-Size2i GraphicsWindow::getSize() const {
-    int width, height;
-    SDL_GetWindowSize(window, &width, &height);
-    return Size2i(width, height);
 }
 
 Size2i GraphicsWindow::getDrawableSize() const {
@@ -53,19 +71,7 @@ Size2i GraphicsWindow::getDrawableSize() const {
     return Size2i(width, height);
 }
 
-Point2i GraphicsWindow::getPosition() const {
-    int x, y;
-    SDL_GetWindowPosition(window, &x, &y);
-    return Point2i(x, y);
-}
 
-void GraphicsWindow::setPosition(Point2i leftTop) {
-    SDL_SetWindowPosition(window, leftTop.x(), leftTop.y());
-}
-
-void GraphicsWindow::setSize(Size2i size) {
-    SDL_SetWindowSize(window, size.width(), size.height());
-}
 
 void GraphicsWindow::update() {
     SDL_Event event;
@@ -112,6 +118,10 @@ int GraphicsWindow::getDisplayIndex() {
 
 void GraphicsWindow::setGrabEnabled(bool enabled) {
     SDL_SetWindowGrab(window, enabled ? SDL_TRUE : SDL_FALSE);
+}
+
+bool GraphicsWindow::isGrabEnabled() const {
+    return SDL_TRUE == SDL_GetWindowGrab(window);
 }
 
 WindowProperties GraphicsWindow::getProperties() const {

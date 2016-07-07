@@ -53,7 +53,8 @@ struct opcode_data_t
     char cName[MAXCODENAMESIZE];
 };
 
-extern StaticArray<opcode_data_t, MAX_OPCODE> OpList;
+/// The opcodes.
+extern std::vector<opcode_data_t> Opcodes;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
