@@ -392,10 +392,9 @@ struct chr_instance_t
         std::shared_ptr<Ego::ModelDescriptor> imad;
         /// The target frame index.
         uint16_t targetFrameIndex;
+        /// The source frame index.
+        uint16_t sourceFrameIndex;
     public:
-        /// The source frame.
-        /// @todo Rename to sourceFrame.
-        uint16_t frame_lst;
         /// The integer-valued frame in betweening.
         uint8_t ilip;
         /// The real-valued frame in betweening.
@@ -406,7 +405,7 @@ struct chr_instance_t
         AnimationState()
             : imad(nullptr),
               targetFrameIndex(0),
-              frame_lst(0),
+              sourceFrameIndex(0),
               ilip(0),
               flip(0.0f),
               rate(1.0f)
@@ -427,7 +426,12 @@ struct chr_instance_t
         /// @brief Get the index of the source frame.
         /// @return the index of the source frame
         int getSourceFrameIndex() const {
-            return frame_lst;
+            return sourceFrameIndex;
+        }
+        /// @brief Set the index of the source frame.
+        /// @param sourceFrameIndex the index of the source frame
+        void setSourceFrameIndex(int sourceFrameIndex) {
+            this->sourceFrameIndex = sourceFrameIndex;
         }
         /// @brief Get the index of the target frame.
         /// @return the index of the target frame
