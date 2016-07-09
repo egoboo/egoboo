@@ -389,7 +389,7 @@ struct chr_instance_t
     struct AnimationState {
     private:
         /// The model descriptor.
-        std::shared_ptr<Ego::ModelDescriptor> imad;
+        std::shared_ptr<Ego::ModelDescriptor> modelDescriptor;
         /// The target frame index.
         uint16_t targetFrameIndex;
         /// The source frame index.
@@ -403,7 +403,7 @@ struct chr_instance_t
         float rate;
         /// Construct this animation state.
         AnimationState()
-            : imad(nullptr),
+            : modelDescriptor(nullptr),
               targetFrameIndex(0),
               sourceFrameIndex(0),
               ilip(0),
@@ -416,12 +416,12 @@ struct chr_instance_t
         /// Get the model descriptor.
         /// @return the model descriptor
         const std::shared_ptr<Ego::ModelDescriptor> getModelDescriptor() const {
-            return imad;
+            return modelDescriptor;
         }
         /// Set the model descriptor.
         /// @param modelDescriptor the model descriptor
         void setModelDescriptor(const std::shared_ptr<Ego::ModelDescriptor>& modelDescriptor) {
-            imad = modelDescriptor;
+            this->modelDescriptor = modelDescriptor;
         }
         /// @brief Get the index of the source frame.
         /// @return the index of the source frame
