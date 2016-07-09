@@ -380,15 +380,72 @@ struct chr_instance_t
     SFP8_T uoffset;                               ///< For moving textures (8.8 fixed point)
     SFP8_T voffset;                               ///< For moving textures (8.8 fixed point)
 
-    // model info
-    std::shared_ptr<Ego::ModelDescriptor> imad;            ///< Character's model
+    /// An animation state represents the interpolation state between to frames.
+    /// The interpolation is represented by an integer-valued interpolation state
+    /// \f$i \in [0,4]\f$ and a real-valued interpolatio state \f$r \in [0,1]\f$.
+    /// Those states are not independent i.e. if one state is changed then the other
+    /// state is changed as well. Their dependency is denoted by the formulas
+    /// \f$i = 4 r\f$ and \f$\frac{1}{4} i = r\f$ respectively.
+    struct AnimationState {
+        /// The model descriptor.
+        std::shared_ptr<Ego::ModelDescriptor> imad;
+        /// The target frame.
+        /// @todo Rename to targetFrame.
+        uint16_t frame_nxt;
+        /// The source frame.
+        /// @todo Rename to sourceFrame.
+        uint16_t frame_lst;
+        /// The integer-valued frame in betweening.
+        uint8_t ilip;
+        /// The real-valued frame in betweening.
+        float flip;
+        /// The animation rate.
+        float rate;
+        /// Construct this animation state.
+        AnimationState()
+            : imad(nullptr),
+              frame_nxt(0),
+              frame_lst(0),
+              ilip(0),
+              flip(0.0f),
+              rate(1.0f)
+        {}
+        /// Destruct this animation state.
+        ~AnimationState()
+        {}
+        /// Get the model descriptor.
+        /// @return the model descriptor
+        const std::shared_ptr<Ego::ModelDescriptor> getModelDescriptor() const {
+            return imad;
+        }
+        /// Set the model descriptor.
+        /// @param modelDescriptor the model descriptor
+        void setModelDescriptor(const std::shared_ptr<Ego::ModelDescriptor>& modelDescriptor) {
+            imad = modelDescriptor;
+        }
+        /// @brief Get the index of the source frame.
+        /// @return the index of the source frame
+        int getSourceFrameIndex() const {
+            return frame_lst;
+        }
+        /// @brief Get the index of the target frame.
+        /// @return the index of the target frame
+        int getTargetFrameIndex() const {
+            return frame_nxt;
+        }
+    private:
+        void assertFrame(int frame) {
+            if (frame > getModelDescriptor()->getMD2()->getFrames().size()) {
+                Log::Entry e(Log::Level::Error, __FILE__, __LINE__);
+                e << "invalid frame " << frame << "/" << getModelDescriptor()->getMD2()->getFrames().size() << Log::EndOfEntry;
+                Log::get() << e;
+                throw Id::RuntimeErrorException(__FILE__, __LINE__, e.getText());
+            }
+        }
+    };
 
-    // animation info
-    uint16_t         frame_nxt;       ///< Character's frame
-    uint16_t         frame_lst;       ///< Character's last frame
-    uint8_t          ilip;            ///< Character's frame in betweening
-    float          flip;            ///< Character's frame in betweening
-    float          rate;
+    /// The animation state.
+    AnimationState animationState;
 
     // action info
     bool         action_ready;                   ///< Ready to play a new one
