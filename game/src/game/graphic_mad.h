@@ -443,8 +443,17 @@ struct chr_instance_t
         void setTargetFrameIndex(int targetFrameIndex) {
             this->targetFrameIndex = targetFrameIndex;
         }
+        const MD2_Frame& getTargetFrame() const {
+            assertFrameIndex(getTargetFrameIndex());
+            return getModelDescriptor()->getMD2()->getFrames()[getTargetFrameIndex()];
+        }
+
+        const MD2_Frame& getSourceFrame() const {
+            assertFrameIndex(getSourceFrameIndex());
+            return getModelDescriptor()->getMD2()->getFrames()[getSourceFrameIndex()];
+        }
     private:
-        void assertFrameIndex(int frameIndex) {
+        void assertFrameIndex(int frameIndex) const {
             if (frameIndex > getModelDescriptor()->getMD2()->getFrames().size()) {
                 Log::Entry e(Log::Level::Error, __FILE__, __LINE__);
                 e << "invalid frame " << frameIndex << "/" << getModelDescriptor()->getMD2()->getFrames().size() << Log::EndOfEntry;

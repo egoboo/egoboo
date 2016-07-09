@@ -1915,28 +1915,12 @@ void chr_instance_t::remove_interpolation(chr_instance_t& self)
 
 const MD2_Frame& chr_instance_t::get_frame_nxt(const chr_instance_t& self)
 {
-	if (self.animationState.getTargetFrameIndex() > self.animationState.getModelDescriptor()->getMD2()->getFrames().size())
-    {
-		std::ostringstream os;
-		os << __FILE__ << ":" << __LINE__ << ": invalid frame " << self.animationState.getTargetFrameIndex() << "/" << self.animationState.getModelDescriptor()->getMD2()->getFrames().size() << std::endl;
-		Log::get().error("%s",os.str().c_str());
-		throw std::runtime_error(os.str());
-    }
-
-	return self.animationState.getModelDescriptor()->getMD2()->getFrames()[self.animationState.getTargetFrameIndex()];
+    return self.animationState.getTargetFrame();
 }
 
 const MD2_Frame& chr_instance_t::get_frame_lst(chr_instance_t& self)
 {
-	if (self.animationState.getSourceFrameIndex() > self.animationState.getModelDescriptor()->getMD2()->getFrames().size())
-    {
-		std::ostringstream os;
-		os << __FILE__ << ":" << __LINE__ << ": invalid frame " << self.animationState.getSourceFrameIndex() << "/" << self.animationState.getModelDescriptor()->getMD2()->getFrames().size() << std::endl;
-		Log::get().error("%s", os.str().c_str());
-		throw std::runtime_error(os.str());
-    }
-
-	return self.animationState.getModelDescriptor()->getMD2()->getFrames()[self.animationState.getSourceFrameIndex()];
+    return self.animationState.getSourceFrame();
 }
 
 void chr_instance_t::update_one_lip(chr_instance_t& self) {
