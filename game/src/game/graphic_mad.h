@@ -213,6 +213,87 @@ struct vlst_cache_t
 
 //--------------------------------------------------------------------------------------------
 
+/// An animation state represents the interpolation state between to frames.
+/// The interpolation is represented by an integer-valued interpolation state
+/// \f$i \in [0,4]\f$ and a real-valued interpolatio state \f$r \in [0,1]\f$.
+/// Those states are not independent i.e. if one state is changed then the other
+/// state is changed as well. Their dependency is denoted by the formulas
+/// \f$i = 4 r\f$ and \f$\frac{1}{4} i = r\f$ respectively.
+struct AnimationState {
+private:
+    /// The model descriptor.
+    std::shared_ptr<Ego::ModelDescriptor> modelDescriptor;
+    /// The target frame index.
+    uint16_t targetFrameIndex;
+    /// The source frame index.
+    uint16_t sourceFrameIndex;
+public:
+    /// The integer-valued frame in betweening.
+    uint8_t ilip;
+    /// The real-valued frame in betweening.
+    float flip;
+    /// The animation rate.
+    float rate;
+    /// Construct this animation state.
+    AnimationState()
+        : modelDescriptor(nullptr),
+        targetFrameIndex(0),
+        sourceFrameIndex(0),
+        ilip(0),
+        flip(0.0f),
+        rate(1.0f) {}
+    /// Destruct this animation state.
+    ~AnimationState() {}
+    /// Get the model descriptor.
+    /// @return the model descriptor
+    const std::shared_ptr<Ego::ModelDescriptor> getModelDescriptor() const {
+        return modelDescriptor;
+    }
+    /// Set the model descriptor.
+    /// @param modelDescriptor the model descriptor
+    void setModelDescriptor(const std::shared_ptr<Ego::ModelDescriptor>& modelDescriptor) {
+        this->modelDescriptor = modelDescriptor;
+    }
+    /// @brief Get the index of the source frame.
+    /// @return the index of the source frame
+    int getSourceFrameIndex() const {
+        return sourceFrameIndex;
+    }
+    /// @brief Set the index of the source frame.
+    /// @param sourceFrameIndex the index of the source frame
+    void setSourceFrameIndex(int sourceFrameIndex) {
+        this->sourceFrameIndex = sourceFrameIndex;
+    }
+    /// @brief Get the index of the target frame.
+    /// @return the index of the target frame
+    int getTargetFrameIndex() const {
+        return targetFrameIndex;
+    }
+    /// @brief Set the index of the target frame.
+    /// @param targetFrameIndex the index of the target frame
+    void setTargetFrameIndex(int targetFrameIndex) {
+        this->targetFrameIndex = targetFrameIndex;
+    }
+    const MD2_Frame& getTargetFrame() const {
+        assertFrameIndex(getTargetFrameIndex());
+        return getModelDescriptor()->getMD2()->getFrames()[getTargetFrameIndex()];
+    }
+
+    const MD2_Frame& getSourceFrame() const {
+        assertFrameIndex(getSourceFrameIndex());
+        return getModelDescriptor()->getMD2()->getFrames()[getSourceFrameIndex()];
+    }
+private:
+    void assertFrameIndex(int frameIndex) const {
+        if (frameIndex > getModelDescriptor()->getMD2()->getFrames().size()) {
+            Log::Entry e(Log::Level::Error, __FILE__, __LINE__);
+            e << "invalid frame " << frameIndex << "/" << getModelDescriptor()->getMD2()->getFrames().size() << Log::EndOfEntry;
+            Log::get() << e;
+            throw Id::RuntimeErrorException(__FILE__, __LINE__, e.getText());
+        }
+    }
+};
+
 /// The state of an object's action.
 struct ActionState {
     /// Ready to play a new action.
@@ -290,89 +371,6 @@ struct chr_instance_t
     // texture info
     SFP8_T uoffset;                               ///< For moving textures (8.8 fixed point)
     SFP8_T voffset;                               ///< For moving textures (8.8 fixed point)
-
-    /// An animation state represents the interpolation state between to frames.
-    /// The interpolation is represented by an integer-valued interpolation state
-    /// \f$i \in [0,4]\f$ and a real-valued interpolatio state \f$r \in [0,1]\f$.
-    /// Those states are not independent i.e. if one state is changed then the other
-    /// state is changed as well. Their dependency is denoted by the formulas
-    /// \f$i = 4 r\f$ and \f$\frac{1}{4} i = r\f$ respectively.
-    struct AnimationState {
-    private:
-        /// The model descriptor.
-        std::shared_ptr<Ego::ModelDescriptor> modelDescriptor;
-        /// The target frame index.
-        uint16_t targetFrameIndex;
-        /// The source frame index.
-        uint16_t sourceFrameIndex;
-    public:
-        /// The integer-valued frame in betweening.
-        uint8_t ilip;
-        /// The real-valued frame in betweening.
-        float flip;
-        /// The animation rate.
-        float rate;
-        /// Construct this animation state.
-        AnimationState()
-            : modelDescriptor(nullptr),
-              targetFrameIndex(0),
-              sourceFrameIndex(0),
-              ilip(0),
-              flip(0.0f),
-              rate(1.0f)
-        {}
-        /// Destruct this animation state.
-        ~AnimationState()
-        {}
-        /// Get the model descriptor.
-        /// @return the model descriptor
-        const std::shared_ptr<Ego::ModelDescriptor> getModelDescriptor() const {
-            return modelDescriptor;
-        }
-        /// Set the model descriptor.
-        /// @param modelDescriptor the model descriptor
-        void setModelDescriptor(const std::shared_ptr<Ego::ModelDescriptor>& modelDescriptor) {
-            this->modelDescriptor = modelDescriptor;
-        }
-        /// @brief Get the index of the source frame.
-        /// @return the index of the source frame
-        int getSourceFrameIndex() const {
-            return sourceFrameIndex;
-        }
-        /// @brief Set the index of the source frame.
-        /// @param sourceFrameIndex the index of the source frame
-        void setSourceFrameIndex(int sourceFrameIndex) {
-            this->sourceFrameIndex = sourceFrameIndex;
-        }
-        /// @brief Get the index of the target frame.
-        /// @return the index of the target frame
-        int getTargetFrameIndex() const {
-            return targetFrameIndex;
-        }
-        /// @brief Set the index of the target frame.
-        /// @param targetFrameIndex the index of the target frame
-        void setTargetFrameIndex(int targetFrameIndex) {
-            this->targetFrameIndex = targetFrameIndex;
-        }
-        const MD2_Frame& getTargetFrame() const {
-            assertFrameIndex(getTargetFrameIndex());
-            return getModelDescriptor()->getMD2()->getFrames()[getTargetFrameIndex()];
-        }
-
-        const MD2_Frame& getSourceFrame() const {
-            assertFrameIndex(getSourceFrameIndex());
-            return getModelDescriptor()->getMD2()->getFrames()[getSourceFrameIndex()];
-        }
-    private:
-        void assertFrameIndex(int frameIndex) const {
-            if (frameIndex > getModelDescriptor()->getMD2()->getFrames().size()) {
-                Log::Entry e(Log::Level::Error, __FILE__, __LINE__);
-                e << "invalid frame " << frameIndex << "/" << getModelDescriptor()->getMD2()->getFrames().size() << Log::EndOfEntry;
-                Log::get() << e;
-                throw Id::RuntimeErrorException(__FILE__, __LINE__, e.getText());
-            }
-        }
-    };
 
     /// The animation state.
     AnimationState animationState;
