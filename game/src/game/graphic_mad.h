@@ -397,7 +397,6 @@ struct chr_instance_t
     oct_bb_t       bbox;                           ///< the bounding box for this frame
 
     // graphical optimizations
-    bool                 indolist;               ///< Has it been added yet?
     vlst_cache_t           save;                   ///< Do we need to re-calculate all or part of the vertex list
     chr_reflection_cache_t ref;                    ///< pre-computing some reflection parameters
 

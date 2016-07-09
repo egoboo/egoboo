@@ -1672,7 +1672,6 @@ chr_instance_t::chr_instance_t() :
     bbox(),
 
     // graphical optimizations
-    indolist(false),
     save(),
     ref()
 {
