@@ -1629,20 +1629,6 @@ ActionState::ActionState() :
 ActionState::~ActionState() {
 }
 
-AnimationState::AnimationState() :
-    // model info
-    _modelDescriptor(nullptr),
-    // animation info
-    _frame_nxt(0),
-    _frame_lst(0),
-    _ilip(0),
-    _flip(0.0f),
-    _rate(1.0f) {
-}
-
-AnimationState::~AnimationState() {
-}
-
 chr_instance_t::chr_instance_t() :
     // set the update frame to an invalid value
     update_frame(-1),
