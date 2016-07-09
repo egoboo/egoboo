@@ -390,10 +390,9 @@ struct chr_instance_t
     private:
         /// The model descriptor.
         std::shared_ptr<Ego::ModelDescriptor> imad;
+        /// The target frame index.
+        uint16_t targetFrameIndex;
     public:
-        /// The target frame.
-        /// @todo Rename to targetFrame.
-        uint16_t frame_nxt;
         /// The source frame.
         /// @todo Rename to sourceFrame.
         uint16_t frame_lst;
@@ -406,7 +405,7 @@ struct chr_instance_t
         /// Construct this animation state.
         AnimationState()
             : imad(nullptr),
-              frame_nxt(0),
+              targetFrameIndex(0),
               frame_lst(0),
               ilip(0),
               flip(0.0f),
@@ -433,13 +432,18 @@ struct chr_instance_t
         /// @brief Get the index of the target frame.
         /// @return the index of the target frame
         int getTargetFrameIndex() const {
-            return frame_nxt;
+            return targetFrameIndex;
+        }
+        /// @brief Set the index of the target frame.
+        /// @param targetFrameIndex the index of the target frame
+        void setTargetFrameIndex(int targetFrameIndex) {
+            this->targetFrameIndex = targetFrameIndex;
         }
     private:
-        void assertFrame(int frame) {
-            if (frame > getModelDescriptor()->getMD2()->getFrames().size()) {
+        void assertFrameIndex(int frameIndex) {
+            if (frameIndex > getModelDescriptor()->getMD2()->getFrames().size()) {
                 Log::Entry e(Log::Level::Error, __FILE__, __LINE__);
-                e << "invalid frame " << frame << "/" << getModelDescriptor()->getMD2()->getFrames().size() << Log::EndOfEntry;
+                e << "invalid frame " << frameIndex << "/" << getModelDescriptor()->getMD2()->getFrames().size() << Log::EndOfEntry;
                 Log::get() << e;
                 throw Id::RuntimeErrorException(__FILE__, __LINE__, e.getText());
             }

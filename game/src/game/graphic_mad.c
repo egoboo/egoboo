@@ -1010,7 +1010,7 @@ gfx_rv chr_instance_t::update_bbox(chr_instance_t& self)
     const MD2_Frame &lastFrame = chr_instance_t::get_frame_lst(self);
     const MD2_Frame &nextFrame = chr_instance_t::get_frame_nxt(self);
 
-    if (self.animationState.frame_nxt == self.animationState.frame_lst || self.animationState.flip == 0.0f) {
+    if (self.animationState.getTargetFrameIndex() == self.animationState.frame_lst || self.animationState.flip == 0.0f) {
         self.bbox = lastFrame.bb;
     } else if (self.animationState.flip == 1.0f) {
         self.bbox = nextFrame.bb;
@@ -1074,8 +1074,8 @@ gfx_rv chr_instance_t::needs_update(chr_instance_t& self, int vmin, int vmax, bo
 
 	bool flips_match = (std::abs(psave->flip - self.animationState.flip) < FLIP_TOLERANCE);
 
-    *frames_match = (self.animationState.frame_nxt == self.animationState.frame_lst && psave->frame_nxt == self.animationState.frame_nxt && psave->frame_lst == self.animationState.frame_lst ) ||
-                    (flips_match && psave->frame_nxt == self.animationState.frame_nxt && psave->frame_lst == self.animationState.frame_lst);
+    *frames_match = (self.animationState.getTargetFrameIndex() == self.animationState.frame_lst && psave->frame_nxt == self.animationState.getTargetFrameIndex() && psave->frame_lst == self.animationState.frame_lst ) ||
+                    (flips_match && psave->frame_nxt == self.animationState.getTargetFrameIndex() && psave->frame_lst == self.animationState.frame_lst);
 
     return (!(*verts_match) || !( *frames_match )) ? gfx_success : gfx_fail;
 }
@@ -1252,19 +1252,19 @@ gfx_rv chr_instance_t::update_vertices(chr_instance_t& self, int vmin, int vmax,
 
     // make sure the frames are in the valid range
     const std::vector<MD2_Frame> &frameList = pmd2->getFrames();
-    if ( self.animationState.frame_nxt >= frameList.size() || self.animationState.frame_lst >= frameList.size() )
+    if ( self.animationState.getTargetFrameIndex() >= frameList.size() || self.animationState.frame_lst >= frameList.size() )
     {
 		Log::get().warn("%s:%d:%s: character instance frame is outside the range of its MD2\n", __FILE__, __LINE__, __FUNCTION__ );
         return gfx_error;
     }
 
     // grab the frame data from the correct model
-    const MD2_Frame &nextFrame = frameList[self.animationState.frame_nxt];
+    const MD2_Frame &nextFrame = frameList[self.animationState.getTargetFrameIndex()];
     const MD2_Frame &lastFrame = frameList[self.animationState.frame_lst];
 
     // fix the flip for objects that are not animating
     loc_flip = self.animationState.flip;
-    if ( self.animationState.frame_nxt == self.animationState.frame_lst ) loc_flip = 0.0f;
+    if ( self.animationState.getTargetFrameIndex() == self.animationState.frame_lst ) loc_flip = 0.0f;
 
     // interpolate the 1st dirty region
     if ( vdirty1_min >= 0 && vdirty1_max >= 0 )
@@ -1364,7 +1364,7 @@ gfx_rv chr_instance_t::update_vlst_cache(chr_instance_t& self, int vmax, int vmi
         verts_updated = true;
     }
 
-    psave->frame_nxt = self.animationState.frame_nxt;
+    psave->frame_nxt = self.animationState.getTargetFrameIndex();
     psave->frame_lst = self.animationState.frame_lst;
     psave->flip      = self.animationState.flip;
 
@@ -1477,8 +1477,8 @@ gfx_rv chr_instance_t::set_frame(chr_instance_t& self, int frame)
     // jump to the next frame
 	self.animationState.flip = 0.0f;
 	self.animationState.ilip = 0;
-	self.animationState.frame_lst = self.animationState.frame_nxt;
-	self.animationState.frame_nxt = frame;
+	self.animationState.frame_lst = self.animationState.getTargetFrameIndex();
+	self.animationState.setTargetFrameIndex(frame);
 
 	vlst_cache_t::test(self.save, &self);
 
@@ -1546,8 +1546,8 @@ gfx_rv chr_instance_t::increment_frame(chr_instance_t& self, const ObjectRef imo
 	self.animationState.flip = fmod(self.animationState.flip, 1.0f);
 
     // Change frames
-	frame_lst = self.animationState.frame_nxt;
-	frame_nxt = self.animationState.frame_nxt + 1;
+	frame_lst = self.animationState.getTargetFrameIndex();
+	frame_nxt = self.animationState.getTargetFrameIndex() + 1;
 
     // detect the end of the animation and handle special end conditions
 	if (frame_nxt > self.animationState.getModelDescriptor()->getLastFrame(self.action_which))
@@ -1580,12 +1580,12 @@ gfx_rv chr_instance_t::increment_frame(chr_instance_t& self, const ObjectRef imo
 			chr_instance_t::increment_action(self);
 
             // chr_instance_increment_action() actually sets this value properly. just grab the new value.
-			frame_nxt = self.animationState.frame_nxt;
+			frame_nxt = self.animationState.getTargetFrameIndex();
         }
     }
 
 	self.animationState.frame_lst = frame_lst;
-	self.animationState.frame_nxt = frame_nxt;
+	self.animationState.setTargetFrameIndex(frame_nxt);
 
 	vlst_cache_t::test(self.save, &self);
 
@@ -1745,10 +1745,10 @@ gfx_rv chr_instance_t::set_mad(chr_instance_t& self, const std::shared_ptr<Ego::
     }
 
     // set the frames to frame 0 of this object's data
-    if (0 != self.animationState.frame_nxt || 0 != self.animationState.frame_lst) {
+    if (0 != self.animationState.getTargetFrameIndex() || 0 != self.animationState.frame_lst) {
         updated        = true;
         self.animationState.frame_lst = 0;
-        self.animationState.frame_nxt = 0;
+        self.animationState.setTargetFrameIndex(0);
 
         // the vlst_cache parameters are not valid
         self.save.valid = false;
@@ -1870,7 +1870,7 @@ gfx_rv chr_instance_t::set_frame_full(chr_instance_t& self, int frame_along, int
     int new_nxt = frame_stt + frame_along;
     new_nxt = std::min(new_nxt, frame_end);
 
-    self.animationState.frame_nxt = new_nxt;
+    self.animationState.setTargetFrameIndex(new_nxt);
     self.animationState.ilip      = ilip;
     self.animationState.flip      = ilip * 0.25f;
 
@@ -1904,8 +1904,8 @@ gfx_rv chr_instance_t::set_action_next(chr_instance_t& self, int val) {
 
 void chr_instance_t::remove_interpolation(chr_instance_t& self)
 {
-    if (self.animationState.frame_lst != self.animationState.frame_nxt ) {
-		self.animationState.frame_lst = self.animationState.frame_nxt;
+    if (self.animationState.frame_lst != self.animationState.getTargetFrameIndex() ) {
+		self.animationState.frame_lst = self.animationState.getTargetFrameIndex();
 		self.animationState.ilip = 0;
 		self.animationState.flip = 0.0f;
 
@@ -1915,15 +1915,15 @@ void chr_instance_t::remove_interpolation(chr_instance_t& self)
 
 const MD2_Frame& chr_instance_t::get_frame_nxt(const chr_instance_t& self)
 {
-	if (self.animationState.frame_nxt > self.animationState.getModelDescriptor()->getMD2()->getFrames().size())
+	if (self.animationState.getTargetFrameIndex() > self.animationState.getModelDescriptor()->getMD2()->getFrames().size())
     {
 		std::ostringstream os;
-		os << __FILE__ << ":" << __LINE__ << ": invalid frame " << self.animationState.frame_nxt << "/" << self.animationState.getModelDescriptor()->getMD2()->getFrames().size() << std::endl;
+		os << __FILE__ << ":" << __LINE__ << ": invalid frame " << self.animationState.getTargetFrameIndex() << "/" << self.animationState.getModelDescriptor()->getMD2()->getFrames().size() << std::endl;
 		Log::get().error("%s",os.str().c_str());
 		throw std::runtime_error(os.str());
     }
 
-	return self.animationState.getModelDescriptor()->getMD2()->getFrames()[self.animationState.frame_nxt];
+	return self.animationState.getModelDescriptor()->getMD2()->getFrames()[self.animationState.getTargetFrameIndex()];
 }
 
 const MD2_Frame& chr_instance_t::get_frame_lst(chr_instance_t& self)
