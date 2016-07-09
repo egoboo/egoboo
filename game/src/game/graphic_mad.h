@@ -387,8 +387,10 @@ struct chr_instance_t
     /// state is changed as well. Their dependency is denoted by the formulas
     /// \f$i = 4 r\f$ and \f$\frac{1}{4} i = r\f$ respectively.
     struct AnimationState {
+    private:
         /// The model descriptor.
         std::shared_ptr<Ego::ModelDescriptor> imad;
+    public:
         /// The target frame.
         /// @todo Rename to targetFrame.
         uint16_t frame_nxt;

@@ -174,7 +174,7 @@ gfx_rv MadRenderer::render_enviro( Camera& cam, const std::shared_ptr<Object>& p
 {
 	chr_instance_t& pinst = pchr->inst;
 
-    if (!pinst.animationState.imad)
+    if (!pinst.animationState.getModelDescriptor())
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, pchr->getObjRef().get(), "invalid mad" );
         return gfx_error;
@@ -323,7 +323,7 @@ gfx_rv MadRenderer::render_tex(Camera& camera, const std::shared_ptr<Object>& pc
 {
     chr_instance_t& pinst = pchr->inst;
 
-    if (!pinst.animationState.imad)
+    if (!pinst.animationState.getModelDescriptor())
     {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid mad");
         return gfx_error;
@@ -939,7 +939,7 @@ void chr_instance_t::update_lighting_base(chr_instance_t& self, Object *pchr, bo
     // the updating so that not all objects update on the same frame
     self.lighting_frame_all = game_frame_all + ((game_frame_all + pchr->getObjRef().get()) & frame_mask);
 
-	if (!self.animationState.imad) {
+	if (!self.animationState.getModelDescriptor()) {
 		return;
 	}
     self.vrt_count = self.vrt_count;
@@ -1002,7 +1002,7 @@ void chr_instance_t::update_lighting_base(chr_instance_t& self, Object *pchr, bo
 gfx_rv chr_instance_t::update_bbox(chr_instance_t& self)
 {
     // get the model. try to heal a bad model.
-    if (!self.animationState.imad) {
+    if (!self.animationState.getModelDescriptor()) {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid mad");
         return gfx_error;
     }
@@ -1042,7 +1042,7 @@ gfx_rv chr_instance_t::needs_update(chr_instance_t& self, int vmin, int vmax, bo
 	vlst_cache_t *psave = &(self.save);
 
     // do we hace a valid mad?
-    if (!self.animationState.imad) {
+    if (!self.animationState.getModelDescriptor()) {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid mad");
         return gfx_error;
     }
@@ -1177,12 +1177,12 @@ gfx_rv chr_instance_t::update_vertices(chr_instance_t& self, int vmin, int vmax,
     }
 
     // get the model
-    if ( !self.animationState.imad )
+    if ( !self.animationState.getModelDescriptor() )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "invalid mad" );
         return gfx_error;
     }
-    std::shared_ptr<MD2Model> pmd2 = self.animationState.imad->getMD2();
+    std::shared_ptr<MD2Model> pmd2 = self.animationState.getModelDescriptor()->getMD2();
 
     // make sure we have valid data
     if (self.vrt_count != pmd2->getVertexCount())
@@ -1427,13 +1427,13 @@ gfx_rv chr_instance_t::set_action(chr_instance_t& self, int action, bool action_
     }
 
     // do we have a valid model?
-	if (!self.animationState.imad) {
+	if (!self.animationState.getModelDescriptor()) {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid mad");
         return gfx_error;
     }
 
     // is the chosen action valid?
-	if (!self.animationState.imad->isActionValid(action)) {
+	if (!self.animationState.getModelDescriptor()->isActionValid(action)) {
 		return gfx_fail;
 	}
 
@@ -1466,13 +1466,13 @@ gfx_rv chr_instance_t::set_frame(chr_instance_t& self, int frame)
     }
 
     // do we have a valid model?
-    if (!self.animationState.imad) {
+    if (!self.animationState.getModelDescriptor()) {
 		gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid mad");
         return gfx_error;
     }
 
     // is the frame within the valid range for this action?
-    if(!self.animationState.imad->isFrameValid(self.action_which, frame)) return gfx_fail;
+    if(!self.animationState.getModelDescriptor()->isFrameValid(self.action_which, frame)) return gfx_fail;
 
     // jump to the next frame
 	self.animationState.flip = 0.0f;
@@ -1501,11 +1501,11 @@ gfx_rv chr_instance_t::start_anim(chr_instance_t& self, int action, bool action_
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, action, "invalid action range");
         return gfx_error;
     }
-    if (!self.animationState.imad) {
+    if (!self.animationState.getModelDescriptor()) {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid mad");
         return gfx_error;
     }
-    return chr_instance_t::set_anim(self, action, self.animationState.imad->getFirstFrame(action), action_ready, override_action);
+    return chr_instance_t::set_anim(self, action, self.animationState.getModelDescriptor()->getFirstFrame(action), action_ready, override_action);
 }
 
 gfx_rv chr_instance_t::increment_action(chr_instance_t& self)
@@ -1513,13 +1513,13 @@ gfx_rv chr_instance_t::increment_action(chr_instance_t& self)
     /// @author BB
     /// @details This function starts the next action for a character
 
-	if (!self.animationState.imad) {
+	if (!self.animationState.getModelDescriptor()) {
 		gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid mad");
         return gfx_error;
     }
 
     // get the correct action
-	int action = self.animationState.imad->getAction(self.action_next);
+	int action = self.animationState.getModelDescriptor()->getAction(self.action_next);
 
     // determine if the action is one of the types that can be broken at any time
     // D == "dance" and "W" == walk
@@ -1535,7 +1535,7 @@ gfx_rv chr_instance_t::increment_frame(chr_instance_t& self, const ObjectRef imo
 
     int frame_lst, frame_nxt;
 
-    if ( !self.animationState.imad )
+    if ( !self.animationState.getModelDescriptor())
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL mad" );
         return gfx_error;
@@ -1550,7 +1550,7 @@ gfx_rv chr_instance_t::increment_frame(chr_instance_t& self, const ObjectRef imo
 	frame_nxt = self.animationState.frame_nxt + 1;
 
     // detect the end of the animation and handle special end conditions
-	if (frame_nxt > self.animationState.imad->getLastFrame(self.action_which))
+	if (frame_nxt > self.animationState.getModelDescriptor()->getLastFrame(self.action_which))
     {
 		if (self.action_keep)
         {
@@ -1569,7 +1569,7 @@ gfx_rv chr_instance_t::increment_frame(chr_instance_t& self, const ObjectRef imo
             }
 
             // set the frame to the beginning of the action
-			frame_nxt = self.animationState.imad->getFirstFrame(self.action_which);
+			frame_nxt = self.animationState.getModelDescriptor()->getFirstFrame(self.action_which);
 
             // Break a looped action at any time
 			self.action_ready = true;
@@ -1596,12 +1596,12 @@ gfx_rv chr_instance_t::play_action(chr_instance_t& self, int action, bool action
 {
     /// @author ZZ
     /// @details This function starts a generic action for a character
-    if (!self.animationState.imad) {
+    if (!self.animationState.getModelDescriptor()) {
 		gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid mad");
 		return gfx_error;
 	}
 
-    return chr_instance_t::start_anim(self, self.animationState.imad->getAction(action), action_ready, true);
+    return chr_instance_t::start_anim(self, self.animationState.getModelDescriptor()->getAction(action), action_ready, true);
 }
 
 void chr_instance_t::clear_cache(chr_instance_t& self)
@@ -1732,13 +1732,13 @@ gfx_rv chr_instance_t::set_mad(chr_instance_t& self, const std::shared_ptr<Ego::
 		return gfx_fail;
 	}
 
-    if (self.animationState.imad != model) {
+    if (self.animationState.getModelDescriptor() != model) {
         updated = true;
-        self.animationState.imad = model;
+        self.animationState.setModelDescriptor(model);
     }
 
     // set the vertex size
-    size_t vlst_size = self.animationState.imad->getMD2()->getVertexCount();
+    size_t vlst_size = self.animationState.getModelDescriptor()->getMD2()->getVertexCount();
     if (self.vrt_count != vlst_size) {
         updated = true;
 		chr_instance_t::alloc(self, vlst_size);
@@ -1837,7 +1837,7 @@ gfx_rv chr_instance_t::set_frame_full(chr_instance_t& self, int frame_along, int
 	if (mad_override) {
 		imad = mad_override;
 	} else {
-        imad = self.animationState.imad;
+        imad = self.animationState.getModelDescriptor();
     }
 
 	if (!imad) {
@@ -1915,28 +1915,28 @@ void chr_instance_t::remove_interpolation(chr_instance_t& self)
 
 const MD2_Frame& chr_instance_t::get_frame_nxt(const chr_instance_t& self)
 {
-	if (self.animationState.frame_nxt > self.animationState.imad->getMD2()->getFrames().size())
+	if (self.animationState.frame_nxt > self.animationState.getModelDescriptor()->getMD2()->getFrames().size())
     {
 		std::ostringstream os;
-		os << __FILE__ << ":" << __LINE__ << ": invalid frame " << self.animationState.frame_nxt << "/" << self.animationState.imad->getMD2()->getFrames().size() << std::endl;
+		os << __FILE__ << ":" << __LINE__ << ": invalid frame " << self.animationState.frame_nxt << "/" << self.animationState.getModelDescriptor()->getMD2()->getFrames().size() << std::endl;
 		Log::get().error("%s",os.str().c_str());
 		throw std::runtime_error(os.str());
     }
 
-	return self.animationState.imad->getMD2()->getFrames()[self.animationState.frame_nxt];
+	return self.animationState.getModelDescriptor()->getMD2()->getFrames()[self.animationState.frame_nxt];
 }
 
 const MD2_Frame& chr_instance_t::get_frame_lst(chr_instance_t& self)
 {
-	if (self.animationState.frame_lst > self.animationState.imad->getMD2()->getFrames().size())
+	if (self.animationState.frame_lst > self.animationState.getModelDescriptor()->getMD2()->getFrames().size())
     {
 		std::ostringstream os;
-		os << __FILE__ << ":" << __LINE__ << ": invalid frame " << self.animationState.frame_lst << "/" << self.animationState.imad->getMD2()->getFrames().size() << std::endl;
+		os << __FILE__ << ":" << __LINE__ << ": invalid frame " << self.animationState.frame_lst << "/" << self.animationState.getModelDescriptor()->getMD2()->getFrames().size() << std::endl;
 		Log::get().error("%s", os.str().c_str());
 		throw std::runtime_error(os.str());
     }
 
-	return self.animationState.imad->getMD2()->getFrames()[self.animationState.frame_lst];
+	return self.animationState.getModelDescriptor()->getMD2()->getFrames()[self.animationState.frame_lst];
 }
 
 void chr_instance_t::update_one_lip(chr_instance_t& self) {

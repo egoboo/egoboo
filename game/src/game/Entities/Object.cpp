@@ -234,7 +234,7 @@ bool Object::setSkin(const size_t skinNumber)
     this->skin = skinNumber;
 
     //Change the model texture
-    if (!this->inst.animationState.imad) {
+    if (!this->inst.animationState.getModelDescriptor()) {
         const std::shared_ptr<Ego::ModelDescriptor> &model = getProfile()->getModel();
         if (chr_instance_t::set_mad(this->inst, model)) {
             getObjectPhysics().updateCollisionSize(true);
@@ -500,7 +500,7 @@ int Object::damage(Facing direction, const IPair  damage, const DamageType damag
                         //If we have Endurance perk, we have 1% chance per Might to resist hurt animation (which cause a minor delay)
                         if(!hasPerk(Ego::Perks::ENDURANCE) || Random::getPercent() > getAttribute(Ego::Attribute::MIGHT))
                         {
-                            if(inst.animationState.imad->isActionValid(ACTION_HA)) {
+                            if(inst.animationState.getModelDescriptor()->isActionValid(ACTION_HA)) {
                                 action += Random::next(3);
                                 chr_play_action(this, action, false);
                             }

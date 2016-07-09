@@ -366,7 +366,7 @@ float set_character_animation_rate( Object * pchr )
 
                 // set the action to "bored", which is ACTION_DB, ACTION_DC, or ACTION_DD
                 int rand_val   = Random::next(std::numeric_limits<uint16_t>::max());
-                int tmp_action = pinst.animationState.imad->getAction(ACTION_DB + ( rand_val % 3 ));
+                int tmp_action = pinst.animationState.getModelDescriptor()->getAction(ACTION_DB + ( rand_val % 3 ));
                 chr_start_anim( pchr, tmp_action, true, true );
             }
         }
@@ -376,7 +376,7 @@ float set_character_animation_rate( Object * pchr )
             if ( !ACTION_IS_TYPE( pinst.action_which, D ) )
             {
                 // get an appropriate version of the idle action
-                int tmp_action = pinst.animationState.imad->getAction(ACTION_DA);
+                int tmp_action = pinst.animationState.getModelDescriptor()->getAction(ACTION_DA);
 
                 // start the animation
                 chr_start_anim( pchr, tmp_action, true, true );
@@ -385,7 +385,7 @@ float set_character_animation_rate( Object * pchr )
     }
     else
     {
-        int tmp_action = pinst.animationState.imad->getAction(action);
+        int tmp_action = pinst.animationState.getModelDescriptor()->getAction(action);
         if ( ACTION_COUNT != tmp_action )
         {
             if ( pinst.action_which != tmp_action )
