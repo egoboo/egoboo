@@ -2463,7 +2463,7 @@ bool chr_do_latch_button( Object * pchr )
                 }
 
                 // Set to jump animation if not doing anything better
-                if ( pchr->inst.action_ready )
+                if ( pchr->inst.actionState.action_ready )
                 {
                     chr_play_action( pchr, ACTION_JA, true );
                 }
@@ -2474,18 +2474,18 @@ bool chr_do_latch_button( Object * pchr )
         }
 
     }
-    if ( pchr->latch.b[LATCHBUTTON_PACKLEFT] && pchr->inst.action_ready && 0 == pchr->reload_timer )
+    if ( pchr->latch.b[LATCHBUTTON_PACKLEFT] && pchr->inst.actionState.action_ready && 0 == pchr->reload_timer )
     {
         pchr->reload_timer = Inventory::PACKDELAY;
         Inventory::swap_item( ichr, pchr->getInventory().getFirstFreeSlotNumber(), SLOT_LEFT, false );
     }
-    if ( pchr->latch.b[LATCHBUTTON_PACKRIGHT] && pchr->inst.action_ready && 0 == pchr->reload_timer )
+    if ( pchr->latch.b[LATCHBUTTON_PACKRIGHT] && pchr->inst.actionState.action_ready && 0 == pchr->reload_timer )
     {
         pchr->reload_timer = Inventory::PACKDELAY;
         Inventory::swap_item( ichr, pchr->getInventory().getFirstFreeSlotNumber(), SLOT_RIGHT, false );
     }
 
-    if ( pchr->latch.b[LATCHBUTTON_ALTLEFT] && pchr->inst.action_ready && 0 == pchr->reload_timer )
+    if ( pchr->latch.b[LATCHBUTTON_ALTLEFT] && pchr->inst.actionState.action_ready && 0 == pchr->reload_timer )
     {
         pchr->reload_timer = GRABDELAY;
         if ( !pchr->getLeftHandItem() )
@@ -2505,7 +2505,7 @@ bool chr_do_latch_button( Object * pchr )
             chr_play_action( pchr, ACTION_MA, false );
         }
     }
-    if ( pchr->latch.b[LATCHBUTTON_ALTRIGHT] && pchr->inst.action_ready && 0 == pchr->reload_timer )
+    if ( pchr->latch.b[LATCHBUTTON_ALTRIGHT] && pchr->inst.actionState.action_ready && 0 == pchr->reload_timer )
     {
         //pchr->latch.b &= ~LATCHBUTTON_ALTRIGHT;
 
@@ -2644,7 +2644,7 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
             if ( pmount->isMount() && pmount->isAlive() )
             {
                 // can the mount be told what to do?
-                if ( !pmount->isPlayer() && pmount->inst.action_ready )
+                if ( !pmount->isPlayer() && pmount->inst.actionState.action_ready )
                 {
                     if ( !ACTION_IS_TYPE( action, P ) || !mountProfile->riderCanAttack() )
                     {
@@ -2665,7 +2665,7 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
         //Attacking or using an item disables stealth
         pchr->deactivateStealth();
 
-        if ( pchr->inst.action_ready && action_valid )
+        if ( pchr->inst.actionState.action_ready && action_valid )
         {
             //Check if we are attacking unarmed and cost mana to do so
             if(iweapon == pchr->getObjRef())
@@ -2819,7 +2819,7 @@ void character_swipe( ObjectRef ichr, slot_t slot )
     */
 
     // What kind of attack are we going to do?
-    if ( !unarmed_attack && (( weaponProfile->isStackable() && pweapon->ammo > 1 ) || ACTION_IS_TYPE( pweapon->inst.action_which, F ) ) )
+    if ( !unarmed_attack && (( weaponProfile->isStackable() && pweapon->ammo > 1 ) || ACTION_IS_TYPE( pweapon->inst.actionState.action_which, F ) ) )
     {
         // Throw the weapon if it's stacked or a hurl animation
         std::shared_ptr<Object> pthrown = _currentModule->spawnObject(pchr->getPosition(), pweapon->getProfileID(), pholder->getTeam().toRef(), pweapon->skin, pchr->ori.facing_z, pweapon->getName(), ObjectRef::Invalid);

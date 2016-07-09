@@ -242,13 +242,13 @@ float set_character_animation_rate( Object * pchr )
     chr_instance_t& pinst = pchr->inst;
 
     // if the action is set to keep then do nothing
-    if ( pinst.action_keep ) return pinst.animationState.rate = 1.0f;
+    if ( pinst.actionState.action_keep ) return pinst.animationState.rate = 1.0f;
 
     // dont change the rate if it is an attack animation
     if ( pchr->isAttacking() )  return pinst.animationState.rate;
 
     // if the character is mounted or sitting, base the rate off of the mounr
-    if ( pchr->isBeingHeld() && (( ACTION_MI == pinst.action_which ) || ( ACTION_MH == pinst.action_which ) ) )
+    if ( pchr->isBeingHeld() && (( ACTION_MI == pinst.actionState.action_which ) || ( ACTION_MH == pinst.actionState.action_which ) ) )
     {
         if(pchr->getHolder()->isScenery()) {
             //This is a special case to make animation while in the Pot (which is actually a "mount") look better
@@ -265,12 +265,12 @@ float set_character_animation_rate( Object * pchr )
     // if the animation is not a walking-type animation, ignore the variable animation rates
     // and the automatic determination of the walk animation
     // "dance" is walking with zero speed
-    is_walk_type = ACTION_IS_TYPE( pinst.action_which, D ) || ACTION_IS_TYPE( pinst.action_which, W );
+    is_walk_type = ACTION_IS_TYPE( pinst.actionState.action_which, D ) || ACTION_IS_TYPE( pinst.actionState.action_which, W );
     if ( !is_walk_type ) return pinst.animationState.rate = 1.0f;
 
     // if the action cannot be changed on the at this time, there's nothing to do.
     // keep the same animation rate
-    if ( !pinst.action_ready )
+    if ( !pinst.actionState.action_ready )
     {
         if ( 0.0f == pinst.animationState.rate ) pinst.animationState.rate = 1.0f;
         return pinst.animationState.rate;
@@ -373,7 +373,7 @@ float set_character_animation_rate( Object * pchr )
         else
         {
             // if the current action is not ACTION_D* switch to ACTION_DA
-            if ( !ACTION_IS_TYPE( pinst.action_which, D ) )
+            if ( !ACTION_IS_TYPE( pinst.actionState.action_which, D ) )
             {
                 // get an appropriate version of the idle action
                 int tmp_action = pinst.animationState.getModelDescriptor()->getAction(ACTION_DA);
@@ -388,7 +388,7 @@ float set_character_animation_rate( Object * pchr )
         int tmp_action = pinst.animationState.getModelDescriptor()->getAction(action);
         if ( ACTION_COUNT != tmp_action )
         {
-            if ( pinst.action_which != tmp_action )
+            if ( pinst.actionState.action_which != tmp_action )
             {
                 const MD2_Frame &nextFrame  = chr_instance_t::get_frame_nxt(pchr->inst);
                 chr_set_anim( pchr, tmp_action, pmad->getFrameLipToWalkFrame(lip, nextFrame.framelip), true, true );

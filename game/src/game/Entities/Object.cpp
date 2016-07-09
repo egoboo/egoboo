@@ -668,7 +668,7 @@ bool Object::heal(const std::shared_ptr<Object> &healer, const UFP8_T amount, co
 
 bool Object::isAttacking() const
 {
-    return inst.action_which >= ACTION_UA && inst.action_which <= ACTION_FD;
+    return inst.actionState.action_which >= ACTION_UA && inst.actionState.action_which <= ACTION_FD;
 }
 
 bool Object::teleport(const Vector3f& position, Facing facing_z)
@@ -903,7 +903,7 @@ void Object::update()
     }
 
     //Try to detect any hidden objects every so often (unless we are scenery object) 
-    if(!isScenery() && isAlive() && !isBeingHeld() && inst.action_which != ACTION_MK) {  //ACTION_MK = sleeping
+    if(!isScenery() && isAlive() && !isBeingHeld() && inst.actionState.action_which != ACTION_MK) {  //ACTION_MK = sleeping
         if(update_wld > _observationTimer) 
         {
             _observationTimer = update_wld + ONESECOND;
@@ -1138,7 +1138,7 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
         // play the falling animation...
         chr_play_action( this, ACTION_JB + hand, false );
     }
-    else if ( inst.action_which < ACTION_KA || inst.action_which > ACTION_KD )
+    else if ( inst.actionState.action_which < ACTION_KA || inst.actionState.action_which > ACTION_KD )
     {
         // play the "killed" animation...
         chr_play_action( this, Random::next((int)ACTION_KA, ACTION_KA + 3), false );
@@ -2463,9 +2463,9 @@ bool Object::isInvictusDirection(Facing direction) const
         right      = Facing(getProfile()->getInvictusFrameAngle());
 
         // If using shield, use the shield invictus instead
-        if (ACTION_IS_TYPE(inst.action_which, P))
+        if (ACTION_IS_TYPE(inst.actionState.action_which, P))
         {
-            bool parry_left = ( inst.action_which < ACTION_PC );
+            bool parry_left = ( inst.actionState.action_which < ACTION_PC );
 
             // Using a shield?
             if (parry_left && getLeftHandItem())
@@ -2557,7 +2557,7 @@ bool Object::activateStealth()
         }
 
         //Ignore objects that are doing the sleep animation
-        if(object->inst.action_which == ACTION_MK) {
+        if(object->inst.actionState.action_which == ACTION_MK) {
             continue;
         }
 

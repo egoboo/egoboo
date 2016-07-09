@@ -294,57 +294,28 @@ private:
     }
 };
 
-/// The state of an object's action.
+/// An action state.
 struct ActionState {
+    // action info
     /// Ready to play a new action.
-    bool _action_ready;
-    /// The objects's action.
-    int _action_which;
+    bool action_ready;
+    /// The action playing.
+    int action_which;
     /// Keep the action playing.
-    bool _action_keep;
+    bool action_keep;
     /// Loop the action.
-    bool _action_loop;
+    bool action_loop;
     /// The action to play next.
-    int _action_next;
-public:
+    int action_next;
     /// Construct this action state.
-    ActionState();
+    ActionState()
+        : action_ready(true),         // argh! this must be set at the beginning, script's spawn animations do not work!
+        action_which(ACTION_DA),
+        action_keep(false),
+        action_loop(false),
+        action_next(ACTION_DA) {}
     /// Destruct this action state.
-    ~ActionState();
-public:
-    bool get_action_keep() const {
-        return _action_keep;
-    }
-    void set_action_keep(bool action_keep) {
-        _action_keep = action_keep;
-    }
-
-public:
-    bool get_action_ready() const {
-        return _action_ready;
-    }
-    void set_action_ready(bool action_ready) {
-        _action_ready = action_ready;
-    }
-
-public:
-    bool get_action_loop() const {
-        return _action_loop;
-    }
-    void set_action_loop(bool action_loop) {
-        _action_loop = action_loop;
-    }
-
-public:
-    int get_action_next() const {
-        return _action_next;
-    }
-    void set_action_next(int action_next) {
-        if (action_next < 0 || action_next > ACTION_COUNT) {
-            throw Id::InvalidArgumentException(__FILE__, __LINE__, "action must be within the bounds of [0, ACTION_COUNT]");
-        }
-        _action_next = action_next;
-    }
+    ~ActionState() {}
 };
 
 /// All the data that the renderer needs to draw the character
@@ -375,12 +346,8 @@ struct chr_instance_t
     /// The animation state.
     AnimationState animationState;
 
-    // action info
-    bool         action_ready;                   ///< Ready to play a new one
-    int            action_which;                   ///< Character's action
-    bool         action_keep;                    ///< Keep the action playing
-    bool         action_loop;                    ///< Loop it too
-    int            action_next;                    ///< Character's action to play next
+    /// The action state.
+    ActionState actionState;
 
     // lighting info
     int32_t         color_amb;

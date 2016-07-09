@@ -253,7 +253,7 @@ void Player::updateLatches()
         }
 
         //handle item control
-        if ( object->inst.action_ready && 0 == object->reload_timer )
+        if ( object->inst.actionState.action_ready && 0 == object->reload_timer )
         {
             //handle LEFT hand control
             if ( input_device_t::control_active( pdevice, CONTROL_LEFT_USE ) || input_device_t::control_active(pdevice, CONTROL_LEFT_GET) )

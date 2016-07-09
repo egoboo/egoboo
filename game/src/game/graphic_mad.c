@@ -1438,17 +1438,17 @@ gfx_rv chr_instance_t::set_action(chr_instance_t& self, int action, bool action_
 	}
 
     // are we going to check action_ready?
-	if (!override_action && !self.action_ready) {
+	if (!override_action && !self.actionState.action_ready) {
 		return gfx_fail;
 	}
 
     // save the old action
-	int action_old = self.action_which;
+	int action_old = self.actionState.action_which;
 
     // set up the action
-	self.action_which = action;
-	self.action_next = ACTION_DA;
-	self.action_ready = action_ready;
+	self.actionState.action_which = action;
+	self.actionState.action_next = ACTION_DA;
+	self.actionState.action_ready = action_ready;
 
     // invalidate the vertex list if the action has changed
 	if (action_old != action) {
@@ -1460,8 +1460,8 @@ gfx_rv chr_instance_t::set_action(chr_instance_t& self, int action, bool action_
 
 gfx_rv chr_instance_t::set_frame(chr_instance_t& self, int frame)
 {
-    if (self.action_which < 0 || self.action_which > ACTION_COUNT) {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, self.action_which, "invalid action range");
+    if (self.actionState.action_which < 0 || self.actionState.action_which > ACTION_COUNT) {
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, self.actionState.action_which, "invalid action range");
         return gfx_error;
     }
 
@@ -1472,7 +1472,7 @@ gfx_rv chr_instance_t::set_frame(chr_instance_t& self, int frame)
     }
 
     // is the frame within the valid range for this action?
-    if(!self.animationState.getModelDescriptor()->isFrameValid(self.action_which, frame)) return gfx_fail;
+    if(!self.animationState.getModelDescriptor()->isFrameValid(self.actionState.action_which, frame)) return gfx_fail;
 
     // jump to the next frame
 	self.animationState.flip = 0.0f;
@@ -1519,7 +1519,7 @@ gfx_rv chr_instance_t::increment_action(chr_instance_t& self)
     }
 
     // get the correct action
-	int action = self.animationState.getModelDescriptor()->getAction(self.action_next);
+	int action = self.animationState.getModelDescriptor()->getAction(self.actionState.action_next);
 
     // determine if the action is one of the types that can be broken at any time
     // D == "dance" and "W" == walk
@@ -1550,17 +1550,17 @@ gfx_rv chr_instance_t::increment_frame(chr_instance_t& self, const ObjectRef imo
 	frame_nxt = self.animationState.getTargetFrameIndex() + 1;
 
     // detect the end of the animation and handle special end conditions
-	if (frame_nxt > self.animationState.getModelDescriptor()->getLastFrame(self.action_which))
+	if (frame_nxt > self.animationState.getModelDescriptor()->getLastFrame(self.actionState.action_which))
     {
-		if (self.action_keep)
+		if (self.actionState.action_keep)
         {
             // Freeze that animation at the last frame
             frame_nxt = frame_lst;
 
             // Break a kept action at any time
-			self.action_ready = true;
+			self.actionState.action_ready = true;
         }
-		else if (self.action_loop)
+		else if (self.actionState.action_loop)
         {
             // Convert the action into a riding action if the character is mounted
             if (_currentModule->getObjectHandler().exists(imount))
@@ -1569,10 +1569,10 @@ gfx_rv chr_instance_t::increment_frame(chr_instance_t& self, const ObjectRef imo
             }
 
             // set the frame to the beginning of the action
-			frame_nxt = self.animationState.getModelDescriptor()->getFirstFrame(self.action_which);
+			frame_nxt = self.animationState.getModelDescriptor()->getFirstFrame(self.actionState.action_which);
 
             // Break a looped action at any time
-			self.action_ready = true;
+			self.actionState.action_ready = true;
         }
         else
         {
@@ -1618,17 +1618,6 @@ void chr_instance_t::clear_cache(chr_instance_t& self)
     self.lighting_frame_all  = -1;
 }
 
-ActionState::ActionState() :
-    _action_ready(true), // Idiotic: This must be set at the beginning, script's spawn animations do not work!
-    _action_which(ACTION_DA),
-    _action_keep(false),
-    _action_loop(false),
-    _action_next(ACTION_DA) {
-}
-
-ActionState::~ActionState() {
-}
-
 chr_instance_t::chr_instance_t() :
     // set the update frame to an invalid value
     update_frame(-1),
@@ -1650,13 +1639,7 @@ chr_instance_t::chr_instance_t() :
     voffset(0),
 
     animationState(),
-
-    // set the animation state
-    action_ready(true),         // argh! this must be set at the beginning, script's spawn animations do not work!
-    action_which(ACTION_DA),
-    action_keep(false),
-    action_loop(false),
-    action_next(ACTION_DA),
+    actionState(),
 
     // lighting info
     color_amb(0),
@@ -1831,21 +1814,21 @@ gfx_rv chr_instance_t::set_frame_full(chr_instance_t& self, int frame_along, int
 	}
 
     // we have to have a valid action range
-	if (self.action_which > ACTION_COUNT) {
+	if (self.actionState.action_which > ACTION_COUNT) {
 		return gfx_fail;
 	}
 
     // try to heal a bad action
-    self.action_which = imad->getAction(self.action_which);
+    self.actionState.action_which = imad->getAction(self.actionState.action_which);
 
     // reject the action if it is cannot be made valid
-	if (self.action_which == ACTION_COUNT) {
+	if (self.actionState.action_which == ACTION_COUNT) {
 		return gfx_fail;
 	}
 
     // get some frame info
-    int frame_stt   = imad->getFirstFrame(self.action_which);
-    int frame_end   = imad->getLastFrame(self.action_which);
+    int frame_stt   = imad->getFirstFrame(self.actionState.action_which);
+    int frame_end   = imad->getLastFrame(self.actionState.action_which);
     int frame_count = 1 + ( frame_end - frame_stt );
 
     // try to heal an out of range value
@@ -1866,15 +1849,15 @@ gfx_rv chr_instance_t::set_frame_full(chr_instance_t& self, int frame_along, int
 }
 
 void chr_instance_t::set_action_keep(chr_instance_t& self, bool val) {
-	self.action_keep = val;
+	self.actionState.action_keep = val;
 }
 
 void chr_instance_t::set_action_ready(chr_instance_t& self, bool val) {
-    self.action_ready = val;
+    self.actionState.action_ready = val;
 }
 
 void chr_instance_t::set_action_loop(chr_instance_t& self, bool val) {
-    self.action_loop = val;
+    self.actionState.action_loop = val;
 }
 
 gfx_rv chr_instance_t::set_action_next(chr_instance_t& self, int val) {
@@ -1882,7 +1865,7 @@ gfx_rv chr_instance_t::set_action_next(chr_instance_t& self, int val) {
 		return gfx_fail;
 	}
 
-    self.action_next = val;
+    self.actionState.action_next = val;
 
     return gfx_success;
 }

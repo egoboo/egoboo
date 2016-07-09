@@ -338,7 +338,7 @@ float ObjectPhysics::getMaxSpeed() const
     if ( chr_instance_t::get_framefx(_object.inst) & MADFX_STOP )
     {
         //Allow 50% movement while using Shield and have the Mobile Defence perk
-        if(_object.hasPerk(Ego::Perks::MOBILE_DEFENCE) && ACTION_IS_TYPE(_object.inst.action_which, P))
+        if(_object.hasPerk(Ego::Perks::MOBILE_DEFENCE) && ACTION_IS_TYPE(_object.inst.actionState.action_which, P))
         {
             maxspeed *= 0.5f;
         }
