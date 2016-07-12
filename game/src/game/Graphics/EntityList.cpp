@@ -21,12 +21,10 @@ void EntityList::clear() {
         if (ParticleRef::Invalid == entry.iprt && ObjectRef::Invalid != entry.iobj) {
             auto obj = objectHandler.get(entry.iobj);
             if (nullptr != obj) {
-                obj->inst.indolist = false;
             }
         } else if (ObjectRef::Invalid == entry.iobj && entry.iprt != ParticleRef::Invalid) {
             auto prt = particleHandler[entry.iprt];
             if (nullptr != prt) {
-                prt->inst.indolist = false;
             }
         } else {
             continue;
@@ -39,10 +37,8 @@ size_t EntityList::add(::Camera& camera, Object& object) {
     size_t count = 0;
     // Only add the object if it is eligible for addition.
     if (!test(camera, object)) {
-        object.inst.indolist = false;
         return count;
     }
-    object.inst.indolist = true;
 
     // Add the object.
     list.emplace_back(object.getObjRef(), ParticleRef::Invalid);

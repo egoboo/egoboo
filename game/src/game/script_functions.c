@@ -3401,7 +3401,7 @@ Uint8 scr_IfTargetIsDefending( script_state_t& state, ai_state_t& self )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = ACTION_IS_TYPE( pself_target->inst.action_which, P );
+    returncode = ACTION_IS_TYPE( pself_target->inst.actionState.action_which, P );
 
     SCRIPT_FUNCTION_END();
 }
@@ -5598,7 +5598,7 @@ Uint8 scr_IfTargetIsSneaking( script_state_t& state, ai_state_t& self )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = ( pself_target->inst.action_which == ACTION_DA || pself_target->inst.action_which == ACTION_WA );
+    returncode = ( pself_target->inst.actionState.action_which == ACTION_DA || pself_target->inst.actionState.action_which == ACTION_WA );
 
     SCRIPT_FUNCTION_END();
 }

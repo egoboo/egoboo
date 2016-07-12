@@ -174,7 +174,7 @@ gfx_rv MadRenderer::render_enviro( Camera& cam, const std::shared_ptr<Object>& p
 {
 	chr_instance_t& pinst = pchr->inst;
 
-    if (!pinst.imad)
+    if (!pinst.animationState.getModelDescriptor())
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, pchr->getObjRef().get(), "invalid mad" );
         return gfx_error;
@@ -323,7 +323,7 @@ gfx_rv MadRenderer::render_tex(Camera& camera, const std::shared_ptr<Object>& pc
 {
     chr_instance_t& pinst = pchr->inst;
 
-    if (!pinst.imad)
+    if (!pinst.animationState.getModelDescriptor())
     {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid mad");
         return gfx_error;
@@ -939,7 +939,7 @@ void chr_instance_t::update_lighting_base(chr_instance_t& self, Object *pchr, bo
     // the updating so that not all objects update on the same frame
     self.lighting_frame_all = game_frame_all + ((game_frame_all + pchr->getObjRef().get()) & frame_mask);
 
-	if (!self.imad) {
+	if (!self.animationState.getModelDescriptor()) {
 		return;
 	}
     self.vrt_count = self.vrt_count;
@@ -1002,7 +1002,7 @@ void chr_instance_t::update_lighting_base(chr_instance_t& self, Object *pchr, bo
 gfx_rv chr_instance_t::update_bbox(chr_instance_t& self)
 {
     // get the model. try to heal a bad model.
-    if (!self.imad) {
+    if (!self.animationState.getModelDescriptor()) {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid mad");
         return gfx_error;
     }
@@ -1010,12 +1010,12 @@ gfx_rv chr_instance_t::update_bbox(chr_instance_t& self)
     const MD2_Frame &lastFrame = chr_instance_t::get_frame_lst(self);
     const MD2_Frame &nextFrame = chr_instance_t::get_frame_nxt(self);
 
-    if (self.frame_nxt == self.frame_lst || self.flip == 0.0f) {
+    if (self.animationState.getTargetFrameIndex() == self.animationState.getSourceFrameIndex() || self.animationState.flip == 0.0f) {
         self.bbox = lastFrame.bb;
-    } else if (self.flip == 1.0f) {
+    } else if (self.animationState.flip == 1.0f) {
         self.bbox = nextFrame.bb;
     } else {
-        self.bbox = oct_bb_t::interpolate(lastFrame.bb, nextFrame.bb, self.flip);
+        self.bbox = oct_bb_t::interpolate(lastFrame.bb, nextFrame.bb, self.animationState.flip);
     }
 
     return gfx_success;
@@ -1042,7 +1042,7 @@ gfx_rv chr_instance_t::needs_update(chr_instance_t& self, int vmin, int vmax, bo
 	vlst_cache_t *psave = &(self.save);
 
     // do we hace a valid mad?
-    if (!self.imad) {
+    if (!self.animationState.getModelDescriptor()) {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid mad");
         return gfx_error;
     }
@@ -1072,10 +1072,10 @@ gfx_rv chr_instance_t::needs_update(chr_instance_t& self, int vmin, int vmax, bo
     // test to see if we have already calculated this data
     *verts_match = (vmin >= psave->vmin) && (vmax <= psave->vmax);
 
-	bool flips_match = (std::abs(psave->flip - self.flip) < FLIP_TOLERANCE);
+	bool flips_match = (std::abs(psave->flip - self.animationState.flip) < FLIP_TOLERANCE);
 
-    *frames_match = (self.frame_nxt == self.frame_lst && psave->frame_nxt == self.frame_nxt && psave->frame_lst == self.frame_lst ) ||
-                    (flips_match && psave->frame_nxt == self.frame_nxt && psave->frame_lst == self.frame_lst);
+    *frames_match = (self.animationState.getTargetFrameIndex() == self.animationState.getSourceFrameIndex() && psave->frame_nxt == self.animationState.getTargetFrameIndex() && psave->frame_lst == self.animationState.getSourceFrameIndex() ) ||
+                    (flips_match && psave->frame_nxt == self.animationState.getTargetFrameIndex() && psave->frame_lst == self.animationState.getSourceFrameIndex());
 
     return (!(*verts_match) || !( *frames_match )) ? gfx_success : gfx_fail;
 }
@@ -1177,12 +1177,12 @@ gfx_rv chr_instance_t::update_vertices(chr_instance_t& self, int vmin, int vmax,
     }
 
     // get the model
-    if ( !self.imad )
+    if ( !self.animationState.getModelDescriptor() )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "invalid mad" );
         return gfx_error;
     }
-    std::shared_ptr<MD2Model> pmd2 = self.imad->getMD2();
+    std::shared_ptr<MD2Model> pmd2 = self.animationState.getModelDescriptor()->getMD2();
 
     // make sure we have valid data
     if (self.vrt_count != pmd2->getVertexCount())
@@ -1252,19 +1252,19 @@ gfx_rv chr_instance_t::update_vertices(chr_instance_t& self, int vmin, int vmax,
 
     // make sure the frames are in the valid range
     const std::vector<MD2_Frame> &frameList = pmd2->getFrames();
-    if ( self.frame_nxt >= frameList.size() || self.frame_lst >= frameList.size() )
+    if ( self.animationState.getTargetFrameIndex() >= frameList.size() || self.animationState.getSourceFrameIndex() >= frameList.size() )
     {
 		Log::get().warn("%s:%d:%s: character instance frame is outside the range of its MD2\n", __FILE__, __LINE__, __FUNCTION__ );
         return gfx_error;
     }
 
     // grab the frame data from the correct model
-    const MD2_Frame &nextFrame = frameList[self.frame_nxt];
-    const MD2_Frame &lastFrame = frameList[self.frame_lst];
+    const MD2_Frame &nextFrame = frameList[self.animationState.getTargetFrameIndex()];
+    const MD2_Frame &lastFrame = frameList[self.animationState.getSourceFrameIndex()];
 
     // fix the flip for objects that are not animating
-    loc_flip = self.flip;
-    if ( self.frame_nxt == self.frame_lst ) loc_flip = 0.0f;
+    loc_flip = self.animationState.flip;
+    if ( self.animationState.getTargetFrameIndex() == self.animationState.getSourceFrameIndex() ) loc_flip = 0.0f;
 
     // interpolate the 1st dirty region
     if ( vdirty1_min >= 0 && vdirty1_max >= 0 )
@@ -1364,9 +1364,9 @@ gfx_rv chr_instance_t::update_vlst_cache(chr_instance_t& self, int vmax, int vmi
         verts_updated = true;
     }
 
-    psave->frame_nxt = self.frame_nxt;
-    psave->frame_lst = self.frame_lst;
-    psave->flip      = self.flip;
+    psave->frame_nxt = self.animationState.getTargetFrameIndex();
+    psave->frame_lst = self.animationState.getSourceFrameIndex();
+    psave->flip      = self.animationState.flip;
 
     // store the last time there was an update to the animation
     bool frames_updated = false;
@@ -1427,28 +1427,28 @@ gfx_rv chr_instance_t::set_action(chr_instance_t& self, int action, bool action_
     }
 
     // do we have a valid model?
-	if (!self.imad) {
+	if (!self.animationState.getModelDescriptor()) {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid mad");
         return gfx_error;
     }
 
     // is the chosen action valid?
-	if (!self.imad->isActionValid(action)) {
+	if (!self.animationState.getModelDescriptor()->isActionValid(action)) {
 		return gfx_fail;
 	}
 
     // are we going to check action_ready?
-	if (!override_action && !self.action_ready) {
+	if (!override_action && !self.actionState.action_ready) {
 		return gfx_fail;
 	}
 
     // save the old action
-	int action_old = self.action_which;
+	int action_old = self.actionState.action_which;
 
     // set up the action
-	self.action_which = action;
-	self.action_next = ACTION_DA;
-	self.action_ready = action_ready;
+	self.actionState.action_which = action;
+	self.actionState.action_next = ACTION_DA;
+	self.actionState.action_ready = action_ready;
 
     // invalidate the vertex list if the action has changed
 	if (action_old != action) {
@@ -1460,25 +1460,25 @@ gfx_rv chr_instance_t::set_action(chr_instance_t& self, int action, bool action_
 
 gfx_rv chr_instance_t::set_frame(chr_instance_t& self, int frame)
 {
-    if (self.action_which < 0 || self.action_which > ACTION_COUNT) {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, self.action_which, "invalid action range");
+    if (self.actionState.action_which < 0 || self.actionState.action_which > ACTION_COUNT) {
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, self.actionState.action_which, "invalid action range");
         return gfx_error;
     }
 
     // do we have a valid model?
-    if (!self.imad) {
+    if (!self.animationState.getModelDescriptor()) {
 		gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid mad");
         return gfx_error;
     }
 
     // is the frame within the valid range for this action?
-    if(!self.imad->isFrameValid(self.action_which, frame)) return gfx_fail;
+    if(!self.animationState.getModelDescriptor()->isFrameValid(self.actionState.action_which, frame)) return gfx_fail;
 
     // jump to the next frame
-	self.flip = 0.0f;
-	self.ilip = 0;
-	self.frame_lst = self.frame_nxt;
-	self.frame_nxt = frame;
+	self.animationState.flip = 0.0f;
+	self.animationState.ilip = 0;
+	self.animationState.setSourceFrameIndex(self.animationState.getTargetFrameIndex());
+	self.animationState.setTargetFrameIndex(frame);
 
 	vlst_cache_t::test(self.save, &self);
 
@@ -1501,11 +1501,11 @@ gfx_rv chr_instance_t::start_anim(chr_instance_t& self, int action, bool action_
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, action, "invalid action range");
         return gfx_error;
     }
-    if (!self.imad) {
+    if (!self.animationState.getModelDescriptor()) {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid mad");
         return gfx_error;
     }
-    return chr_instance_t::set_anim(self, action, self.imad->getFirstFrame(action), action_ready, override_action);
+    return chr_instance_t::set_anim(self, action, self.animationState.getModelDescriptor()->getFirstFrame(action), action_ready, override_action);
 }
 
 gfx_rv chr_instance_t::increment_action(chr_instance_t& self)
@@ -1513,13 +1513,13 @@ gfx_rv chr_instance_t::increment_action(chr_instance_t& self)
     /// @author BB
     /// @details This function starts the next action for a character
 
-	if (!self.imad) {
+	if (!self.animationState.getModelDescriptor()) {
 		gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid mad");
         return gfx_error;
     }
 
     // get the correct action
-	int action = self.imad->getAction(self.action_next);
+	int action = self.animationState.getModelDescriptor()->getAction(self.actionState.action_next);
 
     // determine if the action is one of the types that can be broken at any time
     // D == "dance" and "W" == walk
@@ -1535,32 +1535,32 @@ gfx_rv chr_instance_t::increment_frame(chr_instance_t& self, const ObjectRef imo
 
     int frame_lst, frame_nxt;
 
-    if ( !self.imad )
+    if ( !self.animationState.getModelDescriptor())
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL mad" );
         return gfx_error;
     }
 
     // fix the ilip and flip
-	self.ilip = self.ilip % 4;
-	self.flip = fmod(self.flip, 1.0f);
+	self.animationState.ilip = self.animationState.ilip % 4;
+	self.animationState.flip = fmod(self.animationState.flip, 1.0f);
 
     // Change frames
-	frame_lst = self.frame_nxt;
-	frame_nxt = self.frame_nxt + 1;
+	frame_lst = self.animationState.getTargetFrameIndex();
+	frame_nxt = self.animationState.getTargetFrameIndex() + 1;
 
     // detect the end of the animation and handle special end conditions
-	if (frame_nxt > self.imad->getLastFrame(self.action_which))
+	if (frame_nxt > self.animationState.getModelDescriptor()->getLastFrame(self.actionState.action_which))
     {
-		if (self.action_keep)
+		if (self.actionState.action_keep)
         {
             // Freeze that animation at the last frame
             frame_nxt = frame_lst;
 
             // Break a kept action at any time
-			self.action_ready = true;
+			self.actionState.action_ready = true;
         }
-		else if (self.action_loop)
+		else if (self.actionState.action_loop)
         {
             // Convert the action into a riding action if the character is mounted
             if (_currentModule->getObjectHandler().exists(imount))
@@ -1569,10 +1569,10 @@ gfx_rv chr_instance_t::increment_frame(chr_instance_t& self, const ObjectRef imo
             }
 
             // set the frame to the beginning of the action
-			frame_nxt = self.imad->getFirstFrame(self.action_which);
+			frame_nxt = self.animationState.getModelDescriptor()->getFirstFrame(self.actionState.action_which);
 
             // Break a looped action at any time
-			self.action_ready = true;
+			self.actionState.action_ready = true;
         }
         else
         {
@@ -1580,12 +1580,12 @@ gfx_rv chr_instance_t::increment_frame(chr_instance_t& self, const ObjectRef imo
 			chr_instance_t::increment_action(self);
 
             // chr_instance_increment_action() actually sets this value properly. just grab the new value.
-			frame_nxt = self.frame_nxt;
+			frame_nxt = self.animationState.getTargetFrameIndex();
         }
     }
 
-	self.frame_lst = frame_lst;
-	self.frame_nxt = frame_nxt;
+	self.animationState.setSourceFrameIndex(frame_lst);
+	self.animationState.setTargetFrameIndex(frame_nxt);
 
 	vlst_cache_t::test(self.save, &self);
 
@@ -1596,12 +1596,12 @@ gfx_rv chr_instance_t::play_action(chr_instance_t& self, int action, bool action
 {
     /// @author ZZ
     /// @details This function starts a generic action for a character
-    if (!self.imad) {
+    if (!self.animationState.getModelDescriptor()) {
 		gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid mad");
 		return gfx_error;
 	}
 
-    return chr_instance_t::start_anim(self, self.imad->getAction(action), action_ready, true);
+    return chr_instance_t::start_anim(self, self.animationState.getModelDescriptor()->getAction(action), action_ready, true);
 }
 
 void chr_instance_t::clear_cache(chr_instance_t& self)
@@ -1616,31 +1616,6 @@ void chr_instance_t::clear_cache(chr_instance_t& self)
 
     self.lighting_update_wld = -1;
     self.lighting_frame_all  = -1;
-}
-
-ActionState::ActionState() :
-    _action_ready(true), // Idiotic: This must be set at the beginning, script's spawn animations do not work!
-    _action_which(ACTION_DA),
-    _action_keep(false),
-    _action_loop(false),
-    _action_next(ACTION_DA) {
-}
-
-ActionState::~ActionState() {
-}
-
-AnimationState::AnimationState() :
-    // model info
-    _modelDescriptor(nullptr),
-    // animation info
-    _frame_nxt(0),
-    _frame_lst(0),
-    _ilip(0),
-    _flip(0.0f),
-    _rate(1.0f) {
-}
-
-AnimationState::~AnimationState() {
 }
 
 chr_instance_t::chr_instance_t() :
@@ -1663,22 +1638,8 @@ chr_instance_t::chr_instance_t() :
     uoffset(0),
     voffset(0),
 
-    // model parameters
-    imad(nullptr),
-
-    // animation info
-    frame_nxt(0),
-    frame_lst(0),
-    ilip(0),
-    flip(0.0f),
-    rate(1.0f),
-
-    // set the animation state
-    action_ready(true),         // argh! this must be set at the beginning, script's spawn animations do not work!
-    action_which(ACTION_DA),
-    action_keep(false),
-    action_loop(false),
-    action_next(ACTION_DA),
+    animationState(),
+    actionState(),
 
     // lighting info
     color_amb(0),
@@ -1694,7 +1655,6 @@ chr_instance_t::chr_instance_t() :
     bbox(),
 
     // graphical optimizations
-    indolist(false),
     save(),
     ref()
 {
@@ -1740,23 +1700,23 @@ gfx_rv chr_instance_t::set_mad(chr_instance_t& self, const std::shared_ptr<Ego::
 		return gfx_fail;
 	}
 
-    if (self.imad != model) {
+    if (self.animationState.getModelDescriptor() != model) {
         updated = true;
-        self.imad = model;
+        self.animationState.setModelDescriptor(model);
     }
 
     // set the vertex size
-    size_t vlst_size = self.imad->getMD2()->getVertexCount();
+    size_t vlst_size = self.animationState.getModelDescriptor()->getMD2()->getVertexCount();
     if (self.vrt_count != vlst_size) {
         updated = true;
 		chr_instance_t::alloc(self, vlst_size);
     }
 
     // set the frames to frame 0 of this object's data
-    if (0 != self.frame_nxt || 0 != self.frame_lst) {
+    if (0 != self.animationState.getTargetFrameIndex() || 0 != self.animationState.getSourceFrameIndex()) {
         updated        = true;
-        self.frame_lst = 0;
-        self.frame_nxt = 0;
+        self.animationState.setSourceFrameIndex(0);
+        self.animationState.setTargetFrameIndex(0);
 
         // the vlst_cache parameters are not valid
         self.save.valid = false;
@@ -1845,7 +1805,7 @@ gfx_rv chr_instance_t::set_frame_full(chr_instance_t& self, int frame_along, int
 	if (mad_override) {
 		imad = mad_override;
 	} else {
-        imad = self.imad;
+        imad = self.animationState.getModelDescriptor();
     }
 
 	if (!imad) {
@@ -1854,21 +1814,21 @@ gfx_rv chr_instance_t::set_frame_full(chr_instance_t& self, int frame_along, int
 	}
 
     // we have to have a valid action range
-	if (self.action_which > ACTION_COUNT) {
+	if (self.actionState.action_which > ACTION_COUNT) {
 		return gfx_fail;
 	}
 
     // try to heal a bad action
-    self.action_which = imad->getAction(self.action_which);
+    self.actionState.action_which = imad->getAction(self.actionState.action_which);
 
     // reject the action if it is cannot be made valid
-	if (self.action_which == ACTION_COUNT) {
+	if (self.actionState.action_which == ACTION_COUNT) {
 		return gfx_fail;
 	}
 
     // get some frame info
-    int frame_stt   = imad->getFirstFrame(self.action_which);
-    int frame_end   = imad->getLastFrame(self.action_which);
+    int frame_stt   = imad->getFirstFrame(self.actionState.action_which);
+    int frame_end   = imad->getLastFrame(self.actionState.action_which);
     int frame_count = 1 + ( frame_end - frame_stt );
 
     // try to heal an out of range value
@@ -1878,9 +1838,9 @@ gfx_rv chr_instance_t::set_frame_full(chr_instance_t& self, int frame_along, int
     int new_nxt = frame_stt + frame_along;
     new_nxt = std::min(new_nxt, frame_end);
 
-    self.frame_nxt = new_nxt;
-    self.ilip      = ilip;
-    self.flip      = ilip * 0.25f;
+    self.animationState.setTargetFrameIndex(new_nxt);
+    self.animationState.ilip      = ilip;
+    self.animationState.flip      = ilip * 0.25f;
 
     // set the validity of the cache
 	vlst_cache_t::test(self.save, &self);
@@ -1889,15 +1849,15 @@ gfx_rv chr_instance_t::set_frame_full(chr_instance_t& self, int frame_along, int
 }
 
 void chr_instance_t::set_action_keep(chr_instance_t& self, bool val) {
-	self.action_keep = val;
+	self.actionState.action_keep = val;
 }
 
 void chr_instance_t::set_action_ready(chr_instance_t& self, bool val) {
-    self.action_ready = val;
+    self.actionState.action_ready = val;
 }
 
 void chr_instance_t::set_action_loop(chr_instance_t& self, bool val) {
-    self.action_loop = val;
+    self.actionState.action_loop = val;
 }
 
 gfx_rv chr_instance_t::set_action_next(chr_instance_t& self, int val) {
@@ -1905,17 +1865,17 @@ gfx_rv chr_instance_t::set_action_next(chr_instance_t& self, int val) {
 		return gfx_fail;
 	}
 
-    self.action_next = val;
+    self.actionState.action_next = val;
 
     return gfx_success;
 }
 
 void chr_instance_t::remove_interpolation(chr_instance_t& self)
 {
-    if (self.frame_lst != self.frame_nxt ) {
-		self.frame_lst = self.frame_nxt;
-		self.ilip = 0;
-		self.flip = 0.0f;
+    if (self.animationState.getSourceFrameIndex() != self.animationState.getTargetFrameIndex() ) {
+		self.animationState.setSourceFrameIndex(self.animationState.getTargetFrameIndex());
+		self.animationState.ilip = 0;
+		self.animationState.flip = 0.0f;
 
 		vlst_cache_t::test(self.save, &self);
     }
@@ -1923,33 +1883,17 @@ void chr_instance_t::remove_interpolation(chr_instance_t& self)
 
 const MD2_Frame& chr_instance_t::get_frame_nxt(const chr_instance_t& self)
 {
-	if (self.frame_nxt > self.imad->getMD2()->getFrames().size())
-    {
-		std::ostringstream os;
-		os << __FILE__ << ":" << __LINE__ << ": invalid frame " << self.frame_nxt << "/" << self.imad->getMD2()->getFrames().size() << std::endl;
-		Log::get().error("%s",os.str().c_str());
-		throw std::runtime_error(os.str());
-    }
-
-	return self.imad->getMD2()->getFrames()[self.frame_nxt];
+    return self.animationState.getTargetFrame();
 }
 
 const MD2_Frame& chr_instance_t::get_frame_lst(chr_instance_t& self)
 {
-	if (self.frame_lst > self.imad->getMD2()->getFrames().size())
-    {
-		std::ostringstream os;
-		os << __FILE__ << ":" << __LINE__ << ": invalid frame " << self.frame_lst << "/" << self.imad->getMD2()->getFrames().size() << std::endl;
-		Log::get().error("%s", os.str().c_str());
-		throw std::runtime_error(os.str());
-    }
-
-	return self.imad->getMD2()->getFrames()[self.frame_lst];
+    return self.animationState.getSourceFrame();
 }
 
 void chr_instance_t::update_one_lip(chr_instance_t& self) {
-    self.ilip += 1;
-    self.flip = 0.25f * self.ilip;
+    self.animationState.ilip += 1;
+    self.animationState.flip = 0.25f * self.animationState.ilip;
 
 	vlst_cache_t::test(self.save, &self);
 }
@@ -1961,8 +1905,8 @@ gfx_rv chr_instance_t::update_one_flip(chr_instance_t& self, float dflip)
 	}
 
     // update the lips
-    self.flip += dflip;
-	self.ilip = ((int)std::floor(self.flip * 4)) % 4;
+    self.animationState.flip += dflip;
+	self.animationState.ilip = ((int)std::floor(self.animationState.flip * 4)) % 4;
 
 	vlst_cache_t::test(self.save, &self);
 
@@ -1971,7 +1915,7 @@ gfx_rv chr_instance_t::update_one_flip(chr_instance_t& self, float dflip)
 
 float chr_instance_t::get_remaining_flip(chr_instance_t& self)
 {
-	return (self.ilip + 1) * 0.25f - self.flip;
+	return (self.animationState.ilip + 1) * 0.25f - self.animationState.flip;
 }
 
 void chr_instance_t::get_tint(chr_instance_t& self, GLfloat * tint, const BIT_FIELD bits)
@@ -2092,15 +2036,15 @@ gfx_rv vlst_cache_t::test(vlst_cache_t& self, chr_instance_t *instance)
         return gfx_success;
     }
 
-    if (instance->frame_lst != self.frame_nxt) {
+    if (instance->animationState.getSourceFrameIndex() != self.frame_nxt) {
         self.valid = false;
     }
 
-    if (instance->frame_lst != self.frame_lst) {
+    if (instance->animationState.getSourceFrameIndex() != self.frame_lst) {
         self.valid = false;
     }
 
-    if ((instance->frame_lst != self.frame_lst)  && std::abs(instance->flip - self.flip) > FLIP_TOLERANCE) {
+    if ((instance->animationState.getSourceFrameIndex() != self.frame_lst)  && std::abs(instance->animationState.flip - self.flip) > FLIP_TOLERANCE) {
         self.valid = false;
     }
 

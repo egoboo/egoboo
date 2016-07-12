@@ -159,7 +159,7 @@ void move_one_character_do_animation( Object * pchr )
     if ( NULL == pchr ) return;
     chr_instance_t& pinst = pchr->inst;
 
-    flip_diff  = 0.25f * pinst.rate;
+    flip_diff  = 0.25f * pinst.animationState.rate;
 
     flip_next = chr_instance_t::get_remaining_flip(pinst);
 
@@ -170,12 +170,12 @@ void move_one_character_do_animation( Object * pchr )
         chr_instance_t::update_one_lip( pinst );
 
         // handle frame FX for the new frame
-        if ( 3 == pinst.ilip )
+        if ( 3 == pinst.animationState.ilip )
         {
             chr_handle_madfx( pchr );
         }
 
-        if ( 4 == pinst.ilip )
+        if ( 4 == pinst.animationState.ilip )
         {
             if ( rv_success != chr_increment_frame( pchr ) )
             {
@@ -183,10 +183,10 @@ void move_one_character_do_animation( Object * pchr )
             }
         }
 
-        if ( pinst.ilip > 4 )
+        if ( pinst.animationState.ilip > 4 )
         {
 			Log::get().warn( "chr_increment_frame() - invalid ilip\n" );
-            pinst.ilip = 0;
+            pinst.animationState.ilip = 0;
             break;
         }
 
@@ -195,19 +195,19 @@ void move_one_character_do_animation( Object * pchr )
 
     if ( flip_diff > 0.0f )
     {
-        int ilip_old = pinst.ilip;
+        int ilip_old = pinst.animationState.ilip;
 
         chr_instance_t::update_one_flip( pinst, flip_diff );
 
-        if ( ilip_old != pinst.ilip )
+        if ( ilip_old != pinst.animationState.ilip )
         {
             // handle frame FX for the new frame
-            if ( 3 == pinst.ilip )
+            if ( 3 == pinst.animationState.ilip )
             {
                 chr_handle_madfx( pchr );
             }
 
-            if ( 4 == pinst.ilip )
+            if ( 4 == pinst.animationState.ilip )
             {
                 if ( rv_success != chr_increment_frame( pchr ) )
                 {
@@ -215,10 +215,10 @@ void move_one_character_do_animation( Object * pchr )
                 }
             }
 
-            if ( pinst.ilip > 4 )
+            if ( pinst.animationState.ilip > 4 )
             {
 				Log::get().warn( "chr_increment_frame() - invalid ilip\n" );
-                pinst.ilip = 0;
+                pinst.animationState.ilip = 0;
             }
         }
     }
@@ -242,46 +242,46 @@ float set_character_animation_rate( Object * pchr )
     chr_instance_t& pinst = pchr->inst;
 
     // if the action is set to keep then do nothing
-    if ( pinst.action_keep ) return pinst.rate = 1.0f;
+    if ( pinst.actionState.action_keep ) return pinst.animationState.rate = 1.0f;
 
     // dont change the rate if it is an attack animation
-    if ( pchr->isAttacking() )  return pinst.rate;
+    if ( pchr->isAttacking() )  return pinst.animationState.rate;
 
     // if the character is mounted or sitting, base the rate off of the mounr
-    if ( pchr->isBeingHeld() && (( ACTION_MI == pinst.action_which ) || ( ACTION_MH == pinst.action_which ) ) )
+    if ( pchr->isBeingHeld() && (( ACTION_MI == pinst.actionState.action_which ) || ( ACTION_MH == pinst.actionState.action_which ) ) )
     {
         if(pchr->getHolder()->isScenery()) {
             //This is a special case to make animation while in the Pot (which is actually a "mount") look better
-            pinst.rate = 0.0f;
+            pinst.animationState.rate = 0.0f;
         }
         else {
             // just copy the rate from the mount
-            pinst.rate = pchr->getHolder()->inst.rate;
+            pinst.animationState.rate = pchr->getHolder()->inst.animationState.rate;
         }
 
-        return pinst.rate;
+        return pinst.animationState.rate;
     }
 
     // if the animation is not a walking-type animation, ignore the variable animation rates
     // and the automatic determination of the walk animation
     // "dance" is walking with zero speed
-    is_walk_type = ACTION_IS_TYPE( pinst.action_which, D ) || ACTION_IS_TYPE( pinst.action_which, W );
-    if ( !is_walk_type ) return pinst.rate = 1.0f;
+    is_walk_type = ACTION_IS_TYPE( pinst.actionState.action_which, D ) || ACTION_IS_TYPE( pinst.actionState.action_which, W );
+    if ( !is_walk_type ) return pinst.animationState.rate = 1.0f;
 
     // if the action cannot be changed on the at this time, there's nothing to do.
     // keep the same animation rate
-    if ( !pinst.action_ready )
+    if ( !pinst.actionState.action_ready )
     {
-        if ( 0.0f == pinst.rate ) pinst.rate = 1.0f;
-        return pinst.rate;
+        if ( 0.0f == pinst.animationState.rate ) pinst.animationState.rate = 1.0f;
+        return pinst.animationState.rate;
     }
 
     // go back to a base animation rate, in case the next frame is not a
     // "variable speed frame"
-    pinst.rate = 1.0f;
+    pinst.animationState.rate = 1.0f;
 
     // for non-flying objects, you have to be touching the ground
-    if (!pchr->getObjectPhysics().isTouchingGround() && !pchr->isFlying()) return pinst.rate;
+    if (!pchr->getObjectPhysics().isTouchingGround() && !pchr->isFlying()) return pinst.animationState.rate;
 
     // get the model
     const std::shared_ptr<Ego::ModelDescriptor> pmad = pchr->getProfile()->getModel();
@@ -303,7 +303,7 @@ float set_character_animation_rate( Object * pchr )
         {
             // The character is slipping as on ice.
             // Make his little legs move based on his intended speed, for comic effect! :)
-            pinst.rate = 2.0f;
+            pinst.animationState.rate = 2.0f;
             speed *= 2.0f;
         }
 
@@ -366,17 +366,17 @@ float set_character_animation_rate( Object * pchr )
 
                 // set the action to "bored", which is ACTION_DB, ACTION_DC, or ACTION_DD
                 int rand_val   = Random::next(std::numeric_limits<uint16_t>::max());
-                int tmp_action = pinst.imad->getAction(ACTION_DB + ( rand_val % 3 ));
+                int tmp_action = pinst.animationState.getModelDescriptor()->getAction(ACTION_DB + ( rand_val % 3 ));
                 chr_start_anim( pchr, tmp_action, true, true );
             }
         }
         else
         {
             // if the current action is not ACTION_D* switch to ACTION_DA
-            if ( !ACTION_IS_TYPE( pinst.action_which, D ) )
+            if ( !ACTION_IS_TYPE( pinst.actionState.action_which, D ) )
             {
                 // get an appropriate version of the idle action
-                int tmp_action = pinst.imad->getAction(ACTION_DA);
+                int tmp_action = pinst.animationState.getModelDescriptor()->getAction(ACTION_DA);
 
                 // start the animation
                 chr_start_anim( pchr, tmp_action, true, true );
@@ -385,10 +385,10 @@ float set_character_animation_rate( Object * pchr )
     }
     else
     {
-        int tmp_action = pinst.imad->getAction(action);
+        int tmp_action = pinst.animationState.getModelDescriptor()->getAction(action);
         if ( ACTION_COUNT != tmp_action )
         {
-            if ( pinst.action_which != tmp_action )
+            if ( pinst.actionState.action_which != tmp_action )
             {
                 const MD2_Frame &nextFrame  = chr_instance_t::get_frame_nxt(pchr->inst);
                 chr_set_anim( pchr, tmp_action, pmad->getFrameLipToWalkFrame(lip, nextFrame.framelip), true, true );
@@ -401,9 +401,9 @@ float set_character_animation_rate( Object * pchr )
     }
 
     //Limit final animation speed
-    pinst.rate = Ego::Math::constrain(pinst.rate, 0.1f, 3.0f);
+    pinst.animationState.rate = Ego::Math::constrain(pinst.animationState.rate, 0.1f, 3.0f);
 
-    return pinst.rate;
+    return pinst.animationState.rate;
 }
 
 

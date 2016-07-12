@@ -525,14 +525,14 @@ void Camera::readInput(input_device_t *pdevice)
         {
             if (!input_device_t::control_active(pdevice, CONTROL_CAMERA))
             {
-                _turnZAdd -= inputSystem.mouse.offset.x() * 0.5f;
+                _turnZAdd -= inputSystem.mouse.getOffset().x() * 0.5f;
             }
         }
         // Normal camera.
         else if (input_device_t::control_active(pdevice, CONTROL_CAMERA))
         {
-            _turnZAdd += inputSystem.mouse.offset.x() / 3.0f;
-            _zaddGoto += static_cast<float>(inputSystem.mouse.offset.y()) / 3.0f;
+            _turnZAdd += inputSystem.mouse.getOffset().x() / 3.0f;
+            _zaddGoto += static_cast<float>(inputSystem.mouse.getOffset().y()) / 3.0f;
 
             _turnTime = DEFAULT_TURN_TIME;  // Sticky turn ...
         }

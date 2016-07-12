@@ -116,9 +116,8 @@ void Player::updateLatches()
         case INPUT_DEVICE_MOUSE:
             if (fast_camera_turn || !input_device_t::control_active(pdevice,  CONTROL_CAMERA))  // Don't allow movement in camera control mode
             {
-                // TODO: offset should be Vector2f. Then the distance functors can be used.
-                float dist = std::sqrt( InputSystem::get().mouse.offset.x() * InputSystem::get().mouse.offset.x() +
-                                        InputSystem::get().mouse.offset.y() * InputSystem::get().mouse.offset.y() );
+                // Get the distance the mouse was moved.
+                float dist = InputSystem::get().mouse.getOffset().length();
                 if (dist > 0)
                 {
                     scale = InputSystem::get().mouse.sense / dist;
@@ -132,8 +131,8 @@ void Player::updateLatches()
                         scale /= InputSystem::get().mouse.sense;
                     }
 
-                    joy_pos[XX] = InputSystem::get().mouse.offset.x() * scale;
-                    joy_pos[YY] = InputSystem::get().mouse.offset.y() * scale;
+                    joy_pos[XX] = InputSystem::get().mouse.getOffset().x() * scale;
+                    joy_pos[YY] = InputSystem::get().mouse.getOffset().y() * scale;
 
                     //if ( fast_camera_turn && !input_device_control_active( pdevice,  CONTROL_CAMERA ) )  joy_pos.x = 0;
 
@@ -253,7 +252,7 @@ void Player::updateLatches()
         }
 
         //handle item control
-        if ( object->inst.action_ready && 0 == object->reload_timer )
+        if ( object->inst.actionState.action_ready && 0 == object->reload_timer )
         {
             //handle LEFT hand control
             if ( input_device_t::control_active( pdevice, CONTROL_LEFT_USE ) || input_device_t::control_active(pdevice, CONTROL_LEFT_GET) )

@@ -213,146 +213,109 @@ struct vlst_cache_t
 
 //--------------------------------------------------------------------------------------------
 
-/// The state of an object's action.
-struct ActionState {
-    /// Ready to play a new action.
-    bool _action_ready;
-    /// The objects's action.
-    int _action_which;
-    /// Keep the action playing.
-    bool _action_keep;
-    /// Loop the action.
-    bool _action_loop;
-    /// The action to play next.
-    int _action_next;
+/// An animation state represents the interpolation state between to frames.
+/// The interpolation is represented by an integer-valued interpolation state
+/// \f$i \in [0,4]\f$ and a real-valued interpolatio state \f$r \in [0,1]\f$.
+/// Those states are not independent i.e. if one state is changed then the other
+/// state is changed as well. Their dependency is denoted by the formulas
+/// \f$i = 4 r\f$ and \f$\frac{1}{4} i = r\f$ respectively.
+struct AnimationState {
+private:
+    /// The model descriptor.
+    std::shared_ptr<Ego::ModelDescriptor> modelDescriptor;
+    /// The target frame index.
+    uint16_t targetFrameIndex;
+    /// The source frame index.
+    uint16_t sourceFrameIndex;
 public:
-    /// Construct this action state.
-    ActionState();
-    /// Destruct this action state.
-    ~ActionState();
-public:
-    bool get_action_keep() const {
-        return _action_keep;
+    /// The integer-valued frame in betweening.
+    uint8_t ilip;
+    /// The real-valued frame in betweening.
+    float flip;
+    /// The animation rate.
+    float rate;
+    /// Construct this animation state.
+    AnimationState()
+        : modelDescriptor(nullptr),
+        targetFrameIndex(0),
+        sourceFrameIndex(0),
+        ilip(0),
+        flip(0.0f),
+        rate(1.0f) {}
+    /// Destruct this animation state.
+    ~AnimationState() {}
+    /// Get the model descriptor.
+    /// @return the model descriptor
+    const std::shared_ptr<Ego::ModelDescriptor> getModelDescriptor() const {
+        return modelDescriptor;
     }
-    void set_action_keep(bool action_keep) {
-        _action_keep = action_keep;
+    /// Set the model descriptor.
+    /// @param modelDescriptor the model descriptor
+    void setModelDescriptor(const std::shared_ptr<Ego::ModelDescriptor>& modelDescriptor) {
+        this->modelDescriptor = modelDescriptor;
+    }
+    /// @brief Get the index of the source frame.
+    /// @return the index of the source frame
+    int getSourceFrameIndex() const {
+        return sourceFrameIndex;
+    }
+    /// @brief Set the index of the source frame.
+    /// @param sourceFrameIndex the index of the source frame
+    void setSourceFrameIndex(int sourceFrameIndex) {
+        this->sourceFrameIndex = sourceFrameIndex;
+    }
+    /// @brief Get the index of the target frame.
+    /// @return the index of the target frame
+    int getTargetFrameIndex() const {
+        return targetFrameIndex;
+    }
+    /// @brief Set the index of the target frame.
+    /// @param targetFrameIndex the index of the target frame
+    void setTargetFrameIndex(int targetFrameIndex) {
+        this->targetFrameIndex = targetFrameIndex;
+    }
+    const MD2_Frame& getTargetFrame() const {
+        assertFrameIndex(getTargetFrameIndex());
+        return getModelDescriptor()->getMD2()->getFrames()[getTargetFrameIndex()];
     }
 
-public:
-    bool get_action_ready() const {
-        return _action_ready;
+    const MD2_Frame& getSourceFrame() const {
+        assertFrameIndex(getSourceFrameIndex());
+        return getModelDescriptor()->getMD2()->getFrames()[getSourceFrameIndex()];
     }
-    void set_action_ready(bool action_ready) {
-        _action_ready = action_ready;
-    }
-
-public:
-    bool get_action_loop() const {
-        return _action_loop;
-    }
-    void set_action_loop(bool action_loop) {
-        _action_loop = action_loop;
-    }
-
-public:
-    int get_action_next() const {
-        return _action_next;
-    }
-    void set_action_next(int action_next) {
-        if (action_next < 0 || action_next > ACTION_COUNT) {
-            throw Id::InvalidArgumentException(__FILE__, __LINE__, "action must be within the bounds of [0, ACTION_COUNT]");
+private:
+    void assertFrameIndex(int frameIndex) const {
+        if (frameIndex > getModelDescriptor()->getMD2()->getFrames().size()) {
+            Log::Entry e(Log::Level::Error, __FILE__, __LINE__);
+            e << "invalid frame " << frameIndex << "/" << getModelDescriptor()->getMD2()->getFrames().size() << Log::EndOfEntry;
+            Log::get() << e;
+            throw Id::RuntimeErrorException(__FILE__, __LINE__, e.getText());
         }
-        _action_next = action_next;
     }
 };
 
-/// The state of an object's animation.
-struct AnimationState {
-// model info
-    /// The object's model.
-    std::shared_ptr<Ego::ModelDescriptor> _modelDescriptor;
-
-// animation info
-    /// The objects's frame.
-    uint16_t _frame_nxt;
-    /// The objects's last frame.
-    uint16_t _frame_lst;
-    /// The objects's frame in betweening.
-    uint8_t _ilip;
-    /// The objects's frame in betweening.
-    float _flip;
-    /// The animation rate.
-    float _rate;
-
-public:
-    AnimationState();
-    ~AnimationState();
-
-public:
-    const std::shared_ptr<Ego::ModelDescriptor> getModelDescriptor() const {
-        return _modelDescriptor;
-    }
-    void setModelDescriptor(const std::shared_ptr<Ego::ModelDescriptor>& modelDescriptor) {
-        _modelDescriptor = modelDescriptor;
-    }
-
-public:
-    /**
-     * @brief Get the index of the next frame.
-     * @return the index of the next frame
-     */
-    int getNextFrameIndex() const {
-        return _frame_nxt;
-    }
-    /**
-     * @brief Get the next frame.
-     * @return the next frame
-     * @throw Id::RuntimeErrorException if the frame index is out of bounds
-     */
-    const MD2_Frame& getNextFrame() const {
-        if (getNextFrameIndex() > getModelDescriptor()->getMD2()->getFrames().size()) {
-            Log::Entry e(Log::Level::Error, __FILE__, __LINE__);
-            e << "invalid frame " << getNextFrameIndex() << "/" << getModelDescriptor()->getMD2()->getFrames().size() << Log::EndOfEntry;
-            Log::get() << e;
-            throw Id::RuntimeErrorException(__FILE__, __LINE__, e.getText());
-        }
-
-        return getModelDescriptor()->getMD2()->getFrames()[getNextFrameIndex()];
-    }
-    /**
-     * @brief Get the last frame index.
-     * @return the last frame index
-     */
-    int getLastFrameIndex() const {
-        return _frame_lst;
-    }
-    /**
-     * @brief Get the last frame.
-     * @return the last frame
-     * @throw Id::RuntimeErrorException if the last frame index is out of bounds
-     */
-    const MD2_Frame& getLastFrame() const {
-        if (getLastFrameIndex() > getModelDescriptor()->getMD2()->getFrames().size()) {
-            Log::Entry e(Log::Level::Error, __FILE__, __LINE__);
-            e << "invalid frame " << getLastFrameIndex() << "/" << getModelDescriptor()->getMD2()->getFrames().size() << Log::EndOfEntry;
-            Log::get() << e;
-            throw Id::RuntimeErrorException(__FILE__, __LINE__, e.getText());
-        }
-
-        return getModelDescriptor()->getMD2()->getFrames()[getLastFrameIndex()];
-    }
-
-public:
-    float get_flip() const {
-        return _flip;
-    }
-    void set_flip(float flip) {
-        _flip = flip;
-    }
-    float get_remaining_flip() const {
-        return (_ilip + 1) * 0.25f - _flip;
-    }
-
+/// An action state.
+struct ActionState {
+    // action info
+    /// Ready to play a new action.
+    bool action_ready;
+    /// The action playing.
+    int action_which;
+    /// Keep the action playing.
+    bool action_keep;
+    /// Loop the action.
+    bool action_loop;
+    /// The action to play next.
+    int action_next;
+    /// Construct this action state.
+    ActionState()
+        : action_ready(true),         // argh! this must be set at the beginning, script's spawn animations do not work!
+        action_which(ACTION_DA),
+        action_keep(false),
+        action_loop(false),
+        action_next(ACTION_DA) {}
+    /// Destruct this action state.
+    ~ActionState() {}
 };
 
 /// All the data that the renderer needs to draw the character
@@ -380,22 +343,11 @@ struct chr_instance_t
     SFP8_T uoffset;                               ///< For moving textures (8.8 fixed point)
     SFP8_T voffset;                               ///< For moving textures (8.8 fixed point)
 
-    // model info
-    std::shared_ptr<Ego::ModelDescriptor> imad;            ///< Character's model
+    /// The animation state.
+    AnimationState animationState;
 
-    // animation info
-    uint16_t         frame_nxt;       ///< Character's frame
-    uint16_t         frame_lst;       ///< Character's last frame
-    uint8_t          ilip;            ///< Character's frame in betweening
-    float          flip;            ///< Character's frame in betweening
-    float          rate;
-
-    // action info
-    bool         action_ready;                   ///< Ready to play a new one
-    int            action_which;                   ///< Character's action
-    bool         action_keep;                    ///< Keep the action playing
-    bool         action_loop;                    ///< Loop it too
-    int            action_next;                    ///< Character's action to play next
+    /// The action state.
+    ActionState actionState;
 
     // lighting info
     int32_t         color_amb;
@@ -410,7 +362,6 @@ struct chr_instance_t
     oct_bb_t       bbox;                           ///< the bounding box for this frame
 
     // graphical optimizations
-    bool                 indolist;               ///< Has it been added yet?
     vlst_cache_t           save;                   ///< Do we need to re-calculate all or part of the vertex list
     chr_reflection_cache_t ref;                    ///< pre-computing some reflection parameters
 

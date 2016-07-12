@@ -25,6 +25,7 @@
 #include "egolib/Math/_Include.hpp"
 #include "egolib/Core/Singleton.hpp"
 #include "egolib/Input/Device.hpp"
+#include "egolib/Input/ModifierKeys.hpp"
 
 //--------------------------------------------------------------------------------------------
 
@@ -41,28 +42,44 @@ struct mouse_data_t : public Device
     // TODO: Use Vector2f.
     using Vector2i = Ego::Math::Discrete::Vector2<int>;
 
+private:
     /**
-     * @brief Offset of the mouse.
-     * @todo Type should be Vector2f.
+     * @brief The mouse offset (difference between the current position and the last position).
      */
-    Vector2i offset;
+    Vector2f offset;
+    /**
+     * @brief The mouse position.
+     */
+    Point2f position;
 
+public:
     uint8_t   button[4];       ///< Mouse button states
     uint32_t  b;               ///< Button masks
 
+protected:
+    /// Construct this mouse device.
 	mouse_data_t();
-
-public:
+    // Befriend with input system.
     friend struct InputSystem;
     void open() override;
     void close() override;
     bool getOpen() const override;
     void update() override;
 
+public:
+    /// @brief Get the mouse position.
+    /// @return the mouse position
+    Point2f getPosition() const { return position; }
+    /// @brief Get the mouse offset (difference between the current position and the last position).
+    /// @return the mouse offset
+    Vector2f getOffset() const { return offset; }
+
 private:
-    /// @todo Return type should be Vector2f.
+    /// @brief Read the mouse offset (difference between current position and last position).
+    /// @return the mouse offset
     static Vector2f readMouseOffset();
-    /// @todo Return type should be Vector2f.
+    /// @brief Read the mouse position.
+    /// @return the mouse position
     static Point2f readMousePosition();
 };
 
@@ -75,18 +92,34 @@ struct keyboard_data_t : public Device
     bool chat_mode;                 ///< Input text from keyboard?
     bool chat_done;                 ///< Input text from keyboard finished?
 
+    /// The keyboard state.
     int state_size;
     const Uint8 *state_ptr;
-
-	keyboard_data_t();
-	bool isKeyDown(int key) const;
-    bool isKeyUp(int key) const;
+private:
+    /// The modifier keys state.
+    Ego::ModifierKeys modifierKeys;
 
 protected:
+    /// Construct this keyboard device.
+	keyboard_data_t();
+    // Befriend with input system.
     friend struct InputSystem;
     void open() override;
     void close() override;
     void update() override;
+
+public:
+    /// @brief Get if the specified key is down.
+    /// @param key the key
+    /// @return @a true if the specified key is down, @a false otherwise
+	bool isKeyDown(int key) const;
+    /// @brief Get if the specified key is up.
+    /// @param key the key
+    /// @return @a true if the specified key is up, @a false otherwise
+    bool isKeyUp(int key) const;
+    /// @brief Get the modifier keys state.
+    /// @return the modifier key state
+    Ego::ModifierKeys getModifierKeys() const;
 
 public:
     bool getOpen() const override;
