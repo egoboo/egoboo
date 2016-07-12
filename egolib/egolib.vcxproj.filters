@@ -1256,9 +1256,6 @@
     <ClInclude Include="src\egolib\Input\DeviceEventArgs.hpp">
       <Filter>Header Files\Input</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Input\Mapping.hpp">
-      <Filter>Header Files\Input</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Math\Functors\Closure.hpp">
       <Filter>Header Files\Math\Functors</Filter>
     </ClInclude>
@@ -1309,6 +1306,9 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Graphics\SDL\DisplayMode.hpp">
       <Filter>Header Files\Graphics\SDL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Input\ModifierKeys.hpp">
+      <Filter>Header Files\Input</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

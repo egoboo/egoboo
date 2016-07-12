@@ -511,6 +511,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Input\ModifierKeys.hpp" />
     <ClInclude Include="src\egolib\Graphics\DisplayMode.hpp" />
     <ClInclude Include="src\egolib\Graphics\SDL\DisplayMode.hpp" />
     <ClInclude Include="src\egolib\Signal\ConnectionBase.hpp" />
@@ -527,7 +528,6 @@
     <ClInclude Include="src\egolib\Math\Functors\Closure_Sphere_AxisAlignedBox.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\Closure_Sphere_Sphere.hpp" />
     <ClInclude Include="src\egolib\Input\Device.hpp" />
-    <ClInclude Include="src\egolib\Input\Mapping.hpp" />
     <ClInclude Include="src\egolib\Input\DeviceEventArgs.hpp" />
     <ClInclude Include="src\egolib\Events\WindowEventArgs.hpp" />
     <ClInclude Include="src\egolib\Events\KeyboardKeyEventArgs.hpp" />
