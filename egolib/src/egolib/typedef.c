@@ -27,12 +27,6 @@
 #include "egolib/_math.h"
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-static void va_non_fatal_assert( const char *format, va_list args );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 void pair_to_range( IPair pair, FRange * prange )
 {
     /// @author ZZ
@@ -101,29 +95,4 @@ void floats_to_pair( float vmin, float vmax, IPair * ppair )
     range_tmp.to   = vmax;
 
     range_to_pair( range_tmp, ppair );
-}
-
-//--------------------------------------------------------------------------------------------
-void va_non_fatal_assert( const char *format, va_list args )
-{
-    static char buffer[1024];
-
-    vsnprintf( buffer, SDL_arraysize( buffer ), format, args );
-
-    fputs( buffer, stderr );
-}
-
-//--------------------------------------------------------------------------------------------
-void non_fatal_assert( bool val, const char * format, ... )
-{
-    va_list args;
-
-    va_start( args, format );
-
-    if ( !val )
-    {
-        va_non_fatal_assert( format, args );
-    }
-
-    va_end( args );
 }
