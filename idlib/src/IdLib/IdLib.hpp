@@ -39,6 +39,9 @@
 #include "IdLib/InvalidArgumentException.hpp"
 #include "IdLib/OutOfBoundsException.hpp"
 
+// Bitmask types.
+#include "IdLib/BitmaskTypes.hpp"
+
 // DSL utilities.
 #include "IdLib/Location.hpp"
 
