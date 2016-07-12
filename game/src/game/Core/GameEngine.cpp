@@ -537,8 +537,6 @@ void GameEngine::pollEvents()
                 
             case SDL_MOUSEMOTION:
             {
-                InputSystem::get().mouse.offset.x() = event.motion.x;
-                InputSystem::get().mouse.offset.y() = event.motion.y;
                 auto e = Ego::Events::MouseMovedEventArgs(Point2f(event.motion.x, event.motion.y));
                 _currentGameState->notifyMouseMoved(e);
             }

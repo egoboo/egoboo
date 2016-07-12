@@ -75,19 +75,17 @@ void mouse_data_t::update()
     // If the mouse is not enabled or not open, do not update the mouse.
     if (!this->enabled || !this->getOpen()) return;
 
-    int x, y, b;
-
-    b = SDL_GetRelativeMouseState( &x, &y );
-
-    //Move mouse to the center of the screen since SDL does not detect motion outside the window
-    //if (!egoboo_config_t::get().debug_developerMode_enable.getValue())
-    //    SDL_WarpMouseInWindow(Ego::GraphicsSystem::window->get(), GFX_WIDTH >> 1, GFX_HEIGHT >> 1);
-
-    this->offset = -Vector2i(x, y);
-    this->button[0] = ( b & SDL_BUTTON( 1 ) ) ? 1 : 0;
-    this->button[1] = ( b & SDL_BUTTON( 3 ) ) ? 1 : 0;
-    this->button[2] = ( b & SDL_BUTTON( 2 ) ) ? 1 : 0; // Middle is 2 on SDL
-    this->button[3] = ( b & SDL_BUTTON( 4 ) ) ? 1 : 0;
+    // Read the mouse offset.
+    // For some reason this offset is negated.
+    this->offset = -readMouseOffset();
+    // Read the mouse position.
+    this->position = readMousePosition();
+    // Read the mouse button state.
+    int buttonState_backend = SDL_GetRelativeMouseState(nullptr, nullptr);
+    this->button[0] = (b & SDL_BUTTON(1)) ? 1 : 0;
+    this->button[1] = (b & SDL_BUTTON(3)) ? 1 : 0;
+    this->button[2] = (b & SDL_BUTTON(2)) ? 1 : 0; // Middle is 2 on SDL
+    this->button[3] = (b & SDL_BUTTON(4)) ? 1 : 0;
 
     // Mouse mask
     this->b = ( this->button[3] << 3 ) 
@@ -100,7 +98,49 @@ void keyboard_data_t::update()
 {
     // If the keyboard is not enabled or not open, do not update the keyboard.
     if (!this->enabled || !this->getOpen()) return;
+
+    // (1) Get the keyboard state.
     this->state_ptr = SDL_GetKeyboardState( &( this->state_size ) );
+
+    // (2) Get and translate the modifier keys state.
+    auto backendModifierKeys = SDL_GetModState();
+    this->modifierKeys = Ego::ModifierKeys();
+    // NUMLOCK.
+    if (SDL_Keymod::KMOD_NUM == (backendModifierKeys & SDL_Keymod::KMOD_NUM)) {
+        modifierKeys |= Ego::ModifierKeys::Num;
+    }
+    // LGUI and RGUI
+    if (SDL_Keymod::KMOD_LGUI == (backendModifierKeys & SDL_Keymod::KMOD_LGUI)) {
+        modifierKeys |= Ego::ModifierKeys::LeftGui;
+    }
+    if (SDL_Keymod::KMOD_RGUI == (backendModifierKeys & SDL_Keymod::KMOD_RGUI)) {
+        modifierKeys |= Ego::ModifierKeys::RightGui;
+    }
+    // LSHIFT and RSHIFT
+    if (SDL_Keymod::KMOD_LSHIFT == (backendModifierKeys & SDL_Keymod::KMOD_LSHIFT)) {
+        modifierKeys |= Ego::ModifierKeys::LeftShift;
+    }
+    if (SDL_Keymod::KMOD_RSHIFT == (backendModifierKeys & SDL_Keymod::KMOD_RSHIFT)) {
+        modifierKeys |= Ego::ModifierKeys::RightShift;
+    }
+    // CAPS
+    if (SDL_Keymod::KMOD_CAPS == (backendModifierKeys & SDL_Keymod::KMOD_CAPS)) {
+        modifierKeys |= Ego::ModifierKeys::Caps;
+    }
+    // LCTRL and RCTRL
+    if (SDL_Keymod::KMOD_LCTRL == (backendModifierKeys & SDL_Keymod::KMOD_LCTRL)) {
+        modifierKeys |= Ego::ModifierKeys::LeftControl;
+    }
+    if (SDL_Keymod::KMOD_RCTRL == (backendModifierKeys & SDL_Keymod::KMOD_RCTRL)) {
+        modifierKeys |= Ego::ModifierKeys::RightControl;
+    }
+    // LALT and RALT
+    if (SDL_Keymod::KMOD_LALT == (backendModifierKeys & SDL_Keymod::KMOD_LALT)) {
+        modifierKeys |= Ego::ModifierKeys::LeftAlt;
+    }
+    if (SDL_Keymod::KMOD_RALT == (backendModifierKeys & SDL_Keymod::KMOD_RALT)) {
+        modifierKeys |= Ego::ModifierKeys::RightAlt;
+    }
 }
 
 void joystick_data_t::update()
@@ -226,6 +266,10 @@ bool keyboard_data_t::isKeyDown(int key) const {
 
 bool keyboard_data_t::isKeyUp(int key) const {
     return !isKeyDown(key);
+}
+
+Ego::ModifierKeys keyboard_data_t::getModifierKeys() const {
+    return modifierKeys;
 }
 
 //--------------------------------------------------------------------------------------------
