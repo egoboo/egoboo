@@ -85,7 +85,7 @@ public:
         return false;
     }
 
-    bool notifyMouseButtonClicked(const Events::MouseButtonClickedEventArgs& e) override {
+    bool notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs& e) override {
         if (_mouseOver && e.getButton() == SDL_BUTTON_LEFT) {
             static_cast<LevelUpWindow*>(getParent())->doLevelUp(this);
             AudioSystem::get().playSoundFull(AudioSystem::get().getGlobalSound(GSND_PERK_SELECT));
