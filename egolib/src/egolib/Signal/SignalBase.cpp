@@ -50,7 +50,7 @@ void SignalBase::maybeSweep() noexcept {
             if (cur->isDead()) { // Does the subscription refer to this node?
                 NodeBase *node = cur;
                 *pred = cur->next;
-                cur = cur = cur->next;
+                cur = cur->next;
                 delete node;
                 deadCount--;
             } else {

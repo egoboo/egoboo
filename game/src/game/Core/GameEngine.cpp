@@ -408,7 +408,6 @@ void GameEngine::subscribe() {
 }
 
 void GameEngine::unsubscribe() {
-    auto window = Ego::GraphicsSystem::window;
     keyboardFocusLost.disconnect();
     keyboardFocusReceived.disconnect();
     mouseLeft.disconnect();

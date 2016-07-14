@@ -49,7 +49,7 @@ InputOptionsScreen::InputOptionsScreen() :
     for(std::shared_ptr<Ego::GUI::Component> &component : ComponentContainer::iterator()) {
         std::shared_ptr<Ego::GUI::Button> button = std::dynamic_pointer_cast<Ego::GUI::Button>(component);
         if(button) {
-            button->setPosition(button->getX() + _maxLabelWidth, button->getY());
+            button->setPosition(Point2f(button->getX() + _maxLabelWidth, button->getY()));
         }
     }
 
@@ -102,14 +102,14 @@ void InputOptionsScreen::addInputOption(const std::string &label, const Ego::Inp
 {
     //Label
     auto name = std::make_shared<Ego::GUI::Label>(label);
-    name->setPosition(_bindingButtonPosX, _bindingButtonPosY);
+    name->setPosition(Point2f(_bindingButtonPosX, _bindingButtonPosY));
     addComponent(name);
     _maxLabelWidth = std::max<float>(_maxLabelWidth, name->getWidth());
 
     //Button
     std::shared_ptr<Ego::GUI::Button> inputOption = std::make_shared<Ego::GUI::Button>(getActiveInputDevice().getMappedInputName(binding));
-    inputOption->setPosition(_bindingButtonPosX + 50, _bindingButtonPosY);
-    inputOption->setSize(200, 25);
+    inputOption->setPosition(Point2f(_bindingButtonPosX + 50, _bindingButtonPosY));
+    inputOption->setSize(Vector2f(200, 25));
     inputOption->setOnClickFunction(
     [this, inputOption, binding]{
     	inputOption->setText("[Press Key]");

@@ -152,7 +152,7 @@ void Player::updateLatches()
         }
 
         //handle item control
-        if ( object->inst.action_ready && 0 == object->reload_timer )
+        if ( object->inst.actionState.action_ready && 0 == object->reload_timer )
         {
             //handle LEFT hand control
             if (getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::USE_LEFT) || getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::GRAB_LEFT))
