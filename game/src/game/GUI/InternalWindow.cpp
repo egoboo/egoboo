@@ -69,10 +69,6 @@ InternalWindow::InternalWindow(const std::string &title) :
     _mouseDragOffset(0.0f, 0.0f),
     _transparency(0.33f),
     _firstDraw(true) {
-    //Add the close button
-    //_closeButton->setOnClickFunction([this]{
-    //    this->destroy();
-    //});
 
     //Set initial window position, do after all components have been initialized
     setPosition(Point2f(20, 20));
@@ -108,7 +104,7 @@ bool InternalWindow::notifyMouseMoved(const Events::MouseMovedEventArgs& e) {
         }
     }
 
-    return ComponentContainer::notifyMouseMoved(e);
+    return Container::notifyMouseMoved(e);
 }
 
 bool InternalWindow::notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs& e) {
@@ -137,7 +133,7 @@ bool InternalWindow::notifyMouseButtonPressed(const Events::MouseButtonPressedEv
         _isDragging = false;
     }
 
-    return ComponentContainer::notifyMouseButtonPressed(e);
+    return Container::notifyMouseButtonPressed(e);
 }
 
 bool InternalWindow::notifyMouseButtonReleased(const Events::MouseButtonReleasedEventArgs& e) {
@@ -151,7 +147,7 @@ void InternalWindow::draw() {
 
         //Make sure that all components added to this window are placed relative to 
         //our position so that (0,0) is topleft corner in this InternalWindow
-        for (const std::shared_ptr<Component> &component : ComponentContainer::iterator()) {
+        for (const std::shared_ptr<Component> &component : iterator()) {
             component->setPosition(component->getPosition() + Vector2f(getX(), getY()));
         }
     }
@@ -160,15 +156,14 @@ void InternalWindow::draw() {
 
 void InternalWindow::setPosition(const Point2f& position) {
     //Calculate offsets in position change
-    int translateX = position.x() - getX();
-    int translateY = position.y() - getY();
+    auto translate = position - getPosition();
 
     //Shift window position
     Component::setPosition(position);
 
     //Shift all child components as well
-    for (const std::shared_ptr<Component> &component : ComponentContainer::iterator()) {
-        component->setPosition(component->getPosition() + Vector2f(translateX, translateY));
+    for (const std::shared_ptr<Component> &component : iterator()) {
+        component->setPosition(component->getPosition() + translate);
     }
 
     //Finally update titlebar position
@@ -180,13 +175,13 @@ void InternalWindow::setTransparency(float alpha) {
     _transparency = Math::constrain(alpha, 0.0f, 1.0f);
 }
 
-void InternalWindow::addComponent(std::shared_ptr<Component> component) {
+void InternalWindow::addComponent(const std::shared_ptr<Component>& component) {
     //Make sure that all components added to this window are placed relative to 
     //our position so that (0,0) is topleft corner in this InternalWindow
     if (!_firstDraw) {
         component->setPosition(component->getPosition() + Vector2f(getX(), getY()));
     }
-    ComponentContainer::addComponent(component);
+    Container::addComponent(component);
 }
 
 void InternalWindow::setSize(const Vector2f& size) {

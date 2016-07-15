@@ -42,6 +42,9 @@ public:
 
     void beginState() override;
 
+    void draw() override {
+        drawAll();
+    }
 protected:
     void drawContainer() override;
 

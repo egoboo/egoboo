@@ -127,7 +127,7 @@ bool MapEditorState::notifyKeyboardKeyPressed(const Ego::Events::KeyboardKeyPres
         return true;
     }
 
-    return ComponentContainer::notifyKeyboardKeyPressed(e);
+    return Container::notifyKeyboardKeyPressed(e);
 }
 
 void MapEditorState::loadModuleData(std::shared_ptr<ModuleProfile> module)

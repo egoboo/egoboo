@@ -43,7 +43,7 @@ public:
 
     void beginState() override;
 
-	virtual bool notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEventArgs& e) override;
+    virtual bool notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEventArgs& e) override;
 
 protected:
     void drawContainer() override;

@@ -22,8 +22,7 @@
 /// @author Johan Jansen
 #pragma once
 
-#include "game/GUI/Component.hpp"
-#include "game/GUI/ComponentContainer.hpp"
+#include "game/GUI/Container.hpp"
 
 namespace Ego {
 namespace GUI {
@@ -35,7 +34,7 @@ class Image;
 namespace Ego {
 namespace GUI {
 
-class InternalWindow : public Component, public ComponentContainer {
+class InternalWindow : public Container {
 protected:
     class TitleBar : public Component {
     public:
@@ -68,7 +67,7 @@ public:
 
     void setTransparency(float alpha);
 
-    void addComponent(std::shared_ptr<Component> component) override;
+    void addComponent(const std::shared_ptr<Component>& component) override;
 
 protected:
     void drawContainer() override;

@@ -29,7 +29,9 @@ public:
 
     bool notifyKeyboardKeyPressed(const Ego::Events::KeyboardKeyPressedEventArgs& e) override;
 
-
+    void draw() override {
+        drawContainer();
+    }
 protected:
     void drawContainer() override;
 

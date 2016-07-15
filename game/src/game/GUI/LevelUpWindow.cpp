@@ -184,9 +184,7 @@ _attributeRevealTime(0) {
     }
 
     _descriptionLabel->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
-    _descriptionLabel->setCenterPosition(Point2f(getX() + getWidth() / 2, getHeight() - _descriptionLabel->getHeight()), true);
     addComponent(_descriptionLabel);
-
     _perkIncreaseLabel->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
     addComponent(_perkIncreaseLabel);
 
@@ -212,6 +210,14 @@ _attributeRevealTime(0) {
         //Remove perk from pool
         perkPool.erase(perkPool.begin() + randomIndex);
     }
+
+    _descriptionLabel->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
+    addComponent(_descriptionLabel);
+    _perkIncreaseLabel->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
+    addComponent(_perkIncreaseLabel);
+
+    //No perk by default
+    setHoverPerk(Perks::NR_OF_PERKS);
 
     //Play level up sound
     AudioSystem::get().playSoundFull(AudioSystem::get().getGlobalSound(GSND_LEVELUP));
@@ -342,7 +348,7 @@ void LevelUpWindow::doLevelUp(PerkButton *selectedPerk) {
     //Selected perk animation
     _selectedPerk = std::make_shared<Image>(selectedPerk->getPerk().getIcon().getFilePath());
     _selectedPerk->setPosition(selectedPerk->getPosition() + Vector2f(-getX(), -getY()));
-    _selectedPerk->setSize(Vector2f(selectedPerk->getWidth(), selectedPerk->getHeight()));
+    _selectedPerk->setSize(selectedPerk->getSize());
     _selectedPerk->setTint(selectedPerk->getPerk().getColour());
     addComponent(_selectedPerk);
 
@@ -457,7 +463,7 @@ void LevelUpWindow::drawContainer() {
 
     //Make icon shrink
     if (_selectedPerk->getWidth() > PERK_THUMBNAIL_SIZE) {
-        _selectedPerk->setSize(Vector2f(_selectedPerk->getWidth() - 2, _selectedPerk->getHeight() - 2));
+        _selectedPerk->setSize(_selectedPerk->getSize() - Vector2f(2, 2));
     }
 
     //Move icon into corner (use about 1 second to get there)

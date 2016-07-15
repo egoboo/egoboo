@@ -32,6 +32,9 @@ public:
     
     void update() override {}
     
+    void draw() override {
+        drawContainer();
+    }
 protected:
     void drawContainer() override {}
 };

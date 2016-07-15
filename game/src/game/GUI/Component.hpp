@@ -9,7 +9,7 @@ namespace Ego {
 namespace GUI {
 
 // Forward declarations.
-class ComponentContainer;
+class Container;
 
 class Component : public InputListener, public std::enable_shared_from_this<Component>, public Id::NonCopyable {
 public:
@@ -32,8 +32,16 @@ public:
     void setVisible(const bool visible);
 
 
-
+    /// @brief Get the bounds of this component.
+    /// @return the bounds of this component
     const Rectangle2f& getBounds() const;
+    /// @brief Set the size of this component.
+    /// @param size the size of this component
+    virtual void setSize(const Vector2f& size);
+    /// @brief Set the position of this component
+    /// @param position the position of this component
+    virtual void setPosition(const Point2f& position);
+
     Point2f getPosition() const;
     Vector2f getSize() const;
     float getX() const;
@@ -44,10 +52,10 @@ public:
     void setCenterPosition(const Point2f& position, const bool onlyHorizontal = false);
     virtual void setWidth(float width);
     virtual void setHeight(float height);
-    virtual void setSize(const Vector2f& size);
+
     virtual void setX(float x);
     virtual void setY(float y);
-    virtual void setPosition(const Point2f& position);
+
 
     /**
      * @brief Get if this component contains a point.
@@ -56,13 +64,20 @@ public:
      */
     bool contains(const Point2f& point) const;
 
-    ComponentContainer* getParent() const;
+    void setParent(Container *parent);
+    Container *getParent() const;
 
     //Type cast operator
     operator std::shared_ptr<Component>() { return shared_from_this(); }
 
     void destroy();
     bool isDestroyed() const;
+
+    /**
+    * @return
+    *   Number of GUI components currently contained within this container
+    **/
+    size_t getComponentCount() const;
 
     /**
     * @brief
@@ -77,9 +92,7 @@ private:
     Rectangle2f _bounds;
     bool _enabled;
     bool _visible;
-    ComponentContainer* _parent;
-
-    friend class ComponentContainer;
+    Container *_parent;
 };
 
 } // namespace GUI

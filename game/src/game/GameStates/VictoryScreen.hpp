@@ -42,6 +42,7 @@ public:
     VictoryScreen& operator=(const VictoryScreen&) = delete;
     
 protected:
+    void draw() override { drawContainer(); }
     void drawContainer() override;
 
 private:

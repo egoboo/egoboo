@@ -47,6 +47,10 @@ public:
 
     void beginState() override;
 
+    void draw() override {
+        drawContainer();
+    }
+
     bool notifyKeyboardKeyPressed(const Ego::Events::KeyboardKeyPressedEventArgs& e) override;
 
     const std::shared_ptr<Ego::GUI::MiniMap>& getMiniMap() const;

@@ -41,7 +41,7 @@ void ScrollableList::setScrollPosition(int position) {
     //Shift position of all components in container
     int yOffset = 0;
     int componentCount = 0;
-    for (const std::shared_ptr<Component> &component : ComponentContainer::iterator()) {
+    for (const std::shared_ptr<Component> &component : iterator()) {
         if (componentCount < _currentIndex || yOffset + component->getHeight() >= getHeight()) {
             component->setVisible(false);
             componentCount++;
@@ -89,7 +89,7 @@ void ScrollableList::draw() {
     drawContainer();
 
     //Now draw all components inside it
-    for (const std::shared_ptr<Component>& component : ComponentContainer::iterator()) {
+    for (const std::shared_ptr<Component>& component : iterator()) {
         if (!component->isVisible()) continue;  //Ignore hidden/destroyed components
         component->draw();
     }
@@ -116,13 +116,13 @@ bool ScrollableList::notifyMouseMoved(const Events::MouseMovedEventArgs& e) {
     if (_downButton->notifyMouseMoved(e)) return true;
     if (_upButton->notifyMouseMoved(e)) return true;
 
-    return ComponentContainer::notifyMouseMoved(e);
+    return Container::notifyMouseMoved(e);
 }
 
 bool ScrollableList::notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs& e) {
     if (_downButton->notifyMouseButtonPressed(e)) return true;
     if (_upButton->notifyMouseButtonPressed(e)) return true;
-    return ComponentContainer::notifyMouseButtonPressed(e);
+    return Container::notifyMouseButtonPressed(e);
 }
 
 void ScrollableList::forceUpdate() {

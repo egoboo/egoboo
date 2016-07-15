@@ -23,9 +23,9 @@
 
 #pragma once
 
-#include "game/GUI/ComponentContainer.hpp"
+#include "game/GUI/Container.hpp"
 
-class GameState : public Ego::GUI::ComponentContainer {
+class GameState : public Ego::GUI::Container {
 
 public:
 

@@ -24,8 +24,7 @@
 
 #pragma once
 
-#include "game/GUI/ComponentContainer.hpp"
-#include "game/GUI/Component.hpp"
+#include "game/GUI/Container.hpp"
 
 // Forward declaration.
 namespace Ego {
@@ -37,7 +36,7 @@ class Button;
 namespace Ego {
 namespace GUI {
 
-class ScrollableList : public Component, public ComponentContainer {
+class ScrollableList : public Container {
 public:
     static const size_t COMPONENT_LINE_SPACING;
 
@@ -54,12 +53,6 @@ public:
      */
     void forceUpdate();
 
-    /**
-    * Ensure that this class inherits defaults for these methods from ComponentContainer and not GUI component
-    **/
-    bool notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEventArgs& e) override {
-        return ComponentContainer::notifyKeyboardKeyPressed(e);
-    }
     bool notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs& e) override;
     bool notifyMouseWheelTurned(const Events::MouseWheelTurnedEventArgs& e) override;
     bool notifyMouseMoved(const Events::MouseMovedEventArgs& e) override;

@@ -23,7 +23,7 @@
 #pragma once
 
 #include "game/GUI/Button.hpp"
-#include "game/GUI/ComponentContainer.hpp"
+#include "game/GUI/Container.hpp"
 
 // Forward declarations.
 class ModuleProfile;
@@ -37,7 +37,7 @@ class Button;
 namespace Ego {
 namespace GUI {
 
-class ModuleSelector : public ComponentContainer, public Component {
+class ModuleSelector : public Container {
 public:
     ModuleSelector(const std::vector<std::shared_ptr<ModuleProfile>> &modules);
 
@@ -47,6 +47,7 @@ public:
 
     void notifyModuleListUpdated();
 
+#if 0
     /**
      * Ensure that this class inherits defaults for these methods from ComponentContainer and not Component.
      */
@@ -59,6 +60,7 @@ public:
     bool notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs& e) override {
         return ComponentContainer::notifyMouseButtonPressed(e);
     }
+#endif
     bool notifyMouseWheelTurned(const Events::MouseWheelTurnedEventArgs& e) override;
 
     const std::shared_ptr<ModuleProfile>& getSelectedModule() const;

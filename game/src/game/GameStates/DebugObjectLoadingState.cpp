@@ -82,7 +82,7 @@ private:
     std::shared_ptr<Ego::Font::LaidTextRenderer> _textRenderer;
 };
 
-struct DebugObjectLoadingState::ObjectGUIContainer : public ComponentContainer, public Ego::GUI::Component
+struct DebugObjectLoadingState::ObjectGUIContainer : public Container
 {
     ObjectGUIContainer(const std::string &objectName,
                        const std::weak_ptr<ModuleLoader> &module) :
@@ -120,17 +120,7 @@ struct DebugObjectLoadingState::ObjectGUIContainer : public ComponentContainer, 
         _objectName->setPosition(position);
         _loadingText->setPosition(position + Vector2f(265, (getHeight() - _loadingText->getHeight()) / 2));
     }
-    
-    bool notifyMouseButtonClicked(const Ego::Events::MouseButtonClickedEventArgs& e) override
-    {
-        return ComponentContainer::notifyMouseButtonClicked(e);
-    }
-    
-    bool notifyMouseMoved(const Ego::Events::MouseMovedEventArgs& e) override
-    {
-        return ComponentContainer::notifyMouseMoved(e);
-    }
-    
+        
     void relayout() {
         int height = std::max(_objectName->getHeight(), _loadingText->getHeight());
         setHeight(height);

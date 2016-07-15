@@ -405,6 +405,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\game\GUI\Container.cpp" />
     <ClCompile Include="src\game\GameStates\InputOptionsScreen.cpp" />
     <ClCompile Include="src\game\GameStates\MapEditorSelectModuleState.cpp" />
     <ClCompile Include="src\game\GameStates\MapEditorState.cpp" />
@@ -462,7 +463,6 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClCompile Include="src\game\gamestates\SelectPlayersState.cpp" />
     <ClCompile Include="src\game\gamestates\VictoryScreen.cpp" />
     <ClCompile Include="src\game\gui\Button.cpp" />
-    <ClCompile Include="src\game\gui\ComponentContainer.cpp" />
     <ClCompile Include="src\game\gui\Component.cpp" />
     <ClCompile Include="src\game\gui\IconButton.cpp" />
     <ClCompile Include="src\game\gui\Image.cpp" />
@@ -491,6 +491,8 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClCompile Include="src\game\script_implementation.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\game\GameStates\VideoOptionsScreen.hpp" />
+    <ClInclude Include="src\game\GUI\Container.hpp" />
     <ClInclude Include="src\game\GameStates\InputOptionsScreen.hpp" />
     <ClInclude Include="src\game\GameStates\MapEditorSelectModuleState.hpp" />
     <ClInclude Include="src\game\GameStates\MapEditorState.hpp" />
@@ -552,7 +554,6 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClInclude Include="src\game\gamestates\SelectPlayersState.hpp" />
     <ClInclude Include="src\game\gamestates\VictoryScreen.hpp" />
     <ClInclude Include="src\game\gui\Button.hpp" />
-    <ClInclude Include="src\game\gui\ComponentContainer.hpp" />
     <ClInclude Include="src\game\gui\Component.hpp" />
     <ClInclude Include="src\game\gui\IconButton.hpp" />
     <ClInclude Include="src\game\gui\Image.hpp" />
