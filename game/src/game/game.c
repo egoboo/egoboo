@@ -55,7 +55,6 @@
 #define THROWFIX            30.0f                    ///< To correct thrown velocities
 #define MINTHROWVELOCITY    15.0f
 #define MAXTHROWVELOCITY    75.0f
-#define GRABDELAY           25                      ///< Time before grab again
 
 bool  overrideslots      = false;
 
@@ -786,16 +785,17 @@ void readPlayerInput()
         player->updateLatches();
 
         //Press space to respawn!
+        bool respawnRequested = false;
         if (Ego::Input::InputSystem::get().isKeyDown(SDLK_SPACE)
             && (local_stats.allpladead || _currentModule->canRespawnAnyTime())
             && _currentModule->isRespawnValid()
             && egoboo_config_t::get().game_difficulty.getValue() < Ego::GameDifficulty::Hard)
         {
-            pchr->latch.b[LATCHBUTTON_RESPAWN] = true;
+            respawnRequested = true;
         }
 
         // Let players respawn
-        if (egoboo_config_t::get().game_difficulty.getValue() < Ego::GameDifficulty::Hard && pchr->latch.b[LATCHBUTTON_RESPAWN] && _currentModule->isRespawnValid())
+        if (egoboo_config_t::get().game_difficulty.getValue() < Ego::GameDifficulty::Hard && respawnRequested && _currentModule->isRespawnValid())
         {
             if (!pchr->isAlive() && 0 == local_stats.revivetimer)
             {
@@ -811,9 +811,6 @@ void readPlayerInput()
                     pchr->giveMoney(-pchr->getMoney() * EXPKEEP);
                 }
             }
-
-            // remove all latches other than latchbutton_respawn
-            pchr->latch.b[LATCHBUTTON_RESPAWN] = false;
         }
    }
 }
@@ -2369,157 +2366,6 @@ bool export_one_character_name_vfs( const char *szSaveName, ObjectRef character 
     if ( !_currentModule->getObjectHandler().exists( character ) ) return false;
 
     return RandomName::exportName(_currentModule->getObjectHandler()[character]->getName(), szSaveName);
-}
-
-bool chr_do_latch_button( Object * pchr )
-{
-    /// @author BB
-    /// @details Character latches for generalized buttons
-
-    auto ichr = pchr->getObjRef();
-
-    if ( !pchr->isAlive() || pchr->latch.b.none() ) return true;
-
-    const std::shared_ptr<ObjectProfile> &profile = pchr->getProfile();
-
-    if ( pchr->latch.b[LATCHBUTTON_JUMP] && 0 == pchr->jump_timer )
-    {
-
-        //Jump from our mount
-        if (pchr->isBeingHeld())
-        {
-            pchr->detatchFromHolder(true, true);
-            pchr->getObjectPhysics().detachFromPlatform();
-
-            pchr->jump_timer = Object::JUMPDELAY;
-            if ( pchr->isFlying() )
-            {
-                pchr->vel.z() += Object::DISMOUNTZVEL / 3.0f;
-            }
-            else
-            {
-                pchr->vel.z() += Object::DISMOUNTZVEL;
-            }
-
-            pchr->setPosition(pchr->getPosX(), pchr->getPosY(), pchr->getPosZ() + pchr->vel[kZ]);
-
-            if ( pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) != Object::JUMPINFINITE && 0 != pchr->jumpnumber ) {
-                pchr->jumpnumber--;
-            }
-
-            // Play the jump sound
-            AudioSystem::get().playSound(pchr->getPosition(), profile->getJumpSound());
-        }
-
-        //Normal jump
-        else if ( 0 != pchr->jumpnumber && !pchr->isFlying() )
-        {
-            if (1 != pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) || pchr->jumpready)
-            {
-                //Exit stealth unless character has Stalker Perk
-                if(!pchr->hasPerk(Ego::Perks::STALKER)) {
-                    pchr->deactivateStealth();
-                }
-
-                // Make the character jump
-                float jumpPower = pchr->getAttribute(Ego::Attribute::JUMP_POWER) * 1.5f;
-                pchr->hitready = true;
-                pchr->jump_timer = Object::JUMPDELAY;
-
-                //To prevent 'bunny jumping' in water
-                if (pchr->isSubmerged() || pchr->getObjectPhysics().floorIsSlippy()) {
-                    pchr->jump_timer *= pchr->hasPerk(Ego::Perks::ATHLETICS) ? 2 : 4;       
-                    jumpPower *= 0.5f;
-                }
-
-                pchr->vel.z() += jumpPower;
-                pchr->jumpready = false;
-
-                if (pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) != Object::JUMPINFINITE) { 
-                    pchr->jumpnumber--;
-                }
-
-                // Set to jump animation if not doing anything better
-                if ( pchr->inst.actionState.action_ready )
-                {
-                    chr_play_action( pchr, ACTION_JA, true );
-                }
-
-                // Play the jump sound (Boing!)
-                AudioSystem::get().playSound(pchr->getPosition(), profile->getJumpSound());
-            }
-        }
-
-    }
-    if ( pchr->latch.b[LATCHBUTTON_PACKLEFT] && pchr->inst.actionState.action_ready && 0 == pchr->reload_timer )
-    {
-        pchr->reload_timer = Inventory::PACKDELAY;
-        Inventory::swap_item( ichr, pchr->getInventory().getFirstFreeSlotNumber(), SLOT_LEFT, false );
-    }
-    if ( pchr->latch.b[LATCHBUTTON_PACKRIGHT] && pchr->inst.actionState.action_ready && 0 == pchr->reload_timer )
-    {
-        pchr->reload_timer = Inventory::PACKDELAY;
-        Inventory::swap_item( ichr, pchr->getInventory().getFirstFreeSlotNumber(), SLOT_RIGHT, false );
-    }
-
-    if ( pchr->latch.b[LATCHBUTTON_ALTLEFT] && pchr->inst.actionState.action_ready && 0 == pchr->reload_timer )
-    {
-        pchr->reload_timer = GRABDELAY;
-        if ( !pchr->getLeftHandItem() )
-        {
-            // Grab left
-            if(!pchr->getProfile()->getModel()->isActionValid(ACTION_ME)) {
-                //No grab animation valid
-                pchr->getObjectPhysics().grabStuff(GRIP_LEFT, false );
-            }
-            else {
-                chr_play_action( pchr, ACTION_ME, false );
-            }
-        }
-        else
-        {
-            // Drop left
-            chr_play_action( pchr, ACTION_MA, false );
-        }
-    }
-    if ( pchr->latch.b[LATCHBUTTON_ALTRIGHT] && pchr->inst.actionState.action_ready && 0 == pchr->reload_timer )
-    {
-        //pchr->latch.b &= ~LATCHBUTTON_ALTRIGHT;
-
-        pchr->reload_timer = GRABDELAY;
-        if ( !pchr->getRightHandItem() )
-        {
-            // Grab right
-            if(!pchr->getProfile()->getModel()->isActionValid(ACTION_MF)) {
-                //No grab animation valid
-                pchr->getObjectPhysics().grabStuff(GRIP_RIGHT, false );
-            }
-            else {
-                chr_play_action( pchr, ACTION_MF, false );
-            }
-        }
-        else
-        {
-            // Drop right
-            chr_play_action( pchr, ACTION_MB, false );
-        }
-    }
-
-    // LATCHBUTTON_LEFT and LATCHBUTTON_RIGHT are mutually exclusive
-    bool attack_handled = false;
-    if ( !attack_handled && pchr->latch.b[LATCHBUTTON_LEFT] && 0 == pchr->reload_timer )
-    {
-        //pchr->latch.b &= ~LATCHBUTTON_LEFT;
-        attack_handled = chr_do_latch_attack( pchr, SLOT_LEFT );
-    }
-    if ( !attack_handled && pchr->latch.b[LATCHBUTTON_RIGHT] && 0 == pchr->reload_timer )
-    {
-        //pchr->latch.b &= ~LATCHBUTTON_RIGHT;
-
-        attack_handled = chr_do_latch_attack( pchr, SLOT_RIGHT );
-    }
-
-    return true;
 }
 
 bool chr_do_latch_attack( Object * pchr, slot_t which_slot )

@@ -509,6 +509,10 @@ public:
         return t < 0.01f;
     }
 
+    inline void setZero() {
+        assign(Vector<ScalarFieldType, _Dimensionality>::zero());
+    }
+
 
 public:
     /**

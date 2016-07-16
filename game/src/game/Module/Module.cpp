@@ -617,9 +617,6 @@ void GameModule::updateAllObjects()
         //Update object logic
         object->update();
 
-        //Generate movement and attacks from input latches
-        chr_do_latch_button(object.get());
-
         //Update model animation
         move_one_character_do_animation(object.get());
 

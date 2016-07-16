@@ -583,7 +583,7 @@ void scr_run_chr_script(Object *pchr) {
 
 	// Clear the button latches.
 	if (!pchr->isPlayer()) {
-		RESET_BIT_FIELD(pchr->latch.b);
+		pchr->resetInputCommands();
 	}
 
 	// Reset the target if it can't be seen.
@@ -624,28 +624,18 @@ void scr_run_chr_script(Object *pchr) {
 
 	// Set movement latches
 	if (!pchr->isPlayer()) {
-		float latch2;
 
 		ai_state_t::ensure_wp(aiState);
 
-		if (pchr->isMount() && _currentModule->getObjectHandler().exists(pchr->holdingwhich[SLOT_LEFT])) {
-			// Mount
-            pchr->latch.input = _currentModule->getObjectHandler().get(pchr->holdingwhich[SLOT_LEFT])->latch.input;
+		if (pchr->isMount() && pchr->getLeftHandItem()) {
+			// Mount (rider is held in left grip)
+			pchr->getObjectPhysics().setDesiredVelocity(pchr->getLeftHandItem()->getObjectPhysics().getDesiredVelocity());
 		}
 		else if (aiState.wp_valid) {
 			// Normal AI
-			pchr->latch.input.x() = (aiState.wp[kX] - pchr->getPosX()) / (Info<int>::Grid::Size() << 1);
-			pchr->latch.input.y() = (aiState.wp[kY] - pchr->getPosY()) / (Info<int>::Grid::Size() << 1);
-		}
-		else {
-			// AI, but no valid waypoints
-            pchr->latch.input = Vector2f::zero();
-		}
-
-        latch2 = pchr->latch.input.length_2();
-		if (latch2 > 1.0f) {
-			float scale = 1.0f / std::sqrt(latch2);
-			pchr->latch.input *= scale;
+			pchr->getObjectPhysics().setDesiredVelocity(Vector2f(
+									 (aiState.wp[kX] - pchr->getPosX()) / Info<float>::Grid::Size(),
+									 (aiState.wp[kY] - pchr->getPosY()) / Info<float>::Grid::Size()));
 		}
 	}
 

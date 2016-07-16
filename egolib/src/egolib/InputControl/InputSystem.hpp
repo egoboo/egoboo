@@ -51,24 +51,3 @@ private:
 
 } //Input
 } //Ego
-
-struct latch_t {
-public:
-    latch_t() : 
-        input(Vector2f::zero()), 
-        b() 
-    {
-        //ctor
-    }
-
-    void clear() {
-        input = Vector2f();
-        b.reset();
-    }
-
-public:
-    /// The input.
-    Vector2f input;
-    /// The button bits.
-    std::bitset<32> b;         ///< the button bits
-};

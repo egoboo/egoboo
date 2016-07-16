@@ -72,6 +72,7 @@ void Player::updateLatches()
     if(!object || object->isTerminated()) {
         return;
     }
+    object->resetInputCommands();
 
     // find the camera that is following this character
     const auto &pcam = CameraSystem::get()->getCamera(object->getObjRef());
@@ -103,16 +104,13 @@ void Player::updateLatches()
     // Read control buttons
     if (!_inventoryMode)
     {
-        object->latch.b.reset();
-        object->latch.b[LATCHBUTTON_JUMP] = getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::JUMP);
-        object->latch.b[LATCHBUTTON_LEFT] = getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::USE_LEFT);
-        object->latch.b[LATCHBUTTON_ALTLEFT] = getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::GRAB_LEFT);
-        object->latch.b[LATCHBUTTON_RIGHT] = getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::USE_RIGHT);
-        object->latch.b[LATCHBUTTON_ALTRIGHT] = getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::GRAB_RIGHT);
-
         // Now update movement and input
-        object->latch.input.x() = movementInput.x();
-        object->latch.input.y() = movementInput.y();
+        object->setLatchButton(LATCHBUTTON_JUMP, getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::JUMP));
+        object->setLatchButton(LATCHBUTTON_LEFT, getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::USE_LEFT));
+        object->setLatchButton(LATCHBUTTON_RIGHT, getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::GRAB_LEFT));
+        object->setLatchButton(LATCHBUTTON_ALTLEFT, getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::USE_RIGHT));
+        object->setLatchButton(LATCHBUTTON_ALTRIGHT, getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::GRAB_RIGHT));
+        object->getObjectPhysics().setDesiredVelocity(movementInput);
     }
 
     //inventory mode
@@ -173,9 +171,6 @@ void Player::updateLatches()
                 object->reload_timer = Inventory::PACKDELAY;
             }
         }
-
-        //empty any movement
-        object->latch.input = Vector2f::zero();
     }
 
     //enable inventory mode?
@@ -200,17 +195,6 @@ void Player::updateLatches()
         }
         _inventoryCooldown = update_wld + ONESECOND;
     }
-}
-
-void Player::setLatch(size_t latch, bool value)
-{
-    //Ensure this player is controlling a valid object
-    std::shared_ptr<Object> object = getObject();
-    if(!object || object->isTerminated()) {
-        return;
-    }
-
-    object->latch.b[latch] = value;
 }
 
 void Player::setChargeBar(const uint32_t currentCharge, const uint32_t maxCharge, const uint32_t chargeTick)

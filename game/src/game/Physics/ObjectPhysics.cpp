@@ -107,16 +107,21 @@ void ObjectPhysics::keepItemsWithHolder()
     }
 }
 
+void ObjectPhysics::setDesiredVelocity(const Vector2f &velocity)
+{
+    _desiredVelocity = velocity;
+
+    //Constrain desired velocity between -1.0f and 1.0f
+    if (_desiredVelocity.length() > 1.0f) {
+        _desiredVelocity *= (1.0f / _desiredVelocity.length());
+    }
+}
+
 void ObjectPhysics::updateMovement()
 {
-    //Desired velocity in scaled space [-1 , 1]
-    _desiredVelocity = Vector2f(0.0f, 0.0f);
-
     //Can it move?
     if (_object.isAlive() && _object.getAttribute(Ego::Attribute::ACCELERATION) > 0.0f)  {
-        _desiredVelocity.x() = _object.latch.input.x();
-        _desiredVelocity.y() = _object.latch.input.y();
-
+ 
         // Reverse movements for daze
         if (_object.daze_timer > 0) {
             _desiredVelocity.x() = -_desiredVelocity.x();
@@ -131,28 +136,33 @@ void ObjectPhysics::updateMovement()
         //Update which way we are looking
         updateFacing();
     }
+    else {
+        //Immobile object
+        _desiredVelocity.setZero();
+    }
 
     //Is there any movement going on?
+    Vector2f velocitySetpoint;
     if(_desiredVelocity.length_abs() > 0.05f) {
         const float maxSpeed = getMaxSpeed();
 
         //Scale [-1 , 1] to velocity of the object
-        _desiredVelocity *= maxSpeed;
+        velocitySetpoint = _desiredVelocity * maxSpeed;
 
         //Limit to max velocity
-        if(_desiredVelocity.length() > maxSpeed) {
-            _desiredVelocity *= maxSpeed / _desiredVelocity.length();
+        if(velocitySetpoint.length() > maxSpeed) {
+            velocitySetpoint *= maxSpeed / velocitySetpoint.length();
         }
     }
     else {
         //Try to stand still
-        _desiredVelocity = Vector2f::zero();
+        velocitySetpoint.setZero();
     }
 
     //Determine acceleration/deceleration
     Vector2f acceleration;
-    acceleration.x() = (_desiredVelocity.x() - _object.vel.x()) * (4.0f / GameEngine::GAME_TARGET_UPS);
-    acceleration.y() = (_desiredVelocity.y() - _object.vel.y()) * (4.0f / GameEngine::GAME_TARGET_UPS);
+    acceleration.x() = (velocitySetpoint.x() - _object.vel.x()) * (4.0f / GameEngine::GAME_TARGET_UPS);
+    acceleration.y() = (velocitySetpoint.y() - _object.vel.y()) * (4.0f / GameEngine::GAME_TARGET_UPS);
 
     //How good grip do we have to add additional momentum?
     acceleration *= _traction;
