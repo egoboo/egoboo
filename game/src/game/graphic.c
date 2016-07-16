@@ -578,7 +578,7 @@ float draw_fps(float y)
 //--------------------------------------------------------------------------------------------
 float draw_help(float y)
 {
-    if (InputSystem::get().keyboard.isKeyDown(SDLK_F1))
+    if (Ego::Input::InputSystem::get().isKeyDown(SDLK_F1))
     {
         // In-Game help
         y = _gameEngine->getUIManager()->drawBitmapFontString(Vector2f(0, y), "!!!MOUSE HELP!!!");
@@ -590,7 +590,7 @@ float draw_help(float y)
         y = _gameEngine->getUIManager()->drawBitmapFontString(Vector2f(0, y), "~~A and S keys do stuff");
         y = _gameEngine->getUIManager()->drawBitmapFontString(Vector2f(0, y), "~~Right Drag to move camera");
     }
-    if (InputSystem::get().keyboard.isKeyDown(SDLK_F2))
+    if (Ego::Input::InputSystem::get().isKeyDown(SDLK_F2))
     {
         // In-Game help
         y = _gameEngine->getUIManager()->drawBitmapFontString(Vector2f(0, y), "!!!JOYSTICK HELP!!!");
@@ -598,7 +598,7 @@ float draw_help(float y)
         y = _gameEngine->getUIManager()->drawBitmapFontString(Vector2f(0, y), "~~Hit the buttons");
         y = _gameEngine->getUIManager()->drawBitmapFontString(Vector2f(0, y), "~~You'll figure it out");
     }
-    if (InputSystem::get().keyboard.isKeyDown(SDLK_F3))
+    if (Ego::Input::InputSystem::get().isKeyDown(SDLK_F3))
     {
         // In-Game help
         y = _gameEngine->getUIManager()->drawBitmapFontString(Vector2f(0, y), "!!!KEYBOARD HELP!!!");
@@ -621,7 +621,7 @@ float draw_debug(float y)
         return y;
     }
 
-    if (InputSystem::get().keyboard.isKeyDown(SDLK_F5))
+    if (Ego::Input::InputSystem::get().isKeyDown(SDLK_F5))
     {
         // Debug information
         y = _gameEngine->getUIManager()->drawBitmapFontString(Vector2f(0, y), "!!!DEBUG MODE-5!!!");
@@ -661,7 +661,7 @@ float draw_debug(float y)
         }
     }
 
-    if (InputSystem::get().keyboard.isKeyDown(SDLK_F6))
+    if (Ego::Input::InputSystem::get().isKeyDown(SDLK_F6))
     {
         std::ostringstream os;
         // More debug information
@@ -680,7 +680,7 @@ float draw_debug(float y)
         y = _gameEngine->getUIManager()->drawBitmapFontString(Vector2f(0, y), os.str(), 0, 1.0f);
     }
 
-    if (InputSystem::get().keyboard.isKeyDown(SDLK_F7))
+    if (Ego::Input::InputSystem::get().isKeyDown(SDLK_F7))
     {
         std::shared_ptr<Camera> camera = CameraSystem::get()->getMainCamera();
 
@@ -1021,7 +1021,7 @@ gfx_rv render_scene(Camera& cam, Ego::Graphics::TileList& tl, Ego::Graphics::Ent
 	Ego::Graphics::RenderPasses::g_transparentEntities.run(cam, tl, el);
 
     //Draw all passages
-    if(InputSystem::get().keyboard.isKeyDown(SDLK_F8)) {
+    if(Ego::Input::InputSystem::get().isKeyDown(SDLK_F8)) {
         draw_passages(cam);
     }
 

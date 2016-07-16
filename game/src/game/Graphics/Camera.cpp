@@ -282,53 +282,53 @@ void Camera::updateCenter()
 
 void Camera::updateFreeControl()
 {
-    auto& inputSystem = InputSystem::get();
+    auto& inputSystem = Ego::Input::InputSystem::get();
     float moveSpeed = 25.0f;
-    if(inputSystem.keyboard.isKeyDown(SDLK_LSHIFT) || inputSystem.keyboard.isKeyDown(SDLK_RSHIFT)) {
+    if(inputSystem.isKeyDown(SDLK_LSHIFT) || inputSystem.isKeyDown(SDLK_RSHIFT)) {
         moveSpeed += 25.0f;
     }
 
     //Forward and backwards
-    if (inputSystem.keyboard.isKeyDown(SDLK_KP_2) || inputSystem.keyboard.isKeyDown(SDLK_DOWN)) {
+    if (inputSystem.isKeyDown(SDLK_KP_2) || inputSystem.isKeyDown(SDLK_DOWN)) {
         _center.x() += std::sin(_turnZ_radians) * moveSpeed;
         _center.y() += std::cos(_turnZ_radians) * moveSpeed;
     }
-    else if (inputSystem.keyboard.isKeyDown(SDLK_KP_8) || inputSystem.keyboard.isKeyDown(SDLK_UP)) {
+    else if (inputSystem.isKeyDown(SDLK_KP_8) || inputSystem.isKeyDown(SDLK_UP)) {
         _center.x() -= std::sin(_turnZ_radians) * moveSpeed;
         _center.y() -= std::cos(_turnZ_radians) * moveSpeed;
     }
     
     //Left and right
-    if (inputSystem.keyboard.isKeyDown(SDLK_KP_4) || inputSystem.keyboard.isKeyDown(SDLK_LEFT)) {
+    if (inputSystem.isKeyDown(SDLK_KP_4) || inputSystem.isKeyDown(SDLK_LEFT)) {
         _center.x() -= std::sin(_turnZ_radians + Ego::Math::Radians(Ego::Math::pi<float>() * 0.5f)) * moveSpeed;
         _center.y() -= std::cos(_turnZ_radians + Ego::Math::Radians(Ego::Math::pi<float>() * 0.5f)) * moveSpeed;
     }
-    else if (inputSystem.keyboard.isKeyDown(SDLK_KP_6) || inputSystem.keyboard.isKeyDown(SDLK_RIGHT)) {
+    else if (inputSystem.isKeyDown(SDLK_KP_6) || inputSystem.isKeyDown(SDLK_RIGHT)) {
         _center.x() += std::sin(_turnZ_radians + Ego::Math::Radians(Ego::Math::pi<float>() * 0.5f)) * moveSpeed;
         _center.y() += std::cos(_turnZ_radians + Ego::Math::Radians(Ego::Math::pi<float>() * 0.5f)) * moveSpeed;
     }
     
     //Rotate left or right
-    if (inputSystem.keyboard.isKeyDown(SDLK_KP_7)) {
+    if (inputSystem.isKeyDown(SDLK_KP_7)) {
         _turnZAdd += DEFAULT_TURN_KEY * 2.0f;
     }
-    else if (inputSystem.keyboard.isKeyDown(SDLK_KP_9)) {
+    else if (inputSystem.isKeyDown(SDLK_KP_9)) {
         _turnZAdd -= DEFAULT_TURN_KEY * 2.0f;
     }
 
     //Up and down
-    if (inputSystem.keyboard.isKeyDown(SDLK_KP_PLUS) || inputSystem.keyboard.isKeyDown(SDLK_SPACE)) {
+    if (inputSystem.isKeyDown(SDLK_KP_PLUS) || inputSystem.isKeyDown(SDLK_SPACE)) {
         _center.z() -= moveSpeed * 0.2f;
     }
-    else if (inputSystem.keyboard.isKeyDown(SDLK_KP_MINUS) || inputSystem.keyboard.isKeyDown(SDLK_LCTRL)) {
+    else if (inputSystem.isKeyDown(SDLK_KP_MINUS) || inputSystem.isKeyDown(SDLK_LCTRL)) {
         _center.z() += moveSpeed * 0.2f;
     }
 
     //Pitch camera
-    if(inputSystem.keyboard.isKeyDown(SDLK_PAGEDOWN)) {
+    if(inputSystem.isKeyDown(SDLK_PAGEDOWN)) {
         _pitch += Ego::Math::degToRad(7.5f);
     }
-    else if(inputSystem.keyboard.isKeyDown(SDLK_PAGEUP)) {
+    else if(inputSystem.isKeyDown(SDLK_PAGEUP)) {
         _pitch -= Ego::Math::degToRad(7.5f);
     }
 
@@ -505,7 +505,7 @@ void Camera::update(const ego_mesh_t *mesh)
 void Camera::readInput(const Ego::Input::InputDevice &device)
 {
 
-    auto& inputSystem = InputSystem::get();
+    auto& inputSystem = Ego::Input::InputSystem::get();
     // Autoturn camera only works in single player and when it is enabled.
     bool autoturn_camera = (CameraTurnMode::Good == _turnMode) && (1 == local_stats.player_count);
 
@@ -519,14 +519,14 @@ void Camera::readInput(const Ego::Input::InputDevice &device)
             {
                 if (!device.isButtonPressed(Ego::Input::InputDevice::InputButton::CAMERA_CONTROL))
                 {
-                _turnZAdd -= inputSystem.mouse.getOffset().x() * 0.5f;
+                _turnZAdd -= inputSystem.getMouseMovement().x() * 0.5f;
                 }
             }
             // Normal camera.
             else if (device.isButtonPressed(Ego::Input::InputDevice::InputButton::CAMERA_CONTROL))
             {
-            _turnZAdd += inputSystem.mouse.getOffset().x() / 3.0f;
-            _zaddGoto += static_cast<float>(inputSystem.mouse.getOffset().y()) / 3.0f;
+            _turnZAdd += inputSystem.getMouseMovement().x() / 3.0f;
+            _zaddGoto += static_cast<float>(inputSystem.getMouseMovement().y()) / 3.0f;
 
                 _turnTime = DEFAULT_TURN_TIME;  // Sticky turn ...
             }            

@@ -1,5 +1,5 @@
 #include "InputDevice.hpp"
-#include <egolib/Input/input.h>
+#include "InputSystem.hpp"
 
 namespace Ego
 {
@@ -90,21 +90,21 @@ Vector2f InputDevice::getInputMovement() const
         // Mouse routines
         case Ego::Input::InputDevice::InputDeviceType::MOUSE:
         {
-            const float dist = InputSystem::get().mouse.getOffset().length();
+            const float dist = InputSystem::get().getMouseMovement().length();
             if (dist > 0)
             {
-                float scale = InputSystem::get().mouse.sense / dist;
-                if (dist < InputSystem::get().mouse.sense)
+                float scale = InputSystem::MOUSE_SENSITIVITY / dist;
+                if (dist < InputSystem::MOUSE_SENSITIVITY)
                 {
-                    scale = dist / InputSystem::get().mouse.sense;
+                    scale = dist / InputSystem::MOUSE_SENSITIVITY;
                 }
 
-                if (InputSystem::get().mouse.sense > 0.0f)
+                if (InputSystem::MOUSE_SENSITIVITY > 0.0f)
                 {
-                    scale /= InputSystem::get().mouse.sense;
+                    scale /= InputSystem::MOUSE_SENSITIVITY;
                 }
 
-                result = InputSystem::get().mouse.getOffset() * scale;
+                result = InputSystem::get().getMouseMovement() * scale;
             }
         }
         break;

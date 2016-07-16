@@ -443,7 +443,7 @@ int update_game()
     _currentModule->getMeshPointer()->_fxlists.synch(_currentModule->getMeshPointer()->_tmem, false);
     
     // Get immediate mode state for the rest of the game
-    InputSystem::get().update();
+    Ego::Input::InputSystem::get().update();
 
     //Rebuild the quadtree for fast object lookup
     _currentModule->getObjectHandler().updateQuadTree(0.0f, 0.0f, _currentModule->getMeshPointer()->_info.getTileCountX()*Info<float>::Grid::Size(),
@@ -786,11 +786,10 @@ void readPlayerInput()
         player->updateLatches();
 
         //Press space to respawn!
-        if (InputSystem::get().keyboard.isKeyDown(SDLK_SPACE)
+        if (Ego::Input::InputSystem::get().isKeyDown(SDLK_SPACE)
             && (local_stats.allpladead || _currentModule->canRespawnAnyTime())
             && _currentModule->isRespawnValid()
-            && egoboo_config_t::get().game_difficulty.getValue() < Ego::GameDifficulty::Hard
-            && !InputSystem::get().keyboard.chat_mode)
+            && egoboo_config_t::get().game_difficulty.getValue() < Ego::GameDifficulty::Hard)
         {
             pchr->latch.b[LATCHBUTTON_RESPAWN] = true;
         }
@@ -828,10 +827,7 @@ void check_stats()
     static int stat_check_timer = 0;
     static int stat_check_delay = 0;
 
-    int ticks;
-    if ( InputSystem::get().keyboard.chat_mode ) return;
-
-    ticks = Time::now<Time::Unit::Ticks>();
+    int ticks = Time::now<Time::Unit::Ticks>();
     if ( ticks > stat_check_timer + 20 )
     {
         stat_check_timer = ticks;
@@ -842,7 +838,7 @@ void check_stats()
         return;
 
     // Show map cheat
-    if (egoboo_config_t::get().debug_developerMode_enable.getValue() && InputSystem::get().keyboard.isKeyDown(SDLK_m) && InputSystem::get().keyboard.isKeyDown(SDLK_LSHIFT))
+    if (egoboo_config_t::get().debug_developerMode_enable.getValue() && Ego::Input::InputSystem::get().isKeyDown(SDLK_m) && Ego::Input::InputSystem::get().isKeyDown(SDLK_LSHIFT))
     {
         _gameEngine->getActivePlayingState()->getMiniMap()->setVisible(true);
         _gameEngine->getActivePlayingState()->getMiniMap()->setShowPlayerPosition(true);
@@ -851,13 +847,13 @@ void check_stats()
 
     // XP CHEAT
     if (egoboo_config_t::get().debug_developerMode_enable.getValue() &&
-        InputSystem::get().keyboard.isKeyDown(SDLK_x))
+        Ego::Input::InputSystem::get().isKeyDown(SDLK_x))
     {
         PLA_REF docheat = INVALID_PLA_REF;
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_1 ) )  docheat = 0;
-        else if (InputSystem::get().keyboard.isKeyDown( SDLK_2 ) )  docheat = 1;
-        else if (InputSystem::get().keyboard.isKeyDown( SDLK_3 ) )  docheat = 2;
-        else if (InputSystem::get().keyboard.isKeyDown( SDLK_4 ) )  docheat = 3;
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_1 ) )  docheat = 0;
+        else if (Ego::Input::InputSystem::get().isKeyDown( SDLK_2 ) )  docheat = 1;
+        else if (Ego::Input::InputSystem::get().isKeyDown( SDLK_3 ) )  docheat = 2;
+        else if (Ego::Input::InputSystem::get().isKeyDown( SDLK_4 ) )  docheat = 3;
 
         //Apply the cheat if valid
         if ( docheat != INVALID_PLA_REF && docheat < _currentModule->getPlayerList().size() )
@@ -874,14 +870,14 @@ void check_stats()
     }
 
     // LIFE CHEAT
-    if (egoboo_config_t::get().debug_developerMode_enable.getValue() && InputSystem::get().keyboard.isKeyDown(SDLK_z))
+    if (egoboo_config_t::get().debug_developerMode_enable.getValue() && Ego::Input::InputSystem::get().isKeyDown(SDLK_z))
     {
         PLA_REF docheat = INVALID_PLA_REF;
 
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_1 ) )  docheat = 0;
-        else if (InputSystem::get().keyboard.isKeyDown( SDLK_2 ) )  docheat = 1;
-        else if (InputSystem::get().keyboard.isKeyDown( SDLK_3 ) )  docheat = 2;
-        else if (InputSystem::get().keyboard.isKeyDown( SDLK_4 ) )  docheat = 3;
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_1 ) )  docheat = 0;
+        else if (Ego::Input::InputSystem::get().isKeyDown( SDLK_2 ) )  docheat = 1;
+        else if (Ego::Input::InputSystem::get().isKeyDown( SDLK_3 ) )  docheat = 2;
+        else if (Ego::Input::InputSystem::get().isKeyDown( SDLK_4 ) )  docheat = 3;
 
         //Apply the cheat if valid
         if(docheat != INVALID_PLA_REF && docheat < _currentModule->getPlayerList().size()) {
@@ -898,42 +894,42 @@ void check_stats()
     }
 
     // Display armor stats?
-    if (InputSystem::get().keyboard.isKeyDown( SDLK_LSHIFT ) )
+    if (Ego::Input::InputSystem::get().isKeyDown( SDLK_LSHIFT ) )
     {
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_1 ) )  { show_armor( 0 ); stat_check_delay = 1000; }
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_2 ) )  { show_armor( 1 ); stat_check_delay = 1000; }
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_3 ) )  { show_armor( 2 ); stat_check_delay = 1000; }
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_4 ) )  { show_armor( 3 ); stat_check_delay = 1000; }
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_5 ) )  { show_armor( 4 ); stat_check_delay = 1000; }
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_6 ) )  { show_armor( 5 ); stat_check_delay = 1000; }
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_7 ) )  { show_armor( 6 ); stat_check_delay = 1000; }
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_8 ) )  { show_armor( 7 ); stat_check_delay = 1000; }
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_1 ) )  { show_armor( 0 ); stat_check_delay = 1000; }
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_2 ) )  { show_armor( 1 ); stat_check_delay = 1000; }
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_3 ) )  { show_armor( 2 ); stat_check_delay = 1000; }
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_4 ) )  { show_armor( 3 ); stat_check_delay = 1000; }
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_5 ) )  { show_armor( 4 ); stat_check_delay = 1000; }
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_6 ) )  { show_armor( 5 ); stat_check_delay = 1000; }
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_7 ) )  { show_armor( 6 ); stat_check_delay = 1000; }
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_8 ) )  { show_armor( 7 ); stat_check_delay = 1000; }
     }
 
     // Display enchantment stats?
-    else if (InputSystem::get().keyboard.isKeyDown( SDLK_LCTRL ) )
+    else if (Ego::Input::InputSystem::get().isKeyDown( SDLK_LCTRL ) )
     {
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_1 ) )  { show_full_status( 0 ); stat_check_delay = 1000; }
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_2 ) )  { show_full_status( 1 ); stat_check_delay = 1000; }
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_3 ) )  { show_full_status( 2 ); stat_check_delay = 1000; }
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_4 ) )  { show_full_status( 3 ); stat_check_delay = 1000; }
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_5 ) )  { show_full_status( 4 ); stat_check_delay = 1000; }
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_6 ) )  { show_full_status( 5 ); stat_check_delay = 1000; }
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_7 ) )  { show_full_status( 6 ); stat_check_delay = 1000; }
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_8 ) )  { show_full_status( 7 ); stat_check_delay = 1000; }
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_1 ) )  { show_full_status( 0 ); stat_check_delay = 1000; }
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_2 ) )  { show_full_status( 1 ); stat_check_delay = 1000; }
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_3 ) )  { show_full_status( 2 ); stat_check_delay = 1000; }
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_4 ) )  { show_full_status( 3 ); stat_check_delay = 1000; }
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_5 ) )  { show_full_status( 4 ); stat_check_delay = 1000; }
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_6 ) )  { show_full_status( 5 ); stat_check_delay = 1000; }
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_7 ) )  { show_full_status( 6 ); stat_check_delay = 1000; }
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_8 ) )  { show_full_status( 7 ); stat_check_delay = 1000; }
     }
 
     // Display character special powers?
-    else if (InputSystem::get().keyboard.isKeyDown( SDLK_LALT ) )
+    else if (Ego::Input::InputSystem::get().isKeyDown( SDLK_LALT ) )
     {
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_1 ) )  { show_magic_status( 0 ); stat_check_delay = 1000; }
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_2 ) )  { show_magic_status( 1 ); stat_check_delay = 1000; }
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_3 ) )  { show_magic_status( 2 ); stat_check_delay = 1000; }
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_4 ) )  { show_magic_status( 3 ); stat_check_delay = 1000; }
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_5 ) )  { show_magic_status( 4 ); stat_check_delay = 1000; }
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_6 ) )  { show_magic_status( 5 ); stat_check_delay = 1000; }
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_7 ) )  { show_magic_status( 6 ); stat_check_delay = 1000; }
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_8 ) )  { show_magic_status( 7 ); stat_check_delay = 1000; }
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_1 ) )  { show_magic_status( 0 ); stat_check_delay = 1000; }
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_2 ) )  { show_magic_status( 1 ); stat_check_delay = 1000; }
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_3 ) )  { show_magic_status( 2 ); stat_check_delay = 1000; }
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_4 ) )  { show_magic_status( 3 ); stat_check_delay = 1000; }
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_5 ) )  { show_magic_status( 4 ); stat_check_delay = 1000; }
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_6 ) )  { show_magic_status( 5 ); stat_check_delay = 1000; }
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_7 ) )  { show_magic_status( 6 ); stat_check_delay = 1000; }
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_8 ) )  { show_magic_status( 7 ); stat_check_delay = 1000; }
     }
 }
 

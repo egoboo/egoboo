@@ -217,7 +217,7 @@ void GameEngine::updateOneFrame()
     _currentGameState->update();
 
     // Check for screenshots
-    if (InputSystem::get().keyboard.isKeyDown(SDLK_F11))
+    if (Ego::Input::InputSystem::get().isKeyDown(SDLK_F11))
     {
         requestScreenshot();
     }
@@ -288,10 +288,7 @@ bool GameEngine::initialize()
     //      by the time they are initialized.
 
     // Initialize the input system and enable mouse and keyboard.
-    InputSystem::initialize();
-    InputSystem::get().mouse.enabled = true;
-    InputSystem::get().keyboard.enabled = true;
-
+    Ego::Input::InputSystem::get().initialize();
 
     // camera options
     CameraSystem::getCameraOptions().turnMode = egoboo_config_t::get().camera_control.getValue();
@@ -393,18 +390,20 @@ void GameEngine::subscribe() {
     resized = window->Resized.subscribe([](const Ego::Events::WindowEventArgs& e) {
         SDLX_Get_Screen_Info(sdl_scr, false);
     });
+    /*
     mouseEntered = window->MouseEntered.subscribe([](const Ego::Events::WindowEventArgs& e) {
-        InputSystem::get().mouse.enabled = true;
+        Ego::Input::InputSystem::get().mouse.enabled = true;
     });
     mouseLeft = window->MouseLeft.subscribe([](const Ego::Events::WindowEventArgs& e) {
-        InputSystem::get().mouse.enabled = false;
+        Ego::Input::InputSystem::get().mouse.enabled = false;
     });
     keyboardFocusReceived = window->KeyboardFocusReceived.subscribe([](const Ego::Events::WindowEventArgs& e) {
-        InputSystem::get().keyboard.enabled = true;
+        Ego::Input::InputSystem::get().keyboard.enabled = true;
     });
     keyboardFocusLost = window->KeyboardFocusLost.subscribe([](const Ego::Events::WindowEventArgs& e) {
-        InputSystem::get().keyboard.enabled = false;
+        Ego::Input::InputSystem::get().keyboard.enabled = false;
     });
+    */
 }
 
 void GameEngine::unsubscribe() {
@@ -457,6 +456,7 @@ void GameEngine::uninitialize()
 
     // Unsubscribe from window events.
     unsubscribe();
+    
     // Uninitialize the GFX system.
     GFX::uninitialize();
 
@@ -464,7 +464,7 @@ void GameEngine::uninitialize()
     Ego::ImageManager::uninitialize();
 
 	// Uninitialize the input system.
-	InputSystem::uninitialize();
+	Ego::Input::InputSystem::uninitialize();
 
     // Shut down the log services.
 	Log::get().message("Exiting Egoboo %s. See you next time\n", GAME_VERSION.c_str());
