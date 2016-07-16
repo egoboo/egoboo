@@ -605,17 +605,35 @@ int SDL_main(int argc, char **argv)
     {
         std::cerr << "unhandled exception: " << std::endl
                   << (std::string)ex << std::endl;
+
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
+                                 "Unhandled Exception",
+                                 ((std::string)ex).c_str(),
+                                 nullptr);
+
         return EXIT_FAILURE;
     }
     catch (const std::exception& ex)
     {
         std::cerr << "unhandled exception: " << std::endl
                   << ex.what() << std::endl;
+
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
+                                 "Unhandled asException",
+                                 ex.what(),
+                                 nullptr);
+
         return EXIT_FAILURE;
     }
     catch (...)
     {
         std::cerr << "unhandled exception" << std::endl;
+
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
+                                 "Unhandled Exception",
+                                 "Unknown exception type",
+                                 nullptr);
+
         return EXIT_FAILURE;
     }
     return EXIT_SUCCESS;
