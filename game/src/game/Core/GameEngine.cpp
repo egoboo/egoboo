@@ -288,7 +288,7 @@ bool GameEngine::initialize()
     //      by the time they are initialized.
 
     // Initialize the input system and enable mouse and keyboard.
-    Ego::Input::InputSystem::get().initialize();
+    Ego::Input::InputSystem::initialize();
 
     // camera options
     CameraSystem::getCameraOptions().turnMode = egoboo_config_t::get().camera_control.getValue();
