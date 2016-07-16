@@ -107,8 +107,8 @@ void Player::updateLatches()
         // Now update movement and input
         object->setLatchButton(LATCHBUTTON_JUMP, getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::JUMP));
         object->setLatchButton(LATCHBUTTON_LEFT, getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::USE_LEFT));
-        object->setLatchButton(LATCHBUTTON_RIGHT, getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::GRAB_LEFT));
-        object->setLatchButton(LATCHBUTTON_ALTLEFT, getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::USE_RIGHT));
+        object->setLatchButton(LATCHBUTTON_RIGHT, getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::USE_RIGHT));
+        object->setLatchButton(LATCHBUTTON_ALTLEFT, getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::GRAB_LEFT));
         object->setLatchButton(LATCHBUTTON_ALTRIGHT, getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::GRAB_RIGHT));
         object->getObjectPhysics().setDesiredVelocity(movementInput);
     }
