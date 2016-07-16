@@ -151,9 +151,6 @@ private:
 
     /// the buffered input from the local input devices
     const Ego::Input::InputDevice& _inputDevice;
-
-    /// Local latch, set by set_one_player_latch(), read by sv_talkToRemotes()
-    latch_t _localLatch;
 };
 
 } //namespace Ego
