@@ -247,7 +247,7 @@ void Particle::setElevation(const float level)
 {
     enviro.level = level;
 
-    float loc_height = bump_real.height * 0.5f;
+    float loc_height = bump_real.height;
 
     enviro.adj_level = enviro.level;
     enviro.adj_floor = enviro.floor_level;
