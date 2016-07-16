@@ -443,7 +443,7 @@ bool do_chr_prt_collision_deflect(chr_prt_collision_data_t& pdata)
     if ( pdata.pchr->isInvincible() ) return true;
 
     //Don't deflect money or particles spawned by the Object itself
-    bool prt_wants_deflection = (pdata.pprt->owner_ref != pdata.pchr->getObjRef()) && !pdata.ppip->bump_money;
+    bool prt_wants_deflection = (pdata.pprt->owner_ref != pdata.pchr->getObjRef()) && !pdata.ppip->bump_money && pdata.max_damage > 0;
     if(!prt_wants_deflection) {
         return false;
     }
@@ -1179,14 +1179,15 @@ bool do_chr_prt_collision(const std::shared_ptr<Object> &object, const std::shar
     // decompose the relative velocity parallel and perpendicular to the surface normal
     cn_data.dot = fvec3_decompose(cn_data.vdiff, cn_data.nrm, cn_data.vdiff_perp, cn_data.vdiff_para);
 
+    // refine the logic for a particle to hit a character
+    bool prt_can_hit_chr = do_chr_prt_collision_bump(cn_data);
+
     // determine whether the particle is deflected by the character
-    bool prt_deflected = do_chr_prt_collision_deflect(cn_data);
+    const bool prt_deflected = prt_can_hit_chr && do_chr_prt_collision_deflect(cn_data);
     if (prt_deflected) {
         retval = true;
+        prt_can_hit_chr = false;
     }
-
-    // refine the logic for a particle to hit a character
-    bool prt_can_hit_chr = !prt_deflected && do_chr_prt_collision_bump(cn_data);
 
     // Torches and such are marked as invulnerable, so the particle is always deflected.
     // make a special case for reaffirmation
