@@ -546,29 +546,22 @@ void ObjectPhysics::updateMeshCollision()
         const float floorElevation = _groundElevation + 10.0f;
 
         tmp_pos.z() += _object.vel.z();
+
+        //Hit the floor?
         if (tmp_pos.z() <= floorElevation)
         {
+            tmp_pos.z() = floorElevation;
+
+            //Stop bouncing when below threshold
             if (std::abs(_object.vel.z()) < Ego::Physics::STOP_BOUNCING)
             {
                 _object.vel.z() = 0.0f;
-                tmp_pos.z() = floorElevation;
             }
-            else
-            {
-                //Make it bounce!
-                if (_object.vel.z() < 0.0f)
-                {
-                    float diff = floorElevation - tmp_pos.z();
 
-                    _object.vel.z() *= -_object.phys.bumpdampen;
-                    diff          *= -_object.phys.bumpdampen;
-
-                    tmp_pos.z() = std::max(tmp_pos.z() + diff, floorElevation);
-                }
-                else
-                {
-                    tmp_pos.z() = floorElevation;
-                }
+            //Make it bounce!
+            else if (_object.vel.z() < 0.0f)
+            {                
+                _object.vel.z() = -_object.vel.z() * _object.getProfile()->getBounciness();
             }
         }
     }
