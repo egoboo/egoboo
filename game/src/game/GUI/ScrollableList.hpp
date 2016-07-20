@@ -42,7 +42,7 @@ public:
 
     ScrollableList();
 
-    void draw() override;
+    void draw(DrawingContext& drawingContext) override;
 
     /**
      * @brief
@@ -64,7 +64,7 @@ public:
     void setPosition(const Point2f& position) override;
 
 protected:
-    void drawContainer() override;
+    void drawContainer(DrawingContext& drawingContext) override;
     void updateScrollButtons();
     void setScrollPosition(int position);
 

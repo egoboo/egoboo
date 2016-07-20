@@ -47,8 +47,8 @@ public:
 
     void beginState() override;
 
-    void draw() override {
-        drawContainer();
+    void draw(Ego::GUI::DrawingContext& drawingContext) override {
+        drawContainer(drawingContext);
     }
 
     bool notifyKeyboardKeyPressed(const Ego::Events::KeyboardKeyPressedEventArgs& e) override;
@@ -64,7 +64,7 @@ public:
     const std::shared_ptr<Ego::GUI::MessageLog>& getMessageLog() const;
 
 protected:
-    void drawContainer() override;
+    void drawContainer(Ego::GUI::DrawingContext& drawingContext) override;
 
 private:
     void updateStatusBarPosition();

@@ -79,15 +79,15 @@ size_t Container::getComponentCount() const {
     return components.size();
 }
 
-void Container::drawAll() {
+void Container::drawAll(DrawingContext& drawingContext) {
     // Render the container itself.
-    drawContainer();
+    drawContainer(drawingContext);
 
     // Draw reach GUI component.
     _gameEngine->getUIManager()->beginRenderUI();
     for (const std::shared_ptr<Component> component : iterator()) {
         if (!component->isVisible()) continue;  // Ignore hidden/destroyed components.
-        component->draw();
+        component->draw(drawingContext);
     }
     _gameEngine->getUIManager()->endRenderUI();
 }

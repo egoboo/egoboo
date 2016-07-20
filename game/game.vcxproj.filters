@@ -317,6 +317,9 @@
     <ClCompile Include="src\game\GUI\Container.cpp">
       <Filter>Game Sources\GUI</Filter>
     </ClCompile>
+    <ClCompile Include="src\game\GUI\DrawingContext.cpp">
+      <Filter>Game Sources\GUI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game\egoboo.h">
@@ -588,6 +591,9 @@
     </ClInclude>
     <ClInclude Include="src\game\GameStates\VideoOptionsScreen.hpp">
       <Filter>Game Header Files\GameStates</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\GUI\DrawingContext.hpp">
+      <Filter>Game Header Files\GUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -44,7 +44,7 @@ public:
         redraw();
     }
     
-    void draw() override {
+    void draw(Ego::GUI::DrawingContext& drawingContext) override {
         auto min = Point2f(getX(), getY());
         _gameEngine->getUIManager()->fillRectangle(Rectangle2f(min, min + Vector2f(_maxWidth, _maxHeight)), true, _maxColor);
         _gameEngine->getUIManager()->fillRectangle(Rectangle2f(min, min + Vector2f(_textWidth, _textHeight)), true, _textColor);

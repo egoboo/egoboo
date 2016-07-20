@@ -29,7 +29,7 @@ Image::Image(const DeferredTexture &image) :
 
 }
 
-void Image::draw() {
+void Image::draw(DrawingContext& drawingContext) {
     if (_image) {
         _gameEngine->getUIManager()->drawImage(_image, Point2f(getX(), getY()), Vector2f(getWidth(), getHeight()), _tint);
     } else if (_texture) {

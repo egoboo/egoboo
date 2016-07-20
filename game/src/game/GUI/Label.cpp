@@ -16,7 +16,7 @@ Label::Label(const std::string &text, const UIManager::UIFontType font) :
     }
 }
 
-void Label::draw() {
+void Label::draw(DrawingContext& drawingContext) {
     // Draw text.
     if (_textRenderer)
         _textRenderer->render(getX(), getY(), _colour);

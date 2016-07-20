@@ -91,6 +91,14 @@ Container *Component::getParent() const {
     return _parent;
 }
 
+Point2f Component::getDerivedPosition() const {
+    if (nullptr != this->_parent) {
+        return getPosition() + Point2f::toVector(this->_parent->getDerivedPosition());
+    } else {
+        return getPosition();
+    }
+}
+
 void Component::destroy() {
     _destroyed = true;
     if (_parent) {

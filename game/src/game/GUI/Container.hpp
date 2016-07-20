@@ -128,12 +128,12 @@ public:
 
 public:
     /// @brief Renders all GUI components contained inside this container
-    void drawAll();
+    virtual void drawAll(DrawingContext& drawingContext);
 
 protected:
 
 
-    virtual void drawContainer() = 0;
+    virtual void drawContainer(DrawingContext& drawingContext) = 0;
 
 private:
     /// @brief The component list.

@@ -80,23 +80,23 @@ void ScrollableList::setY(float y) {
     updateScrollButtons();
 }
 
-void ScrollableList::drawContainer() {
+void ScrollableList::drawContainer(DrawingContext& drawingContext) {
     //TODO
 }
 
-void ScrollableList::draw() {
+void ScrollableList::draw(DrawingContext& drawingContext) {
     //First draw the container itself
-    drawContainer();
+    drawContainer(drawingContext);
 
     //Now draw all components inside it
     for (const std::shared_ptr<Component>& component : iterator()) {
         if (!component->isVisible()) continue;  //Ignore hidden/destroyed components
-        component->draw();
+        component->draw(drawingContext);
     }
 
     //Draw up and down buttons
-    _downButton->draw();
-    _upButton->draw();
+    _downButton->draw(drawingContext);
+    _upButton->draw(drawingContext);
 }
 
 bool ScrollableList::notifyMouseWheelTurned(const Events::MouseWheelTurnedEventArgs& e) {

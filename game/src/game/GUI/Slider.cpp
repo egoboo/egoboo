@@ -43,7 +43,7 @@ void Slider::setOnChangeFunction(const std::function<void(int)> onChange) {
     _onChangeFunction = onChange;
 }
 
-void Slider::draw() {
+void Slider::draw(DrawingContext& drawingContext) {
     //Draw the bar
     _gameEngine->getUIManager()->drawImage(_sliderBarTexture.get_ptr(), Point2f(getX(), getY()), Vector2f(getWidth(), getHeight()), isEnabled() ? Math::Colour4f::white() : Math::Colour4f::grey());
 

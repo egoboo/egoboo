@@ -41,7 +41,7 @@ public:
 
 protected:
 
-    virtual void drawContainer() override = 0;
+    virtual void drawContainer(Ego::GUI::DrawingContext& drawingContext) override = 0;
 
 private:
 

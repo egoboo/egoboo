@@ -191,7 +191,7 @@ void SelectModuleState::update()
 	_chooseModule->setEnabled(_moduleSelector->getSelectedModule() != nullptr);
 }
 
-void SelectModuleState::drawContainer()
+void SelectModuleState::drawContainer(Ego::GUI::DrawingContext& drawingContext)
 {
 
 }

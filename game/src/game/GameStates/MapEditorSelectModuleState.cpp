@@ -115,7 +115,7 @@ void MapEditorSelectModuleState::setSelectedModule(const std::shared_ptr<ModuleP
     _moduleDescription = font->layoutTextBox(buffer.str(), _gameEngine->getUIManager()->getScreenWidth() / 2 - 20, 0, font->getLineSpacing(), nullptr, nullptr);
 }
 
-void MapEditorSelectModuleState::drawContainer()
+void MapEditorSelectModuleState::drawContainer(Ego::GUI::DrawingContext& drawingContext)
 {
 	auto& UI = _gameEngine->getUIManager();
 

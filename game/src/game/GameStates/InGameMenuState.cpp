@@ -110,10 +110,10 @@ void InGameMenuState::update()
 {
 }
 
-void InGameMenuState::drawContainer()
+void InGameMenuState::drawContainer(Ego::GUI::DrawingContext& drawingContext)
 {
     //Render the playing state beackground first
-    _backgroundState.drawAll();
+    _backgroundState.drawAll(drawingContext);
 }
 
 void InGameMenuState::beginState()

@@ -47,7 +47,7 @@ public:
     ~LevelUpWindow();
 
 protected:
-    void drawContainer() override;
+    void drawContainer(DrawingContext& drawingContext) override;
 
 private:
     void doLevelUp(PerkButton *selectedPerk);

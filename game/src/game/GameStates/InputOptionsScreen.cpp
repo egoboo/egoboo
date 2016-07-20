@@ -78,7 +78,7 @@ void InputOptionsScreen::beginState()
 
 }
 
-void InputOptionsScreen::drawContainer()
+void InputOptionsScreen::drawContainer(Ego::GUI::DrawingContext& drawingContext)
 {
 
 }

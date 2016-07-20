@@ -54,7 +54,7 @@ MiniMap::MiniMap() :
     }
 }
 
-void MiniMap::draw() {
+void MiniMap::draw(DrawingContext& drawingContext) {
     if (!_minimapTexture) {
         return;
     }

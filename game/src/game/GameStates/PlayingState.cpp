@@ -129,7 +129,7 @@ void PlayingState::update()
     updateStatusBarPosition();
 }
 
-void PlayingState::drawContainer()
+void PlayingState::drawContainer(Ego::GUI::DrawingContext& drawingContext)
 {
     gfx_system_main();
 }

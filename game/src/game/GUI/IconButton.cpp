@@ -33,7 +33,7 @@ _iconTint(Math::Colour4f::white()) {
     //ctor
 }
 
-void IconButton::draw() {
+void IconButton::draw(DrawingContext& drawingContext) {
     //Update slidy button effect
     updateSlidyButtonEffect();
 
@@ -42,7 +42,7 @@ void IconButton::draw() {
     // Draw the button
     renderer.getTextureUnit().setActivated(nullptr);
 
-    //Determine button color
+    // Determine button color
     if (!isEnabled()) {
         renderer.setColour(DISABLED_BUTTON_COLOUR);
     } else if (_mouseOver) {
@@ -50,24 +50,13 @@ void IconButton::draw() {
     } else {
         renderer.setColour(DEFAULT_BUTTON_COLOUR);
     }
+    _gameEngine->getUIManager()->drawQuad2d(getBounds());
 
-    struct Vertex {
-        float x, y;
-    };
-    auto vb = _gameEngine->getUIManager()->_vertexBuffer;
-    Vertex *v = static_cast<Vertex *>(vb->lock());
-    v->x = getX(); v->y = getY(); v++;
-    v->x = getX(); v->y = getY() + getHeight(); v++;
-    v->x = getX() + getWidth(); v->y = getY() + getHeight(); v++;
-    v->x = getX() + getWidth(); v->y = getY();
-    vb->unlock();
-    renderer.render(*vb, PrimitiveType::Quadriliterals, 0, 4);
-
-    //Draw icon
+    // Draw icon
     int iconSize = getHeight() - 4;
     _gameEngine->getUIManager()->drawImage(_icon.get_ptr(), Point2f(getX() + getWidth() - getHeight() - 2, getY() + 2), Vector2f(iconSize, iconSize), _iconTint);
 
-    //Draw text on left side in button
+    // Draw text on left side in button
     if (_buttonTextRenderer) {
         _buttonTextRenderer->render(getX() + 5, getY() + (getHeight() - _buttonTextHeight) / 2);
     }

@@ -67,12 +67,12 @@ struct DebugModuleLoadingState::ModuleGUIContainer : public Container
         _moduleName->setEnabled(enabled);
     }
     
-    void draw() override
+    void draw(Ego::GUI::DrawingContext& drawingContext) override
     {
-        drawAll();
+        drawAll(drawingContext);
     }
     
-    void drawContainer() override {}
+    void drawContainer(Ego::GUI::DrawingContext& drawingContext) override {}
     
     void setPosition(const Point2f& position) override
     {
@@ -156,7 +156,8 @@ void DebugModuleLoadingState::singleThreadRedrawHack(const std::string &loadingT
     
     _toLoad.front()->_loadingText->setText(loadingText);
     
-    drawAll();
+    Ego::GUI::DrawingContext drawingContext;
+    drawAll(drawingContext);
     
     // flip the graphics page
     gfx_request_flip_pages();
@@ -171,7 +172,7 @@ void DebugModuleLoadingState::update()
     if (!_toLoad.empty()) loadModuleData();
 }
 
-void DebugModuleLoadingState::drawContainer()
+void DebugModuleLoadingState::drawContainer(Ego::GUI::DrawingContext& drawingContext)
 {
 
 }

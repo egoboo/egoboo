@@ -15,7 +15,7 @@ public:
     //TODO: remove
     Image(std::shared_ptr<Texture> texture);
 
-    virtual void draw() override;
+    virtual void draw(Ego::GUI::DrawingContext& drawingContext) override;
 
     void setImage(const std::string &filePath);
 

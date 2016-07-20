@@ -41,39 +41,25 @@ class ModuleSelector : public Container {
 public:
     ModuleSelector(const std::vector<std::shared_ptr<ModuleProfile>> &modules);
 
-    void draw() override {
-        drawAll();
+    void draw(DrawingContext& drawingContext) override {
+        drawAll(drawingContext);
     }
 
     void notifyModuleListUpdated();
 
-#if 0
-    /**
-     * Ensure that this class inherits defaults for these methods from ComponentContainer and not Component.
-     */
-    bool notifyMouseMoved(const Events::MouseMovedEventArgs& e) override {
-        return ComponentContainer::notifyMouseMoved(e);
-    }
-    bool notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEventArgs& e) override {
-        return ComponentContainer::notifyKeyboardKeyPressed(e);
-    }
-    bool notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs& e) override {
-        return ComponentContainer::notifyMouseButtonPressed(e);
-    }
-#endif
     bool notifyMouseWheelTurned(const Events::MouseWheelTurnedEventArgs& e) override;
 
     const std::shared_ptr<ModuleProfile>& getSelectedModule() const;
 
 protected:
-    void drawContainer() override;
+    void drawContainer(DrawingContext& drawingContext) override;
 
     //Local class
     class ModuleButton : public Button {
     public:
         ModuleButton(ModuleSelector* selector, const uint8_t offset);
 
-        void draw() override;
+        void draw(DrawingContext& drawingContext) override;
 
     private:
         ModuleSelector *_moduleSelector;

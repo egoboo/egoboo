@@ -29,7 +29,7 @@ namespace GUI {
 MessageLog::MessageLog() :
     _messages() {}
 
-void MessageLog::draw() {
+void MessageLog::draw(DrawingContext& drawingContext) {
     float yOffset = getY();
 
     //Render all text and remove old messages

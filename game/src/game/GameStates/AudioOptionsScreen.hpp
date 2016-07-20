@@ -34,9 +34,9 @@ public:
 
     void beginState() override;
 
-    void draw() override {
-        drawAll();
+    void draw(Ego::GUI::DrawingContext& drawingContext) override {
+        drawAll(drawingContext);
     }
 protected:
-    void drawContainer() override;
+    void drawContainer(Ego::GUI::DrawingContext& drawingContext) override;
 };

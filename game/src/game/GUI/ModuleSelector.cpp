@@ -88,7 +88,7 @@ ModuleSelector::ModuleSelector(const std::vector<std::shared_ptr<ModuleProfile>>
     }
 }
 
-void ModuleSelector::drawContainer() {
+void ModuleSelector::drawContainer(DrawingContext& drawingContext) {
     const Math::Colour4f backDrop = {0.66f, 0.0f, 0.0f, 0.6f};
 
     auto &renderer = Renderer::get();
@@ -167,7 +167,7 @@ _offset(offset) {
     // ctor
 }
 
-void ModuleSelector::ModuleButton::draw() {
+void ModuleSelector::ModuleButton::draw(DrawingContext& drawingContext) {
     // Don't do "out of bounds" modules
     if (_moduleSelector->_startIndex + _offset >= _moduleSelector->_modules.size()) {
         return;

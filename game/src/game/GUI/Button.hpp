@@ -11,7 +11,7 @@ public:
     Button(int hotkey = SDLK_UNKNOWN);
     Button(const std::string &buttonText, int hotkey = SDLK_UNKNOWN);
 
-    virtual void draw() override;
+    virtual void draw(DrawingContext& drawingContext) override;
     void setOnClickFunction(const std::function<void()> onClick);
 
 public:

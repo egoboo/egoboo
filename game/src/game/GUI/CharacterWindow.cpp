@@ -108,6 +108,36 @@ int CharacterWindow::addResistanceLabel(const Point2f& position, const DamageTyp
     return label->getHeight() - LINE_SPACING_OFFSET;
 }
 
+void CharacterWindow::drawContainer(DrawingContext& drawingContext) {
+    this->InternalWindow::drawContainer(drawingContext);
+}
+
+void CharacterWindow::drawAll(DrawingContext& drawingContext) {
+    // Render the container itself.
+    drawContainer(drawingContext);
+
+    // Draw reach GUI component.
+    _gameEngine->getUIManager()->beginRenderUI();
+    for (const std::shared_ptr<Component> component : iterator()) {
+        if (!component->isVisible()) continue;  // Ignore hidden/destroyed components.
+        component->draw(drawingContext);
+    }
+    _gameEngine->getUIManager()->endRenderUI();
+}
+
+void CharacterWindow::draw(DrawingContext& drawingContext) {
+    if (_firstDraw) {
+        _firstDraw = false;
+
+        //Make sure that all components added to this window are placed relative to 
+        //our position so that (0,0) is topleft corner in this InternalWindow
+        for (const std::shared_ptr<Component> &component : iterator()) {
+            component->setPosition(component->getPosition() + Vector2f(getX(), getY()));
+        }
+    }
+    drawAll(drawingContext);
+}
+
 bool CharacterWindow::notifyMouseMoved(const Events::MouseMovedEventArgs& e) {
     //Make level up button visible if needed
     if (_character->isPlayer()) {

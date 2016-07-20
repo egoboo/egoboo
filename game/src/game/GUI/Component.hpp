@@ -1,5 +1,6 @@
 #pragma once
 
+#include "game/GUI/DrawingContext.hpp"
 #include "game/Core/GameEngine.hpp"
 #include "game/GUI/UIManager.hpp"
 #include "game/GUI/InputListener.hpp"
@@ -15,7 +16,8 @@ class Component : public InputListener, public std::enable_shared_from_this<Comp
 public:
     Component();
 
-    virtual void draw() = 0;
+    /// @param useDerived if @a true derived coordinates are used to draw the component, otherwise absolute coordinates
+    virtual void draw(DrawingContext& drawingContext) = 0;
 
     /// @brief Get if this component is enabled.
     /// @return @a true if this component is enabled, @a false otherwise
@@ -64,20 +66,23 @@ public:
      */
     bool contains(const Point2f& point) const;
 
+    /// @brief Set the parent container of this component.
+    /// @param a pointer to the parent container or a null pointer
     void setParent(Container *parent);
+    
+    /// @brief Get the parent of this component.
+    /// @return a pointer to the parent container of this component or a null pointer
     Container *getParent() const;
 
-    //Type cast operator
+    /// @brief Get the derived position of this node.
+    /// @remark The derived position takes into account the position of this node as well as the position of its parent container (if any).
+    Point2f getDerivedPosition() const;
+
+    /// @brief Type cast operator.
     operator std::shared_ptr<Component>() { return shared_from_this(); }
 
     void destroy();
     bool isDestroyed() const;
-
-    /**
-    * @return
-    *   Number of GUI components currently contained within this container
-    **/
-    size_t getComponentCount() const;
 
     /**
     * @brief

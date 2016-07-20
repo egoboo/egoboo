@@ -91,13 +91,13 @@ void UIManager::beginRenderUI() {
     renderer.setAlphaFunction(CompareFunction::Greater, 0.0f);
 
     /// Set the viewport rectangle.
-    auto drawableSize = Ego::GraphicsSystem::window->getDrawableSize();
+    auto drawableSize = GraphicsSystem::window->getDrawableSize();
     renderer.setViewportRectangle(0, 0, drawableSize.width(), drawableSize.height());
 
     // Set up an ortho projection for the gui to use.  Controls are free to modify this
     // later, but most of them will need this, so it's done by default at the beginning
     // of a frame.
-    auto windowSize = Ego::GraphicsSystem::window->getSize();
+    auto windowSize = GraphicsSystem::window->getSize();
     Matrix4f4f projection = Transform::ortho(0.0f, windowSize.width(), windowSize.height(), 0.0f, -1.0f, +1.0f);
     renderer.setProjectionMatrix(projection);
     renderer.setViewMatrix(Matrix4f4f::identity());
@@ -117,11 +117,11 @@ void UIManager::endRenderUI() {
 }
 
 int UIManager::getScreenWidth() const {
-    return Ego::GraphicsSystem::window->getSize().width();
+    return GraphicsSystem::window->getSize().width();
 }
 
 int UIManager::getScreenHeight() const {
-    return Ego::GraphicsSystem::window->getSize().height();
+    return GraphicsSystem::window->getSize().height();
 }
 
 void UIManager::drawImage(const std::shared_ptr<const Texture>& img, const Point2f& position, const Vector2f& size, const Colour4f& tint) {
@@ -170,7 +170,7 @@ bool UIManager::dumpScreenshot() {
 
             // create a SDL surface
             const auto& pixelFormatDescriptor = PixelFormatDescriptor::get<PixelFormat::R8G8B8>();
-            auto drawableSize = Ego::GraphicsSystem::window->getDrawableSize();
+            auto drawableSize = GraphicsSystem::window->getDrawableSize();
             temp = SDL_CreateRGBSurface(0, drawableSize.width(), drawableSize.height(),
                                         pixelFormatDescriptor.getColourDepth().getDepth(),
                                         pixelFormatDescriptor.getRedMask(),
@@ -349,6 +349,25 @@ void UIManager::drawQuad2D(const std::shared_ptr<const Texture>& texture, const 
     auto tx_rect_2 = Rectangle2f(Point2f(tx_rect.xmin, tx_rect.ymin),
                                  Point2f(tx_rect.xmax, tx_rect.ymax));
     drawQuad2D(texture, scr_rect_2, tx_rect_2, useAlpha, tint);
+}
+
+void UIManager::drawQuad2d(const Rectangle2f& rectangle) {
+    struct Vertex {
+        float x, y;
+    };
+    auto& renderer = Renderer::get();
+    {
+        VertexBufferScopedLock vblck(*_vertexBuffer);
+        Vertex *v = vblck.get<Vertex>();
+        v->x = rectangle.getMin().x(); v->y = rectangle.getMin().y();
+        v++;
+        v->x = rectangle.getMin().x(); v->y = rectangle.getMax().y();
+        v++;
+        v->x = rectangle.getMax().x(); v->y = rectangle.getMax().y();
+        v++;
+        v->x = rectangle.getMax().x(); v->y = rectangle.getMin().y();
+    }
+    renderer.render(*_vertexBuffer, PrimitiveType::Quadriliterals, 0, 4);
 }
 
 void UIManager::fillRectangle(const Rectangle2f& rectangle, const bool useAlpha, const Colour4f& tint) {

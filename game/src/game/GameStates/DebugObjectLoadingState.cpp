@@ -53,7 +53,7 @@ public:
         redraw();
     }
     
-    void draw() override {
+    void draw(Ego::GUI::DrawingContext& drawingContext) override {
         _textRenderer->render(getX(), getY());
     }
     
@@ -107,12 +107,12 @@ struct DebugObjectLoadingState::ObjectGUIContainer : public Container
         _objectName->setOnClickFunction(onClick);
     }
     
-    void draw() override
+    void draw(Ego::GUI::DrawingContext& drawingContext) override
     {
-        drawAll();
+        drawAll(drawingContext);
     }
     
-    void drawContainer() override {}
+    void drawContainer(Ego::GUI::DrawingContext& drawingContext) override {}
     
     void setPosition(const Point2f& position) override
     {
@@ -291,7 +291,8 @@ void DebugObjectLoadingState::singleThreadRedrawHack(const std::string &loadingT
     
     _toLoad.front()->_loadingText->setText(loadingText);
     
-    drawAll();
+    Ego::GUI::DrawingContext drawingContext;
+    drawAll(drawingContext);
     
     // flip the graphics page
     gfx_request_flip_pages();
@@ -306,7 +307,7 @@ void DebugObjectLoadingState::update()
     if (!_toLoad.empty()) loadObjectData();
 }
 
-void DebugObjectLoadingState::drawContainer()
+void DebugObjectLoadingState::drawContainer(Ego::GUI::DrawingContext& drawingContext)
 {
     
 }

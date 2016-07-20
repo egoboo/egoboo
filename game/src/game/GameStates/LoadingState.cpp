@@ -102,7 +102,7 @@ void LoadingState::update()
     
 }
 
-void LoadingState::drawContainer()
+void LoadingState::drawContainer(Ego::GUI::DrawingContext& drawingContext)
 {
 
 }

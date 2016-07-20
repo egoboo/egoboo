@@ -18,7 +18,7 @@ public:
         //ctor
     }
 
-    void draw() override {
+    void draw(DrawingContext& drawingContext) override {
         int shakeEffectX = getX();
         int shakeEffectY = getY();
 
@@ -107,20 +107,21 @@ private:
     float _hoverFadeEffect;
 };
 
-LevelUpWindow::LevelUpWindow(const std::shared_ptr<Object> &object) : InternalWindow("Level Up!"),
-_character(object),
+LevelUpWindow::LevelUpWindow(const std::shared_ptr<Object> &object)
+    : InternalWindow("Level Up!"),
+    _character(object),
 
-_currentPerk(Perks::NR_OF_PERKS),
-_descriptionLabel(std::make_shared<Label>()),
-_perkIncreaseLabel(std::make_shared<Label>()),
+    _currentPerk(Perks::NR_OF_PERKS),
+    _descriptionLabel(std::make_shared<Label>()),
+    _perkIncreaseLabel(std::make_shared<Label>()),
 
-_fadeInLabels(),
-_attributeValues(),
-_attributeIncrease(),
-_selectedPerk(nullptr),
-_animationSpeed(0.0f, 0.0f),
-_animationPos(0.0f, 0.0f),
-_attributeRevealTime(0) {
+    _fadeInLabels(),
+    _attributeValues(),
+    _attributeIncrease(),
+    _selectedPerk(nullptr),
+    _animationSpeed(0.0f, 0.0f),
+    _animationPos(0.0f, 0.0f),
+    _attributeRevealTime(0) {
     setSize(Vector2f(510, 340));
 
     //Place us in the center of the screen
@@ -445,9 +446,9 @@ void LevelUpWindow::doLevelUp(PerkButton *selectedPerk) {
     _selectedPerk->bringToFront();
 }
 
-void LevelUpWindow::drawContainer() {
+void LevelUpWindow::drawContainer(DrawingContext& drawingContext) {
     //Draw the window itself
-    InternalWindow::drawContainer();
+    InternalWindow::drawContainer(drawingContext);
 
     //Update animations if needed
     if (_fadeInLabels.empty()) {

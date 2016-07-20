@@ -10,7 +10,7 @@ ProgressBar::ProgressBar() :
 
 }
 
-void ProgressBar::draw() {
+void ProgressBar::draw(DrawingContext& drawingContext) {
     struct Vertex {
         float x, y;
     };

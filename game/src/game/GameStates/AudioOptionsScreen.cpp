@@ -139,7 +139,7 @@ void AudioOptionsScreen::update()
 {
 }
 
-void AudioOptionsScreen::drawContainer()
+void AudioOptionsScreen::drawContainer(Ego::GUI::DrawingContext& drawingContext)
 {
 
 }

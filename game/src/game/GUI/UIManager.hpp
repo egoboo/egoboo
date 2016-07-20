@@ -140,6 +140,8 @@ public:
     void drawQuad2D(const std::shared_ptr<const Texture>& texture, const Rectangle2f& scr_rect, const Rectangle2f& tx_rect, const bool useAlpha, const Colour4f& tint = Colour4f::white());
     void drawQuad2D(const std::shared_ptr<const Texture>& texture, const ego_frect_t& scr_rect, const ego_frect_t& tx_rect, const bool useAlpha, const Colour4f& tint = Colour4f::white());
 
+    /// Draw a 2D quad.
+    void drawQuad2d(const Rectangle2f& rectangle);
 private:
     /**
     * @brief

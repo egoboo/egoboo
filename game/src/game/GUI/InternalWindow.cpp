@@ -46,7 +46,7 @@ InternalWindow::TitleBar::TitleBar(const std::string &title) :
     setSize(Vector2f(_textWidth + 20, _textHeight + 5));
 }
 
-void InternalWindow::TitleBar::draw() {
+void InternalWindow::TitleBar::draw(DrawingContext& drawingContext) {
     //Background
     _gameEngine->getUIManager()->drawImage(_titleBarTexture.get(), Point2f(getX() - BORDER_PIXELS * 2, getY()), Vector2f(getWidth() + BORDER_PIXELS * 4, getHeight()));
 
@@ -77,15 +77,15 @@ InternalWindow::InternalWindow(const std::string &title) :
     _closeButton->setTint(Math::Colour4f(0.8f, 0.8f, 0.8f, 1.0f));
 }
 
-void InternalWindow::drawContainer() {
+void InternalWindow::drawContainer(DrawingContext& drawingContext) {
     //Draw background first
     _gameEngine->getUIManager()->drawImage(_background.get(), Point2f(getX() - BORDER_PIXELS, getY() - BORDER_PIXELS), Vector2f(getWidth() + BORDER_PIXELS * 2, getHeight() + BORDER_PIXELS * 2), Colour4f(1.0f, 1.0f, 1.0f, 0.9f));
 
     //Draw window title
-    _titleBar->draw();
+    _titleBar->draw(drawingContext);
 
     //Draw the close button
-    _closeButton->draw();
+    _closeButton->draw(drawingContext);
 }
 
 bool InternalWindow::notifyMouseMoved(const Events::MouseMovedEventArgs& e) {
@@ -141,7 +141,7 @@ bool InternalWindow::notifyMouseButtonReleased(const Events::MouseButtonReleased
     return false;
 }
 
-void InternalWindow::draw() {
+void InternalWindow::draw(DrawingContext& drawingContext) {
     if (_firstDraw) {
         _firstDraw = false;
 
@@ -151,7 +151,7 @@ void InternalWindow::draw() {
             component->setPosition(component->getPosition() + Vector2f(getX(), getY()));
         }
     }
-    drawAll();
+    drawAll(drawingContext);
 }
 
 void InternalWindow::setPosition(const Point2f& position) {

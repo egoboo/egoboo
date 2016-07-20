@@ -405,6 +405,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\game\GUI\DrawingContext.cpp" />
     <ClCompile Include="src\game\GUI\Container.cpp" />
     <ClCompile Include="src\game\GameStates\InputOptionsScreen.cpp" />
     <ClCompile Include="src\game\GameStates\MapEditorSelectModuleState.cpp" />
@@ -491,6 +492,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClCompile Include="src\game\script_implementation.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\game\GUI\DrawingContext.hpp" />
     <ClInclude Include="src\game\GameStates\VideoOptionsScreen.hpp" />
     <ClInclude Include="src\game\GUI\Container.hpp" />
     <ClInclude Include="src\game\GameStates\InputOptionsScreen.hpp" />

@@ -32,7 +32,7 @@ class Slider : public Component {
 public:
     Slider(int minValue, int maxValue);
 
-    virtual void draw() override;
+    virtual void draw(DrawingContext& drawingContext) override;
 
     void setOnChangeFunction(const std::function<void(int)> onChange);
 

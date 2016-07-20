@@ -37,7 +37,7 @@ public:
     void addWatchVariable(const std::string &variableName, std::function<std::string()> lambda);
 
 protected:
-    void drawContainer() override;
+    void drawContainer(DrawingContext& drawingContext) override;
 
 private:
     std::unordered_map<std::string, std::function<std::string()>> _watchedVariables;

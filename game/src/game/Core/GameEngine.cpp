@@ -229,7 +229,8 @@ void GameEngine::renderOneFrame()
     gfx_request_clear_screen();
     gfx_do_clear_screen();
 
-    _currentGameState->drawAll();
+    Ego::GUI::DrawingContext drawingContext;
+    _currentGameState->drawAll(drawingContext);
     game_frame_all++;
 
     //Draw mouse cursor last

@@ -325,7 +325,7 @@ float CharacterStatus::draw_character_xp_bar(const ObjectRef character, float x,
 }
 
 
-void CharacterStatus::draw() {
+void CharacterStatus::draw(DrawingContext& drawingContext) {
     //If object we are monitoring no longer exist, then destroy this GUI component
     const std::shared_ptr<Object> pchr = _object.lock();
     if (!pchr) {
@@ -390,7 +390,7 @@ void CharacterStatus::draw() {
             _chargeBar->setTickWidth(player->getBarPipWidth());
             _chargeBar->setSize(Vector2f(getWidth(), 16));
             _chargeBar->setPosition(getPosition() + Vector2f(-_chargeBar->getWidth() - 5, getHeight() / 2 - _chargeBar->getHeight() / 2));
-            _chargeBar->draw();
+            _chargeBar->draw(drawingContext);
         } else {
             _chargeBar->setVisible(false);
         }

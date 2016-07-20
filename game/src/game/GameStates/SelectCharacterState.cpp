@@ -126,7 +126,7 @@ void SelectCharacterState::update()
 {
 }
 
-void SelectCharacterState::drawContainer()
+void SelectCharacterState::drawContainer(Ego::GUI::DrawingContext& drawingContext)
 {
 
 }

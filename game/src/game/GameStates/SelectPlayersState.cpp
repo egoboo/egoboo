@@ -123,7 +123,7 @@ void SelectPlayersState::update()
 {
 }
 
-void SelectPlayersState::drawContainer()
+void SelectPlayersState::drawContainer(Ego::GUI::DrawingContext& drawingContext)
 {
 
 }

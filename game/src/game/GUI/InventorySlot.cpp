@@ -15,7 +15,7 @@ InventorySlot::InventorySlot(const Inventory &inventory, const size_t slotNumber
     //ctor
 }
 
-void InventorySlot::draw() {
+void InventorySlot::draw(DrawingContext& drawingContext) {
     std::shared_ptr<Object> item = _inventory.getItem(_slotNumber);
 
     // grab the icon reference

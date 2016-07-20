@@ -39,9 +39,9 @@ public:
     
     void update() override {}
     
-    void draw() { drawContainer(); }
+    void draw(Ego::GUI::DrawingContext& drawingContext) { drawContainer(drawingContext); }
 protected:
-    void drawContainer() override {}
+    void drawContainer(Ego::GUI::DrawingContext& drawingContext) override {}
     
 private:
     void setFont(Ego::GUI::UIManager::UIFontType font);

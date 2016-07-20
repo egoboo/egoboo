@@ -101,7 +101,7 @@ void MapEditorState::update()
     _cameraSystem->getMainCamera()->updateFreeControl();
 }
 
-void MapEditorState::drawContainer()
+void MapEditorState::drawContainer(Ego::GUI::DrawingContext& drawingContext)
 {
     gfx_system_main();
 
