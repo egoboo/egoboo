@@ -311,7 +311,7 @@ void facing_to_vec(const Facing& facing, float * dx, float * dy);
  * @return the value <tt>source + (target-source)/weight</tt>
  * @pre <tt>weight</tt> must be positive.
  */
-Facing rotate(const Facing& source, const Facing& target, const int weight);
+Facing rotate(const Facing& source, const Facing& target, const float weight);
 
 //--------------------------------------------------------------------------------------------
 

@@ -80,10 +80,17 @@ void facing_to_vec( const Facing& facing, float * dx, float * dy )
 //--------------------------------------------------------------------------------------------
 // ROTATION FUNCTIONS
 //--------------------------------------------------------------------------------------------
-Facing rotate(const Facing& source, const Facing& target, const int weight) {
-    int32_t delta = int32_t(target) - int32_t(source);
-    int32_t weightedDelta = delta / weight;
-    return source + Facing(weightedDelta);
+Facing rotate(const Facing& source, const Facing& target, const float weight) {
+    int32_t delta = static_cast<int32_t>(target) - static_cast<int32_t>(source);
+
+    //Figure out if it is faster to wrap around the other direction
+    if(std::abs(delta) > std::numeric_limits<uint16_t>::max() / 2) {
+        delta = -delta/2;
+    }
+
+    int32_t weightedDelta = static_cast<float>(delta) / weight;
+
+    return Facing(static_cast<int32_t>(source) + weightedDelta);
 }
 
 //--------------------------------------------------------------------------------------------
