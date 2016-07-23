@@ -298,7 +298,7 @@ float set_character_animation_rate( Object * pchr )
     else
     {
         // For non-flying objects, we use the intended speed.
-        speed = pchr->getObjectPhysics().getDesiredVelocity().length();
+        speed = std::max(std::sqrt(pchr->vel.x()*pchr->vel.x() + pchr->vel.y()*pchr->vel.y()), pchr->getObjectPhysics().getDesiredVelocity().length());
         if (pchr->getObjectPhysics().floorIsSlippy())
         {
             // The character is slipping as on ice.
@@ -315,7 +315,7 @@ float set_character_animation_rate( Object * pchr )
     //Find out which animation to use depending on movement speed
     int action = ACTION_DA;
     int lip = 0;
-    if (speed <= 1e-3f) {
+    if (speed <= 1.0f) {
         action = ACTION_DA;     //Stand still
     }
     else {
@@ -324,7 +324,7 @@ float set_character_animation_rate( Object * pchr )
             lip = LIPWA;
         }
         else {
-            if(speed <= 4 && pmad->isActionValid(ACTION_WB)) {
+            if(speed <= 4.0f && pmad->isActionValid(ACTION_WB)) {
                 action = ACTION_WB; //Walk
                 lip = LIPWB;
             }
