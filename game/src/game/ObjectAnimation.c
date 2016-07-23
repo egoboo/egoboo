@@ -329,7 +329,7 @@ float set_character_animation_rate( Object * pchr )
                 lip = LIPWB;
             }
             else {
-                action = ACTION_WB; //Run
+                action = ACTION_WC; //Run
                 lip = LIPWC;
             }
 
