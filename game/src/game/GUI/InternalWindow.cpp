@@ -23,6 +23,7 @@
 
 #include "game/GUI/InternalWindow.hpp"
 #include "game/GUI/Image.hpp"
+#include "game/GUI/Material.hpp"
 
 static constexpr int BORDER_PIXELS = 5;
 
@@ -47,8 +48,10 @@ InternalWindow::TitleBar::TitleBar(const std::string &title) :
 }
 
 void InternalWindow::TitleBar::draw(DrawingContext& drawingContext) {
+    std::shared_ptr<const Material> material;
     //Background
-    _gameEngine->getUIManager()->drawImage(_titleBarTexture.get(), Point2f(getX() - BORDER_PIXELS * 2, getY()), Vector2f(getWidth() + BORDER_PIXELS * 4, getHeight()));
+    material = std::make_shared<const Material>(_titleBarTexture.get(), Ego::Math::Colour4f::white(), true);
+    _gameEngine->getUIManager()->drawImage(Point2f(getX() - BORDER_PIXELS * 2, getY()), Vector2f(getWidth() + BORDER_PIXELS * 4, getHeight()), material);
 
     //Title String
     _font->drawText(_title, getX() + getWidth() / 2 - _textWidth / 2, getY() + 12, Colour4f(0.28f, 0.16f, 0.07f, 1.0f));
@@ -56,7 +59,8 @@ void InternalWindow::TitleBar::draw(DrawingContext& drawingContext) {
     //Draw the skull icon on top
     const int skullWidth = _titleSkull.get_ptr()->getWidth() / 2;
     const int skullHeight = _titleSkull.get_ptr()->getHeight() / 2;
-    _gameEngine->getUIManager()->drawImage(_titleSkull.get(), Point2f(getX() + getWidth() / 2 - skullWidth / 2, getY() - skullHeight / 2), Vector2f(skullWidth, skullHeight));
+    material = std::make_shared<const Material>(_titleSkull.get(), Ego::Math::Colour4f::white(), true);
+    _gameEngine->getUIManager()->drawImage(Point2f(getX() + getWidth() / 2 - skullWidth / 2, getY() - skullHeight / 2), Vector2f(skullWidth, skullHeight), material);
 }
 
 InternalWindow::InternalWindow(const std::string &title) :
@@ -78,8 +82,10 @@ InternalWindow::InternalWindow(const std::string &title) :
 }
 
 void InternalWindow::drawContainer(DrawingContext& drawingContext) {
+    std::shared_ptr<const Material> material;
     //Draw background first
-    _gameEngine->getUIManager()->drawImage(_background.get(), Point2f(getX() - BORDER_PIXELS, getY() - BORDER_PIXELS), Vector2f(getWidth() + BORDER_PIXELS * 2, getHeight() + BORDER_PIXELS * 2), Colour4f(1.0f, 1.0f, 1.0f, 0.9f));
+    material = std::make_shared<const Material>(_background.get(), Colour4f(1.0f, 1.0f, 1.0f, 0.9f), true);
+    _gameEngine->getUIManager()->drawImage(Point2f(getX() - BORDER_PIXELS, getY() - BORDER_PIXELS), Vector2f(getWidth() + BORDER_PIXELS * 2, getHeight() + BORDER_PIXELS * 2), material);
 
     //Draw window title
     _titleBar->draw(drawingContext);

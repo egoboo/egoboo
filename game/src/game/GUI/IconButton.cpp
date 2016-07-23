@@ -22,6 +22,7 @@
 /// @author Johan Jansen
 
 #include "game/GUI/IconButton.hpp"
+#include "game/GUI/Material.hpp"
 #include "egolib/Renderer/DeferredTexture.hpp"
 
 namespace Ego {
@@ -37,24 +38,24 @@ void IconButton::draw(DrawingContext& drawingContext) {
     //Update slidy button effect
     updateSlidyButtonEffect();
 
-    auto &renderer = Renderer::get();
-
     // Draw the button
-    renderer.getTextureUnit().setActivated(nullptr);
+    std::shared_ptr<const Material> material = nullptr;
 
     // Determine button color
     if (!isEnabled()) {
-        renderer.setColour(DISABLED_BUTTON_COLOUR);
+        material = std::make_shared<const Material>(nullptr, DISABLED_BUTTON_COLOUR, true);
     } else if (_mouseOver) {
-        renderer.setColour(HOVER_BUTTON_COLOUR);
+        material = std::make_shared<const Material>(nullptr, HOVER_BUTTON_COLOUR, true);
     } else {
-        renderer.setColour(DEFAULT_BUTTON_COLOUR);
+        material = std::make_shared<const Material>(nullptr, DEFAULT_BUTTON_COLOUR, true);
     }
+    material->apply();
     _gameEngine->getUIManager()->drawQuad2d(getBounds());
 
     // Draw icon
     int iconSize = getHeight() - 4;
-    _gameEngine->getUIManager()->drawImage(_icon.get_ptr(), Point2f(getX() + getWidth() - getHeight() - 2, getY() + 2), Vector2f(iconSize, iconSize), _iconTint);
+    material = std::make_shared<const Material>(_icon.get_ptr(), _iconTint, true);
+    _gameEngine->getUIManager()->drawImage(Point2f(getX() + getWidth() - getHeight() - 2, getY() + 2), Vector2f(iconSize, iconSize), material);
 
     // Draw text on left side in button
     if (_buttonTextRenderer) {

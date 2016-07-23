@@ -1,4 +1,5 @@
 #include "game/GUI/Image.hpp"
+#include "game/GUI/Material.hpp"
 
 namespace Ego {
 namespace GUI {
@@ -31,9 +32,11 @@ Image::Image(const DeferredTexture &image) :
 
 void Image::draw(DrawingContext& drawingContext) {
     if (_image) {
-        _gameEngine->getUIManager()->drawImage(_image, Point2f(getX(), getY()), Vector2f(getWidth(), getHeight()), _tint);
+        auto material = std::make_shared<const Material>(_image, _tint, true);
+        _gameEngine->getUIManager()->drawImage(Point2f(getX(), getY()), Vector2f(getWidth(), getHeight()), material);
     } else if (_texture) {
-        _gameEngine->getUIManager()->drawImage(_texture.get_ptr(), Point2f(getX(), getY()), Vector2f(getWidth(), getHeight()), _tint);
+        auto material = std::make_shared<const Material>(_texture.get_ptr(), _tint, true);
+        _gameEngine->getUIManager()->drawImage(Point2f(getX(), getY()), Vector2f(getWidth(), getHeight()), material);
     }
 }
 

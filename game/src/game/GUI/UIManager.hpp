@@ -26,7 +26,12 @@
 #include "game/egoboo.h"
 
 // Forward declarations.
-namespace Ego { class Font; }
+namespace Ego {
+class Font; 
+namespace GUI {
+class Material;
+}
+}
 
 namespace Ego {
 namespace GUI {
@@ -93,7 +98,7 @@ public:
      * @brief
      *  Convinience function to draw a 2D image
      */
-    void drawImage(const std::shared_ptr<const Texture>& img, const Point2f& position, const Vector2f& size, const Colour4f& tint = Ego::Colour4f::white());
+    void drawImage(const Point2f& position, const Vector2f& size, const std::shared_ptr<const Material>& material);
 
     /**
     * @brief
@@ -134,14 +139,22 @@ public:
     void fillRectangle(const Rectangle2f& rectangle, const bool useAlpha, const Colour4f& tint = Colour4f::white());
 
     /**
-    * @brief
-    *   Render a 2D texture quad
-    **/
-    void drawQuad2D(const std::shared_ptr<const Texture>& texture, const Rectangle2f& scr_rect, const Rectangle2f& tx_rect, const bool useAlpha, const Colour4f& tint = Colour4f::white());
-    void drawQuad2D(const std::shared_ptr<const Texture>& texture, const ego_frect_t& scr_rect, const ego_frect_t& tx_rect, const bool useAlpha, const Colour4f& tint = Colour4f::white());
+     * @brief Render a 2D quad.
+     * @param source the source rectangle (texture coordinates)
+     * @param target the target rectangle (screen coordinates)
+     * @param material the material
+     */
+    void drawQuad2D(const Rectangle2f& scr_rect, const Rectangle2f& tx_rect, const std::shared_ptr<const Material>& material);
+    void drawQuad2D(const Rectangle2f& scr_rect, const ego_frect_t& tx_rect, const std::shared_ptr<const Material>& material);
 
     /// Draw a 2D quad.
-    void drawQuad2d(const Rectangle2f& rectangle);
+    /// @param target the target rectangle in screen coordinates
+    /// @param source the source rectangle in texture coordinates
+    void drawQuad2d(const Rectangle2f& target, const Rectangle2f& source);
+    /// Draw a 2D quadriliteral.
+    /// @param target the target rectangle in screen coordinates
+    /// @remark The texture coordinate rectangle is ((0,0),(1,1)) if the material is textured.
+    void drawQuad2d(const Rectangle2f& target);
 private:
     /**
     * @brief

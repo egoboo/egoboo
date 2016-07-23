@@ -1,6 +1,7 @@
 #include "LevelUpWindow.hpp"
 #include "game/GUI/Label.hpp"
 #include "game/GUI/Image.hpp"
+#include "game/GUI/Material.hpp"
 #include "game/Entities/_Include.hpp"
 #include "game/Logic/Player.hpp"
 
@@ -54,7 +55,8 @@ public:
         renderer.render(*vb, PrimitiveType::Quadriliterals, 0, 4);
 
         //Icon
-        _gameEngine->getUIManager()->drawImage(_perk.getIcon().get_ptr(), Point2f(shakeEffectX, shakeEffectY), Vector2f(getWidth(), getHeight()), Math::Colour4f(0, 0, 0, 0.75f));
+        auto material = std::make_shared<Material>(_perk.getIcon().get_ptr(), Math::Colour4f(Ego::Math::Colour3f::black(), 0.75f), true);
+        _gameEngine->getUIManager()->drawImage(Point2f(shakeEffectX, shakeEffectY), Vector2f(getWidth(), getHeight()), material);
     }
 
     bool notifyMouseMoved(const Events::MouseMovedEventArgs& e) override {

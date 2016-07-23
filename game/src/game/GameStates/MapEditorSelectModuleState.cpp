@@ -4,6 +4,7 @@
 #include "game/GUI/Button.hpp"
 #include "game/GUI/IconButton.hpp"
 #include "game/GUI/Label.hpp"
+#include "game/GUI/Material.hpp"
 
 namespace Ego
 {
@@ -142,7 +143,8 @@ void MapEditorSelectModuleState::drawContainer(Ego::GUI::DrawingContext& drawing
     _moduleDescription->render(_moduleName->getX(), yPos, Ego::Math::Colour4f::white());
 
     //Module image
-	UI->drawImage(_selectedModule->getIcon().get(), Point2f(_moduleName->getX() + UI->getScreenWidth()/4 - 64, yPos + 200), Vector2f(128, 128));    
+    auto material = std::make_shared<const Ego::GUI::Material>(_selectedModule->getIcon().get(), Ego::Math::Colour4f::white(), true);
+	UI->drawImage(Point2f(_moduleName->getX() + UI->getScreenWidth()/4 - 64, yPos + 200), Vector2f(128, 128), material);    
 
     UI->endRenderUI();
 }

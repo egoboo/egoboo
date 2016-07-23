@@ -21,7 +21,8 @@
 /// @details GUI widget of a moveable slider ranging between minimum and maximum value
 /// @author Johan Jansen
 
-#include "Slider.hpp"
+#include "game/GUI/Slider.hpp"
+#include "game/GUI/Material.hpp"
 
 namespace Ego {
 namespace GUI {
@@ -44,12 +45,15 @@ void Slider::setOnChangeFunction(const std::function<void(int)> onChange) {
 }
 
 void Slider::draw(DrawingContext& drawingContext) {
+    std::shared_ptr<const Material> material;
     //Draw the bar
-    _gameEngine->getUIManager()->drawImage(_sliderBarTexture.get_ptr(), Point2f(getX(), getY()), Vector2f(getWidth(), getHeight()), isEnabled() ? Math::Colour4f::white() : Math::Colour4f::grey());
+    material = std::make_shared<const Material>(_sliderBarTexture.get_ptr(), isEnabled() ? Math::Colour4f::white() : Math::Colour4f::grey(), true);
+    _gameEngine->getUIManager()->drawImage(Point2f(getX(), getY()), Vector2f(getWidth(), getHeight()), material);
 
     //Draw the moveable slider on top
     const int SLIDER_WIDTH = getWidth() / 10;
-    _gameEngine->getUIManager()->drawImage(_sliderTexture.get_ptr(), Point2f(getX() + SLIDER_WIDTH + (getWidth() - SLIDER_WIDTH * 2)*_sliderPosition - SLIDER_WIDTH / 2, getY()), Vector2f(SLIDER_WIDTH, getHeight()), isEnabled() ? Math::Colour4f::white() : Math::Colour4f::grey());
+    material = std::make_shared<const Material>(_sliderTexture.get_ptr(), isEnabled() ? Math::Colour4f::white() : Math::Colour4f::grey(), true);
+    _gameEngine->getUIManager()->drawImage(Point2f(getX() + SLIDER_WIDTH + (getWidth() - SLIDER_WIDTH * 2)*_sliderPosition - SLIDER_WIDTH / 2, getY()), Vector2f(SLIDER_WIDTH, getHeight()), material);
 }
 
 void Slider::setValue(const int value) {
