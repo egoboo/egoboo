@@ -553,7 +553,7 @@ Uint8 scr_FindPath( script_state_t& state, ai_state_t& self )
     SCRIPT_FUNCTION_BEGIN();
 
     //Too soon since last try?
-    if ( self.astar_timer > update_wld ) return false;
+    if ( self.astar_timer > update_wld ) return true;
 
     returncode = FindPath( self.wp_lst, pchr, Interpreter::safeCast<float>(state.x),
                                               Interpreter::safeCast<float>(state.y), &used_astar );

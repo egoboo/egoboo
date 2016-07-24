@@ -267,7 +267,7 @@ bool FindPath( waypoint_list_t& wplst, Object * pchr, float dst_x, float dst_y, 
         waypoint_list_t::push( wplst, dst_x, dst_y );
     }
 
-    return returncode;
+    return returncode || straight_line;
 }
 
 //--------------------------------------------------------------------------------------------
