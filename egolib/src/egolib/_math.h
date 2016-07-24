@@ -105,7 +105,6 @@ public:
     }
     explicit operator Ego::Math::Turns() const {
         static const int32_t s = static_cast<float>(static_cast<int32_t>(std::numeric_limits<uint16_t>::max())) + 1;
-        static const float inv_s = 1.0f / s;
         return Ego::Math::Turns(float(angle) * s);
     }
     explicit operator Ego::Math::Radians() const {
@@ -312,7 +311,7 @@ void facing_to_vec(const Facing& facing, float * dx, float * dy);
  * @return the value <tt>source + (target-source)/weight</tt>
  * @pre <tt>weight</tt> must be positive.
  */
-Facing rotate(const Facing& source, const Facing& target, const int weight);
+Facing rotate(const Facing& source, const Facing& target, const float weight);
 
 //--------------------------------------------------------------------------------------------
 

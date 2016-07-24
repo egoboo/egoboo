@@ -617,9 +617,6 @@ void GameModule::updateAllObjects()
         //Update object logic
         object->update();
 
-        //Generate movement and attacks from input latches
-        chr_do_latch_button(object.get());
-
         //Update model animation
         move_one_character_do_animation(object.get());
 
@@ -654,13 +651,13 @@ const std::vector<std::shared_ptr<Ego::Player>>& GameModule::getPlayerList() con
     return _playerList;    
 }
 
-bool GameModule::addPlayer(const std::shared_ptr<Object>& object, input_device_t *pdevice)
+bool GameModule::addPlayer(const std::shared_ptr<Object>& object, const Ego::Input::InputDevice &device)
 {
     if(!object || object->isTerminated()) {
         return false;
     }
 
-    std::shared_ptr<Ego::Player> player = std::make_shared<Ego::Player>(object, pdevice);
+    std::shared_ptr<Ego::Player> player = std::make_shared<Ego::Player>(object, device);
     _playerList.push_back(player);
 
     // set the reference to the player
@@ -669,12 +666,10 @@ bool GameModule::addPlayer(const std::shared_ptr<Object>& object, input_device_t
     // download the quest info
     player->getQuestLog().loadFromFile(object->getProfile()->getPathname());
 
-    if (pdevice != nullptr)
-    {
-        local_stats.noplayers = false;
-        object->islocalplayer = true;
-        local_stats.player_count++;
-    }
+    //Local player added
+    local_stats.noplayers = false;
+    object->islocalplayer = true;
+    local_stats.player_count++;
 
     return true;
 }

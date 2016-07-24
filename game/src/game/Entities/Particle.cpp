@@ -247,7 +247,7 @@ void Particle::setElevation(const float level)
 {
     enviro.level = level;
 
-    float loc_height = bump_real.height * 0.5f;
+    float loc_height = bump_real.height;
 
     enviro.adj_level = enviro.level;
     enviro.adj_floor = enviro.floor_level;
@@ -406,7 +406,6 @@ void Particle::updateWater()
                         static constexpr int RIPPLEAND = 15;          ///< How often ripples spawn
                         if (0 == ((update_wld + _particleID.get()) & (RIPPLEAND << 1)))
                         {
-
                             spawn_valid = true;
                             global_pip_index = LocalParticleProfileRef(PIP_RIPPLE);
                         }

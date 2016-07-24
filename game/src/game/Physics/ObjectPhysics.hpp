@@ -58,8 +58,15 @@ public:
     /**
     * @return
     *   Vector containing the desired XY velocity of the object
+    *   Desired velocity in scaled space [-1 , 1]
     **/
     const Vector2f& getDesiredVelocity() const;
+
+    /**
+    * @brief
+    *   Set desired velocity in XY scaled space [-1, 1]
+    **/
+    void setDesiredVelocity(const Vector2f &velocity);
 
     /**
     * @brief

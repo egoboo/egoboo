@@ -55,7 +55,6 @@
 #define THROWFIX            30.0f                    ///< To correct thrown velocities
 #define MINTHROWVELOCITY    15.0f
 #define MAXTHROWVELOCITY    75.0f
-#define GRABDELAY           25                      ///< Time before grab again
 
 bool  overrideslots      = false;
 
@@ -217,7 +216,6 @@ egolib_rv export_all_players( bool require_local )
 
     egolib_rv export_chr_rv;
     egolib_rv retval;
-    bool is_local;
     int number;
 
     // Stop if export isnt valid
@@ -230,9 +228,6 @@ egolib_rv export_all_players( bool require_local )
     for(const std::shared_ptr<Ego::Player> &player : _currentModule->getPlayerList()) {
         ObjectRef item;
 
-        is_local = ( nullptr != player->getInputDevice() );
-        if ( require_local && !is_local ) continue;
-
         // Is it alive?
         std::shared_ptr<Object> pchr = player->getObject();
         if(!pchr || pchr->isTerminated()) continue;
@@ -243,7 +238,7 @@ egolib_rv export_all_players( bool require_local )
         if ( !pchr->isAlive() ) continue;
 
         // Export the character
-        export_chr_rv = export_one_character( character, character, -1, is_local );
+        export_chr_rv = export_one_character( character, character, -1, true );
         if ( rv_error == export_chr_rv )
         {
             retval = rv_error;
@@ -253,7 +248,7 @@ egolib_rv export_all_players( bool require_local )
         item = pchr->holdingwhich[SLOT_LEFT];
         if ( _currentModule->getObjectHandler().exists( item ) )
         {
-            export_chr_rv = export_one_character( item, character, SLOT_LEFT, is_local );
+            export_chr_rv = export_one_character( item, character, SLOT_LEFT, true );
             if ( rv_error == export_chr_rv )
             {
                 retval = rv_error;
@@ -264,7 +259,7 @@ egolib_rv export_all_players( bool require_local )
         item = pchr->holdingwhich[SLOT_RIGHT];
         if ( _currentModule->getObjectHandler().exists( item ) )
         {
-            export_chr_rv = export_one_character( item, character, SLOT_RIGHT, is_local );
+            export_chr_rv = export_one_character( item, character, SLOT_RIGHT, true );
             if ( rv_error == export_chr_rv )
             {
                 retval = rv_error;
@@ -277,7 +272,7 @@ egolib_rv export_all_players( bool require_local )
         {
             if ( number >= pchr->getInventory().getMaxItems() ) break;
 
-            export_chr_rv = export_one_character( pitem->getObjRef(), character, number + SLOT_COUNT, is_local );
+            export_chr_rv = export_one_character( pitem->getObjRef(), character, number + SLOT_COUNT, true);
             if ( rv_error == export_chr_rv )
             {
                 retval = rv_error;
@@ -378,9 +373,6 @@ void updateLocalStats()
     int numalive = 0;
     for(const std::shared_ptr<Ego::Player> &player : _currentModule->getPlayerList())
     {
-        // only interested in local players
-        if ( nullptr == player->getInputDevice() ) continue;
-
         std::shared_ptr<Object> pchr = player->getObject();
         if(!pchr || pchr->isTerminated()) {
             continue;
@@ -450,7 +442,7 @@ int update_game()
     _currentModule->getMeshPointer()->_fxlists.synch(_currentModule->getMeshPointer()->_tmem, false);
     
     // Get immediate mode state for the rest of the game
-    InputSystem::get().update();
+    Ego::Input::InputSystem::get().update();
 
     //Rebuild the quadtree for fast object lookup
     _currentModule->getObjectHandler().updateQuadTree(0.0f, 0.0f, _currentModule->getMeshPointer()->_info.getTileCountX()*Info<float>::Grid::Size(),
@@ -793,18 +785,17 @@ void readPlayerInput()
         player->updateLatches();
 
         //Press space to respawn!
-        if (InputSystem::get().keyboard.isKeyDown(SDLK_SPACE)
+        bool respawnRequested = false;
+        if (Ego::Input::InputSystem::get().isKeyDown(SDLK_SPACE)
             && (local_stats.allpladead || _currentModule->canRespawnAnyTime())
             && _currentModule->isRespawnValid()
-            && egoboo_config_t::get().game_difficulty.getValue() < Ego::GameDifficulty::Hard
-            && !InputSystem::get().keyboard.chat_mode
-            && player->getInputDevice() != nullptr)
+            && egoboo_config_t::get().game_difficulty.getValue() < Ego::GameDifficulty::Hard)
         {
-            pchr->latch.b[LATCHBUTTON_RESPAWN] = true;
+            respawnRequested = true;
         }
 
         // Let players respawn
-        if (egoboo_config_t::get().game_difficulty.getValue() < Ego::GameDifficulty::Hard && pchr->latch.b[LATCHBUTTON_RESPAWN] && _currentModule->isRespawnValid())
+        if (egoboo_config_t::get().game_difficulty.getValue() < Ego::GameDifficulty::Hard && respawnRequested && _currentModule->isRespawnValid())
         {
             if (!pchr->isAlive() && 0 == local_stats.revivetimer)
             {
@@ -820,9 +811,6 @@ void readPlayerInput()
                     pchr->giveMoney(-pchr->getMoney() * EXPKEEP);
                 }
             }
-
-            // remove all latches other than latchbutton_respawn
-            pchr->latch.b[LATCHBUTTON_RESPAWN] = false;
         }
    }
 }
@@ -836,10 +824,7 @@ void check_stats()
     static int stat_check_timer = 0;
     static int stat_check_delay = 0;
 
-    int ticks;
-    if ( InputSystem::get().keyboard.chat_mode ) return;
-
-    ticks = Time::now<Time::Unit::Ticks>();
+    int ticks = Time::now<Time::Unit::Ticks>();
     if ( ticks > stat_check_timer + 20 )
     {
         stat_check_timer = ticks;
@@ -850,7 +835,7 @@ void check_stats()
         return;
 
     // Show map cheat
-    if (egoboo_config_t::get().debug_developerMode_enable.getValue() && InputSystem::get().keyboard.isKeyDown(SDLK_m) && InputSystem::get().keyboard.isKeyDown(SDLK_LSHIFT))
+    if (egoboo_config_t::get().debug_developerMode_enable.getValue() && Ego::Input::InputSystem::get().isKeyDown(SDLK_m) && Ego::Input::InputSystem::get().isKeyDown(SDLK_LSHIFT))
     {
         _gameEngine->getActivePlayingState()->getMiniMap()->setVisible(true);
         _gameEngine->getActivePlayingState()->getMiniMap()->setShowPlayerPosition(true);
@@ -859,13 +844,13 @@ void check_stats()
 
     // XP CHEAT
     if (egoboo_config_t::get().debug_developerMode_enable.getValue() &&
-        InputSystem::get().keyboard.isKeyDown(SDLK_x))
+        Ego::Input::InputSystem::get().isKeyDown(SDLK_x))
     {
         PLA_REF docheat = INVALID_PLA_REF;
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_1 ) )  docheat = 0;
-        else if (InputSystem::get().keyboard.isKeyDown( SDLK_2 ) )  docheat = 1;
-        else if (InputSystem::get().keyboard.isKeyDown( SDLK_3 ) )  docheat = 2;
-        else if (InputSystem::get().keyboard.isKeyDown( SDLK_4 ) )  docheat = 3;
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_1 ) )  docheat = 0;
+        else if (Ego::Input::InputSystem::get().isKeyDown( SDLK_2 ) )  docheat = 1;
+        else if (Ego::Input::InputSystem::get().isKeyDown( SDLK_3 ) )  docheat = 2;
+        else if (Ego::Input::InputSystem::get().isKeyDown( SDLK_4 ) )  docheat = 3;
 
         //Apply the cheat if valid
         if ( docheat != INVALID_PLA_REF && docheat < _currentModule->getPlayerList().size() )
@@ -882,14 +867,14 @@ void check_stats()
     }
 
     // LIFE CHEAT
-    if (egoboo_config_t::get().debug_developerMode_enable.getValue() && InputSystem::get().keyboard.isKeyDown(SDLK_z))
+    if (egoboo_config_t::get().debug_developerMode_enable.getValue() && Ego::Input::InputSystem::get().isKeyDown(SDLK_z))
     {
         PLA_REF docheat = INVALID_PLA_REF;
 
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_1 ) )  docheat = 0;
-        else if (InputSystem::get().keyboard.isKeyDown( SDLK_2 ) )  docheat = 1;
-        else if (InputSystem::get().keyboard.isKeyDown( SDLK_3 ) )  docheat = 2;
-        else if (InputSystem::get().keyboard.isKeyDown( SDLK_4 ) )  docheat = 3;
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_1 ) )  docheat = 0;
+        else if (Ego::Input::InputSystem::get().isKeyDown( SDLK_2 ) )  docheat = 1;
+        else if (Ego::Input::InputSystem::get().isKeyDown( SDLK_3 ) )  docheat = 2;
+        else if (Ego::Input::InputSystem::get().isKeyDown( SDLK_4 ) )  docheat = 3;
 
         //Apply the cheat if valid
         if(docheat != INVALID_PLA_REF && docheat < _currentModule->getPlayerList().size()) {
@@ -906,42 +891,42 @@ void check_stats()
     }
 
     // Display armor stats?
-    if (InputSystem::get().keyboard.isKeyDown( SDLK_LSHIFT ) )
+    if (Ego::Input::InputSystem::get().isKeyDown( SDLK_LSHIFT ) )
     {
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_1 ) )  { show_armor( 0 ); stat_check_delay = 1000; }
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_2 ) )  { show_armor( 1 ); stat_check_delay = 1000; }
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_3 ) )  { show_armor( 2 ); stat_check_delay = 1000; }
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_4 ) )  { show_armor( 3 ); stat_check_delay = 1000; }
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_5 ) )  { show_armor( 4 ); stat_check_delay = 1000; }
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_6 ) )  { show_armor( 5 ); stat_check_delay = 1000; }
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_7 ) )  { show_armor( 6 ); stat_check_delay = 1000; }
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_8 ) )  { show_armor( 7 ); stat_check_delay = 1000; }
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_1 ) )  { show_armor( 0 ); stat_check_delay = 1000; }
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_2 ) )  { show_armor( 1 ); stat_check_delay = 1000; }
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_3 ) )  { show_armor( 2 ); stat_check_delay = 1000; }
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_4 ) )  { show_armor( 3 ); stat_check_delay = 1000; }
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_5 ) )  { show_armor( 4 ); stat_check_delay = 1000; }
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_6 ) )  { show_armor( 5 ); stat_check_delay = 1000; }
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_7 ) )  { show_armor( 6 ); stat_check_delay = 1000; }
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_8 ) )  { show_armor( 7 ); stat_check_delay = 1000; }
     }
 
     // Display enchantment stats?
-    else if (InputSystem::get().keyboard.isKeyDown( SDLK_LCTRL ) )
+    else if (Ego::Input::InputSystem::get().isKeyDown( SDLK_LCTRL ) )
     {
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_1 ) )  { show_full_status( 0 ); stat_check_delay = 1000; }
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_2 ) )  { show_full_status( 1 ); stat_check_delay = 1000; }
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_3 ) )  { show_full_status( 2 ); stat_check_delay = 1000; }
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_4 ) )  { show_full_status( 3 ); stat_check_delay = 1000; }
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_5 ) )  { show_full_status( 4 ); stat_check_delay = 1000; }
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_6 ) )  { show_full_status( 5 ); stat_check_delay = 1000; }
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_7 ) )  { show_full_status( 6 ); stat_check_delay = 1000; }
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_8 ) )  { show_full_status( 7 ); stat_check_delay = 1000; }
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_1 ) )  { show_full_status( 0 ); stat_check_delay = 1000; }
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_2 ) )  { show_full_status( 1 ); stat_check_delay = 1000; }
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_3 ) )  { show_full_status( 2 ); stat_check_delay = 1000; }
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_4 ) )  { show_full_status( 3 ); stat_check_delay = 1000; }
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_5 ) )  { show_full_status( 4 ); stat_check_delay = 1000; }
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_6 ) )  { show_full_status( 5 ); stat_check_delay = 1000; }
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_7 ) )  { show_full_status( 6 ); stat_check_delay = 1000; }
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_8 ) )  { show_full_status( 7 ); stat_check_delay = 1000; }
     }
 
     // Display character special powers?
-    else if (InputSystem::get().keyboard.isKeyDown( SDLK_LALT ) )
+    else if (Ego::Input::InputSystem::get().isKeyDown( SDLK_LALT ) )
     {
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_1 ) )  { show_magic_status( 0 ); stat_check_delay = 1000; }
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_2 ) )  { show_magic_status( 1 ); stat_check_delay = 1000; }
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_3 ) )  { show_magic_status( 2 ); stat_check_delay = 1000; }
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_4 ) )  { show_magic_status( 3 ); stat_check_delay = 1000; }
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_5 ) )  { show_magic_status( 4 ); stat_check_delay = 1000; }
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_6 ) )  { show_magic_status( 5 ); stat_check_delay = 1000; }
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_7 ) )  { show_magic_status( 6 ); stat_check_delay = 1000; }
-        if (InputSystem::get().keyboard.isKeyDown( SDLK_8 ) )  { show_magic_status( 7 ); stat_check_delay = 1000; }
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_1 ) )  { show_magic_status( 0 ); stat_check_delay = 1000; }
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_2 ) )  { show_magic_status( 1 ); stat_check_delay = 1000; }
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_3 ) )  { show_magic_status( 2 ); stat_check_delay = 1000; }
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_4 ) )  { show_magic_status( 3 ); stat_check_delay = 1000; }
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_5 ) )  { show_magic_status( 4 ); stat_check_delay = 1000; }
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_6 ) )  { show_magic_status( 5 ); stat_check_delay = 1000; }
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_7 ) )  { show_magic_status( 6 ); stat_check_delay = 1000; }
+        if (Ego::Input::InputSystem::get().isKeyDown( SDLK_8 ) )  { show_magic_status( 7 ); stat_check_delay = 1000; }
     }
 }
 
@@ -2170,8 +2155,6 @@ egolib_rv import_list_t::from_players(import_list_t& self)
             continue;
         }
 
-		bool is_local = (nullptr != player->getInputDevice());
-
 		// grab a pointer
 		import_element_t *import_ptr = self.lst + self.count;
 		self.count++;
@@ -2181,16 +2164,7 @@ egolib_rv import_list_t::from_players(import_list_t& self)
 		import_ptr->srcDir[0] = CSTR_END;
 		import_ptr->dstDir[0] = CSTR_END;
 		strncpy(import_ptr->name, pchr->getName().c_str(), SDL_arraysize(import_ptr->name));
-
-		// only copy the "source" directory if the player is local
-		if (is_local)
-		{
-			snprintf(import_ptr->srcDir, SDL_arraysize(import_ptr->srcDir), "mp_players/%s", str_encode_path(pchr->getName()).c_str());
-		}
-		else
-		{
-			snprintf(import_ptr->srcDir, SDL_arraysize(import_ptr->srcDir), "mp_remote/%s", str_encode_path(pchr->getName()).c_str());
-		}
+		snprintf(import_ptr->srcDir, SDL_arraysize(import_ptr->srcDir), "mp_players/%s", str_encode_path(pchr->getName()).c_str());
 	}
 
 	return (self.count > 0) ? rv_success : rv_fail;
@@ -2392,157 +2366,6 @@ bool export_one_character_name_vfs( const char *szSaveName, ObjectRef character 
     if ( !_currentModule->getObjectHandler().exists( character ) ) return false;
 
     return RandomName::exportName(_currentModule->getObjectHandler()[character]->getName(), szSaveName);
-}
-
-bool chr_do_latch_button( Object * pchr )
-{
-    /// @author BB
-    /// @details Character latches for generalized buttons
-
-    auto ichr = pchr->getObjRef();
-
-    if ( !pchr->isAlive() || pchr->latch.b.none() ) return true;
-
-    const std::shared_ptr<ObjectProfile> &profile = pchr->getProfile();
-
-    if ( pchr->latch.b[LATCHBUTTON_JUMP] && 0 == pchr->jump_timer )
-    {
-
-        //Jump from our mount
-        if (pchr->isBeingHeld())
-        {
-            pchr->detatchFromHolder(true, true);
-            pchr->getObjectPhysics().detachFromPlatform();
-
-            pchr->jump_timer = Object::JUMPDELAY;
-            if ( pchr->isFlying() )
-            {
-                pchr->vel.z() += Object::DISMOUNTZVEL / 3.0f;
-            }
-            else
-            {
-                pchr->vel.z() += Object::DISMOUNTZVEL;
-            }
-
-            pchr->setPosition(pchr->getPosX(), pchr->getPosY(), pchr->getPosZ() + pchr->vel[kZ]);
-
-            if ( pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) != Object::JUMPINFINITE && 0 != pchr->jumpnumber ) {
-                pchr->jumpnumber--;
-            }
-
-            // Play the jump sound
-            AudioSystem::get().playSound(pchr->getPosition(), profile->getJumpSound());
-        }
-
-        //Normal jump
-        else if ( 0 != pchr->jumpnumber && !pchr->isFlying() )
-        {
-            if (1 != pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) || pchr->jumpready)
-            {
-                //Exit stealth unless character has Stalker Perk
-                if(!pchr->hasPerk(Ego::Perks::STALKER)) {
-                    pchr->deactivateStealth();
-                }
-
-                // Make the character jump
-                float jumpPower = pchr->getAttribute(Ego::Attribute::JUMP_POWER) * 1.5f;
-                pchr->hitready = true;
-                pchr->jump_timer = Object::JUMPDELAY;
-
-                //To prevent 'bunny jumping' in water
-                if (pchr->isSubmerged() || pchr->getObjectPhysics().floorIsSlippy()) {
-                    pchr->jump_timer *= pchr->hasPerk(Ego::Perks::ATHLETICS) ? 2 : 4;       
-                    jumpPower *= 0.5f;
-                }
-
-                pchr->vel.z() += jumpPower;
-                pchr->jumpready = false;
-
-                if (pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) != Object::JUMPINFINITE) { 
-                    pchr->jumpnumber--;
-                }
-
-                // Set to jump animation if not doing anything better
-                if ( pchr->inst.actionState.action_ready )
-                {
-                    chr_play_action( pchr, ACTION_JA, true );
-                }
-
-                // Play the jump sound (Boing!)
-                AudioSystem::get().playSound(pchr->getPosition(), profile->getJumpSound());
-            }
-        }
-
-    }
-    if ( pchr->latch.b[LATCHBUTTON_PACKLEFT] && pchr->inst.actionState.action_ready && 0 == pchr->reload_timer )
-    {
-        pchr->reload_timer = Inventory::PACKDELAY;
-        Inventory::swap_item( ichr, pchr->getInventory().getFirstFreeSlotNumber(), SLOT_LEFT, false );
-    }
-    if ( pchr->latch.b[LATCHBUTTON_PACKRIGHT] && pchr->inst.actionState.action_ready && 0 == pchr->reload_timer )
-    {
-        pchr->reload_timer = Inventory::PACKDELAY;
-        Inventory::swap_item( ichr, pchr->getInventory().getFirstFreeSlotNumber(), SLOT_RIGHT, false );
-    }
-
-    if ( pchr->latch.b[LATCHBUTTON_ALTLEFT] && pchr->inst.actionState.action_ready && 0 == pchr->reload_timer )
-    {
-        pchr->reload_timer = GRABDELAY;
-        if ( !pchr->getLeftHandItem() )
-        {
-            // Grab left
-            if(!pchr->getProfile()->getModel()->isActionValid(ACTION_ME)) {
-                //No grab animation valid
-                pchr->getObjectPhysics().grabStuff(GRIP_LEFT, false );
-            }
-            else {
-                chr_play_action( pchr, ACTION_ME, false );
-            }
-        }
-        else
-        {
-            // Drop left
-            chr_play_action( pchr, ACTION_MA, false );
-        }
-    }
-    if ( pchr->latch.b[LATCHBUTTON_ALTRIGHT] && pchr->inst.actionState.action_ready && 0 == pchr->reload_timer )
-    {
-        //pchr->latch.b &= ~LATCHBUTTON_ALTRIGHT;
-
-        pchr->reload_timer = GRABDELAY;
-        if ( !pchr->getRightHandItem() )
-        {
-            // Grab right
-            if(!pchr->getProfile()->getModel()->isActionValid(ACTION_MF)) {
-                //No grab animation valid
-                pchr->getObjectPhysics().grabStuff(GRIP_RIGHT, false );
-            }
-            else {
-                chr_play_action( pchr, ACTION_MF, false );
-            }
-        }
-        else
-        {
-            // Drop right
-            chr_play_action( pchr, ACTION_MB, false );
-        }
-    }
-
-    // LATCHBUTTON_LEFT and LATCHBUTTON_RIGHT are mutually exclusive
-    bool attack_handled = false;
-    if ( !attack_handled && pchr->latch.b[LATCHBUTTON_LEFT] && 0 == pchr->reload_timer )
-    {
-        //pchr->latch.b &= ~LATCHBUTTON_LEFT;
-        attack_handled = chr_do_latch_attack( pchr, SLOT_LEFT );
-    }
-    if ( !attack_handled && pchr->latch.b[LATCHBUTTON_RIGHT] && 0 == pchr->reload_timer )
-    {
-        //pchr->latch.b &= ~LATCHBUTTON_RIGHT;
-
-        attack_handled = chr_do_latch_attack( pchr, SLOT_RIGHT );
-    }
-
-    return true;
 }
 
 bool chr_do_latch_attack( Object * pchr, slot_t which_slot )

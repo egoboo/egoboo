@@ -16,7 +16,8 @@ ComponentContainer::ComponentContainer() :
 
 ComponentContainer::~ComponentContainer() {
     if (_semaphoreLock != 0) {
-        throw new std::logic_error("Destructing ComponentContainer while iterating");
+        //Fatal error that always terminates the program (throwing an exception in deconstructor)
+        //throw new Id::RuntimeErrorException(__FILE__, __LINE__, "Destructing ComponentContainer while iterating");
     }
 }
 

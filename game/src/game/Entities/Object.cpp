@@ -46,7 +46,6 @@ const std::shared_ptr<Object> Object::INVALID_OBJECT = nullptr;
 Object::Object(const PRO_REF proRef, ObjectRef objRef) : 
     spawn_data(),
     ai(),
-    latch(),
     gender(Gender::Male),
     experience(0),
     experiencelevel(0),
@@ -145,6 +144,9 @@ Object::Object(const PRO_REF proRef, ObjectRef objRef) :
 
     //Physics
     _objectPhysics(*this),
+
+    //Input commands
+    _inputLatchesPressed(),
 
     //Non-persistent variables
     _hasBeenKilled(false),
@@ -975,6 +977,9 @@ void Object::update()
             }
         }
     }
+
+    //Generate movement and attacks from input latches
+    updateLatchButtons();
 
     //Finally update model resizing effects
     updateResize();
@@ -1840,6 +1845,7 @@ void Object::respawn()
 
     _isAlive = true;
     resetBoredTimer();
+    resetInputCommands();
     careful_timer = CAREFULTIME;
     _currentLife = getAttribute(Ego::Attribute::MAX_LIFE);
     _currentMana = getAttribute(Ego::Attribute::MAX_MANA);
@@ -2247,6 +2253,12 @@ const std::shared_ptr<ObjectProfile>& Object::getProfile() const
     return _profile;
 }
 
+void Object::resetInputCommands()
+{
+    _objectPhysics.setDesiredVelocity(Vector2f::zero());
+    _inputLatchesPressed.reset();    
+}
+
 void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
 {
     if(!ProfileSystem::get().isValidProfileID(profileID)) {
@@ -2320,7 +2332,7 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
     ai.state = 0;
     ai.timer          = 0;
     turnmode          = TURNMODE_VELOCITY;
-    latch.clear();
+    resetInputCommands();
 
     // Flags
     platform        = _profile->isPlatform();
@@ -2346,7 +2358,7 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
     /// @note ZF@> No, we want this, I have specifically scripted morph books to handle unmorphing
     /// even if you cannot cast arcane spells. Some morph spells specifically morph the player
     /// into a fighter or a tech user, but as a balancing factor prevents other spellcasting.
-    // pchr->canusearcane          = pcap_new->canusearcane;
+    // canusearcane          = pcap_new->canusearcane;
 
     // Character size and bumping
     // set the character size so that the new model is the same size as the old model
@@ -2992,4 +3004,153 @@ void Object::resetBoredTimer()
 const std::shared_ptr<const Ego::Texture> Object::getSkinTexture() const
 {
     return getProfile()->getSkin(this->skin).get_ptr();
+}
+
+void Object::setLatchButton(const LatchButton latchButton, const bool pressed)
+{
+    _inputLatchesPressed[latchButton] = pressed;
+}
+
+void Object::updateLatchButtons()
+{
+    auto ichr = getObjRef();
+
+    if (!isAlive() || _inputLatchesPressed.none()) {
+        return;
+    }
+
+    const std::shared_ptr<ObjectProfile> &profile = getProfile();
+
+    if (_inputLatchesPressed[LATCHBUTTON_JUMP] && 0 == jump_timer)
+    {
+
+        //Jump from our mount
+        if (isBeingHeld())
+        {
+            detatchFromHolder(true, true);
+            getObjectPhysics().detachFromPlatform();
+
+            jump_timer = Object::JUMPDELAY;
+            if ( isFlying() )
+            {
+                vel.z() += Object::DISMOUNTZVEL / 3.0f;
+            }
+            else
+            {
+                vel.z() += Object::DISMOUNTZVEL;
+            }
+
+            setPosition(getPosX(), getPosY(), getPosZ() + vel[kZ]);
+
+            if (getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) != Object::JUMPINFINITE && 0 != jumpnumber) {
+                jumpnumber--;
+            }
+
+            // Play the jump sound
+            AudioSystem::get().playSound(getPosition(), profile->getJumpSound());
+        }
+
+        //Normal jump
+        else if (0 != jumpnumber && !isFlying())
+        {
+            if (1 != getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) || jumpready)
+            {
+                //Exit stealth unless character has Stalker Perk
+                if(!hasPerk(Ego::Perks::STALKER)) {
+                    deactivateStealth();
+                }
+
+                // Make the character jump
+                float jumpPower = getAttribute(Ego::Attribute::JUMP_POWER) * 1.5f;
+                hitready = true;
+                jump_timer = Object::JUMPDELAY;
+
+                //To prevent 'bunny jumping' in water
+                if (isSubmerged() || getObjectPhysics().floorIsSlippy()) {
+                    jump_timer *= hasPerk(Ego::Perks::ATHLETICS) ? 2 : 4;       
+                    jumpPower *= 0.5f;
+                }
+
+                vel.z() += jumpPower;
+                jumpready = false;
+
+                if (getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) != Object::JUMPINFINITE) { 
+                    jumpnumber--;
+                }
+
+                // Set to jump animation if not doing anything better
+                if ( inst.actionState.action_ready )
+                {
+                    chr_play_action(this, ACTION_JA, true);
+                }
+
+                // Play the jump sound (Boing!)
+                AudioSystem::get().playSound(getPosition(), profile->getJumpSound());
+            }
+        }
+
+    }
+    if ( _inputLatchesPressed[LATCHBUTTON_PACKLEFT] && inst.actionState.action_ready && 0 == reload_timer )
+    {
+        reload_timer = Inventory::PACKDELAY;
+        Inventory::swap_item( ichr, getInventory().getFirstFreeSlotNumber(), SLOT_LEFT, false );
+    }
+    if ( _inputLatchesPressed[LATCHBUTTON_PACKRIGHT] && inst.actionState.action_ready && 0 == reload_timer )
+    {
+        reload_timer = Inventory::PACKDELAY;
+        Inventory::swap_item( ichr, getInventory().getFirstFreeSlotNumber(), SLOT_RIGHT, false );
+    }
+
+    if ( _inputLatchesPressed[LATCHBUTTON_ALTLEFT] && inst.actionState.action_ready && 0 == reload_timer )
+    {
+        reload_timer = GRABDELAY;
+        if ( !getLeftHandItem() )
+        {
+            // Grab left
+            if(!getProfile()->getModel()->isActionValid(ACTION_ME)) {
+                //No grab animation valid
+                getObjectPhysics().grabStuff(GRIP_LEFT, false );
+            }
+            else {
+                chr_play_action(this, ACTION_ME, false);
+            }
+        }
+        else
+        {
+            // Drop left
+            chr_play_action(this, ACTION_MA, false);
+        }
+    }
+
+    if (_inputLatchesPressed[LATCHBUTTON_ALTRIGHT] && inst.actionState.action_ready && 0 == reload_timer)
+    {
+        reload_timer = GRABDELAY;
+        if ( !getRightHandItem() )
+        {
+            // Grab right
+            if(!getProfile()->getModel()->isActionValid(ACTION_MF)) {
+                //No grab animation valid
+                getObjectPhysics().grabStuff(GRIP_RIGHT, false );
+            }
+            else {
+                chr_play_action(this, ACTION_MF, false);
+            }
+        }
+        else
+        {
+            // Drop right
+            chr_play_action(this, ACTION_MB, false);
+        }
+    }
+
+    // LATCHBUTTON_LEFT and LATCHBUTTON_RIGHT are mutually exclusive
+    bool attack_handled = false;
+    if ( !attack_handled && _inputLatchesPressed[LATCHBUTTON_LEFT] && 0 == reload_timer )
+    {
+        attack_handled = chr_do_latch_attack(this, SLOT_LEFT);
+    }
+    if ( !attack_handled && _inputLatchesPressed[LATCHBUTTON_RIGHT] && 0 == reload_timer )
+    {
+        attack_handled = chr_do_latch_attack(this, SLOT_RIGHT);
+    }
 }

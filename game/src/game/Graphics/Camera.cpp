@@ -20,6 +20,7 @@
 #include "game/Graphics/Camera.hpp"
 #include "game/graphic.h"
 #include "game/Logic/Player.hpp"
+#include "egolib/InputControl/InputDevice.hpp"
 
 #include "game/game.h" // TODO: remove only needed for mesh
 
@@ -281,53 +282,53 @@ void Camera::updateCenter()
 
 void Camera::updateFreeControl()
 {
-    auto& inputSystem = InputSystem::get();
+    auto& inputSystem = Ego::Input::InputSystem::get();
     float moveSpeed = 25.0f;
-    if(inputSystem.keyboard.isKeyDown(SDLK_LSHIFT) || inputSystem.keyboard.isKeyDown(SDLK_RSHIFT)) {
+    if(inputSystem.isKeyDown(SDLK_LSHIFT) || inputSystem.isKeyDown(SDLK_RSHIFT)) {
         moveSpeed += 25.0f;
     }
 
     //Forward and backwards
-    if (inputSystem.keyboard.isKeyDown(SDLK_KP_2) || inputSystem.keyboard.isKeyDown(SDLK_DOWN)) {
+    if (inputSystem.isKeyDown(SDLK_KP_2) || inputSystem.isKeyDown(SDLK_DOWN)) {
         _center.x() += std::sin(_turnZ_radians) * moveSpeed;
         _center.y() += std::cos(_turnZ_radians) * moveSpeed;
     }
-    else if (inputSystem.keyboard.isKeyDown(SDLK_KP_8) || inputSystem.keyboard.isKeyDown(SDLK_UP)) {
+    else if (inputSystem.isKeyDown(SDLK_KP_8) || inputSystem.isKeyDown(SDLK_UP)) {
         _center.x() -= std::sin(_turnZ_radians) * moveSpeed;
         _center.y() -= std::cos(_turnZ_radians) * moveSpeed;
     }
     
     //Left and right
-    if (inputSystem.keyboard.isKeyDown(SDLK_KP_4) || inputSystem.keyboard.isKeyDown(SDLK_LEFT)) {
+    if (inputSystem.isKeyDown(SDLK_KP_4) || inputSystem.isKeyDown(SDLK_LEFT)) {
         _center.x() -= std::sin(_turnZ_radians + Ego::Math::Radians(Ego::Math::pi<float>() * 0.5f)) * moveSpeed;
         _center.y() -= std::cos(_turnZ_radians + Ego::Math::Radians(Ego::Math::pi<float>() * 0.5f)) * moveSpeed;
     }
-    else if (inputSystem.keyboard.isKeyDown(SDLK_KP_6) || inputSystem.keyboard.isKeyDown(SDLK_RIGHT)) {
+    else if (inputSystem.isKeyDown(SDLK_KP_6) || inputSystem.isKeyDown(SDLK_RIGHT)) {
         _center.x() += std::sin(_turnZ_radians + Ego::Math::Radians(Ego::Math::pi<float>() * 0.5f)) * moveSpeed;
         _center.y() += std::cos(_turnZ_radians + Ego::Math::Radians(Ego::Math::pi<float>() * 0.5f)) * moveSpeed;
     }
     
     //Rotate left or right
-    if (inputSystem.keyboard.isKeyDown(SDLK_KP_7)) {
+    if (inputSystem.isKeyDown(SDLK_KP_7)) {
         _turnZAdd += DEFAULT_TURN_KEY * 2.0f;
     }
-    else if (inputSystem.keyboard.isKeyDown(SDLK_KP_9)) {
+    else if (inputSystem.isKeyDown(SDLK_KP_9)) {
         _turnZAdd -= DEFAULT_TURN_KEY * 2.0f;
     }
 
     //Up and down
-    if (inputSystem.keyboard.isKeyDown(SDLK_KP_PLUS) || inputSystem.keyboard.isKeyDown(SDLK_SPACE)) {
+    if (inputSystem.isKeyDown(SDLK_KP_PLUS) || inputSystem.isKeyDown(SDLK_SPACE)) {
         _center.z() -= moveSpeed * 0.2f;
     }
-    else if (inputSystem.keyboard.isKeyDown(SDLK_KP_MINUS) || inputSystem.keyboard.isKeyDown(SDLK_LCTRL)) {
+    else if (inputSystem.isKeyDown(SDLK_KP_MINUS) || inputSystem.isKeyDown(SDLK_LCTRL)) {
         _center.z() += moveSpeed * 0.2f;
     }
 
     //Pitch camera
-    if(inputSystem.keyboard.isKeyDown(SDLK_PAGEDOWN)) {
+    if(inputSystem.isKeyDown(SDLK_PAGEDOWN)) {
         _pitch += Ego::Math::degToRad(7.5f);
     }
-    else if(inputSystem.keyboard.isKeyDown(SDLK_PAGEUP)) {
+    else if(inputSystem.isKeyDown(SDLK_PAGEUP)) {
         _pitch -= Ego::Math::degToRad(7.5f);
     }
 
@@ -425,7 +426,7 @@ void Camera::updateTrack(const ego_mesh_t *mesh)
                     float weight1 = pchr->vel.dot(pchr->vel);
 
                     // Make another weight based on button-pushing.
-                    float weight2 = pchr->latch.b.none() ? 0 : 127;
+                    float weight2 = pchr->isAnyLatchButtonPressed() ? 127 : 0;
 
                     // I would weight this by the amount of damage that the character just sustained,
                     // but there is no real way to do this?
@@ -501,116 +502,118 @@ void Camera::update(const ego_mesh_t *mesh)
     makeMatrix();
 }
 
-void Camera::readInput(input_device_t *pdevice)
+void Camera::readInput(const Ego::Input::InputDevice &device)
 {
-    // Don't do network players.
-    if (!pdevice) return;
 
-    auto& inputSystem = InputSystem::get();
-    int type = pdevice->device_type;
-
-    // If the device isn't enabled there is no point in continuing.
-    if (!input_device_t::is_enabled(pdevice)) return;
-
+    auto& inputSystem = Ego::Input::InputSystem::get();
     // Autoturn camera only works in single player and when it is enabled.
     bool autoturn_camera = (CameraTurnMode::Good == _turnMode) && (1 == local_stats.player_count);
 
-    // No auto camera.
-    if (INPUT_DEVICE_MOUSE == type)
+    switch(device.getDeviceType())
     {
-        // Mouse control:
-
-        // Autoturn camera.
-        if (autoturn_camera)
+        // Mouse control
+        case Ego::Input::InputDevice::InputDeviceType::MOUSE:
         {
-            if (!input_device_t::control_active(pdevice, CONTROL_CAMERA))
+            // Autoturn camera.
+            if (autoturn_camera)
             {
-                _turnZAdd -= inputSystem.mouse.getOffset().x() * 0.5f;
+                if (!device.isButtonPressed(Ego::Input::InputDevice::InputButton::CAMERA_CONTROL))
+                {
+                _turnZAdd -= inputSystem.getMouseMovement().x() * 0.5f;
+                }
             }
+            // Normal camera.
+            else if (device.isButtonPressed(Ego::Input::InputDevice::InputButton::CAMERA_CONTROL))
+            {
+            _turnZAdd += inputSystem.getMouseMovement().x() / 3.0f;
+            _zaddGoto += static_cast<float>(inputSystem.getMouseMovement().y()) / 3.0f;
+
+                _turnTime = DEFAULT_TURN_TIME;  // Sticky turn ...
+            }            
         }
-        // Normal camera.
-        else if (input_device_t::control_active(pdevice, CONTROL_CAMERA))
+        break;
+
+        //TODO: Not implemented
+        /*
+        case INPUT_DEVICE_JOYSTICK:
         {
-            _turnZAdd += inputSystem.mouse.getOffset().x() / 3.0f;
-            _zaddGoto += static_cast<float>(inputSystem.mouse.getOffset().y()) / 3.0f;
+            // Joystick camera controls:
 
-            _turnTime = DEFAULT_TURN_TIME;  // Sticky turn ...
-        }
-    }
-    else if (IS_VALID_JOYSTICK(type))
-    {
-        // Joystick camera controls:
+            int ijoy = type - INPUT_DEVICE_JOY;
 
-        int ijoy = type - INPUT_DEVICE_JOY;
-
-        // Figure out which joystick this is.
+            // Figure out which joystick this is.
         joystick_data_t *pjoy = inputSystem.joysticks[ijoy].get();
 
-        // Autoturn camera.
-        if (autoturn_camera)
-        {
-            if (!input_device_t::control_active(pdevice, CONTROL_CAMERA))
+            // Autoturn camera.
+            if (autoturn_camera)
             {
-                _turnZAdd -= pjoy->x * DEFAULT_TURN_JOY;
+                if (!device.isButtonPressed(Ego::Input::InputDevice::InputButton::CONTROL_CAMERA))
+                {
+                    _turnZAdd -= pjoy->x * DEFAULT_TURN_JOY;
+                }
             }
-        }
-        // Normal camera.
+            // Normal camera.
         else if (input_device_t::control_active( pdevice, CONTROL_CAMERA))
-        {
-            _turnZAdd += pjoy->x * DEFAULT_TURN_JOY;
-            _zaddGoto += pjoy->y * DEFAULT_TURN_JOY;
-
-            _turnTime = DEFAULT_TURN_TIME;  // Sticky turn ...
-        }
-    }
-    else
-    {
-        // INPUT_DEVICE_KEYBOARD and any unknown device end up here:
-
-        // Autoturn camera.
-        if (autoturn_camera)
-        {
-            if (input_device_t::control_active(pdevice,  CONTROL_LEFT))
             {
-                _turnZAdd += DEFAULT_TURN_KEY;
-            }
-            if (input_device_t::control_active(pdevice,  CONTROL_RIGHT))
-            {
-                _turnZAdd -= DEFAULT_TURN_KEY;
+                _turnZAdd += pjoy->x * DEFAULT_TURN_JOY;
+                _zaddGoto += pjoy->y * DEFAULT_TURN_JOY;
+
+                _turnTime = DEFAULT_TURN_TIME;  // Sticky turn ...
             }
         }
-        // Normal camera.
-        else
+        break;
+        */
+
+        // INPUT_DEVICE_KEYBOARD and any unknown device end up here
+        case Ego::Input::InputDevice::InputDeviceType::KEYBOARD:
+        default:
         {
-            int _turn_z_diff = 0;
+            // Autoturn camera.
+            if (autoturn_camera)
+            {
+                if (device.isButtonPressed( Ego::Input::InputDevice::InputButton::MOVE_LEFT))
+                {
+                    _turnZAdd += DEFAULT_TURN_KEY;
+                }
+                if (device.isButtonPressed( Ego::Input::InputDevice::InputButton::MOVE_RIGHT))
+                {
+                    _turnZAdd -= DEFAULT_TURN_KEY;
+                }
+            }
+            // Normal camera.
+            else
+            {
+                int _turn_z_diff = 0;
 
-            // Rotation.
-            if (input_device_t::control_active(pdevice, CONTROL_CAMERA_LEFT))
-            {
-                _turn_z_diff += DEFAULT_TURN_KEY;
-            }
-            if (input_device_t::control_active(pdevice, CONTROL_CAMERA_RIGHT))
-            {
-                _turn_z_diff -= DEFAULT_TURN_KEY;
-            }
+                // Rotation.
+                if (device.isButtonPressed(Ego::Input::InputDevice::InputButton::CAMERA_LEFT))
+                {
+                    _turn_z_diff += DEFAULT_TURN_KEY;
+                }
+                if (device.isButtonPressed(Ego::Input::InputDevice::InputButton::CAMERA_RIGHT))
+                {
+                    _turn_z_diff -= DEFAULT_TURN_KEY;
+                }
 
-            // Sticky turn?
-            if (0 != _turn_z_diff)
-            {
-                _turnZAdd += _turn_z_diff;
-                _turnTime   = DEFAULT_TURN_TIME;
-            }
+                // Sticky turn?
+                if (0 != _turn_z_diff)
+                {
+                    _turnZAdd += _turn_z_diff;
+                    _turnTime   = DEFAULT_TURN_TIME;
+                }
 
-            // Zoom.
-            if (input_device_t::control_active(pdevice, CONTROL_CAMERA_OUT))
-            {
-                _zaddGoto += DEFAULT_TURN_KEY;
+                // Zoom.
+                if (device.isButtonPressed(Ego::Input::InputDevice::InputButton::CAMERA_ZOOM_OUT))
+                {
+                    _zaddGoto += DEFAULT_TURN_KEY;
+                }
+                if (device.isButtonPressed( Ego::Input::InputDevice::InputButton::CAMERA_ZOOM_IN))
+                {
+                    _zaddGoto -= DEFAULT_TURN_KEY;
+                }
             }
-            if (input_device_t::control_active(pdevice,  CONTROL_CAMERA_IN))
-            {
-                _zaddGoto -= DEFAULT_TURN_KEY;
-            }
-        }
+        }        
+        break;
     }
 }
 

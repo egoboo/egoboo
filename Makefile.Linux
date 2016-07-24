@@ -16,15 +16,16 @@ SANITIZER_FLAGS := -fno-sanitize=all
 COMPILE_WARNINGS += -Wno-sign-compare -Wno-reorder -Wno-unused-parameter
 
 #Enable some extra warnings
-COMPILE_WARNINGS += -Wcast-align -Wpointer-arith -Wwrite-strings -Wunreachable-code
+COMPILE_WARNINGS += -Wcast-align -Wpointer-arith -Wwrite-strings -Wunreachable-code -Wshift-overflow=2
 COMPILE_WARNINGS += -Wno-div-by-zero -Wlogical-op -Wunreachable-code -Wformat=2
+COMPILE_WARNINGS += -Wduplicated-cond -Wmisleading-indentation
 #-Wcast-qual -Wswitch-enum -Wstrict-overflow=5 -Wshadow
 
 set_sanitizer_flags:
 	$(eval SANITIZER_FLAGS := -fsanitize=undefined -fsanitize=leak -fsanitize=address)
 	$(eval SANITIZER_FLAGS += -fsanitize=integer-divide-by-zero -fsanitize=null -fsanitize=vla-bound -fsanitize=return -fsanitize=enum -fsanitize=shift)
 	$(eval SANITIZER_FLAGS += -fsanitize=bounds -fsanitize=object-size -fsanitize=float-divide-by-zero -fsanitize=vptr)
-	$(eval SANITIZER_FLAGS += -fsanitize=bool -fsanitize=alignment)
+	$(eval SANITIZER_FLAGS += -fsanitize=bool -fsanitize=alignment -fsanitize=bounds-strict)
 	$(eval SANITIZER_FLAGS += -fsanitize=float-cast-overflow -fsanitize=signed-integer-overflow)
 	#-fsanitize-undefined-trap-on-error
 
@@ -56,7 +57,7 @@ clean:
 configure:
 	git submodule init
 	git submodule update
-	sudo apt-get install libsdl2-dev libsdl2-ttf-dev libsdl2-image-dev libsdl2-mixer-dev libphysfs-dev
+	sudo apt-get install ccache libsdl2-dev libsdl2-ttf-dev libsdl2-image-dev libsdl2-mixer-dev libphysfs-dev
 
 static-analysis:
 	nice cppcheck ./game ./egolib ./idlib --enable=all --std=c++11 --force --template gcc --std=posix --std=c99 -I ./game/src -I ./egolib/src -I ./idlib/src --suppress=missingIncludeSystem 2> static_code_analysis.txt -j8

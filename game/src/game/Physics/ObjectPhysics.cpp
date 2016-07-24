@@ -107,16 +107,21 @@ void ObjectPhysics::keepItemsWithHolder()
     }
 }
 
+void ObjectPhysics::setDesiredVelocity(const Vector2f &velocity)
+{
+    _desiredVelocity = velocity;
+
+    //Constrain desired velocity between -1.0f and 1.0f
+    if (_desiredVelocity.length() > 1.0f) {
+        _desiredVelocity *= (1.0f / _desiredVelocity.length());
+    }
+}
+
 void ObjectPhysics::updateMovement()
 {
-    //Desired velocity in scaled space [-1 , 1]
-    _desiredVelocity = Vector2f(0.0f, 0.0f);
-
     //Can it move?
     if (_object.isAlive() && _object.getAttribute(Ego::Attribute::ACCELERATION) > 0.0f)  {
-        _desiredVelocity.x() = _object.latch.input.x();
-        _desiredVelocity.y() = _object.latch.input.y();
-
+ 
         // Reverse movements for daze
         if (_object.daze_timer > 0) {
             _desiredVelocity.x() = -_desiredVelocity.x();
@@ -131,28 +136,33 @@ void ObjectPhysics::updateMovement()
         //Update which way we are looking
         updateFacing();
     }
+    else {
+        //Immobile object
+        _desiredVelocity.setZero();
+    }
 
     //Is there any movement going on?
+    Vector2f velocitySetpoint;
     if(_desiredVelocity.length_abs() > 0.05f) {
         const float maxSpeed = getMaxSpeed();
 
         //Scale [-1 , 1] to velocity of the object
-        _desiredVelocity *= maxSpeed;
+        velocitySetpoint = _desiredVelocity * maxSpeed;
 
         //Limit to max velocity
-        if(_desiredVelocity.length() > maxSpeed) {
-            _desiredVelocity *= maxSpeed / _desiredVelocity.length();
+        if(velocitySetpoint.length() > maxSpeed) {
+            velocitySetpoint *= maxSpeed / velocitySetpoint.length();
         }
     }
     else {
         //Try to stand still
-        _desiredVelocity = Vector2f::zero();
+        velocitySetpoint.setZero();
     }
 
     //Determine acceleration/deceleration
     Vector2f acceleration;
-    acceleration.x() = (_desiredVelocity.x() - _object.vel.x()) * (4.0f / GameEngine::GAME_TARGET_UPS);
-    acceleration.y() = (_desiredVelocity.y() - _object.vel.y()) * (4.0f / GameEngine::GAME_TARGET_UPS);
+    acceleration.x() = (velocitySetpoint.x() - _object.vel.x()) * (4.0f / GameEngine::GAME_TARGET_UPS);
+    acceleration.y() = (velocitySetpoint.y() - _object.vel.y()) * (4.0f / GameEngine::GAME_TARGET_UPS);
 
     //How good grip do we have to add additional momentum?
     acceleration *= _traction;
@@ -400,16 +410,9 @@ void ObjectPhysics::updateFacing()
             {
                 if (_desiredVelocity.length_abs() > TURNSPD)
                 {
-                    if (_object.isPlayer())
-                    {
-                        // Players turn quickly
-                        _object.ori.facing_z = Facing(FACING_T(rotate(_object.ori.facing_z, vec_to_facing(_desiredVelocity.x(), _desiredVelocity.y()), 2 )));
-                    }
-                    else
-                    {
-                        // AI turn slowly
-                        _object.ori.facing_z = Facing(FACING_T(rotate(_object.ori.facing_z, vec_to_facing(_desiredVelocity.x(), _desiredVelocity.y()), 8 )));
-                    }
+                    //Every Agility increases turn speed by 2%
+                    const float turnSpeed = std::max(2.0f, 8.0f * (1.0f - _object.getAttribute(Ego::Attribute::AGILITY) / 50.0f)); //turn delay is 8.0f -2% per Agility
+                    _object.ori.facing_z = Facing(FACING_T(rotate(_object.ori.facing_z, vec_to_facing(_desiredVelocity.x(), _desiredVelocity.y()), turnSpeed)));
                 }
             }
             break;
@@ -419,7 +422,7 @@ void ObjectPhysics::updateFacing()
             {
                 if (_desiredVelocity.length_abs() > WATCHMIN )
                 {
-                    _object.ori.facing_z = Facing(FACING_T(rotate(_object.ori.facing_z, vec_to_facing(_desiredVelocity.x(), _desiredVelocity.y()), 8 )));
+                    _object.ori.facing_z = Facing(FACING_T(rotate(_object.ori.facing_z, vec_to_facing(_desiredVelocity.x(), _desiredVelocity.y()), 8.0f)));
                 }
             }
             break;
@@ -429,7 +432,7 @@ void ObjectPhysics::updateFacing()
             {
                 if ( _object.getObjRef() != _object.ai.getTarget() )
                 {
-                    _object.ori.facing_z = Facing(FACING_T(rotate(_object.ori.facing_z, vec_to_facing( _currentModule->getObjectHandler().get(_object.ai.getTarget())->getPosX() - _object.getPosX() , _currentModule->getObjectHandler().get(_object.ai.getTarget())->getPosY() - _object.getPosY()), 8 )));
+                    _object.ori.facing_z = Facing(FACING_T(rotate(_object.ori.facing_z, vec_to_facing( _currentModule->getObjectHandler().get(_object.ai.getTarget())->getPosX() - _object.getPosX() , _currentModule->getObjectHandler().get(_object.ai.getTarget())->getPosY() - _object.getPosY()), 8.0f)));
                 }
             }
             break;
@@ -536,29 +539,22 @@ void ObjectPhysics::updateMeshCollision()
         const float floorElevation = _groundElevation + 10.0f;
 
         tmp_pos.z() += _object.vel.z();
+
+        //Hit the floor?
         if (tmp_pos.z() <= floorElevation)
         {
+            tmp_pos.z() = floorElevation;
+
+            //Stop bouncing when below threshold
             if (std::abs(_object.vel.z()) < Ego::Physics::STOP_BOUNCING)
             {
                 _object.vel.z() = 0.0f;
-                tmp_pos.z() = floorElevation;
             }
-            else
-            {
-                //Make it bounce!
-                if (_object.vel.z() < 0.0f)
-                {
-                    float diff = floorElevation - tmp_pos.z();
 
-                    _object.vel.z() *= -_object.phys.bumpdampen;
-                    diff          *= -_object.phys.bumpdampen;
-
-                    tmp_pos.z() = std::max(tmp_pos.z() + diff, floorElevation);
-                }
-                else
-                {
-                    tmp_pos.z() = floorElevation;
-                }
+            //Make it bounce!
+            else if (_object.vel.z() < 0.0f)
+            {                
+                _object.vel.z() = -_object.vel.z() * _object.getProfile()->getBounciness();
             }
         }
     }

@@ -26,11 +26,13 @@
 #error(do not include directly, include `game/Entities/_Include.hpp` instead)
 #endif
 
+#include "egolib/Script/script.h"
+#include "egolib/Logic/Team.hpp"
+#include "egolib/InputControl/InputDevice.hpp"
+
 #include "game/egoboo.h"
 #include "game/Module/Module.hpp"
 #include "game/physics.h"
-#include "egolib/Script/script.h"
-#include "egolib/Logic/Team.hpp"
 #include "game/graphic_mad.h"
 #include "game/Entities/Common.hpp"
 #include "game/graphic_billboard.h"
@@ -74,6 +76,24 @@ struct chr_spawn_data_t
     STRING      name;
     ObjectRef   override;
 };
+
+//--------------------------------------------------------------------------------------------
+
+/// The offsets of Bits identifying in-game actions in a Bit set.
+enum LatchButton
+{
+    LATCHBUTTON_LEFT      = 0,                      ///< Character button presses
+    LATCHBUTTON_RIGHT     = 1,
+    LATCHBUTTON_JUMP      = 2,
+    LATCHBUTTON_ALTLEFT   = 3,                      ///< ( Alts are for grab/drop )
+    LATCHBUTTON_ALTRIGHT  = 4,
+    LATCHBUTTON_PACKLEFT  = 5,                      ///< ( Used by AI script for inventory cycle )
+    LATCHBUTTON_PACKRIGHT = 6,                      ///< ( Used by AI script for inventory cycle )
+    LATCHBUTTON_RESPAWN   = 7,
+
+    LATCHBUTTON_COUNT                               //Always last
+};
+
 
 /// The definition of the character object.
 class Object : public PhysicsData, public Id::NonCopyable, public Ego::Physics::Collidable,
@@ -781,6 +801,21 @@ public:
     **/
     void resetBoredTimer();
 
+    void resetInputCommands();
+
+    /**
+    * @brief
+    *   Set or unset a latch button. This triggers in game character commands such as attacking, grabbing items or jumping
+    * @param latchButton
+    *   Which button to set
+    * @param pressed
+    *   true if this button should be active or false if not
+    * @see enum LatchButton
+    **/
+    void setLatchButton(const LatchButton latchButton, const bool pressed);
+
+    inline bool isAnyLatchButtonPressed() { return _inputLatchesPressed.any(); }
+
 private:
 
     /**
@@ -803,12 +838,13 @@ private:
     **/
     void checkLevelUp();
 
+    void updateLatchButtons();
+
 public:
     chr_spawn_data_t  spawn_data;
 
     // character state
     ai_state_t     ai;              ///< ai data
-    latch_t        latch;
 
     // character stats
     Gender  gender;          ///< Gender
@@ -933,6 +969,7 @@ private:
     static constexpr uint8_t CAREFULTIME = 50;       ///< Friendly fire timer (number of game updates)
     static constexpr uint8_t DAMAGETIME = 32;        ///< Invincibility time (number of game updates)
     static constexpr float DROPXYVEL = 12;           //< Horizontal velocity of dropped items
+    static constexpr int GRABDELAY = 25;             ///< Time before grab again
 
     bool _terminateRequested;                        ///< True if this character no longer exists in the game and should be destructed
     ObjectRef _objRef;                               ///< The unique object reference of this object
@@ -952,6 +989,9 @@ private:
     uint16_t  _money;                                    ///< Money
     std::bitset<Ego::Perks::NR_OF_PERKS> _perks;         ///< Perks known (super-efficient bool array)
     uint32_t _levelUpSeed;
+
+    //Input commands
+    std::bitset<LATCHBUTTON_COUNT> _inputLatchesPressed;
 
     //Physics
     Ego::Physics::ObjectPhysics _objectPhysics;

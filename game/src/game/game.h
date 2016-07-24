@@ -55,21 +55,6 @@ struct prt_bundle_t;
 
 //--------------------------------------------------------------------------------------------
 
-/// The offsets of Bits identifying in-game actions in a Bit set.
-enum e_latchbutton_bits
-{
-    LATCHBUTTON_LEFT      = 0,                      ///< Character button presses
-    LATCHBUTTON_RIGHT     = 1,
-    LATCHBUTTON_JUMP      = 2,
-    LATCHBUTTON_ALTLEFT   = 3,                      ///< ( Alts are for grab/drop )
-    LATCHBUTTON_ALTRIGHT  = 4,
-    LATCHBUTTON_PACKLEFT  = 5,                      ///< ( Used by AI script for inventory cycle )
-    LATCHBUTTON_PACKRIGHT = 6,                      ///< ( Used by AI script for inventory cycle )
-    LATCHBUTTON_RESPAWN   = 7,
-};
-
-//--------------------------------------------------------------------------------------------
-
 /// The possible pre-defined orders
 enum e_order
 {

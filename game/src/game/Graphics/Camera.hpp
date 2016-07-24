@@ -32,6 +32,9 @@ namespace Graphics {
 struct TileList;
 struct EntityList;
 }
+namespace Input {
+class InputDevice;
+}
 }
 
 /// The mode that the camera uses to determine where it is moving.
@@ -320,7 +323,7 @@ protected:
      * @brief
      *  Read camera control input for one specific player controller.
 	 */
-	void readInput(input_device_t *pdevice);
+	void readInput(const Ego::Input::InputDevice &device);
 
 	/**
 	 * @brief

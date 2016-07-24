@@ -24,6 +24,10 @@
 #pragma once
 
 #include "game/GameStates/GameState.hpp"
+#include "egolib/InputControl/InputDevice.hpp"
+
+//Forward declarations
+namespace Ego { namespace GUI { class Button; } }
 
 namespace Ego
 {
@@ -39,11 +43,23 @@ public:
 
     void beginState() override;
 
+	virtual bool notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEventArgs& e) override;
+
 protected:
     void drawContainer() override;
 
 private:
-	void addInputOption(const std::string& label);
+	void addInputOption(const std::string& label, const Ego::Input::InputDevice::InputButton binding);
+
+	Ego::Input::InputDevice& getActiveInputDevice() const;
+
+private:
+	int _maxLabelWidth;
+	int _bindingButtonPosX;
+	int _bindingButtonPosY;
+
+	std::shared_ptr<Ego::GUI::Button> _activeButton;
+	Ego::Input::InputDevice::InputButton _activeBinding;
 };
 
 

@@ -553,7 +553,7 @@ Uint8 scr_FindPath( script_state_t& state, ai_state_t& self )
     SCRIPT_FUNCTION_BEGIN();
 
     //Too soon since last try?
-    if ( self.astar_timer > update_wld ) return false;
+    if ( self.astar_timer > update_wld ) return true;
 
     returncode = FindPath( self.wp_lst, pchr, Interpreter::safeCast<float>(state.x),
                                               Interpreter::safeCast<float>(state.y), &used_astar );
@@ -1694,7 +1694,7 @@ Uint8 scr_PressLatchButton( script_state_t& state, ai_state_t& self )
 
     if(state.argument >= LATCHBUTTON_LEFT && state.argument < LATCHBUTTON_RESPAWN)
     {
-        pchr->latch.b[state.argument] = true;
+        pchr->setLatchButton(static_cast<LatchButton>(state.argument), true);
     }
 
     SCRIPT_FUNCTION_END();
@@ -2695,7 +2695,7 @@ Uint8 scr_PressTargetLatchButton( script_state_t& state, ai_state_t& self )
 
     if(state.argument >= LATCHBUTTON_LEFT && state.argument < LATCHBUTTON_RESPAWN)
     {
-        pself_target->latch.b[state.argument] = true;
+        pself_target->setLatchButton(static_cast<LatchButton>(state.argument), true);
     }
 
     SCRIPT_FUNCTION_END();

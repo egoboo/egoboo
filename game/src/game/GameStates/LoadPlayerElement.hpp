@@ -77,6 +77,5 @@ private:
     uint16_t                        _skinRef;
     Ego::QuestLog                   _questLog;          ///< all the quests this player has
     int                             _selectedByPlayer;  ///< ID of player who has selected this character (-1 for none)
-    int                             _inputDevice;
     bool                            _isSelected;
 };

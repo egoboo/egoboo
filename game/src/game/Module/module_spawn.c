@@ -22,6 +22,7 @@
 #include "game/Module/Module.hpp"
 #include "game/Entities/_Include.hpp"
 #include "egolib/Logic/TreasureTables.hpp"
+#include "egolib/InputControl/InputDevice.hpp"
 #include "game/CharacterMatrix.h"
 
 static void tilt_characters_to_terrain();
@@ -266,7 +267,7 @@ std::shared_ptr<Object> activate_spawn_file_spawn(spawn_file_info_t& psp_info, c
         {
             // a single player module
 
-            bool player_added = _currentModule->addPlayer(pobject, &device_list_t::get().lst[local_stats.player_count] );
+            bool player_added = _currentModule->addPlayer(pobject, Ego::Input::InputDevice::DeviceList[local_stats.player_count]);
 
             if ( _currentModule->getImportAmount() == 0 && player_added )
             {
@@ -296,12 +297,13 @@ std::shared_ptr<Object> activate_spawn_file_spawn(spawn_file_info_t& psp_info, c
             if ( -1 != local_index )
             {
                 // It's a local input
-                _currentModule->addPlayer(pobject, &device_list_t::get().lst[g_importList.lst[local_index].local_player_num]);
+                _currentModule->addPlayer(pobject, Ego::Input::InputDevice::DeviceList[g_importList.lst[local_index].local_player_num]);
             }
             else
             {
                 // It's a remote input
-                _currentModule->addPlayer(pobject, nullptr);
+                std::logic_error("Remote input control no longer supported");
+                //_currentModule->addPlayer(pobject, nullptr);
             }
         }
     }

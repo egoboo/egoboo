@@ -26,6 +26,7 @@
 #include "egolib/Events/MouseMovedEventArgs.hpp"
 #include "egolib/Profiles/_Include.hpp"
 #include "egolib/FileFormats/Globals.hpp"
+#include "egolib/InputControl/ControlSettingsFile.hpp"
 #include "game/GUI/UIManager.hpp"
 #include "game/graphic.h"
 #include "game/game.h"
@@ -216,7 +217,7 @@ void GameEngine::updateOneFrame()
     _currentGameState->update();
 
     // Check for screenshots
-    if (InputSystem::get().keyboard.isKeyDown(SDLK_F11))
+    if (Ego::Input::InputSystem::get().isKeyDown(SDLK_F11))
     {
         requestScreenshot();
     }
@@ -286,14 +287,8 @@ bool GameEngine::initialize()
     //      More recent systems like video or audio system pull their configuraiton data
     //      by the time they are initialized.
 
-    // Initialize the device list.
-    // TODO: Should be part of the input system.
-    device_list_t::initialize();
     // Initialize the input system and enable mouse and keyboard.
-    InputSystem::initialize();
-    InputSystem::get().mouse.enabled = true;
-    InputSystem::get().keyboard.enabled = true;
-
+    Ego::Input::InputSystem::initialize();
 
     // camera options
     CameraSystem::getCameraOptions().turnMode = egoboo_config_t::get().camera_control.getValue();
@@ -355,7 +350,7 @@ bool GameEngine::initialize()
     config_synch(&egoboo_config_t::get(), false, false);
 
     // load input
-    input_settings_load_vfs("/controls.txt", -1);
+    input_settings_load_vfs("/controls.txt");
 
     // Initialize Perks
     Ego::Perks::PerkHandler::initialize();
@@ -395,22 +390,23 @@ void GameEngine::subscribe() {
     resized = window->Resized.subscribe([](const Ego::Events::WindowEventArgs& e) {
         SDLX_Get_Screen_Info(sdl_scr, false);
     });
+    /*
     mouseEntered = window->MouseEntered.subscribe([](const Ego::Events::WindowEventArgs& e) {
-        InputSystem::get().mouse.enabled = true;
+        Ego::Input::InputSystem::get().mouse.enabled = true;
     });
     mouseLeft = window->MouseLeft.subscribe([](const Ego::Events::WindowEventArgs& e) {
-        InputSystem::get().mouse.enabled = false;
+        Ego::Input::InputSystem::get().mouse.enabled = false;
     });
     keyboardFocusReceived = window->KeyboardFocusReceived.subscribe([](const Ego::Events::WindowEventArgs& e) {
-        InputSystem::get().keyboard.enabled = true;
+        Ego::Input::InputSystem::get().keyboard.enabled = true;
     });
     keyboardFocusLost = window->KeyboardFocusLost.subscribe([](const Ego::Events::WindowEventArgs& e) {
-        InputSystem::get().keyboard.enabled = false;
+        Ego::Input::InputSystem::get().keyboard.enabled = false;
     });
+    */
 }
 
 void GameEngine::unsubscribe() {
-    auto window = Ego::GraphicsSystem::window;
     keyboardFocusLost.disconnect();
     keyboardFocusReceived.disconnect();
     mouseLeft.disconnect();
@@ -435,7 +431,7 @@ void GameEngine::uninitialize()
     gfx_system_release_all_graphics();
 
     // make sure that the current control configuration is written
-    input_settings_save_vfs("controls.txt", -1);
+    input_settings_save_vfs("controls.txt");
 
     // @todo This should be 'UIManager::uninitialize'.
     _uiManager.reset(nullptr);
@@ -460,6 +456,7 @@ void GameEngine::uninitialize()
 
     // Unsubscribe from window events.
     unsubscribe();
+    
     // Uninitialize the GFX system.
     GFX::uninitialize();
 
@@ -467,10 +464,7 @@ void GameEngine::uninitialize()
     Ego::ImageManager::uninitialize();
 
 	// Uninitialize the input system.
-	InputSystem::uninitialize();
-    // Uninitialize the device list.
-    // TODO: Should be part of the input system.
-    device_list_t::uninitialize();
+	Ego::Input::InputSystem::uninitialize();
 
     // Shut down the log services.
 	Log::get().message("Exiting Egoboo %s. See you next time\n", GAME_VERSION.c_str());
@@ -611,17 +605,35 @@ int SDL_main(int argc, char **argv)
     {
         std::cerr << "unhandled exception: " << std::endl
                   << (std::string)ex << std::endl;
+
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
+                                 "Unhandled Exception",
+                                 ((std::string)ex).c_str(),
+                                 nullptr);
+
         return EXIT_FAILURE;
     }
     catch (const std::exception& ex)
     {
         std::cerr << "unhandled exception: " << std::endl
                   << ex.what() << std::endl;
+
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
+                                 "Unhandled asException",
+                                 ex.what(),
+                                 nullptr);
+
         return EXIT_FAILURE;
     }
     catch (...)
     {
         std::cerr << "unhandled exception" << std::endl;
+
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
+                                 "Unhandled Exception",
+                                 "Unknown exception type",
+                                 nullptr);
+
         return EXIT_FAILURE;
     }
     return EXIT_SUCCESS;
