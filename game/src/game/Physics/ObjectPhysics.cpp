@@ -430,9 +430,11 @@ void ObjectPhysics::updateFacing()
         // Face the target
         case TURNMODE_WATCHTARGET:
             {
-                if ( _object.getObjRef() != _object.ai.getTarget() )
+                //Only proceed if we have a valid AI target that is not ourselves
+                std::shared_ptr<Object> aiTarget = _currentModule->getObjectHandler()[_object.ai.getTarget()];
+                if (aiTarget != nullptr && aiTarget->getObjRef() != _object.getObjRef())
                 {
-                    _object.ori.facing_z = Facing(FACING_T(rotate(_object.ori.facing_z, vec_to_facing( _currentModule->getObjectHandler().get(_object.ai.getTarget())->getPosX() - _object.getPosX() , _currentModule->getObjectHandler().get(_object.ai.getTarget())->getPosY() - _object.getPosY()), 8.0f)));
+                    _object.ori.facing_z = Facing(FACING_T(rotate(_object.ori.facing_z, vec_to_facing(aiTarget->getPosX() - _object.getPosX(), aiTarget->getPosY() - _object.getPosY()), 8.0f)));
                 }
             }
             break;
