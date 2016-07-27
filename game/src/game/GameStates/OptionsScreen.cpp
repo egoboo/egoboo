@@ -112,7 +112,7 @@ void OptionsScreen::update()
 {
 }
 
-void OptionsScreen::drawContainer()
+void OptionsScreen::drawContainer(Ego::GUI::DrawingContext& drawingContext)
 {
 
 }

@@ -13,7 +13,7 @@ class InventorySlot : public Component {
 public:
     InventorySlot(const Inventory &inventory, const size_t slotNumber, const std::shared_ptr<Player>& player);
 
-    virtual void draw() override;
+    virtual void draw(Ego::GUI::DrawingContext& drawingContext) override;
 
     bool notifyMouseMoved(const Events::MouseMovedEventArgs& e) override;
     bool notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs& e) override;

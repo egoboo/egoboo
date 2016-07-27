@@ -38,7 +38,7 @@ public:
 
     MiniMap();
 
-    virtual void draw() override;
+    virtual void draw(DrawingContext& drawingContext) override;
 
     void setShowPlayerPosition(bool show);
 

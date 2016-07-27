@@ -13,9 +13,9 @@ void OptionsButton::setPosition(const Point2f& position) {
     Component::setPosition(position + Vector2f(200, - getHeight() / 2));
 }
 
-void OptionsButton::draw() {
-    _label.draw();
-    Button::draw();
+void OptionsButton::draw(DrawingContext& drawingContext) {
+    _label.draw(drawingContext);
+    Button::draw(drawingContext);
 }
 
 } // namespace GUI

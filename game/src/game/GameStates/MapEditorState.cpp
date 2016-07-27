@@ -101,7 +101,7 @@ void MapEditorState::update()
     _cameraSystem->getMainCamera()->updateFreeControl();
 }
 
-void MapEditorState::drawContainer()
+void MapEditorState::drawContainer(Ego::GUI::DrawingContext& drawingContext)
 {
     gfx_system_main();
 
@@ -127,7 +127,7 @@ bool MapEditorState::notifyKeyboardKeyPressed(const Ego::Events::KeyboardKeyPres
         return true;
     }
 
-    return ComponentContainer::notifyKeyboardKeyPressed(e);
+    return Container::notifyKeyboardKeyPressed(e);
 }
 
 void MapEditorState::loadModuleData(std::shared_ptr<ModuleProfile> module)

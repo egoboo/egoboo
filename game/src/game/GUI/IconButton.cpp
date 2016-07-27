@@ -22,6 +22,7 @@
 /// @author Johan Jansen
 
 #include "game/GUI/IconButton.hpp"
+#include "game/GUI/Material.hpp"
 #include "egolib/Renderer/DeferredTexture.hpp"
 
 namespace Ego {
@@ -33,41 +34,30 @@ _iconTint(Math::Colour4f::white()) {
     //ctor
 }
 
-void IconButton::draw() {
+void IconButton::draw(DrawingContext& drawingContext) {
     //Update slidy button effect
     updateSlidyButtonEffect();
 
-    auto &renderer = Renderer::get();
-
     // Draw the button
-    renderer.getTextureUnit().setActivated(nullptr);
+    std::shared_ptr<const Material> material = nullptr;
 
-    //Determine button color
+    // Determine button color
     if (!isEnabled()) {
-        renderer.setColour(DISABLED_BUTTON_COLOUR);
+        material = std::make_shared<const Material>(nullptr, DISABLED_BUTTON_COLOUR, true);
     } else if (_mouseOver) {
-        renderer.setColour(HOVER_BUTTON_COLOUR);
+        material = std::make_shared<const Material>(nullptr, HOVER_BUTTON_COLOUR, true);
     } else {
-        renderer.setColour(DEFAULT_BUTTON_COLOUR);
+        material = std::make_shared<const Material>(nullptr, DEFAULT_BUTTON_COLOUR, true);
     }
+    material->apply();
+    _gameEngine->getUIManager()->drawQuad2d(getBounds());
 
-    struct Vertex {
-        float x, y;
-    };
-    auto vb = _gameEngine->getUIManager()->_vertexBuffer;
-    Vertex *v = static_cast<Vertex *>(vb->lock());
-    v->x = getX(); v->y = getY(); v++;
-    v->x = getX(); v->y = getY() + getHeight(); v++;
-    v->x = getX() + getWidth(); v->y = getY() + getHeight(); v++;
-    v->x = getX() + getWidth(); v->y = getY();
-    vb->unlock();
-    renderer.render(*vb, PrimitiveType::Quadriliterals, 0, 4);
-
-    //Draw icon
+    // Draw icon
     int iconSize = getHeight() - 4;
-    _gameEngine->getUIManager()->drawImage(_icon.get_ptr(), Point2f(getX() + getWidth() - getHeight() - 2, getY() + 2), Vector2f(iconSize, iconSize), _iconTint);
+    material = std::make_shared<const Material>(_icon.get_ptr(), _iconTint, true);
+    _gameEngine->getUIManager()->drawImage(Point2f(getX() + getWidth() - getHeight() - 2, getY() + 2), Vector2f(iconSize, iconSize), material);
 
-    //Draw text on left side in button
+    // Draw text on left side in button
     if (_buttonTextRenderer) {
         _buttonTextRenderer->render(getX() + 5, getY() + (getHeight() - _buttonTextHeight) / 2);
     }

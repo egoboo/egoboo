@@ -31,7 +31,7 @@ class MessageLog : public Component {
 public:
     MessageLog();
 
-    virtual void draw() override;
+    virtual void draw(DrawingContext& drawingContext) override;
 
     void addMessage(const std::string &message);
 

@@ -47,7 +47,7 @@ void Button::updateSlidyButtonEffect() {
     }
 }
 
-void Button::draw() {
+void Button::draw(DrawingContext& drawingContext) {
     //Update slidy button effect
     updateSlidyButtonEffect();
 
@@ -56,11 +56,7 @@ void Button::draw() {
     // Draw the button
     renderer.getTextureUnit().setActivated(nullptr);
 
-    // convert the virtual coordinates to screen coordinates
-    //ui_virtual_to_screen( vx, vy, &x1, &y1 );
-    //ui_virtual_to_screen( vx + vwidth, vy + vheight, &x2, &y2 );
-
-    //Determine button color
+    // Determine button color
     if (!isEnabled()) {
         renderer.setColour(DISABLED_BUTTON_COLOUR);
     } else if (_mouseOver) {
@@ -68,19 +64,8 @@ void Button::draw() {
     } else {
         renderer.setColour(DEFAULT_BUTTON_COLOUR);
     }
-    struct Vertex {
-        float x, y;
-    };
-    auto vb = _gameEngine->getUIManager()->_vertexBuffer;
-    Vertex *v = static_cast<Vertex *>(vb->lock());
-    v->x = getX(); v->y = getY(); v++;
-    v->x = getX(); v->y = getY() + getHeight(); v++;
-    v->x = getX() + getWidth(); v->y = getY() + getHeight(); v++;
-    v->x = getX() + getWidth(); v->y = getY();
-    vb->unlock();
-    renderer.render(*vb, PrimitiveType::Quadriliterals, 0, 4);
-
-    //Draw centered text in button
+    _gameEngine->getUIManager()->drawQuad2d(getBounds());
+    // Draw centered text in button
     if (_buttonTextRenderer) {
         _buttonTextRenderer->render(getX() + (getWidth() - _buttonTextWidth) / 2, getY() + (getHeight() - _buttonTextHeight) / 2);
     }

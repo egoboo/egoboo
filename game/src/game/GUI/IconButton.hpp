@@ -36,7 +36,7 @@ class IconButton : public Button {
 public:
     IconButton(const std::string &buttonText, const DeferredTexture& icon, int hotkey = SDLK_UNKNOWN);
 
-    virtual void draw() override;
+    virtual void draw(DrawingContext& drawingContext) override;
 
     void setIconTint(const Math::Colour4f &tint);
 

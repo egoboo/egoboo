@@ -42,7 +42,10 @@ public:
     VictoryScreen& operator=(const VictoryScreen&) = delete;
     
 protected:
-    void drawContainer() override;
+    void draw(Ego::GUI::DrawingContext& drawingContext) override { 
+        drawContainer(drawingContext); 
+    }
+    void drawContainer(Ego::GUI::DrawingContext& drawingContext) override;
 
 private:
     PlayingState *_playingState;

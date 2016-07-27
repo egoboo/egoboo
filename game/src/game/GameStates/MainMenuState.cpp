@@ -162,7 +162,7 @@ void MainMenuState::update()
 {
 }
 
-void MainMenuState::drawContainer()
+void MainMenuState::drawContainer(Ego::GUI::DrawingContext& drawingContext)
 {
 
 }

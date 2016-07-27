@@ -22,8 +22,7 @@
 /// @author Johan Jansen
 #pragma once
 
-#include "game/GUI/Component.hpp"
-#include "game/GUI/ComponentContainer.hpp"
+#include "game/GUI/Container.hpp"
 
 namespace Ego {
 namespace GUI {
@@ -35,13 +34,13 @@ class Image;
 namespace Ego {
 namespace GUI {
 
-class InternalWindow : public Component, public ComponentContainer {
+class InternalWindow : public Container {
 protected:
     class TitleBar : public Component {
     public:
         TitleBar(const std::string &titleBar);
 
-        void draw() override;
+        void draw(DrawingContext& drawingContext) override;
 
         int getTextHeight() const { return _textHeight; }
 
@@ -61,17 +60,17 @@ public:
     bool notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs& e) override;
     bool notifyMouseButtonReleased(const Events::MouseButtonReleasedEventArgs& e) override;
 
-    void draw() override;
+    void draw(DrawingContext& drawingContext) override;
 
     virtual void setPosition(const Point2f& position) override;
     virtual void setSize(const Vector2f& size) override;
 
     void setTransparency(float alpha);
 
-    void addComponent(std::shared_ptr<Component> component) override;
+    void addComponent(const std::shared_ptr<Component>& component) override;
 
 protected:
-    void drawContainer() override;
+    void drawContainer(DrawingContext& drawingContext) override;
 
 private:
     std::unique_ptr<TitleBar> _titleBar;
@@ -82,6 +81,7 @@ private:
     bool _isDragging;
     Vector2f _mouseDragOffset;
     float _transparency;
+protected:
     bool _firstDraw;
 };
 

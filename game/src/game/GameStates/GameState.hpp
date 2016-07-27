@@ -23,9 +23,9 @@
 
 #pragma once
 
-#include "game/GUI/ComponentContainer.hpp"
+#include "game/GUI/Container.hpp"
 
-class GameState : public Ego::GUI::ComponentContainer {
+class GameState : public Ego::GUI::Container {
 
 public:
 
@@ -41,7 +41,7 @@ public:
 
 protected:
 
-    virtual void drawContainer() override = 0;
+    virtual void drawContainer(Ego::GUI::DrawingContext& drawingContext) override = 0;
 
 private:
 

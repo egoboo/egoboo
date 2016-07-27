@@ -1,5 +1,5 @@
 #include "game/GUI/Component.hpp"
-#include "game/GUI/ComponentContainer.hpp"
+#include "game/GUI/Container.hpp"
 
 namespace Ego {
 namespace GUI {
@@ -28,44 +28,39 @@ Vector2f Component::getSize() const {
 }
 
 float Component::getX() const {
-    return _bounds.getMin().x();
+    return getPosition().x();
 }
 
 float Component::getY() const {
-    return _bounds.getMin().y();
+    return getPosition().y();
 }
 
 float Component::getWidth() const {
-    return _bounds.getSize().x();
+    return getSize().x();
 }
 
 float Component::getHeight() const {
-    return _bounds.getSize().y();
+    return getSize().y();
 }
 
 void Component::setWidth(float width) {
-    _bounds = Rectangle2f(_bounds.getMin(), _bounds.getMin() + Vector2f(width, _bounds.getSize().y()));
+    setSize(Vector2f(width, getSize().y()));
 }
 
 void Component::setHeight(float height) {
-    _bounds = Rectangle2f(_bounds.getMin(), _bounds.getMin() + Vector2f(_bounds.getSize().x(), height));
+    setSize(Vector2f(getSize().x(), height));
 }
 
 void Component::setSize(const Vector2f& size) {
-    setWidth(size.x());
-    setHeight(size.y());
+    _bounds = Rectangle2f(_bounds.getMin(), _bounds.getMin() + size);
 }
 
 void Component::setX(float x) {
-    Translate<Rectangle2f> t;
-    // Translate such that the left side is at x
-    _bounds = t(_bounds, Vector2f(-_bounds.getMin().x() + x, 0.0f));
+    setPosition(Point2f(x, getPosition().y()));
 }
 
 void Component::setY(float y) {
-    Translate<Rectangle2f> t;
-    // Translate such that the top side is at y.
-    _bounds = t(_bounds, Vector2f(0.0f, -_bounds.getMin().y() + y));
+    setPosition(Point2f(getPosition().x(), y));
 }
 
 void Component::setPosition(const Point2f& position) {
@@ -88,8 +83,20 @@ bool Component::contains(const Point2f& point) const {
     return functor(_bounds, point);
 }
 
-ComponentContainer* Component::getParent() const {
+void Component::setParent(Container *parent) {
+    this->_parent = parent;
+}
+
+Container *Component::getParent() const {
     return _parent;
+}
+
+Point2f Component::getDerivedPosition() const {
+    if (nullptr != this->_parent) {
+        return getPosition() + Point2f::toVector(this->_parent->getDerivedPosition());
+    } else {
+        return getPosition();
+    }
 }
 
 void Component::destroy() {

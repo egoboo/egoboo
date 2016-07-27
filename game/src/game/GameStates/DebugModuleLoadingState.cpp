@@ -41,7 +41,7 @@
 #include "game/link.h"
 #include "egolib/fileutil.h"
 
-struct DebugModuleLoadingState::ModuleGUIContainer : public ComponentContainer, public Ego::GUI::Component
+struct DebugModuleLoadingState::ModuleGUIContainer : public Container
 {
     ModuleGUIContainer(const std::shared_ptr<ModuleProfile> &profile) :
         _profile(profile),
@@ -67,12 +67,12 @@ struct DebugModuleLoadingState::ModuleGUIContainer : public ComponentContainer, 
         _moduleName->setEnabled(enabled);
     }
     
-    void draw() override
+    void draw(Ego::GUI::DrawingContext& drawingContext) override
     {
-        drawAll();
+        drawAll(drawingContext);
     }
     
-    void drawContainer() override {}
+    void drawContainer(Ego::GUI::DrawingContext& drawingContext) override {}
     
     void setPosition(const Point2f& position) override
     {
@@ -80,17 +80,7 @@ struct DebugModuleLoadingState::ModuleGUIContainer : public ComponentContainer, 
         _moduleName->setPosition(position);
         _loadingText->setPosition(position + Vector2f(215, 0));
     }
-    
-    bool notifyMouseButtonClicked(const Ego::Events::MouseButtonClickedEventArgs& e) override
-    {
-        return ComponentContainer::notifyMouseButtonClicked(e);
-    }
-    
-    bool notifyMouseMoved(const Ego::Events::MouseMovedEventArgs& e) override
-    {
-        return ComponentContainer::notifyMouseMoved(e);
-    }
-    
+        
     std::shared_ptr<ModuleProfile> _profile;
     std::shared_ptr<Ego::GUI::Button> _moduleName;
     std::shared_ptr<Ego::GUI::Label> _loadingText;
@@ -166,7 +156,8 @@ void DebugModuleLoadingState::singleThreadRedrawHack(const std::string &loadingT
     
     _toLoad.front()->_loadingText->setText(loadingText);
     
-    drawAll();
+    Ego::GUI::DrawingContext drawingContext;
+    drawAll(drawingContext);
     
     // flip the graphics page
     gfx_request_flip_pages();
@@ -181,7 +172,7 @@ void DebugModuleLoadingState::update()
     if (!_toLoad.empty()) loadModuleData();
 }
 
-void DebugModuleLoadingState::drawContainer()
+void DebugModuleLoadingState::drawContainer(Ego::GUI::DrawingContext& drawingContext)
 {
 
 }

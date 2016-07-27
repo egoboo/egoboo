@@ -254,7 +254,7 @@ void VideoOptionsScreen::update()
 {
 }
 
-void VideoOptionsScreen::drawContainer()
+void VideoOptionsScreen::drawContainer(Ego::GUI::DrawingContext& drawingContext)
 {
 
 }

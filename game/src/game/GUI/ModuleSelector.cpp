@@ -23,6 +23,7 @@
 
 #include "game/GUI/ModuleSelector.hpp"
 #include "game/GUI/Button.hpp"
+#include "game/GUI/Material.hpp"
 
 namespace Ego {
 namespace GUI {
@@ -88,7 +89,7 @@ ModuleSelector::ModuleSelector(const std::vector<std::shared_ptr<ModuleProfile>>
     }
 }
 
-void ModuleSelector::drawContainer() {
+void ModuleSelector::drawContainer(DrawingContext& drawingContext) {
     const Math::Colour4f backDrop = {0.66f, 0.0f, 0.0f, 0.6f};
 
     auto &renderer = Renderer::get();
@@ -167,7 +168,7 @@ _offset(offset) {
     // ctor
 }
 
-void ModuleSelector::ModuleButton::draw() {
+void ModuleSelector::ModuleButton::draw(DrawingContext& drawingContext) {
     // Don't do "out of bounds" modules
     if (_moduleSelector->_startIndex + _offset >= _moduleSelector->_modules.size()) {
         return;
@@ -202,7 +203,8 @@ void ModuleSelector::ModuleButton::draw() {
     renderer.render(vb, PrimitiveType::Quadriliterals, 0, 4);
 
     //Draw module title image
-    _gameEngine->getUIManager()->drawImage(_moduleSelector->_modules[_moduleSelector->_startIndex + _offset]->getIcon().get(), Point2f(getX() + 5, getY() + 5), Vector2f(getWidth() - 10, getHeight() - 10));
+    auto material = std::make_shared<Ego::GUI::Material>(_moduleSelector->_modules[_moduleSelector->_startIndex + _offset]->getIcon().get(), Ego::Math::Colour4f::white(), true);
+    _gameEngine->getUIManager()->drawImage(Point2f(getX() + 5, getY() + 5), Vector2f(getWidth() - 10, getHeight() - 10), material);
 }
 
 bool ModuleSelector::notifyMouseWheelTurned(const Events::MouseWheelTurnedEventArgs& e) {

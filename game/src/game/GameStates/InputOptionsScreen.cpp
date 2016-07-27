@@ -1,6 +1,7 @@
 #include "game/GameStates/InputOptionsScreen.hpp"
 #include "game/GUI/Button.hpp"
 #include "game/GUI/Label.hpp"
+#include "egolib/InputControl/InputDevice.hpp"
 #include "egolib/InputControl/ControlSettingsFile.hpp"
 
 namespace Ego
@@ -46,7 +47,7 @@ InputOptionsScreen::InputOptionsScreen() :
     addInputOption("Camera Rotate Right: ", Ego::Input::InputDevice::InputButton::CAMERA_RIGHT);
 
     //Shift all buttons to the right of the widest label
-    for(std::shared_ptr<Ego::GUI::Component> &component : ComponentContainer::iterator()) {
+    for(std::shared_ptr<Ego::GUI::Component> &component : Container::iterator()) {
         std::shared_ptr<Ego::GUI::Button> button = std::dynamic_pointer_cast<Ego::GUI::Button>(component);
         if(button) {
             button->setPosition(Point2f(button->getX() + _maxLabelWidth, button->getY()));
@@ -77,7 +78,7 @@ void InputOptionsScreen::beginState()
 
 }
 
-void InputOptionsScreen::drawContainer()
+void InputOptionsScreen::drawContainer(Ego::GUI::DrawingContext& drawingContext)
 {
 
 }
@@ -85,7 +86,7 @@ void InputOptionsScreen::drawContainer()
 bool InputOptionsScreen::notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEventArgs& e)
 {
     if(_activeButton == nullptr) {
-        return ComponentContainer::notifyKeyboardKeyPressed(e.getKey());
+        return Container::notifyKeyboardKeyPressed(e.getKey());
     }
     else {
         getActiveInputDevice().setInputMapping(_activeBinding, e.getKey());

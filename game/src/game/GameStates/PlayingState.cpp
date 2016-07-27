@@ -129,7 +129,7 @@ void PlayingState::update()
     updateStatusBarPosition();
 }
 
-void PlayingState::drawContainer()
+void PlayingState::drawContainer(Ego::GUI::DrawingContext& drawingContext)
 {
     gfx_system_main();
 }
@@ -203,7 +203,7 @@ bool PlayingState::notifyKeyboardKeyPressed(const Ego::Events::KeyboardKeyPresse
         return true;
     }
 
-    return ComponentContainer::notifyKeyboardKeyPressed(e);
+    return Container::notifyKeyboardKeyPressed(e);
 }
 
 const std::shared_ptr<Ego::GUI::MiniMap>& PlayingState::getMiniMap() const

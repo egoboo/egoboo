@@ -44,6 +44,7 @@
 #include "egolib/FileFormats/Globals.hpp"
 #include "game/Graphics/TextureAtlasManager.hpp"
 #include "game/Module/Passage.hpp"
+#include "game/GUI/Material.hpp"
 
 //--------------------------------------------------------------------------------------------
 
@@ -426,7 +427,7 @@ void draw_blip(float sizeFactor, Uint8 color, float x, float y)
 {
     /// @author ZZ
     /// @details This function draws a single blip
-    ego_frect_t tx_rect, sc_rect;
+    ego_frect_t tx_rect;
 
     float width, height;
 
@@ -454,12 +455,8 @@ void draw_blip(float sizeFactor, Uint8 color, float x, float y)
         width = sizeFactor * (bliprect[color]._right - bliprect[color]._left);
         height = sizeFactor * (bliprect[color]._bottom - bliprect[color]._top);
 
-        sc_rect.xmin = x - (width / 2);
-        sc_rect.xmax = x + (width / 2);
-        sc_rect.ymin = y - (height / 2);
-        sc_rect.ymax = y + (height / 2);
-
-        _gameEngine->getUIManager()->drawQuad2D(ptex, sc_rect, tx_rect, true);
+        auto sc_rect = Rectangle2f(Point2f(x - (width / 2), y - (height / 2)), Point2f(x + (width / 2), y + (height / 2)));
+        _gameEngine->getUIManager()->drawQuad2D(sc_rect, tx_rect, std::make_shared<Ego::GUI::Material>(ptex, Ego::Math::Colour4f::white(), true));
     }
 }
 
@@ -467,7 +464,7 @@ void draw_blip(float sizeFactor, Uint8 color, float x, float y)
 float draw_icon_texture(const std::shared_ptr<const Ego::Texture>& ptex, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size, bool useAlpha)
 {
     float       width, height;
-    ego_frect_t tx_rect, sc_rect;
+    ego_frect_t tx_rect;
 
     if (NULL == ptex)
     {
@@ -500,12 +497,8 @@ float draw_icon_texture(const std::shared_ptr<const Ego::Texture>& ptex, float x
         height *= factor;
     }
 
-    sc_rect.xmin = x;
-    sc_rect.xmax = x + width;
-    sc_rect.ymin = y;
-    sc_rect.ymax = y + height;
-
-    _gameEngine->getUIManager()->drawQuad2D(ptex, sc_rect, tx_rect, useAlpha);
+    auto sc_rect = Rectangle2f(Point2f(x, y), Point2f(x + width, y + height));
+    _gameEngine->getUIManager()->drawQuad2D(sc_rect, tx_rect, std::make_shared<const Ego::GUI::Material>(ptex, Ego::Math::Colour4f::white(), true));
 
     if (NOSPARKLE != sparkle_color)
     {
@@ -829,7 +822,7 @@ void draw_mouse_cursor()
 
         //Draw cursor
         _gameEngine->getUIManager()->beginRenderUI();
-        _gameEngine->getUIManager()->drawImage(pcursor, Point2f(x, y), Vector2f(pcursor->getWidth(), pcursor->getHeight()), Ego::Colour4f::white());
+        _gameEngine->getUIManager()->drawImage(Point2f(x, y), Vector2f(pcursor->getWidth(), pcursor->getHeight()), std::make_shared<Ego::GUI::Material>(pcursor, Ego::Colour4f::white(), true));
         _gameEngine->getUIManager()->endRenderUI();
     }
 }

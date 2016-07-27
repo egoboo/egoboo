@@ -43,6 +43,9 @@ public:
     CharacterWindow(const std::shared_ptr<Object> &object);
     ~CharacterWindow();
 
+    void drawContainer(DrawingContext& drawingContext) override;
+    void draw(DrawingContext& drawingContext) override;
+    void drawAll(DrawingContext& drawingContext) override;
     bool notifyMouseMoved(const Events::MouseMovedEventArgs& e) override;
 
 private:

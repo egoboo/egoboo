@@ -43,9 +43,9 @@ void InternalDebugWindow::addWatchVariable(const std::string &variableName, std:
     setSize(Vector2f(std::max(getWidth(), 5.0f + textWidth * 2.0f), getHeight() + textHeight + 5.0f));
 }
 
-void InternalDebugWindow::drawContainer() {
+void InternalDebugWindow::drawContainer(DrawingContext& drawingContext) {
     //Draw the window itself
-    InternalWindow::drawContainer();
+    InternalWindow::drawContainer(drawingContext);
 
     //Rendering variables
     int textWidth, textHeight;

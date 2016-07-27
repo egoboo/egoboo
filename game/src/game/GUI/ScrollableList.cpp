@@ -41,7 +41,7 @@ void ScrollableList::setScrollPosition(int position) {
     //Shift position of all components in container
     int yOffset = 0;
     int componentCount = 0;
-    for (const std::shared_ptr<Component> &component : ComponentContainer::iterator()) {
+    for (const std::shared_ptr<Component> &component : iterator()) {
         if (componentCount < _currentIndex || yOffset + component->getHeight() >= getHeight()) {
             component->setVisible(false);
             componentCount++;
@@ -80,23 +80,23 @@ void ScrollableList::setY(float y) {
     updateScrollButtons();
 }
 
-void ScrollableList::drawContainer() {
+void ScrollableList::drawContainer(DrawingContext& drawingContext) {
     //TODO
 }
 
-void ScrollableList::draw() {
+void ScrollableList::draw(DrawingContext& drawingContext) {
     //First draw the container itself
-    drawContainer();
+    drawContainer(drawingContext);
 
     //Now draw all components inside it
-    for (const std::shared_ptr<Component>& component : ComponentContainer::iterator()) {
+    for (const std::shared_ptr<Component>& component : iterator()) {
         if (!component->isVisible()) continue;  //Ignore hidden/destroyed components
-        component->draw();
+        component->draw(drawingContext);
     }
 
     //Draw up and down buttons
-    _downButton->draw();
-    _upButton->draw();
+    _downButton->draw(drawingContext);
+    _upButton->draw(drawingContext);
 }
 
 bool ScrollableList::notifyMouseWheelTurned(const Events::MouseWheelTurnedEventArgs& e) {
@@ -116,13 +116,13 @@ bool ScrollableList::notifyMouseMoved(const Events::MouseMovedEventArgs& e) {
     if (_downButton->notifyMouseMoved(e)) return true;
     if (_upButton->notifyMouseMoved(e)) return true;
 
-    return ComponentContainer::notifyMouseMoved(e);
+    return Container::notifyMouseMoved(e);
 }
 
 bool ScrollableList::notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs& e) {
     if (_downButton->notifyMouseButtonPressed(e)) return true;
     if (_upButton->notifyMouseButtonPressed(e)) return true;
-    return ComponentContainer::notifyMouseButtonPressed(e);
+    return Container::notifyMouseButtonPressed(e);
 }
 
 void ScrollableList::forceUpdate() {

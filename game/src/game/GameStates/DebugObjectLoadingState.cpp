@@ -53,7 +53,7 @@ public:
         redraw();
     }
     
-    void draw() override {
+    void draw(Ego::GUI::DrawingContext& drawingContext) override {
         _textRenderer->render(getX(), getY());
     }
     
@@ -82,7 +82,7 @@ private:
     std::shared_ptr<Ego::Font::LaidTextRenderer> _textRenderer;
 };
 
-struct DebugObjectLoadingState::ObjectGUIContainer : public ComponentContainer, public Ego::GUI::Component
+struct DebugObjectLoadingState::ObjectGUIContainer : public Container
 {
     ObjectGUIContainer(const std::string &objectName,
                        const std::weak_ptr<ModuleLoader> &module) :
@@ -107,12 +107,12 @@ struct DebugObjectLoadingState::ObjectGUIContainer : public ComponentContainer, 
         _objectName->setOnClickFunction(onClick);
     }
     
-    void draw() override
+    void draw(Ego::GUI::DrawingContext& drawingContext) override
     {
-        drawAll();
+        drawAll(drawingContext);
     }
     
-    void drawContainer() override {}
+    void drawContainer(Ego::GUI::DrawingContext& drawingContext) override {}
     
     void setPosition(const Point2f& position) override
     {
@@ -120,17 +120,7 @@ struct DebugObjectLoadingState::ObjectGUIContainer : public ComponentContainer, 
         _objectName->setPosition(position);
         _loadingText->setPosition(position + Vector2f(265, (getHeight() - _loadingText->getHeight()) / 2));
     }
-    
-    bool notifyMouseButtonClicked(const Ego::Events::MouseButtonClickedEventArgs& e) override
-    {
-        return ComponentContainer::notifyMouseButtonClicked(e);
-    }
-    
-    bool notifyMouseMoved(const Ego::Events::MouseMovedEventArgs& e) override
-    {
-        return ComponentContainer::notifyMouseMoved(e);
-    }
-    
+        
     void relayout() {
         int height = std::max(_objectName->getHeight(), _loadingText->getHeight());
         setHeight(height);
@@ -301,7 +291,8 @@ void DebugObjectLoadingState::singleThreadRedrawHack(const std::string &loadingT
     
     _toLoad.front()->_loadingText->setText(loadingText);
     
-    drawAll();
+    Ego::GUI::DrawingContext drawingContext;
+    drawAll(drawingContext);
     
     // flip the graphics page
     gfx_request_flip_pages();
@@ -316,7 +307,7 @@ void DebugObjectLoadingState::update()
     if (!_toLoad.empty()) loadObjectData();
 }
 
-void DebugObjectLoadingState::drawContainer()
+void DebugObjectLoadingState::drawContainer(Ego::GUI::DrawingContext& drawingContext)
 {
     
 }

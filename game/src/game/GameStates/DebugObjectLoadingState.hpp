@@ -46,8 +46,11 @@ public:
     
     void beginState() override;
     
+    void draw(Ego::GUI::DrawingContext& drawingContext) override {
+        drawContainer(drawingContext);
+    }
 protected:
-    void drawContainer() override;
+    void drawContainer(Ego::GUI::DrawingContext& drawingContext) override;
     
     void loadObjectData();
     
@@ -64,7 +67,7 @@ private:
     struct ObjectGUIContainer;
     struct ModuleLoader;
     struct GlobalLoader;
-    struct GrowableLabel;
+    class GrowableLabel;
     std::vector<std::shared_ptr<ModuleLoader>> _moduleList;
     std::deque<std::shared_ptr<ObjectGUIContainer>> _toLoad;
     std::shared_ptr<ModuleLoader> _currentLoader;

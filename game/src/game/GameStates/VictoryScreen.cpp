@@ -66,11 +66,11 @@ void VictoryScreen::update()
 {
 }
 
-void VictoryScreen::drawContainer()
+void VictoryScreen::drawContainer(Ego::GUI::DrawingContext& drawingContext)
 {
 	//Render the playing state beackground first
 	if(_playingState != nullptr) {
-		_playingState->drawAll();
+		_playingState->drawAll(drawingContext);
 	}
 }
 

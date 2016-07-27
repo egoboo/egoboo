@@ -20,10 +20,11 @@
 /// @file game/GUI/CharacterStatus.hpp
 /// @author Johan Jansen
 
-#include "CharacterStatus.hpp"
+#include "game/GUI/CharacterStatus.hpp"
 #include "game/Entities/_Include.hpp"
 #include "game/Logic/Player.hpp"
 #include "game/GUI/ProgressBar.hpp"
+#include "game/GUI/Material.hpp"
 #include "game/game.h" //for update_wld
 
 namespace Ego {
@@ -125,7 +126,7 @@ float CharacterStatus::draw_one_bar(uint8_t bartype, float x_stt, float y_stt, i
     sc_rect = Rectangle2f(Point2f(x, y),
                           Point2f(x, y) + size);
 
-	_gameEngine->getUIManager()->drawQuad2D(tx_ptr, sc_rect, tx_rect, true);
+	_gameEngine->getUIManager()->drawQuad2D(sc_rect, tx_rect, std::make_shared<Material>(tx_ptr, Math::Colour4f::white(), true));
 
 	// make the new left-hand margin after the tab
 	x_left = x_stt + size.x();
@@ -145,7 +146,7 @@ float CharacterStatus::draw_one_bar(uint8_t bartype, float x_stt, float y_stt, i
         sc_rect = Rectangle2f(Point2f(x, y),
                               Point2f(x, y) + size);
 
-		_gameEngine->getUIManager()->drawQuad2D(tx_ptr, sc_rect, tx_rect, true);
+		_gameEngine->getUIManager()->drawQuad2D(sc_rect, tx_rect, std::make_shared<Material>(tx_ptr, Math::Colour4f::white(), true));
 
 		y += size.y();
 		ticks -= NUMTICK;
@@ -167,7 +168,7 @@ float CharacterStatus::draw_one_bar(uint8_t bartype, float x_stt, float y_stt, i
         sc_rect = Rectangle2f(Point2f(x, y),
                               Point2f(x, y) + size);
 
-		_gameEngine->getUIManager()->drawQuad2D(tx_ptr, sc_rect, tx_rect, true);
+		_gameEngine->getUIManager()->drawQuad2D(sc_rect, tx_rect, std::make_shared<Material>(tx_ptr, Math::Colour4f::white(), true));
 
 		// move to the right after drawing the full ticks
 		x += size.x();
@@ -184,7 +185,7 @@ float CharacterStatus::draw_one_bar(uint8_t bartype, float x_stt, float y_stt, i
         sc_rect = Rectangle2f(Point2f(x, y),
                               Point2f(x, y) + size);
 
-		_gameEngine->getUIManager()->drawQuad2D(tx_ptr, sc_rect, tx_rect, true);
+		_gameEngine->getUIManager()->drawQuad2D(sc_rect, tx_rect, std::make_shared<Material>(tx_ptr, Math::Colour4f::white(), true));
 
 		y += size.y();
 		ticks = 0;
@@ -208,7 +209,7 @@ float CharacterStatus::draw_one_bar(uint8_t bartype, float x_stt, float y_stt, i
         sc_rect = Rectangle2f(Point2f(x, y),
                               Point2f(x, y) + size);
 
-		_gameEngine->getUIManager()->drawQuad2D(tx_ptr, sc_rect, tx_rect, true);
+		_gameEngine->getUIManager()->drawQuad2D(sc_rect, tx_rect, std::make_shared<Material>(tx_ptr, Math::Colour4f::white(), true));
 
 		y += size.y();
 		total_ticks -= NUMTICK;
@@ -231,7 +232,7 @@ float CharacterStatus::draw_one_bar(uint8_t bartype, float x_stt, float y_stt, i
         sc_rect = Rectangle2f(Point2f(x, y),
                               Point2f(x, y) + size);
 
-		_gameEngine->getUIManager()->drawQuad2D(tx_ptr, sc_rect, tx_rect, true);
+		_gameEngine->getUIManager()->drawQuad2D(sc_rect, tx_rect, std::make_shared<Material>(tx_ptr, Math::Colour4f::white(), true));
 
 		y += size.y();
 	}
@@ -263,7 +264,7 @@ float CharacterStatus::draw_one_xp_bar(float x, float y, uint8_t ticks)
 
     sc_rect = Rectangle2f(Point2f(x, y), Point2f(x, y) + size);
 
-	_gameEngine->getUIManager()->drawQuad2D(texture, sc_rect, tx_rect, true);
+	_gameEngine->getUIManager()->drawQuad2D(sc_rect, tx_rect, std::make_shared<Material>(texture, Math::Colour4f::white(), true));
 
 	x += size.x();
 
@@ -278,7 +279,7 @@ float CharacterStatus::draw_one_xp_bar(float x, float y, uint8_t ticks)
         sc_rect = Rectangle2f(Point2f(x + (cnt * size.x()),y),
                               Point2f(x + (cnt * size.x()) + size.x(), y + size.y()));
 
-		_gameEngine->getUIManager()->drawQuad2D(texture, sc_rect, tx_rect, true);
+		_gameEngine->getUIManager()->drawQuad2D(sc_rect, tx_rect, std::make_shared<Material>(texture, Math::Colour4f::white(), true));
 	}
 
 	//---- Draw the remaining empty ones
@@ -290,7 +291,7 @@ float CharacterStatus::draw_one_xp_bar(float x, float y, uint8_t ticks)
         sc_rect = Rectangle2f(Point2f(x + (cnt * size.x()), y),
                               Point2f(x + (cnt * size.x()) + size.x(), y + size.y()));
 
-		_gameEngine->getUIManager()->drawQuad2D(texture, sc_rect, tx_rect, true);
+		_gameEngine->getUIManager()->drawQuad2D(sc_rect, tx_rect, std::make_shared<Material>(texture, Math::Colour4f::white(), true));
 	}
 
 	return y + size.y();
@@ -325,7 +326,7 @@ float CharacterStatus::draw_character_xp_bar(const ObjectRef character, float x,
 }
 
 
-void CharacterStatus::draw() {
+void CharacterStatus::draw(DrawingContext& drawingContext) {
     //If object we are monitoring no longer exist, then destroy this GUI component
     const std::shared_ptr<Object> pchr = _object.lock();
     if (!pchr) {
@@ -390,7 +391,7 @@ void CharacterStatus::draw() {
             _chargeBar->setTickWidth(player->getBarPipWidth());
             _chargeBar->setSize(Vector2f(getWidth(), 16));
             _chargeBar->setPosition(getPosition() + Vector2f(-_chargeBar->getWidth() - 5, getHeight() / 2 - _chargeBar->getHeight() / 2));
-            _chargeBar->draw();
+            _chargeBar->draw(drawingContext);
         } else {
             _chargeBar->setVisible(false);
         }

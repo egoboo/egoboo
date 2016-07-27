@@ -21,11 +21,12 @@
 /// @details GUI widget to render that tiny minimap in the corner
 /// @author Johan Jansen
 
-#include "MiniMap.hpp"
+#include "game/GUI/MiniMap.hpp"
 #include "game/Core/GameEngine.hpp"
 #include "egolib/Logic/Team.hpp"
 #include "egolib/Events/MouseMovedEventArgs.hpp"
 #include "game/Module/Module.hpp"
+#include "game/GUI/Material.hpp"
 #include "game/Entities/_Include.hpp"
 #include "game/Logic/Player.hpp"
 
@@ -54,13 +55,14 @@ MiniMap::MiniMap() :
     }
 }
 
-void MiniMap::draw() {
+void MiniMap::draw(DrawingContext& drawingContext) {
     if (!_minimapTexture) {
         return;
     }
 
     //Draw the map image
-    _gameEngine->getUIManager()->drawImage(_minimapTexture->get(), Point2f(getX(), getY()), Vector2f(getWidth(), getHeight()), Math::Colour4f(1.0f, 1.0f, 1.0f, 0.9f));
+    auto material = std::make_shared<Material>(_minimapTexture->get(), Math::Colour4f(1.0f, 1.0f, 1.0f, 0.9f), true);
+    _gameEngine->getUIManager()->drawImage(Point2f(getX(), getY()), Vector2f(getWidth(), getHeight()), material);
 
     // If one of the players can sense enemies via ESP, draw them as blips on the map
     if (Team::TEAM_MAX != local_stats.sense_enemies_team) {

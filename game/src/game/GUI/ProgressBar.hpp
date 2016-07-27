@@ -8,7 +8,7 @@ namespace GUI {
 class ProgressBar : public Component {
 public:
     ProgressBar();
-    virtual void draw() override;
+    virtual void draw(DrawingContext& drawingContext) override;
 
     void setValue(float value);
     void setMaxValue(float value);

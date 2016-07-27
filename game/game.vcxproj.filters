@@ -173,9 +173,6 @@
     <ClCompile Include="src\game\gui\IconButton.cpp">
       <Filter>Game Sources\GUI</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\gui\ComponentContainer.cpp">
-      <Filter>Game Sources\GUI</Filter>
-    </ClCompile>
     <ClCompile Include="src\game\gui\Button.cpp">
       <Filter>Game Sources\GUI</Filter>
     </ClCompile>
@@ -317,6 +314,15 @@
     <ClCompile Include="src\game\gui\Component.cpp">
       <Filter>Game Sources\GUI</Filter>
     </ClCompile>
+    <ClCompile Include="src\game\GUI\Container.cpp">
+      <Filter>Game Sources\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\GUI\DrawingContext.cpp">
+      <Filter>Game Sources\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\GUI\Material.cpp">
+      <Filter>Game Sources\GUI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game\egoboo.h">
@@ -413,9 +419,6 @@
       <Filter>Game Header Files\GameStates</Filter>
     </ClInclude>
     <ClInclude Include="src\game\gui\Button.hpp">
-      <Filter>Game Header Files\GUI</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\gui\ComponentContainer.hpp">
       <Filter>Game Header Files\GUI</Filter>
     </ClInclude>
     <ClInclude Include="src\game\gui\IconButton.hpp">
@@ -584,6 +587,18 @@
       <Filter>Game Header Files\GameStates</Filter>
     </ClInclude>
     <ClInclude Include="src\game\gui\Component.hpp">
+      <Filter>Game Header Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\GUI\Container.hpp">
+      <Filter>Game Header Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\GameStates\VideoOptionsScreen.hpp">
+      <Filter>Game Header Files\GameStates</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\GUI\DrawingContext.hpp">
+      <Filter>Game Header Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\GUI\Material.hpp">
       <Filter>Game Header Files\GUI</Filter>
     </ClInclude>
   </ItemGroup>

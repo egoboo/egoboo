@@ -47,6 +47,10 @@ public:
 
     void beginState() override;
 
+    void draw(Ego::GUI::DrawingContext& drawingContext) override {
+        drawContainer(drawingContext);
+    }
+
     bool notifyKeyboardKeyPressed(const Ego::Events::KeyboardKeyPressedEventArgs& e) override;
 
     const std::shared_ptr<Ego::GUI::MiniMap>& getMiniMap() const;
@@ -60,7 +64,7 @@ public:
     const std::shared_ptr<Ego::GUI::MessageLog>& getMessageLog() const;
 
 protected:
-    void drawContainer() override;
+    void drawContainer(Ego::GUI::DrawingContext& drawingContext) override;
 
 private:
     void updateStatusBarPosition();

@@ -24,6 +24,7 @@
 
 #include "game/GUI/UIManager.hpp"
 #include "game/graphic.h"
+#include "game/GUI/Material.hpp"
 #include "game/game.h" //TODO: Remove only for DisplayMessagePrintf
 
 namespace Ego {
@@ -91,13 +92,13 @@ void UIManager::beginRenderUI() {
     renderer.setAlphaFunction(CompareFunction::Greater, 0.0f);
 
     /// Set the viewport rectangle.
-    auto drawableSize = Ego::GraphicsSystem::window->getDrawableSize();
+    auto drawableSize = GraphicsSystem::window->getDrawableSize();
     renderer.setViewportRectangle(0, 0, drawableSize.width(), drawableSize.height());
 
     // Set up an ortho projection for the gui to use.  Controls are free to modify this
     // later, but most of them will need this, so it's done by default at the beginning
     // of a frame.
-    auto windowSize = Ego::GraphicsSystem::window->getSize();
+    auto windowSize = GraphicsSystem::window->getSize();
     Matrix4f4f projection = Transform::ortho(0.0f, windowSize.width(), windowSize.height(), 0.0f, -1.0f, +1.0f);
     renderer.setProjectionMatrix(projection);
     renderer.setViewMatrix(Matrix4f4f::identity());
@@ -117,21 +118,26 @@ void UIManager::endRenderUI() {
 }
 
 int UIManager::getScreenWidth() const {
-    return Ego::GraphicsSystem::window->getSize().width();
+    return GraphicsSystem::window->getSize().width();
 }
 
 int UIManager::getScreenHeight() const {
-    return Ego::GraphicsSystem::window->getSize().height();
+    return GraphicsSystem::window->getSize().height();
 }
 
-void UIManager::drawImage(const std::shared_ptr<const Texture>& img, const Point2f& position, const Vector2f& size, const Colour4f& tint) {
-    auto source = Rectangle2f(Point2f(0, 0),
-                              Point2f(static_cast<float>(img->getSourceWidth()) / static_cast<float>(img->getWidth()),
-                                      static_cast<float>(img->getSourceHeight()) / static_cast<float>(img->getHeight())));
-    auto target = Rectangle2f(position,
-                              position + size);
+void UIManager::drawImage(const Point2f& position, const Vector2f& size, const std::shared_ptr<const Material>& material) {
+    // Regardless of wether the material is textured or not, compute reasonable texture coordinates.
+    auto source = Rectangle2f(Point2f(0.0f, 0.0f), Point2f(1.0f, 1.0f));
+    // If the material has a texture, compute proper texture coordinates.
+    if (material->getTexture()) {
+        auto texture = material->getTexture();
+        source = Rectangle2f(Point2f(0, 0),
+                             Point2f(static_cast<float>(texture->getSourceWidth()) / static_cast<float>(texture->getWidth()),
+                                     static_cast<float>(texture->getSourceHeight()) / static_cast<float>(texture->getHeight())));
+    }
+    auto target = Rectangle2f(position, position + size);
     // Draw the image
-    drawQuad2D(img, target, source, true, tint);
+    drawQuad2D(target, source, material);
 }
 
 bool UIManager::dumpScreenshot() {
@@ -170,7 +176,7 @@ bool UIManager::dumpScreenshot() {
 
             // create a SDL surface
             const auto& pixelFormatDescriptor = PixelFormatDescriptor::get<PixelFormat::R8G8B8>();
-            auto drawableSize = Ego::GraphicsSystem::window->getDrawableSize();
+            auto drawableSize = GraphicsSystem::window->getDrawableSize();
             temp = SDL_CreateRGBSurface(0, drawableSize.width(), drawableSize.height(),
                                         pixelFormatDescriptor.getColourDepth().getDepth(),
                                         pixelFormatDescriptor.getRedMask(),
@@ -288,14 +294,9 @@ void UIManager::drawBitmapGlyph(int fonttype, const Vector2f& position, const fl
     static constexpr float DY = 1.0f / 256.0f;
     static constexpr float BORDER = 1.0f / 512.0f;
 
-    /// @todo This code is problematic as it seems
-    /// to rely on that (x|y)min can be greater than (x|y)max and
-    /// in some cases. 
-    ego_frect_t sc_rect;
-    sc_rect.xmin = position.x();
-    sc_rect.ymin = position.y() + fontoffset - fontrect[fonttype].h;
-    sc_rect.xmax = position.x() + fontrect[fonttype].w;
-    sc_rect.ymax = position.y() + fontoffset;
+    // The target rectangle.
+    auto sc_rect = Rectangle2f(Point2f(position.x(),                        position.y() + fontoffset - fontrect[fonttype].h),
+                               Point2f(position.x() + fontrect[fonttype].w, position.y() + fontoffset));
 
     ego_frect_t tx_rect;
     tx_rect.xmin = fontrect[fonttype].x * DX;
@@ -304,81 +305,67 @@ void UIManager::drawBitmapGlyph(int fonttype, const Vector2f& position, const fl
     tx_rect.ymax = tx_rect.ymin + fontrect[fonttype].h * DY;
 
     // shrink the texture size slightly
+    // FIXME: This might result in xmin > xmax or ymin > ymax.
     tx_rect.xmin += BORDER;
     tx_rect.ymin += BORDER;
     tx_rect.xmax -= BORDER;
     tx_rect.ymax -= BORDER;
 
-    drawQuad2D(_bitmapFontTexture, sc_rect, tx_rect, true, Colour4f(Colour3f::white(), alpha));
+    drawQuad2D(sc_rect, tx_rect, std::make_shared<Material>(_bitmapFontTexture, Colour4f(Colour3f::white(), alpha), true));
 }
 
-void UIManager::drawQuad2D(const std::shared_ptr<const Texture>& texture, const Rectangle2f& scr_rect, const Rectangle2f& tx_rect, const bool useAlpha, const Colour4f& tint) {
+void UIManager::drawQuad2D(const Rectangle2f& scr_rect, const Rectangle2f& tx_rect, const std::shared_ptr<const Material>& material) {
     auto& renderer = Renderer::get();
-    renderer.getTextureUnit().setActivated(texture.get());
-    renderer.setColour(tint);
+    material->apply();
+    drawQuad2d(scr_rect, tx_rect);
+}
 
-    if (useAlpha) {
-        renderer.setBlendingEnabled(true);
-        renderer.setBlendFunction(BlendFunction::SourceAlpha, BlendFunction::OneMinusSourceAlpha);
+void UIManager::drawQuad2D(const Rectangle2f& scr_rect, const ego_frect_t& tx_rect, const std::shared_ptr<const Material>& material) {
+    auto tx_rect_2 = Rectangle2f(Point2f(tx_rect.xmin, tx_rect.ymin),
+                                 Point2f(tx_rect.xmax, tx_rect.ymax));
+    drawQuad2D(scr_rect, tx_rect_2, material);
+}
 
-        renderer.setAlphaTestEnabled(true);
-        renderer.setAlphaFunction(CompareFunction::Greater, 0.0f);
-    } else {
-        renderer.setBlendingEnabled(false);
-        renderer.setAlphaTestEnabled(false);
-    }
+void UIManager::fillRectangle(const Rectangle2f& rectangle, const bool useAlpha, const Colour4f& tint) {
+    auto material = std::make_shared<Material>(nullptr, tint, useAlpha);
+    material->apply();
+    drawQuad2d(rectangle);
+}
 
+void UIManager::drawQuad2d(const Rectangle2f& target, const Rectangle2f& source) {
     struct Vertex {
         float x, y;
         float s, t;
     };
+    auto& renderer = Renderer::get();
     {
         VertexBufferScopedLock vblck(_textureQuadVertexBuffer);
-        Vertex *vertices = vblck.get<Vertex>();
-        vertices[0].x = scr_rect.getMin().x(); vertices[0].y = scr_rect.getMax().y(); vertices[0].s = tx_rect.getMin().x(); vertices[0].t = tx_rect.getMax().y();
-        vertices[1].x = scr_rect.getMax().x(); vertices[1].y = scr_rect.getMax().y(); vertices[1].s = tx_rect.getMax().x(); vertices[1].t = tx_rect.getMax().y();
-        vertices[2].x = scr_rect.getMax().x(); vertices[2].y = scr_rect.getMin().y(); vertices[2].s = tx_rect.getMax().x(); vertices[2].t = tx_rect.getMin().y();
-        vertices[3].x = scr_rect.getMin().x(); vertices[3].y = scr_rect.getMin().y(); vertices[3].s = tx_rect.getMin().x(); vertices[3].t = tx_rect.getMin().y();
+        Vertex *v = vblck.get<Vertex>();
+        // left/bottom
+        v->x = target.getMin().x(); v->y = target.getMax().y();
+        v->s = source.getMin().x(); v->t = source.getMax().y();
+        v++;
+
+        // right/bottom
+        v->x = target.getMax().x(); v->y = target.getMax().y();
+        v->s = source.getMax().x(); v->t = source.getMax().y();
+        v++;
+
+        // right/top
+        v->x = target.getMax().x(); v->y = target.getMin().y();
+        v->s = source.getMax().x(); v->t = source.getMin().y();
+        v++;
+
+        // left/top
+        v->x = target.getMin().x(); v->y = target.getMin().y();
+        v->s = source.getMin().x(); v->t = source.getMin().y();
+        v++;
     }
     renderer.render(_textureQuadVertexBuffer, PrimitiveType::Quadriliterals, 0, 4);
 }
 
-void UIManager::drawQuad2D(const std::shared_ptr<const Texture>& texture, const ego_frect_t& scr_rect, const ego_frect_t& tx_rect, const bool useAlpha, const Colour4f& tint) {
-    auto scr_rect_2 = Rectangle2f(Point2f(scr_rect.xmin, scr_rect.ymin),
-                                  Point2f(scr_rect.xmax, scr_rect.ymax));
-    auto tx_rect_2 = Rectangle2f(Point2f(tx_rect.xmin, tx_rect.ymin),
-                                 Point2f(tx_rect.xmax, tx_rect.ymax));
-    drawQuad2D(texture, scr_rect_2, tx_rect_2, useAlpha, tint);
-}
-
-void UIManager::fillRectangle(const Rectangle2f& rectangle, const bool useAlpha, const Colour4f& tint) {
-    auto& renderer = Renderer::get();
-    renderer.getTextureUnit().setActivated(nullptr);
-    renderer.setColour(tint);
-
-    if (useAlpha) {
-        renderer.setBlendingEnabled(true);
-        renderer.setBlendFunction(BlendFunction::SourceAlpha, BlendFunction::OneMinusSourceAlpha);
-
-        renderer.setAlphaTestEnabled(true);
-        renderer.setAlphaFunction(CompareFunction::Greater, 0.0f);
-    } else {
-        renderer.setBlendingEnabled(false);
-        renderer.setAlphaTestEnabled(false);
-    }
-
-    struct Vertex {
-        float x, y;
-    };
-    {
-        VertexBufferScopedLock vblck(*_vertexBuffer);
-        Vertex *vertices = vblck.get<Vertex>();
-        vertices[0].x = rectangle.getMin().x(); vertices[0].y = rectangle.getMax().y();
-        vertices[1].x = rectangle.getMax().x(); vertices[1].y = rectangle.getMax().y();
-        vertices[2].x = rectangle.getMax().x(); vertices[2].y = rectangle.getMin().y();
-        vertices[3].x = rectangle.getMin().x(); vertices[3].y = rectangle.getMin().y();
-        renderer.render(*_vertexBuffer, PrimitiveType::Quadriliterals, 0, 4);
-    }
+void UIManager::drawQuad2d(const Rectangle2f& target) {
+    drawQuad2d(target, Rectangle2f(Point2f(0.0f, 0.0), Point2f(1.0f, 1.0f)));
 }
 
 } // namespace GUI

@@ -34,7 +34,7 @@ class CharacterStatus : public Component {
 public:
     CharacterStatus(const std::shared_ptr<Object> &object);
 
-    virtual void draw() override;
+    virtual void draw(DrawingContext& drawingContext) override;
 
     std::shared_ptr<Object> getObject() const { return _object.lock(); }
 
