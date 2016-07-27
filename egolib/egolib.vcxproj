@@ -305,6 +305,9 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\InputControl\ControlSettingsFile.cpp" />
+    <ClCompile Include="src\egolib\InputControl\InputDevice.cpp" />
+    <ClCompile Include="src\egolib\InputControl\InputSystem.cpp" />
     <ClCompile Include="src\egolib\Graphics\DisplayMode.cpp" />
     <ClCompile Include="src\egolib\Graphics\SDL\DisplayMode.cpp">
       <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)\Graphics\SDL\DisplayMode.asm</AssemblerListingLocation>
@@ -319,8 +322,6 @@
     <ClCompile Include="src\egolib\Signal\ConnectionBase.cpp" />
     <ClCompile Include="src\egolib\Signal\NodeBase.cpp" />
     <ClCompile Include="src\egolib\Signal\SignalBase.cpp" />
-    <ClCompile Include="src\egolib\Input\input.c" />
-    <ClCompile Include="src\egolib\Input\input_device.c" />
     <ClCompile Include="src\egolib\Extensions\WindowProperties.cpp" />
     <ClCompile Include="src\egolib\App.cpp" />
     <ClCompile Include="src\egolib\Graphics\GraphicsWindow.cpp" />
@@ -430,10 +431,6 @@
     <ClCompile Include="src\egolib\Graphics\FontManager.cpp" />
     <ClCompile Include="src\egolib\Image\Image.cpp" />
     <ClCompile Include="src\egolib\FileFormats\configfile.c" />
-    <ClCompile Include="src\egolib\FileFormats\controls_file-v1.c" />
-    <ClCompile Include="src\egolib\FileFormats\controls_file-v2.c" />
-    <ClCompile Include="src\egolib\FileFormats\controls_file-v3.c" />
-    <ClCompile Include="src\egolib\FileFormats\controls_file.c" />
     <ClCompile Include="src\egolib\FileFormats\id_md2.c" />
     <ClCompile Include="src\egolib\FileFormats\map_file-v1.c" />
     <ClCompile Include="src\egolib\FileFormats\map_file-v2.c" />
@@ -441,7 +438,6 @@
     <ClCompile Include="src\egolib\FileFormats\map_file-v4.c" />
     <ClCompile Include="src\egolib\FileFormats\map_file.c" />
     <ClCompile Include="src\egolib\FileFormats\map_tile_dictionary.c" />
-    <ClCompile Include="src\egolib\FileFormats\scancode_file.c" />
     <ClCompile Include="src\egolib\FileFormats\spawn_file.c" />
     <ClCompile Include="src\egolib\FileFormats\template.c" />
     <ClCompile Include="src\egolib\FileFormats\wawalite_file.c" />
@@ -511,7 +507,11 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\egolib\Input\ModifierKeys.hpp" />
+    <ClInclude Include="src\egolib\InputControl\ControlSettingsFile.hpp" />
+    <ClInclude Include="src\egolib\InputControl\InputDevice.hpp" />
+    <ClInclude Include="src\egolib\InputControl\InputSystem.hpp" />
+    <ClInclude Include="src\egolib\InputControl\ModifierKeys.hpp" />
+    <ClInclude Include="src\egolib\Input\JoystickState.hpp" />
     <ClInclude Include="src\egolib\Graphics\DisplayMode.hpp" />
     <ClInclude Include="src\egolib\Graphics\SDL\DisplayMode.hpp" />
     <ClInclude Include="src\egolib\Signal\ConnectionBase.hpp" />
@@ -527,14 +527,10 @@
     <ClInclude Include="src\egolib\Math\Functors\Closure_AxisAlignedCube_AxisAlignedCube.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\Closure_Sphere_AxisAlignedBox.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\Closure_Sphere_Sphere.hpp" />
-    <ClInclude Include="src\egolib\Input\Device.hpp" />
-    <ClInclude Include="src\egolib\Input\DeviceEventArgs.hpp" />
     <ClInclude Include="src\egolib\Events\WindowEventArgs.hpp" />
     <ClInclude Include="src\egolib\Events\KeyboardKeyEventArgs.hpp" />
     <ClInclude Include="src\egolib\Events\_Include.hpp" />
     <ClInclude Include="src\egolib\Events\MouseMovedEventArgs.hpp" />
-    <ClInclude Include="src\egolib\Input\input.h" />
-    <ClInclude Include="src\egolib\Input\input_device.h" />
     <ClInclude Include="src\egolib\Math\Functors\Contains.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\Contains_AxisAlignedBox_AxisAlignedBox.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\Contains_AxisAlignedBox_Point.hpp" />
@@ -698,10 +694,6 @@
     <ClInclude Include="src\egolib\Renderer\CullingMode.hpp" />
     <ClInclude Include="src\egolib\Renderer\WindingMode.hpp" />
     <ClInclude Include="src\egolib\FileFormats\configfile.h" />
-    <ClInclude Include="src\egolib\FileFormats\controls_file-v1.h" />
-    <ClInclude Include="src\egolib\FileFormats\controls_file-v2.h" />
-    <ClInclude Include="src\egolib\FileFormats\controls_file-v3.h" />
-    <ClInclude Include="src\egolib\FileFormats\controls_file.h" />
     <ClInclude Include="src\egolib\FileFormats\id_md2.h" />
     <ClInclude Include="src\egolib\FileFormats\map_file-v1.h" />
     <ClInclude Include="src\egolib\FileFormats\map_file-v2.h" />
@@ -709,7 +701,6 @@
     <ClInclude Include="src\egolib\FileFormats\map_file-v4.h" />
     <ClInclude Include="src\egolib\FileFormats\map_file.h" />
     <ClInclude Include="src\egolib\FileFormats\map_tile_dictionary.h" />
-    <ClInclude Include="src\egolib\FileFormats\scancode_file.h" />
     <ClInclude Include="src\egolib\FileFormats\spawn_file.h" />
     <ClInclude Include="src\egolib\FileFormats\template.h" />
     <ClInclude Include="src\egolib\FileFormats\wawalite_file.h" />

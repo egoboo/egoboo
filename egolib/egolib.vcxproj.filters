@@ -151,6 +151,12 @@
     <Filter Include="Source Files\Graphics\SDL">
       <UniqueIdentifier>{678721b8-0cba-45a1-9259-593d7cb67403}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\InputControl">
+      <UniqueIdentifier>{806f03d1-66ab-4e57-bb79-c65e76066fe1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\InputControl">
+      <UniqueIdentifier>{26be0be1-53fa-4176-a0f6-ec408fc0f898}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\egolib\_math.c">
@@ -249,18 +255,6 @@
     <ClCompile Include="src\egolib\FileFormats\configfile.c">
       <Filter>File Formats</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\FileFormats\controls_file.c">
-      <Filter>File Formats</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\FileFormats\controls_file-v1.c">
-      <Filter>File Formats</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\FileFormats\controls_file-v2.c">
-      <Filter>File Formats</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\FileFormats\controls_file-v3.c">
-      <Filter>File Formats</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\FileFormats\id_md2.c">
       <Filter>File Formats</Filter>
     </ClCompile>
@@ -280,9 +274,6 @@
       <Filter>File Formats</Filter>
     </ClCompile>
     <ClCompile Include="src\egolib\FileFormats\map_tile_dictionary.c">
-      <Filter>File Formats</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\FileFormats\scancode_file.c">
       <Filter>File Formats</Filter>
     </ClCompile>
     <ClCompile Include="src\egolib\FileFormats\spawn_file.c">
@@ -513,12 +504,6 @@
     <ClCompile Include="src\egolib\Extensions\WindowProperties.cpp">
       <Filter>Extensions</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\Input\input.c">
-      <Filter>Source Files\Input</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\Input\input_device.c">
-      <Filter>Source Files\Input</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\Signal\NodeBase.cpp">
       <Filter>Source Files\Signal</Filter>
     </ClCompile>
@@ -533,6 +518,15 @@
     </ClCompile>
     <ClCompile Include="src\egolib\Graphics\SDL\DisplayMode.cpp">
       <Filter>Source Files\Graphics\SDL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\InputControl\ControlSettingsFile.cpp">
+      <Filter>Source Files\InputControl</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\InputControl\InputDevice.cpp">
+      <Filter>Source Files\InputControl</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\InputControl\InputSystem.cpp">
+      <Filter>Source Files\InputControl</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -677,18 +671,6 @@
     <ClInclude Include="src\egolib\FileFormats\configfile.h">
       <Filter>File Formats</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\FileFormats\controls_file.h">
-      <Filter>File Formats</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\FileFormats\controls_file-v1.h">
-      <Filter>File Formats</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\FileFormats\controls_file-v2.h">
-      <Filter>File Formats</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\FileFormats\controls_file-v3.h">
-      <Filter>File Formats</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\FileFormats\id_md2.h">
       <Filter>File Formats</Filter>
     </ClInclude>
@@ -708,9 +690,6 @@
       <Filter>File Formats</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\FileFormats\map_tile_dictionary.h">
-      <Filter>File Formats</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\FileFormats\scancode_file.h">
       <Filter>File Formats</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\FileFormats\spawn_file.h">
@@ -1238,23 +1217,11 @@
     <ClInclude Include="src\egolib\Math\Functors\Interpolate_Linear_ColourRgba.hpp">
       <Filter>Header Files\Math\Functors</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Input\input.h">
-      <Filter>Header Files\Input</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Input\input_device.h">
-      <Filter>Header Files\Input</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Events\MouseMovedEventArgs.hpp">
       <Filter>Header Files\Events</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Events\WindowEventArgs.hpp">
       <Filter>Header Files\Events</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Input\Device.hpp">
-      <Filter>Header Files\Input</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Input\DeviceEventArgs.hpp">
-      <Filter>Header Files\Input</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Math\Functors\Closure.hpp">
       <Filter>Header Files\Math\Functors</Filter>
@@ -1307,8 +1274,20 @@
     <ClInclude Include="src\egolib\Graphics\SDL\DisplayMode.hpp">
       <Filter>Header Files\Graphics\SDL</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Input\ModifierKeys.hpp">
+    <ClInclude Include="src\egolib\Input\JoystickState.hpp">
       <Filter>Header Files\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\InputControl\ControlSettingsFile.hpp">
+      <Filter>Header Files\InputControl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\InputControl\InputDevice.hpp">
+      <Filter>Header Files\InputControl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\InputControl\InputSystem.hpp">
+      <Filter>Header Files\InputControl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\InputControl\ModifierKeys.hpp">
+      <Filter>Header Files\InputControl</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
