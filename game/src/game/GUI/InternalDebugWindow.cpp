@@ -49,7 +49,8 @@ void InternalDebugWindow::drawContainer(DrawingContext& drawingContext) {
 
     //Rendering variables
     int textWidth, textHeight;
-    Point2f offset = getDerivedPosition() + Vector2f(5, 32);
+    float y = _titleBar->getBounds().getSize().y();
+    Point2f offset = getDerivedPosition() + Vector2f(13, y + 8);
     //Draw all monitored variables
     for (const auto &element : _watchedVariables) {
         _gameEngine->getUIManager()->getDebugFont()->drawText(element.first + ": " + element.second(), offset.x(), offset.y());

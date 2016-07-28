@@ -19,7 +19,7 @@ Label::Label(const std::string &text, const UIManager::UIFontType font) :
 void Label::draw(DrawingContext& drawingContext) {
     // Draw text.
     if (_textRenderer)
-        _textRenderer->render(getX(), getY(), _colour);
+        _textRenderer->render(getDerivedPosition().x(), getDerivedPosition().y(), _colour);
 }
 
 const std::string& Label::getText() const {

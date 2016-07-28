@@ -20,8 +20,8 @@ public:
     }
 
     void draw(DrawingContext& drawingContext) override {
-        int shakeEffectX = getX();
-        int shakeEffectY = getY();
+        int shakeEffectX = getDerivedBounds().getMin().x();
+        int shakeEffectY = getDerivedBounds().getMin().y();
 
         //Apply shake effect when mouse is over
         if (_mouseOver) {
@@ -29,33 +29,20 @@ public:
             shakeEffectY += Random::next(1, 4) - 2;
         }
 
-        // Draw backdrop
-        auto &renderer = Renderer::get();
-        renderer.getTextureUnit().setActivated(nullptr);
-
         if (_mouseOver && _hoverFadeEffect < 2.0f) {
             _hoverFadeEffect += 2.0f / GameEngine::GAME_TARGET_FPS;
         } else if (!_mouseOver && _hoverFadeEffect > 0.0f) {
             _hoverFadeEffect -= 4.0f / GameEngine::GAME_TARGET_FPS;
         }
+        auto material = std::make_shared<Material>(nullptr, _perk.getColour().brighter(_hoverFadeEffect), true);
 
-        renderer.setColour(_perk.getColour().brighter(_hoverFadeEffect));
-
-        struct Vertex {
-            float x, y;
-        };
-
-        auto vb = _gameEngine->getUIManager()->_vertexBuffer;
-        Vertex *v = static_cast<Vertex *>(vb->lock());
-        v->x = shakeEffectX; v->y = shakeEffectY; v++;
-        v->x = shakeEffectX; v->y = shakeEffectY + getHeight(); v++;
-        v->x = shakeEffectX + getWidth(); v->y = shakeEffectY + getHeight(); v++;
-        v->x = shakeEffectX + getWidth(); v->y = shakeEffectY;
-        vb->unlock();
-        renderer.render(*vb, PrimitiveType::Quadriliterals, 0, 4);
+        // Draw backdrop
+        material->apply();
+        _gameEngine->getUIManager()->drawQuad2d(Rectangle2f(Point2f(shakeEffectX, shakeEffectY),
+                                                            Point2f(shakeEffectX + getWidth(), shakeEffectY + getHeight())));
 
         //Icon
-        auto material = std::make_shared<Material>(_perk.getIcon().get_ptr(), Math::Colour4f(Ego::Math::Colour3f::black(), 0.75f), true);
+        material = std::make_shared<Material>(_perk.getIcon().get_ptr(), Math::Colour4f(Ego::Math::Colour3f::black(), 0.75f), true);
         _gameEngine->getUIManager()->drawImage(Point2f(shakeEffectX, shakeEffectY), Vector2f(getWidth(), getHeight()), material);
     }
 

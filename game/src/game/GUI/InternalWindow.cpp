@@ -82,7 +82,7 @@ InternalWindow::InternalWindow(const std::string &title) :
     _firstDraw(true) {
 
     //Set initial window position, do after all components have been initialized
-    setPosition(Point2f(20, 20));
+    setPosition(Point2f(60, 60));
 
     //Set default color
     _closeButton->setTint(Math::Colour4f(0.8f, 0.8f, 0.8f, 1.0f));
@@ -96,8 +96,8 @@ void InternalWindow::drawContainer(DrawingContext& drawingContext) {
     std::shared_ptr<const Material> material;
     //Draw background first
     material = std::make_shared<const Material>(_background.get(), Colour4f(Colour3f::white(), 0.9f), true);
-    _gameEngine->getUIManager()->drawImage(Point2f(getDerivedPosition().x() - BORDER_PIXELS, getDerivedPosition().y() - BORDER_PIXELS),
-                                           Vector2f(getWidth() + BORDER_PIXELS * 2, getHeight() + BORDER_PIXELS * 2), material);
+    _gameEngine->getUIManager()->drawImage(Point2f(getDerivedPosition().x(), getDerivedPosition().y()),
+                                           Vector2f(getWidth(), getHeight()), material);
 
     //Draw window title
     _titleBar->draw(drawingContext);
@@ -107,15 +107,18 @@ void InternalWindow::drawContainer(DrawingContext& drawingContext) {
 }
 
 bool InternalWindow::notifyMouseMoved(const Events::MouseMovedEventArgs& e) {
+    auto newe = Events::MouseMovedEventArgs(e.getPosition() - Point2f::toVector(getPosition()));
     if (_isDragging) {
-        setPosition(Point2f(Math::constrain<int>(e.getPosition().x() + _mouseDragOffset[0], 0, _gameEngine->getUIManager()->getScreenWidth() - getWidth()),
-                            Math::constrain<int>(e.getPosition().y() + _mouseDragOffset[1], _titleBar->getHeight() / 2, _gameEngine->getUIManager()->getScreenHeight() - getHeight())));
+        setPosition(Point2f(Math::constrain<int>(e.getPosition().x() + _mouseDragOffset[0], 0,
+                                                 _gameEngine->getUIManager()->getScreenWidth() - getWidth()),
+                            Math::constrain<int>(e.getPosition().y() + _mouseDragOffset[1], _titleBar->getHeight() / 2,
+                                                 _gameEngine->getUIManager()->getScreenHeight() - getHeight())));
         return true;
     } else {
-        _mouseOver = InternalWindow::contains(e.getPosition())
-            || _titleBar->contains(e.getPosition() - Point2f::toVector(_titleBar->getDerivedPosition()));
+        _mouseOver = InternalWindow::contains(newe.getPosition())
+            || _titleBar->contains(newe.getPosition());
 
-        if (_closeButton->contains(e.getPosition() - Point2f::toVector(_closeButton->getDerivedPosition()))) {
+        if (_closeButton->contains(newe.getPosition())) {
             _closeButton->setTint(Math::Colour4f::white());
         } else {
             _closeButton->setTint(Math::Colour4f(0.8f, 0.8f, 0.8f, 1.0f));
@@ -126,8 +129,9 @@ bool InternalWindow::notifyMouseMoved(const Events::MouseMovedEventArgs& e) {
 }
 
 bool InternalWindow::notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs& e) {
+    auto newe = Events::MouseButtonPressedEventArgs(e.getPosition() - Point2f::toVector(getPosition()), e.getButton());
     if (_mouseOver && e.getButton() == SDL_BUTTON_LEFT) {
-        if (!_isDragging && _closeButton->contains(e.getPosition() - Point2f::toVector(_closeButton->getDerivedPosition()))) {
+        if (!_isDragging && _closeButton->contains(newe.getPosition())) {
             AudioSystem::get().playSoundFull(AudioSystem::get().getGlobalSound(GSND_BUTTON_CLICK));
             destroy();
             return true;
@@ -137,7 +141,7 @@ bool InternalWindow::notifyMouseButtonPressed(const Events::MouseButtonPressedEv
         bringToFront();
 
         // Only the top title bar triggers dragging
-        if (_titleBar->contains(e.getPosition())) {
+        if (_titleBar->contains(newe.getPosition())) {
             _isDragging = true;
             _mouseDragOffset[0] = getX() - e.getPosition().x();
             _mouseDragOffset[1] = getY() - e.getPosition().y();
@@ -163,41 +167,11 @@ void InternalWindow::draw(DrawingContext& drawingContext) {
     drawAll(drawingContext);
 }
 
-#if 0
-void InternalWindow::setPosition(const Point2f& position) {
-#if 0
-    //Calculate offsets in position change
-    auto translate = position - getPosition();
-#endif
-    //Shift window position
-    Component::setPosition(position);
-
-#if 0
-    //Shift all child components as well
-    for (const std::shared_ptr<Component> &component : iterator()) {
-        component->setPosition(component->getPosition() + translate);
-    }
-#endif
-#if 0
-    //Finally update titlebar position
-    _titleBar->setPosition(position + Vector2f(0, - _titleBar->getHeight() / 2));
-    _closeButton->setPosition(Point2f(_titleBar->getX() + _titleBar->getWidth() - _closeButton->getWidth(), _titleBar->getY() + _titleBar->getHeight() / 2 - _closeButton->getHeight() / 2));
-#endif
-}
-#endif
-
 void InternalWindow::setTransparency(float alpha) {
     _transparency = Math::constrain(alpha, 0.0f, 1.0f);
 }
 
 void InternalWindow::addComponent(const std::shared_ptr<Component>& component) {
-#if 0
-    //Make sure that all components added to this window are placed relative to 
-    //our position so that (0,0) is topleft corner in this InternalWindow
-    if (!_firstDraw) {
-        component->setPosition(component->getPosition() + Vector2f(getX(), getY()));
-    }
-#endif
     Container::addComponent(component);
 }
 

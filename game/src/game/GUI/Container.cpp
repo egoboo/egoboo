@@ -85,7 +85,8 @@ void Container::drawAll(DrawingContext& drawingContext) {
 
     // Draw reach GUI component.
     _gameEngine->getUIManager()->beginRenderUI();
-    for (const std::shared_ptr<Component> component : iterator()) {
+    auto temporaryComponents = components;
+    for (const std::shared_ptr<Component> component : temporaryComponents) {
         if (!component->isVisible()) continue;  // Ignore hidden/destroyed components.
         component->draw(drawingContext);
     }
@@ -94,33 +95,36 @@ void Container::drawAll(DrawingContext& drawingContext) {
 
 bool Container::notifyMouseMoved(const Events::MouseMovedEventArgs& e) {
     // Iterate over GUI components in reverse order so GUI components added last (i.e on top) consume events first.
-    auto it = iterator();
-    for (auto i = it.rbegin(); i != it.rend(); ++i) {
+    auto temporaryComponents = components;
+    auto newEventArgs = Events::MouseMovedEventArgs(e.getPosition() - Point2f::toVector(getPosition()));
+    for (auto i = temporaryComponents.rbegin(); i != temporaryComponents.rend(); ++i) {
         std::shared_ptr<Component> component = *i;
         if (!component->isEnabled()) continue;
-        if (component->notifyMouseMoved(e)) return true;
+        if (component->notifyMouseMoved(newEventArgs)) return true;
     }
     return false;
 }
 
 bool Container::notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEventArgs& e) {
     // Iterate over GUI components in reverse order so GUI components added last (i.e on top) consume events first.
-    auto it = iterator();
-    for (auto i = it.rbegin(); i != it.rend(); ++i) {
+    auto temporaryComponents = components;
+    auto newEventArgs = Events::KeyboardKeyPressedEventArgs(e.getKey());
+    for (auto i = temporaryComponents.rbegin(); i != temporaryComponents.rend(); ++i) {
         std::shared_ptr<Component> component = *i;
         if (!component->isEnabled()) continue;
-        if (component->notifyKeyboardKeyPressed(e)) return true;
+        if (component->notifyKeyboardKeyPressed(newEventArgs)) return true;
     }
     return false;
 }
 
 bool Container::notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs& e) {
     // Iterate over GUI components in reverse order so GUI components added last (i.e on top) consume events first
-    auto it = iterator();
-    for (auto i = it.rbegin(); i != it.rend(); ++i) {
+    auto newEventArgs = Events::MouseButtonPressedEventArgs(e.getPosition() - Point2f::toVector(getPosition()), e.getButton());
+    auto temporaryComponents = components;
+    for (auto i = temporaryComponents.rbegin(); i != temporaryComponents.rend(); ++i) {
         std::shared_ptr<Component> component = *i;
         if (!component->isEnabled()) continue;
-        if (component->notifyMouseButtonPressed(e)) return true;
+        if (component->notifyMouseButtonPressed(newEventArgs)) return true;
     }
     return false;
 }
@@ -128,25 +132,27 @@ bool Container::notifyMouseButtonPressed(const Events::MouseButtonPressedEventAr
 bool Container::notifyMouseButtonReleased(const Events::MouseButtonReleasedEventArgs& e) {
     // Iterate over GUI components in reverse order so GUI components added last (i.e on top) consume events first.
     auto it = iterator();
-    for (auto i = it.rbegin(); i != it.rend(); ++i) {
+    auto newEventArgs = Events::MouseButtonReleasedEventArgs(e.getPosition() - Point2f::toVector(getPosition()), e.getButton());
+    auto temporaryComponents = components;
+    for (auto i = temporaryComponents.rbegin(); i != temporaryComponents.rend(); ++i) {
         std::shared_ptr<Component> component = *i;
         if (!component->isEnabled()) continue;
-        if (component->notifyMouseButtonReleased(e)) return true;
+        if (component->notifyMouseButtonReleased(newEventArgs)) return true;
     }
     return false;
 }
 
 bool Container::notifyMouseWheelTurned(const Events::MouseWheelTurnedEventArgs& e) {
     // Iterate over GUI components in reverse order so GUI components added last (i.e on top) consume events first.
-    auto it = iterator();
-    for (auto i = it.rbegin(); i != it.rend(); ++i) {
+    auto temporaryComponents = components;
+    auto newEventArgs = Events::MouseWheelTurnedEventArgs(e.getDelta());
+    for (auto i = temporaryComponents.rbegin(); i != temporaryComponents.rend(); ++i) {
         std::shared_ptr<Component> component = *i;
         if (!component->isEnabled()) continue;
-        if (component->notifyMouseWheelTurned(e)) return true;
+        if (component->notifyMouseWheelTurned(newEventArgs)) return true;
     }
     return false;
 }
-
 
 } // namespace GUI
 } // namespace Ego
