@@ -33,7 +33,9 @@ public:
     /// @param visible @a true shows this component, @a false hides it
     void setVisible(const bool visible);
 
-
+    /// @brief Get the derived bounds of this component.
+    /// @return the derived bounds of this component
+    Rectangle2f getDerivedBounds() const;
     /// @brief Get the bounds of this component.
     /// @return the bounds of this component
     const Rectangle2f& getBounds() const;

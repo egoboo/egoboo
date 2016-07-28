@@ -49,15 +49,12 @@ void InternalDebugWindow::drawContainer(DrawingContext& drawingContext) {
 
     //Rendering variables
     int textWidth, textHeight;
-    int xOffset = getX() + 5;
-    int yOffset = getY() + 32;
-
+    Point2f offset = getDerivedPosition() + Vector2f(5, 32);
     //Draw all monitored variables
     for (const auto &element : _watchedVariables) {
-        _gameEngine->getUIManager()->getDebugFont()->drawText(element.first + ": " + element.second(), xOffset, yOffset);
-
+        _gameEngine->getUIManager()->getDebugFont()->drawText(element.first + ": " + element.second(), offset.x(), offset.y());
         _gameEngine->getUIManager()->getDebugFont()->getTextSize(element.first, &textWidth, &textHeight);
-        yOffset += textHeight + 5;
+        offset += Vector2f(0.0f, textHeight + 5);
     }
 }
 

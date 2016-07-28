@@ -46,7 +46,7 @@ protected:
 
     private:
         DeferredTexture _titleBarTexture;
-        DeferredTexture _titleSkull;
+        DeferredTexture _titleSkullTexture;
         std::shared_ptr<Font> _font;
         std::string _title;
         int _textWidth;
@@ -62,7 +62,9 @@ public:
 
     void draw(DrawingContext& drawingContext) override;
 
+#if 0
     virtual void setPosition(const Point2f& position) override;
+#endif
     virtual void setSize(const Vector2f& size) override;
 
     void setTransparency(float alpha);

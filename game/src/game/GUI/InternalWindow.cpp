@@ -32,7 +32,7 @@ namespace GUI {
 
 InternalWindow::TitleBar::TitleBar(const std::string &title) :
     _titleBarTexture("mp_data/titlebar"),
-    _titleSkull("mp_data/gui-skull"),
+    _titleSkullTexture("mp_data/gui-skull"),
     _font(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME)),
     _title(title),
     _textWidth(0),
@@ -49,18 +49,25 @@ InternalWindow::TitleBar::TitleBar(const std::string &title) :
 
 void InternalWindow::TitleBar::draw(DrawingContext& drawingContext) {
     std::shared_ptr<const Material> material;
-    //Background
+    Point2f position;
+    // Background of title bar
+    position = getDerivedPosition();
+    position -= Vector2f(BORDER_PIXELS * 2, 0.0f);
     material = std::make_shared<const Material>(_titleBarTexture.get(), Ego::Math::Colour4f::white(), true);
-    _gameEngine->getUIManager()->drawImage(Point2f(getX() - BORDER_PIXELS * 2, getY()), Vector2f(getWidth() + BORDER_PIXELS * 4, getHeight()), material);
+    _gameEngine->getUIManager()->drawImage(position, Vector2f(getWidth() + BORDER_PIXELS * 4, getHeight()), material);
 
-    //Title String
-    _font->drawText(_title, getX() + getWidth() / 2 - _textWidth / 2, getY() + 12, Colour4f(0.28f, 0.16f, 0.07f, 1.0f));
+    // Title string (centered on title bar)
+    position = getDerivedPosition();
+    position += Vector2f(getWidth() / 2.0f - _textWidth / 2.0f, 12);
+    _font->drawText(_title, position.x(), position.y(), Colour4f(0.28f, 0.16f, 0.07f, 1.0f));
 
-    //Draw the skull icon on top
-    const int skullWidth = _titleSkull.get_ptr()->getWidth() / 2;
-    const int skullHeight = _titleSkull.get_ptr()->getHeight() / 2;
-    material = std::make_shared<const Material>(_titleSkull.get(), Ego::Math::Colour4f::white(), true);
-    _gameEngine->getUIManager()->drawImage(Point2f(getX() + getWidth() / 2 - skullWidth / 2, getY() - skullHeight / 2), Vector2f(skullWidth, skullHeight), material);
+    //Skull texture (centered above top border of title bar)
+    const int skullWidth = _titleSkullTexture.get_ptr()->getWidth() / 2;
+    const int skullHeight = _titleSkullTexture.get_ptr()->getHeight() / 2;
+    material = std::make_shared<const Material>(_titleSkullTexture.get(), Ego::Math::Colour4f::white(), true);
+    position = getDerivedPosition();
+    position += Vector2f(getWidth() / 2.0f - skullWidth / 2.0f, -skullHeight / 2.0f);
+    _gameEngine->getUIManager()->drawImage(position, Vector2f(skullWidth, skullHeight), material);
 }
 
 InternalWindow::InternalWindow(const std::string &title) :
@@ -79,13 +86,18 @@ InternalWindow::InternalWindow(const std::string &title) :
 
     //Set default color
     _closeButton->setTint(Math::Colour4f(0.8f, 0.8f, 0.8f, 1.0f));
+
+    // Set the parent of the title bar and the close button.
+    _titleBar->setParent(this);
+    _closeButton->setParent(this);
 }
 
 void InternalWindow::drawContainer(DrawingContext& drawingContext) {
     std::shared_ptr<const Material> material;
     //Draw background first
-    material = std::make_shared<const Material>(_background.get(), Colour4f(1.0f, 1.0f, 1.0f, 0.9f), true);
-    _gameEngine->getUIManager()->drawImage(Point2f(getX() - BORDER_PIXELS, getY() - BORDER_PIXELS), Vector2f(getWidth() + BORDER_PIXELS * 2, getHeight() + BORDER_PIXELS * 2), material);
+    material = std::make_shared<const Material>(_background.get(), Colour4f(Colour3f::white(), 0.9f), true);
+    _gameEngine->getUIManager()->drawImage(Point2f(getDerivedPosition().x() - BORDER_PIXELS, getDerivedPosition().y() - BORDER_PIXELS),
+                                           Vector2f(getWidth() + BORDER_PIXELS * 2, getHeight() + BORDER_PIXELS * 2), material);
 
     //Draw window title
     _titleBar->draw(drawingContext);
@@ -101,9 +113,9 @@ bool InternalWindow::notifyMouseMoved(const Events::MouseMovedEventArgs& e) {
         return true;
     } else {
         _mouseOver = InternalWindow::contains(e.getPosition())
-            || _titleBar->contains(e.getPosition());
+            || _titleBar->contains(e.getPosition() - Point2f::toVector(_titleBar->getDerivedPosition()));
 
-        if (_closeButton->contains(e.getPosition())) {
+        if (_closeButton->contains(e.getPosition() - Point2f::toVector(_closeButton->getDerivedPosition()))) {
             _closeButton->setTint(Math::Colour4f::white());
         } else {
             _closeButton->setTint(Math::Colour4f(0.8f, 0.8f, 0.8f, 1.0f));
@@ -115,7 +127,7 @@ bool InternalWindow::notifyMouseMoved(const Events::MouseMovedEventArgs& e) {
 
 bool InternalWindow::notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs& e) {
     if (_mouseOver && e.getButton() == SDL_BUTTON_LEFT) {
-        if (!_isDragging && _closeButton->contains(e.getPosition())) {
+        if (!_isDragging && _closeButton->contains(e.getPosition() - Point2f::toVector(_closeButton->getDerivedPosition()))) {
             AudioSystem::get().playSoundFull(AudioSystem::get().getGlobalSound(GSND_BUTTON_CLICK));
             destroy();
             return true;
@@ -148,45 +160,44 @@ bool InternalWindow::notifyMouseButtonReleased(const Events::MouseButtonReleased
 }
 
 void InternalWindow::draw(DrawingContext& drawingContext) {
-    if (_firstDraw) {
-        _firstDraw = false;
-
-        //Make sure that all components added to this window are placed relative to 
-        //our position so that (0,0) is topleft corner in this InternalWindow
-        for (const std::shared_ptr<Component> &component : iterator()) {
-            component->setPosition(component->getPosition() + Vector2f(getX(), getY()));
-        }
-    }
     drawAll(drawingContext);
 }
 
+#if 0
 void InternalWindow::setPosition(const Point2f& position) {
+#if 0
     //Calculate offsets in position change
     auto translate = position - getPosition();
-
+#endif
     //Shift window position
     Component::setPosition(position);
 
+#if 0
     //Shift all child components as well
     for (const std::shared_ptr<Component> &component : iterator()) {
         component->setPosition(component->getPosition() + translate);
     }
-
+#endif
+#if 0
     //Finally update titlebar position
     _titleBar->setPosition(position + Vector2f(0, - _titleBar->getHeight() / 2));
     _closeButton->setPosition(Point2f(_titleBar->getX() + _titleBar->getWidth() - _closeButton->getWidth(), _titleBar->getY() + _titleBar->getHeight() / 2 - _closeButton->getHeight() / 2));
+#endif
 }
+#endif
 
 void InternalWindow::setTransparency(float alpha) {
     _transparency = Math::constrain(alpha, 0.0f, 1.0f);
 }
 
 void InternalWindow::addComponent(const std::shared_ptr<Component>& component) {
+#if 0
     //Make sure that all components added to this window are placed relative to 
     //our position so that (0,0) is topleft corner in this InternalWindow
     if (!_firstDraw) {
         component->setPosition(component->getPosition() + Vector2f(getX(), getY()));
     }
+#endif
     Container::addComponent(component);
 }
 
