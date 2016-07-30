@@ -464,6 +464,10 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
         pchr->iskursed = Random::getPercent() <= kursechance;
     }
 
+    //Set our position
+    pchr->setPosition(pos);
+    pchr->setSpawnPosition(pos);
+
     // AI stuff
     ai_state_t::spawn( pchr->ai, pchr->getObjRef(), pchr->getProfileID(), getTeamList()[team].getMorale() );
 
@@ -515,9 +519,7 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
     pchr->fat_goto      = pchr->fat;
     pchr->fat_goto_time = 0;
 
-    pchr->setPosition(pos);
-    pchr->setSpawnPosition(pos);
-
+    //Facing
     pchr->ori.facing_z     = Facing(FACING_T(facing));
     pchr->ori_old.facing_z = pchr->ori.facing_z;
 

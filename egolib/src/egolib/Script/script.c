@@ -1788,7 +1788,7 @@ bool ai_state_t::set_bumplast(ai_state_t& self, const ObjectRef ichr)
     return true;
 }
 
-void ai_state_t::spawn(ai_state_t& self, const ObjectRef index, const PRO_REF iobj, Uint16 rank)
+void ai_state_t::spawn(ai_state_t& self, const ObjectRef index, const PRO_REF iobj, uint16_t rank)
 {
     const std::shared_ptr<Object> &pchr = _currentModule->getObjectHandler()[index];
 	ai_state_t::reset(self);
@@ -1807,6 +1807,8 @@ void ai_state_t::spawn(ai_state_t& self, const ObjectRef index, const PRO_REF io
 	self.passage = 0;
 	self.owner = index;
 	self.child = index;
+
+    waypoint_list_t::push(self.wp_lst, pchr->getSpawnPosition().x(), pchr->getSpawnPosition().y());
 
     self.maxSpeed = 1.0f;
 
