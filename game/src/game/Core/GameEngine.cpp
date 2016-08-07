@@ -573,7 +573,6 @@ std::shared_ptr<PlayingState> GameEngine::getActivePlayingState() const
     return std::dynamic_pointer_cast<PlayingState>(_currentGameState);
 }
 
-
 /**
  * @brief
  *  The entry point of the program.
