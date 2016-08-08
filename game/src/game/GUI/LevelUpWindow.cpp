@@ -113,12 +113,15 @@ LevelUpWindow::LevelUpWindow(const std::shared_ptr<Object> &object)
     _attributeRevealTime(0) {
     setSize(Vector2f(510, 340));
 
+    static const float borderSize = 32.0f;
+    static const float margin = 5.0f;
+
     //Place us in the center of the screen
     setCenterPosition(Point2f(_gameEngine->getUIManager()->getScreenWidth() / 2, _gameEngine->getUIManager()->getScreenHeight() / 2));
 
     // draw the character's main icon
     std::shared_ptr<Image> characterIcon = std::make_shared<Image>(_character->getProfile()->getIcon(_character->skin));
-    characterIcon->setPosition(Point2f(5, 32));
+    characterIcon->setPosition(Point2f(borderSize, _titleBar->getHeight() + margin));
     characterIcon->setSize(Vector2f(32, 32));
     addComponent(characterIcon);
 
@@ -343,8 +346,8 @@ void LevelUpWindow::doLevelUp(PerkButton *selectedPerk) {
     addComponent(_selectedPerk);
 
     //Make icon move into the corner and use about 1 second to do so
-    const Vector2f DESIRED_ICON_POS = Vector2f(float(getX() - PERK_THUMBNAIL_SIZE - 10),
-                                               float(getY() + getHeight() - PERK_THUMBNAIL_SIZE - 20));
+    const Vector2f DESIRED_ICON_POS = Vector2f(float(-PERK_THUMBNAIL_SIZE - 10),
+                                               float(getHeight() - PERK_THUMBNAIL_SIZE - 20));
     _animationPos[0] = _selectedPerk->getX();
     _animationPos[1] = _selectedPerk->getY();
     _animationSpeed = (DESIRED_ICON_POS - _animationPos) * (1.0f / GameEngine::GAME_TARGET_FPS);
@@ -358,7 +361,7 @@ void LevelUpWindow::doLevelUp(PerkButton *selectedPerk) {
 
     std::shared_ptr<Label> perkDescription = std::make_shared<Label>(selectedPerk->getPerk().getDescription());
     perkDescription->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
-    perkDescription->setPosition(Point2f(PERK_THUMBNAIL_SIZE + 60, DESIRED_ICON_POS[1] - getY()));
+    perkDescription->setPosition(Point2f(PERK_THUMBNAIL_SIZE + 60, DESIRED_ICON_POS[1]));
     addComponent(perkDescription);
     _fadeInLabels.push_back(perkDescription);
 
@@ -457,8 +460,8 @@ void LevelUpWindow::drawContainer(DrawingContext& drawingContext) {
     }
 
     //Move icon into corner (use about 1 second to get there)
-    const int DESIRED_ICON_X = getX() + PERK_THUMBNAIL_SIZE - 10;
-    const int DESIRED_ICON_Y = getY() + getHeight() - PERK_THUMBNAIL_SIZE - 20;
+    const int DESIRED_ICON_X = 32;
+    const int DESIRED_ICON_Y = getHeight() - PERK_THUMBNAIL_SIZE - 20;
     bool animationComplete = true;
 
     if (_selectedPerk->getX() > DESIRED_ICON_X) {
@@ -502,8 +505,8 @@ void LevelUpWindow::setHoverPerk(Perks::PerkID id) {
         _perkIncreaseLabel->setColour(perk.getColour());
     }
 
-    _perkIncreaseLabel->setCenterPosition(Point2f(getX() + getWidth() / 2, getY() + _desciptionLabelOffset + 10), true);
-    _descriptionLabel->setCenterPosition(Point2f(getX() + getWidth() / 2, _perkIncreaseLabel->getY() + _perkIncreaseLabel->getHeight() - 3), true);
+    _perkIncreaseLabel->setCenterPosition(Point2f(getWidth() / 2, _desciptionLabelOffset + 10), true);
+    _descriptionLabel->setCenterPosition(Point2f(getWidth() / 2, _perkIncreaseLabel->getY() + _perkIncreaseLabel->getHeight() - 3), true);
 }
 
 Perks::PerkID LevelUpWindow::getCurrentPerk() const {

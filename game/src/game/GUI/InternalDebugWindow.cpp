@@ -26,37 +26,56 @@
 namespace Ego {
 namespace GUI {
 
-InternalDebugWindow::InternalDebugWindow(const std::string &title) : InternalWindow(title),
-_watchedVariables() {
+VariablesDebugPanel::VariablesDebugPanel() : Container(),
+    _variables() {
     setSize(Vector2f(200, 75));
 }
 
-void InternalDebugWindow::addWatchVariable(const std::string &variableName, std::function<std::string()> lambda) {
+void VariablesDebugPanel::addVariable(const std::string& name, std::function<std::string()> value) {
     //Add variable to watch list
-    _watchedVariables[variableName] = lambda;
+    _variables[name] = value;
 
     //Make the window bigger
     int textWidth, textHeight;
-    _gameEngine->getUIManager()->getDebugFont()->getTextSize(variableName, &textWidth, &textHeight);
+    _gameEngine->getUIManager()->getDebugFont()->getTextSize(name, &textWidth, &textHeight);
     textWidth = std::max(32, textWidth);
     textHeight = std::max(8, textHeight);
-    setSize(Vector2f(std::max(getWidth(), 5.0f + textWidth * 2.0f), getHeight() + textHeight + 5.0f));
+    setSize(Vector2f(std::max(getWidth(), textWidth * 2.0f), getHeight() + textHeight));
+}
+
+void VariablesDebugPanel::draw(DrawingContext& drawingContext) {
+    drawContainer(drawingContext);
+    drawAll(drawingContext);
+}
+
+void VariablesDebugPanel::drawContainer(DrawingContext& drawingContext) {
+    //Draw all monitored variables
+    int textWidth, textHeight;
+    Vector2f offset = Point2f::toVector(getDerivedPosition());
+    for (const auto &element : _variables) {
+        _gameEngine->getUIManager()->getDebugFont()->drawText(element.first + ": " + element.second(), offset.x(), offset.y());
+        _gameEngine->getUIManager()->getDebugFont()->getTextSize(element.first, &textWidth, &textHeight);
+        offset += Vector2f(0.0f, textHeight + 5);
+    }
+}
+
+InternalDebugWindow::InternalDebugWindow(const std::string &title)
+    : InternalWindow(title), _variablesDebugPanel() {
+    _variablesDebugPanel = std::make_shared<VariablesDebugPanel>();
+    addComponent(_variablesDebugPanel);
+    _variablesDebugPanel->setPosition(Point2f(13 + 5, _titleBar->getHeight()));
+    setSize(Vector2f(200, 75));
+}
+
+void InternalDebugWindow::addWatchVariable(const std::string& name, std::function<std::string()> value) {
+    _variablesDebugPanel->addVariable(name, value);
+    setSize(Vector2f(_variablesDebugPanel->getSize().x() + 13*2,
+                     _variablesDebugPanel->getSize().y() + 8*2));
 }
 
 void InternalDebugWindow::drawContainer(DrawingContext& drawingContext) {
     //Draw the window itself
     InternalWindow::drawContainer(drawingContext);
-
-    //Rendering variables
-    int textWidth, textHeight;
-    float y = _titleBar->getBounds().getSize().y();
-    Point2f offset = getDerivedPosition() + Vector2f(13, y + 8);
-    //Draw all monitored variables
-    for (const auto &element : _watchedVariables) {
-        _gameEngine->getUIManager()->getDebugFont()->drawText(element.first + ": " + element.second(), offset.x(), offset.y());
-        _gameEngine->getUIManager()->getDebugFont()->getTextSize(element.first, &textWidth, &textHeight);
-        offset += Vector2f(0.0f, textHeight + 5);
-    }
 }
 
 } // namespace GUI

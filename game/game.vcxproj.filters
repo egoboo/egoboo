@@ -326,6 +326,9 @@
     <ClCompile Include="src\game\GUI\Layout.cpp">
       <Filter>Game Sources\GUI</Filter>
     </ClCompile>
+    <ClCompile Include="src\game\GUI\TabPanel.cpp">
+      <Filter>Game Sources\GUI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game\egoboo.h">
@@ -605,6 +608,9 @@
       <Filter>Game Header Files\GUI</Filter>
     </ClInclude>
     <ClInclude Include="src\game\GUI\Layout.hpp">
+      <Filter>Game Header Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\GUI\TabPanel.hpp">
       <Filter>Game Header Files\GUI</Filter>
     </ClInclude>
   </ItemGroup>

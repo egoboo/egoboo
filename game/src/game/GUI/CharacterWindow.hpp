@@ -23,6 +23,7 @@
 #pragma once
 
 #include "game/GUI/InternalWindow.hpp"
+#include "game/GUI/TabPanel.hpp"
 
 // Forward declarations.
 class Object;
@@ -63,9 +64,9 @@ private:
     std::shared_ptr<Button> _levelUpButton;
     std::weak_ptr<InternalWindow> _levelUpWindow;
 
-    std::vector<std::shared_ptr<Component>> _characterStatisticsTab;
-    std::vector<std::shared_ptr<Component>> _knownPerksTab;
-    std::vector<std::shared_ptr<Component>> _activeEnchantsTab;
+    std::shared_ptr<Tab> _characterStatisticsTab;
+    std::shared_ptr<Tab> _knownPerksTab;
+    std::shared_ptr<Tab> _activeEnchantsTab;
 };
 
 } // namespace GUI

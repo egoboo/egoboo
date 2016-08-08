@@ -30,6 +30,20 @@
 namespace Ego {
 namespace GUI {
 
+class VariablesDebugPanel : public Container {
+public:
+    VariablesDebugPanel();
+
+    void addVariable(const std::string& name, std::function<std::string()> value);
+
+protected:
+    void draw(DrawingContext& drawingContext) override;
+    void drawContainer(DrawingContext& drawingContext) override;
+
+private:
+    std::unordered_map<std::string, std::function<std::string()>> _variables;
+};
+
 class InternalDebugWindow : public InternalWindow {
 public:
     InternalDebugWindow(const std::string &title);
@@ -40,6 +54,7 @@ protected:
     void drawContainer(DrawingContext& drawingContext) override;
 
 private:
+    std::shared_ptr<VariablesDebugPanel> _variablesDebugPanel;
     std::unordered_map<std::string, std::function<std::string()>> _watchedVariables;
 };
 
