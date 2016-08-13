@@ -2096,8 +2096,6 @@ gfx_rv GridIllumination::do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_
     {
         bool resist_lighting_calculation = true;
 
-        int                dynalight_count = 0;
-
         // grab each grid box in the "frustum"
         Index1D fan = tl._all.lst[entry]._index;
 
@@ -2160,8 +2158,6 @@ gfx_rv GridIllumination::do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_
                         // does this dynamic light intersects this grid?
                         if (fgrid_rect.xmin > reg[cnt].bound.xmax || fgrid_rect.xmax < reg[cnt].bound.xmin) continue;
                         if (fgrid_rect.ymin > reg[cnt].bound.ymax || fgrid_rect.ymax < reg[cnt].bound.ymin) continue;
-
-                        dynalight_count++;
 
                         // this should be a valid intersection, so proceed
                         tnc = reg[cnt].reference;
