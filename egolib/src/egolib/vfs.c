@@ -456,7 +456,7 @@ const char * vfs_convert_fname_sys( const char * fname )
     }
 
     // the string has already been converted to a system filename, so just check SLASH_CHR
-    while ( SLASH_CHR == copy_fname[offset] && offset < SDL_arraysize( copy_fname ) )
+    while ( offset < SDL_arraysize(copy_fname) && SLASH_CHR == copy_fname[offset] )
     {
         offset++;
     }
