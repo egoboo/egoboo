@@ -22,7 +22,6 @@
 /// @details
 
 #include "game/game.h"
-#include "game/Module/module_spawn.h"
 
 #include "egolib/egolib.h"
 #include "egolib/FileFormats/Globals.hpp"
@@ -35,7 +34,6 @@
 #include "game/graphic.h"
 #include "game/graphic_fan.h"
 #include "game/graphic_billboard.h"
-#include "game/script_compile.h"
 #include "game/script_implementation.h"
 #include "game/egoboo.h"
 #include "game/Core/GameEngine.hpp"
@@ -82,13 +80,7 @@ static void check_stats();
 static void readPlayerInput();
 static void let_all_characters_think();
 
-// module initialization / deinitialization - not accessible by scripts
-static void game_load_profile_ai();
-
 static void game_reset_players();
-
-// Model stuff
-static void logSlotUsage(const std::string& savename);
 
 // implementing wawalite data
 static void upload_light_data(const wawalite_data_t& data);
@@ -285,41 +277,6 @@ egolib_rv export_all_players( bool require_local )
     }
 
     return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void logSlotUsage(const std::string& savename)
-{
-    /// @author ZZ
-    /// @details This is a debug function for checking model loads
-
-    vfs_FILE* hFileWrite = vfs_openWrite(savename);
-    if ( hFileWrite )
-    {
-        vfs_printf( hFileWrite, "Slot usage for objects in last module loaded...\n" );
-        //vfs_printf( hFileWrite, "%d of %d frames used...\n", Md2FrameList_index, MAXFRAME );
-
-        PRO_REF lastSlotNumber = 0;
-        for (const auto &element : ProfileSystem::get().getLoadedProfiles())
-        {
-            const std::shared_ptr<ObjectProfile> &profile = element.second;
-
-            //ZF> ugh, import objects are currently handled in a weird special way.
-            for(size_t i = lastSlotNumber; i < profile->getSlotNumber() && i <= 36; ++i)
-            {
-                if (!ProfileSystem::get().isValidProfileID(i))
-                {
-                    vfs_printf( hFileWrite, "%3" PRIuZ " %32s.\n", i, "Slot reserved for import players" );
-                }
-            }
-            lastSlotNumber = profile->getSlotNumber();
-
-            vfs_printf(hFileWrite, "%3d %32s %s\n", profile->getSlotNumber(), profile->getClassName().c_str(), profile->getModel()->getName().c_str());
-        }
-
-        vfs_close( hFileWrite );
-    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1041,29 +998,6 @@ void show_magic_status( int statindex )
 }
 
 //--------------------------------------------------------------------------------------------
-void game_load_profile_ai()
-{
-    /// @author ZF
-    /// @details load the AI for each profile, done last so that all reserved slot numbers are already set
-    /// since AI scripts can dynamically load new objects if they require it
-    // ensure that the script parser exists
-    parser_state_t& ps = parser_state_t::get();
-
-    for (const auto &element : ProfileSystem::get().getLoadedProfiles())
-    {
-        const std::shared_ptr<ObjectProfile> &profile = element.second;
-
-        //Guard agains null elements
-        if(profile == nullptr) continue;
-
-        // Load the AI script for this iobj
-        std::string filePath = profile->getPathname() + "/script.txt";
-
-        load_ai_script_vfs( ps, filePath, profile.get(), profile->getAIScript() );
-    }
-}
-
-//--------------------------------------------------------------------------------------------
 void game_load_module_profiles( const std::string& modname )
 {
     /// @author BB
@@ -1168,36 +1102,12 @@ bool game_begin_module(const std::shared_ptr<ModuleProfile> &module)
     /// @author BB
     /// @details all of the initialization code before the module actually starts
 
-    // set up the virtual file system for the module (Do before loading the module)
-    if ( !setup_init_module_vfs_paths( module->getPath().c_str() ) ) return false;
-
-    //Initialize player data
-    game_reset_players();
-
     // start the module
     _currentModule = std::make_unique<GameModule>(module, time(NULL));
 
-    //After loading, spawn all the data and initialize everything
-    activate_spawn_file_vfs();           // read and implement the "spawn script" spawn.txt
-
-    // now load the profile AI, do last so that all reserved slot numbers are initialized
-    game_load_profile_ai();
-
-    // log debug info for every object loaded into the module
-    if (egoboo_config_t::get().debug_developerMode_enable.getValue())
-    {
-        logSlotUsage("/debug/slotused.txt");
-    }
-
-    // initialize the timers as the very last thing
-    timeron = false;
-
-    // reset some counters
-    game_frame_all = 0;
-    update_wld = 0;
-
-    // reset some special clocks
-    clock_chr_stat = 0;
+    //After loading, spawn all the data and initialize everything (spawn.txt)
+    //Due to dependency on the global _currentModule, we cannot do this in the constructor above
+    _currentModule->spawnAllObjects();
 
     return true;
 }
