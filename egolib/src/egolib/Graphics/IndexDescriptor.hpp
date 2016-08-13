@@ -58,11 +58,6 @@ private:
      */
     Syntax syntax;
     
-    /**
-     * @brief The size, in Bytes, of an index.
-     */
-    size_t indexSize;
-
 public:
     /**
      * @brief Construct this index descriptor.
@@ -89,7 +84,16 @@ public:
      * @return the size, in Bytes, of an index
      */
     size_t getIndexSize() const {
-        return indexSize;
+
+        // Compute the index size.
+        switch (syntax) {
+            case Syntax::U16:
+                return sizeof(uint16_t); //16 / 8
+            case Syntax::U32:
+                return sizeof(uint32_t); //32 / 8
+        }
+
+        throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
     }
 
 public:
