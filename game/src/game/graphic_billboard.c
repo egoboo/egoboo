@@ -49,7 +49,7 @@ bool Billboard::update(Time::Ticks now) {
     }
 
     // Determine where the new position should be.
-	Vector3f vup, pos_new;
+	Vector3f vup;
     chr_getMatUp(obj_ptr.get(), vup);
 
     _size += _size_add;
