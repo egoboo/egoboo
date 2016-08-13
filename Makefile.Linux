@@ -35,7 +35,7 @@ set_debug_flags:
 
 set_release_flags:
 	$(eval COMPILE_DEBUG_FLAGS += -DNDEBUG)
-	$(eval COMPILE_OPTIMIZE := -O3)
+	$(eval COMPILE_OPTIMIZE := -Ofast)
 	$(eval COMPILE_OPTIMIZE += -mfpmath=sse -m64 -mmmx -msse -msse2 -msse3 -m3dnow)
 
 export COMPILE_FLAGS COMPILE_OPTIMIZE COMPILE_WARNINGS COMPILE_DEBUG_FLAGS SANITIZER_FLAGS
@@ -59,5 +59,22 @@ configure:
 	git submodule update
 	sudo apt-get install ccache libsdl2-dev libsdl2-ttf-dev libsdl2-image-dev libsdl2-mixer-dev libphysfs-dev
 
-static-analysis:
-	nice cppcheck ./game ./egolib ./idlib --enable=all --std=c++11 --force --template gcc --std=posix --std=c99 -I ./game/src -I ./egolib/src -I ./idlib/src --suppress=missingIncludeSystem 2> static_code_analysis.txt -j8
+cppcheck:
+	mkdir cppcheck-result -p
+	nice \
+		 external/cppcheck/cppcheck \
+		 --report-progress \
+		 --enable=all \
+		 --platform=unix32 \
+		 --xml-version=2 \
+		 --inconclusive \
+		 -I ./game/src \
+		 -I ./egolib/src \
+		 -I ./idlib/src \
+		 ./game \
+		 ./egolib \
+		 ./idlib \
+		 -j8 \
+		 -q \
+		 2> cppcheck-result/cppcheck.xml
+	./external/cppcheck/htmlreport/cppcheck-htmlreport --file=cppcheck-result/cppcheck.xml --report-dir=cppcheck-result
