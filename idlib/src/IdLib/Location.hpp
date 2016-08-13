@@ -80,7 +80,7 @@ public:
      *  @a true if this position is equal to the other location,
      *  @a false otherwise
      */
-    bool operator==(const Location& other);
+    bool operator==(const Location& other) const;
 
     /**
      * @brief
@@ -91,7 +91,7 @@ public:
      *  @a true if this position is not equal to the other location,
      *  @a false otherwise
      */
-    bool operator!=(const Location& other);
+    bool operator!=(const Location& other) const;
 
     /**
      * @brief

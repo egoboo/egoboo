@@ -130,7 +130,7 @@ public:
      *  Get an iterator pointing to the first loader supporting one of the specified extensions
      *  if such a loader exists, <tt>end()</tt> otherwise. The search range is <tt>[start, end())</tt>.
      */
-    Iterator find(Set<String> extensions, Iterator start) {
+    Iterator find(Set<String> extensions, Iterator start) const {
         auto it = start;
         while (it != end()) {
             auto supportedExtensions = (*it).getExtensions();
