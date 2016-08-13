@@ -119,6 +119,18 @@ struct s_vfs_search_context
     BIT_FIELD  bits;
 
     VFS_PATH found;
+
+    s_vfs_search_context() :
+        file_list(nullptr),
+        ptr(nullptr),
+        path(),
+        ext(),
+        bits(0),
+        found()
+    {
+        memset(path, 0, VFS_MAX_PATH);
+        memset(ext, 0, 255);
+    }
 };
 
 struct s_vfs_path_data
