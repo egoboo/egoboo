@@ -6,7 +6,7 @@ namespace Ego {
 namespace VFS {
 
 Pathname::Pathname(const std::string& string)
-    : _schemaName("ego"), _string(string) {
+    : _string(string) {
     if (string.empty()) {
         throw std::invalid_argument("invalid pathname string");
     }
@@ -33,8 +33,7 @@ Pathname& Pathname::operator=(const Pathname& other) {
 }
 
 bool Pathname::operator==(const Pathname& other) const {
-    return _schemaName == other._schemaName
-        && _string == other._string;
+    return _string == other._string;
 }
 
 const std::string& Pathname::toString() const {
