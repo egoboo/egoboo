@@ -178,7 +178,7 @@ public:
     static Facing random(bool negative = false) {
         int32_t x = static_cast<int32_t>(Random::next<uint16_t>(std::numeric_limits<uint16_t>::max()));
         if (negative) {
-            x = Random::nextBool() ? -x : -x;
+            x = Random::nextBool() ? x : -x;
         }
         return Facing(x);
     }
