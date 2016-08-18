@@ -28,52 +28,80 @@ namespace Ego {
 namespace Internal {
 
 ConnectionBase::ConnectionBase()
-    : signal(nullptr), node(nullptr) {}
+    : node(nullptr) {}
 
-ConnectionBase::ConnectionBase(SignalBase *signal, NodeBase *node)
-    : signal(signal), node(node) {}
+ConnectionBase::ConnectionBase(NodeBase *node)
+    : node(node) {
+    if (node) {
+        node->onConnectionAdded();
+    }
+}
 
 ConnectionBase::ConnectionBase(const ConnectionBase& other)
-    : signal(other.signal), node(other.node) {}
+    : node(other.node) {
+    if (node) {
+        node->onConnectionAdded();
+    }
+}
+
+ConnectionBase::~ConnectionBase() {
+    reset();
+}
 
 const ConnectionBase& ConnectionBase::operator=(const ConnectionBase& other) {
-    signal = other.signal;
-    node = other.node;
+    if (&other != this) {
+        reset();
+        node = other.node;
+        if (node) {
+            node->onConnectionAdded();
+        }
+    }
     return *this;
 }
 
 bool ConnectionBase::operator==(const ConnectionBase& other) const {
-    return signal == other.signal
-        && node == other.node;
+    return node == other.node;
 }
 
 bool ConnectionBase::operator!=(const ConnectionBase& other) const {
-    return signal != other.signal
-        || node != other.node;
+    return node != other.node;
 }
 
 bool ConnectionBase::isConnected() const {
-    return nullptr != node;
+    if (node) {
+        return nullptr != node->signal;
+    }
+    return false;
+}
+
+void ConnectionBase::reset() {
+    if (nullptr != node) {
+        // Remove the connection from this node.
+        node->onConnectionRemoved();
+        if (0 == node->getNumberOfConnections()) {
+            // If the node has no signal, then it is our duty to delete the node.
+            if (nullptr == node->signal) {
+                delete node;
+            // Otherwise notify the signal that one of its nodes has no connections anymore.
+            } else {
+                SignalBase *signal = node->signal;
+                signal->deadCount++;
+                signal->liveCount--;
+                // If this signal is not running ...
+                if (!signal->running) {
+                    // ... mark it as running and sweep it.
+                    signal->running = true;
+                    signal->maybeSweep();
+                    signal->running = false;
+                }
+            }
+        }
+        node = nullptr;
+    }
 }
 
 void ConnectionBase::disconnect() {
-    // If the connection is not connected ...
-    if (node == nullptr || signal == nullptr) {
-        // ... return immediatly.
-        return;
-    }
-    // Mark the node as dead and increment the dead count and decrement the live count of this signal.
-    if (node->kill()) {
-        signal->deadCount++;
-        signal->liveCount--;
-    }
-    // If this signal is not running ...
-    if (!signal->running) {
-        // ... mark it as running and sweep it.
-        signal->running = true;
-        signal->maybeSweep();
-        signal->running = false;
-    }
+    reset();
 }
 	
 } // namespace Internal

@@ -33,10 +33,14 @@ struct SignalBase;
 
 /// Non-generic base class of any node.
 struct NodeBase {
+    /// A pointer to the signal.
+    SignalBase *signal;
     /// A pointer to the successor of this node if it has a successor, a null pointer otherwise.
     NodeBase *next;
+#if 0
     /// Is this node dead?
     bool dead;
+#endif
 
     NodeBase(const NodeBase&) = delete; // Do not allow copying.
     const NodeBase& operator=(const NodeBase&) = delete; // Do not allow copying.
@@ -47,15 +51,33 @@ struct NodeBase {
     /// @brief Virtual destructor.
     virtual ~NodeBase();
 
+#if 0
     /// @brief Kill this node.
     /// @postcondition this node is dead
     /// @return @a true if the node was killed by this call, @a false otherwise
     bool kill() noexcept;
-
+#endif
+#if 0
     /// @brief Get if this node is dead.
     /// @return @a true if this node is dead, @a false otherwise
     bool isDead() const noexcept;
-
+#endif
+public:
+    /// @brief Get if this node has a signal.
+    /// @return @a true if this node has a signal, @a false otherwise
+    bool hasSignal() const;
+    /// @brief Get if this node has connections.
+    /// @return @a true if this node has connections, @a false otherwise
+    bool hasConnections() const;
+    /// @brief The number of connections to this node.
+    int numberOfConnections;
+    /// @brief Get the number of connections of this node.
+    /// @return the number of connections of this node
+    int getNumberOfConnections() const;
+    /// @brief Invoked if a connection to this node was added.
+    void onConnectionAdded();
+    /// @brief Invoked if a connection to this node was removed.
+    void onConnectionRemoved();
 };
 
 } // namespace Internal

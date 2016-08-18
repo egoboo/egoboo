@@ -22,7 +22,7 @@
 
 EgoTest_TestCase(Signal) {
 
-EgoTest_Test(signal) {
+EgoTest_Test(signal0) {
     Ego::Signal<void(const std::string&)> signal;
     // (1) Invoke with no subscriber.
     signal("Hello, World!");
@@ -33,6 +33,18 @@ EgoTest_Test(signal) {
     signal("Hello, World!");
     signal.unsubscribe(subscription);
     EgoTest_Assert(true == invoked);
+}
+
+EgoTest_Test(signal1) {
+    Ego::Connection connection;
+    {
+        Ego::Signal<void(const std::string&)> signal;
+        bool invoked = false;
+        auto function = [&invoked](const std::string& s) { if (s == "Hello, World!") { invoked = true; } };
+        connection = signal.subscribe(function);
+        EgoTest_Assert(true == connection.isConnected());
+    }
+    EgoTest_Assert(false == connection.isConnected());
 }
 
 };
