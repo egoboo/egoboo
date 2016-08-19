@@ -50,7 +50,7 @@ void IconButton::draw(DrawingContext& drawingContext) {
         material = std::make_shared<const Material>(nullptr, DEFAULT_BUTTON_COLOUR, true);
     }
     material->apply();
-    _gameEngine->getUIManager()->drawQuad2d(getBounds());
+    _gameEngine->getUIManager()->drawQuad2d(getDerivedBounds());
 
     // Draw icon
     int iconSize = getHeight() - 4;

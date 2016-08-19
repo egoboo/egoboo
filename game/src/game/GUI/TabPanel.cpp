@@ -1,25 +1,19 @@
 #include "game/GUI/TabPanel.hpp"
+#include "game/GUI/JoinBounds.hpp"
 
 namespace Ego {
 namespace GUI {
 
-Tab::Tab(const std::string& title) :
-    _title(title), _components() {}
-
-void Tab::setEnabled(bool enabled) {
-    for (auto& component : _components) {
-        component->setEnabled(enabled);
-    }
+void Tab::draw(DrawingContext& drawingContext) {
+    drawContainer(drawingContext);
+    drawAll(drawingContext);
 }
 
-void Tab::setVisible(bool visible) {
-    for (auto& component : _components) {
-        component->setVisible(visible);
-    }
-}
+void Tab::drawContainer(DrawingContext& drawingContext) {}
 
-void Tab::addComponent(const std::shared_ptr<Component>& component) {
-    _components.push_back(component);
+Tab::Tab(const std::string& title) : Container(),
+    _title(title) {
+    setSize(Vector2f(320, 240));
 }
 
 const std::string& Tab::getTitle() const {
@@ -28,6 +22,11 @@ const std::string& Tab::getTitle() const {
 
 void Tab::setTitle(const std::string& title) {
     _title = title;
+}
+
+Vector2f Tab::getDesiredSize() {
+    JoinBounds joinBounds;
+    return joinBounds(*this).getSize();
 }
 
 } // namespace GUI

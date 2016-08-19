@@ -613,6 +613,9 @@
     <ClInclude Include="src\game\GUI\TabPanel.hpp">
       <Filter>Game Header Files\GUI</Filter>
     </ClInclude>
+    <ClInclude Include="src\game\GUI\JoinBounds.hpp">
+      <Filter>Game Header Files\GUI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\res\egoboo.ico">

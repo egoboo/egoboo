@@ -50,12 +50,12 @@ public:
     bool notifyMouseMoved(const Events::MouseMovedEventArgs& e) override;
 
 private:
-    int addResistanceLabel(const Point2f& position, const DamageType type);
-    int addAttributeLabel(const Point2f& position, const Attribute::AttributeType type);
+    int addResistanceLabel(std::shared_ptr<Tab> target, const Point2f& position, const DamageType type);
+    int addAttributeLabel(std::shared_ptr<Tab> target, const Point2f& position, const Attribute::AttributeType type);
 
-    void buildCharacterStatisticTab();
-    void buildKnownPerksTab();
-    void buildActiveEnchantsTab();
+    void buildCharacterStatisticTab(std::shared_ptr<Tab> target);
+    void buildKnownPerksTab(std::shared_ptr<Tab> target);
+    void buildActiveEnchantsTab(std::shared_ptr<Tab> target);
 
     void describeEnchantEffects(const std::vector<std::shared_ptr<Enchantment>> &enchants, std::shared_ptr<ScrollableList> list);
 

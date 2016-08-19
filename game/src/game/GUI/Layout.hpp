@@ -4,7 +4,7 @@
 #include "egolib/egolib.h"
 namespace Ego {
 namespace GUI {
-typedef class Component Component;
+class Component;
 } // GUI
 } // namespace Ego
 
