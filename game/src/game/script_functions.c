@@ -1902,7 +1902,7 @@ Uint8 scr_SpawnCharacter( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-	Vector3f pos = Vector3f(float(state.x), float(state.y), 0.0f);
+	Vector3f pos = Vector3f(static_cast<float>(state.x), static_cast<float>(state.y), pchr->getPosZ());
 
     std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, pchr->getProfileID(), pchr->team, 0, Facing(Ego::Math::clipBits<16>( state.turn )), "", ObjectRef::Invalid);
     returncode = pchild != nullptr;
