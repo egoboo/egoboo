@@ -224,7 +224,7 @@ std::shared_ptr<EnchantProfile> EnchantProfile::readFromFile(const std::string& 
     profile->_add[EnchantProfile::ADDRED].value = vfs_get_next_int(ctxt);
     profile->_add[EnchantProfile::ADDGRN].value = vfs_get_next_int(ctxt);
     profile->_add[EnchantProfile::ADDBLU].value = vfs_get_next_int(ctxt);
-    profile->_add[EnchantProfile::ADDDEFENSE].value = -vfs_get_next_int(ctxt);    // Defense is backwards
+    profile->_add[EnchantProfile::ADDDEFENSE].value = vfs_get_next_int(ctxt);
     profile->_add[EnchantProfile::ADDMANA].value = vfs_get_next_float(ctxt);    // Stored as float, used as 8.8-fixed
     profile->_add[EnchantProfile::ADDLIFE].value = vfs_get_next_float(ctxt);    // Stored as float, used as 8.8-fixed
     profile->_add[EnchantProfile::ADDSTRENGTH].value = vfs_get_next_float(ctxt);    // Stored as float, used as 8.8-fixed
