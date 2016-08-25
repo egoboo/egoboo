@@ -546,8 +546,9 @@ gfx_rv MadRenderer::render_ref( Camera& cam, const std::shared_ptr<Object>& pchr
             if (pinst.ref.alpha != 0xFF && pinst.ref.light == 0xFF) {
                 renderer.setBlendingEnabled(true);
                 renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
+
                 GLXvector4f tint;
-                chr_instance_t::get_tint(pinst, tint, CHR_ALPHA | CHR_REFLECT);
+                pinst.getTint(tint, true, CHR_ALPHA);
 
                 // the previous call to chr_instance_update_lighting_ref() has actually set the
                 // alpha and light for all vertices
@@ -560,12 +561,13 @@ gfx_rv MadRenderer::render_ref( Camera& cam, const std::shared_ptr<Object>& pchr
             if (pinst.ref.light != 0xFF) {
                 renderer.setBlendingEnabled(true);
                 renderer.setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::One);
+
                 GLXvector4f tint;
-                chr_instance_t::get_tint(pinst, tint, CHR_LIGHT | CHR_REFLECT);
+                pinst.getTint(tint, true, CHR_LIGHT);
 
                 // the previous call to chr_instance_update_lighting_ref() has actually set the
                 // alpha and light for all vertices
-                if (gfx_error == MadRenderer::render(cam, pchr, tint, CHR_LIGHT | CHR_REFLECT)) {
+                if (gfx_error == MadRenderer::render(cam, pchr, tint, CHR_LIGHT)) {
                     retval = gfx_error;
                 }
                 Ego::OpenGL::Utilities::isError();
@@ -575,10 +577,11 @@ gfx_rv MadRenderer::render_ref( Camera& cam, const std::shared_ptr<Object>& pchr
             if (pinst.ref.alpha == 0xFF && gfx.phongon && pinst.sheen > 0) {
                 renderer.setBlendingEnabled(true);
                 renderer.setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::One);
-                GLXvector4f tint;
-                chr_instance_t::get_tint(pinst, tint, CHR_PHONG | CHR_REFLECT);
 
-                if (gfx_error == MadRenderer::render(cam, pchr, tint, CHR_PHONG | CHR_REFLECT)) {
+                GLXvector4f tint;
+                pinst.getTint(tint, true, CHR_PHONG);
+
+                if (gfx_error == MadRenderer::render(cam, pchr, tint, CHR_PHONG)) {
                     retval = gfx_error;
                 }
                 Ego::OpenGL::Utilities::isError();
@@ -595,11 +598,6 @@ gfx_rv MadRenderer::render_trans(Camera& cam, const std::shared_ptr<Object>& pch
 
     if ( pchr->isHidden() ) return gfx_fail;
 
-    //Only proceed if we have transparency
-    if (0xFF == pinst.alpha && 0xFF == pinst.light) {
-        return gfx_success;
-    }
-
     // there is an outside chance the object will not be rendered
     bool rendered = false;
 
@@ -608,7 +606,7 @@ gfx_rv MadRenderer::render_trans(Camera& cam, const std::shared_ptr<Object>& pch
         {
             auto& renderer = Ego::Renderer::get();
 
-            if (pinst.alpha < 0xFF && 0xFF == pinst.light) {
+            if (pinst.alpha < 0xFF) {
                 // most alpha effects will be messed up by
                 // skipping backface culling, so don't
 
@@ -624,7 +622,7 @@ gfx_rv MadRenderer::render_trans(Camera& cam, const std::shared_ptr<Object>& pch
                 renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::One);
 
                 GLXvector4f tint;
-                chr_instance_t::get_tint(pinst, tint, CHR_ALPHA);
+                pinst.getTint(tint, false, CHR_ALPHA);
 
                 if (render(cam, pchr, tint, CHR_ALPHA)) {
                     rendered = true;
@@ -642,7 +640,7 @@ gfx_rv MadRenderer::render_trans(Camera& cam, const std::shared_ptr<Object>& pch
                 renderer.setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::One);
 
                 GLXvector4f tint;
-                chr_instance_t::get_tint(pinst, tint, CHR_LIGHT);
+                pinst.getTint(tint, false, CHR_LIGHT);
 
                 if (render(cam, pchr, tint, CHR_LIGHT)) {
                     rendered = true;
@@ -655,7 +653,7 @@ gfx_rv MadRenderer::render_trans(Camera& cam, const std::shared_ptr<Object>& pch
                 renderer.setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::One);
 
                 GLXvector4f tint;
-                chr_instance_t::get_tint(pinst, tint, CHR_PHONG);
+                pinst.getTint(tint, false, CHR_PHONG);
 
                 if (render(cam, pchr, tint, CHR_PHONG)) {
                     rendered = true;
@@ -699,8 +697,6 @@ gfx_rv MadRenderer::render_solid( Camera& cam, const std::shared_ptr<Object> &pc
             renderer.setBlendingEnabled(true);
             renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
 
-            GLXvector4f tint;
-
             // allow the dont_cull_backfaces to keep solid objects from culling backfaces
             if (pinst.dont_cull_backfaces) {
                 // stop culling backward facing polugons
@@ -711,7 +707,8 @@ gfx_rv MadRenderer::render_solid( Camera& cam, const std::shared_ptr<Object> &pc
                 oglx_begin_culling(Ego::CullingMode::Back, MAD_NRM_CULL);            // GL_ENABLE_BIT | GL_POLYGON_BIT
             }
 
-            chr_instance_t::get_tint(pinst, tint, CHR_SOLID);
+            GLXvector4f tint;
+            pinst.getTint(tint, false, CHR_SOLID);
 
             if (gfx_error == render(cam, pchr, tint, CHR_SOLID)) {
                 retval = gfx_error;
@@ -1936,109 +1933,72 @@ float chr_instance_t::get_remaining_flip(chr_instance_t& self)
 	return (self.animationState.ilip + 1) * 0.25f - self.animationState.flip;
 }
 
-void chr_instance_t::get_tint(chr_instance_t& self, GLfloat * tint, const BIT_FIELD bits)
+void chr_instance_t::getTint(GLXvector4f tint, const bool reflection, const int type)
 {
-	GLXvector4f local_tint;
-
 	int local_alpha;
 	int local_light;
 	int local_sheen;
     colorshift_t local_colorshift;
 
-	if (nullptr == tint) {
-        tint = local_tint;
-    }
-
-	if (HAS_SOME_BITS(bits, CHR_REFLECT))
+	if (reflection)
 	{
 		// this is a reflection, use the reflected parameters
-		local_alpha = self.ref.alpha;
-		local_light = self.ref.light;
-		local_sheen = self.ref.sheen;
-        local_colorshift = self.ref.colorshift;
+		local_alpha = this->ref.alpha;
+		local_light = this->ref.light;
+		local_sheen = this->ref.sheen;
+        local_colorshift = this->ref.colorshift;
 	}
 	else
 	{
 		// this is NOT a reflection, use the normal parameters
-		local_alpha = self.alpha;
-		local_light = self.light;
-		local_sheen = self.sheen;
-        local_colorshift = self.colorshift;
+		local_alpha = this->alpha;
+		local_light = this->light;
+		local_sheen = this->sheen;
+        local_colorshift = this->colorshift;
 	}
 
 	// modify these values based on local character abilities
     if(local_stats.seeinvis_level > 0.0f) {
         local_alpha = std::max(local_alpha, SEEINVISIBLE);
     }
-	local_light = 128;//get_light(local_light, local_stats.seedark_mag);
+	local_light = get_light(local_light, local_stats.seedark_mag);
 
 	// clear out the tint
-    tint[RR] = 0.0f;
-    tint[GG] = 0.0f;
-    tint[BB] = 0.0f;
+    tint[RR] = 1.0f / (1 << local_colorshift.red);
+    tint[GG] = 1.0f / (1 << local_colorshift.green);
+    tint[BB] = 1.0f / (1 << local_colorshift.blue);
     tint[AA] = 1.0f;
 
-    float weight_sum = 0.0f;
+    switch(type)
+    {
+        case CHR_LIGHT:
+        case CHR_ALPHA:
+            // alpha characters are blended onto the canvas using the alpha channel
+            tint[AA] = local_alpha * INV_FF<float>();
 
-	if (HAS_SOME_BITS(bits, CHR_SOLID))
-	{
-		// solid characters are not blended onto the canvas
-		// the alpha channel is not important
-		weight_sum += 1.0f;
+            // alpha characters are blended onto the canvas by adding their color
+            // the more black the colors, the less visible the character
+            // the alpha channel is not important
+            tint[RR] = local_light * INV_FF<float>() / (1 << local_colorshift.red);
+            tint[GG] = local_light * INV_FF<float>() / (1 << local_colorshift.green);
+            tint[BB] = local_light * INV_FF<float>() / (1 << local_colorshift.blue);
+        break;
 
-		tint[RR] += 1.0f / (1 << local_colorshift.red);
-		tint[GG] += 1.0f / (1 << local_colorshift.green);
-		tint[BB] += 1.0f / (1 << local_colorshift.blue);
-	}
+        case CHR_PHONG:
+            // phong is essentially the same as light, but it is the
+            // sheen that sets the effect
+            float amount = (Ego::Math::constrain(local_sheen, 0, 15) << 4) / 240.0f;
 
-	if (HAS_SOME_BITS(bits, CHR_ALPHA))
-	{
-		// alpha characters are blended onto the canvas using the alpha channel
-		weight_sum += 1.0f;
+            tint[RR] += tint[RR] * 0.5f + amount;
+            tint[GG] += tint[GG] * 0.5f + amount;
+            tint[BB] += tint[BB] * 0.5f + amount;
 
-		tint[RR] += 1.0f / (1 << local_colorshift.red);
-		tint[GG] += 1.0f / (1 << local_colorshift.green);
-		tint[BB] += 1.0f / (1 << local_colorshift.blue);
-		tint[AA] = local_alpha * INV_FF<float>();
-	}
+            tint[RR] /= 2.0f;
+            tint[GG] /= 2.0f;
+            tint[BB] /= 2.0f;
+        break;
+    }
 
-	if (HAS_SOME_BITS(bits, CHR_LIGHT))
-	{
-		// alpha characters are blended onto the canvas by adding their color
-		// the more black the colors, the less visible the character
-		// the alpha channel is not important
-
-		weight_sum += 1.0f;
-
-		tint[RR] += local_light * INV_FF<float>() / (1 << local_colorshift.red);
-		tint[GG] += local_light * INV_FF<float>() / (1 << local_colorshift.green);
-		tint[BB] += local_light * INV_FF<float>() / (1 << local_colorshift.blue);
-	}
-
-	if (HAS_SOME_BITS(bits, CHR_PHONG))
-	{
-		// phong is essentially the same as light, but it is the
-		// sheen that sets the effect
-
-		float amount;
-
-		weight_sum += 1.0f;
-
-		amount = (Ego::Math::constrain(local_sheen, 0, 15) << 4) / 240.0f;
-
-		tint[RR] += amount;
-		tint[GG] += amount;
-		tint[BB] += amount;
-	}
-
-	// average the tint
-	if (weight_sum > 1.0f)
-	{
-		for (size_t i = 0; i < 3; i++)
-		{
-			tint[i] /= weight_sum;
-		}
-	}
 }
 
 

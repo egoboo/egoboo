@@ -405,7 +405,7 @@ public:
 	static BIT_FIELD get_framefx(const chr_instance_t& self);
 
 	static float get_remaining_flip(chr_instance_t& self);
-	static void get_tint(chr_instance_t& self, GLfloat *tint, const BIT_FIELD bits);
+    void getTint(GLXvector4f tint, const bool reflection, const int type);
 
 private:
 	static gfx_rv alloc(chr_instance_t& self, size_t vlst_size);
