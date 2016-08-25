@@ -541,7 +541,9 @@ gfx_rv MadRenderer::render_ref( Camera& cam, const std::shared_ptr<Object>& pchr
             // use couter-clockwise orientation to determine backfaces
             oglx_begin_culling(Ego::CullingMode::Back, MAD_REF_CULL);
             Ego::OpenGL::Utilities::isError();
-            if (pinst.ref.alpha != 255 && pinst.ref.light == 255) {
+
+            //Transparent
+            if (pinst.ref.alpha != 0xFF && pinst.ref.light == 0xFF) {
                 renderer.setBlendingEnabled(true);
                 renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
                 GLXvector4f tint;
@@ -554,7 +556,8 @@ gfx_rv MadRenderer::render_ref( Camera& cam, const std::shared_ptr<Object>& pchr
                 }
             }
 
-            if (pinst.ref.light != 255) {
+            //Glowing
+            if (pinst.ref.light != 0xFF) {
                 renderer.setBlendingEnabled(true);
                 renderer.setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::One);
                 GLXvector4f tint;
@@ -592,6 +595,11 @@ gfx_rv MadRenderer::render_trans(Camera& cam, const std::shared_ptr<Object>& pch
 
     if ( pchr->isHidden() ) return gfx_fail;
 
+    //Only proceed if we have transparency
+    if (0xFF == pinst.alpha && 0xFF == pinst.light) {
+        return gfx_success;
+    }
+
     // there is an outside chance the object will not be rendered
     bool rendered = false;
 
@@ -599,7 +607,8 @@ gfx_rv MadRenderer::render_trans(Camera& cam, const std::shared_ptr<Object>& pch
         Ego::OpenGL::PushAttrib pa(GL_ENABLE_BIT | GL_POLYGON_BIT | GL_COLOR_BUFFER_BIT);
         {
             auto& renderer = Ego::Renderer::get();
-            if (pinst.alpha < 255 && 255 == pinst.light) {
+
+            if (pinst.alpha < 0xFF && 0xFF == pinst.light) {
                 // most alpha effects will be messed up by
                 // skipping backface culling, so don't
 
@@ -621,7 +630,8 @@ gfx_rv MadRenderer::render_trans(Camera& cam, const std::shared_ptr<Object>& pch
                     rendered = true;
                 }
             }
-            if (pinst.light < 255) {
+
+            else if (pinst.light < 0xFF) {
                 // light effects should show through transparent objects
                 renderer.setCullingMode(Ego::CullingMode::None);
 
@@ -663,6 +673,11 @@ gfx_rv MadRenderer::render_solid( Camera& cam, const std::shared_ptr<Object> &pc
 
     if ( pchr->isHidden() ) return gfx_fail;
 
+    //Only proceed if we are truly fully solid
+    if (0xFF != pinst.alpha || 0xFF != pinst.light) {
+        return gfx_success;
+    }
+
     // assume the best
 	gfx_rv retval = gfx_success;
 
@@ -684,24 +699,22 @@ gfx_rv MadRenderer::render_solid( Camera& cam, const std::shared_ptr<Object> &pc
             renderer.setBlendingEnabled(true);
             renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
 
-            if (255 == pinst.alpha && 255 == pinst.light) {
-                GLXvector4f tint;
+            GLXvector4f tint;
 
-                // allow the dont_cull_backfaces to keep solid objects from culling backfaces
-                if (pinst.dont_cull_backfaces) {
-                    // stop culling backward facing polugons
-                    renderer.setCullingMode(Ego::CullingMode::None);
-                } else {
-                    // cull backward facing polygons
-                    // use couter-clockwise orientation to determine backfaces
-                    oglx_begin_culling(Ego::CullingMode::Back, MAD_NRM_CULL);            // GL_ENABLE_BIT | GL_POLYGON_BIT
-                }
+            // allow the dont_cull_backfaces to keep solid objects from culling backfaces
+            if (pinst.dont_cull_backfaces) {
+                // stop culling backward facing polugons
+                renderer.setCullingMode(Ego::CullingMode::None);
+            } else {
+                // cull backward facing polygons
+                // use couter-clockwise orientation to determine backfaces
+                oglx_begin_culling(Ego::CullingMode::Back, MAD_NRM_CULL);            // GL_ENABLE_BIT | GL_POLYGON_BIT
+            }
 
-                chr_instance_t::get_tint(pinst, tint, CHR_SOLID);
+            chr_instance_t::get_tint(pinst, tint, CHR_SOLID);
 
-                if (gfx_error == render(cam, pchr, tint, CHR_SOLID)) {
-                    retval = gfx_error;
-                }
+            if (gfx_error == render(cam, pchr, tint, CHR_SOLID)) {
+                retval = gfx_error;
             }
         }
     }
@@ -1752,7 +1765,13 @@ void chr_instance_t::update_ref(chr_instance_t& self, const Vector3f &position, 
     alpha = Ego::Math::constrain(alpha, 0.0f, 255.0f);
 
 	self.ref.alpha = (self.alpha * alpha * INV_FF<float>());
-	self.ref.light = (255 == self.light) ? 255 : (self.light * alpha * INV_FF<float>());
+
+    if(self.light == 0xFF) {
+        self.ref.light = 0xFF;
+    }
+    else {
+        self.ref.light = self.light * alpha * INV_FF<float>();
+    }
 
     self.ref.colorshift = colorshift_t(self.colorshift.red + 1, self.colorshift.green + 1, self.colorshift.blue + 1);
 
@@ -1919,8 +1938,6 @@ float chr_instance_t::get_remaining_flip(chr_instance_t& self)
 
 void chr_instance_t::get_tint(chr_instance_t& self, GLfloat * tint, const BIT_FIELD bits)
 {
-	int i;
-	float weight_sum;
 	GLXvector4f local_tint;
 
 	int local_alpha;
@@ -1928,7 +1945,9 @@ void chr_instance_t::get_tint(chr_instance_t& self, GLfloat * tint, const BIT_FI
 	int local_sheen;
     colorshift_t local_colorshift;
 
-	if (NULL == tint) tint = local_tint;
+	if (nullptr == tint) {
+        tint = local_tint;
+    }
 
 	if (HAS_SOME_BITS(bits, CHR_REFLECT))
 	{
@@ -1948,12 +1967,18 @@ void chr_instance_t::get_tint(chr_instance_t& self, GLfloat * tint, const BIT_FI
 	}
 
 	// modify these values based on local character abilities
-	local_alpha = get_alpha(local_alpha, local_stats.seeinvis_mag);
-	local_light = get_light(local_light, local_stats.seedark_mag);
+    if(local_stats.seeinvis_level > 0.0f) {
+        local_alpha = std::max(local_alpha, SEEINVISIBLE);
+    }
+	local_light = 128;//get_light(local_light, local_stats.seedark_mag);
 
 	// clear out the tint
-	weight_sum = 0;
-	for (i = 0; i < 4; i++) tint[i] = 0;
+    tint[RR] = 0.0f;
+    tint[GG] = 0.0f;
+    tint[BB] = 0.0f;
+    tint[AA] = 1.0f;
+
+    float weight_sum = 0.0f;
 
 	if (HAS_SOME_BITS(bits, CHR_SOLID))
 	{
@@ -1964,7 +1989,6 @@ void chr_instance_t::get_tint(chr_instance_t& self, GLfloat * tint, const BIT_FI
 		tint[RR] += 1.0f / (1 << local_colorshift.red);
 		tint[GG] += 1.0f / (1 << local_colorshift.green);
 		tint[BB] += 1.0f / (1 << local_colorshift.blue);
-		tint[AA] += 1.0f;
 	}
 
 	if (HAS_SOME_BITS(bits, CHR_ALPHA))
@@ -1975,7 +1999,7 @@ void chr_instance_t::get_tint(chr_instance_t& self, GLfloat * tint, const BIT_FI
 		tint[RR] += 1.0f / (1 << local_colorshift.red);
 		tint[GG] += 1.0f / (1 << local_colorshift.green);
 		tint[BB] += 1.0f / (1 << local_colorshift.blue);
-		tint[AA] += local_alpha * INV_FF<float>();
+		tint[AA] = local_alpha * INV_FF<float>();
 	}
 
 	if (HAS_SOME_BITS(bits, CHR_LIGHT))
@@ -1986,14 +2010,9 @@ void chr_instance_t::get_tint(chr_instance_t& self, GLfloat * tint, const BIT_FI
 
 		weight_sum += 1.0f;
 
-		if (local_light < 255)
-		{
-			tint[RR] += local_light * INV_FF<float>() / (1 << local_colorshift.red);
-			tint[GG] += local_light * INV_FF<float>() / (1 << local_colorshift.green);
-			tint[BB] += local_light * INV_FF<float>() / (1 << local_colorshift.blue);
-		}
-
-		tint[AA] += 1.0f;
+		tint[RR] += local_light * INV_FF<float>() / (1 << local_colorshift.red);
+		tint[GG] += local_light * INV_FF<float>() / (1 << local_colorshift.green);
+		tint[BB] += local_light * INV_FF<float>() / (1 << local_colorshift.blue);
 	}
 
 	if (HAS_SOME_BITS(bits, CHR_PHONG))
@@ -2010,13 +2029,12 @@ void chr_instance_t::get_tint(chr_instance_t& self, GLfloat * tint, const BIT_FI
 		tint[RR] += amount;
 		tint[GG] += amount;
 		tint[BB] += amount;
-		tint[AA] += 1.0f;
 	}
 
 	// average the tint
-	if (weight_sum != 0.0f && weight_sum != 1.0f)
+	if (weight_sum > 1.0f)
 	{
-		for (i = 0; i < 4; i++)
+		for (size_t i = 0; i < 3; i++)
 		{
 			tint[i] /= weight_sum;
 		}

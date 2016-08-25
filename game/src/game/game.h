@@ -292,7 +292,6 @@ ObjectRef prt_find_target( const Vector3f& pos, Facing facing, const PIP_REF ipi
 
 std::string expandEscapeCodes(const std::shared_ptr<Object> &object, const script_state_t &scriptState, const std::string &text);
 
-Uint8 get_alpha( int alpha, float seeinvis_mag );
 Uint8 get_light( int alpha, float seedark_mag );
 
 bool attach_one_particle( prt_bundle_t * pbdl_prt );

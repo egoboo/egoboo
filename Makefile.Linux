@@ -68,6 +68,7 @@ cppcheck:
 		 --platform=unix32 \
 		 --xml-version=2 \
 		 --inconclusive \
+		 --force \
 		 -I ./game/src \
 		 -I ./egolib/src \
 		 -I ./idlib/src \

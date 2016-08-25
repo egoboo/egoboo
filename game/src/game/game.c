@@ -1765,38 +1765,6 @@ bool write_wawalite_vfs(const wawalite_data_t *data)
 }
 
 //--------------------------------------------------------------------------------------------
-uint8_t get_alpha( int alpha, float seeinvis_mag )
-{
-    // This is a bit of a kludge, but it should allow the characters to see
-    // completely invisible objects as SEEINVISIBLE if their level is high enough.
-    // AND it should make mostly invisible objects approach SEEINVISIBLE
-    // BUT objects that are already more visible than SEEINVISIBLE can be made fully visible
-    // with a large enough level
-
-    if ( 1.0f != seeinvis_mag )
-    {
-        if ( 0 == alpha )
-        {
-            if ( seeinvis_mag > 1.0f )
-            {
-                alpha = SEEINVISIBLE * ( 1.0f - 1.0f / seeinvis_mag );
-            }
-        }
-        else if ( alpha < SEEINVISIBLE )
-        {
-            alpha *= seeinvis_mag;
-            alpha = std::max( alpha, SEEINVISIBLE );
-        }
-        else
-        {
-            alpha *= seeinvis_mag;
-        }
-    }
-
-    return Ego::Math::constrain(alpha, 0, 0xFF);
-}
-
-//--------------------------------------------------------------------------------------------
 Uint8 get_light( int light, float seedark_mag )
 {
     // ZF> Why should Darkvision reveal invisible?
