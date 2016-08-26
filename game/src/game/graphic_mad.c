@@ -227,8 +227,8 @@ gfx_rv MadRenderer::render_enviro( Camera& cam, const std::shared_ptr<Object>& p
                 size_t vertexBufferSize = 0;
                 for (const id_glcmd_packed_t& cmd : glcommand.data) {
                     uint16_t vertexIndex = cmd.index;
-                    if (vertexIndex >= pinst.vrt_count) continue;
-                    const GLvertex& pvrt = pinst.vrt_lst[vertexIndex];
+                    if (vertexIndex >= pinst.getVertexCount()) continue;
+                    const GLvertex& pvrt = pinst.getVertex(vertexIndex);
                     auto& v = vertexBuffer.vertices[vertexBufferSize++];
                     v.position.x = pvrt.pos[XX];
                     v.position.y = pvrt.pos[YY];
@@ -284,14 +284,14 @@ if(fogon && pinst->light==255)
     for (cnt = 0; cnt < pmad->transvertices; cnt++)
     {
         // Figure out the z position of the vertex...  Not totally accurate
-        z = (pinst->vrt_lst[cnt].pos[ZZ]) + pchr->matrix(3,2);
+        z = (pinst->_vertexList[cnt].pos[ZZ]) + pchr->matrix(3,2);
 
         // Figure out the fog coloring
         if(z < fogtop)
         {
             if(z < fogbottom)
             {
-                pinst->vrt_lst[cnt].specular = alpha;
+                pinst->_vertexList[cnt].specular = alpha;
             }
             else
             {
@@ -300,12 +300,12 @@ if(fogon && pinst->light==255)
                 grn = foggrn * z;
                 blu = fogblu * z;
                 fogspec = 0xff000000 | (red<<16) | (grn<<8) | (blu);
-                pinst->vrt_lst[cnt].specular = fogspec;
+                pinst->_vertexList[cnt].specular = fogspec;
             }
         }
         else
         {
-            pinst->vrt_lst[cnt].specular = 0;
+            pinst->_vertexList[cnt].specular = 0;
         }
     }
 }
@@ -313,7 +313,7 @@ if(fogon && pinst->light==255)
 else
 {
     for (cnt = 0; cnt < pmad->transvertices; cnt++)
-        pinst->vrt_lst[cnt].specular = 0;
+        pinst->_vertexList[cnt].specular = 0;
 }
 
 */
@@ -375,10 +375,10 @@ gfx_rv MadRenderer::render_tex(Camera& camera, const std::shared_ptr<Object>& pc
                 size_t vertexBufferSize = 0;
                 for (const id_glcmd_packed_t &cmd : glcommand.data) {
                     Uint16 vertexIndex = cmd.index;
-                    if (vertexIndex >= pinst.vrt_count) {
+                    if (vertexIndex >= pinst.getVertexCount()) {
                         continue;
                     }
-                    const GLvertex& pvrt = pinst.vrt_lst[vertexIndex];
+                    const GLvertex& pvrt = pinst.getVertex(vertexIndex);
                     auto& v = vertexBuffer.vertices[vertexBufferSize++];
                     v.position.x = pvrt.pos[XX];
                     v.position.y = pvrt.pos[YY];
@@ -448,18 +448,18 @@ gfx_rv MadRenderer::render_tex(Camera& camera, const std::shared_ptr<Object>& pc
         for (cnt = 0; cnt < pmad->transvertices; cnt++)
         {
             // Figure out the z position of the vertex...  Not totally accurate
-            z = (pinst->vrt_lst[cnt].pos[ZZ]) + pchr->matrix(3,2);
+            z = (pinst->_vertexList[cnt].pos[ZZ]) + pchr->matrix(3,2);
 
             // Figure out the fog coloring
             if(z < fogtop)
             {
                 if(z < fogbottom)
                 {
-                    pinst->vrt_lst[cnt].specular = alpha;
+                    pinst->_vertexList[cnt].specular = alpha;
                 }
                 else
                 {
-                    spek = pinst->vrt_lst[cnt].specular & 255;
+                    spek = pinst->_vertexList[cnt].specular & 255;
                     z = (z - fogbottom)/fogdistance;  // 0.0f to 1.0f...  Amount of old to keep
                     fogtokeep = 1.0f-z;  // 0.0f to 1.0f...  Amount of fog to keep
                     spek = spek * z;
@@ -467,7 +467,7 @@ gfx_rv MadRenderer::render_tex(Camera& camera, const std::shared_ptr<Object>& pc
                     grn = (foggrn * fogtokeep) + spek;
                     blu = (fogblu * fogtokeep) + spek;
                     fogspec = 0xff000000 | (red<<16) | (grn<<8) | (blu);
-                    pinst->vrt_lst[cnt].specular = fogspec;
+                    pinst->_vertexList[cnt].specular = fogspec;
                 }
             }
         }
@@ -759,7 +759,7 @@ void MadRenderer::draw_chr_bbox(const std::shared_ptr<Object>& pchr)
 
         // Draw all the vertices of an object
         GL_DEBUG(glPointSize(5));
-        draw_chr_verts(pchr, 0, pchr->inst.vrt_count);
+        draw_chr_verts(pchr, 0, pchr->inst.getVertexCount());
     }
 }
 #endif
@@ -776,8 +776,8 @@ void MadRenderer::draw_chr_verts(const std::shared_ptr<Object>& pchr, int vrt_of
     vmin = vrt_offset;
     vmax = vmin + verts;
 
-    if ( vmin < 0 || ( size_t )vmin > pchr->inst.vrt_count ) return;
-    if ( vmax < 0 || ( size_t )vmax > pchr->inst.vrt_count ) return;
+    if ( vmin < 0 || ( size_t )vmin > pchr->inst.getVertexCount() ) return;
+    if ( vmax < 0 || ( size_t )vmax > pchr->inst.getVertexCount() ) return;
 
     // disable the texturing so all the points will be white,
     // not the texture color of the last vertex we drawn
@@ -788,7 +788,7 @@ void MadRenderer::draw_chr_verts(const std::shared_ptr<Object>& pchr, int vrt_of
     {
         for ( cnt = vmin; cnt < vmax; cnt++ )
         {
-            GL_DEBUG( glVertex3fv )( pchr->inst.vrt_lst[cnt].pos );
+            GL_DEBUG( glVertex3fv )( pchr->inst.getVertex(cnt).pos );
         }
     }
     GL_DEBUG_END();
@@ -822,10 +822,10 @@ void MadRenderer::_draw_one_grip_raw( chr_instance_t * pinst, int slot )
 
     if ( NULL == pinst ) return;
 
-    vmin = ( int )pinst->vrt_count - ( int )slot_to_grip_offset(( slot_t )slot );
+    vmin = ( int )pinst->getVertexCount() - ( int )slot_to_grip_offset(( slot_t )slot );
     vmax = vmin + GRIP_VERTS;
 
-    if ( vmin >= 0 && vmax >= 0 && ( size_t )vmax <= pinst->vrt_count )
+    if ( vmin >= 0 && vmax >= 0 && ( size_t )vmax <= pinst->getVertexCount() )
     {
 		Vector3f src, dst, diff;
 
@@ -833,13 +833,13 @@ void MadRenderer::_draw_one_grip_raw( chr_instance_t * pinst, int slot )
         {
             for ( cnt = 1; cnt < GRIP_VERTS; cnt++ )
             {
-                src[kX] = pinst->vrt_lst[vmin].pos[XX];
-                src[kY] = pinst->vrt_lst[vmin].pos[YY];
-                src[kZ] = pinst->vrt_lst[vmin].pos[ZZ];
+                src[kX] = pinst->getVertex(vmin).pos[XX];
+                src[kY] = pinst->getVertex(vmin).pos[YY];
+                src[kZ] = pinst->getVertex(vmin).pos[ZZ];
 
-                diff[kX] = pinst->vrt_lst[vmin+cnt].pos[XX] - src[kX];
-                diff[kY] = pinst->vrt_lst[vmin+cnt].pos[YY] - src[kY];
-                diff[kZ] = pinst->vrt_lst[vmin+cnt].pos[ZZ] - src[kZ];
+                diff[kX] = pinst->getVertex(vmin+cnt).pos[XX] - src[kX];
+                diff[kY] = pinst->getVertex(vmin+cnt).pos[YY] - src[kY];
+                diff[kZ] = pinst->getVertex(vmin+cnt).pos[ZZ] - src[kZ];
 
                 dst[kX] = src[kX] + 3 * diff[kX];
                 dst[kY] = src[kY] + 3 * diff[kY];
@@ -951,7 +951,6 @@ void chr_instance_t::update_lighting_base(chr_instance_t& self, Object *pchr, bo
 	if (!self.animationState.getModelDescriptor()) {
 		return;
 	}
-    self.vrt_count = self.vrt_count;
 
     // interpolate the lighting for the origin of the object
 
@@ -974,11 +973,11 @@ void chr_instance_t::update_lighting_base(chr_instance_t& self, Object *pchr, bo
 
     self.max_light = -255;
     self.min_light =  255;
-    for (size_t cnt = 0; cnt < self.vrt_count; cnt++ )
+    for (size_t cnt = 0; cnt < self._vertexList.size(); cnt++ )
     {
         float lite = 0.0f;
 
-        GLvertex *pvert = self.vrt_lst + cnt;
+        GLvertex *pvert = &self._vertexList[cnt];
 
         // a simple "height" measurement
         float hgt = pvert->pos[ZZ] * self.matrix( 3, 3 ) + self.matrix( 3, 3 );
@@ -1063,7 +1062,7 @@ gfx_rv chr_instance_t::needs_update(chr_instance_t& self, int vmin, int vmax, bo
 	}
 
     // get the last valid vertex from the chr_instance
-    int maxvert = ((int)self.vrt_count) - 1;
+    int maxvert = ((int)self._vertexList.size()) - 1;
 
     // check to make sure the lower bound of the saved data is valid.
     // it is initialized to an invalid value (psave->vmin = psave->vmax = -1)
@@ -1194,14 +1193,14 @@ gfx_rv chr_instance_t::update_vertices(chr_instance_t& self, int vmin, int vmax,
     std::shared_ptr<MD2Model> pmd2 = self.animationState.getModelDescriptor()->getMD2();
 
     // make sure we have valid data
-    if (self.vrt_count != pmd2->getVertexCount())
+    if (self._vertexList.size() != pmd2->getVertexCount())
     {
 		Log::get().warn( "chr_instance_update_vertices() - character instance vertex data does not match its md2\n" );
         return gfx_error;
     }
 
     // get the vertex list size from the chr_instance
-    maxvert = (( int )self.vrt_count ) - 1;
+    maxvert = (( int )self._vertexList.size() ) - 1;
 
     // handle the default parameters
     if ( vmin < 0 ) vmin = 0;
@@ -1278,13 +1277,13 @@ gfx_rv chr_instance_t::update_vertices(chr_instance_t& self, int vmin, int vmax,
     // interpolate the 1st dirty region
     if ( vdirty1_min >= 0 && vdirty1_max >= 0 )
     {
-		chr_instance_t::interpolate_vertices_raw(self.vrt_lst, lastFrame.vertexList, nextFrame.vertexList, vdirty1_min, vdirty1_max, loc_flip);
+		chr_instance_t::interpolate_vertices_raw(self._vertexList.data(), lastFrame.vertexList, nextFrame.vertexList, vdirty1_min, vdirty1_max, loc_flip);
     }
 
     // interpolate the 2nd dirty region
     if ( vdirty2_min >= 0 && vdirty2_max >= 0 )
     {
-		chr_instance_t::interpolate_vertices_raw(self.vrt_lst, lastFrame.vertexList, nextFrame.vertexList, vdirty2_min, vdirty2_max, loc_flip);
+		chr_instance_t::interpolate_vertices_raw(self._vertexList.data(), lastFrame.vertexList, nextFrame.vertexList, vdirty2_min, vdirty2_max, loc_flip);
     }
 
     // update the saved parameters
@@ -1297,7 +1296,7 @@ gfx_rv chr_instance_t::update_vlst_cache(chr_instance_t& self, int vmax, int vmi
     // we need to do this calculation as little as possible, so it is important that the
     // pinst->save.* values be tested and stored properly
 
-	int maxvert = ((int)self.vrt_count) - 1;
+	int maxvert = ((int)self._vertexList.size()) - 1;
 	vlst_cache_t *psave = &(self.save);
 
     // the save_vmin and save_vmax is the most complex
@@ -1659,8 +1658,7 @@ chr_instance_t::chr_instance_t() :
     lighting_frame_all(-1),
 
     // linear interpolated frame vertices
-    vrt_count(0),
-    vrt_lst(nullptr),
+    _vertexList(),
     bbox(),
 
     // graphical optimizations
@@ -1672,27 +1670,12 @@ chr_instance_t::chr_instance_t() :
 }
 
 chr_instance_t::~chr_instance_t() {
-    if (vrt_lst) {
-        delete[] vrt_lst;
-        vrt_lst = nullptr;
-    }
+    //dtor
 }
 
-void chr_instance_t::dealloc(chr_instance_t& self)
+const GLvertex& chr_instance_t::getVertex(const size_t index) const
 {
-	if (self.vrt_lst) {
-		delete[] self.vrt_lst;
-		self.vrt_lst = nullptr;
-	}
-    self.vrt_count = 0;
-}
-
-gfx_rv chr_instance_t::alloc(chr_instance_t& self, size_t vlst_size)
-{
-	chr_instance_t::dealloc(self);
-	self.vrt_lst = new GLvertex[vlst_size]();
-    self.vrt_count = vlst_size;
-	return gfx_success;
+    return _vertexList[index];
 }
 
 gfx_rv chr_instance_t::set_mad(chr_instance_t& self, const std::shared_ptr<Ego::ModelDescriptor> &model)
@@ -1716,9 +1699,9 @@ gfx_rv chr_instance_t::set_mad(chr_instance_t& self, const std::shared_ptr<Ego::
 
     // set the vertex size
     size_t vlst_size = self.animationState.getModelDescriptor()->getMD2()->getVertexCount();
-    if (self.vrt_count != vlst_size) {
+    if (self._vertexList.size() != vlst_size) {
         updated = true;
-		chr_instance_t::alloc(self, vlst_size);
+        self._vertexList.resize(vlst_size);
     }
 
     // set the frames to frame 0 of this object's data
@@ -2037,9 +2020,52 @@ void chr_instance_t::flash(chr_instance_t& self, uint8_t value)
 
 	// flash the directional lighting
 	self.color_amb = flash_val;
-	for (size_t i = 0; i < self.vrt_count; ++i) {
-		GLvertex *pv = &(self.vrt_lst[i]);
-		pv->color_dir = flash_val;
+	for (size_t i = 0; i < self._vertexList.size(); ++i) {
+		self._vertexList[i].color_dir = flash_val;
 	}
 }
 
+
+size_t chr_instance_t::getVertexCount() const
+{
+    return _vertexList.size();
+}
+
+void chr_instance_t::flashVariableHeight(const uint8_t valuelow, const int16_t low, const uint8_t valuehigh, const int16_t high)
+{
+    for (size_t cnt = 0; cnt < _vertexList.size(); cnt++)
+    {
+        int16_t z = _vertexList[cnt].pos[ZZ];
+
+        if ( z < low )
+        {
+            _vertexList[cnt].col[RR] =
+                _vertexList[cnt].col[GG] =
+                    _vertexList[cnt].col[BB] = valuelow;
+        }
+        else if ( z > high )
+        {
+            _vertexList[cnt].col[RR] =
+                _vertexList[cnt].col[GG] =
+                    _vertexList[cnt].col[BB] = valuehigh;
+        }
+        else if ( high != low )
+        {
+            uint8_t valuemid = ( valuehigh * ( z - low ) / ( high - low ) ) +
+                             ( valuelow * ( high - z ) / ( high - low ) );
+
+            _vertexList[cnt].col[RR] =
+                _vertexList[cnt].col[GG] =
+                    _vertexList[cnt].col[BB] =  valuemid;
+        }
+        else
+        {
+            // z == high == low
+            uint8_t valuemid = ( valuehigh + valuelow ) * 0.5f;
+
+            _vertexList[cnt].col[RR] =
+                _vertexList[cnt].col[GG] =
+                    _vertexList[cnt].col[BB] =  valuemid;
+        }
+    }
+}

@@ -68,10 +68,10 @@ int get_grip_verts( Uint16 grip_verts[], const ObjectRef imount, int vrt_offset 
     if ( !_currentModule->getObjectHandler().exists( imount ) ) return 0;
     Object *pmount = _currentModule->getObjectHandler().get( imount );
 
-    if ( 0 == pmount->inst.vrt_count ) return 0;
+    if ( 0 == pmount->inst.getVertexCount() ) return 0;
 
     //---- set the proper weapongrip vertices
-    int tnc = ( int )pmount->inst.vrt_count - ( int )vrt_offset;
+    int tnc = ( int )pmount->inst.getVertexCount() - ( int )vrt_offset;
 
     // if the starting vertex is less than 0, just take the first vertex
     if ( tnc < 0 )
@@ -83,7 +83,7 @@ int get_grip_verts( Uint16 grip_verts[], const ObjectRef imount, int vrt_offset 
     int vrt_count = 0;
     for (size_t i = 0; i < GRIP_VERTS; i++ )
     {
-        if ( tnc + i < pmount->inst.vrt_count )
+        if ( tnc + i < pmount->inst.getVertexCount() )
         {
             grip_verts[i] = tnc + i;
             vrt_count++;
@@ -227,9 +227,9 @@ int convert_grip_to_local_points( Object * pholder, Uint16 grip_verts[], Vector4
 
             if ( 0xFFFF == vertex ) continue;
 
-            dst_point[point_count][kX] = pholder->inst.vrt_lst[vertex].pos[XX];
-            dst_point[point_count][kY] = pholder->inst.vrt_lst[vertex].pos[YY];
-            dst_point[point_count][kZ] = pholder->inst.vrt_lst[vertex].pos[ZZ];
+            dst_point[point_count][kX] = pholder->inst.getVertex(vertex).pos[XX];
+            dst_point[point_count][kY] = pholder->inst.getVertex(vertex).pos[YY];
+            dst_point[point_count][kZ] = pholder->inst.getVertex(vertex).pos[ZZ];
             dst_point[point_count][kW] = 1.0f;
         }
     }
@@ -665,7 +665,7 @@ bool chr_calc_grip_cv( Object * pmount, int grip_offset, oct_bb_t * grip_cv_ptr,
     // get appropriate vertices for this model's grip
     {
         // do the automatic vertex update
-		int vert_stt = (signed)(pmount_inst.vrt_count) - (signed)grip_offset;
+		int vert_stt = static_cast<int>(pmount_inst.getVertexCount()) - (signed)grip_offset;
         if ( vert_stt < 0 ) return false;
 
 		if (gfx_error == chr_instance_t::update_vertices(pmount_inst, vert_stt, vert_stt + grip_offset, false))
@@ -679,7 +679,7 @@ bool chr_calc_grip_cv( Object * pmount, int grip_offset, oct_bb_t * grip_cv_ptr,
         else
         {
             // calculate the grip vertices
-			for (grip_count = 0, cnt = 0; cnt < GRIP_VERTS && (size_t)(vert_stt + cnt) < pmount_inst.vrt_count; grip_count++, cnt++)
+			for (grip_count = 0, cnt = 0; cnt < GRIP_VERTS && (size_t)(vert_stt + cnt) < pmount_inst.getVertexCount(); grip_count++, cnt++)
             {
                 grip_verts[cnt] = vert_stt + cnt;
             }

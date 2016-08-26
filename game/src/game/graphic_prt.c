@@ -463,9 +463,9 @@ void draw_one_attachment_point(chr_instance_t& inst, int vrt_offset)
     /// @author BB
     /// @details a function that will draw some of the vertices of the given character.
     ///     The original idea was to use this to debug the grip for attached items.
-    uint32_t vrt = (int)inst.vrt_count - (int)vrt_offset;
+    uint32_t vrt = (int)inst.getVertexCount() - (int)vrt_offset;
 
-    if (vrt >= inst.vrt_count) return;
+    if (vrt >= inst.getVertexCount()) return;
 
     // disable the texturing so all the points will be white,
     // not the texture color of the last vertex we drawn
@@ -475,7 +475,7 @@ void draw_one_attachment_point(chr_instance_t& inst, int vrt_offset)
     Ego::Renderer::get().setWorldMatrix(inst.matrix);
     GL_DEBUG(glBegin(GL_POINTS));
     {
-        GL_DEBUG(glVertex3fv)(inst.vrt_lst[vrt].pos);
+        GL_DEBUG(glVertex3fv)(inst.getVertex(vrt).pos);
     }
     GL_DEBUG_END();
 }

@@ -357,13 +357,14 @@ struct chr_instance_t
     int            lighting_frame_all;             ///< update some lighting info no more than once a frame
 
     // linear interpolated frame vertices
-    size_t         vrt_count;
-    GLvertex     * vrt_lst;
     oct_bb_t       bbox;                           ///< the bounding box for this frame
 
     // graphical optimizations
     vlst_cache_t           save;                   ///< Do we need to re-calculate all or part of the vertex list
     chr_reflection_cache_t ref;                    ///< pre-computing some reflection parameters
+
+private:
+    std::vector<GLvertex> _vertexList;
 
 public:
 	chr_instance_t();
@@ -407,10 +408,26 @@ public:
 	static float get_remaining_flip(chr_instance_t& self);
     void getTint(GLXvector4f tint, const bool reflection, const int type);
 
-private:
-	static gfx_rv alloc(chr_instance_t& self, size_t vlst_size);
-	static void dealloc(chr_instance_t& self);
-	
+    const GLvertex& getVertex(const size_t index) const;
+    size_t getVertexCount() const;
+
+    /**
+    * @brief 
+    *   This function makes the character flash, feet one color, head another.
+    *   This function sets a character's lighting depending on vertex height...
+    *   Can make feet dark and head light...
+    *   @param valuelow 
+    *       Brightness on the low vertices (0 to 255)
+    *   @param low
+    *       The vertex index where the low vertices starts
+    *   @param valuehigh 
+    *       Brightness on the top vertices (0 to 255)
+    *   @param high
+    *       The vertex index where the high vertices starts
+    **/
+    void flashVariableHeight(const uint8_t valuelow, const int16_t low, const uint8_t valuehigh, const int16_t high);
+
+private:	
 	static gfx_rv update_vlst_cache(chr_instance_t& self, int vmax, int vmin, bool force, bool vertices_match, bool frames_match);
 	static gfx_rv needs_update(chr_instance_t& self, int vmin, int vmax, bool *verts_match, bool *frames_match);
 	static gfx_rv set_frame(chr_instance_t& self, int frame);

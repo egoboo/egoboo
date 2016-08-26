@@ -1368,7 +1368,7 @@ int spawn_bump_particles(ObjectRef character, const ParticleRef particle)
             int grip_verts = 0 == slot_count ? 1 : GRIP_VERTS * slot_count;
             // Compute the number of vertices.
             // Ensure that the number of vertices is non-negative.
-            int vertices = (int)pchr->inst.vrt_count - (int)grip_verts;
+            int vertices = (int)pchr->inst.getVertexCount() - (int)grip_verts;
             vertices = std::max(0, vertices);
 
             if (vertices != 0)
@@ -1392,9 +1392,9 @@ int spawn_bump_particles(ObjectRef character, const ParticleRef particle)
                 // prepare the array values
                 for (int cnt = 0; cnt < vertices; cnt++)
                 {
-                    dist = std::abs(x - pchr->inst.vrt_lst[vertices - cnt - 1].pos[XX])
-                         + std::abs(y - pchr->inst.vrt_lst[vertices - cnt - 1].pos[YY])
-                         + std::abs(z - pchr->inst.vrt_lst[vertices - cnt - 1].pos[ZZ]);
+                    dist = std::abs(x - pchr->inst.getVertex(vertices - cnt - 1).pos[XX])
+                         + std::abs(y - pchr->inst.getVertex(vertices - cnt - 1).pos[YY])
+                         + std::abs(z - pchr->inst.getVertex(vertices - cnt - 1).pos[ZZ]);
 
                     vertex_distance[cnt] = dist;
                     vertex_occupied[cnt] = ParticleRef::Invalid;
