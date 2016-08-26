@@ -315,7 +315,6 @@ void UIManager::drawBitmapGlyph(int fonttype, const Vector2f& position, const fl
 }
 
 void UIManager::drawQuad2D(const Rectangle2f& scr_rect, const Rectangle2f& tx_rect, const std::shared_ptr<const Material>& material) {
-    auto& renderer = Renderer::get();
     material->apply();
     drawQuad2d(scr_rect, tx_rect);
 }

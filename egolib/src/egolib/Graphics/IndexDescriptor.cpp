@@ -26,18 +26,7 @@
 namespace Ego {
 
 IndexDescriptor::IndexDescriptor(IndexDescriptor::Syntax syntax) :
-    syntax(syntax), indexSize(0) {
-    // Compute the index size.
-    switch (syntax) {
-        case Syntax::U16:
-            indexSize = 16 / 8;
-            break;
-        case Syntax::U32:
-            indexSize = 32 / 8;
-            break;
-        default:
-            throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
-    }
+    syntax(syntax) {
 }
 
 IndexDescriptor::IndexDescriptor(const IndexDescriptor& other) noexcept : syntax(other.syntax) {

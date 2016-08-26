@@ -249,7 +249,7 @@ public:
      * @brief
      *  Get the statistics of this abstract profile system.
      */
-    Stats getStats() {
+    Stats getStats() const {
         Stats stats;
         stats._loadedCount = 0;
         stats._maxSpawnRequestCount = 0;

@@ -242,10 +242,15 @@ float set_character_animation_rate( Object * pchr )
     chr_instance_t& pinst = pchr->inst;
 
     // if the action is set to keep then do nothing
-    if ( pinst.actionState.action_keep ) return pinst.animationState.rate = 1.0f;
+    if (pinst.actionState.action_keep) {
+        pinst.animationState.rate = 1.0f;
+        return 1.0f;
+    }
 
     // dont change the rate if it is an attack animation
-    if ( pchr->isAttacking() )  return pinst.animationState.rate;
+    if ( pchr->isAttacking() ) {  
+        return pinst.animationState.rate;
+    }
 
     // if the character is mounted or sitting, base the rate off of the mounr
     if ( pchr->isBeingHeld() && (( ACTION_MI == pinst.actionState.action_which ) || ( ACTION_MH == pinst.actionState.action_which ) ) )

@@ -299,7 +299,7 @@ protected:
 
 	void updateCenter();
 
-	void updateTrack(const ego_mesh_t * mesh);
+	void updateTrack();
 
 	/**
 	 * @brief

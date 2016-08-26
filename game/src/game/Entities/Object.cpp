@@ -269,7 +269,7 @@ void Object::setAlpha(const int alpha)
     //This prevents players from becoming completely invisible
     if (isPlayer())
     {
-        inst.alpha = std::max<uint8_t>(128, inst.alpha);
+        inst.alpha = std::max<uint8_t>(SEEINVISIBLE, inst.alpha);
     }
 
     chr_instance_t::update_ref(inst, getPosition(), false);
@@ -282,7 +282,7 @@ void Object::setLight(const int light)
     //This prevents players from becoming completely invisible
     if (isPlayer())
     {
-        inst.light = std::max<uint8_t>(128, inst.light);
+        inst.light = std::max<uint8_t>(SEEINVISIBLE, inst.light);
     }
 
     chr_instance_t::update_ref(inst, getPosition(), false);
@@ -1278,12 +1278,7 @@ bool Object::canSeeObject(const std::shared_ptr<Object> &target) const
     }
 
     //Too invisible?
-    int alpha = target->inst.alpha;
-    if (canSeeInvisible()) {
-        alpha = get_alpha(alpha, expf(0.32f * getAttribute(Ego::Attribute::SEE_INVISIBLE)));
-    }
-    alpha = Ego::Math::constrain(alpha, 0, 255);
-    if(alpha < INVISIBLE) {
+    if(!canSeeInvisible() && target->inst.alpha < INVISIBLE) {
         return false;
     }
 

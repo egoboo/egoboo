@@ -12,14 +12,6 @@ namespace VFS {
 struct Pathname {
 
 private:
-
-    /**
-     * @brief
-     *  The schema name.
-     *  Currently fixed to "ego".
-     */
-    std::string _schemaName;
-
     std::string _string;
 
 public:

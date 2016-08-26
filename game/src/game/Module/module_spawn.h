@@ -19,4 +19,11 @@
 
 #pragma once
 
-void activate_spawn_file_vfs();
+#include "egolib/Logic/TreasureTables.hpp"
+
+// module initialization / deinitialization - not accessible by scripts
+void game_load_profile_ai();
+
+void convert_spawn_file_load_name(spawn_file_info_t& psp_info, const Ego::TreasureTables &treasureTables);
+
+bool activate_spawn_file_load_object( spawn_file_info_t& psp_info );

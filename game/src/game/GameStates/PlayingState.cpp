@@ -139,15 +139,6 @@ void PlayingState::beginState()
     // in-game settings
     Ego::GraphicsSystem::setCursorVisibility(egoboo_config_t::get().debug_hideMouse.getValue());
     Ego::GraphicsSystem::window->setGrabEnabled(egoboo_config_t::get().debug_grabMouse.getValue());
-
-//    if(egoboo_config_t::get().debug_hideMouse.getValue())
-//    {
-//        _gameEngine->disableMouseCursor();
-//    }
-//    else
-//    {
-//        _gameEngine->enableMouseCursor();
-//    }
 }
 
 bool PlayingState::notifyKeyboardKeyPressed(const Ego::Events::KeyboardKeyPressedEventArgs& e)

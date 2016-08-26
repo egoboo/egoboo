@@ -1213,19 +1213,19 @@ bool Particle::placeAtVertex(const std::shared_ptr<Object> &object, int vertex_o
             return true;
         }
 
-        if(vertex_offset > object->inst.vrt_count) {
-            throw std::invalid_argument("Particle::placeAtVertex() =  vertex_offset > object->inst.vrt_count");
+        if(vertex_offset > object->inst.getVertexCount()) {
+            throw std::invalid_argument("Particle::placeAtVertex() =  vertex_offset > object->inst.getVertexCount()");
         }
 
-        vertex = object->inst.vrt_count - vertex_offset;
+        vertex = object->inst.getVertexCount() - vertex_offset;
 
         // do the automatic update
         chr_instance_t::update_vertices(object->inst, vertex, vertex, false );
 
         // Calculate vertex_offset point locations with linear interpolation and other silly things
-        point[0][kX] = object->inst.vrt_lst[vertex].pos[XX];
-        point[0][kY] = object->inst.vrt_lst[vertex].pos[YY];
-        point[0][kZ] = object->inst.vrt_lst[vertex].pos[ZZ];
+        point[0][kX] = object->inst.getVertex(vertex).pos[XX];
+        point[0][kY] = object->inst.getVertex(vertex).pos[YY];
+        point[0][kZ] = object->inst.getVertex(vertex).pos[ZZ];
         point[0][kW] = 1.0f;
 
         // Do the transform

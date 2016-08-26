@@ -119,6 +119,18 @@ struct s_vfs_search_context
     BIT_FIELD  bits;
 
     VFS_PATH found;
+
+    s_vfs_search_context() :
+        file_list(nullptr),
+        ptr(nullptr),
+        path(),
+        ext(),
+        bits(0),
+        found()
+    {
+        memset(path, 0, VFS_MAX_PATH);
+        memset(ext, 0, 255);
+    }
 };
 
 struct s_vfs_path_data
@@ -456,7 +468,7 @@ const char * vfs_convert_fname_sys( const char * fname )
     }
 
     // the string has already been converted to a system filename, so just check SLASH_CHR
-    while ( SLASH_CHR == copy_fname[offset] && offset < SDL_arraysize( copy_fname ) )
+    while ( offset < SDL_arraysize(copy_fname) && SLASH_CHR == copy_fname[offset] )
     {
         offset++;
     }

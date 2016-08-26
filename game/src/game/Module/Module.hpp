@@ -25,6 +25,8 @@
 #include "game/egoboo.h"
 #include "game/mesh.h"
 #include "game/Module/Water.hpp"
+#include "game/Module/module_spawn.h"
+#include "game/Module/damagetile_instance.h"
 
 //@todo This is an ugly hack to work around cyclic dependency and private header guards
 #ifndef GAME_ENTITIES_PRIVATE
@@ -41,39 +43,6 @@ class Passage;
 class Team;
 namespace Ego { class Player; }
 namespace Ego { namespace Input { class InputDevice; } }
-
-/// The actual in-game state of the damage tiles
-struct damagetile_instance_t
-{
-    IPair amount;                    ///< Amount of damage
-    DamageType damagetype;
-
-    LocalParticleProfileRef part_gpip;
-    uint32_t partand;
-    int    sound_index;
-
-    damagetile_instance_t() :
-        amount(),
-        damagetype(DamageType::DAMAGE_DIRECT),
-        part_gpip(LocalParticleProfileRef::Invalid),
-        partand(0),
-        sound_index(INVALID_SOUND_ID)
-    {
-        //ctor
-    }
-
-    void upload(const wawalite_damagetile_t& source)
-    {
-        this->amount.base = source.amount;
-        this->amount.rand = 1;
-        this->damagetype = source.damagetype;
-
-        this->part_gpip = source.part_gpip;
-        this->partand = source.partand;
-        this->sound_index = Ego::Math::constrain(source.sound_index, INVALID_SOUND_ID, MAX_WAVE);
-    }
-};
-
 
 /// The module data that the game needs.
 class GameModule : public Id::NonCopyable
@@ -96,7 +65,7 @@ public:
      * @return
      *  name of the module
      */
-    inline const std::string& getName() const {return _name;}
+    const std::string& getName() const {return _name;}
 
     /**
      * @return
@@ -112,7 +81,7 @@ public:
      * @return
      *  @a true if the players have won
      */
-    inline bool isBeaten() const {return _isBeaten;}
+    bool isBeaten() const {return _isBeaten;}
 
     /**
      * @brief
@@ -125,13 +94,13 @@ public:
      * @return
      *  @a true if the players are allowed to respawn upon death
      */
-    inline bool isRespawnValid() const {return _isRespawnValid;}
+    bool isRespawnValid() const {return _isRespawnValid;}
 
     /**
      * @return
      *  @a true if the players are allowed to export (save) their progress in this module upon exit
      */
-    inline bool isExportValid() const {return _exportValid;}
+    bool isExportValid() const {return _exportValid;}
 
     void setExportValid(bool valid) {_exportValid = valid;}
 
@@ -261,6 +230,12 @@ public:
     **/
     void updateDamageTiles();
 
+    /**
+    * @brief
+    *   This function sets up character data, loaded from "SPAWN.TXT"
+    **/
+    void spawnAllObjects();
+
 private:
     /**
     * @brief
@@ -280,6 +255,25 @@ private:
     *   Load all profiles required by this module into memory
     **/
     void loadProfiles();
+
+    /**
+    * @brief
+    *   Logs and lists all objects loaded by this module.
+    *   For module developers
+    **/
+    void logSlotUsage(const std::string& savename);
+
+    /**
+    * @brief
+    *   This function sets all of the character's starting tilt values
+    **/
+    void tiltCharactersToTerrain();
+
+    /**
+    * @brief
+    *   Spawns and setup a object from a spawn.txt entry
+    **/
+    std::shared_ptr<Object> spawnObjectFromFileEntry(const spawn_file_info_t& psp_info, const std::shared_ptr<Object> &parent);
 
 private:
     static constexpr uint32_t PIT_CLOCK_RATE = 20;  ///< How many game ticks between each pit check

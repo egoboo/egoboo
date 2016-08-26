@@ -155,88 +155,104 @@ bool LoadingState::loadPlayers()
 
 void LoadingState::loadModuleData()
 {
-    const int SCREEN_WIDTH = _gameEngine->getUIManager()->getScreenWidth();
-    const int SCREEN_HEIGHT = _gameEngine->getUIManager()->getScreenHeight();
-    
-    setProgressText("Tidying some space...", 0);
+    //This method is run in a background loading thread
+    //Catch any module parsing exceptions here so that the thread does not terminate badly
+    try {
+        const int SCREEN_WIDTH = _gameEngine->getUIManager()->getScreenWidth();
+        const int SCREEN_HEIGHT = _gameEngine->getUIManager()->getScreenHeight();
+        
+        setProgressText("Tidying some space...", 0);
 
-    //Make sure all data is cleared first
-    game_quit_module();
+        //Make sure all data is cleared first
+        game_quit_module();
 
-    setProgressText("Calculating some math...", 10);
-    BillboardSystem::get().reset();
+        setProgressText("Calculating some math...", 10);
+        BillboardSystem::get().reset();
 
-    // Linking system
-    setProgressText("Initializing module linking... ", 20);
-    if (!link_build_vfs( "mp_data/link.txt", LinkList)) Log::get().warn("Failed to initialize module linking\n");
+        // Linking system
+        setProgressText("Initializing module linking... ", 20);
+        if (!link_build_vfs( "mp_data/link.txt", LinkList)) Log::get().warn("Failed to initialize module linking\n");
 
-    // initialize the collision system
-    setProgressText("Beautifying graphics...", 40);
+        // initialize the collision system
+        setProgressText("Beautifying graphics...", 40);
 
-    // Reset all loaded "profiles" in the "profile system".
-    ProfileSystem::get().reset();
+        // Reset all loaded "profiles" in the "profile system".
+        ProfileSystem::get().reset();
 
-    // do some graphics initialization
-    gfx_system_make_enviro();
+        // do some graphics initialization
+        gfx_system_make_enviro();
 
-    //Load players if needed
-    if(!_playersToLoad.empty()) {
-        setProgressText("Loading players...", 50);
-        if(!loadPlayers()) {
-			Log::get().warn("Failed to load players!\n");
+        //Load players if needed
+        if(!_playersToLoad.empty()) {
+            setProgressText("Loading players...", 50);
+            if(!loadPlayers()) {
+    			Log::get().warn("Failed to load players!\n");
+                endState();
+                return;
+            }
+        }
+
+        // try to start a new module
+        setProgressText("Loading module data...", 60);
+        if(!game_begin_module(_loadModule)) {
+    		Log::get().warn("Failed to load module!\n");
             endState();
             return;
         }
+        _currentModule->setImportPlayers(_playersToLoad);
+
+        setProgressText("Almost done...", 90);
+
+        // set up the cameras *after* game_begin_module() or the player devices will not be initialized
+        // and camera_system_begin() will not set up thte correct view
+        std::shared_ptr<CameraSystem> cameraSystem = CameraSystem::request(local_stats.player_count);
+
+        // Fade out music when finished loading
+        AudioSystem::get().stopMusic();
+
+        // make sure the per-module configuration settings are correct
+        config_synch(&egoboo_config_t::get(), true, false);
+
+        // Complete!
+        setProgressText("Finished!", 100);
+
+        // Hit that gong
+        AudioSystem::get().playSoundFull(AudioSystem::get().getGlobalSound(GSND_GAME_READY));
+
+        //1 second delay to let music finish, this prevents a frame lag on module startup
+        std::this_thread::sleep_for(std::chrono::seconds(2));
+
+        //Add the start button once we are finished loading
+        auto startButton = std::make_shared<Ego::GUI::Button>("Press Space to begin", SDLK_SPACE);
+        startButton->setSize(Vector2f(400, 30));
+        startButton->setPosition(Point2f(SCREEN_WIDTH/2 - startButton->getWidth()/2, SCREEN_HEIGHT-50));
+        startButton->setOnClickFunction(
+            [cameraSystem]{
+
+                //Have to do this function in the OpenGL context thread or else it will fail
+                Ego::Graphics::TextureAtlasManager::get().loadTileSet();
+
+                //Hush gong
+                AudioSystem::get().fadeAllSounds();
+                _gameEngine->setGameState(std::make_shared<PlayingState>(cameraSystem));
+            });
+        addComponent(startButton);
+
+        //Hide the progress bar
+        _progressBar->setVisible(false);
     }
+    catch (const Ego::Core::Exception& ex)
+    {
+        //Display a sensible error so that players understand why it failed
+        Log::get().warn("Module loading error: %s\n", ((std::string)ex).c_str());        
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
+                                 "Module Load Error",
+                                 ((std::string)ex).c_str(),
+                                 nullptr);
 
-    // try to start a new module
-    setProgressText("Loading module data...", 60);
-    if(!game_begin_module(_loadModule)) {
-		Log::get().warn("Failed to load module!\n");
-        endState();
-        return;
+        //Abort loading module and return to main menu
+        this->endState();
     }
-    _currentModule->setImportPlayers(_playersToLoad);
-
-    setProgressText("Almost done...", 90);
-
-    // set up the cameras *after* game_begin_module() or the player devices will not be initialized
-    // and camera_system_begin() will not set up thte correct view
-    std::shared_ptr<CameraSystem> cameraSystem = CameraSystem::request(local_stats.player_count);
-
-    // Fade out music when finished loading
-    AudioSystem::get().stopMusic();
-
-    // make sure the per-module configuration settings are correct
-    config_synch(&egoboo_config_t::get(), true, false);
-
-    // Complete!
-    setProgressText("Finished!", 100);
-
-    // Hit that gong
-    AudioSystem::get().playSoundFull(AudioSystem::get().getGlobalSound(GSND_GAME_READY));
-
-    //1 second delay to let music finish, this prevents a frame lag on module startup
-    std::this_thread::sleep_for(std::chrono::seconds(2));
-
-    //Add the start button once we are finished loading
-    auto startButton = std::make_shared<Ego::GUI::Button>("Press Space to begin", SDLK_SPACE);
-    startButton->setSize(Vector2f(400, 30));
-    startButton->setPosition(Point2f(SCREEN_WIDTH/2 - startButton->getWidth()/2, SCREEN_HEIGHT-50));
-    startButton->setOnClickFunction(
-        [cameraSystem]{
-
-            //Have to do this function in the OpenGL context thread or else it will fail
-            Ego::Graphics::TextureAtlasManager::get().loadTileSet();
-
-            //Hush gong
-            AudioSystem::get().fadeAllSounds();
-            _gameEngine->setGameState(std::make_shared<PlayingState>(cameraSystem));
-        });
-    addComponent(startButton);
-
-    //Hide the progress bar
-    _progressBar->setVisible(false);
 }
 
 

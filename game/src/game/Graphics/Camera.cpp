@@ -157,14 +157,14 @@ void Camera::updatePosition()
     // Update the camera position.
     Vector3f pos_new = _center + Vector3f(_zoom * std::sin(_ori.facing_z), _zoom * std::cos(_ori.facing_z), _zGoto);
 
-    if((_position-pos_new).length() < Info<float>::Grid::Size()*10.0f) {
+    if((_position-pos_new).length() < Info<float>::Grid::Size()*8.0f) {
         // Make the camera motion smooth using a low-pass filter
         _position = _position * 0.9f + pos_new * 0.1f; /// @todo Use Ego::Math::lerp.
     }
     else {
         //Teleport camera if error becomes too large
-        _center = pos_new;
-        _position = _center + Vector3f(_zoom * std::sin(_turnZ_radians), _zoom * std::cos(_turnZ_radians), CAM_ZADD_MAX);
+        _position = pos_new;
+        _center = _trackPos;
     }
 }
 
@@ -352,7 +352,7 @@ void Camera::updateFreeControl()
     _trackPos = _center;
 }
 
-void Camera::updateTrack(const ego_mesh_t *mesh)
+void Camera::updateTrack()
 {
     // The default camera motion is to do nothing.
     Vector3f new_track = _trackPos;
@@ -487,7 +487,7 @@ void Camera::update(const ego_mesh_t *mesh)
     updateEffects();
 
     // Update the average position of the tracked characters
-    updateTrack(mesh);
+    updateTrack();
 
     // Move the camera center, if need be.
     updateCenter();
@@ -763,6 +763,19 @@ void Camera::setScreen( float xmin, float ymin, float xmax, float ymax )
 
 void Camera::addTrackTarget(ObjectRef targetRef)
 {
+    //Make sure the target is valid
+    const std::shared_ptr<Object>& object = _currentModule->getObjectHandler()[targetRef];
+    if(!object) {
+        return;
+    }
+
+    //Initialize camera position on spawn
+    if(_trackList.empty()) {
+        _trackPos = object->getPosition();
+        _center = _trackPos;
+        _position = _center + Vector3f(_zoom * std::sin(_ori.facing_z), _zoom * std::cos(_ori.facing_z), _zGoto);
+    }
+
     _trackList.push_front(targetRef);
 }
 

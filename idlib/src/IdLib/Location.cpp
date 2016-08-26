@@ -35,12 +35,12 @@ Location::Location(const Location& other) :
     _loadName(other._loadName), _lineNumber(other._lineNumber) {
 }
 
-bool Location::operator==(const Location& other) {
+bool Location::operator==(const Location& other) const {
     return _loadName == other._loadName
         && _lineNumber == other._lineNumber;
 }
 
-bool Location::operator!=(const Location& other) {
+bool Location::operator!=(const Location& other) const {
     return _loadName != other._loadName
         || _lineNumber != other._lineNumber;
 }

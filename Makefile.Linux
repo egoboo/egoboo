@@ -6,7 +6,7 @@ release: set_release_flags all
 
 all: idlib egolib egoboo
 
-COMPILE_FLAGS := -x c++ -std=c++14 $(shell sdl2-config --cflags)
+COMPILE_FLAGS := -x c++ -std=c++14 $(shell sdl2-config --cflags) -D_FORTIFY_SOURCE=2
 COMPILE_WARNINGS := -Wall -Wextra -Werror -Wfatal-errors
 COMPILE_DEBUG_FLAGS := -fdiagnostics-color=always
 COMPILE_OPTIMIZE := -O0
@@ -18,7 +18,7 @@ COMPILE_WARNINGS += -Wno-sign-compare -Wno-reorder -Wno-unused-parameter
 #Enable some extra warnings
 COMPILE_WARNINGS += -Wcast-align -Wpointer-arith -Wwrite-strings -Wunreachable-code -Wshift-overflow=2
 COMPILE_WARNINGS += -Wno-div-by-zero -Wlogical-op -Wunreachable-code -Wformat=2
-COMPILE_WARNINGS += -Wduplicated-cond -Wmisleading-indentation
+COMPILE_WARNINGS += -Wduplicated-cond -Wnull-dereference -Wshift-negative-value
 #-Wcast-qual -Wswitch-enum -Wstrict-overflow=5 -Wshadow
 
 set_sanitizer_flags:
@@ -31,11 +31,11 @@ set_sanitizer_flags:
 
 set_debug_flags:
 	$(eval COMPILE_DEBUG_FLAGS += -ggdb3 -D_DEBUG -fvar-tracking-assignments)
-	$(eval COMPILE_OPTIMIZE := -Og)
+	$(eval COMPILE_OPTIMIZE := -Og -march=native)
 
 set_release_flags:
 	$(eval COMPILE_DEBUG_FLAGS += -DNDEBUG)
-	$(eval COMPILE_OPTIMIZE := -O3)
+	$(eval COMPILE_OPTIMIZE := -Ofast)
 	$(eval COMPILE_OPTIMIZE += -mfpmath=sse -m64 -mmmx -msse -msse2 -msse3 -m3dnow)
 
 export COMPILE_FLAGS COMPILE_OPTIMIZE COMPILE_WARNINGS COMPILE_DEBUG_FLAGS SANITIZER_FLAGS
@@ -59,5 +59,23 @@ configure:
 	git submodule update
 	sudo apt-get install ccache libsdl2-dev libsdl2-ttf-dev libsdl2-image-dev libsdl2-mixer-dev libphysfs-dev
 
-static-analysis:
-	nice cppcheck ./game ./egolib ./idlib --enable=all --std=c++11 --force --template gcc --std=posix --std=c99 -I ./game/src -I ./egolib/src -I ./idlib/src --suppress=missingIncludeSystem 2> static_code_analysis.txt -j8
+cppcheck:
+	mkdir cppcheck-result -p
+	nice \
+		 external/cppcheck/cppcheck \
+		 --report-progress \
+		 --enable=all \
+		 --platform=unix32 \
+		 --xml-version=2 \
+		 --inconclusive \
+		 --force \
+		 -I ./game/src \
+		 -I ./egolib/src \
+		 -I ./idlib/src \
+		 ./game \
+		 ./egolib \
+		 ./idlib \
+		 -j8 \
+		 -q \
+		 2> cppcheck-result/cppcheck.xml
+	./external/cppcheck/htmlreport/cppcheck-htmlreport --file=cppcheck-result/cppcheck.xml --report-dir=cppcheck-result

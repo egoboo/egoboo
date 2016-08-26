@@ -1902,7 +1902,7 @@ Uint8 scr_SpawnCharacter( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-	Vector3f pos = Vector3f(float(state.x), float(state.y), 0.0f);
+	Vector3f pos = Vector3f(static_cast<float>(state.x), static_cast<float>(state.y), pchr->getPosZ());
 
     std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, pchr->getProfileID(), pchr->team, 0, Facing(Ego::Math::clipBits<16>( state.turn )), "", ObjectRef::Invalid);
     returncode = pchild != nullptr;
@@ -6250,46 +6250,7 @@ Uint8 scr_FlashVariableHeight( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    const uint8_t valuelow = Ego::Math::clipBits<16>(state.turn);
-    const int16_t low = state.x;
-    const uint8_t valuehigh = state.distance;
-    const int16_t high = state.y;
-
-    for (size_t cnt = 0; cnt < pchr->inst.vrt_count; cnt++)
-    {
-        int16_t z = pchr->inst.vrt_lst[cnt].pos[ZZ];
-
-        if ( z < low )
-        {
-            pchr->inst.vrt_lst[cnt].col[RR] =
-                pchr->inst.vrt_lst[cnt].col[GG] =
-                    pchr->inst.vrt_lst[cnt].col[BB] = valuelow;
-        }
-        else if ( z > high )
-        {
-            pchr->inst.vrt_lst[cnt].col[RR] =
-                pchr->inst.vrt_lst[cnt].col[GG] =
-                    pchr->inst.vrt_lst[cnt].col[BB] = valuehigh;
-        }
-        else if ( high != low )
-        {
-            uint8_t valuemid = ( valuehigh * ( z - low ) / ( high - low ) ) +
-                             ( valuelow * ( high - z ) / ( high - low ) );
-
-            pchr->inst.vrt_lst[cnt].col[RR] =
-                pchr->inst.vrt_lst[cnt].col[GG] =
-                    pchr->inst.vrt_lst[cnt].col[BB] =  valuemid;
-        }
-        else
-        {
-            // z == high == low
-            uint8_t valuemid = ( valuehigh + valuelow ) * 0.5f;
-
-            pchr->inst.vrt_lst[cnt].col[RR] =
-                pchr->inst.vrt_lst[cnt].col[GG] =
-                    pchr->inst.vrt_lst[cnt].col[BB] =  valuemid;
-        }
-    }
+    pchr->inst.flashVariableHeight(Ego::Math::clipBits<16>(state.turn), state.x, state.distance, state.y);
 
     SCRIPT_FUNCTION_END();
 }

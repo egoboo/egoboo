@@ -848,6 +848,9 @@ bool ObjectPhysics::attachToObject(const std::shared_ptr<Object> &holder, grip_o
         return false;
     }
 
+    //Make sure it is no longer attach to a platform
+    detachFromPlatform();
+
     // Put 'em together
     _object.inwhich_slot       = slot;
     _object.attachedto         = holder->getObjRef();
