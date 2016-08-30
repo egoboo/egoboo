@@ -4345,9 +4345,7 @@ Uint8 scr_SetFrame( script_state_t& state, ai_state_t& self )
     if ( rv_success == chr_set_action(pchr, action, true, true) )
     {
         // the action is set. now set the frame info.
-        // pass along the imad in case the pchr->inst is not using this same mad
-        // (corrupted data?)
-        returncode = chr_instance_t::set_frame_full(pchr->inst, frame_along, ilip, pchr->getProfile()->getModel());
+        returncode = pchr->inst.setFrameFull(frame_along, ilip);
     }
 
 

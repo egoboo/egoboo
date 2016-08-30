@@ -1895,7 +1895,7 @@ void Object::respawn()
     }
 
     // re-initialize the instance
-    chr_instance_t::spawn(inst, _profileID, skin);
+    inst.setObjectProfile(getProfile(), this->skin);
     chr_update_matrix( this, true );
 
     if ( !isHidden() )
@@ -2406,10 +2406,10 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
     disaffirm_attached_particles(getObjRef());
 
     //Actually change the model
-    chr_instance_t::spawn(inst, profileID, newSkin);
+    inst.setObjectProfile(getProfile(), newSkin);
     chr_update_matrix(this, true);
 
-    // Action stuff that must be down after chr_instance_t::spawn()
+    // Action stuff that must be down after chr_instance_t::setProfile()
     chr_instance_t::set_action_ready(inst, false);
     chr_instance_t::set_action_keep(inst, false);
     chr_instance_t::set_action_loop(inst, false);
@@ -2423,10 +2423,10 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
         chr_instance_t::set_action_keep(inst, true);
     }
 
-    // Set the skin after changing the model in chr_instance_t::spawn()
+    // Set the skin after changing the model in chr_instance_t::setProfile()
     setSkin(newSkin);
 
-    // Must set the wepon grip AFTER the model is changed in chr_instance_t::spawn()
+    // Must set the wepon grip AFTER the model is changed in chr_instance_t::setProfile()
     if (isBeingHeld())
     {
         set_weapongrip(getObjRef(), attachedto, slot_to_grip_offset(inwhich_slot) );

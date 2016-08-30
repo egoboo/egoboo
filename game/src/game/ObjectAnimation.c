@@ -161,7 +161,7 @@ void move_one_character_do_animation( Object * pchr )
 
     flip_diff  = 0.25f * pinst.animationState.rate;
 
-    flip_next = chr_instance_t::get_remaining_flip(pinst);
+    flip_next = pinst.getRemainingFlip();
 
     while ( flip_next > 0.0f && flip_diff >= flip_next )
     {
@@ -190,7 +190,7 @@ void move_one_character_do_animation( Object * pchr )
             break;
         }
 
-        flip_next = chr_instance_t::get_remaining_flip( pinst );
+        flip_next = pinst.getRemainingFlip();
     }
 
     if ( flip_diff > 0.0f )

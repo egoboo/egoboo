@@ -560,10 +560,10 @@ bool FlashObject( Object * pchr, Uint8 value )
 {
     /// @author ZZ
     /// @details This function sets a character's lighting
-	if (!pchr) {
+	if (!pchr || pchr->isTerminated()) {
 		return false;
 	}
-	chr_instance_t::flash(pchr->inst, value);
+	pchr->inst.flash(value);
 	return true;
 }
 

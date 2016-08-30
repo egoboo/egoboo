@@ -1740,37 +1740,30 @@ void chr_instance_t::update_ref(chr_instance_t& self, const Vector3f &position, 
 	self.ref.sheen = self.sheen >> 1;
 }
 
-gfx_rv chr_instance_t::spawn(chr_instance_t& self, const PRO_REF profileID, const int skin)
+void chr_instance_t::setObjectProfile(const std::shared_ptr<ObjectProfile> &profile, const int skin)
 {
     // Remember any previous color shifts in case of lasting enchantments
-    colorshift_t colorshift_save = self.colorshift;
+    colorshift_t colorshift_save = this->colorshift;
 
     // clear the instance
-    self = chr_instance_t();
-
-    const std::shared_ptr<ObjectProfile> &profile = ProfileSystem::get().getProfile(profileID);
-    if (!profile) {
-        return gfx_fail;
-    }
+    (*this) = chr_instance_t();
 
     // lighting parameters
-	self.enviro = profile->isPhongMapped();
-	self.alpha = profile->getAlpha();
-	self.light = profile->getLight();
-	self.sheen = profile->getSheen();
-    self.colorshift = colorshift_save;
-	self.dont_cull_backfaces = profile->isDontCullBackfaces();
+	this->enviro = profile->isPhongMapped();
+	this->alpha = profile->getAlpha();
+	this->light = profile->getLight();
+	this->sheen = profile->getSheen();
+    this->colorshift = colorshift_save;
+	this->dont_cull_backfaces = profile->isDontCullBackfaces();
 
     // model parameters
-    chr_instance_t::set_mad(self, profile->getModel());
+    chr_instance_t::set_mad(*this, profile->getModel());
 
     // set the initial action, all actions override it
-    chr_instance_t::play_action(self, ACTION_DA, true);
+    chr_instance_t::play_action(*this, ACTION_DA, true);
 
     // upload these parameters to the reflection cache, but don't compute the matrix
-    chr_instance_t::update_ref(self, Vector3f::zero(), false);
-
-    return gfx_success;
+    chr_instance_t::update_ref(*this, Vector3f::zero(), false);
 }
 
 BIT_FIELD chr_instance_t::get_framefx(const chr_instance_t& self)
@@ -1778,37 +1771,27 @@ BIT_FIELD chr_instance_t::get_framefx(const chr_instance_t& self)
     return chr_instance_t::get_frame_nxt(self).framefx;
 }
 
-gfx_rv chr_instance_t::set_frame_full(chr_instance_t& self, int frame_along, int ilip, const std::shared_ptr<Ego::ModelDescriptor>& mad_override)
+gfx_rv chr_instance_t::setFrameFull(int frame_along, int ilip)
 {
     // handle optional parameters
-	std::shared_ptr<Ego::ModelDescriptor> imad;
-	if (mad_override) {
-		imad = mad_override;
-	} else {
-        imad = self.animationState.getModelDescriptor();
-    }
-
-	if (!imad) {
-		gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid mad");
-		return gfx_error;
-	}
+	const std::shared_ptr<Ego::ModelDescriptor> &imad = this->animationState.getModelDescriptor();
 
     // we have to have a valid action range
-	if (self.actionState.action_which > ACTION_COUNT) {
+	if (this->actionState.action_which > ACTION_COUNT) {
 		return gfx_fail;
 	}
 
     // try to heal a bad action
-    self.actionState.action_which = imad->getAction(self.actionState.action_which);
+    this->actionState.action_which = imad->getAction(this->actionState.action_which);
 
     // reject the action if it is cannot be made valid
-	if (self.actionState.action_which == ACTION_COUNT) {
+	if (this->actionState.action_which == ACTION_COUNT) {
 		return gfx_fail;
 	}
 
     // get some frame info
-    int frame_stt   = imad->getFirstFrame(self.actionState.action_which);
-    int frame_end   = imad->getLastFrame(self.actionState.action_which);
+    int frame_stt   = imad->getFirstFrame(this->actionState.action_which);
+    int frame_end   = imad->getLastFrame(this->actionState.action_which);
     int frame_count = 1 + ( frame_end - frame_stt );
 
     // try to heal an out of range value
@@ -1818,12 +1801,12 @@ gfx_rv chr_instance_t::set_frame_full(chr_instance_t& self, int frame_along, int
     int new_nxt = frame_stt + frame_along;
     new_nxt = std::min(new_nxt, frame_end);
 
-    self.animationState.setTargetFrameIndex(new_nxt);
-    self.animationState.ilip      = ilip;
-    self.animationState.flip      = ilip * 0.25f;
+    this->animationState.setTargetFrameIndex(new_nxt);
+    this->animationState.ilip      = ilip;
+    this->animationState.flip      = ilip * 0.25f;
 
     // set the validity of the cache
-	vlst_cache_t::test(self.save, &self);
+	vlst_cache_t::test(this->save, this);
 
     return gfx_success;
 }
@@ -1893,9 +1876,9 @@ gfx_rv chr_instance_t::update_one_flip(chr_instance_t& self, float dflip)
     return gfx_success;
 }
 
-float chr_instance_t::get_remaining_flip(chr_instance_t& self)
+float chr_instance_t::getRemainingFlip() const
 {
-	return (self.animationState.ilip + 1) * 0.25f - self.animationState.flip;
+	return (this->animationState.ilip + 1) * 0.25f - this->animationState.flip;
 }
 
 void chr_instance_t::getTint(GLXvector4f tint, const bool reflection, const int type)
@@ -1993,17 +1976,16 @@ gfx_rv vlst_cache_t::test(vlst_cache_t& self, chr_instance_t *instance)
     return gfx_success;
 }
 
-void chr_instance_t::flash(chr_instance_t& self, uint8_t value)
+void chr_instance_t::flash(uint8_t value)
 {
 	const float flash_val = value * INV_FF<float>();
 
 	// flash the ambient color
-	self.color_amb = flash_val;
+	this->color_amb = flash_val;
 
 	// flash the directional lighting
-	self.color_amb = flash_val;
-	for (size_t i = 0; i < self._vertexList.size(); ++i) {
-		self._vertexList[i].color_dir = flash_val;
+	for (size_t i = 0; i < _vertexList.size(); ++i) {
+		_vertexList[i].color_dir = flash_val;
 	}
 }
 

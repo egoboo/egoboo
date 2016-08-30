@@ -392,17 +392,16 @@ public:
 	static gfx_rv update_one_flip(chr_instance_t& self, float dflip);
 	static void update_lighting_base(chr_instance_t& self, Object *pchr, bool force);
 
-	static gfx_rv spawn(chr_instance_t& self, const PRO_REF profile, const int skin);
-
 	static gfx_rv increment_frame(chr_instance_t& self, const ObjectRef imount, const int mount_action);
 	static void remove_interpolation(chr_instance_t& self);
-	static gfx_rv set_frame_full(chr_instance_t& self, int frame_along, int ilip, const std::shared_ptr<Ego::ModelDescriptor> &mad_override);
 
 	static const MD2_Frame& get_frame_nxt(const chr_instance_t& self);
 	static const MD2_Frame& get_frame_lst(chr_instance_t& self);
 	static BIT_FIELD get_framefx(const chr_instance_t& self);
 
-	static float get_remaining_flip(chr_instance_t& self);
+    gfx_rv setFrameFull(int frame_along, int ilip);
+
+	float getRemainingFlip() const;
     
     void getTint(GLXvector4f tint, const bool reflection, const int type);
 
@@ -427,7 +426,9 @@ public:
     void flashVariableHeight(const uint8_t valuelow, const int16_t low, const uint8_t valuehigh, const int16_t high);
 
     /// This function sets a object's lighting.
-    static void flash(chr_instance_t& self, uint8_t value);
+    void flash(uint8_t value);
+
+    void setObjectProfile(const std::shared_ptr<ObjectProfile> &profile, const int skin);
 
 private:	
 	gfx_rv updateVertexCache(int vmax, int vmin, bool force, bool vertices_match, bool frames_match);

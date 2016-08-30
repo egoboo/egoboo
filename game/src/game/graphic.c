@@ -2345,17 +2345,15 @@ gfx_rv gfx_update_flashing(Ego::Graphics::EntityList& el)
 
         ObjectRef iobj = el.get(i).iobj;
 
-        Object *pobj = _currentModule->getObjectHandler().get(iobj);
-        if (!pobj) continue;
-
-        chr_instance_t& pinst = pobj->inst;
+        const std::shared_ptr<Object> &object = _currentModule->getObjectHandler()[iobj];
+        if (!object) continue;
 
         // Do flashing
-        if (DONTFLASH != pobj->getProfile()->getFlashAND())
+        if (DONTFLASH != object->getProfile()->getFlashAND())
         {
-            if (HAS_NO_BITS(game_frame_all, pobj->getProfile()->getFlashAND()))
+            if (HAS_NO_BITS(game_frame_all, object->getProfile()->getFlashAND()))
             {
-				chr_instance_t::flash(pinst, 255);
+				object->inst.flash(255);
             }
         }
 
@@ -2363,11 +2361,11 @@ gfx_rv gfx_update_flashing(Ego::Graphics::EntityList& el)
         // having one holy player in your party will cause the effect, BUT
         // having some non-holy players will dilute it
         tmp_seekurse_level = std::min(local_stats.seekurse_level, 1.0f);
-        if ((local_stats.seekurse_level > 0.0f) && pobj->iskursed && 1.0f != tmp_seekurse_level)
+        if ((local_stats.seekurse_level > 0.0f) && object->iskursed && 1.0f != tmp_seekurse_level)
         {
             if (HAS_NO_BITS(game_frame_all, SEEKURSEAND))
             {
-				chr_instance_t::flash(pinst, 255.0f *(1.0f - tmp_seekurse_level));
+				object->inst.flash(255.0f *(1.0f - tmp_seekurse_level));
             }
         }
     }
