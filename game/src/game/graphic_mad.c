@@ -1029,14 +1029,8 @@ gfx_rv chr_instance_t::update_bbox(chr_instance_t& self)
     return gfx_success;
 }
 
-gfx_rv chr_instance_t::needs_update(chr_instance_t& self, int vmin, int vmax, bool *verts_match, bool *frames_match)
+gfx_rv chr_instance_t::needs_update(int vmin, int vmax, bool *verts_match, bool *frames_match)
 {
-    /// @author BB
-    /// @details determine whether some specific vertices of an instance need to be updated
-    ///                gfx_error   means that the function was passed invalid values
-    ///                gfx_fail    means that the instance does not need to be updated
-    ///                gfx_success means that the instance should be updated
-
 	bool local_verts_match, local_frames_match;
 
     // ensure that the pointers point to something
@@ -1047,13 +1041,7 @@ gfx_rv chr_instance_t::needs_update(chr_instance_t& self, int vmin, int vmax, bo
     *verts_match  = false;
     *frames_match = false;
 
-	vlst_cache_t *psave = &(self.save);
-
-    // do we hace a valid mad?
-    if (!self.animationState.getModelDescriptor()) {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid mad");
-        return gfx_error;
-    }
+	vlst_cache_t *psave = &(this->save);
 
     // check to see if the vlst_cache has been marked as invalid.
     // in this case, everything needs to be updated
@@ -1062,7 +1050,7 @@ gfx_rv chr_instance_t::needs_update(chr_instance_t& self, int vmin, int vmax, bo
 	}
 
     // get the last valid vertex from the chr_instance
-    int maxvert = ((int)self._vertexList.size()) - 1;
+    int maxvert = ((int)this->_vertexList.size()) - 1;
 
     // check to make sure the lower bound of the saved data is valid.
     // it is initialized to an invalid value (psave->vmin = psave->vmax = -1)
@@ -1080,27 +1068,25 @@ gfx_rv chr_instance_t::needs_update(chr_instance_t& self, int vmin, int vmax, bo
     // test to see if we have already calculated this data
     *verts_match = (vmin >= psave->vmin) && (vmax <= psave->vmax);
 
-	bool flips_match = (std::abs(psave->flip - self.animationState.flip) < FLIP_TOLERANCE);
+	bool flips_match = (std::abs(psave->flip - this->animationState.flip) < FLIP_TOLERANCE);
 
-    *frames_match = (self.animationState.getTargetFrameIndex() == self.animationState.getSourceFrameIndex() && psave->frame_nxt == self.animationState.getTargetFrameIndex() && psave->frame_lst == self.animationState.getSourceFrameIndex() ) ||
-                    (flips_match && psave->frame_nxt == self.animationState.getTargetFrameIndex() && psave->frame_lst == self.animationState.getSourceFrameIndex());
+    *frames_match = (this->animationState.getTargetFrameIndex() == this->animationState.getSourceFrameIndex() && psave->frame_nxt == this->animationState.getTargetFrameIndex() && psave->frame_lst == this->animationState.getSourceFrameIndex() ) ||
+                    (flips_match && psave->frame_nxt == this->animationState.getTargetFrameIndex() && psave->frame_lst == this->animationState.getSourceFrameIndex());
 
     return (!(*verts_match) || !( *frames_match )) ? gfx_success : gfx_fail;
 }
 
-void chr_instance_t::interpolate_vertices_raw( GLvertex dst_ary[], const std::vector<MD2_Vertex> &lst_ary, const std::vector<MD2_Vertex> &nxt_ary, int vmin, int vmax, float flip )
+void chr_instance_t::interpolateVerticesRaw(const std::vector<MD2_Vertex> &lst_ary, const std::vector<MD2_Vertex> &nxt_ary, int vmin, int vmax, float flip )
 {
     /// raw indicates no bounds checking, so be careful
 
     int i;
 
-    GLvertex     * dst;
-
     if ( 0.0f == flip )
     {
-        for ( i = vmin; i <= vmax; i++ )
+        for (size_t i = vmin; i <= vmax; i++)
         {
-            dst     = dst_ary + i;
+            GLvertex* dst = &_vertexList[i];
             const MD2_Vertex &srcLast = lst_ary[i];
 
 			dst->pos[XX] = srcLast.pos[kX];
@@ -1118,9 +1104,9 @@ void chr_instance_t::interpolate_vertices_raw( GLvertex dst_ary[], const std::ve
     }
     else if ( 1.0f == flip )
     {
-        for ( i = vmin; i <= vmax; i++ )
+        for (size_t i = vmin; i <= vmax; i++ )
         {
-            dst     = dst_ary + i;
+            GLvertex* dst = &_vertexList[i];
             const MD2_Vertex &srcNext = nxt_ary[i];
 
 			dst->pos[XX] = srcNext.pos[kX];
@@ -1138,11 +1124,11 @@ void chr_instance_t::interpolate_vertices_raw( GLvertex dst_ary[], const std::ve
     }
     else
     {
-        Uint16 vrta_lst, vrta_nxt;
+        uint16_t vrta_lst, vrta_nxt;
 
-        for ( i = vmin; i <= vmax; i++ )
+        for (size_t i = vmin; i <= vmax; i++)
         {
-            dst     = dst_ary + i;
+            GLvertex* dst = &_vertexList[i];
             const MD2_Vertex &srcLast = lst_ary[i];
             const MD2_Vertex &srcNext = nxt_ary[i];
 
@@ -1231,7 +1217,7 @@ gfx_rv chr_instance_t::update_vertices(chr_instance_t& self, int vmin, int vmax,
     else
     {
         // do we need to update?
-        retval = chr_instance_t::needs_update( self, vmin, vmax, &vertices_match, &frames_match );
+        retval = self.needs_update(vmin, vmax, &vertices_match, &frames_match );
         if ( gfx_error == retval ) return gfx_error;            // gfx_error == retval means some pointer or reference is messed up
         if ( gfx_fail  == retval ) return gfx_success;          // gfx_fail  == retval means we do not need to update this round
 
@@ -1277,27 +1263,27 @@ gfx_rv chr_instance_t::update_vertices(chr_instance_t& self, int vmin, int vmax,
     // interpolate the 1st dirty region
     if ( vdirty1_min >= 0 && vdirty1_max >= 0 )
     {
-		chr_instance_t::interpolate_vertices_raw(self._vertexList.data(), lastFrame.vertexList, nextFrame.vertexList, vdirty1_min, vdirty1_max, loc_flip);
+		self.interpolateVerticesRaw(lastFrame.vertexList, nextFrame.vertexList, vdirty1_min, vdirty1_max, loc_flip);
     }
 
     // interpolate the 2nd dirty region
     if ( vdirty2_min >= 0 && vdirty2_max >= 0 )
     {
-		chr_instance_t::interpolate_vertices_raw(self._vertexList.data(), lastFrame.vertexList, nextFrame.vertexList, vdirty2_min, vdirty2_max, loc_flip);
+		self.interpolateVerticesRaw(lastFrame.vertexList, nextFrame.vertexList, vdirty2_min, vdirty2_max, loc_flip);
     }
 
     // update the saved parameters
-    return chr_instance_t::update_vlst_cache(self, vmax, vmin, force, vertices_match, frames_match);
+    return self.updateVertexCache(vmax, vmin, force, vertices_match, frames_match);
 }
 
-gfx_rv chr_instance_t::update_vlst_cache(chr_instance_t& self, int vmax, int vmin, bool force, bool vertices_match, bool frames_match)
+gfx_rv chr_instance_t::updateVertexCache(int vmax, int vmin, bool force, bool vertices_match, bool frames_match)
 {
     // this is getting a bit ugly...
     // we need to do this calculation as little as possible, so it is important that the
     // pinst->save.* values be tested and stored properly
 
-	int maxvert = ((int)self._vertexList.size()) - 1;
-	vlst_cache_t *psave = &(self.save);
+	int maxvert = ((int)this->_vertexList.size()) - 1;
+	vlst_cache_t *psave = &(this->save);
 
     // the save_vmin and save_vmax is the most complex
     bool verts_updated = false;
@@ -1372,9 +1358,9 @@ gfx_rv chr_instance_t::update_vlst_cache(chr_instance_t& self, int vmax, int vmi
         verts_updated = true;
     }
 
-    psave->frame_nxt = self.animationState.getTargetFrameIndex();
-    psave->frame_lst = self.animationState.getSourceFrameIndex();
-    psave->flip      = self.animationState.flip;
+    psave->frame_nxt = this->animationState.getTargetFrameIndex();
+    psave->frame_lst = this->animationState.getSourceFrameIndex();
+    psave->flip      = this->animationState.flip;
 
     // store the last time there was an update to the animation
     bool frames_updated = false;
@@ -1466,29 +1452,25 @@ gfx_rv chr_instance_t::set_action(chr_instance_t& self, int action, bool action_
     return gfx_success;
 }
 
-gfx_rv chr_instance_t::set_frame(chr_instance_t& self, int frame)
+gfx_rv chr_instance_t::setFrame(int frame)
 {
-    if (self.actionState.action_which < 0 || self.actionState.action_which > ACTION_COUNT) {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, self.actionState.action_which, "invalid action range");
-        return gfx_error;
-    }
-
-    // do we have a valid model?
-    if (!self.animationState.getModelDescriptor()) {
-		gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid mad");
+    if (this->actionState.action_which < 0 || this->actionState.action_which > ACTION_COUNT) {
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, this->actionState.action_which, "invalid action range");
         return gfx_error;
     }
 
     // is the frame within the valid range for this action?
-    if(!self.animationState.getModelDescriptor()->isFrameValid(self.actionState.action_which, frame)) return gfx_fail;
+    if(!this->animationState.getModelDescriptor()->isFrameValid(this->actionState.action_which, frame)) {
+        return gfx_fail;
+    }
 
     // jump to the next frame
-	self.animationState.flip = 0.0f;
-	self.animationState.ilip = 0;
-	self.animationState.setSourceFrameIndex(self.animationState.getTargetFrameIndex());
-	self.animationState.setTargetFrameIndex(frame);
+	this->animationState.flip = 0.0f;
+	this->animationState.ilip = 0;
+	this->animationState.setSourceFrameIndex(this->animationState.getTargetFrameIndex());
+	this->animationState.setTargetFrameIndex(frame);
 
-	vlst_cache_t::test(self.save, &self);
+	vlst_cache_t::test(this->save, this);
 
     return gfx_success;
 }
@@ -1499,7 +1481,7 @@ gfx_rv chr_instance_t::set_anim(chr_instance_t& self, int action, int frame, boo
 	if (gfx_success != retval) {
 		return retval;
 	}
-    retval = chr_instance_t::set_frame(self, frame);
+    retval = self.setFrame(frame);
     return retval;
 }
 
@@ -1612,18 +1594,18 @@ gfx_rv chr_instance_t::play_action(chr_instance_t& self, int action, bool action
     return chr_instance_t::start_anim(self, self.animationState.getModelDescriptor()->getAction(action), action_ready, true);
 }
 
-void chr_instance_t::clear_cache(chr_instance_t& self)
+void chr_instance_t::clearCache()
 {
     /// @author BB
     /// @details force chr_instance_update_vertices() recalculate the vertices the next time
     ///     the function is called
 
-    self.save = vlst_cache_t();
-    self.matrix_cache = matrix_cache_t();
-    self.ref = chr_reflection_cache_t();
+    this->save = vlst_cache_t();
+    this->matrix_cache = matrix_cache_t();
+    this->ref = chr_reflection_cache_t();
 
-    self.lighting_update_wld = -1;
-    self.lighting_frame_all  = -1;
+    this->lighting_update_wld = -1;
+    this->lighting_frame_all  = -1;
 }
 
 chr_instance_t::chr_instance_t() :
@@ -1665,11 +1647,11 @@ chr_instance_t::chr_instance_t() :
     save(),
     ref()
 {
-    // set the initial cache parameters
-    chr_instance_t::clear_cache(*this);
+    //ctor
 }
 
-chr_instance_t::~chr_instance_t() {
+chr_instance_t::~chr_instance_t() 
+{
     //dtor
 }
 
@@ -1716,7 +1698,7 @@ gfx_rv chr_instance_t::set_mad(chr_instance_t& self, const std::shared_ptr<Ego::
 
     if (updated) {
         // update the vertex and lighting cache
-        chr_instance_t::clear_cache(self);
+        self.clearCache();
         chr_instance_t::update_vertices(self, -1, -1, true);
     }
 

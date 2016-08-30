@@ -370,9 +370,6 @@ public:
 	chr_instance_t();
     ~chr_instance_t();
 
-	/// This function sets a object's lighting.
-	static void flash(chr_instance_t& self, uint8_t value);
-
 	static gfx_rv increment_action(chr_instance_t& self);
 	static gfx_rv play_action(chr_instance_t& self, int action, bool actionready);
 	static void set_action_keep(chr_instance_t& self, bool val);
@@ -406,9 +403,11 @@ public:
 	static BIT_FIELD get_framefx(const chr_instance_t& self);
 
 	static float get_remaining_flip(chr_instance_t& self);
+    
     void getTint(GLXvector4f tint, const bool reflection, const int type);
 
     const GLvertex& getVertex(const size_t index) const;
+
     size_t getVertexCount() const;
 
     /**
@@ -416,23 +415,43 @@ public:
     *   This function makes the character flash, feet one color, head another.
     *   This function sets a character's lighting depending on vertex height...
     *   Can make feet dark and head light...
-    *   @param valuelow 
-    *       Brightness on the low vertices (0 to 255)
-    *   @param low
-    *       The vertex index where the low vertices starts
-    *   @param valuehigh 
-    *       Brightness on the top vertices (0 to 255)
-    *   @param high
-    *       The vertex index where the high vertices starts
+    * @param valuelow 
+    *     Brightness on the low vertices (0 to 255)
+    * @param low
+    *     The vertex index where the low vertices starts
+    * @param valuehigh 
+    *     Brightness on the top vertices (0 to 255)
+    * @param high
+    *     The vertex index where the high vertices starts
     **/
     void flashVariableHeight(const uint8_t valuelow, const int16_t low, const uint8_t valuehigh, const int16_t high);
 
+    /// This function sets a object's lighting.
+    static void flash(chr_instance_t& self, uint8_t value);
+
 private:	
-	static gfx_rv update_vlst_cache(chr_instance_t& self, int vmax, int vmin, bool force, bool vertices_match, bool frames_match);
-	static gfx_rv needs_update(chr_instance_t& self, int vmin, int vmax, bool *verts_match, bool *frames_match);
-	static gfx_rv set_frame(chr_instance_t& self, int frame);
-	static void clear_cache(chr_instance_t& self);
-	static void interpolate_vertices_raw(GLvertex dst_ary[], const std::vector<MD2_Vertex> &lst_ary, const std::vector<MD2_Vertex> &nxt_ary, int vmin, int vmax, float flip);
+	gfx_rv updateVertexCache(int vmax, int vmin, bool force, bool vertices_match, bool frames_match);
+
+    /**
+    * @brief 
+    *   determine whether some specific vertices of an instance need to be updated
+    * @return
+    *   gfx_error   means that the function was passed invalid values
+    *   gfx_fail    means that the instance does not need to be updated
+    *   gfx_success means that the instance should be updated
+    **/
+	gfx_rv needs_update(int vmin, int vmax, bool *verts_match, bool *frames_match);
+
+	gfx_rv setFrame(int frame);
+
+    /**
+    * @brief
+    *   force chr_instance_update_vertices() recalculate the vertices the next time
+    *   the function is called
+    **/
+	void clearCache();
+
+	void interpolateVerticesRaw(const std::vector<MD2_Vertex> &lst_ary, const std::vector<MD2_Vertex> &nxt_ary, int vmin, int vmax, float flip);
 };
 
 //--------------------------------------------------------------------------------------------
