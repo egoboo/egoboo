@@ -381,9 +381,6 @@ public:
 	static gfx_rv start_anim(chr_instance_t& self, int action, bool action_ready, bool override_action);
 	static gfx_rv set_anim(chr_instance_t& self, int action, int frame, bool action_ready, bool override_action);
 
-	static gfx_rv set_texture(chr_instance_t& self, const Ego::DeferredTexture& itex);
-	static gfx_rv set_mad(chr_instance_t& self, const std::shared_ptr<Ego::ModelDescriptor> &imad);
-
 	static void update_ref(chr_instance_t& self, const Vector3f &position, bool need_matrix);
 	static gfx_rv update_bbox(chr_instance_t& self);
 	static gfx_rv update_vertices(chr_instance_t& self, int vmin, int vmax, bool force);
@@ -398,6 +395,12 @@ public:
 	static const MD2_Frame& get_frame_nxt(const chr_instance_t& self);
 	static const MD2_Frame& get_frame_lst(chr_instance_t& self);
 	static BIT_FIELD get_framefx(const chr_instance_t& self);
+
+    /**
+    * @brief
+    *   try to set the model used by the character instance.
+    **/
+    bool setModel(const std::shared_ptr<Ego::ModelDescriptor> &imad);
 
     gfx_rv setFrameFull(int frame_along, int ilip);
 

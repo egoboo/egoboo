@@ -235,13 +235,16 @@ bool Object::setSkin(const size_t skinNumber)
     //Set new skin
     this->skin = skinNumber;
 
+    /*
+    //ZF> uncommented this 01.09.2016, not needed?
+    
     //Change the model texture
     if (!this->inst.animationState.getModelDescriptor()) {
-        const std::shared_ptr<Ego::ModelDescriptor> &model = getProfile()->getModel();
-        if (chr_instance_t::set_mad(this->inst, model)) {
+        if (this->inst.setModel(getProfile()->getModel())) {
             getObjectPhysics().updateCollisionSize(true);
         }
     }
+    */
 
     return true;
 }

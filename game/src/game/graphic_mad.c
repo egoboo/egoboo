@@ -1660,49 +1660,39 @@ const GLvertex& chr_instance_t::getVertex(const size_t index) const
     return _vertexList[index];
 }
 
-gfx_rv chr_instance_t::set_mad(chr_instance_t& self, const std::shared_ptr<Ego::ModelDescriptor> &model)
+bool chr_instance_t::setModel(const std::shared_ptr<Ego::ModelDescriptor> &model)
 {
-    /// @author BB
-    /// @details try to set the model used by the character instance.
-    ///     If this fails, it leaves the old data. Just to be safe it
-    ///     would be best to check whether the old modes is valid, and
-    ///     if not, the data chould be set to safe values...
-
     bool updated = false;
 
-	if (!model) {
-		return gfx_fail;
-	}
-
-    if (self.animationState.getModelDescriptor() != model) {
+    if (this->animationState.getModelDescriptor() != model) {
         updated = true;
-        self.animationState.setModelDescriptor(model);
+        this->animationState.setModelDescriptor(model);
     }
 
     // set the vertex size
-    size_t vlst_size = self.animationState.getModelDescriptor()->getMD2()->getVertexCount();
-    if (self._vertexList.size() != vlst_size) {
+    size_t vlst_size = this->animationState.getModelDescriptor()->getMD2()->getVertexCount();
+    if (this->_vertexList.size() != vlst_size) {
         updated = true;
-        self._vertexList.resize(vlst_size);
+        this->_vertexList.resize(vlst_size);
     }
 
     // set the frames to frame 0 of this object's data
-    if (0 != self.animationState.getTargetFrameIndex() || 0 != self.animationState.getSourceFrameIndex()) {
-        updated        = true;
-        self.animationState.setSourceFrameIndex(0);
-        self.animationState.setTargetFrameIndex(0);
+    if (0 != this->animationState.getTargetFrameIndex() || 0 != this->animationState.getSourceFrameIndex()) {
+        updated = true;
+        this->animationState.setSourceFrameIndex(0);
+        this->animationState.setTargetFrameIndex(0);
 
         // the vlst_cache parameters are not valid
-        self.save.valid = false;
+        this->save.valid = false;
     }
 
     if (updated) {
         // update the vertex and lighting cache
-        self.clearCache();
-        chr_instance_t::update_vertices(self, -1, -1, true);
+        clearCache();
+        chr_instance_t::update_vertices(*this, -1, -1, true);
     }
 
-    return updated ? gfx_success : gfx_fail;
+    return updated;
 }
 
 void chr_instance_t::update_ref(chr_instance_t& self, const Vector3f &position, bool need_matrix)
@@ -1757,7 +1747,7 @@ void chr_instance_t::setObjectProfile(const std::shared_ptr<ObjectProfile> &prof
 	this->dont_cull_backfaces = profile->isDontCullBackfaces();
 
     // model parameters
-    chr_instance_t::set_mad(*this, profile->getModel());
+    setModel(profile->getModel());
 
     // set the initial action, all actions override it
     chr_instance_t::play_action(*this, ACTION_DA, true);
