@@ -561,7 +561,7 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
     }
 
     // initalize the character instance
-    pchr->inst.setObjectProfile(pchr->getProfile(), pchr->spawn_data.skin);
+    pchr->inst.setObjectProfile(pchr->getProfile());
     chr_update_matrix( pchr.get(), true );
 
     // Particle attachments

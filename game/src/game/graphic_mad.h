@@ -321,8 +321,6 @@ struct ActionState {
 /// All the data that the renderer needs to draw the character
 struct chr_instance_t
 {
-    int update_frame;                ///< the last frame that the instance was calculated in
-
     // position info
     Matrix4f4f     matrix;           ///< Character's matrix
     matrix_cache_t matrix_cache;     ///< Did we make one yet?
@@ -333,8 +331,6 @@ struct chr_instance_t
     uint8_t          alpha;                 ///< 255 = Solid, 0 = Invisible
     uint8_t          light;                 ///< 1 = Light, 0 = Normal
     uint8_t          sheen;                 ///< 0-15, how shiny it is
-    bool         enviro;                ///< Environment map?
-    bool         dont_cull_backfaces;   ///< Do we cull backfaces for this character or not?
 
     // color channel shifting
     colorshift_t     colorshift;
@@ -363,11 +359,8 @@ struct chr_instance_t
     vlst_cache_t           save;                   ///< Do we need to re-calculate all or part of the vertex list
     chr_reflection_cache_t ref;                    ///< pre-computing some reflection parameters
 
-private:
-    std::vector<GLvertex> _vertexList;
-
 public:
-	chr_instance_t();
+	chr_instance_t(const std::shared_ptr<ObjectProfile> &profile);
     ~chr_instance_t();
 
 	static gfx_rv increment_action(chr_instance_t& self);
@@ -390,17 +383,12 @@ public:
 	static void update_lighting_base(chr_instance_t& self, Object *pchr, bool force);
 
 	static gfx_rv increment_frame(chr_instance_t& self, const ObjectRef imount, const int mount_action);
-	static void remove_interpolation(chr_instance_t& self);
 
 	static const MD2_Frame& get_frame_nxt(const chr_instance_t& self);
 	static const MD2_Frame& get_frame_lst(chr_instance_t& self);
 	static BIT_FIELD get_framefx(const chr_instance_t& self);
 
-    /**
-    * @brief
-    *   try to set the model used by the character instance.
-    **/
-    bool setModel(const std::shared_ptr<Ego::ModelDescriptor> &imad);
+    void removeInterpolation();
 
     gfx_rv setFrameFull(int frame_along, int ilip);
 
@@ -431,7 +419,7 @@ public:
     /// This function sets a object's lighting.
     void flash(uint8_t value);
 
-    void setObjectProfile(const std::shared_ptr<ObjectProfile> &profile, const int skin);
+    void setObjectProfile(const std::shared_ptr<ObjectProfile> &profile);
 
 private:	
 	gfx_rv updateVertexCache(int vmax, int vmin, bool force, bool vertices_match, bool frames_match);
@@ -456,6 +444,15 @@ private:
 	void clearCache();
 
 	void interpolateVerticesRaw(const std::vector<MD2_Vertex> &lst_ary, const std::vector<MD2_Vertex> &nxt_ary, int vmin, int vmax, float flip);
+
+    /**
+    * @brief
+    *   try to set the model used by the character instance.
+    **/
+    bool setModel(const std::shared_ptr<Ego::ModelDescriptor> &imad);
+
+private:
+    std::vector<GLvertex> _vertexList;
 };
 
 //--------------------------------------------------------------------------------------------

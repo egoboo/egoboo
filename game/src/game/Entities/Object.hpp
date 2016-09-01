@@ -922,7 +922,6 @@ public:
     bool         is_overlay;                    ///< Is this an overlay? Track aitarget...
     SKIN_T         skin;                          ///< Character's skin
     PRO_REF        basemodel_ref;                     ///< The true form
-    chr_instance_t inst;                          ///< the render data
 
     // collision info
 
@@ -993,6 +992,11 @@ private:
     //Input commands
     std::bitset<LATCHBUTTON_COUNT> _inputLatchesPressed;
 
+public: //TODO: Hack make private
+    //Graphics
+    chr_instance_t inst;                          ///< the render data
+
+private:
     //Physics
     Ego::Physics::ObjectPhysics _objectPhysics;
 

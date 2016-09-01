@@ -101,7 +101,6 @@ Object::Object(const PRO_REF proRef, ObjectRef objRef) :
     is_overlay(false),
     skin(0),
     basemodel_ref(proRef),
-    inst(),
 
     bump_stt(),
     bump(),
@@ -141,6 +140,9 @@ Object::Object(const PRO_REF proRef, ObjectRef objRef) :
     _money(0),
     _perks(),
     _levelUpSeed(Random::next(std::numeric_limits<uint32_t>::max())),
+
+    //Graphics
+    inst(_profile),
 
     //Physics
     _objectPhysics(*this),
@@ -237,7 +239,7 @@ bool Object::setSkin(const size_t skinNumber)
 
     /*
     //ZF> uncommented this 01.09.2016, not needed?
-    
+
     //Change the model texture
     if (!this->inst.animationState.getModelDescriptor()) {
         if (this->inst.setModel(getProfile()->getModel())) {
@@ -1898,7 +1900,7 @@ void Object::respawn()
     }
 
     // re-initialize the instance
-    inst.setObjectProfile(getProfile(), this->skin);
+    inst.setObjectProfile(getProfile());
     chr_update_matrix( this, true );
 
     if ( !isHidden() )
@@ -2409,7 +2411,7 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
     disaffirm_attached_particles(getObjRef());
 
     //Actually change the model
-    inst.setObjectProfile(getProfile(), newSkin);
+    inst.setObjectProfile(getProfile());
     chr_update_matrix(this, true);
 
     // Action stuff that must be down after chr_instance_t::setProfile()

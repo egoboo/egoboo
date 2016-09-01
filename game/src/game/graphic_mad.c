@@ -443,7 +443,7 @@ gfx_rv MadRenderer::render_tex(Camera& camera, const std::shared_ptr<Object>& pc
     if(fogon && pinst->light==255)
     {
         // The full fog value
-        alpha = 0xff000000 | (fogred<<16) | (foggrn<<8) | (fogblu);
+*        alpha = 0xff000000 | (fogred<<16) | (foggrn<<8) | (fogblu);
 
         for (cnt = 0; cnt < pmad->transvertices; cnt++)
         {
@@ -486,7 +486,7 @@ gfx_rv MadRenderer::render(Camera& cam, const std::shared_ptr<Object> &pchr, GLX
         return gfx_fail;
     }
 
-    if ( pchr->inst.enviro || HAS_SOME_BITS(bits, CHR_PHONG) )
+    if ( pchr->getProfile()->isPhongMapped() || HAS_SOME_BITS(bits, CHR_PHONG) )
     {
         retval = render_enviro(cam, pchr, tint, bits);
     }
@@ -698,7 +698,7 @@ gfx_rv MadRenderer::render_solid( Camera& cam, const std::shared_ptr<Object> &pc
             renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
 
             // allow the dont_cull_backfaces to keep solid objects from culling backfaces
-            if (pinst.dont_cull_backfaces) {
+            if (pchr->getProfile()->isDontCullBackfaces()) {
                 // stop culling backward facing polugons
                 renderer.setCullingMode(Ego::CullingMode::None);
             } else {
@@ -1608,10 +1608,7 @@ void chr_instance_t::clearCache()
     this->lighting_frame_all  = -1;
 }
 
-chr_instance_t::chr_instance_t() :
-    // set the update frame to an invalid value
-    update_frame(-1),
-
+chr_instance_t::chr_instance_t(const std::shared_ptr<ObjectProfile> &profile) :
     matrix(Matrix4f4f::identity()),
     matrix_cache(),
 
@@ -1620,8 +1617,6 @@ chr_instance_t::chr_instance_t() :
     alpha(0xFF),
     light(0),
     sheen(0),
-    enviro(false),
-    dont_cull_backfaces(false),
 
     colorshift(),
 
@@ -1730,21 +1725,28 @@ void chr_instance_t::update_ref(chr_instance_t& self, const Vector3f &position, 
 	self.ref.sheen = self.sheen >> 1;
 }
 
-void chr_instance_t::setObjectProfile(const std::shared_ptr<ObjectProfile> &profile, const int skin)
+void chr_instance_t::setObjectProfile(const std::shared_ptr<ObjectProfile> &profile)
 {
+    //Reset data
     // Remember any previous color shifts in case of lasting enchantments
-    colorshift_t colorshift_save = this->colorshift;
-
-    // clear the instance
-    (*this) = chr_instance_t();
+    matrix = Matrix4f4f::identity();
+    facing_z = 0;
+    uoffset = 0;
+    voffset = 0;
+    animationState = AnimationState();
+    actionState = ActionState();
+    color_amb = 0;
+    col_amb = Vector4f::zero();
+    max_light = 0;
+    min_light = 0;
+    _vertexList.clear();
+    bbox = oct_bb_t();
+    clearCache();
 
     // lighting parameters
-	this->enviro = profile->isPhongMapped();
 	this->alpha = profile->getAlpha();
 	this->light = profile->getLight();
 	this->sheen = profile->getSheen();
-    this->colorshift = colorshift_save;
-	this->dont_cull_backfaces = profile->isDontCullBackfaces();
 
     // model parameters
     setModel(profile->getModel());
@@ -1823,14 +1825,14 @@ gfx_rv chr_instance_t::set_action_next(chr_instance_t& self, int val) {
     return gfx_success;
 }
 
-void chr_instance_t::remove_interpolation(chr_instance_t& self)
+void chr_instance_t::removeInterpolation()
 {
-    if (self.animationState.getSourceFrameIndex() != self.animationState.getTargetFrameIndex() ) {
-		self.animationState.setSourceFrameIndex(self.animationState.getTargetFrameIndex());
-		self.animationState.ilip = 0;
-		self.animationState.flip = 0.0f;
+    if (this->animationState.getSourceFrameIndex() != this->animationState.getTargetFrameIndex() ) {
+		this->animationState.setSourceFrameIndex(this->animationState.getTargetFrameIndex());
+		this->animationState.ilip = 0;
+		this->animationState.flip = 0.0f;
 
-		vlst_cache_t::test(self.save, &self);
+		vlst_cache_t::test(this->save, this);
     }
 }
 

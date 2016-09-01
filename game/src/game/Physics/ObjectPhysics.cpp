@@ -887,10 +887,12 @@ bool ObjectPhysics::attachToObject(const std::shared_ptr<Object> &holder, grip_o
     }
     else if (_object.isAlive())
     {
+        chr_play_action(&_object, ACTION_MM + slot, false );
+        
         /// @note ZF@> hmm, here is the torch holding bug. Removing
         /// the interpolation seems to fix it...
-        chr_play_action(&_object, ACTION_MM + slot, false );
-        chr_instance_t::remove_interpolation(_object.inst);
+        //_object.inst.removeInterpolation();
+        /// @note ZF@> Reverted this hack, no longer needed? (01.09.2016)
 
         // set the action to keep for items
         if (_object.isItem()) {

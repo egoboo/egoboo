@@ -152,11 +152,8 @@ static float draw_timer(float y);
 static float draw_game_status(float y);
 static void  draw_hud();
 
-static gfx_rv update_one_chr_instance(Object * pchr);
 static gfx_rv gfx_update_all_chr_instance();
 static gfx_rv gfx_update_flashing(Ego::Graphics::EntityList& el);
-
-
 
 static bool sum_global_lighting(std::array<float, LIGHTING_VEC_SIZE> &lighting);
 
@@ -2377,7 +2374,6 @@ gfx_rv gfx_update_flashing(Ego::Graphics::EntityList& el)
 gfx_rv gfx_update_all_chr_instance()
 {
     gfx_rv retval;
-    gfx_rv tmp_rv;
 
     // assume the best
     retval = gfx_success;
@@ -2389,21 +2385,22 @@ gfx_rv gfx_update_all_chr_instance()
             continue;
         }
 
+        //Skip objects outside the map
 		auto mesh = _currentModule->getMeshPointer();
         if (!mesh->grid_is_valid(pchr->getTile())) continue;
 
-        tmp_rv = update_one_chr_instance(pchr.get());
-
-        // deal with return values
-        if (gfx_error == tmp_rv)
-        {
+        // make sure that the vertices are interpolated
+        if(chr_instance_t::update_vertices(pchr->inst, -1, -1, true) == gfx_error) {
             retval = gfx_error;
         }
-        else if (gfx_success == tmp_rv)
-        {
-            // the instance has changed, refresh the collision bound
-            pchr->getObjectPhysics().updateCollisionSize(true);
+
+        // the instance has changed, refresh the collision bound
+        else {
+            pchr->getObjectPhysics().updateCollisionSize(true);            
         }
+
+        // do the basic lighting
+        chr_instance_t::update_lighting_base(pchr->inst, pchr.get(), false);
     }
 
     return retval;
@@ -2412,36 +2409,6 @@ gfx_rv gfx_update_all_chr_instance()
 //--------------------------------------------------------------------------------------------
 // chr_instance_t FUNCTIONS
 //--------------------------------------------------------------------------------------------
-gfx_rv update_one_chr_instance(Object *pchr)
-{
-    if (!pchr || pchr->isTerminated())
-    {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, GET_INDEX_PCHR(pchr).get(), "invalid character");
-        return gfx_error;
-    }
-    chr_instance_t& pinst = pchr->inst;
-
-    // only update once per frame
-    if (pinst.update_frame >= 0 && (Uint32)pinst.update_frame >= game_frame_all)
-    {
-        return gfx_success;
-    }
-
-    // make sure that the vertices are interpolated
-    gfx_rv retval = chr_instance_t::update_vertices(pinst, -1, -1, true);
-    if (gfx_error == retval)
-    {
-        return gfx_error;
-    }
-
-    // do the basic lighting
-    chr_instance_t::update_lighting_base(pinst, pchr, false);
-
-    // set the update_frame to the current frame
-    pinst.update_frame = game_frame_all;
-
-    return retval;
-}
 
 // variables to optimize calls to bind the textures
 bool TileRenderer::disableTexturing = false;
