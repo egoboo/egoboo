@@ -474,6 +474,10 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
     pchr->bump_save.height   = pchr->bump_stt.height;
     pchr->recalculateCollisionSize();
 
+    // Character size and bumping
+    pchr->fat_goto      = pchr->fat;
+    pchr->fat_goto_time = 0;
+
     // Kurse state
     if ( ppro->isItem() )
     {
@@ -540,10 +544,6 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
         pchr->setMana(ppro->getSpawnMana());        
     }
 
-    // Character size and bumping
-    pchr->fat_goto      = pchr->fat;
-    pchr->fat_goto_time = 0;
-
     //Facing
     pchr->ori.facing_z     = Facing(FACING_T(facing));
     pchr->ori_old.facing_z = pchr->ori.facing_z;
@@ -559,10 +559,6 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
         // A name has been given
         pchr->setName(name);
     }
-
-    // initalize the character instance
-    pchr->inst.setObjectProfile(pchr->getProfile());
-    chr_update_matrix( pchr.get(), true );
 
     // Particle attachments
     for ( uint8_t tnc = 0; tnc < ppro->getAttachedParticleAmount(); tnc++ )
@@ -597,6 +593,7 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
     //    pchr->isshopitem = true;
     //}
 
+    chr_update_matrix( pchr.get(), true );
     chr_instance_t::update_ref(pchr->inst, pchr->getPosition(), true);
 
     // start the character out in the "dance" animation

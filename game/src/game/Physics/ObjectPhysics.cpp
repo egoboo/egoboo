@@ -952,14 +952,9 @@ void ObjectPhysics::updateCollisionSize(bool update_matrix)
         }
     }
 
-    // make sure the bounding box is calculated properly
-    if (gfx_error == chr_instance_t::update_bbox(_object.inst)) {
-        return;
-    }
-
-    // convert the point cloud in the GLvertex array (_object.inst.vrt_lst) to
+    // convert the point cloud in the GLvertex array (_object.inst._vertexList) to
     // a level 1 bounding box. Subtract off the position of the character
-    oct_bb_t bsrc = _object.inst.bbox;
+    oct_bb_t bsrc = _object.inst.getBoundingBox();
 
     Vector4f  src[16];  // for the upper and lower octagon points
     Vector4f  dst[16];  // for the upper and lower octagon points
@@ -968,7 +963,7 @@ void ObjectPhysics::updateCollisionSize(bool update_matrix)
     // keep track of the actual number of vertices, in case the object is square
     int vcount = oct_bb_t::to_points(bsrc, src, 16);
 
-   // transform the new point cloud
+    // transform the new point cloud
     Utilities::transform(_object.inst.matrix, src, dst, vcount);
 
     // convert the new point cloud into a level 1 bounding box

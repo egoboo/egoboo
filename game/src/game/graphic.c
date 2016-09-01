@@ -2390,7 +2390,7 @@ gfx_rv gfx_update_all_chr_instance()
         if (!mesh->grid_is_valid(pchr->getTile())) continue;
 
         // make sure that the vertices are interpolated
-        if(chr_instance_t::update_vertices(pchr->inst, -1, -1, true) == gfx_error) {
+        if(pchr->inst.updateVertices(-1, -1, true) == gfx_error) {
             retval = gfx_error;
         }
 

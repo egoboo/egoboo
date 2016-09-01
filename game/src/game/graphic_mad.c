@@ -1007,26 +1007,23 @@ void chr_instance_t::update_lighting_base(chr_instance_t& self, Object *pchr, bo
     self.min_light = std::max(self.min_light, 0);
 }
 
-gfx_rv chr_instance_t::update_bbox(chr_instance_t& self)
+oct_bb_t chr_instance_t::getBoundingBox()
 {
-    // get the model. try to heal a bad model.
-    if (!self.animationState.getModelDescriptor()) {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid mad");
-        return gfx_error;
-    }
+    const MD2_Frame &lastFrame = chr_instance_t::get_frame_lst(*this);
+    const MD2_Frame &nextFrame = chr_instance_t::get_frame_nxt(*this);
 
-    const MD2_Frame &lastFrame = chr_instance_t::get_frame_lst(self);
-    const MD2_Frame &nextFrame = chr_instance_t::get_frame_nxt(self);
+    //Beginning of a frame animation
+    if (this->animationState.getTargetFrameIndex() == this->animationState.getSourceFrameIndex() || this->animationState.flip == 0.0f) {
+        return lastFrame.bb;
+    } 
 
-    if (self.animationState.getTargetFrameIndex() == self.animationState.getSourceFrameIndex() || self.animationState.flip == 0.0f) {
-        self.bbox = lastFrame.bb;
-    } else if (self.animationState.flip == 1.0f) {
-        self.bbox = nextFrame.bb;
-    } else {
-        self.bbox = oct_bb_t::interpolate(lastFrame.bb, nextFrame.bb, self.animationState.flip);
-    }
+    //Finished frame animation
+    if (this->animationState.flip == 1.0f) {
+        return nextFrame.bb;
+    } 
 
-    return gfx_success;
+    //We are middle between two animation frames
+    return oct_bb_t::interpolate(lastFrame.bb, nextFrame.bb, this->animationState.flip);
 }
 
 gfx_rv chr_instance_t::needs_update(int vmin, int vmax, bool *verts_match, bool *frames_match)
@@ -1150,43 +1147,26 @@ void chr_instance_t::interpolateVerticesRaw(const std::vector<MD2_Vertex> &lst_a
     }
 }
 
-gfx_rv chr_instance_t::update_vertices(chr_instance_t& self, int vmin, int vmax, bool force)
+gfx_rv chr_instance_t::updateVertices(int vmin, int vmax, bool force)
 {
-	int maxvert;
     bool vertices_match, frames_match;
     float  loc_flip;
-
-    gfx_rv retval;
-
-    vlst_cache_t * psave;
 
     int vdirty1_min = -1, vdirty1_max = -1;
     int vdirty2_min = -1, vdirty2_max = -1;
 
-    psave = &( self.save );
-
-    if ( gfx_error == chr_instance_t::update_bbox( self ) )
-    {
-        return gfx_error;
-    }
-
     // get the model
-    if ( !self.animationState.getModelDescriptor() )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "invalid mad" );
-        return gfx_error;
-    }
-    std::shared_ptr<MD2Model> pmd2 = self.animationState.getModelDescriptor()->getMD2();
+    const std::shared_ptr<MD2Model> &pmd2 = this->animationState.getModelDescriptor()->getMD2();
 
     // make sure we have valid data
-    if (self._vertexList.size() != pmd2->getVertexCount())
+    if (_vertexList.size() != pmd2->getVertexCount())
     {
 		Log::get().warn( "chr_instance_update_vertices() - character instance vertex data does not match its md2\n" );
         return gfx_error;
     }
 
     // get the vertex list size from the chr_instance
-    maxvert = (( int )self._vertexList.size() ) - 1;
+    int maxvert = static_cast<int>(_vertexList.size()) - 1;
 
     // handle the default parameters
     if ( vmin < 0 ) vmin = 0;
@@ -1196,10 +1176,10 @@ gfx_rv chr_instance_t::update_vertices(chr_instance_t& self, int vmin, int vmax,
     if ( vmax < vmin ) std::swap(vmax, vmin);
 
     // make sure that the vertices are within the max range
-    vmin = Ego::Math::constrain( vmin, 0, maxvert );
-    vmax = Ego::Math::constrain( vmax, 0, maxvert );
+    vmin = Ego::Math::constrain(vmin, 0, maxvert);
+    vmax = Ego::Math::constrain(vmax, 0, maxvert);
 
-    if ( force )
+    if (force)
     {
         // force an update of vertices
 
@@ -1217,7 +1197,7 @@ gfx_rv chr_instance_t::update_vertices(chr_instance_t& self, int vmin, int vmax,
     else
     {
         // do we need to update?
-        retval = self.needs_update(vmin, vmax, &vertices_match, &frames_match );
+        gfx_rv retval = needs_update(vmin, vmax, &vertices_match, &frames_match );
         if ( gfx_error == retval ) return gfx_error;            // gfx_error == retval means some pointer or reference is messed up
         if ( gfx_fail  == retval ) return gfx_success;          // gfx_fail  == retval means we do not need to update this round
 
@@ -1230,15 +1210,15 @@ gfx_rv chr_instance_t::update_vertices(chr_instance_t& self, int vmin, int vmax,
         else
         {
             // grab the dirty vertices
-            if ( vmin < psave->vmin )
+            if ( vmin < this->save.vmin )
             {
                 vdirty1_min = vmin;
-                vdirty1_max = psave->vmin - 1;
+                vdirty1_max = this->save.vmin - 1;
             }
 
-            if ( vmax > psave->vmax )
+            if ( vmax > this->save.vmax )
             {
-                vdirty2_min = psave->vmax + 1;
+                vdirty2_min = this->save.vmax + 1;
                 vdirty2_max = vmax;
             }
         }
@@ -1246,34 +1226,36 @@ gfx_rv chr_instance_t::update_vertices(chr_instance_t& self, int vmin, int vmax,
 
     // make sure the frames are in the valid range
     const std::vector<MD2_Frame> &frameList = pmd2->getFrames();
-    if ( self.animationState.getTargetFrameIndex() >= frameList.size() || self.animationState.getSourceFrameIndex() >= frameList.size() )
+    if ( this->animationState.getTargetFrameIndex() >= frameList.size() || this->animationState.getSourceFrameIndex() >= frameList.size() )
     {
 		Log::get().warn("%s:%d:%s: character instance frame is outside the range of its MD2\n", __FILE__, __LINE__, __FUNCTION__ );
         return gfx_error;
     }
 
     // grab the frame data from the correct model
-    const MD2_Frame &nextFrame = frameList[self.animationState.getTargetFrameIndex()];
-    const MD2_Frame &lastFrame = frameList[self.animationState.getSourceFrameIndex()];
+    const MD2_Frame &nextFrame = frameList[this->animationState.getTargetFrameIndex()];
+    const MD2_Frame &lastFrame = frameList[this->animationState.getSourceFrameIndex()];
 
     // fix the flip for objects that are not animating
-    loc_flip = self.animationState.flip;
-    if ( self.animationState.getTargetFrameIndex() == self.animationState.getSourceFrameIndex() ) loc_flip = 0.0f;
+    loc_flip = this->animationState.flip;
+    if ( this->animationState.getTargetFrameIndex() == this->animationState.getSourceFrameIndex() ) {
+        loc_flip = 0.0f;
+    }
 
     // interpolate the 1st dirty region
     if ( vdirty1_min >= 0 && vdirty1_max >= 0 )
     {
-		self.interpolateVerticesRaw(lastFrame.vertexList, nextFrame.vertexList, vdirty1_min, vdirty1_max, loc_flip);
+		interpolateVerticesRaw(lastFrame.vertexList, nextFrame.vertexList, vdirty1_min, vdirty1_max, loc_flip);
     }
 
     // interpolate the 2nd dirty region
     if ( vdirty2_min >= 0 && vdirty2_max >= 0 )
     {
-		self.interpolateVerticesRaw(lastFrame.vertexList, nextFrame.vertexList, vdirty2_min, vdirty2_max, loc_flip);
+		interpolateVerticesRaw(lastFrame.vertexList, nextFrame.vertexList, vdirty2_min, vdirty2_max, loc_flip);
     }
 
     // update the saved parameters
-    return self.updateVertexCache(vmax, vmin, force, vertices_match, frames_match);
+    return updateVertexCache(vmax, vmin, force, vertices_match, frames_match);
 }
 
 gfx_rv chr_instance_t::updateVertexCache(int vmax, int vmin, bool force, bool vertices_match, bool frames_match)
@@ -1408,7 +1390,7 @@ gfx_rv chr_instance_t::update_grip_verts(chr_instance_t& self, Uint16 vrt_lst[],
     if ( 0 == count ) return gfx_fail;
 
     // force the vertices to update
-    retval = chr_instance_t::update_vertices(self, vmin, vmax, true);
+    retval = self.updateVertices(vmin, vmax, true);
 
     return retval;
 }
@@ -1636,7 +1618,6 @@ chr_instance_t::chr_instance_t(const std::shared_ptr<ObjectProfile> &profile) :
 
     // linear interpolated frame vertices
     _vertexList(),
-    bbox(),
 
     // graphical optimizations
     save(),
@@ -1684,7 +1665,7 @@ bool chr_instance_t::setModel(const std::shared_ptr<Ego::ModelDescriptor> &model
     if (updated) {
         // update the vertex and lighting cache
         clearCache();
-        chr_instance_t::update_vertices(*this, -1, -1, true);
+        updateVertices(-1, -1, true);
     }
 
     return updated;
@@ -1740,7 +1721,6 @@ void chr_instance_t::setObjectProfile(const std::shared_ptr<ObjectProfile> &prof
     max_light = 0;
     min_light = 0;
     _vertexList.clear();
-    bbox = oct_bb_t();
     clearCache();
 
     // lighting parameters

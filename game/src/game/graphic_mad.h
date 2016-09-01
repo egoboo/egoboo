@@ -227,11 +227,12 @@ private:
     uint16_t targetFrameIndex;
     /// The source frame index.
     uint16_t sourceFrameIndex;
+
 public:
     /// The integer-valued frame in betweening.
     uint8_t ilip;
     /// The real-valued frame in betweening.
-    float flip;
+    float flip; //flip=0.0f beginning of an animation frame, flip=1.0f reached next frame in animation
     /// The animation rate.
     float rate;
     /// Construct this animation state.
@@ -352,9 +353,6 @@ struct chr_instance_t
     int            lighting_update_wld;            ///< update some lighting info no more than once an update
     int            lighting_frame_all;             ///< update some lighting info no more than once a frame
 
-    // linear interpolated frame vertices
-    oct_bb_t       bbox;                           ///< the bounding box for this frame
-
     // graphical optimizations
     vlst_cache_t           save;                   ///< Do we need to re-calculate all or part of the vertex list
     chr_reflection_cache_t ref;                    ///< pre-computing some reflection parameters
@@ -375,8 +373,6 @@ public:
 	static gfx_rv set_anim(chr_instance_t& self, int action, int frame, bool action_ready, bool override_action);
 
 	static void update_ref(chr_instance_t& self, const Vector3f &position, bool need_matrix);
-	static gfx_rv update_bbox(chr_instance_t& self);
-	static gfx_rv update_vertices(chr_instance_t& self, int vmin, int vmax, bool force);
 	static gfx_rv update_grip_verts(chr_instance_t& self, Uint16 vrt_lst[], size_t vrt_count);
 	static void update_one_lip(chr_instance_t& self);
 	static gfx_rv update_one_flip(chr_instance_t& self, float dflip);
@@ -388,6 +384,10 @@ public:
 	static const MD2_Frame& get_frame_lst(chr_instance_t& self);
 	static BIT_FIELD get_framefx(const chr_instance_t& self);
 
+    oct_bb_t getBoundingBox();
+
+    gfx_rv updateVertices(int vmin, int vmax, bool force);
+    
     void removeInterpolation();
 
     gfx_rv setFrameFull(int frame_along, int ilip);

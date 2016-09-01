@@ -182,6 +182,9 @@ Object::Object(const PRO_REF proRef, ObjectRef objRef) :
 
     //Initialize timer to a random value
     resetBoredTimer();
+
+    // initalize the character instance
+    inst.setObjectProfile(getProfile());
 }
 
 Object::~Object()
