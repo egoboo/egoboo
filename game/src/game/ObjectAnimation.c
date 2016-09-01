@@ -8,34 +8,23 @@
 static egolib_rv chr_invalidate_child_instances( Object * pchr );
 static bool chr_handle_madfx( Object * pchr );
 static float set_character_animation_rate( Object * pchr );
-
-//--------------------------------------------------------------------------------------------
-egolib_rv chr_set_action( Object * pchr, int action, bool action_ready, bool override_action )
-{
-    egolib_rv retval;
-
-    if (!pchr || pchr->isTerminated()) return rv_error;
-
-    retval = (egolib_rv)chr_instance_t::set_action(pchr->inst, action, action_ready, override_action);
-    if ( rv_success != retval ) return retval;
-
-    // if the instance is invalid, invalidate everything that depends on this object
-    if ( !pchr->inst.save.valid )
-    {
-        chr_invalidate_child_instances( pchr );
-    }
-
-    return retval;
-}
+static egolib_rv chr_increment_frame( Object * pchr );
+static egolib_rv chr_set_anim( Object * pchr, const ModelAction action, int frame, bool action_ready, bool override_action );
 
 //--------------------------------------------------------------------------------------------
 egolib_rv chr_start_anim( Object * pchr, int action, bool action_ready, bool override_action )
 {
     egolib_rv retval;
 
+    //Skip invalid actions
+    if(action < 0 || action >= ACTION_COUNT) {
+        return rv_error;
+    }
+
+    //Skip invalid characters
     if (!pchr || pchr->isTerminated()) return rv_error;
 
-    retval = ( egolib_rv )chr_instance_t::start_anim(pchr->inst, action, action_ready, override_action );
+    retval = ( egolib_rv )pchr->inst.startAnimation(static_cast<ModelAction>(action), action_ready, override_action );
     if ( rv_success != retval ) return retval;
 
     // if the instance is invalid, invalidate everything that depends on this object
@@ -48,13 +37,16 @@ egolib_rv chr_start_anim( Object * pchr, int action, bool action_ready, bool ove
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv chr_set_anim( Object * pchr, int action, int frame, bool action_ready, bool override_action )
+static egolib_rv chr_set_anim( Object * pchr, const ModelAction action, int frame, bool action_ready, bool override_action )
 {
     egolib_rv retval;
 
     if (!pchr || pchr->isTerminated()) return rv_error;
 
-    retval = ( egolib_rv )chr_instance_t::set_anim(pchr->inst, action, frame, action_ready, override_action);
+    retval = pchr->inst.setAction(action, action_ready, override_action);
+    if ( rv_success != retval ) return retval;
+
+    retval = pchr->inst.setFrame(frame);
     if ( rv_success != retval ) return retval;
 
     // if the instance is invalid, invalidate everything that depends on this object
@@ -67,29 +59,10 @@ egolib_rv chr_set_anim( Object * pchr, int action, int frame, bool action_ready,
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv chr_increment_action( Object * pchr )
+static egolib_rv chr_increment_frame( Object * pchr )
 {
     egolib_rv retval;
-
-    if (!pchr || pchr->isTerminated() ) return rv_error;
-
-    retval = (egolib_rv)chr_instance_t::increment_action(pchr->inst);
-    if ( rv_success != retval ) return retval;
-
-    // if the instance is invalid, invalidate everything that depends on this object
-    if ( !pchr->inst.save.valid )
-    {
-        chr_invalidate_child_instances( pchr );
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-egolib_rv chr_increment_frame( Object * pchr )
-{
-    egolib_rv retval;
-    int mount_action;
+    ModelAction mount_action;
     
     if (!pchr || pchr->isTerminated() ) return rv_error;
     ObjectRef imount = pchr->attachedto;
@@ -381,7 +354,7 @@ float set_character_animation_rate( Object * pchr )
             if ( !ACTION_IS_TYPE( pinst.actionState.action_which, D ) )
             {
                 // get an appropriate version of the idle action
-                int tmp_action = pinst.animationState.getModelDescriptor()->getAction(ACTION_DA);
+                ModelAction tmp_action = pinst.animationState.getModelDescriptor()->getAction(ACTION_DA);
 
                 // start the animation
                 chr_start_anim( pchr, tmp_action, true, true );
@@ -390,18 +363,17 @@ float set_character_animation_rate( Object * pchr )
     }
     else
     {
-        int tmp_action = pinst.animationState.getModelDescriptor()->getAction(action);
+        ModelAction tmp_action = pinst.animationState.getModelDescriptor()->getAction(action);
         if ( ACTION_COUNT != tmp_action )
         {
             if ( pinst.actionState.action_which != tmp_action )
             {
-                const MD2_Frame &nextFrame  = chr_instance_t::get_frame_nxt(pchr->inst);
-                chr_set_anim( pchr, tmp_action, pmad->getFrameLipToWalkFrame(lip, nextFrame.framelip), true, true );
+                chr_set_anim( pchr, tmp_action, pmad->getFrameLipToWalkFrame(lip, pchr->inst.getNextFrame().framelip), true, true );
                 chr_start_anim(pchr, tmp_action, true, true);
             }
 
             // "loop" the action
-            chr_instance_t::set_action_next(pinst, tmp_action);
+            pinst.setNextAction(tmp_action);
         }
     }
 
@@ -436,11 +408,10 @@ bool chr_handle_madfx( Object * pchr )
     ///@details This handles special commands an animation frame might execute, for example
     ///         grabbing stuff or spawning attack particles.
 
-    Uint32 framefx;
-
     if ( nullptr == pchr ) return false;
 
-    framefx = chr_instance_t::get_framefx(pchr->inst);
+    uint32_t framefx = pchr->inst.getFrameFX();
+
     if ( 0 == framefx ) return true;
 
     auto objRef = GET_INDEX_PCHR( pchr );

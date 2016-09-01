@@ -931,7 +931,7 @@ void chr_instance_t::update_lighting_base(chr_instance_t& self, Object *pchr, bo
     }
 
     // has this already been calculated this update?
-	if (!force && self.lighting_update_wld >= 0 && (Uint32)self.lighting_update_wld >= update_wld) {
+	if (!force && self.lighting_update_wld >= 0 && static_cast<uint32_t>(self.lighting_update_wld) >= update_wld) {
 		return;
 	}
 	self.lighting_update_wld = update_wld;
@@ -1007,23 +1007,20 @@ void chr_instance_t::update_lighting_base(chr_instance_t& self, Object *pchr, bo
     self.min_light = std::max(self.min_light, 0);
 }
 
-oct_bb_t chr_instance_t::getBoundingBox()
+oct_bb_t chr_instance_t::getBoundingBox() const
 {
-    const MD2_Frame &lastFrame = chr_instance_t::get_frame_lst(*this);
-    const MD2_Frame &nextFrame = chr_instance_t::get_frame_nxt(*this);
-
     //Beginning of a frame animation
     if (this->animationState.getTargetFrameIndex() == this->animationState.getSourceFrameIndex() || this->animationState.flip == 0.0f) {
-        return lastFrame.bb;
+        return getLastFrame().bb;
     } 
 
     //Finished frame animation
     if (this->animationState.flip == 1.0f) {
-        return nextFrame.bb;
+        return getNextFrame().bb;
     } 
 
     //We are middle between two animation frames
-    return oct_bb_t::interpolate(lastFrame.bb, nextFrame.bb, this->animationState.flip);
+    return oct_bb_t::interpolate(getLastFrame().bb, getNextFrame().bb, this->animationState.flip);
 }
 
 gfx_rv chr_instance_t::needs_update(int vmin, int vmax, bool *verts_match, bool *frames_match)
@@ -1364,10 +1361,10 @@ gfx_rv chr_instance_t::updateVertexCache(int vmax, int vmin, bool force, bool ve
     return ( verts_updated || frames_updated ) ? gfx_success : gfx_fail;
 }
 
-gfx_rv chr_instance_t::update_grip_verts(chr_instance_t& self, Uint16 vrt_lst[], size_t vrt_count )
+gfx_rv chr_instance_t::update_grip_verts(chr_instance_t& self, uint16_t vrt_lst[], size_t vrt_count )
 {
     int vmin, vmax;
-    Uint32 cnt;
+    uint32_t cnt;
     size_t count;
     gfx_rv retval;
 
@@ -1381,8 +1378,8 @@ gfx_rv chr_instance_t::update_grip_verts(chr_instance_t& self, Uint16 vrt_lst[],
     {
         if ( 0xFFFF == vrt_lst[cnt] ) continue;
 
-        vmin = std::min<Uint16>( vmin, vrt_lst[cnt] );
-        vmax = std::max<Uint16>( vmax, vrt_lst[cnt] );
+        vmin = std::min<uint16_t>( vmin, vrt_lst[cnt] );
+        vmax = std::max<uint16_t>( vmax, vrt_lst[cnt] );
         count++;
     }
 
@@ -1395,40 +1392,29 @@ gfx_rv chr_instance_t::update_grip_verts(chr_instance_t& self, Uint16 vrt_lst[],
     return retval;
 }
 
-gfx_rv chr_instance_t::set_action(chr_instance_t& self, int action, bool action_ready, bool override_action)
+gfx_rv chr_instance_t::setAction(const ModelAction action, const bool action_ready, const bool override_action)
 {
-	if (action < 0 || action > ACTION_COUNT) {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, action, "invalid action range");
-        return gfx_error;
-    }
-
-    // do we have a valid model?
-	if (!self.animationState.getModelDescriptor()) {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid mad");
-        return gfx_error;
-    }
-
     // is the chosen action valid?
-	if (!self.animationState.getModelDescriptor()->isActionValid(action)) {
+	if (!animationState.getModelDescriptor()->isActionValid(action)) {
 		return gfx_fail;
 	}
 
     // are we going to check action_ready?
-	if (!override_action && !self.actionState.action_ready) {
+	if (!override_action && !actionState.action_ready) {
 		return gfx_fail;
 	}
 
     // save the old action
-	int action_old = self.actionState.action_which;
+	int action_old = actionState.action_which;
 
     // set up the action
-	self.actionState.action_which = action;
-	self.actionState.action_next = ACTION_DA;
-	self.actionState.action_ready = action_ready;
+	actionState.action_which = action;
+	actionState.action_next = ACTION_DA;
+	actionState.action_ready = action_ready;
 
     // invalidate the vertex list if the action has changed
 	if (action_old != action) {
-		self.save.valid = false;
+		save.valid = false;
     }
 
     return gfx_success;
@@ -1457,50 +1443,31 @@ gfx_rv chr_instance_t::setFrame(int frame)
     return gfx_success;
 }
 
-gfx_rv chr_instance_t::set_anim(chr_instance_t& self, int action, int frame, bool action_ready, bool override_action)
+gfx_rv chr_instance_t::startAnimation(const ModelAction action, const bool action_ready, const bool override_action)
 {
-    gfx_rv retval = chr_instance_t::set_action(self, action, action_ready, override_action);
-	if (gfx_success != retval) {
-		return retval;
-	}
-    retval = self.setFrame(frame);
-    return retval;
+    gfx_rv retval = setAction(action, action_ready, override_action);
+    if ( rv_success != retval ) return retval;
+
+    retval = setFrame(animationState.getModelDescriptor()->getFirstFrame(action));
+    if ( rv_success != retval ) return retval;
+
+    return gfx_success;
 }
 
-gfx_rv chr_instance_t::start_anim(chr_instance_t& self, int action, bool action_ready, bool override_action)
+gfx_rv chr_instance_t::incrementAction()
 {
-    if (action < 0 || action >= ACTION_COUNT) {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, action, "invalid action range");
-        return gfx_error;
-    }
-    if (!self.animationState.getModelDescriptor()) {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid mad");
-        return gfx_error;
-    }
-    return chr_instance_t::set_anim(self, action, self.animationState.getModelDescriptor()->getFirstFrame(action), action_ready, override_action);
-}
-
-gfx_rv chr_instance_t::increment_action(chr_instance_t& self)
-{
-    /// @author BB
-    /// @details This function starts the next action for a character
-
-	if (!self.animationState.getModelDescriptor()) {
-		gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid mad");
-        return gfx_error;
-    }
-
     // get the correct action
-	int action = self.animationState.getModelDescriptor()->getAction(self.actionState.action_next);
+	ModelAction action = animationState.getModelDescriptor()->getAction(actionState.action_next);
 
     // determine if the action is one of the types that can be broken at any time
     // D == "dance" and "W" == walk
-    bool action_ready = ACTION_IS_TYPE( action, D ) || ACTION_IS_TYPE( action, W );
+    // @note ZF> Can't use ACTION_IS_TYPE(action, D) because of GCC compile warning
+    bool action_ready = action < ACTION_DD || ACTION_IS_TYPE(action, W);
 
-	return chr_instance_t::start_anim(self, action, action_ready, true);
+	return startAnimation(action, action_ready, true);
 }
 
-gfx_rv chr_instance_t::increment_frame(chr_instance_t& self, const ObjectRef imount, const int mount_action)
+gfx_rv chr_instance_t::increment_frame(chr_instance_t& self, const ObjectRef imount, const ModelAction mount_action)
 {
     /// @author BB
     /// @details all the code necessary to move on to the next frame of the animation
@@ -1537,7 +1504,7 @@ gfx_rv chr_instance_t::increment_frame(chr_instance_t& self, const ObjectRef imo
             // Convert the action into a riding action if the character is mounted
             if (_currentModule->getObjectHandler().exists(imount))
             {
-				chr_instance_t::start_anim(self, mount_action, true, true);
+				self.startAnimation(mount_action, true, true);
             }
 
             // set the frame to the beginning of the action
@@ -1549,9 +1516,9 @@ gfx_rv chr_instance_t::increment_frame(chr_instance_t& self, const ObjectRef imo
         else
         {
             // Go on to the next action. don't let just anything interrupt it?
-			chr_instance_t::increment_action(self);
+			self.incrementAction();
 
-            // chr_instance_increment_action() actually sets this value properly. just grab the new value.
+            // incrementAction() actually sets this value properly. just grab the new value.
 			frame_nxt = self.animationState.getTargetFrameIndex();
         }
     }
@@ -1573,7 +1540,7 @@ gfx_rv chr_instance_t::play_action(chr_instance_t& self, int action, bool action
 		return gfx_error;
 	}
 
-    return chr_instance_t::start_anim(self, self.animationState.getModelDescriptor()->getAction(action), action_ready, true);
+    return self.startAnimation(self.animationState.getModelDescriptor()->getAction(action), action_ready, true);
 }
 
 void chr_instance_t::clearCache()
@@ -1590,7 +1557,7 @@ void chr_instance_t::clearCache()
     this->lighting_frame_all  = -1;
 }
 
-chr_instance_t::chr_instance_t(const std::shared_ptr<ObjectProfile> &profile) :
+chr_instance_t::chr_instance_t() :
     matrix(Matrix4f4f::identity()),
     matrix_cache(),
 
@@ -1738,9 +1705,9 @@ void chr_instance_t::setObjectProfile(const std::shared_ptr<ObjectProfile> &prof
     chr_instance_t::update_ref(*this, Vector3f::zero(), false);
 }
 
-BIT_FIELD chr_instance_t::get_framefx(const chr_instance_t& self)
+BIT_FIELD chr_instance_t::getFrameFX() const
 {
-    return chr_instance_t::get_frame_nxt(self).framefx;
+    return getNextFrame().framefx;
 }
 
 gfx_rv chr_instance_t::setFrameFull(int frame_along, int ilip)
@@ -1783,26 +1750,20 @@ gfx_rv chr_instance_t::setFrameFull(int frame_along, int ilip)
     return gfx_success;
 }
 
-void chr_instance_t::set_action_keep(chr_instance_t& self, bool val) {
-	self.actionState.action_keep = val;
+void chr_instance_t::setActionKeep(bool val) {
+	actionState.action_keep = val;
 }
 
-void chr_instance_t::set_action_ready(chr_instance_t& self, bool val) {
-    self.actionState.action_ready = val;
+void chr_instance_t::setActionReady(bool val) {
+    actionState.action_ready = val;
 }
 
-void chr_instance_t::set_action_loop(chr_instance_t& self, bool val) {
-    self.actionState.action_loop = val;
+void chr_instance_t::setActionLooped(bool val) {
+    actionState.action_loop = val;
 }
 
-gfx_rv chr_instance_t::set_action_next(chr_instance_t& self, int val) {
-	if (val < 0 || val > ACTION_COUNT) {
-		return gfx_fail;
-	}
-
-    self.actionState.action_next = val;
-
-    return gfx_success;
+void chr_instance_t::setNextAction(const ModelAction val) {
+    actionState.action_next = val;
 }
 
 void chr_instance_t::removeInterpolation()
@@ -1816,14 +1777,14 @@ void chr_instance_t::removeInterpolation()
     }
 }
 
-const MD2_Frame& chr_instance_t::get_frame_nxt(const chr_instance_t& self)
+const MD2_Frame& chr_instance_t::getNextFrame() const
 {
-    return self.animationState.getTargetFrame();
+    return animationState.getTargetFrame();
 }
 
-const MD2_Frame& chr_instance_t::get_frame_lst(chr_instance_t& self)
+const MD2_Frame& chr_instance_t::getLastFrame() const
 {
-    return self.animationState.getSourceFrame();
+    return animationState.getSourceFrame();
 }
 
 void chr_instance_t::update_one_lip(chr_instance_t& self) {

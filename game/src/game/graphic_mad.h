@@ -358,33 +358,65 @@ struct chr_instance_t
     chr_reflection_cache_t ref;                    ///< pre-computing some reflection parameters
 
 public:
-	chr_instance_t(const std::shared_ptr<ObjectProfile> &profile);
+	chr_instance_t();
     ~chr_instance_t();
 
-	static gfx_rv increment_action(chr_instance_t& self);
-	static gfx_rv play_action(chr_instance_t& self, int action, bool actionready);
-	static void set_action_keep(chr_instance_t& self, bool val);
-	static void set_action_ready(chr_instance_t& self, bool val);
-	static void set_action_loop(chr_instance_t& self, bool val);
-	static gfx_rv set_action_next(chr_instance_t& self, int val);
-	static gfx_rv set_action(chr_instance_t& self, int action, bool action_ready, bool override_action);
+    /**
+    * @brief
+    *   Set to true if the current animation should freeze at its final frame
+    **/
+	void setActionKeep(bool val);
 
-	static gfx_rv start_anim(chr_instance_t& self, int action, bool action_ready, bool override_action);
-	static gfx_rv set_anim(chr_instance_t& self, int action, int frame, bool action_ready, bool override_action);
+    /**
+    * @brief
+    *   Set to true if the current animation can be interrupted by another animation
+    **/
+    void setActionReady(bool val);
+
+    /**
+    * @brief
+    *   Set to true if the current animation action should be looped
+    **/
+	void setActionLooped(bool val);
+
+
+	void setNextAction(const ModelAction val);
+
+	gfx_rv setAction(const ModelAction action, const bool action_ready, const bool override_action);
+
+	gfx_rv startAnimation(const ModelAction action, const bool action_ready, const bool override_action);
 
 	static void update_ref(chr_instance_t& self, const Vector3f &position, bool need_matrix);
-	static gfx_rv update_grip_verts(chr_instance_t& self, Uint16 vrt_lst[], size_t vrt_count);
-	static void update_one_lip(chr_instance_t& self);
-	static gfx_rv update_one_flip(chr_instance_t& self, float dflip);
 	static void update_lighting_base(chr_instance_t& self, Object *pchr, bool force);
 
-	static gfx_rv increment_frame(chr_instance_t& self, const ObjectRef imount, const int mount_action);
+    static gfx_rv increment_frame(chr_instance_t& self, const ObjectRef imount, const ModelAction mount_action);
 
-	static const MD2_Frame& get_frame_nxt(const chr_instance_t& self);
-	static const MD2_Frame& get_frame_lst(chr_instance_t& self);
-	static BIT_FIELD get_framefx(const chr_instance_t& self);
+    //Only used by CharacterAnimation.c
+    static gfx_rv update_one_flip(chr_instance_t& self, float dflip);
+    static gfx_rv update_grip_verts(chr_instance_t& self, Uint16 vrt_lst[], size_t vrt_count);
+    static void update_one_lip(chr_instance_t& self);
+    static gfx_rv play_action(chr_instance_t& self, int action, bool actionready);
 
-    oct_bb_t getBoundingBox();
+	BIT_FIELD getFrameFX() const;
+
+    /**
+    * @brief
+    *   Get the desired/next frame in the current animation action
+    **/
+    const MD2_Frame& getNextFrame() const;
+
+    /**
+    * @brief
+    *   Get the current/previous frame in the current animation action
+    **/
+    const MD2_Frame& getLastFrame() const;
+
+    /**
+    * @brief
+    *   Get the interpolated bounding box for the current animation frame. The current animation frame
+    *   might have a different bounding box (like an arm reaching out for example)
+    **/
+    oct_bb_t getBoundingBox() const;
 
     gfx_rv updateVertices(int vmin, int vmax, bool force);
     
@@ -421,7 +453,12 @@ public:
 
     void setObjectProfile(const std::shared_ptr<ObjectProfile> &profile);
 
+    gfx_rv setFrame(int frame);
+
 private:	
+    /// @details This function starts the next action for a character
+    gfx_rv incrementAction();
+
 	gfx_rv updateVertexCache(int vmax, int vmin, bool force, bool vertices_match, bool frames_match);
 
     /**
@@ -433,8 +470,6 @@ private:
     *   gfx_success means that the instance should be updated
     **/
 	gfx_rv needs_update(int vmin, int vmax, bool *verts_match, bool *frames_match);
-
-	gfx_rv setFrame(int frame);
 
     /**
     * @brief

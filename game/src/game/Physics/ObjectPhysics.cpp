@@ -345,7 +345,7 @@ float ObjectPhysics::getMaxSpeed() const
     }
 
     //Check animation frame freeze movement
-    if ( chr_instance_t::get_framefx(_object.inst) & MADFX_STOP )
+    if ( _object.inst.getFrameFX() & MADFX_STOP )
     {
         //Allow 50% movement while using Shield and have the Mobile Defence perk
         if(_object.hasPerk(Ego::Perks::MOBILE_DEFENCE) && ACTION_IS_TYPE(_object.inst.actionState.action_which, P))
@@ -882,8 +882,8 @@ bool ObjectPhysics::attachToObject(const std::shared_ptr<Object> &holder, grip_o
             chr_play_action(&_object, ACTION_MI, true);
         }
 
-        // set tehis action to loop
-        chr_instance_t::set_action_loop(_object.inst, true);
+        // set this action to loop
+        _object.inst.setActionLooped(true);
     }
     else if (_object.isAlive())
     {
@@ -896,7 +896,7 @@ bool ObjectPhysics::attachToObject(const std::shared_ptr<Object> &holder, grip_o
 
         // set the action to keep for items
         if (_object.isItem()) {
-            chr_instance_t::set_action_keep(_object.inst, true);
+            _object.inst.setActionKeep(true);
         }
     }
 

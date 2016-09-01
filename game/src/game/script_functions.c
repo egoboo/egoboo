@@ -1092,7 +1092,7 @@ Uint8 scr_KeepAction( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    chr_instance_t::set_action_keep(pchr->inst, true);
+    pchr->inst.setActionKeep(true);
 
     SCRIPT_FUNCTION_END();
 }
@@ -1642,7 +1642,7 @@ Uint8 scr_UnkeepAction( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    chr_instance_t::set_action_keep(pchr->inst, false);
+    pchr->inst.setActionKeep(false);
 
     SCRIPT_FUNCTION_END();
 }
@@ -4339,15 +4339,17 @@ Uint8 scr_SetFrame( script_state_t& state, ai_state_t& self )
     int frame_along = state.argument >> 2;
 
     // resolve the requested action to a action that is valid for this model (if possible)
-    const int action = pchr->getProfile()->getModel()->getAction(ACTION_DA);
+    const ModelAction action = pchr->getProfile()->getModel()->getAction(ACTION_DA);
 
     // set the action
-    if ( rv_success == chr_set_action(pchr, action, true, true) )
-    {
+    if(pchr->inst.setAction(action, true, true)) {
+        
         // the action is set. now set the frame info.
         returncode = pchr->inst.setFrameFull(frame_along, ilip);
     }
-
+    else {
+        returncode = false;
+    }
 
     SCRIPT_FUNCTION_END();
 }

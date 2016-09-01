@@ -117,7 +117,7 @@ Object::Object(const PRO_REF proRef, ObjectRef objRef) :
     bumplist_next(),
 
     turnmode(TURNMODE_VELOCITY),
-    movement_bits(( unsigned )(~0)),    // all movements valid
+    movement_bits(std::numeric_limits<BIT_FIELD>::max()),    // all movements valid
 
     inwater(false),
     dismount_timer(0),  /// @note ZF@> If this is != 0 then scorpion claws and riders are dropped at spawn (non-item objects)
@@ -142,7 +142,7 @@ Object::Object(const PRO_REF proRef, ObjectRef objRef) :
     _levelUpSeed(Random::next(std::numeric_limits<uint32_t>::max())),
 
     //Graphics
-    inst(_profile),
+    inst(),
 
     //Physics
     _objectPhysics(*this),
@@ -1155,7 +1155,7 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
     {
         // play the "killed" animation...
         chr_play_action( this, Random::next((int)ACTION_KA, ACTION_KA + 3), false );
-        chr_instance_t::set_action_keep(inst, true);
+        inst.setActionKeep(true);
     }
 
     // Set the positions
@@ -1209,7 +1209,7 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
     vel[kZ] = DROPZVEL;
 
     // Turn looping off
-    chr_instance_t::set_action_loop(inst, false);
+    inst.setActionLooped(false);
 
     // Reset the team if it is a mount
     if ( pholder->isMount() )
@@ -1237,13 +1237,13 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
     {
         // the object is dead. play the killed animation and make it freeze there
         chr_play_action( this, Random::next((int)ACTION_KA, ACTION_KA + 3), false );
-        chr_instance_t::set_action_keep(inst, true);
+        inst.setActionKeep(true);
     }
     else
     {
         // play the jump animation, and un-keep it
         chr_play_action( this, ACTION_JA, true );
-        chr_instance_t::set_action_keep(inst, false);
+        inst.setActionKeep(false);
     }
 
     chr_update_matrix( this, true );
@@ -1442,7 +1442,7 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
     // Play the death animation
     int action = Random::next((int)ACTION_KA, ACTION_KA + 3);
     chr_play_action(this, action, false);
-    chr_instance_t::set_action_keep(inst, true);
+    inst.setActionKeep(true);
 
     // Give kill experience
     uint16_t experience = getProfile()->getExperienceValue() + (this->experience * getProfile()->getExperienceExchangeRate());
@@ -2417,10 +2417,10 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
     inst.setObjectProfile(getProfile());
     chr_update_matrix(this, true);
 
-    // Action stuff that must be down after chr_instance_t::setProfile()
-    chr_instance_t::set_action_ready(inst, false);
-    chr_instance_t::set_action_keep(inst, false);
-    chr_instance_t::set_action_loop(inst, false);
+    // Action stuff that must be down after chr_instance_t::setObjectProfile()
+    inst.setActionReady(false);
+    inst.setActionKeep(false);
+    inst.setActionLooped(false);
     if (isAlive())
     {
         chr_play_action(this, ACTION_DA, false);
@@ -2428,7 +2428,7 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
     else
     {
         chr_play_action(this, Random::next<int>(ACTION_KA, ACTION_KA + 3), false);
-        chr_instance_t::set_action_keep(inst, true);
+        inst.setActionKeep(true);
     }
 
     // Set the skin after changing the model in chr_instance_t::setProfile()
@@ -2470,7 +2470,7 @@ bool Object::isInvictusDirection(Facing direction) const
     if (isInvincible()) return true;
 
     // if the character's frame is invictus, then check the angles
-    if (HAS_SOME_BITS(chr_instance_t::get_framefx(inst), MADFX_INVICTUS))
+    if (HAS_SOME_BITS(inst.getFrameFX(), MADFX_INVICTUS))
     {
         //I Frame
         direction -= Facing(getProfile()->getInvictusFrameFacing());
