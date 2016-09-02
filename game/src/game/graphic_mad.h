@@ -23,10 +23,11 @@
 
 #include "game/egoboo.h"
 #include "game/graphic.h"
+#include "CharacterMatrix.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
+//Forward declarations
 struct chr_instance_t;
 class Camera;
 
@@ -58,85 +59,6 @@ enum e_chr_render_bits
     CHR_PHONG    = ( 1 << 3 ),
     CHR_REFLECT  = ( 1 << 4 )
 };
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-/// Bits that tell you which variables to look at
-enum matrix_cache_type_t
-{
-    MAT_UNKNOWN   = 0,
-    MAT_CHARACTER = ( 1 << 0 ),
-    MAT_WEAPON    = ( 1 << 1 )
-};
-
-/// the data necessary to cache the last values required to create the character matrix
-struct matrix_cache_t
-{
-    matrix_cache_t() :
-        valid(false),
-        matrix_valid(false),
-        type_bits(MAT_UNKNOWN),
-        rotate(Facing(0), Facing(0), Facing(0)),
-        pos(),
-        grip_chr(),
-        grip_slot(SLOT_LEFT),
-        grip_verts(),
-        grip_scale(),
-        self_scale()
-    {
-        grip_verts.fill(0xFFFF);
-    }
-
-    // is the cache data valid?
-    bool valid;
-
-    // is the matrix data valid?
-    bool matrix_valid;
-
-    // how was the matrix made?
-    int type_bits;
-
-    //---- MAT_CHARACTER data
-
-    // the "Euler" rotation angles in 16-bit form
-    EulerFacing rotate;
-
-    // the translate vector
-    Vector3f   pos;
-
-    //---- MAT_WEAPON data
-
-    ObjectRef grip_chr;                   ///< != ObjectRef::Invalid if character is a held weapon
-    slot_t  grip_slot;                  ///< SLOT_LEFT or SLOT_RIGHT
-    std::array<uint16_t, GRIP_VERTS> grip_verts;     ///< Vertices which describe the weapon grip
-    Vector3f grip_scale;
-
-    //---- data used for both
-
-    // the body fixed scaling
-    Vector3f  self_scale;
-
-    /**
-     * Get if this matrix cache is valid.
-     * @return @a true if this matrix cache is valid, @a false otherwise
-     * @remark A matrix cache is valid if the cache is valid and the matrix is valid.
-     */
-    bool isValid() const;
-};
-
-/**
- * @brief
- *  Compare matrix caches.
- * @param lhs
- *  the first matrix cache
- * @param rhs
- *  the second matrix cache
- * @return
- * \$0<\f$ (\f$0>\f$) if the first matrix cache is smaller (greater) than the second matrix cache,
- * \f$0=\f$ if both matrix caches are equal
- */
-int cmp_matrix_cache(const matrix_cache_t& lhs, const matrix_cache_t& rhs);
 
 //--------------------------------------------------------------------------------------------
 

@@ -1259,10 +1259,9 @@ gfx_rv chr_instance_t::updateVertexCache(int vmax, int vmin, bool force, bool ve
 {
     // this is getting a bit ugly...
     // we need to do this calculation as little as possible, so it is important that the
-    // pinst->save.* values be tested and stored properly
+    // this->save.* values be tested and stored properly
 
 	int maxvert = ((int)this->_vertexList.size()) - 1;
-	vlst_cache_t *psave = &(this->save);
 
     // the save_vmin and save_vmax is the most complex
     bool verts_updated = false;
@@ -1272,8 +1271,8 @@ gfx_rv chr_instance_t::updateVertexCache(int vmax, int vmin, bool force, bool ve
         // the animation was updated. In any case, the only vertices that are
         // clean are in the range [vmin, vmax]
 
-        psave->vmin   = vmin;
-        psave->vmax   = vmax;
+        this->save.vmin   = vmin;
+        this->save.vmax   = vmax;
         verts_updated = true;
     }
     else if ( vertices_match && frames_match )
@@ -1286,8 +1285,8 @@ gfx_rv chr_instance_t::updateVertexCache(int vmax, int vmin, bool force, bool ve
 
         // This means that all of the vertices were SUPPOSED TO BE updated,
         // but only the ones in the range [vmin, vmax] actually were.
-        psave->vmin = vmin;
-        psave->vmax = vmax;
+        this->save.vmin = vmin;
+        this->save.vmax = vmax;
         verts_updated = true;
     }
     else if ( frames_match )
@@ -1300,29 +1299,29 @@ gfx_rv chr_instance_t::updateVertexCache(int vmax, int vmin, bool force, bool ve
         //
         // If these ranges are disjoint, then only one of them can be saved. Choose the larger set
 
-        if ( vmax >= psave->vmin && vmin <= psave->vmax )
+        if ( vmax >= this->save.vmin && vmin <= this->save.vmax )
         {
             // the old list [save_vmin, save_vmax] and the new list [vmin, vmax]
             // overlap, so we can merge them
-            psave->vmin = std::min( psave->vmin, vmin );
-            psave->vmax = std::max( psave->vmax, vmax );
+            this->save.vmin = std::min( this->save.vmin, vmin );
+            this->save.vmax = std::max( this->save.vmax, vmax );
             verts_updated = true;
         }
         else
         {
             // the old list and the new list are disjoint sets, so we are out of luck
             // save the set with the largest number of members
-            if (( psave->vmax - psave->vmin ) >= ( vmax - vmin ) )
+            if (( this->save.vmax - this->save.vmin ) >= ( vmax - vmin ) )
             {
                 // obviously no change...
-                psave->vmin = psave->vmin;
-                psave->vmax = psave->vmax;
+                //this->save.vmin = this->save.vmin;
+                //this->save.vmax = this->save.vmax;
                 verts_updated = true;
             }
             else
             {
-                psave->vmin = vmin;
-                psave->vmax = vmax;
+                this->save.vmin = vmin;
+                this->save.vmax = vmax;
                 verts_updated = true;
             }
         }
@@ -1332,31 +1331,31 @@ gfx_rv chr_instance_t::updateVertexCache(int vmax, int vmin, bool force, bool ve
         // The only way to get here is to fail the vertices_match test, and fail the frames_match test
 
         // everything was dirty, so just save the new vertex list
-        psave->vmin = vmin;
-        psave->vmax = vmax;
+        this->save.vmin = vmin;
+        this->save.vmax = vmax;
         verts_updated = true;
     }
 
-    psave->frame_nxt = this->animationState.getTargetFrameIndex();
-    psave->frame_lst = this->animationState.getSourceFrameIndex();
-    psave->flip      = this->animationState.flip;
+    this->save.frame_nxt = this->animationState.getTargetFrameIndex();
+    this->save.frame_lst = this->animationState.getSourceFrameIndex();
+    this->save.flip      = this->animationState.flip;
 
     // store the last time there was an update to the animation
     bool frames_updated = false;
     if ( !frames_match )
     {
-        psave->frame_wld = update_wld;
+        this->save.frame_wld = update_wld;
         frames_updated   = true;
     }
 
     // store the time of the last full update
     if ( 0 == vmin && maxvert == vmax )
     {
-        psave->vert_wld  = update_wld;
+        this->save.vert_wld  = update_wld;
     }
 
     // mark the saved vlst_cache data as valid
-    psave->valid = true;
+    this->save.valid = true;
 
     return ( verts_updated || frames_updated ) ? gfx_success : gfx_fail;
 }
