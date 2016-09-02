@@ -78,30 +78,6 @@ struct colorshift_t {
     }
 };
 
-/// some pre-computed parameters for reflection
-struct chr_reflection_cache_t
-{
-    chr_reflection_cache_t() :
-        matrix(Matrix4f4f::identity()),
-        matrix_valid(false),
-        alpha(127),
-        light(0xFF),
-        sheen(0),
-        colorshift(),
-        update_wld(0)
-    {
-        //ctor
-    };
-
-    Matrix4f4f matrix;
-    bool       matrix_valid;
-    uint8_t    alpha;
-    uint8_t    light;
-    uint8_t    sheen;
-    colorshift_t colorshift;
-    uint32_t   update_wld;
-};
-
 //--------------------------------------------------------------------------------------------
 
 /// the data to determine whether re-calculation of vlst is necessary
@@ -245,7 +221,6 @@ struct ActionState {
 struct chr_instance_t
 {
     // position info
-    Matrix4f4f     matrix;           ///< Character's matrix
     matrix_cache_t matrix_cache;     ///< Did we make one yet?
 
     FACING_T       facing_z;
@@ -277,10 +252,9 @@ struct chr_instance_t
 
     // graphical optimizations
     vlst_cache_t           save;                   ///< Do we need to re-calculate all or part of the vertex list
-    chr_reflection_cache_t ref;                    ///< pre-computing some reflection parameters
 
 public:
-	chr_instance_t();
+	chr_instance_t(const Object& object);
     ~chr_instance_t();
 
     /**
@@ -308,16 +282,18 @@ public:
 
 	gfx_rv startAnimation(const ModelAction action, const bool action_ready, const bool override_action);
 
-	static void update_ref(chr_instance_t& self, const Vector3f &position, bool need_matrix);
+	void updateReflection(const Vector3f &position, const bool need_matrix);
 	static void update_lighting_base(chr_instance_t& self, Object *pchr, bool force);
 
-    static gfx_rv increment_frame(chr_instance_t& self, const ObjectRef imount, const ModelAction mount_action);
+    /// @details all the code necessary to move on to the next frame of the animation
+    gfx_rv incrementFrame(const ObjectRef imount, const ModelAction mount_action);
 
     //Only used by CharacterAnimation.c
     static gfx_rv update_one_flip(chr_instance_t& self, float dflip);
     static gfx_rv update_grip_verts(chr_instance_t& self, Uint16 vrt_lst[], size_t vrt_count);
     static void update_one_lip(chr_instance_t& self);
-    static gfx_rv play_action(chr_instance_t& self, int action, bool actionready);
+
+    gfx_rv playAction(const ModelAction action, const bool actionready);
 
 	BIT_FIELD getFrameFX() const;
 
@@ -377,6 +353,24 @@ public:
 
     gfx_rv setFrame(int frame);
 
+    /**
+    * @brief
+    *   Compute and return the reflection transparency based on altitude above the floor
+    **/
+    uint8_t getReflectionAlpha() const;
+
+    /**
+    * @brief
+    *   Get the object 3D model matrix reflected into the floor
+    **/
+    const Matrix4f4f& getReflectionMatrix() const;
+
+    /**
+    * @brief
+    *   Get the object 3D model matrix
+    **/
+    const Matrix4f4f& getMatrix() const;
+
 private:	
     /// @details This function starts the next action for a character
     gfx_rv incrementAction();
@@ -409,7 +403,10 @@ private:
     bool setModel(const std::shared_ptr<Ego::ModelDescriptor> &imad);
 
 private:
+    const Object& _object;
     std::vector<GLvertex> _vertexList;
+    Matrix4f4f _matrix;                     ///< Character's matrix
+    Matrix4f4f _reflectionMatrix;           ///< Character's matrix reflecter (on the floor)
 };
 
 //--------------------------------------------------------------------------------------------

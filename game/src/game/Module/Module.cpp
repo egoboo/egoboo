@@ -594,7 +594,7 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
     //}
 
     chr_update_matrix( pchr.get(), true );
-    chr_instance_t::update_ref(pchr->inst, pchr->getPosition(), true);
+    pchr->inst.updateReflection(pchr->getPosition(), true);
 
     // start the character out in the "dance" animation
     chr_start_anim(pchr.get(), ACTION_DA, true, true);
@@ -637,7 +637,7 @@ void GameModule::updateAllObjects()
         move_one_character_do_animation(object.get());
 
         // chr_set_enviro_grid_level() sets up the reflection level and reflection matrix
-        chr_instance_t::update_ref(object->inst, object->getPosition(), true);
+        object->inst.updateReflection(object->getPosition(), true);
 
         //Check if this object should be poofed (destroyed)
         bool timeOut = ( object->ai.poof_time > 0 ) && ( object->ai.poof_time <= static_cast<int32_t>(update_wld) );

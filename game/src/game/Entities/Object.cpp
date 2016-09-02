@@ -142,7 +142,7 @@ Object::Object(const PRO_REF proRef, ObjectRef objRef) :
     _levelUpSeed(Random::next(std::numeric_limits<uint32_t>::max())),
 
     //Graphics
-    inst(),
+    inst(*this),
 
     //Physics
     _objectPhysics(*this),
@@ -182,9 +182,6 @@ Object::Object(const PRO_REF proRef, ObjectRef objRef) :
 
     //Initialize timer to a random value
     resetBoredTimer();
-
-    // initalize the character instance
-    inst.setObjectProfile(getProfile());
 }
 
 Object::~Object()
@@ -279,8 +276,6 @@ void Object::setAlpha(const int alpha)
     {
         inst.alpha = std::max<uint8_t>(SEEINVISIBLE, inst.alpha);
     }
-
-    chr_instance_t::update_ref(inst, getPosition(), false);
 }
 
 void Object::setLight(const int light)
@@ -292,14 +287,11 @@ void Object::setLight(const int light)
     {
         inst.light = std::max<uint8_t>(SEEINVISIBLE, inst.light);
     }
-
-    chr_instance_t::update_ref(inst, getPosition(), false);
 }
 
 void Object::setSheen(const int sheen)
 {
     inst.sheen = Ego::Math::constrain(sheen, 0, 0xFF);
-    chr_instance_t::update_ref(inst, getPosition(), false);
 }
 
 bool Object::canMount(const std::shared_ptr<Object> mount) const
@@ -844,7 +836,6 @@ void Object::update()
     inst.colorshift = colorshift_t(Ego::Math::constrain<int>(1 + getAttribute(Ego::Attribute::RED_SHIFT), 0, 6),
                                    Ego::Math::constrain<int>(1 + getAttribute(Ego::Attribute::GREEN_SHIFT), 0, 6),
                                    Ego::Math::constrain<int>(1 + getAttribute(Ego::Attribute::BLUE_SHIFT), 0, 6));
-    chr_instance_t::update_ref(inst, getPosition(), false); //update reflection as well
 
     // do the mana and life regeneration for "living" characters
     if (isAlive()) {
@@ -1911,7 +1902,7 @@ void Object::respawn()
         reaffirm_attached_particles(getObjRef());
     }
 
-    chr_instance_t::update_ref(inst, getPosition(), true );
+    inst.updateReflection(getPosition(), true);
 }
 
 float Object::getRawDamageResistance(const DamageType type, const bool includeArmor) const
@@ -2457,7 +2448,7 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
 
     ai_state_t::set_changed(ai);
 
-    chr_instance_t::update_ref(inst, getPosition(), true);
+    inst.updateReflection(getPosition(), true);
 }
 
 bool Object::isInvictusDirection(Facing direction) const

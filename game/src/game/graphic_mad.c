@@ -42,76 +42,6 @@ bool matrix_cache_t::isValid() const {
     return valid && matrix_valid;
 }
 
-int cmp_matrix_cache(const matrix_cache_t& lhs, const matrix_cache_t& rhs) {
-    // handle problems with pointers
-    if (&lhs == &rhs) {
-        return 0;
-    }
-
-    // handle one of both if the matrix caches being invalid
-    if (!lhs.valid && !rhs.valid) {
-        return 0;
-    } else if (!lhs.valid) {
-        return 1;
-    } else if (!rhs.valid) {
-        return -1;
-    }
-
-    // handle differences in the type
-    int itmp = lhs.type_bits - rhs.type_bits;
-    if (0 != itmp) goto cmp_matrix_cache_end;
-
-    //---- check for differences in the MAT_WEAPON data
-    if (HAS_SOME_BITS(lhs.type_bits, MAT_WEAPON)) {
-        itmp = (signed)REF_TO_INT(lhs.grip_chr.get()) - (signed)REF_TO_INT(rhs.grip_chr.get());
-        if (0 != itmp) goto cmp_matrix_cache_end;
-
-        itmp = (signed)lhs.grip_slot - (signed)rhs.grip_slot;
-        if (0 != itmp) goto cmp_matrix_cache_end;
-
-        for (int cnt = 0; cnt < GRIP_VERTS; cnt++) {
-            itmp = (signed)lhs.grip_verts[cnt] - (signed)rhs.grip_verts[cnt];
-            if (0 != itmp) goto cmp_matrix_cache_end;
-        }
-
-        // handle differences in the scale of our mount
-        for (int cnt = 0; cnt < 3; cnt++) {
-            float ftmp = lhs.grip_scale[cnt] - rhs.grip_scale[cnt];
-            if (0.0f != ftmp) { itmp = sgn(ftmp); goto cmp_matrix_cache_end; }
-        }
-    }
-
-    //---- check for differences in the MAT_CHARACTER data
-    if (HAS_SOME_BITS(lhs.type_bits, MAT_CHARACTER)) {
-        // handle differences in the "Euler" rotation angles in 16-bit form
-        for (int cnt = 0; cnt < 3; cnt++) {
-            Facing ftmp = lhs.rotate[cnt] - rhs.rotate[cnt];
-            if (Facing(0) != ftmp) { itmp = sgn(ftmp); goto cmp_matrix_cache_end; }
-        }
-
-        // handle differences in the translate vector
-        for (int cnt = 0; cnt < 3; cnt++) {
-            float ftmp = lhs.pos[cnt] - rhs.pos[cnt];
-            if (0.0f != ftmp) { itmp = sgn(ftmp); goto cmp_matrix_cache_end; }
-        }
-    }
-
-    //---- check for differences in the shared data
-    if (HAS_SOME_BITS(lhs.type_bits, MAT_WEAPON) || HAS_SOME_BITS(lhs.type_bits, MAT_CHARACTER)) {
-        // handle differences in our own scale
-        for (int cnt = 0; cnt < 3; cnt++) {
-            float ftmp = lhs.self_scale[cnt] - rhs.self_scale[cnt];
-            if (0.0f != ftmp) { itmp = sgn(ftmp); goto cmp_matrix_cache_end; }
-        }
-    }
-
-    // if it got here, the data is all the same
-    itmp = 0;
-
-cmp_matrix_cache_end:
-
-    return sgn(itmp);
-}
 
 //--------------------------------------------------------------------------------------------
 
@@ -201,11 +131,11 @@ gfx_rv MadRenderer::render_enviro( Camera& cam, const std::shared_ptr<Object>& p
 
 	if (HAS_SOME_BITS(bits, CHR_REFLECT))
 	{
-        Ego::Renderer::get().setWorldMatrix(pinst.ref.matrix);
+        Ego::Renderer::get().setWorldMatrix(pinst.getReflectionMatrix());
 	}
 	else
 	{
-		Ego::Renderer::get().setWorldMatrix(pinst.matrix);
+		Ego::Renderer::get().setWorldMatrix(pinst.getMatrix());
 	}
 
     // Choose texture and matrix
@@ -342,7 +272,7 @@ gfx_rv MadRenderer::render_tex(Camera& camera, const std::shared_ptr<Object>& pc
     {
         // Convert the "light" parameter to self-lighting for
         // every object that is not being rendered using CHR_LIGHT.
-        base_amb = (255 == pinst.light) ? 0 : (pinst.light * INV_FF<float>());
+        base_amb = (0xFF == pinst.light) ? 0 : (pinst.light * INV_FF<float>());
     }
 
     // Get the maximum number of vertices per command.
@@ -356,11 +286,11 @@ gfx_rv MadRenderer::render_tex(Camera& camera, const std::shared_ptr<Object>& pc
 
     if (0 != (bits & CHR_REFLECT))
     {
-        Ego::Renderer::get().setWorldMatrix(pinst.ref.matrix);
+        Ego::Renderer::get().setWorldMatrix(pinst.getReflectionMatrix());
     }
     else
     {
-        Ego::Renderer::get().setWorldMatrix(pinst.matrix);
+        Ego::Renderer::get().setWorldMatrix(pinst.getMatrix());
     }
 
     // Choose texture.
@@ -528,11 +458,6 @@ gfx_rv MadRenderer::render_ref( Camera& cam, const std::shared_ptr<Object>& pchr
     // assume the best
 	gfx_rv retval = gfx_success;
 
-    if (!pinst.ref.matrix_valid)
-    {
-        return gfx_error;
-    }
-
     {
         Ego::OpenGL::PushAttrib pa(GL_ENABLE_BIT | GL_POLYGON_BIT | GL_COLOR_BUFFER_BIT);
         {
@@ -543,7 +468,7 @@ gfx_rv MadRenderer::render_ref( Camera& cam, const std::shared_ptr<Object>& pchr
             Ego::OpenGL::Utilities::isError();
 
             //Transparent
-            if (pinst.ref.alpha != 0xFF && pinst.ref.light == 0xFF) {
+            if (pinst.getReflectionAlpha() != 0xFF && pinst.light == 0xFF) {
                 renderer.setBlendingEnabled(true);
                 renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
 
@@ -558,7 +483,7 @@ gfx_rv MadRenderer::render_ref( Camera& cam, const std::shared_ptr<Object>& pchr
             }
 
             //Glowing
-            if (pinst.ref.light != 0xFF) {
+            if (pinst.light != 0xFF) {
                 renderer.setBlendingEnabled(true);
                 renderer.setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::One);
 
@@ -574,7 +499,7 @@ gfx_rv MadRenderer::render_ref( Camera& cam, const std::shared_ptr<Object>& pchr
             }
 
             //Render shining effect on top of model
-            if (pinst.ref.alpha == 0xFF && gfx.phongon && pinst.sheen > 0) {
+            if (pinst.getReflectionAlpha() == 0xFF && gfx.phongon && pinst.sheen > 0) {
                 renderer.setBlendingEnabled(true);
                 renderer.setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::One);
 
@@ -648,7 +573,7 @@ gfx_rv MadRenderer::render_trans(Camera& cam, const std::shared_ptr<Object>& pch
             }
 
             // Render shining effect on top of model
-            if (pinst.ref.alpha == 0xFF && gfx.phongon && pinst.sheen > 0) {
+            if (pinst.getReflectionAlpha() == 0xFF && gfx.phongon && pinst.sheen > 0) {
                 renderer.setBlendingEnabled(true);
                 renderer.setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::One);
 
@@ -783,7 +708,7 @@ void MadRenderer::draw_chr_verts(const std::shared_ptr<Object>& pchr, int vrt_of
     // not the texture color of the last vertex we drawn
     Ego::Renderer::get().getTextureUnit().setActivated(nullptr);
 
-	Ego::Renderer::get().setWorldMatrix(pchr->inst.matrix);
+	Ego::Renderer::get().setWorldMatrix(pchr->inst.getMatrix());
     GL_DEBUG( glBegin( GL_POINTS ) );
     {
         for ( cnt = vmin; cnt < vmax; cnt++ )
@@ -802,7 +727,7 @@ void MadRenderer::draw_one_grip( chr_instance_t * pinst, int slot )
     // not the texture color of the last vertex we drawn
     Ego::Renderer::get().getTextureUnit().setActivated(nullptr);
 
-    Ego::Renderer::get().setWorldMatrix(pinst->matrix);
+    Ego::Renderer::get().setWorldMatrix(pinst->getMatrix());
 
     _draw_one_grip_raw( pinst, slot );
 }
@@ -964,7 +889,7 @@ void chr_instance_t::update_lighting_base(chr_instance_t& self, Object *pchr, bo
 
     // rotate the lighting data to body_centered coordinates
 	lighting_cache_t loc_light;
-	lighting_cache_t::lighting_project_cache(loc_light, global_light, self.matrix);
+	lighting_cache_t::lighting_project_cache(loc_light, global_light, self.getMatrix());
 
     //Low-pass filter to smooth lighting transitions?
     //self.color_amb = 0.9f * self.color_amb + 0.1f * (loc_light.hgh._lighting[LVEC_AMB] + loc_light.low._lighting[LVEC_AMB]) * 0.5f;
@@ -980,7 +905,7 @@ void chr_instance_t::update_lighting_base(chr_instance_t& self, Object *pchr, bo
         GLvertex *pvert = &self._vertexList[cnt];
 
         // a simple "height" measurement
-        float hgt = pvert->pos[ZZ] * self.matrix( 3, 3 ) + self.matrix( 3, 3 );
+        float hgt = pvert->pos[ZZ] * self.getMatrix()(3, 3) + self.getMatrix()(3, 3);
 
         if (pvert->nrm[0] == 0.0f && pvert->nrm[1] == 0.0f && pvert->nrm[2] == 0.0f)
         {
@@ -1466,80 +1391,62 @@ gfx_rv chr_instance_t::incrementAction()
 	return startAnimation(action, action_ready, true);
 }
 
-gfx_rv chr_instance_t::increment_frame(chr_instance_t& self, const ObjectRef imount, const ModelAction mount_action)
+gfx_rv chr_instance_t::incrementFrame(const ObjectRef imount, const ModelAction mount_action)
 {
-    /// @author BB
-    /// @details all the code necessary to move on to the next frame of the animation
-
-    int frame_lst, frame_nxt;
-
-    if ( !self.animationState.getModelDescriptor())
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL mad" );
-        return gfx_error;
-    }
-
     // fix the ilip and flip
-	self.animationState.ilip = self.animationState.ilip % 4;
-	self.animationState.flip = fmod(self.animationState.flip, 1.0f);
+	this->animationState.ilip = this->animationState.ilip % 4;
+	this->animationState.flip = fmod(this->animationState.flip, 1.0f);
 
     // Change frames
-	frame_lst = self.animationState.getTargetFrameIndex();
-	frame_nxt = self.animationState.getTargetFrameIndex() + 1;
+	int frame_lst = this->animationState.getTargetFrameIndex();
+	int frame_nxt = this->animationState.getTargetFrameIndex() + 1;
 
     // detect the end of the animation and handle special end conditions
-	if (frame_nxt > self.animationState.getModelDescriptor()->getLastFrame(self.actionState.action_which))
+	if (frame_nxt > this->animationState.getModelDescriptor()->getLastFrame(this->actionState.action_which))
     {
-		if (self.actionState.action_keep)
+		if (this->actionState.action_keep)
         {
             // Freeze that animation at the last frame
             frame_nxt = frame_lst;
 
             // Break a kept action at any time
-			self.actionState.action_ready = true;
+			this->actionState.action_ready = true;
         }
-		else if (self.actionState.action_loop)
+		else if (this->actionState.action_loop)
         {
             // Convert the action into a riding action if the character is mounted
             if (_currentModule->getObjectHandler().exists(imount))
             {
-				self.startAnimation(mount_action, true, true);
+				startAnimation(mount_action, true, true);
             }
 
             // set the frame to the beginning of the action
-			frame_nxt = self.animationState.getModelDescriptor()->getFirstFrame(self.actionState.action_which);
+			frame_nxt = this->animationState.getModelDescriptor()->getFirstFrame(this->actionState.action_which);
 
             // Break a looped action at any time
-			self.actionState.action_ready = true;
+			this->actionState.action_ready = true;
         }
         else
         {
             // Go on to the next action. don't let just anything interrupt it?
-			self.incrementAction();
+			incrementAction();
 
             // incrementAction() actually sets this value properly. just grab the new value.
-			frame_nxt = self.animationState.getTargetFrameIndex();
+			frame_nxt = this->animationState.getTargetFrameIndex();
         }
     }
 
-	self.animationState.setSourceFrameIndex(frame_lst);
-	self.animationState.setTargetFrameIndex(frame_nxt);
+	this->animationState.setSourceFrameIndex(frame_lst);
+	this->animationState.setTargetFrameIndex(frame_nxt);
 
-	vlst_cache_t::test(self.save, &self);
+	vlst_cache_t::test(this->save, this);
 
     return gfx_success;
 }
 
-gfx_rv chr_instance_t::play_action(chr_instance_t& self, int action, bool action_ready)
+gfx_rv chr_instance_t::playAction(const ModelAction action, const bool action_ready)
 {
-    /// @author ZZ
-    /// @details This function starts a generic action for a character
-    if (!self.animationState.getModelDescriptor()) {
-		gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid mad");
-		return gfx_error;
-	}
-
-    return self.startAnimation(self.animationState.getModelDescriptor()->getAction(action), action_ready, true);
+    return startAnimation(animationState.getModelDescriptor()->getAction(action), action_ready, true);
 }
 
 void chr_instance_t::clearCache()
@@ -1550,14 +1457,12 @@ void chr_instance_t::clearCache()
 
     this->save = vlst_cache_t();
     this->matrix_cache = matrix_cache_t();
-    this->ref = chr_reflection_cache_t();
 
     this->lighting_update_wld = -1;
     this->lighting_frame_all  = -1;
 }
 
-chr_instance_t::chr_instance_t() :
-    matrix(Matrix4f4f::identity()),
+chr_instance_t::chr_instance_t(const Object &object) :
     matrix_cache(),
 
     facing_z(0),
@@ -1583,13 +1488,16 @@ chr_instance_t::chr_instance_t() :
     lighting_frame_all(-1),
 
     // linear interpolated frame vertices
+    _object(object),
     _vertexList(),
+    _matrix(Matrix4f4f::identity()),
+    _reflectionMatrix(Matrix4f4f::identity()),
 
     // graphical optimizations
-    save(),
-    ref()
+    save()
 {
-    //ctor
+    // initalize the character instance
+    setObjectProfile(_object.getProfile());
 }
 
 chr_instance_t::~chr_instance_t() 
@@ -1637,46 +1545,46 @@ bool chr_instance_t::setModel(const std::shared_ptr<Ego::ModelDescriptor> &model
     return updated;
 }
 
-void chr_instance_t::update_ref(chr_instance_t& self, const Vector3f &position, bool need_matrix)
+const Matrix4f4f& chr_instance_t::getMatrix() const
 {
-    const float meshElevation = _currentModule->getMeshPointer()->getElevation(Vector2f(position.x(), position.y()));
+    return _matrix;
+}
 
-    // reflect the ordinary matrix
-    if (need_matrix && self.matrix_cache.valid) {
+const Matrix4f4f& chr_instance_t::getReflectionMatrix() const
+{
+    return _reflectionMatrix;
+}
 
-        self.ref.matrix = self.matrix;
-        self.ref.matrix(2, 0) = -self.ref.matrix(0, 2);
-        self.ref.matrix(2, 1) = -self.ref.matrix(1, 2);
-        self.ref.matrix(2, 2) = -self.ref.matrix(2, 2);
-        self.ref.matrix(2, 3) = 2.0f * meshElevation - position.z();
-        self.ref.matrix_valid = true;
-    }
-
+uint8_t chr_instance_t::getReflectionAlpha() const
+{
     // determine the reflection alpha based on altitude above the mesh
-    const float altitudeAboveGround = std::max(0.0f, position.z() - meshElevation);
-    float alpha = 255.0f - altitudeAboveGround;
-    alpha *= 0.5f;
-    alpha = Ego::Math::constrain(alpha, 0.0f, 255.0f);
+    const float altitudeAboveGround = std::max(0.0f, _object.getPosZ() - _object.getFloorElevation());
+    float alphaFade = (255.0f - altitudeAboveGround)*0.5f;
+    alphaFade = Ego::Math::constrain(alphaFade, 0.0f, 255.0f);
 
-	self.ref.alpha = (self.alpha * alpha * INV_FF<float>());
+    return this->alpha * alphaFade * INV_FF<float>();
+}
 
-    if(self.light == 0xFF) {
-        self.ref.light = 0xFF;
+
+void chr_instance_t::updateReflection(const Vector3f &position, const bool need_matrix)
+{
+    // reflect the ordinary matrix
+    if (need_matrix && this->matrix_cache.valid) {
+        _reflectionMatrix = _matrix;
+        _reflectionMatrix(2, 0) = -_reflectionMatrix(0, 2);
+        _reflectionMatrix(2, 1) = -_reflectionMatrix(1, 2);
+        _reflectionMatrix(2, 2) = -_reflectionMatrix(2, 2);
+        _reflectionMatrix(2, 3) = 2.0f * _object.getFloorElevation() - position.z();
     }
-    else {
-        self.ref.light = self.light * alpha * INV_FF<float>();
-    }
 
-    self.ref.colorshift = colorshift_t(self.colorshift.red + 1, self.colorshift.green + 1, self.colorshift.blue + 1);
-
-	self.ref.sheen = self.sheen >> 1;
 }
 
 void chr_instance_t::setObjectProfile(const std::shared_ptr<ObjectProfile> &profile)
 {
     //Reset data
     // Remember any previous color shifts in case of lasting enchantments
-    matrix = Matrix4f4f::identity();
+    _matrix = Matrix4f4f::identity();
+    _reflectionMatrix = Matrix4f4f::identity();
     facing_z = 0;
     uoffset = 0;
     voffset = 0;
@@ -1698,10 +1606,7 @@ void chr_instance_t::setObjectProfile(const std::shared_ptr<ObjectProfile> &prof
     setModel(profile->getModel());
 
     // set the initial action, all actions override it
-    chr_instance_t::play_action(*this, ACTION_DA, true);
-
-    // upload these parameters to the reflection cache, but don't compute the matrix
-    chr_instance_t::update_ref(*this, Vector3f::zero(), false);
+    playAction(ACTION_DA, true);
 }
 
 BIT_FIELD chr_instance_t::getFrameFX() const
@@ -1823,10 +1728,17 @@ void chr_instance_t::getTint(GLXvector4f tint, const bool reflection, const int 
 	if (reflection)
 	{
 		// this is a reflection, use the reflected parameters
-		local_alpha = this->ref.alpha;
-		local_light = this->ref.light;
-		local_sheen = this->ref.sheen;
-        local_colorshift = this->ref.colorshift;
+		local_alpha = getReflectionAlpha();
+
+        if(this->light == 0xFF) {
+            local_light = 0xFF;
+        }
+        else {
+            local_light = this->light * local_alpha * INV_FF<float>();
+        }
+
+		local_sheen = this->sheen / 2; //half of normal sheen
+        local_colorshift = colorshift_t(this->colorshift.red + 1, this->colorshift.green + 1, this->colorshift.blue + 1);
 	}
 	else
 	{

@@ -89,7 +89,7 @@ static egolib_rv chr_increment_frame( Object * pchr )
         }
     }
 
-    retval = ( egolib_rv )chr_instance_t::increment_frame(pchr->inst, imount, mount_action );
+    retval = ( egolib_rv )pchr->inst.incrementFrame(imount, mount_action );
     if ( rv_success != retval ) return retval;
 
     // if the instance is invalid, invalidate everything that depends on this object
@@ -108,7 +108,12 @@ egolib_rv chr_play_action( Object * pchr, int action, bool action_ready )
         return rv_error;
     }
 
-    egolib_rv retval = (egolib_rv)chr_instance_t::play_action(pchr->inst, action, action_ready);
+    //Skip invalid actions
+    if(action < 0 || action >= ACTION_COUNT) {
+        return rv_error;
+    }
+
+    egolib_rv retval = (egolib_rv)pchr->inst.playAction(static_cast<ModelAction>(action), action_ready);
     if (rv_success != retval) {
         return retval;
     }

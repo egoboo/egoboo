@@ -147,10 +147,16 @@ public:
     Ego::Physics::ObjectPhysics& getObjectPhysics() { return _objectPhysics; }
 
     /**
+    * @return
+    *   The elevation of the floor
+    **/
+    float getFloorElevation() const { return _objectPhysics.getGroundElevation(); }
+
+    /**
 	 * @brief Get the unique object reference of this object.
      * @return the unique object reference of this object
      */
-    inline ObjectRef getObjRef() const { return _objRef; }
+    ObjectRef getObjRef() const { return _objRef; }
 
     /**
     * @return the current team this object is on. This can change in-game (mounts or pets for example)
