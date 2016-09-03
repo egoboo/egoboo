@@ -497,7 +497,7 @@ egolib_rv matrix_cache_needs_update( Object * pchr, matrix_cache_t& pmc )
     chr_get_matrix_cache( pchr, pmc );
 
     // compare that data to the actual data used to make the matrix
-    needs_cache_update = !(pmc == pchr->inst.matrix_cache);
+    needs_cache_update = (pmc == pchr->inst.matrix_cache);
 
     return needs_cache_update ? rv_success : rv_fail;
 }
