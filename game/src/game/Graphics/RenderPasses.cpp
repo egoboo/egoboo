@@ -905,7 +905,7 @@ void EntityShadows::doLowQualityShadow(const ObjectRef character) {
 
 	// Original points
 	float level = pchr->getObjectPhysics().getGroundElevation() + SHADOWRAISE;
-	float height = pchr->inst.matrix(2, 3) - level;
+	float height = pchr->inst.getMatrix()(2, 3) - level;
 	float height_factor = 1.0f - height / (pchr->shadow_size * 5.0f);
 	if (height_factor <= 0.0f) return;
 
@@ -913,8 +913,8 @@ void EntityShadows::doLowQualityShadow(const ObjectRef character) {
 	alpha *= height_factor * 0.5f + 0.25f;
 	if (alpha < INV_FF<float>()) return;
 
-	float x = pchr->inst.matrix(0, 3); ///< @todo MH: This should be the x/y position of the model.
-	float y = pchr->inst.matrix(1, 3); ///<           Use a more self-descriptive method to describe this.
+	float x = pchr->inst.getMatrix()(0, 3); ///< @todo MH: This should be the x/y position of the model.
+	float y = pchr->inst.getMatrix()(1, 3); ///<           Use a more self-descriptive method to describe this.
 
 	float size = pchr->shadow_size * height_factor;
 
@@ -986,7 +986,7 @@ void EntityShadows::doHighQualityShadow(const ObjectRef character) {
 
 	// Original points
 	float level = pchr->getObjectPhysics().getGroundElevation() + SHADOWRAISE;
-	float height = pchr->inst.matrix(2, 3) - level;
+	float height = pchr->inst.getMatrix()(2, 3) - level;
 	if (height < 0) height = 0;
 
 	float size_umbra = 1.5f * (pchr->bump.size - height / 30.0f);
@@ -1011,8 +1011,8 @@ void EntityShadows::doHighQualityShadow(const ObjectRef character) {
 		alpha_penumbra = constrain(alpha_penumbra, 0.0f, 1.0f);
 	}
 
-	float x = pchr->inst.matrix(0, 3);
-	float y = pchr->inst.matrix(1, 3);
+	float x = pchr->inst.getMatrix()(0, 3);
+	float y = pchr->inst.getMatrix()(1, 3);
 
 	// Choose texture and matrix
 	Ego::Renderer::get().getTextureUnit().setActivated(ParticleHandler::get().getLightParticleTexture().get());

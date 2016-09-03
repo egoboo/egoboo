@@ -472,7 +472,7 @@ void draw_one_attachment_point(chr_instance_t& inst, int vrt_offset)
     Ego::Renderer::get().getTextureUnit().setActivated(nullptr);
     Ego::Renderer::get().setPointSize(5);
     Ego::Renderer::get().setViewMatrix(Matrix4f4f::identity());
-    Ego::Renderer::get().setWorldMatrix(inst.matrix);
+    Ego::Renderer::get().setWorldMatrix(inst.getMatrix());
     GL_DEBUG(glBegin(GL_POINTS));
     {
         GL_DEBUG(glVertex3fv)(inst.getVertex(vrt).pos);
@@ -652,10 +652,10 @@ gfx_rv prt_instance_t::update_vertices(prt_instance_t& inst, Camera& camera, Ego
 
             switch (inst.orientation)
             {
-                case prt_ori_t::ORIENTATION_X: vup = mat_getChrForward(cinst->matrix); break;
-                case prt_ori_t::ORIENTATION_Y: vup = mat_getChrRight(cinst->matrix);   break;
+                case prt_ori_t::ORIENTATION_X: vup = mat_getChrForward(cinst->getMatrix()); break;
+                case prt_ori_t::ORIENTATION_Y: vup = mat_getChrRight(cinst->getMatrix());   break;
                 default:
-                case prt_ori_t::ORIENTATION_Z: vup = mat_getChrUp(cinst->matrix);      break;
+                case prt_ori_t::ORIENTATION_Z: vup = mat_getChrUp(cinst->getMatrix());      break;
             }
 
             vup.normalize();

@@ -371,6 +371,8 @@ public:
     **/
     const Matrix4f4f& getMatrix() const;
 
+    void setMatrix(const Matrix4f4f& matrix);
+
 private:	
     /// @details This function starts the next action for a character
     gfx_rv incrementAction();

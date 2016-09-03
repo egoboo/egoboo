@@ -1568,6 +1568,7 @@ uint8_t chr_instance_t::getReflectionAlpha() const
 
 void chr_instance_t::updateReflection(const Vector3f &position, const bool need_matrix)
 {
+    /*
     // reflect the ordinary matrix
     if (need_matrix && this->matrix_cache.valid) {
         _reflectionMatrix = _matrix;
@@ -1576,7 +1577,7 @@ void chr_instance_t::updateReflection(const Vector3f &position, const bool need_
         _reflectionMatrix(2, 2) = -_reflectionMatrix(2, 2);
         _reflectionMatrix(2, 3) = 2.0f * _object.getFloorElevation() - position.z();
     }
-
+    */
 }
 
 void chr_instance_t::setObjectProfile(const std::shared_ptr<ObjectProfile> &profile)
@@ -1876,4 +1877,17 @@ void chr_instance_t::flashVariableHeight(const uint8_t valuelow, const int16_t l
                     _vertexList[cnt].col[BB] =  valuemid;
         }
     }
+}
+
+void chr_instance_t::setMatrix(const Matrix4f4f& matrix)
+{
+    //Set the normal model matrix
+    _matrix = matrix;
+
+    //Compute the reflected matrix as well
+    _reflectionMatrix = matrix;
+    _reflectionMatrix(2, 0) = -_reflectionMatrix(0, 2);
+    _reflectionMatrix(2, 1) = -_reflectionMatrix(1, 2);
+    _reflectionMatrix(2, 2) = -_reflectionMatrix(2, 2);
+    _reflectionMatrix(2, 3) = 2.0f * _object.getFloorElevation() - _object.getPosZ();
 }

@@ -317,7 +317,7 @@ int convert_grip_to_global_points( const ObjectRef iholder, Uint16 grip_verts[],
     if ( 0 == point_count ) return 0;
 
     // use the math function instead of rolling out own
-	Utilities::transform(pholder->inst.matrix,src_point, dst_point, point_count);
+	Utilities::transform(pholder->inst.getMatrix(), src_point, dst_point, point_count);
 
     return point_count;
 }
@@ -349,10 +349,11 @@ bool apply_one_weapon_matrix( Object * pweap, matrix_cache_t& mc_tmp )
     {
         // Calculate weapon's matrix based on positions of grip points
         // chrscale is recomputed at time of attachment
-        mat_FourPoints( pweap->inst.matrix, Vector3f(nupoint[0][kX], nupoint[0][kY], nupoint[0][kZ]),
-			                                Vector3f(nupoint[1][kX], nupoint[1][kY], nupoint[1][kZ]),
-			                                Vector3f(nupoint[2][kX], nupoint[2][kY], nupoint[2][kZ]),
-			                                Vector3f(nupoint[3][kX], nupoint[3][kY], nupoint[3][kZ]), mc_tmp.self_scale[kZ]);
+        pweap->inst.setMatrix(Utilities::fromFourPoints(Vector3f(nupoint[0][kX], nupoint[0][kY], nupoint[0][kZ]),
+                                                        Vector3f(nupoint[1][kX], nupoint[1][kY], nupoint[1][kZ]),
+                                                        Vector3f(nupoint[2][kX], nupoint[2][kY], nupoint[2][kZ]),
+                                                        Vector3f(nupoint[3][kX], nupoint[3][kY], nupoint[3][kZ]), 
+                                                        mc_tmp.self_scale[kZ]));
 
         // update the weapon position
         pweap->setPosition(Vector3f(nupoint[3][kX],nupoint[3][kY],nupoint[3][kZ]));
@@ -398,23 +399,23 @@ bool apply_one_character_matrix( Object * pchr, matrix_cache_t& mc_tmp )
 
     if ( pchr->getProfile()->hasStickyButt() )
     {
+        pchr->inst.setMatrix(
         mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(
-            pchr->inst.matrix,
             mc_tmp.self_scale,
             mc_tmp.rotate[kZ],
             mc_tmp.rotate[kX],
             mc_tmp.rotate[kY],
-            mc_tmp.pos);
+            mc_tmp.pos));
     }
     else
     {
+        pchr->inst.setMatrix(
         mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed(
-            pchr->inst.matrix,
             mc_tmp.self_scale,
             mc_tmp.rotate[kZ],
             mc_tmp.rotate[kX],
             mc_tmp.rotate[kY],
-            mc_tmp.pos);
+            mc_tmp.pos));
     }
 
     pchr->inst.matrix_cache = mc_tmp;
@@ -589,7 +590,7 @@ bool chr_getMatUp(Object *pchr, Vector3f& up)
 	if (chr_matrix_valid(pchr))
 	{
         rv = true;
-        up = mat_getChrUp(pchr->inst.matrix);
+        up = mat_getChrUp(pchr->inst.getMatrix());
 	}
 
 	if (!rv)
@@ -618,7 +619,7 @@ bool chr_getMatRight(Object *pchr, Vector3f& right)
 	if (chr_matrix_valid(pchr))
 	{
         rv = true;
-        right = mat_getChrRight(pchr->inst.matrix);
+        right = mat_getChrRight(pchr->inst.getMatrix());
 	}
 
 	if (!rv)
@@ -647,7 +648,7 @@ bool chr_getMatForward(Object *pchr, Vector3f& forward)
 	if (chr_matrix_valid(pchr))
 	{
         rv = true;
-        forward = mat_getChrForward(pchr->inst.matrix);
+        forward = mat_getChrForward(pchr->inst.getMatrix());
 	}
 
 	if (!rv)
@@ -676,7 +677,7 @@ bool chr_getMatTranslate(Object *pchr, Vector3f& translate)
 	if (chr_matrix_valid(pchr))
 	{
         rv = true;
-        translate = mat_getTranslate(pchr->inst.matrix);
+        translate = mat_getTranslate(pchr->inst.getMatrix());
 	}
 
 	if (!rv)
@@ -801,7 +802,7 @@ bool chr_calc_grip_cv( Object * pmount, int grip_offset, oct_bb_t * grip_cv_ptr,
 
     // transform the vertices to calculate the grip_vecs[]
     // we only need one vertex
-	Utilities::transform(pmount_inst.matrix,grip_points, grip_nupoints, 1);
+	Utilities::transform(pmount_inst.getMatrix(),grip_points, grip_nupoints, 1);
 
     // add in the "origin" of the grip, if necessary
     if ( NULL != grip_cv_ptr )
@@ -894,7 +895,7 @@ void make_one_character_matrix( const ObjectRef ichr )
             pchr->setPosition(ptarget->getPosition());
 
             // copy the matrix
-            pinst.matrix = ptarget->inst.matrix;
+            pinst.setMatrix(ptarget->inst.getMatrix());
 
             // copy the matrix data
             pinst.matrix_cache = ptarget->inst.matrix_cache;
@@ -904,23 +905,25 @@ void make_one_character_matrix( const ObjectRef ichr )
     {
         if ( pchr->getProfile()->hasStickyButt() )
         {
-            mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(
-                pinst.matrix,
-				Vector3f(pchr->fat, pchr->fat, pchr->fat),
-                pchr->ori.facing_z,
-                pchr->ori.map_twist_facing_x - orientation_t::MAP_TURN_OFFSET,
-                pchr->ori.map_twist_facing_y - orientation_t::MAP_TURN_OFFSET,
-                pchr->getPosition());
+            pinst.setMatrix(
+                mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(
+    				Vector3f(pchr->fat, pchr->fat, pchr->fat),
+                    pchr->ori.facing_z,
+                    pchr->ori.map_twist_facing_x - orientation_t::MAP_TURN_OFFSET,
+                    pchr->ori.map_twist_facing_y - orientation_t::MAP_TURN_OFFSET,
+                    pchr->getPosition())
+            );
         }
         else
         {
-            mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed(
-                pinst.matrix,
-				Vector3f(pchr->fat, pchr->fat, pchr->fat),
-                pchr->ori.facing_z,
-                pchr->ori.map_twist_facing_x - orientation_t::MAP_TURN_OFFSET,
-                pchr->ori.map_twist_facing_y - orientation_t::MAP_TURN_OFFSET,
-                pchr->getPosition());
+            pinst.setMatrix(
+                mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed(
+    				Vector3f(pchr->fat, pchr->fat, pchr->fat),
+                    pchr->ori.facing_z,
+                    pchr->ori.map_twist_facing_x - orientation_t::MAP_TURN_OFFSET,
+                    pchr->ori.map_twist_facing_y - orientation_t::MAP_TURN_OFFSET,
+                    pchr->getPosition())
+            );
         }
 
         pinst.matrix_cache.valid        = true;

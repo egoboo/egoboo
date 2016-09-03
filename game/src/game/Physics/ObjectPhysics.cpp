@@ -51,7 +51,7 @@ void ObjectPhysics::keepItemsWithHolder()
         // Keep in hand weapons with iattached
         if ( chr_matrix_valid(&_object) )
         {
-            _object.setPosition(mat_getTranslate(_object.inst.matrix));
+            _object.setPosition(mat_getTranslate(_object.inst.getMatrix()));
         }
         else
         {
@@ -861,7 +861,7 @@ bool ObjectPhysics::attachToObject(const std::shared_ptr<Object> &holder, grip_o
 
     chr_update_matrix(&_object, true);
 
-    _object.setPosition(mat_getTranslate(_object.inst.matrix));
+    _object.setPosition(mat_getTranslate(_object.inst.getMatrix()));
 
     _object.inwater  = false;
     _object.jump_timer = Object::JUMPDELAY * 4;
@@ -964,7 +964,7 @@ void ObjectPhysics::updateCollisionSize(bool update_matrix)
     int vcount = oct_bb_t::to_points(bsrc, src, 16);
 
     // transform the new point cloud
-    Utilities::transform(_object.inst.matrix, src, dst, vcount);
+    Utilities::transform(_object.inst.getMatrix(), src, dst, vcount);
 
     // convert the new point cloud into a level 1 bounding box
     oct_bb_t bdst;

@@ -1204,9 +1204,9 @@ bool Particle::placeAtVertex(const std::shared_ptr<Object> &object, int vertex_o
         if ( vertex_offset == GRIP_ORIGIN )
         {
 			Vector3f tmp_pos;
-            tmp_pos[kX] = object->inst.matrix( 0, 3 );
-            tmp_pos[kY] = object->inst.matrix( 1, 3 );
-            tmp_pos[kZ] = object->inst.matrix( 2, 3 );
+            tmp_pos[kX] = object->inst.getMatrix()(0, 3);
+            tmp_pos[kY] = object->inst.getMatrix()(1, 3);
+            tmp_pos[kZ] = object->inst.getMatrix()(2, 3);
 
             setPosition(tmp_pos);
 
@@ -1229,7 +1229,7 @@ bool Particle::placeAtVertex(const std::shared_ptr<Object> &object, int vertex_o
         point[0][kW] = 1.0f;
 
         // Do the transform
-        Utilities::transform(object->inst.matrix, point, nupoint, 1);
+        Utilities::transform(object->inst.getMatrix(), point, nupoint, 1);
 
         setPosition(Vector3f(nupoint[0][kX],nupoint[0][kY],nupoint[0][kZ]));
     }
