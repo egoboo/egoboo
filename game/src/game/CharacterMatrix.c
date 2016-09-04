@@ -50,25 +50,25 @@ static int convert_grip_to_global_points( const ObjectRef iholder, Uint16 grip_v
 
     // handle differences in the type
     int itmp = this->type_bits - rhs.type_bits;
-    if (0 != itmp) return itmp;
+    if (0 != itmp) return false;
 
     //---- check for differences in the MAT_WEAPON data
     if (HAS_SOME_BITS(this->type_bits, MAT_WEAPON)) {
         itmp = (signed)REF_TO_INT(this->grip_chr.get()) - (signed)REF_TO_INT(rhs.grip_chr.get());
-        if (0 != itmp) return itmp;
+        if (0 != itmp) return false;
 
         itmp = (signed)this->grip_slot - (signed)rhs.grip_slot;
-        if (0 != itmp) return itmp;
+        if (0 != itmp) return false;
 
         for (int cnt = 0; cnt < GRIP_VERTS; cnt++) {
             itmp = (signed)this->grip_verts[cnt] - (signed)rhs.grip_verts[cnt];
-            if (0 != itmp) return itmp;
+            if (0 != itmp) return false;
         }
 
         // handle differences in the scale of our mount
         for (int cnt = 0; cnt < 3; cnt++) {
             float ftmp = this->grip_scale[cnt] - rhs.grip_scale[cnt];
-            if (0.0f != ftmp) { itmp = sgn(ftmp); return itmp; }
+            if (0.0f != ftmp) { itmp = sgn(ftmp); return false; }
         }
     }
 
@@ -77,13 +77,13 @@ static int convert_grip_to_global_points( const ObjectRef iholder, Uint16 grip_v
         // handle differences in the "Euler" rotation angles in 16-bit form
         for (int cnt = 0; cnt < 3; cnt++) {
             Facing ftmp = this->rotate[cnt] - rhs.rotate[cnt];
-            if (Facing(0) != ftmp) { itmp = sgn(ftmp); return itmp; }
+            if (Facing(0) != ftmp) { itmp = sgn(ftmp); return false; }
         }
 
         // handle differences in the translate vector
         for (int cnt = 0; cnt < 3; cnt++) {
             float ftmp = this->pos[cnt] - rhs.pos[cnt];
-            if (0.0f != ftmp) { itmp = sgn(ftmp); return itmp; }
+            if (0.0f != ftmp) { itmp = sgn(ftmp); return false; }
         }
     }
 
@@ -92,7 +92,7 @@ static int convert_grip_to_global_points( const ObjectRef iholder, Uint16 grip_v
         // handle differences in our own scale
         for (int cnt = 0; cnt < 3; cnt++) {
             float ftmp = this->self_scale[cnt] - rhs.self_scale[cnt];
-            if (0.0f != ftmp) { itmp = sgn(ftmp); return itmp; }
+            if (0.0f != ftmp) { itmp = sgn(ftmp); return false; }
         }
     }
 
@@ -484,17 +484,13 @@ egolib_rv matrix_cache_needs_update( Object * pchr, matrix_cache_t& pmc )
     /// @author BB
     /// @details determine whether a matrix cache has become invalid and needs to be updated
 
-    bool needs_cache_update;
-
     if ( nullptr == pchr ) return rv_error;
 
     // get the matrix data that is supposed to be used to make the matrix
     chr_get_matrix_cache( pchr, pmc );
 
     // compare that data to the actual data used to make the matrix
-    needs_cache_update = (pmc == pchr->inst.matrix_cache);
-
-    return needs_cache_update ? rv_success : rv_fail;
+    return !(pmc == pchr->inst.matrix_cache) ? rv_success : rv_fail;
 }
 
 //--------------------------------------------------------------------------------------------
