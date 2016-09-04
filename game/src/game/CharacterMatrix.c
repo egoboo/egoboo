@@ -475,11 +475,6 @@ bool apply_matrix_cache( Object * pchr, matrix_cache_t& mc_tmp )
         applied = apply_one_character_matrix( pchr, mc_tmp );
     }
 
-    if ( applied )
-    {
-        pchr->inst.updateReflection(pchr->getPosition(), true);
-    }
-
     return applied;
 }
 

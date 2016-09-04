@@ -1901,8 +1901,6 @@ void Object::respawn()
     {
         reaffirm_attached_particles(getObjRef());
     }
-
-    inst.updateReflection(getPosition(), true);
 }
 
 float Object::getRawDamageResistance(const DamageType type, const bool includeArmor) const
@@ -2348,12 +2346,6 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
         phys.weight = std::min<uint32_t>(_profile->getWeight() * fat * fat * fat, Ego::Physics::CHR_MAX_WEIGHT);
     }
 
-    /// @note BB@> changing this could be disasterous, in case you can't un-morph youself???
-    /// @note ZF@> No, we want this, I have specifically scripted morph books to handle unmorphing
-    /// even if you cannot cast arcane spells. Some morph spells specifically morph the player
-    /// into a fighter or a tech user, but as a balancing factor prevents other spellcasting.
-    // canusearcane          = pcap_new->canusearcane;
-
     // Character size and bumping
     // set the character size so that the new model is the same size as the old model
     // the model will then morph its size to the correct size over time
@@ -2447,8 +2439,6 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
     //reaffirm_attached_particles( ichr );
 
     ai_state_t::set_changed(ai);
-
-    inst.updateReflection(getPosition(), true);
 }
 
 bool Object::isInvictusDirection(Facing direction) const

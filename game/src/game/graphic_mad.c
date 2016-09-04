@@ -1565,21 +1565,6 @@ uint8_t chr_instance_t::getReflectionAlpha() const
     return this->alpha * alphaFade * INV_FF<float>();
 }
 
-
-void chr_instance_t::updateReflection(const Vector3f &position, const bool need_matrix)
-{
-    /*
-    // reflect the ordinary matrix
-    if (need_matrix && this->matrix_cache.valid) {
-        _reflectionMatrix = _matrix;
-        _reflectionMatrix(2, 0) = -_reflectionMatrix(0, 2);
-        _reflectionMatrix(2, 1) = -_reflectionMatrix(1, 2);
-        _reflectionMatrix(2, 2) = -_reflectionMatrix(2, 2);
-        _reflectionMatrix(2, 3) = 2.0f * _object.getFloorElevation() - position.z();
-    }
-    */
-}
-
 void chr_instance_t::setObjectProfile(const std::shared_ptr<ObjectProfile> &profile)
 {
     //Reset data

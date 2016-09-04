@@ -282,7 +282,6 @@ public:
 
 	gfx_rv startAnimation(const ModelAction action, const bool action_ready, const bool override_action);
 
-	void updateReflection(const Vector3f &position, const bool need_matrix);
 	static void update_lighting_base(chr_instance_t& self, Object *pchr, bool force);
 
     /// @details all the code necessary to move on to the next frame of the animation
