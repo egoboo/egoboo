@@ -281,12 +281,12 @@ int convert_grip_to_local_points( Object * pholder, Uint16 grip_verts[], Vector4
     else
     {
         // update the grip vertices
-        chr_instance_t::update_grip_verts(pholder->inst, grip_verts, GRIP_VERTS );
+        pholder->inst.updateGripVertices(grip_verts, GRIP_VERTS );
 
         // copy the vertices into dst_point[]
         for ( point_count = 0, cnt = 0; cnt < GRIP_VERTS; cnt++, point_count++ )
         {
-            Uint16 vertex = grip_verts[cnt];
+            uint16_t vertex = grip_verts[cnt];
 
             if ( 0xFFFF == vertex ) continue;
 
@@ -536,13 +536,10 @@ egolib_rv chr_update_matrix( Object * pchr, bool update_size )
     const std::shared_ptr<Object> &heldItem = _currentModule->getObjectHandler()[mc_tmp.grip_chr];
     if ( HAS_SOME_BITS(mc_tmp.type_bits, MAT_WEAPON) && heldItem)
     {
-        egolib_rv grip_retval;
-
         // has that character changes its animation?
-        grip_retval = ( egolib_rv )chr_instance_t::update_grip_verts(heldItem->inst, mc_tmp.grip_verts.data(), GRIP_VERTS);
-
-        if ( rv_error   == grip_retval ) return rv_error;
-        if ( rv_success == grip_retval ) needs_update = true;
+        if(heldItem->inst.updateGripVertices(mc_tmp.grip_verts.data(), GRIP_VERTS)) {
+            needs_update = true;
+        }
     }
 
     // if it is not the same, make a new matrix with the new data

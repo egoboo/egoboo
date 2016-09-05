@@ -81,22 +81,34 @@ struct colorshift_t {
 //--------------------------------------------------------------------------------------------
 
 /// the data to determine whether re-calculation of vlst is necessary
-struct vlst_cache_t
+struct VertexListCache
 {
-    vlst_cache_t() :
-        valid(false),
+    VertexListCache(const chr_instance_t &instance) :
         flip(0.0f),
         frame_nxt(0),
         frame_lst(0),
         frame_wld(0),
         vmin(-1),
         vmax(-1),
-        vert_wld(0)
+        vert_wld(0),
+        _instance(instance)
     {
         //ctor
     }
 
-    bool valid;             ///< do we know whether this cache is valid or not?
+    void clear()
+    {
+        flip = 0.0f;
+        frame_nxt = 0;
+        frame_lst = 0;
+        frame_wld = 0;
+        vmin = -1;
+        vmax = -1;
+        vert_wld = 0;
+    }
+
+    // do we know whether this cache is valid or not?
+    bool isValid() const;
 
     float  flip;              ///< the in-betweening  the last time the animation was updated
     uint16_t frame_nxt;         ///< the initial frame  the last time the animation was updated
@@ -106,7 +118,10 @@ struct vlst_cache_t
     int    vmin;              ///< the minimum clean vertex the last time the vertices were updated
     int    vmax;              ///< the maximum clean vertex the last time the vertices were updated
     uint32_t vert_wld;          ///< the update_wld the last time the vertices were updated
-	static gfx_rv test(vlst_cache_t& self, chr_instance_t *instance);
+
+private:
+    const chr_instance_t &_instance;
+
 };
 
 //--------------------------------------------------------------------------------------------
@@ -282,7 +297,7 @@ public:
 
     //Only used by CharacterAnimation.c
     bool updateOneFlip(float dflip);
-    static gfx_rv update_grip_verts(chr_instance_t& self, Uint16 vrt_lst[], size_t vrt_count);
+    bool updateGripVertices(const uint16_t vrt_lst[], const size_t vrt_count);
     void updateOneLip();
 
     gfx_rv playAction(const ModelAction action, const bool actionready);
@@ -407,7 +422,7 @@ private:
     Matrix4f4f _reflectionMatrix;           ///< Character's matrix reflecter (on the floor)
 
     // graphical optimizations
-    vlst_cache_t _vertexCache;              ///< Do we need to re-calculate all or part of the vertex list
+    VertexListCache _vertexCache;              ///< Do we need to re-calculate all or part of the vertex list
 
     // lighting info
     int32_t        _ambientColour;

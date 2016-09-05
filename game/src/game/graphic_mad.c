@@ -930,9 +930,9 @@ gfx_rv chr_instance_t::needs_update(int vmin, int vmax, bool *verts_match, bool 
     *verts_match  = false;
     *frames_match = false;
 
-    // check to see if the vlst_cache has been marked as invalid.
+    // check to see if the _vertexCache has been marked as invalid.
     // in this case, everything needs to be updated
-	if (!_vertexCache.valid) {
+	if (!_vertexCache.isValid()) {
 		return gfx_success;
 	}
 
@@ -1245,41 +1245,35 @@ gfx_rv chr_instance_t::updateVertexCache(int vmax, int vmin, bool force, bool ve
         _vertexCache.vert_wld  = update_wld;
     }
 
-    // mark the saved vlst_cache data as valid
-    _vertexCache.valid = true;
-
     return ( verts_updated || frames_updated ) ? gfx_success : gfx_fail;
 }
 
-gfx_rv chr_instance_t::update_grip_verts(chr_instance_t& self, uint16_t vrt_lst[], size_t vrt_count )
+bool chr_instance_t::updateGripVertices(const uint16_t vrt_lst[], const size_t vrt_count)
 {
-    int vmin, vmax;
-    uint32_t cnt;
-    size_t count;
-    gfx_rv retval;
-
-    if ( NULL == vrt_lst || 0 == vrt_count ) return gfx_fail;
+    if ( nullptr == vrt_lst || 0 == vrt_count ) {
+        return false;
+    }
 
     // count the valid attachment points
-    vmin = 0xFFFF;
-    vmax = 0;
-    count = 0;
-    for ( cnt = 0; cnt < vrt_count; cnt++ )
+    int vmin = 0xFFFF;
+    int vmax = 0;
+    size_t count = 0;
+    for (size_t cnt = 0; cnt < vrt_count; cnt++ )
     {
         if ( 0xFFFF == vrt_lst[cnt] ) continue;
 
-        vmin = std::min<uint16_t>( vmin, vrt_lst[cnt] );
-        vmax = std::max<uint16_t>( vmax, vrt_lst[cnt] );
+        vmin = std::min<uint16_t>(vmin, vrt_lst[cnt]);
+        vmax = std::max<uint16_t>(vmax, vrt_lst[cnt]);
         count++;
     }
 
     // if there are no valid points, there is nothing to do
-    if ( 0 == count ) return gfx_fail;
+    if (0 == count) {
+        return false;
+    }
 
     // force the vertices to update
-    retval = self.updateVertices(vmin, vmax, true);
-
-    return retval;
+    return updateVertices(vmin, vmax, true) == gfx_success;
 }
 
 gfx_rv chr_instance_t::setAction(const ModelAction action, const bool action_ready, const bool override_action)
@@ -1294,18 +1288,10 @@ gfx_rv chr_instance_t::setAction(const ModelAction action, const bool action_rea
 		return gfx_fail;
 	}
 
-    // save the old action
-	int action_old = actionState.action_which;
-
     // set up the action
 	actionState.action_which = action;
 	actionState.action_next = ACTION_DA;
 	actionState.action_ready = action_ready;
-
-    // invalidate the vertex list if the action has changed
-	if (action_old != action) {
-		_vertexCache.valid = false;
-    }
 
     return gfx_success;
 }
@@ -1327,8 +1313,6 @@ gfx_rv chr_instance_t::setFrame(int frame)
 	this->animationState.ilip = 0;
 	this->animationState.setSourceFrameIndex(this->animationState.getTargetFrameIndex());
 	this->animationState.setTargetFrameIndex(frame);
-
-	vlst_cache_t::test(_vertexCache, this);
 
     return gfx_success;
 }
@@ -1405,7 +1389,6 @@ gfx_rv chr_instance_t::incrementFrame(const ObjectRef imount, const ModelAction 
 	this->animationState.setSourceFrameIndex(frame_lst);
 	this->animationState.setTargetFrameIndex(frame_nxt);
 
-	vlst_cache_t::test(_vertexCache, this);
 
     return gfx_success;
 }
@@ -1421,7 +1404,7 @@ void chr_instance_t::clearCache()
     /// @details force chr_instance_update_vertices() recalculate the vertices the next time
     ///     the function is called
 
-    _vertexCache = vlst_cache_t();
+    _vertexCache.clear();
     this->matrix_cache = matrix_cache_t();
 
     _lastLightingUpdateFrame = -1;
@@ -1451,7 +1434,7 @@ chr_instance_t::chr_instance_t(const Object &object) :
     _reflectionMatrix(Matrix4f4f::identity()),
 
     // graphical optimizations
-    _vertexCache(),
+    _vertexCache(*this),
 
     // lighting info
     _ambientColour(0),
@@ -1498,9 +1481,6 @@ bool chr_instance_t::setModel(const std::shared_ptr<Ego::ModelDescriptor> &model
         updated = true;
         this->animationState.setSourceFrameIndex(0);
         this->animationState.setTargetFrameIndex(0);
-
-        // the vlst_cache parameters are not valid
-        _vertexCache.valid = false;
     }
 
     if (updated) {
@@ -1600,7 +1580,6 @@ gfx_rv chr_instance_t::setFrameFull(int frame_along, int ilip)
     this->animationState.flip      = ilip * 0.25f;
 
     // set the validity of the cache
-	vlst_cache_t::test(_vertexCache, this);
 
     return gfx_success;
 }
@@ -1628,7 +1607,7 @@ void chr_instance_t::removeInterpolation()
 		this->animationState.ilip = 0;
 		this->animationState.flip = 0.0f;
 
-		vlst_cache_t::test(_vertexCache, this);
+
     }
 }
 
@@ -1646,12 +1625,11 @@ void chr_instance_t::updateOneLip() {
     this->animationState.ilip += 1;
     this->animationState.flip = 0.25f * this->animationState.ilip;
 
-	vlst_cache_t::test(_vertexCache, this);
 }
 
 bool chr_instance_t::isVertexCacheValid() const
 {
-    return _vertexCache.valid;
+    return _vertexCache.isValid();
 }
 
 bool chr_instance_t::updateOneFlip(const float dflip)
@@ -1664,7 +1642,6 @@ bool chr_instance_t::updateOneFlip(const float dflip)
     this->animationState.flip += dflip;
 	this->animationState.ilip = ((int)std::floor(this->animationState.flip * 4)) % 4;
 
-	vlst_cache_t::test(_vertexCache, this);
 
     return true;
 }
@@ -1749,31 +1726,21 @@ void chr_instance_t::getTint(GLXvector4f tint, const bool reflection, const int 
 
 }
 
-
-gfx_rv vlst_cache_t::test(vlst_cache_t& self, chr_instance_t *instance)
+bool VertexListCache::isValid() const
 {
-	if (!self.valid) {
-		return gfx_success;
-	}
-
-    if (!instance) {
-        self.valid = false;
-        return gfx_success;
+    if (_instance.animationState.getSourceFrameIndex() != frame_nxt) {
+        return false;
     }
 
-    if (instance->animationState.getSourceFrameIndex() != self.frame_nxt) {
-        self.valid = false;
+    if (_instance.animationState.getSourceFrameIndex() != frame_lst) {
+        return false;
     }
 
-    if (instance->animationState.getSourceFrameIndex() != self.frame_lst) {
-        self.valid = false;
+    if ((_instance.animationState.getSourceFrameIndex() != frame_lst) && std::abs(_instance.animationState.flip - flip) > FLIP_TOLERANCE) {
+        return false;
     }
 
-    if ((instance->animationState.getSourceFrameIndex() != self.frame_lst)  && std::abs(instance->animationState.flip - self.flip) > FLIP_TOLERANCE) {
-        self.valid = false;
-    }
-
-    return gfx_success;
+    return true;
 }
 
 void chr_instance_t::flash(uint8_t value)
