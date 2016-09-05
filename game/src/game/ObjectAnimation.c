@@ -28,7 +28,7 @@ egolib_rv chr_start_anim( Object * pchr, int action, bool action_ready, bool ove
     if ( rv_success != retval ) return retval;
 
     // if the instance is invalid, invalidate everything that depends on this object
-    if ( !pchr->inst.save.valid )
+    if ( !pchr->inst.isVertexCacheValid() )
     {
         chr_invalidate_child_instances( pchr );
     }
@@ -50,7 +50,7 @@ static egolib_rv chr_set_anim( Object * pchr, const ModelAction action, int fram
     if ( rv_success != retval ) return retval;
 
     // if the instance is invalid, invalidate everything that depends on this object
-    if ( !pchr->inst.save.valid )
+    if ( !pchr->inst.isVertexCacheValid() )
     {
         chr_invalidate_child_instances( pchr );
     }
@@ -93,7 +93,7 @@ static egolib_rv chr_increment_frame( Object * pchr )
     if ( rv_success != retval ) return retval;
 
     // if the instance is invalid, invalidate everything that depends on this object
-    if ( !pchr->inst.save.valid )
+    if ( !pchr->inst.isVertexCacheValid() )
     {
         chr_invalidate_child_instances( pchr );
     }
@@ -119,7 +119,7 @@ egolib_rv chr_play_action( Object * pchr, int action, bool action_ready )
     }
 
     // if the instance is invalid, invalidate everything that depends on this object
-    if (!pchr->inst.save.valid) {
+    if (!pchr->inst.isVertexCacheValid()) {
         chr_invalidate_child_instances(pchr);
     }
 
@@ -145,7 +145,7 @@ void move_one_character_do_animation( Object * pchr )
     {
         flip_diff -= flip_next;
 
-        chr_instance_t::update_one_lip( pinst );
+        pinst.updateOneLip();
 
         // handle frame FX for the new frame
         if ( 3 == pinst.animationState.ilip )
@@ -175,7 +175,7 @@ void move_one_character_do_animation( Object * pchr )
     {
         int ilip_old = pinst.animationState.ilip;
 
-        chr_instance_t::update_one_flip( pinst, flip_diff );
+        pinst.updateOneFlip(flip_diff);
 
         if ( ilip_old != pinst.animationState.ilip )
         {

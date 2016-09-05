@@ -243,16 +243,6 @@ struct chr_instance_t
     /// The action state.
     ActionState actionState;
 
-    // lighting info
-    int32_t         color_amb;
-    Vector4f       col_amb;
-    int            max_light, min_light;
-    int            lighting_update_wld;            ///< update some lighting info no more than once an update
-    int            lighting_frame_all;             ///< update some lighting info no more than once a frame
-
-    // graphical optimizations
-    vlst_cache_t           save;                   ///< Do we need to re-calculate all or part of the vertex list
-
 public:
 	chr_instance_t(const Object& object);
     ~chr_instance_t();
@@ -282,15 +272,18 @@ public:
 
 	gfx_rv startAnimation(const ModelAction action, const bool action_ready, const bool override_action);
 
-	static void update_lighting_base(chr_instance_t& self, Object *pchr, bool force);
+    /// @details determine the basic per-vertex lighting
+	void updateLighting();
 
     /// @details all the code necessary to move on to the next frame of the animation
     gfx_rv incrementFrame(const ObjectRef imount, const ModelAction mount_action);
 
+    bool isVertexCacheValid() const;
+
     //Only used by CharacterAnimation.c
-    static gfx_rv update_one_flip(chr_instance_t& self, float dflip);
+    bool updateOneFlip(float dflip);
     static gfx_rv update_grip_verts(chr_instance_t& self, Uint16 vrt_lst[], size_t vrt_count);
-    static void update_one_lip(chr_instance_t& self);
+    void updateOneLip();
 
     gfx_rv playAction(const ModelAction action, const bool actionready);
 
@@ -372,6 +365,10 @@ public:
 
     void setMatrix(const Matrix4f4f& matrix);
 
+    int getMaxLight() const;
+
+    int getAmbientColour() const;
+
 private:	
     /// @details This function starts the next action for a character
     gfx_rv incrementAction();
@@ -408,6 +405,14 @@ private:
     std::vector<GLvertex> _vertexList;
     Matrix4f4f _matrix;                     ///< Character's matrix
     Matrix4f4f _reflectionMatrix;           ///< Character's matrix reflecter (on the floor)
+
+    // graphical optimizations
+    vlst_cache_t _vertexCache;              ///< Do we need to re-calculate all or part of the vertex list
+
+    // lighting info
+    int32_t        _ambientColour;
+    int            _maxLight;
+    int            _lastLightingUpdateFrame;            ///< update some lighting info no more than once an update
 };
 
 //--------------------------------------------------------------------------------------------

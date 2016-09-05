@@ -74,7 +74,6 @@ Clock<ClockPolicy::NonRecursive>  update_all_prt_instance_timer("update.all.prt.
 
 
 Uint32          game_frame_all = 0;             ///< The total number of frames drawn so far
-Uint32          menu_frame_all = 0;             ///< The total number of frames drawn so far
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -2400,7 +2399,7 @@ gfx_rv gfx_update_all_chr_instance()
         }
 
         // do the basic lighting
-        chr_instance_t::update_lighting_base(pchr->inst, pchr.get(), false);
+        pchr->inst.updateLighting();
     }
 
     return retval;

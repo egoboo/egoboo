@@ -336,7 +336,7 @@ gfx_rv MadRenderer::render_tex(Camera& camera, const std::shared_ptr<Object>& pc
                             // Convert the "light" parameter to self-lighting for
                             // every object that is not being rendered using CHR_LIGHT.
 
-                            float acol = base_amb + pinst.color_amb * INV_FF<float>();
+                            float acol = base_amb + pinst.getAmbientColour() * INV_FF<float>();
 
                             v.colour.r += acol;
                             v.colour.g += acol;
@@ -475,8 +475,6 @@ gfx_rv MadRenderer::render_ref( Camera& cam, const std::shared_ptr<Object>& pchr
                 GLXvector4f tint;
                 pinst.getTint(tint, true, CHR_ALPHA);
 
-                // the previous call to chr_instance_update_lighting_ref() has actually set the
-                // alpha and light for all vertices
                 if (gfx_error == render(cam, pchr, tint, CHR_ALPHA | CHR_REFLECT)) {
                     retval = gfx_error;
                 }
@@ -490,8 +488,6 @@ gfx_rv MadRenderer::render_ref( Camera& cam, const std::shared_ptr<Object>& pchr
                 GLXvector4f tint;
                 pinst.getTint(tint, true, CHR_LIGHT);
 
-                // the previous call to chr_instance_update_lighting_ref() has actually set the
-                // alpha and light for all vertices
                 if (gfx_error == MadRenderer::render(cam, pchr, tint, CHR_LIGHT)) {
                     retval = gfx_error;
                 }
@@ -838,74 +834,45 @@ void MadRenderer::draw_chr_grips( Object * pchr )
 
 //--------------------------------------------------------------------------------------------
 
-void chr_instance_t::update_lighting_base(chr_instance_t& self, Object *pchr, bool force)
+void chr_instance_t::updateLighting()
 {
-    /// @author BB
-    /// @details determine the basic per-vertex lighting
-
-    const int frame_skip = 1 << 2;
-    const int frame_mask = frame_skip - 1;
-
-	if (!pchr) {
-		return;
-	}
-
-    // force this function to be evaluated the 1st time through
-    if (self.lighting_frame_all < 0) {
-        force = true;
-    }
-
-    // has this already been calculated this update?
-	if (!force && self.lighting_update_wld >= 0 && static_cast<uint32_t>(self.lighting_update_wld) >= update_wld) {
-		return;
-	}
-	self.lighting_update_wld = update_wld;
+    static constexpr uint32_t FRAME_SKIP = 1 << 2;
+    static constexpr uint32_t FRAME_MASK = FRAME_SKIP - 1;
 
     // make sure the matrix is valid
-    chr_update_matrix(pchr, true);
+    //chr_update_matrix(&_object, true);
 
-    // has this already been calculated in the last frame_skip frames?
-	if (!force && self.lighting_frame_all >= 0 && static_cast<uint32_t>(self.lighting_frame_all) >= game_frame_all) {
+    // has this already been calculated in the last FRAME_SKIP update frames?
+	if (_lastLightingUpdateFrame >= 0 && static_cast<uint32_t>(_lastLightingUpdateFrame) >= update_wld) {
 		return;
 	}
 
-    // reduce the amount of updates to one every frame_skip frames, but dither
+    // reduce the amount of updates to one every FRAME_SKIP frames, but dither
     // the updating so that not all objects update on the same frame
-    self.lighting_frame_all = game_frame_all + ((game_frame_all + pchr->getObjRef().get()) & frame_mask);
-
-	if (!self.animationState.getModelDescriptor()) {
-		return;
-	}
+    _lastLightingUpdateFrame = update_wld + ((update_wld + _object.getObjRef().get()) & FRAME_MASK);
 
     // interpolate the lighting for the origin of the object
-
-	auto mesh = _currentModule->getMeshPointer();
-	if (!mesh) {
-		throw Id::RuntimeErrorException(__FILE__, __LINE__, "nullptr == mesh");
-	}
-
 	lighting_cache_t global_light;
-    GridIllumination::grid_lighting_interpolate(*mesh, global_light, Vector2f(pchr->getPosX(), pchr->getPosY()));
+    GridIllumination::grid_lighting_interpolate(*_currentModule->getMeshPointer(), global_light, Vector2f(_object.getPosX(), _object.getPosY()));
 
     // rotate the lighting data to body_centered coordinates
 	lighting_cache_t loc_light;
-	lighting_cache_t::lighting_project_cache(loc_light, global_light, self.getMatrix());
+	lighting_cache_t::lighting_project_cache(loc_light, global_light, getMatrix());
 
     //Low-pass filter to smooth lighting transitions?
-    //self.color_amb = 0.9f * self.color_amb + 0.1f * (loc_light.hgh._lighting[LVEC_AMB] + loc_light.low._lighting[LVEC_AMB]) * 0.5f;
-    //self.color_amb = (loc_light.hgh._lighting[LVEC_AMB] + loc_light.low._lighting[LVEC_AMB]) * 0.5f;
-    self.color_amb = get_ambient_level();
+    //_ambientColour = 0.9f * _ambientColour + 0.1f * (loc_light.hgh._lighting[LVEC_AMB] + loc_light.low._lighting[LVEC_AMB]) * 0.5f;
+    //_ambientColour = (loc_light.hgh._lighting[LVEC_AMB] + loc_light.low._lighting[LVEC_AMB]) * 0.5f;
+    _ambientColour = get_ambient_level();
 
-    self.max_light = -255;
-    self.min_light =  255;
-    for (size_t cnt = 0; cnt < self._vertexList.size(); cnt++ )
+    _maxLight = -0xFF;
+    for (size_t cnt = 0; cnt < _vertexList.size(); cnt++ )
     {
         float lite = 0.0f;
 
-        GLvertex *pvert = &self._vertexList[cnt];
+        GLvertex *pvert = &_vertexList[cnt];
 
         // a simple "height" measurement
-        float hgt = pvert->pos[ZZ] * self.getMatrix()(3, 3) + self.getMatrix()(3, 3);
+        float hgt = pvert->pos[ZZ] * _matrix(3, 3) + _matrix(3, 3);
 
         if (pvert->nrm[0] == 0.0f && pvert->nrm[1] == 0.0f && pvert->nrm[2] == 0.0f)
         {
@@ -918,18 +885,21 @@ void chr_instance_t::update_lighting_base(chr_instance_t& self, Object *pchr, bo
         }
         else
         {
-            lite = lighting_cache_t::lighting_evaluate_cache( loc_light, Vector3f(pvert->nrm[0],pvert->nrm[1],pvert->nrm[2]), hgt, _currentModule->getMeshPointer()->_tmem._bbox, nullptr, nullptr);
+            lite = lighting_cache_t::lighting_evaluate_cache(loc_light, Vector3f(pvert->nrm[0],pvert->nrm[1],pvert->nrm[2]), hgt, _currentModule->getMeshPointer()->_tmem._bbox, nullptr, nullptr);
         }
 
         pvert->color_dir = lite;
 
-        self.max_light = std::max(self.max_light, pvert->color_dir);
-        self.min_light = std::min(self.min_light, pvert->color_dir);
+        _maxLight = std::max(_maxLight, pvert->color_dir);
     }
 
     // ??coerce this to reasonable values in the presence of negative light??
-    self.max_light = std::max(self.max_light, 0);
-    self.min_light = std::max(self.min_light, 0);
+    _maxLight = std::max(_maxLight, 0);
+}
+
+int chr_instance_t::getAmbientColour() const
+{
+    return _ambientColour;
 }
 
 oct_bb_t chr_instance_t::getBoundingBox() const
@@ -960,11 +930,9 @@ gfx_rv chr_instance_t::needs_update(int vmin, int vmax, bool *verts_match, bool 
     *verts_match  = false;
     *frames_match = false;
 
-	vlst_cache_t *psave = &(this->save);
-
     // check to see if the vlst_cache has been marked as invalid.
     // in this case, everything needs to be updated
-	if (!psave->valid) {
+	if (!_vertexCache.valid) {
 		return gfx_success;
 	}
 
@@ -972,12 +940,12 @@ gfx_rv chr_instance_t::needs_update(int vmin, int vmax, bool *verts_match, bool 
     int maxvert = ((int)this->_vertexList.size()) - 1;
 
     // check to make sure the lower bound of the saved data is valid.
-    // it is initialized to an invalid value (psave->vmin = psave->vmax = -1)
-	if (psave->vmin < 0 || psave->vmax < 0) {
+    // it is initialized to an invalid value (_vertexCache.vmin = _vertexCache.vmax = -1)
+	if (_vertexCache.vmin < 0 || _vertexCache.vmax < 0) {
 		return gfx_success;
 	}
     // check to make sure the upper bound of the saved data is valid.
-	if (psave->vmin > maxvert || psave->vmax > maxvert) {
+	if (_vertexCache.vmin > maxvert || _vertexCache.vmax > maxvert) {
 		return gfx_success;
 	}
     // make sure that the min and max vertices are in the correct order
@@ -985,12 +953,12 @@ gfx_rv chr_instance_t::needs_update(int vmin, int vmax, bool *verts_match, bool 
 		std::swap(vmax, vmin);
 	}
     // test to see if we have already calculated this data
-    *verts_match = (vmin >= psave->vmin) && (vmax <= psave->vmax);
+    *verts_match = (vmin >= _vertexCache.vmin) && (vmax <= _vertexCache.vmax);
 
-	bool flips_match = (std::abs(psave->flip - this->animationState.flip) < FLIP_TOLERANCE);
+	bool flips_match = (std::abs(_vertexCache.flip - this->animationState.flip) < FLIP_TOLERANCE);
 
-    *frames_match = (this->animationState.getTargetFrameIndex() == this->animationState.getSourceFrameIndex() && psave->frame_nxt == this->animationState.getTargetFrameIndex() && psave->frame_lst == this->animationState.getSourceFrameIndex() ) ||
-                    (flips_match && psave->frame_nxt == this->animationState.getTargetFrameIndex() && psave->frame_lst == this->animationState.getSourceFrameIndex());
+    *frames_match = (this->animationState.getTargetFrameIndex() == this->animationState.getSourceFrameIndex() && _vertexCache.frame_nxt == this->animationState.getTargetFrameIndex() && _vertexCache.frame_lst == this->animationState.getSourceFrameIndex() ) ||
+                    (flips_match && _vertexCache.frame_nxt == this->animationState.getTargetFrameIndex() && _vertexCache.frame_lst == this->animationState.getSourceFrameIndex());
 
     return (!(*verts_match) || !( *frames_match )) ? gfx_success : gfx_fail;
 }
@@ -998,8 +966,6 @@ gfx_rv chr_instance_t::needs_update(int vmin, int vmax, bool *verts_match, bool 
 void chr_instance_t::interpolateVerticesRaw(const std::vector<MD2_Vertex> &lst_ary, const std::vector<MD2_Vertex> &nxt_ary, int vmin, int vmax, float flip )
 {
     /// raw indicates no bounds checking, so be careful
-
-    int i;
 
     if ( 0.0f == flip )
     {
@@ -1132,15 +1098,15 @@ gfx_rv chr_instance_t::updateVertices(int vmin, int vmax, bool force)
         else
         {
             // grab the dirty vertices
-            if ( vmin < this->save.vmin )
+            if ( vmin < _vertexCache.vmin )
             {
                 vdirty1_min = vmin;
-                vdirty1_max = this->save.vmin - 1;
+                vdirty1_max = _vertexCache.vmin - 1;
             }
 
-            if ( vmax > this->save.vmax )
+            if ( vmax > _vertexCache.vmax )
             {
-                vdirty2_min = this->save.vmax + 1;
+                vdirty2_min = _vertexCache.vmax + 1;
                 vdirty2_max = vmax;
             }
         }
@@ -1184,7 +1150,7 @@ gfx_rv chr_instance_t::updateVertexCache(int vmax, int vmin, bool force, bool ve
 {
     // this is getting a bit ugly...
     // we need to do this calculation as little as possible, so it is important that the
-    // this->save.* values be tested and stored properly
+    // _vertexCache.* values be tested and stored properly
 
 	int maxvert = ((int)this->_vertexList.size()) - 1;
 
@@ -1196,8 +1162,8 @@ gfx_rv chr_instance_t::updateVertexCache(int vmax, int vmin, bool force, bool ve
         // the animation was updated. In any case, the only vertices that are
         // clean are in the range [vmin, vmax]
 
-        this->save.vmin   = vmin;
-        this->save.vmax   = vmax;
+        _vertexCache.vmin   = vmin;
+        _vertexCache.vmax   = vmax;
         verts_updated = true;
     }
     else if ( vertices_match && frames_match )
@@ -1210,8 +1176,8 @@ gfx_rv chr_instance_t::updateVertexCache(int vmax, int vmin, bool force, bool ve
 
         // This means that all of the vertices were SUPPOSED TO BE updated,
         // but only the ones in the range [vmin, vmax] actually were.
-        this->save.vmin = vmin;
-        this->save.vmax = vmax;
+        _vertexCache.vmin = vmin;
+        _vertexCache.vmax = vmax;
         verts_updated = true;
     }
     else if ( frames_match )
@@ -1224,29 +1190,29 @@ gfx_rv chr_instance_t::updateVertexCache(int vmax, int vmin, bool force, bool ve
         //
         // If these ranges are disjoint, then only one of them can be saved. Choose the larger set
 
-        if ( vmax >= this->save.vmin && vmin <= this->save.vmax )
+        if ( vmax >= _vertexCache.vmin && vmin <= _vertexCache.vmax )
         {
             // the old list [save_vmin, save_vmax] and the new list [vmin, vmax]
             // overlap, so we can merge them
-            this->save.vmin = std::min( this->save.vmin, vmin );
-            this->save.vmax = std::max( this->save.vmax, vmax );
+            _vertexCache.vmin = std::min( _vertexCache.vmin, vmin );
+            _vertexCache.vmax = std::max( _vertexCache.vmax, vmax );
             verts_updated = true;
         }
         else
         {
             // the old list and the new list are disjoint sets, so we are out of luck
             // save the set with the largest number of members
-            if (( this->save.vmax - this->save.vmin ) >= ( vmax - vmin ) )
+            if (( _vertexCache.vmax - _vertexCache.vmin ) >= ( vmax - vmin ) )
             {
                 // obviously no change...
-                //this->save.vmin = this->save.vmin;
-                //this->save.vmax = this->save.vmax;
+                //_vertexCache.vmin = _vertexCache.vmin;
+                //_vertexCache.vmax = _vertexCache.vmax;
                 verts_updated = true;
             }
             else
             {
-                this->save.vmin = vmin;
-                this->save.vmax = vmax;
+                _vertexCache.vmin = vmin;
+                _vertexCache.vmax = vmax;
                 verts_updated = true;
             }
         }
@@ -1256,31 +1222,31 @@ gfx_rv chr_instance_t::updateVertexCache(int vmax, int vmin, bool force, bool ve
         // The only way to get here is to fail the vertices_match test, and fail the frames_match test
 
         // everything was dirty, so just save the new vertex list
-        this->save.vmin = vmin;
-        this->save.vmax = vmax;
+        _vertexCache.vmin = vmin;
+        _vertexCache.vmax = vmax;
         verts_updated = true;
     }
 
-    this->save.frame_nxt = this->animationState.getTargetFrameIndex();
-    this->save.frame_lst = this->animationState.getSourceFrameIndex();
-    this->save.flip      = this->animationState.flip;
+    _vertexCache.frame_nxt = this->animationState.getTargetFrameIndex();
+    _vertexCache.frame_lst = this->animationState.getSourceFrameIndex();
+    _vertexCache.flip      = this->animationState.flip;
 
     // store the last time there was an update to the animation
     bool frames_updated = false;
     if ( !frames_match )
     {
-        this->save.frame_wld = update_wld;
+        _vertexCache.frame_wld = update_wld;
         frames_updated   = true;
     }
 
     // store the time of the last full update
     if ( 0 == vmin && maxvert == vmax )
     {
-        this->save.vert_wld  = update_wld;
+        _vertexCache.vert_wld  = update_wld;
     }
 
     // mark the saved vlst_cache data as valid
-    this->save.valid = true;
+    _vertexCache.valid = true;
 
     return ( verts_updated || frames_updated ) ? gfx_success : gfx_fail;
 }
@@ -1338,7 +1304,7 @@ gfx_rv chr_instance_t::setAction(const ModelAction action, const bool action_rea
 
     // invalidate the vertex list if the action has changed
 	if (action_old != action) {
-		save.valid = false;
+		_vertexCache.valid = false;
     }
 
     return gfx_success;
@@ -1362,7 +1328,7 @@ gfx_rv chr_instance_t::setFrame(int frame)
 	this->animationState.setSourceFrameIndex(this->animationState.getTargetFrameIndex());
 	this->animationState.setTargetFrameIndex(frame);
 
-	vlst_cache_t::test(this->save, this);
+	vlst_cache_t::test(_vertexCache, this);
 
     return gfx_success;
 }
@@ -1439,7 +1405,7 @@ gfx_rv chr_instance_t::incrementFrame(const ObjectRef imount, const ModelAction 
 	this->animationState.setSourceFrameIndex(frame_lst);
 	this->animationState.setTargetFrameIndex(frame_nxt);
 
-	vlst_cache_t::test(this->save, this);
+	vlst_cache_t::test(_vertexCache, this);
 
     return gfx_success;
 }
@@ -1455,11 +1421,10 @@ void chr_instance_t::clearCache()
     /// @details force chr_instance_update_vertices() recalculate the vertices the next time
     ///     the function is called
 
-    this->save = vlst_cache_t();
+    _vertexCache = vlst_cache_t();
     this->matrix_cache = matrix_cache_t();
 
-    this->lighting_update_wld = -1;
-    this->lighting_frame_all  = -1;
+    _lastLightingUpdateFrame = -1;
 }
 
 chr_instance_t::chr_instance_t(const Object &object) :
@@ -1479,14 +1444,6 @@ chr_instance_t::chr_instance_t(const Object &object) :
     animationState(),
     actionState(),
 
-    // lighting info
-    color_amb(0),
-    col_amb(),
-    max_light(0),
-    min_light(0),
-    lighting_update_wld(-1),
-    lighting_frame_all(-1),
-
     // linear interpolated frame vertices
     _object(object),
     _vertexList(),
@@ -1494,7 +1451,12 @@ chr_instance_t::chr_instance_t(const Object &object) :
     _reflectionMatrix(Matrix4f4f::identity()),
 
     // graphical optimizations
-    save()
+    _vertexCache(),
+
+    // lighting info
+    _ambientColour(0),
+    _maxLight(-0xFF),
+    _lastLightingUpdateFrame(-1)
 {
     // initalize the character instance
     setObjectProfile(_object.getProfile());
@@ -1503,6 +1465,11 @@ chr_instance_t::chr_instance_t(const Object &object) :
 chr_instance_t::~chr_instance_t() 
 {
     //dtor
+}
+
+int chr_instance_t::getMaxLight() const
+{
+    return _maxLight;    
 }
 
 const GLvertex& chr_instance_t::getVertex(const size_t index) const
@@ -1533,7 +1500,7 @@ bool chr_instance_t::setModel(const std::shared_ptr<Ego::ModelDescriptor> &model
         this->animationState.setTargetFrameIndex(0);
 
         // the vlst_cache parameters are not valid
-        this->save.valid = false;
+        _vertexCache.valid = false;
     }
 
     if (updated) {
@@ -1576,10 +1543,8 @@ void chr_instance_t::setObjectProfile(const std::shared_ptr<ObjectProfile> &prof
     voffset = 0;
     animationState = AnimationState();
     actionState = ActionState();
-    color_amb = 0;
-    col_amb = Vector4f::zero();
-    max_light = 0;
-    min_light = 0;
+    _ambientColour = 0;
+    _maxLight = -0xFF;
     _vertexList.clear();
     clearCache();
 
@@ -1635,7 +1600,7 @@ gfx_rv chr_instance_t::setFrameFull(int frame_along, int ilip)
     this->animationState.flip      = ilip * 0.25f;
 
     // set the validity of the cache
-	vlst_cache_t::test(this->save, this);
+	vlst_cache_t::test(_vertexCache, this);
 
     return gfx_success;
 }
@@ -1663,7 +1628,7 @@ void chr_instance_t::removeInterpolation()
 		this->animationState.ilip = 0;
 		this->animationState.flip = 0.0f;
 
-		vlst_cache_t::test(this->save, this);
+		vlst_cache_t::test(_vertexCache, this);
     }
 }
 
@@ -1677,26 +1642,31 @@ const MD2_Frame& chr_instance_t::getLastFrame() const
     return animationState.getSourceFrame();
 }
 
-void chr_instance_t::update_one_lip(chr_instance_t& self) {
-    self.animationState.ilip += 1;
-    self.animationState.flip = 0.25f * self.animationState.ilip;
+void chr_instance_t::updateOneLip() {
+    this->animationState.ilip += 1;
+    this->animationState.flip = 0.25f * this->animationState.ilip;
 
-	vlst_cache_t::test(self.save, &self);
+	vlst_cache_t::test(_vertexCache, this);
 }
 
-gfx_rv chr_instance_t::update_one_flip(chr_instance_t& self, float dflip)
+bool chr_instance_t::isVertexCacheValid() const
+{
+    return _vertexCache.valid;
+}
+
+bool chr_instance_t::updateOneFlip(const float dflip)
 {
 	if (0.0f == dflip) {
-		return gfx_fail;
+		return false;
 	}
 
     // update the lips
-    self.animationState.flip += dflip;
-	self.animationState.ilip = ((int)std::floor(self.animationState.flip * 4)) % 4;
+    this->animationState.flip += dflip;
+	this->animationState.ilip = ((int)std::floor(this->animationState.flip * 4)) % 4;
 
-	vlst_cache_t::test(self.save, &self);
+	vlst_cache_t::test(_vertexCache, this);
 
-    return gfx_success;
+    return true;
 }
 
 float chr_instance_t::getRemainingFlip() const
@@ -1811,7 +1781,7 @@ void chr_instance_t::flash(uint8_t value)
 	const float flash_val = value * INV_FF<float>();
 
 	// flash the ambient color
-	this->color_amb = flash_val;
+	_ambientColour = flash_val;
 
 	// flash the directional lighting
 	for (size_t i = 0; i < _vertexList.size(); ++i) {

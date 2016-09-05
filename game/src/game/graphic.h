@@ -152,7 +152,6 @@ struct gfx_config_t
 //--------------------------------------------------------------------------------------------
 
 extern Uint32          game_frame_all;             ///< The total number of frames drawn so far
-extern Uint32          menu_frame_all;             ///< The total number of frames drawn so far
 
 extern gfx_config_t gfx;
 
