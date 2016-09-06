@@ -39,6 +39,7 @@
 #include "game/Inventory.hpp"
 #include "game/Physics/Collidable.hpp"
 #include "game/Physics/ObjectPhysics.hpp"
+#include "game/Graphics/ModelGraphics.hpp"
 
 //Forward declarations
 namespace Ego { class Enchantment; }
