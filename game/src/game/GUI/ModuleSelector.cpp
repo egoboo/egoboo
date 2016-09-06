@@ -34,9 +34,12 @@ ModuleSelector::ModuleSelector(const std::vector<std::shared_ptr<ModuleProfile>>
     _nextModuleButton(std::make_shared<Button>("->", SDLK_RIGHT)),
     _previousModuleButton(std::make_shared<Button>("<-", SDLK_LEFT)),
     _selectedModule(nullptr) {
+    const Vector2f SCREEN_SIZE = Vector2f(_gameEngine->getUIManager()->getScreenWidth(),
+        _gameEngine->getUIManager()->getScreenHeight());
     const int SCREEN_WIDTH = _gameEngine->getUIManager()->getScreenWidth();
     const int SCREEN_HEIGHT = _gameEngine->getUIManager()->getScreenHeight();
 
+    const Vector2f NAVIGATION_BUTTON_SIZE = Vector2f(30.0f, 30.0f);
     const int MODULE_BUTTON_SIZE = Math::constrain((SCREEN_WIDTH) / 6, 138, 256);
 
     // Figure out at what offset we want to draw the module menu.
@@ -47,12 +50,12 @@ ModuleSelector::ModuleSelector(const std::vector<std::shared_ptr<ModuleProfile>>
     moduleMenuOffsetY = std::max(0, moduleMenuOffsetY);
 
     //Set backdrop size and position
-    setSize(Vector2f(30 + SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2));
+    setSize(Vector2f(NAVIGATION_BUTTON_SIZE.x(), 0.0f) + SCREEN_SIZE * 0.5f);
     setPosition(Point2f(moduleMenuOffsetX, moduleMenuOffsetY) + Vector2f(21, MODULE_BUTTON_SIZE + 40));
 
     //Next and previous buttons
-    _nextModuleButton->setPosition(Point2f(SCREEN_WIDTH - 50, moduleMenuOffsetY + 74));
-    _nextModuleButton->setSize(Vector2f(30, 30));
+    _nextModuleButton->setPosition(Point2f(SCREEN_WIDTH - 50 - moduleMenuOffsetX - 21, 74 - MODULE_BUTTON_SIZE - 40));
+    _nextModuleButton->setSize(NAVIGATION_BUTTON_SIZE);
     _nextModuleButton->setOnClickFunction(
         [this] {
         _startIndex++;
@@ -61,8 +64,8 @@ ModuleSelector::ModuleSelector(const std::vector<std::shared_ptr<ModuleProfile>>
     });
     addComponent(_nextModuleButton);
 
-    _previousModuleButton->setPosition(Point2f(moduleMenuOffsetX, moduleMenuOffsetY) + Vector2f(20, 74));
-    _previousModuleButton->setSize(Vector2f(30, 30));
+    _previousModuleButton->setPosition(Point2f(moduleMenuOffsetX - moduleMenuOffsetX - 21, - MODULE_BUTTON_SIZE - 40) + Vector2f(20, 74));
+    _previousModuleButton->setSize(NAVIGATION_BUTTON_SIZE);
     _previousModuleButton->setOnClickFunction(
         [this] {
         _startIndex--;
@@ -71,13 +74,16 @@ ModuleSelector::ModuleSelector(const std::vector<std::shared_ptr<ModuleProfile>>
     });
     addComponent(_previousModuleButton);
 
+    static const int GAP = 20; // The gap between two module buttons.
     const int numberOfModuleButtons = ((_nextModuleButton->getX() - _previousModuleButton->getX() - _previousModuleButton->getWidth() - _nextModuleButton->getWidth()) / (MODULE_BUTTON_SIZE + 20));
 
     //Add as many modules as we can fit with current screen width
+    float offsetx = -21,
+        offsety = -MODULE_BUTTON_SIZE - 40;
     for (int i = 0; i < numberOfModuleButtons; ++i) {
         std::shared_ptr<ModuleButton> moduleButton = std::make_shared<ModuleButton>(this, i);
         moduleButton->setSize(Vector2f(MODULE_BUTTON_SIZE, MODULE_BUTTON_SIZE));
-        moduleButton->setPosition(Point2f(moduleMenuOffsetX, moduleMenuOffsetY) + Vector2f(93, 20));
+        moduleButton->setPosition(Point2f(offsetx, offsety) + Vector2f(93, GAP));
         moduleButton->setOnClickFunction(
             [this, i] {
             if (_startIndex + i >= _modules.size()) return;
@@ -85,7 +91,7 @@ ModuleSelector::ModuleSelector(const std::vector<std::shared_ptr<ModuleProfile>>
         });
         addComponent(moduleButton);
 
-        moduleMenuOffsetX += moduleButton->getWidth() + 20;
+        offsetx += moduleButton->getWidth() + GAP;
     }
 }
 
@@ -95,22 +101,11 @@ void ModuleSelector::drawContainer(DrawingContext& drawingContext) {
     auto &renderer = Renderer::get();
 
     //Draw backdrop
-    renderer.getTextureUnit().setActivated(nullptr);
+    std::shared_ptr<Material> material = nullptr;
 
-    renderer.setColour(backDrop);
-    VertexBuffer vb(4, GraphicsUtilities::get<VertexFormat::P2F>());
-    {
-        struct Vertex {
-            float x, y;
-        };
-        VertexBufferScopedLock vblck(vb);
-        Vertex *vertices = vblck.get<Vertex>();
-        vertices[0].x = getX(); vertices[0].y = getY();
-        vertices[1].x = getX(); vertices[1].y = getY() + getHeight();
-        vertices[2].x = getX() + getWidth(); vertices[2].y = getY() + getHeight();
-        vertices[3].x = getX() + getWidth(); vertices[3].y = getY();
-    }
-    renderer.render(vb, PrimitiveType::Quadriliterals, 0, 4);
+    material = std::make_shared<Material>(nullptr, backDrop, true);
+    material->apply();
+    _gameEngine->getUIManager()->drawQuad2d(getBounds());
 
     // Module description
     if (_selectedModule != nullptr) {
@@ -177,34 +172,22 @@ void ModuleSelector::ModuleButton::draw(DrawingContext& drawingContext) {
     auto &renderer = Renderer::get();
 
     // Draw backdrop
-    renderer.getTextureUnit().setActivated(nullptr);
+    std::shared_ptr<Material> material = nullptr;
 
     // Determine button color
     if (!isEnabled()) {
-        renderer.setColour(DISABLED_BUTTON_COLOUR);
+        material = std::make_shared<Material>(nullptr, DISABLED_BUTTON_COLOUR, true);
     } else if (_mouseOver) {
-        renderer.setColour(HOVER_BUTTON_COLOUR);
+        material = std::make_shared<Material>(nullptr, HOVER_BUTTON_COLOUR, true);
     } else {
-        renderer.setColour(DEFAULT_BUTTON_COLOUR);
+        material = std::make_shared<Material>(nullptr, DEFAULT_BUTTON_COLOUR, true);
     }
-
-    VertexBuffer vb(4, GraphicsUtilities::get<VertexFormat::P2F>());
-    {
-        struct Vertex {
-            float x, y;
-        };
-        VertexBufferScopedLock vblck(vb);
-        Vertex *vertices = vblck.get<Vertex>();
-        vertices[0].x = getX(); vertices[0].y = getY();
-        vertices[1].x = getX(); vertices[1].y = getY() + getHeight();
-        vertices[2].x = getX() + getWidth(); vertices[2].y = getY() + getHeight();
-        vertices[3].x = getX() + getWidth(); vertices[3].y = getY();
-    }
-    renderer.render(vb, PrimitiveType::Quadriliterals, 0, 4);
+    material->apply();
+    _gameEngine->getUIManager()->drawQuad2d(getDerivedBounds());
 
     //Draw module title image
-    auto material = std::make_shared<Ego::GUI::Material>(_moduleSelector->_modules[_moduleSelector->_startIndex + _offset]->getIcon().get(), Ego::Math::Colour4f::white(), true);
-    _gameEngine->getUIManager()->drawImage(Point2f(getX() + 5, getY() + 5), Vector2f(getWidth() - 10, getHeight() - 10), material);
+    material = std::make_shared<Material>(_moduleSelector->_modules[_moduleSelector->_startIndex + _offset]->getIcon().get(), Math::Colour4f::white(), true);
+    _gameEngine->getUIManager()->drawImage(getDerivedPosition() + Vector2f(5,5), getSize() - Vector2f(10,10), material);
 }
 
 bool ModuleSelector::notifyMouseWheelTurned(const Events::MouseWheelTurnedEventArgs& e) {

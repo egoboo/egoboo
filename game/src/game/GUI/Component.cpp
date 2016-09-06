@@ -91,6 +91,16 @@ Container *Component::getParent() const {
     return _parent;
 }
 
+Rectangle2f Component::getDerivedBounds() const {
+    auto bounds = getBounds();
+    if (nullptr != this->_parent) {
+        Translate<Rectangle2f> t;
+        return t(bounds, Point2f::toVector(this->_parent->getDerivedPosition()));
+    } else {
+        return bounds;
+    }
+}
+
 Point2f Component::getDerivedPosition() const {
     if (nullptr != this->_parent) {
         return getPosition() + Point2f::toVector(this->_parent->getDerivedPosition());

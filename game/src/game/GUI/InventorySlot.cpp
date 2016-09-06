@@ -34,14 +34,14 @@ void InventorySlot::draw(DrawingContext& drawingContext) {
     }
 
     //Draw the icon
-    draw_game_icon(icon_ref, getX(), getY(), selected ? COLOR_WHITE : NOSPARKLE, update_wld, getWidth());
+    draw_game_icon(icon_ref, getDerivedPosition().x(), getDerivedPosition().y(), selected ? COLOR_WHITE : NOSPARKLE, update_wld, getWidth());
 
     //Draw ammo
     if (item) {
         if (0 != item->ammomax && item->ammoknown) {
             if (!item->getProfile()->isStackable() || item->getAmmo() > 1) {
                 // Show amount of ammo left
-                _gameEngine->getUIManager()->getFont(UIManager::FONT_GAME)->drawTextBox(std::to_string(item->getAmmo()), getX(), getY(), getWidth(), getHeight(), 0);
+                _gameEngine->getUIManager()->getFont(UIManager::FONT_GAME)->drawTextBox(std::to_string(item->getAmmo()), getDerivedPosition().x(), getDerivedPosition().y(), getWidth(), getHeight(), 0);
             }
         }
     }

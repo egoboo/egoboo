@@ -64,10 +64,11 @@ void Button::draw(DrawingContext& drawingContext) {
     } else {
         renderer.setColour(DEFAULT_BUTTON_COLOUR);
     }
-    _gameEngine->getUIManager()->drawQuad2d(getBounds());
+    _gameEngine->getUIManager()->drawQuad2d(getDerivedBounds());
     // Draw centered text in button
     if (_buttonTextRenderer) {
-        _buttonTextRenderer->render(getX() + (getWidth() - _buttonTextWidth) / 2, getY() + (getHeight() - _buttonTextHeight) / 2);
+        _buttonTextRenderer->render(getDerivedPosition().x() + (getWidth() - _buttonTextWidth) / 2,
+                                    getDerivedPosition().y() + (getHeight() - _buttonTextHeight) / 2);
     }
 }
 

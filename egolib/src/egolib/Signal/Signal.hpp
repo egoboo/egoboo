@@ -45,13 +45,16 @@ namespace Ego {
  * @{
  */
 
- /// The opaque type of a subscription.
-struct Subscription;
+ /// The opaque type of a connection.
+struct Connection;
 
 /// A node.
 /// @todo Hide within Signal or within Internal namespace.
 template <class>
 struct Node;
+
+template <class>
+struct Signal;
 
 /// A node.
 /// @todo Hide within Signal or within Internal namespace.
@@ -86,27 +89,24 @@ public:
     }
 };
 
-template <class>
-struct Signal;
-
-struct Subscription : Ego::Internal::ConnectionBase {
-    Subscription()
-        : ConnectionBase(nullptr, nullptr) {}
-    Subscription(Ego::Internal::SignalBase *signal, Ego::Internal::NodeBase *node)
-        : ConnectionBase(signal, node) {}
-    Subscription(const Subscription& other)
-        : ConnectionBase(other) {}
-    const Subscription& operator=(const Subscription& other) {
-        ConnectionBase::operator=(other);
+struct Connection : Ego::Internal::ConnectionBase {
+    Connection()
+        : Ego::Internal::ConnectionBase(nullptr) {}
+    Connection(Ego::Internal::NodeBase *node)
+        : Ego::Internal::ConnectionBase(node) {}
+    Connection(const Connection& other)
+        : Ego::Internal::ConnectionBase(other) {}
+    const Connection& operator=(const Connection& other) {
+        Ego::Internal::ConnectionBase::operator=(other);
         return *this;
     }
-    bool operator==(const Subscription& other) const {
+    bool operator==(const Connection& other) const {
         return ConnectionBase::operator==(other);
     }
-    bool operator!=(const Subscription& other) const {
+    bool operator!=(const Connection& other) const {
         return ConnectionBase::operator!=(other);
     }
-}; // struct Subscription
+}; // struct Connection
 
 /// @tparam ReturnType the return type
 /// @tparam ... ParameterTypes the parameter types
@@ -135,11 +135,12 @@ public:
     /// Subscribe to this signal.
     /// @param function a non-empty function
     /// @return the subscription
-    Subscription subscribe(const FunctionType& function) {
+    Connection subscribe(const FunctionType& function) {
         Ego::Internal::NodeBase *node = new NodeType(function);
         node->next = head; head = node;
+        node->signal = this;
         liveCount++;
-        return Subscription(this, node);
+        return Connection(node);
     }
 
 
@@ -152,7 +153,7 @@ public:
             running = true;
             try {
                 for (Ego::Internal::NodeBase *cur = head; nullptr != cur; cur = cur->next) {
-                    if (!cur->isDead()) {
+                    if (cur->hasConnections()) {
                         (*static_cast<NodeType *>(cur))(std::forward<ParameterTypes>(arguments) ...);
                     }
                 }

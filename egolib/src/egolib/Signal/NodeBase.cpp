@@ -26,18 +26,48 @@ namespace Ego {
 namespace Internal {
 
 NodeBase::NodeBase()
-    : next(nullptr), dead(false) {}
+    : signal(nullptr), numberOfConnections(0), next(nullptr)
+#if 0
+    , dead(false) 
+#endif
+{}
 
 NodeBase::~NodeBase() {}
 
+#if 0
 bool NodeBase::kill() noexcept {
     bool temporary = dead;
     dead = true;
     return !temporary;
 }
+#endif
 
+#if 0
 bool NodeBase::isDead() const noexcept {
     return dead;
+}
+#endif
+
+bool NodeBase::hasSignal() const {
+    return nullptr != signal;
+}
+
+bool NodeBase::hasConnections() const {
+    return 0 < getNumberOfConnections();
+}
+
+int NodeBase::getNumberOfConnections() const {
+    return numberOfConnections;
+}
+
+void NodeBase::onConnectionAdded() {
+    numberOfConnections++;
+}
+
+void NodeBase::onConnectionRemoved() {
+    if (0 == --numberOfConnections) {
+        /* Nothing to do yet. */
+    }
 }
 
 } // namespace Internal

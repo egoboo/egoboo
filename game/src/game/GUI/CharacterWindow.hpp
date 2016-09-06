@@ -23,6 +23,7 @@
 #pragma once
 
 #include "game/GUI/InternalWindow.hpp"
+#include "game/GUI/TabPanel.hpp"
 
 // Forward declarations.
 class Object;
@@ -49,12 +50,12 @@ public:
     bool notifyMouseMoved(const Events::MouseMovedEventArgs& e) override;
 
 private:
-    int addResistanceLabel(const Point2f& position, const DamageType type);
-    int addAttributeLabel(const Point2f& position, const Attribute::AttributeType type);
+    int addResistanceLabel(std::shared_ptr<Tab> target, const Point2f& position, const DamageType type);
+    int addAttributeLabel(std::shared_ptr<Tab> target, const Point2f& position, const Attribute::AttributeType type);
 
-    void buildCharacterStatisticTab();
-    void buildKnownPerksTab();
-    void buildActiveEnchantsTab();
+    void buildCharacterStatisticTab(std::shared_ptr<Tab> target);
+    void buildKnownPerksTab(std::shared_ptr<Tab> target);
+    void buildActiveEnchantsTab(std::shared_ptr<Tab> target);
 
     void describeEnchantEffects(const std::vector<std::shared_ptr<Enchantment>> &enchants, std::shared_ptr<ScrollableList> list);
 
@@ -63,9 +64,9 @@ private:
     std::shared_ptr<Button> _levelUpButton;
     std::weak_ptr<InternalWindow> _levelUpWindow;
 
-    std::vector<std::shared_ptr<Component>> _characterStatisticsTab;
-    std::vector<std::shared_ptr<Component>> _knownPerksTab;
-    std::vector<std::shared_ptr<Component>> _activeEnchantsTab;
+    std::shared_ptr<Tab> _characterStatisticsTab;
+    std::shared_ptr<Tab> _knownPerksTab;
+    std::shared_ptr<Tab> _activeEnchantsTab;
 };
 
 } // namespace GUI

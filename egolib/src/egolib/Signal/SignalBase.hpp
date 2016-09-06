@@ -64,7 +64,12 @@ public:
     /// Disconnect from this signal.
     /// @param connection the connection
     /// @remark If the connection is not connected or not a connection to this signal, then this function returns immediatly
-    void unsubscribe(const ConnectionBase& connection) noexcept;
+    void unsubscribe(ConnectionBase& connection) noexcept;
+
+private:
+    /// Sweep the list of nodes.
+    /// Delete any node (from the singly-linked list of nodes) that is not referenced by a connection.
+    void sweep() noexcept;
 
 };
 

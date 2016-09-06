@@ -29,12 +29,33 @@ namespace Internal {
 
 SignalBase::SignalBase() noexcept : head(nullptr), deadCount(0), liveCount(0), running(false) {}
 
-SignalBase::~SignalBase() noexcept {
-    while (nullptr != head) {
-        NodeBase *node = head; head = node->next;
-        delete node;
+void SignalBase::sweep() noexcept {
+    NodeBase **predecessor = &head, *current = head;
+    while (nullptr != current) {
+        // If there are no connections to this node it is the responsibility of the signal to deallocate the node:
+        if (0 == current->getNumberOfConnections()) {
+            // Unlink the node.
+            NodeBase *node = current;
+            *predecessor = current->next; // Let predecessor refer to the successor.
+            current = current->next; // Continue at successor.
+            deadCount--; // Decrement the number of dead nodes.
+            delete node;
+        } else {
+            predecessor = &current->next;
+            current = current->next;
+        }
     }
-    deadCount = 0;
+}
+
+SignalBase::~SignalBase() noexcept {
+    sweep();
+    assert(0 == deadCount);
+    while (nullptr != head) {
+        NodeBase *node = head; head = head->next;
+        // Indicate that the node has no signal associated.
+        node->signal = nullptr;
+        node->next = nullptr;
+    }
     liveCount = 0;
 }
 
@@ -45,40 +66,13 @@ bool SignalBase::needsSweep() const noexcept {
 void SignalBase::maybeSweep() noexcept {
     assert(true == running); // Must be true!
     if (needsSweep()) {
-        NodeBase **pred = &head, *cur = head;
-        while (nullptr != cur) {
-            if (cur->isDead()) { // Does the subscription refer to this node?
-                NodeBase *node = cur;
-                *pred = cur->next;
-                cur = cur->next;
-                delete node;
-                deadCount--;
-            } else {
-                pred = &cur->next;
-                cur = cur->next;
-            }
-        }
+        sweep();
     }
 }
 
-void SignalBase::unsubscribe(const ConnectionBase& connection) noexcept {
-    // If the connection is not connected or not a connection to this signal ...
-    if (connection.node == nullptr || connection.signal != this) {
-        // ... return immediatly.
-        return;
-    }
-    // Mark the node as dead and increment the dead count and decrement the live count of this signal.
-    if (connection.node->kill()) {
-        deadCount++;
-        liveCount--;
-    }
-    // If this signal is not running ...
-    if (!running) {
-        // ... mark it as running and sweep it.
-        running = true;
-        maybeSweep();
-        running = false;
-    }
+void SignalBase::unsubscribe(ConnectionBase& connection) noexcept {
+    // Disconnect the connection.
+    connection.disconnect();
 }
 
 

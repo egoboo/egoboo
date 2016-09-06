@@ -33,8 +33,6 @@ struct SignalBase;
 	
 /// Non-generic base class of all connections.
 struct ConnectionBase {
-    /// A pointer to the signal.
-    SignalBase *signal;
     /// A pointer to the node.
     NodeBase *node;
 
@@ -43,13 +41,15 @@ struct ConnectionBase {
     ConnectionBase();
 
     /// Construct this connection with the specified arguments.
-    /// @param signal a pointer to a signal
     /// @param node a pointer to a node of the signal
-    ConnectionBase(SignalBase *signal, NodeBase *node);
+    ConnectionBase(NodeBase *node);
 
     /// Copy construct this connection with the values of another connection.
     /// @param other the other connection
     ConnectionBase(const ConnectionBase& other);
+
+    /// Destruct this connection.
+    virtual ~ConnectionBase();
 
     const ConnectionBase& operator=(const ConnectionBase& other);
 
@@ -64,6 +64,9 @@ struct ConnectionBase {
 
     /// @brief Disconnect this connection.
     void disconnect();
+
+private:
+    void reset();
 
 }; // struct Connection
 

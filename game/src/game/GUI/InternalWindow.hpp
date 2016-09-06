@@ -44,9 +44,9 @@ protected:
 
         int getTextHeight() const { return _textHeight; }
 
-    private:
+    protected:
         DeferredTexture _titleBarTexture;
-        DeferredTexture _titleSkull;
+        DeferredTexture _titleSkullTexture;
         std::shared_ptr<Font> _font;
         std::string _title;
         int _textWidth;
@@ -62,7 +62,7 @@ public:
 
     void draw(DrawingContext& drawingContext) override;
 
-    virtual void setPosition(const Point2f& position) override;
+public:
     virtual void setSize(const Vector2f& size) override;
 
     void setTransparency(float alpha);
@@ -72,7 +72,7 @@ public:
 protected:
     void drawContainer(DrawingContext& drawingContext) override;
 
-private:
+protected:
     std::unique_ptr<TitleBar> _titleBar;
     std::shared_ptr<Image> _closeButton;
     DeferredTexture _background;

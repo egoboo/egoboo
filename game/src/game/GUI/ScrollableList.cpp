@@ -11,17 +11,25 @@ ScrollableList::ScrollableList() :
     _mouseOver(false),
     _downButton(std::make_shared<Button>("+")),
     _upButton(std::make_shared<Button>("-")) {
+
+    // Add the down button.
     _downButton->setSize(Vector2f(32, 32));
     _downButton->setOnClickFunction([this] {
         setScrollPosition(_currentIndex + 1);
     });
     _downButton->setEnabled(false);
+    _downButton->setParent(this);
+    addComponent(_downButton);
 
+    // Add the up button.
     _upButton->setSize(Vector2f(32, 32));
     _upButton->setOnClickFunction([this] {
         setScrollPosition(_currentIndex - 1);
     });
     _upButton->setEnabled(false);
+    _upButton->setParent(this);
+    addComponent(_upButton);
+
     updateScrollButtons();
 }
 
@@ -42,22 +50,24 @@ void ScrollableList::setScrollPosition(int position) {
     int yOffset = 0;
     int componentCount = 0;
     for (const std::shared_ptr<Component> &component : iterator()) {
-        if (componentCount < _currentIndex || yOffset + component->getHeight() >= getHeight()) {
-            component->setVisible(false);
-            componentCount++;
-            continue;
-        }
+        if (component != _upButton && component != _downButton) {
+            if (componentCount < _currentIndex || yOffset + component->getHeight() >= getHeight()) {
+                component->setVisible(false);
+                componentCount++;
+                continue;
+            }
 
-        component->setVisible(true);
-        component->setPosition(getPosition() + Vector2f(0, yOffset));
-        yOffset += component->getHeight() + COMPONENT_LINE_SPACING;
-        componentCount++;
+            component->setVisible(true);
+            component->setPosition(Point2f(0, yOffset));
+            yOffset += component->getHeight() + COMPONENT_LINE_SPACING;
+            componentCount++;
+        }
     }
 }
 
 void ScrollableList::updateScrollButtons() {
-    _upButton->setPosition(getPosition() + Vector2f(getWidth() - _upButton->getWidth(), 0));
-    _downButton->setPosition(getPosition() + Vector2f(getWidth() - _downButton->getWidth(), getHeight() - _downButton->getHeight()));
+    _upButton->setPosition(Point2f(getWidth() - _upButton->getWidth(), 0));
+    _downButton->setPosition(Point2f(getWidth() - _downButton->getWidth(), getHeight() - _downButton->getHeight()));
 }
 
 void ScrollableList::setWidth(float width) {
@@ -93,10 +103,6 @@ void ScrollableList::draw(DrawingContext& drawingContext) {
         if (!component->isVisible()) continue;  //Ignore hidden/destroyed components
         component->draw(drawingContext);
     }
-
-    //Draw up and down buttons
-    _downButton->draw(drawingContext);
-    _upButton->draw(drawingContext);
 }
 
 bool ScrollableList::notifyMouseWheelTurned(const Events::MouseWheelTurnedEventArgs& e) {

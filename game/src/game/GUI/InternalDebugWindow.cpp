@@ -22,43 +22,77 @@
 /// @author Johan Jansen
 
 #include "game/GUI/InternalDebugWindow.hpp"
+#include "game/GUI/Label.hpp"
+#include "game/GUI/JoinBounds.hpp"
 
 namespace Ego {
 namespace GUI {
 
-InternalDebugWindow::InternalDebugWindow(const std::string &title) : InternalWindow(title),
-_watchedVariables() {
+VariablesDebugPanel::VariablesDebugPanel() : Container(),
+    _variables(), _labels() {
     setSize(Vector2f(200, 75));
 }
 
-void InternalDebugWindow::addWatchVariable(const std::string &variableName, std::function<std::string()> lambda) {
+void VariablesDebugPanel::addVariable(const std::string& name, std::function<std::string()> value) {
     //Add variable to watch list
-    _watchedVariables[variableName] = lambda;
+    _variables[name] = value;
+}
 
-    //Make the window bigger
-    int textWidth, textHeight;
-    _gameEngine->getUIManager()->getDebugFont()->getTextSize(variableName, &textWidth, &textHeight);
-    textWidth = std::max(32, textWidth);
-    textHeight = std::max(8, textHeight);
-    setSize(Vector2f(std::max(getWidth(), 5.0f + textWidth * 2.0f), getHeight() + textHeight + 5.0f));
+void VariablesDebugPanel::draw(DrawingContext& drawingContext) {
+    drawContainer(drawingContext);
+    drawAll(drawingContext);
+}
+
+void VariablesDebugPanel::update() {
+    for (const auto& variable : _variables) {
+        // Check if we have a label for the specified variable already.
+        auto it = _labels.find(variable.first);
+        std::shared_ptr<Label> label = nullptr;
+        // If we have no label ...
+        if (_labels.cend() == it) {
+            // .. create one.
+            label = std::make_shared<Label>();
+            label->setParent(this);
+            addComponent(label);
+            _labels[variable.first] = label;
+            //_gameEngine->getUIManager()->getDefaultFont()
+            label->setFont(_gameEngine->getUIManager()->getDefaultFont());
+        } else {
+            label = it->second;
+        }
+        label->setText(variable.first + ": " + variable.second());
+    }
+    float width = 0.0f, height = 0.0f;
+    for (auto& label : _labels) {
+        label.second->setPosition(Point2f(0.0f, height));
+        width = std::max(width, label.second->getSize().x());
+        height += label.second->getSize().y();
+    }
+    setWidth(width);
+    setHeight(height);
+}
+
+void VariablesDebugPanel::drawContainer(DrawingContext& drawingContext) {
+    update();
+}
+
+InternalDebugWindow::InternalDebugWindow(const std::string &title)
+    : InternalWindow(title), _variablesDebugPanel() {
+    _variablesDebugPanel = std::make_shared<VariablesDebugPanel>();
+    addComponent(_variablesDebugPanel);
+    _variablesDebugPanel->setPosition(Point2f(13 + 5, _titleBar->getHeight()));
+    setSize(Vector2f(64, 64));
+}
+
+void InternalDebugWindow::addWatchVariable(const std::string& name, std::function<std::string()> value) {
+    _variablesDebugPanel->addVariable(name, value);
 }
 
 void InternalDebugWindow::drawContainer(DrawingContext& drawingContext) {
+    setSize(Vector2f(_variablesDebugPanel->getSize().x() + 13 * 2,
+                     _variablesDebugPanel->getPosition().y() + _variablesDebugPanel->getSize().y() + 8 * 2));
     //Draw the window itself
     InternalWindow::drawContainer(drawingContext);
-
-    //Rendering variables
-    int textWidth, textHeight;
-    int xOffset = getX() + 5;
-    int yOffset = getY() + 32;
-
-    //Draw all monitored variables
-    for (const auto &element : _watchedVariables) {
-        _gameEngine->getUIManager()->getDebugFont()->drawText(element.first + ": " + element.second(), xOffset, yOffset);
-
-        _gameEngine->getUIManager()->getDebugFont()->getTextSize(element.first, &textWidth, &textHeight);
-        yOffset += textHeight + 5;
-    }
 }
 
 } // namespace GUI
