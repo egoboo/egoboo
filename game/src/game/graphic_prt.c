@@ -83,7 +83,7 @@ Uint32 instance_update = std::numeric_limits<Uint32>::max();
 //--------------------------------------------------------------------------------------------
 static gfx_rv prt_instance_update(Camera& camera, const ParticleRef particle, Uint8 trans, bool do_lighting);
 static void calc_billboard_verts(Ego::VertexBuffer& vb, prt_instance_t& pinst, float size, bool do_reflect);
-static void draw_one_attachment_point(chr_instance_t& inst, int vrt_offset);
+static void draw_one_attachment_point(ObjectGraphics& inst, int vrt_offset);
 static void prt_draw_attached_point(const std::shared_ptr<Ego::Particle> &bdl_prt);
 static void render_prt_bbox(const std::shared_ptr<Ego::Particle> &bdl_prt);
 
@@ -458,7 +458,7 @@ void render_all_prt_bbox()
     }
 }
 
-void draw_one_attachment_point(chr_instance_t& inst, int vrt_offset)
+void draw_one_attachment_point(ObjectGraphics& inst, int vrt_offset)
 {
     /// @author BB
     /// @details a function that will draw some of the vertices of the given character.
@@ -642,7 +642,7 @@ gfx_rv prt_instance_t::update_vertices(prt_instance_t& inst, Camera& camera, Ego
     }
     else if (pprt->isAttached())
     {
-        chr_instance_t *cinst = &(pprt->getAttachedObject()->inst);
+        ObjectGraphics *cinst = &(pprt->getAttachedObject()->inst);
 
         if (chr_matrix_valid(pprt->getAttachedObject().get()))
         {

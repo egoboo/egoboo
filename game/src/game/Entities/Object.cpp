@@ -2400,7 +2400,7 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
     inst.setObjectProfile(getProfile());
     chr_update_matrix(this, true);
 
-    // Action stuff that must be down after chr_instance_t::setObjectProfile()
+    // Action stuff that must be down after ObjectGraphics::setObjectProfile()
     inst.setActionReady(false);
     inst.setActionKeep(false);
     inst.setActionLooped(false);
@@ -2414,10 +2414,10 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
         inst.setActionKeep(true);
     }
 
-    // Set the skin after changing the model in chr_instance_t::setProfile()
+    // Set the skin after changing the model in ObjectGraphics::setProfile()
     setSkin(newSkin);
 
-    // Must set the wepon grip AFTER the model is changed in chr_instance_t::setProfile()
+    // Must set the wepon grip AFTER the model is changed in ObjectGraphics::setProfile()
     if (isBeingHeld())
     {
         set_weapongrip(getObjRef(), attachedto, slot_to_grip_offset(inwhich_slot) );

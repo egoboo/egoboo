@@ -700,9 +700,6 @@ bool chr_calc_grip_cv( Object * pmount, int grip_offset, oct_bb_t * grip_cv_ptr,
 		return false;
 	}
 
-    // alias this variable for notation simplicity
-	chr_instance_t& pmount_inst = pmount->inst;
-
     // tune the grip radius
     bmp.size     = default_chr_radius * pmount->fat * 0.75f;
     bmp.height   = default_chr_height * pmount->fat * 2.00f;
@@ -717,10 +714,10 @@ bool chr_calc_grip_cv( Object * pmount, int grip_offset, oct_bb_t * grip_cv_ptr,
     // get appropriate vertices for this model's grip
     {
         // do the automatic vertex update
-		int vert_stt = static_cast<int>(pmount_inst.getVertexCount()) - static_cast<int>(grip_offset);
+		int vert_stt = static_cast<int>(pmount->inst.getVertexCount()) - static_cast<int>(grip_offset);
         if ( vert_stt < 0 ) return false;
 
-		if (gfx_error == pmount_inst.updateVertices(vert_stt, vert_stt + grip_offset, false))
+		if (gfx_error == pmount->inst.updateVertices(vert_stt, vert_stt + grip_offset, false))
         {
             grip_count = 0;
             for ( cnt = 0; cnt < GRIP_VERTS; cnt++ )
@@ -731,7 +728,7 @@ bool chr_calc_grip_cv( Object * pmount, int grip_offset, oct_bb_t * grip_cv_ptr,
         else
         {
             // calculate the grip vertices
-			for (grip_count = 0, cnt = 0; cnt < GRIP_VERTS && (size_t)(vert_stt + cnt) < pmount_inst.getVertexCount(); grip_count++, cnt++)
+			for (grip_count = 0, cnt = 0; cnt < GRIP_VERTS && (size_t)(vert_stt + cnt) < pmount->inst.getVertexCount(); grip_count++, cnt++)
             {
                 grip_verts[cnt] = vert_stt + cnt;
             }
@@ -790,7 +787,7 @@ bool chr_calc_grip_cv( Object * pmount, int grip_offset, oct_bb_t * grip_cv_ptr,
 
     // transform the vertices to calculate the grip_vecs[]
     // we only need one vertex
-	Utilities::transform(pmount_inst.getMatrix(),grip_points, grip_nupoints, 1);
+	Utilities::transform(pmount->inst.getMatrix(),grip_points, grip_nupoints, 1);
 
     // add in the "origin" of the grip, if necessary
     if ( NULL != grip_cv_ptr )
@@ -867,10 +864,9 @@ void make_one_character_matrix( const ObjectRef ichr )
 
     if ( !_currentModule->getObjectHandler().exists( ichr ) ) return;
     Object * pchr = _currentModule->getObjectHandler().get( ichr );
-    chr_instance_t& pinst = pchr->inst;
 
     // invalidate this matrix
-    pinst.matrix_cache.matrix_valid = false;
+    pchr->inst.matrix_cache.matrix_valid = false;
 
     if ( pchr->is_overlay )
     {
@@ -883,17 +879,17 @@ void make_one_character_matrix( const ObjectRef ichr )
             pchr->setPosition(ptarget->getPosition());
 
             // copy the matrix
-            pinst.setMatrix(ptarget->inst.getMatrix());
+            pchr->inst.setMatrix(ptarget->inst.getMatrix());
 
             // copy the matrix data
-            pinst.matrix_cache = ptarget->inst.matrix_cache;
+            pchr->inst.matrix_cache = ptarget->inst.matrix_cache;
         }
     }
     else
     {
         if ( pchr->getProfile()->hasStickyButt() )
         {
-            pinst.setMatrix(
+            pchr->inst.setMatrix(
                 mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(
     				Vector3f(pchr->fat, pchr->fat, pchr->fat),
                     pchr->ori.facing_z,
@@ -904,7 +900,7 @@ void make_one_character_matrix( const ObjectRef ichr )
         }
         else
         {
-            pinst.setMatrix(
+            pchr->inst.setMatrix(
                 mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed(
     				Vector3f(pchr->fat, pchr->fat, pchr->fat),
                     pchr->ori.facing_z,
@@ -914,16 +910,16 @@ void make_one_character_matrix( const ObjectRef ichr )
             );
         }
 
-        pinst.matrix_cache.valid        = true;
-        pinst.matrix_cache.matrix_valid = true;
-        pinst.matrix_cache.type_bits    = MAT_CHARACTER;
+        pchr->inst.matrix_cache.valid        = true;
+        pchr->inst.matrix_cache.matrix_valid = true;
+        pchr->inst.matrix_cache.type_bits    = MAT_CHARACTER;
 
-        pinst.matrix_cache.self_scale = Vector3f(pchr->fat, pchr->fat, pchr->fat);
+        pchr->inst.matrix_cache.self_scale = Vector3f(pchr->fat, pchr->fat, pchr->fat);
 
-        pinst.matrix_cache.rotate[kX] = pchr->ori.map_twist_facing_x - orientation_t::MAP_TURN_OFFSET;
-        pinst.matrix_cache.rotate[kY] = pchr->ori.map_twist_facing_y - orientation_t::MAP_TURN_OFFSET;
-        pinst.matrix_cache.rotate[kZ] = pchr->ori.facing_z;
+        pchr->inst.matrix_cache.rotate[kX] = pchr->ori.map_twist_facing_x - orientation_t::MAP_TURN_OFFSET;
+        pchr->inst.matrix_cache.rotate[kY] = pchr->ori.map_twist_facing_y - orientation_t::MAP_TURN_OFFSET;
+        pchr->inst.matrix_cache.rotate[kZ] = pchr->ori.facing_z;
 
-        pinst.matrix_cache.pos = pchr->getPosition();
+        pchr->inst.matrix_cache.pos = pchr->getPosition();
     }
 }

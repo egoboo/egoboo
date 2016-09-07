@@ -135,7 +135,7 @@ void move_one_character_do_animation( Object * pchr )
     float flip_diff, flip_next;
 
     if ( NULL == pchr ) return;
-    chr_instance_t& pinst = pchr->inst;
+    ObjectGraphics& pinst = pchr->inst;
 
     flip_diff  = 0.25f * pinst.animationState.rate;
 
@@ -217,7 +217,7 @@ float set_character_animation_rate( Object * pchr )
     bool is_walk_type;
 
     if ( NULL == pchr ) return 1.0f;
-    chr_instance_t& pinst = pchr->inst;
+    ObjectGraphics& pinst = pchr->inst;
 
     // if the action is set to keep then do nothing
     if (pinst.actionState.action_keep) {

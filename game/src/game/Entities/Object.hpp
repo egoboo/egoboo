@@ -39,7 +39,7 @@
 #include "game/Inventory.hpp"
 #include "game/Physics/Collidable.hpp"
 #include "game/Physics/ObjectPhysics.hpp"
-#include "game/Graphics/ModelGraphics.hpp"
+#include "game/Graphics/ObjectGraphics.hpp"
 
 //Forward declarations
 namespace Ego { class Enchantment; }
@@ -1001,7 +1001,7 @@ private:
 
 public: //TODO: Hack make private
     //Graphics
-    chr_instance_t inst;                          ///< the render data
+    ObjectGraphics inst;                          ///< the render data
 
 private:
     //Physics

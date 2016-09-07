@@ -2405,10 +2405,6 @@ gfx_rv gfx_update_all_chr_instance()
     return retval;
 }
 
-//--------------------------------------------------------------------------------------------
-// chr_instance_t FUNCTIONS
-//--------------------------------------------------------------------------------------------
-
 // variables to optimize calls to bind the textures
 bool TileRenderer::disableTexturing = false;
 TX_REF TileRenderer::image = Ego::Graphics::MESH_IMG_COUNT;

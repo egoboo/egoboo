@@ -1,14 +1,12 @@
-#include "ModelGraphics.hpp"
+#include "ObjectGraphics.hpp"
 #include "game/Entities/_Include.hpp"
 #include "game/game.h"
 
 // the flip tolerance is the default flip increment / 2
 static constexpr float FLIP_TOLERANCE = 0.25f * 0.5f;
 
-chr_instance_t::chr_instance_t(const Object &object) :
+ObjectGraphics::ObjectGraphics(const Object &object) :
     matrix_cache(),
-
-    facing_z(0),
 
     alpha(0xFF),
     light(0),
@@ -22,7 +20,6 @@ chr_instance_t::chr_instance_t(const Object &object) :
     animationState(),
     actionState(),
 
-    // linear interpolated frame vertices
     _object(object),
     _vertexList(),
     _matrix(Matrix4f4f::identity()),
@@ -40,12 +37,12 @@ chr_instance_t::chr_instance_t(const Object &object) :
     setObjectProfile(_object.getProfile());
 }
 
-chr_instance_t::~chr_instance_t() 
+ObjectGraphics::~ObjectGraphics() 
 {
     //dtor
 }
 
-void chr_instance_t::updateLighting()
+void ObjectGraphics::updateLighting()
 {
     static constexpr uint32_t FRAME_SKIP = 1 << 2;
     static constexpr uint32_t FRAME_MASK = FRAME_SKIP - 1;
@@ -108,12 +105,12 @@ void chr_instance_t::updateLighting()
     _maxLight = std::max(_maxLight, 0);
 }
 
-int chr_instance_t::getAmbientColour() const
+int ObjectGraphics::getAmbientColour() const
 {
     return _ambientColour;
 }
 
-oct_bb_t chr_instance_t::getBoundingBox() const
+oct_bb_t ObjectGraphics::getBoundingBox() const
 {
     //Beginning of a frame animation
     if (this->animationState.getTargetFrameIndex() == this->animationState.getSourceFrameIndex() || this->animationState.flip == 0.0f) {
@@ -129,7 +126,7 @@ oct_bb_t chr_instance_t::getBoundingBox() const
     return oct_bb_t::interpolate(getLastFrame().bb, getNextFrame().bb, this->animationState.flip);
 }
 
-gfx_rv chr_instance_t::needs_update(int vmin, int vmax, bool *verts_match, bool *frames_match)
+gfx_rv ObjectGraphics::needs_update(int vmin, int vmax, bool *verts_match, bool *frames_match)
 {
 	bool local_verts_match, local_frames_match;
 
@@ -174,7 +171,7 @@ gfx_rv chr_instance_t::needs_update(int vmin, int vmax, bool *verts_match, bool 
     return (!(*verts_match) || !( *frames_match )) ? gfx_success : gfx_fail;
 }
 
-void chr_instance_t::interpolateVerticesRaw(const std::vector<MD2_Vertex> &lst_ary, const std::vector<MD2_Vertex> &nxt_ary, int vmin, int vmax, float flip )
+void ObjectGraphics::interpolateVerticesRaw(const std::vector<MD2_Vertex> &lst_ary, const std::vector<MD2_Vertex> &nxt_ary, int vmin, int vmax, float flip )
 {
     /// raw indicates no bounds checking, so be careful
 
@@ -246,7 +243,7 @@ void chr_instance_t::interpolateVerticesRaw(const std::vector<MD2_Vertex> &lst_a
     }
 }
 
-gfx_rv chr_instance_t::updateVertices(int vmin, int vmax, bool force)
+gfx_rv ObjectGraphics::updateVertices(int vmin, int vmax, bool force)
 {
     bool vertices_match, frames_match;
     float  loc_flip;
@@ -357,7 +354,7 @@ gfx_rv chr_instance_t::updateVertices(int vmin, int vmax, bool force)
     return updateVertexCache(vmax, vmin, force, vertices_match, frames_match);
 }
 
-gfx_rv chr_instance_t::updateVertexCache(int vmax, int vmin, bool force, bool vertices_match, bool frames_match)
+gfx_rv ObjectGraphics::updateVertexCache(int vmax, int vmin, bool force, bool vertices_match, bool frames_match)
 {
     // this is getting a bit ugly...
     // we need to do this calculation as little as possible, so it is important that the
@@ -459,7 +456,7 @@ gfx_rv chr_instance_t::updateVertexCache(int vmax, int vmin, bool force, bool ve
     return ( verts_updated || frames_updated ) ? gfx_success : gfx_fail;
 }
 
-bool chr_instance_t::updateGripVertices(const uint16_t vrt_lst[], const size_t vrt_count)
+bool ObjectGraphics::updateGripVertices(const uint16_t vrt_lst[], const size_t vrt_count)
 {
     if ( nullptr == vrt_lst || 0 == vrt_count ) {
         return false;
@@ -487,7 +484,7 @@ bool chr_instance_t::updateGripVertices(const uint16_t vrt_lst[], const size_t v
     return updateVertices(vmin, vmax, true) == gfx_success;
 }
 
-gfx_rv chr_instance_t::setAction(const ModelAction action, const bool action_ready, const bool override_action)
+gfx_rv ObjectGraphics::setAction(const ModelAction action, const bool action_ready, const bool override_action)
 {
     // is the chosen action valid?
 	if (!animationState.getModelDescriptor()->isActionValid(action)) {
@@ -507,7 +504,7 @@ gfx_rv chr_instance_t::setAction(const ModelAction action, const bool action_rea
     return gfx_success;
 }
 
-gfx_rv chr_instance_t::setFrame(int frame)
+gfx_rv ObjectGraphics::setFrame(int frame)
 {
     if (this->actionState.action_which < 0 || this->actionState.action_which > ACTION_COUNT) {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, this->actionState.action_which, "invalid action range");
@@ -528,7 +525,7 @@ gfx_rv chr_instance_t::setFrame(int frame)
     return gfx_success;
 }
 
-gfx_rv chr_instance_t::startAnimation(const ModelAction action, const bool action_ready, const bool override_action)
+gfx_rv ObjectGraphics::startAnimation(const ModelAction action, const bool action_ready, const bool override_action)
 {
     gfx_rv retval = setAction(action, action_ready, override_action);
     if ( rv_success != retval ) return retval;
@@ -539,7 +536,7 @@ gfx_rv chr_instance_t::startAnimation(const ModelAction action, const bool actio
     return gfx_success;
 }
 
-gfx_rv chr_instance_t::incrementAction()
+gfx_rv ObjectGraphics::incrementAction()
 {
     // get the correct action
 	ModelAction action = animationState.getModelDescriptor()->getAction(actionState.action_next);
@@ -552,7 +549,7 @@ gfx_rv chr_instance_t::incrementAction()
 	return startAnimation(action, action_ready, true);
 }
 
-gfx_rv chr_instance_t::incrementFrame(const ObjectRef imount, const ModelAction mount_action)
+gfx_rv ObjectGraphics::incrementFrame(const ObjectRef imount, const ModelAction mount_action)
 {
     // fix the ilip and flip
 	this->animationState.ilip = this->animationState.ilip % 4;
@@ -604,12 +601,12 @@ gfx_rv chr_instance_t::incrementFrame(const ObjectRef imount, const ModelAction 
     return gfx_success;
 }
 
-gfx_rv chr_instance_t::playAction(const ModelAction action, const bool action_ready)
+gfx_rv ObjectGraphics::playAction(const ModelAction action, const bool action_ready)
 {
     return startAnimation(animationState.getModelDescriptor()->getAction(action), action_ready, true);
 }
 
-void chr_instance_t::clearCache()
+void ObjectGraphics::clearCache()
 {
     /// @author BB
     /// @details force chr_instance_update_vertices() recalculate the vertices the next time
@@ -621,17 +618,17 @@ void chr_instance_t::clearCache()
     _lastLightingUpdateFrame = -1;
 }
 
-int chr_instance_t::getMaxLight() const
+int ObjectGraphics::getMaxLight() const
 {
     return _maxLight;    
 }
 
-const GLvertex& chr_instance_t::getVertex(const size_t index) const
+const GLvertex& ObjectGraphics::getVertex(const size_t index) const
 {
     return _vertexList[index];
 }
 
-bool chr_instance_t::setModel(const std::shared_ptr<Ego::ModelDescriptor> &model)
+bool ObjectGraphics::setModel(const std::shared_ptr<Ego::ModelDescriptor> &model)
 {
     bool updated = false;
 
@@ -663,17 +660,17 @@ bool chr_instance_t::setModel(const std::shared_ptr<Ego::ModelDescriptor> &model
     return updated;
 }
 
-const Matrix4f4f& chr_instance_t::getMatrix() const
+const Matrix4f4f& ObjectGraphics::getMatrix() const
 {
     return _matrix;
 }
 
-const Matrix4f4f& chr_instance_t::getReflectionMatrix() const
+const Matrix4f4f& ObjectGraphics::getReflectionMatrix() const
 {
     return _reflectionMatrix;
 }
 
-uint8_t chr_instance_t::getReflectionAlpha() const
+uint8_t ObjectGraphics::getReflectionAlpha() const
 {
     // determine the reflection alpha based on altitude above the mesh
     const float altitudeAboveGround = std::max(0.0f, _object.getPosZ() - _object.getFloorElevation());
@@ -683,13 +680,12 @@ uint8_t chr_instance_t::getReflectionAlpha() const
     return this->alpha * alphaFade * INV_FF<float>();
 }
 
-void chr_instance_t::setObjectProfile(const std::shared_ptr<ObjectProfile> &profile)
+void ObjectGraphics::setObjectProfile(const std::shared_ptr<ObjectProfile> &profile)
 {
     //Reset data
     // Remember any previous color shifts in case of lasting enchantments
     _matrix = Matrix4f4f::identity();
     _reflectionMatrix = Matrix4f4f::identity();
-    facing_z = 0;
     uoffset = 0;
     voffset = 0;
     animationState = AnimationState();
@@ -711,12 +707,12 @@ void chr_instance_t::setObjectProfile(const std::shared_ptr<ObjectProfile> &prof
     playAction(ACTION_DA, true);
 }
 
-BIT_FIELD chr_instance_t::getFrameFX() const
+BIT_FIELD ObjectGraphics::getFrameFX() const
 {
     return getNextFrame().framefx;
 }
 
-gfx_rv chr_instance_t::setFrameFull(int frame_along, int ilip)
+gfx_rv ObjectGraphics::setFrameFull(int frame_along, int ilip)
 {
     // handle optional parameters
 	const std::shared_ptr<Ego::ModelDescriptor> &imad = this->animationState.getModelDescriptor();
@@ -755,23 +751,23 @@ gfx_rv chr_instance_t::setFrameFull(int frame_along, int ilip)
     return gfx_success;
 }
 
-void chr_instance_t::setActionKeep(bool val) {
+void ObjectGraphics::setActionKeep(bool val) {
 	actionState.action_keep = val;
 }
 
-void chr_instance_t::setActionReady(bool val) {
+void ObjectGraphics::setActionReady(bool val) {
     actionState.action_ready = val;
 }
 
-void chr_instance_t::setActionLooped(bool val) {
+void ObjectGraphics::setActionLooped(bool val) {
     actionState.action_loop = val;
 }
 
-void chr_instance_t::setNextAction(const ModelAction val) {
+void ObjectGraphics::setNextAction(const ModelAction val) {
     actionState.action_next = val;
 }
 
-void chr_instance_t::removeInterpolation()
+void ObjectGraphics::removeInterpolation()
 {
     if (this->animationState.getSourceFrameIndex() != this->animationState.getTargetFrameIndex() ) {
 		this->animationState.setSourceFrameIndex(this->animationState.getTargetFrameIndex());
@@ -782,28 +778,28 @@ void chr_instance_t::removeInterpolation()
     }
 }
 
-const MD2_Frame& chr_instance_t::getNextFrame() const
+const MD2_Frame& ObjectGraphics::getNextFrame() const
 {
     return animationState.getTargetFrame();
 }
 
-const MD2_Frame& chr_instance_t::getLastFrame() const
+const MD2_Frame& ObjectGraphics::getLastFrame() const
 {
     return animationState.getSourceFrame();
 }
 
-void chr_instance_t::updateOneLip() {
+void ObjectGraphics::updateOneLip() {
     this->animationState.ilip += 1;
     this->animationState.flip = 0.25f * this->animationState.ilip;
 
 }
 
-bool chr_instance_t::isVertexCacheValid() const
+bool ObjectGraphics::isVertexCacheValid() const
 {
     return _vertexCache.isValid();
 }
 
-bool chr_instance_t::updateOneFlip(const float dflip)
+bool ObjectGraphics::updateOneFlip(const float dflip)
 {
 	if (0.0f == dflip) {
 		return false;
@@ -817,12 +813,12 @@ bool chr_instance_t::updateOneFlip(const float dflip)
     return true;
 }
 
-float chr_instance_t::getRemainingFlip() const
+float ObjectGraphics::getRemainingFlip() const
 {
 	return (this->animationState.ilip + 1) * 0.25f - this->animationState.flip;
 }
 
-void chr_instance_t::getTint(GLXvector4f tint, const bool reflection, const int type)
+void ObjectGraphics::getTint(GLXvector4f tint, const bool reflection, const int type)
 {
 	int local_alpha;
 	int local_light;
@@ -914,7 +910,7 @@ bool VertexListCache::isValid() const
     return true;
 }
 
-void chr_instance_t::flash(uint8_t value)
+void ObjectGraphics::flash(uint8_t value)
 {
 	const float flash_val = value * INV_FF<float>();
 
@@ -928,12 +924,12 @@ void chr_instance_t::flash(uint8_t value)
 }
 
 
-size_t chr_instance_t::getVertexCount() const
+size_t ObjectGraphics::getVertexCount() const
 {
     return _vertexList.size();
 }
 
-void chr_instance_t::flashVariableHeight(const uint8_t valuelow, const int16_t low, const uint8_t valuehigh, const int16_t high)
+void ObjectGraphics::flashVariableHeight(const uint8_t valuelow, const int16_t low, const uint8_t valuehigh, const int16_t high)
 {
     for (size_t cnt = 0; cnt < _vertexList.size(); cnt++)
     {
@@ -972,7 +968,7 @@ void chr_instance_t::flashVariableHeight(const uint8_t valuelow, const int16_t l
     }
 }
 
-void chr_instance_t::setMatrix(const Matrix4f4f& matrix)
+void ObjectGraphics::setMatrix(const Matrix4f4f& matrix)
 {
     //Set the normal model matrix
     _matrix = matrix;
@@ -987,4 +983,9 @@ void chr_instance_t::setMatrix(const Matrix4f4f& matrix)
 
 bool matrix_cache_t::isValid() const {
     return valid && matrix_valid;
+}
+
+void ObjectGraphics::updateAnimation()
+{
+    
 }

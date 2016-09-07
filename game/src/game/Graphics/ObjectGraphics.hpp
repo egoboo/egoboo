@@ -9,7 +9,7 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 //Forward declarations
-class chr_instance_t;
+class ObjectGraphics;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -63,7 +63,7 @@ struct colorshift_t {
 /// the data to determine whether re-calculation of vlst is necessary
 struct VertexListCache
 {
-    VertexListCache(const chr_instance_t &instance) :
+    VertexListCache(const ObjectGraphics &instance) :
         flip(0.0f),
         frame_nxt(0),
         frame_lst(0),
@@ -100,7 +100,7 @@ struct VertexListCache
     uint32_t vert_wld;          ///< the update_wld the last time the vertices were updated
 
 private:
-    const chr_instance_t &_instance;
+    const ObjectGraphics &_instance;
 
 };
 
@@ -213,12 +213,11 @@ struct ActionState {
 };
 
 /// All the data that the renderer needs to draw the character
-struct chr_instance_t
+class ObjectGraphics : public Id::NonCopyable
 {
+public:
     // position info
     matrix_cache_t matrix_cache;     ///< Did we make one yet?
-
-    FACING_T       facing_z;
 
     // render mode info
     uint8_t          alpha;                 ///< 255 = Solid, 0 = Invisible
@@ -239,8 +238,8 @@ struct chr_instance_t
     ActionState actionState;
 
 public:
-	chr_instance_t(const Object& object);
-    ~chr_instance_t();
+	ObjectGraphics(const Object& object);
+    ~ObjectGraphics();
 
     /**
     * @brief
@@ -363,6 +362,8 @@ public:
     int getMaxLight() const;
 
     int getAmbientColour() const;
+
+    void updateAnimation();
 
 private:	
     /// @details This function starts the next action for a character

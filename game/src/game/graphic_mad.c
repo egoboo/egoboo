@@ -87,7 +87,7 @@ struct Md2VertexBuffer {
 
 gfx_rv MadRenderer::render_enviro( Camera& cam, const std::shared_ptr<Object>& pchr, GLXvector4f tint, const BIT_FIELD bits )
 {
-	chr_instance_t& pinst = pchr->inst;
+	ObjectGraphics& pinst = pchr->inst;
 
     if (!pinst.animationState.getModelDescriptor())
     {
@@ -236,7 +236,7 @@ else
 //--------------------------------------------------------------------------------------------
 gfx_rv MadRenderer::render_tex(Camera& camera, const std::shared_ptr<Object>& pchr, GLXvector4f tint, const BIT_FIELD bits)
 {
-    chr_instance_t& pinst = pchr->inst;
+    ObjectGraphics& pinst = pchr->inst;
 
     if (!pinst.animationState.getModelDescriptor())
     {
@@ -431,7 +431,7 @@ gfx_rv MadRenderer::render(Camera& cam, const std::shared_ptr<Object> &pchr, GLX
 //--------------------------------------------------------------------------------------------
 gfx_rv MadRenderer::render_ref( Camera& cam, const std::shared_ptr<Object>& pchr)
 {
-	chr_instance_t& pinst = pchr->inst;
+	ObjectGraphics& pinst = pchr->inst;
 
     //Does this object have a reflection?
     if(!pchr->getProfile()->hasReflection()) {
@@ -500,7 +500,7 @@ gfx_rv MadRenderer::render_ref( Camera& cam, const std::shared_ptr<Object>& pchr
 
 gfx_rv MadRenderer::render_trans(Camera& cam, const std::shared_ptr<Object>& pchr)
 {
-	chr_instance_t& pinst = pchr->inst;
+	ObjectGraphics& pinst = pchr->inst;
 
     if ( pchr->isHidden() ) return gfx_fail;
 
@@ -573,7 +573,7 @@ gfx_rv MadRenderer::render_trans(Camera& cam, const std::shared_ptr<Object>& pch
 
 gfx_rv MadRenderer::render_solid( Camera& cam, const std::shared_ptr<Object> &pchr )
 {
-	chr_instance_t& pinst = pchr->inst;
+	ObjectGraphics& pinst = pchr->inst;
 
     if ( pchr->isHidden() ) return gfx_fail;
 
@@ -702,7 +702,7 @@ void MadRenderer::draw_chr_verts(const std::shared_ptr<Object>& pchr, int vrt_of
 #endif
 
 #if _DEBUG
-void MadRenderer::draw_one_grip( chr_instance_t * pinst, int slot )
+void MadRenderer::draw_one_grip( ObjectGraphics * pinst, int slot )
 {
     // disable the texturing so all the points will be white,
     // not the texture color of the last vertex we drawn
@@ -713,7 +713,7 @@ void MadRenderer::draw_one_grip( chr_instance_t * pinst, int slot )
     _draw_one_grip_raw( pinst, slot );
 }
 
-void MadRenderer::_draw_one_grip_raw( chr_instance_t * pinst, int slot )
+void MadRenderer::_draw_one_grip_raw( ObjectGraphics * pinst, int slot )
 {
     int vmin, vmax, cnt;
 
