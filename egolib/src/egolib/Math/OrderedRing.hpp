@@ -85,19 +85,19 @@ struct OrderedRing<_ElementType, std::enable_if_t<IsInteger<_ElementType>::value
 	 *  @brief
 	 *  The type of an element of the set.
 	 */
-	typedef _ElementType ElementType;
+	using ElementType = _ElementType;
 
 	/**
 	 * @brief
 	 *	Is the ring unital?
 	 */
-	typedef std::integral_constant<bool, true> IsUnital;
+    using IsUnital = std::integral_constant<bool, true>;
 
 	/**
 	 * @brief
 	 *	Is the ring commutative?
 	 */
-	typedef std::integral_constant<bool, true> IsCommutative;
+    using IsCommutative = std::integral_constant<bool, true>;
 
     /**
      * @brief
@@ -126,7 +126,7 @@ struct OrderedRing<_ElementType, std::enable_if_t<IsInteger<_ElementType>::value
         /**
          * @brief The result type.
          */
-        typedef ElementType ResultType;
+        using ResultType = ElementType;
         /**
          * @brief Compute the sum of two elements.
          * @param a the augend
@@ -145,7 +145,7 @@ struct OrderedRing<_ElementType, std::enable_if_t<IsInteger<_ElementType>::value
         /**
          * @brief The result type.
          */
-        typedef ElementType ResultType;
+        using ResultType = ElementType;
         /**
          * @brief Compute the product of two elements.
          * @param a the multiplier
@@ -164,7 +164,7 @@ struct OrderedRing<_ElementType, std::enable_if_t<IsInteger<_ElementType>::value
         /**
          * @brief The result type.
          */
-        typedef ElementType ResultType;
+        using ResultType = ElementType;
         /**
          * @brief Compute the difference of two elements.
          * @param a the minuend
@@ -183,7 +183,7 @@ struct OrderedRing<_ElementType, std::enable_if_t<IsInteger<_ElementType>::value
         /**
          * @brief The result type.
          */
-        typedef ElementType ResultType;
+        using ResultType = ElementType;
         /**
          * @brief Compute the additive inverse of an element.
          * @param a the element
@@ -213,7 +213,7 @@ struct OrderedRing<_ElementType, std::enable_if_t<IsInteger<_ElementType>::value
         /**
          * @brief The result type.
          */
-        typedef bool ResultType;
+        using ResultType = bool;
         /**
          * @brief Compute if two elements are equal.
          * @param acc the accumulator variable

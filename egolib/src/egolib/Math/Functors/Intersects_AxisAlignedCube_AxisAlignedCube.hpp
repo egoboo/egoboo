@@ -20,7 +20,7 @@ struct Intersects<
     AxisAlignedCube<EuclideanSpaceType>,
     AxisAlignedCube<EuclideanSpaceType>
 > {
-    typedef AxisAlignedCube<EuclideanSpaceType> Type;
+    using Type = AxisAlignedCube<EuclideanSpaceType>;
     bool operator()(const Type& a, const Type& b) const {
         for (size_t i = 0; i < EuclideanSpaceType::dimensionality();  ++i) {
             // If the minimum of a is greater than the maximum of b along one axis,

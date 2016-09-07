@@ -43,9 +43,9 @@ template <typename _ScalarFieldType, size_t _Dimensionality>
 struct Vector : public Tuple<typename _ScalarFieldType::ScalarType, _Dimensionality> {
 public:
     /// @brief The scalar field type.
-    typedef _ScalarFieldType ScalarFieldType;
+    using ScalarFieldType = _ScalarFieldType;
     /// @brief The scalar type (of the scalar field).
-	typedef typename ScalarFieldType::ScalarType ScalarType;
+	using ScalarType = typename ScalarFieldType::ScalarType;
 
 public:
     /// @brief The dimensionality.
@@ -54,11 +54,11 @@ public:
     }
 public:
     /// @brief The tuple type.
-    typedef Tuple<ScalarType, _Dimensionality> TupleType;
+    using TupleType = Tuple<ScalarType, _Dimensionality>;
     /// @brief The type of this template/template specialization.
-    typedef Vector<ScalarFieldType, _Dimensionality> MyType;
+    using MyType = Vector<ScalarFieldType, _Dimensionality>;
 
-    typedef std::make_index_sequence<MyType::dimensionality()> IndexSequence;
+    using IndexSequence = std::make_index_sequence<MyType::dimensionality()>;
 
 public:
 	/**
@@ -163,7 +163,7 @@ public:
 private:
     // TupleUtilities::foldT-compatible functor for the dot product.
     struct DotProductFunctor {
-        typedef ScalarType ResultType;
+        using ResultType = ScalarType;
         ScalarType operator()(ScalarType a, ScalarType x, ScalarType y) const {
             static const typename ScalarFieldType::SumFunctor sumFunctor{};
             static const typename ScalarFieldType::ProductFunctor productFunctor{};
@@ -172,7 +172,7 @@ private:
     };
     // TupleUtilities::foldT-compatible functor for the squared Euclidean length.
     struct EuclideanLengthSquaredFunctor {
-        typedef ScalarType ResultType;
+        using ResultType = ScalarType;
         ScalarType operator()(ScalarType a, ScalarType x) const {
             static const typename ScalarFieldType::SumFunctor sumFunctor{};
             static const typename ScalarFieldType::ProductFunctor productFunctor{};
@@ -181,7 +181,7 @@ private:
     };
     // TupleUtilities::foldT-compatible functor for the absolute length.
     struct AbsoluteLengthFunctor {
-        typedef ScalarType ResultType;
+        using ResultType = ScalarType;
         ScalarType operator()(ScalarType a, ScalarType x) const {
             static const typename ScalarFieldType::SumFunctor sumFunctor{};
             return sumFunctor(a, std::abs(x));

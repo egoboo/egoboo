@@ -33,9 +33,9 @@ namespace Math {
 template <typename _EuclideanSpaceType>
 struct Closure<Sphere<_EuclideanSpaceType>, Sphere<_EuclideanSpaceType>> {
 public:
-    typedef _EuclideanSpaceType EuclideanSpaceType;
-    typedef Sphere<EuclideanSpaceType> SourceType;
-    typedef Sphere<EuclideanSpaceType> TargetType;
+    using EuclideanSpaceType = _EuclideanSpaceType;
+    using SourceType = Sphere<EuclideanSpaceType>;
+    using TargetType = Sphere<EuclideanSpaceType>;
 public:
     inline TargetType operator()(const SourceType& source) const {
         return source;

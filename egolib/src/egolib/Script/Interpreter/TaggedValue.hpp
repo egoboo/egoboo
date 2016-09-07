@@ -39,27 +39,27 @@ enum class Tag;
 /**
  * @brief The C++ representation of a raw \f$Boolean\f$ value.
  */
-typedef bool BooleanValue;
+using BooleanValue = bool;
 
 /**
  * @brief The C++ representation of a raw \f$Object\f$ value.
  */
-typedef std::shared_ptr<Object> ObjectValue;
+using ObjectValue = std::shared_ptr<Object>;
 
 /**
  * @brief The C++ representation of a raw \f$Vector2\f$ value.
  */
-typedef Vector2f Vector2Value;
+using Vector2Value = Vector2f;
 
 /**
  * @brief The C++ representation of a raw \f$Vector3\f$ value.
  */
-typedef Vector3f Vector3Value;
+using Vector3Value = Vector3f;
 
 /**
  * @brief The C++ representation of a raw \f$Void\f$ value.
  */
-typedef struct VoidValue {} VoidValue;
+struct VoidValue {};
 
  /**
   * @brief A tagged union of all values used by the interpreter \f$Tag \times Value\f$.

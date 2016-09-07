@@ -70,8 +70,8 @@ namespace Math {
  */
 template <typename _EuclideanSpaceType>
 struct Translate<Plane3<_EuclideanSpaceType, void>> {
-    typedef Plane3<_EuclideanSpaceType, void> X;
-    typedef typename _EuclideanSpaceType::VectorType T;
+    using X = Plane3<_EuclideanSpaceType, void>;
+    using T = typename _EuclideanSpaceType::VectorType;
     X operator()(const X& x, const T& t) const {
         return X(x._n, x._d - x._n.dot(t));
     }

@@ -14,8 +14,8 @@ struct Intersects<
     Point<typename EuclideanSpaceType::VectorSpaceType>,
     Sphere<EuclideanSpaceType>
 > {
-    typedef Point<typename EuclideanSpaceType::VectorSpaceType> FirstType;
-    typedef Sphere<EuclideanSpaceType> SecondType;
+    using FirstType = Point<typename EuclideanSpaceType::VectorSpaceType>;
+    using SecondType = Sphere<EuclideanSpaceType>;
     bool operator()(const FirstType& a, const SecondType& b) const {
         static const Intersects<SecondType, FirstType> functor{};
         return functor(b, a);

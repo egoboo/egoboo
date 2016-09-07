@@ -46,7 +46,7 @@ private:
 	_Type _y; ///< @brief The y-coordinate.
 
 public:
-	typedef Index<_Type, _CoordinateSystem> MyType;
+	using MyType = Index<_Type, _CoordinateSystem>;
 
 public:
 	Index(const _Type& x, const _Type& y) :
@@ -100,7 +100,7 @@ private:
 	static const _Type _InvalidIndex = std::numeric_limits<_Type>::max();
 
 public:
-	typedef Index<_Type, _CoordinateSystem> MyType;
+	using MyType = Index<_Type, _CoordinateSystem>;
 
 	static const MyType Invalid;
 

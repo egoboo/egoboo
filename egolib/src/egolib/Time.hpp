@@ -63,13 +63,13 @@ typename UnitTraits<Target>::Type to(typename UnitTraits<Source>::Type source);
 namespace Time {
 
 // Template specialization of UnitTraits for Unit::Ticks.
-template<> struct UnitTraits<Unit::Ticks> { typedef uint32_t Type; };
+template<> struct UnitTraits<Unit::Ticks> { using Type = uint32_t; };
 
 // Template specialization of UnitTraits for Unit::Milliseconds.
-template<> struct UnitTraits<Unit::Milliseconds> { typedef uint32_t Type; };
+template<> struct UnitTraits<Unit::Milliseconds> { using Type = uint32_t; };
 
 // Template specialization of UnitTraits for Unit::Seconds.
-template<> struct UnitTraits<Unit::Seconds> { typedef uint32_t Type; };
+template<> struct UnitTraits<Unit::Seconds> { using Type = uint32_t; };
 
 } // namespace Time
 
@@ -139,7 +139,7 @@ typename UnitTraits<Unit::Milliseconds>::Type to<Unit::Milliseconds, Unit::Secon
 namespace Time {
 
 // For convenience, define a "Time::Ticks" and a "Time::Seconds" alias.
-typedef UnitTraits<Unit::Ticks>::Type Ticks;
-typedef UnitTraits<Unit::Seconds>::Type Seconds;
+using Ticks = UnitTraits<Unit::Ticks>::Type;
+using Seconds = UnitTraits<Unit::Seconds>::Type;
 
 } // namespace Time

@@ -14,7 +14,7 @@ struct Contains<
     Point<VectorSpaceType>,
     Point<VectorSpaceType>
 > {
-    typedef Point<VectorSpaceType> Type;
+    using Type = Point<VectorSpaceType>;
     bool operator()(const Type& a, const Type& b) const {
         for (size_t i = 0, n = VectorSpaceType::dimensionality(); i < n; ++i) {
             if (a[i] != b[i]) {

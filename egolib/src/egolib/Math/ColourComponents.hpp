@@ -67,8 +67,8 @@ struct ColourComponents;
 template <typename _ColourSpaceType>
 struct ColourComponents<_ColourSpaceType, std::enable_if_t<Internal::IsL<_ColourSpaceType>::value>> {
 protected:
-    typedef _ColourSpaceType ColourSpaceType;
-    typedef typename ColourSpaceType::ComponentType ComponentType;
+    using ColourSpaceType = _ColourSpaceType;
+    using ComponentType = typename ColourSpaceType::ComponentType;
 
 private:
     /**
@@ -162,8 +162,8 @@ public:
 template <typename _ColourSpaceType>
 struct ColourComponents<_ColourSpaceType, std::enable_if_t<Internal::IsLA<_ColourSpaceType>::value>> {
 protected:
-    typedef _ColourSpaceType ColourSpaceType;
-    typedef typename ColourSpaceType::ComponentType ComponentType;
+    using ColourSpaceType = _ColourSpaceType;
+    using ComponentType = typename ColourSpaceType::ComponentType;
 
 private:
     /**
@@ -312,8 +312,8 @@ public:
 template <typename _ColourSpaceType>
 struct ColourComponents<_ColourSpaceType, std::enable_if_t<Internal::IsRgb<_ColourSpaceType>::value>> {
 protected:
-    typedef _ColourSpaceType ColourSpaceType;
-    typedef typename ColourSpaceType::ComponentType ComponentType;
+    using ColourSpaceType = _ColourSpaceType;
+    using ComponentType = typename ColourSpaceType::ComponentType;
 
 private:
     static_assert(Internal::IsRgb<_ColourSpaceType>::value, "not an RGB colour space type");
@@ -507,8 +507,8 @@ public:
 template <typename _ColourSpaceType>
 struct ColourComponents<_ColourSpaceType, std::enable_if_t<Internal::IsRgba<_ColourSpaceType>::value>> {
 protected:
-    typedef _ColourSpaceType ColourSpaceType;
-    typedef typename ColourSpaceType::ComponentType ComponentType;
+    using ColourSpaceType = _ColourSpaceType;
+    using ComponentType = typename ColourSpaceType::ComponentType;
 
 private:
     static_assert(Internal::IsRgba<_ColourSpaceType>::value, "not an RGBA colour space type");

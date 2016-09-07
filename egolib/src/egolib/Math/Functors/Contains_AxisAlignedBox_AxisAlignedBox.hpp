@@ -21,7 +21,7 @@ struct Contains<
     AxisAlignedBox<EuclideanSpaceType>,
     AxisAlignedBox<EuclideanSpaceType>
 > {
-    typedef AxisAlignedBox<EuclideanSpaceType> Type;
+    using Type = AxisAlignedBox<EuclideanSpaceType>;
     bool operator()(const Type& a, const Type& b) const {
         for (size_t i = 0; i < EuclideanSpaceType::dimensionality(); ++i) {
             // If a is the axis-aligned bounding box that is supposed to contain the

@@ -32,9 +32,9 @@ namespace Math {
 template <typename _EuclideanSpaceType>
 struct Closure<Sphere<_EuclideanSpaceType>, AxisAlignedBox<_EuclideanSpaceType>> {
 public:
-    typedef _EuclideanSpaceType EuclideanSpaceType;
-    typedef AxisAlignedBox<_EuclideanSpaceType> SourceType;
-    typedef Sphere<_EuclideanSpaceType> TargetType;
+    using EuclideanSpaceType = _EuclideanSpaceType;
+    using SourceType = AxisAlignedBox<_EuclideanSpaceType>;
+    using TargetType = Sphere<_EuclideanSpaceType>;
 public:
     inline TargetType operator()(const SourceType& source) const {
         const auto center = source.getCenter();

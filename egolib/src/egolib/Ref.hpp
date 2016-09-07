@@ -30,7 +30,7 @@ private:
 
 public:
 
-    typedef TYPE Type;
+    using Type = TYPE;
 
     // Instantiation time static assertions.
 

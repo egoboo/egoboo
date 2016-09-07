@@ -130,13 +130,13 @@ struct Matrix<_ElementType, _NumberOfRows, _NumberOfColumns,
      * @brief
      *  @a MyType is the type of this template/template specialization.
      */
-    typedef Matrix<_ElementType, _NumberOfRows, _NumberOfColumns> MyType;
+    using MyType = Matrix<_ElementType, _NumberOfRows, _NumberOfColumns>;
 
     /**
      * @brief
      *  The element type.
      */
-    typedef _ElementType ElementType;
+    using ElementType = _ElementType;
 
     union {
         /**@{*/
@@ -448,7 +448,7 @@ public:
      * @brief
      *  The type of transposed matrices of this matrix type.
      */
-    typedef Matrix<ElementType, MyType::numberOfColumns(), MyType::numberOfRows()> TransposeType;
+    using TransposeType = Matrix<ElementType, MyType::numberOfColumns(), MyType::numberOfRows()>;
 
     /**
      * @brief

@@ -19,8 +19,8 @@ struct Intersects<
     Sphere<EuclideanSpaceType>,
     Point<typename EuclideanSpaceType::VectorSpaceType>
 > {
-    typedef Sphere<EuclideanSpaceType> FirstType;
-    typedef Point<typename EuclideanSpaceType::VectorSpaceType> SecondType;
+    using FirstType = Sphere<EuclideanSpaceType>;
+    using SecondType = Point<typename EuclideanSpaceType::VectorSpaceType>;
     bool operator()(const FirstType& a, const SecondType& b) const {
         // Get the squared distance from the point to the center of the sphere.
         float distanceSquared = (a.getCenter() - b).length_2();

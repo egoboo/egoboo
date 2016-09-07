@@ -37,13 +37,13 @@ namespace Math {
 template <typename _EuclideanSpaceType>
 struct Closure<AxisAlignedCube<_EuclideanSpaceType>, AxisAlignedBox<_EuclideanSpaceType>> {
 public:
-    typedef _EuclideanSpaceType EuclideanSpaceType;
-    typedef AxisAlignedBox<EuclideanSpaceType> SourceType;
-    typedef AxisAlignedCube<EuclideanSpaceType> TargetType;
+    using EuclideanSpaceType = _EuclideanSpaceType;
+    using SourceType = AxisAlignedBox<EuclideanSpaceType>;
+    using TargetType = AxisAlignedCube<EuclideanSpaceType>;
 protected:
-    typedef typename EuclideanSpaceType::VectorSpaceType VectorSpaceType;
-    typedef typename EuclideanSpaceType::ScalarFieldType ScalarFieldType;
-    typedef ConstantGenerator<typename ScalarFieldType::ScalarType> GeneratorType;
+    using VectorSpaceType = typename EuclideanSpaceType::VectorSpaceType;
+    using ScalarFieldType = typename EuclideanSpaceType::ScalarFieldType;
+    using GeneratorType = ConstantGenerator<typename ScalarFieldType::ScalarType>;
 public:
     inline TargetType operator()(const SourceType& source) const {
         auto c = source.getCenter();

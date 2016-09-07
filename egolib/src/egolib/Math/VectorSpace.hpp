@@ -72,19 +72,19 @@ public:
      * @brief
      *  The scalar field type.
      */
-    typedef _ScalarFieldType ScalarFieldType;
+    using ScalarFieldType = _ScalarFieldType;
 
     /**
      * @brief
      *  The scalar type.
      */
-    typedef typename ScalarFieldType::ScalarType ScalarType;
+    using ScalarType = typename ScalarFieldType::ScalarType;
 
     /**
      * @brief
      *  The type of this template/template specialization.
      */
-    typedef VectorSpace<ScalarFieldType, _Dimensionality> MyType;
+    using MyType = VectorSpace<ScalarFieldType, _Dimensionality>;
 
     /**
      * @brief
@@ -100,7 +100,7 @@ public:
      * @brief
      *  The vector type.
      */
-    typedef Vector<ScalarFieldType, MyType::dimensionality()> VectorType;
+    using VectorType = Vector<ScalarFieldType, MyType::dimensionality()>;
 
 }; // struct VectorSpace
 

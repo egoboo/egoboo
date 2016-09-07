@@ -37,26 +37,26 @@ template <typename _VectorSpaceType>
 struct Point : public Tuple<typename _VectorSpaceType::ScalarType, _VectorSpaceType::dimensionality()> {
 public:
     /// @brief The vector space of this vector.
-    typedef _VectorSpaceType VectorSpaceType;
+    using VectorSpaceType = _VectorSpaceType;
     /// @brief The dimensionality.
     static constexpr size_t dimensionality() {
         return VectorSpaceType::dimensionality();
     }
     /// @brief The scalar field type (of the vector space).
-    typedef typename VectorSpaceType::ScalarFieldType ScalarFieldType;
+    using ScalarFieldType = typename VectorSpaceType::ScalarFieldType;
     /// @brief The vector type (of the vector space).
-    typedef typename VectorSpaceType::VectorType VectorType;
+    using VectorType = typename VectorSpaceType::VectorType;
     /// @brief The scalar type (of the scalar field).
-    typedef typename VectorSpaceType::ScalarType ScalarType;
+    using ScalarType = typename VectorSpaceType::ScalarType;
 
 public:
     /// @brief The type of this template/template specialization.
-    typedef Point<VectorSpaceType> PointType;
-    typedef Point<VectorSpaceType> MyType;
+    using PointType = Point<VectorSpaceType>;
+    using MyType = Point<VectorSpaceType>;
     /// @brief The tuple type.
-    typedef Tuple<ScalarType, MyType::dimensionality()> TupleType;
+    using TupleType = Tuple<ScalarType, MyType::dimensionality()>;
 
-    typedef std::make_index_sequence<MyType::dimensionality()> IndexSequence;
+    using IndexSequence = std::make_index_sequence<MyType::dimensionality()>;
 
 public:
     /**

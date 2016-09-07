@@ -61,7 +61,7 @@ struct TextFile
      * @brief
      *  The traits used.
      */
-    typedef _Traits Traits;
+    using Traits = _Traits;
 
 private:
 

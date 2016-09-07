@@ -58,13 +58,13 @@ public:
      * @brief
      *  The type.
      */
-    typedef char Type;
+    using Type = char;
 
     /**
      * @brief
      *  The extended type.
      */
-    typedef int ExtendedType;
+    using ExtendedType = int;
 
 public:
 

@@ -14,8 +14,8 @@ struct Intersects<
     AxisAlignedCube<EuclideanSpaceType>,
     Point<typename EuclideanSpaceType::VectorSpaceType>
 > {
-    typedef AxisAlignedCube<EuclideanSpaceType> FirstType;
-    typedef Point<typename EuclideanSpaceType::VectorSpaceType> SecondType;
+    using FirstType = AxisAlignedCube<EuclideanSpaceType>;
+    using SecondType = Point<typename EuclideanSpaceType::VectorSpaceType>;
     bool operator()(const FirstType& a, const SecondType& b) const {
         for (size_t i = 0; i < EuclideanSpaceType::dimensionality(); ++i) {
             if (a.getMax()[i] < b[i]) return false;

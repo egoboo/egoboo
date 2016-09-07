@@ -75,9 +75,9 @@ public:
 
 public:
     /** @brief The type of an iterator of the vertex element descriptors. */
-    typedef std::vector<VertexElementDescriptor>::const_iterator const_iterator;
+    using const_iterator = std::vector<VertexElementDescriptor>::const_iterator;
     /** @brief The type of an iterator over the vertex element descriptors. */
-    typedef std::vector<VertexElementDescriptor>::iterator iterator;
+    using iterator = std::vector<VertexElementDescriptor>::iterator;
 
     /**@{*/
     /**

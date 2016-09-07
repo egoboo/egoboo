@@ -62,9 +62,9 @@ template <class ReturnType, class ... ParameterTypes>
 struct Node<ReturnType(ParameterTypes ...)> : Ego::Internal::NodeBase {
 public:
     /// The node type.
-    typedef Node<ReturnType(ParameterTypes ...)> NodeType;
+    using NodeType = Node<ReturnType(ParameterTypes ...)>;
     /// The function type.
-    typedef std::function<ReturnType(ParameterTypes ...)> FunctionType;
+    using FunctionType = std::function<ReturnType(ParameterTypes ...)>;
 
 public:
     /// The function.
@@ -115,9 +115,9 @@ template <class ReturnType, class ... ParameterTypes>
 struct Signal<ReturnType(ParameterTypes ...)> : Ego::Internal::SignalBase {
 public:
     /// The node type.
-    typedef Node<ReturnType(ParameterTypes ...)> NodeType;
+    using NodeType = Node<ReturnType(ParameterTypes ...)>;
     /// The function type.
-    typedef std::function<ReturnType(ParameterTypes ...)> FunctionType;
+    using FunctionType = std::function<ReturnType(ParameterTypes ...)>;
 
 public:
     Signal(const Signal&) = delete; // Do not allow copying.

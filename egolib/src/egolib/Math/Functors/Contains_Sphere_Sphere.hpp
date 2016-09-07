@@ -17,7 +17,7 @@ struct Contains<
     Sphere<EuclideanSpaceType>,
     Sphere<EuclideanSpaceType>
 > {
-    typedef Sphere<EuclideanSpaceType> Type;
+    using Type = Sphere<EuclideanSpaceType>;
     bool operator()(const Type& a, const Type& b) const {
         return (a.getCenter() - b.getCenter()).length() + b.getRadius() <= a.getRadius();
     }

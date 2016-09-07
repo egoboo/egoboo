@@ -66,10 +66,10 @@ private:
 public:
 
     // Support for range-based for loops (not required).
-    typedef typename map<string, EnumType>::iterator iterator;
+    using iterator = typename map<string, EnumType>::iterator;
 
     // Support for range-based for loops (not required).
-    typedef typename map<string, EnumType>::const_iterator const_iterator;
+    using const_iterator = typename map<string, EnumType>::const_iterator;
 
     // Support for range-based for loops.
     const_iterator begin() const {

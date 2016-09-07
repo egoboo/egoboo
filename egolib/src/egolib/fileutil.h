@@ -64,7 +64,7 @@ public:
      */
     std::string _loadName;
     
-    typedef Ego::Script::Traits<char> Traits;
+    using Traits = Ego::Script::Traits<char>;
 
     ReadContext(const std::string& loadName);
 

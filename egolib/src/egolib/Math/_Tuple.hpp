@@ -42,7 +42,7 @@ template <typename _ElementType, size_t _Dimensionality>
 struct Tuple {
 public:
     /** @brief The type of the elements of this tuple type. */
-    typedef _ElementType ElementType;
+    using ElementType = _ElementType;
 
     /**
      * @brief The dimensionality of this tuple.
@@ -57,7 +57,7 @@ public:
 
 
 	/** @brief @a MyType is the type of this template/template specialization. */
-	typedef Tuple<ElementType, _Dimensionality> MyType;
+	using MyType = Tuple<ElementType, _Dimensionality>;
 
 
 private:

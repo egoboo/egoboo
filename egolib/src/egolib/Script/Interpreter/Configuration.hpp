@@ -39,13 +39,13 @@ static constexpr bool WithImplicitConversions = true;
  * @brief The C++ type representing a \f$Real\f$ value.
  * @invariant Must be either float or double.
  */
-typedef float RealValue;
+using RealValue = float;
 
 /**
  * @brief The C++ type representing a \f$Integer\f$ value.
  * @invariant Must be either int or long.
  */
-typedef int IntegerValue;
+using IntegerValue = int;
 
 } // namespace Interpreter
 } // namespace Script

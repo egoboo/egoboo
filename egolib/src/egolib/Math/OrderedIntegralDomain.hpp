@@ -57,7 +57,7 @@ struct OrderedIntegralDomain<_ElementType,
 	 * @brief
 	 *  The type of an element of the set.
 	 */
-	typedef typename OrderedRing<_ElementType>::ElementType ElementType;
+	using ElementType = typename OrderedRing<_ElementType>::ElementType;
 
 };
 

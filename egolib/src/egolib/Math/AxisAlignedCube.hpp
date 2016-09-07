@@ -130,7 +130,7 @@ public:
     *  the minimum of this axis aligned cube
     */
     PointType getMin() const {
-        typedef ConstantGenerator<ScalarType> MyGenerator;
+        using MyGenerator = ConstantGenerator<ScalarType>;
         return _center - VectorType(MyGenerator(_size/2.0f), std::make_index_sequence<VectorSpaceType::dimensionality()>{});
     }
 
@@ -141,7 +141,7 @@ public:
      *  the maximum of this axis aligned cube
      */
     PointType getMax() const {
-        typedef ConstantGenerator<ScalarType> MyGenerator;
+        using MyGenerator = ConstantGenerator<ScalarType>;
         return _center + VectorType(MyGenerator(_size/2.0f), std::make_index_sequence<VectorSpaceType::dimensionality()>{});
     }
 

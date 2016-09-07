@@ -30,7 +30,7 @@ struct Generator {};
 template <typename _ResultType>
 struct ConstantGenerator : Generator<_ResultType> {
 public:
-    typedef _ResultType ResultType;
+    using ResultType = _ResultType;
 private:
     const ResultType constantValue;
 public:
@@ -56,7 +56,7 @@ public:
 template <typename _ResultType>
 struct ConditionalGenerator : Generator<_ResultType> {
 public:
-    typedef _ResultType ResultType;
+    using ResultType = _ResultType;
 private:
     const size_t indexIfTrue;
     const ResultType constantValueIfTrue;
