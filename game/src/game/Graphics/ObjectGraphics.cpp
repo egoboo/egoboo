@@ -1,11 +1,12 @@
 #include "ObjectGraphics.hpp"
 #include "game/Entities/_Include.hpp"
 #include "game/game.h"
+#include "game/ObjectAnimation.h"
 
 // the flip tolerance is the default flip increment / 2
 static constexpr float FLIP_TOLERANCE = 0.25f * 0.5f;
 
-ObjectGraphics::ObjectGraphics(const Object &object) :
+ObjectGraphics::ObjectGraphics(Object &object) :
     matrix_cache(),
 
     alpha(0xFF),
@@ -17,7 +18,7 @@ ObjectGraphics::ObjectGraphics(const Object &object) :
     uoffset(0),
     voffset(0),
 
-    animationState(),
+    animationState(object),
     actionState(),
 
     _object(object),
@@ -504,106 +505,9 @@ gfx_rv ObjectGraphics::setAction(const ModelAction action, const bool action_rea
     return gfx_success;
 }
 
-gfx_rv ObjectGraphics::setFrame(int frame)
+bool ObjectGraphics::playAction(const ModelAction action, const bool action_ready)
 {
-    if (this->actionState.action_which < 0 || this->actionState.action_which > ACTION_COUNT) {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, this->actionState.action_which, "invalid action range");
-        return gfx_error;
-    }
-
-    // is the frame within the valid range for this action?
-    if(!this->animationState.getModelDescriptor()->isFrameValid(this->actionState.action_which, frame)) {
-        return gfx_fail;
-    }
-
-    // jump to the next frame
-	this->animationState.flip = 0.0f;
-	this->animationState.ilip = 0;
-	this->animationState.setSourceFrameIndex(this->animationState.getTargetFrameIndex());
-	this->animationState.setTargetFrameIndex(frame);
-
-    return gfx_success;
-}
-
-gfx_rv ObjectGraphics::startAnimation(const ModelAction action, const bool action_ready, const bool override_action)
-{
-    gfx_rv retval = setAction(action, action_ready, override_action);
-    if ( rv_success != retval ) return retval;
-
-    retval = setFrame(animationState.getModelDescriptor()->getFirstFrame(action));
-    if ( rv_success != retval ) return retval;
-
-    return gfx_success;
-}
-
-gfx_rv ObjectGraphics::incrementAction()
-{
-    // get the correct action
-	ModelAction action = animationState.getModelDescriptor()->getAction(actionState.action_next);
-
-    // determine if the action is one of the types that can be broken at any time
-    // D == "dance" and "W" == walk
-    // @note ZF> Can't use ACTION_IS_TYPE(action, D) because of GCC compile warning
-    bool action_ready = action < ACTION_DD || ACTION_IS_TYPE(action, W);
-
-	return startAnimation(action, action_ready, true);
-}
-
-gfx_rv ObjectGraphics::incrementFrame(const ObjectRef imount, const ModelAction mount_action)
-{
-    // fix the ilip and flip
-	this->animationState.ilip = this->animationState.ilip % 4;
-	this->animationState.flip = fmod(this->animationState.flip, 1.0f);
-
-    // Change frames
-	int frame_lst = this->animationState.getTargetFrameIndex();
-	int frame_nxt = this->animationState.getTargetFrameIndex() + 1;
-
-    // detect the end of the animation and handle special end conditions
-	if (frame_nxt > this->animationState.getModelDescriptor()->getLastFrame(this->actionState.action_which))
-    {
-		if (this->actionState.action_keep)
-        {
-            // Freeze that animation at the last frame
-            frame_nxt = frame_lst;
-
-            // Break a kept action at any time
-			this->actionState.action_ready = true;
-        }
-		else if (this->actionState.action_loop)
-        {
-            // Convert the action into a riding action if the character is mounted
-            if (_currentModule->getObjectHandler().exists(imount))
-            {
-				startAnimation(mount_action, true, true);
-            }
-
-            // set the frame to the beginning of the action
-			frame_nxt = this->animationState.getModelDescriptor()->getFirstFrame(this->actionState.action_which);
-
-            // Break a looped action at any time
-			this->actionState.action_ready = true;
-        }
-        else
-        {
-            // Go on to the next action. don't let just anything interrupt it?
-			incrementAction();
-
-            // incrementAction() actually sets this value properly. just grab the new value.
-			frame_nxt = this->animationState.getTargetFrameIndex();
-        }
-    }
-
-	this->animationState.setSourceFrameIndex(frame_lst);
-	this->animationState.setTargetFrameIndex(frame_nxt);
-
-
-    return gfx_success;
-}
-
-gfx_rv ObjectGraphics::playAction(const ModelAction action, const bool action_ready)
-{
-    return startAnimation(animationState.getModelDescriptor()->getAction(action), action_ready, true);
+    return animationState.startAnimation(animationState.getModelDescriptor()->getAction(action), action_ready, true);
 }
 
 void ObjectGraphics::clearCache()
@@ -688,7 +592,7 @@ void ObjectGraphics::setObjectProfile(const std::shared_ptr<ObjectProfile> &prof
     _reflectionMatrix = Matrix4f4f::identity();
     uoffset = 0;
     voffset = 0;
-    animationState = AnimationState();
+    animationState.reset();
     actionState = ActionState();
     _ambientColour = 0;
     _maxLight = -0xFF;
@@ -788,34 +692,9 @@ const MD2_Frame& ObjectGraphics::getLastFrame() const
     return animationState.getSourceFrame();
 }
 
-void ObjectGraphics::updateOneLip() {
-    this->animationState.ilip += 1;
-    this->animationState.flip = 0.25f * this->animationState.ilip;
-
-}
-
 bool ObjectGraphics::isVertexCacheValid() const
 {
     return _vertexCache.isValid();
-}
-
-bool ObjectGraphics::updateOneFlip(const float dflip)
-{
-	if (0.0f == dflip) {
-		return false;
-	}
-
-    // update the lips
-    this->animationState.flip += dflip;
-	this->animationState.ilip = ((int)std::floor(this->animationState.flip * 4)) % 4;
-
-
-    return true;
-}
-
-float ObjectGraphics::getRemainingFlip() const
-{
-	return (this->animationState.ilip + 1) * 0.25f - this->animationState.flip;
 }
 
 void ObjectGraphics::getTint(GLXvector4f tint, const bool reflection, const int type)
@@ -985,7 +864,3 @@ bool matrix_cache_t::isValid() const {
     return valid && matrix_valid;
 }
 
-void ObjectGraphics::updateAnimation()
-{
-    
-}

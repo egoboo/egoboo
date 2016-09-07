@@ -5,10 +5,6 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static egolib_rv chr_invalidate_child_instances( Object * pchr );
-static bool chr_handle_madfx( Object * pchr );
-static float set_character_animation_rate( Object * pchr );
-static egolib_rv chr_increment_frame( Object * pchr );
 static egolib_rv chr_set_anim( Object * pchr, const ModelAction action, int frame, bool action_ready, bool override_action );
 
 //--------------------------------------------------------------------------------------------
@@ -24,7 +20,7 @@ egolib_rv chr_start_anim( Object * pchr, int action, bool action_ready, bool ove
     //Skip invalid characters
     if (!pchr || pchr->isTerminated()) return rv_error;
 
-    retval = ( egolib_rv )pchr->inst.startAnimation(static_cast<ModelAction>(action), action_ready, override_action );
+    retval = ( egolib_rv )pchr->inst.animationState.startAnimation(static_cast<ModelAction>(action), action_ready, override_action );
     if ( rv_success != retval ) return retval;
 
     // if the instance is invalid, invalidate everything that depends on this object
@@ -46,51 +42,9 @@ static egolib_rv chr_set_anim( Object * pchr, const ModelAction action, int fram
     retval = pchr->inst.setAction(action, action_ready, override_action);
     if ( rv_success != retval ) return retval;
 
-    retval = pchr->inst.setFrame(frame);
-    if ( rv_success != retval ) return retval;
-
-    // if the instance is invalid, invalidate everything that depends on this object
-    if ( !pchr->inst.isVertexCacheValid() )
-    {
-        chr_invalidate_child_instances( pchr );
+    if(!pchr->inst.animationState.setFrame(frame)) {
+        return rv_error;
     }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-static egolib_rv chr_increment_frame( Object * pchr )
-{
-    egolib_rv retval;
-    ModelAction mount_action;
-    
-    if (!pchr || pchr->isTerminated() ) return rv_error;
-    ObjectRef imount = pchr->attachedto;
-
-    if ( !_currentModule->getObjectHandler().exists( imount ) )
-    {
-        imount = ObjectRef::Invalid;
-        mount_action = ACTION_DA;
-    }
-    else
-    {
-        // determine what kind of action we are going to substitute for a riding character
-        if ( _currentModule->getObjectHandler().exists( pchr->holdingwhich[SLOT_LEFT] ) || _currentModule->getObjectHandler().exists( pchr->holdingwhich[SLOT_RIGHT] ) )
-        {
-            // if the character is holding anything, make the animation
-            // ACTION_MH == "sitting" so that it does not look so silly
-
-            mount_action = pchr->getProfile()->getModel()->getAction(ACTION_MH);
-        }
-        else
-        {
-            // if it is not holding anything, go for the riding animation
-            mount_action = pchr->getProfile()->getModel()->getAction(ACTION_MI);
-        }
-    }
-
-    retval = ( egolib_rv )pchr->inst.incrementFrame(imount, mount_action );
-    if ( rv_success != retval ) return retval;
 
     // if the instance is invalid, invalidate everything that depends on this object
     if ( !pchr->inst.isVertexCacheValid() )
@@ -127,86 +81,7 @@ egolib_rv chr_play_action( Object * pchr, int action, bool action_ready )
 }
 
 //--------------------------------------------------------------------------------------------
-void move_one_character_do_animation( Object * pchr )
-{
-    // Animate the character.
-    // Right now there are 50/4 = 12.5 animation frames per second
-
-    float flip_diff, flip_next;
-
-    if ( NULL == pchr ) return;
-    ObjectGraphics& pinst = pchr->inst;
-
-    flip_diff  = 0.25f * pinst.animationState.rate;
-
-    flip_next = pinst.getRemainingFlip();
-
-    while ( flip_next > 0.0f && flip_diff >= flip_next )
-    {
-        flip_diff -= flip_next;
-
-        pinst.updateOneLip();
-
-        // handle frame FX for the new frame
-        if ( 3 == pinst.animationState.ilip )
-        {
-            chr_handle_madfx( pchr );
-        }
-
-        if ( 4 == pinst.animationState.ilip )
-        {
-            if ( rv_success != chr_increment_frame( pchr ) )
-            {
-				Log::get().warn( "chr_increment_frame() did not succeed\n" );
-            }
-        }
-
-        if ( pinst.animationState.ilip > 4 )
-        {
-			Log::get().warn( "chr_increment_frame() - invalid ilip\n" );
-            pinst.animationState.ilip = 0;
-            break;
-        }
-
-        flip_next = pinst.getRemainingFlip();
-    }
-
-    if ( flip_diff > 0.0f )
-    {
-        int ilip_old = pinst.animationState.ilip;
-
-        pinst.updateOneFlip(flip_diff);
-
-        if ( ilip_old != pinst.animationState.ilip )
-        {
-            // handle frame FX for the new frame
-            if ( 3 == pinst.animationState.ilip )
-            {
-                chr_handle_madfx( pchr );
-            }
-
-            if ( 4 == pinst.animationState.ilip )
-            {
-                if ( rv_success != chr_increment_frame( pchr ) )
-                {
-					Log::get().warn( "chr_increment_frame() did not succeed\n" );
-                }
-            }
-
-            if ( pinst.animationState.ilip > 4 )
-            {
-				Log::get().warn( "chr_increment_frame() - invalid ilip\n" );
-                pinst.animationState.ilip = 0;
-            }
-        }
-    }
-
-    set_character_animation_rate( pchr );
-}
-
-
-//--------------------------------------------------------------------------------------------
-float set_character_animation_rate( Object * pchr )
+float set_character_animation_rate( const Object * ptr )
 {
     /// @author ZZ
     /// @details Get running, walking, sneaking, or dancing, from speed
@@ -215,6 +90,9 @@ float set_character_animation_rate( Object * pchr )
     /// @details added automatic calculation of variable animation rates for movement animations
 
     bool is_walk_type;
+
+    auto objRef = GET_INDEX_PCHR( ptr );
+    const auto &pchr = _currentModule->getObjectHandler()[objRef];
 
     if ( NULL == pchr ) return 1.0f;
     ObjectGraphics& pinst = pchr->inst;
@@ -350,7 +228,7 @@ float set_character_animation_rate( Object * pchr )
                 // set the action to "bored", which is ACTION_DB, ACTION_DC, or ACTION_DD
                 int rand_val   = Random::next(std::numeric_limits<uint16_t>::max());
                 int tmp_action = pinst.animationState.getModelDescriptor()->getAction(ACTION_DB + ( rand_val % 3 ));
-                chr_start_anim( pchr, tmp_action, true, true );
+                chr_start_anim( pchr.get(), tmp_action, true, true );
             }
         }
         else
@@ -362,7 +240,7 @@ float set_character_animation_rate( Object * pchr )
                 ModelAction tmp_action = pinst.animationState.getModelDescriptor()->getAction(ACTION_DA);
 
                 // start the animation
-                chr_start_anim( pchr, tmp_action, true, true );
+                chr_start_anim( pchr.get(), tmp_action, true, true );
             }
         }
     }
@@ -373,8 +251,8 @@ float set_character_animation_rate( Object * pchr )
         {
             if ( pinst.actionState.action_which != tmp_action )
             {
-                chr_set_anim( pchr, tmp_action, pmad->getFrameLipToWalkFrame(lip, pchr->inst.getNextFrame().framelip), true, true );
-                chr_start_anim(pchr, tmp_action, true, true);
+                chr_set_anim( pchr.get(), tmp_action, pmad->getFrameLipToWalkFrame(lip, pchr->inst.getNextFrame().framelip), true, true );
+                chr_start_anim(pchr.get(), tmp_action, true, true);
             }
 
             // "loop" the action
@@ -390,7 +268,7 @@ float set_character_animation_rate( Object * pchr )
 
 
 //--------------------------------------------------------------------------------------------
-egolib_rv chr_invalidate_child_instances( Object * pchr )
+egolib_rv chr_invalidate_child_instances( const Object * pchr )
 {
     if (!pchr || pchr->isTerminated()) return rv_error;
 
@@ -407,75 +285,3 @@ egolib_rv chr_invalidate_child_instances( Object * pchr )
     return rv_success;
 }
 
-//--------------------------------------------------------------------------------------------
-bool chr_handle_madfx( Object * pchr )
-{
-    ///@details This handles special commands an animation frame might execute, for example
-    ///         grabbing stuff or spawning attack particles.
-
-    if ( nullptr == pchr ) return false;
-
-    uint32_t framefx = pchr->inst.getFrameFX();
-
-    if ( 0 == framefx ) return true;
-
-    auto objRef = GET_INDEX_PCHR( pchr );
-
-    // Check frame effects
-    if ( HAS_SOME_BITS( framefx, MADFX_ACTLEFT ) )
-    {
-        character_swipe( objRef, SLOT_LEFT );
-    }
-
-    if ( HAS_SOME_BITS( framefx, MADFX_ACTRIGHT ) )
-    {
-        character_swipe( objRef, SLOT_RIGHT );
-    }
-
-    if ( HAS_SOME_BITS( framefx, MADFX_GRABLEFT ) )
-    {
-        pchr->getObjectPhysics().grabStuff(GRIP_LEFT, false);
-    }
-
-    if ( HAS_SOME_BITS( framefx, MADFX_GRABRIGHT ) )
-    {
-        pchr->getObjectPhysics().grabStuff(GRIP_RIGHT, false);
-    }
-
-    if ( HAS_SOME_BITS( framefx, MADFX_CHARLEFT ) )
-    {
-        pchr->getObjectPhysics().grabStuff(GRIP_LEFT, true);
-    }
-
-    if ( HAS_SOME_BITS( framefx, MADFX_CHARRIGHT ) )
-    {
-        pchr->getObjectPhysics().grabStuff(GRIP_RIGHT, true);
-    }
-
-    if ( HAS_SOME_BITS( framefx, MADFX_DROPLEFT ) )
-    {
-        if(pchr->getLeftHandItem()) {
-            pchr->getLeftHandItem()->detatchFromHolder(false, true);
-        }
-    }
-
-    if ( HAS_SOME_BITS( framefx, MADFX_DROPRIGHT ) )
-    {
-        if(pchr->getRightHandItem()) {
-            pchr->getRightHandItem()->detatchFromHolder(false, true);
-        }
-    }
-
-    if ( HAS_SOME_BITS( framefx, MADFX_POOF ) && !pchr->isPlayer() )
-    {
-        pchr->ai.poof_time = update_wld;
-    }
-
-    //Do footfall sound effect
-    if (egoboo_config_t::get().sound_footfallEffects_enable.getValue() && HAS_SOME_BITS(framefx, MADFX_FOOTFALL))
-    {
-        AudioSystem::get().playSound(pchr->getPosition(), pchr->getProfile()->getFootFallSound());
-    }
-
-    return true;
-}
