@@ -80,7 +80,6 @@
 #include "egolib/Math/Functors/Closure_Sphere_AxisAlignedBox.hpp"
 #include "egolib/Math/Functors/Closure_Sphere_Sphere.hpp"
 
-
 //
 #include "egolib/Math/Discrete.hpp"
 

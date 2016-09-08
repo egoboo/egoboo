@@ -17,7 +17,7 @@ public:
     /// @param font the font of this label. Default is UIManager::FONT_DEFAULT.
     Label(const std::string& text, const UIManager::UIFontType font = UIManager::FONT_DEFAULT);
 
-    virtual void draw(Ego::GUI::DrawingContext& drawingContext) override;
+    virtual void draw(DrawingContext& drawingContext) override;
 
     /**@{*/
 

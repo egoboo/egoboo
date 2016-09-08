@@ -157,6 +157,9 @@
     <Filter Include="Source Files\InputControl">
       <UniqueIdentifier>{26be0be1-53fa-4176-a0f6-ec408fc0f898}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Configuration">
+      <UniqueIdentifier>{ae7714a7-d83d-4194-aeca-c072b6474de3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\egolib\_math.c">
@@ -1288,6 +1291,15 @@
     </ClInclude>
     <ClInclude Include="src\egolib\InputControl\ModifierKeys.hpp">
       <Filter>Header Files\InputControl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Configuration\Variable.hpp">
+      <Filter>Header Files\Configuration</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Configuration\NumericVariable.hpp">
+      <Filter>Header Files\Configuration</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Configuration\StandardVariable.hpp">
+      <Filter>Header Files\Configuration</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

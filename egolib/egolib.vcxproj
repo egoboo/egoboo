@@ -507,6 +507,9 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Configuration\NumericVariable.hpp" />
+    <ClInclude Include="src\egolib\Configuration\StandardVariable.hpp" />
+    <ClInclude Include="src\egolib\Configuration\Variable.hpp" />
     <ClInclude Include="src\egolib\InputControl\ControlSettingsFile.hpp" />
     <ClInclude Include="src\egolib\InputControl\InputDevice.hpp" />
     <ClInclude Include="src\egolib\InputControl\InputSystem.hpp" />

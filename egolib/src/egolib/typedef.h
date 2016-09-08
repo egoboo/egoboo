@@ -205,7 +205,7 @@ signed SFP8_TO_SINT(const T& val)
 // References
 
 /// @brief The base reference type, an unsigned integer value.
-typedef Uint16 REF_T;
+typedef uint16_t REF_T;
 
 /**
  * @brief

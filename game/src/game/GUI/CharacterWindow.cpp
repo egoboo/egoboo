@@ -68,7 +68,6 @@ CharacterWindow::CharacterWindow(const std::shared_ptr<Object> &object) : Intern
     auto characterTab = std::make_shared<Button>(_characterStatisticsTab->getTitle());
     characterTab->setSize(Vector2f(tabButtonWidth, tabButtonHeight));
     characterTab->setPosition(Point2f(BorderPadding, y));
-    characterTab->setParent(this);
     addComponent(characterTab);
     characterTab->setOnClickFunction([this] {
         _activeEnchantsTab->setEnabled(false);
@@ -85,7 +84,6 @@ CharacterWindow::CharacterWindow(const std::shared_ptr<Object> &object) : Intern
     auto perksTab = std::make_shared<Button>(_knownPerksTab->getTitle());
     perksTab->setSize(Vector2f(tabButtonWidth, tabButtonHeight));
     perksTab->setPosition(Point2f(BorderPadding + (tabButtonWidth + 5) * 1, y));
-    perksTab->setParent(this);
     addComponent(perksTab);
     perksTab->setOnClickFunction([this] {
         _characterStatisticsTab->setEnabled(false);
@@ -100,7 +98,6 @@ CharacterWindow::CharacterWindow(const std::shared_ptr<Object> &object) : Intern
     auto enchantsTab = std::make_shared<Button>(_activeEnchantsTab->getTitle());
     enchantsTab->setSize(Vector2f(tabButtonWidth, tabButtonHeight));
     enchantsTab->setPosition(Point2f(BorderPadding + (tabButtonWidth + 5) * 2, y));
-    enchantsTab->setParent(this);
     addComponent(enchantsTab);
     enchantsTab->setOnClickFunction([this] {
         _characterStatisticsTab->setEnabled(false);
@@ -131,7 +128,6 @@ int CharacterWindow::addAttributeLabel(std::shared_ptr<Tab> target, const Point2
     std::shared_ptr<Label> label = std::make_shared<Label>(Attribute::toString(type) + ":");
     label->setPosition(position);
     label->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
-    label->setParent(target.get());
     target->addComponent(label);
 
     //Value
@@ -148,7 +144,6 @@ int CharacterWindow::addAttributeLabel(std::shared_ptr<Tab> target, const Point2
 
     value->setPosition(Point2f(target->getWidth() / 2 - 20, label->getY()));
     value->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
-    value->setParent(target.get());
     target->addComponent(value);
 
     return label->getHeight() - LINE_SPACING_OFFSET;
@@ -174,7 +169,6 @@ int CharacterWindow::addResistanceLabel(std::shared_ptr<Tab> target, const Point
     label->setPosition(position);
     label->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
     label->setColour(Math::Colour4f(DamageType_getColour(type), 1.0f));
-    label->setParent(target.get());
     target->addComponent(label);
 
     //Value
@@ -182,7 +176,6 @@ int CharacterWindow::addResistanceLabel(std::shared_ptr<Tab> target, const Point
     value->setPosition(label->getPosition() + Vector2f(50, 0));
     value->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
     value->setColour(Math::Colour4f(DamageType_getColour(type), 1.0f));
-    value->setParent(target.get());
     target->addComponent(value);
 
     //Percent
@@ -190,7 +183,6 @@ int CharacterWindow::addResistanceLabel(std::shared_ptr<Tab> target, const Point
     percent->setPosition(label->getPosition() + Vector2f(75, 0));
     percent->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
     percent->setColour(Math::Colour4f(DamageType_getColour(type), 1.0f));
-    percent->setParent(target.get());
     target->addComponent(percent);
 
     return label->getHeight() - LINE_SPACING_OFFSET;
@@ -272,14 +264,12 @@ void CharacterWindow::buildCharacterStatisticTab(std::shared_ptr<Tab> target) {
     std::shared_ptr<Label> classLevelLabel = std::make_shared<Label>(buffer.str());
     classLevelLabel->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
     classLevelLabel->setPosition(characterIcon->getPosition() + Vector2f(characterIcon->getWidth() + 5, 0));
-    classLevelLabel->setParent(target.get());
     target->addComponent(classLevelLabel);
 
     //Attributes
     std::shared_ptr<Label> attributeLabel = std::make_shared<Label>("ATTRIBUTES");
     attributeLabel->setPosition(characterIcon->getPosition() + Vector2f(0, characterIcon->getHeight() + 5));
     attributeLabel->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
-    attributeLabel->setParent(target.get());
     target->addComponent(attributeLabel);
 
     yPos = attributeLabel->getY() + attributeLabel->getHeight() - LINE_SPACING_OFFSET;
@@ -291,7 +281,6 @@ void CharacterWindow::buildCharacterStatisticTab(std::shared_ptr<Tab> target) {
     std::shared_ptr<Label> defenceLabel = std::make_shared<Label>("DEFENCES");
     defenceLabel->setPosition(Point2f(target->getWidth() / 2 + 20, attributeLabel->getY()));
     defenceLabel->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
-    defenceLabel->setParent(target.get());
     target->addComponent(defenceLabel);
 
     yPos = defenceLabel->getY() + defenceLabel->getHeight() - LINE_SPACING_OFFSET;
@@ -307,7 +296,6 @@ void CharacterWindow::buildCharacterStatisticTab(std::shared_ptr<Tab> target) {
     for (size_t i = 0; i < _character->getInventory().getMaxItems(); ++i) {
         std::shared_ptr<InventorySlot> slot = std::make_shared<InventorySlot>(_character->getInventory(), i, _character->isPlayer() ? _currentModule->getPlayer(_character->is_which_player) : nullptr);
         slot->setSize(Vector2f(slotSize, slotSize));
-        slot->setParent(target.get());
         target->addComponent(slot);
         slots.push_back(slot);
     }
@@ -338,7 +326,6 @@ void CharacterWindow::buildCharacterStatisticTab(std::shared_ptr<Tab> target) {
             _levelUpButton->setVisible(false);
         }
         );
-        _levelUpButton->setParent(target.get());
         target->addComponent(_levelUpButton);
 
         //Make level up button visible if needed
@@ -353,7 +340,6 @@ void CharacterWindow::buildKnownPerksTab(std::shared_ptr<Tab> target) {
     std::shared_ptr<ScrollableList> perksKnown = std::make_shared<ScrollableList>();
     perksKnown->setSize(Vector2f(getWidth() - 60, getHeight() * 0.60f));
     perksKnown->setPosition(Point2f(0, 0 + 8));
-    perksKnown->setParent(target.get());
     target->addComponent(perksKnown);
 
     //Perk icon
@@ -361,7 +347,6 @@ void CharacterWindow::buildKnownPerksTab(std::shared_ptr<Tab> target) {
     perkIcon->setPosition(Point2f(10, getHeight() - 80));
     perkIcon->setSize(Vector2f(64, 64));
     perkIcon->setVisible(false);
-    perkIcon->setParent(target.get());
     target->addComponent(perkIcon);
 
     //Perk Name
@@ -369,14 +354,12 @@ void CharacterWindow::buildKnownPerksTab(std::shared_ptr<Tab> target) {
     newPerkLabel->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
     newPerkLabel->setPosition(Point2f(20, getHeight() - perkIcon->getHeight() - 40));
     newPerkLabel->setColour(Math::Colour4f::yellow());
-    newPerkLabel->setParent(target.get());
     target->addComponent(newPerkLabel);
 
     //Perk description
     std::shared_ptr<Label> perkDescription = std::make_shared<Label>("Select a perk to view details...");
     perkDescription->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
     perkDescription->setPosition(Point2f(perkIcon->getX() + perkIcon->getWidth(), newPerkLabel->getY() + newPerkLabel->getHeight()));
-    perkDescription->setParent(target.get());
     target->addComponent(perkDescription);
 
     //Make list of all perks that this character knows
@@ -399,7 +382,6 @@ void CharacterWindow::buildKnownPerksTab(std::shared_ptr<Tab> target) {
                 perkIcon->setTint(perk.getColour());
                 perkDescription->setText(perk.getDescription());
             });
-            perkButton->setParent(perksKnown.get());
             perksKnown->addComponent(perkButton);
         }
     }
@@ -412,7 +394,6 @@ void CharacterWindow::buildActiveEnchantsTab(std::shared_ptr<Tab> target) {
     std::shared_ptr<ScrollableList> activeEnchants = std::make_shared<ScrollableList>();
     activeEnchants->setSize(Vector2f((target->getWidth() - 20) / 2, getHeight() * 0.60f));
     activeEnchants->setPosition(Point2f(10, 40));
-    activeEnchants->setParent(target.get());
     target->addComponent(activeEnchants);
 
     //Enchant Name
@@ -420,14 +401,12 @@ void CharacterWindow::buildActiveEnchantsTab(std::shared_ptr<Tab> target) {
     enchantName->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
     enchantName->setPosition(Point2f(activeEnchants->getX() + activeEnchants->getWidth() + 5, activeEnchants->getY()));
     enchantName->setColour(Math::Colour4f::yellow());
-    enchantName->setParent(target.get());
     target->addComponent(enchantName);
 
     //List of effects a given enchant has
     std::shared_ptr<ScrollableList> enchantEffects = std::make_shared<ScrollableList>();
     enchantEffects->setSize(Vector2f((target->getWidth() - 20) / 2, activeEnchants->getHeight() - enchantName->getHeight()));
     enchantEffects->setPosition(Point2f(enchantName->getX(), enchantName->getY() + enchantName->getHeight()));
-    enchantEffects->setParent(target.get());
     target->addComponent(enchantEffects);
 
     //Count number of unique enchants and merge all others
@@ -451,7 +430,6 @@ void CharacterWindow::buildActiveEnchantsTab(std::shared_ptr<Tab> target) {
 
         std::shared_ptr<Button> button = std::make_shared<Button>(prefix + name);
         button->setSize(Vector2f(activeEnchants->getWidth() - 50, activeEnchants->getHeight() / 6));
-        button->setParent(activeEnchants.get());
         activeEnchants->addComponent(button);
         button->setOnClickFunction([this, element, name, enchantName, enchantEffects] {
             enchantName->setText(name);

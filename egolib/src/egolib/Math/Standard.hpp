@@ -242,9 +242,6 @@ struct Rectangle {
 };
 };
 
-/** @todo Remove this. */
-typedef Ego::Rectangle<int> irect_t;
-
 struct ego_frect_t {
     float xmin, ymin;
     float xmax, ymax;
