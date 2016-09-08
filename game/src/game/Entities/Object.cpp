@@ -336,7 +336,6 @@ bool Object::canMount(const std::shared_ptr<Object> mount) const
 int Object::damage(Facing direction, const IPair  damage, const DamageType damagetype, const TEAM_REF attackerTeam,
                    const std::shared_ptr<Object> &attacker, const bool ignoreArmour, const bool setDamageTime, const bool ignoreInvictus)
 {
-    int action;
     bool do_feedback = (Ego::FeedbackType::None != egoboo_config_t::get().hud_feedback.getValue());
 
     // Simply ignore damaging invincible targets.
@@ -496,15 +495,13 @@ int Object::damage(Facing direction, const IPair  damage, const DamageType damag
                 else
                 {
                     //Yes, but play the hurt animation
-                    action = ACTION_HA;
                     if ( base_damage > HURTDAMAGE )
                     {
                         //If we have Endurance perk, we have 1% chance per Might to resist hurt animation (which cause a minor delay)
                         if(!hasPerk(Ego::Perks::ENDURANCE) || Random::getPercent() > getAttribute(Ego::Attribute::MIGHT))
                         {
                             if(inst.animationState.getModelDescriptor()->isActionValid(ACTION_HA)) {
-                                action += Random::next(3);
-                                chr_play_action(this, action, false);
+                                inst.playAction(getProfile()->getModel()->randomizeAction(ACTION_HA), false);
                             }
                         }
 
@@ -1140,12 +1137,12 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
     if ( isAlive() )
     {
         // play the falling animation...
-        chr_play_action( this, ACTION_JB + hand, false );
+        inst.playAction(static_cast<ModelAction>(ACTION_JB + hand), false);
     }
     else if ( inst.actionState.action_which < ACTION_KA || inst.actionState.action_which > ACTION_KD )
     {
         // play the "killed" animation...
-        chr_play_action( this, Random::next((int)ACTION_KA, ACTION_KA + 3), false );
+        inst.playAction(static_cast<ModelAction>(Random::next((int)ACTION_KA, ACTION_KA + 3)), false);
         inst.setActionKeep(true);
     }
 
@@ -1227,13 +1224,13 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
     if (!isAlive())
     {
         // the object is dead. play the killed animation and make it freeze there
-        chr_play_action( this, Random::next((int)ACTION_KA, ACTION_KA + 3), false );
+        inst.playAction(static_cast<ModelAction>(Random::next((int)ACTION_KA, ACTION_KA + 3)), false);
         inst.setActionKeep(true);
     }
     else
     {
         // play the jump animation, and un-keep it
-        chr_play_action( this, ACTION_JA, true );
+        inst.playAction(ACTION_JA, true);
         inst.setActionKeep(false);
     }
 
@@ -1431,8 +1428,8 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
     deactivateStealth();
 
     // Play the death animation
-    int action = Random::next((int)ACTION_KA, ACTION_KA + 3);
-    chr_play_action(this, action, false);
+    ModelAction action = getProfile()->getModel()->randomizeAction(ACTION_KA);
+    inst.playAction(action, false);
     inst.setActionKeep(true);
 
     // Give kill experience
@@ -1853,7 +1850,7 @@ void Object::respawn()
     if ( !isInvincible() )         getTeam().increaseMorale();
 
     // start the character out in the "dance" animation
-    chr_start_anim(this, ACTION_DA, true, true);
+    inst.animationState.startAnimation(ACTION_DA, true, true);
 
     // reset all of the bump size information
     {
@@ -2406,11 +2403,11 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
     inst.setActionLooped(false);
     if (isAlive())
     {
-        chr_play_action(this, ACTION_DA, false);
+        inst.playAction(ACTION_DA, false);
     }
     else
     {
-        chr_play_action(this, Random::next<int>(ACTION_KA, ACTION_KA + 3), false);
+        inst.playAction(getProfile()->getModel()->randomizeAction(ACTION_KA), false);
         inst.setActionKeep(true);
     }
 
@@ -3065,7 +3062,8 @@ void Object::updateLatchButtons()
                 // Set to jump animation if not doing anything better
                 if ( inst.actionState.action_ready )
                 {
-                    chr_play_action(this, ACTION_JA, true);
+
+                    inst.playAction(ACTION_JA, true);
                 }
 
                 // Play the jump sound (Boing!)
@@ -3096,13 +3094,13 @@ void Object::updateLatchButtons()
                 getObjectPhysics().grabStuff(GRIP_LEFT, false );
             }
             else {
-                chr_play_action(this, ACTION_ME, false);
+                inst.playAction(ACTION_ME, false);
             }
         }
         else
         {
             // Drop left
-            chr_play_action(this, ACTION_MA, false);
+            inst.playAction(ACTION_MA, false);
         }
     }
 
@@ -3117,13 +3115,13 @@ void Object::updateLatchButtons()
                 getObjectPhysics().grabStuff(GRIP_RIGHT, false );
             }
             else {
-                chr_play_action(this, ACTION_MF, false);
+                inst.playAction(ACTION_MF, false);
             }
         }
         else
         {
             // Drop right
-            chr_play_action(this, ACTION_MB, false);
+            inst.playAction(ACTION_MB, false);
         }
     }
 

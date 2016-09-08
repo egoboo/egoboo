@@ -596,7 +596,7 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
     chr_update_matrix( pchr.get(), true );
 
     // start the character out in the "dance" animation
-    chr_start_anim(pchr.get(), ACTION_DA, true, true);
+    pchr->inst.animationState.startAnimation(ACTION_DA, true, true);
 
     // count all the successful spawns of this character
     ppro->_spawnCount++;

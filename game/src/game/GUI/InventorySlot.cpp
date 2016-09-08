@@ -76,7 +76,7 @@ bool InventorySlot::notifyMouseButtonPressed(const Events::MouseButtonPressedEve
         Inventory::swap_item(pchr->getObjRef(), _slotNumber, e.getButton() == SDL_BUTTON_LEFT ? SLOT_LEFT : SLOT_RIGHT, false);
 
         // Make it take a little time
-        chr_play_action(pchr.get(), ACTION_MG, false);
+        pchr->inst.playAction(ACTION_MG, false);
         pchr->reload_timer = Inventory::PACKDELAY;
         return true;
     }

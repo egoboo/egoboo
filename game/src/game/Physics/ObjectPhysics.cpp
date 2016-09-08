@@ -790,7 +790,7 @@ bool ObjectPhysics::grabStuff(grip_offset_t grip_off, bool grab_people)
                 if (grab_people)
                 {
                     // Start the slam animation...  ( Be sure to drop!!! )
-                    chr_play_action(&_object, ACTION_MC + slot, false);
+                    _object.inst.playAction(static_cast<ModelAction>(ACTION_MC + slot), false);
                 }
             }
             return true;
@@ -874,12 +874,12 @@ bool ObjectPhysics::attachToObject(const std::shared_ptr<Object> &holder, grip_o
         {
             // if the character is holding anything, make the animation
             // ACTION_MH == "sitting" so that it does not look so silly
-            chr_play_action(&_object, ACTION_MH, true);
+            _object.inst.playAction(ACTION_MH, true);
         }
         else
         {
             // if it is not holding anything, go for the riding animation
-            chr_play_action(&_object, ACTION_MI, true);
+            _object.inst.playAction(ACTION_MI, true);
         }
 
         // set this action to loop
@@ -887,7 +887,7 @@ bool ObjectPhysics::attachToObject(const std::shared_ptr<Object> &holder, grip_o
     }
     else if (_object.isAlive())
     {
-        chr_play_action(&_object, ACTION_MM + slot, false );
+        _object.inst.playAction(static_cast<ModelAction>(ACTION_MM + slot), false );
         
         /// @note ZF@> hmm, here is the torch holding bug. Removing
         /// the interpolation seems to fix it...

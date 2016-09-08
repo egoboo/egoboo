@@ -156,7 +156,7 @@ void Player::updateLatches()
                 Inventory::swap_item(object->getObjRef(), _inventorySlot, SLOT_LEFT, false);
 
                 // Make it take a little time
-                chr_play_action(object.get(), ACTION_MG, false);
+                object->inst.playAction(ACTION_MG, false);
                 object->reload_timer = Inventory::PACKDELAY;
             }
 
@@ -167,7 +167,7 @@ void Player::updateLatches()
                 Inventory::swap_item(object->getObjRef(), _inventorySlot, SLOT_RIGHT, false);
 
                 // Make it take a little time
-                chr_play_action(object.get(), ACTION_MG, false);
+                object->inst.playAction(ACTION_MG, false);
                 object->reload_timer = Inventory::PACKDELAY;
             }
         }

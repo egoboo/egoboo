@@ -1067,14 +1067,12 @@ Uint8 scr_DoAction( script_state_t& state, ai_state_t& self )
     /// anything better.  Fails if the action is invalid or if the character is doing
     /// something else already
 
-    int action;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    action = pchr->getProfile()->getModel()->getAction( state.argument );
+    ModelAction action = pchr->getProfile()->getModel()->getAction( state.argument );
 
     returncode = false;
-    if ( rv_success == chr_start_anim( pchr, action, false, false ) )
+    if ( rv_success == pchr->inst.animationState.startAnimation(action, false, false) )
     {
         returncode = true;
     }
@@ -1169,9 +1167,9 @@ Uint8 scr_TargetDoAction( script_state_t& state, ai_state_t& self )
 
         if ( pself_target->isAlive() )
         {
-            int action = pself_target->getProfile()->getModel()->getAction( state.argument );
+            ModelAction action = pself_target->getProfile()->getModel()->getAction( state.argument );
 
-            if ( rv_success == chr_start_anim( pself_target, action, false, false ) )
+            if ( rv_success == pself_target->inst.animationState.startAnimation(action, false, false) )
             {
                 returncode = true;
             }
@@ -1338,14 +1336,12 @@ Uint8 scr_DoActionOverride( script_state_t& state, ai_state_t& self )
     /// @details This function makes the character do a given action no matter what
     /// It will fail if the action is invalid
 
-    int action;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    action = pchr->getProfile()->getModel()->getAction(state.argument);
+    ModelAction action = pchr->getProfile()->getModel()->getAction(state.argument);
 
     returncode = false;
-    if ( rv_success == chr_start_anim( pchr, action, false, true ) )
+    if ( rv_success == pchr->inst.animationState.startAnimation(action, false, true) )
     {
         returncode = true;
     }
@@ -2448,7 +2444,7 @@ Uint8 scr_BecomeSpellbook( script_state_t& state, ai_state_t& self )
 
     // set the spellbook animations
     // Do dropped animation
-    if (rv_success == chr_start_anim(pchr, pchr->getProfile()->getModel()->getAction(ACTION_JB), false, true))
+    if (rv_success == pchr->inst.animationState.startAnimation(pchr->getProfile()->getModel()->getAction(ACTION_JB), false, true))
     {
         returncode = true;
     }
@@ -4466,9 +4462,9 @@ Uint8 scr_ChildDoActionOverride( script_state_t& state, ai_state_t& self )
     {
         Object * pchild = _currentModule->getObjectHandler().get( self.child );
 
-        int action = pchild->getProfile()->getModel()->getAction(state.argument);
+        ModelAction action = pchild->getProfile()->getModel()->getAction(state.argument);
 
-        if ( rv_success == chr_start_anim( pchild, action, false, true ) )
+        if ( rv_success == pchild->inst.animationState.startAnimation(action, false, true) )
         {
             returncode = true;
         }
@@ -5650,12 +5646,11 @@ Uint8 scr_TargetDoActionSetFrame( script_state_t& state, ai_state_t& self )
     returncode = false;
     if ( _currentModule->getObjectHandler().exists( self.getTarget() ) )
     {
-        int action;
         Object * pself_target = _currentModule->getObjectHandler().get( self.getTarget() );
 
-        action = pself_target->getProfile()->getModel()->getAction(state.argument );
+        ModelAction action = pself_target->getProfile()->getModel()->getAction(state.argument );
 
-        if ( rv_success == chr_start_anim( pself_target, action, false, true ) )
+        if ( rv_success == pself_target->inst.animationState.startAnimation(action, false, true) )
         {
             // remove the interpolation
             pself_target->inst.removeInterpolation();

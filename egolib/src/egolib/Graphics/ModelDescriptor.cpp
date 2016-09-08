@@ -228,13 +228,13 @@ BIT_FIELD ModelDescriptor::getMadFX(int action) const
     return retval;
 }
 
-int ModelDescriptor::randomizeAction(int action, int slot) const
+ModelAction ModelDescriptor::randomizeAction(ModelAction action, int slot) const
 {
     // a valid slot?
     if ( slot < 0 || slot >= SLOT_COUNT ) return action;
 
     // a valid action?
-    if ( action < 0 || action >= ACTION_COUNT ) return false;
+    if (action >= ACTION_COUNT) return action;
 
     const int diff = slot * 2;
 
@@ -254,27 +254,27 @@ int ModelDescriptor::randomizeAction(int action, int slot) const
         //---- do a couple of special actions that have left/right
         case ACTION_EA:
         case ACTION_EB:
-          action = ACTION_JB + slot;   // EA/EB = Evade left/right
+          action = static_cast<ModelAction>(ACTION_JB + slot);   // EA/EB = Evade left/right
         break;
         case ACTION_JB:
         case ACTION_JC:
-          action = ACTION_JB + slot;   // JB/JC = Dropped item left/right
+          action = static_cast<ModelAction>(ACTION_JB + slot);   // JB/JC = Dropped item left/right
         break;
         case ACTION_MA:
         case ACTION_MB:
-          action = ACTION_MA + slot;   // MA/MB = Drop left/right item
+          action = static_cast<ModelAction>(ACTION_MA + slot);   // MA/MB = Drop left/right item
         break;
         case ACTION_MC:
         case ACTION_MD:
-          action = ACTION_MC + slot;   // MC/MD = Slam left/right
+          action = static_cast<ModelAction>(ACTION_MC + slot);   // MC/MD = Slam left/right
         break;
         case ACTION_ME:
         case ACTION_MF:
-          action = ACTION_ME + slot;   // ME/MF = Grab item left/right
+          action = static_cast<ModelAction>(ACTION_ME + slot);   // ME/MF = Grab item left/right
         break;
         case ACTION_MM:
         case ACTION_MN:
-          action = ACTION_MM + slot;   // MM/MN = Held left/right
+          action = static_cast<ModelAction>(ACTION_MM + slot);   // MM/MN = Held left/right
         break;
 
         default:
@@ -283,35 +283,35 @@ int ModelDescriptor::randomizeAction(int action, int slot) const
 
     //---- actions that can be randomized, but are not left/right sensitive
     // D = dance (idle animation)
-    if ( ACTION_IS_TYPE( action, D ) )      action = ACTION_DA + Random::next(3);
+    if (action == ACTION_DA || action == ACTION_DB || action == ACTION_DC || action == ACTION_DD)      action = static_cast<ModelAction>(ACTION_DA + Random::next(3));
 
     //---- handle all the normal attack/defense animations
     // U = unarmed
-    else if ( ACTION_IS_TYPE( action, U ) ) action = ACTION_UA + diff + Random::next(1);
+    else if ( ACTION_IS_TYPE( action, U ) ) action = static_cast<ModelAction>(ACTION_UA + diff + Random::next(1));
     // T = thrust
-    else if ( ACTION_IS_TYPE( action, T ) ) action = ACTION_TA + diff + Random::next(1);
+    else if ( ACTION_IS_TYPE( action, T ) ) action = static_cast<ModelAction>(ACTION_TA + diff + Random::next(1));
     // C = chop
-    else if ( ACTION_IS_TYPE( action, C ) ) action = ACTION_CA + diff + Random::next(1);
+    else if ( ACTION_IS_TYPE( action, C ) ) action = static_cast<ModelAction>(ACTION_CA + diff + Random::next(1));
     // S = slice
-    else if ( ACTION_IS_TYPE( action, S ) ) action = ACTION_SA + diff + Random::next(1);
+    else if ( ACTION_IS_TYPE( action, S ) ) action = static_cast<ModelAction>(ACTION_SA + diff + Random::next(1));
     // B = bash
-    else if ( ACTION_IS_TYPE( action, B ) ) action = ACTION_BA + diff + Random::next(1);
+    else if ( ACTION_IS_TYPE( action, B ) ) action = static_cast<ModelAction>(ACTION_BA + diff + Random::next(1));
     // L = longbow
-    else if ( ACTION_IS_TYPE( action, L ) ) action = ACTION_LA + diff + Random::next(1);
+    else if ( ACTION_IS_TYPE( action, L ) ) action = static_cast<ModelAction>(ACTION_LA + diff + Random::next(1));
     // X = crossbow
-    else if ( ACTION_IS_TYPE( action, X ) ) action = ACTION_XA + diff + Random::next(1);
+    else if ( ACTION_IS_TYPE( action, X ) ) action = static_cast<ModelAction>(ACTION_XA + diff + Random::next(1));
     // F = fling
-    else if ( ACTION_IS_TYPE( action, F ) ) action = ACTION_FA + diff + Random::next(1);
+    else if ( ACTION_IS_TYPE( action, F ) ) action = static_cast<ModelAction>(ACTION_FA + diff + Random::next(1));
     // P = parry/block
-    else if ( ACTION_IS_TYPE( action, P ) ) action = ACTION_PA + diff + Random::next(1);
+    else if ( ACTION_IS_TYPE( action, P ) ) action = static_cast<ModelAction>(ACTION_PA + diff + Random::next(1));
     // Z = zap
-    else if ( ACTION_IS_TYPE( action, Z ) ) action = ACTION_ZA + diff + Random::next(1);
+    else if ( ACTION_IS_TYPE( action, Z ) ) action = static_cast<ModelAction>(ACTION_ZA + diff + Random::next(1));
 
     //---- these are passive actions
     // H = hurt
-    else if ( ACTION_IS_TYPE( action, H ) ) action = ACTION_HA + Random::next(3);
+    else if ( ACTION_IS_TYPE( action, H ) ) action = static_cast<ModelAction>(ACTION_HA + Random::next(3));
     // K = killed
-    else if ( ACTION_IS_TYPE( action, K ) ) action = ACTION_KA + Random::next(3);
+    else if ( ACTION_IS_TYPE( action, K ) ) action = static_cast<ModelAction>(ACTION_KA + Random::next(3));
 
     return action;    
 }

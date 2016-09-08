@@ -173,7 +173,7 @@ public:
     /// @details this function actually determines whether the action follows the
     ///               pattern of ACTION_?A, ACTION_?B, ACTION_?C, ACTION_?D, with
     ///               A and B being for the left hand, and C and D being for the right hand
-    int randomizeAction(int action, int slot) const;
+    ModelAction randomizeAction(ModelAction action, int slot=0) const;
 
     void makeEquallyLit();
 

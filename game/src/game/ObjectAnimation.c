@@ -4,83 +4,6 @@
 #include "game/game.h"
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-static egolib_rv chr_set_anim( Object * pchr, const ModelAction action, int frame, bool action_ready, bool override_action );
-
-//--------------------------------------------------------------------------------------------
-egolib_rv chr_start_anim( Object * pchr, int action, bool action_ready, bool override_action )
-{
-    egolib_rv retval;
-
-    //Skip invalid actions
-    if(action < 0 || action >= ACTION_COUNT) {
-        return rv_error;
-    }
-
-    //Skip invalid characters
-    if (!pchr || pchr->isTerminated()) return rv_error;
-
-    retval = ( egolib_rv )pchr->inst.animationState.startAnimation(static_cast<ModelAction>(action), action_ready, override_action );
-    if ( rv_success != retval ) return retval;
-
-    // if the instance is invalid, invalidate everything that depends on this object
-    if ( !pchr->inst.isVertexCacheValid() )
-    {
-        chr_invalidate_child_instances( pchr );
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-static egolib_rv chr_set_anim( Object * pchr, const ModelAction action, int frame, bool action_ready, bool override_action )
-{
-    egolib_rv retval;
-
-    if (!pchr || pchr->isTerminated()) return rv_error;
-
-    retval = pchr->inst.setAction(action, action_ready, override_action);
-    if ( rv_success != retval ) return retval;
-
-    if(!pchr->inst.animationState.setFrame(frame)) {
-        return rv_error;
-    }
-
-    // if the instance is invalid, invalidate everything that depends on this object
-    if ( !pchr->inst.isVertexCacheValid() )
-    {
-        chr_invalidate_child_instances( pchr );
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-egolib_rv chr_play_action( Object * pchr, int action, bool action_ready )
-{
-    if (!pchr || pchr->isTerminated()) {
-        return rv_error;
-    }
-
-    //Skip invalid actions
-    if(action < 0 || action >= ACTION_COUNT) {
-        return rv_error;
-    }
-
-    egolib_rv retval = (egolib_rv)pchr->inst.playAction(static_cast<ModelAction>(action), action_ready);
-    if (rv_success != retval) {
-        return retval;
-    }
-
-    // if the instance is invalid, invalidate everything that depends on this object
-    if (!pchr->inst.isVertexCacheValid()) {
-        chr_invalidate_child_instances(pchr);
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
 float set_character_animation_rate( const Object * ptr )
 {
     /// @author ZZ
@@ -227,8 +150,8 @@ float set_character_animation_rate( const Object * ptr )
 
                 // set the action to "bored", which is ACTION_DB, ACTION_DC, or ACTION_DD
                 int rand_val   = Random::next(std::numeric_limits<uint16_t>::max());
-                int tmp_action = pinst.animationState.getModelDescriptor()->getAction(ACTION_DB + ( rand_val % 3 ));
-                chr_start_anim( pchr.get(), tmp_action, true, true );
+                ModelAction tmp_action = pinst.animationState.getModelDescriptor()->getAction(ACTION_DB + ( rand_val % 3 ));
+                pchr->inst.animationState.startAnimation(tmp_action, true, true );
             }
         }
         else
@@ -240,7 +163,7 @@ float set_character_animation_rate( const Object * ptr )
                 ModelAction tmp_action = pinst.animationState.getModelDescriptor()->getAction(ACTION_DA);
 
                 // start the animation
-                chr_start_anim( pchr.get(), tmp_action, true, true );
+                pchr->inst.animationState.startAnimation(tmp_action, true, true );
             }
         }
     }
@@ -251,8 +174,9 @@ float set_character_animation_rate( const Object * ptr )
         {
             if ( pinst.actionState.action_which != tmp_action )
             {
-                chr_set_anim( pchr.get(), tmp_action, pmad->getFrameLipToWalkFrame(lip, pchr->inst.getNextFrame().framelip), true, true );
-                chr_start_anim(pchr.get(), tmp_action, true, true);
+                pinst.setAction(tmp_action, true, true);
+                pinst.animationState.setFrame(pmad->getFrameLipToWalkFrame(lip, pinst.getNextFrame().framelip));
+                pinst.animationState.startAnimation(tmp_action, true, true);
             }
 
             // "loop" the action

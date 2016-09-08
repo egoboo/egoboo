@@ -214,7 +214,7 @@ bool ObjectAnimationState::handleAnimationFX() const
 void ObjectAnimationState::incrementFrame()
 {
     // fix the ilip and flip
-    this->ilip = this->ilip % 4;
+    this->ilip %= 4;
     this->flip = fmod(this->flip, 1.0f);
 
     // Change frames
@@ -285,6 +285,11 @@ bool ObjectAnimationState::startAnimation(const ModelAction action, const bool a
 
     if(!setFrame(getModelDescriptor()->getFirstFrame(action))) {
         return false;
+    }
+
+    // if the instance is invalid, invalidate everything that depends on this object
+    if (!_object.inst.isVertexCacheValid()) {
+        chr_invalidate_child_instances(&_object);
     }
 
     return true;

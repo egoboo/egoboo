@@ -2248,7 +2248,6 @@ bool export_one_character_name_vfs( const char *szSaveName, ObjectRef character 
 
 bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
 {
-    int base_action, hand_action, action;
     bool action_valid, allowedtoattack;
 
     bool retval = false;
@@ -2273,11 +2272,11 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
     if ( 0 != pweapon->reload_timer ) return false;
 
     // grab the iweapon's action
-    base_action = weaponProfile->getWeaponAction();
-    hand_action = pchr->getProfile()->getModel()->randomizeAction( base_action, which_slot );
+    ModelAction base_action = static_cast<ModelAction>(weaponProfile->getWeaponAction());
+    ModelAction hand_action = pchr->getProfile()->getModel()->randomizeAction( base_action, which_slot );
 
     // see if the character can play this action
-    action       = pchr->getProfile()->getModel()->getAction(hand_action);
+    ModelAction action       = pchr->getProfile()->getModel()->getAction(hand_action);
     action_valid = ACTION_COUNT != action;
 
     // Can it do it?
@@ -2349,7 +2348,7 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
                 {
                     if ( !ACTION_IS_TYPE( action, P ) || !mountProfile->riderCanAttack() )
                     {
-                        chr_play_action( pmount.get(), Random::next((int)ACTION_UA, ACTION_UA + 1), false );
+                        pmount->inst.playAction(static_cast<ModelAction>(Random::next((int)ACTION_UA, ACTION_UA + 1)), false );
                         SET_BIT( pmount->ai.alert, ALERTIF_USED );
                         pchr->ai.lastitemused = pmount->getObjRef();
 
@@ -2392,18 +2391,18 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
                 if ( ACTION_IS_TYPE( action, P ) )
                 {
                     // we must set parry actions to be interrupted by anything
-                    chr_play_action( pchr, action, true );
+                    pchr->inst.playAction(action, true);
                 }
                 else
                 {
                     float agility = pchr->getAttribute(Ego::Attribute::AGILITY);
 
-                    chr_play_action( pchr, action, false );
+                    pchr->inst.playAction(action, false);
 
                     // Make the weapon animate the attack as well as the character holding it
                     if (iweapon != iobj)
                     {
-                        chr_play_action(pweapon, ACTION_MJ, false);
+                        pweapon->inst.playAction(ACTION_MJ, false);
                     }
 
                     //Crossbow Mastery increases XBow attack speed by 30%
