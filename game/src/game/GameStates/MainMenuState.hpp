@@ -48,5 +48,11 @@ protected:
     void drawContainer(Ego::GUI::DrawingContext& drawingContext) override;
 
 private:
+    Ego::Connection _onExit;
+    Ego::Connection _onOptions;
+    Ego::Connection _onNewGame;
+    Ego::Connection _onLoadGame;
+    Ego::Connection _onDebug;
+    Ego::Connection _onMapEditor;
     std::forward_list<std::shared_ptr<Ego::GUI::Button>> _slidyButtons;
 };
