@@ -9,7 +9,7 @@ namespace Ego
 namespace Script
 {
 
-template <typename Traits = Ego::Script::Traits<char>>
+template <typename Traits = Traits<char>>
 struct AbstractReader
 {
 
@@ -25,13 +25,13 @@ public:
      * @brief
      *  The lexeme accumulation buffer.
      */
-    Ego::Script::Buffer _buffer;
+    Buffer _buffer;
 
     /**
      * @brief
      *  The text file or @a nullptr.
      */
-    std::shared_ptr<Ego::Script::TextInputFile<Traits>> _source;
+    std::shared_ptr<TextInputFile<Traits>> _source;
 
     /**
      * @brief
