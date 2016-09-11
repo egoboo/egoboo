@@ -25,6 +25,9 @@
 
 #include "egolib/Math/ColourSpace.hpp"
 
+/// If defined and @a 1, then colour components allow for setting the component values.
+#define EGO_MATH_COLOURCOMPONENTS_MUTABLE (1)
+
 namespace Ego {
 namespace Math {
     
@@ -142,6 +145,7 @@ public:
         return l;
     }
 
+#if defined(EGO_MATH_COLOURCOMPONENTS_MUTABLE) && 1 == EGO_MATH_COLOURCOMPONENTS_MUTABLE
     /**
      * @brief
      *  Set the value of the luminance component.
@@ -156,6 +160,7 @@ public:
         }
         this->l = l;
     }
+#endif
 
 };
 
@@ -267,6 +272,7 @@ public:
         return l;
     }
 
+#if defined(EGO_MATH_COLOURCOMPONENTS_MUTABLE) && 1 == EGO_MATH_COLOURCOMPONENTS_MUTABLE
     /**
      * @brief
      *  Set the value of the luminance component.
@@ -281,6 +287,7 @@ public:
         }
         this->l = l;
     }
+#endif
 
     /**
      * @brief
@@ -292,6 +299,7 @@ public:
         return a;
     }
 
+#if defined(EGO_MATH_COLOURCOMPONENTS_MUTABLE) && 1 == EGO_MATH_COLOURCOMPONENTS_MUTABLE
     /**
      * @brief
      *  Set the value of the alpha component.
@@ -306,7 +314,7 @@ public:
         }
         this->a = a;
     }
-
+#endif
 };
 
 template <typename _ColourSpaceType>
@@ -438,6 +446,7 @@ public:
         return r;
     }
 
+#if defined(EGO_MATH_COLOURCOMPONENTS_MUTABLE) && 1 == EGO_MATH_COLOURCOMPONENTS_MUTABLE
     /**
      * @brief
      *  Set the value of the red component.
@@ -452,6 +461,7 @@ public:
         }
         this->r = r;
     }
+#endif
 
     /**
      * @brief
@@ -463,6 +473,7 @@ public:
         return g;
     }
 
+#if defined(EGO_MATH_COLOURCOMPONENTS_MUTABLE) && 1 == EGO_MATH_COLOURCOMPONENTS_MUTABLE
     /**
      * @brief
      *  Set the value of the green component.
@@ -477,6 +488,7 @@ public:
         }
         this->g = g;
     }
+#endif
 
     /**
      * @brief
@@ -488,6 +500,7 @@ public:
         return b;
     }
 
+#if defined(EGO_MATH_COLOURCOMPONENTS_MUTABLE) && 1 == EGO_MATH_COLOURCOMPONENTS_MUTABLE
     /**
      * @brief
      *  Set the value of the blue component.
@@ -502,6 +515,7 @@ public:
         }
         this->b = b;
     }
+#endif
 };
 
 template <typename _ColourSpaceType>
@@ -668,6 +682,7 @@ public:
         return r;
     }
 
+#if defined(EGO_MATH_COLOURCOMPONENTS_MUTABLE) && 1 == EGO_MATH_COLOURCOMPONENTS_MUTABLE
     /**
      * @brief
      *  Set the value of the red component.
@@ -682,6 +697,7 @@ public:
         }
         this->r = r;
     }
+#endif
 
     /**
      * @brief
@@ -693,6 +709,7 @@ public:
         return g;
     }
 
+#if defined(EGO_MATH_COLOURCOMPONENTS_MUTABLE) && 1 == EGO_MATH_COLOURCOMPONENTS_MUTABLE
     /**
      * @brief
      *  Set the value of the green component.
@@ -707,6 +724,7 @@ public:
         }
         this->g = g;
     }
+#endif
 
     /**
      * @brief
@@ -718,6 +736,7 @@ public:
         return b;
     }
 
+#if defined(EGO_MATH_COLOURCOMPONENTS_MUTABLE) && 1 == EGO_MATH_COLOURCOMPONENTS_MUTABLE
     /**
      * @brief
      *  Set the value of the blue component.
@@ -732,6 +751,7 @@ public:
         }
         this->b = b;
     }
+#endif
 
     /**
      * @brief
@@ -743,6 +763,7 @@ public:
         return a;
     }
 
+#if defined(EGO_MATH_COLOURCOMPONENTS_MUTABLE) && 1 == EGO_MATH_COLOURCOMPONENTS_MUTABLE
     /**
      * @brief
      *  Set the value of the alpha component.
@@ -757,6 +778,7 @@ public:
         }
         this->a = a;
     }
+#endif
 
 };
 

@@ -1310,6 +1310,33 @@
     <ClInclude Include="src\egolib\Signal\Node.hpp">
       <Filter>Header Files\Signal</Filter>
     </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Convert.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Convert_LAf_LAf.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Convert_LAf_Lf.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Convert_Lf_LAf.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Convert_Lf_Lf.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Convert_RGBAf_RGBAf.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Convert_RGBAf_RGBf.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Convert_RGBf_RGBAf.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Convert_RGBf_RGBf.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\egolib\platform\NSFileManager+DirectoryLocations.m">
