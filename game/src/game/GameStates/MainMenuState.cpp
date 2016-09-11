@@ -78,7 +78,7 @@ MainMenuState::MainMenuState() :
     auto exitButton = std::make_shared<Ego::GUI::Button>("Exit Game", SDLK_ESCAPE);
 	exitButton->setPosition(Point2f(20, yOffset));
 	exitButton->setSize(Vector2f(200, 30));
-	_onExit = exitButton->Clicked.subscribe(
+	_onExitButtonClicked = exitButton->Clicked.subscribe(
 	[]{
 		_gameEngine->shutdown();
 	});
@@ -90,7 +90,7 @@ MainMenuState::MainMenuState() :
 	auto optionsButton = std::make_shared<Ego::GUI::Button>("Options", SDLK_o);
 	optionsButton->setPosition(Point2f(20, yOffset));
 	optionsButton->setSize(Vector2f(200, 30));
-	_onOptions = optionsButton->Clicked.subscribe(
+	_onOptionsButtonClicked = optionsButton->Clicked.subscribe(
 	[]{
 		_gameEngine->pushGameState(std::make_shared<OptionsScreen>());
 	});
@@ -102,7 +102,7 @@ MainMenuState::MainMenuState() :
 	auto loadGameButton = std::make_shared<Ego::GUI::Button>("Load Game", SDLK_l);
 	loadGameButton->setPosition(Point2f(20, yOffset));
 	loadGameButton->setSize(Vector2f(200, 30));
-	_onLoadGame = loadGameButton->Clicked.subscribe(
+	_onLoadGameButtonClicked = loadGameButton->Clicked.subscribe(
 	[]{
 		_gameEngine->pushGameState(std::make_shared<SelectPlayersState>());
 	});
@@ -114,7 +114,7 @@ MainMenuState::MainMenuState() :
 	auto newGameButton = std::make_shared<Ego::GUI::Button>("New Game", SDLK_n);
 	newGameButton->setPosition(Point2f(20, yOffset));
 	newGameButton->setSize(Vector2f(200, 30));
-	_onNewGame = newGameButton->Clicked.subscribe(
+	_onNewGameButtonClicked = newGameButton->Clicked.subscribe(
 	[]{
 		_gameEngine->pushGameState(std::make_shared<SelectModuleState>());
 	});
@@ -128,7 +128,7 @@ MainMenuState::MainMenuState() :
         auto debugButton = std::make_shared<Ego::GUI::Button>("Debug", SDLK_UNKNOWN);
         debugButton->setPosition(Point2f(20, yOffset));
         debugButton->setSize(Vector2f(200, 30));
-        _onDebug = debugButton->Clicked.subscribe(
+        _onDebugButtonClicked = debugButton->Clicked.subscribe(
         []{
             _gameEngine->pushGameState(std::make_shared<DebugMainMenuState>());
         });
@@ -140,7 +140,7 @@ MainMenuState::MainMenuState() :
         auto mapEditorButton = std::make_shared<Ego::GUI::Button>("Map Editor", SDLK_m);
         mapEditorButton->setPosition(Point2f(20, yOffset));
         mapEditorButton->setSize(Vector2f(200, 30));
-        _onMapEditor = mapEditorButton->Clicked.subscribe(
+        _onMapEditorButtonClicked = mapEditorButton->Clicked.subscribe(
         []{
             _gameEngine->pushGameState(std::make_shared<Ego::GameStates::MapEditorSelectModuleState>());
         });
@@ -156,6 +156,14 @@ MainMenuState::MainMenuState() :
 	welcomeLabel->setPosition(Point2f(exitButton->getX() + exitButton->getWidth() + 40,
 		                      SCREEN_HEIGHT - SCREEN_HEIGHT/60 - welcomeLabel->getHeight()));
 	addComponent(welcomeLabel);
+}
+
+MainMenuState::~MainMenuState() {
+    _onOptionsButtonClicked.disconnect();
+    _onNewGameButtonClicked.disconnect();
+    _onLoadGameButtonClicked.disconnect();
+    _onDebugButtonClicked.disconnect();
+    _onMapEditorButtonClicked.disconnect();
 }
 
 void MainMenuState::update()

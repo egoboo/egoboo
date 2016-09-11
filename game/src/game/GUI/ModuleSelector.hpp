@@ -40,6 +40,7 @@ namespace GUI {
 class ModuleSelector : public Container {
 public:
     ModuleSelector(const std::vector<std::shared_ptr<ModuleProfile>> &modules);
+    ~ModuleSelector();
 
     void draw(DrawingContext& drawingContext) override {
         drawAll(drawingContext);
@@ -69,8 +70,14 @@ protected:
 private:
     size_t _startIndex;
     const std::vector<std::shared_ptr<ModuleProfile>> &_modules;
+    std::vector<Ego::Connection> _onModuleSelected;
+
+    Ego::Connection _onNextModuleButtonClicked;
     std::shared_ptr<Button> _nextModuleButton;
+    
+    Ego::Connection _onPreviousModuleButtonClicked;
     std::shared_ptr<Button> _previousModuleButton;
+
     std::shared_ptr<ModuleProfile> _selectedModule;
 };
 

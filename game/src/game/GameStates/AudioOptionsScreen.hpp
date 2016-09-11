@@ -29,6 +29,7 @@ class AudioOptionsScreen : public GameState
 {
 public:
     AudioOptionsScreen();
+    ~AudioOptionsScreen();
 
     void update() override;
 
@@ -38,5 +39,6 @@ public:
         drawAll(drawingContext);
     }
 protected:
+    std::vector<Ego::Connection> _connections;
     void drawContainer(Ego::GUI::DrawingContext& drawingContext) override;
 };
