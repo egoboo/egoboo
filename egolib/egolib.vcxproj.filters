@@ -531,6 +531,9 @@
     <ClCompile Include="src\egolib\InputControl\InputSystem.cpp">
       <Filter>Source Files\InputControl</Filter>
     </ClCompile>
+    <ClCompile Include="src\egolib\Signal\Connection.hpp">
+      <Filter>Header Files\Signal</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\egolib\vfs.h">
@@ -1300,6 +1303,12 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Configuration\StandardVariable.hpp">
       <Filter>Header Files\Configuration</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Signal\ScopedConnection.hpp">
+      <Filter>Header Files\Signal</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Signal\Node.hpp">
+      <Filter>Header Files\Signal</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

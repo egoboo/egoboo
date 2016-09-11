@@ -305,6 +305,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\Signal\Connection.hpp" />
     <ClCompile Include="src\egolib\InputControl\ControlSettingsFile.cpp" />
     <ClCompile Include="src\egolib\InputControl\InputDevice.cpp" />
     <ClCompile Include="src\egolib\InputControl\InputSystem.cpp" />
@@ -507,6 +508,8 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Signal\Node.hpp" />
+    <ClInclude Include="src\egolib\Signal\ScopedConnection.hpp" />
     <ClInclude Include="src\egolib\Configuration\NumericVariable.hpp" />
     <ClInclude Include="src\egolib\Configuration\StandardVariable.hpp" />
     <ClInclude Include="src\egolib\Configuration\Variable.hpp" />

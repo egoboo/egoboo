@@ -17,41 +17,35 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/Signal/NodeBase.cpp
-/// @brief Non-generic base class of all nodes.
+/// @file egolib/Signal/Connection.hpp
+/// @brief A connection.
 
+#pragma once
+
+#include "egolib/Signal/ConnectionBase.hpp"
 #include "egolib/Signal/NodeBase.hpp"
+#include "egolib/Signal/SignalBase.hpp"
 
 namespace Ego {
-namespace Internal {
 
-NodeBase::NodeBase(int numberOfReferences)
-    : state(State::Disconnected), signal(nullptr), numberOfReferences(numberOfReferences), next(nullptr)
-{}
-
-NodeBase::~NodeBase() {}
-
-bool NodeBase::hasSignal() const {
-    return nullptr != signal;
-}
-
-bool NodeBase::hasReferences() const {
-    return 0 < getNumberOfReferences();
-}
-
-int NodeBase::getNumberOfReferences() const {
-    return numberOfReferences;
-}
-
-void NodeBase::addReference() {
-    numberOfReferences++;
-}
-
-void NodeBase::removeReference() {
-    if (0 == --numberOfReferences) {
-        /* Nothing to do yet. */
+struct Connection : Ego::Internal::ConnectionBase {
+    Connection()
+        : Ego::Internal::ConnectionBase(nullptr) {}
+    Connection(Ego::Internal::NodeBase *node)
+        : Ego::Internal::ConnectionBase(node) {}
+    Connection(const Connection& other)
+        : Ego::Internal::ConnectionBase(other) {}
+    const Connection& operator=(const Connection& other) {
+        Ego::Internal::ConnectionBase::operator=(other);
+        return *this;
     }
-}
+    bool operator==(const Connection& other) const {
+        return ConnectionBase::operator==(other);
+    }
+    bool operator!=(const Connection& other) const {
+        return ConnectionBase::operator!=(other);
+    }
+}; // struct Connection
 
-} // namespace Internal
+
 } // namespace Ego

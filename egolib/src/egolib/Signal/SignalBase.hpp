@@ -38,8 +38,8 @@ struct SignalBase {
 protected:
     NodeBase *head;   ///< The head of the nodes.
     bool running;     ///< @a true if the signal is currently running, @a false otherwise.
-    size_t deadCount; ///< The number of dead nodes.
-    size_t liveCount; ///< The number of live nodes.
+    size_t connectedCount; ///< The number of connected nodes.
+    size_t disconnectedCount; ///< The number of disconnected nodes.
 
     /// Remove all dead subscriptions if the number of dead nodes exceeds the number of live nodes.
     /// @precondition The signal is not currently running.
@@ -58,13 +58,11 @@ public:
     SignalBase() noexcept;
 
     /// Virtual destructor.
-    /// Disconnects all subscribers.
+    /// Disconnects all nodes.
     virtual ~SignalBase() noexcept;
 
-    /// Disconnect from this signal.
-    /// @param connection the connection
-    /// @remark If the connection is not connected or not a connection to this signal, then this function returns immediatly
-    void unsubscribe(ConnectionBase& connection) noexcept;
+    /// Disconnect all nodes.
+    void disconnectAll() noexcept;
 
 private:
     /// Sweep the list of nodes.

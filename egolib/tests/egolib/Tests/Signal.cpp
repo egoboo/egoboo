@@ -22,29 +22,44 @@
 
 EgoTest_TestCase(Signal) {
 
+// Connection, invocation, and explicit disconnection.
 EgoTest_Test(signal0) {
     Ego::Signal<void(const std::string&)> signal;
     // (1) Invoke with no subscriber.
     signal("Hello, World!");
     // (2) Invoke with one subscriber.
     bool invoked = false;
-    auto function = [&invoked](const std::string& s) { if (s == "Hello, World!") { invoked = true; } };
-    auto subscription = signal.subscribe(function);
+    auto function = [&invoked](const std::string& s) { invoked = true; };
+    auto connection = signal.subscribe(function);
     signal("Hello, World!");
-    signal.unsubscribe(subscription);
+    connection.disconnect();
     EgoTest_Assert(true == invoked);
 }
 
+// Implicit disconnection (upon destruction of a signal).
 EgoTest_Test(signal1) {
     Ego::Connection connection;
     {
         Ego::Signal<void(const std::string&)> signal;
         bool invoked = false;
-        auto function = [&invoked](const std::string& s) { if (s == "Hello, World!") { invoked = true; } };
+        auto function = [&invoked](const std::string& s) { invoked = true; };
         connection = signal.subscribe(function);
         EgoTest_Assert(true == connection.isConnected());
     }
     EgoTest_Assert(false == connection.isConnected());
+}
+
+// Scoped disconnection (upon destruction of a scoped connection).
+EgoTest_Test(signal2) {
+    bool invoked = false;
+    Ego::Signal<void(const std::string&)> signal;
+    {
+        auto function = [&invoked](const std::string& s) { invoked = true; };
+        Ego::ScopedConnection scopedConnection(signal.subscribe(function));
+        EgoTest_Assert(true == scopedConnection.isConnected());
+    }
+    signal("Hello, World!");
+    EgoTest_Assert(false == invoked);
 }
 
 };

@@ -33,51 +33,71 @@ struct SignalBase;
 
 /// Non-generic base class of any node.
 struct NodeBase {
+    /// The state of the relation of a signal and a slot.
+    enum class State {
+        Connected,
+        Disconnected,
+    };
+
     /// A pointer to the signal.
     SignalBase *signal;
     /// A pointer to the successor of this node if it has a successor, a null pointer otherwise.
     NodeBase *next;
-#if 0
-    /// Is this node dead?
-    bool dead;
-#endif
+    /// The state of the relation of the signal and the slot.
+    State state;
 
     NodeBase(const NodeBase&) = delete; // Do not allow copying.
     const NodeBase& operator=(const NodeBase&) = delete; // Do not allow copying.
 
-    /// @brief Default constructor.
-    NodeBase();
+    /// @brief Construct this node.
+    /// @param numberOfReferences the initial number of references of this node
+    /// @post signal = nullptr, next = nullptr, state = State::Disconnected
+    NodeBase(int numberOfReferences);
 
     /// @brief Virtual destructor.
     virtual ~NodeBase();
 
-#if 0
-    /// @brief Kill this node.
-    /// @postcondition this node is dead
-    /// @return @a true if the node was killed by this call, @a false otherwise
-    bool kill() noexcept;
-#endif
-#if 0
-    /// @brief Get if this node is dead.
-    /// @return @a true if this node is dead, @a false otherwise
-    bool isDead() const noexcept;
-#endif
 public:
     /// @brief Get if this node has a signal.
     /// @return @a true if this node has a signal, @a false otherwise
     bool hasSignal() const;
-    /// @brief Get if this node has connections.
-    /// @return @a true if this node has connections, @a false otherwise
-    bool hasConnections() const;
-    /// @brief The number of connections to this node.
+
+public:
+    /// @brief Ensure that the state of this node is "disconnected".
+    /// @post !o.isConnected()
+    void disconnect() {
+        state = NodeBase::State::Disconnected;
+    }
+    /// @brief Get if the state of this node is "connected".
+    /// @return @a true if the state of this node is "connected", @a false otherwise
+    bool isConnected() const {
+        return NodeBase::State::Connected == state;
+    }
+    /// @brief Get if the state of this node is "disconnected".
+    /// @return @a true if the state of this node is "disconnected", @a false otherwise
+    bool isDisconnected() const {
+        return !isConnected();
+    }
+public:
+    int numberOfReferences;
+
+public:
+    /// @brief Get if this node has references.
+    /// @return @a true if this node has references, @a false otherwise
+    bool hasReferences() const;
+    
+    /// @brief The number of references to this node.
     int numberOfConnections;
-    /// @brief Get the number of connections of this node.
-    /// @return the number of connections of this node
-    int getNumberOfConnections() const;
-    /// @brief Invoked if a connection to this node was added.
-    void onConnectionAdded();
-    /// @brief Invoked if a connection to this node was removed.
-    void onConnectionRemoved();
+    
+    /// @brief Get the number of references of this node.
+    /// @return the number of references of this node
+    int getNumberOfReferences() const;
+
+    /// @brief Add a reference to this node.
+    void addReference();
+
+    /// @brief Remove a reference to this node.
+    void removeReference();
 };
 
 } // namespace Internal

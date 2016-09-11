@@ -22,8 +22,8 @@
 
 #pragma once
 
-#include "egolib/Signal/ConnectionBase.hpp"
-#include "egolib/Signal/NodeBase.hpp"
+#include "egolib/Signal/Connection.hpp"
+#include "egolib/Signal/Node.hpp"
 #include "egolib/Signal/SignalBase.hpp"
 
 /**
@@ -45,68 +45,9 @@ namespace Ego {
  * @{
  */
 
- /// The opaque type of a connection.
+// Forward declarations.
 struct Connection;
-
-/// A node.
-/// @todo Hide within Signal or within Internal namespace.
-template <class>
-struct Node;
-
-template <class>
-struct Signal;
-
-/// A node.
-/// @todo Hide within Signal or within Internal namespace.
-template <class ReturnType, class ... ParameterTypes>
-struct Node<ReturnType(ParameterTypes ...)> : Ego::Internal::NodeBase {
-public:
-    /// The node type.
-    using NodeType = Node<ReturnType(ParameterTypes ...)>;
-    /// The function type.
-    using FunctionType = std::function<ReturnType(ParameterTypes ...)>;
-
-public:
-    /// The function.
-    FunctionType function;
-
-public:
-    Node(const NodeType&) = delete; // Do not allow copying.
-    const NodeType& operator=(const NodeType&) = delete; // Do not allow copying.
-
-public:
-    /// Construct this node.
-    explicit Node(const FunctionType& function)
-        : Ego::Internal::NodeBase(), function(function) {}
-
-public:
-    /// Invoke this node
-    /// @param arguments (implied)
-    /// @return (implied)
-    /// @todo Is perfect forwarding required/desired?
-    ReturnType operator()(ParameterTypes&& ... arguments) {
-        function(std::forward<ParameterTypes>(arguments) ...);
-    }
-};
-
-struct Connection : Ego::Internal::ConnectionBase {
-    Connection()
-        : Ego::Internal::ConnectionBase(nullptr) {}
-    Connection(Ego::Internal::NodeBase *node)
-        : Ego::Internal::ConnectionBase(node) {}
-    Connection(const Connection& other)
-        : Ego::Internal::ConnectionBase(other) {}
-    const Connection& operator=(const Connection& other) {
-        Ego::Internal::ConnectionBase::operator=(other);
-        return *this;
-    }
-    bool operator==(const Connection& other) const {
-        return ConnectionBase::operator==(other);
-    }
-    bool operator!=(const Connection& other) const {
-        return ConnectionBase::operator!=(other);
-    }
-}; // struct Connection
+template <class> struct Signal;
 
 /// @tparam ReturnType the return type
 /// @tparam ... ParameterTypes the parameter types
@@ -115,7 +56,7 @@ template <class ReturnType, class ... ParameterTypes>
 struct Signal<ReturnType(ParameterTypes ...)> : Ego::Internal::SignalBase {
 public:
     /// The node type.
-    using NodeType = Node<ReturnType(ParameterTypes ...)>;
+    using NodeType = Ego::Internal::Node<ReturnType(ParameterTypes ...)>;
     /// The function type.
     using FunctionType = std::function<ReturnType(ParameterTypes ...)>;
 
@@ -134,12 +75,17 @@ public:
 public:
     /// Subscribe to this signal.
     /// @param function a non-empty function
-    /// @return the subscription
+    /// @return the connection
     Connection subscribe(const FunctionType& function) {
-        Ego::Internal::NodeBase *node = new NodeType(function);
+        // Create the node.
+        Ego::Internal::NodeBase *node = new NodeType(1, function);
+        // Configure and add the node.
+        node->state = Ego::Internal::NodeBase::State::Connected;
         node->next = head; head = node;
         node->signal = this;
-        liveCount++;
+        // Increment the connected count.
+        connectedCount++;
+        // Return the connection.
         return Connection(node);
     }
 
@@ -147,13 +93,14 @@ public:
 public:
     /// Notify all subscribers.
     /// @param arguments the arguments
-    /// @todo Is perfect forwarding required/desired?
+    /// @remark
+    /// Iterate over the nodes. If a node is connected, then it is invoked.
     void operator()(ParameterTypes&& ... arguments) {
         if (!running) { /// @todo Use ReentrantBarrier (not committed yet).
             running = true;
             try {
                 for (Ego::Internal::NodeBase *cur = head; nullptr != cur; cur = cur->next) {
-                    if (cur->hasConnections()) {
+                    if (cur->state == Ego::Internal::NodeBase::State::Connected) {
                         (*static_cast<NodeType *>(cur))(std::forward<ParameterTypes>(arguments) ...);
                     }
                 }

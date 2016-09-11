@@ -27,19 +27,26 @@
 namespace Ego {
 namespace Internal {
 
-SignalBase::SignalBase() noexcept : head(nullptr), deadCount(0), liveCount(0), running(false) {}
+SignalBase::SignalBase() noexcept : head(nullptr), disconnectedCount(0), connectedCount(0), running(false) {}
 
 void SignalBase::sweep() noexcept {
     NodeBase **predecessor = &head, *current = head;
     while (nullptr != current) {
-        // If there are no connections to this node it is the responsibility of the signal to deallocate the node:
-        if (0 == current->getNumberOfConnections()) {
+        // Remove disconnected nodes.
+        if (current->isDisconnected()) {
             // Unlink the node.
             NodeBase *node = current;
             *predecessor = current->next; // Let predecessor refer to the successor.
             current = current->next; // Continue at successor.
-            deadCount--; // Decrement the number of dead nodes.
-            delete node;
+            // Decrement the number of disconnected nodes.
+            disconnectedCount--;
+            // Remove the reference from this signal.
+            node->removeReference();
+            // If the number of references to the node is @a 0, then the signal was the sole owner of the node.
+            // The signal shall delete the node.
+            if (0 == node->getNumberOfReferences()) {
+                delete node;
+            }
         } else {
             predecessor = &current->next;
             current = current->next;
@@ -48,19 +55,16 @@ void SignalBase::sweep() noexcept {
 }
 
 SignalBase::~SignalBase() noexcept {
+    disconnectAll();
     sweep();
-    assert(0 == deadCount);
-    while (nullptr != head) {
-        NodeBase *node = head; head = head->next;
-        // Indicate that the node has no signal associated.
-        node->signal = nullptr;
-        node->next = nullptr;
-    }
-    liveCount = 0;
+    assert(0 == connectedCount);
+    assert(0 == disconnectedCount);
+    assert(nullptr == head);
+
 }
 
 bool SignalBase::needsSweep() const noexcept {
-    return deadCount > std::min(size_t(8), liveCount);
+    return disconnectedCount > std::min(size_t(8), connectedCount);
 }
 
 void SignalBase::maybeSweep() noexcept {
@@ -70,11 +74,15 @@ void SignalBase::maybeSweep() noexcept {
     }
 }
 
-void SignalBase::unsubscribe(ConnectionBase& connection) noexcept {
-    // Disconnect the connection.
-    connection.disconnect();
+void SignalBase::disconnectAll() noexcept {
+    for (auto node = head; nullptr != node; node = node->next) {
+        if (node->state != Ego::Internal::NodeBase::State::Disconnected) {
+            node->state = Ego::Internal::NodeBase::State::Disconnected;
+            disconnectedCount++;
+            connectedCount--;
+        }
+    }
 }
-
 
 } // namespace Internal
 } // namespace Ego
