@@ -2348,7 +2348,8 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
                 {
                     if ( !ACTION_IS_TYPE( action, P ) || !mountProfile->riderCanAttack() )
                     {
-                        pmount->inst.playAction(static_cast<ModelAction>(Random::next((int)ACTION_UA, ACTION_UA + 1)), false );
+                        const ModelAction action = pmount->getProfile()->getModel()->randomizeAction(ACTION_UA);
+                        pmount->inst.playAction(action, false );
                         SET_BIT( pmount->ai.alert, ALERTIF_USED );
                         pchr->ai.lastitemused = pmount->getObjRef();
 

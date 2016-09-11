@@ -1142,7 +1142,8 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
     else if ( inst.actionState.action_which < ACTION_KA || inst.actionState.action_which > ACTION_KD )
     {
         // play the "killed" animation...
-        inst.playAction(static_cast<ModelAction>(Random::next((int)ACTION_KA, ACTION_KA + 3)), false);
+        const ModelAction action = getProfile()->getModel()->randomizeAction(ACTION_KA);
+        inst.playAction(action, false);
         inst.setActionKeep(true);
     }
 
@@ -1224,7 +1225,8 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
     if (!isAlive())
     {
         // the object is dead. play the killed animation and make it freeze there
-        inst.playAction(static_cast<ModelAction>(Random::next((int)ACTION_KA, ACTION_KA + 3)), false);
+        const ModelAction action = getProfile()->getModel()->randomizeAction(ACTION_KA);
+        inst.playAction(action, false);
         inst.setActionKeep(true);
     }
     else
