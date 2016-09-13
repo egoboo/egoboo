@@ -263,11 +263,6 @@ bool LoadingState::loadGlobalHints()
 {
     // Open the file with all the tips
     ReadContext ctxt("mp_data/gametips.txt");
-    if (!ctxt.ensureOpen())
-    {
-		Log::get().warn("Unable to load the game tips and hints file `%s`\n", ctxt.getLoadName().c_str());
-        return false;
-    }
 
     // Load the data
     while (ctxt.skipToColon(true))
@@ -283,8 +278,6 @@ bool LoadingState::loadGlobalHints()
         _globalGameTips.push_back(buffer);
     }
 
-    ctxt.close();
-
     if(_globalGameTips.empty()) {
 		Log::get().warn( "Could not load the game tips and hints. (\"basicdat/gametips.txt\")\n" );
     }
@@ -299,10 +292,7 @@ bool LoadingState::loadLocalModuleHints()
     // Open all the tips
     snprintf(buffer, SDL_arraysize( buffer ), "mp_modules/%s/gamedat/gametips.txt", _loadModule->getFolderName().c_str());
     ReadContext ctxt(buffer);
-    if (!ctxt.ensureOpen())
-    {
-        return false;
-    }
+
     // Load the data
     while (ctxt.skipToColon(true))
     {

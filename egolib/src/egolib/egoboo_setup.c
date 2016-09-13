@@ -227,8 +227,8 @@ bool setup_begin()
     // Select the local "setup.txt".
     _config_filename = "setup.txt";
     // Parse the local "setup.txt".
-    ConfigFileParser parser;
-    _lpConfigSetup = parser.parse(_config_filename);
+    ConfigFileParser parser(_config_filename);
+    _lpConfigSetup = parser.parse();
     if (!_lpConfigSetup)
     {
 		Log::get().warn("unable to load setup file `%s`\n", _config_filename.c_str());

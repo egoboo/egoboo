@@ -53,20 +53,13 @@
  * @author
  *  Michael Heilmann
  */
-struct ReadContext : public AbstractReader<Traits<char>>
+struct ReadContext : public AbstractReader<Ego::Script::Traits<char>>
 {
 
-public:
+public:   
+    using Traits = Ego::Script::Traits<char>;
 
-    /**
-     * @brief
-     *  The load name of the file of this context.
-     */
-    std::string _loadName;
-    
-    using Traits = Traits<char>;
-
-    ReadContext(const std::string& loadName);
+    ReadContext(const std::string& fileName);
 
     ~ReadContext();
 
@@ -79,40 +72,6 @@ public:
      *  if a lexical error occurs
      */
     float toReal() const;
-
-    /**
-     * @brief
-     *  Get the load name of the file associated with this context.
-     * @return
-     *  the load name of the file associated with this context
-     */
-    const std::string& getLoadName() const;
-
-    /**
-     * @brief
-     *  Get if the context is open.
-     * @return
-     *  @a true if the context is open, @a false otherwise
-     */
-    bool isOpen() const;
-
-    /**
-     * @brief
-     *  Open this context.
-     * @return
-     *  @a true if the context is open, @a false otherwise
-     */
-    bool ensureOpen();
-
-    /**
-     * @brief
-     *  Close the context.
-     * @post
-     *  The context is closed.
-     * @remark
-     *  If the context is not open, a call to this method is noop.
-     */
-    void close();
 
     /**
      * @brief
@@ -132,7 +91,7 @@ public:
         auto it = enumDescriptor.find(name);
         if (it == enumDescriptor.end())
         {
-            throw LexicalErrorException(__FILE__,__LINE__,Location(_loadName, _lineNumber), "invalid enum");
+            throw LexicalErrorException(__FILE__,__LINE__,Location(getFileName(), getLineNumber()), "invalid enum");
         }
         return it->second;
     }
@@ -156,7 +115,7 @@ public:
         if (it == enumDescriptor.end())
         {
 			Log::get().warn("%s:%d: in file `%s`: `%s` is not an element of enum `%s`\n", __FILE__, __LINE__,
-                            _loadName.c_str(), name.c_str(), enumDescriptor.getName().c_str());
+                            getFileName().c_str(), name.c_str(), enumDescriptor.getName().c_str());
             return defaultValue;
         }
         return it->second;

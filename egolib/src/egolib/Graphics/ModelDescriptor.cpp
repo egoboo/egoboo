@@ -694,17 +694,21 @@ void ModelDescriptor::healActions(const std::string &filePath)
     actionCopyCorrect(ACTION_MM, ACTION_MN);
 
     // Copy entire actions to save frame space COPY.TXT
-    ReadContext ctxt(filePath);
-    if (ctxt.ensureOpen()) {
-        while (ctxt.skipToColon(true))
+    std::unique_ptr<ReadContext> ctxt = nullptr;
+    try {
+        ctxt = std::make_unique<ReadContext>(filePath);
+    } catch (...) {
+        return;
+    }
+        while (ctxt->skipToColon(true))
         {
             char szOne[16] = EMPTY_CSTR;
             char szTwo[16] = EMPTY_CSTR;
 
-            vfs_read_string_lit( ctxt, szOne, SDL_arraysize( szOne ) );
+            vfs_read_string_lit( *ctxt, szOne, SDL_arraysize( szOne ) );
             ModelAction actiona = ModelDescriptor::charToAction(szOne[0]);
 
-            vfs_read_string_lit( ctxt, szTwo, SDL_arraysize( szTwo ) );
+            vfs_read_string_lit( *ctxt, szTwo, SDL_arraysize( szTwo ) );
             ModelAction actionb = ModelDescriptor::charToAction(szTwo[0]);
 
             actionCopyCorrect(static_cast<ModelAction>(actiona + 0), static_cast<ModelAction>(actionb + 0));
@@ -712,7 +716,6 @@ void ModelDescriptor::healActions(const std::string &filePath)
             actionCopyCorrect(static_cast<ModelAction>(actiona + 2), static_cast<ModelAction>(actionb + 2));
             actionCopyCorrect(static_cast<ModelAction>(actiona + 3), static_cast<ModelAction>(actionb + 3));
         }
-    }
 }
 
 ModelAction ModelDescriptor::charToAction(char cTmp)

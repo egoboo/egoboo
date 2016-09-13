@@ -61,10 +61,6 @@ bool tile_dictionary_load_vfs( const char * filename, tile_dictionary_t * pdict,
 
     // Try to open a context.
     ReadContext ctxt(filename);
-    if (!ctxt.ensureOpen()) {
-		Log::get().error("unable to load tile definitions file `%s`\n", filename);
-        return false;
-    }
 
     fantype_count    = vfs_get_next_int(ctxt);
     fantype_offset   = 2 * std::pow( 2.0f, std::floor( std::log( fantype_count ) / std::log( 2.0f ) ) );

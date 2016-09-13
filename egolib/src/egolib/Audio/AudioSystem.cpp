@@ -322,11 +322,6 @@ void AudioSystem::loadAllMusic()
 
     // Open the playlist listing all music files
     ReadContext ctxt("mp_data/music/playlist.txt");
-    if (!ctxt.ensureOpen())
-    {
-		Log::get().warn("Unable to read playlist file `%s`\n", ctxt.getLoadName().c_str());
-        return;
-    }
 
     // Load all music data into memory
     while (ctxt.skipToColon(true))

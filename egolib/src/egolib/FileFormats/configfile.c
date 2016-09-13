@@ -72,7 +72,7 @@ bool ConfigFileParser::skipWhiteSpaces()
     return true;
 }
 
-bool ConfigFileParser::parseFile()
+bool ConfigFileParser::parseFile(shared_ptr<ConfigFile> target)
 {
     assert(is(Traits::startOfInput()));
     _currentQualifiedName = nullptr;
@@ -94,7 +94,7 @@ bool ConfigFileParser::parseFile()
             parseComment(comment);
             _commentLines.push_back(comment);
         }
-        else if (!parseEntry())
+        else if (!parseEntry(target))
         {
             return false;
         }
@@ -102,7 +102,7 @@ bool ConfigFileParser::parseFile()
     return true;
 }
 
-bool ConfigFileParser::parseEntry()
+bool ConfigFileParser::parseEntry(shared_ptr<ConfigFile> target)
 {
     if (!parseQualifiedName())
     {
@@ -114,7 +114,7 @@ bool ConfigFileParser::parseEntry()
     }
     if (!is(':'))
     {
-        fprintf(stderr, "%s: invalid key-value pair\n", _target->getFileName().c_str());
+        fprintf(stderr, "%s: invalid key-value pair\n", getFileName().c_str());
         return false;
     }
     next();
@@ -126,7 +126,7 @@ bool ConfigFileParser::parseEntry()
     {
         return false;
     }
-    _target->set(*_currentQualifiedName, *_currentValue);
+    target->set(*_currentQualifiedName, *_currentValue);
     // Throw current qualified name and current value away.
     _currentQualifiedName.reset(nullptr);
     _currentValue.reset(nullptr);
@@ -139,7 +139,7 @@ bool ConfigFileParser::parseComment(std::string& comment)
     next();
     if (!is('/'))
     {
-        fprintf(stderr, "%s: invalid comment\n", _target->getFileName().c_str());
+        fprintf(stderr, "%s: invalid comment\n", getFileName().c_str());
         return false;
     }
     next();
@@ -151,7 +151,7 @@ bool ConfigFileParser::parseComment(std::string& comment)
     skipNewLines();
     if (Traits::error() == current())
     {
-        fprintf(stderr, "%s: error while reading file\n", _target->getFileName().c_str());
+        fprintf(stderr, "%s: error while reading file\n", getFileName().c_str());
         return false;
     }
     comment = toString();
@@ -167,7 +167,7 @@ bool ConfigFileParser::parseName()
     }
     if (!isAlpha())
     {
-        fprintf(stderr, "%s: invalid name\n", _target->getFileName().c_str());
+        fprintf(stderr, "%s: invalid name\n", getFileName().c_str());
         return false;
     }
     do
@@ -209,7 +209,7 @@ bool ConfigFileParser::parseValue()
     }
     if (!is('"'))
     {
-        fprintf(stderr, "%s: invalid value\n", _target->getFileName().c_str());
+        fprintf(stderr, "%s: invalid value\n", getFileName().c_str());
         return false;
     }
     next();
@@ -217,38 +217,27 @@ bool ConfigFileParser::parseValue()
     return true;
 }
 
-ConfigFileParser::ConfigFileParser() :
-    AbstractReader(512), _currentQualifiedName(nullptr), _currentValue(nullptr)
+ConfigFileParser::ConfigFileParser(const std::string& fileName) :
+    AbstractReader(fileName, 512), _currentQualifiedName(nullptr), _currentValue(nullptr)
 {}
 
 ConfigFileParser::~ConfigFileParser()
 {}
 
-std::shared_ptr<ConfigFile> ConfigFileParser::parse(const std::string& fileName)
+std::shared_ptr<ConfigFile> ConfigFileParser::parse()
 {
-    _source = std::make_shared<Ego::Script::TextInputFile<Traits>>(fileName);
-    if (!_source)
-    {
-        return nullptr;
-    }
     assert(is(Traits::startOfInput()));
     try
     {
-        auto target = _target = std::make_shared<ConfigFile>(fileName);
-        if (!parseFile())
+        auto target = make_shared<ConfigFile>(getFileName());
+        if (!parseFile(target))
         {
-            _source = nullptr;
-            _target = nullptr;
             return nullptr;
         }
-        _source = nullptr;
-        _target = nullptr;
         return target;
     }
     catch (...)
     {
-        _source = nullptr;
-        _target = nullptr;
         return nullptr;
     }
 }

@@ -193,25 +193,28 @@ void GameModule::loadAllPassages()
     _passages.clear();
 
     // Load the file
-    ReadContext ctxt("mp_data/passage.txt");
-    if (!ctxt.ensureOpen()) return;
-
+    std::unique_ptr<ReadContext> ctxt = nullptr;
+    try {
+        ctxt = std::make_unique<ReadContext>("mp_data/passage.txt");
+    } catch (...) {
+        return;
+    }
     //Load all passages in file
-    while (ctxt.skipToColon(true))
+    while (ctxt->skipToColon(true))
     {
         //read passage area and constrain passage area within the level
-        int x0 = Ego::Math::constrain<int>(ctxt.readIntegerLiteral(), 0, _mesh->_info.getTileCountX() - 1);
-        int y0 = Ego::Math::constrain<int>(ctxt.readIntegerLiteral(), 0, _mesh->_info.getTileCountY() - 1);
-        int x1 = Ego::Math::constrain<int>(ctxt.readIntegerLiteral(), 0, _mesh->_info.getTileCountX() - 1);
-        int y1 = Ego::Math::constrain<int>(ctxt.readIntegerLiteral(), 0, _mesh->_info.getTileCountY() - 1);
+        int x0 = Ego::Math::constrain<int>(ctxt->readIntegerLiteral(), 0, _mesh->_info.getTileCountX() - 1);
+        int y0 = Ego::Math::constrain<int>(ctxt->readIntegerLiteral(), 0, _mesh->_info.getTileCountY() - 1);
+        int x1 = Ego::Math::constrain<int>(ctxt->readIntegerLiteral(), 0, _mesh->_info.getTileCountX() - 1);
+        int y1 = Ego::Math::constrain<int>(ctxt->readIntegerLiteral(), 0, _mesh->_info.getTileCountY() - 1);
 
         //Read if open by default
-        bool open = ctxt.readBool();
+        bool open = ctxt->readBool();
 
         //Read mask (optional)
         uint8_t mask = MAPFX_IMPASS | MAPFX_WALL;
-        if (ctxt.readBool()) mask = MAPFX_IMPASS;
-        if (ctxt.readBool()) mask = MAPFX_SLIPPY;
+        if (ctxt->readBool()) mask = MAPFX_IMPASS;
+        if (ctxt->readBool()) mask = MAPFX_SLIPPY;
 
         std::shared_ptr<Passage> passage = std::make_shared<Passage>(*this, x0, y0, x1, y1, mask);
 
@@ -831,26 +834,27 @@ void GameModule::updateDamageTiles()
 
 void GameModule::loadTeamAlliances()
 {
+    std::unique_ptr<ReadContext> ctxt = nullptr;
     // Load the file if it exists
-    ReadContext ctxt("mp_data/alliance.txt");
-    if (!ctxt.ensureOpen()) {
+    try {
+        ctxt = std::make_unique<ReadContext>("mp_data/alliance.txt");
+    } catch (...) {
         return;
     }
-
     //Found the file, parse the contents
-    while (ctxt.skipToColon(true))
+    while (ctxt->skipToColon(true))
     {
         char buffer[1024 + 1];
-        vfs_read_string_lit(ctxt, buffer, 1024);
+        vfs_read_string_lit(*ctxt, buffer, 1024);
         if (strlen(buffer) < 1) {
-            throw Id::SyntacticalErrorException(__FILE__, __LINE__, Id::Location(ctxt.getLoadName(), ctxt.getLineNumber()),
+            throw Id::SyntacticalErrorException(__FILE__, __LINE__, Id::Location(ctxt->getFileName(), ctxt->getLineNumber()),
                                                 "empty string literal");
         }
         TEAM_REF teama = (buffer[0] - 'A') % Team::TEAM_MAX;
 
-        vfs_read_string_lit(ctxt, buffer, 1024);
+        vfs_read_string_lit(*ctxt, buffer, 1024);
         if (strlen(buffer) < 1) {
-            throw Id::SyntacticalErrorException(__FILE__, __LINE__, Id::Location(ctxt.getLoadName(), ctxt.getLineNumber()),
+            throw Id::SyntacticalErrorException(__FILE__, __LINE__, Id::Location(ctxt->getFileName(), ctxt->getLineNumber()),
                                                 "empty string literal");
         }
         TEAM_REF teamb = (buffer[0] - 'A') % Team::TEAM_MAX;
@@ -902,15 +906,6 @@ void GameModule::spawnAllObjects()
 
     // Turn some back on
     ReadContext ctxt("mp_data/spawn.txt");
-    if (!ctxt.ensureOpen())
-    {
-        std::ostringstream os;
-        os << "unable to read spawn file `" << ctxt.getLoadName() << "`" << std::endl;
-        Log::get().error("%s", os.str().c_str());
-        throw std::runtime_error(os.str());
-    }
-
-    else
     {
         std::shared_ptr<Object> parent = nullptr;
 
@@ -929,14 +924,14 @@ void GameModule::spawnAllObjects()
             //Spit out a warning if they break the limit
             if ( objectsToSpawn.size() >= OBJECTS_MAX )
             {
-                Log::get().warn("Too many objects in file \"%s\"! Maximum number of objects is %d.\n", ctxt.getLoadName().c_str(), OBJECTS_MAX );
+                Log::get().warn("Too many objects in file \"%s\"! Maximum number of objects is %d.\n", ctxt.getFileName().c_str(), OBJECTS_MAX );
                 break;
             }
 
             // check to see if the slot is valid
             if ( entry.slot >= INVALID_PRO_REF )
             {
-                Log::get().warn("Invalid slot %d for \"%s\" in file \"%s\".\n", entry.slot, entry.spawn_comment, ctxt.getLoadName().c_str() );
+                Log::get().warn("Invalid slot %d for \"%s\" in file \"%s\".\n", entry.slot, entry.spawn_comment, ctxt.getFileName().c_str() );
                 continue;
             }
 
@@ -1017,7 +1012,7 @@ void GameModule::spawnAllObjects()
                     {
                         Log::get().warn("%s:%d:%s: the object \"%s\"(slot %d) in file \"%s\" does not exist on this machine\n", \
                                         __FILE__, __LINE__, __FUNCTION__, spawnInfo.spawn_comment, spawnInfo.slot, \
-                                        ctxt.getLoadName().c_str() );
+                                        ctxt.getFileName().c_str() );
                     }
                     continue;
                 }
@@ -1031,8 +1026,6 @@ void GameModule::spawnAllObjects()
                 parent = spawnedObject;
             }
         }
-
-        ctxt.close();
     }
 
     // Fix tilting trees problem

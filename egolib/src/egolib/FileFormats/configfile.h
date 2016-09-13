@@ -471,7 +471,6 @@ protected:
     unique_ptr<string> _currentValue;
 
     vector<string> _commentLines;
-    shared_ptr<ConfigFile> _target;
 
     /**
      * @brief
@@ -482,12 +481,12 @@ protected:
 
 public:
 
-    ConfigFileParser();
+    ConfigFileParser(const std::string& fileName);
 
     virtual ~ConfigFileParser();
 
 
-    shared_ptr<ConfigFile> parse(const string& fileName);
+    shared_ptr<ConfigFile> parse();
 
 protected:
 
@@ -497,7 +496,7 @@ protected:
      *  file -> entries*
      *  @endcode
      */
-    bool parseFile();
+    bool parseFile(shared_ptr<ConfigFile> target);
 
     /**
      * @remark
@@ -505,7 +504,7 @@ protected:
      *  entry -> sectionName keyValuePair*
      *  @endcode
      */
-    bool parseEntry();
+    bool parseEntry(shared_ptr<ConfigFile> target);
 
     /**
      * @remark
