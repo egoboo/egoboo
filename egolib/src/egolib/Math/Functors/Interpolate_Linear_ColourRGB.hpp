@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/Math/Functors/Interpolate_Linear_ColourRgb.hpp
+/// @file egolib/Math/Functors/Interpolate_Linear_ColourRGB.hpp
 /// @brief Linear interpolation for RGB colour types with real type components
 /// @author Michael Heilmann
 
@@ -25,7 +25,7 @@
 
 #include "egolib/Math/Functors/Interpolate.hpp"
 #include "egolib/Math/Functors/Interpolate_Linear_Real.hpp"
-#include "egolib/Math/ColourRgb.hpp"
+#include "egolib/Math/ColourRGB.hpp"
 
 namespace Ego {
 namespace Math {

@@ -17,13 +17,13 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Math/ColourRgba.hpp
+/// @file   egolib/Math/ColourRGBA.hpp
 /// @brief  Colours in RGBA colour spaces.
 /// @author Michael Heilmann
 
 #pragma once
 
-#include "egolib/Math/ColourRgb.hpp"
+#include "egolib/Math/ColourRGB.hpp"
 
 namespace Ego {
 namespace Math {

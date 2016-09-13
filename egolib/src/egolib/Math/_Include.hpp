@@ -2,10 +2,10 @@
 
 #define EGOLIB_MATH_PRIVATE 1
 
-#include "egolib/Math/ColourRgb.hpp"
-#include "egolib/Math/ColourRgba.hpp"
+#include "egolib/Math/ColourRGB.hpp"
+#include "egolib/Math/ColourRGBA.hpp"
 #include "egolib/Math/ColourL.hpp"
-#include "egolib/Math/ColourLa.hpp"
+#include "egolib/Math/ColourLA.hpp"
 
 //
 #include "egolib/Math/Angle.hpp"
@@ -35,8 +35,8 @@
 #include "egolib/Math/Functors/Interpolate_Linear_Point.hpp"
 #include "egolib/Math/Functors/Interpolate_Linear_Real.hpp"
 #include "egolib/Math/Functors/Interpolate_Linear_Vector.hpp"
-#include "egolib/Math/Functors/Interpolate_Linear_ColourRgb.hpp"
-#include "egolib/Math/Functors/Interpolate_Linear_ColourRgba.hpp"
+#include "egolib/Math/Functors/Interpolate_Linear_ColourRGB.hpp"
+#include "egolib/Math/Functors/Interpolate_Linear_ColourRGBA.hpp"
 
 //
 #include "egolib/Math/Functors/Contains_AxisAlignedBox_AxisAlignedBox.hpp"

@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Math/ColourRgb.hpp
+/// @file   egolib/Math/ColourRGB.hpp
 /// @brief  Colours in RGB colour spaces.
 /// @author Michael Heilmann
 

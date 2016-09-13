@@ -570,8 +570,8 @@
     <ClInclude Include="src\egolib\Math\Functors\Interpolate_Linear_Point.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\Interpolate_Linear_Real.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\Interpolate_Linear_Vector.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Interpolate_Linear_ColourRgb.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Interpolate_Linear_ColourRgba.hpp" />
+    <ClInclude Include="src\egolib\Math\Functors\Interpolate_Linear_ColourRGB.hpp" />
+    <ClInclude Include="src\egolib\Math\Functors\Interpolate_Linear_ColourRGBA.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\Translate.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\Translate_AxisAlignedBox.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\Translate_AxisAlignedCube.hpp" />
@@ -589,7 +589,7 @@
     <ClInclude Include="src\egolib\App.hpp" />
     <ClInclude Include="src\egolib\Graphics\GraphicsWindow.hpp" />
     <ClInclude Include="src\egolib\Math\Colour.hpp" />
-    <ClInclude Include="src\egolib\Math\ColourLa.hpp" />
+    <ClInclude Include="src\egolib\Math\ColourLA.hpp" />
     <ClInclude Include="src\egolib\Math\ColourComponents.hpp" />
     <ClInclude Include="src\egolib\TrigonometricTable.hpp" />
     <ClInclude Include="src\egolib\Math\Ray.hpp" />
@@ -743,8 +743,8 @@
     <ClInclude Include="src\egolib\Renderer\TextureFilter.hpp" />
     <ClInclude Include="src\egolib\Renderer\OpenGL\Renderer.hpp" />
     <ClInclude Include="src\egolib\Renderer\Renderer.hpp" />
-    <ClInclude Include="src\egolib\math\ColourRgb.hpp" />
-    <ClInclude Include="src\egolib\math\ColourRgba.hpp" />
+    <ClInclude Include="src\egolib\math\ColourRGB.hpp" />
+    <ClInclude Include="src\egolib\math\ColourRGBA.hpp" />
     <ClInclude Include="src\egolib\math\Vector.hpp" />
     <ClInclude Include="src\egolib\math\AxisAlignedCube.hpp" />
     <ClInclude Include="src\egolib\math\Sphere.hpp" />

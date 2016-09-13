@@ -25,7 +25,7 @@
 
 #include "egolib/Math/Functors/Convert.hpp"
 #include "egolib/Math/ColourL.hpp"
-#include "egolib/Math/ColourLa.hpp"
+#include "egolib/Math/ColourLA.hpp"
 
 namespace Ego {
 namespace Math {

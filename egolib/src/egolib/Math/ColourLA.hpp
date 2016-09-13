@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Math/ColourL.hpp
+/// @file   egolib/Math/ColourLA.hpp
 /// @brief  Colours in LA colour spaces.
 /// @author Michael Heilmann
 
