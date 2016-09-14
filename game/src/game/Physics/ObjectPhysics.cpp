@@ -348,7 +348,7 @@ float ObjectPhysics::getMaxSpeed() const
     if ( _object.inst.getFrameFX() & MADFX_STOP )
     {
         //Allow 50% movement while using Shield and have the Mobile Defence perk
-        if(_object.hasPerk(Ego::Perks::MOBILE_DEFENCE) && ACTION_IS_TYPE(_object.inst.actionState.action_which, P))
+        if(_object.hasPerk(Ego::Perks::MOBILE_DEFENCE) && ACTION_IS_TYPE(_object.inst.animationState.getCurrentAnimation(), P))
         {
             maxspeed *= 0.5f;
         }
@@ -896,7 +896,7 @@ bool ObjectPhysics::attachToObject(const std::shared_ptr<Object> &holder, grip_o
 
         // set the action to keep for items
         if (_object.isItem()) {
-            _object.inst.setActionKeep(true);
+            _object.inst.animationState.setActionKeep(true);
         }
     }
 

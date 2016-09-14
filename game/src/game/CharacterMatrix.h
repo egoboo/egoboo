@@ -56,8 +56,7 @@ struct matrix_cache_t
         grip_verts.fill(0xFFFF);
     }
 
-    // is the cache data valid?
-    bool valid;
+    bool valid;    // is the cache data valid?
 
     // is the matrix data valid?
     bool matrix_valid;

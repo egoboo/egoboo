@@ -1090,7 +1090,7 @@ Uint8 scr_KeepAction( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->inst.setActionKeep(true);
+    pchr->inst.animationState.setActionKeep(true);
 
     SCRIPT_FUNCTION_END();
 }
@@ -1638,7 +1638,7 @@ Uint8 scr_UnkeepAction( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->inst.setActionKeep(false);
+    pchr->inst.animationState.setActionKeep(false);
 
     SCRIPT_FUNCTION_END();
 }
@@ -3397,7 +3397,7 @@ Uint8 scr_IfTargetIsDefending( script_state_t& state, ai_state_t& self )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = ACTION_IS_TYPE( pself_target->inst.actionState.action_which, P );
+    returncode = ACTION_IS_TYPE( pself_target->inst.animationState.getCurrentAnimation(), P );
 
     SCRIPT_FUNCTION_END();
 }
@@ -4338,10 +4338,10 @@ Uint8 scr_SetFrame( script_state_t& state, ai_state_t& self )
     const ModelAction action = pchr->getProfile()->getModel()->getAction(ACTION_DA);
 
     // set the action
-    if(pchr->inst.setAction(action, true, true)) {
+    if(pchr->inst.animationState.setAction(action, true, true)) {
         
         // the action is set. now set the frame info.
-        returncode = pchr->inst.setFrameFull(frame_along, ilip);
+        returncode = pchr->inst.animationState.setFrameFull(frame_along, ilip);
     }
     else {
         returncode = false;
@@ -5594,7 +5594,7 @@ Uint8 scr_IfTargetIsSneaking( script_state_t& state, ai_state_t& self )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = ( pself_target->inst.actionState.action_which == ACTION_DA || pself_target->inst.actionState.action_which == ACTION_WA );
+    returncode = ( pself_target->inst.animationState.getCurrentAnimation() == ACTION_DA || pself_target->inst.animationState.getCurrentAnimation() == ACTION_WA );
 
     SCRIPT_FUNCTION_END();
 }

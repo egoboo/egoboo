@@ -485,26 +485,6 @@ bool ObjectGraphics::updateGripVertices(const uint16_t vrt_lst[], const size_t v
     return updateVertices(vmin, vmax, true) == gfx_success;
 }
 
-gfx_rv ObjectGraphics::setAction(const ModelAction action, const bool action_ready, const bool override_action)
-{
-    // is the chosen action valid?
-	if (!animationState.getModelDescriptor()->isActionValid(action)) {
-		return gfx_fail;
-	}
-
-    // are we going to check action_ready?
-	if (!override_action && !actionState.action_ready) {
-		return gfx_fail;
-	}
-
-    // set up the action
-	actionState.action_which = action;
-	actionState.action_next = ACTION_DA;
-	actionState.action_ready = action_ready;
-
-    return gfx_success;
-}
-
 bool ObjectGraphics::playAction(const ModelAction action, const bool action_ready)
 {
     return animationState.startAnimation(animationState.getModelDescriptor()->getAction(action), action_ready, true);
@@ -608,59 +588,21 @@ void ObjectGraphics::setObjectProfile(const std::shared_ptr<ObjectProfile> &prof
     setModel(profile->getModel());
 
     // set the initial action, all actions override it
-    playAction(ACTION_DA, true);
+    animationState.setActionReady(false);
+    setActionLooped(false);
+    if (_object.isAlive()) {
+        playAction(ACTION_DA, false);
+        animationState.setActionKeep(false);
+    }
+    else {
+        playAction(profile->getModel()->randomizeAction(ACTION_KA), false);
+        animationState.setActionKeep(true);
+    }
 }
 
 BIT_FIELD ObjectGraphics::getFrameFX() const
 {
     return getNextFrame().framefx;
-}
-
-gfx_rv ObjectGraphics::setFrameFull(int frame_along, int ilip)
-{
-    // handle optional parameters
-	const std::shared_ptr<Ego::ModelDescriptor> &imad = this->animationState.getModelDescriptor();
-
-    // we have to have a valid action range
-	if (this->actionState.action_which > ACTION_COUNT) {
-		return gfx_fail;
-	}
-
-    // try to heal a bad action
-    this->actionState.action_which = imad->getAction(this->actionState.action_which);
-
-    // reject the action if it is cannot be made valid
-	if (this->actionState.action_which == ACTION_COUNT) {
-		return gfx_fail;
-	}
-
-    // get some frame info
-    int frame_stt   = imad->getFirstFrame(this->actionState.action_which);
-    int frame_end   = imad->getLastFrame(this->actionState.action_which);
-    int frame_count = 1 + ( frame_end - frame_stt );
-
-    // try to heal an out of range value
-    frame_along %= frame_count;
-
-    // get the next frames
-    int new_nxt = frame_stt + frame_along;
-    new_nxt = std::min(new_nxt, frame_end);
-
-    this->animationState.setTargetFrameIndex(new_nxt);
-    this->animationState.ilip      = ilip;
-    this->animationState.flip      = ilip * 0.25f;
-
-    // set the validity of the cache
-
-    return gfx_success;
-}
-
-void ObjectGraphics::setActionKeep(bool val) {
-	actionState.action_keep = val;
-}
-
-void ObjectGraphics::setActionReady(bool val) {
-    actionState.action_ready = val;
 }
 
 void ObjectGraphics::setActionLooped(bool val) {
@@ -858,9 +800,5 @@ void ObjectGraphics::setMatrix(const Matrix4f4f& matrix)
     _reflectionMatrix(2, 1) = -_reflectionMatrix(1, 2);
     _reflectionMatrix(2, 2) = -_reflectionMatrix(2, 2);
     _reflectionMatrix(2, 3) = 2.0f * _object.getFloorElevation() - _object.getPosZ();
-}
-
-bool matrix_cache_t::isValid() const {
-    return valid && matrix_valid;
 }
 

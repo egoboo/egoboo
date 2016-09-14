@@ -518,7 +518,7 @@ bool do_chr_prt_collision_deflect(chr_prt_collision_data_t& pdata)
         bool using_shield = false;
 
         // If the attack was blocked by a shield, then check if the block caused a knockback
-        if ( chr_is_invictus && ACTION_IS_TYPE(pdata.pchr->inst.actionState.action_which, P) )
+        if ( chr_is_invictus && ACTION_IS_TYPE(pdata.pchr->inst.animationState.getCurrentAnimation(), P) )
         {
             // Figure out if we are really using a shield or if it is just a invictus frame
             ObjectRef item = ObjectRef::Invalid;

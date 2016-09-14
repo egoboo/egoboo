@@ -36,6 +36,11 @@ static bool apply_one_weapon_matrix( Object * pweap, matrix_cache_t& mcache );
 static int convert_grip_to_local_points( Object * pholder, Uint16 grip_verts[], Vector4f   dst_point[] );
 static int convert_grip_to_global_points( const ObjectRef iholder, Uint16 grip_verts[], Vector4f   dst_point[] );
 
+
+bool matrix_cache_t::isValid() const {
+    return valid && matrix_valid;
+}
+
  bool matrix_cache_t::operator==(const matrix_cache_t &rhs) const {
 
     // handle problems with pointers

@@ -20,6 +20,3 @@ enum e_chr_movement_bits
     CHR_MOVEMENT_BITS_RUN   = 1 << CHR_MOVEMENT_RUN
 };
 
-
-float set_character_animation_rate( const Object * pchr );
-egolib_rv chr_invalidate_child_instances( const Object * pchr );

@@ -667,7 +667,7 @@ bool Object::heal(const std::shared_ptr<Object> &healer, const UFP8_T amount, co
 
 bool Object::isAttacking() const
 {
-    return inst.actionState.action_which >= ACTION_UA && inst.actionState.action_which <= ACTION_FD;
+    return inst.animationState.getCurrentAnimation() >= ACTION_UA && inst.animationState.getCurrentAnimation() <= ACTION_FD;
 }
 
 bool Object::teleport(const Vector3f& position, Facing facing_z)
@@ -901,7 +901,7 @@ void Object::update()
     }
 
     //Try to detect any hidden objects every so often (unless we are scenery object) 
-    if(!isScenery() && isAlive() && !isBeingHeld() && inst.actionState.action_which != ACTION_MK) {  //ACTION_MK = sleeping
+    if(!isScenery() && isAlive() && !isBeingHeld() && inst.animationState.getCurrentAnimation() != ACTION_MK) {  //ACTION_MK = sleeping
         if(update_wld > _observationTimer) 
         {
             _observationTimer = update_wld + ONESECOND;
@@ -1139,12 +1139,12 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
         // play the falling animation...
         inst.playAction(static_cast<ModelAction>(ACTION_JB + hand), false);
     }
-    else if ( inst.actionState.action_which < ACTION_KA || inst.actionState.action_which > ACTION_KD )
+    else if ( inst.animationState.getCurrentAnimation() < ACTION_KA || inst.animationState.getCurrentAnimation() > ACTION_KD )
     {
         // play the "killed" animation...
         const ModelAction action = getProfile()->getModel()->randomizeAction(ACTION_KA);
         inst.playAction(action, false);
-        inst.setActionKeep(true);
+        inst.animationState.setActionKeep(true);
     }
 
     // Set the positions
@@ -1227,13 +1227,13 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
         // the object is dead. play the killed animation and make it freeze there
         const ModelAction action = getProfile()->getModel()->randomizeAction(ACTION_KA);
         inst.playAction(action, false);
-        inst.setActionKeep(true);
+        inst.animationState.setActionKeep(true);
     }
     else
     {
         // play the jump animation, and un-keep it
         inst.playAction(ACTION_JA, true);
-        inst.setActionKeep(false);
+        inst.animationState.setActionKeep(false);
     }
 
     chr_update_matrix( this, true );
@@ -1432,7 +1432,7 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
     // Play the death animation
     ModelAction action = getProfile()->getModel()->randomizeAction(ACTION_KA);
     inst.playAction(action, false);
-    inst.setActionKeep(true);
+    inst.animationState.setActionKeep(true);
 
     // Give kill experience
     uint16_t experience = getProfile()->getExperienceValue() + (this->experience * getProfile()->getExperienceExchangeRate());
@@ -2406,20 +2406,6 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
     inst.setObjectProfile(getProfile());
     chr_update_matrix(this, true);
 
-    // Action stuff that must be down after ObjectGraphics::setObjectProfile()
-    inst.setActionReady(false);
-    inst.setActionKeep(false);
-    inst.setActionLooped(false);
-    if (isAlive())
-    {
-        inst.playAction(ACTION_DA, false);
-    }
-    else
-    {
-        inst.playAction(getProfile()->getModel()->randomizeAction(ACTION_KA), false);
-        inst.setActionKeep(true);
-    }
-
     // Set the skin after changing the model in ObjectGraphics::setProfile()
     setSkin(newSkin);
 
@@ -2465,9 +2451,9 @@ bool Object::isInvictusDirection(Facing direction) const
         right      = Facing(getProfile()->getInvictusFrameAngle());
 
         // If using shield, use the shield invictus instead
-        if (ACTION_IS_TYPE(inst.actionState.action_which, P))
+        if (ACTION_IS_TYPE(inst.animationState.getCurrentAnimation(), P))
         {
-            bool parry_left = ( inst.actionState.action_which < ACTION_PC );
+            bool parry_left = ( inst.animationState.getCurrentAnimation() < ACTION_PC );
 
             // Using a shield?
             if (parry_left && getLeftHandItem())
@@ -2559,7 +2545,7 @@ bool Object::activateStealth()
         }
 
         //Ignore objects that are doing the sleep animation
-        if(object->inst.actionState.action_which == ACTION_MK) {
+        if(object->inst.animationState.getCurrentAnimation() == ACTION_MK) {
             continue;
         }
 
@@ -3069,7 +3055,7 @@ void Object::updateLatchButtons()
                 }
 
                 // Set to jump animation if not doing anything better
-                if ( inst.actionState.action_ready )
+                if ( inst.animationState.canBeInterrupted() )
                 {
 
                     inst.playAction(ACTION_JA, true);
@@ -3081,18 +3067,18 @@ void Object::updateLatchButtons()
         }
 
     }
-    if ( _inputLatchesPressed[LATCHBUTTON_PACKLEFT] && inst.actionState.action_ready && 0 == reload_timer )
+    if ( _inputLatchesPressed[LATCHBUTTON_PACKLEFT] && inst.animationState.canBeInterrupted() && 0 == reload_timer )
     {
         reload_timer = Inventory::PACKDELAY;
         Inventory::swap_item( ichr, getInventory().getFirstFreeSlotNumber(), SLOT_LEFT, false );
     }
-    if ( _inputLatchesPressed[LATCHBUTTON_PACKRIGHT] && inst.actionState.action_ready && 0 == reload_timer )
+    if ( _inputLatchesPressed[LATCHBUTTON_PACKRIGHT] && inst.animationState.canBeInterrupted() && 0 == reload_timer )
     {
         reload_timer = Inventory::PACKDELAY;
         Inventory::swap_item( ichr, getInventory().getFirstFreeSlotNumber(), SLOT_RIGHT, false );
     }
 
-    if ( _inputLatchesPressed[LATCHBUTTON_ALTLEFT] && inst.actionState.action_ready && 0 == reload_timer )
+    if ( _inputLatchesPressed[LATCHBUTTON_ALTLEFT] && inst.animationState.canBeInterrupted() && 0 == reload_timer )
     {
         reload_timer = GRABDELAY;
         if ( !getLeftHandItem() )
@@ -3113,7 +3099,7 @@ void Object::updateLatchButtons()
         }
     }
 
-    if (_inputLatchesPressed[LATCHBUTTON_ALTRIGHT] && inst.actionState.action_ready && 0 == reload_timer)
+    if (_inputLatchesPressed[LATCHBUTTON_ALTRIGHT] && inst.animationState.canBeInterrupted() && 0 == reload_timer)
     {
         reload_timer = GRABDELAY;
         if ( !getRightHandItem() )

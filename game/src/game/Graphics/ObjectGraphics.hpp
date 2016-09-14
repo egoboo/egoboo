@@ -105,25 +105,18 @@ private:
 /// An action state.
 struct ActionState {
     // action info
-    /// Ready to play a new action.
-    bool action_ready;
-    /// The action playing.
-    int action_which;
-    /// Keep the action playing.
-    bool action_keep;
+
     /// Loop the action.
     bool action_loop;
     /// The action to play next.
     int action_next;
+
     /// Construct this action state.
-    ActionState()
-        : action_ready(true),         // argh! this must be set at the beginning, script's spawn animations do not work!
-        action_which(ACTION_DA),
-        action_keep(false),
+    ActionState() : 
         action_loop(false),
-        action_next(ACTION_DA) {}
-    /// Destruct this action state.
-    ~ActionState() {}
+        action_next(ACTION_DA) {
+        //ctor
+    }
 };
 
 /// All the data that the renderer needs to draw the character
@@ -157,25 +150,11 @@ public:
 
     /**
     * @brief
-    *   Set to true if the current animation should freeze at its final frame
-    **/
-	void setActionKeep(bool val);
-
-    /**
-    * @brief
-    *   Set to true if the current animation can be interrupted by another animation
-    **/
-    void setActionReady(bool val);
-
-    /**
-    * @brief
     *   Set to true if the current animation action should be looped
     **/
 	void setActionLooped(bool val);
 
 	void setNextAction(const ModelAction val);
-
-	gfx_rv setAction(const ModelAction action, const bool action_ready, const bool override_action);
 
     /// @details determine the basic per-vertex lighting
 	void updateLighting();
@@ -212,8 +191,6 @@ public:
     gfx_rv updateVertices(int vmin, int vmax, bool force);
     
     void removeInterpolation();
-
-    gfx_rv setFrameFull(int frame_along, int ilip);
     
     void getTint(GLXvector4f tint, const bool reflection, const int type);
 

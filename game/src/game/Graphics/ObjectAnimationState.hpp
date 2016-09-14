@@ -75,6 +75,34 @@ public:
 
     bool setFrame(int frame);
 
+    /**
+    * @brief
+    *   Set to true if the current animation can be interrupted by another animation
+    **/
+    void setActionReady(bool val) {
+        _canBeInterrupted = val;
+    }
+
+    /**
+    * @brief
+    *   Set to true if the current animation should freeze at its final frame
+    **/
+    void setActionKeep(bool val) {
+        _freezeAtLastFrame = val;
+    }
+
+    /**
+    * @return
+    *   true if the current animation can be interrupted by starting another animation
+    **/
+    bool canBeInterrupted() const;
+
+    bool setAction(const ModelAction action, const bool action_ready, const bool override_action);
+
+    bool setFrameFull(int frame_along, int ilip);
+
+    ModelAction getCurrentAnimation() const;
+    
 private:
     void assertFrameIndex(int frameIndex) const;
 
@@ -91,6 +119,10 @@ private:
     /// @details This function starts the next action for a character
     bool incrementAction();
 
+    /// @details Get running, walking, sneaking, or dancing, from speed
+    ///          added automatic calculation of variable animation rates for movement animations
+    void updateAnimationRate();
+
 private:
     Object &_object;
 
@@ -102,6 +134,12 @@ private:
 
     /// The source frame index.
     uint16_t _sourceFrameIndex;
+
+    bool _canBeInterrupted;     //< Can this animation action be interrupted by another?
+    bool _freezeAtLastFrame;    //< Freeze animation on the last frame?
+
+    //The current animation which is playing
+    ModelAction _currentAnimation;
 };
 
 } //namespace Graphics

@@ -8,6 +8,16 @@ namespace Ego
 namespace Graphics
 {
 
+static void chr_invalidate_child_instances(Object &object)
+{
+    if(object.getLeftHandItem()) {
+        object.getLeftHandItem()->inst.matrix_cache.valid = false;
+    }
+    if(object.getRightHandItem()) {
+        object.getRightHandItem()->inst.matrix_cache.valid = false;
+    }
+}
+
 ObjectAnimationState::ObjectAnimationState(Object &object) : 
     _object(object),
     _modelDescriptor(nullptr),
@@ -15,7 +25,11 @@ ObjectAnimationState::ObjectAnimationState(Object &object) :
     _sourceFrameIndex(0),
     ilip(0),
     flip(0.0f),
-    rate(1.0f) 
+    rate(1.0f),
+
+    _canBeInterrupted(true),
+    _freezeAtLastFrame(false),
+    _currentAnimation(ACTION_DA)
 {
     //ctor
 }
@@ -138,7 +152,7 @@ void ObjectAnimationState::updateAnimation()
         }
     }
 
-    set_character_animation_rate(&_object);
+    updateAnimationRate();
 }
 
 float ObjectAnimationState::getRemainingFlip() const
@@ -222,15 +236,15 @@ void ObjectAnimationState::incrementFrame()
     int frame_nxt = getTargetFrameIndex() + 1;
 
     // detect the end of the animation and handle special end conditions
-    if (frame_nxt > getModelDescriptor()->getLastFrame(_object.inst.actionState.action_which))
+    if (frame_nxt > getModelDescriptor()->getLastFrame(_currentAnimation))
     {
-        if (_object.inst.actionState.action_keep)
+        if (_freezeAtLastFrame)
         {
             // Freeze that animation at the last frame
             frame_nxt = frame_lst;
 
             // Break a kept action at any time
-            _object.inst.actionState.action_ready = true;
+            _canBeInterrupted = true;
         }
         else if (_object.inst.actionState.action_loop)
         {
@@ -254,10 +268,10 @@ void ObjectAnimationState::incrementFrame()
             }
 
             // set the frame to the beginning of the action
-            frame_nxt = getModelDescriptor()->getFirstFrame(_object.inst.actionState.action_which);
+            frame_nxt = getModelDescriptor()->getFirstFrame(_currentAnimation);
 
             // Break a looped action at any time
-            _object.inst.actionState.action_ready = true;
+            _canBeInterrupted = true;
         }
         else
         {
@@ -274,14 +288,15 @@ void ObjectAnimationState::incrementFrame()
 
     // if the instance is invalid, invalidate everything that depends on this object
     if (!_object.inst.isVertexCacheValid()) {
-        chr_invalidate_child_instances(&_object);
+        chr_invalidate_child_instances(_object);
     }
 }
 
 bool ObjectAnimationState::startAnimation(const ModelAction action, const bool action_ready, const bool override_action)
 {
-    gfx_rv retval = _object.inst.setAction(action, action_ready, override_action);
-    if ( rv_success != retval ) return false;
+    if (!setAction(action, action_ready, override_action)) {
+        return false;
+    }
 
     if(!setFrame(getModelDescriptor()->getFirstFrame(action))) {
         return false;
@@ -289,7 +304,7 @@ bool ObjectAnimationState::startAnimation(const ModelAction action, const bool a
 
     // if the instance is invalid, invalidate everything that depends on this object
     if (!_object.inst.isVertexCacheValid()) {
-        chr_invalidate_child_instances(&_object);
+        chr_invalidate_child_instances(_object);
     }
 
     return true;
@@ -297,13 +312,8 @@ bool ObjectAnimationState::startAnimation(const ModelAction action, const bool a
 
 bool ObjectAnimationState::setFrame(int frame)
 {
-    if (_object.inst.actionState.action_which < 0 || _object.inst.actionState.action_which > ACTION_COUNT) {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, _object.inst.actionState.action_which, "invalid action range");
-        return false;
-    }
-
     // is the frame within the valid range for this action?
-    if(!getModelDescriptor()->isFrameValid(_object.inst.actionState.action_which, frame)) {
+    if(!getModelDescriptor()->isFrameValid(_currentAnimation, frame)) {
         return false;
     }
 
@@ -327,6 +337,248 @@ bool ObjectAnimationState::incrementAction()
     bool action_ready = action < ACTION_DD || ACTION_IS_TYPE(action, W);
 
     return startAnimation(action, action_ready, true);
+}
+
+void ObjectAnimationState::updateAnimationRate()
+{
+    ObjectGraphics& pinst = _object.inst;
+
+    // dont change the rate if it is an attack animation
+    if ( _object.isAttacking() ) {  
+        return;
+    }
+
+    // if the action is set to keep then do nothing
+    if (_freezeAtLastFrame) {
+        return;
+    }
+
+    // if the action cannot be changed on the at this time, there's nothing to do.
+    // keep the same animation rate
+    if ( !canBeInterrupted() )
+    {
+        if (0.0f == this->rate) { 
+            this->rate = 1.0f;
+        }
+        return;
+    }
+
+    // go back to a base animation rate, in case the next frame is not a
+    // "variable speed frame"
+    this->rate = 1.0f;
+
+    // if the character is mounted or sitting, base the rate off of the mounr
+    if ( _object.isBeingHeld() && (( ACTION_MI == _currentAnimation ) || ( ACTION_MH == _currentAnimation ) ) )
+    {
+        if(_object.getHolder()->isScenery()) {
+            //This is a special case to make animation while in the Pot (which is actually a "mount") look better
+            this->rate = 0.0f;
+        }
+        else {
+            // just copy the rate from the mount
+            this->rate = _object.getHolder()->inst.animationState.rate;
+        }
+
+        return;
+    }
+
+    // if the animation is not a walking-type animation, ignore the variable animation rates
+    // and the automatic determination of the walk animation
+    // "dance" is walking with zero speed
+    bool is_walk_type = (_currentAnimation < ACTION_DD) || ACTION_IS_TYPE( _currentAnimation, W );
+    if ( !is_walk_type ) {
+        return;
+    }
+
+    // for non-flying objects, you have to be touching the ground
+    if (!_object.getObjectPhysics().isTouchingGround() && !_object.isFlying()) {
+        return;
+    }
+
+    // set the character speed to zero
+    float speed = 0.0f;
+
+    // estimate our speed
+    if ( _object.isFlying() )
+    {
+        // for flying objects, the speed is the actual speed
+        speed = _object.vel.length();
+    }
+    else
+    {
+        // For non-flying objects, we use the intended speed.
+        speed = std::max(std::sqrt(_object.vel.x()*_object.vel.x() + _object.vel.y()*_object.vel.y()), _object.getObjectPhysics().getDesiredVelocity().length());
+        if (_object.getObjectPhysics().floorIsSlippy())
+        {
+            // The character is slipping as on ice.
+            // Make his little legs move based on his intended speed, for comic effect! :)
+            this->rate = 2.0f;
+            speed *= 2.0f;
+        }
+
+    }
+
+    //Make bigger Objects have slower animations
+    if ( _object.fat > 0.0f ) {
+        speed /= _object.fat;  
+    }
+
+    //Find out which animation to use depending on movement speed
+    ModelAction action = ACTION_DA;
+    int lip = 0;
+    if (speed <= 1.0f) {
+        action = ACTION_DA;     //Stand still
+    }
+    else {
+        if(_object.isStealthed() && getModelDescriptor()->isActionValid(ACTION_WA)) {
+            action = ACTION_WA; //Sneak animation
+            lip = LIPWA;
+        }
+        else {
+            if(speed <= 4.0f && getModelDescriptor()->isActionValid(ACTION_WB)) {
+                action = ACTION_WB; //Walk
+                lip = LIPWB;
+            }
+            else {
+                action = ACTION_WC; //Run
+                lip = LIPWC;
+            }
+
+        }
+    }
+
+    // for flying characters, you have to flap like crazy to stand still and
+    // do nothing to move quickly
+    if ( _object.isFlying() )
+    {
+        switch(action)
+        {
+            case ACTION_DA: action = ACTION_WC; break;
+            case ACTION_WA: action = ACTION_WB; break;
+            case ACTION_WB: action = ACTION_WA; break;
+            case ACTION_WC: action = ACTION_DA; break;
+            default: /*don't modify action*/    break;
+        }
+    }
+
+    if ( ACTION_DA == action )
+    {
+        // Do standstill
+
+        // handle boredom
+        _object.bore_timer--;
+        if ( _object.bore_timer < 0 )
+        {
+            _object.resetBoredTimer();
+
+            //Don't yell "im bored!" while stealthed!
+            if(!_object.isStealthed())
+            {
+                SET_BIT( _object.ai.alert, ALERTIF_BORED );
+
+                // set the action to "bored", which is ACTION_DB, ACTION_DC, or ACTION_DD
+                int rand_val   = Random::next(std::numeric_limits<uint16_t>::max());
+                ModelAction tmp_action = getModelDescriptor()->getAction(ACTION_DB + ( rand_val % 3 ));
+                _object.inst.animationState.startAnimation(tmp_action, true, true );
+            }
+        }
+        else
+        {
+            // if the current action is not ACTION_D* switch to ACTION_DA
+            if (_currentAnimation > ACTION_DD)
+            {
+                // get an appropriate version of the idle action
+                ModelAction tmp_action = getModelDescriptor()->getAction(ACTION_DA);
+
+                // start the animation
+                startAnimation(tmp_action, true, true );
+            }
+        }
+    }
+    else
+    {
+        ModelAction tmp_action = getModelDescriptor()->getAction(action);
+        if ( ACTION_COUNT != tmp_action )
+        {
+            if ( _currentAnimation != tmp_action )
+            {
+                setAction(tmp_action, true, true);
+                setFrame(getModelDescriptor()->getFrameLipToWalkFrame(lip, pinst.getNextFrame().framelip));
+                startAnimation(tmp_action, true, true);
+            }
+
+            // "loop" the action
+            pinst.setNextAction(tmp_action);
+        }
+    }
+
+    //Limit final animation speed
+    this->rate = Ego::Math::constrain(this->rate, 0.1f, 3.0f);
+}
+
+bool ObjectAnimationState::canBeInterrupted() const
+{
+    return _canBeInterrupted;    
+}
+
+bool ObjectAnimationState::setAction(const ModelAction action, const bool action_ready, const bool override_action)
+{
+    // is the chosen action valid?
+    if (!getModelDescriptor()->isActionValid(action)) {
+        return false;
+    }
+
+    // are we going to check action_ready?
+    if (!override_action && !_canBeInterrupted) {
+        return false;
+    }
+
+    // set up the action
+    _currentAnimation = action;
+    _object.inst.actionState.action_next = ACTION_DA;
+    _canBeInterrupted = action_ready;
+
+    return true;
+}
+
+bool ObjectAnimationState::setFrameFull(int frame_along, int ilip)
+{
+    // we have to have a valid action range
+    if (_currentAnimation > ACTION_COUNT) {
+        return false;
+    }
+
+    // try to heal a bad action
+    _currentAnimation = getModelDescriptor()->getAction(_currentAnimation);
+
+    // reject the action if it is cannot be made valid
+    if (_currentAnimation == ACTION_COUNT) {
+        return false;
+    }
+
+    // get some frame info
+    int frame_stt   = getModelDescriptor()->getFirstFrame(_currentAnimation);
+    int frame_end   = getModelDescriptor()->getLastFrame(_currentAnimation);
+    int frame_count = 1 + ( frame_end - frame_stt );
+
+    // try to heal an out of range value
+    frame_along %= frame_count;
+
+    // get the next frames
+    int new_nxt = frame_stt + frame_along;
+    new_nxt = std::min(new_nxt, frame_end);
+
+    setTargetFrameIndex(new_nxt);
+    this->ilip      = ilip;
+    this->flip      = ilip * 0.25f;
+
+    // set the validity of the cache
+    return true;
+}
+
+ModelAction ObjectAnimationState::getCurrentAnimation() const
+{
+    return _currentAnimation;
 }
 
 } //namespace Graphics
