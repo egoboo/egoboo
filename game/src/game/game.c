@@ -2413,12 +2413,11 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
                     }
 
                     //Determine the attack speed (how fast we play the animation)
-                    pchr->inst.animationState.rate  = 0.80f;                                 //base attack speed
-                    pchr->inst.animationState.rate += std::min(3.00f, agility * 0.02f);      //every Agility increases base attack speed by 2%
+                    pchr->inst.animationState.setAnimationSpeed(0.80f + agility * 0.02f);   //every Agility increases base attack speed by 2%
 
                     //If Quick Strike perk triggers then we have fastest possible attack (10% chance)
                     if(pchr->hasPerk(Ego::Perks::QUICK_STRIKE) && pweapon->getProfile()->isMeleeWeapon() && Random::getPercent() <= 10) {
-                        pchr->inst.animationState.rate = 3.00f;
+                        pchr->inst.animationState.setAnimationSpeed(3.0f);
                         BillboardSystem::get().makeBillboard(pchr->getObjRef(), "Quick Strike!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::blue(), 3, Billboard::Flags::All);
                     }
 

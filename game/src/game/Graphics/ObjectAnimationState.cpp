@@ -21,15 +21,17 @@ static void chr_invalidate_child_instances(Object &object)
 ObjectAnimationState::ObjectAnimationState(Object &object) : 
     _object(object),
     _modelDescriptor(nullptr),
+    _animationRate(1.0f),
+    _animationProgress(0.0f),
+    _animationProgressInteger(0),
     _targetFrameIndex(0),
     _sourceFrameIndex(0),
-    ilip(0),
-    flip(0.0f),
-    rate(1.0f),
 
     _canBeInterrupted(true),
     _freezeAtLastFrame(false),
-    _currentAnimation(ACTION_DA)
+    _loopAnimation(false),
+    _currentAnimation(ACTION_DA),
+    _nextAnimation(ACTION_DA)
 {
     //ctor
 }
@@ -44,9 +46,16 @@ void ObjectAnimationState::reset()
     _modelDescriptor = nullptr;
     _targetFrameIndex = 0;
     _sourceFrameIndex = 0;
-    ilip = 0;
-    flip = 0.0f;
-    rate = 1.0f;
+    _animationProgressInteger = 0;
+    _animationProgress = 0.0f;
+    _animationRate = 1.0f;
+
+    //Action specific variables
+    _canBeInterrupted = true;
+    _freezeAtLastFrame = false;
+    _loopAnimation = false;
+    _currentAnimation = ACTION_DA;
+    _nextAnimation = ACTION_DA;
 }
 
 const std::shared_ptr<Ego::ModelDescriptor>& ObjectAnimationState::getModelDescriptor() const {
@@ -89,9 +98,14 @@ void ObjectAnimationState::assertFrameIndex(int frameIndex) const {
     }
 }
 
+void ObjectAnimationState::setAnimationSpeed(const float rate)
+{
+    _animationRate = Ego::Math::constrain(rate, 0.1f, 3.0f);
+}
+
 void ObjectAnimationState::updateAnimation()
 {
-    float flip_diff  = 0.25f * this->rate;
+    float flip_diff  = 0.25f * _animationRate;
     float flip_next = getRemainingFlip();
 
     while ( flip_next > 0.0f && flip_diff >= flip_next )
@@ -99,24 +113,24 @@ void ObjectAnimationState::updateAnimation()
         flip_diff -= flip_next;
 
         //Update one linear interpolated frame
-        this->ilip += 1;
-        this->flip = 0.25f * this->ilip;
+        _animationProgressInteger += 1;
+        _animationProgress = 0.25f * _animationProgressInteger;
 
         // handle frame FX for the new frame
-        if ( 3 == this->ilip )
+        if ( 3 == _animationProgressInteger )
         {
             handleAnimationFX();
         }
 
-        if ( 4 == this->ilip )
+        if ( 4 == _animationProgressInteger )
         {
             incrementFrame();
         }
 
-        if ( this->ilip > 4 )
+        if ( _animationProgressInteger > 4 )
         {
             Log::get().warn( "chr_increment_frame() - invalid ilip\n" );
-            this->ilip = 0;
+            _animationProgressInteger = 0;
             break;
         }
 
@@ -125,29 +139,29 @@ void ObjectAnimationState::updateAnimation()
 
     if ( flip_diff > 0.0f )
     {
-        int ilip_old = this->ilip;
+        int ilip_old = _animationProgressInteger;
 
         // update the lips
-        this->flip += flip_diff;
-        this->ilip = ((int)std::floor(this->flip * 4)) % 4;
+        _animationProgress += flip_diff;
+        _animationProgressInteger = ((int)std::floor(_animationProgress * 4)) % 4;
 
-        if ( ilip_old != this->ilip )
+        if ( ilip_old != _animationProgressInteger )
         {
             // handle frame FX for the new frame
-            if ( 3 == this->ilip )
+            if ( 3 == _animationProgressInteger )
             {
                 handleAnimationFX();
             }
 
-            if ( 4 == this->ilip )
+            if ( 4 == _animationProgressInteger )
             {
                 incrementFrame();
             }
 
-            if ( this->ilip > 4 )
+            if ( _animationProgressInteger > 4 )
             {
                 Log::get().warn( "chr_increment_frame() - invalid ilip\n" );
-                this->ilip = 0;
+                _animationProgressInteger = 0;
             }
         }
     }
@@ -157,7 +171,7 @@ void ObjectAnimationState::updateAnimation()
 
 float ObjectAnimationState::getRemainingFlip() const
 {
-    return (this->ilip + 1) * 0.25f - this->flip;
+    return (_animationProgressInteger + 1) * 0.25f - _animationProgress;
 }
 
 bool ObjectAnimationState::handleAnimationFX() const
@@ -228,8 +242,8 @@ bool ObjectAnimationState::handleAnimationFX() const
 void ObjectAnimationState::incrementFrame()
 {
     // fix the ilip and flip
-    this->ilip %= 4;
-    this->flip = fmod(this->flip, 1.0f);
+    _animationProgressInteger %= 4;
+    _animationProgress = fmod(_animationProgress, 1.0f);
 
     // Change frames
     int frame_lst = getTargetFrameIndex();
@@ -246,7 +260,7 @@ void ObjectAnimationState::incrementFrame()
             // Break a kept action at any time
             _canBeInterrupted = true;
         }
-        else if (_object.inst.actionState.action_loop)
+        else if (_loopAnimation)
         {
             // Convert the action into a riding action if the character is mounted
             if (_object.isBeingHeld())
@@ -318,10 +332,10 @@ bool ObjectAnimationState::setFrame(int frame)
     }
 
     // jump to the next frame
-    this->flip = 0.0f;
-    this->ilip = 0;
-    this->setSourceFrameIndex(getTargetFrameIndex());
-    this->setTargetFrameIndex(frame);
+    _animationProgress = 0.0f;
+    _animationProgressInteger = 0;
+    setSourceFrameIndex(getTargetFrameIndex());
+    setTargetFrameIndex(frame);
 
     return true;
 }
@@ -329,7 +343,7 @@ bool ObjectAnimationState::setFrame(int frame)
 bool ObjectAnimationState::incrementAction()
 {
     // get the correct action
-    ModelAction action = getModelDescriptor()->getAction(_object.inst.actionState.action_next);
+    ModelAction action = getModelDescriptor()->getAction(_nextAnimation);
 
     // determine if the action is one of the types that can be broken at any time
     // D == "dance" and "W" == walk
@@ -357,26 +371,26 @@ void ObjectAnimationState::updateAnimationRate()
     // keep the same animation rate
     if ( !canBeInterrupted() )
     {
-        if (0.0f == this->rate) { 
-            this->rate = 1.0f;
+        if (0.0f == _animationRate) { 
+            _animationRate = 1.0f;
         }
         return;
     }
 
     // go back to a base animation rate, in case the next frame is not a
     // "variable speed frame"
-    this->rate = 1.0f;
+    _animationRate = 1.0f;
 
     // if the character is mounted or sitting, base the rate off of the mounr
     if ( _object.isBeingHeld() && (( ACTION_MI == _currentAnimation ) || ( ACTION_MH == _currentAnimation ) ) )
     {
         if(_object.getHolder()->isScenery()) {
             //This is a special case to make animation while in the Pot (which is actually a "mount") look better
-            this->rate = 0.0f;
+            _animationRate = 0.0f;
         }
         else {
             // just copy the rate from the mount
-            this->rate = _object.getHolder()->inst.animationState.rate;
+            _animationRate = _object.getHolder()->inst.animationState._animationRate;
         }
 
         return;
@@ -412,7 +426,7 @@ void ObjectAnimationState::updateAnimationRate()
         {
             // The character is slipping as on ice.
             // Make his little legs move based on his intended speed, for comic effect! :)
-            this->rate = 2.0f;
+            _animationRate = 2.0f;
             speed *= 2.0f;
         }
 
@@ -508,12 +522,12 @@ void ObjectAnimationState::updateAnimationRate()
             }
 
             // "loop" the action
-            pinst.setNextAction(tmp_action);
+            _nextAnimation = tmp_action;
         }
     }
 
     //Limit final animation speed
-    this->rate = Ego::Math::constrain(this->rate, 0.1f, 3.0f);
+    setAnimationSpeed(_animationRate);
 }
 
 bool ObjectAnimationState::canBeInterrupted() const
@@ -535,7 +549,7 @@ bool ObjectAnimationState::setAction(const ModelAction action, const bool action
 
     // set up the action
     _currentAnimation = action;
-    _object.inst.actionState.action_next = ACTION_DA;
+    _nextAnimation = ACTION_DA;
     _canBeInterrupted = action_ready;
 
     return true;
@@ -569,8 +583,8 @@ bool ObjectAnimationState::setFrameFull(int frame_along, int ilip)
     new_nxt = std::min(new_nxt, frame_end);
 
     setTargetFrameIndex(new_nxt);
-    this->ilip      = ilip;
-    this->flip      = ilip * 0.25f;
+    _animationProgressInteger = ilip;
+    _animationProgress = _animationProgressInteger * 0.25f;
 
     // set the validity of the cache
     return true;
@@ -579,6 +593,31 @@ bool ObjectAnimationState::setFrameFull(int frame_along, int ilip)
 ModelAction ObjectAnimationState::getCurrentAnimation() const
 {
     return _currentAnimation;
+}
+
+void ObjectAnimationState::removeInterpolation()
+{
+    if (getSourceFrameIndex() != getTargetFrameIndex() ) {
+        setSourceFrameIndex(getTargetFrameIndex());
+        _animationProgressInteger = 0;
+        _animationProgress = 0.0f;
+    }
+}
+
+oct_bb_t ObjectAnimationState::getBoundingBox() const
+{
+    //Beginning of a frame animation
+    if (getTargetFrameIndex() == getSourceFrameIndex() || _animationProgress == 0.0f) {
+        return _object.inst.getLastFrame().bb;
+    } 
+
+    //Finished frame animation
+    if (_animationProgress == 1.0f) {
+        return _object.inst.getNextFrame().bb;
+    } 
+
+    //We are middle between two animation frames
+    return oct_bb_t::interpolate(_object.inst.getLastFrame().bb, _object.inst.getNextFrame().bb, _animationProgress);
 }
 
 } //namespace Graphics

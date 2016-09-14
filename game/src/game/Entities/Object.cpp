@@ -1198,7 +1198,7 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
     vel[kZ] = DROPZVEL;
 
     // Turn looping off
-    inst.setActionLooped(false);
+    inst.animationState.setActionLooped(false);
 
     // Reset the team if it is a mount
     if ( pholder->isMount() )

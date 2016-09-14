@@ -19,7 +19,6 @@ ObjectGraphics::ObjectGraphics(Object &object) :
     voffset(0),
 
     animationState(object),
-    actionState(),
 
     _object(object),
     _vertexList(),
@@ -111,22 +110,6 @@ int ObjectGraphics::getAmbientColour() const
     return _ambientColour;
 }
 
-oct_bb_t ObjectGraphics::getBoundingBox() const
-{
-    //Beginning of a frame animation
-    if (this->animationState.getTargetFrameIndex() == this->animationState.getSourceFrameIndex() || this->animationState.flip == 0.0f) {
-        return getLastFrame().bb;
-    } 
-
-    //Finished frame animation
-    if (this->animationState.flip == 1.0f) {
-        return getNextFrame().bb;
-    } 
-
-    //We are middle between two animation frames
-    return oct_bb_t::interpolate(getLastFrame().bb, getNextFrame().bb, this->animationState.flip);
-}
-
 gfx_rv ObjectGraphics::needs_update(int vmin, int vmax, bool *verts_match, bool *frames_match)
 {
 	bool local_verts_match, local_frames_match;
@@ -164,7 +147,7 @@ gfx_rv ObjectGraphics::needs_update(int vmin, int vmax, bool *verts_match, bool 
     // test to see if we have already calculated this data
     *verts_match = (vmin >= _vertexCache.vmin) && (vmax <= _vertexCache.vmax);
 
-	bool flips_match = (std::abs(_vertexCache.flip - this->animationState.flip) < FLIP_TOLERANCE);
+	bool flips_match = (std::abs(_vertexCache.flip - this->animationState.getFlip()) < FLIP_TOLERANCE);
 
     *frames_match = (this->animationState.getTargetFrameIndex() == this->animationState.getSourceFrameIndex() && _vertexCache.frame_nxt == this->animationState.getTargetFrameIndex() && _vertexCache.frame_lst == this->animationState.getSourceFrameIndex() ) ||
                     (flips_match && _vertexCache.frame_nxt == this->animationState.getTargetFrameIndex() && _vertexCache.frame_lst == this->animationState.getSourceFrameIndex());
@@ -334,7 +317,7 @@ gfx_rv ObjectGraphics::updateVertices(int vmin, int vmax, bool force)
     const MD2_Frame &lastFrame = frameList[this->animationState.getSourceFrameIndex()];
 
     // fix the flip for objects that are not animating
-    loc_flip = this->animationState.flip;
+    loc_flip = this->animationState.getFlip();
     if ( this->animationState.getTargetFrameIndex() == this->animationState.getSourceFrameIndex() ) {
         loc_flip = 0.0f;
     }
@@ -438,7 +421,7 @@ gfx_rv ObjectGraphics::updateVertexCache(int vmax, int vmin, bool force, bool ve
 
     _vertexCache.frame_nxt = this->animationState.getTargetFrameIndex();
     _vertexCache.frame_lst = this->animationState.getSourceFrameIndex();
-    _vertexCache.flip      = this->animationState.flip;
+    _vertexCache.flip      = this->animationState.getFlip();
 
     // store the last time there was an update to the animation
     bool frames_updated = false;
@@ -573,7 +556,6 @@ void ObjectGraphics::setObjectProfile(const std::shared_ptr<ObjectProfile> &prof
     uoffset = 0;
     voffset = 0;
     animationState.reset();
-    actionState = ActionState();
     _ambientColour = 0;
     _maxLight = -0xFF;
     _vertexList.clear();
@@ -589,7 +571,7 @@ void ObjectGraphics::setObjectProfile(const std::shared_ptr<ObjectProfile> &prof
 
     // set the initial action, all actions override it
     animationState.setActionReady(false);
-    setActionLooped(false);
+    animationState.setActionLooped(false);
     if (_object.isAlive()) {
         playAction(ACTION_DA, false);
         animationState.setActionKeep(false);
@@ -603,25 +585,6 @@ void ObjectGraphics::setObjectProfile(const std::shared_ptr<ObjectProfile> &prof
 BIT_FIELD ObjectGraphics::getFrameFX() const
 {
     return getNextFrame().framefx;
-}
-
-void ObjectGraphics::setActionLooped(bool val) {
-    actionState.action_loop = val;
-}
-
-void ObjectGraphics::setNextAction(const ModelAction val) {
-    actionState.action_next = val;
-}
-
-void ObjectGraphics::removeInterpolation()
-{
-    if (this->animationState.getSourceFrameIndex() != this->animationState.getTargetFrameIndex() ) {
-		this->animationState.setSourceFrameIndex(this->animationState.getTargetFrameIndex());
-		this->animationState.ilip = 0;
-		this->animationState.flip = 0.0f;
-
-
-    }
 }
 
 const MD2_Frame& ObjectGraphics::getNextFrame() const
@@ -724,7 +687,7 @@ bool VertexListCache::isValid() const
         return false;
     }
 
-    if ((_instance.animationState.getSourceFrameIndex() != frame_lst) && std::abs(_instance.animationState.flip - flip) > FLIP_TOLERANCE) {
+    if ((_instance.animationState.getSourceFrameIndex() != frame_lst) && std::abs(_instance.animationState.getFlip() - flip) > FLIP_TOLERANCE) {
         return false;
     }
 
@@ -801,4 +764,3 @@ void ObjectGraphics::setMatrix(const Matrix4f4f& matrix)
     _reflectionMatrix(2, 2) = -_reflectionMatrix(2, 2);
     _reflectionMatrix(2, 3) = 2.0f * _object.getFloorElevation() - _object.getPosZ();
 }
-

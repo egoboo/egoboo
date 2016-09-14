@@ -883,7 +883,7 @@ bool ObjectPhysics::attachToObject(const std::shared_ptr<Object> &holder, grip_o
         }
 
         // set this action to loop
-        _object.inst.setActionLooped(true);
+        _object.inst.animationState.setActionLooped(true);
     }
     else if (_object.isAlive())
     {
@@ -954,7 +954,7 @@ void ObjectPhysics::updateCollisionSize(bool update_matrix)
 
     // convert the point cloud in the GLvertex array (_object.inst._vertexList) to
     // a level 1 bounding box. Subtract off the position of the character
-    oct_bb_t bsrc = _object.inst.getBoundingBox();
+    oct_bb_t bsrc = _object.inst.animationState.getBoundingBox();
 
     Vector4f  src[16];  // for the upper and lower octagon points
     Vector4f  dst[16];  // for the upper and lower octagon points

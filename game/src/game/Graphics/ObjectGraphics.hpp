@@ -99,24 +99,6 @@ struct VertexListCache
 
 private:
     const ObjectGraphics &_instance;
-
-};
-
-/// An action state.
-struct ActionState {
-    // action info
-
-    /// Loop the action.
-    bool action_loop;
-    /// The action to play next.
-    int action_next;
-
-    /// Construct this action state.
-    ActionState() : 
-        action_loop(false),
-        action_next(ACTION_DA) {
-        //ctor
-    }
 };
 
 /// All the data that the renderer needs to draw the character
@@ -141,20 +123,9 @@ public:
     /// The animation state.
     Ego::Graphics::ObjectAnimationState animationState;
 
-    /// The action state.
-    ActionState actionState;
-
 public:
 	ObjectGraphics(Object& object);
     ~ObjectGraphics();
-
-    /**
-    * @brief
-    *   Set to true if the current animation action should be looped
-    **/
-	void setActionLooped(bool val);
-
-	void setNextAction(const ModelAction val);
 
     /// @details determine the basic per-vertex lighting
 	void updateLighting();
@@ -181,17 +152,8 @@ public:
     **/
     const MD2_Frame& getLastFrame() const;
 
-    /**
-    * @brief
-    *   Get the interpolated bounding box for the current animation frame. The current animation frame
-    *   might have a different bounding box (like an arm reaching out for example)
-    **/
-    oct_bb_t getBoundingBox() const;
-
     gfx_rv updateVertices(int vmin, int vmax, bool force);
-    
-    void removeInterpolation();
-    
+        
     void getTint(GLXvector4f tint, const bool reflection, const int type);
 
     const GLvertex& getVertex(const size_t index) const;
