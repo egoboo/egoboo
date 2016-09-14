@@ -1836,6 +1836,13 @@ void Object::respawn()
     ParticleHandler::get().spawnPoof(this->toSharedPointer());
     disaffirm_attached_particles(getObjRef());
 
+    //Detach any objects that is using our body as a platform
+    for(std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator()) {
+        if(object->getAttachedPlatform().get() == this) {
+            object->getObjectPhysics().detachFromPlatform();
+        }
+    }
+
     _isAlive = true;
     resetBoredTimer();
     resetInputCommands();
