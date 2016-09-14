@@ -329,6 +329,9 @@
     <ClCompile Include="src\game\GUI\TabPanel.cpp">
       <Filter>Game Sources\GUI</Filter>
     </ClCompile>
+    <ClCompile Include="src\game\GUI\Panel.cpp">
+      <Filter>Game Sources\GUI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game\egoboo.h">
@@ -614,6 +617,9 @@
       <Filter>Game Header Files\GUI</Filter>
     </ClInclude>
     <ClInclude Include="src\game\GUI\JoinBounds.hpp">
+      <Filter>Game Header Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\GUI\Panel.hpp">
       <Filter>Game Header Files\GUI</Filter>
     </ClInclude>
   </ItemGroup>

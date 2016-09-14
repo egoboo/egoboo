@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Math/ColourRgb.hpp
+/// @file   egolib/Math/ColourRGB.hpp
 /// @brief  Colours in RGB colour spaces.
 /// @author Michael Heilmann
 
@@ -38,9 +38,9 @@ template <typename _ColourSpaceType>
 struct Colour<_ColourSpaceType, std::enable_if_t<Internal::IsRgb<_ColourSpaceType>::value>> :
     public ColourComponents<_ColourSpaceType> {
 public:
-    typedef _ColourSpaceType ColourSpaceType;
-    typedef typename ColourSpaceType::ComponentType ComponentType;
-    typedef Colour<ColourSpaceType> MyType;
+    using ColourSpaceType = _ColourSpaceType;
+    using ComponentType = typename ColourSpaceType::ComponentType;
+    using MyType = Colour<ColourSpaceType>;
 
 public:
     /**

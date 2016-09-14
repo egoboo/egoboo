@@ -17,13 +17,13 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Math/ColourRgba.hpp
+/// @file   egolib/Math/ColourRGBA.hpp
 /// @brief  Colours in RGBA colour spaces.
 /// @author Michael Heilmann
 
 #pragma once
 
-#include "egolib/Math/ColourRgb.hpp"
+#include "egolib/Math/ColourRGB.hpp"
 
 namespace Ego {
 namespace Math {
@@ -32,9 +32,9 @@ template <typename _ColourSpaceType>
 struct Colour<_ColourSpaceType, std::enable_if_t<Internal::IsRgba<_ColourSpaceType>::value>> : 
     public ColourComponents<_ColourSpaceType> {
 public:
-    typedef _ColourSpaceType ColourSpaceType;
-    typedef typename ColourSpaceType::ComponentType ComponentType;
-    typedef Colour<ColourSpaceType> MyType;
+    using ColourSpaceType = _ColourSpaceType;
+    using ComponentType = typename ColourSpaceType::ComponentType;
+    using MyType = Colour<ColourSpaceType>;
 
 public:
     /**

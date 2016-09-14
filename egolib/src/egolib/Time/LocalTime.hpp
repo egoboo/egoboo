@@ -36,9 +36,9 @@ namespace Time {
  *  Michael Heilmann
  */
 struct LocalTime {
-	typedef std::chrono::system_clock SystemClockType;
-	typedef std::chrono::system_clock::time_point SystemTimePoint;
-	typedef std::tm LocalTimeType;
+    using SystemClockType = std::chrono::system_clock;
+    using SystemTimePoint = std::chrono::system_clock::time_point;
+	using LocalTimeType = std::tm;
 private:
 	LocalTimeType _localTime;
 	/// convert std::chrono::system_clock::time_point object (system clock time) into an std::tm object (local time).

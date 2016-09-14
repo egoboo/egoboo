@@ -33,14 +33,14 @@ ConnectionBase::ConnectionBase()
 ConnectionBase::ConnectionBase(NodeBase *node)
     : node(node) {
     if (node) {
-        node->onConnectionAdded();
+        node->addReference();
     }
 }
 
 ConnectionBase::ConnectionBase(const ConnectionBase& other)
     : node(other.node) {
     if (node) {
-        node->onConnectionAdded();
+        node->addReference();
     }
 }
 
@@ -53,7 +53,7 @@ const ConnectionBase& ConnectionBase::operator=(const ConnectionBase& other) {
         reset();
         node = other.node;
         if (node) {
-            node->onConnectionAdded();
+            node->addReference();
         }
     }
     return *this;
@@ -69,24 +69,50 @@ bool ConnectionBase::operator!=(const ConnectionBase& other) const {
 
 bool ConnectionBase::isConnected() const {
     if (node) {
-        return nullptr != node->signal;
+        return NodeBase::State::Disconnected != node->state;
     }
     return false;
 }
 
 void ConnectionBase::reset() {
-    if (nullptr != node) {
-        // Remove the connection from this node.
-        node->onConnectionRemoved();
-        if (0 == node->getNumberOfConnections()) {
-            // If the node has no signal, then it is our duty to delete the node.
-            if (nullptr == node->signal) {
-                delete node;
-            // Otherwise notify the signal that one of its nodes has no connections anymore.
-            } else {
-                SignalBase *signal = node->signal;
-                signal->deadCount++;
-                signal->liveCount--;
+    if (nullptr == node) {
+        return;
+    }
+    // Remove our reference to the node.
+    node->removeReference();
+    // If the number of references to the node is @a 0,
+    // then we were the sole owner of this node.
+    // We delete the node.
+    if (0 == node->getNumberOfReferences()) {
+        delete node;
+        // If the number of references to the node is @a 1,
+        // and the node has a signal, then the signal is the sole owner of this node.
+        // If the node is disconnected, then the signal may want to delete the node.
+    } else if (1 == node->getNumberOfReferences() && nullptr != node->signal && node->state == NodeBase::State::Disconnected) {
+        // If this signal is not running ...
+        if (!node->signal->running) {
+            // ... mark it as running and sweep it.
+            node->signal->running = true;
+            node->signal->maybeSweep();
+            node->signal->running = false;
+        }
+    // Otherwise some other connection owns the node now.
+    }  else {
+        /* Nothing to do. */
+    }
+    node = nullptr;
+}
+
+void ConnectionBase::disconnect() {
+    if (node) {
+        if (node->state != NodeBase::State::Disconnected) {
+            node->state = NodeBase::State::Disconnected;
+            SignalBase *signal = node->signal;
+            if (signal) {
+                // >> notify signal node disconnected
+                signal->connectedCount--;
+                signal->disconnectedCount++;
+                // << notify signal node disconnected
                 // If this signal is not running ...
                 if (!signal->running) {
                     // ... mark it as running and sweep it.
@@ -98,10 +124,6 @@ void ConnectionBase::reset() {
         }
         node = nullptr;
     }
-}
-
-void ConnectionBase::disconnect() {
-    reset();
 }
 	
 } // namespace Internal

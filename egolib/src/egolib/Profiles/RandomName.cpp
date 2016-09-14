@@ -51,18 +51,23 @@ std::string RandomName::generateRandomName() const
 
 bool RandomName::loadFromFile(const std::string &filePath)
 {
-    ReadContext ctxt(filePath);
-    if (!ctxt.ensureOpen()) return false;
+    std::unique_ptr<ReadContext> ctxt = nullptr;
+
+    try {
+        ctxt = std::make_unique<ReadContext>(filePath);
+    } catch (...) {
+        return false;
+    }
 
 	//Clear any old random name data
 	_randomNameBlocks.clear();
 
 	//Parse the entire file
 	std::vector<std::string> *currentBlock = nullptr;
-	while(ctxt.skipToColon(true))
+	while(ctxt->skipToColon(true))
 	{
 		char buffer[256];
-        vfs_read_string_lit(ctxt, buffer, SDL_arraysize(buffer));
+        vfs_read_string_lit(*ctxt, buffer, SDL_arraysize(buffer));
 #if 0
         // convert all the '_' and junk in the string
         str_decode(buffer, SDL_arraysize(buffer), buffer);

@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Math/ColourL.hpp
+/// @file   egolib/Math/ColourLA.hpp
 /// @brief  Colours in LA colour spaces.
 /// @author Michael Heilmann
 
@@ -32,9 +32,9 @@ template <typename _ColourSpaceType>
 struct Colour<_ColourSpaceType, std::enable_if_t<Internal::IsLA<_ColourSpaceType>::value>> :
     public ColourComponents<_ColourSpaceType> {
 public:
-    typedef _ColourSpaceType ColourSpaceType;
-    typedef typename ColourSpaceType::ComponentType ComponentType;
-    typedef Colour<ColourSpaceType> MyType;
+    using ColourSpaceType = _ColourSpaceType;
+    using ComponentType = typename ColourSpaceType::ComponentType;
+    using MyType = Colour<ColourSpaceType>;
     
 public:
     /**

@@ -163,42 +163,44 @@ std::shared_ptr<ParticleProfile> ParticleProfile::readFromFile(const std::string
 {
     char cTmp;
 
-    ReadContext ctxt(pathname);
-    if (!ctxt.ensureOpen()) {
+    std::unique_ptr<ReadContext> ctxt = nullptr;
+
+    try {
+        ctxt = std::make_unique<ReadContext>(pathname);
+    } catch (...) {
         return nullptr;
     }
-
     std::shared_ptr<ParticleProfile> profile = std::make_shared<ParticleProfile>();
 
     // set up the EGO_PROFILE_STUFF
     profile->_name = pathname;
 
     // read the 1 line comment at the top of the file
-    profile->_comment = ctxt.readSingleLineComment();
+    profile->_comment = ctxt->readSingleLineComment();
 
     // General data
-    profile->force = vfs_get_next_bool(ctxt);
+    profile->force = vfs_get_next_bool(*ctxt);
 
-    switch(Ego::toupper(vfs_get_next_printable(ctxt)))
+    switch(Ego::toupper(vfs_get_next_printable(*ctxt)))
     {
         case 'L': profile->type = SPRITE_LIGHT; break;
         case 'S': profile->type = SPRITE_SOLID; break;
         case 'T': profile->type = SPRITE_ALPHA; break;
     }
 
-    profile->image_stt = vfs_get_next_int(ctxt);
-    profile->image_max = vfs_get_next_int(ctxt);
-    profile->image_add.base = vfs_get_next_int(ctxt);
-    profile->image_add.rand = vfs_get_next_int(ctxt);
+    profile->image_stt = vfs_get_next_int(*ctxt);
+    profile->image_max = vfs_get_next_int(*ctxt);
+    profile->image_add.base = vfs_get_next_int(*ctxt);
+    profile->image_add.rand = vfs_get_next_int(*ctxt);
     profile->image_add.base /= EGO_ANIMATION_FRAMERATE_SCALING;
     profile->image_add.rand /= EGO_ANIMATION_FRAMERATE_SCALING;
-    profile->rotate_pair.base = vfs_get_next_int(ctxt);
-    profile->rotate_pair.rand = vfs_get_next_int(ctxt);
-    profile->rotate_add = vfs_get_next_int(ctxt);
-    profile->size_base = vfs_get_next_int(ctxt);
-    profile->size_add = vfs_get_next_int(ctxt);
-    profile->spdlimit = vfs_get_next_float(ctxt);
-    profile->facingadd = vfs_get_next_int(ctxt);
+    profile->rotate_pair.base = vfs_get_next_int(*ctxt);
+    profile->rotate_pair.rand = vfs_get_next_int(*ctxt);
+    profile->rotate_add = vfs_get_next_int(*ctxt);
+    profile->size_base = vfs_get_next_int(*ctxt);
+    profile->size_add = vfs_get_next_int(*ctxt);
+    profile->spdlimit = vfs_get_next_float(*ctxt);
+    profile->facingadd = vfs_get_next_int(*ctxt);
 
     // override the base rotation
     if (profile->image_stt < EGO_ANIMATION_MULTIPLIER && prt_u != prt_direction[profile->image_stt])
@@ -207,96 +209,96 @@ std::shared_ptr<ParticleProfile> ParticleProfile::readFromFile(const std::string
     }
 
     // Ending conditions
-    profile->end_water = vfs_get_next_bool(ctxt);
-    profile->end_bump = vfs_get_next_bool(ctxt);
-    profile->end_ground = vfs_get_next_bool(ctxt);
-    profile->end_lastframe = vfs_get_next_bool(ctxt);
-    profile->end_time = vfs_get_next_int(ctxt);
+    profile->end_water = vfs_get_next_bool(*ctxt);
+    profile->end_bump = vfs_get_next_bool(*ctxt);
+    profile->end_ground = vfs_get_next_bool(*ctxt);
+    profile->end_lastframe = vfs_get_next_bool(*ctxt);
+    profile->end_time = vfs_get_next_int(*ctxt);
 
     // Collision data
-    profile->dampen = vfs_get_next_float(ctxt);
-    profile->bump_money = vfs_get_next_int(ctxt);
-    profile->bump_size = vfs_get_next_int(ctxt);
-    profile->bump_height = vfs_get_next_int(ctxt);
+    profile->dampen = vfs_get_next_float(*ctxt);
+    profile->bump_money = vfs_get_next_int(*ctxt);
+    profile->bump_size = vfs_get_next_int(*ctxt);
+    profile->bump_height = vfs_get_next_int(*ctxt);
 
-    vfs_get_next_range(ctxt, &(profile->damage));
-    profile->damageType = vfs_get_next_damage_type(ctxt);
+    vfs_get_next_range(*ctxt, &(profile->damage));
+    profile->damageType = vfs_get_next_damage_type(*ctxt);
 
     // Lighting data
-    cTmp = vfs_get_next_printable(ctxt);
+    cTmp = vfs_get_next_printable(*ctxt);
     if ('T' == Ego::toupper(cTmp)) profile->dynalight.mode = DYNA_MODE_ON;
     else if ('L' == Ego::toupper(cTmp)) profile->dynalight.mode = DYNA_MODE_LOCAL;
     else profile->dynalight.mode = DYNA_MODE_OFF;
 
-    profile->dynalight.level = vfs_get_next_float(ctxt);
-    profile->dynalight.falloff = vfs_get_next_int(ctxt);
+    profile->dynalight.level = vfs_get_next_float(*ctxt);
+    profile->dynalight.falloff = vfs_get_next_int(*ctxt);
 
     // Initial spawning of this particle
-    profile->_spawnFacing.base = vfs_get_next_int(ctxt);
-    profile->_spawnFacing.rand = vfs_get_next_int(ctxt);
+    profile->_spawnFacing.base = vfs_get_next_int(*ctxt);
+    profile->_spawnFacing.rand = vfs_get_next_int(*ctxt);
 
-    profile->_spawnPositionOffsetXY.base = vfs_get_next_int(ctxt);
-    profile->_spawnPositionOffsetXY.rand = vfs_get_next_int(ctxt);
+    profile->_spawnPositionOffsetXY.base = vfs_get_next_int(*ctxt);
+    profile->_spawnPositionOffsetXY.rand = vfs_get_next_int(*ctxt);
 
-    profile->_spawnPositionOffsetZ.base = vfs_get_next_int(ctxt);
-    profile->_spawnPositionOffsetZ.rand = vfs_get_next_int(ctxt);
+    profile->_spawnPositionOffsetZ.base = vfs_get_next_int(*ctxt);
+    profile->_spawnPositionOffsetZ.rand = vfs_get_next_int(*ctxt);
 
-    profile->_spawnVelocityOffsetXY.base = vfs_get_next_int(ctxt);
-    profile->_spawnVelocityOffsetXY.rand = vfs_get_next_int(ctxt);
+    profile->_spawnVelocityOffsetXY.base = vfs_get_next_int(*ctxt);
+    profile->_spawnVelocityOffsetXY.rand = vfs_get_next_int(*ctxt);
 
-    profile->_spawnVelocityOffsetZ.base = vfs_get_next_int(ctxt);
-    profile->_spawnVelocityOffsetZ.rand = vfs_get_next_int(ctxt);
+    profile->_spawnVelocityOffsetZ.base = vfs_get_next_int(*ctxt);
+    profile->_spawnVelocityOffsetZ.rand = vfs_get_next_int(*ctxt);
 
     // Continuous spawning of other particles
-    profile->contspawn._delay = vfs_get_next_int(ctxt);
-    profile->contspawn._amount = vfs_get_next_int(ctxt);
-    profile->contspawn._facingAdd = vfs_get_next_int(ctxt);
-    profile->contspawn._lpip = vfs_get_next_local_particle_profile_ref(ctxt);
+    profile->contspawn._delay = vfs_get_next_int(*ctxt);
+    profile->contspawn._amount = vfs_get_next_int(*ctxt);
+    profile->contspawn._facingAdd = vfs_get_next_int(*ctxt);
+    profile->contspawn._lpip = vfs_get_next_local_particle_profile_ref(*ctxt);
 
     // End spawning of other particles
-    profile->endspawn._amount = vfs_get_next_int(ctxt);
-    profile->endspawn._facingAdd = vfs_get_next_int(ctxt);
-    profile->endspawn._lpip = vfs_get_next_local_particle_profile_ref(ctxt);
+    profile->endspawn._amount = vfs_get_next_int(*ctxt);
+    profile->endspawn._facingAdd = vfs_get_next_int(*ctxt);
+    profile->endspawn._lpip = vfs_get_next_local_particle_profile_ref(*ctxt);
 
     // Bump spawning of attached particles
-    profile->bumpspawn._amount = vfs_get_next_int(ctxt);
+    profile->bumpspawn._amount = vfs_get_next_int(*ctxt);
     profile->bumpspawn._facingAdd = 0; // @to add.
-    profile->bumpspawn._lpip = vfs_get_next_local_particle_profile_ref(ctxt);
+    profile->bumpspawn._lpip = vfs_get_next_local_particle_profile_ref(*ctxt);
 
     // Random stuff  !!!BAD!!! Not complete
-    profile->dazeTime = vfs_get_next_nat(ctxt);
-    profile->grogTime = vfs_get_next_nat(ctxt);
-    profile->spawnenchant = vfs_get_next_bool(ctxt);
+    profile->dazeTime = vfs_get_next_nat(*ctxt);
+    profile->grogTime = vfs_get_next_nat(*ctxt);
+    profile->spawnenchant = vfs_get_next_bool(*ctxt);
 
-    profile->cause_roll = vfs_get_next_bool(ctxt);  // !!Cause roll
-    profile->cause_pancake = vfs_get_next_bool(ctxt);
+    profile->cause_roll = vfs_get_next_bool(*ctxt);  // !!Cause roll
+    profile->cause_pancake = vfs_get_next_bool(*ctxt);
 
-    profile->needtarget = vfs_get_next_bool(ctxt);
-    profile->targetcaster = vfs_get_next_bool(ctxt);
-    profile->startontarget = vfs_get_next_bool(ctxt);
-    profile->onlydamagefriendly = vfs_get_next_bool(ctxt);
+    profile->needtarget = vfs_get_next_bool(*ctxt);
+    profile->targetcaster = vfs_get_next_bool(*ctxt);
+    profile->startontarget = vfs_get_next_bool(*ctxt);
+    profile->onlydamagefriendly = vfs_get_next_bool(*ctxt);
 
-    profile->soundspawn = vfs_get_next_int(ctxt);
+    profile->soundspawn = vfs_get_next_int(*ctxt);
 
-    profile->end_sound = vfs_get_next_int(ctxt);
+    profile->end_sound = vfs_get_next_int(*ctxt);
 
-    profile->friendlyfire = vfs_get_next_bool(ctxt);
+    profile->friendlyfire = vfs_get_next_bool(*ctxt);
 
-    profile->hateonly = vfs_get_next_bool(ctxt);
+    profile->hateonly = vfs_get_next_bool(*ctxt);
 
-    profile->newtargetonspawn = vfs_get_next_bool(ctxt);
+    profile->newtargetonspawn = vfs_get_next_bool(*ctxt);
 
-    profile->targetangle = vfs_get_next_int(ctxt) >> 1;
-    profile->homing = vfs_get_next_bool(ctxt);
+    profile->targetangle = vfs_get_next_int(*ctxt) >> 1;
+    profile->homing = vfs_get_next_bool(*ctxt);
 
-    profile->homingfriction = vfs_get_next_float(ctxt);
-    profile->homingaccel = vfs_get_next_float(ctxt);
-    profile->rotatetoface = vfs_get_next_bool(ctxt);
+    profile->homingfriction = vfs_get_next_float(*ctxt);
+    profile->homingaccel = vfs_get_next_float(*ctxt);
+    profile->rotatetoface = vfs_get_next_bool(*ctxt);
 
-    ctxt.skipToColon(false);  // !!Respawn on hit is unused
+    ctxt->skipToColon(false);  // !!Respawn on hit is unused
 
-    profile->manaDrain = vfs_get_next_ufp8(ctxt);
-    profile->lifeDrain = vfs_get_next_ufp8(ctxt);
+    profile->manaDrain = vfs_get_next_ufp8(*ctxt);
+    profile->lifeDrain = vfs_get_next_ufp8(*ctxt);
 
     // assume default end_wall
     profile->end_wall = profile->end_ground;
@@ -305,85 +307,85 @@ std::shared_ptr<ParticleProfile> ParticleProfile::readFromFile(const std::string
     if (profile->homing) profile->_particleEffectBits.reset();
 
     // Read expansions
-    while (!ctxt.is(ReadContext::Traits::endOfInput()))
+    while (!ctxt->is(ReadContext::Traits::endOfInput()))
     {
-        if (ctxt.isWhiteSpace()) {
-            ctxt.skipWhiteSpaces();
+        if (ctxt->isWhiteSpace()) {
+            ctxt->skipWhiteSpaces();
             continue;
-        } else if (ctxt.isNewLine()) {
-            ctxt.skipNewLines();
+        } else if (ctxt->isNewLine()) {
+            ctxt->skipNewLines();
             continue;
-        } else if (ctxt.is('/')) {
-            ctxt.readSingleLineComment(); /// @todo Add and use ReadContext::skipSingleLineComment().
+        } else if (ctxt->is('/')) {
+            ctxt->readSingleLineComment(); /// @todo Add and use ReadContext::skipSingleLineComment().
             continue;
-        } else  if (ctxt.is(':')) {
-            ctxt.next();
-            IDSZ2 idsz = ctxt.readIDSZ();
+        } else  if (ctxt->is(':')) {
+            ctxt->next();
+            IDSZ2 idsz = ctxt->readIDSZ();
 
             switch(idsz.toUint32())
             {
                 case IDSZ2::caseLabel('N', 'O', 'N', 'E'):
-                    profile->_particleEffectBits[DAMFX_NONE] = ctxt.readIntegerLiteral() != 0;
+                    profile->_particleEffectBits[DAMFX_NONE] = ctxt->readIntegerLiteral() != 0;
                 break;
 
                 case IDSZ2::caseLabel('T', 'U', 'R', 'N'):
-                    profile->_particleEffectBits[DAMFX_TURN] = ctxt.readIntegerLiteral() != 0;
+                    profile->_particleEffectBits[DAMFX_TURN] = ctxt->readIntegerLiteral() != 0;
                 break;
 
                 case IDSZ2::caseLabel('A', 'R', 'M', 'O'):
-                    profile->_particleEffectBits[DAMFX_ARMO] = ctxt.readIntegerLiteral() != 0;
+                    profile->_particleEffectBits[DAMFX_ARMO] = ctxt->readIntegerLiteral() != 0;
                 break;
 
                 case IDSZ2::caseLabel('B', 'L', 'O', 'C'):
-                    profile->_particleEffectBits[DAMFX_NBLOC] = ctxt.readIntegerLiteral() != 0;
+                    profile->_particleEffectBits[DAMFX_NBLOC] = ctxt->readIntegerLiteral() != 0;
                 break;
 
                 case IDSZ2::caseLabel('A', 'R', 'R', 'O'):
-                    profile->_particleEffectBits[DAMFX_ARRO] = ctxt.readIntegerLiteral() != 0;
+                    profile->_particleEffectBits[DAMFX_ARRO] = ctxt->readIntegerLiteral() != 0;
                 break;
 
                 case IDSZ2::caseLabel('T', 'I', 'M', 'E'):
-                    profile->_particleEffectBits[DAMFX_TIME] = ctxt.readIntegerLiteral() != 0;
+                    profile->_particleEffectBits[DAMFX_TIME] = ctxt->readIntegerLiteral() != 0;
                 break;
 
                 case IDSZ2::caseLabel('Z', 'S', 'P', 'D'):  
-                    profile->zaimspd = ctxt.readRealLiteral();
+                    profile->zaimspd = ctxt->readRealLiteral();
                 break;
 
                 case IDSZ2::caseLabel('F', 'S', 'N', 'D'):  
-                    profile->end_sound_floor = ctxt.readIntegerLiteral();
+                    profile->end_sound_floor = ctxt->readIntegerLiteral();
                 break;
 
                 case IDSZ2::caseLabel('W', 'S', 'N', 'D'):  
-                    profile->end_sound_wall = ctxt.readIntegerLiteral();
+                    profile->end_sound_wall = ctxt->readIntegerLiteral();
                 break;
 
                 case IDSZ2::caseLabel('W', 'E', 'N', 'D'):  
-                    profile->end_wall = (0 != ctxt.readIntegerLiteral());
+                    profile->end_wall = (0 != ctxt->readIntegerLiteral());
                 break;
 
                 case IDSZ2::caseLabel('P', 'U', 'S', 'H'):  
-                    profile->allowpush = (0 != ctxt.readIntegerLiteral());
+                    profile->allowpush = (0 != ctxt->readIntegerLiteral());
                 break;
 
                 case IDSZ2::caseLabel('D', 'L', 'E', 'V'):  
-                    profile->dynalight.level_add = ctxt.readIntegerLiteral() / 1000.0f;
+                    profile->dynalight.level_add = ctxt->readIntegerLiteral() / 1000.0f;
                 break;
 
                 case IDSZ2::caseLabel('D', 'R', 'A', 'D'):  
-                    profile->dynalight.falloff_add = ctxt.readIntegerLiteral() / 1000.0f;
+                    profile->dynalight.falloff_add = ctxt->readIntegerLiteral() / 1000.0f;
                 break;
 
                 case IDSZ2::caseLabel('I', 'D', 'A', 'M'):  
-                    profile->_intellectDamageBonus = (0 != ctxt.readIntegerLiteral());
+                    profile->_intellectDamageBonus = (0 != ctxt->readIntegerLiteral());
                 break;
 
                 case IDSZ2::caseLabel('G', 'R', 'A', 'V'):  
-                    profile->ignore_gravity = (0 != ctxt.readIntegerLiteral());
+                    profile->ignore_gravity = (0 != ctxt->readIntegerLiteral());
                 break;
 
                 case IDSZ2::caseLabel('O', 'R', 'N', 'T'):
-                    switch (Ego::toupper(ctxt.readPrintable()))
+                    switch (Ego::toupper(ctxt->readPrintable()))
                     {
                         case 'X': profile->orientation = prt_ori_t::ORIENTATION_X; break;  // put particle up along the world or body-fixed x-axis
                         case 'Y': profile->orientation = prt_ori_t::ORIENTATION_Y; break;  // put particle up along the world or body-fixed y-axis
@@ -392,22 +394,22 @@ std::shared_ptr<ParticleProfile> ParticleProfile::readFromFile(const std::string
                         case 'H': profile->orientation = prt_ori_t::ORIENTATION_H; break;  // horizontal, like a plate
                         case 'B': profile->orientation = prt_ori_t::ORIENTATION_B; break;  // billboard
                     }
-                    while (ctxt.isAlpha()) {
-                        ctxt.next();
+                    while (ctxt->isAlpha()) {
+                        ctxt->next();
                     }
                 break;
 
                 case IDSZ2::caseLabel('P', 'U', 'L', 'L'):
-                    profile->_gravityPull = ctxt.readRealLiteral();
+                    profile->_gravityPull = ctxt->readRealLiteral();
                 break;
 
                 default:
-                    throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(ctxt._loadName, ctxt._lineNumber),
+                    throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(ctxt->getFileName(), ctxt->getLineNumber()),
                                                     std::string("Unknown IDSZ type parsed: ") + idsz.toString());
                 break;
             }
         } else {
-            throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(ctxt._loadName, ctxt._lineNumber),
+            throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(ctxt->getFileName(), ctxt->getLineNumber()),
                                             "expected `:`, comment, whitespace, newline or end of input");
         }
     }

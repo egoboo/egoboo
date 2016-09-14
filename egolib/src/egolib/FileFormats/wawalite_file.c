@@ -243,11 +243,6 @@ wawalite_data_t *wawalite_data_read(const std::string& filename, wawalite_data_t
     *profile = wawalite_data_t::getDefaults();
 
     ReadContext ctxt(filename);
-    if (!ctxt.ensureOpen())
-    {
-		Log::get().warn("unable to read water and weather file `%s`\n", filename.c_str());
-        return nullptr;
-    }
 
     //First figure out what version of wawalite this is, so that we know what data we
     //should expect to load

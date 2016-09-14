@@ -20,7 +20,7 @@ struct Contains<
     AxisAlignedCube<EuclideanSpaceType>,
     AxisAlignedCube<EuclideanSpaceType>
 > {
-    typedef AxisAlignedCube<EuclideanSpaceType> Type;
+    using Type = AxisAlignedCube<EuclideanSpaceType>;
     bool operator()(const Type& a, const Type& b) const {
         for (size_t i = 0; i < EuclideanSpaceType::Dimensionality; ++i) {
             // If a is the cube that is supposed to contain the

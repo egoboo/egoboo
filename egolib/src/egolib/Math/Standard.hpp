@@ -3,9 +3,9 @@
 #include "egolib/Math/AxisAlignedBox.hpp"
 #include "egolib/Math/Cone3.hpp"
 #include "egolib/Math/ColourL.hpp"
-#include "egolib/Math/ColourLa.hpp"
-#include "egolib/Math/ColourRgb.hpp"
-#include "egolib/Math/ColourRgba.hpp"
+#include "egolib/Math/ColourLA.hpp"
+#include "egolib/Math/ColourRGB.hpp"
+#include "egolib/Math/ColourRGBA.hpp"
 #include "egolib/Math/AxisAlignedCube.hpp"
 #include "egolib/Math/Discrete.hpp"
 #include "egolib/Math/OrderedField.hpp"
@@ -120,9 +120,9 @@ using Plane3f = Ego::Math::Plane3<EuclideanSpace3f>;
 
 
 /// A 3D cone.
-typedef Ego::Math::Cone3<EuclideanSpace3f> Cone3f;
+using Cone3f = Ego::Math::Cone3<EuclideanSpace3f>;
 /// A 3D axis aligned cube.
-typedef Ego::Math::AxisAlignedCube<EuclideanSpace3f> AxisAlignedCube3f;
+using AxisAlignedCube3f = Ego::Math::AxisAlignedCube<EuclideanSpace3f>;
 
 
 
@@ -131,19 +131,19 @@ namespace Math {
 
 /// A colour in RGB colour space with floating-point components each within the range from 0 (inclusive) to 1 (inclusive).
 /// A component value of 0 indicates minimal intensity of the component and 1 indicates maximal intensity of the component.
-typedef Colour<RGBf> Colour3f;
+using Colour3f =  Colour<RGBf>;
 
 /// A colour in RGBA colour space with floating-point components each within the range from 0 (inclusive) to 1 (inclusive).
 /// A component value of 0 indicates minimal intensity of the component and 1 indicates maximal intensity of the component.
-typedef Colour<RGBAf> Colour4f;
+using Colour4f = Colour<RGBAf>;
 
 /// A colour in RGB colour space with unsigned integer components each within the range from 0 (inclusive) to 255 (inclusive).
 /// A component value of 0 indicates minimal intensity of the component and 255 indicates maximal intensity of the component.
-typedef Colour<RGBb> Colour3b;
+using Colour3b = Colour<RGBb>;
 
 /// A colour in RGBA colour space with unsigned integer components each within the range from 0 (inclusive) to 255 (inclusive).
 /// A component value of 0 indicates minimal intensity of the component and 255 indicates maximal intensity of the component.
-typedef Colour<RGBAb> Colour4b;
+using Colour4b = Colour<RGBAb>;
 
 } // namespace Math
 } // namespace Ego
@@ -242,9 +242,6 @@ struct Rectangle {
 };
 };
 
-/** @todo Remove this. */
-typedef Ego::Rectangle<int> irect_t;
-
 struct ego_frect_t {
     float xmin, ymin;
     float xmax, ymax;
@@ -321,7 +318,7 @@ struct Validate<Ego::Math::AxisAlignedCube<EuclidianSpaceType>> {
 #endif
 
 /// A \f$4\f$-order floating point matrix.
-typedef Ego::Math::Matrix<float, 4, 4> Matrix4f4f;
+using Matrix4f4f = Ego::Math::Matrix<float, 4, 4>;
 
 struct Utilities {
 

@@ -69,12 +69,15 @@ GameEngine::GameEngine() :
     _estimatedUPS(GAME_TARGET_UPS),
 
     // Subscriptions
+    shown(),
+    hidden(),
     resized(),
+#if 0
     mouseEntered(),
     mouseLeft(),
     keyboardFocusReceived(),
     keyboardFocusLost(),
-
+#endif
     // Submodules
     _uiManager(nullptr)
 {
@@ -391,7 +394,7 @@ void GameEngine::subscribe() {
     resized = window->Resized.subscribe([](const Ego::Events::WindowEventArgs& e) {
         SDLX_Get_Screen_Info(sdl_scr, false);
     });
-    /*
+#if 0
     mouseEntered = window->MouseEntered.subscribe([](const Ego::Events::WindowEventArgs& e) {
         Ego::Input::InputSystem::get().mouse.enabled = true;
     });
@@ -404,14 +407,16 @@ void GameEngine::subscribe() {
     keyboardFocusLost = window->KeyboardFocusLost.subscribe([](const Ego::Events::WindowEventArgs& e) {
         Ego::Input::InputSystem::get().keyboard.enabled = false;
     });
-    */
+#endif
 }
 
 void GameEngine::unsubscribe() {
+#if 0
     keyboardFocusLost.disconnect();
     keyboardFocusReceived.disconnect();
     mouseLeft.disconnect();
     mouseEntered.disconnect();
+#endif
     resized.disconnect();
     hidden.disconnect();
     shown.disconnect();

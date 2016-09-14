@@ -18,7 +18,6 @@ ScrollableList::ScrollableList() :
         setScrollPosition(_currentIndex + 1);
     });
     _downButton->setEnabled(false);
-    _downButton->setParent(this);
     addComponent(_downButton);
 
     // Add the up button.
@@ -27,7 +26,6 @@ ScrollableList::ScrollableList() :
         setScrollPosition(_currentIndex - 1);
     });
     _upButton->setEnabled(false);
-    _upButton->setParent(this);
     addComponent(_upButton);
 
     updateScrollButtons();

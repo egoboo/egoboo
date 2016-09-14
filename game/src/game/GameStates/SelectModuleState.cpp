@@ -64,23 +64,23 @@ SelectModuleState::SelectModuleState(const std::list<std::string> &playersToLoad
 	_chooseModule->setPosition(Point2f(_moduleSelector->getX() + _moduleSelector->getWidth() + 20, SCREEN_HEIGHT / 2 + 20));
 	_chooseModule->setSize(Vector2f(200, 30));
 	_chooseModule->setEnabled(false);
-	_chooseModule->setOnClickFunction(
+    _connections.push_back(_chooseModule->Clicked.subscribe(
 	[this]{
 		if(_moduleSelector->getSelectedModule())
 		{
 			_gameEngine->setGameState(std::make_shared<LoadingState>(_moduleSelector->getSelectedModule(), _selectedPlayerList));
 		}
-	});
+	}));
 	addComponent(_chooseModule);
 
-	auto backButton = std::make_shared<Ego::GUI::Button>("Back", SDLK_ESCAPE);
-	backButton->setPosition(Point2f(_moduleSelector->getX() + _moduleSelector->getWidth() + 20, _chooseModule->getY() + 50));
-	backButton->setSize(Vector2f(200, 30));
-	backButton->setOnClickFunction(
+	_backButton = std::make_shared<Ego::GUI::Button>("Back", SDLK_ESCAPE);
+	_backButton->setPosition(Point2f(_moduleSelector->getX() + _moduleSelector->getWidth() + 20, _chooseModule->getY() + 50));
+	_backButton->setSize(Vector2f(200, 30));
+    _connections.push_back(_backButton->Clicked.subscribe(
 		[this]{
 			this->endState();
-		});
-	addComponent(backButton);
+		}));
+	addComponent(_backButton);
 
 	//Add the module selector
 	addComponent(_moduleSelector);
@@ -90,11 +90,11 @@ SelectModuleState::SelectModuleState(const std::list<std::string> &playersToLoad
 	{
 		_filterButton->setPosition(Point2f(10 + SCREEN_WIDTH/2, 30));
 		_filterButton->setSize(Vector2f(200, 30));
-		_filterButton->setOnClickFunction(
+        _connections.push_back(_filterButton->Clicked.subscribe(
 			[this]{
 				//Set next module filter (wrap around using modulo)
 				setModuleFilter(static_cast<ModuleFilter>( (_moduleFilter+1) % NR_OF_MODULE_FILTERS) );
-			});
+			}));
 		addComponent(_filterButton);		
 	}
 
@@ -104,6 +104,12 @@ SelectModuleState::SelectModuleState(const std::list<std::string> &playersToLoad
 	infoText->setPosition(Point2f(200, SCREEN_HEIGHT - 70));
 	addComponent(infoText);
 
+}
+
+SelectModuleState::~SelectModuleState() {
+    for (auto connection : _connections) {
+        connection.disconnect();
+    }
 }
 
 void SelectModuleState::setModuleFilter(const ModuleFilter filter)

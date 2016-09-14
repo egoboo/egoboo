@@ -48,7 +48,7 @@ private:
      */
     vfs_FILE *_file;
     
-    typedef typename TextFile<_Traits>::Traits Traits;
+    using Traits = typename TextFile<_Traits>::Traits;
 
     /**
      * @brief

@@ -89,7 +89,7 @@ float            indextoenvirox[EGO_NORMAL_COUNT];
 static gfx_error_stack_t gfx_error_stack = GFX_ERROR_STACK_INIT;
 
 // Interface stuff
-static irect_t tabrect[NUMBAR];            // The tab rectangles
+static Ego::Rectangle<int> tabrect[NUMBAR];            // The tab rectangles
 
 
 static bool  gfx_page_flip_requested = false;
@@ -437,7 +437,7 @@ void draw_blip(float sizeFactor, Uint8 color, float x, float y)
         std::shared_ptr<const Ego::Texture> ptex = Ego::TextureManager::get().getTexture("mp_data/blip");
 
         #define BLIPSIZE 6
-        irect_t bliprect[COLOR_MAX];        // The blip rectangles
+        Ego::Rectangle<int> bliprect[COLOR_MAX];        // The blip rectangles
 
         // Set up the rectangles
         for (int cnt = 0; cnt < COLOR_MAX; cnt++) {

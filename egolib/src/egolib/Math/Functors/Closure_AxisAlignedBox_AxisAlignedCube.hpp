@@ -32,9 +32,9 @@ namespace Math {
 template <typename _EuclideanSpaceType>
 struct Closure<AxisAlignedBox<_EuclideanSpaceType>, AxisAlignedCube<_EuclideanSpaceType>> {
 public:
-    typedef _EuclideanSpaceType EuclideanSpaceType;
-    typedef AxisAlignedCube<EuclideanSpaceType> SourceType;
-    typedef AxisAlignedBox<EuclideanSpaceType> TargetType;
+    using EuclideanSpaceType = _EuclideanSpaceType;
+    using SourceType = AxisAlignedCube<EuclideanSpaceType>;
+    using TargetType = AxisAlignedBox<EuclideanSpaceType>;
 public:
     inline TargetType operator()(const SourceType& source) const {
         return TargetType(source.getMin(), source.getMax());

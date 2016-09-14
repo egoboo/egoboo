@@ -30,14 +30,6 @@ TreasureTables::TreasureTables(const std::string& filePath)
 {
 	// Try to open a context.
 	ReadContext ctxt(filePath);
-	if (!ctxt.ensureOpen())
-	{
-	    Log::Entry e(Log::Level::Error, __FILE__, __LINE__, __FUNCTION__);
-	    e << "unable to load random treasure tables file `" << filePath << "`" << Log::EndOfEntry;
-	    Log::get() << e;
-	    throw std::runtime_error(e.getText());
-	}
-
 	parse(read(ctxt));
 }
 

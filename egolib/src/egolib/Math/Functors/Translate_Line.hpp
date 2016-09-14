@@ -33,8 +33,8 @@ namespace Math {
 
 template <typename _EuclideanSpaceType>
 struct Translate<Line<_EuclideanSpaceType>> {
-    typedef Line<_EuclideanSpaceType> X;
-    typedef typename _EuclideanSpaceType::VectorType T;
+    using X = Line<_EuclideanSpaceType>;
+    using T = typename _EuclideanSpaceType::VectorType;
     X operator()(const X& x, const T& t) const {
         return X(x.getA() + t, x.getB() + t);
     }

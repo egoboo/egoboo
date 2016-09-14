@@ -13,7 +13,6 @@ Button::Button(int hotkey) :
     _buttonTextWidth(),
     _buttonTextHeight(),
     _buttonText(),
-    _onClickFunction(nullptr),
     _hotkey(hotkey),
     _slidyButtonTargetX(0.0f),
     _slidyButtonCurrentX(0.0f) {}
@@ -89,15 +88,12 @@ bool Button::notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs&
 
 void Button::doClick() {
     if (!isEnabled()) return;
-
     AudioSystem::get().playSoundFull(AudioSystem::get().getGlobalSound(GSND_BUTTON_CLICK));
-
-    //_mouseOver = true;
-    _onClickFunction();
+    Clicked();
 }
 
 void Button::setOnClickFunction(const std::function<void()> onClick) {
-    _onClickFunction = onClick;
+    Clicked.subscribe(onClick);
 }
 
 bool Button::notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEventArgs& e) {
@@ -122,11 +118,6 @@ void Button::beginSlidyButtonEffect(float offset) {
     _slidyButtonTargetX = getX();
     setX(getX() - offset);
     _slidyButtonCurrentX = getX();
-}
-
-bool Button::isEnabled() const {
-    if (!_onClickFunction) return false;
-    return Component::isEnabled();
 }
 
 void Button::setEnabled(const bool enabled) {

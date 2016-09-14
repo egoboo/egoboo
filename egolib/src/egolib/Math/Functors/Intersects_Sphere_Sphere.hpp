@@ -21,7 +21,7 @@ struct Intersects<
     Sphere<EuclideanSpaceType>,
     Sphere<EuclideanSpaceType>
 > {
-    typedef Sphere<EuclideanSpaceType> Type;
+    using Type = Sphere<EuclideanSpaceType>;
     bool operator()(const Type& a, const Type& b) const {
         // Get the squared distance between the centers of the two spheres.
         float distanceSquared = (a.getCenter() - b.getCenter()).length_2();

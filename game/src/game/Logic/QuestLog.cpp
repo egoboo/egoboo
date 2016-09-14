@@ -68,16 +68,18 @@ bool QuestLog::loadFromFile(const std::string& filePath)
     _questLog.clear();
 
     // Try to open a context
-    ReadContext ctxt(filePath + "/quest.txt");
-    if (!ctxt.ensureOpen()) {
+    std::unique_ptr<ReadContext> ctxt = nullptr;
+    try {
+        ctxt = std::make_unique<ReadContext>(filePath + "/quest.txt");
+    } catch (...) {
         return false;
     }
 
     // Load each IDSZ
-    while (ctxt.skipToColon(true))
+    while (ctxt->skipToColon(true))
     {
-        IDSZ2 idsz = ctxt.readIDSZ();
-        int  level = ctxt.readIntegerLiteral();
+        IDSZ2 idsz = ctxt->readIDSZ();
+        int  level = ctxt->readIntegerLiteral();
 
         // Try to add a single quest to the map
         _questLog[idsz] = level;

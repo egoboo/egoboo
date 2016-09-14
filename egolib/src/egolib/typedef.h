@@ -205,7 +205,7 @@ signed SFP8_TO_SINT(const T& val)
 // References
 
 /// @brief The base reference type, an unsigned integer value.
-typedef Uint16 REF_T;
+typedef uint16_t REF_T;
 
 /**
  * @brief
@@ -213,7 +213,7 @@ typedef Uint16 REF_T;
  * @param name
  *	the name of the reference type
  */
-#define DECLARE_REF(name) typedef REF_T name
+#define DECLARE_REF(name) using name = REF_T
 
 /**
  * @brief
@@ -343,7 +343,7 @@ enum DamageModifier : uint8_t
 
 #include "egolib/Ref.hpp"
 
-typedef Ref<size_t, std::numeric_limits<size_t>::min(), std::numeric_limits<size_t>::max(), std::numeric_limits<size_t>::max(), RefKind::Object> ObjectRef;
+using ObjectRef = Ref<size_t, std::numeric_limits<size_t>::min(), std::numeric_limits<size_t>::max(), std::numeric_limits<size_t>::max(), RefKind::Object>;
 namespace std {
     template <>
     struct hash<ObjectRef> {
@@ -355,23 +355,23 @@ namespace std {
 
 DECLARE_REF(TEAM_REF);
 
-typedef Ref<REF_T, 0, ENCHANTPROFILES_MAX, ENCHANTPROFILES_MAX, RefKind::EnchantProfile> EnchantProfileRef;
+using EnchantProfileRef = Ref<REF_T, 0, ENCHANTPROFILES_MAX, ENCHANTPROFILES_MAX, RefKind::EnchantProfile>;
 DECLARE_REF(EVE_REF);
 #define INVALID_EVE_REF ((EVE_REF)ENCHANTPROFILES_MAX)
 
-typedef Ref<REF_T, 0, ENCHANTS_MAX, ENCHANTS_MAX, RefKind::Enchant> EnchantRef;
+using EnchantRef = Ref<REF_T, 0, ENCHANTS_MAX, ENCHANTS_MAX, RefKind::Enchant>;
 DECLARE_REF(ENC_REF);
 #define INVALID_ENC_REF ((ENC_REF)ENCHANTS_MAX)
 
-typedef Ref<REF_T, 0, MAX_PLAYER, MAX_PLAYER, RefKind::Player> PlayerRef;
+using PlayerRef = Ref<REF_T, 0, MAX_PLAYER, MAX_PLAYER, RefKind::Player>;
 DECLARE_REF(PLA_REF);
 #define INVALID_PLA_REF ((PLA_REF)MAX_PLAYER)
 
-typedef Ref<REF_T, 0, MAX_PIP, MAX_PIP, RefKind::ParticleProfile> ParticleProfileRef;
+using ParticleProfileRef = Ref<REF_T, 0, MAX_PIP, MAX_PIP, RefKind::ParticleProfile>;
 DECLARE_REF(PIP_REF);
 #define INVALID_PIP_REF ((PIP_REF)MAX_PIP)
 
-typedef Ref<size_t, std::numeric_limits<size_t>::min(), std::numeric_limits<size_t>::max(), std::numeric_limits<size_t>::max(), RefKind::Particle> ParticleRef;
+using ParticleRef = Ref<size_t, std::numeric_limits<size_t>::min(), std::numeric_limits<size_t>::max(), std::numeric_limits<size_t>::max(), RefKind::Particle>;
 namespace std {
     template <>
     struct hash<ParticleRef> {
@@ -383,7 +383,7 @@ namespace std {
 
 DECLARE_REF(PASS_REF);
 
-typedef Ref<REF_T, 0, OBJECTPROFILES_MAX, OBJECTPROFILES_MAX, RefKind::ObjectProfile> ObjectProfileRef;
+using ObjectProfileRef = Ref<REF_T, 0, OBJECTPROFILES_MAX, OBJECTPROFILES_MAX, RefKind::ObjectProfile>;
 namespace std {
     template <>
     struct hash<ObjectProfileRef> {
@@ -395,6 +395,6 @@ namespace std {
 DECLARE_REF(PRO_REF);
 #define INVALID_PRO_REF ((PRO_REF)OBJECTPROFILES_MAX)
 
-typedef Ref<REF_T, 0, TEXTURES_MAX, TEXTURES_MAX, RefKind::Texture> TextureRef;
+using TextureRef = Ref<REF_T, 0, TEXTURES_MAX, TEXTURES_MAX, RefKind::Texture>;
 DECLARE_REF(TX_REF);
 #define INVALID_TX_REF ((TX_REF)TEXTURES_MAX)

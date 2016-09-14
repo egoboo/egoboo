@@ -22,12 +22,10 @@
 
 #pragma once
 
-#include "egolib/typedef.h"
-#include "egolib/Log/_Include.hpp"
-#include "egolib/Script/EnumDescriptor.hpp"
-#include "egolib/FileFormats/configfile.h"
-#include "egolib/Script/Conversion.hpp"
-#include "egolib/Renderer/TextureFilter.hpp"
+#include "egolib/Configuration/Variable.hpp"
+#include "egolib/Configuration/EnumerationVariable.hpp"
+#include "egolib/Configuration/NumericVariable.hpp"
+#include "egolib/Configuration/StandardVariable.hpp"
 
 //Forward declarations
 enum class CameraTurnMode : uint8_t;
@@ -66,338 +64,6 @@ namespace Ego
     };
 
 }
-
-namespace Ego
-{
-namespace Configuration
-{
-
-using namespace std;
-
-template <typename ValueType>
-class Variable : public Id::NonCopyable
-{
-
-private:
-
-    /**
-     * @brief
-     *  The default value of the variable.
-     */
-    const ValueType _defaultValue;
-
-    /**
-     * @brief
-     *  The partially qualified name of this element e.g. <tt>video.fullscreen</tt>.
-     */
-    string _name;
-
-    /**
-     * @brief
-     *  The description of the variable e.g. <tt>Enable/disable fullscreen mode.</tt>.
-     */
-    string _description;
-
-    /**
-     * @brief
-     *  The value of the variable.
-     */
-    ValueType _value;
-
-protected:
-
-    /**
-     * @brief
-     * @param defaultValue
-     *  the default value
-     * @param qualifiedName
-     *  the qualified name of the variable
-     * @param description
-     *  the description of the variable
-     */
-    Variable(const ValueType& defaultValue, const string& name, const string& description) :
-        _defaultValue(defaultValue), _name(name), _description(description),
-        _value(defaultValue)
-    {}
-            
-    /**
-     * @brief
-     *  Destruct this variable.
-     */
-    virtual ~Variable()
-    {}
-
-public:
-
-    /**
-     * @brief
-     *  Get the value of this variable.
-     * @return
-     *  the value of the variable
-     */
-    const ValueType& getValue() const
-    {
-        return _value;
-    }
-
-    /**
-     * @brief
-     *  Set the value of this variable.
-     * @param value
-     *  the value
-     */
-    void setValue(const ValueType& value)
-    {
-        _value = value;
-    }
-
-    /**
-     * @brief
-     *  Get the default value of the variable.
-     * @return
-     *  the default value of this variable
-     */
-    const ValueType& getDefaultValue() const
-    {
-        return _defaultValue;
-    }
-
-    /**
-     * @brief
-     *  Get the qualified name of this variable.
-     * @return
-     *  the qualified name of this variable
-     */
-    const string getName() const
-    {
-        return _name;
-    }
-
-    /**
-     * @brief
-     *  Get the description of this variable.
-     * @return
-     *  the description of this variable
-     */
-    const string getDescription() const
-    {
-        return _description;
-    }
-
-    /**
-     * @brief
-     *  Encode and store this element's value into to a string.
-     * @param target
-     *  the target string
-     * @return
-     *  @a true on success, @a false on failure
-     */
-    virtual bool encodeValue(string& target) const = 0;
-
-    /**
-     * @brief
-     *  Load and decode this element's value from a string.
-     * @param source
-     *  the source string
-     * @return
-     *  @a true on success, @a false on failure
-     */
-    virtual bool decodeValue(const string& source) = 0;
-};
-
-template <class ValueType>
-class NumericVariable : public Variable<ValueType>
-{
-    // (u)intx_t, x in [8,16,32,64] & float & double
-    static_assert(!is_same<ValueType, bool>::value && is_arithmetic<ValueType>::value, "ValueType must not be an arithmetic non-bool type");
-
-private:
-
-    /**
-     * @brief
-     *  The minimum value (inclusive).
-     * @invariant
-     *   <tt>_min <= _max</tt>
-     */
-    ValueType _min;
-    /**
-     * @brief
-     *  The maximum value (inclusive).
-     * @invariant
-     *  <tt>_min <= _max</tt>
-     */
-    ValueType _max;
-public:
-    /**
-     * @brief
-     * @param defaultValue
-     *  the default value the variable
-     * @param name
-     *  the partially qualified name of the variable
-     * @param description
-     *  the description of the variable
-     * @throw std::invalid_argument
-     *  if <tt>min > max</tt> or <tt>defaultValue < min</tt> or <tt>defaultValue > max</tt>
-     */
-    NumericVariable(const ValueType& defaultValue, const string& name, const string& description,
-                    const ValueType& min, const ValueType& max) :
-        Variable<ValueType>(defaultValue, name, description), _min(min), _max(max)
-    {
-        if (min > max) throw std::invalid_argument("min > max");
-        else if (defaultValue < min) throw std::invalid_argument("defaultValue < min");
-        else if (defaultValue > max) throw std::invalid_argument("defaultValue > max");
-    }
-
-    const NumericVariable& operator=(const NumericVariable& other)
-    {
-        this->setValue(other.getValue());
-        return *this;
-    }
-
-    virtual bool encodeValue(string& target) const override
-    {
-        return Ego::Script::Encoder<ValueType>()(this->getValue(), target);
-    }
-
-    virtual bool decodeValue(const string& source) override
-    {
-        ValueType temporary = {};
-        if (!Ego::Script::Decoder<ValueType>()(source, temporary))
-        {
-            return false;
-        }
-        this->setValue(temporary);
-        return true;
-    }
-
-    ValueType getMaxValue() const { return _max; }
-
-    ValueType getMinValue() const { return _min; }
-};
-
-/**
- * @brief
- *  An element of a configuration with a "name" and a "desciption".
- * @remark
- *  An extra specialization of @a ValueType is an enumeration type is provided.
- */
-template <class ValueType>
-class StandardVariable : public Variable<ValueType>
-{
-    static_assert(!is_enum<ValueType>::value, "ValueType must not be an enumeration type");
-
-public:
-
-    /**
-     * @brief
-     * @param defaultValue
-     *  the default value
-     * @param name
-     *  the qualified name of the variable
-     * @param description
-     *  the description of the variable
-     */
-    StandardVariable(const ValueType& defaultValue, const string& name, const string& description) :
-        Variable<ValueType>(defaultValue, name, description)
-    {}
-
-    StandardVariable& operator=(const StandardVariable& other)
-    {
-        this->setValue(other.getValue());
-        return *this;
-    }
-
-    virtual bool encodeValue(string& target) const override
-    {
-        return Ego::Script::Encoder<ValueType>()(this->getValue(), target);
-    }
-
-    virtual bool decodeValue(const string& source) override
-    {
-        ValueType temporary;
-        if (!Ego::Script::Decoder<ValueType>()(source, temporary))
-        {
-            return false;
-        }
-        this->setValue(temporary);
-        return true;
-    }
-
-};
-
-/**
- * @brief
- *  An element of a configuration with a "name" and a "desciption".
- * @remark
- *  We can't use a single variable template and use SFINAE to specialize for
- *  certain types (i.e. for enumerations, for integral types, etc.) because
- *  Redmond Retards don't support SFINAE yet - in fact MSVC crashes upon
- *  <tt>enable_if<is_enum<ValueType>::value>::type</tt>.
- *  See
- *  - http://en.cppreference.com/w/cpp/types/is_enum
- *  - http://en.cppreference.com/w/cpp/types/enable_if and
- *  - http://en.cppreference.com/w/cpp/language/sfinae
- *  for more information.
- */
-template <typename ValueType>
-class EnumVariable : public Variable<ValueType>
-{
-
-private:
-
-    // Static checking template arguments.
-    static_assert(is_enum<ValueType>::value, "value type must be an enumeration");
-
-    /**
-        * @brief
-        *  The descriptor of the enumeration.
-        */
-    Ego::Script::EnumDescriptor<ValueType> _enumDescriptor;
-
-public:
-
-    /**
-     * @brief
-     * @param name
-     *  the partially qualified name of the variable
-     * @param description
-     *  the description of the variable
-     */
-    EnumVariable(const ValueType& defaultValue, const string& name, const string& description, const initializer_list<pair<const string, ValueType>> list) :
-        Variable<ValueType>(defaultValue, name, description), _enumDescriptor(name, list)
-    {}
-
-    EnumVariable& operator=(const EnumVariable& other)
-    {
-        this->setValue(other.getValue());
-        return *this;
-    }
-
-    virtual bool encodeValue(string& target) const override
-    {
-        auto it = _enumDescriptor.find(this->getValue());
-        if (it == _enumDescriptor.end())
-        {
-            return false;
-        }
-        target = it->first;
-        return true;
-    }
-
-    virtual bool decodeValue(const string& source) override
-    {
-        auto it = _enumDescriptor.find(source);
-        if (it == _enumDescriptor.end())
-        {
-            return false;
-        }
-        this->setValue(it->second);
-        return true;
-    }
-};
-
-} // Script
-} // Ego
 
 //--------------------------------------------------------------------------------------------
 // struct egoboo_config_t
@@ -757,21 +423,21 @@ public:
      * @remark
      *  Default value is Ego::TextureFilter::Linear.
      */
-    EnumVariable<Ego::TextureFilter> graphic_textureFilter_minFilter;
+    EnumerationVariable<Ego::TextureFilter> graphic_textureFilter_minFilter;
     /**
      * @brief
      *  The texture filter used for magnification.
      * @remark
      *  Default value is Ego::TextureFilter::Linear.
      */
-    EnumVariable<Ego::TextureFilter> graphic_textureFilter_magFilter;
+    EnumerationVariable<Ego::TextureFilter> graphic_textureFilter_magFilter;
     /**
      * @brief
      *  The filter applied used for mip map selection.
      * @remark
      *  Default value is Ego::TextureFilter::Linear.
      */
-    EnumVariable<Ego::TextureFilter> graphic_textureFilter_mipMapFilter;
+    EnumerationVariable<Ego::TextureFilter> graphic_textureFilter_mipMapFilter;
 
     /**
      * @brief
@@ -937,7 +603,7 @@ public:
      * @remark
      *  Default value is @a CameraTurnMode::Auto.
      */
-    EnumVariable<CameraTurnMode> camera_control;
+    EnumerationVariable<CameraTurnMode> camera_control;
 
     // Game configuration section.
 
@@ -947,7 +613,7 @@ public:
      * @remark
      *  Default value is Ego::GameDifficulty::Normal.
      */
-    EnumVariable<Ego::GameDifficulty> game_difficulty;
+    EnumerationVariable<Ego::GameDifficulty> game_difficulty;
 
     // HUD configuration section.
 
@@ -994,7 +660,7 @@ public:
      * @remark
      *  Default value is @a Ego::FeedbackType::Text.
      */
-    EnumVariable<Ego::FeedbackType> hud_feedback;
+    EnumerationVariable<Ego::FeedbackType> hud_feedback;
 
     /**
      * @brief

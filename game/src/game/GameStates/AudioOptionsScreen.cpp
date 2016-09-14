@@ -105,34 +105,40 @@ AudioOptionsScreen::AudioOptionsScreen()
     addComponent(footstepLabel);
     yPos += footstepLabel->getHeight() + 5;
 
-    std::shared_ptr<Ego::GUI::Button> footstepButton = std::make_shared<Ego::GUI::Button>(egoboo_config_t::get().sound_footfallEffects_enable.getValue() ? "Yes" : "No");
+    auto footstepButton = std::make_shared<Ego::GUI::Button>(egoboo_config_t::get().sound_footfallEffects_enable.getValue() ? "Yes" : "No");
     footstepButton->setPosition(Point2f(xPos + footstepLabel->getWidth() + 10, footstepLabel->getY()));
     footstepButton->setSize(Vector2f(100, 30));
-    footstepButton->setOnClickFunction(
+    _connections.push_back(footstepButton->Clicked.subscribe(
     [footstepButton]{
         egoboo_config_t::get().sound_footfallEffects_enable.setValue(!egoboo_config_t::get().sound_footfallEffects_enable.getValue());
         footstepButton->setText(egoboo_config_t::get().sound_footfallEffects_enable.getValue() ? "Yes" : "No");
-    });
+    }));
     addComponent(footstepButton);
 
     // Back button
     auto backButton = std::make_shared<Ego::GUI::Button>("Back", SDLK_ESCAPE);
     backButton->setPosition(Point2f(20, SCREEN_HEIGHT-80));
     backButton->setSize(Vector2f(200, 30));
-    backButton->setOnClickFunction(
+    _connections.push_back(backButton->Clicked.subscribe(
     [this]{
         endState();
 
         // Save the setup file
         setup_upload(&egoboo_config_t::get());
-    });
+    }));
     addComponent(backButton);
 
     //Add version label and copyright text
-    std::shared_ptr<Ego::GUI::Label> welcomeLabel = std::make_shared<Ego::GUI::Label>("Change audio settings here");
+    auto welcomeLabel = std::make_shared<Ego::GUI::Label>("Change audio settings here");
     welcomeLabel->setPosition(Point2f(backButton->getX() + backButton->getWidth() + 40,
                               SCREEN_HEIGHT - SCREEN_HEIGHT/60 - welcomeLabel->getHeight()));
     addComponent(welcomeLabel);
+}
+
+AudioOptionsScreen::~AudioOptionsScreen() {
+    for (auto connection : _connections) {
+        connection.disconnect();
+    }
 }
 
 void AudioOptionsScreen::update()

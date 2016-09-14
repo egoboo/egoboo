@@ -52,7 +52,6 @@ void VariablesDebugPanel::update() {
         if (_labels.cend() == it) {
             // .. create one.
             label = std::make_shared<Label>();
-            label->setParent(this);
             addComponent(label);
             _labels[variable.first] = label;
             //_gameEngine->getUIManager()->getDefaultFont()

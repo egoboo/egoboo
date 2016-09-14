@@ -284,14 +284,14 @@ public:
 /// If \f$x\f$ is an angle in degrees then
 /// - \f$x \cdot \frac{1}{360}\f$ is the equivalent angle in turns and
 /// - \f$x \cdot \frac{2\pi}{360}\f$ is the equivalent angle in radians.
-typedef Angle<AngleUnit::Degrees> Degrees;
+using Degrees = Angle<AngleUnit::Degrees>;
 
 /// The type of an angle in radians.
 /// The canonical range of an angle in radians is \f$[0,2\pi]\f$.
 /// If \f$x\f$ is an angle in radians then
 /// - \f$x \cdot \frac{1}{2\pi}\f$ is the equivalent angle in turns and
 /// - \f$x \cdot \frac{360}{2\pi}\f$ is the equivalent angle in degrees.
-typedef Angle<AngleUnit::Radians> Radians;
+using Radians = Angle<AngleUnit::Radians>;
 
 /// The type of an angle in turns.
 /// The canonical range of an angle in turns is \f$[0,1]\f$.
@@ -299,7 +299,7 @@ typedef Angle<AngleUnit::Radians> Radians;
 /// - \f$x \cdot 360\f$   is the equivalent angle in degrees and
 /// - \f$x \cdot 2\pi\f$  is the equivalent angle in radians.
 /// To convert an angle in turns \f$x\f$ to an angle in degrees 
-typedef Angle<AngleUnit::Turns> Turns;
+using Turns = Angle<AngleUnit::Turns>;
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 

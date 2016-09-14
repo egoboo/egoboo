@@ -312,14 +312,18 @@ void ObjectProfile::loadAllMessages(const std::string &filePath)
     /// @author ZF
     /// @details This function loads all messages for an object
 
-    ReadContext ctxt(filePath);
-    if (!ctxt.ensureOpen()) return;
+    std::unique_ptr<ReadContext> ctxt = nullptr;
+    try {
+        ctxt = std::make_unique<ReadContext>(filePath);
+    } catch (...) {
+        return;
+    }
     STRING line;
 
-    while (ctxt.skipToColon(true))
+    while (ctxt->skipToColon(true))
     {
         //Load one line
-        vfs_read_string_lit(ctxt, line, SDL_arraysize(line));
+        vfs_read_string_lit(*ctxt, line, SDL_arraysize(line));
         addMessage(line);
     }
 }
@@ -421,10 +425,6 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
 {
     // Open the file
     ReadContext ctxt(filePath);
-    if (!ctxt.ensureOpen())
-    {
-        return false;
-    }
 
     //read slot number (ignored for now)
     vfs_get_next_int(ctxt);

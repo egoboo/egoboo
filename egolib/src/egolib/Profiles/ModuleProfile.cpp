@@ -102,10 +102,6 @@ std::shared_ptr<ModuleProfile> ModuleProfile::loadFromFile(const std::string &fo
 
     // see if we can open menu.txt file (required)
     ReadContext ctxt(folderPath + "/gamedat/menu.txt");
-    if (!ctxt.ensureOpen())
-    {
-        return nullptr;
-    }
 
     //Allocate memory
     std::shared_ptr<ModuleProfile> result = std::make_shared<ModuleProfile>();
@@ -194,7 +190,6 @@ std::shared_ptr<ModuleProfile> ModuleProfile::loadFromFile(const std::string &fo
 
     //Done!
     result->_loaded = true;
-    ctxt.close();
 
     // save the module path
     result->_vfsPath = folderPath;
@@ -221,10 +216,7 @@ bool ModuleProfile::moduleHasIDSZ(const char *szModName, const IDSZ2& idsz, size
     std::string newLoadName = "mp_modules/" + std::string(szModName) + "/gamedat/menu.txt";
 
     ReadContext ctxt(newLoadName);
-    if (!ctxt.ensureOpen())
-    {
-        return false;
-    }
+
     // Read basic data
     ctxt.skipToColon(false);  // Name of module...  Doesn't matter
     ctxt.skipToColon(false);  // Reference directory...

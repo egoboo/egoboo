@@ -90,13 +90,6 @@ void font_bmp_load_vfs( const std::string& szBitmap, const char* szSpacing )
 
     // Figure out where each font is and its spacing
     ReadContext ctxt(szSpacing);
-    if (!ctxt.ensureOpen())
-    {
-		std::ostringstream os;
-		os << "unable to read font spacing file `" << szSpacing << "` for spacing (" << xsize << ", " << ysize << ")";
-		Log::get().error("%s", os.str().c_str());
-		throw std::runtime_error(os.str());
-    }
 
     int stt_x = 0;
     int stt_y = 0;

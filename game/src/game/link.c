@@ -142,7 +142,6 @@ bool link_build_vfs( const char * fname, Link_t list[] )
     if (!VALID_CSTR(fname)) return false;
 
     ReadContext ctxt(fname);
-    if (!ctxt.ensureOpen()) return false;
 
     size_t i = 0;
     while (ctxt.skipToColon(true) && i < LINK_COUNT)

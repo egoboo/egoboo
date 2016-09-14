@@ -36,6 +36,7 @@ class MainMenuState : public GameState
 {
 public:
     MainMenuState();
+    ~MainMenuState();
 
     void update() override;
 
@@ -48,5 +49,11 @@ protected:
     void drawContainer(Ego::GUI::DrawingContext& drawingContext) override;
 
 private:
+    Ego::Connection _onExitButtonClicked;
+    Ego::Connection _onOptionsButtonClicked;
+    Ego::Connection _onNewGameButtonClicked;
+    Ego::Connection _onLoadGameButtonClicked;
+    Ego::Connection _onDebugButtonClicked;
+    Ego::Connection _onMapEditorButtonClicked;
     std::forward_list<std::shared_ptr<Ego::GUI::Button>> _slidyButtons;
 };

@@ -8,6 +8,9 @@ namespace GUI {
 
 class Button : public Component {
 public:
+    /// Signal invoked if the button was clicked.
+    Signal<void()> Clicked;
+public:
     Button(int hotkey = SDLK_UNKNOWN);
     Button(const std::string &buttonText, int hotkey = SDLK_UNKNOWN);
 
@@ -31,8 +34,6 @@ public:
 
     void beginSlidyButtonEffect(float offset);
 
-    bool isEnabled() const override;
-
     void setEnabled(const bool enabled) override;
 
 protected:
@@ -50,7 +51,6 @@ protected:
 
 private:
     std::string _buttonText;
-    std::function<void()> _onClickFunction;
     int _hotkey;
     float _slidyButtonTargetX;
     float _slidyButtonCurrentX;

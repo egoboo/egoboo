@@ -453,7 +453,7 @@ namespace NativeInterface {
 	 * @brief
 	 *  The type of a C/C++ native interface (NI) function.
 	 */
-	typedef uint8_t Function(script_state_t&, ai_state_t&);
+	using Function = uint8_t(script_state_t&, ai_state_t&);
 	/**
 	 * @brief
 	 *  Combination of a pointer to a C/C++ NI function with its name in the DSL.

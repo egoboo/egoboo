@@ -33,8 +33,8 @@ namespace Math {
 
 template <typename _VectorSpaceType>
 struct Translate<Point<_VectorSpaceType>> {
-    typedef Point<_VectorSpaceType> X;
-    typedef typename _VectorSpaceType::VectorType T;
+    using X = Point<_VectorSpaceType>;
+    using T = typename _VectorSpaceType::VectorType;
     X operator()(const X& x, const T& t) const {
         return X::toPoint(X::toVector(x) + t);
     }

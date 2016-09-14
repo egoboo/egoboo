@@ -2,10 +2,10 @@
 
 #define EGOLIB_MATH_PRIVATE 1
 
-#include "egolib/Math/ColourRgb.hpp"
-#include "egolib/Math/ColourRgba.hpp"
+#include "egolib/Math/ColourRGB.hpp"
+#include "egolib/Math/ColourRGBA.hpp"
 #include "egolib/Math/ColourL.hpp"
-#include "egolib/Math/ColourLa.hpp"
+#include "egolib/Math/ColourLA.hpp"
 
 //
 #include "egolib/Math/Angle.hpp"
@@ -35,8 +35,8 @@
 #include "egolib/Math/Functors/Interpolate_Linear_Point.hpp"
 #include "egolib/Math/Functors/Interpolate_Linear_Real.hpp"
 #include "egolib/Math/Functors/Interpolate_Linear_Vector.hpp"
-#include "egolib/Math/Functors/Interpolate_Linear_ColourRgb.hpp"
-#include "egolib/Math/Functors/Interpolate_Linear_ColourRgba.hpp"
+#include "egolib/Math/Functors/Interpolate_Linear_ColourRGB.hpp"
+#include "egolib/Math/Functors/Interpolate_Linear_ColourRGBA.hpp"
 
 //
 #include "egolib/Math/Functors/Contains_AxisAlignedBox_AxisAlignedBox.hpp"
@@ -70,6 +70,16 @@
 #include "egolib/Math/Functors/Translate_Ray.hpp"
 #include "egolib/Math/Functors/Translate_Sphere.hpp"
 
+//
+#include "egolib/Math/Functors/Convert_Lf_Lf.hpp"
+#include "egolib/Math/Functors/Convert_LAf_LAf.hpp"
+#include "egolib/Math/Functors/Convert_Lf_LAf.hpp"
+#include "egolib/Math/Functors/Convert_LAf_Lf.hpp"
+
+#include "egolib/Math/Functors/Convert_RGBf_RGBf.hpp"
+#include "egolib/Math/Functors/Convert_RGBAf_RGBAf.hpp"
+#include "egolib/Math/Functors/Convert_RGBf_RGBAf.hpp"
+#include "egolib/Math/Functors/Convert_RGBAf_RGBf.hpp"
 
 //
 #include "egolib/Math/Functors/Closure_AxisAlignedBox_AxisAlignedBox.hpp"
@@ -79,7 +89,6 @@
 #include "egolib/Math/Functors/Closure_AxisAlignedCube_AxisAlignedCube.hpp"
 #include "egolib/Math/Functors/Closure_Sphere_AxisAlignedBox.hpp"
 #include "egolib/Math/Functors/Closure_Sphere_Sphere.hpp"
-
 
 //
 #include "egolib/Math/Discrete.hpp"

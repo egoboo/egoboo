@@ -16,8 +16,8 @@ struct Intersects<
 	AxisAlignedCube<EuclideanSpaceType>,
 	AxisAlignedBox<EuclideanSpaceType>
 > {
-    typedef AxisAlignedCube<EuclideanSpaceType> FirstType;
-	typedef AxisAlignedBox<EuclideanSpaceType> SecondType;
+    using FirstType = AxisAlignedCube<EuclideanSpaceType>;
+	using SecondType = AxisAlignedBox<EuclideanSpaceType>;
     bool operator()(const FirstType& a, const SecondType& b) const {
         static const Intersects<SecondType,FirstType> functor;
 		return functor(b,a);

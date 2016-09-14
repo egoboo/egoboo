@@ -49,19 +49,19 @@ public:
      * @brief
      *  The type of the vector space.
      */
-    typedef _VectorSpaceType VectorSpaceType;
+    using VectorSpaceType = _VectorSpaceType;
 
     /**
      * @brief
      *  The type of this template/template specialization.
      */
-    typedef EuclideanSpace<VectorSpaceType> MyType;
+    using MyType = EuclideanSpace<VectorSpaceType>;
 
     /**
      * @brief
      *  The type of the scalar field.
      */
-    typedef typename VectorSpaceType::ScalarFieldType ScalarFieldType;
+    using ScalarFieldType = typename VectorSpaceType::ScalarFieldType;
 
     /**
      * @brief
@@ -77,19 +77,19 @@ public:
      * @brief
      *  The type of a scalar.
      */
-    typedef typename VectorSpaceType::ScalarType ScalarType;
+    using ScalarType = typename VectorSpaceType::ScalarType;
 
     /**
      * @brief
      *  The type of a vector.
      */
-    typedef typename VectorSpaceType::VectorType VectorType;
+    using VectorType = typename VectorSpaceType::VectorType;
 
     /**
      * @brief
      *  The type of a point.
      */
-    typedef Point<VectorSpaceType> PointType;
+    using PointType = Point<VectorSpaceType>;
 
 }; // struct EuclideanSpace
 
@@ -111,16 +111,16 @@ public:
 /// @endcode
 #define Ego_Math_EuclideanSpace_CommonDefinitions(_Type) \
     /** @brief The Euclidean space type over which this type is defined. */ \
-    typedef _EuclideanSpaceType EuclideanSpaceType; \
+    using EuclideanSpaceType = _EuclideanSpaceType; \
     /** @brief The vector space type (of the Euclidean space type). */ \
-    typedef typename EuclideanSpaceType::VectorSpaceType VectorSpaceType; \
+    using VectorSpaceType = typename EuclideanSpaceType::VectorSpaceType; \
     /** @brief The scalar field type (of the vector space type). */ \
-    typedef typename EuclideanSpaceType::ScalarFieldType ScalarFieldType; \
+    using ScalarFieldType = typename EuclideanSpaceType::ScalarFieldType; \
     /** @brief The vector type (of the vector space type). */ \
-    typedef typename EuclideanSpaceType::VectorType VectorType; \
+    using VectorType = typename EuclideanSpaceType::VectorType; \
     /** @brief The scalar type (of the scalar field type). */ \
-    typedef typename EuclideanSpaceType::ScalarType ScalarType; \
+    using ScalarType = typename EuclideanSpaceType::ScalarType; \
     /** @brief The point type (of the Euclidean space type). */ \
-    typedef typename EuclideanSpaceType::PointType PointType; \
+    using PointType = typename EuclideanSpaceType::PointType; \
     /** @brief @a MyType is the type of this template/template specialization. */ \
-    typedef _Type<EuclideanSpaceType> MyType;
+    using MyType = _Type<EuclideanSpaceType>;

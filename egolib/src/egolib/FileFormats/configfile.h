@@ -143,16 +143,16 @@ public:
 
 public:
 
-    typedef unordered_map<QualifiedName, shared_ptr<Entry>> MapTy;
-    typedef MapTy::const_iterator ConstMapIteratorTy;
+    using MapTy = unordered_map<QualifiedName, shared_ptr<Entry>>;
+    using ConstMapIteratorTy = MapTy::const_iterator;
 
     /// @internal Custom iterator.
     struct EntryIterator : iterator<forward_iterator_tag, const shared_ptr<Entry>>
     {
     public:
-        typedef forward_iterator_tag iterator_category;
+        using iterator_category = forward_iterator_tag;
 
-        typedef ConstMapIteratorTy OuterIteratorTy;
+        using OuterIteratorTy = ConstMapIteratorTy;
 
     private:
         OuterIteratorTy _inner;
@@ -248,9 +248,9 @@ public:
 public:
 
     // STL-style
-    typedef EntryIterator iterator;
+    using iterator = EntryIterator;
     // STL-style
-    typedef EntryIterator const_iterator;
+    using const_iterator = EntryIterator;
 
     /**
      * @brief
@@ -456,7 +456,7 @@ struct ConfigFileParser : public AbstractReader<Traits<char>>
 {
 public:
 
-    typedef Ego::Script::Traits<char> Traits;
+    using Traits = Ego::Script::Traits<char>;
 
 protected:
     /**
@@ -471,7 +471,6 @@ protected:
     unique_ptr<string> _currentValue;
 
     vector<string> _commentLines;
-    shared_ptr<ConfigFile> _target;
 
     /**
      * @brief
@@ -482,12 +481,12 @@ protected:
 
 public:
 
-    ConfigFileParser();
+    ConfigFileParser(const std::string& fileName);
 
     virtual ~ConfigFileParser();
 
 
-    shared_ptr<ConfigFile> parse(const string& fileName);
+    shared_ptr<ConfigFile> parse();
 
 protected:
 
@@ -497,7 +496,7 @@ protected:
      *  file -> entries*
      *  @endcode
      */
-    bool parseFile();
+    bool parseFile(shared_ptr<ConfigFile> target);
 
     /**
      * @remark
@@ -505,7 +504,7 @@ protected:
      *  entry -> sectionName keyValuePair*
      *  @endcode
      */
-    bool parseEntry();
+    bool parseEntry(shared_ptr<ConfigFile> target);
 
     /**
      * @remark

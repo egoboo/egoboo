@@ -28,7 +28,7 @@ struct Size2;
 template <typename T>
 struct Size2<T, std::enable_if_t<std::is_same<T, int>::value>> {
 private:
-    typedef Size2<T> MyType;
+    using MyType = Size2<T>;
     std::array<T, 2> elements;
 
 public:
@@ -72,7 +72,7 @@ struct Vector2;
 template <typename T>
 struct Vector2<T, std::enable_if_t<std::is_same<T, int>::value>> {
 private:
-    typedef Vector2<T> MyType;
+    using MyType = Vector2<T>;
     std::array<T, 2> elements;
 
 public:
@@ -132,8 +132,8 @@ struct Point2;
 template <typename T>
 struct Point2<T, std::enable_if_t<std::is_same<T, int>::value>> {
 private:
-    typedef Vector2<T> VectorType;
-    typedef Point2<T> MyType;
+    using VectorType = Vector2<T>;
+    using MyType = Point2<T>;
     std::array<T, 2> elements;
 
 public:

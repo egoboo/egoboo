@@ -82,9 +82,12 @@ LoadingState::LoadingState(std::shared_ptr<ModuleProfile> module, const std::lis
 
 LoadingState::~LoadingState()
 {
-    // Wait until thread is dead
+    // Wait until thread is dead.
     if(_loadingThread.joinable()) {
         _loadingThread.join();
+    }
+    for (auto connection : _connections) {
+        connection.disconnect();
     }
 }
 
@@ -219,14 +222,14 @@ void LoadingState::loadModuleData()
         // Hit that gong
         AudioSystem::get().playSoundFull(AudioSystem::get().getGlobalSound(GSND_GAME_READY));
 
-        //1 second delay to let music finish, this prevents a frame lag on module startup
+        //2 second delay to let music finish, this prevents a frame lag on module startup
         std::this_thread::sleep_for(std::chrono::seconds(2));
 
         //Add the start button once we are finished loading
         auto startButton = std::make_shared<Ego::GUI::Button>("Press Space to begin", SDLK_SPACE);
         startButton->setSize(Vector2f(400, 30));
         startButton->setPosition(Point2f(SCREEN_WIDTH/2 - startButton->getWidth()/2, SCREEN_HEIGHT-50));
-        startButton->setOnClickFunction(
+        _connections.push_back(startButton->Clicked.subscribe(
             [cameraSystem]{
 
                 //Have to do this function in the OpenGL context thread or else it will fail
@@ -235,7 +238,7 @@ void LoadingState::loadModuleData()
                 //Hush gong
                 AudioSystem::get().fadeAllSounds();
                 _gameEngine->setGameState(std::make_shared<PlayingState>(cameraSystem));
-            });
+            }));
         addComponent(startButton);
 
         //Hide the progress bar
@@ -260,11 +263,6 @@ bool LoadingState::loadGlobalHints()
 {
     // Open the file with all the tips
     ReadContext ctxt("mp_data/gametips.txt");
-    if (!ctxt.ensureOpen())
-    {
-		Log::get().warn("Unable to load the game tips and hints file `%s`\n", ctxt.getLoadName().c_str());
-        return false;
-    }
 
     // Load the data
     while (ctxt.skipToColon(true))
@@ -280,8 +278,6 @@ bool LoadingState::loadGlobalHints()
         _globalGameTips.push_back(buffer);
     }
 
-    ctxt.close();
-
     if(_globalGameTips.empty()) {
 		Log::get().warn( "Could not load the game tips and hints. (\"basicdat/gametips.txt\")\n" );
     }
@@ -296,10 +292,7 @@ bool LoadingState::loadLocalModuleHints()
     // Open all the tips
     snprintf(buffer, SDL_arraysize( buffer ), "mp_modules/%s/gamedat/gametips.txt", _loadModule->getFolderName().c_str());
     ReadContext ctxt(buffer);
-    if (!ctxt.ensureOpen())
-    {
-        return false;
-    }
+
     // Load the data
     while (ctxt.skipToColon(true))
     {

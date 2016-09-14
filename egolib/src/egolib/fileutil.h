@@ -53,20 +53,13 @@
  * @author
  *  Michael Heilmann
  */
-struct ReadContext : public Ego::Script::AbstractReader<Ego::Script::Traits<char>>
+struct ReadContext : public AbstractReader<Ego::Script::Traits<char>>
 {
 
-public:
+public:   
+    using Traits = Ego::Script::Traits<char>;
 
-    /**
-     * @brief
-     *  The load name of the file of this context.
-     */
-    std::string _loadName;
-    
-    typedef Ego::Script::Traits<char> Traits;
-
-    ReadContext(const std::string& loadName);
+    ReadContext(const std::string& fileName);
 
     ~ReadContext();
 
@@ -75,44 +68,10 @@ public:
      *  Convert the contents of the buffer to a float value.
      * @return
      *  the float value
-     * @throw Id::LexicalErrorException
+     * @throw LexicalErrorException
      *  if a lexical error occurs
      */
     float toReal() const;
-
-    /**
-     * @brief
-     *  Get the load name of the file associated with this context.
-     * @return
-     *  the load name of the file associated with this context
-     */
-    const std::string& getLoadName() const;
-
-    /**
-     * @brief
-     *  Get if the context is open.
-     * @return
-     *  @a true if the context is open, @a false otherwise
-     */
-    bool isOpen() const;
-
-    /**
-     * @brief
-     *  Open this context.
-     * @return
-     *  @a true if the context is open, @a false otherwise
-     */
-    bool ensureOpen();
-
-    /**
-     * @brief
-     *  Close the context.
-     * @post
-     *  The context is closed.
-     * @remark
-     *  If the context is not open, a call to this method is noop.
-     */
-    void close();
 
     /**
      * @brief
@@ -125,14 +84,14 @@ public:
      *  Add comment about lexical error.
      */
     template <typename EnumType>
-    EnumType readEnum(const Ego::Script::EnumDescriptor<EnumType>& enumDescriptor)
+    EnumType readEnum(const EnumDescriptor<EnumType>& enumDescriptor)
     {
         using namespace std;
         auto name = readName();
         auto it = enumDescriptor.find(name);
         if (it == enumDescriptor.end())
         {
-            throw Id::LexicalErrorException(__FILE__,__LINE__,Ego::Script::Location(_loadName, _lineNumber), "invalid enum");
+            throw LexicalErrorException(__FILE__,__LINE__,Location(getFileName(), getLineNumber()), "invalid enum");
         }
         return it->second;
     }
@@ -148,7 +107,7 @@ public:
      *  Add comment about lexical error and default.
      */
     template <typename EnumType>
-    EnumType readEnum(const Ego::Script::EnumDescriptor<EnumType>& enumDescriptor, EnumType defaultValue)
+    EnumType readEnum(const EnumDescriptor<EnumType>& enumDescriptor, EnumType defaultValue)
     {
         using namespace std;
         auto name = readName();
@@ -156,7 +115,7 @@ public:
         if (it == enumDescriptor.end())
         {
 			Log::get().warn("%s:%d: in file `%s`: `%s` is not an element of enum `%s`\n", __FILE__, __LINE__,
-                            _loadName.c_str(), name.c_str(), enumDescriptor.getName().c_str());
+                            getFileName().c_str(), name.c_str(), enumDescriptor.getName().c_str());
             return defaultValue;
         }
         return it->second;
@@ -180,7 +139,7 @@ public:
      */
     std::string readToEndOfLine();
     /**
-     * @throw Id::LexicalErrorException
+     * @throw LexicalErrorException
      *  if a lexical error occurs
      * @remark
      *  A single line comment in this revision are the strings
@@ -191,7 +150,7 @@ public:
     std::string readSingleLineComment();
 
     /**
-     * @throw Id::LexicalErrorException
+     * @throw LexicalErrorException
      *  if a lexical error occurs
      * @remark
      *  A printable character in this revision are the strings
@@ -210,10 +169,10 @@ public:
 	 *  stringLiteral := (character|digit|'~'|'_')*
 	 *  @endcode
 	 */
-	Ego::Script::TextToken parseStringLiteral();
+	TextToken parseStringLiteral();
 
 	/**
-	 * @throw Id::LexicalErrorException
+	 * @throw LexicalErrorException
 	 *  if a lexical error occurs
 	 * @remark
 	 *  A character literal in this revision are the strings
@@ -224,10 +183,10 @@ public:
 	 * @todo
 	 *  Use Unicode notation for better readbility.
 	 */
-	Ego::Script::TextToken parseCharacterLiteral();
+	TextToken parseCharacterLiteral();
 
     /**
-     * @throw Id::LexicalErrorException
+     * @throw LexicalErrorException
      *  if a lexical error occurs
      * @remark
      *  An integer literal in this revision are the strings
@@ -235,10 +194,10 @@ public:
      *  integer := ('+'|'-')? digit+ ('e'|'E' digit+)?
      *  @endcode
      */
-	Ego::Script::TextToken parseIntegerLiteral();
+	TextToken parseIntegerLiteral();
 
     /**
-     * @throw Id::LexicalErrorException
+     * @throw LexicalErrorException
      *  if a lexical error occurs
      * @remark
      *  A natural literal in this revision are the strings
@@ -246,10 +205,10 @@ public:
      *  integer := '+'? digit+ ('e'|'E' digit+)?
      *  @endcode
      */
-	Ego::Script::TextToken parseNaturalLiteral();
+	TextToken parseNaturalLiteral();
 
     /**
-     * @throw Id::LexicalErrorException
+     * @throw LexicalErrorException
      *  if a lexical error occurs
      * @remark
      *  A real literal in this revision are the strings
@@ -259,12 +218,12 @@ public:
      *  realExponent := ('e'|'E' ('+'|'-')? digit+)?
      *  @endcode
      */
-	Ego::Script::TextToken parseRealLiteral();
+	TextToken parseRealLiteral();
 
 public:
 
     /**
-     * @throw Id::LexicalErrorException
+     * @throw LexicalErrorException
      *  if a lexical error occurs
      * @remark
      *   A boolean literal in this revision are the strings
@@ -275,7 +234,7 @@ public:
     bool readBool();
 
     /**
-     * @throw Id::LexicalErrorException
+     * @throw LexicalErrorException
      *  if a lexical error occurs
      * @remark
      *   A name in this revision are the strings
@@ -287,7 +246,7 @@ public:
     std::string readName();
 
     /**
-     * @throw Id::LexicalErrorException
+     * @throw LexicalErrorException
      *  if a lexical error occurs
      * @remark
      *  A reference in this revision are the strings
@@ -299,7 +258,7 @@ public:
     std::string readReference();
 
     /**
-     * @throw Id::LexicalErrorException
+     * @throw LexicalErrorException
      *  if a lexical error occurs
      * @remark
      *  An IDSZ literal in this revision is a string
@@ -323,7 +282,7 @@ public:
      *  If the specified delimiter is reached, skip it as well.
      * @param option
      *  if @a true and the specified delimiter was not encountered, a lexical error is raised
-     * @throw Id::LexicalErrorException
+     * @throw LexicalErrorException
      *  if a lexical error occurs
      * @return
      *  @a true if the specifed delimiter is was skipped, @a false otherwise
@@ -336,7 +295,7 @@ public:
      *  If a colon is reached, skip it as well.
      * @param option
      *  if @a true and a colon was not encountered, a lexical error is raised
-     * @throw Id::LexicalErrorException
+     * @throw LexicalErrorException
      *  if a lexical error occurs
      * @return
      *  @a true if a colon was skipped, @a false otherwise

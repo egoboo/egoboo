@@ -21,8 +21,8 @@ struct Intersects<
     AxisAlignedBox<EuclideanSpaceType>,
     AxisAlignedCube<EuclideanSpaceType>
 > {
-    typedef AxisAlignedBox<EuclideanSpaceType> FirstType;
-	typedef AxisAlignedCube<EuclideanSpaceType> SecondType;
+    using FirstType = AxisAlignedBox<EuclideanSpaceType>;
+	using SecondType = AxisAlignedCube<EuclideanSpaceType>;
     bool operator()(const FirstType& a, const SecondType& b) const {
         for (size_t i = 0; i < EuclideanSpaceType::dimensionality();  ++i) {
             // If the minimum of a is greater than the maximum of b along one axis,

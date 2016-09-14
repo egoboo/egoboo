@@ -32,9 +32,9 @@ namespace Math {
 /// The axis aligned box closure \f$C(A)\f$ of an axis aligned box \f$A\f$ is \f$A\f$ itself i.e. \f$C(A) = A\f$.
 template <typename _EuclideanSpaceType>
 struct Closure<AxisAlignedBox<_EuclideanSpaceType>, AxisAlignedBox<_EuclideanSpaceType>> {
-    typedef _EuclideanSpaceType EuclideanSpaceType;
-    typedef AxisAlignedBox<_EuclideanSpaceType> SourceType;
-    typedef AxisAlignedBox<_EuclideanSpaceType> TargetType;
+    using EuclideanSpaceType = _EuclideanSpaceType;
+    using SourceType = AxisAlignedBox<_EuclideanSpaceType>;
+    using TargetType = AxisAlignedBox<_EuclideanSpaceType>;
 public:
     inline TargetType operator()(const SourceType& source) const {
         return source;

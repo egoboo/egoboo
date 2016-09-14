@@ -33,9 +33,9 @@ namespace Math {
 template <typename _EuclideanSpaceType>
 struct Closure<AxisAlignedCube<_EuclideanSpaceType>, AxisAlignedCube<_EuclideanSpaceType>> {
 public:
-    typedef _EuclideanSpaceType EuclideanSpaceType;
-    typedef AxisAlignedCube<EuclideanSpaceType> SourceType;
-    typedef AxisAlignedCube<EuclideanSpaceType> TargetType;
+    using EuclideanSpaceType = _EuclideanSpaceType;
+    using SourceType = AxisAlignedCube<EuclideanSpaceType>;
+    using TargetType = AxisAlignedCube<EuclideanSpaceType>;
 public:
     inline TargetType operator()(const SourceType& source) const {
         return source;

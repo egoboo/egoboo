@@ -33,8 +33,8 @@ namespace Math {
 
 template <typename _EuclideanSpaceType>
 struct Translate<Cone3<_EuclideanSpaceType, void>> {
-    typedef Cone3<_EuclideanSpaceType, void> X;
-    typedef typename _EuclideanSpaceType::VectorType T;
+    using X = Cone3<_EuclideanSpaceType, void>;
+    using T = typename _EuclideanSpaceType::VectorType;
     X operator()(const X& x, const T& t) const {
         return X(typename X::Cookie(), x.getOrigin() + t, x.getAxis(), x.getAngle());
     }

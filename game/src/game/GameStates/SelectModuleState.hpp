@@ -48,6 +48,8 @@ public:
     **/
     SelectModuleState(const std::list<std::string> &playersToLoad);
 
+    ~SelectModuleState();
+
     void update() override;
 
     void beginState() override;
@@ -63,10 +65,19 @@ protected:
 private:
     bool _onlyStarterModules;
     std::vector<std::shared_ptr<ModuleProfile>> _validModules;        ///< Current selectable modules (filtered, unlocked, etc.)
+
+    
     std::shared_ptr<Ego::GUI::Image> _background;
+
+    std::vector<Ego::Connection> _connections;
+
+    std::shared_ptr<Ego::GUI::Button> _backButton;
     std::shared_ptr<Ego::GUI::Button> _filterButton;
     std::shared_ptr<Ego::GUI::Button> _chooseModule;
+    
     std::shared_ptr<Ego::GUI::ModuleSelector> _moduleSelector;
+    
     ModuleFilter _moduleFilter;
+    
     std::list<std::string> _selectedPlayerList;
 };

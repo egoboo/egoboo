@@ -5,9 +5,9 @@
 #include "egolib/Grid/Index.hpp"
 #include "egolib/Grid/Rect.hpp"
 
-typedef Grid::Index<int, Grid::CoordinateSystem::Grid> Index2D;
-typedef Grid::Index<int, Grid::CoordinateSystem::List> Index1D;
-typedef Grid::Rect<int, Grid::CoordinateSystem::Grid> IndexRect;
+using Index2D = Grid::Index<int, Grid::CoordinateSystem::Grid>;
+using Index1D = Grid::Index<int, Grid::CoordinateSystem::List>;
+using IndexRect = Grid::Rect<int, Grid::CoordinateSystem::Grid>;
 
 namespace Ego {
 

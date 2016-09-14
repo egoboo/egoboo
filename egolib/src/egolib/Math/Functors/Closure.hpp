@@ -41,11 +41,11 @@ namespace Math {
  *  is simply the identity function \f$C[B,B](x) = Id[B](x)\f$
  * @tparam _SourceType
  *  the type of the enclosed values.
- *  A member typedef @a SourceType is provided.
+ *  A member type @a SourceType is provided.
  *  the source volume
  * @param _TargetType
  *  the type of the enclosing values.
- *  A member typedef @a TargetType is provided.
+ *  A member type @a TargetType is provided.
  * @remark
  *  If a specialization exists, then the specialization provides defines a `operator()` that
  *  - accepts a single argument value of type @a _SourceType

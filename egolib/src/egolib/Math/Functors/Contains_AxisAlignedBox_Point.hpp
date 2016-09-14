@@ -14,8 +14,8 @@ struct Contains<
     AxisAlignedBox<EuclideanSpaceType>,
     Point<typename EuclideanSpaceType::VectorSpaceType>
 > {
-    typedef AxisAlignedBox<EuclideanSpaceType> FirstType;
-    typedef Point<typename EuclideanSpaceType::VectorSpaceType> SecondType;
+    using FirstType = AxisAlignedBox<EuclideanSpaceType>;
+    using SecondType = Point<typename EuclideanSpaceType::VectorSpaceType>;
     bool operator()(const FirstType& a, const SecondType& b) const {
         for (size_t i = 0; i < EuclideanSpaceType::dimensionality(); ++i) {
             if (a.getMax()[i] < b[i]) return false;

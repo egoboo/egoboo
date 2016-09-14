@@ -48,7 +48,7 @@ struct SlidingWindow : Id::NonCopyable {
 	 * @brief
 	 *	The type of the data points of this sliding point.
 	 */
-	typedef _DataPointType DataPointType;
+    using DataPointType = _DataPointType;
 
 private:
 

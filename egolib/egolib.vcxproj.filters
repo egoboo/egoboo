@@ -157,6 +157,9 @@
     <Filter Include="Source Files\InputControl">
       <UniqueIdentifier>{26be0be1-53fa-4176-a0f6-ec408fc0f898}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Configuration">
+      <UniqueIdentifier>{ae7714a7-d83d-4194-aeca-c072b6474de3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\egolib\_math.c">
@@ -527,6 +530,9 @@
     </ClCompile>
     <ClCompile Include="src\egolib\InputControl\InputSystem.cpp">
       <Filter>Source Files\InputControl</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Signal\Connection.hpp">
+      <Filter>Header Files\Signal</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1070,13 +1076,10 @@
     <ClInclude Include="src\egolib\Math\ColourComponents.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\math\ColourRgba.hpp">
+    <ClInclude Include="src\egolib\math\ColourRGB.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\math\ColourRgb.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Math\ColourLa.hpp">
+    <ClInclude Include="src\egolib\Math\ColourLA.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Math\Colour.hpp">
@@ -1211,10 +1214,10 @@
     <ClInclude Include="src\egolib\Math\Functors\Interpolate_Linear_Vector.hpp">
       <Filter>Header Files\Math\Functors</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Math\Functors\Interpolate_Linear_ColourRgb.hpp">
+    <ClInclude Include="src\egolib\Math\Functors\Interpolate_Linear_ColourRGB.hpp">
       <Filter>Header Files\Math\Functors</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Math\Functors\Interpolate_Linear_ColourRgba.hpp">
+    <ClInclude Include="src\egolib\Math\Functors\Interpolate_Linear_ColourRGBA.hpp">
       <Filter>Header Files\Math\Functors</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Events\MouseMovedEventArgs.hpp">
@@ -1288,6 +1291,51 @@
     </ClInclude>
     <ClInclude Include="src\egolib\InputControl\ModifierKeys.hpp">
       <Filter>Header Files\InputControl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Configuration\Variable.hpp">
+      <Filter>Header Files\Configuration</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Configuration\NumericVariable.hpp">
+      <Filter>Header Files\Configuration</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Configuration\StandardVariable.hpp">
+      <Filter>Header Files\Configuration</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Signal\ScopedConnection.hpp">
+      <Filter>Header Files\Signal</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Signal\Node.hpp">
+      <Filter>Header Files\Signal</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Convert.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Convert_LAf_Lf.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Convert_Lf_LAf.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Convert_Lf_Lf.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Convert_RGBAf_RGBAf.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Convert_RGBAf_RGBf.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Convert_RGBf_RGBAf.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Convert_RGBf_RGBf.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Functors\Convert_LAf_LAf.hpp">
+      <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\math\ColourRGBA.hpp">
+      <Filter>Header Files\Math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

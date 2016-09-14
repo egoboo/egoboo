@@ -36,11 +36,6 @@ bool input_settings_load_vfs(const char* szFilename)
     /// @details This function reads the controls.txt file, version 3
 
     ReadContext ctxt(szFilename);
-    if (!ctxt.ensureOpen())
-    {
-        Log::get().warn("unable to read input settings file `%s`\n", szFilename);
-        return false;
-    }
 
     // Read input for each player
     for (size_t i = 0; i < Ego::Input::InputDevice::DeviceList.size(); i++)

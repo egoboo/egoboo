@@ -56,7 +56,7 @@ ModuleSelector::ModuleSelector(const std::vector<std::shared_ptr<ModuleProfile>>
     //Next and previous buttons
     _nextModuleButton->setPosition(Point2f(SCREEN_WIDTH - 50 - moduleMenuOffsetX - 21, 74 - MODULE_BUTTON_SIZE - 40));
     _nextModuleButton->setSize(NAVIGATION_BUTTON_SIZE);
-    _nextModuleButton->setOnClickFunction(
+    _onNextModuleButtonClicked = _nextModuleButton->Clicked.subscribe(
         [this] {
         _startIndex++;
         _nextModuleButton->setEnabled(_modules.size() > _startIndex + 3);
@@ -66,7 +66,7 @@ ModuleSelector::ModuleSelector(const std::vector<std::shared_ptr<ModuleProfile>>
 
     _previousModuleButton->setPosition(Point2f(moduleMenuOffsetX - moduleMenuOffsetX - 21, - MODULE_BUTTON_SIZE - 40) + Vector2f(20, 74));
     _previousModuleButton->setSize(NAVIGATION_BUTTON_SIZE);
-    _previousModuleButton->setOnClickFunction(
+    _onPreviousModuleButtonClicked = _previousModuleButton->Clicked.subscribe(
         [this] {
         _startIndex--;
         _previousModuleButton->setEnabled(_startIndex > 0);
@@ -84,15 +84,23 @@ ModuleSelector::ModuleSelector(const std::vector<std::shared_ptr<ModuleProfile>>
         std::shared_ptr<ModuleButton> moduleButton = std::make_shared<ModuleButton>(this, i);
         moduleButton->setSize(Vector2f(MODULE_BUTTON_SIZE, MODULE_BUTTON_SIZE));
         moduleButton->setPosition(Point2f(offsetx, offsety) + Vector2f(93, GAP));
-        moduleButton->setOnClickFunction(
+        _onModuleSelected.push_back(moduleButton->Clicked.subscribe(
             [this, i] {
             if (_startIndex + i >= _modules.size()) return;
             _selectedModule = _modules[_startIndex + i];
-        });
+        }));
         addComponent(moduleButton);
 
         offsetx += moduleButton->getWidth() + GAP;
     }
+}
+
+ModuleSelector::~ModuleSelector() {
+    for (auto onModuleSelected : _onModuleSelected) {
+        onModuleSelected.disconnect();
+    }
+    _onNextModuleButtonClicked.disconnect();
+    _onPreviousModuleButtonClicked.disconnect();
 }
 
 void ModuleSelector::drawContainer(DrawingContext& drawingContext) {

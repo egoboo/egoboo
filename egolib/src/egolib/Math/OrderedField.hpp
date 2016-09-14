@@ -34,7 +34,7 @@ struct OrderedField<_ScalarType, typename std::enable_if<IsScalar<_ScalarType>::
      * @brief
      *  The scalar type.
      */
-    typedef _ScalarType ScalarType;
+    using ScalarType = _ScalarType;
 
 	/**
 	 * @invariant
@@ -58,7 +58,7 @@ public:
         return x / y;
     }
     struct QuotientFunctor {
-        typedef ScalarType ResultType;
+        using ResultType = ScalarType;
         ScalarType operator()(const ScalarType& a, const ScalarType& b) const {
             return quotient(a, b);
         }

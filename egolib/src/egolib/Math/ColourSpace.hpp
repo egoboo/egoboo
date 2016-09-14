@@ -13,7 +13,7 @@ struct Lf {
     /**
     * @brief The component type.
     */
-    typedef float ComponentType;
+    using ComponentType = float;
 
     /**
      * @brief Get if the colour space has RGB components.
@@ -60,7 +60,7 @@ struct LAf {
     /**
      * @brief The component type.
      */
-    typedef float ComponentType;
+    using ComponentType = float;
 
     /**
      * @brief Get if the colour space has RGB components.
@@ -107,7 +107,7 @@ struct Lb {
     /**
      * @brief The component type.
      */
-    typedef uint8_t ComponentType;
+    using ComponentType = uint8_t;
 
     /**
      * @brief Get if the colour space has RGB components.
@@ -154,7 +154,7 @@ struct LAb {
     /**
      * @brief The component type.
      */
-    typedef uint8_t ComponentType;
+    using ComponentType = uint8_t;
 
     /**
      * @brief Get if the colour space has RGB components.
@@ -201,7 +201,7 @@ struct RGBf {
     /**
      * @brief The component type.
      */
-    typedef float ComponentType;
+    using ComponentType = float;
     
     /**
      * @brief Get if the colour space has RGB components.
@@ -249,7 +249,7 @@ struct RGBAf {
     /**
      * @brief The component type.
      */
-    typedef float ComponentType;
+    using ComponentType = float;
 
     /**
      * @brief Get if the colour space has RGB components.
@@ -297,7 +297,7 @@ struct RGBb {
     /**
      * @brief The component type.
      */
-    typedef uint8_t ComponentType;
+    using ComponentType = uint8_t;
 
     /**
      * @brief Get if the colour space has RGB components.
@@ -344,7 +344,7 @@ struct RGBAb {
     /**
      * @brief The component type.
      */
-    typedef uint8_t ComponentType;
+    using ComponentType = uint8_t;
 
     /**
      * @brief Get if the colour space has RGB components.
@@ -391,22 +391,22 @@ template <typename _ColourSpaceType>
 struct _Opaque;
 
 template <>
-struct _Opaque<RGBb> { typedef RGBb Type; };
+struct _Opaque<RGBb> { using Type = RGBb; };
 template <>
-struct _Opaque<RGBf> { typedef RGBf Type; };
+struct _Opaque<RGBf> { using Type = RGBf; };
 template <>
-struct _Opaque<Lb> { typedef Lb Type; };
+struct _Opaque<Lb> { using Type = Lb; };
 template <>
-struct _Opaque<Lf> { typedef Lf Type; };
+struct _Opaque<Lf> { using Type = Lf; };
 
 template <>
-struct _Opaque<RGBAb> { typedef RGBb Type; };
+struct _Opaque<RGBAb> { using Type = RGBb; };
 template <>
-struct _Opaque<RGBAf> { typedef RGBf Type; };
+struct _Opaque<RGBAf> { using Type = RGBf; };
 template <>
-struct _Opaque<LAb> { typedef Lb Type; };
+struct _Opaque<LAb> { using Type = Lb; };
 template <>
-struct _Opaque<LAf> { typedef Lf Type; };
+struct _Opaque<LAf> { using Type = Lf; };
 
 template <typename _ColourSpaceType>
 using Opaque = typename _Opaque<_ColourSpaceType>::Type;

@@ -33,8 +33,8 @@ namespace Math {
 
 template <typename _EuclideanSpaceType>
 struct Translate<Ray<_EuclideanSpaceType>> {
-    typedef Ray<_EuclideanSpaceType> X;
-    typedef typename _EuclideanSpaceType::VectorType T;
+    using X = Ray<_EuclideanSpaceType>;
+    using T = typename _EuclideanSpaceType::VectorType;
     X operator()(const X& x, const T& t) const {
         return X(x.getOrigin() + t, x.getDirection());
     }
