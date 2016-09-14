@@ -317,7 +317,7 @@ public:
 
 // Utility functions.
 void vfs_get_next_name(ReadContext& ctxt, char *buf, size_t max);
-bool vfs_get_next_range(ReadContext& ctxt, FRange *range);
+Ego::Math::Interval<float> vfs_get_next_range(ReadContext& ctxt);
 bool vfs_get_next_pair(ReadContext& ctxt, IPair *pair);
 IDSZ2 vfs_get_next_idsz(ReadContext& ctxt);
 bool vfs_get_next_bool(ReadContext& ctxt);
@@ -380,7 +380,8 @@ void vfs_read_string_lit(ReadContext& ctxt, std::string& literal);
  *  range := real ('-' real)?
  *  @endcode
  */
-bool vfs_get_range(ReadContext& ctxt, FRange *range);
+Ego::Math::Interval<float> vfs_get_range(ReadContext& ctxt);
+
 /**
  * @brief
  *  Read a pair.
@@ -424,7 +425,7 @@ void vfs_put_bool(vfs_FILE* filewrite, const char* text, bool value);
 void vfs_put_damage_type(vfs_FILE* filewrite, const char* text, Uint8 value);
 void vfs_put_action(vfs_FILE* filewrite, const char* text, Uint8 value);
 void vfs_put_gender_profile(vfs_FILE* filewrite, const char* text, GenderProfile value);
-void vfs_put_range(vfs_FILE* filewrite, const char* text, FRange value);
+void vfs_put_range(vfs_FILE* filewrite, const char* text, Ego::Math::Interval<float> value);
 void vfs_put_pair(vfs_FILE* filewrite, const char* text, IPair value);
 void vfs_put_string_under(vfs_FILE* filewrite, const char* text, const char* usename);
 void vfs_put_idsz(vfs_FILE* filewrite, const char* text, const IDSZ2& idsz);
@@ -432,5 +433,5 @@ void vfs_put_expansion(vfs_FILE *filewrite, const char *text, const IDSZ2& idsz,
 void vfs_put_expansion(vfs_FILE *filewrite, const char *text, const IDSZ2& idsz, const LocalParticleProfileRef& lppref);
 void vfs_put_expansion_float(vfs_FILE* filewrite, const char* text, const IDSZ2& idsz, float value);
 void vfs_put_expansion_string(vfs_FILE* filewrite, const char* text, const IDSZ2& idsz, const char * value);
-void vfs_put_range_raw(vfs_FILE* filewrite, FRange val);
+void vfs_put_range_raw(vfs_FILE* filewrite, Ego::Math::Interval<float> val);
 void vfs_put_local_particle_profile_ref(vfs_FILE *filewrite, const char *text, const LocalParticleProfileRef& lppref);

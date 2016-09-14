@@ -355,7 +355,7 @@ public:
 
     inline uint16_t getStartingMoney() const {return _money;}
 
-    inline FRange getStartingExperience() const {return _startingExperience;}
+    inline Ego::Math::Interval<float> getStartingExperience() const {return _startingExperience;}
 
     inline uint8_t getStartingLevel() const {return _levelOverride;}
 
@@ -547,13 +547,13 @@ public:
     * @return
     *   Get the attribute increase each time character increases in experience level
     **/
-    const FRange& getAttributeGain(Ego::Attribute::AttributeType type) const;
+    const Ego::Math::Interval<float>& getAttributeGain(Ego::Attribute::AttributeType type) const;
 
     /**
     * @return
     *   Get base starting attribute this Object spawns with (can be random range)
     **/
-    const FRange& getAttributeBase(Ego::Attribute::AttributeType type) const;
+    const Ego::Math::Interval<float>& getAttributeBase(Ego::Attribute::AttributeType type) const;
 
     bool canLearnPerk(const Ego::Perks::PerkID id) const;
 
@@ -676,8 +676,8 @@ private:
     UFP8_T       _spawnLife;                    ///< Life left from last module (8.8 fixed point)
     UFP8_T       _spawnMana;                    ///< Mana left from last module (8.8 fixed point)
 
-    std::array<FRange, Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES> _baseAttribute; ///< Base attributes
-    std::array<FRange, Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES> _attributeGain; ///< Attribute increase each level
+    std::array<Ego::Math::Interval<float>, Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES> _baseAttribute; ///< Base attributes
+    std::array<Ego::Math::Interval<float>, Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES> _attributeGain; ///< Attribute increase each level
 
     // physics
     uint8_t      _weight;                        ///< Weight
@@ -739,7 +739,7 @@ private:
 
     // xp
     std::array<uint32_t, MAXLEVEL> _experienceForLevel;  ///< Experience needed for next level
-    FRange                          _startingExperience;  ///< Starting experience
+    Ego::Math::Interval<float>     _startingExperience;  ///< Starting experience
     uint16_t                        _experienceWorth;     ///< Amount given to killer/user
     float                           _experienceExchange;  ///< How much of this Object's experience enemies get upon killing
     std::array<float, XP_COUNT>     _experienceRate;      ///< How much experience this Object gains from various XP types

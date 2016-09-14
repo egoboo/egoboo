@@ -24,6 +24,7 @@
 #pragma once
 
 #include "egolib/platform.h"
+#include "egolib/Math/Interval.hpp"
 #include "egolib/typedef.h"
 
 class Random
@@ -38,17 +39,16 @@ public:
     static float nextFloat();
 
     /**
-    * @brief
-    *   Generates a float from a FRange type
-    * @param range
-    *   Specifies the lower and upper range to generate the number from
-    * @return
-    *   A floating point value between range.from and range.to (inclusive)
-    **/
-    static float next(const FRange &range)
+     * @brief Generates a random float within the bounds of a floating-point interval
+     * @param interval the interval
+     * @return a random floating-point value within the bounds of <c>interval.getLowerbound()</c> (inclusive) and <c>interval.getUpperbound()</c> (inclusive)
+     */
+    static float next(const Ego::Math::Interval<float>& interval)
     {
-        std::uniform_real_distribution<float> rand(range.from, range.to + std::numeric_limits<float>::epsilon());
-        return rand(generator);
+        float min = interval.getLowerbound();
+        float max = std::nextafter(interval.getUpperbound(), std::numeric_limits<float>::max());
+        std::uniform_real_distribution<float> distribution(min, max);
+        return distribution(generator);
     }
     
     /**

@@ -27,48 +27,42 @@
 #include "egolib/_math.h"
 
 //--------------------------------------------------------------------------------------------
-void pair_to_range( IPair pair, FRange * prange )
+void pair_to_range( IPair pair, Ego::Math::Interval<float> * prange )
 {
     /// @author ZZ
     /// @details convert from a pair to a range
 
-    if ( pair.base < 0 )
-    {
-        Log::get().warn( "We got a randomization error again! (Base is less than 0)\n" );
+    if (pair.base < 0) {
+        Log::get().warn("We got a randomization error again! (Base is less than 0)\n");
     }
 
-    if ( pair.rand < 0 )
-    {
-        Log::get().warn( "We got a randomization error again! (rand is less than 0)\n" );
+    if (pair.rand < 0) {
+        Log::get().warn("We got a randomization error again! (rand is less than 0)\n");
     }
 
-    if ( NULL != prange )
-    {
-        float fFrom, fTo;
-
-        fFrom = FP8_TO_FLOAT( pair.base );
-        fTo   = FP8_TO_FLOAT( pair.base + pair.rand );
-
-        prange->from = std::min( fFrom, fTo );
-        prange->to   = std::max( fFrom, fTo );
+    if (nullptr != prange) {
+        float fFrom = FP8_TO_FLOAT(pair.base);
+        float fTo = FP8_TO_FLOAT(pair.base + pair.rand);
+        *prange = Ego::Math::Interval<float>(std::min(fFrom, fTo), std::max(fFrom, fTo));
     }
 }
 
 //--------------------------------------------------------------------------------------------
-void range_to_pair( FRange range, IPair * ppair )
+void range_to_pair(Ego::Math::Interval<float> range, IPair * ppair )
 {
     /// @author ZZ
     /// @details convert from a range to a pair
 
-    if ( range.from > range.to )
+    // @todo Remove this check, not possible with the new API.
+    if ( range.getLowerbound() > range.getUpperbound() )
     {
 		Log::get().warn( "We got a range error! (to is less than from)\n" );
     }
 
     if ( NULL != ppair )
     {
-        float fFrom = std::min( range.from, range.to );
-        float fTo   = std::max( range.from, range.to );
+        float fFrom = range.getLowerbound();
+        float fTo   = range.getUpperbound();
 
         ppair->base = FLOAT_TO_FP8( fFrom );
         ppair->rand = FLOAT_TO_FP8( fTo - fFrom );
@@ -76,7 +70,7 @@ void range_to_pair( FRange range, IPair * ppair )
 }
 
 //--------------------------------------------------------------------------------------------
-void ints_to_range( int ibase, int irand, FRange * prange )
+void ints_to_range( int ibase, int irand, Ego::Math::Interval<float> * prange )
 {
     IPair pair_tmp;
 
@@ -89,10 +83,6 @@ void ints_to_range( int ibase, int irand, FRange * prange )
 //--------------------------------------------------------------------------------------------
 void floats_to_pair( float vmin, float vmax, IPair * ppair )
 {
-    FRange range_tmp;
-
-    range_tmp.from = vmin;
-    range_tmp.to   = vmax;
-
+    Ego::Math::Interval<float> range_tmp(vmin, vmax);
     range_to_pair( range_tmp, ppair );
 }

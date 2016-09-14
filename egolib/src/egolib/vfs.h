@@ -34,9 +34,6 @@
 #pragma once
 
 #include "egolib/egolib_config.h"
-#if 0
-#include "egolib/typedef.h"
-#endif
 
 //--------------------------------------------------------------------------------------------
 // MACROS

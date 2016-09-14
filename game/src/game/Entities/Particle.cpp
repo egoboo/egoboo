@@ -678,7 +678,7 @@ void Particle::updateAttachedDamage()
         damage.base = std::max(0, damage.base);
 
         // properly scale the random amount
-        damage.rand = std::abs(getProfile()->damage.to - getProfile()->damage.from) * damage.base / getProfile()->damage.from;
+        damage.rand = std::abs(getProfile()->damage.getUpperbound() - getProfile()->damage.getLowerbound()) * damage.base / getProfile()->damage.getLowerbound();
     }
 }
 

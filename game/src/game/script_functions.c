@@ -6710,7 +6710,7 @@ Uint8 scr_SpawnPoofSpeedSpacingDamage( script_state_t& state, ai_state_t& self )
     {
         const float velOffsetBase = static_cast<float>(state.x);
         const float posOffsetBase = static_cast<float>(state.y);
-        const float damage_rand = ppip->damage.to - ppip->damage.from;
+        const float damage_rand = ppip->damage.getUpperbound() - ppip->damage.getLowerbound();
 
         Facing facing_z = pchr->ori.facing_z;
         for (int cnt = 0; cnt < pchr->getProfile()->getParticlePoofAmount(); cnt++)
@@ -6732,7 +6732,7 @@ Uint8 scr_SpawnPoofSpeedSpacingDamage( script_state_t& state, ai_state_t& self )
 
                 //Adjust damage
                 poofParticle->damage.base = FP8_TO_FLOAT(state.argument);
-                poofParticle->damage.rand = ppip->damage.from + damage_rand;
+                poofParticle->damage.rand = ppip->damage.getLowerbound() + damage_rand;
 
                 //Success! We have spawned at least one poof
                 returncode = true;

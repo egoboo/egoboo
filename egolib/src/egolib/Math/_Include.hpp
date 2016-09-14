@@ -8,6 +8,9 @@
 #include "egolib/Math/ColourLA.hpp"
 
 //
+#include "egolib/Math/Interval.hpp"
+
+//
 #include "egolib/Math/Angle.hpp"
 #include "egolib/Math/Point.hpp"
 #include "egolib/Math/Matrix.hpp"

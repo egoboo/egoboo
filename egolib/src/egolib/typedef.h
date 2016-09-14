@@ -156,41 +156,12 @@ signed SFP8_TO_SINT(const T& val)
         }
     };
 
-    /// Specifies a value from "from" to "to"
-    struct FRange
-    {
-        float from, to;
+#include "egolib/Math/Interval.hpp"
 
-        FRange() :
-            from(0), to(0)
-        {}
-        
-        FRange(const FRange& other) :
-            from(other.from), to(other.to)
-        {}
-        
-        FRange(float _from, float _to) :
-            from(_from), to(_to)
-        {}
+    void pair_to_range( IPair pair, Ego::Math::Interval<float> * prange );
+    void range_to_pair(Ego::Math::Interval<float> range, IPair * ppair );
 
-        /// @todo Rename to "reset".
-        void init()
-        {
-            from = 0.0f;
-            to = 0.0f;
-        }
-
-        bool isZero() const
-        {
-            return (from+to) <= std::numeric_limits<float>::epsilon();
-        }
-
-    };
-
-    void pair_to_range( IPair pair, FRange * prange );
-    void range_to_pair( FRange range, IPair * ppair );
-
-    void ints_to_range( int base, int rand, FRange * prange );
+    void ints_to_range( int base, int rand, Ego::Math::Interval<float> * prange );
     void floats_to_pair( float vmin, float vmax, IPair * ppair );
 
 //--------------------------------------------------------------------------------------------

@@ -459,46 +459,44 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     _lifeColor = vfs_get_next_int(ctxt);
     _manaColor = vfs_get_next_int(ctxt);
 
-    vfs_get_next_range(ctxt, &_baseAttribute[Ego::Attribute::MAX_LIFE]);
-    vfs_get_next_range(ctxt, &_attributeGain[Ego::Attribute::MAX_LIFE]);
+    _baseAttribute[Ego::Attribute::MAX_LIFE] = vfs_get_next_range(ctxt);
+    _attributeGain[Ego::Attribute::MAX_LIFE] = vfs_get_next_range(ctxt);
 
     //@note ZF> All life is doubled because Aaron decided it was a good idea to shift all damage by 1 by default (>> 1)
     //          With the newer damage system, we do it this way instead to keep the same game balance as before
     //          This allows for more granularity and show the player that he is slowly losing health from posion for example
-    _baseAttribute[Ego::Attribute::MAX_LIFE].from *= 2;
-    _baseAttribute[Ego::Attribute::MAX_LIFE].to *= 2;
+    _baseAttribute[Ego::Attribute::MAX_LIFE] *= 2.0f;
 
-    vfs_get_next_range(ctxt, &_baseAttribute[Ego::Attribute::MAX_MANA]);
-    vfs_get_next_range(ctxt, &_attributeGain[Ego::Attribute::MAX_MANA]);
+    _baseAttribute[Ego::Attribute::MAX_MANA] = vfs_get_next_range(ctxt);
+    _attributeGain[Ego::Attribute::MAX_MANA] = vfs_get_next_range(ctxt);
 
-    vfs_get_next_range(ctxt, &_baseAttribute[Ego::Attribute::MANA_REGEN]);
-    vfs_get_next_range(ctxt, &_attributeGain[Ego::Attribute::MANA_REGEN]);
+    _baseAttribute[Ego::Attribute::MANA_REGEN] = vfs_get_next_range(ctxt);
+    _attributeGain[Ego::Attribute::MANA_REGEN] = vfs_get_next_range(ctxt);
 
-    vfs_get_next_range(ctxt, &_baseAttribute[Ego::Attribute::SPELL_POWER]);
-    vfs_get_next_range(ctxt, &_attributeGain[Ego::Attribute::SPELL_POWER]);
+    _baseAttribute[Ego::Attribute::SPELL_POWER] = vfs_get_next_range(ctxt);
+    _attributeGain[Ego::Attribute::SPELL_POWER] = vfs_get_next_range(ctxt);
 
-    vfs_get_next_range(ctxt, &_baseAttribute[Ego::Attribute::MIGHT]);
-    vfs_get_next_range(ctxt, &_attributeGain[Ego::Attribute::MIGHT]);
+    _baseAttribute[Ego::Attribute::MIGHT] = vfs_get_next_range(ctxt);
+    _attributeGain[Ego::Attribute::MIGHT] = vfs_get_next_range(ctxt);
 
-    FRange wisdom, wisdomGain;
-    vfs_get_next_range(ctxt, &wisdom);
-    vfs_get_next_range(ctxt, &wisdomGain);
+    auto wisdom = vfs_get_next_range(ctxt);
+    auto wisdomGain = vfs_get_next_range(ctxt);
 
-    vfs_get_next_range(ctxt, &_baseAttribute[Ego::Attribute::INTELLECT]);
-    vfs_get_next_range(ctxt, &_attributeGain[Ego::Attribute::INTELLECT]);
+    _baseAttribute[Ego::Attribute::INTELLECT] = vfs_get_next_range(ctxt);
+    _attributeGain[Ego::Attribute::INTELLECT] = vfs_get_next_range(ctxt);
 
     //Wisdom used to be an attribute in Egoboo, but now its deprecated. To figure out intellect use average of WIS and INT
     if(!wisdom.isZero()) {
-        _baseAttribute[Ego::Attribute::INTELLECT].from = 0.5f*(_baseAttribute[Ego::Attribute::INTELLECT].from + wisdom.from);
-        _baseAttribute[Ego::Attribute::INTELLECT].to   = 0.5f*(_baseAttribute[Ego::Attribute::INTELLECT].to   + wisdom.to);        
+        _baseAttribute[Ego::Attribute::INTELLECT] = Ego::Math::Interval<float>(_baseAttribute[Ego::Attribute::INTELLECT].getLowerbound() + wisdom.getLowerbound(),
+                                                           _baseAttribute[Ego::Attribute::INTELLECT].getUpperbound() + wisdom.getUpperbound()) * 0.5f;        
     }
     if(!wisdomGain.isZero()) {
-        _attributeGain[Ego::Attribute::INTELLECT].from = 0.5f*(_attributeGain[Ego::Attribute::INTELLECT].from + wisdomGain.from);
-        _attributeGain[Ego::Attribute::INTELLECT].to   = 0.5f*(_attributeGain[Ego::Attribute::INTELLECT].to   + wisdomGain.to);        
+        _attributeGain[Ego::Attribute::INTELLECT] = Ego::Math::Interval<float>(_attributeGain[Ego::Attribute::INTELLECT].getLowerbound() + wisdomGain.getLowerbound(),
+                                                           _attributeGain[Ego::Attribute::INTELLECT].getUpperbound() + wisdomGain.getUpperbound()) * 0.5f;     
     }
 
-    vfs_get_next_range(ctxt, &_baseAttribute[Ego::Attribute::AGILITY]);
-    vfs_get_next_range(ctxt, &_attributeGain[Ego::Attribute::AGILITY]);
+    _baseAttribute[Ego::Attribute::AGILITY] = vfs_get_next_range(ctxt);
+    _attributeGain[Ego::Attribute::AGILITY] = vfs_get_next_range(ctxt);
 
     // More physical attributes
     _size = vfs_get_next_float(ctxt);
@@ -587,7 +585,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     }
     setupXPTable();
 
-    vfs_get_next_range(ctxt, &_startingExperience);
+    _startingExperience = vfs_get_next_range(ctxt);
 
     _experienceWorth = vfs_get_next_int(ctxt);
     _experienceExchange = vfs_get_next_float(ctxt);
@@ -653,10 +651,9 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     // More stuff I forgot
     vfs_get_next_float(ctxt);  //ZF> deprecated value LifeReturn (no longer used)
     _useManaCost = vfs_get_next_float(ctxt);
-    vfs_get_next_range(ctxt, &_baseAttribute[Ego::Attribute::LIFE_REGEN]);
-    _attributeGain[Ego::Attribute::LIFE_REGEN].from = _attributeGain[Ego::Attribute::LIFE_REGEN].to = 0;    //ZF> TODO: regen gain per level not implemented
-    _baseAttribute[Ego::Attribute::LIFE_REGEN].from /= 256.0f;
-    _baseAttribute[Ego::Attribute::LIFE_REGEN].to /= 256.0f;
+    _baseAttribute[Ego::Attribute::LIFE_REGEN] = vfs_get_next_range(ctxt);
+    _attributeGain[Ego::Attribute::LIFE_REGEN] = Ego::Math::Interval<float>();    //ZF> TODO: regen gain per level not implemented
+    _baseAttribute[Ego::Attribute::LIFE_REGEN] /= 256.0f;
     _stoppedBy |= vfs_get_next_int(ctxt);
 
     for (size_t cnt = 0; cnt < SKINS_PEROBJECT_MAX; cnt++)
@@ -1434,13 +1431,13 @@ size_t ObjectProfile::getRandomSkinID() const
     return element->first;
 }
 
-const FRange& ObjectProfile::getAttributeGain(Ego::Attribute::AttributeType type) const 
+const Ego::Math::Interval<float>& ObjectProfile::getAttributeGain(Ego::Attribute::AttributeType type) const
 {
     EGOBOO_ASSERT(type < _attributeGain.size()); 
     return _attributeGain[type];
 }
 
-const FRange& ObjectProfile::getAttributeBase(Ego::Attribute::AttributeType type) const
+const Ego::Math::Interval<float>& ObjectProfile::getAttributeBase(Ego::Attribute::AttributeType type) const
 {
     EGOBOO_ASSERT(type < _baseAttribute.size()); 
     return _baseAttribute[type];    

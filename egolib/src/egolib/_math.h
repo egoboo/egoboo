@@ -24,6 +24,7 @@
 
 #include "egolib/Math/Angle.hpp"
 #include "egolib/Math/Random.hpp"
+#include "egolib/Math/Interval.hpp"
 #include "egolib/Log/_Include.hpp"
 
 //--------------------------------------------------------------------------------------------
@@ -343,7 +344,7 @@ extern "C"
 
 // random functions
     int generate_irand_pair( const IPair num );
-    int generate_irand_range( const FRange num );
+    int generate_irand_range( const Ego::Math::Interval<float> num );
 
 //--------------------------------------------------------------------------------------------
 
