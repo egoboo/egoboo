@@ -23,7 +23,7 @@
 
 #include "egolib/Renderer/OpenGL/Renderer.hpp"
 #include "egolib/Core/StringUtilities.hpp"
-#include "egolib/Core/CollectionUtilities.hpp"
+#include "IdLib/IdLib.hpp"
 #include "egolib/Extensions/ogl_extensions.h"
 
 // The following code ensures that for each OpenGL function variable static PF...PROC gl... = NULL; is declared/defined.
@@ -129,7 +129,7 @@ void Renderer::setAlphaFunction(CompareFunction function, float value) {
             glAlphaFunc(GL_GEQUAL, value);
             break;
         default:
-            throw Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
+            throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
     };
     Utilities::isError();
 }
@@ -174,7 +174,7 @@ void Renderer::setCullingMode(CullingMode mode) {
             glCullFace(GL_FRONT_AND_BACK);
             break;
         default:
-            throw Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
+            throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
     };
     Utilities::isError();
 }
@@ -462,7 +462,7 @@ void Renderer::render(VertexBuffer& vertexBuffer, PrimitiveType primitiveType, s
                     case VertexElementDescriptor::Syntax::F1:
                         throw Id::RuntimeErrorException(__FILE__, __LINE__, "vertex format not supported");
                     default:
-                        throw Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
+                        throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
                 };
                 glVertexPointer(size, type, vertexDescriptor.getVertexSize(),
                                 vertices + vertexElementDescriptor.getOffset());
@@ -488,7 +488,7 @@ void Renderer::render(VertexBuffer& vertexBuffer, PrimitiveType primitiveType, s
                     case VertexElementDescriptor::Syntax::F2:
                         throw Id::RuntimeErrorException(__FILE__, __LINE__, "vertex format not supported");
                     default:
-                        throw Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
+                        throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
                 };
                 glColorPointer(size, type, vertexDescriptor.getVertexSize(),
                                vertices + vertexElementDescriptor.getOffset());
@@ -509,7 +509,7 @@ void Renderer::render(VertexBuffer& vertexBuffer, PrimitiveType primitiveType, s
                     case VertexElementDescriptor::Syntax::F4:
                         throw Id::RuntimeErrorException(__FILE__, __LINE__, "vertex format not supported");
                     default:
-                        throw Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
+                        throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
                 };
                 glNormalPointer(type, vertexDescriptor.getVertexSize(),
                                 vertices + vertexElementDescriptor.getOffset());
@@ -540,14 +540,14 @@ void Renderer::render(VertexBuffer& vertexBuffer, PrimitiveType primitiveType, s
                         type = GL_FLOAT;
                         break;
                     default:
-                        throw Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
+                        throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
                 };
                 glTexCoordPointer(size, type, vertexDescriptor.getVertexSize(),
                                   vertices + vertexElementDescriptor.getOffset());
             }
             break;
             default:
-                throw Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
+                throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
         };
     }
     const GLenum primitiveType_gl = Utilities::toOpenGL(primitiveType);

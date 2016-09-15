@@ -53,12 +53,6 @@ void range_to_pair(Ego::Math::Interval<float> range, IPair * ppair )
     /// @author ZZ
     /// @details convert from a range to a pair
 
-    // @todo Remove this check, not possible with the new API.
-    if ( range.getLowerbound() > range.getUpperbound() )
-    {
-		Log::get().warn( "We got a range error! (to is less than from)\n" );
-    }
-
     if ( NULL != ppair )
     {
         float fFrom = range.getLowerbound();
@@ -67,22 +61,4 @@ void range_to_pair(Ego::Math::Interval<float> range, IPair * ppair )
         ppair->base = FLOAT_TO_FP8( fFrom );
         ppair->rand = FLOAT_TO_FP8( fTo - fFrom );
     }
-}
-
-//--------------------------------------------------------------------------------------------
-void ints_to_range( int ibase, int irand, Ego::Math::Interval<float> * prange )
-{
-    IPair pair_tmp;
-
-    pair_tmp.base = ibase;
-    pair_tmp.rand = irand;
-
-    pair_to_range( pair_tmp, prange );
-}
-
-//--------------------------------------------------------------------------------------------
-void floats_to_pair( float vmin, float vmax, IPair * ppair )
-{
-    Ego::Math::Interval<float> range_tmp(vmin, vmax);
-    range_to_pair( range_tmp, ppair );
 }

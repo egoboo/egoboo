@@ -161,7 +161,7 @@ int CharacterWindow::addResistanceLabel(std::shared_ptr<Tab> target, const Point
         case DAMAGE_ICE:   damageName = "Ice"; break;
         case DAMAGE_EVIL:  damageName = "Evil"; break;
         case DAMAGE_HOLY:  damageName = "Holy"; break;
-        default: throw Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
+        default: throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
     }
 
     //Label
