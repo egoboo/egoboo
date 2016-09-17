@@ -25,6 +25,12 @@
 
 #include "egolib/platform.h"
 
+#define Ego_Script_Interpreter_WithProfileRefs (1)
+
+#if !defined(Ego_Script_Interpreter_WithProfileRefs)
+#error(Ego_Script_Interpreter_WithProfileRefs is not defined)
+#endif
+
 namespace Ego {
 namespace Script {
 namespace Interpreter {

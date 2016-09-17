@@ -43,6 +43,14 @@ std::string toString(Tag tag) {
             return "Vector3";
         case Tag::Void:
             return "Void";
+#if defined(Ego_Script_WithProfileRefs) && 1 == Ego_Script_WithProfileRefs
+		case Tag::EnchantProfileRef:
+			return "EnchantProfileRef";
+		case Tag::ParticleProfileRef:
+			return "ParticleProfileRef";
+		case Tag::ObjectProfileRef:
+			return "ObjectProfileRef";
+#endif
         default:
             throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
     }
