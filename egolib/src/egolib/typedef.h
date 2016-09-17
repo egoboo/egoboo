@@ -110,35 +110,43 @@
 //--------------------------------------------------------------------------------------------
 // PAIR AND RANGE
 
-    /// Specifies a value between "base" and "base + rand"
-    struct IPair
-    {
-        int base, rand;
+    template <typename Type>
+    struct Pair {
+        Type base, rand;
 
-        IPair() :
-            base(0), rand(0)
-        {}
+        Pair() :
+            base(0), rand(0) {}
 
-        IPair(const IPair& other) :
-            base(other.base), rand(other.rand)
-        {}
+        Pair(const Pair<Type>& other) :
+            base(other.base), rand(other.rand) {}
 
-        IPair(int _base, int _rand) :
-            base(_base), rand(_rand)
-        {}
+        Pair(const Type& base, const Type& rand) :
+            base(base), rand(rand) {}
 
-        /// @todo Rename to "reset".
-        void init()
-        {
-            base = 0;
-            rand = 0;
+        const Pair<Type>& operator=(const Pair<Type>& other) {
+            base = other.base;
+            rand = other.rand;
+            return *this;
+        }
+
+        bool operator==(const Pair<Type>& other) const {
+            return base == other.base
+                && rand == other.rand;
+        }
+
+        bool operator!=(const Pair<Type>& other) const {
+            return base != other.base
+                || rand != other.rand;
         }
     };
 
+    /// Specifies a value between "base" and "base + rand"
+    using IPair = Pair<int>;
+
 #include "egolib/Math/Interval.hpp"
 
-    void pair_to_range( IPair pair, Ego::Math::Interval<float> * prange );
-    void range_to_pair(Ego::Math::Interval<float> range, IPair * ppair );
+    Ego::Math::Interval<float> pair_to_range(const IPair& source);
+    IPair range_to_pair(const Ego::Math::Interval<float>& source);
 
 //--------------------------------------------------------------------------------------------
 // STRING
@@ -212,6 +220,15 @@ DECLARE_REF(TEAM_REF);
 using EnchantProfileRef = Ref<REF_T, 0, ENCHANTPROFILES_MAX, ENCHANTPROFILES_MAX, RefKind::EnchantProfile>;
 DECLARE_REF(EVE_REF);
 #define INVALID_EVE_REF ((EVE_REF)ENCHANTPROFILES_MAX)
+namespace std {
+template <>
+struct hash<EnchantProfileRef> {
+    size_t operator()(const EnchantProfileRef& x) const {
+        return hash<EnchantProfileRef::Type>()(x.get());
+    }
+};
+}
+
 
 using EnchantRef = Ref<REF_T, 0, ENCHANTS_MAX, ENCHANTS_MAX, RefKind::Enchant>;
 DECLARE_REF(ENC_REF);
@@ -223,6 +240,14 @@ DECLARE_REF(PLA_REF);
 using ParticleProfileRef = Ref<REF_T, 0, MAX_PIP, MAX_PIP, RefKind::ParticleProfile>;
 DECLARE_REF(PIP_REF);
 #define INVALID_PIP_REF ((PIP_REF)MAX_PIP)
+namespace std {
+template <>
+struct hash<ParticleProfileRef> {
+    size_t operator()(const ParticleProfileRef& x) const {
+        return hash<ParticleProfileRef::Type>()(x.get());
+    }
+};
+}
 
 using ParticleRef = Ref<size_t, std::numeric_limits<size_t>::min(), std::numeric_limits<size_t>::max(), std::numeric_limits<size_t>::max(), RefKind::Particle>;
 namespace std {

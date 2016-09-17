@@ -147,9 +147,7 @@ int generate_irand_range( const Ego::Math::Interval<float> num )
     /// @author ZZ
     /// @details This function generates a random number
 
-    IPair loc_pair;
-
-    range_to_pair( num, &loc_pair );
+    IPair loc_pair = range_to_pair(num);
 
     return generate_irand_pair( loc_pair );
 }

@@ -343,8 +343,7 @@ void template_put_pair( vfs_FILE* filetemp, vfs_FILE* filewrite, IPair val )
 {
     if ( template_copy_to_marker( filetemp, filewrite, "#%" ) )
     {
-        Ego::Math::Interval<float> loc_range;
-        pair_to_range( val, &loc_range );
+        Ego::Math::Interval<float> loc_range = pair_to_range( val );
 
         vfs_printf( filewrite, "%4.2f-%4.2f", loc_range.getLowerbound(), loc_range.getUpperbound() );
     }

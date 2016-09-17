@@ -534,10 +534,7 @@ void vfs_put_pair( vfs_FILE* filewrite, const char* text, IPair val )
     /// @details This function mimics vfs_printf in spitting out
     ///    damage/stat pairs
 
-    Ego::Math::Interval<float> loc_range;
-
-    pair_to_range( val, &loc_range );
-
+    Ego::Math::Interval<float> loc_range = pair_to_range(val);
     vfs_printf( filewrite, "%s", text );
     vfs_printf( filewrite, "%4.2f-%4.2f\n", loc_range.getLowerbound(), loc_range.getUpperbound() );
 }

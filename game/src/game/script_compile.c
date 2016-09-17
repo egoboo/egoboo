@@ -77,10 +77,6 @@ void parser_state_t::clear_error()
     _error = false;
 }
 
-/// the pointer to the singleton
-parser_state_t * parser_state_t::_singleton = nullptr;
-
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 std::vector<opcode_data_t> Opcodes;
@@ -119,34 +115,6 @@ void print_token(const Token& token);
 #else
     #define print_line()
 #endif
-
-//--------------------------------------------------------------------------------------------
-
-parser_state_t *parser_state_t::initialize()
-{
-    if (!_singleton)
-    {
-        _singleton = new parser_state_t();
-    }
-    return _singleton;
-}
-
-void parser_state_t::uninitialize()
-{
-    if (_singleton)
-    {
-		delete _singleton;
-		_singleton = nullptr;
-    }
-}
-
-parser_state_t& parser_state_t::get()
-{
-	if (!_singleton) {
-		throw std::logic_error("parser singleton not initialized");
-	}
-    return *_singleton;
-}
 
 //--------------------------------------------------------------------------------------------
 static bool isNewline(char x) {
