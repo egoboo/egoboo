@@ -80,6 +80,11 @@ public:
     /// @return the contents of this buffer as a string
     std::string toString() const;
 
+    /// @brief Prepend a byte to this buffer growing this buffer if necessary.
+    /// @param byte the byte
+    /// @throw std::bad_array_new_length not enough memory is available
+    void prepend(char byte);
+
     /// @brief Append a byte to this buffer growing this buffer if necessary.
     /// @param byte the byte
     /// @throw std::bad_array_new_length not enough memory is available

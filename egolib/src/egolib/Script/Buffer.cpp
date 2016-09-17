@@ -109,6 +109,15 @@ std::string Buffer::toString() const
     return std::string(_elements, _size);
 }
 
+void Buffer::prepend(char byte) {
+    if (_size == _capacity) {
+        increaseCapacity(1);
+    }
+    memmove(_elements, _elements + 1, _size);
+    _elements[0] = byte;
+    _size++;
+}
+
 void Buffer::append(char byte)
 {
     if (_size == _capacity)
