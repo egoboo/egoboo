@@ -16,6 +16,11 @@
 //*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
+
+/// @file egolib/Script/Buffer.cpp
+/// @brief Dynamically resizing buffer for bytes.
+/// @author Michael Heilmann
+
 #include "egolib/Script/Buffer.hpp"
 
 namespace Ego {

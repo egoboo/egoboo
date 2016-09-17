@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Script/Buffer.hpp
-/// @brief  A text buffer.
+/// @file egolib/Script/Buffer.hpp
+/// @brief Dynamically resizing buffer for bytes.
 /// @author Michael Heilmann
 
 #pragma once
@@ -30,160 +30,84 @@ namespace Ego
 namespace Script
 {
 
-/**
- * @brief
- *  A dynamically resizing buffer for bytes.
- * @author
- *  Michael Heilmann
- */
+/// @brief A dynamically resizing buffer for bytes.
 class Buffer : public Id::NonCopyable
 {
 
 private:
 
-    /**
-     * @brief
-     *  The size of the buffer.
-     */
+    /// @brief The size of the buffer.
     size_t _size;
 
-    /**
-     * @brief
-     *  The capacity of the buffer.
-     */
+    /// @brief The capacity of the buffer.
     size_t _capacity;
 
-    /**
-     * @brief
-     *  The elements of this buffer.
-     */
+    /// @brief The elements of this buffer.
     char *_elements;
 
 public:
 
-    /**
-     * @brief
-     *  Construct this buffer with the specified initial capacity.
-     * @param initialCapacity
-     *  the initial capacity of the buffer
-     * @throw std::bad_alloc
-     *  if not enough memory is available
-     */
+    /// @brief Construct this buffer with the specified initial capacity.
+    /// @param initialCapacity the initial capacity of the buffer
+    /// @throw std::bad_alloc if not enough memory is available
     Buffer(size_t initialCapacity);
 
-    /**
-     * @brief
-     *  Destruct this buffer.
-     */
-    ~Buffer();
+    /// @brief Destruct this buffer.
+    virtual ~Buffer();
 
-    /**
-     * @brief
-     *  Get the size of this buffer.
-     * @return
-     *  the size
-     */
+    /// @brief Get the size of this buffer.
+    /// @return the size
     size_t getSize() const;
 
-    /**
-     * @brief
-     *  Get the capacity of this buffer.
-     * @return
-     *  the capacity
-     */
+    /// @brief Get the capacity of this buffer.
+    /// @return the capacity
     size_t getCapacity() const;
 
-    /**
-     * @brief
-     *  Get the maximum capacity of this buffer.
-     * @return
-     *  the maximum capacity
-     */
+    /// @brief Get the maximum capacity of this buffer.
+    /// @return the maximum capacity
     size_t getMaxCapacity() const;
 
-    /**
-     * @brief
-     *  Increase the capacity by at least the specified additional required capacity.
-     * @param req
-     *  the additional capacity
-     * @throw std::bad_array_new_length
-     *  if the new capacity exceeds
-     * @throw std::bad_alloc
-     *  if not enough memory is available
-     */
+    /// @brief Increase the capacity by at least the specified additional required capacity.
+    /// @param req the additional capacity
+    /// @throw std::bad_array_new_length the new capacity would exceed the maximum capacity
+    /// @throw std::bad_alloc not enough memory is available
     void increaseCapacity(size_t req);
 
-    /**
-     * @brief
-     *  Clear this buffer.
-     */
+    /// @brief Clear this buffer.
     void clear();
 
-    /**
-     * @brief
-     *  Get the contents of this buffer as a string.
-     * @return
-     *  the contents of this buffer as a string
-     */
+    /// @brief Get the contents of this buffer as a string.
+    /// @return the contents of this buffer as a string
     std::string toString() const;
 
-    /**
-     * @brief
-     *  Append a byte to this buffer growing this buffer if necessary.
-     * @param byte
-     *  the byte
-     * @throw std::bad_array_new_length
-     *  if not enough memory is available
-     */
+    /// @brief Append a byte to this buffer growing this buffer if necessary.
+    /// @param byte the byte
+    /// @throw std::bad_array_new_length not enough memory is available
     void append(char byte);
 
-	/**
-	 * @brief
-	 *  Append bytes to this buffer growing the buffer if necessary.
-	 * @param bytes
-	 *  a pointer to an array of @a numberOfBytes Bytes
-	 * @param numberOfBytes
-	 *  the length, in Bytes, of the array pointed to by @a bytes
-	 * @throw std::bad_array_new_length
-	 *  if not enough memory is available
-	 * @post
-	 *  All bytes have been appended or the buffer was not modified.
-	 *  Otherwise no bytes have been appene
-	 */
+	/// @brief Append bytes to this buffer growing the buffer if necessary.
+	/// @param bytes a pointer to an array of @a numberOfBytes Bytes
+	/// @param numberOfBytes the length, in Bytes, of the array pointed to by @a bytes
+	/// @throw std::bad_array_new_length not enough memory is available
+	/// @post All bytes have been appended or the buffer was not modified.
+	///       Otherwise no bytes have been appended.
 	void append(const char *bytes, size_t numberOfBytes);
 
-	/**
-	 * @brief
-	 *  Get the Byte at the specified in index in this buffer.
-	 * @param index
-	 *  the index
-	 * @return
-	 *  the Byte
-	 * @throw std::runtime_error
-	 *  if the index is greater than or equal to the size of this buffer
-	 */
+	/// @brief Get the Byte at the specified in index in this buffer.
+	/// @param index the index
+	/// @return the Byte
+	/// @throw std::runtime_error the index is greater than or equal to the size of this buffer
 	char get(size_t index) const;
 
-	/**
-	 * @brief
-	 *	Insert a byte into the buffer at the specified index.
-	 * @param byte
-	 *	the byte
-	 * @param index
-	 *	the index
-	 * @throw std::bad_alloc
-	 *	if not enough memory is available
-	 * @throw std::out_of_range
-	 *	if @a index greater than the size of the buffer
-	 */
+	/// @brief Insert a byte into the buffer at the specified index.
+	/// @param byte the byte
+	/// @param index the index
+	/// @throw std::bad_alloc not enough memory is available
+	/// @throw std::out_of_range the index greater than the size of the buffer
 	void insert(char byte, size_t index);
 
-	/**
-	 * @brief
-	 *	Get if the buffer is empty.
-	 * @return
-	 *	@a true if the buffer is empty
-	 */
+	/// @brief Get if the buffer is empty.
+	/// @return @a true if the buffer is empty, @a false otherwise
 	bool isEmpty() const;
 };
 

@@ -36,29 +36,19 @@ namespace Interpreter {
 // Foward declaration.
 enum class Tag;
 
-/**
- * @brief The C++ representation of a raw \f$Boolean\f$ value.
- */
+/// @brief The C++ representation of a raw \f$Boolean\f$ value.
 using BooleanValue = bool;
 
-/**
- * @brief The C++ representation of a raw \f$Object\f$ value.
- */
+/// @brief The C++ representation of a raw \f$Object\f$ value.
 using ObjectValue = std::shared_ptr<Object>;
 
-/**
- * @brief The C++ representation of a raw \f$Vector2\f$ value.
- */
+/// @brief The C++ representation of a raw \f$Vector2\f$ value.
 using Vector2Value = Vector2f;
 
-/**
- * @brief The C++ representation of a raw \f$Vector3\f$ value.
- */
+/// @brief The C++ representation of a raw \f$Vector3\f$ value.
 using Vector3Value = Vector3f;
 
-/**
- * @brief The C++ representation of a raw \f$Void\f$ value.
- */
+/// @brief The C++ representation of a raw \f$Void\f$ value.
 struct VoidValue {};
 
  /**
@@ -78,123 +68,98 @@ struct TaggedValue {
 
 public:
 
-    /**
-     * @brief Default construct this tagged value.
-     * @post The \f$Void\f$ value is assigned to this tagged value.
-     */
+    /// @brief Default construct this tagged value.
+    /// @post The \f$Void\f$ value is assigned to this tagged value.
     TaggedValue();
 
-    /**
-     * @brief Copy-construct this tagged value with another tagged value.
-     * @param other the other tagged value
-     */
+    /// @brief Copy-construct this tagged value with another tagged value.
+    /// @param other the other tagged value
     TaggedValue(const TaggedValue& other);
 
 public:
 
-    /**
-     * @brief Construct this tagged value with the specified \f$Boolean\f$ value.
-     * @param other the \f$Boolean\f$ value
-     */
+    /// @brief Construct this tagged value with the specified \f$Boolean\f$ value.
+    /// @param other the \f$Boolean\f$ value
     TaggedValue(BooleanValue other);
 
-    /**
-     * @brief Construct this tagged value with the specified \f$Integer\f$ value.
-     * @param other the \f$Integer\f$ value
-     */
+    /// @brief Construct this tagged value with the specified \f$Integer\f$ value.
+    /// @param other the \f$Integer\f$ value
     TaggedValue(IntegerValue other);
 
-    /**
-     * @brief Construct this tagged value with the specified \f$Object\f$ value.
-     * @param other the \f$Object\f$ value
-     */
+    /// @brief Construct this tagged value with the specified \f$Object\f$ value.
+    /// @param other the \f$Object\f$ value
     TaggedValue(ObjectValue other);
 
-    /**
-     * @brief Construct this tagged value with the specified \f$Real\f$ value.
-     * @param other the \f$Real\f$ value
-     */
+    /// @brief Construct this tagged value with the specified \f$Real\f$ value.
+    /// @param other the \f$Real\f$ value
     TaggedValue(RealValue other);
 
-    /**
-     * @brief Construct this tagged value with the specified \f$Vector2\f$ value.
-     * @param other the \f$Vector2\f$ value
-     */
+	/// @brief Construct this tagged value with the specified \f$Vector2\f$ value.
+    /// @param other the \f$Vector2\f$ value
     TaggedValue(Vector2Value other);
 
-    /**
-     * @brief Construct this tagged value with the specified \f$Vector3\f$ value.
-     * @param other the \f$Vector3\f$ value
-     */
+    /// @brief Construct this tagged value with the specified \f$Vector3\f$ value.
+    /// @param other the \f$Vector3\f$ value    
     TaggedValue(Vector3Value other);
 
-    /**
-     * @brief Construct this tagged value with the specified \f$Void\f$ value.
-     * @param other the \f$Void\f$ value
-     */
+    /// @brief Construct this tagged value with the specified \f$Void\f$ value.
+    /// @param other the \f$Void\f$ value
     TaggedValue(VoidValue other);
 
 public:
+	/// Convert this tagged value into a \f$Boolean\f$ value.
     operator BooleanValue() const;
 
+	/// Convert this tagged value into an \f$Integer\f$ value.
     operator IntegerValue() const;
 
+	/// Convert this tagged value into an \f$Object\f$ value.
     operator ObjectValue() const;
 
+	/// @brief Convert this tagged value into a \f$Real\f$ value.
     operator RealValue() const;
 
+	/// @brief Convert this tagged value into a \f$Vector2\f$ value.
     operator Vector2Value() const;
 
+	/// @brief Convert this tagged value into a \f$Vector3\f$ value.
     operator Vector3Value() const;
 
+	/// @brief Convert this tagged value into a \f$Void\f$ value.
     operator VoidValue() const;
 
 private:
     void destructValue();
 
 public:
-    /**
-     * @brief Assign this tagged value with another tagged value.
-     * @param other the other tagged value
-     * @todo Use the swap idiom.
-     */
+    /// @brief Assign this tagged value with another tagged value.
+    /// @param other the other tagged value
+    /// @todo Use the swap idiom.
     TaggedValue& operator=(const TaggedValue& other);
 
 public:
-    /**
-     * @brief Assign this tagged value with the specified \f$Boolean\f$ value.
-     * @param other the \f$Boolean\f$ value
-     */
+    /// @brief Assign this tagged value with the specified \f$Boolean\f$ value.
+    /// @param other the \f$Boolean\f$ value
     TaggedValue& operator=(BooleanValue other);
 
-    /**
-     * @brief Assign this tagged value with the specified \f$Integer\f$ value.
-     * @param other the \f$Integer\f$ value
-     */
+    /// @brief Assign this tagged value with the specified \f$Integer\f$ value.
+    /// @param other the \f$Integer\f$ value
     TaggedValue& operator=(IntegerValue other);
 
-    /**
-     * @brief Assign this tagged value with the specified \f$Real\f$ value.
-     * @param other the \f$Real\f$ value
-     */
+    /// @brief Assign this tagged value with the specified \f$Real\f$ value.
+    /// @param other the \f$Real\f$ value
     TaggedValue& operator=(RealValue other);
 
-    /**
-     * @brief Assign this tagged value with the specified \f$Vector2\f$ value.
-     * @param other the \f$Vector2\f$ value
-     */
+    /// @brief Assign this tagged value with the specified \f$Vector2\f$ value.
+    /// @param other the \f$Vector2\f$ value
     TaggedValue& operator=(Vector2Value other);
 
-    /**
-     * @brief Assign this tagged value with the specified \f$Vector3\f$ value.
-     * @param other the \f$Vector3\f$ value
-     */
+    /// @brief Assign this tagged value with the specified \f$Vector3\f$ value.
+    /// @param other the \f$Vector3\f$ value
     TaggedValue& operator=(Vector3Value other);
 
-    /**
-     * @brief Assign this tagged value with the specified \f$Void\f$ value.
-     * @param other the \f$Void\f$ value
-     */
+    /// @brief Assign this tagged value with the specified \f$Void\f$ value.
+    /// @param other the \f$Void\f$ value
     TaggedValue& operator=(VoidValue other);
 
 public:
