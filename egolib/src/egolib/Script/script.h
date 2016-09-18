@@ -116,11 +116,11 @@ enum chr_alert_bits
 struct Instruction
 {
 public:
-	// 10000000.00000000.00000000.00000000
+	// 1000 0000.0000 0000.0000 0000.0000 0000
 	static const uint32_t FUNCTIONBITS = 0x80000000;
-	// 00000111.111111.111111111.111111111
+	// 0000 0111 1111 1111 1111 1111 1111 1111
 	static const uint32_t VALUEBITS = 0x07FFFFFF;
-	// 01111000.00000000.00000000.00000000
+	// 0111 1000 0000 0000 0000 0000 0000 0000
 	static const uint32_t DATABITS = 0x78000000;
 	uint32_t _value;
 	Instruction()
@@ -475,25 +475,16 @@ protected:
     friend Core::Singleton<Runtime>::DestroyFunctorType;
 	using MyCreateFunctor = Core::CreateFunctor<Runtime>;
 
-    /**
-	 * @brief
-	 *	Construct this runtime.
-	 * @remarks
-	 *	Intentionally protected.
-	 */
+    /// @brief Construct this runtime.
+	/// @remarks Intentionally protected.
 	Runtime();
-	/**
-	 * @brief
-	 *	Destruct this runtime.
-	 * @remarks
-	 *	Intentionally protected.
-	 */
+
+    /// @brief Destruct this runtime.
+	/// @remarks Intentionally protected.
 	~Runtime();
+
 public:
-	/**
-	 * @brief
-	 *	A map from function value codes to function pointers.
-	 */
+	/// @brief A map from function value codes to function pointers.
 	std::unordered_map<uint32_t, NativeInterface::Function*> _functionValueCodeToFunctionPointer;
 };
 
