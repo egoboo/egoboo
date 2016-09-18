@@ -65,7 +65,9 @@ namespace Ego
 enum ScriptFunctions
 {
 #define Define(name) name,
+#define DefineAlias(alias, name) alias,
 #include "egolib/Script/Functions.in"
+#undef DefineAlias
 #undef Define
     SCRIPT_FUNCTIONS_COUNT
 };
@@ -76,7 +78,9 @@ extern const char *script_function_names[Ego::ScriptFunctions::SCRIPT_FUNCTIONS_
 enum e_script_variables
 {
 #define Define(name) name,
+#define DefineAlias(alias, name) alias,
 #include "egolib/Script/Variables.in"
+#undef DefineAlias
 #undef Define
 	SCRIPT_VARIABLES_COUNT
 };
@@ -86,7 +90,9 @@ extern const char *script_variable_names[SCRIPT_VARIABLES_COUNT];
 enum e_script_operators
 {
 #define Define(name) name,
+#define DefineAlias(alias, name) alias,
 #include "egolib/Script/Operators.in"
+#undef DefineAlias
 #undef Define
 	SCRIPT_OPERATORS_COUNT
 };
