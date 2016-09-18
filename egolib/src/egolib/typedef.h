@@ -57,36 +57,15 @@
 #   define UFP8_TO_UINT(V1)   ( ((unsigned)(V1)) >> 8 )
     /// signed version of V1 / 256
 
-template<typename T>
-signed SFP8_TO_SINT(const T& val)
-{
-	if(std::is_signed<T>::value && val < 0) {
-		return - static_cast<signed>(UFP8_TO_UINT(-val));
-	}
-	return static_cast<signed>(UFP8_TO_UINT(val));
-}
-
     /// fast version of V1 / 256
 #   define UINT_TO_UFP8(V1)   ( ((unsigned)(V1)) << 8 )
-    /// signed version of V1 / 256
-#   define SINT_TO_SFP8(V1)   LAMBDA( (V1) < 0, -((signed)UINT_TO_UFP8(-V1)), (signed)UINT_TO_UFP8(V1) )
 
     /// version of V1 / 256.0f
 #   define FP8_TO_FLOAT(V1)   ( (float)(V1) * INV_0100<float>() )
     /// version of V1 * 256.0f
 #   define FLOAT_TO_FP8(V1)   ( (Uint32)((V1) * (float)(0x0100) ) )
 
-#   define FP8_MUL(V1, V2)    ( ((V1)*(V2)) >> 8 )               ///< this may overflow if V1 or V2 have non-zero bits in their upper 8 bits
-#   define FP8_DIV(V1, V2)    ( ((V1)<<8) / (V2) )               ///< this  will fail if V1 has bits in the upper 8 bits
-
 //--------------------------------------------------------------------------------------------
-
-//--------------------------------------------------------------------------------------------
-// 16.16 fixed point types
-
-    typedef Uint32 UFP16_T;
-    typedef Sint32 SFP16_T;
-
 //--------------------------------------------------------------------------------------------
 // BIT FIELDS
     typedef Uint32 BIT_FIELD;                              ///< A big string supporting 32 bits
@@ -131,76 +110,48 @@ signed SFP8_TO_SINT(const T& val)
 //--------------------------------------------------------------------------------------------
 // PAIR AND RANGE
 
+    template <typename Type>
+    struct Pair {
+        Type base, rand;
+
+        Pair() :
+            base(0), rand(0) {}
+
+        Pair(const Pair<Type>& other) :
+            base(other.base), rand(other.rand) {}
+
+        Pair(const Type& base, const Type& rand) :
+            base(base), rand(rand) {}
+
+        const Pair<Type>& operator=(const Pair<Type>& other) {
+            base = other.base;
+            rand = other.rand;
+            return *this;
+        }
+
+        bool operator==(const Pair<Type>& other) const {
+            return base == other.base
+                && rand == other.rand;
+        }
+
+        bool operator!=(const Pair<Type>& other) const {
+            return base != other.base
+                || rand != other.rand;
+        }
+    };
+
     /// Specifies a value between "base" and "base + rand"
-    struct IPair
-    {
-        int base, rand;
+    using IPair = Pair<int>;
 
-        IPair() :
-            base(0), rand(0)
-        {}
+#include "egolib/Math/Interval.hpp"
 
-        IPair(const IPair& other) :
-            base(other.base), rand(other.rand)
-        {}
-
-        IPair(int _base, int _rand) :
-            base(_base), rand(_rand)
-        {}
-
-        /// @todo Rename to "reset".
-        void init()
-        {
-            base = 0;
-            rand = 0;
-        }
-    };
-
-    /// Specifies a value from "from" to "to"
-    struct FRange
-    {
-        float from, to;
-
-        FRange() :
-            from(0), to(0)
-        {}
-        
-        FRange(const FRange& other) :
-            from(other.from), to(other.to)
-        {}
-        
-        FRange(float _from, float _to) :
-            from(_from), to(_to)
-        {}
-
-        /// @todo Rename to "reset".
-        void init()
-        {
-            from = 0.0f;
-            to = 0.0f;
-        }
-
-        bool isZero() const
-        {
-            return (from+to) <= std::numeric_limits<float>::epsilon();
-        }
-
-    };
-
-    void pair_to_range( IPair pair, FRange * prange );
-    void range_to_pair( FRange range, IPair * ppair );
-
-    void ints_to_range( int base, int rand, FRange * prange );
-    void floats_to_pair( float vmin, float vmax, IPair * ppair );
-
-//--------------------------------------------------------------------------------------------
-
+    Ego::Math::Interval<float> pair_to_range(const IPair& source);
+    IPair range_to_pair(const Ego::Math::Interval<float>& source);
 
 //--------------------------------------------------------------------------------------------
 // STRING
     typedef char STRING[256];
 
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // References
 
@@ -224,95 +175,6 @@ typedef uint16_t REF_T;
  *	Rename to TO_REF.
  */
 #define REF_TO_INT(ref) ((REF_T)(ref))
-
-//--------------------------------------------------------------------------------------------
-/**
- * @brief
- *	A stack with a fixed capacity specified at compile-time (cfg. std::array).
- * @todo
- *	Rename to @a StaticStack.
- */
-template <typename ElementType,size_t Capacity>
-struct Stack
-{
-    /**
-     * @brief
-     *  A "globally unique" (lol) identifier.
-     */
-    using Guid = uint32_t;
-    /**
-     * @brief
-     *  An invalid globally unique identifier.
-     */
-    static constexpr Guid InvalidGuid() {
-        return std::numeric_limits<Guid>::max();
-    }
-	
-	Guid updateGuid;
-	
-	int count; ///< @todo Rename to size. @todo Should be of type @a size_t.
-	
-	ElementType lst[Capacity];
-	
-	Stack() : updateGuid(InvalidGuid), count(0)
-	{
-	}
-
-	/**
-	 * @brief
-	 *	Get the size of this stack.
-	 * @return
-	 *	the size of this stack
-	 */
-	inline size_t get_size() const
-	{
-		return count;
-	}
-
-	/**
-	 * @brief
-	 *	Get the capacity of this stack.
-	 * @return
-	 *	the capacity of this stack
-	 */
-	inline size_t get_capacity() const
-	{
-		return Capacity;
-	}
-
-	/**
-	 * @brief
-	 *  Get a reference to the stack element at the specified index.
-	 * @param index
-	 *  the index
-	 * @return
-	 *  a reference to the stack element if @a index is within bounds
-	 * @throw Id::RuntimeErrorException
-	 *  if @a index is out of bounds
-	 */
-	ElementType& get_ref(size_t index)
-	{
-		if (index >= Capacity) throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
-		return lst[index];
-	}
-
-	/**
-	 * @brief
-	 *	Get a pointer to the stack element at the specified index.
-	 * @param index
-	 *	the index
-	 * @return
-	 *	a pointer to the stack element if @a index is within bounds, a null pointer otherwise
-	 * @todo
-	 *	Raise an exception of @a index is greater than or equal to @a capacity.
-	 */
-	ElementType *get_ptr(size_t index)
-	{
-		if (index >= Capacity) throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
-		return &(lst[index]);
-	}
-
-};
 
 //--------------------------------------------------------------------------------------------
 // some common data types and enums in egoboo
@@ -358,10 +220,18 @@ DECLARE_REF(TEAM_REF);
 using EnchantProfileRef = Ref<REF_T, 0, ENCHANTPROFILES_MAX, ENCHANTPROFILES_MAX, RefKind::EnchantProfile>;
 DECLARE_REF(EVE_REF);
 #define INVALID_EVE_REF ((EVE_REF)ENCHANTPROFILES_MAX)
+namespace std {
+template <>
+struct hash<EnchantProfileRef> {
+    size_t operator()(const EnchantProfileRef& x) const {
+        return hash<EnchantProfileRef::Type>()(x.get());
+    }
+};
+}
+
 
 using EnchantRef = Ref<REF_T, 0, ENCHANTS_MAX, ENCHANTS_MAX, RefKind::Enchant>;
 DECLARE_REF(ENC_REF);
-#define INVALID_ENC_REF ((ENC_REF)ENCHANTS_MAX)
 
 using PlayerRef = Ref<REF_T, 0, MAX_PLAYER, MAX_PLAYER, RefKind::Player>;
 DECLARE_REF(PLA_REF);
@@ -370,6 +240,14 @@ DECLARE_REF(PLA_REF);
 using ParticleProfileRef = Ref<REF_T, 0, MAX_PIP, MAX_PIP, RefKind::ParticleProfile>;
 DECLARE_REF(PIP_REF);
 #define INVALID_PIP_REF ((PIP_REF)MAX_PIP)
+namespace std {
+template <>
+struct hash<ParticleProfileRef> {
+    size_t operator()(const ParticleProfileRef& x) const {
+        return hash<ParticleProfileRef::Type>()(x.get());
+    }
+};
+}
 
 using ParticleRef = Ref<size_t, std::numeric_limits<size_t>::min(), std::numeric_limits<size_t>::max(), std::numeric_limits<size_t>::max(), RefKind::Particle>;
 namespace std {
@@ -397,4 +275,4 @@ DECLARE_REF(PRO_REF);
 
 using TextureRef = Ref<REF_T, 0, TEXTURES_MAX, TEXTURES_MAX, RefKind::Texture>;
 DECLARE_REF(TX_REF);
-#define INVALID_TX_REF ((TX_REF)TEXTURES_MAX)
+

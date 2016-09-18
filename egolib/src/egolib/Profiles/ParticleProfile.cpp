@@ -221,7 +221,7 @@ std::shared_ptr<ParticleProfile> ParticleProfile::readFromFile(const std::string
     profile->bump_size = vfs_get_next_int(*ctxt);
     profile->bump_height = vfs_get_next_int(*ctxt);
 
-    vfs_get_next_range(*ctxt, &(profile->damage));
+    profile->damage = vfs_get_next_range(*ctxt);
     profile->damageType = vfs_get_next_damage_type(*ctxt);
 
     // Lighting data

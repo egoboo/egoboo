@@ -244,7 +244,7 @@ void LoadingState::loadModuleData()
         //Hide the progress bar
         _progressBar->setVisible(false);
     }
-    catch (const Ego::Core::Exception& ex)
+    catch (const Id::Exception& ex)
     {
         //Display a sensible error so that players understand why it failed
         Log::get().warn("Module loading error: %s\n", ((std::string)ex).c_str());        

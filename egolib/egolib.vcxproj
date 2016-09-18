@@ -508,6 +508,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Math\Interval.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\Convert.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\Convert_LAf_LAf.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\Convert_LAf_Lf.hpp" />
@@ -694,7 +695,6 @@
     <ClInclude Include="src\egolib\Image\ImageLoader_SDL.hpp" />
     <ClInclude Include="src\egolib\Image\ImageLoader_SDL_image.hpp" />
     <ClInclude Include="src\egolib\Image\ImageManager.hpp" />
-    <ClInclude Include="src\egolib\Network\_Include.hpp" />
     <ClInclude Include="src\egolib\Script\AbstractReader.hpp" />
     <ClInclude Include="src\egolib\Script\Conversion.hpp" />
     <ClInclude Include="src\egolib\Script\EnumDescriptor.hpp" />
@@ -721,7 +721,6 @@
     <ClInclude Include="src\egolib\FileFormats\wawalite_file.h" />
     <ClInclude Include="src\egolib\Math\Cone3.hpp" />
     <ClInclude Include="src\egolib\Math\Math.hpp" />
-    <ClInclude Include="src\egolib\Core\CollectionUtilities.hpp" />
     <ClInclude Include="src\egolib\Core\StringUtilities.hpp" />
     <ClInclude Include="src\egolib\Renderer\TextureAddressMode.hpp" />
     <ClInclude Include="src\egolib\Profiles\_AbstractProfileSystem.hpp" />

@@ -14,6 +14,7 @@
 #include "egolib/Math/Matrix.hpp"
 #include "egolib/Math/Plane.hpp"
 #include "egolib/Math/Point.hpp"
+#include "egolib/Math/Interval.hpp"
 #include "egolib/Math/Ray.hpp"
 #include "egolib/Math/Sphere.hpp"
 #include "egolib/Math/Vector.hpp"
@@ -129,11 +130,14 @@ using AxisAlignedCube3f = Ego::Math::AxisAlignedCube<EuclideanSpace3f>;
 namespace Ego {
 namespace Math {
 
-/// A colour in RGB colour space with floating-point components each within the range from 0 (inclusive) to 1 (inclusive).
+/// An interval with single-precision floating-point components.
+using Intervalf = Interval<float>;
+
+/// A colour in RGB colour space with single-precision floating-point components each within the range from 0 (inclusive) to 1 (inclusive).
 /// A component value of 0 indicates minimal intensity of the component and 1 indicates maximal intensity of the component.
 using Colour3f =  Colour<RGBf>;
 
-/// A colour in RGBA colour space with floating-point components each within the range from 0 (inclusive) to 1 (inclusive).
+/// A colour in RGBA colour space with single-precision floating-point components each within the range from 0 (inclusive) to 1 (inclusive).
 /// A component value of 0 indicates minimal intensity of the component and 1 indicates maximal intensity of the component.
 using Colour4f = Colour<RGBAf>;
 

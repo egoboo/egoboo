@@ -606,7 +606,7 @@ int SDL_main(int argc, char **argv)
 		}
 		Ego::Core::System::uninitialize();
     }
-    catch (const Ego::Core::Exception& ex)
+    catch (const Id::Exception& ex)
     {
         std::cerr << "unhandled exception: " << std::endl
                   << (std::string)ex << std::endl;

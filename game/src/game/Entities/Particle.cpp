@@ -630,7 +630,7 @@ void Particle::updateAttachedDamage()
     if (has_vulnie || is_immolated_by)
     {
         // the damage is the maximum damage over and over again until the particle dies
-        range_to_pair(getProfile()->damage, &local_damage);
+        local_damage = range_to_pair(getProfile()->damage);
     }
     else if (no_protection_from)
     {
@@ -639,7 +639,7 @@ void Particle::updateAttachedDamage()
     }
     else
     {
-        range_to_pair(getProfile()->damage, &local_damage);
+        local_damage = range_to_pair(getProfile()->damage);
 
         local_damage.base /= 2;
         local_damage.rand /= 2;
@@ -678,7 +678,7 @@ void Particle::updateAttachedDamage()
         damage.base = std::max(0, damage.base);
 
         // properly scale the random amount
-        damage.rand = std::abs(getProfile()->damage.to - getProfile()->damage.from) * damage.base / getProfile()->damage.from;
+        damage.rand = std::abs(getProfile()->damage.getUpperbound() - getProfile()->damage.getLowerbound()) * damage.base / getProfile()->damage.getLowerbound();
     }
 }
 
@@ -1049,7 +1049,7 @@ bool Particle::initialize(const ParticleRef particleID, const Vector3f& spawnPos
     frames_remaining = frames_total;
 
     // Damage stuff
-    range_to_pair(getProfile()->damage, &(damage));
+    damage = range_to_pair(getProfile()->damage);
 
     //If it is a FIRE particle spawned by a Pyromaniac, increase damage by 25%
     const std::shared_ptr<Object> &owner = _currentModule->getObjectHandler()[owner_ref];

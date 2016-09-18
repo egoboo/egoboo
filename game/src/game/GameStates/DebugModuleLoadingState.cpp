@@ -281,7 +281,7 @@ void DebugModuleLoadingState::loadModuleData()
         //Complete!
         singleThreadRedrawHack("Finished!");
     }
-    catch (Ego::Core::Exception &ex)
+    catch (Id::Exception &ex)
     {
         std::string out = std::string("Ego::Exception: ") + std::string(ex);
         singleThreadRedrawHack(out);

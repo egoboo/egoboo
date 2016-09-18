@@ -28,69 +28,9 @@
 #include "egolib/Math/Sphere.hpp"
 #include "egolib/frustum.h"
 
-Ego::Math::Relation point_intersects_aabb(const Vector3f& point, const Vector3f& corner1, const Vector3f& corner2)
-{
-    // scan the points
-    for (size_t cnt = 0; cnt < 3; cnt++ )
-    {
-        // don't assume one corner's points are always smaller
-        if ( corner1[cnt] <= corner2[cnt] )
-        {
-            if (point[cnt] < corner1[cnt] || point[cnt] > corner2[cnt] )
-            {
-				return Ego::Math::Relation::outside;
-            }
-        }
-        else
-        {
-            if (point[cnt] < corner2[cnt] || point[cnt] > corner1[cnt] )
-            {
-				return Ego::Math::Relation::outside;
-            }
-        }
-    }
-
-    // assume inside
-    return Ego::Math::Relation::inside;
-}
-
 //--------------------------------------------------------------------------------------------
 // axis aligned box functions
 //--------------------------------------------------------------------------------------------
-
-Ego::Math::Relation aab_intersects_aab(const AxisAlignedBox3f& lhs, const AxisAlignedBox3f& rhs)
-{
-    const size_t dimensions = 3;
-
-    // Assume RHS is inside LHS.
-	Ego::Math::Relation retval = Ego::Math::Relation::inside;
-    bool not_inside = false;
-
-    // Scan all the coordinates.
-    for (size_t cnt = 0; cnt < dimensions; ++cnt)
-    {
-        if (rhs.getMin()[cnt] > lhs.getMax()[cnt])
-        {
-			return Ego::Math::Relation::outside;
-        }
-        else if (rhs.getMax()[cnt] < lhs.getMin()[cnt])
-        {
-			return Ego::Math::Relation::outside;
-        }
-        else if (!not_inside)
-        {
-            if (rhs.getMax()[cnt] > lhs.getMax()[cnt] ||
-                rhs.getMin()[cnt] < lhs.getMax()[cnt])
-            {
-                // one of the sides is hanging over the edge
-				retval = Ego::Math::Relation::intersect;
-                not_inside = true;
-            }
-        }
-    }
-
-    return retval;
-}
 
 Ego::Math::Relation plane_intersects_aab_max(const Plane3f& plane, const Point3f& mins, const Point3f& maxs)
 {

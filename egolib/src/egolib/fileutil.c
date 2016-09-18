@@ -490,28 +490,20 @@ void vfs_put_gender_profile( vfs_FILE* filewrite, const char* text, GenderProfil
 }
 
 //--------------------------------------------------------------------------------------------
-void vfs_put_range_raw( vfs_FILE* filewrite, FRange val )
-{
-    if ( val.from == val.to )
-    {
-        if ( val.from == std::floor( val.from ) )
-        {
-            vfs_printf( filewrite, "%d", ( int )val.from );
+void vfs_put_range_raw(vfs_FILE* filewrite, Ego::Math::Interval<float> range) {
+    float lowerbound = range.getLowerbound(),
+        upperbound = range.getUpperbound();
+    if (lowerbound == upperbound) {
+        if (lowerbound == std::floor(lowerbound)) {
+            vfs_printf(filewrite, "%d", (int)lowerbound);
+        } else {
+            vfs_printf(filewrite, "%4.2f", lowerbound);
         }
-        else
-        {
-            vfs_printf( filewrite, "%4.2f", val.from );
-        }
-    }
-    else
-    {
-        if ( val.from != std::floor( val.from ) || val.to != std::floor( val.to ) )
-        {
-            vfs_printf( filewrite, "%4.2f-%4.2f", val.from, val.to );
-        }
-        else
-        {
-            vfs_printf( filewrite, "%d-%d", ( int )val.from, ( int )val.to );
+    } else {
+        if (lowerbound != std::floor(lowerbound) || upperbound != std::floor(upperbound)) {
+            vfs_printf(filewrite, "%4.2f-%4.2f", lowerbound, upperbound);
+        } else {
+            vfs_printf(filewrite, "%d-%d", (int)lowerbound, (int)upperbound);
         }
     }
 }
@@ -522,7 +514,7 @@ void vfs_put_local_particle_profile_ref(vfs_FILE *filewrite, const char *text, c
 }
 
 //--------------------------------------------------------------------------------------------
-void vfs_put_range( vfs_FILE* filewrite, const char* text, FRange val )
+void vfs_put_range( vfs_FILE* filewrite, const char* text, Ego::Math::Interval<float> val )
 {
     /// @author ZZ
     /// @details This function mimics vfs_printf in spitting out
@@ -542,12 +534,9 @@ void vfs_put_pair( vfs_FILE* filewrite, const char* text, IPair val )
     /// @details This function mimics vfs_printf in spitting out
     ///    damage/stat pairs
 
-    FRange loc_range;
-
-    pair_to_range( val, &loc_range );
-
+    Ego::Math::Interval<float> loc_range = pair_to_range(val);
     vfs_printf( filewrite, "%s", text );
-    vfs_printf( filewrite, "%4.2f-%4.2f\n", loc_range.from, loc_range.to );
+    vfs_printf( filewrite, "%4.2f-%4.2f\n", loc_range.getLowerbound(), loc_range.getUpperbound() );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -630,7 +619,7 @@ void vfs_put_expansion_string( vfs_FILE* filewrite, const char* text, const IDSZ
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-bool vfs_get_range(ReadContext& ctxt, FRange *range)
+Ego::Math::Interval<float> vfs_get_range(ReadContext& ctxt)
 {
     // Read minimum.
     ctxt.skipWhiteSpaces();
@@ -647,38 +636,44 @@ bool vfs_get_range(ReadContext& ctxt, FRange *range)
         to = ctxt.readRealLiteral();
     }
 
-    if (range)
-    {
-        range->from = std::min(from, to);
-        range->to   = std::max(from, to);
-    }
-
-    return true;
+    return Ego::Math::Interval<float>(std::min(from, to), std::max(from, to));
 }
 
 //--------------------------------------------------------------------------------------------
-bool vfs_get_next_range(ReadContext& ctxt, FRange * prange)
+Ego::Math::Interval<float> vfs_get_next_range(ReadContext& ctxt)
 {
     /// @author ZZ
     /// @details This function reads a damage/stat range ( eg. 5-9 )
 
     ctxt.skipToColon(false);
 
-    return vfs_get_range(ctxt, prange);
+    return vfs_get_range(ctxt);
 }
 
 //--------------------------------------------------------------------------------------------
 bool vfs_get_pair(ReadContext& ctxt, IPair *pair)
 {
-    FRange range;
+    float lowerbound, upperbound;
+    try {
+        TextTokenDecoder<float> decoder;
+        lowerbound = decoder(ctxt.parseRealLiteral());
+        upperbound = lowerbound;
+        ctxt.skipWhiteSpaces();
+        if (ctxt.is('-')) {
+            ctxt.next();
+            upperbound = decoder(ctxt.parseRealLiteral());
+        }
+    } catch (const LexicalErrorException& ex) {
+        return false;
+    }
+    Ego::Math::Interval<float> interval(lowerbound, upperbound);
 
-    if (!vfs_get_range(ctxt, &range)) return false;
 
     if (pair)
     {
         // Convert the range to a pair.
-        pair->base = FLOAT_TO_FP8(range.from );
-        pair->rand = FLOAT_TO_FP8(range.to - range.from);
+        pair->base = FLOAT_TO_FP8(interval.getLowerbound());
+        pair->rand = FLOAT_TO_FP8(interval.getUpperbound() - interval.getLowerbound());
     }
 
     return true;

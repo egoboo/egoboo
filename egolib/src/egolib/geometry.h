@@ -45,23 +45,6 @@ enum class Relation {
 // intersection routines
 //--------------------------------------------------------------------------------------------
 
-/**
- * @brief
- *  Get the relation of a point to an axis aligned box.
- * @param point
- *  the point
- * @param corner1, corner2
- *  the AABB
- * @todo
- *  @a corner1 and @a corner2 should be replaced by @ AxisAlignedBox3f.
- * @todo
- *  Document return value.
- */
-Ego::Math::Relation point_intersects_aab(const Point3f& point, const Point3f& corner1, const Point3f& corner2);
-
-/** @internal */
-Ego::Math::Relation aabb_intersects_aab(const AxisAlignedBox3f& lhs, const AxisAlignedBox3f& rhs);
-
 /** @internal */
 Ego::Math::Relation plane_intersects_aab_min(const Plane3f& plane, const Point3f& mins, const Point3f& maxs);
 

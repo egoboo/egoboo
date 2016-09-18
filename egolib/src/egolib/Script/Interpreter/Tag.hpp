@@ -23,7 +23,9 @@
 
 #pragma once
 
-#include "egolib/platform.h"
+#include "egolib/Script/Interpreter/Configuration.hpp"
+
+
 
 namespace Ego {
 namespace Script {
@@ -47,6 +49,14 @@ enum class Tag {
     Vector3,
     /// @brief The tag identifying the \f$Void\f$ type.
     Void,
+#if defined(Ego_Script_Interpreter_WithProfileRefs) && 1 == Ego_Script_Interpreter_WithProfileRefs
+	/// @brief The tag identifying the \$EnchantProfileRef\f$ type.
+	EnchantProfileRef,
+	/// @brief The tag identifying the \f$ParticleProfileRef\f$ type.
+	ParticleProfileRef,
+	/// @brief The tag identifying the \f$ObjectProfileRef\f$ type.
+	ObjectProfileRef,
+#endif
 }; // enum class Tag
 
 /**
@@ -61,6 +71,13 @@ enum class Tag {
  * - Tag::Vector3 \f$\mapsto\f$ <c>Vector3</c>
  * - Tag::Void \f$\mapsto\f$ <c>Void</c>
  */
+#if defined(Ego_Script_WithProfileRefs) && 1 == Ego_Script_WithProfileRefs
+/**
+ * - Tag::EnchantProfileRef \f$\mapsto\f$ <c>EnchantProfileRef</c>
+ * - Tag::ParticleProfileRef \f$\mapsto\f$ <c>ParticleProfileRef</c>
+ * - Tag::ObjectProfileRef \f$\mapsto\f$ <c>ObjectProfileRef</c>
+ */
+#endif
 std::string toString(Tag tag);
 
 } // namespace Interpreter

@@ -47,7 +47,7 @@ const Facing Facing::FACE_SOUTH = Facing(0xC000);
 
 // random functions
     int generate_irand_pair( const IPair num );
-    int generate_irand_range( const FRange num );
+    int generate_irand_range( const Ego::Math::Interval<float> num );
 
 // matrix functions
 
@@ -142,14 +142,12 @@ int generate_irand_pair( const IPair num )
 }
 
 //--------------------------------------------------------------------------------------------
-int generate_irand_range( const FRange num )
+int generate_irand_range( const Ego::Math::Interval<float> num )
 {
     /// @author ZZ
     /// @details This function generates a random number
 
-    IPair loc_pair;
-
-    range_to_pair( num, &loc_pair );
+    IPair loc_pair = range_to_pair(num);
 
     return generate_irand_pair( loc_pair );
 }

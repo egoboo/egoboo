@@ -29,7 +29,6 @@
 #include "egolib/Renderer/Renderer.hpp"
 #include "egolib/Graphics/PixelFormat.hpp"
 #include "egolib/Core/StringUtilities.hpp"
-#include "egolib/Core/CollectionUtilities.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -264,7 +263,8 @@ UnorderedSet<Utilities::String> Utilities::getExtensions() {
     if (isError()) {
         throw RuntimeErrorException(__FILE__, __LINE__, "unable to acquire renderer back-end information");
     }
-    return Core::make_unordered_set(split(String((const char *)bytes), String(" ")));
+    auto tokens = split(string((const char *)bytes), string(" "));
+    return unordered_set<string>(tokens.cbegin(), tokens.cend());
 }
 
 Utilities::String Utilities::getRenderer() {

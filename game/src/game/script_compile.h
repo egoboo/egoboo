@@ -148,27 +148,16 @@ struct buffer_t {
 };
 
 // the current state of the parser
-struct parser_state_t
+struct parser_state_t : public Ego::Core::Singleton<parser_state_t>
 {
-private:
-    /**
-     * @brief
-     *  A pointer to the singleton instance of the parser.
-     */
-    static parser_state_t *_singleton;
-	/**
-	 * @brief
-	 *	Construct this parser.
-	 * @remark
-	 *	Intentionally protected.
-	 */
+protected:
+    friend Ego::Core::Singleton<parser_state_t>::CreateFunctorType;
+    friend Ego::Core::Singleton<parser_state_t>::DestroyFunctorType;
+	/// @brief Construct this parser.
+	/// @remark Intentionally protected.
 	parser_state_t();
-	/**
-	 * @brief
-	 *	Destruct this parser.
-	 * @remark
-	 *	Intentionally protected.
-	 */
+	/// @brief Destruct this parser.
+    /// @remark Intentionally protected.
 	virtual ~parser_state_t();
 public:
     bool _error;
@@ -187,31 +176,6 @@ protected:
 public:
     size_t _load_buffer_count;
     std::array<uint8_t, AISMAXLOADSIZE> _load_buffer;
-
-    /**
-     * @brief
-     *  Initialize the singleton.
-     * @return
-     *  a pointer to the singleton if the singleton is initialized, @a nullptr on failure
-     * @remark
-     *  This function has no effect if the singeton is already initialized.
-     */
-    static parser_state_t *initialize();
-    /**
-     * @brief
-     *  Uninitialize the singleton.
-     * @remark
-     *  This function has no effect is the singleton is already uninitialized.
-     */
-    static void uninitialize();
-    /**
-     * @brief
-     *  Get a pointer to the singleton.
-     * @throw std::logic_error
-	 *	if the parser singleton is not initialized
-     */
-    static parser_state_t& get();
-
 
     /**
     * @brief

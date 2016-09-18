@@ -70,9 +70,6 @@
     <Filter Include="Source Files\Graphics">
       <UniqueIdentifier>{30b3faf6-6d85-4443-94cc-f403c45e83cb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Network">
-      <UniqueIdentifier>{1a5010ae-3fe6-4a04-9abc-eb111e4585ed}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Network">
       <UniqueIdentifier>{ef741b91-2a21-4125-89d5-17cbe9438860}</UniqueIdentifier>
     </Filter>
@@ -668,9 +665,6 @@
     <ClInclude Include="src\egolib\Renderer\TextureAddressMode.hpp">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Core\CollectionUtilities.hpp">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Core\StringUtilities.hpp">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
@@ -730,9 +724,6 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Math\_Include.hpp">
       <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Network\_Include.hpp">
-      <Filter>Header Files\Network</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Script\Traits.hpp">
       <Filter>Header Files\Script</Filter>
@@ -1335,6 +1326,9 @@
       <Filter>Header Files\Math\Functors</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\math\ColourRGBA.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Interval.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
   </ItemGroup>
