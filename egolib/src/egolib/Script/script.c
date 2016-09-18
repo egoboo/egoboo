@@ -42,7 +42,7 @@ Runtime::Runtime()
 	:
 		_functionValueCodeToFunctionPointer
 		{
-            #include "egolib/Script/FunctionsOld.in"
+            #include "egolib/Script/Functions.in"
 		}
 {
 }

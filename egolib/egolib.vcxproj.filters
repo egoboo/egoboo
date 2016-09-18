@@ -1357,8 +1357,5 @@
     <None Include="src\egolib\Math\ColourL.hpp">
       <Filter>Header Files\Math</Filter>
     </None>
-    <None Include="src\egolib\Script\FunctionsOld.in">
-      <Filter>Header Files\Script</Filter>
-    </None>
   </ItemGroup>
 </Project>
