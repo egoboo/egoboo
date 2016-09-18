@@ -464,7 +464,44 @@ namespace NativeInterface {
 		/// A pointer to the C/C++ NI function.
 		Function *_functionPointer;
 	};
-}
+} // namespace NativeInterface
+
+/// @brief A list of all possible EgoScript functions.
+enum ScriptFunctions {
+#define Define(name) name,
+#define DefineAlias(alias, name) alias,
+#include "egolib/Script/Functions.in"
+#undef DefineAlias
+#undef Define
+    SCRIPT_FUNCTIONS_COUNT
+};
+
+extern const char *script_function_names[ScriptFunctions::SCRIPT_FUNCTIONS_COUNT];
+
+/// @brief A list of all possible EgoScript variables.
+enum ScriptVariables {
+#define Define(name) name,
+#define DefineAlias(alias, name) alias,
+#include "egolib/Script/Variables.in"
+#undef DefineAlias
+#undef Define
+    SCRIPT_VARIABLES_COUNT
+};
+
+extern const char *script_variable_names[ScriptVariables::SCRIPT_VARIABLES_COUNT];
+
+/// @brief A list of all possible EgoScript operators.
+enum ScriptOperators {
+#define Define(name) name,
+#define DefineAlias(alias, name) alias,
+#include "egolib/Script/Operators.in"
+#undef DefineAlias
+#undef Define
+    SCRIPT_OPERATORS_COUNT
+};
+
+extern const char *script_operator_names[ScriptOperators::SCRIPT_OPERATORS_COUNT];
+
 /**
  * @brief
  *	The runtime (environment) for the scripts.
@@ -486,6 +523,13 @@ protected:
 public:
 	/// @brief A map from function value codes to function pointers.
 	std::unordered_map<uint32_t, NativeInterface::Function*> _functionValueCodeToFunctionPointer;
+    /// @brief For each script function: The number of times the function was called.
+    std::array<int, ScriptFunctions::SCRIPT_FUNCTIONS_COUNT> _script_function_calls;
+    /// @brief For each script function: The average time of a call.
+    std::array<double, ScriptFunctions::SCRIPT_FUNCTIONS_COUNT>  _script_function_times;
+    /// A counter to measure the time of an invocation of a script function.
+    /// Its window size is 1 as the duration spend in the invocation is added to an histogram (see below).
+    std::shared_ptr<Ego::Time::Clock<Ego::Time::ClockPolicy::NonRecursive>> _scriptFunctionClock;
 };
 
 } // namespace Script

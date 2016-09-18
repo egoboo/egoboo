@@ -86,34 +86,6 @@ vfs_FILE *debug_script_file = NULL;
 
 //--------------------------------------------------------------------------------------------
 
-const char *script_variable_names[SCRIPT_VARIABLES_COUNT] =
-{
-#define Define(name) #name,
-#define DefineAlias(alias, name) #alias,
-#include "egolib/Script/Variables.in"
-#undef DefineAlias
-#undef Define
-};
-const char *script_function_names[Ego::ScriptFunctions::SCRIPT_FUNCTIONS_COUNT] =
-{
-#define Define(name) #name,
-#define DefineAlias(alias, name) #alias,
-#include "egolib/Script/Functions.in"
-#undef DefineAlias
-#undef Define
-};
-const char *script_operator_names[SCRIPT_OPERATORS_COUNT] =
-{
-#define Define(name) #name,
-#define DefineAlias(alias, name) #alias,
-#include "egolib/Script/Operators.in"
-#undef DefineAlias
-#undef Define
-};
-
-
-//--------------------------------------------------------------------------------------------
-
 /// Emit a token to standard output in debug mode.
 void print_token(const Token& token);
 #if (DEBUG_SCRIPT_LEVEL > 2) && defined(_DEBUG)

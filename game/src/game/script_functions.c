@@ -528,8 +528,8 @@ Uint8 scr_AddWaypoint( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = AddWaypoint( self.wp_lst, self.getSelf(), Interpreter::safeCast<float>(state.x),
-                                                           Interpreter::safeCast<float>(state.y));
+    returncode = ::AddWaypoint( self.wp_lst, self.getSelf(), Interpreter::safeCast<float>(state.x),
+                                Interpreter::safeCast<float>(state.y));
 
     if ( returncode )
     {
@@ -555,8 +555,8 @@ Uint8 scr_FindPath( script_state_t& state, ai_state_t& self )
     //Too soon since last try?
     if ( self.astar_timer > update_wld ) return true;
 
-    returncode = FindPath( self.wp_lst, pchr, Interpreter::safeCast<float>(state.x),
-                                              Interpreter::safeCast<float>(state.y), &used_astar );
+    returncode = ::FindPath( self.wp_lst, pchr, Interpreter::safeCast<float>(state.x),
+                             Interpreter::safeCast<float>(state.y), &used_astar );
 
     if ( used_astar )
     {
@@ -584,7 +584,7 @@ Uint8 scr_Compass( script_state_t& state, ai_state_t& self )
     Vector2f loc_pos = Vector2f(Interpreter::safeCast<float>(state.x),
                                 Interpreter::safeCast<float>(state.y));
 
-    returncode = Compass( loc_pos, state.turn, state.distance );
+    returncode = ::Compass( loc_pos, state.turn, state.distance );
 
     // update the position
     if ( returncode )
@@ -4367,7 +4367,7 @@ Uint8 scr_BreakPassage( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = BreakPassage( state.y, state.x, state.distance, state.turn, ( PASS_REF )state.argument, &( state.x ), &( state.y ) );
+    returncode = ::BreakPassage( state.y, state.x, state.distance, state.turn, ( PASS_REF )state.argument, &( state.x ), &( state.y ) );
 
     SCRIPT_FUNCTION_END();
 }
@@ -5815,7 +5815,7 @@ Uint8 scr_FindTileInPassage( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = FindTileInPassage( state.x, state.y, state.distance, static_cast<PASS_REF>(state.argument), &(state.x), &(state.y) );
+    returncode = ::FindTileInPassage( state.x, state.y, state.distance, static_cast<PASS_REF>(state.argument), &(state.x), &(state.y) );
 
     SCRIPT_FUNCTION_END();
 }
@@ -6141,7 +6141,7 @@ Uint8 scr_AddEndMessage( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = AddEndMessage( pchr,  state.argument, &state );
+    returncode = ::AddEndMessage( pchr,  state.argument, &state );
 
     SCRIPT_FUNCTION_END();
 }
