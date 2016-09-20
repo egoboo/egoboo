@@ -463,9 +463,9 @@ namespace NativeInterface {
 	 */
 	struct FunctionInfo {
 		/// The name of the function in the DSL.
-		std::string _functionName;
+		std::string _name;
 		/// A pointer to the C/C++ NI function.
-		Function *_functionPointer;
+		Function *_pointer;
 	};
 } // namespace NativeInterface
 
@@ -513,7 +513,6 @@ struct Runtime : public Core::Singleton<Runtime> {
 protected:
     friend Core::Singleton<Runtime>::CreateFunctorType;
     friend Core::Singleton<Runtime>::DestroyFunctorType;
-	using MyCreateFunctor = Core::CreateFunctor<Runtime>;
 
     /// @brief Construct this runtime.
 	/// @remarks Intentionally protected.
