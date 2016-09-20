@@ -531,6 +531,9 @@
     <ClCompile Include="src\egolib\Signal\Connection.hpp">
       <Filter>Header Files\Signal</Filter>
     </ClCompile>
+    <ClCompile Include="src\egolib\Script\IRuntimeStatistics.cpp">
+      <Filter>Source Files\Script</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\egolib\vfs.h">
@@ -1330,6 +1333,9 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Math\Interval.hpp">
       <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Script\IRuntimeStatistics.hpp">
+      <Filter>Header Files\Script</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

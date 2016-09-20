@@ -305,6 +305,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\Script\IRuntimeStatistics.cpp" />
     <ClCompile Include="src\egolib\Signal\Connection.hpp" />
     <ClCompile Include="src\egolib\InputControl\ControlSettingsFile.cpp" />
     <ClCompile Include="src\egolib\InputControl\InputDevice.cpp" />
@@ -508,6 +509,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Script\IRuntimeStatistics.hpp" />
     <ClInclude Include="src\egolib\Math\Interval.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\Convert.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\Convert_LAf_LAf.hpp" />

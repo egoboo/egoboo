@@ -31,9 +31,27 @@
 #include "game/Core/GameEngine.hpp"
 #include "game/Graphics/CameraSystem.hpp"
 #include "game/Module/Module.hpp"
+#include "egolib/Script/IRuntimeStatistics.hpp"
 
 namespace Ego {
 namespace Script {
+
+/// @brief An implementation of runtime statistics.
+struct RuntimeStatistics : IRuntimeStatistics<uint32_t> { 
+public:
+    void append(const std::string& pathname) {
+        auto target = std::shared_ptr<vfs_FILE>(vfs_openAppend(pathname),
+                                                [](vfs_FILE *file) { if (nullptr != file) { vfs_close(file); } });
+        if (nullptr != target) {
+            for (const auto& functionStatistic : _functionStatistics) {
+                vfs_printf(target.get(), "function = %" PRIu32 "\t function name = \"%s\"\tnumber of calls = %d\ttotalTime = %lf\tmaxTime = %lf\n",
+                           functionStatistic.first, _scriptFunctionNames[functionStatistic.first].c_str(), functionStatistic.second.numberOfCalls,
+                           functionStatistic.second.totalTime, functionStatistic.second.maxTime);
+
+            }
+        }
+    }
+};
 
 std::array<std::string, ScriptVariables::SCRIPT_VARIABLES_COUNT> _scriptVariableNames = {
 #define Define(name) #name,
@@ -67,8 +85,7 @@ Runtime::Runtime()
         #undef DefineAlias
         #undef Define
     },
-    _script_function_calls{0},
-    _script_function_times{0},
+    _statistics(std::make_unique<RuntimeStatistics>()),
     _clock(std::make_unique<Ego::Time::Clock<Ego::Time::ClockPolicy::NonRecursive>>("runtime clock", 1))
     {
     /* Intentionally empty. */ 
@@ -99,18 +116,7 @@ void scripting_system_begin()
 void scripting_system_end()
 {
     if (Runtime::isInitialized()) {
-		auto target = std::unique_ptr<vfs_FILE, std::function<void(vfs_FILE *)>>(vfs_openAppend("/debug/script_function_timing.txt"),
-                                                [](vfs_FILE *file) { if (file) { vfs_close(file); } });
-		if (target) {
-            auto& runtime = Runtime::get();
-            for (size_t i = 0; i < ScriptFunctions::SCRIPT_FUNCTIONS_COUNT; ++i) {
-                if (runtime._script_function_calls[i] > 0) {
-					vfs_printf(target.get(), "function == %d\tname == \"%s\"\tcalls == %d\ttime == %lf\n",
-						       static_cast<int>(i), _scriptFunctionNames[i].c_str(),
-                               runtime._script_function_calls[i], Runtime::get()._script_function_times[i]);
-                }
-            }
-        }
+        Runtime::get().getStatistics().append("/debug/script_function_timing.txt");
 		Runtime::uninitialize();
     }
 }
@@ -411,9 +417,7 @@ Uint8 script_state_t::run_function(script_state_t& self, ai_state_t& aiState, sc
 				returncode = result->second(self, aiState);
 			}
         }
-
-        runtime._script_function_calls[valuecode] += 1;
-        runtime._script_function_times[valuecode] += runtime.getClock().lst();
+        runtime.getStatistics().onFunctionInvoked(valuecode, runtime.getClock().lst());
     }
 
     return returncode;

@@ -453,6 +453,11 @@ void set_alerts( const ObjectRef character );
 
 namespace Ego {
 namespace Script {
+
+// Forward declaration.
+template <typename FunctionType>
+struct IRuntimeStatistics;
+
 namespace NativeInterface {
 	/**
 	 * @brief
@@ -524,21 +529,24 @@ protected:
 public:
 	/// @brief A map from function value codes to function pointers.
 	std::unordered_map<uint32_t, NativeInterface::Function*> _functionValueCodeToFunctionPointer;
-    /// @brief For each script function: The number of times the function was called.
-    std::array<int, ScriptFunctions::SCRIPT_FUNCTIONS_COUNT> _script_function_calls;
-    /// @brief For each script function: The average time of a call.
-    std::array<double, ScriptFunctions::SCRIPT_FUNCTIONS_COUNT>  _script_function_times;
 
 private:
     /// @brief A clock to measure the time from the beginning to the end of an action performed by the runtime.
     /// @remark Its window size is 1 as the duration spend in the invocation is added to an histogram.
     std::unique_ptr<Ego::Time::Clock<Ego::Time::ClockPolicy::NonRecursive>> _clock;
 
+    /// @brief Runtime statistics (of this runtime).
+    std::unique_ptr<IRuntimeStatistics<uint32_t>> _statistics;
+
 public:
     /// @brief Get the clock.
     /// @return the clock
     /// @remark Used to measure the time from the beginning to the end of an action performed by the runtime.
     Ego::Time::Clock<Ego::Time::ClockPolicy::NonRecursive> &getClock() { return *_clock; }
+
+    /// @brief Get the statistics.
+    /// @return the statistics
+    IRuntimeStatistics<uint32_t>& getStatistics() { return *_statistics; }
 };
 
 } // namespace Script
