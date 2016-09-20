@@ -479,7 +479,7 @@ namespace NativeInterface {
 /// @brief A list of all possible EgoScript functions.
 enum ScriptFunctions {
 #define Define(name) name,
-#define DefineAlias(alias, name) alias,
+#define DefineAlias(alias, name) alias = name,
 #include "egolib/Script/Functions.in"
 #undef DefineAlias
 #undef Define
@@ -491,7 +491,7 @@ extern std::array<std::string, ScriptFunctions::SCRIPT_FUNCTIONS_COUNT> _scriptF
 /// @brief A list of all possible EgoScript variables.
 enum ScriptVariables {
 #define Define(name) name,
-#define DefineAlias(alias, name) alias,
+#define DefineAlias(alias, name) alias = name,
 #include "egolib/Script/Variables.in"
 #undef DefineAlias
 #undef Define
@@ -503,7 +503,7 @@ extern std::array<std::string, ScriptVariables::SCRIPT_VARIABLES_COUNT> _scriptV
 /// @brief A list of all possible EgoScript operators.
 enum ScriptOperators {
 #define Define(name) name,
-#define DefineAlias(alias, name) alias,
+#define DefineAlias(alias, name) alias = name,
 #include "egolib/Script/Operators.in"
 #undef DefineAlias
 #undef Define

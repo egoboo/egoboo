@@ -55,7 +55,7 @@ public:
 
 std::array<std::string, ScriptVariables::SCRIPT_VARIABLES_COUNT> _scriptVariableNames = {
 #define Define(name) #name,
-#define DefineAlias(alias, name) #alias,
+#define DefineAlias(alias, name)
 #include "egolib/Script/Variables.in"
 #undef DefineAlias
 #undef Define
@@ -63,7 +63,7 @@ std::array<std::string, ScriptVariables::SCRIPT_VARIABLES_COUNT> _scriptVariable
 
 std::array<std::string, ScriptFunctions::SCRIPT_FUNCTIONS_COUNT> _scriptFunctionNames = {
 #define Define(name) #name,
-#define DefineAlias(alias, name) #alias,
+#define DefineAlias(alias, name)
 #include "egolib/Script/Functions.in"
 #undef DefineAlias
 #undef Define
@@ -71,7 +71,7 @@ std::array<std::string, ScriptFunctions::SCRIPT_FUNCTIONS_COUNT> _scriptFunction
 
 std::array<std::string, ScriptOperators::SCRIPT_OPERATORS_COUNT> _scriptOperatorNames = {
 #define Define(name) #name,
-#define DefineAlias(alias, name) #alias,
+#define DefineAlias(alias, name)
 #include "egolib/Script/Operators.in"
 #undef DefineAlias
 #undef Define
