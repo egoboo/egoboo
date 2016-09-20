@@ -96,6 +96,10 @@ public:
 	/// @throw std::bad_array_new_length not enough memory is available
 	/// @post All bytes have been appended or the buffer was not modified.
 	///       Otherwise no bytes have been appended.
+	/// @throw std::bad_array_new_length if not enough memory is available
+	/// @post
+	/// All bytes have been appended or the buffer was not modified.
+	/// Otherwise no bytes have been appene
 	void append(const char *bytes, size_t numberOfBytes);
 
 	/// @brief Get the Byte at the specified in index in this buffer.
@@ -109,6 +113,24 @@ public:
 	/// @param index the index
 	/// @throw std::bad_alloc not enough memory is available
 	/// @throw std::out_of_range the index greater than the size of the buffer
+    /// @remark For a buffer @a o and a byte @a x, the expressions
+    /// @code
+    /// o.insert(x, 0)
+    /// @endcode
+    /// and
+    /// @code
+    /// o.prepend(x)
+    /// @endcode
+	/// are equivalent.
+    /// @remark For a buffer @a o and a byte @a x, the expressions
+    /// @code
+    /// o.insert(x, o.getSize())
+    /// @endcode
+    /// and
+    /// @code
+    /// o.append(x)
+    /// @endcode
+    /// are equivalent.
 	void insert(char byte, size_t index);
 
 	/// @brief Get if the buffer is empty.

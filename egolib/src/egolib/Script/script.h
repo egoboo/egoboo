@@ -121,6 +121,8 @@ public:
 	// 0000 0111 1111 1111 1111 1111 1111 1111
 	static const uint32_t VALUEBITS = 0x07FFFFFF;
 	// 0111 1000 0000 0000 0000 0000 0000 0000
+    // for function/assignment, it's the indentation of the line i.e. there are 2^4 = 16 possible indention levels.
+    // for operands, it's the operator
 	static const uint32_t DATABITS = 0x78000000;
 	uint32_t _value;
 	Instruction()
@@ -505,10 +507,7 @@ enum ScriptOperators {
 
 extern std::array<std::string, ScriptOperators::SCRIPT_OPERATORS_COUNT> _scriptOperatorNames;
 
-/**
- * @brief
- *	The runtime (environment) for the scripts.
- */
+/// @brief The runtime (environment) for the scripts.
 struct Runtime : public Core::Singleton<Runtime> {
 protected:
     friend Core::Singleton<Runtime>::CreateFunctorType;
