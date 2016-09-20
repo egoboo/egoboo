@@ -35,7 +35,7 @@
 namespace Ego {
 namespace Script {
 
-const char *script_variable_names[ScriptVariables::SCRIPT_VARIABLES_COUNT] = {
+std::array<std::string, ScriptVariables::SCRIPT_VARIABLES_COUNT> _scriptVariableNames = {
 #define Define(name) #name,
 #define DefineAlias(alias, name) #alias,
 #include "egolib/Script/Variables.in"
@@ -43,7 +43,7 @@ const char *script_variable_names[ScriptVariables::SCRIPT_VARIABLES_COUNT] = {
 #undef Define
 };
 
-const char *script_function_names[ScriptFunctions::SCRIPT_FUNCTIONS_COUNT] = {
+std::array<std::string, ScriptFunctions::SCRIPT_FUNCTIONS_COUNT> _scriptFunctionNames = {
 #define Define(name) #name,
 #define DefineAlias(alias, name) #alias,
 #include "egolib/Script/Functions.in"
@@ -51,7 +51,7 @@ const char *script_function_names[ScriptFunctions::SCRIPT_FUNCTIONS_COUNT] = {
 #undef Define
 };
 
-const char *script_operator_names[ScriptOperators::SCRIPT_OPERATORS_COUNT] = {
+std::array<std::string, ScriptOperators::SCRIPT_OPERATORS_COUNT> _scriptOperatorNames = {
 #define Define(name) #name,
 #define DefineAlias(alias, name) #alias,
 #include "egolib/Script/Operators.in"
@@ -69,7 +69,7 @@ Runtime::Runtime()
     },
     _script_function_calls{0},
     _script_function_times{0},
-    _scriptFunctionClock(std::make_shared<Ego::Time::Clock<Ego::Time::ClockPolicy::NonRecursive>>("script function clock", 1))
+    _clock(std::make_unique<Ego::Time::Clock<Ego::Time::ClockPolicy::NonRecursive>>("runtime clock", 1))
     {
     /* Intentionally empty. */ 
 }
@@ -87,34 +87,31 @@ Runtime::~Runtime() {
 static PRO_REF script_error_model = INVALID_PRO_REF;
 static const char * script_error_classname = "UNKNOWN";
 
-static bool _scripting_system_initialized = false;
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 void scripting_system_begin()
 {
-	if (!_scripting_system_initialized) {
+	if (!Runtime::isInitialized()) {
 		Runtime::initialize();
-		_scripting_system_initialized = true;
 	}
 }
 
 void scripting_system_end()
 {
-    if (_scripting_system_initialized) {
-		vfs_FILE *target = vfs_openAppend("/debug/script_function_timing.txt");
-		if (nullptr != target) {
+    if (Runtime::isInitialized()) {
+		auto target = std::unique_ptr<vfs_FILE, std::function<void(vfs_FILE *)>>(vfs_openAppend("/debug/script_function_timing.txt"),
+                                                [](vfs_FILE *file) { if (file) { vfs_close(file); } });
+		if (target) {
+            auto& runtime = Runtime::get();
             for (size_t i = 0; i < ScriptFunctions::SCRIPT_FUNCTIONS_COUNT; ++i) {
-                if (Runtime::get()._script_function_calls[i] > 0) {
-					vfs_printf(target, "function == %d\tname == \"%s\"\tcalls == %d\ttime == %lf\n",
-						       static_cast<int>(i), script_function_names[i],
-                               Runtime::get()._script_function_calls[i], Runtime::get()._script_function_times[i]);
+                if (runtime._script_function_calls[i] > 0) {
+					vfs_printf(target.get(), "function == %d\tname == \"%s\"\tcalls == %d\ttime == %lf\n",
+						       static_cast<int>(i), _scriptFunctionNames[i].c_str(),
+                               runtime._script_function_calls[i], Runtime::get()._script_function_times[i]);
                 }
             }
-            vfs_close(target);
         }
 		Runtime::uninitialize();
-        _scripting_system_initialized = false;
     }
 }
 
@@ -316,7 +313,7 @@ bool script_state_t::run_operation( script_state_t& state, ai_state_t& aiState, 
     // check for valid execution pointer
     if ( script.get_pos() >= script._instructions.getLength() ) return false;
 
-    var_value = script._instructions[script.get_pos()] & Instruction::VALUEBITS;
+    var_value = script._instructions[script.get_pos()].getValueBits();
 
     // debug stuff
     variable = "UNKNOWN";
@@ -369,7 +366,7 @@ Uint8 script_state_t::run_function(script_state_t& self, ai_state_t& aiState, sc
     /// @details This is about half-way to what is needed for Lua integration
 
     // Mask out the indentation
-    uint32_t valuecode = script._instructions[script.get_pos()] & Instruction::VALUEBITS;
+    uint32_t valuecode = script._instructions[script.get_pos()].getValueBits();
 
     // Assume that the function will pass, as most do
     Uint8 returncode = true;
@@ -404,7 +401,7 @@ Uint8 script_state_t::run_function(script_state_t& self, ai_state_t& aiState, sc
         auto& runtime = Runtime::get();
 		{ 
 
-			Ego::Time::ClockScope<Ego::Time::ClockPolicy::NonRecursive> scope(*runtime._scriptFunctionClock);
+			Ego::Time::ClockScope<Ego::Time::ClockPolicy::NonRecursive> scope(runtime.getClock());
 			const auto& result = runtime._functionValueCodeToFunctionPointer.find(valuecode);
 			if (Runtime::get()._functionValueCodeToFunctionPointer.cend() == result) {
 				Log::get().message("%s:%d:%s: script error - ai script \"%s\" - unhandled script function %d\n", \
@@ -416,7 +413,7 @@ Uint8 script_state_t::run_function(script_state_t& self, ai_state_t& aiState, sc
         }
 
         runtime._script_function_calls[valuecode] += 1;
-        runtime._script_function_times[valuecode] += runtime._scriptFunctionClock->lst();
+        runtime._script_function_times[valuecode] += runtime.getClock().lst();
     }
 
     return returncode;
@@ -491,13 +488,13 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
     if ( script._instructions[script.get_pos()].isLdc() )
     {
         // Get the working opcode from a constant, constants are all but high 5 bits
-        iTmp = script._instructions[script.get_pos()] & Instruction::VALUEBITS;
+        iTmp = script._instructions[script.get_pos()].getValueBits();
         if ( debug_scripts ) snprintf( buffer, SDL_arraysize( buffer ), "%d", iTmp );
     }
     else
     {
         // Get the variable opcode from a register
-        variable = script._instructions[script.get_pos()] & Instruction::VALUEBITS;
+        variable = script._instructions[script.get_pos()].getValueBits();
 
         switch ( variable )
         {

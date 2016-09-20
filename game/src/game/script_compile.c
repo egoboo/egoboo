@@ -323,6 +323,75 @@ size_t parser_state_t::fix_operators( linebuffer_t& buffer )
 }
 
 //--------------------------------------------------------------------------------------------
+void parser_state_t::parse_string(std::string string, Token& token, script_info_t& script, ObjectProfile *ppro)
+{
+    auto makeMessage = [&string, &token, &ppro]() {
+        // Add the string as a message message to the available messages of the object.
+        token.setValue(ppro->addMessage(string, true));
+        token.setType(Token::Type::Constant);
+        token.setIndex(MAX_OPCODE);
+    };
+    // The string is normal, empty string:
+    if (string.length() == 0) {
+        // Create a message for the string.
+        makeMessage();
+        // Emit a warning that the string is empty.
+        Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, script.getName(), token.getLine());
+        e << "empty string literal\n" << Log::EndOfEntry;
+        Log::get() << e;
+
+        return;
+    }
+    // The string is not empty.
+    
+    // If the string begins with a shebang ...
+    if (string[0] == '#') {
+        // ... then it is a profile reference.
+        auto fileName = string.substr(1);
+        // Invalid profile as default.
+        token.setValue(INVALID_PRO_REF);
+        // Convert reference to slot number.
+        for (const auto& element : ProfileSystem::get().getLoadedProfiles()) {
+            const auto& profile = element.second;
+            if (profile == nullptr) continue;
+            // Is this the object we are looking for?
+            if (Ego::isSuffix(profile->getPathname(), fileName)) {
+                token.setValue(profile->getSlotNumber());
+                break;
+            }
+        }
+
+        // Do we need to load the object?
+        if (!ProfileSystem::get().isValidProfileID((PRO_REF)token.getValue())) {
+            auto loadName = "mp_objects/" + fileName;
+
+            // Find first free slot number.
+            for (PRO_REF ipro = MAX_IMPORT_PER_PLAYER * 4; ipro < INVALID_PRO_REF; ipro++) {
+                //skip loaded profiles
+                if (ProfileSystem::get().isValidProfileID(ipro)) continue;
+
+                //found a free slot
+                token.setValue(ProfileSystem::get().loadOneProfile(loadName, REF_TO_INT(ipro)));
+                if (token.getValue() == ipro) break;
+            }
+        }
+
+        // Failed to load object!
+        if (!ProfileSystem::get().isValidProfileID((PRO_REF)token.getValue())) {
+            Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, script.getName(), token.getLine());
+            e << "failed to load object " << token.szWord << " - \n"
+                << " - \n`" << _linebuffer.data() << "`" << Log::EndOfEntry;
+            Log::get() << e;
+        }
+
+        token.setType(Token::Type::Constant);
+        token.setIndex(MAX_OPCODE);
+    // The string is a normal, non-empty string:
+    } else {
+        // Create a message for the string.
+        makeMessage();
+    }
+}
 size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_t& script, size_t read)
 {
     /// @author ZZ
@@ -330,7 +399,7 @@ size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_
     ///    will return the next spot to read from and stick the code number
     ///    in ptok->iIndex
 
-    int cnt;
+    char cTmp;
 
     // figure out what the max word length actually is
     const size_t szWord_length_max = SDL_arraysize( tok.szWord );
@@ -344,241 +413,125 @@ size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_
         return _linebuffer.size();
     }
 
-    // nothing is parsed yet
-    bool parsed = false;
-
-    // Skip any initial spaces
-    char cTmp = _linebuffer[read];
-    while (Ego::isspace(cTmp) && read < _linebuffer.size())
-    {
+    auto write = [&tok](char c) {
+        tok.szWord[tok.szWord_length] = c;
+        tok.szWord_length++;
+    };
+    auto save = [&cTmp, &write, &tok]() { write(cTmp); };
+    auto next = [this, &cTmp, &read]() {
         read++;
         cTmp = _linebuffer[read];
+    };
+    auto writeAndNext = [&write, &next](char c) { write(c); next(); };
+    auto saveAndNext = [&save, &next]() { save(); next(); };
+
+    // Skip any initial spaces
+    cTmp = _linebuffer[read];
+    while (Ego::isspace(cTmp) && read < _linebuffer.size())
+    {
+        next();
     }
 
     // break if there was nothing here
     if ( read >= _linebuffer.size())
     {
-        goto parse_token_end;
+        print_token(tok);
+        return read;
     }
 
     // initialize the word
     tok.szWord_length = 0;
     tok.szWord[0] = CSTR_END;
 
-    // handle the special case of a string constant
-    if ( C_DOUBLE_QUOTE_CHAR == cTmp )
-    {
-        do
-        {
-            // begin the copy
-            tok.szWord[tok.szWord_length] = cTmp;
-            tok.szWord_length++;
+    if (C_DOUBLE_QUOTE_CHAR == cTmp) {
+        // `doubleQuotedString|reference`
+        // strings of the form "Here lies \"The Sandwich King\"" are not supported
 
-            read++;
-            cTmp = _linebuffer[read];
+        next(); // skip the leading quotation mark
 
-            // Break out if we find the end of the string
-            // Strings of the form "Here lies \"The Sandwich King\"" are not supported
-        }
-        while ( CSTR_END != cTmp && C_DOUBLE_QUOTE_CHAR != cTmp && tok.szWord_length < szWord_length_max && read < _linebuffer.size());
-
-        if ( C_DOUBLE_QUOTE_CHAR == cTmp )
-        {
-            // skip the ending qoutation mark
-            read++;
-            cTmp = _linebuffer[read];
-
-            tok.szWord[tok.szWord_length] = CSTR_END;
-            tok.szWord_length++;
-        }
-        else
-        {
-			Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, script.getName(), tok.getLine());
-			e << "string literal is too long - \n"
-	          << " - \n`" << _linebuffer.data() << "`" << Log::EndOfEntry;
-			Log::get() << e;
-        }
-    }
-    else
-    {
-        // Load the the word into the ptok->szWord buffer
-        tok.szWord_length = 0;
-        tok.szWord[0] = CSTR_END;
-
-        while (!Ego::isspace(cTmp) && CSTR_END != cTmp && tok.szWord_length < szWord_length_max && read < _linebuffer.size())
-        {
-            tok.szWord[tok.szWord_length] = cTmp;
-            tok.szWord_length++;
-
-            read++;
-            cTmp = _linebuffer[read];
+        while (CSTR_END != cTmp && C_DOUBLE_QUOTE_CHAR != cTmp && tok.szWord_length < szWord_length_max && read < _linebuffer.size()) {
+            saveAndNext();
         }
 
-        if ( tok.szWord_length < szWord_length_max )
-        {
-            tok.szWord[tok.szWord_length] = CSTR_END;
-        }
-    }
-
-    // ensure that the string is terminated
-    tok.szWord[szWord_length_max-1] = CSTR_END;
-
-    // Check for numeric constant
-    if (!parsed && Ego::isdigit(tok.szWord[0]))
-    {
-		int temporary;
-		sscanf(tok.szWord, "%d", &temporary);
-		tok.setValue(temporary);
-        tok.setType(Token::Type::Constant);
-        tok.setIndex(MAX_OPCODE);
-
-        // move on to the next thing
-        parsed = true;
-    }
-
-    // Check for IDSZ constant
-    if ( !parsed && ( '[' == tok.szWord[0] ) )
-    {
-        IDSZ2 idsz = IDSZ2( tok.szWord[1], tok.szWord[2], tok.szWord[3], tok.szWord[4] );
-
-        tok.setValue(idsz.toUint32());
-        tok.setType(Token::Type::Constant);
-        tok.setIndex(MAX_OPCODE);
-
-        // move on to the next thing
-        parsed = true;
-    }
-
-    if ( !parsed && ( 0 == strcmp( tok.szWord, "=" ) ) )
-    {
-        tok.setValue(-1);
-        tok.setType(Token::Type::Operator);
-        tok.setIndex(MAX_OPCODE);
-
-        // move on to the next thing
-        parsed = true;
-    }
-
-    // convert the string token to a new token type
-    if ( !parsed && ( C_DOUBLE_QUOTE_CHAR == tok.szWord[0] ) )
-    {
-        char * str = tok.szWord + 1;
-
-        if ( CSTR_END == tok.szWord[1] || C_DOUBLE_QUOTE_CHAR == tok.szWord[1] )
-        {
-            // some kind of empty string
-			Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, script.getName(), tok.getLine());
-			e << "string literal is empty - \n"
-			  << " - \n`" << _linebuffer.data() << "`" << Log::EndOfEntry;
-			Log::get() << e;
-
-            // some kind of error
-            parsed = true;
-        }
-        else if ( '#' == str[0] )
-        {
-            //remove the reference symbol to figure out the actual folder name we are looking for
-            std::string obj_name = str + 1;
-
-            // Invalid profile as default
-            tok.setValue(INVALID_PRO_REF);
-
-            // Convert reference to slot number
-            for (const auto &element : ProfileSystem::get().getLoadedProfiles())
-            {
-                const std::shared_ptr<ObjectProfile> &profile = element.second;
-                if(profile == nullptr) continue;
-
-
-                //is this the object we are looking for?
-                if (Ego::isSuffix(profile->getPathname(), obj_name))
-                {
-                    tok.setValue(profile->getSlotNumber());
-                    break;
-                }
+        if (C_DOUBLE_QUOTE_CHAR == cTmp) {
+            writeAndNext(CSTR_END); // skip the ending quotation mark
+        } else {
+            if (CSTR_END == cTmp) {
+                throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(script.getName(), tok.getLine()), "unclosed string literal");
+            } else {
+                throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(script.getName(), tok.getLine()), "string literal too long");
             }
-
-            // Do we need to load the object?
-            if (!ProfileSystem::get().isValidProfileID((PRO_REF)tok.getValue()))
-            {
-                std::string loadname = "mp_objects/" + obj_name;
-
-                //find first free slot number
-                for (PRO_REF ipro = MAX_IMPORT_PER_PLAYER * 4; ipro < INVALID_PRO_REF; ipro++ )
-                {
-                    //skip loaded profiles
-                    if (ProfileSystem::get().isValidProfileID(ipro)) continue;
-
-                    //found a free slot
-                    tok.setValue(ProfileSystem::get().loadOneProfile(loadname, REF_TO_INT(ipro)));
-                    if (tok.getValue() == ipro) break;
-                }
-            }
-
-            // Failed to load object!
-            if (!ProfileSystem::get().isValidProfileID((PRO_REF)tok.getValue()))
-            {
-				Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, script.getName(), tok.getLine());
-				e << "failed to load object " << tok.szWord << " - \n"
-				  << " - \n`" << _linebuffer.data() << "`" << Log::EndOfEntry;
-				Log::get() << e;
-            }
-
-            tok.setType(Token::Type::Constant);
-            tok.setIndex(MAX_OPCODE);
-
-            parsed = true;
         }
-        else
-        {
-            // a normal string
-            // if this is a new string, add this message to the avalible messages of the object
-            tok.setValue(ppro->addMessage(str, true));
-
-            tok.setType(Token::Type::Constant);
-            tok.setIndex(MAX_OPCODE);
-
-            parsed = true;
-        }
-    }
-
-    // is it a constant, opcode, or value?
-    if ( !parsed )
-    {
-        for ( cnt = 0; cnt < Opcodes.size(); cnt++ )
-        {
-            if ( 0 == strncmp( tok.szWord, Opcodes[cnt].cName, MAXCODENAMESIZE ) )
-            {
-                tok.setValue(Opcodes[cnt].iValue);
-                tok.setType(Opcodes[cnt]._type);
-                tok.setIndex(cnt);
-
-                // move on to the next thing
-                parsed = true;
-
+        parse_string(std::string(tok.szWord), tok, script, ppro);
+    } else if ('+' == cTmp || '-' == cTmp || '/' == cTmp || '*' == cTmp ||
+               '%' == cTmp || '>' == cTmp || '<' == cTmp || '&' == cTmp) {
+        saveAndNext(); write('\0');
+        int i;
+        for (i = 0; i < Opcodes.size(); ++i) {
+            if (0 == strncmp(tok.szWord, Opcodes[i].cName, MAXCODENAMESIZE)) {
+                tok.setValue(Opcodes[i].iValue);
+                tok.setType(Opcodes[i]._type);
+                tok.setIndex(i);
                 break;
             }
         }
-    }
-
-    // We couldn't figure out what this is, throw out an error code
-    if ( !parsed )
-    {
-		Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, script.getName(), tok.getLine());
-		e << "unknown opcode " << tok.szWord << " - \n"
-		  << " - \n`" << _linebuffer.data() << "`" << Log::EndOfEntry;
-		Log::get() << e;
-
-        // put the token in an error state
+        // We couldn't figure out what this is, throw out an error code
+        if (i == Opcodes.size()) {
+            throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(script.getName(), tok.getLine()), "not an opcode");
+        }
+    } else if ('=' == cTmp) {
+        // `assign = '='`
+        saveAndNext(); write('\0');
         tok.setValue(-1);
-        tok.setType(Token::Type::Unknown);
+        tok.setType(Token::Type::Operator);
         tok.setIndex(MAX_OPCODE);
-
-        _error = true;
+    } else if ('[' == cTmp) {
+        // `idsz = '[' (digit|alpha)^4 ']'`
+        saveAndNext();
+        for (auto i = 0; i < 4; ++i) {
+            if (!Ego::isdigit(cTmp) && !Ego::isalpha(cTmp)) {
+                throw std::runtime_error("invalid IDSZ");
+            }
+            saveAndNext();
+        }
+        if (cTmp != ']') {
+            throw std::runtime_error("invalid IDSZ");
+        }
+        saveAndNext(); write('\0');
+        IDSZ2 idsz = IDSZ2(tok.szWord);
+        tok.setValue(idsz.toUint32());
+        tok.setType(Token::Type::Constant);
+        tok.setIndex(MAX_OPCODE);
+    } else if (Ego::isdigit(cTmp)) {
+        // `numericLiteral`
+        do {
+            saveAndNext();
+        } while (Ego::isdigit(cTmp));
+        write('\0');
+        int temporary;
+        sscanf(tok.szWord, "%d", &temporary);
+        tok.setValue(temporary);
+        tok.setType(Token::Type::Constant);
+        tok.setIndex(MAX_OPCODE);
+    } else {
+        while (!Ego::isspace(cTmp) && CSTR_END != cTmp && tok.szWord_length < szWord_length_max && read < _linebuffer.size()) {
+            saveAndNext();
+        }
+        write('\0');
+        int i;
+        for (i = 0; i < Opcodes.size(); ++i) {
+            if (0 == strncmp(tok.szWord, Opcodes[i].cName, MAXCODENAMESIZE)) {
+                tok.setValue(Opcodes[i].iValue);
+                tok.setType(Opcodes[i]._type);
+                tok.setIndex(i);
+                break;
+            }
+        }
+        // We couldn't figure out what this is, throw out an error code
+        if (i == Opcodes.size()) {
+            throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(script.getName(), tok.getLine()), "not an opcode");
+        }
     }
-
-parse_token_end:
-
     print_token(tok);
     return read;
 }

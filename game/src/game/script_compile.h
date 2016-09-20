@@ -140,6 +140,10 @@ public:
     size_t _load_buffer_count;
     std::array<uint8_t, AISMAXLOADSIZE> _load_buffer;
 
+    /// @brief Analyse the contents of a string.
+    /// @param string the string with the leading and trailing quotation marks stripped
+    void parse_string(std::string string, Token& token, script_info_t& script, ObjectProfile *ppro);
+
     /**
     * @brief
     *  Get the error variable value.

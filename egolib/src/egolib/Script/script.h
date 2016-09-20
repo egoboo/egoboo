@@ -187,6 +187,9 @@ public:
 	uint8_t getDataBits() const {
 		return (getBits() >> 27) & 0x0f;
 	}
+    uint32_t getValueBits() const {
+        return getBits() & Instruction::VALUEBITS;
+    }
 
 	/**
 	 * @brief
@@ -476,7 +479,7 @@ enum ScriptFunctions {
     SCRIPT_FUNCTIONS_COUNT
 };
 
-extern const char *script_function_names[ScriptFunctions::SCRIPT_FUNCTIONS_COUNT];
+extern std::array<std::string, ScriptFunctions::SCRIPT_FUNCTIONS_COUNT> _scriptFunctionNames;
 
 /// @brief A list of all possible EgoScript variables.
 enum ScriptVariables {
@@ -488,7 +491,7 @@ enum ScriptVariables {
     SCRIPT_VARIABLES_COUNT
 };
 
-extern const char *script_variable_names[ScriptVariables::SCRIPT_VARIABLES_COUNT];
+extern std::array<std::string, ScriptVariables::SCRIPT_VARIABLES_COUNT> _scriptVariableNames;
 
 /// @brief A list of all possible EgoScript operators.
 enum ScriptOperators {
@@ -500,7 +503,7 @@ enum ScriptOperators {
     SCRIPT_OPERATORS_COUNT
 };
 
-extern const char *script_operator_names[ScriptOperators::SCRIPT_OPERATORS_COUNT];
+extern std::array<std::string, ScriptOperators::SCRIPT_OPERATORS_COUNT> _scriptOperatorNames;
 
 /**
  * @brief
@@ -527,9 +530,17 @@ public:
     std::array<int, ScriptFunctions::SCRIPT_FUNCTIONS_COUNT> _script_function_calls;
     /// @brief For each script function: The average time of a call.
     std::array<double, ScriptFunctions::SCRIPT_FUNCTIONS_COUNT>  _script_function_times;
-    /// A counter to measure the time of an invocation of a script function.
-    /// Its window size is 1 as the duration spend in the invocation is added to an histogram (see below).
-    std::shared_ptr<Ego::Time::Clock<Ego::Time::ClockPolicy::NonRecursive>> _scriptFunctionClock;
+
+private:
+    /// @brief A clock to measure the time from the beginning to the end of an action performed by the runtime.
+    /// @remark Its window size is 1 as the duration spend in the invocation is added to an histogram.
+    std::unique_ptr<Ego::Time::Clock<Ego::Time::ClockPolicy::NonRecursive>> _clock;
+
+public:
+    /// @brief Get the clock.
+    /// @return the clock
+    /// @remark Used to measure the time from the beginning to the end of an action performed by the runtime.
+    Ego::Time::Clock<Ego::Time::ClockPolicy::NonRecursive> &getClock() { return *_clock; }
 };
 
 } // namespace Script

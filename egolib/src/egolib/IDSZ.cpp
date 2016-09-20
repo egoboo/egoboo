@@ -19,6 +19,13 @@ IDSZ2::IDSZ2(uint32_t value) :
 	//ctor
 }
 
+IDSZ2::IDSZ2(const std::string& s) {
+    if (s.length() != 6) {
+        throw std::runtime_error("invalid IDSZ");
+    }
+    if (s[0] != '[' || s[5] != ']') throw std::runtime_error("invalid IDSZ");
+    _value = caseLabel(s[1], s[2], s[3], s[4]);
+}
 
 IDSZ2::IDSZ2(char C0, char C1, char C2, char C3) :
 	_value(caseLabel(C0, C1, C2, C3))
