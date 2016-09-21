@@ -28,12 +28,11 @@
 
 namespace Log {
 struct CompilerEntry : Entry {
-	std::string _scriptName;
-	int _scriptLine;
+	Id::Location _location;
 	CompilerEntry(Level level, const std::string& file, int line, const std::string& function,
-		          const std::string& scriptName, int scriptLine)
-		: Entry(level, file, line, function), _scriptName(scriptName), _scriptLine(scriptLine) {
-		getSink() << ": " << scriptName << ":" << scriptLine << ": ";
+		          const Id::Location& location)
+		: Entry(level, file, line, function), _location(location) {
+		getSink() << ": " << _location.getLoadName() << ":" << _location.getLineNumber() << ": ";
 	}
 };
 }
@@ -219,14 +218,14 @@ size_t parser_state_t::load_one_line( size_t read, script_info_t& script )
 
     if ( _linebuffer.size() > 0  && tabs_warning_needed )
     {
-		Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, script.getName(), _token.getLine());
+        Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, {script.getName(), _token.getLine()});
 		e << "compilation error - tab character used to define spacing will cause an error `"
 		  << " - \n`" << _linebuffer.data() << "`" << Log::EndOfEntry;
 		Log::get() << e;
     }
 
     // scan to the beginning of the next line
-    while ( read < _load_buffer_count )
+    while ( read < _loadBuffer.getSize() )
     {
         if (skipNewline(read, script)) {
             break;
@@ -266,7 +265,7 @@ int parser_state_t::get_indentation(script_info_t& script )
     }
     if ( HAS_SOME_BITS( cnt, 1 ) )
     {
-		Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, script.getName(), _token.getLine());
+        Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, {script.getName(), _token.getLine()});
 		e << "invalid indention - number of spaces must be even - \n"
 		  << " - \n`" << _linebuffer.data() << "`" << Log::EndOfEntry;
 		Log::get() << e;
@@ -276,7 +275,7 @@ int parser_state_t::get_indentation(script_info_t& script )
     cnt >>= 1;
     if ( cnt > 15 )
     {
-		Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, script.getName(), _token.getLine());
+        Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, {script.getName(), _token.getLine()});
 		e << "invalid indention - too many spaces - \n"
 	      << " - \n`" << _linebuffer.data() << "`" << Log::EndOfEntry;
 		Log::get() << e;
@@ -336,7 +335,7 @@ void parser_state_t::parse_string(std::string string, Token& token, script_info_
         // Create a message for the string.
         makeMessage();
         // Emit a warning that the string is empty.
-        Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, script.getName(), token.getLine());
+        Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, {script.getName(), token.getLine()});
         e << "empty string literal\n" << Log::EndOfEntry;
         Log::get() << e;
 
@@ -378,7 +377,7 @@ void parser_state_t::parse_string(std::string string, Token& token, script_info_
 
         // Failed to load object!
         if (!ProfileSystem::get().isValidProfileID((PRO_REF)token.getValue())) {
-            Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, script.getName(), token.getLine());
+            Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, {script.getName(), token.getLine()});
             e << "failed to load object " << token.szWord << " - \n"
                 << " - \n`" << _linebuffer.data() << "`" << Log::EndOfEntry;
             Log::get() << e;
@@ -457,9 +456,9 @@ size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_
             writeAndNext(CSTR_END); // skip the ending quotation mark
         } else {
             if (CSTR_END == cTmp) {
-                throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(script.getName(), tok.getLine()), "unclosed string literal");
+                throw Id::LexicalErrorException(__FILE__, __LINE__, {script.getName(), tok.getLine()}, "unclosed string literal");
             } else {
-                throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(script.getName(), tok.getLine()), "string literal too long");
+                throw Id::LexicalErrorException(__FILE__, __LINE__, {script.getName(), tok.getLine()}, "string literal too long");
             }
         }
         parse_string(std::string(tok.szWord), tok, script, ppro);
@@ -529,7 +528,7 @@ size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_
         }
         // We couldn't figure out what this is, throw out an error code
         if (i == Opcodes.size()) {
-            throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(script.getName(), tok.getLine()), "not an opcode");
+            throw Id::LexicalErrorException(__FILE__, __LINE__, {script.getName(), tok.getLine()}, "not an opcode");
         }
     }
     print_token(tok);
@@ -554,7 +553,7 @@ void parser_state_t::emit_opcode( Token& tok, const BIT_FIELD highbits, script_i
     }
     else
     {
-		Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, script.getName(), tok.getLine());
+        Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, {script.getName(), tok.getLine()});
 		e << "script index larger than array - \n"
 		  << " - \n`" << _linebuffer.data() << "`" << Log::EndOfEntry;
 		Log::get() << e;
@@ -625,7 +624,7 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
             parseposition = parse_token(_token, ppro, script, parseposition );  // EQUALS
 			if ( Token::Type::Operator != _token.getType() || 0 != strcmp( _token.szWord, "=" ) )
             {
-				Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, script.getName(), _token.getLine());
+                Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, {script.getName(), _token.getLine()});
 				e << "invalid equation - \n"
 				  << " - \n`" << _linebuffer.data() << "`" << Log::EndOfEntry;
             }
@@ -645,7 +644,7 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
             else if ( Token::Type::Operator != _token.getType() )
             {
                 // this is a function or an unknown value. do not break the script.
-				Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, script.getName(), _token.getLine());
+                Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, {script.getName(), _token.getLine()});
 				e << "invalid operand " << _token.szWord << " - \n"
 				  << " - \n`" << _linebuffer.data() << "`" << Log::EndOfEntry;
 				Log::get() << e;
@@ -663,7 +662,7 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
                 if ( Token::Type::Operator != _token.getType() )
                 {
                     // problem with the loop
-					Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, script.getName(), _token.getLine());
+                    Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, {script.getName(), _token.getLine()});
 					e << "expected operator - \n"
 					  << " - \n`" << _linebuffer.data() << "`" << Log::EndOfEntry;
 					Log::get() << e;

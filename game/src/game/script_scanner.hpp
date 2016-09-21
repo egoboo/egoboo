@@ -36,10 +36,9 @@ private:
 	/// @brief The type of this token.
 	Type _type;
 
-public:
 	/// @brief The line number.
     /// @todo Use Id::Location.
-	int _line;
+	size_t _line;
 
 	/// @brief The index of this token.
     int _index;
@@ -47,6 +46,7 @@ public:
 	/// @brief The value of this token.
     int _value;
 
+public:
     size_t szWord_length;
     STRING szWord;                   ///< The text representation
 
@@ -82,14 +82,14 @@ public:
     /// @return the line number of this token
     /// @see setLine
     /// @remark The line number is the line number of the line in which the lexeme of this token starts in.
-	int getLine() const {
+	size_t getLine() const {
 		return _line;
 	}
 
 	/// @brief Set the line number of this token.
 	/// @param line the line number
 	/// @see getLine
-	void setLine(int line) {
+	void setLine(size_t line) {
 		_line = line;
 	}
 

@@ -20,7 +20,7 @@
 
 Token::Token()
 	: szWord{ '\0' }, szWord_length(0),
-	  _line(0), _index(MAX_OPCODE), _value(0), _type(Type::Unknown) {
+	  _line(1), _index(MAX_OPCODE), _value(0), _type(Type::Unknown) {
 }
 
 Token::Token(const Token& other)
