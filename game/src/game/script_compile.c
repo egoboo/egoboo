@@ -40,12 +40,9 @@ struct CompilerEntry : Entry {
 static bool load_ai_codes_vfs();
 
 parser_state_t::parser_state_t()
-	: _token(), _linebuffer()
+	: _loadBuffer(1024), _token(), _linebuffer()
 {
 	_line_count = 0;
-
-	_load_buffer_count = 0;
-	_load_buffer[0] = '\0';
 
     load_ai_codes_vfs();
     debug_script_file = vfs_openWrite("/debug/script_debug.txt");
@@ -56,9 +53,6 @@ parser_state_t::parser_state_t()
 parser_state_t::~parser_state_t()
 {
 	_line_count = 0;
-
-	_load_buffer_count = 0;
-	_load_buffer[0] = '\0';
 
     vfs_close(debug_script_file);
     debug_script_file = nullptr;
@@ -100,13 +94,13 @@ static bool isNewline(char x) {
 
 bool parser_state_t::skipNewline(size_t& read, script_info_t& script) {
     size_t newread = read;
-    if (newread < _load_buffer_count) {
-        char current = _load_buffer[newread];
+    if (newread < _loadBuffer.getSize()) {
+        char current = _loadBuffer.get(newread);
         if (isNewline(current)) {
             newread++;
-            if (newread < _load_buffer_count) {
+            if (newread < _loadBuffer.getSize()) {
                 char old = current;
-                current = _load_buffer[newread];
+                current = _loadBuffer.get(newread);
                 if (isNewline(current) && old != current) {
                     newread++;
                 }
@@ -132,14 +126,14 @@ size_t parser_state_t::load_one_line( size_t read, script_info_t& script )
 
     // try to trap all end of line conditions so we can properly count the lines
     bool tabs_warning_needed = false;
-    while ( read < _load_buffer_count )
+    while ( read < _loadBuffer.getSize() )
     {
         if (skipNewline(read, script)) {
             _linebuffer.clear();
             return read;
         }
 
-        cTmp = _load_buffer[read];
+        cTmp = _loadBuffer.get(read);
         if ( C_TAB_CHAR == cTmp )
         {
             tabs_warning_needed = true;
@@ -159,9 +153,9 @@ size_t parser_state_t::load_one_line( size_t read, script_info_t& script )
     // Parse to comment or end of line
     bool foundtext = false;
     bool inside_string = false;
-    while ( read < _load_buffer_count )
+    while ( read < _loadBuffer.getSize() )
     {
-        cTmp = _load_buffer[read];
+        cTmp = _loadBuffer.get(read);
 
         // we reached endline
         if (isNewline(cTmp))
@@ -170,7 +164,7 @@ size_t parser_state_t::load_one_line( size_t read, script_info_t& script )
         }
 
         // we reached a comment
-        if ( '/' == cTmp && '/' == _load_buffer[read + 1] )
+        if ( '/' == cTmp && '/' == _loadBuffer.get(read + 1))
         {
             break;
         }
@@ -229,7 +223,7 @@ size_t parser_state_t::load_one_line( size_t read, script_info_t& script )
     {
         if (skipNewline(read, script)) {
             break;
-        } else if (CSTR_END == _load_buffer[read]) {
+        } else if (CSTR_END == _loadBuffer.get(read)) {
             read += 1;
             break;
         }
@@ -568,7 +562,7 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
     /// @details This parses an AI script line by line
 
     size_t read = 0;
-    for ( _token.setLine(0); read < _load_buffer_count; _token.setLine(_token.getLine() + 1) )
+    for ( _token.setLine(0); read < _loadBuffer.getSize(); _token.setLine(_token.getLine() + 1) )
     {
         read = load_one_line( read, script );
         if ( 0 == _linebuffer.size() ) continue;
@@ -1099,61 +1093,43 @@ egolib_rv load_ai_script_vfs0(parser_state_t& ps, const std::string& loadname, O
 {
 	ps.clear_error();
 	ps._line_count = 0;
+	// Clear the buffer.
+    ps._loadBuffer.clear();
 
-    std::shared_ptr<vfs_FILE> fileread(vfs_openRead(loadname.c_str()), [](vfs_FILE *pFile){ if(pFile) vfs_close(pFile); });
+    // Load the entire file.
+    try {
+        if (!vfs_exists(loadname)) {
+            return rv_fail;
+        }
+        vfs_readEntireFile(loadname, [&ps](size_t numberOfBytes, const char *bytes) { ps._loadBuffer.append(bytes, numberOfBytes); });
+    } catch (...) {
+        return rv_fail;
+    }
+    // Assert proper encoding: The file may not contain zero terminators.
+    for (size_t i = 0; i < ps._loadBuffer.getSize(); ++i) {
+        if (CSTR_END == ps._loadBuffer.get(i)) {
+            return rv_fail;
+        }
+    }
+    // Append a zero terminator.
+    /** @todo This is for compatibility with legacy code. */
+    ps._loadBuffer.append(CSTR_END);
 
-	// No such file
-	if (!fileread)
-	{
-		Log::Entry e(Log::Level::Warning, __FILE__, __LINE__, __FUNCTION__);
-		e << "AI script `" << loadname << "` was not found" << Log::EndOfEntry;
-		Log::get() << e;
-		return rv_fail;
-	}
+    try {
+        // save the filename for error logging
+        script._name = loadname;
 
-	// load the file
-	size_t file_size = vfs_fileLength(fileread.get());
-	if (-1 == file_size) {
-		Log::Entry e(Log::Level::Error,__FILE__, __LINE__, __FUNCTION__);
-		e << "unable to load AI script `" << loadname << "`" << Log::EndOfEntry;
-		Log::get() << e;
-		return rv_fail;
-	}
+        // we have parsed nothing yet
+        script._instructions._length = 0;
 
-	//Reset read buffer first
-	ps._load_buffer.fill(CSTR_END);
+        // parse/compile the scripts
+        ps.parse_line_by_line(ppro, script);
 
-	if (file_size > ps._load_buffer.size()) {
-		Log::Entry e(Log::Level::Error, __FILE__, __LINE__, __FUNCTION__);
-		e << "file size " << file_size << " of script file `" << loadname << "` exceeds maximum file size " << ps._load_buffer.size()
-		  << Log::EndOfEntry;
-		Log::get() << e;
-		return rv_fail;
-	}
-
-	ps._load_buffer_count = (int)vfs_read(ps._load_buffer.data(), 1, file_size, fileread.get());
-    fileread = nullptr;
-
-	// if the file is empty, use the default script
-	if (0 == ps._load_buffer_count)
-	{
-		Log::Entry e(Log::Level::Error, __FILE__, __LINE__, __FUNCTION__);
-		e << "script file `" << loadname << "` is empty" << Log::EndOfEntry;
-		Log::get() << e;
-		return rv_fail;
-	}
-
-	// save the filename for error logging
-	script._name = loadname;
-
-	// we have parsed nothing yet
-	script._instructions._length = 0;
-
-	// parse/compile the scripts
-	ps.parse_line_by_line(ppro, script);
-
-	// determine the correct jumps
-	parser_state_t::parse_jumps(script);
+        // determine the correct jumps
+        parser_state_t::parse_jumps(script);
+    } catch (...) {
+        return rv_fail;
+    }
 
 	return rv_success;
 }

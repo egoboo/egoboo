@@ -29,7 +29,6 @@
 //--------------------------------------------------------------------------------------------
 
 // AI stuff
-#define AISMAXLOADSIZE      (1024*1024)         ///< For parsing AI scripts
 #define MAXLINESIZE         1024
 #define MAX_OPCODE          1024                ///< Number of lines in AICODES.TXT
 #define MAXCODENAMESIZE     64
@@ -137,8 +136,7 @@ protected:
     linebuffer_t _linebuffer;
 
 public:
-    size_t _load_buffer_count;
-    std::array<uint8_t, AISMAXLOADSIZE> _load_buffer;
+    Ego::Script::Buffer _loadBuffer;
 
     /// @brief Analyse the contents of a string.
     /// @param string the string with the leading and trailing quotation marks stripped
