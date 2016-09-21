@@ -121,6 +121,8 @@ public:
 	// 0000 0111 1111 1111 1111 1111 1111 1111
 	static const uint32_t VALUEBITS = 0x07FFFFFF;
 	// 0111 1000 0000 0000 0000 0000 0000 0000
+    // for function/assignment, it's the indentation of the line i.e. there are 2^4 = 16 possible indention levels.
+    // for operands, it's the operator
 	static const uint32_t DATABITS = 0x78000000;
 	uint32_t _value;
 	Instruction()
@@ -187,6 +189,9 @@ public:
 	uint8_t getDataBits() const {
 		return (getBits() >> 27) & 0x0f;
 	}
+    uint32_t getValueBits() const {
+        return getBits() & Instruction::VALUEBITS;
+    }
 
 	/**
 	 * @brief
@@ -448,6 +453,11 @@ void set_alerts( const ObjectRef character );
 
 namespace Ego {
 namespace Script {
+
+// Forward declaration.
+template <typename FunctionType>
+struct IRuntimeStatistics;
+
 namespace NativeInterface {
 	/**
 	 * @brief
@@ -460,20 +470,53 @@ namespace NativeInterface {
 	 */
 	struct FunctionInfo {
 		/// The name of the function in the DSL.
-		std::string _functionName;
+		std::string _name;
 		/// A pointer to the C/C++ NI function.
-		Function *_functionPointer;
+		Function *_pointer;
 	};
-}
-/**
- * @brief
- *	The runtime (environment) for the scripts.
- */
+} // namespace NativeInterface
+
+/// @brief A list of all possible EgoScript functions.
+enum ScriptFunctions {
+#define Define(name) name,
+#define DefineAlias(alias, name) alias = name,
+#include "egolib/Script/Functions.in"
+#undef DefineAlias
+#undef Define
+    SCRIPT_FUNCTIONS_COUNT
+};
+
+extern std::array<std::string, ScriptFunctions::SCRIPT_FUNCTIONS_COUNT> _scriptFunctionNames;
+
+/// @brief A list of all possible EgoScript variables.
+enum ScriptVariables {
+#define Define(name) name,
+#define DefineAlias(alias, name) alias = name,
+#include "egolib/Script/Variables.in"
+#undef DefineAlias
+#undef Define
+    SCRIPT_VARIABLES_COUNT
+};
+
+extern std::array<std::string, ScriptVariables::SCRIPT_VARIABLES_COUNT> _scriptVariableNames;
+
+/// @brief A list of all possible EgoScript operators.
+enum ScriptOperators {
+#define Define(name) name,
+#define DefineAlias(alias, name) alias = name,
+#include "egolib/Script/Operators.in"
+#undef DefineAlias
+#undef Define
+    SCRIPT_OPERATORS_COUNT
+};
+
+extern std::array<std::string, ScriptOperators::SCRIPT_OPERATORS_COUNT> _scriptOperatorNames;
+
+/// @brief The runtime (environment) for the scripts.
 struct Runtime : public Core::Singleton<Runtime> {
 protected:
     friend Core::Singleton<Runtime>::CreateFunctorType;
     friend Core::Singleton<Runtime>::DestroyFunctorType;
-	using MyCreateFunctor = Core::CreateFunctor<Runtime>;
 
     /// @brief Construct this runtime.
 	/// @remarks Intentionally protected.
@@ -486,6 +529,24 @@ protected:
 public:
 	/// @brief A map from function value codes to function pointers.
 	std::unordered_map<uint32_t, NativeInterface::Function*> _functionValueCodeToFunctionPointer;
+
+private:
+    /// @brief A clock to measure the time from the beginning to the end of an action performed by the runtime.
+    /// @remark Its window size is 1 as the duration spend in the invocation is added to an histogram.
+    std::unique_ptr<Ego::Time::Clock<Ego::Time::ClockPolicy::NonRecursive>> _clock;
+
+    /// @brief Runtime statistics (of this runtime).
+    std::unique_ptr<IRuntimeStatistics<uint32_t>> _statistics;
+
+public:
+    /// @brief Get the clock.
+    /// @return the clock
+    /// @remark Used to measure the time from the beginning to the end of an action performed by the runtime.
+    Ego::Time::Clock<Ego::Time::ClockPolicy::NonRecursive> &getClock() { return *_clock; }
+
+    /// @brief Get the statistics.
+    /// @return the statistics
+    IRuntimeStatistics<uint32_t>& getStatistics() { return *_statistics; }
 };
 
 } // namespace Script

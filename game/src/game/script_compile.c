@@ -86,34 +86,6 @@ vfs_FILE *debug_script_file = NULL;
 
 //--------------------------------------------------------------------------------------------
 
-const char *script_variable_names[SCRIPT_VARIABLES_COUNT] =
-{
-#define Define(name) #name,
-#define DefineAlias(alias, name) #alias,
-#include "egolib/Script/Variables.in"
-#undef DefineAlias
-#undef Define
-};
-const char *script_function_names[Ego::ScriptFunctions::SCRIPT_FUNCTIONS_COUNT] =
-{
-#define Define(name) #name,
-#define DefineAlias(alias, name) #alias,
-#include "egolib/Script/Functions.in"
-#undef DefineAlias
-#undef Define
-};
-const char *script_operator_names[SCRIPT_OPERATORS_COUNT] =
-{
-#define Define(name) #name,
-#define DefineAlias(alias, name) #alias,
-#include "egolib/Script/Operators.in"
-#undef DefineAlias
-#undef Define
-};
-
-
-//--------------------------------------------------------------------------------------------
-
 /// Emit a token to standard output in debug mode.
 void print_token(const Token& token);
 #if (DEBUG_SCRIPT_LEVEL > 2) && defined(_DEBUG)
@@ -351,6 +323,75 @@ size_t parser_state_t::fix_operators( linebuffer_t& buffer )
 }
 
 //--------------------------------------------------------------------------------------------
+void parser_state_t::parse_string(std::string string, Token& token, script_info_t& script, ObjectProfile *ppro)
+{
+    auto makeMessage = [&string, &token, &ppro]() {
+        // Add the string as a message message to the available messages of the object.
+        token.setValue(ppro->addMessage(string, true));
+        token.setType(Token::Type::Constant);
+        token.setIndex(MAX_OPCODE);
+    };
+    // The string is normal, empty string:
+    if (string.length() == 0) {
+        // Create a message for the string.
+        makeMessage();
+        // Emit a warning that the string is empty.
+        Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, script.getName(), token.getLine());
+        e << "empty string literal\n" << Log::EndOfEntry;
+        Log::get() << e;
+
+        return;
+    }
+    // The string is not empty.
+    
+    // If the string begins with a shebang ...
+    if (string[0] == '#') {
+        // ... then it is a profile reference.
+        auto fileName = string.substr(1);
+        // Invalid profile as default.
+        token.setValue(INVALID_PRO_REF);
+        // Convert reference to slot number.
+        for (const auto& element : ProfileSystem::get().getLoadedProfiles()) {
+            const auto& profile = element.second;
+            if (profile == nullptr) continue;
+            // Is this the object we are looking for?
+            if (Ego::isSuffix(profile->getPathname(), fileName)) {
+                token.setValue(profile->getSlotNumber());
+                break;
+            }
+        }
+
+        // Do we need to load the object?
+        if (!ProfileSystem::get().isValidProfileID((PRO_REF)token.getValue())) {
+            auto loadName = "mp_objects/" + fileName;
+
+            // Find first free slot number.
+            for (PRO_REF ipro = MAX_IMPORT_PER_PLAYER * 4; ipro < INVALID_PRO_REF; ipro++) {
+                //skip loaded profiles
+                if (ProfileSystem::get().isValidProfileID(ipro)) continue;
+
+                //found a free slot
+                token.setValue(ProfileSystem::get().loadOneProfile(loadName, REF_TO_INT(ipro)));
+                if (token.getValue() == ipro) break;
+            }
+        }
+
+        // Failed to load object!
+        if (!ProfileSystem::get().isValidProfileID((PRO_REF)token.getValue())) {
+            Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, script.getName(), token.getLine());
+            e << "failed to load object " << token.szWord << " - \n"
+                << " - \n`" << _linebuffer.data() << "`" << Log::EndOfEntry;
+            Log::get() << e;
+        }
+
+        token.setType(Token::Type::Constant);
+        token.setIndex(MAX_OPCODE);
+    // The string is a normal, non-empty string:
+    } else {
+        // Create a message for the string.
+        makeMessage();
+    }
+}
 size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_t& script, size_t read)
 {
     /// @author ZZ
@@ -358,7 +399,7 @@ size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_
     ///    will return the next spot to read from and stick the code number
     ///    in ptok->iIndex
 
-    int cnt;
+    char cTmp;
 
     // figure out what the max word length actually is
     const size_t szWord_length_max = SDL_arraysize( tok.szWord );
@@ -372,241 +413,125 @@ size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_
         return _linebuffer.size();
     }
 
-    // nothing is parsed yet
-    bool parsed = false;
-
-    // Skip any initial spaces
-    char cTmp = _linebuffer[read];
-    while (Ego::isspace(cTmp) && read < _linebuffer.size())
-    {
+    auto write = [&tok](char c) {
+        tok.szWord[tok.szWord_length] = c;
+        tok.szWord_length++;
+    };
+    auto save = [&cTmp, &write, &tok]() { write(cTmp); };
+    auto next = [this, &cTmp, &read]() {
         read++;
         cTmp = _linebuffer[read];
+    };
+    auto writeAndNext = [&write, &next](char c) { write(c); next(); };
+    auto saveAndNext = [&save, &next]() { save(); next(); };
+
+    // Skip any initial spaces
+    cTmp = _linebuffer[read];
+    while (Ego::isspace(cTmp) && read < _linebuffer.size())
+    {
+        next();
     }
 
     // break if there was nothing here
     if ( read >= _linebuffer.size())
     {
-        goto parse_token_end;
+        print_token(tok);
+        return read;
     }
 
     // initialize the word
     tok.szWord_length = 0;
     tok.szWord[0] = CSTR_END;
 
-    // handle the special case of a string constant
-    if ( C_DOUBLE_QUOTE_CHAR == cTmp )
-    {
-        do
-        {
-            // begin the copy
-            tok.szWord[tok.szWord_length] = cTmp;
-            tok.szWord_length++;
+    if (C_DOUBLE_QUOTE_CHAR == cTmp) {
+        // `doubleQuotedString|reference`
+        // strings of the form "Here lies \"The Sandwich King\"" are not supported
 
-            read++;
-            cTmp = _linebuffer[read];
+        next(); // skip the leading quotation mark
 
-            // Break out if we find the end of the string
-            // Strings of the form "Here lies \"The Sandwich King\"" are not supported
-        }
-        while ( CSTR_END != cTmp && C_DOUBLE_QUOTE_CHAR != cTmp && tok.szWord_length < szWord_length_max && read < _linebuffer.size());
-
-        if ( C_DOUBLE_QUOTE_CHAR == cTmp )
-        {
-            // skip the ending qoutation mark
-            read++;
-            cTmp = _linebuffer[read];
-
-            tok.szWord[tok.szWord_length] = CSTR_END;
-            tok.szWord_length++;
-        }
-        else
-        {
-			Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, script.getName(), tok.getLine());
-			e << "string literal is too long - \n"
-	          << " - \n`" << _linebuffer.data() << "`" << Log::EndOfEntry;
-			Log::get() << e;
-        }
-    }
-    else
-    {
-        // Load the the word into the ptok->szWord buffer
-        tok.szWord_length = 0;
-        tok.szWord[0] = CSTR_END;
-
-        while (!Ego::isspace(cTmp) && CSTR_END != cTmp && tok.szWord_length < szWord_length_max && read < _linebuffer.size())
-        {
-            tok.szWord[tok.szWord_length] = cTmp;
-            tok.szWord_length++;
-
-            read++;
-            cTmp = _linebuffer[read];
+        while (CSTR_END != cTmp && C_DOUBLE_QUOTE_CHAR != cTmp && tok.szWord_length < szWord_length_max && read < _linebuffer.size()) {
+            saveAndNext();
         }
 
-        if ( tok.szWord_length < szWord_length_max )
-        {
-            tok.szWord[tok.szWord_length] = CSTR_END;
-        }
-    }
-
-    // ensure that the string is terminated
-    tok.szWord[szWord_length_max-1] = CSTR_END;
-
-    // Check for numeric constant
-    if (!parsed && Ego::isdigit(tok.szWord[0]))
-    {
-		int temporary;
-		sscanf(tok.szWord, "%d", &temporary);
-		tok.setValue(temporary);
-        tok.setType(Token::Type::Constant);
-        tok.setIndex(MAX_OPCODE);
-
-        // move on to the next thing
-        parsed = true;
-    }
-
-    // Check for IDSZ constant
-    if ( !parsed && ( '[' == tok.szWord[0] ) )
-    {
-        IDSZ2 idsz = IDSZ2( tok.szWord[1], tok.szWord[2], tok.szWord[3], tok.szWord[4] );
-
-        tok.setValue(idsz.toUint32());
-        tok.setType(Token::Type::Constant);
-        tok.setIndex(MAX_OPCODE);
-
-        // move on to the next thing
-        parsed = true;
-    }
-
-    if ( !parsed && ( 0 == strcmp( tok.szWord, "=" ) ) )
-    {
-        tok.setValue(-1);
-        tok.setType(Token::Type::Operator);
-        tok.setIndex(MAX_OPCODE);
-
-        // move on to the next thing
-        parsed = true;
-    }
-
-    // convert the string token to a new token type
-    if ( !parsed && ( C_DOUBLE_QUOTE_CHAR == tok.szWord[0] ) )
-    {
-        char * str = tok.szWord + 1;
-
-        if ( CSTR_END == tok.szWord[1] || C_DOUBLE_QUOTE_CHAR == tok.szWord[1] )
-        {
-            // some kind of empty string
-			Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, script.getName(), tok.getLine());
-			e << "string literal is empty - \n"
-			  << " - \n`" << _linebuffer.data() << "`" << Log::EndOfEntry;
-			Log::get() << e;
-
-            // some kind of error
-            parsed = true;
-        }
-        else if ( '#' == str[0] )
-        {
-            //remove the reference symbol to figure out the actual folder name we are looking for
-            std::string obj_name = str + 1;
-
-            // Invalid profile as default
-            tok.setValue(INVALID_PRO_REF);
-
-            // Convert reference to slot number
-            for (const auto &element : ProfileSystem::get().getLoadedProfiles())
-            {
-                const std::shared_ptr<ObjectProfile> &profile = element.second;
-                if(profile == nullptr) continue;
-
-
-                //is this the object we are looking for?
-                if (Ego::isSuffix(profile->getPathname(), obj_name))
-                {
-                    tok.setValue(profile->getSlotNumber());
-                    break;
-                }
+        if (C_DOUBLE_QUOTE_CHAR == cTmp) {
+            writeAndNext(CSTR_END); // skip the ending quotation mark
+        } else {
+            if (CSTR_END == cTmp) {
+                throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(script.getName(), tok.getLine()), "unclosed string literal");
+            } else {
+                throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(script.getName(), tok.getLine()), "string literal too long");
             }
-
-            // Do we need to load the object?
-            if (!ProfileSystem::get().isValidProfileID((PRO_REF)tok.getValue()))
-            {
-                std::string loadname = "mp_objects/" + obj_name;
-
-                //find first free slot number
-                for (PRO_REF ipro = MAX_IMPORT_PER_PLAYER * 4; ipro < INVALID_PRO_REF; ipro++ )
-                {
-                    //skip loaded profiles
-                    if (ProfileSystem::get().isValidProfileID(ipro)) continue;
-
-                    //found a free slot
-                    tok.setValue(ProfileSystem::get().loadOneProfile(loadname, REF_TO_INT(ipro)));
-                    if (tok.getValue() == ipro) break;
-                }
-            }
-
-            // Failed to load object!
-            if (!ProfileSystem::get().isValidProfileID((PRO_REF)tok.getValue()))
-            {
-				Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, script.getName(), tok.getLine());
-				e << "failed to load object " << tok.szWord << " - \n"
-				  << " - \n`" << _linebuffer.data() << "`" << Log::EndOfEntry;
-				Log::get() << e;
-            }
-
-            tok.setType(Token::Type::Constant);
-            tok.setIndex(MAX_OPCODE);
-
-            parsed = true;
         }
-        else
-        {
-            // a normal string
-            // if this is a new string, add this message to the avalible messages of the object
-            tok.setValue(ppro->addMessage(str, true));
-
-            tok.setType(Token::Type::Constant);
-            tok.setIndex(MAX_OPCODE);
-
-            parsed = true;
-        }
-    }
-
-    // is it a constant, opcode, or value?
-    if ( !parsed )
-    {
-        for ( cnt = 0; cnt < Opcodes.size(); cnt++ )
-        {
-            if ( 0 == strncmp( tok.szWord, Opcodes[cnt].cName, MAXCODENAMESIZE ) )
-            {
-                tok.setValue(Opcodes[cnt].iValue);
-                tok.setType(Opcodes[cnt]._type);
-                tok.setIndex(cnt);
-
-                // move on to the next thing
-                parsed = true;
-
+        parse_string(std::string(tok.szWord), tok, script, ppro);
+    } else if ('+' == cTmp || '-' == cTmp || '/' == cTmp || '*' == cTmp ||
+               '%' == cTmp || '>' == cTmp || '<' == cTmp || '&' == cTmp) {
+        saveAndNext(); write('\0');
+        int i;
+        for (i = 0; i < Opcodes.size(); ++i) {
+            if (0 == strncmp(tok.szWord, Opcodes[i].cName, MAXCODENAMESIZE)) {
+                tok.setValue(Opcodes[i].iValue);
+                tok.setType(Opcodes[i]._type);
+                tok.setIndex(i);
                 break;
             }
         }
-    }
-
-    // We couldn't figure out what this is, throw out an error code
-    if ( !parsed )
-    {
-		Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, script.getName(), tok.getLine());
-		e << "unknown opcode " << tok.szWord << " - \n"
-		  << " - \n`" << _linebuffer.data() << "`" << Log::EndOfEntry;
-		Log::get() << e;
-
-        // put the token in an error state
+        // We couldn't figure out what this is, throw out an error code
+        if (i == Opcodes.size()) {
+            throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(script.getName(), tok.getLine()), "not an opcode");
+        }
+    } else if ('=' == cTmp) {
+        // `assign = '='`
+        saveAndNext(); write('\0');
         tok.setValue(-1);
-        tok.setType(Token::Type::Unknown);
+        tok.setType(Token::Type::Operator);
         tok.setIndex(MAX_OPCODE);
-
-        _error = true;
+    } else if ('[' == cTmp) {
+        // `idsz = '[' (digit|alpha)^4 ']'`
+        saveAndNext();
+        for (auto i = 0; i < 4; ++i) {
+            if (!Ego::isdigit(cTmp) && !Ego::isalpha(cTmp)) {
+                throw std::runtime_error("invalid IDSZ");
+            }
+            saveAndNext();
+        }
+        if (cTmp != ']') {
+            throw std::runtime_error("invalid IDSZ");
+        }
+        saveAndNext(); write('\0');
+        IDSZ2 idsz = IDSZ2(tok.szWord);
+        tok.setValue(idsz.toUint32());
+        tok.setType(Token::Type::Constant);
+        tok.setIndex(MAX_OPCODE);
+    } else if (Ego::isdigit(cTmp)) {
+        // `numericLiteral`
+        do {
+            saveAndNext();
+        } while (Ego::isdigit(cTmp));
+        write('\0');
+        int temporary;
+        sscanf(tok.szWord, "%d", &temporary);
+        tok.setValue(temporary);
+        tok.setType(Token::Type::Constant);
+        tok.setIndex(MAX_OPCODE);
+    } else {
+        while (!Ego::isspace(cTmp) && CSTR_END != cTmp && tok.szWord_length < szWord_length_max && read < _linebuffer.size()) {
+            saveAndNext();
+        }
+        write('\0');
+        int i;
+        for (i = 0; i < Opcodes.size(); ++i) {
+            if (0 == strncmp(tok.szWord, Opcodes[i].cName, MAXCODENAMESIZE)) {
+                tok.setValue(Opcodes[i].iValue);
+                tok.setType(Opcodes[i]._type);
+                tok.setIndex(i);
+                break;
+            }
+        }
+        // We couldn't figure out what this is, throw out an error code
+        if (i == Opcodes.size()) {
+            throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(script.getName(), tok.getLine()), "not an opcode");
+        }
     }
-
-parse_token_end:
-
     print_token(tok);
     return read;
 }
@@ -883,411 +808,11 @@ bool load_ai_codes_vfs()
 
 	static const aicode_t AICODES[] =
 	{
-		{ Token::Type::Function, 0, "IfSpawned" },
-		{ Token::Type::Function, 1, "IfTimeOut" },
-		{ Token::Type::Function, 2, "IfAtWaypoint" },
-		{ Token::Type::Function, 3, "IfAtLastWaypoint" },
-		{ Token::Type::Function, 3, "IfPutAway" },
-		{ Token::Type::Function, 4, "IfAttacked" },
-		{ Token::Type::Function, 5, "IfBumped" },
-		{ Token::Type::Function, 6, "IfOrdered" },
-		{ Token::Type::Function, 7, "IfCalledForHelp" },
-		{ Token::Type::Function, 8, "SetContent" },
-		{ Token::Type::Function, 9, "IfKilled" },
-		{ Token::Type::Function, 10, "IfTargetKilled" },
-		{ Token::Type::Function, 11, "ClearWaypoints" },
-		{ Token::Type::Function, 12, "AddWaypoint" },
-		{ Token::Type::Function, 13, "FindPath" },
-		{ Token::Type::Function, 14, "Compass" },
-		{ Token::Type::Function, 15, "GetTargetArmorPrice" },
-		{ Token::Type::Function, 16, "SetTime" },
-		{ Token::Type::Function, 17, "GetContent" },
-		{ Token::Type::Function, 18, "JoinTargetTeam" },
-		{ Token::Type::Function, 19, "SetTargetToNearbyEnemy" },
-		{ Token::Type::Function, 20, "SetTargetToTargetLeftHand" },
-		{ Token::Type::Function, 21, "SetTargetToTargetRightHand" },
-		{ Token::Type::Function, 22, "SetTargetToWhoeverAttacked" },
-		{ Token::Type::Function, 22, "SetTargetToWhoeverHealed" },
-		{ Token::Type::Function, 23, "SetTargetToWhoeverBumped" },
-		{ Token::Type::Function, 24, "SetTargetToWhoeverCalledForHelp" },
-		{ Token::Type::Function, 25, "SetTargetToOldTarget" },
-		{ Token::Type::Function, 26, "SetTurnModeToVelocity" },
-		{ Token::Type::Function, 27, "SetTurnModeToWatch" },
-		{ Token::Type::Function, 28, "SetTurnModeToSpin" },
-		{ Token::Type::Function, 29, "SetBumpHeight" },
-		{ Token::Type::Function, 30, "IfTargetHasID" },
-		{ Token::Type::Function, 31, "IfTargetHasItemID" },
-		{ Token::Type::Function, 32, "IfTargetHoldingItemID" },
-		{ Token::Type::Function, 33, "IfTargetHasSkillID" },
-		{ Token::Type::Function, 34, "Else" },
-		{ Token::Type::Function, 35, "Run" },
-		{ Token::Type::Function, 36, "Walk" },
-		{ Token::Type::Function, 37, "Sneak" },
-		{ Token::Type::Function, 38, "DoAction" },
-		{ Token::Type::Function, 39, "KeepAction" },
-		{ Token::Type::Function, 40, "IssueOrder" },
-		{ Token::Type::Function, 41, "DropWeapons" },
-		{ Token::Type::Function, 42, "TargetDoAction" },
-		{ Token::Type::Function, 43, "OpenPassage" },
-		{ Token::Type::Function, 44, "ClosePassage" },
-		{ Token::Type::Function, 45, "IfPassageOpen" },
-		{ Token::Type::Function, 46, "GoPoof" },
-		{ Token::Type::Function, 47, "CostTargetItemID" },
-		{ Token::Type::Function, 48, "DoActionOverride" },
-		{ Token::Type::Function, 49, "IfHealed" },
-		{ Token::Type::Function, 50, "SendMessage" },
-		{ Token::Type::Function, 51, "CallForHelp" },
-		{ Token::Type::Function, 52, "AddIDSZ" },
-		{ Token::Type::Function, 53, "End" },
-		{ Token::Type::Function, 54, "SetState" },
-		{ Token::Type::Function, 55, "GetState" },
-		{ Token::Type::Function, 56, "IfStateIs" },
-		{ Token::Type::Function, 57, "IfTargetCanOpenStuff" },
-		{ Token::Type::Function, 58, "IfGrabbed" },
-		{ Token::Type::Function, 58, "IfMounted" },
-		{ Token::Type::Function, 59, "IfDropped" },
-		{ Token::Type::Function, 59, "IfDismounted" },
-		{ Token::Type::Function, 60, "SetTargetToWhoeverIsHolding" },
-		{ Token::Type::Function, 61, "DamageTarget" },
-		{ Token::Type::Function, 62, "IfXIsLessThanY" },
-		{ Token::Type::Function, 62, "IfYIsMoreThanX" },
-		{ Token::Type::Function, 63, "SetWeatherTime" },
-		{ Token::Type::Function, 64, "GetBumpHeight" },
-		{ Token::Type::Function, 65, "IfReaffirmed" },
-		{ Token::Type::Function, 66, "UnkeepAction" },
-		{ Token::Type::Function, 67, "IfTargetIsOnOtherTeam" },
-		{ Token::Type::Function, 68, "IfTargetIsOnHatedTeam" },
-		{ Token::Type::Function, 69, "PressLatchButton" },
-		{ Token::Type::Function, 70, "SetTargetToTargetOfLeader" },
-		{ Token::Type::Function, 71, "IfLeaderKilled" },
-		{ Token::Type::Function, 72, "BecomeLeader" },
-		{ Token::Type::Function, 73, "ChangeTargetArmor" },
-		{ Token::Type::Function, 74, "GiveMoneyToTarget" },
-		{ Token::Type::Function, 75, "DropKeys" },
-		{ Token::Type::Function, 76, "IfLeaderIsAlive" },
-		{ Token::Type::Function, 77, "IfTargetIsOldTarget" },
-		{ Token::Type::Function, 78, "SetTargetToLeader" },
-		{ Token::Type::Function, 79, "SpawnCharacter" },
-		{ Token::Type::Function, 80, "RespawnCharacter" },
-		{ Token::Type::Function, 81, "ChangeTile" },
-		{ Token::Type::Function, 82, "IfUsed" },
-		{ Token::Type::Function, 83, "DropMoney" },
-		{ Token::Type::Function, 84, "SetOldTarget" },
-		{ Token::Type::Function, 85, "DetachFromHolder" },
-		{ Token::Type::Function, 86, "IfTargetHasVulnerabilityID" },
-		{ Token::Type::Function, 87, "CleanUp" },
-		{ Token::Type::Function, 88, "IfCleanedUp" },
-		{ Token::Type::Function, 89, "IfSitting" },
-		{ Token::Type::Function, 89, "IfHeld" },
-		{ Token::Type::Function, 90, "IfTargetIsHurt" },
-		{ Token::Type::Function, 91, "IfTargetIsAPlayer" },
-		{ Token::Type::Function, 92, "PlaySound" },
-		{ Token::Type::Function, 93, "SpawnParticle" },
-		{ Token::Type::Function, 94, "IfTargetIsAlive" },
-		{ Token::Type::Function, 95, "Stop" },
-		{ Token::Type::Function, 96, "DisaffirmCharacter" },
-		{ Token::Type::Function, 97, "ReaffirmCharacter" },
-		{ Token::Type::Function, 98, "IfTargetIsSelf" },
-		{ Token::Type::Function, 99, "IfTargetIsMale" },
-		{ Token::Type::Function, 100, "IfTargetIsFemale" },
-		{ Token::Type::Function, 101, "SetTargetToSelf" },
-		{ Token::Type::Function, 102, "SetTargetToRider" },
-		{ Token::Type::Function, 103, "GetAttackTurn" },
-		{ Token::Type::Function, 104, "GetDamageType" },
-		{ Token::Type::Function, 105, "BecomeSpell" },
-		{ Token::Type::Function, 106, "BecomeSpellbook" },
-		{ Token::Type::Function, 107, "IfScoredAHit" },
-		{ Token::Type::Function, 108, "IfDisaffirmed" },
-		{ Token::Type::Function, 109, "TranslateOrder" },
-		{ Token::Type::Function, 110, "SetTargetToWhoeverWasHit" },
-		{ Token::Type::Function, 111, "SetTargetToWideEnemy" },
-		{ Token::Type::Function, 112, "IfChanged" },
-		{ Token::Type::Function, 113, "IfInWater" },
-		{ Token::Type::Function, 114, "IfBored" },
-		{ Token::Type::Function, 115, "IfTooMuchBaggage" },
-		{ Token::Type::Function, 116, "IfGrogged" },
-		{ Token::Type::Function, 117, "IfDazed" },
-		{ Token::Type::Function, 118, "IfTargetHasSpecialID" },
-		{ Token::Type::Function, 119, "PressTargetLatchButton" },
-		{ Token::Type::Function, 120, "IfInvisible" },
-		{ Token::Type::Function, 121, "IfArmorIs" },
-		{ Token::Type::Function, 122, "GetTargetGrogTime" },
-		{ Token::Type::Function, 123, "GetTargetDazeTime" },
-		{ Token::Type::Function, 124, "SetDamageType" },
-		{ Token::Type::Function, 125, "SetWaterLevel" },
-		{ Token::Type::Function, 126, "EnchantTarget" },
-		{ Token::Type::Function, 127, "EnchantChild" },
-		{ Token::Type::Function, 128, "TeleportTarget" },
-		{ Token::Type::Function, 129, "GiveExperienceToTarget" },
-		{ Token::Type::Function, 130, "IncreaseAmmo" },
-		{ Token::Type::Function, 131, "UnkurseTarget" },
-		{ Token::Type::Function, 132, "GiveExperienceToTargetTeam" },
-		{ Token::Type::Function, 133, "IfUnarmed" },
-		{ Token::Type::Function, 134, "RestockTargetAmmoIDAll" },
-		{ Token::Type::Function, 135, "RestockTargetAmmoIDFirst" },
-		{ Token::Type::Function, 136, "FlashTarget" },
-		{ Token::Type::Function, 137, "SetRedShift" },
-		{ Token::Type::Function, 138, "SetGreenShift" },
-		{ Token::Type::Function, 139, "SetBlueShift" },
-		{ Token::Type::Function, 140, "SetLight" },
-		{ Token::Type::Function, 141, "SetAlpha" },
-		{ Token::Type::Function, 142, "IfHitFromBehind" },
-		{ Token::Type::Function, 143, "IfHitFromFront" },
-		{ Token::Type::Function, 144, "IfHitFromLeft" },
-		{ Token::Type::Function, 145, "IfHitFromRight" },
-		{ Token::Type::Function, 146, "IfTargetIsOnSameTeam" },
-		{ Token::Type::Function, 147, "KillTarget" },
-		{ Token::Type::Function, 148, "UndoEnchant" },
-		{ Token::Type::Function, 149, "GetWaterLevel" },
-		{ Token::Type::Function, 150, "CostTargetMana" },
-		{ Token::Type::Function, 151, "IfTargetHasAnyID" },
-		{ Token::Type::Function, 152, "SetBumpSize" },
-		{ Token::Type::Function, 153, "IfNotDropped" },
-		{ Token::Type::Function, 154, "IfYIsLessThanX" },
-		{ Token::Type::Function, 154, "IfXIsMoreThanY" },
-		{ Token::Type::Function, 155, "SetFlyHeight" },
-		{ Token::Type::Function, 156, "IfBlocked" },
-		{ Token::Type::Function, 157, "IfTargetIsDefending" },
-		{ Token::Type::Function, 158, "IfTargetIsAttacking" },
-		{ Token::Type::Function, 159, "IfStateIs0" },
-		{ Token::Type::Function, 159, "IfStateIsParry" },
-		{ Token::Type::Function, 160, "IfStateIs1" },
-		{ Token::Type::Function, 160, "IfStateIsWander" },
-		{ Token::Type::Function, 161, "IfStateIs2" },
-		{ Token::Type::Function, 161, "IfStateIsGuard" },
-		{ Token::Type::Function, 162, "IfStateIs3" },
-		{ Token::Type::Function, 162, "IfStateIsFollow" },
-		{ Token::Type::Function, 163, "IfStateIs4" },
-		{ Token::Type::Function, 163, "IfStateIsSurround" },
-		{ Token::Type::Function, 164, "IfStateIs5" },
-		{ Token::Type::Function, 164, "IfStateIsRetreat" },
-		{ Token::Type::Function, 165, "IfStateIs6" },
-		{ Token::Type::Function, 165, "IfStateIsCharge" },
-		{ Token::Type::Function, 166, "IfStateIs7" },
-		{ Token::Type::Function, 166, "IfStateIsCombat" },
-		{ Token::Type::Function, 167, "IfContentIs" },
-		{ Token::Type::Function, 168, "SetTurnModeToWatchTarget" },
-		{ Token::Type::Function, 169, "IfStateIsNot" },
-		{ Token::Type::Function, 170, "IfXIsEqualToY" },
-		{ Token::Type::Function, 170, "IfYIsEqualToX" },
-		{ Token::Type::Function, 171, "DebugMessage" },
-		{ Token::Type::Function, 172, "BlackTarget" },
-		{ Token::Type::Function, 173, "SendMessageNear" },
-		{ Token::Type::Function, 174, "IfHitGround" },
-		{ Token::Type::Function, 175, "IfNameIsKnown" },
-		{ Token::Type::Function, 176, "IfUsageIsKnown" },
-		{ Token::Type::Function, 177, "IfHoldingItemID" },
-		{ Token::Type::Function, 178, "IfHoldingRangedWeapon" },
-		{ Token::Type::Function, 179, "IfHoldingMeleeWeapon" },
-		{ Token::Type::Function, 180, "IfHoldingShield" },
-		{ Token::Type::Function, 181, "IfKursed" },
-		{ Token::Type::Function, 182, "IfTargetIsKursed" },
-		{ Token::Type::Function, 183, "IfTargetIsDressedUp" },
-		{ Token::Type::Function, 184, "IfOverWater" },
-		{ Token::Type::Function, 185, "IfThrown" },
-		{ Token::Type::Function, 186, "MakeNameKnown" },
-		{ Token::Type::Function, 187, "MakeUsageKnown" },
-		{ Token::Type::Function, 188, "StopTargetMovement" },
-		{ Token::Type::Function, 189, "SetXY" },
-		{ Token::Type::Function, 190, "GetXY" },
-		{ Token::Type::Function, 191, "AddXY" },
-		{ Token::Type::Function, 192, "MakeAmmoKnown" },
-		{ Token::Type::Function, 193, "SpawnAttachedParticle" },
-		{ Token::Type::Function, 194, "SpawnExactParticle" },
-		{ Token::Type::Function, 195, "AccelerateTarget" },
-		{ Token::Type::Function, 196, "IfDistanceIsMoreThanTurn" },
-		{ Token::Type::Function, 197, "IfCrushed" },
-		{ Token::Type::Function, 198, "MakeCrushValid" },
-		{ Token::Type::Function, 199, "SetTargetToLowestTarget" },
-		{ Token::Type::Function, 200, "IfNotPutAway" },
-		{ Token::Type::Function, 200, "IfNotTakenOut" },
-		{ Token::Type::Function, 201, "IfTakenOut" },
-		{ Token::Type::Function, 202, "IfAmmoOut" },
-		{ Token::Type::Function, 203, "PlaySoundLooped" },
-		{ Token::Type::Function, 204, "StopSound" },
-		{ Token::Type::Function, 205, "HealSelf" },
-		{ Token::Type::Function, 206, "Equip" },
-		{ Token::Type::Function, 207, "IfTargetHasItemIDEquipped" },
-		{ Token::Type::Function, 208, "SetOwnerToTarget" },
-		{ Token::Type::Function, 209, "SetTargetToOwner" },
-		{ Token::Type::Function, 210, "SetFrame" },
-		{ Token::Type::Function, 211, "BreakPassage" },
-		{ Token::Type::Function, 212, "SetReloadTime" },
-		{ Token::Type::Function, 213, "SetTargetToWideBlahID" },
-		{ Token::Type::Function, 214, "PoofTarget" },
-		{ Token::Type::Function, 215, "ChildDoActionOverride" },
-		{ Token::Type::Function, 216, "SpawnPoof" },
-		{ Token::Type::Function, 217, "SetSpeedPercent" },
-		{ Token::Type::Function, 218, "SetChildState" },
-		{ Token::Type::Function, 219, "SpawnAttachedSizedParticle" },
-		{ Token::Type::Function, 220, "ChangeArmor" },
-		{ Token::Type::Function, 221, "ShowTimer" },
-		{ Token::Type::Function, 222, "IfFacingTarget" },
-		{ Token::Type::Function, 223, "PlaySoundVolume" },
-		{ Token::Type::Function, 224, "SpawnAttachedFacedParticle" },
-		{ Token::Type::Function, 225, "IfStateIsOdd" },
-		{ Token::Type::Function, 226, "SetTargetToDistantEnemy" },
-		{ Token::Type::Function, 227, "Teleport" },
-		{ Token::Type::Function, 228, "GiveStrengthToTarget" },
-		{ Token::Type::Function, 229, "GiveIntellectToTarget" },
-		{ Token::Type::Function, 230, "GiveIntelligenceToTarget" },
-		{ Token::Type::Function, 231, "GiveDexterityToTarget" },
-		{ Token::Type::Function, 232, "GiveLifeToTarget" },
-		{ Token::Type::Function, 233, "GiveManaToTarget" },
-		{ Token::Type::Function, 234, "ShowMap" },
-		{ Token::Type::Function, 235, "ShowYouAreHere" },
-		{ Token::Type::Function, 236, "ShowBlipXY" },
-		{ Token::Type::Function, 237, "HealTarget" },
-		{ Token::Type::Function, 238, "PumpTarget" },
-		{ Token::Type::Function, 239, "CostAmmo" },
-		{ Token::Type::Function, 240, "MakeSimilarNamesKnown" },
-		{ Token::Type::Function, 241, "SpawnAttachedHolderParticle" },
-		{ Token::Type::Function, 242, "SetTargetReloadTime" },
-		{ Token::Type::Function, 243, "SetFogLevel" },
-		{ Token::Type::Function, 244, "GetFogLevel" },
-		{ Token::Type::Function, 245, "SetFogTAD" },
-		{ Token::Type::Function, 246, "SetFogBottomLevel" },
-		{ Token::Type::Function, 247, "GetFogBottomLevel" },
-		{ Token::Type::Function, 248, "CorrectActionForHand" },
-		{ Token::Type::Function, 249, "IfTargetIsMounted" },
-		{ Token::Type::Function, 250, "SparkleIcon" },
-		{ Token::Type::Function, 251, "UnsparkleIcon" },
-		{ Token::Type::Function, 252, "GetTileXY" },
-		{ Token::Type::Function, 253, "SetTileXY" },
-		{ Token::Type::Function, 254, "SetShadowSize" },
-		{ Token::Type::Function, 255, "OrderTarget" },
-		{ Token::Type::Function, 256, "SetTargetToWhoeverIsInPassage" },
-		{ Token::Type::Function, 257, "IfCharacterWasABook" },
-		{ Token::Type::Function, 258, "SetEnchantBoostValues" },
-		{ Token::Type::Function, 259, "SpawnCharacterXYZ" },
-		{ Token::Type::Function, 260, "SpawnExactCharacterXYZ" },
-		{ Token::Type::Function, 261, "ChangeTargetClass" },
-		{ Token::Type::Function, 262, "PlayFullSound" },
-		{ Token::Type::Function, 263, "SpawnExactChaseParticle" },
-		{ Token::Type::Function, 264, "CreateOrder" },
-		{ Token::Type::Function, 265, "OrderSpecialID" },
-		{ Token::Type::Function, 266, "UnkurseTargetInventory" },
-		{ Token::Type::Function, 267, "IfTargetIsSneaking" },
-		{ Token::Type::Function, 268, "DropItems" },
-		{ Token::Type::Function, 269, "RespawnTarget" },
-		{ Token::Type::Function, 270, "TargetDoActionSetFrame" },
-		{ Token::Type::Function, 271, "IfTargetCanSeeInvisible" },
-		{ Token::Type::Function, 272, "SetTargetToNearestBlahID" },
-		{ Token::Type::Function, 273, "SetTargetToNearestEnemy" },
-		{ Token::Type::Function, 274, "SetTargetToNearestFriend" },
-		{ Token::Type::Function, 275, "SetTargetToNearestLifeform" },
-		{ Token::Type::Function, 276, "FlashPassage" },
-		{ Token::Type::Function, 277, "FindTileInPassage" },
-		{ Token::Type::Function, 278, "IfHeldInLeftHand" },
-		{ Token::Type::Function, 279, "NotAnItem" },
-		{ Token::Type::Function, 280, "SetChildAmmo" },
-		{ Token::Type::Function, 281, "IfHitVulnerable" },
-		{ Token::Type::Function, 282, "IfTargetIsFlying" },
-		{ Token::Type::Function, 283, "IdentifyTarget" },
-		{ Token::Type::Function, 284, "BeatModule" },
-		{ Token::Type::Function, 285, "EndModule" },
-		{ Token::Type::Function, 286, "DisableExport" },
-		{ Token::Type::Function, 287, "EnableExport" },
-		{ Token::Type::Function, 288, "GetTargetState" },
-		{ Token::Type::Function, 289, "IfEquipped" },
-		{ Token::Type::Function, 290, "DropTargetMoney" },
-		{ Token::Type::Function, 291, "GetTargetContent" },
-		{ Token::Type::Function, 292, "DropTargetKeys" },
-		{ Token::Type::Function, 293, "JoinTeam" },
-		{ Token::Type::Function, 294, "TargetJoinTeam" },
-		{ Token::Type::Function, 295, "ClearMusicPassage" },
-		{ Token::Type::Function, 296, "ClearEndMessage" },
-		{ Token::Type::Function, 297, "AddEndMessage" },
-		{ Token::Type::Function, 298, "PlayMusic" },
-		{ Token::Type::Function, 299, "SetMusicPassage" },
-		{ Token::Type::Function, 300, "MakeCrushInvalid" },
-		{ Token::Type::Function, 301, "StopMusic" },
-		{ Token::Type::Function, 302, "FlashVariable" },
-		{ Token::Type::Function, 303, "AccelerateUp" },
-		{ Token::Type::Function, 304, "FlashVariableHeight" },
-		{ Token::Type::Function, 305, "SetDamageTime" },
-		{ Token::Type::Function, 306, "IfStateIs8" },
-		{ Token::Type::Function, 307, "IfStateIs9" },
-		{ Token::Type::Function, 308, "IfStateIs10" },
-		{ Token::Type::Function, 309, "IfStateIs11" },
-		{ Token::Type::Function, 310, "IfStateIs12" },
-		{ Token::Type::Function, 311, "IfStateIs13" },
-		{ Token::Type::Function, 312, "IfStateIs14" },
-		{ Token::Type::Function, 313, "IfStateIs15" },
-		{ Token::Type::Function, 314, "IfTargetIsAMount" },
-		{ Token::Type::Function, 315, "IfTargetIsAPlatform" },
-		{ Token::Type::Function, 316, "AddStat" },
-		{ Token::Type::Function, 317, "DisenchantTarget" },
-		{ Token::Type::Function, 318, "DisenchantAll" },
-		{ Token::Type::Function, 319, "SetVolumeNearestTeammate" },
-		{ Token::Type::Function, 320, "AddShopPassage" },
-		{ Token::Type::Function, 321, "TargetPayForArmor" },
-		{ Token::Type::Function, 322, "JoinEvilTeam" },
-		{ Token::Type::Function, 323, "JoinNullTeam" },
-		{ Token::Type::Function, 324, "JoinGoodTeam" },
-		{ Token::Type::Function, 325, "PitsKill" },
-		{ Token::Type::Function, 326, "SetTargetToPassageID" },
-		{ Token::Type::Function, 327, "MakeNameUnknown" },
-		{ Token::Type::Function, 328, "SpawnExactParticleEndSpawn" },
-		{ Token::Type::Function, 329, "SpawnPoofSpeedSpacingDamage" },
-		{ Token::Type::Function, 330, "GiveExperienceToGoodTeam" },
-		{ Token::Type::Function, 331, "DoNothing" },
-		{ Token::Type::Function, 332, "GrogTarget" },
-		{ Token::Type::Function, 333, "DazeTarget" },
-		{ Token::Type::Function, 334, "EnableRespawn" },
-		{ Token::Type::Function, 335, "DisableRespawn" },
-		{ Token::Type::Function, 336, "DispelTargetEnchantID" },
-		{ Token::Type::Function, 337, "IfHolderBlocked" },
-		{ Token::Type::Function, 338, "GetTargetShieldProfiency" },
-		{ Token::Type::Function, 339, "IfTargetHasNotFullMana" },
-		{ Token::Type::Function, 340, "EnableListenSkill" },
-		{ Token::Type::Function, 341, "SetTargetToLastItemUsed" },
-		{ Token::Type::Function, 342, "FollowLink" },
-		{ Token::Type::Function, 343, "IfOperatorIsLinux" },
-		{ Token::Type::Function, 344, "IfTargetIsAWeapon" },
-		{ Token::Type::Function, 345, "IfSomeoneIsStealing" },
-		{ Token::Type::Function, 346, "IfTargetIsASpell" },
-		{ Token::Type::Function, 347, "IfBackstabbed" },
-		{ Token::Type::Function, 348, "GetTargetDamageType" },
-		{ Token::Type::Function, 349, "AddTargetQuest" },
-		{ Token::Type::Function, 350, "BeatQuestAllPlayers" },
-		{ Token::Type::Function, 351, "IfTargetHasQuest" },
-		{ Token::Type::Function, 352, "SetTargetQuestLevel" },
-		{ Token::Type::Function, 353, "AddQuestAllPlayers" },
-		{ Token::Type::Function, 354, "AddBlipAllEnemies" },
-		{ Token::Type::Function, 355, "PitsFall" },
-		{ Token::Type::Function, 356, "IfTargetIsOwner" },
-		{ Token::Type::Function, 357, "SetSpeech" },
-		{ Token::Type::Function, 364, "TakePicture" },
-		{ Token::Type::Function, 365, "IfOperatorIsMacintosh" },
-		{ Token::Type::Function, 366, "IfModuleHasIDSZ" },
-		{ Token::Type::Function, 367, "MorphToTarget" },
-		{ Token::Type::Function, 368, "GiveManaFlowToTarget" },
-		{ Token::Type::Function, 369, "GiveManaReturnToTarget" },
-		{ Token::Type::Function, 370, "SetMoney" },
-		{ Token::Type::Function, 371, "IfTargetCanSeeKurses" },
-		{ Token::Type::Function, 372, "SpawnAttachedCharacter" },
-		{ Token::Type::Function, 373, "KurseTarget" },
-		{ Token::Type::Function, 374, "SetChildContent" },
-		{ Token::Type::Function, 375, "SetTargetToChild" },
-		{ Token::Type::Function, 376, "SetDamageThreshold" },
-		{ Token::Type::Function, 377, "AccelerateTargetUp" },
-		{ Token::Type::Function, 378, "SetTargetAmmo" },
-		{ Token::Type::Function, 379, "EnableInvictus" },
-		{ Token::Type::Function, 380, "DisableInvictus" },
-		{ Token::Type::Function, 381, "TargetDamageSelf" },
-		{ Token::Type::Function, 382, "SetTargetSize" },
-		{ Token::Type::Function, 383, "IfTargetIsFacingSelf" },
-		{ Token::Type::Function, 384, "DrawBillboard" },
-		{ Token::Type::Function, 385, "SetTargetToBlahInPassage" },
-		{ Token::Type::Function, 386, "IfLevelUp" },
-		{ Token::Type::Function, 387, "GiveSkillToTarget" },
-		{ Token::Type::Function, 388, "SetTargetToNearbyMeleeWeapon" },
-		{ Token::Type::Function, 389, "EnableStealth" },
-		{ Token::Type::Function, 390, "DisableStealth" },
-		{ Token::Type::Function, 391, "IfStealthed" },
-		{ Token::Type::Function, 392, "SetTargetToDistantFriend" },
-		{ Token::Type::Function, 393, "DisplayCharge" },
+    #define Define(name) { Token::Type::Function, ScriptFunctions::name, #name }, 
+    #define DefineAlias(alias, name) { Token::Type::Function, ScriptFunctions::alias, #alias },
+    #include "egolib/Script/Functions.in"
+    #undef DefineAlias
+    #undef Define
 		{ Token::Type::Constant, 1, "BLAHDEAD" },
 		{ Token::Type::Constant, 2, "BLAHENEMIES" },
 		{ Token::Type::Constant, 4, "BLAHFRIENDS" },
@@ -1465,98 +990,99 @@ bool load_ai_codes_vfs()
 		{ Token::Type::Constant, 0, "EASY" },
 		{ Token::Type::Constant, 1, "NORMAL" },
 		{ Token::Type::Constant, 2, "HARD" },
-		{ Token::Type::Variable, 0, "tmpx" },
-		{ Token::Type::Variable, 1, "tmpy" },
-		{ Token::Type::Variable, 2, "tmpdist" },
-		{ Token::Type::Variable, 2, "tmpdistance" },
-		{ Token::Type::Variable, 3, "tmpturn" },
-		{ Token::Type::Variable, 4, "tmpargument" },
-		{ Token::Type::Variable, 5, "rand" },
-		{ Token::Type::Variable, 6, "selfx" },
-		{ Token::Type::Variable, 7, "selfy" },
-		{ Token::Type::Variable, 8, "selfturn" },
-		{ Token::Type::Variable, 9, "selfcounter" },
-		{ Token::Type::Variable, 10, "selforder" },
-		{ Token::Type::Variable, 11, "selfmorale" },
-		{ Token::Type::Variable, 12, "selflife" },
-		{ Token::Type::Variable, 13, "targetx" },
-		{ Token::Type::Variable, 14, "targety" },
-		{ Token::Type::Variable, 15, "targetdistance" },
-		{ Token::Type::Variable, 16, "targetturn" },
-		{ Token::Type::Variable, 17, "leaderx" },
-		{ Token::Type::Variable, 18, "leadery" },
-		{ Token::Type::Variable, 19, "leaderdistance" },
-		{ Token::Type::Variable, 20, "leaderturn" },
-		{ Token::Type::Variable, 21, "gotox" },
-		{ Token::Type::Variable, 22, "gotoy" },
-		{ Token::Type::Variable, 23, "gotodistance" },
-		{ Token::Type::Variable, 24, "targetturnto" },
-		{ Token::Type::Variable, 25, "passage" },
-		{ Token::Type::Variable, 26, "weight" },
-		{ Token::Type::Variable, 27, "selfaltitude" },
-		{ Token::Type::Variable, 28, "selfid" },
-		{ Token::Type::Variable, 29, "selfhateid" },
-		{ Token::Type::Variable, 30, "selfmana" },
-		{ Token::Type::Variable, 31, "targetstr" },
-		{ Token::Type::Variable, 32, "targetwis" },   //deprecated
-		{ Token::Type::Variable, 33, "targetint" },
-		{ Token::Type::Variable, 34, "targetdex" },
-		{ Token::Type::Variable, 35, "targetlife" },
-		{ Token::Type::Variable, 36, "targetmana" },
-		{ Token::Type::Variable, 37, "targetlevel" },
-		{ Token::Type::Variable, 38, "targetspeedx" },
-		{ Token::Type::Variable, 39, "targetspeedy" },
-		{ Token::Type::Variable, 40, "targetspeedz" },
-		{ Token::Type::Variable, 41, "selfspawnx" },
-		{ Token::Type::Variable, 42, "selfspawny" },
-		{ Token::Type::Variable, 43, "selfstate" },
-		{ Token::Type::Variable, 44, "selfstr" },
-		{ Token::Type::Variable, 45, "selfwis" },
-		{ Token::Type::Variable, 46, "selfint" },
-		{ Token::Type::Variable, 47, "selfdex" },
-		{ Token::Type::Variable, 48, "selfmanaflow" },
-		{ Token::Type::Variable, 49, "targetmanaflow" },
-		{ Token::Type::Variable, 50, "selfattached" },
-		{ Token::Type::Variable, 51, "swingturn" },
-		{ Token::Type::Variable, 52, "xydistance" },
-		{ Token::Type::Variable, 53, "selfz" },
-		{ Token::Type::Variable, 54, "targetaltitude" },
-		{ Token::Type::Variable, 55, "targetz" },
-		{ Token::Type::Variable, 56, "selfindex" },
-		{ Token::Type::Variable, 57, "ownerx" },
-		{ Token::Type::Variable, 58, "ownery" },
-		{ Token::Type::Variable, 59, "ownerturn" },
-		{ Token::Type::Variable, 60, "ownerdistance" },
-		{ Token::Type::Variable, 61, "ownerturnto" },
-		{ Token::Type::Variable, 62, "xyturnto" },
-		{ Token::Type::Variable, 63, "selfmoney" },
-		{ Token::Type::Variable, 64, "selfaccel" },
-		{ Token::Type::Variable, 65, "targetexp" },
-		{ Token::Type::Variable, 66, "selfammo" },
-		{ Token::Type::Variable, 67, "targetammo" },
-		{ Token::Type::Variable, 68, "targetmoney" },
-		{ Token::Type::Variable, 69, "targetturnfrom" },
-		{ Token::Type::Variable, 70, "selflevel" },
-		{ Token::Type::Variable, 71, "targetreloadtime" },
-		{ Token::Type::Variable, 72, "selfcontent" },
-		{ Token::Type::Variable, 73, "spawndistance" },
-		{ Token::Type::Variable, 74, "targetmaxlife" },
-		{ Token::Type::Variable, 75, "targetteam" },
-		{ Token::Type::Variable, 76, "targetarmor" },
-		{ Token::Type::Variable, 77, "difficulty" },
-		{ Token::Type::Variable, 78, "timehours" },
-		{ Token::Type::Variable, 79, "timeminutes" },
-		{ Token::Type::Variable, 80, "timeseconds" },
-		{ Token::Type::Variable, 81, "datemonth" },
-		{ Token::Type::Variable, 82, "dateday" },
-		{ Token::Type::Operator, 0, "+" },
-		{ Token::Type::Operator, 1, "-" },
-		{ Token::Type::Operator, 2, "&" },
-		{ Token::Type::Operator, 3, ">" },
-		{ Token::Type::Operator, 4, "<" },
-		{ Token::Type::Operator, 5, "*" },
-		{ Token::Type::Operator, 6, "/" },
-		{ Token::Type::Operator, 7, "%" },
+		{ Token::Type::Variable, ScriptVariables::VARTMPX, "tmpx" },
+		{ Token::Type::Variable, ScriptVariables::VARTMPY, "tmpy" },
+		{ Token::Type::Variable, ScriptVariables::VARTMPDISTANCE, "tmpdist" },
+		{ Token::Type::Variable, ScriptVariables::VARTMPDISTANCE, "tmpdistance" },
+		{ Token::Type::Variable, ScriptVariables::VARTMPTURN, "tmpturn" },
+		{ Token::Type::Variable, ScriptVariables::VARTMPARGUMENT, "tmpargument" },
+		{ Token::Type::Variable, ScriptVariables::VARRAND, "rand" },
+		{ Token::Type::Variable, ScriptVariables::VARSELFX, "selfx" },
+		{ Token::Type::Variable, ScriptVariables::VARSELFY, "selfy" },
+		{ Token::Type::Variable, ScriptVariables::VARSELFTURN, "selfturn" },
+		{ Token::Type::Variable, ScriptVariables::VARSELFCOUNTER, "selfcounter" },
+		{ Token::Type::Variable, ScriptVariables::VARSELFORDER, "selforder" },
+		{ Token::Type::Variable, ScriptVariables::VARSELFMORALE, "selfmorale" },
+		{ Token::Type::Variable, ScriptVariables::VARSELFLIFE, "selflife" },
+		{ Token::Type::Variable, ScriptVariables::VARTARGETX, "targetx" },
+		{ Token::Type::Variable, ScriptVariables::VARTARGETY, "targety" },
+		{ Token::Type::Variable, ScriptVariables::VARTARGETDISTANCE, "targetdistance" },
+		{ Token::Type::Variable, ScriptVariables::VARTARGETTURN, "targetturn" },
+		{ Token::Type::Variable, ScriptVariables::VARLEADERX, "leaderx" },
+		{ Token::Type::Variable, ScriptVariables::VARLEADERY, "leadery" },
+		{ Token::Type::Variable, ScriptVariables::VARLEADERDISTANCE, "leaderdistance" },
+		{ Token::Type::Variable, ScriptVariables::VARLEADERTURN, "leaderturn" },
+		{ Token::Type::Variable, ScriptVariables::VARGOTOX, "gotox" },
+		{ Token::Type::Variable, ScriptVariables::VARGOTOY, "gotoy" },
+		{ Token::Type::Variable, ScriptVariables::VARGOTODISTANCE, "gotodistance" },
+		{ Token::Type::Variable, ScriptVariables::VARTARGETTURNTO, "targetturnto" },
+		{ Token::Type::Variable, ScriptVariables::VARPASSAGE, "passage" },
+		{ Token::Type::Variable, ScriptVariables::VARWEIGHT, "weight" },
+		{ Token::Type::Variable, ScriptVariables::VARSELFALTITUDE, "selfaltitude" },
+		{ Token::Type::Variable, ScriptVariables::VARSELFID, "selfid" },
+		{ Token::Type::Variable, ScriptVariables::VARSELFHATEID, "selfhateid" },
+		{ Token::Type::Variable, ScriptVariables::VARSELFMANA, "selfmana" },
+		{ Token::Type::Variable, ScriptVariables::VARTARGETSTR, "targetstr" },
+		{ Token::Type::Variable, ScriptVariables::VARTARGETWIS, "targetwis" },   //deprecated
+		{ Token::Type::Variable, ScriptVariables::VARTARGETINT, "targetint" },
+		{ Token::Type::Variable, ScriptVariables::VARTARGETDEX, "targetdex" },
+		{ Token::Type::Variable, ScriptVariables::VARTARGETLIFE, "targetlife" },
+		{ Token::Type::Variable, ScriptVariables::VARTARGETMANA, "targetmana" },
+		{ Token::Type::Variable, ScriptVariables::VARTARGETLEVEL, "targetlevel" },
+		{ Token::Type::Variable, ScriptVariables::VARTARGETSPEEDX, "targetspeedx" },
+		{ Token::Type::Variable, ScriptVariables::VARTARGETSPEEDY, "targetspeedy" },
+		{ Token::Type::Variable, ScriptVariables::VARTARGETSPEEDZ, "targetspeedz" },
+		{ Token::Type::Variable, ScriptVariables::VARSELFSPAWNX, "selfspawnx" },
+		{ Token::Type::Variable, ScriptVariables::VARSELFSPAWNY, "selfspawny" },
+		{ Token::Type::Variable, ScriptVariables::VARSELFSTATE, "selfstate" },
+		{ Token::Type::Variable, ScriptVariables::VARSELFSTR, "selfstr" },
+		{ Token::Type::Variable, ScriptVariables::VARSELFWIS, "selfwis" },
+		{ Token::Type::Variable, ScriptVariables::VARSELFINT, "selfint" },
+		{ Token::Type::Variable, ScriptVariables::VARSELFDEX, "selfdex" },
+		{ Token::Type::Variable, ScriptVariables::VARSELFMANAFLOW, "selfmanaflow" },
+		{ Token::Type::Variable, ScriptVariables::VARTARGETMANAFLOW, "targetmanaflow" },
+		{ Token::Type::Variable, ScriptVariables::VARSELFATTACHED, "selfattached" },
+		{ Token::Type::Variable, ScriptVariables::VARSWINGTURN, "swingturn" },
+		{ Token::Type::Variable, ScriptVariables::VARXYDISTANCE, "xydistance" },
+		{ Token::Type::Variable, ScriptVariables::VARSELFZ, "selfz" },
+		{ Token::Type::Variable, ScriptVariables::VARTARGETALTITUDE, "targetaltitude" },
+		{ Token::Type::Variable, ScriptVariables::VARTARGETZ, "targetz" },
+		{ Token::Type::Variable, ScriptVariables::VARSELFINDEX, "selfindex" },
+		{ Token::Type::Variable, ScriptVariables::VAROWNERX, "ownerx" },
+		{ Token::Type::Variable, ScriptVariables::VAROWNERY, "ownery" },
+		{ Token::Type::Variable, ScriptVariables::VAROWNERTURN, "ownerturn" },
+		{ Token::Type::Variable, ScriptVariables::VAROWNERDISTANCE, "ownerdistance" },
+		{ Token::Type::Variable, ScriptVariables::VAROWNERTURNTO, "ownerturnto" },
+		{ Token::Type::Variable, ScriptVariables::VARXYTURNTO, "xyturnto" },
+		{ Token::Type::Variable, ScriptVariables::VARSELFMONEY, "selfmoney" },
+		{ Token::Type::Variable, ScriptVariables::VARSELFACCEL, "selfaccel" },
+		{ Token::Type::Variable, ScriptVariables::VARTARGETEXP, "targetexp" },
+		{ Token::Type::Variable, ScriptVariables::VARSELFAMMO, "selfammo" },
+		{ Token::Type::Variable, ScriptVariables::VARTARGETAMMO, "targetammo" },
+		{ Token::Type::Variable, ScriptVariables::VARTARGETMONEY, "targetmoney" },
+		{ Token::Type::Variable, ScriptVariables::VARTARGETTURNAWAY, "targetturnfrom" },
+		{ Token::Type::Variable, ScriptVariables::VARSELFLEVEL, "selflevel" },
+		{ Token::Type::Variable, ScriptVariables::VARTARGETRELOADTIME, "targetreloadtime" },
+		{ Token::Type::Variable, ScriptVariables::VARSELFCONTENT, "selfcontent" },
+		{ Token::Type::Variable, ScriptVariables::VARSPAWNDISTANCE, "spawndistance" },
+		{ Token::Type::Variable, ScriptVariables::VARTARGETMAXLIFE, "targetmaxlife" },
+		{ Token::Type::Variable, ScriptVariables::VARTARGETTEAM, "targetteam" },
+		{ Token::Type::Variable, ScriptVariables::VARTARGETARMOR, "targetarmor" },
+		{ Token::Type::Variable, ScriptVariables::VARDIFFICULTY, "difficulty" },
+		{ Token::Type::Variable, ScriptVariables::VARTIMEHOURS, "timehours" },
+		{ Token::Type::Variable, ScriptVariables::VARTIMEMINUTES, "timeminutes" },
+		{ Token::Type::Variable, ScriptVariables::VARTIMESECONDS, "timeseconds" },
+		{ Token::Type::Variable, ScriptVariables::VARDATEMONTH, "datemonth" },
+		{ Token::Type::Variable, ScriptVariables::VARDATEDAY, "dateday" },
+
+		{ Token::Type::Operator, ScriptOperators::OPADD, "+" },
+		{ Token::Type::Operator, ScriptOperators::OPSUB, "-" },
+		{ Token::Type::Operator, ScriptOperators::OPAND, "&" },
+		{ Token::Type::Operator, ScriptOperators::OPSHR, ">" },
+		{ Token::Type::Operator, ScriptOperators::OPSHL, "<" },
+		{ Token::Type::Operator, ScriptOperators::OPMUL, "*" },
+		{ Token::Type::Operator, ScriptOperators::OPDIV, "/" },
+		{ Token::Type::Operator, ScriptOperators::OPMOD, "%" },
 	};
 
     for (size_t i = 0, n = sizeof(AICODES) / sizeof(aicode_t); i < n; ++i)

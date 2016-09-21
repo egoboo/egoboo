@@ -57,49 +57,6 @@ struct opcode_data_t
 extern std::vector<opcode_data_t> Opcodes;
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-namespace Ego
-{
-/// A list of all possible egoscript functions
-enum ScriptFunctions
-{
-#define Define(name) name,
-#define DefineAlias(alias, name) alias,
-#include "egolib/Script/Functions.in"
-#undef DefineAlias
-#undef Define
-    SCRIPT_FUNCTIONS_COUNT
-};
-} // namespace Ego
-extern const char *script_function_names[Ego::ScriptFunctions::SCRIPT_FUNCTIONS_COUNT];
-
-/// A list of all possible egoscript variables
-enum e_script_variables
-{
-#define Define(name) name,
-#define DefineAlias(alias, name) alias,
-#include "egolib/Script/Variables.in"
-#undef DefineAlias
-#undef Define
-	SCRIPT_VARIABLES_COUNT
-};
-extern const char *script_variable_names[SCRIPT_VARIABLES_COUNT];
-
-/// A list of all possible egoscript operators
-enum e_script_operators
-{
-#define Define(name) name,
-#define DefineAlias(alias, name) alias,
-#include "egolib/Script/Operators.in"
-#undef DefineAlias
-#undef Define
-	SCRIPT_OPERATORS_COUNT
-};
-extern const char *script_operator_names[SCRIPT_OPERATORS_COUNT];
-
-//--------------------------------------------------------------------------------------------
-//-------------------------------------------------------------------------------------------
 
 template <size_t Capacity>
 struct buffer_t {
@@ -182,6 +139,10 @@ protected:
 public:
     size_t _load_buffer_count;
     std::array<uint8_t, AISMAXLOADSIZE> _load_buffer;
+
+    /// @brief Analyse the contents of a string.
+    /// @param string the string with the leading and trailing quotation marks stripped
+    void parse_string(std::string string, Token& token, script_info_t& script, ObjectProfile *ppro);
 
     /**
     * @brief

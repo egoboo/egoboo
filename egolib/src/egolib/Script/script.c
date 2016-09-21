@@ -31,26 +31,68 @@
 #include "game/Core/GameEngine.hpp"
 #include "game/Graphics/CameraSystem.hpp"
 #include "game/Module/Module.hpp"
+#include "egolib/Script/IRuntimeStatistics.hpp"
 
 namespace Ego {
 namespace Script {
 
-#define Define(name) { name, &scr_##name },
-#define DefineAlias(alias, name) { alias, &scr_##name },
+/// @brief An implementation of runtime statistics.
+struct RuntimeStatistics : IRuntimeStatistics<uint32_t> { 
+public:
+    void append(const std::string& pathname) {
+        auto target = std::shared_ptr<vfs_FILE>(vfs_openAppend(pathname),
+                                                [](vfs_FILE *file) { if (nullptr != file) { vfs_close(file); } });
+        if (nullptr != target) {
+            for (const auto& functionStatistic : _functionStatistics) {
+                vfs_printf(target.get(), "function = %" PRIu32 "\t function name = \"%s\"\tnumber of calls = %d\ttotalTime = %lf\tmaxTime = %lf\n",
+                           functionStatistic.first, _scriptFunctionNames[functionStatistic.first].c_str(), functionStatistic.second.numberOfCalls,
+                           functionStatistic.second.totalTime, functionStatistic.second.maxTime);
 
-Runtime::Runtime() 
-	:
-		_functionValueCodeToFunctionPointer
-		{
-            #include "egolib/Script/Functions.in"
-		}
-{
-}
+            }
+        }
+    }
+};
 
+std::array<std::string, ScriptVariables::SCRIPT_VARIABLES_COUNT> _scriptVariableNames = {
+#define Define(name) #name,
+#define DefineAlias(alias, name)
+#include "egolib/Script/Variables.in"
 #undef DefineAlias
 #undef Define
+};
+
+std::array<std::string, ScriptFunctions::SCRIPT_FUNCTIONS_COUNT> _scriptFunctionNames = {
+#define Define(name) #name,
+#define DefineAlias(alias, name)
+#include "egolib/Script/Functions.in"
+#undef DefineAlias
+#undef Define
+};
+
+std::array<std::string, ScriptOperators::SCRIPT_OPERATORS_COUNT> _scriptOperatorNames = {
+#define Define(name) #name,
+#define DefineAlias(alias, name)
+#include "egolib/Script/Operators.in"
+#undef DefineAlias
+#undef Define
+};
+
+Runtime::Runtime()
+    :_functionValueCodeToFunctionPointer{
+        #define Define(name) { name, &scr_##name },
+        #define DefineAlias(alias, name) { alias, &scr_##name },     
+        #include "egolib/Script/Functions.in"
+        #undef DefineAlias
+        #undef Define
+    },
+    _statistics(std::make_unique<RuntimeStatistics>()),
+    _clock(std::make_unique<Ego::Time::Clock<Ego::Time::ClockPolicy::NonRecursive>>("runtime clock", 1))
+    {
+    /* Intentionally empty. */ 
+}
 
 Runtime::~Runtime() {
+    /* Intentionally empty. */
 }
 
 } // namespace Script
@@ -59,50 +101,23 @@ Runtime::~Runtime() {
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-/// A counter to measure the time of an invocation of a script function.
-/// Its window size is 1 as the duration spend in the invocation is added to an histogram (see below).
-static std::shared_ptr<Ego::Time::Clock<Ego::Time::ClockPolicy::NonRecursive>> g_scriptFunctionClock = nullptr;
-/// @todo Data points (avg. runtimes) sorted into categories (script functions): This is a histogram
-///       and can be implemented as such.
-static int    _script_function_calls[Ego::ScriptFunctions::SCRIPT_FUNCTIONS_COUNT];
-static double _script_function_times[Ego::ScriptFunctions::SCRIPT_FUNCTIONS_COUNT];
-
 static PRO_REF script_error_model = INVALID_PRO_REF;
 static const char * script_error_classname = "UNKNOWN";
-
-static bool _scripting_system_initialized = false;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 void scripting_system_begin()
 {
-	if (!_scripting_system_initialized) {
-		Ego::Script::Runtime::initialize();
-		g_scriptFunctionClock = std::make_shared<Ego::Time::Clock<Ego::Time::ClockPolicy::NonRecursive>>("script function clock", 1);
-		for (size_t i = 0; i < Ego::ScriptFunctions::SCRIPT_FUNCTIONS_COUNT; ++i) {
-			_script_function_calls[i] = 0;
-			_script_function_times[i] = 0.0F;
-		}
-		_scripting_system_initialized = true;
+	if (!Runtime::isInitialized()) {
+		Runtime::initialize();
 	}
 }
 
 void scripting_system_end()
 {
-    if (_scripting_system_initialized) {
-		vfs_FILE *target = vfs_openAppend("/debug/script_function_timing.txt");
-		if (nullptr != target) {
-            for (size_t i = 0; i < Ego::ScriptFunctions::SCRIPT_FUNCTIONS_COUNT; ++i) {
-                if (_script_function_calls[i] > 0) {
-					vfs_printf(target, "function == %d\tname == \"%s\"\tcalls == %d\ttime == %lf\n",
-						       static_cast<int>(i), script_function_names[i], _script_function_calls[i], _script_function_times[i]);
-                }
-            }
-            vfs_close(target);
-        }
-		g_scriptFunctionClock = nullptr;
-		Ego::Script::Runtime::uninitialize();
-        _scripting_system_initialized = false;
+    if (Runtime::isInitialized()) {
+        Runtime::get().getStatistics().append("/debug/script_function_timing.txt");
+		Runtime::uninitialize();
     }
 }
 
@@ -304,7 +319,7 @@ bool script_state_t::run_operation( script_state_t& state, ai_state_t& aiState, 
     // check for valid execution pointer
     if ( script.get_pos() >= script._instructions.getLength() ) return false;
 
-    var_value = script._instructions[script.get_pos()] & Instruction::VALUEBITS;
+    var_value = script._instructions[script.get_pos()].getValueBits();
 
     // debug stuff
     variable = "UNKNOWN";
@@ -357,7 +372,7 @@ Uint8 script_state_t::run_function(script_state_t& self, ai_state_t& aiState, sc
     /// @details This is about half-way to what is needed for Lua integration
 
     // Mask out the indentation
-    uint32_t valuecode = script._instructions[script.get_pos()] & Instruction::VALUEBITS;
+    uint32_t valuecode = script._instructions[script.get_pos()].getValueBits();
 
     // Assume that the function will pass, as most do
     Uint8 returncode = true;
@@ -389,10 +404,12 @@ Uint8 script_state_t::run_function(script_state_t& self, ai_state_t& aiState, sc
     }
     else
     {
+        auto& runtime = Runtime::get();
 		{ 
-			Ego::Time::ClockScope<Ego::Time::ClockPolicy::NonRecursive> scope(*g_scriptFunctionClock);
-			const auto& result = Ego::Script::Runtime::get()._functionValueCodeToFunctionPointer.find(valuecode);
-			if (Ego::Script::Runtime::get()._functionValueCodeToFunctionPointer.cend() == result) {
+
+			Ego::Time::ClockScope<Ego::Time::ClockPolicy::NonRecursive> scope(runtime.getClock());
+			const auto& result = runtime._functionValueCodeToFunctionPointer.find(valuecode);
+			if (Runtime::get()._functionValueCodeToFunctionPointer.cend() == result) {
 				Log::get().message("%s:%d:%s: script error - ai script \"%s\" - unhandled script function %d\n", \
 					               __FILE__, __LINE__, __FUNCTION__, script._name.c_str(), valuecode);
 				returncode = false;
@@ -400,9 +417,7 @@ Uint8 script_state_t::run_function(script_state_t& self, ai_state_t& aiState, sc
 				returncode = result->second(self, aiState);
 			}
         }
-
-        _script_function_calls[valuecode] += 1;
-        _script_function_times[valuecode] += g_scriptFunctionClock->lst();
+        runtime.getStatistics().onFunctionInvoked(valuecode, runtime.getClock().lst());
     }
 
     return returncode;
@@ -477,13 +492,13 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
     if ( script._instructions[script.get_pos()].isLdc() )
     {
         // Get the working opcode from a constant, constants are all but high 5 bits
-        iTmp = script._instructions[script.get_pos()] & Instruction::VALUEBITS;
+        iTmp = script._instructions[script.get_pos()].getValueBits();
         if ( debug_scripts ) snprintf( buffer, SDL_arraysize( buffer ), "%d", iTmp );
     }
     else
     {
         // Get the variable opcode from a register
-        variable = script._instructions[script.get_pos()] & Instruction::VALUEBITS;
+        variable = script._instructions[script.get_pos()].getValueBits();
 
         switch ( variable )
         {

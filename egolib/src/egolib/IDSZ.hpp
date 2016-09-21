@@ -8,6 +8,9 @@ public:
 
     IDSZ2();
 
+    /// @brief Create an IDSZ from a string of the form `'['(digit|alpha)^4']'`
+    IDSZ2(const std::string& s);
+
 	IDSZ2(const IDSZ2& idsz);
 
 	IDSZ2(char C0, char C1, char C2, char C3);
