@@ -235,19 +235,6 @@ size_t parser_state_t::load_one_line( size_t read, script_info_t& script )
 }
 
 //--------------------------------------------------------------------------------------------
-void parser_state_t::surround_space( size_t position, linebuffer_t& buffer )
-{
-    if (!Ego::isspace(buffer[position + 1]))
-    {
-        buffer.insert(' ', position + 1);
-    }
-    if (!Ego::isspace(buffer[position + 0]))
-    {
-        buffer.insert(' ', position + 0);
-    }
-}
-
-//--------------------------------------------------------------------------------------------
 int parser_state_t::get_indentation(script_info_t& script )
 {
     int cnt = 0;
@@ -278,41 +265,6 @@ int parser_state_t::get_indentation(script_info_t& script )
     }
 
     return cnt;
-}
-
-//--------------------------------------------------------------------------------------------
-size_t parser_state_t::fix_operators( linebuffer_t& buffer )
-{
-    /// @author ZZ
-    /// @details This function puts spaces around operators to seperate words better
-
-    bool inside_string = false;
-
-    size_t cnt = 0;
-    while ( cnt < buffer.size() )
-    {
-        char cTmp = buffer[cnt];
-        if ( C_DOUBLE_QUOTE_CHAR == cTmp )
-        {
-            inside_string = !inside_string;
-        }
-
-        //Don't fix operator symbols inside a string
-        if ( !inside_string )
-        {
-            if ( '+' == cTmp || '-' == cTmp || '/' == cTmp || '*' == cTmp ||
-                 '%' == cTmp || '>' == cTmp || '<' == cTmp || '&' == cTmp ||
-                 '=' == cTmp )
-            {
-                surround_space( cnt, buffer);
-                cnt++;
-            }
-        }
-
-        cnt++;
-    }
-
-    return buffer.size();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -506,10 +458,10 @@ size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_
         tok.setValue(temporary);
         tok.setType(Token::Type::Constant);
         tok.setIndex(MAX_OPCODE);
-    } else {
-        while (!Ego::isspace(cTmp) && CSTR_END != cTmp && tok.szWord_length < szWord_length_max && read < _linebuffer.size()) {
+    } else if ('_' == cTmp || Ego::isalpha(cTmp)) {
+        do {
             saveAndNext();
-        }
+        } while ('_' == cTmp || Ego::isdigit(cTmp) || Ego::isalpha(cTmp));
         write('\0');
         int i;
         for (i = 0; i < Opcodes.size(); ++i) {
@@ -524,6 +476,8 @@ size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_
         if (i == Opcodes.size()) {
             throw Id::LexicalErrorException(__FILE__, __LINE__, {script.getName(), tok.getLine()}, "not an opcode");
         }
+    } else {
+        throw Id::LexicalErrorException(__FILE__, __LINE__, {script.getName(), tok.getLine()}, "unexpected symbol");
     }
     print_token(tok);
     return read;
@@ -570,8 +524,6 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
 #if (DEBUG_SCRIPT_LEVEL > 2) && defined(_DEBUG)
         print_line();
 #endif
-
-        fix_operators( _linebuffer );
 
         //------------------------------
         // grab the first opcode

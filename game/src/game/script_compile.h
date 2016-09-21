@@ -156,8 +156,6 @@ public:
     void clear_error();
 
 private:
-	static void surround_space(size_t position, linebuffer_t& buffer);
-	static size_t fix_operators(linebuffer_t& buffer);
 	void emit_opcode(Token& tok, const BIT_FIELD highbits, script_info_t& script);
 
 	static Uint32 jump_goto(int index, int index_end, script_info_t& script);
