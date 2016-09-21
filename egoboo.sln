@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "game", "game\game.vcxproj", "{E9988340-E474-4C0A-8496-EFF3296DE056}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -9,7 +9,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "game", "game\game.vcxproj",
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "egolib", "egolib\egolib.vcxproj", "{0F32DD35-A264-4906-8FC9-2D0FE0613230}"
 	ProjectSection(ProjectDependencies) = postProject
-		{42B63689-1349-4389-8537-7CB21C0F65C9} = {42B63689-1349-4389-8537-7CB21C0F65C9}
 		{0D701492-DB47-4E2A-A73D-8F2049103145} = {0D701492-DB47-4E2A-A73D-8F2049103145}
 	EndProjectSection
 EndProject
@@ -17,8 +16,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cartman", "cartman\cartman.
 	ProjectSection(ProjectDependencies) = postProject
 		{0F32DD35-A264-4906-8FC9-2D0FE0613230} = {0F32DD35-A264-4906-8FC9-2D0FE0613230}
 	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lualib", "external\lua-5.2.3\lua.vcxproj", "{42B63689-1349-4389-8537-7CB21C0F65C9}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "physfs-static", "external\physfs-2.1.1\physfs-static.vcxproj", "{0D701492-DB47-4E2A-A73D-8F2049103145}"
 EndProject
@@ -83,14 +80,6 @@ Global
 		{87DFC5F5-A78E-4BE2-AEB7-AFB8DA3DBD63}.Release|Win32.Build.0 = Release|Win32
 		{87DFC5F5-A78E-4BE2-AEB7-AFB8DA3DBD63}.Release|x64.ActiveCfg = Release|x64
 		{87DFC5F5-A78E-4BE2-AEB7-AFB8DA3DBD63}.Release|x64.Build.0 = Release|x64
-		{42B63689-1349-4389-8537-7CB21C0F65C9}.Debug|Win32.ActiveCfg = Debug|Win32
-		{42B63689-1349-4389-8537-7CB21C0F65C9}.Debug|Win32.Build.0 = Debug|Win32
-		{42B63689-1349-4389-8537-7CB21C0F65C9}.Debug|x64.ActiveCfg = Debug|x64
-		{42B63689-1349-4389-8537-7CB21C0F65C9}.Debug|x64.Build.0 = Debug|x64
-		{42B63689-1349-4389-8537-7CB21C0F65C9}.Release|Win32.ActiveCfg = Release|Win32
-		{42B63689-1349-4389-8537-7CB21C0F65C9}.Release|Win32.Build.0 = Release|Win32
-		{42B63689-1349-4389-8537-7CB21C0F65C9}.Release|x64.ActiveCfg = Release|x64
-		{42B63689-1349-4389-8537-7CB21C0F65C9}.Release|x64.Build.0 = Release|x64
 		{0D701492-DB47-4E2A-A73D-8F2049103145}.Debug|Win32.ActiveCfg = Debug|Win32
 		{0D701492-DB47-4E2A-A73D-8F2049103145}.Debug|Win32.Build.0 = Debug|Win32
 		{0D701492-DB47-4E2A-A73D-8F2049103145}.Debug|x64.ActiveCfg = Debug|x64
@@ -192,7 +181,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{42B63689-1349-4389-8537-7CB21C0F65C9} = {9BD0B7C7-47BB-4389-A7C6-4D5427D293C0}
 		{0D701492-DB47-4E2A-A73D-8F2049103145} = {9BD0B7C7-47BB-4389-A7C6-4D5427D293C0}
 		{5598C859-A436-4224-9039-0C7FDC3DF2DD} = {9BD0B7C7-47BB-4389-A7C6-4D5427D293C0}
 		{336E1CF1-31F8-4AF3-BDF3-F6D4D5221AE7} = {5598C859-A436-4224-9039-0C7FDC3DF2DD}
