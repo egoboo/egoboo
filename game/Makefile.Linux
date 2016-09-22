@@ -49,7 +49,7 @@ all: $(BIN)
 	ccache $(CXX) -o $@ $(CXXFLAGS) -c $<
 
 $(BIN): $(OBJECTS)
-	ccache $(CXX) -o $@ $^ $(LINKER_LIBS) #-Wl,-fuse-ld=gold
+	ccache $(CXX) -o $@ $^ $(LINKER_LIBS) -Wl,-fuse-ld=gold -flto=jobserver
 
 clean:
 	rm -f ./src/game/*.o ./src/game/*/*.o $(BIN)
