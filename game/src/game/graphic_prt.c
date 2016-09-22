@@ -77,13 +77,9 @@ void prt_set_texture_params(const std::shared_ptr<const Ego::Texture>& texture, 
 }
 
 //--------------------------------------------------------------------------------------------
-
-Uint32 instance_update = std::numeric_limits<Uint32>::max();
-
-//--------------------------------------------------------------------------------------------
 static gfx_rv prt_instance_update(Camera& camera, const ParticleRef particle, Uint8 trans, bool do_lighting);
 static void calc_billboard_verts(Ego::VertexBuffer& vb, prt_instance_t& pinst, float size, bool do_reflect);
-static void draw_one_attachment_point(ObjectGraphics& inst, int vrt_offset);
+static void draw_one_attachment_point(Ego::Graphics::ObjectGraphics& inst, int vrt_offset);
 static void prt_draw_attached_point(const std::shared_ptr<Ego::Particle> &bdl_prt);
 static void render_prt_bbox(const std::shared_ptr<Ego::Particle> &bdl_prt);
 
@@ -458,7 +454,7 @@ void render_all_prt_bbox()
     }
 }
 
-void draw_one_attachment_point(ObjectGraphics& inst, int vrt_offset)
+void draw_one_attachment_point(Ego::Graphics::ObjectGraphics& inst, int vrt_offset)
 {
     /// @author BB
     /// @details a function that will draw some of the vertices of the given character.
@@ -492,6 +488,7 @@ void prt_draw_attached_point(const std::shared_ptr<Ego::Particle>& particle)
 gfx_rv update_all_prt_instance(Camera& camera)
 {
     // only one update per frame
+    static uint32_t instance_update = std::numeric_limits<uint32_t>::max();
     if (instance_update == update_wld) return gfx_success;
     instance_update = update_wld;
 
@@ -642,7 +639,7 @@ gfx_rv prt_instance_t::update_vertices(prt_instance_t& inst, Camera& camera, Ego
     }
     else if (pprt->isAttached())
     {
-        ObjectGraphics *cinst = &(pprt->getAttachedObject()->inst);
+        Ego::Graphics::ObjectGraphics *cinst = &(pprt->getAttachedObject()->inst);
 
         if (chr_matrix_valid(pprt->getAttachedObject().get()))
         {

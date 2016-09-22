@@ -1072,7 +1072,7 @@ Uint8 scr_DoAction( script_state_t& state, ai_state_t& self )
     ModelAction action = pchr->getProfile()->getModel()->getAction( state.argument );
 
     returncode = false;
-    if ( rv_success == pchr->inst.animationState.startAnimation(action, false, false) )
+    if ( rv_success == pchr->inst.startAnimation(action, false, false) )
     {
         returncode = true;
     }
@@ -1090,7 +1090,7 @@ Uint8 scr_KeepAction( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->inst.animationState.setActionKeep(true);
+    pchr->inst.setActionKeep(true);
 
     SCRIPT_FUNCTION_END();
 }
@@ -1169,7 +1169,7 @@ Uint8 scr_TargetDoAction( script_state_t& state, ai_state_t& self )
         {
             ModelAction action = pself_target->getProfile()->getModel()->getAction( state.argument );
 
-            if ( rv_success == pself_target->inst.animationState.startAnimation(action, false, false) )
+            if ( rv_success == pself_target->inst.startAnimation(action, false, false) )
             {
                 returncode = true;
             }
@@ -1341,7 +1341,7 @@ Uint8 scr_DoActionOverride( script_state_t& state, ai_state_t& self )
     ModelAction action = pchr->getProfile()->getModel()->getAction(state.argument);
 
     returncode = false;
-    if ( rv_success == pchr->inst.animationState.startAnimation(action, false, true) )
+    if ( rv_success == pchr->inst.startAnimation(action, false, true) )
     {
         returncode = true;
     }
@@ -1638,7 +1638,7 @@ Uint8 scr_UnkeepAction( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->inst.animationState.setActionKeep(false);
+    pchr->inst.setActionKeep(false);
 
     SCRIPT_FUNCTION_END();
 }
@@ -2444,7 +2444,7 @@ Uint8 scr_BecomeSpellbook( script_state_t& state, ai_state_t& self )
 
     // set the spellbook animations
     // Do dropped animation
-    if (rv_success == pchr->inst.animationState.startAnimation(pchr->getProfile()->getModel()->getAction(ACTION_JB), false, true))
+    if (rv_success == pchr->inst.startAnimation(pchr->getProfile()->getModel()->getAction(ACTION_JB), false, true))
     {
         returncode = true;
     }
@@ -3397,7 +3397,7 @@ Uint8 scr_IfTargetIsDefending( script_state_t& state, ai_state_t& self )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = ACTION_IS_TYPE( pself_target->inst.animationState.getCurrentAnimation(), P );
+    returncode = ACTION_IS_TYPE( pself_target->inst.getCurrentAnimation(), P );
 
     SCRIPT_FUNCTION_END();
 }
@@ -4338,10 +4338,10 @@ Uint8 scr_SetFrame( script_state_t& state, ai_state_t& self )
     const ModelAction action = pchr->getProfile()->getModel()->getAction(ACTION_DA);
 
     // set the action
-    if(pchr->inst.animationState.setAction(action, true, true)) {
+    if(pchr->inst.setAction(action, true, true)) {
         
         // the action is set. now set the frame info.
-        returncode = pchr->inst.animationState.setFrameFull(frame_along, ilip);
+        returncode = pchr->inst.setFrameFull(frame_along, ilip);
     }
     else {
         returncode = false;
@@ -4464,7 +4464,7 @@ Uint8 scr_ChildDoActionOverride( script_state_t& state, ai_state_t& self )
 
         ModelAction action = pchild->getProfile()->getModel()->getAction(state.argument);
 
-        if ( rv_success == pchild->inst.animationState.startAnimation(action, false, true) )
+        if ( rv_success == pchild->inst.startAnimation(action, false, true) )
         {
             returncode = true;
         }
@@ -5594,7 +5594,7 @@ Uint8 scr_IfTargetIsSneaking( script_state_t& state, ai_state_t& self )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = ( pself_target->inst.animationState.getCurrentAnimation() == ACTION_DA || pself_target->inst.animationState.getCurrentAnimation() == ACTION_WA );
+    returncode = ( pself_target->inst.getCurrentAnimation() == ACTION_DA || pself_target->inst.getCurrentAnimation() == ACTION_WA );
 
     SCRIPT_FUNCTION_END();
 }
@@ -5650,10 +5650,10 @@ Uint8 scr_TargetDoActionSetFrame( script_state_t& state, ai_state_t& self )
 
         ModelAction action = pself_target->getProfile()->getModel()->getAction(state.argument );
 
-        if ( rv_success == pself_target->inst.animationState.startAnimation(action, false, true) )
+        if ( rv_success == pself_target->inst.startAnimation(action, false, true) )
         {
             // remove the interpolation
-            pself_target->inst.animationState.removeInterpolation();
+            pself_target->inst.removeInterpolation();
 
             returncode = true;
         }

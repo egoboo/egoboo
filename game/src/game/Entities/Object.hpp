@@ -1001,7 +1001,7 @@ private:
 
 public: //TODO: Hack make private
     //Graphics
-    ObjectGraphics inst;                          ///< the render data
+    Ego::Graphics::ObjectGraphics inst;                          ///< the render data
 
 private:
     //Physics

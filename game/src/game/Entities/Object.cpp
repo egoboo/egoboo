@@ -241,7 +241,7 @@ bool Object::setSkin(const size_t skinNumber)
     //ZF> uncommented this 01.09.2016, not needed?
 
     //Change the model texture
-    if (!this->inst.animationState.getModelDescriptor()) {
+    if (!this->inst.getModelDescriptor()) {
         if (this->inst.setModel(getProfile()->getModel())) {
             getObjectPhysics().updateCollisionSize(true);
         }
@@ -500,7 +500,7 @@ int Object::damage(Facing direction, const IPair  damage, const DamageType damag
                         //If we have Endurance perk, we have 1% chance per Might to resist hurt animation (which cause a minor delay)
                         if(!hasPerk(Ego::Perks::ENDURANCE) || Random::getPercent() > getAttribute(Ego::Attribute::MIGHT))
                         {
-                            if(inst.animationState.getModelDescriptor()->isActionValid(ACTION_HA)) {
+                            if(inst.getModelDescriptor()->isActionValid(ACTION_HA)) {
                                 inst.playAction(getProfile()->getModel()->randomizeAction(ACTION_HA), false);
                             }
                         }
@@ -667,7 +667,7 @@ bool Object::heal(const std::shared_ptr<Object> &healer, const UFP8_T amount, co
 
 bool Object::isAttacking() const
 {
-    return inst.animationState.getCurrentAnimation() >= ACTION_UA && inst.animationState.getCurrentAnimation() <= ACTION_FD;
+    return inst.getCurrentAnimation() >= ACTION_UA && inst.getCurrentAnimation() <= ACTION_FD;
 }
 
 bool Object::teleport(const Vector3f& position, Facing facing_z)
@@ -901,7 +901,7 @@ void Object::update()
     }
 
     //Try to detect any hidden objects every so often (unless we are scenery object) 
-    if(!isScenery() && isAlive() && !isBeingHeld() && inst.animationState.getCurrentAnimation() != ACTION_MK) {  //ACTION_MK = sleeping
+    if(!isScenery() && isAlive() && !isBeingHeld() && inst.getCurrentAnimation() != ACTION_MK) {  //ACTION_MK = sleeping
         if(update_wld > _observationTimer) 
         {
             _observationTimer = update_wld + ONESECOND;
@@ -1139,12 +1139,12 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
         // play the falling animation...
         inst.playAction(static_cast<ModelAction>(ACTION_JB + hand), false);
     }
-    else if ( inst.animationState.getCurrentAnimation() < ACTION_KA || inst.animationState.getCurrentAnimation() > ACTION_KD )
+    else if ( inst.getCurrentAnimation() < ACTION_KA || inst.getCurrentAnimation() > ACTION_KD )
     {
         // play the "killed" animation...
         const ModelAction action = getProfile()->getModel()->randomizeAction(ACTION_KA);
         inst.playAction(action, false);
-        inst.animationState.setActionKeep(true);
+        inst.setActionKeep(true);
     }
 
     // Set the positions
@@ -1198,7 +1198,7 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
     vel[kZ] = DROPZVEL;
 
     // Turn looping off
-    inst.animationState.setActionLooped(false);
+    inst.setActionLooped(false);
 
     // Reset the team if it is a mount
     if ( pholder->isMount() )
@@ -1227,13 +1227,13 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
         // the object is dead. play the killed animation and make it freeze there
         const ModelAction action = getProfile()->getModel()->randomizeAction(ACTION_KA);
         inst.playAction(action, false);
-        inst.animationState.setActionKeep(true);
+        inst.setActionKeep(true);
     }
     else
     {
         // play the jump animation, and un-keep it
         inst.playAction(ACTION_JA, true);
-        inst.animationState.setActionKeep(false);
+        inst.setActionKeep(false);
     }
 
     chr_update_matrix( this, true );
@@ -1432,7 +1432,7 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
     // Play the death animation
     ModelAction action = getProfile()->getModel()->randomizeAction(ACTION_KA);
     inst.playAction(action, false);
-    inst.animationState.setActionKeep(true);
+    inst.setActionKeep(true);
 
     // Give kill experience
     uint16_t experience = getProfile()->getExperienceValue() + (this->experience * getProfile()->getExperienceExchangeRate());
@@ -1859,7 +1859,7 @@ void Object::respawn()
     if ( !isInvincible() )         getTeam().increaseMorale();
 
     // start the character out in the "dance" animation
-    inst.animationState.startAnimation(ACTION_DA, true, true);
+    inst.startAnimation(ACTION_DA, true, true);
 
     // reset all of the bump size information
     {
@@ -2451,9 +2451,9 @@ bool Object::isInvictusDirection(Facing direction) const
         right      = Facing(getProfile()->getInvictusFrameAngle());
 
         // If using shield, use the shield invictus instead
-        if (ACTION_IS_TYPE(inst.animationState.getCurrentAnimation(), P))
+        if (ACTION_IS_TYPE(inst.getCurrentAnimation(), P))
         {
-            bool parry_left = ( inst.animationState.getCurrentAnimation() < ACTION_PC );
+            bool parry_left = ( inst.getCurrentAnimation() < ACTION_PC );
 
             // Using a shield?
             if (parry_left && getLeftHandItem())
@@ -2545,7 +2545,7 @@ bool Object::activateStealth()
         }
 
         //Ignore objects that are doing the sleep animation
-        if(object->inst.animationState.getCurrentAnimation() == ACTION_MK) {
+        if(object->inst.getCurrentAnimation() == ACTION_MK) {
             continue;
         }
 
@@ -3055,7 +3055,7 @@ void Object::updateLatchButtons()
                 }
 
                 // Set to jump animation if not doing anything better
-                if ( inst.animationState.canBeInterrupted() )
+                if ( inst.canBeInterrupted() )
                 {
 
                     inst.playAction(ACTION_JA, true);
@@ -3067,18 +3067,18 @@ void Object::updateLatchButtons()
         }
 
     }
-    if ( _inputLatchesPressed[LATCHBUTTON_PACKLEFT] && inst.animationState.canBeInterrupted() && 0 == reload_timer )
+    if ( _inputLatchesPressed[LATCHBUTTON_PACKLEFT] && inst.canBeInterrupted() && 0 == reload_timer )
     {
         reload_timer = Inventory::PACKDELAY;
         Inventory::swap_item( ichr, getInventory().getFirstFreeSlotNumber(), SLOT_LEFT, false );
     }
-    if ( _inputLatchesPressed[LATCHBUTTON_PACKRIGHT] && inst.animationState.canBeInterrupted() && 0 == reload_timer )
+    if ( _inputLatchesPressed[LATCHBUTTON_PACKRIGHT] && inst.canBeInterrupted() && 0 == reload_timer )
     {
         reload_timer = Inventory::PACKDELAY;
         Inventory::swap_item( ichr, getInventory().getFirstFreeSlotNumber(), SLOT_RIGHT, false );
     }
 
-    if ( _inputLatchesPressed[LATCHBUTTON_ALTLEFT] && inst.animationState.canBeInterrupted() && 0 == reload_timer )
+    if ( _inputLatchesPressed[LATCHBUTTON_ALTLEFT] && inst.canBeInterrupted() && 0 == reload_timer )
     {
         reload_timer = GRABDELAY;
         if ( !getLeftHandItem() )
@@ -3099,7 +3099,7 @@ void Object::updateLatchButtons()
         }
     }
 
-    if (_inputLatchesPressed[LATCHBUTTON_ALTRIGHT] && inst.animationState.canBeInterrupted() && 0 == reload_timer)
+    if (_inputLatchesPressed[LATCHBUTTON_ALTRIGHT] && inst.canBeInterrupted() && 0 == reload_timer)
     {
         reload_timer = GRABDELAY;
         if ( !getRightHandItem() )

@@ -596,7 +596,7 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
     chr_update_matrix( pchr.get(), true );
 
     // start the character out in the "dance" animation
-    pchr->inst.animationState.startAnimation(ACTION_DA, true, true);
+    pchr->inst.startAnimation(ACTION_DA, true, true);
 
     // count all the successful spawns of this character
     ppro->_spawnCount++;
@@ -633,7 +633,7 @@ void GameModule::updateAllObjects()
         object->update();
 
         //Update model animation
-        object->inst.animationState.updateAnimation();
+        object->inst.updateAnimation();
 
         //Check if this object should be poofed (destroyed)
         bool timeOut = ( object->ai.poof_time > 0 ) && ( object->ai.poof_time <= static_cast<int32_t>(update_wld) );

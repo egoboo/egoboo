@@ -2344,7 +2344,7 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
             if ( pmount->isMount() && pmount->isAlive() )
             {
                 // can the mount be told what to do?
-                if ( !pmount->isPlayer() && pmount->inst.animationState.canBeInterrupted() )
+                if ( !pmount->isPlayer() && pmount->inst.canBeInterrupted() )
                 {
                     if ( !ACTION_IS_TYPE( action, P ) || !mountProfile->riderCanAttack() )
                     {
@@ -2366,7 +2366,7 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
         //Attacking or using an item disables stealth
         pchr->deactivateStealth();
 
-        if ( pchr->inst.animationState.canBeInterrupted() && action_valid )
+        if ( pchr->inst.canBeInterrupted() && action_valid )
         {
             //Check if we are attacking unarmed and cost mana to do so
             if(iweapon == pchr->getObjRef())
@@ -2413,11 +2413,11 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
                     }
 
                     //Determine the attack speed (how fast we play the animation)
-                    pchr->inst.animationState.setAnimationSpeed(0.80f + agility * 0.02f);   //every Agility increases base attack speed by 2%
+                    pchr->inst.setAnimationSpeed(0.80f + agility * 0.02f);   //every Agility increases base attack speed by 2%
 
                     //If Quick Strike perk triggers then we have fastest possible attack (10% chance)
                     if(pchr->hasPerk(Ego::Perks::QUICK_STRIKE) && pweapon->getProfile()->isMeleeWeapon() && Random::getPercent() <= 10) {
-                        pchr->inst.animationState.setAnimationSpeed(3.0f);
+                        pchr->inst.setAnimationSpeed(3.0f);
                         BillboardSystem::get().makeBillboard(pchr->getObjRef(), "Quick Strike!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::blue(), 3, Billboard::Flags::All);
                     }
 
@@ -2519,7 +2519,7 @@ void character_swipe( ObjectRef ichr, slot_t slot )
     */
 
     // What kind of attack are we going to do?
-    if ( !unarmed_attack && (( weaponProfile->isStackable() && pweapon->ammo > 1 ) || ACTION_IS_TYPE( pweapon->inst.animationState.getCurrentAnimation(), F ) ) )
+    if ( !unarmed_attack && (( weaponProfile->isStackable() && pweapon->ammo > 1 ) || ACTION_IS_TYPE( pweapon->inst.getCurrentAnimation(), F ) ) )
     {
         // Throw the weapon if it's stacked or a hurl animation
         std::shared_ptr<Object> pthrown = _currentModule->spawnObject(pchr->getPosition(), pweapon->getProfileID(), pholder->getTeam().toRef(), pweapon->skin, pchr->ori.facing_z, pweapon->getName(), ObjectRef::Invalid);

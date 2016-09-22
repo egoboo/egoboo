@@ -87,9 +87,7 @@ struct Md2VertexBuffer {
 
 gfx_rv MadRenderer::render_enviro( Camera& cam, const std::shared_ptr<Object>& pchr, GLXvector4f tint, const BIT_FIELD bits )
 {
-	ObjectGraphics& pinst = pchr->inst;
-
-    if (!pinst.animationState.getModelDescriptor())
+    if (!pchr->inst.getModelDescriptor())
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, pchr->getObjRef().get(), "invalid mad" );
         return gfx_error;
@@ -112,15 +110,15 @@ gfx_rv MadRenderer::render_enviro( Camera& cam, const std::shared_ptr<Object>& p
 		ptex = pchr->getSkinTexture();
 	}
 
-    float uoffset = pinst.uoffset - float(cam.getTurnZ_turns());
+    float uoffset = pchr->inst.uoffset - float(cam.getTurnZ_turns());
 
 	if (HAS_SOME_BITS(bits, CHR_REFLECT))
 	{
-        Ego::Renderer::get().setWorldMatrix(pinst.getReflectionMatrix());
+        Ego::Renderer::get().setWorldMatrix(pchr->inst.getReflectionMatrix());
 	}
 	else
 	{
-		Ego::Renderer::get().setWorldMatrix(pinst.getMatrix());
+		Ego::Renderer::get().setWorldMatrix(pchr->inst.getMatrix());
 	}
 
     // Choose texture and matrix
@@ -142,8 +140,8 @@ gfx_rv MadRenderer::render_enviro( Camera& cam, const std::shared_ptr<Object>& p
                 size_t vertexBufferSize = 0;
                 for (const id_glcmd_packed_t& cmd : glcommand.data) {
                     uint16_t vertexIndex = cmd.index;
-                    if (vertexIndex >= pinst.getVertexCount()) continue;
-                    const GLvertex& pvrt = pinst.getVertex(vertexIndex);
+                    if (vertexIndex >= pchr->inst.getVertexCount()) continue;
+                    const GLvertex& pvrt = pchr->inst.getVertex(vertexIndex);
                     auto& v = vertexBuffer.vertices[vertexBufferSize++];
                     v.position.x = pvrt.pos[XX];
                     v.position.y = pvrt.pos[YY];
@@ -191,7 +189,7 @@ gfx_rv MadRenderer::render_enviro( Camera& cam, const std::shared_ptr<Object>& p
 
 // Do fog...
 /*
-if(fogon && pinst->light==255)
+if(fogon && pchr->inst->light==255)
 {
     // The full fog value
     alpha = 0xff000000 | (fogred<<16) | (foggrn<<8) | (fogblu);
@@ -199,14 +197,14 @@ if(fogon && pinst->light==255)
     for (cnt = 0; cnt < pmad->transvertices; cnt++)
     {
         // Figure out the z position of the vertex...  Not totally accurate
-        z = (pinst->_vertexList[cnt].pos[ZZ]) + pchr->matrix(3,2);
+        z = (pchr->inst->_vertexList[cnt].pos[ZZ]) + pchr->matrix(3,2);
 
         // Figure out the fog coloring
         if(z < fogtop)
         {
             if(z < fogbottom)
             {
-                pinst->_vertexList[cnt].specular = alpha;
+                pchr->inst->_vertexList[cnt].specular = alpha;
             }
             else
             {
@@ -215,12 +213,12 @@ if(fogon && pinst->light==255)
                 grn = foggrn * z;
                 blu = fogblu * z;
                 fogspec = 0xff000000 | (red<<16) | (grn<<8) | (blu);
-                pinst->_vertexList[cnt].specular = fogspec;
+                pchr->inst->_vertexList[cnt].specular = fogspec;
             }
         }
         else
         {
-            pinst->_vertexList[cnt].specular = 0;
+            pchr->inst->_vertexList[cnt].specular = 0;
         }
     }
 }
@@ -228,7 +226,7 @@ if(fogon && pinst->light==255)
 else
 {
     for (cnt = 0; cnt < pmad->transvertices; cnt++)
-        pinst->_vertexList[cnt].specular = 0;
+        pchr->inst->_vertexList[cnt].specular = 0;
 }
 
 */
@@ -236,9 +234,7 @@ else
 //--------------------------------------------------------------------------------------------
 gfx_rv MadRenderer::render_tex(Camera& camera, const std::shared_ptr<Object>& pchr, GLXvector4f tint, const BIT_FIELD bits)
 {
-    ObjectGraphics& pinst = pchr->inst;
-
-    if (!pinst.animationState.getModelDescriptor())
+    if (!pchr->inst.getModelDescriptor())
     {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid mad");
         return gfx_error;
@@ -249,15 +245,15 @@ gfx_rv MadRenderer::render_tex(Camera& camera, const std::shared_ptr<Object>& pc
     // To make life easier
     std::shared_ptr<const Ego::Texture> ptex = pchr->getSkinTexture();
 
-    float uoffset = pinst.uoffset * INV_FFFF<float>();
-    float voffset = pinst.voffset * INV_FFFF<float>();
+    float uoffset = pchr->inst.uoffset * INV_FFFF<float>();
+    float voffset = pchr->inst.voffset * INV_FFFF<float>();
 
     float base_amb = 0.0f;
     if (0 == (bits & CHR_LIGHT))
     {
         // Convert the "light" parameter to self-lighting for
         // every object that is not being rendered using CHR_LIGHT.
-        base_amb = (0xFF == pinst.light) ? 0 : (pinst.light * INV_FF<float>());
+        base_amb = (0xFF == pchr->inst.light) ? 0 : (pchr->inst.light * INV_FF<float>());
     }
 
     // Get the maximum number of vertices per command.
@@ -271,11 +267,11 @@ gfx_rv MadRenderer::render_tex(Camera& camera, const std::shared_ptr<Object>& pc
 
     if (0 != (bits & CHR_REFLECT))
     {
-        Ego::Renderer::get().setWorldMatrix(pinst.getReflectionMatrix());
+        Ego::Renderer::get().setWorldMatrix(pchr->inst.getReflectionMatrix());
     }
     else
     {
-        Ego::Renderer::get().setWorldMatrix(pinst.getMatrix());
+        Ego::Renderer::get().setWorldMatrix(pchr->inst.getMatrix());
     }
 
     // Choose texture.
@@ -290,10 +286,10 @@ gfx_rv MadRenderer::render_tex(Camera& camera, const std::shared_ptr<Object>& pc
                 size_t vertexBufferSize = 0;
                 for (const id_glcmd_packed_t &cmd : glcommand.data) {
                     Uint16 vertexIndex = cmd.index;
-                    if (vertexIndex >= pinst.getVertexCount()) {
+                    if (vertexIndex >= pchr->inst.getVertexCount()) {
                         continue;
                     }
-                    const GLvertex& pvrt = pinst.getVertex(vertexIndex);
+                    const GLvertex& pvrt = pchr->inst.getVertex(vertexIndex);
                     auto& v = vertexBuffer.vertices[vertexBufferSize++];
                     v.position.x = pvrt.pos[XX];
                     v.position.y = pvrt.pos[YY];
@@ -321,7 +317,7 @@ gfx_rv MadRenderer::render_tex(Camera& camera, const std::shared_ptr<Object>& pc
                             // Convert the "light" parameter to self-lighting for
                             // every object that is not being rendered using CHR_LIGHT.
 
-                            float acol = base_amb + pinst.getAmbientColour() * INV_FF<float>();
+                            float acol = base_amb + pchr->inst.getAmbientColour() * INV_FF<float>();
 
                             v.colour.r += acol;
                             v.colour.g += acol;
@@ -355,7 +351,7 @@ gfx_rv MadRenderer::render_tex(Camera& camera, const std::shared_ptr<Object>& pc
 
 /*
     // Do fog...
-    if(fogon && pinst->light==255)
+    if(fogon && pchr->inst->light==255)
     {
         // The full fog value
 *        alpha = 0xff000000 | (fogred<<16) | (foggrn<<8) | (fogblu);
@@ -363,18 +359,18 @@ gfx_rv MadRenderer::render_tex(Camera& camera, const std::shared_ptr<Object>& pc
         for (cnt = 0; cnt < pmad->transvertices; cnt++)
         {
             // Figure out the z position of the vertex...  Not totally accurate
-            z = (pinst->_vertexList[cnt].pos[ZZ]) + pchr->matrix(3,2);
+            z = (pchr->inst->_vertexList[cnt].pos[ZZ]) + pchr->matrix(3,2);
 
             // Figure out the fog coloring
             if(z < fogtop)
             {
                 if(z < fogbottom)
                 {
-                    pinst->_vertexList[cnt].specular = alpha;
+                    pchr->inst->_vertexList[cnt].specular = alpha;
                 }
                 else
                 {
-                    spek = pinst->_vertexList[cnt].specular & 255;
+                    spek = pchr->inst->_vertexList[cnt].specular & 255;
                     z = (z - fogbottom)/fogdistance;  // 0.0f to 1.0f...  Amount of old to keep
                     fogtokeep = 1.0f-z;  // 0.0f to 1.0f...  Amount of fog to keep
                     spek = spek * z;
@@ -382,7 +378,7 @@ gfx_rv MadRenderer::render_tex(Camera& camera, const std::shared_ptr<Object>& pc
                     grn = (foggrn * fogtokeep) + spek;
                     blu = (fogblu * fogtokeep) + spek;
                     fogspec = 0xff000000 | (red<<16) | (grn<<8) | (blu);
-                    pinst->_vertexList[cnt].specular = fogspec;
+                    pchr->inst->_vertexList[cnt].specular = fogspec;
                 }
             }
         }
@@ -431,8 +427,6 @@ gfx_rv MadRenderer::render(Camera& cam, const std::shared_ptr<Object> &pchr, GLX
 //--------------------------------------------------------------------------------------------
 gfx_rv MadRenderer::render_ref( Camera& cam, const std::shared_ptr<Object>& pchr)
 {
-	ObjectGraphics& pinst = pchr->inst;
-
     //Does this object have a reflection?
     if(!pchr->getProfile()->hasReflection()) {
         return gfx_fail;        
@@ -453,12 +447,12 @@ gfx_rv MadRenderer::render_ref( Camera& cam, const std::shared_ptr<Object>& pchr
             Ego::OpenGL::Utilities::isError();
 
             //Transparent
-            if (pinst.getReflectionAlpha() != 0xFF && pinst.light == 0xFF) {
+            if (pchr->inst.getReflectionAlpha() != 0xFF && pchr->inst.light == 0xFF) {
                 renderer.setBlendingEnabled(true);
                 renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
 
                 GLXvector4f tint;
-                pinst.getTint(tint, true, CHR_ALPHA);
+                pchr->inst.getTint(tint, true, CHR_ALPHA);
 
                 if (gfx_error == render(cam, pchr, tint, CHR_ALPHA | CHR_REFLECT)) {
                     retval = gfx_error;
@@ -466,12 +460,12 @@ gfx_rv MadRenderer::render_ref( Camera& cam, const std::shared_ptr<Object>& pchr
             }
 
             //Glowing
-            if (pinst.light != 0xFF) {
+            if (pchr->inst.light != 0xFF) {
                 renderer.setBlendingEnabled(true);
                 renderer.setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::One);
 
                 GLXvector4f tint;
-                pinst.getTint(tint, true, CHR_LIGHT);
+                pchr->inst.getTint(tint, true, CHR_LIGHT);
 
                 if (gfx_error == MadRenderer::render(cam, pchr, tint, CHR_LIGHT)) {
                     retval = gfx_error;
@@ -480,12 +474,12 @@ gfx_rv MadRenderer::render_ref( Camera& cam, const std::shared_ptr<Object>& pchr
             }
 
             //Render shining effect on top of model
-            if (pinst.getReflectionAlpha() == 0xFF && gfx.phongon && pinst.sheen > 0) {
+            if (pchr->inst.getReflectionAlpha() == 0xFF && gfx.phongon && pchr->inst.sheen > 0) {
                 renderer.setBlendingEnabled(true);
                 renderer.setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::One);
 
                 GLXvector4f tint;
-                pinst.getTint(tint, true, CHR_PHONG);
+                pchr->inst.getTint(tint, true, CHR_PHONG);
 
                 if (gfx_error == MadRenderer::render(cam, pchr, tint, CHR_PHONG)) {
                     retval = gfx_error;
@@ -500,8 +494,6 @@ gfx_rv MadRenderer::render_ref( Camera& cam, const std::shared_ptr<Object>& pchr
 
 gfx_rv MadRenderer::render_trans(Camera& cam, const std::shared_ptr<Object>& pchr)
 {
-	ObjectGraphics& pinst = pchr->inst;
-
     if ( pchr->isHidden() ) return gfx_fail;
 
     // there is an outside chance the object will not be rendered
@@ -512,7 +504,7 @@ gfx_rv MadRenderer::render_trans(Camera& cam, const std::shared_ptr<Object>& pch
         {
             auto& renderer = Ego::Renderer::get();
 
-            if (pinst.alpha < 0xFF) {
+            if (pchr->inst.alpha < 0xFF) {
                 // most alpha effects will be messed up by
                 // skipping backface culling, so don't
 
@@ -528,14 +520,14 @@ gfx_rv MadRenderer::render_trans(Camera& cam, const std::shared_ptr<Object>& pch
                 renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::One);
 
                 GLXvector4f tint;
-                pinst.getTint(tint, false, CHR_ALPHA);
+                pchr->inst.getTint(tint, false, CHR_ALPHA);
 
                 if (render(cam, pchr, tint, CHR_ALPHA)) {
                     rendered = true;
                 }
             }
 
-            else if (pinst.light < 0xFF) {
+            else if (pchr->inst.light < 0xFF) {
                 // light effects should show through transparent objects
                 renderer.setCullingMode(Ego::CullingMode::None);
 
@@ -546,7 +538,7 @@ gfx_rv MadRenderer::render_trans(Camera& cam, const std::shared_ptr<Object>& pch
                 renderer.setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::One);
 
                 GLXvector4f tint;
-                pinst.getTint(tint, false, CHR_LIGHT);
+                pchr->inst.getTint(tint, false, CHR_LIGHT);
 
                 if (render(cam, pchr, tint, CHR_LIGHT)) {
                     rendered = true;
@@ -554,12 +546,12 @@ gfx_rv MadRenderer::render_trans(Camera& cam, const std::shared_ptr<Object>& pch
             }
 
             // Render shining effect on top of model
-            if (pinst.getReflectionAlpha() == 0xFF && gfx.phongon && pinst.sheen > 0) {
+            if (pchr->inst.getReflectionAlpha() == 0xFF && gfx.phongon && pchr->inst.sheen > 0) {
                 renderer.setBlendingEnabled(true);
                 renderer.setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::One);
 
                 GLXvector4f tint;
-                pinst.getTint(tint, false, CHR_PHONG);
+                pchr->inst.getTint(tint, false, CHR_PHONG);
 
                 if (render(cam, pchr, tint, CHR_PHONG)) {
                     rendered = true;
@@ -573,12 +565,10 @@ gfx_rv MadRenderer::render_trans(Camera& cam, const std::shared_ptr<Object>& pch
 
 gfx_rv MadRenderer::render_solid( Camera& cam, const std::shared_ptr<Object> &pchr )
 {
-	ObjectGraphics& pinst = pchr->inst;
-
     if ( pchr->isHidden() ) return gfx_fail;
 
     //Only proceed if we are truly fully solid
-    if (0xFF != pinst.alpha || 0xFF != pinst.light) {
+    if (0xFF != pchr->inst.alpha || 0xFF != pchr->inst.light) {
         return gfx_success;
     }
 
@@ -614,7 +604,7 @@ gfx_rv MadRenderer::render_solid( Camera& cam, const std::shared_ptr<Object> &pc
             }
 
             GLXvector4f tint;
-            pinst.getTint(tint, false, CHR_SOLID);
+            pchr->inst.getTint(tint, false, CHR_SOLID);
 
             if (gfx_error == render(cam, pchr, tint, CHR_SOLID)) {
                 retval = gfx_error;
@@ -702,7 +692,7 @@ void MadRenderer::draw_chr_verts(const std::shared_ptr<Object>& pchr, int vrt_of
 #endif
 
 #if _DEBUG
-void MadRenderer::draw_one_grip( ObjectGraphics * pinst, int slot )
+void MadRenderer::draw_one_grip( Ego::Graphics::ObjectGraphics *pinst, int slot )
 {
     // disable the texturing so all the points will be white,
     // not the texture color of the last vertex we drawn
@@ -713,7 +703,7 @@ void MadRenderer::draw_one_grip( ObjectGraphics * pinst, int slot )
     _draw_one_grip_raw( pinst, slot );
 }
 
-void MadRenderer::_draw_one_grip_raw( ObjectGraphics * pinst, int slot )
+void MadRenderer::_draw_one_grip_raw( Ego::Graphics::ObjectGraphics *pinst, int slot )
 {
     int vmin, vmax, cnt;
 

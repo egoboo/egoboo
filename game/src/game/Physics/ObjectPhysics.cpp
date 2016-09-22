@@ -348,7 +348,7 @@ float ObjectPhysics::getMaxSpeed() const
     if ( _object.inst.getFrameFX() & MADFX_STOP )
     {
         //Allow 50% movement while using Shield and have the Mobile Defence perk
-        if(_object.hasPerk(Ego::Perks::MOBILE_DEFENCE) && ACTION_IS_TYPE(_object.inst.animationState.getCurrentAnimation(), P))
+        if(_object.hasPerk(Ego::Perks::MOBILE_DEFENCE) && ACTION_IS_TYPE(_object.inst.getCurrentAnimation(), P))
         {
             maxspeed *= 0.5f;
         }
@@ -883,7 +883,7 @@ bool ObjectPhysics::attachToObject(const std::shared_ptr<Object> &holder, grip_o
         }
 
         // set this action to loop
-        _object.inst.animationState.setActionLooped(true);
+        _object.inst.setActionLooped(true);
     }
     else if (_object.isAlive())
     {
@@ -896,7 +896,7 @@ bool ObjectPhysics::attachToObject(const std::shared_ptr<Object> &holder, grip_o
 
         // set the action to keep for items
         if (_object.isItem()) {
-            _object.inst.animationState.setActionKeep(true);
+            _object.inst.setActionKeep(true);
         }
     }
 
@@ -954,7 +954,7 @@ void ObjectPhysics::updateCollisionSize(bool update_matrix)
 
     // convert the point cloud in the GLvertex array (_object.inst._vertexList) to
     // a level 1 bounding box. Subtract off the position of the character
-    oct_bb_t bsrc = _object.inst.animationState.getBoundingBox();
+    oct_bb_t bsrc = _object.inst.getBoundingBox();
 
     Vector4f  src[16];  // for the upper and lower octagon points
     Vector4f  dst[16];  // for the upper and lower octagon points
