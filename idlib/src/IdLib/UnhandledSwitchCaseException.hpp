@@ -52,7 +52,7 @@ public:
      *  optional exception string message
      */
     UnhandledSwitchCaseException(const char *file, int line, const string& message = "Unhandled switch case") :
-        Exception(file, line), message(message) {}
+        Exception(file, line), _message(message) {}
 
     /**
      * @brief
@@ -61,7 +61,7 @@ public:
      *  the other exception
      */
     UnhandledSwitchCaseException(const UnhandledSwitchCaseException& other) :
-        Exception(other), message(other.message) {}
+        Exception(other), _message(other._message) {}
 
     /**
      * @brief
@@ -73,7 +73,7 @@ public:
      */
     UnhandledSwitchCaseException& operator=(const UnhandledSwitchCaseException& other) {
         Exception::operator=(other);
-        message = other.message;
+        _message = other._message;
         return *this;
     }
 
@@ -86,7 +86,7 @@ public:
      *  the message associated with this exception
      */
     const string& getMessage() const {
-        return message;
+        return _message;
     }
 
     /**
@@ -95,11 +95,11 @@ public:
      * @return
      *  a human-readable textual description of the string.
      */
-    virtual operator string() const {
+    virtual operator string() const override {
         ostringstream buffer;
         buffer << "(raised in file " << getFile() << ", line " << getLine() << ")"
             << ":" << std::endl;
-        buffer << message;
+        buffer << _message;
         return buffer.str();
     }
 
@@ -108,7 +108,7 @@ private:
      * @brief
      *  The exception message.
      */
-    string message;
+    string _message;
 };
 
 } // namespace Id

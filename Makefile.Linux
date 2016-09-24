@@ -6,11 +6,12 @@ release: set_release_flags all
 
 all: idlib egolib egoboo
 
-COMPILE_FLAGS := -x c++ -std=c++14 $(shell sdl2-config --cflags) -D_FORTIFY_SOURCE=2 -fuse-linker-plugin -flto=jobserver
+COMPILE_FLAGS := -x c++ -std=c++14 $(shell sdl2-config --cflags) -D_FORTIFY_SOURCE=2
 COMPILE_WARNINGS := -Wall -Wextra -Werror -Wfatal-errors
 COMPILE_DEBUG_FLAGS := -fdiagnostics-color=always
 COMPILE_OPTIMIZE := -O0
 SANITIZER_FLAGS := -fno-sanitize=all
+LINKER_FLAGS := 
 
 #Silence warnings we do not care about
 COMPILE_WARNINGS += -Wno-sign-compare -Wno-reorder -Wno-unused-parameter
@@ -18,8 +19,8 @@ COMPILE_WARNINGS += -Wno-sign-compare -Wno-reorder -Wno-unused-parameter
 #Enable some extra warnings
 COMPILE_WARNINGS += -Wcast-align -Wpointer-arith -Wwrite-strings -Wunreachable-code -Wshift-overflow=2
 COMPILE_WARNINGS += -Wno-div-by-zero -Wlogical-op -Wunreachable-code -Wformat=2
-COMPILE_WARNINGS += -Wduplicated-cond -Wnull-dereference -Wshift-negative-value
-#-Wcast-qual -Wswitch-enum -Wstrict-overflow=5 -Wshadow
+COMPILE_WARNINGS += -Wduplicated-cond -Wnull-dereference -Wshift-negative-value -Wstrict-overflow=4
+#-Wcast-qual -Wswitch-enum -Wshadow -Wsuggest-attribute=const -Wsuggest-attribute=format -Wsuggest-override
 
 set_sanitizer_flags:
 	$(eval SANITIZER_FLAGS := -fsanitize=undefined -fsanitize=leak -fsanitize=address)
@@ -35,10 +36,11 @@ set_debug_flags:
 
 set_release_flags:
 	$(eval COMPILE_DEBUG_FLAGS += -DNDEBUG)
-	$(eval COMPILE_OPTIMIZE := -Ofast -frename-registers -funroll-loops)
+	$(eval COMPILE_OPTIMIZE := -Ofast -frename-registers -fuse-linker-plugin -flto=jobserver)
 	$(eval COMPILE_OPTIMIZE += -mfpmath=sse -m64 -mmmx -msse -msse2 -msse3 -m3dnow)
+	$(eval LINKER_FLAGS := -Wl,-fuse-ld=gold -flto=jobserver)
 
-export COMPILE_FLAGS COMPILE_OPTIMIZE COMPILE_WARNINGS COMPILE_DEBUG_FLAGS SANITIZER_FLAGS
+export COMPILE_FLAGS COMPILE_OPTIMIZE COMPILE_WARNINGS COMPILE_DEBUG_FLAGS SANITIZER_FLAGS LINKER_FLAGS
 
 egolib:
 	${MAKE} -C ./egolib -f Makefile.Linux

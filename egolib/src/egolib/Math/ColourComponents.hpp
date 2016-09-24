@@ -78,7 +78,7 @@ private:
      * @brief The luminance component value.
      * @invariant Within the bounds of ColourSpaceType::min() (inclusive) and ColourSpaceType::max() (inclusive).
      */
-    ComponentType l;
+    ComponentType _luminance;
 
 protected:
     /**
@@ -90,7 +90,7 @@ protected:
     *  if @a l is not within the bounds of ColourSpaceType::min() (inclusive) and ColourSpaceType::max() (inclusive)
     */
     ColourComponents(ComponentType l)
-        : l(l) {
+        : _luminance(l) {
         if (l < ColourSpaceType::min() || l > ColourSpaceType::max()) {
             throw Id::OutOfBoundsException(__FILE__, __LINE__, "luminance component out of bounds");
         }
@@ -98,7 +98,7 @@ protected:
 
 protected:
     void assign(const ColourComponents& other) {
-        l = other.l;
+        _luminance = other._luminance;
     }
 
 protected:
@@ -108,7 +108,7 @@ protected:
         std::enable_if_t<std::is_same<_OtherColourSpaceType, _ColourSpaceType>::value, int *> = nullptr
     >
     ColourComponents(const ColourComponents<_OtherColourSpaceType>& other)
-        : l(other.Luminance()) {
+        : _luminance(other.Luminance()) {
         // Intentionally empty.
     }
 
@@ -119,7 +119,7 @@ protected:
                          std::is_same<_OtherColourSpaceType, Lf>::value, int *> = nullptr
     >
     ColourComponents(const ColourComponents<_OtherColourSpaceType>& other)
-        : l(Internal::f2b(other.getLuminance())) {
+        : _luminance(Internal::f2b(other.getLuminance())) {
         // Intentionally empty.
     }
 
@@ -130,7 +130,7 @@ protected:
                          std::is_same<_OtherColourSpaceType, Lb>::value, int *> = nullptr
     >
     ColourComponents(const ColourComponents<_OtherColourSpaceType>& other)
-        : l(Internal::b2f(other.getLuminance())) {
+        : _luminance(Internal::b2f(other.getLuminance())) {
         // Intentionally empty.
     }
 
@@ -142,7 +142,7 @@ public:
      *  the value of the luminance component
      */
     ComponentType getLuminance() const {
-        return l;
+        return _luminance;
     }
 
 #if defined(EGO_MATH_COLOURCOMPONENTS_MUTABLE) && 1 == EGO_MATH_COLOURCOMPONENTS_MUTABLE
@@ -158,7 +158,7 @@ public:
         if (l < ColourSpaceType::min() || l > ColourSpaceType::max()) {
             throw Id::OutOfBoundsException(__FILE__, __LINE__, "luminance component out of bounds");
         }
-        this->l = l;
+        _luminance = l;
     }
 #endif
 
@@ -175,18 +175,18 @@ private:
      * @brief The luminance component value.
      * @invariant Within the bounds of ColourSpaceType::min() (inclusive) and ColourSpaceType::max() (inclusive).
      */
-    ComponentType l;
+    ComponentType _luminance;
 
     /**
      * @brief The alpha component value.
      * @invariant Within the bounds of ColourSpaceType::min() (inclusive) and ColourSpaceType::max() (inclusive).
      */
-    ComponentType a;
+    ComponentType _alpha;
 
 protected:
     void assign(const ColourComponents& other) {
-        l = other.l;
-        a = other.a;
+        _luminance = other._luminance;
+        _alpha = other._alpha;
     }
 
 protected:
@@ -196,7 +196,7 @@ protected:
         std::enable_if_t<std::is_same<_OtherColourSpaceType, _ColourSpaceType>::value, int *> = 0
     >
     ColourComponents(const ColourComponents<_OtherColourSpaceType>& other)
-        : l(other.getLuminance()), a(other.getAlpha()) {
+        : _luminance(other.getLuminance()), _alpha(other.getAlpha()) {
         // Intentionally empty.
     }
 
@@ -207,7 +207,7 @@ protected:
                          std::is_same<_OtherColourSpaceType, LAf>::value, int *> = 0
     >
     ColourComponents(const ColourComponents<_OtherColourSpaceType>& other)
-        : l(Internal::b2f(other.getLuminance())), a(f2b(other.getAlpha())) {
+        : _luminance(Internal::b2f(other.getLuminance())), _alpha(f2b(other.getAlpha())) {
         // Intentionally empty.
     }
 
@@ -218,7 +218,7 @@ protected:
                          std::is_same<_OtherColourSpaceType, LAb>::value, int *> = 0
     >
     ColourComponents(const ColourComponents<_OtherColourSpaceType>& other)
-        : l(b2f(other.getLuminance())), a(b2f(other.getAlpha())) {
+        : _luminance(b2f(other.getLuminance())), _alpha(b2f(other.getAlpha())) {
         // Intentionally empty.
     }
     
@@ -234,7 +234,7 @@ protected:
      *  if @a l or @a a are not within the bounds of ColourSpaceType::min() (inclusive) and ColourSpaceType::max() (inclusive)
      */
     ColourComponents(ComponentType l, ComponentType a)
-        : l(l), a(a) {
+        : _luminance(l), _alpha(a) {
         if (l < ColourSpaceType::min() || l > ColourSpaceType::max()) {
             throw Id::OutOfBoundsException(__FILE__, __LINE__, "luminance component out of bounds");
         }
@@ -254,7 +254,7 @@ protected:
      *  if @a a is not within the bounds of ColourSpaceType::min() (inclusive) and ColourSpaceType::max() (inclusive)
      */
     ColourComponents(const ColourComponents<Opaque<ColourSpaceType>>& other, ComponentType a)
-        : l(other.getLuminance()), a(a) {
+        : _luminance(other.getLuminance()), _alpha(a) {
         /* l is known to be within bounds. */
         if (a < ColourSpaceType::min() || a > ColourSpaceType::max()) {
             throw Id::OutOfBoundsException(__FILE__, __LINE__, "alpha component out of bounds");
@@ -269,7 +269,7 @@ public:
      *  the value of the luminance component
      */
     ComponentType getLuminance() const {
-        return l;
+        return _luminance;
     }
 
 #if defined(EGO_MATH_COLOURCOMPONENTS_MUTABLE) && 1 == EGO_MATH_COLOURCOMPONENTS_MUTABLE
@@ -285,7 +285,7 @@ public:
         if (l < ColourSpaceType::min() || l > ColourSpaceType::max()) {
             throw Id::OutOfBoundsException(__FILE__, __LINE__, "luminance component out of bounds");
         }
-        this->l = l;
+        _luminance = l;
     }
 #endif
 
@@ -296,7 +296,7 @@ public:
      *  the value of the alpha component
      */
     ComponentType getAlpha() const {
-        return a;
+        return _alpha;
     }
 
 #if defined(EGO_MATH_COLOURCOMPONENTS_MUTABLE) && 1 == EGO_MATH_COLOURCOMPONENTS_MUTABLE
@@ -312,7 +312,7 @@ public:
         if (a < ColourSpaceType::min() || a > ColourSpaceType::max()) {
             throw Id::OutOfBoundsException(__FILE__, __LINE__, "alpha component out of bounds");
         }
-        this->a = a;
+        _alpha = a;
     }
 #endif
 };
@@ -331,19 +331,19 @@ private:
      * @brief The red component value.
      * @invariant Within the bounds of ColourSpaceType::min() (inclusive) and ColourSpaceType::max() (inclusive).
      */
-    ComponentType r;
+    ComponentType _r;
 
     /**
      * @brief The green component value.
      * @invariant Within the bounds of ColourSpaceType::min() (inclusive) and ColourSpaceType::max() (inclusive).
      */
-    ComponentType g;
+    ComponentType _g;
 
     /**
      * @brief The blue component value.
      * @invariant Within the bounds of ColourSpaceType::min() (inclusive) and ColourSpaceType::max() (inclusive).
      */
-    ComponentType b;
+    ComponentType _b;
 
 protected:
     // If colour spaces are the same.
@@ -352,7 +352,7 @@ protected:
         std::enable_if_t<std::is_same<_OtherColourSpaceType, _ColourSpaceType>::value, int *> = nullptr
     >
     ColourComponents(const ColourComponents<_OtherColourSpaceType>& other)
-        : r(other.getRed()), g(other.getGreen()), b(other.getBlue()) {
+        : _r(other.getRed()), _g(other.getGreen()), _b(other.getBlue()) {
         // Intentionally empty.
     }
 
@@ -363,7 +363,7 @@ protected:
                          std::is_same<_OtherColourSpaceType, RGBf>::value, int *> = nullptr
     >
     ColourComponents(const ColourComponents<_OtherColourSpaceType>& other)
-        : r(Internal::f2b(other.getRed())), g(Internal::f2b(other.getGreen())), b(Internal::f2b(other.getBlue())) {
+        : _r(Internal::f2b(other.getRed())), _g(Internal::f2b(other.getGreen())), _b(Internal::f2b(other.getBlue())) {
         // Intentionally empty.
     }
 
@@ -374,7 +374,7 @@ protected:
                          std::is_same<_OtherColourSpaceType, RGBb>::value, int *> = nullptr
     >
     ColourComponents(const ColourComponents<_OtherColourSpaceType>& other)
-      : r(Internal::b2f(other.getRed())), g(Internal::b2f(other.getGreen())), b(Internal::b2f(other.getBlue())) {
+      : _r(Internal::b2f(other.getRed())), _g(Internal::b2f(other.getGreen())), _b(Internal::b2f(other.getBlue())) {
         // Intentionally empty.
     }
     
@@ -387,7 +387,7 @@ protected:
                          std::is_same<_OtherColourSpaceType, Lb>::value, int *> = nullptr
     >
     ColourComponents(const ColourComponents<_OtherColourSpaceType>& other)
-        : r(other.getLuminance()), g(other.getLuminance()), b(other.getLuminance()) {
+        : _r(other.getLuminance()), _g(other.getLuminance()), _b(other.getLuminance()) {
         // Intentionally empty.
     }
 
@@ -398,7 +398,7 @@ protected:
                          std::is_same<_OtherColourSpaceType, Lf>::value, int *> = nullptr
     >
     ColourComponents(const ColourComponents<_OtherColourSpaceType>& other)
-        : r(other.getLuminance()), g(other.getLuminance()), b(other.getLuminance()) {
+        : _r(other.getLuminance()), _g(other.getLuminance()), _b(other.getLuminance()) {
         // Intentionally empty.
     }
 
@@ -416,7 +416,7 @@ protected:
      *  if @a r, @a g, or @a b are not within the bounds of ColourSpaceType::min() (inclusive) and ColourSpaceType::max() (inclusive)
      */
     ColourComponents(ComponentType r, ComponentType g, ComponentType b)
-        : r(r), g(g), b(b) {
+        : _r(r), _g(g), _b(b) {
         if (r < ColourSpaceType::min() || r > ColourSpaceType::max()) {
             throw Id::OutOfBoundsException(__FILE__, __LINE__, "red component out of bounds");
         }
@@ -430,9 +430,9 @@ protected:
 
 protected:
     void assign(const ColourComponents& other) {
-        r = other.r;
-        g = other.g;
-        b = other.b;
+        _r = other._r;
+        _g = other._g;
+        _b = other._b;
     }
 
 public:
@@ -443,7 +443,7 @@ public:
      *  the value of the red component
      */
     ComponentType getRed() const {
-        return r;
+        return _r;
     }
 
 #if defined(EGO_MATH_COLOURCOMPONENTS_MUTABLE) && 1 == EGO_MATH_COLOURCOMPONENTS_MUTABLE
@@ -459,7 +459,7 @@ public:
         if (r < ColourSpaceType::min() || r > ColourSpaceType::max()) {
             throw Id::OutOfBoundsException(__FILE__, __LINE__, "red component out of bounds");
         }
-        this->r = r;
+        _r = r;
     }
 #endif
 
@@ -470,7 +470,7 @@ public:
      *  the value of the green component
      */
     ComponentType getGreen() const {
-        return g;
+        return _g;
     }
 
 #if defined(EGO_MATH_COLOURCOMPONENTS_MUTABLE) && 1 == EGO_MATH_COLOURCOMPONENTS_MUTABLE
@@ -486,7 +486,7 @@ public:
         if (g < ColourSpaceType::min() || g > ColourSpaceType::max()) {
             throw Id::OutOfBoundsException(__FILE__, __LINE__, "green component out of bounds");
         }
-        this->g = g;
+        _g = g;
     }
 #endif
 
@@ -497,7 +497,7 @@ public:
      *  the value of the blue component
      */
     ComponentType getBlue() const {
-        return b;
+        return _b;
     }
 
 #if defined(EGO_MATH_COLOURCOMPONENTS_MUTABLE) && 1 == EGO_MATH_COLOURCOMPONENTS_MUTABLE
@@ -513,7 +513,7 @@ public:
         if (b < ColourSpaceType::min() || b > ColourSpaceType::max()) {
             throw Id::OutOfBoundsException(__FILE__, __LINE__, "blue component out of bounds");
         }
-        this->b = b;
+        _b = b;
     }
 #endif
 };

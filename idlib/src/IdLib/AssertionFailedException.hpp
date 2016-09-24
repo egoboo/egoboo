@@ -98,7 +98,7 @@ public:
         return _assertion;
     }
 
-    virtual operator string() const {
+    virtual operator string() const override {
         ostringstream buffer;
         buffer << "assertion `" << _assertion << "` failed";
         buffer << " (raised in file " << getFile() << ", line " << getLine() << ")";

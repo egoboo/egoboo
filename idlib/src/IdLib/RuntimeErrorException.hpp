@@ -35,7 +35,7 @@ public:
      *  a message describing the error
      */
     RuntimeErrorException(const char *file, int line, const string& message) :
-        Exception(file, line), message(message) {}
+        Exception(file, line), _message(message) {}
 
     /**
      * @brief
@@ -44,7 +44,7 @@ public:
      *  the other exception
      */
     RuntimeErrorException(const RuntimeErrorException& other) :
-        Exception(other), message(other.message) {}
+        Exception(other), _message(other._message) {}
 
     /**
      * @brief
@@ -56,7 +56,7 @@ public:
      */
     RuntimeErrorException& operator=(const RuntimeErrorException& other) {
         Exception::operator=(other);
-        message = other.message;
+        _message = other._message;
         return *this;
     }
 
@@ -69,7 +69,7 @@ public:
      *  the message associated with this environment error
      */
     const string& getMessage() const {
-        return message;
+        return _message;
     }
 
     /**
@@ -78,11 +78,11 @@ public:
      * @return
      *  a human-readable textual description of the string.
      */
-    virtual operator ::std::string() const {
+    virtual operator ::std::string() const override {
         ostringstream buffer;
         buffer << "(raised in file " << getFile() << ", line " << getLine() << ")"
             << ":" << std::endl;
-        buffer << message;
+        buffer << _message;
         return buffer.str();
     }
 
@@ -91,7 +91,7 @@ private:
      * @brief
      *  The exception message.
      */
-    string message;
+    string _message;
 };
 
 } // namespace Id
