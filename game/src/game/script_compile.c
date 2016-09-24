@@ -324,7 +324,7 @@ void parser_state_t::parse_string(std::string string, Token& token, script_info_
         // Failed to load object!
         if (!ProfileSystem::get().isValidProfileID((PRO_REF)token.getValue())) {
             Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, {script.getName(), token.getLine()});
-            e << "failed to load object " << token.szWord << " - \n"
+            e << "failed to load object " << token.getText() << " - \n"
                 << " - \n`" << _linebuffer.data() << "`" << Log::EndOfEntry;
             Log::get() << e;
         }
@@ -346,8 +346,7 @@ size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_
 
     char cTmp;
 
-    // figure out what the max word length actually is
-    const size_t szWord_length_max = SDL_arraysize( tok.szWord );
+    Ego::Script::Buffer buffer(512);
 
     // Reset the token
 	tok = Token();
@@ -358,9 +357,8 @@ size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_
         return _linebuffer.size();
     }
 
-    auto write = [&tok](char c) {
-        tok.szWord[tok.szWord_length] = c;
-        tok.szWord_length++;
+    auto write = [&buffer](char c) {
+        buffer.append(c);
     };
     auto save = [&cTmp, &write, &tok]() { write(cTmp); };
     auto next = [this, &cTmp, &read]() {
@@ -385,16 +383,13 @@ size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_
     }
 
     // initialize the word
-    tok.szWord_length = 0;
-    tok.szWord[0] = CSTR_END;
-
     if (C_DOUBLE_QUOTE_CHAR == cTmp) {
         // `doubleQuotedString|reference`
         // strings of the form "Here lies \"The Sandwich King\"" are not supported
 
         next(); // skip the leading quotation mark
 
-        while (CSTR_END != cTmp && C_DOUBLE_QUOTE_CHAR != cTmp && tok.szWord_length < szWord_length_max && read < _linebuffer.size()) {
+        while (CSTR_END != cTmp && C_DOUBLE_QUOTE_CHAR != cTmp && read < _linebuffer.size()) {
             saveAndNext();
         }
 
@@ -407,13 +402,15 @@ size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_
                 throw Id::LexicalErrorException(__FILE__, __LINE__, {script.getName(), tok.getLine()}, "string literal too long");
             }
         }
-        parse_string(std::string(tok.szWord), tok, script, ppro);
+        tok.setText(buffer.toString());
+        parse_string(tok.getText(), tok, script, ppro);
     } else if ('+' == cTmp || '-' == cTmp || '/' == cTmp || '*' == cTmp ||
                '%' == cTmp || '>' == cTmp || '<' == cTmp || '&' == cTmp) {
         saveAndNext(); write('\0');
         int i;
+        tok.setText(buffer.toString());
         for (i = 0; i < Opcodes.size(); ++i) {
-            if (0 == strncmp(tok.szWord, Opcodes[i].cName, MAXCODENAMESIZE)) {
+            if (0 == strncmp(tok.getText().c_str(), Opcodes[i].cName, MAXCODENAMESIZE)) {
                 tok.setValue(Opcodes[i].iValue);
                 tok.setType(Opcodes[i]._type);
                 tok.setIndex(i);
@@ -427,6 +424,7 @@ size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_
     } else if ('=' == cTmp) {
         // `assign = '='`
         saveAndNext(); write('\0');
+        tok.setText(buffer.toString());
         tok.setValue(-1);
         tok.setType(Token::Type::Operator);
         tok.setIndex(MAX_OPCODE);
@@ -443,7 +441,8 @@ size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_
             throw std::runtime_error("invalid IDSZ");
         }
         saveAndNext(); write('\0');
-        IDSZ2 idsz = IDSZ2(tok.szWord);
+        tok.setText(buffer.toString());
+        IDSZ2 idsz = IDSZ2(tok.getText());
         tok.setValue(idsz.toUint32());
         tok.setType(Token::Type::Constant);
         tok.setIndex(MAX_OPCODE);
@@ -453,8 +452,9 @@ size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_
             saveAndNext();
         } while (Ego::isdigit(cTmp));
         write('\0');
+        tok.setText(buffer.toString());
         int temporary;
-        sscanf(tok.szWord, "%d", &temporary);
+        sscanf(tok.getText().c_str(), "%d", &temporary);
         tok.setValue(temporary);
         tok.setType(Token::Type::Constant);
         tok.setIndex(MAX_OPCODE);
@@ -463,9 +463,10 @@ size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_
             saveAndNext();
         } while ('_' == cTmp || Ego::isdigit(cTmp) || Ego::isalpha(cTmp));
         write('\0');
+        tok.setText(buffer.toString());
         int i;
         for (i = 0; i < Opcodes.size(); ++i) {
-            if (0 == strncmp(tok.szWord, Opcodes[i].cName, MAXCODENAMESIZE)) {
+            if (0 == strncmp(tok.getText().c_str(), Opcodes[i].cName, MAXCODENAMESIZE)) {
                 tok.setValue(Opcodes[i].iValue);
                 tok.setType(Opcodes[i]._type);
                 tok.setIndex(i);
@@ -568,7 +569,7 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
             // handle the "="
             highbits = 0;
             parseposition = parse_token(_token, ppro, script, parseposition );  // EQUALS
-			if ( Token::Type::Operator != _token.getType() || 0 != strcmp( _token.szWord, "=" ) )
+			if ( Token::Type::Operator != _token.getType() || ( _token.getText() != "=" ) )
             {
                 Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, {script.getName(), _token.getLine()});
 				e << "invalid equation - \n"
@@ -591,7 +592,7 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
             {
                 // this is a function or an unknown value. do not break the script.
                 Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, {script.getName(), _token.getLine()});
-				e << "invalid operand " << _token.szWord << " - \n"
+				e << "invalid operand " << _token.getText() << " - \n"
 				  << " - \n`" << _linebuffer.data() << "`" << Log::EndOfEntry;
 				Log::get() << e;
 
@@ -624,7 +625,7 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
                 {
                     // not having a constant or a value here breaks the function. stop processing
 					Log::get().message("%s:%d:%s: compilation error - invalid operand \"%s\"(%d) - \"%s\"\n", \
-						               __FILE__, __LINE__, __FUNCTION__, script._name.c_str(), _token.getLine(), _token.szWord );
+						               __FILE__, __LINE__, __FUNCTION__, script._name.c_str(), _token.getLine(), _token.getText().c_str() );
                     break;
                 }
 
@@ -639,18 +640,18 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
         else if ( Token::Type::Constant == _token.getType() )
         {
 			Log::get().message("%s:%d:%s: compilation error - invalid constant \"%s\"(%d) - \"%s\"\n", \
-				               __FILE__, __LINE__, __FUNCTION__, script._name.c_str(), _token.getLine(), _token.szWord );
+				               __FILE__, __LINE__, __FUNCTION__, script._name.c_str(), _token.getLine(), _token.getText().c_str() );
         }
         else if ( Token::Type::Unknown == _token.getType() )
         {
             // unknown opcode, do not process this line
 			Log::get().message("%s:%d:%s: compilation error - invalid operand \"%s\"(%d) - \"%s\"\n", \
-				               __FILE__, __LINE__, __FUNCTION__, script._name.c_str(), _token.getLine(), _token.szWord );
+				               __FILE__, __LINE__, __FUNCTION__, script._name.c_str(), _token.getLine(), _token.getText().c_str() );
         }
         else
         {
 			Log::get().message("%s:%d:%s: compilation error - compiler is broken \"%s\"(%d) - \"%s\"\n", \
-				               __FILE__, __LINE__, __FUNCTION__, script._name.c_str(), _token.getLine(), _token.szWord );
+				               __FILE__, __LINE__, __FUNCTION__, script._name.c_str(), _token.getLine(), _token.getText().c_str() );
             break;
         }
     }

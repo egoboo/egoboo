@@ -19,14 +19,11 @@
 #include "game/script_scanner.hpp"
 
 Token::Token()
-	: szWord{ '\0' }, szWord_length(0),
-	  _line(1), _index(MAX_OPCODE), _value(0), _type(Type::Unknown) {
+	: _text(), _line(1), _index(MAX_OPCODE), _value(0), _type(Type::Unknown) {
 }
 
 Token::Token(const Token& other)
-	: szWord{ '\0' }, szWord_length(other.szWord_length),
-	  _line(other._line), _index(other._index), _value(other._value), _type(other._type) {
-	strcpy(szWord, other.szWord);
+	: _text(other._text),  _line(other._line), _index(other._index), _value(other._value), _type(other._type) {
 }
 
 Token::~Token() {
@@ -47,9 +44,9 @@ std::ostream& operator<<(std::ostream& os, const Token& token) {
 	os << "token {";
 	os << "line = " << token.getLine() << "," << std::endl;
 	os << "value = " << token.getValue() << "," << std::endl;
-	os << "index = " << token._index << "," << std::endl;
+	os << "index = " << token.getIndex() << "," << std::endl;
 	os << "type = " << token.getType() << "," << std::endl;
-	os << "word = " << token.szWord << std::endl;
+	os << "text = " << token.getText() << std::endl;
 	os << "}" << std::endl;
 	return os;
 }

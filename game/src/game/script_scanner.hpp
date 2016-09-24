@@ -46,10 +46,10 @@ private:
 	/// @brief The value of this token.
     int _value;
 
-public:
-    size_t szWord_length;
-    STRING szWord;                   ///< The text representation
+    /// @brief The text of this token.
+    std::string _text;
 
+public:
 	/// @brief Get the index of this token.
 	/// @return the index of this token
     /// @see setIndex
@@ -107,15 +107,19 @@ public:
 		_type = type;
 	}
 
-	/**
-	 * @brief
-	 *  Get the length of the lexeme of this token.
-	 * @return
-	 *  the length of the lexeme of this token
-	 */
-	size_t length() const {
-		return szWord_length;
+	/// @brief Set the text of this token.
+	/// @param text the text
+    /// @see getText
+	void setText(const std::string& text) {
+		_text = text;
 	}
+
+    /// @brief Get the text of this token.
+    /// @return the text of this token
+    /// @see setText
+    const std::string& getText() const {
+        return _text;
+    }
 
 	/// @brief Construct this token with default values.
 	Token();
