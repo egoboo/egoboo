@@ -129,7 +129,7 @@ void GameEngine::start()
         }
 
         // Check if it is time to draw everything
-        if(getMicros() >= _renderTimeout || true)
+        if(getMicros() >= _renderTimeout)
         {
             // Draw the current frame
             renderOneFrame();
