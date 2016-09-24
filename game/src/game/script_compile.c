@@ -28,9 +28,9 @@
 
 namespace Log {
 struct CompilerEntry : Entry {
-	Id::Location _location;
+	Location _location;
 	CompilerEntry(Level level, const std::string& file, int line, const std::string& function,
-		          const Id::Location& location)
+		          const Location& location)
 		: Entry(level, file, line, function), _location(location) {
 		getSink() << ": " << _location.getLoadName() << ":" << _location.getLineNumber() << ": ";
 	}
@@ -397,9 +397,9 @@ size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_
             writeAndNext(CSTR_END); // skip the ending quotation mark
         } else {
             if (CSTR_END == cTmp) {
-                throw Id::LexicalErrorException(__FILE__, __LINE__, {script.getName(), tok.getLine()}, "unclosed string literal");
+                throw LexicalErrorException(__FILE__, __LINE__, {script.getName(), tok.getLine()}, "unclosed string literal");
             } else {
-                throw Id::LexicalErrorException(__FILE__, __LINE__, {script.getName(), tok.getLine()}, "string literal too long");
+                throw LexicalErrorException(__FILE__, __LINE__, {script.getName(), tok.getLine()}, "string literal too long");
             }
         }
         tok.setText(buffer.toString());
@@ -419,7 +419,7 @@ size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_
         }
         // We couldn't figure out what this is, throw out an error code
         if (i == Opcodes.size()) {
-            throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(script.getName(), tok.getLine()), "not an opcode");
+            throw LexicalErrorException(__FILE__, __LINE__, {script.getName(), tok.getLine()}, "not an opcode");
         }
     } else if ('=' == cTmp) {
         // `assign = '='`
@@ -433,12 +433,12 @@ size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_
         saveAndNext();
         for (auto i = 0; i < 4; ++i) {
             if (!Ego::isdigit(cTmp) && !Ego::isalpha(cTmp)) {
-                throw std::runtime_error("invalid IDSZ");
+                throw LexicalErrorException(__FILE__, __LINE__, {script.getName(), tok.getLine()}, "invalid IDSZ");
             }
             saveAndNext();
         }
         if (cTmp != ']') {
-            throw std::runtime_error("invalid IDSZ");
+            throw LexicalErrorException(__FILE__, __LINE__, {script.getName(), tok.getLine()}, "invalid IDSZ");
         }
         saveAndNext(); write('\0');
         tok.setText(buffer.toString());
@@ -475,10 +475,10 @@ size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_
         }
         // We couldn't figure out what this is, throw out an error code
         if (i == Opcodes.size()) {
-            throw Id::LexicalErrorException(__FILE__, __LINE__, {script.getName(), tok.getLine()}, "not an opcode");
+            throw LexicalErrorException(__FILE__, __LINE__, {script.getName(), tok.getLine()}, "not an opcode");
         }
     } else {
-        throw Id::LexicalErrorException(__FILE__, __LINE__, {script.getName(), tok.getLine()}, "unexpected symbol");
+        throw LexicalErrorException(__FILE__, __LINE__, {script.getName(), tok.getLine()}, "unexpected symbol");
     }
     print_token(tok);
     return read;
@@ -623,9 +623,10 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
                 parseposition = parse_token(_token, ppro, script, parseposition );
                 if ( Token::Type::Constant != _token.getType() && Token::Type::Variable != _token.getType() )
                 {
-                    // not having a constant or a value here breaks the function. stop processing
-					Log::get().message("%s:%d:%s: compilation error - invalid operand \"%s\"(%d) - \"%s\"\n", \
-						               __FILE__, __LINE__, __FUNCTION__, script._name.c_str(), _token.getLine(), _token.getText().c_str() );
+                    // not having a constant or a value here breaks the function. stop processsing
+                    Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, {script.getName(), _token.getLine()});
+                    e << "invalid operand `" << _token.getText() << "`" << Log::EndOfEntry;
+                    Log::get() << e;
                     break;
                 }
 
@@ -639,19 +640,20 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
         }
         else if ( Token::Type::Constant == _token.getType() )
         {
-			Log::get().message("%s:%d:%s: compilation error - invalid constant \"%s\"(%d) - \"%s\"\n", \
-				               __FILE__, __LINE__, __FUNCTION__, script._name.c_str(), _token.getLine(), _token.getText().c_str() );
+            Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, {script.getName(), _token.getLine()});
+            e << "invalid constant " << _token.getText() << Log::EndOfEntry;
+            Log::get() << e;
         }
         else if ( Token::Type::Unknown == _token.getType() )
         {
             // unknown opcode, do not process this line
-			Log::get().message("%s:%d:%s: compilation error - invalid operand \"%s\"(%d) - \"%s\"\n", \
-				               __FILE__, __LINE__, __FUNCTION__, script._name.c_str(), _token.getLine(), _token.getText().c_str() );
+            Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, {script.getName(), _token.getLine()});
+            e << "invalid operand " << _token.getText() << Log::EndOfEntry;
+            Log::get() << e;
         }
         else
         {
-			Log::get().message("%s:%d:%s: compilation error - compiler is broken \"%s\"(%d) - \"%s\"\n", \
-				               __FILE__, __LINE__, __FUNCTION__, script._name.c_str(), _token.getLine(), _token.getText().c_str() );
+            throw RuntimeErrorException(__FILE__, __LINE__, "internal error");
             break;
         }
     }
