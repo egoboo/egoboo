@@ -123,56 +123,56 @@ inline float convert<AngleUnit::Radians, AngleUnit::Turns>(float x) {
 template <AngleUnit _AngleUnitType>
 struct Angle {
 private:
-    float angle;
+    float _angle;
 
 public:
     Angle(const Angle& other) :
-        angle(other.angle) {
+        _angle(other._angle) {
     }
 
 public:
     template <AngleUnit _AngleUnitTargetType = _AngleUnitType, AngleUnit _AngleUnitSourceType>
     Angle(const Angle<_AngleUnitSourceType>& other) :
-        angle(Internal::convert<_AngleUnitTargetType, _AngleUnitSourceType>((float)other)) {
+        _angle(Internal::convert<_AngleUnitTargetType, _AngleUnitSourceType>((float)other)) {
     }
 
 public:
     /// Construct this angle with its default values.
-    Angle() : angle(0.0f) {}
+    Angle() : _angle(0.0f) {}
     /// Construct this angle with the specified values.
-    explicit Angle(float angle) : angle(angle) {}
+    explicit Angle(float angle) : _angle(angle) {}
 
 public:
     const Angle& operator=(const Angle& other) {
-        angle = other.angle;
+        _angle = other._angle;
         return *this;
     }
 
 public:
     bool operator==(const Angle& other) const {
-        return angle == other.angle;
+        return _angle == other._angle;
     }
 
     bool operator!=(const Angle& other) const {
-        return angle != other.angle;
+        return _angle != other._angle;
     }
 
 public:
     bool operator<(const Angle& other) const {
-        return angle < other.angle;
+        return _angle < other._angle;
     }
 
     bool operator<=(const Angle& other) const {
-        return angle <= other.angle;
+        return _angle <= other._angle;
     }
 
 public:
     bool operator>(const Angle& other) const {
-        return angle > other.angle;
+        return _angle > other._angle;
     }
 
     bool operator>=(const Angle& other) const {
-        return angle >= other.angle;
+        return _angle >= other._angle;
     }
 
 public:
@@ -189,32 +189,32 @@ public:
 
 public:
     Angle operator+=(const Angle& other) {
-        angle += other.angle;
+        _angle += other._angle;
         return *this;
     }
 
     Angle operator-=(const Angle& other) {
-        angle -= other.angle;
+        _angle -= other._angle;
         return *this;
     }
 
 public:
     Angle operator*(float other) const {
-        return Angle(angle * other);
+        return Angle(_angle * other);
     }
 
     Angle operator/(float other) const {
-        return Angle(angle * other);
+        return Angle(_angle * other);
     }
 
 public:
     const Angle& operator*=(float other) {
-        angle *= other;
+        _angle *= other;
         return *this;
     }
 
     const Angle& operator/=(float other) {
-        angle /= other;
+        _angle /= other;
         return *this;
     }
 
@@ -226,12 +226,12 @@ public:
     template <AngleUnit _AngleUnitTargetType, AngleUnit _AngleUnitSourceType = _AngleUnitType>
     explicit operator std::enable_if_t<_AngleUnitType == _AngleUnitSourceType,
                                        Angle<_AngleUnitTargetType>>() const {
-        return Angle<_AngleUnitTargetType>(Internal::convert<_AngleUnitTargetType, _AngleUnitSourceType>(angle));
+        return Angle<_AngleUnitTargetType>(Internal::convert<_AngleUnitTargetType, _AngleUnitSourceType>(_angle));
     }
 
 public:
     explicit operator float() const {
-        return angle;
+        return _angle;
     }
 
 public:
@@ -244,7 +244,7 @@ public:
     template <AngleUnit _LocalAngleUnitType = _AngleUnitType>
     std::enable_if_t<AngleUnit::Degrees == _LocalAngleUnitType && _LocalAngleUnitType == _AngleUnitType, bool>
     isAcute() const {
-        return 0.0f < angle && angle < 90.0f;
+        return 0.0f < _angle && _angle < 90.0f;
     }
 
     /**
@@ -257,7 +257,7 @@ public:
     template <AngleUnit _LocalAngleUnitType = _AngleUnitType>
     std::enable_if_t<AngleUnit::Radians == _LocalAngleUnitType && _LocalAngleUnitType == _AngleUnitType, bool>
     isAcute() const {
-        return 0.0f < angle && angle < twoPi<float>();
+        return 0.0f < _angle && _angle < twoPi<float>();
     }
 
     /**
@@ -269,12 +269,11 @@ public:
     template <AngleUnit _LocalAngleUnitType = _AngleUnitType>
     std::enable_if_t<AngleUnit::Turns == _LocalAngleUnitType && _LocalAngleUnitType == _AngleUnitType, bool>
     isAcute() const {
-        return 0.0f < angle && angle < 0.25f;
+        return 0.0f < _angle && _angle < 0.25f;
     }
 
-public:
     Angle abs() const {
-        return Angle(std::abs(angle));
+        return Angle(std::abs(_angle));
     }
 
 };

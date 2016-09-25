@@ -44,7 +44,7 @@ public:
                                                 [](vfs_FILE *file) { if (nullptr != file) { vfs_close(file); } });
         if (nullptr != target) {
             for (const auto& functionStatistic : _functionStatistics) {
-                vfs_printf(target.get(), "function = %" PRIu32 "\t function name = \"%s\"\tnumber of calls = %d\ttotalTime = %lf\tmaxTime = %lf\n",
+                vfs_printf(target.get(), "function = %" PRIu32 "\t function name = \"%s\"\tnumber of calls = %ld\ttotalTime = %lf\tmaxTime = %lf\n",
                            functionStatistic.first, _scriptFunctionNames[functionStatistic.first].c_str(), functionStatistic.second.numberOfCalls,
                            functionStatistic.second.totalTime, functionStatistic.second.maxTime);
 

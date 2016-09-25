@@ -3,7 +3,7 @@
 #include "egolib/_math.h"
 #include "egolib/Float.hpp"
 
-void mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(Matrix4f4f& DST, const Vector3f& scale, const Facing& turn_z, const Facing& turn_x, const Facing& turn_y, const Vector3f& translate)
+Matrix4f4f mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(const Vector3f& scale, const Facing& turn_z, const Facing& turn_x, const Facing& turn_y, const Vector3f& translate)
 {
     float cx = std::cos(turn_x);
     float sx = std::sin(turn_x);
@@ -12,6 +12,7 @@ void mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(Matrix4f4f& DST, const Vecto
     float cz = std::cos(turn_z);
     float sz = std::sin(turn_z);
 
+    Matrix4f4f DST;
     DST(0,0) = scale[kX] * (cz * cy);
     DST(1,0) = scale[kX] * (cz * sy * sx + sz * cx);
     DST(2,0) = scale[kX] * (sz * sx - cz * sy * cx);
@@ -31,9 +32,11 @@ void mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(Matrix4f4f& DST, const Vecto
     DST(1,3) = translate[kY];
     DST(2,3) = translate[kZ];
     DST(3,3) = 1.0f;
+
+    return DST;
 }
 
-void mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed(Matrix4f4f& DST, const Vector3f& scale, const Facing& turn_z, const Facing& turn_x, const Facing& turn_y, const Vector3f& translate)
+Matrix4f4f mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed(const Vector3f& scale, const Facing& turn_z, const Facing& turn_x, const Facing& turn_y, const Vector3f& translate)
 {
     float cx = std::cos(turn_x);
     float sx = std::sin(turn_x);
@@ -42,6 +45,7 @@ void mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed(Matrix4f4f& DST, const Vector
     float cz = std::cos(turn_z);
     float sz = std::sin(turn_z);
 
+    Matrix4f4f DST;
     DST(0,0) = scale[kX] * (cz * cy - sz * sy * sx);
     DST(1,0) = scale[kX] * (sz * cy + cz * sy * sx);
     DST(2,0) = scale[kX] * (-cx * sy);
@@ -61,37 +65,8 @@ void mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed(Matrix4f4f& DST, const Vector
     DST(1,3) = translate[kY];
     DST(2,3) = translate[kZ];
     DST(3,3) = 1.0f;
-}
 
-void mat_FourPoints(Matrix4f4f& dst, const Vector3f& ori, const Vector3f& wid, const Vector3f& frw, const Vector3f& up, const float scale)
-{
-	Vector3f vWid = wid - ori;
-	Vector3f vUp = up - ori;
-	Vector3f vFor = frw - ori;
-
-    vWid.normalize();
-    vUp.normalize();
-    vFor.normalize();
-
-	dst(0, 0) = -scale * vWid[kX];  // HUK
-	dst(1, 0) = -scale * vWid[kY];  // HUK
-	dst(2, 0) = -scale * vWid[kZ];  // HUK
-	dst(3, 0) = 0.0f;
-
-	dst(0, 1) = scale * vFor[kX];
-	dst(1, 1) = scale * vFor[kY];
-	dst(2, 1) = scale * vFor[kZ];
-	dst(3, 1) = 0.0f;
-
-	dst(0, 2) = scale * vUp[kX];
-	dst(1, 2) = scale * vUp[kY];
-	dst(2, 2) = scale * vUp[kZ];
-	dst(3, 2) = 0.0f;
-
-	dst(0, 3) = ori[kX];
-	dst(1, 3) = ori[kY];
-	dst(2, 3) = ori[kZ];
-	dst(3, 3) = 1.0f;
+    return DST;
 }
 
 Vector3f mat_getTranslate(const Matrix4f4f& mat)

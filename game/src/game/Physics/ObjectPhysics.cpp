@@ -51,7 +51,7 @@ void ObjectPhysics::keepItemsWithHolder()
         // Keep in hand weapons with iattached
         if ( chr_matrix_valid(&_object) )
         {
-            _object.setPosition(mat_getTranslate(_object.inst.matrix));
+            _object.setPosition(mat_getTranslate(_object.inst.getMatrix()));
         }
         else
         {
@@ -345,10 +345,10 @@ float ObjectPhysics::getMaxSpeed() const
     }
 
     //Check animation frame freeze movement
-    if ( chr_instance_t::get_framefx(_object.inst) & MADFX_STOP )
+    if ( _object.inst.getFrameFX() & MADFX_STOP )
     {
         //Allow 50% movement while using Shield and have the Mobile Defence perk
-        if(_object.hasPerk(Ego::Perks::MOBILE_DEFENCE) && ACTION_IS_TYPE(_object.inst.actionState.action_which, P))
+        if(_object.hasPerk(Ego::Perks::MOBILE_DEFENCE) && ACTION_IS_TYPE(_object.inst.getCurrentAnimation(), P))
         {
             maxspeed *= 0.5f;
         }
@@ -790,7 +790,7 @@ bool ObjectPhysics::grabStuff(grip_offset_t grip_off, bool grab_people)
                 if (grab_people)
                 {
                     // Start the slam animation...  ( Be sure to drop!!! )
-                    chr_play_action(&_object, ACTION_MC + slot, false);
+                    _object.inst.playAction(static_cast<ModelAction>(ACTION_MC + slot), false);
                 }
             }
             return true;
@@ -861,7 +861,7 @@ bool ObjectPhysics::attachToObject(const std::shared_ptr<Object> &holder, grip_o
 
     chr_update_matrix(&_object, true);
 
-    _object.setPosition(mat_getTranslate(_object.inst.matrix));
+    _object.setPosition(mat_getTranslate(_object.inst.getMatrix()));
 
     _object.inwater  = false;
     _object.jump_timer = Object::JUMPDELAY * 4;
@@ -874,27 +874,29 @@ bool ObjectPhysics::attachToObject(const std::shared_ptr<Object> &holder, grip_o
         {
             // if the character is holding anything, make the animation
             // ACTION_MH == "sitting" so that it does not look so silly
-            chr_play_action(&_object, ACTION_MH, true);
+            _object.inst.playAction(ACTION_MH, true);
         }
         else
         {
             // if it is not holding anything, go for the riding animation
-            chr_play_action(&_object, ACTION_MI, true);
+            _object.inst.playAction(ACTION_MI, true);
         }
 
-        // set tehis action to loop
-        chr_instance_t::set_action_loop(_object.inst, true);
+        // set this action to loop
+        _object.inst.setActionLooped(true);
     }
     else if (_object.isAlive())
     {
+        _object.inst.playAction(static_cast<ModelAction>(ACTION_MM + slot), false );
+        
         /// @note ZF@> hmm, here is the torch holding bug. Removing
         /// the interpolation seems to fix it...
-        chr_play_action(&_object, ACTION_MM + slot, false );
-        chr_instance_t::remove_interpolation(_object.inst);
+        //_object.inst.removeInterpolation();
+        /// @note ZF@> Reverted this hack, no longer needed? (01.09.2016)
 
         // set the action to keep for items
         if (_object.isItem()) {
-            chr_instance_t::set_action_keep(_object.inst, true);
+            _object.inst.setActionKeep(true);
         }
     }
 
@@ -950,14 +952,9 @@ void ObjectPhysics::updateCollisionSize(bool update_matrix)
         }
     }
 
-    // make sure the bounding box is calculated properly
-    if (gfx_error == chr_instance_t::update_bbox(_object.inst)) {
-        return;
-    }
-
-    // convert the point cloud in the GLvertex array (_object.inst.vrt_lst) to
+    // convert the point cloud in the GLvertex array (_object.inst._vertexList) to
     // a level 1 bounding box. Subtract off the position of the character
-    oct_bb_t bsrc = _object.inst.bbox;
+    oct_bb_t bsrc = _object.inst.getBoundingBox();
 
     Vector4f  src[16];  // for the upper and lower octagon points
     Vector4f  dst[16];  // for the upper and lower octagon points
@@ -966,8 +963,8 @@ void ObjectPhysics::updateCollisionSize(bool update_matrix)
     // keep track of the actual number of vertices, in case the object is square
     int vcount = oct_bb_t::to_points(bsrc, src, 16);
 
-   // transform the new point cloud
-    Utilities::transform(_object.inst.matrix, src, dst, vcount);
+    // transform the new point cloud
+    Utilities::transform(_object.inst.getMatrix(), src, dst, vcount);
 
     // convert the new point cloud into a level 1 bounding box
     oct_bb_t bdst;

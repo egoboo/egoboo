@@ -93,9 +93,9 @@ struct Font::LayoutOptions {
 };
 
 Font::LaidTextRenderer::LaidTextRenderer(const std::shared_ptr<Ego::Texture> &atlas,
-                                         std::unique_ptr<VertexBuffer> &vertexBuffer) :
+                                         const std::shared_ptr<VertexBuffer> &vertexBuffer) :
     _atlas(atlas),
-    _vertexBuffer(std::move(vertexBuffer)) {}
+    _vertexBuffer(vertexBuffer) {}
 
 void Font::LaidTextRenderer::render(int x, int y, const Ego::Math::Colour4f &colour) {
     struct MatrixStack {
@@ -448,7 +448,7 @@ std::shared_ptr<Font::LaidTextRenderer> Font::layoutToBuffer(const std::string &
     LaidOutText laidText = layout(text, options);
 
     const auto &vertexDesc = Ego::GraphicsUtilities::get(Ego::VertexFormat::P3FT2F);
-    std::unique_ptr<VertexBuffer> buffer(new VertexBuffer(4 * laidText.codepoints.size(), vertexDesc));
+    std::shared_ptr<VertexBuffer> buffer = std::make_shared<VertexBuffer>(4 * laidText.codepoints.size(), vertexDesc);
 
     TextVertex *vertices = reinterpret_cast<TextVertex *>(buffer->lock());
     float texWidth = laidText.atlas.texture->getWidth();

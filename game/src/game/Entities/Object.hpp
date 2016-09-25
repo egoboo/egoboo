@@ -39,6 +39,7 @@
 #include "game/Inventory.hpp"
 #include "game/Physics/Collidable.hpp"
 #include "game/Physics/ObjectPhysics.hpp"
+#include "game/Graphics/ObjectGraphics.hpp"
 
 //Forward declarations
 namespace Ego { class Enchantment; }
@@ -147,10 +148,16 @@ public:
     Ego::Physics::ObjectPhysics& getObjectPhysics() { return _objectPhysics; }
 
     /**
+    * @return
+    *   The elevation of the floor
+    **/
+    float getFloorElevation() const { return _objectPhysics.getGroundElevation(); }
+
+    /**
 	 * @brief Get the unique object reference of this object.
      * @return the unique object reference of this object
      */
-    inline ObjectRef getObjRef() const { return _objRef; }
+    ObjectRef getObjRef() const { return _objRef; }
 
     /**
     * @return the current team this object is on. This can change in-game (mounts or pets for example)
@@ -922,7 +929,6 @@ public:
     bool         is_overlay;                    ///< Is this an overlay? Track aitarget...
     SKIN_T         skin;                          ///< Character's skin
     PRO_REF        basemodel_ref;                     ///< The true form
-    chr_instance_t inst;                          ///< the render data
 
     // collision info
 
@@ -993,6 +999,11 @@ private:
     //Input commands
     std::bitset<LATCHBUTTON_COUNT> _inputLatchesPressed;
 
+public: //TODO: Hack make private
+    //Graphics
+    Ego::Graphics::ObjectGraphics inst;                          ///< the render data
+
+private:
     //Physics
     Ego::Physics::ObjectPhysics _objectPhysics;
 

@@ -101,7 +101,6 @@ Object::Object(const PRO_REF proRef, ObjectRef objRef) :
     is_overlay(false),
     skin(0),
     basemodel_ref(proRef),
-    inst(),
 
     bump_stt(),
     bump(),
@@ -118,7 +117,7 @@ Object::Object(const PRO_REF proRef, ObjectRef objRef) :
     bumplist_next(),
 
     turnmode(TURNMODE_VELOCITY),
-    movement_bits(( unsigned )(~0)),    // all movements valid
+    movement_bits(std::numeric_limits<BIT_FIELD>::max()),    // all movements valid
 
     inwater(false),
     dismount_timer(0),  /// @note ZF@> If this is != 0 then scorpion claws and riders are dropped at spawn (non-item objects)
@@ -141,6 +140,9 @@ Object::Object(const PRO_REF proRef, ObjectRef objRef) :
     _money(0),
     _perks(),
     _levelUpSeed(Random::next(std::numeric_limits<uint32_t>::max())),
+
+    //Graphics
+    inst(*this),
 
     //Physics
     _objectPhysics(*this),
@@ -235,13 +237,16 @@ bool Object::setSkin(const size_t skinNumber)
     //Set new skin
     this->skin = skinNumber;
 
+    /*
+    //ZF> uncommented this 01.09.2016, not needed?
+
     //Change the model texture
-    if (!this->inst.animationState.getModelDescriptor()) {
-        const std::shared_ptr<Ego::ModelDescriptor> &model = getProfile()->getModel();
-        if (chr_instance_t::set_mad(this->inst, model)) {
+    if (!this->inst.getModelDescriptor()) {
+        if (this->inst.setModel(getProfile()->getModel())) {
             getObjectPhysics().updateCollisionSize(true);
         }
     }
+    */
 
     return true;
 }
@@ -271,8 +276,6 @@ void Object::setAlpha(const int alpha)
     {
         inst.alpha = std::max<uint8_t>(SEEINVISIBLE, inst.alpha);
     }
-
-    chr_instance_t::update_ref(inst, getPosition(), false);
 }
 
 void Object::setLight(const int light)
@@ -284,14 +287,11 @@ void Object::setLight(const int light)
     {
         inst.light = std::max<uint8_t>(SEEINVISIBLE, inst.light);
     }
-
-    chr_instance_t::update_ref(inst, getPosition(), false);
 }
 
 void Object::setSheen(const int sheen)
 {
     inst.sheen = Ego::Math::constrain(sheen, 0, 0xFF);
-    chr_instance_t::update_ref(inst, getPosition(), false);
 }
 
 bool Object::canMount(const std::shared_ptr<Object> mount) const
@@ -336,7 +336,6 @@ bool Object::canMount(const std::shared_ptr<Object> mount) const
 int Object::damage(Facing direction, const IPair  damage, const DamageType damagetype, const TEAM_REF attackerTeam,
                    const std::shared_ptr<Object> &attacker, const bool ignoreArmour, const bool setDamageTime, const bool ignoreInvictus)
 {
-    int action;
     bool do_feedback = (Ego::FeedbackType::None != egoboo_config_t::get().hud_feedback.getValue());
 
     // Simply ignore damaging invincible targets.
@@ -496,15 +495,13 @@ int Object::damage(Facing direction, const IPair  damage, const DamageType damag
                 else
                 {
                     //Yes, but play the hurt animation
-                    action = ACTION_HA;
                     if ( base_damage > HURTDAMAGE )
                     {
                         //If we have Endurance perk, we have 1% chance per Might to resist hurt animation (which cause a minor delay)
                         if(!hasPerk(Ego::Perks::ENDURANCE) || Random::getPercent() > getAttribute(Ego::Attribute::MIGHT))
                         {
-                            if(inst.animationState.getModelDescriptor()->isActionValid(ACTION_HA)) {
-                                action += Random::next(3);
-                                chr_play_action(this, action, false);
+                            if(inst.getModelDescriptor()->isActionValid(ACTION_HA)) {
+                                inst.playAction(getProfile()->getModel()->randomizeAction(ACTION_HA), false);
                             }
                         }
 
@@ -670,7 +667,7 @@ bool Object::heal(const std::shared_ptr<Object> &healer, const UFP8_T amount, co
 
 bool Object::isAttacking() const
 {
-    return inst.actionState.action_which >= ACTION_UA && inst.actionState.action_which <= ACTION_FD;
+    return inst.getCurrentAnimation() >= ACTION_UA && inst.getCurrentAnimation() <= ACTION_FD;
 }
 
 bool Object::teleport(const Vector3f& position, Facing facing_z)
@@ -836,7 +833,6 @@ void Object::update()
     inst.colorshift = colorshift_t(Ego::Math::constrain<int>(1 + getAttribute(Ego::Attribute::RED_SHIFT), 0, 6),
                                    Ego::Math::constrain<int>(1 + getAttribute(Ego::Attribute::GREEN_SHIFT), 0, 6),
                                    Ego::Math::constrain<int>(1 + getAttribute(Ego::Attribute::BLUE_SHIFT), 0, 6));
-    chr_instance_t::update_ref(inst, getPosition(), false); //update reflection as well
 
     // do the mana and life regeneration for "living" characters
     if (isAlive()) {
@@ -905,7 +901,7 @@ void Object::update()
     }
 
     //Try to detect any hidden objects every so often (unless we are scenery object) 
-    if(!isScenery() && isAlive() && !isBeingHeld() && inst.actionState.action_which != ACTION_MK) {  //ACTION_MK = sleeping
+    if(!isScenery() && isAlive() && !isBeingHeld() && inst.getCurrentAnimation() != ACTION_MK) {  //ACTION_MK = sleeping
         if(update_wld > _observationTimer) 
         {
             _observationTimer = update_wld + ONESECOND;
@@ -1141,19 +1137,20 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
     if ( isAlive() )
     {
         // play the falling animation...
-        chr_play_action( this, ACTION_JB + hand, false );
+        inst.playAction(static_cast<ModelAction>(ACTION_JB + hand), false);
     }
-    else if ( inst.actionState.action_which < ACTION_KA || inst.actionState.action_which > ACTION_KD )
+    else if ( inst.getCurrentAnimation() < ACTION_KA || inst.getCurrentAnimation() > ACTION_KD )
     {
         // play the "killed" animation...
-        chr_play_action( this, Random::next((int)ACTION_KA, ACTION_KA + 3), false );
-        chr_instance_t::set_action_keep(inst, true);
+        const ModelAction action = getProfile()->getModel()->randomizeAction(ACTION_KA);
+        inst.playAction(action, false);
+        inst.setActionKeep(true);
     }
 
     // Set the positions
     if ( chr_matrix_valid( this ) )
     {
-        setPosition(mat_getTranslate(inst.matrix));
+        setPosition(mat_getTranslate(inst.getMatrix()));
     }
     else
     {
@@ -1201,7 +1198,7 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
     vel[kZ] = DROPZVEL;
 
     // Turn looping off
-    chr_instance_t::set_action_loop(inst, false);
+    inst.setActionLooped(false);
 
     // Reset the team if it is a mount
     if ( pholder->isMount() )
@@ -1228,14 +1225,15 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
     if (!isAlive())
     {
         // the object is dead. play the killed animation and make it freeze there
-        chr_play_action( this, Random::next((int)ACTION_KA, ACTION_KA + 3), false );
-        chr_instance_t::set_action_keep(inst, true);
+        const ModelAction action = getProfile()->getModel()->randomizeAction(ACTION_KA);
+        inst.playAction(action, false);
+        inst.setActionKeep(true);
     }
     else
     {
         // play the jump animation, and un-keep it
-        chr_play_action( this, ACTION_JA, true );
-        chr_instance_t::set_action_keep(inst, false);
+        inst.playAction(ACTION_JA, true);
+        inst.setActionKeep(false);
     }
 
     chr_update_matrix( this, true );
@@ -1264,7 +1262,7 @@ bool Object::canSeeObject(const std::shared_ptr<Object> &target) const
     }
 
     //Too Dark?
-    int enviro_light = ( target->inst.alpha * target->inst.max_light ) * INV_FF<float>();
+    int enviro_light = ( target->inst.alpha * target->inst.getMaxLight() ) * INV_FF<float>();
     int self_light   = ( target->inst.light == 255 ) ? 0 : target->inst.light;
     int light        = std::max(enviro_light, self_light);
     light *= expf(0.32f * getAttribute(Ego::Attribute::DARKVISION));
@@ -1432,9 +1430,9 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
     deactivateStealth();
 
     // Play the death animation
-    int action = Random::next((int)ACTION_KA, ACTION_KA + 3);
-    chr_play_action(this, action, false);
-    chr_instance_t::set_action_keep(inst, true);
+    ModelAction action = getProfile()->getModel()->randomizeAction(ACTION_KA);
+    inst.playAction(action, false);
+    inst.setActionKeep(true);
 
     // Give kill experience
     uint16_t experience = getProfile()->getExperienceValue() + (this->experience * getProfile()->getExperienceExchangeRate());
@@ -1838,6 +1836,13 @@ void Object::respawn()
     ParticleHandler::get().spawnPoof(this->toSharedPointer());
     disaffirm_attached_particles(getObjRef());
 
+    //Detach any objects that is using our body as a platform
+    for(std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator()) {
+        if(object->getAttachedPlatform().get() == this) {
+            object->getObjectPhysics().detachFromPlatform();
+        }
+    }
+
     _isAlive = true;
     resetBoredTimer();
     resetInputCommands();
@@ -1854,7 +1859,7 @@ void Object::respawn()
     if ( !isInvincible() )         getTeam().increaseMorale();
 
     // start the character out in the "dance" animation
-    chr_start_anim(this, ACTION_DA, true, true);
+    inst.startAnimation(ACTION_DA, true, true);
 
     // reset all of the bump size information
     {
@@ -1895,15 +1900,13 @@ void Object::respawn()
     }
 
     // re-initialize the instance
-    chr_instance_t::spawn(inst, _profileID, skin);
+    inst.setObjectProfile(getProfile());
     chr_update_matrix( this, true );
 
     if ( !isHidden() )
     {
         reaffirm_attached_particles(getObjRef());
     }
-
-    chr_instance_t::update_ref(inst, getPosition(), true );
 }
 
 float Object::getRawDamageResistance(const DamageType type, const bool includeArmor) const
@@ -2349,12 +2352,6 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
         phys.weight = std::min<uint32_t>(_profile->getWeight() * fat * fat * fat, Ego::Physics::CHR_MAX_WEIGHT);
     }
 
-    /// @note BB@> changing this could be disasterous, in case you can't un-morph youself???
-    /// @note ZF@> No, we want this, I have specifically scripted morph books to handle unmorphing
-    /// even if you cannot cast arcane spells. Some morph spells specifically morph the player
-    /// into a fighter or a tech user, but as a balancing factor prevents other spellcasting.
-    // canusearcane          = pcap_new->canusearcane;
-
     // Character size and bumping
     // set the character size so that the new model is the same size as the old model
     // the model will then morph its size to the correct size over time
@@ -2406,27 +2403,13 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
     disaffirm_attached_particles(getObjRef());
 
     //Actually change the model
-    chr_instance_t::spawn(inst, profileID, newSkin);
+    inst.setObjectProfile(getProfile());
     chr_update_matrix(this, true);
 
-    // Action stuff that must be down after chr_instance_t::spawn()
-    chr_instance_t::set_action_ready(inst, false);
-    chr_instance_t::set_action_keep(inst, false);
-    chr_instance_t::set_action_loop(inst, false);
-    if (isAlive())
-    {
-        chr_play_action(this, ACTION_DA, false);
-    }
-    else
-    {
-        chr_play_action(this, Random::next<int>(ACTION_KA, ACTION_KA + 3), false);
-        chr_instance_t::set_action_keep(inst, true);
-    }
-
-    // Set the skin after changing the model in chr_instance_t::spawn()
+    // Set the skin after changing the model in ObjectGraphics::setProfile()
     setSkin(newSkin);
 
-    // Must set the wepon grip AFTER the model is changed in chr_instance_t::spawn()
+    // Must set the wepon grip AFTER the model is changed in ObjectGraphics::setProfile()
     if (isBeingHeld())
     {
         set_weapongrip(getObjRef(), attachedto, slot_to_grip_offset(inwhich_slot) );
@@ -2448,8 +2431,6 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
     //reaffirm_attached_particles( ichr );
 
     ai_state_t::set_changed(ai);
-
-    chr_instance_t::update_ref(inst, getPosition(), true);
 }
 
 bool Object::isInvictusDirection(Facing direction) const
@@ -2462,7 +2443,7 @@ bool Object::isInvictusDirection(Facing direction) const
     if (isInvincible()) return true;
 
     // if the character's frame is invictus, then check the angles
-    if (HAS_SOME_BITS(chr_instance_t::get_framefx(inst), MADFX_INVICTUS))
+    if (HAS_SOME_BITS(inst.getFrameFX(), MADFX_INVICTUS))
     {
         //I Frame
         direction -= Facing(getProfile()->getInvictusFrameFacing());
@@ -2470,9 +2451,9 @@ bool Object::isInvictusDirection(Facing direction) const
         right      = Facing(getProfile()->getInvictusFrameAngle());
 
         // If using shield, use the shield invictus instead
-        if (ACTION_IS_TYPE(inst.actionState.action_which, P))
+        if (ACTION_IS_TYPE(inst.getCurrentAnimation(), P))
         {
-            bool parry_left = ( inst.actionState.action_which < ACTION_PC );
+            bool parry_left = ( inst.getCurrentAnimation() < ACTION_PC );
 
             // Using a shield?
             if (parry_left && getLeftHandItem())
@@ -2564,7 +2545,7 @@ bool Object::activateStealth()
         }
 
         //Ignore objects that are doing the sleep animation
-        if(object->inst.actionState.action_which == ACTION_MK) {
+        if(object->inst.getCurrentAnimation() == ACTION_MK) {
             continue;
         }
 
@@ -3074,9 +3055,10 @@ void Object::updateLatchButtons()
                 }
 
                 // Set to jump animation if not doing anything better
-                if ( inst.actionState.action_ready )
+                if ( inst.canBeInterrupted() )
                 {
-                    chr_play_action(this, ACTION_JA, true);
+
+                    inst.playAction(ACTION_JA, true);
                 }
 
                 // Play the jump sound (Boing!)
@@ -3085,18 +3067,18 @@ void Object::updateLatchButtons()
         }
 
     }
-    if ( _inputLatchesPressed[LATCHBUTTON_PACKLEFT] && inst.actionState.action_ready && 0 == reload_timer )
+    if ( _inputLatchesPressed[LATCHBUTTON_PACKLEFT] && inst.canBeInterrupted() && 0 == reload_timer )
     {
         reload_timer = Inventory::PACKDELAY;
         Inventory::swap_item( ichr, getInventory().getFirstFreeSlotNumber(), SLOT_LEFT, false );
     }
-    if ( _inputLatchesPressed[LATCHBUTTON_PACKRIGHT] && inst.actionState.action_ready && 0 == reload_timer )
+    if ( _inputLatchesPressed[LATCHBUTTON_PACKRIGHT] && inst.canBeInterrupted() && 0 == reload_timer )
     {
         reload_timer = Inventory::PACKDELAY;
         Inventory::swap_item( ichr, getInventory().getFirstFreeSlotNumber(), SLOT_RIGHT, false );
     }
 
-    if ( _inputLatchesPressed[LATCHBUTTON_ALTLEFT] && inst.actionState.action_ready && 0 == reload_timer )
+    if ( _inputLatchesPressed[LATCHBUTTON_ALTLEFT] && inst.canBeInterrupted() && 0 == reload_timer )
     {
         reload_timer = GRABDELAY;
         if ( !getLeftHandItem() )
@@ -3107,17 +3089,17 @@ void Object::updateLatchButtons()
                 getObjectPhysics().grabStuff(GRIP_LEFT, false );
             }
             else {
-                chr_play_action(this, ACTION_ME, false);
+                inst.playAction(ACTION_ME, false);
             }
         }
         else
         {
             // Drop left
-            chr_play_action(this, ACTION_MA, false);
+            inst.playAction(ACTION_MA, false);
         }
     }
 
-    if (_inputLatchesPressed[LATCHBUTTON_ALTRIGHT] && inst.actionState.action_ready && 0 == reload_timer)
+    if (_inputLatchesPressed[LATCHBUTTON_ALTRIGHT] && inst.canBeInterrupted() && 0 == reload_timer)
     {
         reload_timer = GRABDELAY;
         if ( !getRightHandItem() )
@@ -3128,13 +3110,13 @@ void Object::updateLatchButtons()
                 getObjectPhysics().grabStuff(GRIP_RIGHT, false );
             }
             else {
-                chr_play_action(this, ACTION_MF, false);
+                inst.playAction(ACTION_MF, false);
             }
         }
         else
         {
             // Drop right
-            chr_play_action(this, ACTION_MB, false);
+            inst.playAction(ACTION_MB, false);
         }
     }
 

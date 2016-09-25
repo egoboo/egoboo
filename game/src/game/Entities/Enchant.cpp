@@ -357,10 +357,10 @@ void Enchantment::applyEnchantment(std::shared_ptr<Object> target)
             overlay->ai.state = _enchantProfile->spawn_overlay; // ??? WHY DO THIS ???
 
             // Start out with ActionMJ...  Object activated
-            int action = overlay->getProfile()->getModel()->getAction(ACTION_MJ);
-            if ( !ACTION_IS_TYPE( action, D ) )
+            ModelAction action = overlay->getProfile()->getModel()->getAction(ACTION_MJ);
+            if (action >= ACTION_DD)
             {
-                chr_start_anim( overlay.get(), action, false, true );
+                overlay->inst.startAnimation(action, false, true);
             }
 
             // Assume it's transparent...

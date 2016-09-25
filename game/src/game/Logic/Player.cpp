@@ -147,7 +147,7 @@ void Player::updateLatches()
         }
 
         //handle item control
-        if ( object->inst.actionState.action_ready && 0 == object->reload_timer )
+        if ( object->inst.canBeInterrupted() && 0 == object->reload_timer )
         {
             //handle LEFT hand control
             if (getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::USE_LEFT) || getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::GRAB_LEFT))
@@ -156,7 +156,7 @@ void Player::updateLatches()
                 Inventory::swap_item(object->getObjRef(), _inventorySlot, SLOT_LEFT, false);
 
                 // Make it take a little time
-                chr_play_action(object.get(), ACTION_MG, false);
+                object->inst.playAction(ACTION_MG, false);
                 object->reload_timer = Inventory::PACKDELAY;
             }
 
@@ -167,7 +167,7 @@ void Player::updateLatches()
                 Inventory::swap_item(object->getObjRef(), _inventorySlot, SLOT_RIGHT, false);
 
                 // Make it take a little time
-                chr_play_action(object.get(), ACTION_MG, false);
+                object->inst.playAction(ACTION_MG, false);
                 object->reload_timer = Inventory::PACKDELAY;
             }
         }

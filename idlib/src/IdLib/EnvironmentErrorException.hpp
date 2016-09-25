@@ -112,7 +112,7 @@ public:
      * @return
      *  a human-readable textual description of the string.
      */
-    virtual operator ::std::string() const {
+    virtual operator ::std::string() const override {
         ostringstream buffer;
         buffer << _component
             << " "

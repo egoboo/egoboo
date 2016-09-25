@@ -474,6 +474,10 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
     pchr->bump_save.height   = pchr->bump_stt.height;
     pchr->recalculateCollisionSize();
 
+    // Character size and bumping
+    pchr->fat_goto      = pchr->fat;
+    pchr->fat_goto_time = 0;
+
     // Kurse state
     if ( ppro->isItem() )
     {
@@ -540,10 +544,6 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
         pchr->setMana(ppro->getSpawnMana());        
     }
 
-    // Character size and bumping
-    pchr->fat_goto      = pchr->fat;
-    pchr->fat_goto_time = 0;
-
     //Facing
     pchr->ori.facing_z     = Facing(FACING_T(facing));
     pchr->ori_old.facing_z = pchr->ori.facing_z;
@@ -559,10 +559,6 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
         // A name has been given
         pchr->setName(name);
     }
-
-    // initalize the character instance
-    chr_instance_t::spawn(pchr->inst, profile, pchr->spawn_data.skin);
-    chr_update_matrix( pchr.get(), true );
 
     // Particle attachments
     for ( uint8_t tnc = 0; tnc < ppro->getAttachedParticleAmount(); tnc++ )
@@ -597,10 +593,10 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
     //    pchr->isshopitem = true;
     //}
 
-    chr_instance_t::update_ref(pchr->inst, pchr->getPosition(), true);
+    chr_update_matrix( pchr.get(), true );
 
     // start the character out in the "dance" animation
-    chr_start_anim(pchr.get(), ACTION_DA, true, true);
+    pchr->inst.startAnimation(ACTION_DA, true, true);
 
     // count all the successful spawns of this character
     ppro->_spawnCount++;
@@ -637,10 +633,7 @@ void GameModule::updateAllObjects()
         object->update();
 
         //Update model animation
-        move_one_character_do_animation(object.get());
-
-        // chr_set_enviro_grid_level() sets up the reflection level and reflection matrix
-        chr_instance_t::update_ref(object->inst, object->getPosition(), true);
+        object->inst.updateAnimation();
 
         //Check if this object should be poofed (destroyed)
         bool timeOut = ( object->ai.poof_time > 0 ) && ( object->ai.poof_time <= static_cast<int32_t>(update_wld) );

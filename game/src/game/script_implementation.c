@@ -518,7 +518,7 @@ ObjectRef FindWeapon( Object * pchr, float max_distance, const IDSZ2& weap_idsz,
         if ( !find_ranged && weaponProfile->isRangedWeapon() ) continue;
 
         // see if the character can use this weapon (we assume everyone has a left grip here)
-        if ( ACTION_COUNT == pchr->getProfile()->getModel()->randomizeAction(weaponProfile->getWeaponAction(), SLOT_LEFT)) continue;
+        if ( ACTION_COUNT == pchr->getProfile()->getModel()->randomizeAction(static_cast<ModelAction>(weaponProfile->getWeaponAction()), SLOT_LEFT)) continue;
 
         // then check if a skill is needed
         if ( weaponProfile->requiresSkillIDToUse() )
@@ -560,10 +560,10 @@ bool FlashObject( Object * pchr, Uint8 value )
 {
     /// @author ZZ
     /// @details This function sets a character's lighting
-	if (!pchr) {
+	if (!pchr || pchr->isTerminated()) {
 		return false;
 	}
-	chr_instance_t::flash(pchr->inst, value);
+	pchr->inst.flash(value);
 	return true;
 }
 

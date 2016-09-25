@@ -58,11 +58,11 @@ public:
         void render(int x, int y, const Ego::Math::Colour4f &colour = Ego::Math::Colour4f::white());
 
     protected:
-        LaidTextRenderer(const std::shared_ptr<Ego::Texture> &atlas, std::unique_ptr<VertexBuffer> &vertexBuffer);
+        LaidTextRenderer(const std::shared_ptr<Ego::Texture> &atlas, const std::shared_ptr<VertexBuffer> &vertexBuffer);
         friend class Font;
     private:
         std::shared_ptr<Ego::Texture> _atlas;
-        std::unique_ptr<VertexBuffer> _vertexBuffer;
+        std::shared_ptr<VertexBuffer> _vertexBuffer;
     };
 
 private:

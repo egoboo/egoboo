@@ -37,7 +37,6 @@ ModuleSelector::ModuleSelector(const std::vector<std::shared_ptr<ModuleProfile>>
     const Vector2f SCREEN_SIZE = Vector2f(_gameEngine->getUIManager()->getScreenWidth(),
         _gameEngine->getUIManager()->getScreenHeight());
     const int SCREEN_WIDTH = _gameEngine->getUIManager()->getScreenWidth();
-    const int SCREEN_HEIGHT = _gameEngine->getUIManager()->getScreenHeight();
 
     const Vector2f NAVIGATION_BUTTON_SIZE = Vector2f(30.0f, 30.0f);
     const int MODULE_BUTTON_SIZE = Math::constrain((SCREEN_WIDTH) / 6, 138, 256);
@@ -176,8 +175,6 @@ void ModuleSelector::ModuleButton::draw(DrawingContext& drawingContext) {
     if (_moduleSelector->_startIndex + _offset >= _moduleSelector->_modules.size()) {
         return;
     }
-
-    auto &renderer = Renderer::get();
 
     // Draw backdrop
     std::shared_ptr<Material> material = nullptr;
