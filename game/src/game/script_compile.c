@@ -394,7 +394,7 @@ size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_
         }
 
         if (C_DOUBLE_QUOTE_CHAR == cTmp) {
-            writeAndNext(CSTR_END); // skip the ending quotation mark
+            next(); // skip the ending quotation mark
         } else {
             if (CSTR_END == cTmp) {
                 throw LexicalErrorException(__FILE__, __LINE__, {script.getName(), tok.getLine()}, "unclosed string literal");
@@ -406,7 +406,7 @@ size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_
         parse_string(tok.getText(), tok, script, ppro);
     } else if ('+' == cTmp || '-' == cTmp || '/' == cTmp || '*' == cTmp ||
                '%' == cTmp || '>' == cTmp || '<' == cTmp || '&' == cTmp) {
-        saveAndNext(); write('\0');
+        saveAndNext();
         int i;
         tok.setText(buffer.toString());
         for (i = 0; i < Opcodes.size(); ++i) {
@@ -423,7 +423,7 @@ size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_
         }
     } else if ('=' == cTmp) {
         // `assign = '='`
-        saveAndNext(); write('\0');
+        saveAndNext();
         tok.setText(buffer.toString());
         tok.setValue(-1);
         tok.setType(Token::Type::Operator);
@@ -440,7 +440,7 @@ size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_
         if (cTmp != ']') {
             throw LexicalErrorException(__FILE__, __LINE__, {script.getName(), tok.getLine()}, "invalid IDSZ");
         }
-        saveAndNext(); write('\0');
+        saveAndNext();
         tok.setText(buffer.toString());
         IDSZ2 idsz = IDSZ2(tok.getText());
         tok.setValue(idsz.toUint32());
@@ -451,7 +451,6 @@ size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_
         do {
             saveAndNext();
         } while (Ego::isdigit(cTmp));
-        write('\0');
         tok.setText(buffer.toString());
         int temporary;
         sscanf(tok.getText().c_str(), "%d", &temporary);
@@ -462,7 +461,6 @@ size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_
         do {
             saveAndNext();
         } while ('_' == cTmp || Ego::isdigit(cTmp) || Ego::isalpha(cTmp));
-        write('\0');
         tok.setText(buffer.toString());
         int i;
         for (i = 0; i < Opcodes.size(); ++i) {
