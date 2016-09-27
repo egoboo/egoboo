@@ -142,7 +142,7 @@ void Buffer::insert(char byte, size_t index) {
     ensureFreeCapacity(1);
     size_t toCopy = _size - index;
     if (toCopy) {
-        memmove(_elements + index, _elements + index + 1, toCopy);
+        memmove(_elements + index + 1, _elements + index, toCopy);
     }
     _elements[index] = byte;
 }
