@@ -236,9 +236,6 @@
     <ClCompile Include="src\game\GUI\MiniMap.cpp">
       <Filter>Game Sources\GUI</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\ObjectAnimation.c">
-      <Filter>Game Sources</Filter>
-    </ClCompile>
     <ClCompile Include="src\game\GUI\InternalWindow.cpp">
       <Filter>Game Sources\GUI</Filter>
     </ClCompile>
@@ -331,6 +328,9 @@
     </ClCompile>
     <ClCompile Include="src\game\GUI\Panel.cpp">
       <Filter>Game Sources\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Graphics\ObjectGraphics.cpp">
+      <Filter>Game Sources\Graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -621,6 +621,9 @@
     </ClInclude>
     <ClInclude Include="src\game\GUI\Panel.hpp">
       <Filter>Game Header Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\Graphics\ObjectGraphics.hpp">
+      <Filter>Game Header Files\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

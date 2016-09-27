@@ -29,7 +29,6 @@
 //--------------------------------------------------------------------------------------------
 
 // AI stuff
-#define AISMAXLOADSIZE      (1024*1024)         ///< For parsing AI scripts
 #define MAXLINESIZE         1024
 #define MAX_OPCODE          1024                ///< Number of lines in AICODES.TXT
 #define MAXCODENAMESIZE     64
@@ -137,8 +136,7 @@ protected:
     linebuffer_t _linebuffer;
 
 public:
-    size_t _load_buffer_count;
-    std::array<uint8_t, AISMAXLOADSIZE> _load_buffer;
+    Ego::Script::Buffer _loadBuffer;
 
     /// @brief Analyse the contents of a string.
     /// @param string the string with the leading and trailing quotation marks stripped
@@ -158,8 +156,6 @@ public:
     void clear_error();
 
 private:
-	static void surround_space(size_t position, linebuffer_t& buffer);
-	static size_t fix_operators(linebuffer_t& buffer);
 	void emit_opcode(Token& tok, const BIT_FIELD highbits, script_info_t& script);
 
 	static Uint32 jump_goto(int index, int index_end, script_info_t& script);

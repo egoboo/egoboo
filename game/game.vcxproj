@@ -405,6 +405,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\game\Graphics\ObjectGraphics.cpp" />
     <ClCompile Include="src\game\GUI\Panel.cpp" />
     <ClCompile Include="src\game\GUI\TabPanel.cpp" />
     <ClCompile Include="src\game\GUI\Layout.cpp" />
@@ -435,7 +436,6 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClCompile Include="src\game\GUI\InternalWindow.cpp" />
     <ClCompile Include="src\game\GUI\InventorySlot.cpp" />
     <ClCompile Include="src\game\GUI\LevelUpWindow.cpp" />
-    <ClCompile Include="src\game\ObjectAnimation.c" />
     <ClCompile Include="src\game\GUI\CharacterStatus.cpp" />
     <ClCompile Include="src\game\GUI\MiniMap.cpp" />
     <ClCompile Include="src\game\Graphics\EntityList.cpp" />
@@ -496,6 +496,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClCompile Include="src\game\script_implementation.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\game\Graphics\ObjectGraphics.hpp" />
     <ClInclude Include="src\game\GUI\Panel.hpp" />
     <ClInclude Include="src\game\GUI\JoinBounds.hpp" />
     <ClInclude Include="src\game\GUI\TabPanel.hpp" />

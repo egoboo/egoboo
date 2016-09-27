@@ -3015,6 +3015,28 @@ void vfs_set_base_search_paths( void )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
+void vfs_readEntireFile(const std::string& pathname, std::function<void(size_t, const char *)> receive) {
+    auto deleter = [](vfs_FILE *file) { if (file) vfs_close(file); };
+    std::unique_ptr<vfs_FILE, decltype(deleter)> file(vfs_openRead(pathname), deleter);
+    if (!file) {
+        throw Id::RuntimeErrorException(__FILE__, __LINE__, "unable to open file `" + pathname + "` for reading");
+    }
+    // Read in 2048 Byte chunks.
+    char buffer[2048];
+    while (!vfs_eof(file.get())) {
+        size_t read = vfs_read(buffer, 1, 2048, file.get());
+        if (vfs_error(file.get())) {
+            throw Id::RuntimeErrorException(__FILE__, __LINE__, "error while reading file `" + pathname + "`");
+        }
+        // If not a short read, invoke receive.
+        if (0 != read) {
+            receive(read, buffer);
+        }
+    }
+    file = nullptr;
+}
+
 bool vfs_readEntireFile(const std::string& pathname, char **data, size_t *length) {
     if (!data || !length) {
         return false;

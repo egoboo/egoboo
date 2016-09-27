@@ -45,6 +45,10 @@ private:
     /// @brief The elements of this buffer.
     char *_elements;
 
+    /// @brief Ensure that the free capacity of this buffer is greater than or equal to a required free capacity.
+    /// @param requiredFreeCapacity the required free capacity
+    void ensureFreeCapacity(size_t requiredFreeCapacity);
+
 public:
 
     /// @brief Construct this buffer with the specified initial capacity.
@@ -65,13 +69,13 @@ public:
 
     /// @brief Get the maximum capacity of this buffer.
     /// @return the maximum capacity
-    size_t getMaxCapacity() const;
+    size_t getMaximalCapacity() const;
 
     /// @brief Increase the capacity by at least the specified additional required capacity.
-    /// @param req the additional capacity
+    /// @param additionalCapacity the additional capacity
     /// @throw std::bad_array_new_length the new capacity would exceed the maximum capacity
     /// @throw std::bad_alloc not enough memory is available
-    void increaseCapacity(size_t req);
+    void increaseCapacity(size_t requiredAdditionalCapacity);
 
     /// @brief Clear this buffer.
     void clear();
@@ -84,6 +88,17 @@ public:
     /// @param byte the byte
     /// @throw std::bad_array_new_length not enough memory is available
     void prepend(char byte);
+
+    /// @brief Prepend bytes to this buffer growing the buffer if necessary.
+    /// @param bytes a pointer to an array of @a numberOfBytes Bytes
+    /// @param numberOfBytes the length, in Bytes, of the array pointed to by @a bytes
+    /// @throw std::bad_array_new_length not enough memory is available
+    /// @post All bytes have been prepended or the buffer was not modified.
+    ///       Otherwise no bytes have been prepended.
+    /// @throw std::bad_array_new_length if not enough memory is available
+    /// @post
+    /// All bytes have been prepended or the buffer was not modified.
+    void prepend(const char *bytes, size_t numberOfBytes);
 
     /// @brief Append a byte to this buffer growing this buffer if necessary.
     /// @param byte the byte
@@ -99,7 +114,6 @@ public:
 	/// @throw std::bad_array_new_length if not enough memory is available
 	/// @post
 	/// All bytes have been appended or the buffer was not modified.
-	/// Otherwise no bytes have been appene
 	void append(const char *bytes, size_t numberOfBytes);
 
 	/// @brief Get the Byte at the specified in index in this buffer.
@@ -136,6 +150,10 @@ public:
 	/// @brief Get if the buffer is empty.
 	/// @return @a true if the buffer is empty, @a false otherwise
 	bool isEmpty() const;
+
+    /// @brief Exchanges the content of this buffer by the content of another buffer.
+    /// @noexcept
+    void swap(Buffer& other) noexcept;
 };
 
 } // namespace Script

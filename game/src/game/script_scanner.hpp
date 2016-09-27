@@ -22,10 +22,7 @@
 
 #define MAX_OPCODE 1024 ///< Number of lines in AICODES.TXT
 
-/**
- * @brief
- *	A token.
- */
+/// @brief A token.
 struct Token {
 	enum class Type {
 		Unknown = '?',
@@ -36,172 +33,115 @@ struct Token {
 	};
 
 private:
-	/**
-	 * @brief
-	 *	The type of this token.
-	 */
+	/// @brief The type of this token.
 	Type _type;
 
-public:
-	/**
-	 * @brief
-	 *	The line number.
-	 */
-	int _line;
+	/// @brief The line number.
+    /// @todo Use Id::Location.
+	size_t _line;
 
-	/**
-	 * @brief
-	 *	The index.
-	 * @todo
-	 *	MH: To whoever wrote this: This is what documentation is not.
-	 */
+	/// @brief The index of this token.
     int _index;
 
-	/**
-	 * @brief
-	 *	The integer value.
-	 * @todo
-	 *	MH: To whoever wrote this: This is what documentation is not.
-	 */
+	/// @brief The value of this token.
     int _value;
 
-    size_t szWord_length;
-    STRING szWord;                   ///< The text representation
+    /// @brief The text of this token.
+    std::string _text;
 
-	/**
-	 * @brief
-	 *  Get the index of this token.
-	 * @return
-	 *  the index of this token
-	 */
+public:
+	/// @brief Get the index of this token.
+	/// @return the index of this token
+    /// @see setIndex
 	int getIndex() const {
 		return _index;
 	}
 
-	/**
-	 * @brief
-	 *  Set the index of this token.
-	 * @param index
-	 *  the index of this token
-	 * @see getIndex
-	 */
+	/// @brief Set the index of this token.
+	/// @param index the index
+	/// @see getIndex
 	void setIndex(int index) {
 		_index = index;
 	}
 
-	/**
-	 * @brief
-	 *  Get the value of this token.
-	 * @return
-	 *  the value of this token
-	 */
+	/// @brief Get the value of this token.
+	/// @return the value of this token
+    /// @see setValue
 	int getValue() const {
 		return _value;
 	}
 
-	/**
-	 * @brief
-	 *  Set the value of this token.
-	 * @param value
-	 *  the value of this token
-	 * @see getValue
-	 */
+	/// @brief Set the value of this token.
+	/// @param value the value
+	/// @see getValue
 	void setValue(int value) {
 		_value = value;
 	}
 
-	/**
-	 * @brief
-	 *  Get the line number of this token.
-	 * @return
-	 *  the line number of this token
-	 * @remark
-	 *  The line number is the line number of the line in which the lexeme of this token starts in.
-	 */
-	int getLine() const {
+	/// @brief Get the line number of this token.
+    /// @return the line number of this token
+    /// @see setLine
+    /// @remark The line number is the line number of the line in which the lexeme of this token starts in.
+	size_t getLine() const {
 		return _line;
 	}
 
-	/**
-	 * @brief
-	 *  Set the line number of this token.
-	 * @param line
-	 *  the line number of this token
-	 * @see getLine
-	 */
-	void setLine(int line) {
+	/// @brief Set the line number of this token.
+	/// @param line the line number
+	/// @see getLine
+	void setLine(size_t line) {
 		_line = line;
 	}
 
-	/**
-	 * @brief
-	 *  Get the type of this token.
-	 * @return
-	 *  the type of this token
-	 */
+	/// @brief Get the type of this token.
+	/// @return the type of this token
+    /// @see setType
 	Type getType() const {
 		return _type;
 	}
 
-	/**
-	 * @brief
-	 *  Set the type of this token.
-	 * @param type
-	 *  the type of this token
-	 */
+	/// @brief Set the type of this token.
+	/// @param type the type
+    /// @see getType
 	void setType(Type type) {
 		_type = type;
 	}
 
-	/**
-	 * @brief
-	 *  Get the length of the lexeme of this token.
-	 * @return
-	 *  the length of the lexeme of this token
-	 */
-	size_t length() const {
-		return szWord_length;
+	/// @brief Set the text of this token.
+	/// @param text the text
+    /// @see getText
+	void setText(const std::string& text) {
+		_text = text;
 	}
 
-	/**
-	 * @brief
-	 *  Construct this token with default values.
-	 */
+    /// @brief Get the text of this token.
+    /// @return the text of this token
+    /// @see setText
+    const std::string& getText() const {
+        return _text;
+    }
+
+	/// @brief Construct this token with default values.
 	Token();
 
-	/**
-	 * @brief
-	 *  Construct this token with values of another token.
-	 * @param other
-	 *  the other token
-	 */
+	/// @brief Construct this token with values of another token.
+	/// @param other the other token
 	Token(const Token& other);
 
-	/**
-	 * @brief
-	 *  Destruct this token.
-	 */
+	/// @brief Destruct this token.
 	~Token();
 
 	friend std::ostream& operator<<(std::ostream& os, const Token& token);
 };
 
-/**
- * @brief
- *  Overloaded &lt;&lt; operator for a token type.
- * @param ostream
- *  the output stream to write to
- * @param tokenType
- *  the token type to write
- */
+/// @brief Overloaded &lt;&lt; operator for a token type.
+/// @param ostream the output stream to write to
+/// @param tokenType the token type to write
+/// @return the outputstream
 std::ostream& operator<<(std::ostream& os, const Token::Type& tokenType);
 
-/**
- * @brief
- *  Overloaded &lt;&lt; operator for a token.
- * @param ostream
- *  the output stream to write to
- * @param token
- *  the token to write
- */
+/// @brief Overloaded &lt;&lt; operator for a token.
+/// @param ostream the output stream to write to
+/// @param token the token to write
+/// @return the output stream
 std::ostream& operator<<(std::ostream& os, const Token& token);
