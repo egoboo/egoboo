@@ -181,67 +181,81 @@ gfx_rv render_one_prt_trans(const ParticleRef iprt)
             renderer.setCullingMode(Ego::CullingMode::None);
 
             Ego::Math::Colour4f particleColour;
-            bool drawParticle = false;
-            // Solid sprites.
-            if (SPRITE_SOLID == pprt->type) {
-                // Do the alpha blended edge ("anti-aliasing") of the solid particle.
-                // Only display the alpha-edge of the particle.
-                renderer.setAlphaTestEnabled(true);
-                renderer.setAlphaFunction(Ego::CompareFunction::Less, 1.0f);
 
-                renderer.setBlendingEnabled(true);
-                renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
+            switch(pprt->type)
+            {
+                // Solid sprites.
+                case SPRITE_SOLID:
+                {
+                    // Do the alpha blended edge ("anti-aliasing") of the solid particle.
+                    // Only display the alpha-edge of the particle.
+                    renderer.setAlphaTestEnabled(true);
+                    renderer.setAlphaFunction(Ego::CompareFunction::Less, 1.0f);
 
-                float fintens = inst.fintens;
-                particleColour = Ego::Math::Colour4f(fintens, fintens, fintens, 1.0f);
+                    renderer.setBlendingEnabled(true);
+                    renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
 
-                renderer.getTextureUnit().setActivated(ParticleHandler::get().getTransparentParticleTexture().get());
+                    float fintens = inst.fintens;
+                    particleColour = Ego::Math::Colour4f(fintens, fintens, fintens, 1.0f);
 
-                drawParticle = true;
-            }
-            // Light sprites.
-            else if (SPRITE_LIGHT == pprt->type) {
-                renderer.setAlphaTestEnabled(false);
-                renderer.setBlendingEnabled(true);
-                renderer.setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::One);
+                    renderer.getTextureUnit().setActivated(ParticleHandler::get().getTransparentParticleTexture().get());
+                }
+                break;
 
-                float fintens = inst.fintens * inst.falpha;
-                particleColour = Ego::Math::Colour4f(fintens, fintens, fintens, 1.0f);
+                // Light sprites.
+                case SPRITE_LIGHT:
+                {
+                    //Is particle invisible?
+                    if(inst.fintens * inst.falpha <= 0.0f) {
+                        return gfx_success;
+                    }
 
-                renderer.getTextureUnit().setActivated(ParticleHandler::get().getLightParticleTexture().get());
+                    renderer.setAlphaTestEnabled(false);
+                    renderer.setBlendingEnabled(true);
+                    renderer.setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::One);
 
-                drawParticle = (fintens > 0.0f);
-            }
-            // Transparent sprites.
-            else if (SPRITE_ALPHA == pprt->type) {
-                // do not display the completely transparent portion
-                renderer.setAlphaTestEnabled(true);
-                renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
+                    particleColour = Ego::Math::Colour4f(1.0f, 1.0f, 1.0f, inst.fintens * inst.falpha);
 
-                renderer.setBlendingEnabled(true);
-                renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
+                    renderer.getTextureUnit().setActivated(ParticleHandler::get().getLightParticleTexture().get());
+                }
+                break;
 
-                float fintens = inst.fintens;
-                float falpha = inst.falpha;
-                particleColour = Ego::Math::Colour4f(fintens, fintens, fintens, falpha);
+                // Transparent sprites.
+                case SPRITE_ALPHA:
+                {
+                    //Is particle invisible?
+                    if(inst.falpha <= 0.0f) {
+                        return gfx_success;
+                    }
 
-                renderer.getTextureUnit().setActivated(ParticleHandler::get().getTransparentParticleTexture().get());
+                    // do not display the completely transparent portion
+                    renderer.setAlphaTestEnabled(true);
+                    renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
 
-                drawParticle = (falpha > 0.0f);
-            } else {
+                    renderer.setBlendingEnabled(true);
+                    renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
+
+                    float fintens = inst.fintens;
+                    float falpha = inst.falpha;
+                    particleColour = Ego::Math::Colour4f(fintens, fintens, fintens, falpha);
+
+                    renderer.getTextureUnit().setActivated(ParticleHandler::get().getTransparentParticleTexture().get());
+                }
+                break;
+
                 // unknown type
-                return gfx_error;
+                default:
+                    return gfx_error;
+                break;
             }
 
-            if (drawParticle) {
-                auto vb = std::make_shared<Ego::VertexBuffer>(4, Ego::GraphicsUtilities::get<Ego::VertexFormat::P3FT2F>());
-                calc_billboard_verts(*vb, inst, inst.size, false);
+            auto vb = std::make_shared<Ego::VertexBuffer>(4, Ego::GraphicsUtilities::get<Ego::VertexFormat::P3FT2F>());
+            calc_billboard_verts(*vb, inst, inst.size, false);
 
-                renderer.setColour(particleColour);
+            renderer.setColour(particleColour);
 
-                // Go on and draw it
-                renderer.render(*vb, Ego::PrimitiveType::TriangleFan, 0, 4);
-            }
+            // Go on and draw it
+            renderer.render(*vb, Ego::PrimitiveType::TriangleFan, 0, 4);
         }
     }
 
