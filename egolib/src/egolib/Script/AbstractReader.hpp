@@ -22,11 +22,8 @@ public:
     Buffer _buffer;
 
 private:
-    /// @brief A pointer to an array of at least @a _inputLength Bytes.
-    char *_input;
-
-    /// @brief The first @a _inputLength Bytes of the array pointed to by @a _input contain the input.
-    size_t _inputLength;
+    /// @brief The input buffer.
+    Buffer _inputBuffer;
 
     /// -1 before the first character, inputLength after the last character.
     long long _inputIndex;
@@ -38,15 +35,16 @@ protected:
     /// @throw RuntimeErrorException if the file can not be read
     /// @post The reader is in its initial state w.r.t. the specified input if no exception is raised.
     AbstractReader(const std::string& fileName, size_t initialBufferCapacity) :
-        _fileName(fileName), _input(nullptr), _inputLength(0), _inputIndex(-1),
+        _fileName(fileName), _inputBuffer(8), _inputIndex(-1),
         _buffer(initialBufferCapacity),
         _lineNumber(1) {
-        char *input; size_t inputLength;
-        if (!vfs_readEntireFile(fileName, &input, &inputLength)) {
-            throw RuntimeErrorException(__FILE__, __LINE__, "unable to read input `" + fileName + "`");
-        }
-        _input = input;
-        _inputLength = inputLength;
+        vfs_readEntireFile
+            (
+                fileName,
+                [this](size_t numberOfBytes, const char *bytes) {
+                    _inputBuffer.append(bytes, numberOfBytes); 
+                }
+            );
     }
 
     /// @brief Set the input.
@@ -54,27 +52,20 @@ protected:
     /// @post The reader is in its initial state w.r.t. the specified input if no exception is raised.
     /// If an exception is raised, the reader retains its state.
     void SetInput(const std::string& fileName) {
-        char *input; size_t inputLength;
-        if (!vfs_readEntireFile(fileName, &input, &inputLength)) {
-            throw RuntimeErrorException(__FILE__, __LINE__, "unable to read input `" + fileName + "`");
-        }
-        if (_input) {
-            delete[] _input;
-            _input = nullptr;
-        }
-        _fileName = fileName;
-        _input = input;
-        _inputLength = inputLength;
+        Buffer temporaryBuffer;
+        std::string temporaryFileName = fileName;
+        // If this succeeds, then we're set.
+        vfs_readEntireFile(fileName, [&temporaryBuffer](size_t numberOfBytes, const char *bytes) {
+            temporaryBuffer.append(bytes, numberOfBytes);
+            });
         _lineNumber = 1;
         _inputIndex = -1;
+        _fileName.swap(temporaryFileName);
+        _inputBuffer.swap(temporaryBuffer);
     }
 
     /// @brief Destruct this reader.
     virtual ~AbstractReader() {
-        if (_input) {
-            delete[] _input;
-            _input = nullptr;
-        }
     }
 
 public:
@@ -96,16 +87,16 @@ public:
     typename Traits::ExtendedType current() const {
         if (_inputIndex == -1) {
             return Traits::startOfInput();
-        } else if (_inputIndex == _inputLength) {
+        } else if (_inputIndex == _inputBuffer.getSize()) {
             return Traits::endOfInput();
         }
-        return _input[_inputIndex];
+        return _inputBuffer.get(_inputIndex);
     }
 
 public:
     /// @brief Advance to the next extended character.
     void next() {
-        if (_inputIndex == _inputLength) {
+        if (_inputIndex == _inputBuffer.getSize()) {
             return;
         }
         _inputIndex++;
