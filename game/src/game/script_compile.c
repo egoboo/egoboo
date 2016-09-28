@@ -365,7 +365,6 @@ size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_
         read++;
         cTmp = _linebuffer[read];
     };
-    auto writeAndNext = [&write, &next](char c) { write(c); next(); };
     auto saveAndNext = [&save, &next]() { save(); next(); };
 
     // Skip any initial spaces
