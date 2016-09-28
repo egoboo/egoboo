@@ -2056,6 +2056,9 @@ float Object::getAttribute(const Ego::Attribute::AttributeType type) const
             if(hasPerk(Ego::Perks::ATHLETICS)) {
                 attributeValue *= 1.25f;
             }
+
+            //Every point of Might increases jump power by 1%
+            attributeValue *= 1.0f + (getAttribute(Ego::Attribute::MIGHT) / 100.0f);
         break;
 
         //Limit lowest acceleration to zero
@@ -3039,7 +3042,7 @@ void Object::updateLatchButtons()
                 }
 
                 // Make the character jump
-                float jumpPower = getAttribute(Ego::Attribute::JUMP_POWER) * 1.5f;
+                float jumpPower = getAttribute(Ego::Attribute::JUMP_POWER);
                 hitready = true;
                 jump_timer = Object::JUMPDELAY;
 
