@@ -7,7 +7,7 @@ release: set_release_flags all
 all: idlib egolib egoboo
 
 COMPILE_FLAGS := -x c++ -std=c++14 $(shell sdl2-config --cflags) -D_FORTIFY_SOURCE=2
-COMPILE_WARNINGS := -Wall -Wextra -Werror -Wfatal-errors
+COMPILE_WARNINGS := -Wall -Wextra -Wfatal-errors
 COMPILE_DEBUG_FLAGS := -fdiagnostics-color=always
 COMPILE_OPTIMIZE := -O0
 SANITIZER_FLAGS := -fno-sanitize=all
@@ -36,6 +36,7 @@ set_debug_flags:
 
 set_release_flags:
 	$(eval COMPILE_DEBUG_FLAGS += -DNDEBUG)
+	$(eval COMPILE_WARNINGS += -werror)
 	$(eval COMPILE_OPTIMIZE := -Ofast -frename-registers -fuse-linker-plugin -flto=jobserver)
 	$(eval COMPILE_OPTIMIZE += -mfpmath=sse -m64 -mmmx -msse -msse2 -msse3 -m3dnow)
 	$(eval LINKER_FLAGS := -Wl,-fuse-ld=gold -flto=jobserver)
