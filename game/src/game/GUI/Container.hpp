@@ -52,11 +52,14 @@ public:
 
 
     private:
-        ContainerIterator(Container &container) :
-            _components(container._components) {
+        ContainerIterator(const std::vector<std::shared_ptr<Component>> &components) :
+            _components(components) 
+        {
+            //ctor
         }
 
-        //Copy of the vector contained in the Container (for thread safety)
+    private:
+        //Copy of the vector member in the Container (for thread safety)
         std::vector<std::shared_ptr<Component>> _components;
 
         friend class Container;
@@ -101,7 +104,11 @@ public:
 
     /// @brief Return a thread-safe iterator to this container.
     /// @return the iterator
-    inline ContainerIterator iterator() { return ContainerIterator(*this); }
+    inline ContainerIterator iterator() 
+    {
+        std::lock_guard<std::mutex> lock(_mutex);
+        return ContainerIterator(_components); 
+    }
 
     /**
     * @return
