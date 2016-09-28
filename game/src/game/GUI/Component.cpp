@@ -112,7 +112,7 @@ Point2f Component::getDerivedPosition() const {
 void Component::destroy() {
     _destroyed = true;
     if (_parent) {
-        getParent()->notifyDestruction();
+        getParent()->removeComponent(shared_from_this());
     }
 }
 
