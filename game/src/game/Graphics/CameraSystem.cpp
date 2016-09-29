@@ -74,19 +74,6 @@ bool CameraSystem::isInitialized()
 	return _initialized;
 }
 
-void CameraSystem::resetAll(const ego_mesh_t * mesh)
-{
-	if(!isInitialized()) {
-		return;
-	}
-
-    // reset each camera
-    for(const std::shared_ptr<Camera> &camera : _cameraList)
-    {
-    	camera->reset(mesh);
-    }
-}
-
 void CameraSystem::updateAll( const ego_mesh_t * mesh )
 {
 	if(!isInitialized()) {

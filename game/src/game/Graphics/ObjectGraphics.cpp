@@ -29,7 +29,7 @@ ObjectGraphics::ObjectGraphics(Object &object) :
     _reflectionMatrix(Matrix4f4f::identity()),
 
     // graphical optimizations
-    _vertexCache(*this),
+    _vertexCache(),
 
     // lighting info
     _ambientColour(0),
@@ -140,7 +140,7 @@ gfx_rv ObjectGraphics::needs_update(int vmin, int vmax, bool *verts_match, bool 
 
     // check to see if the _vertexCache has been marked as invalid.
     // in this case, everything needs to be updated
-	if (!_vertexCache.isValid()) {
+	if (!isVertexCacheValid()) {
 		return gfx_success;
 	}
 
@@ -163,10 +163,10 @@ gfx_rv ObjectGraphics::needs_update(int vmin, int vmax, bool *verts_match, bool 
     // test to see if we have already calculated this data
     *verts_match = (vmin >= _vertexCache.vmin) && (vmax <= _vertexCache.vmax);
 
-	bool flips_match = (std::abs(_vertexCache.flip - getFlip()) < FLIP_TOLERANCE);
+	bool flips_match = (std::abs(_vertexCache.flip - _animationProgress) < FLIP_TOLERANCE);
 
-    *frames_match = (getTargetFrameIndex() == getSourceFrameIndex() && _vertexCache.frame_nxt == getTargetFrameIndex() && _vertexCache.frame_lst == getSourceFrameIndex() ) ||
-                    (flips_match && _vertexCache.frame_nxt == getTargetFrameIndex() && _vertexCache.frame_lst == getSourceFrameIndex());
+    *frames_match = (_targetFrameIndex == _sourceFrameIndex && _vertexCache.frame_nxt == _targetFrameIndex && _vertexCache.frame_lst == _sourceFrameIndex ) ||
+                    (flips_match && _vertexCache.frame_nxt == _targetFrameIndex && _vertexCache.frame_lst == _sourceFrameIndex);
 
     return (!(*verts_match) || !( *frames_match )) ? gfx_success : gfx_fail;
 }
@@ -322,19 +322,19 @@ gfx_rv ObjectGraphics::updateVertices(int vmin, int vmax, bool force)
 
     // make sure the frames are in the valid range
     const std::vector<MD2_Frame> &frameList = pmd2->getFrames();
-    if ( getTargetFrameIndex() >= frameList.size() || getSourceFrameIndex() >= frameList.size() )
+    if ( _targetFrameIndex >= frameList.size() || _sourceFrameIndex >= frameList.size() )
     {
 		Log::get().warn("%s:%d:%s: character instance frame is outside the range of its MD2\n", __FILE__, __LINE__, __FUNCTION__ );
         return gfx_error;
     }
 
     // grab the frame data from the correct model
-    const MD2_Frame &nextFrame = frameList[getTargetFrameIndex()];
-    const MD2_Frame &lastFrame = frameList[getSourceFrameIndex()];
+    const MD2_Frame &nextFrame = frameList[_targetFrameIndex];
+    const MD2_Frame &lastFrame = frameList[_sourceFrameIndex];
 
     // fix the flip for objects that are not animating
-    loc_flip = getFlip();
-    if ( getTargetFrameIndex() == getSourceFrameIndex() ) {
+    loc_flip = _animationProgress;
+    if ( _targetFrameIndex == _sourceFrameIndex ) {
         loc_flip = 0.0f;
     }
 
@@ -435,9 +435,9 @@ gfx_rv ObjectGraphics::updateVertexCache(int vmax, int vmin, bool force, bool ve
         verts_updated = true;
     }
 
-    _vertexCache.frame_nxt = getTargetFrameIndex();
-    _vertexCache.frame_lst = getSourceFrameIndex();
-    _vertexCache.flip      = getFlip();
+    _vertexCache.frame_nxt = _targetFrameIndex;
+    _vertexCache.frame_lst = _sourceFrameIndex;
+    _vertexCache.flip      = _animationProgress;
 
     // store the last time there was an update to the animation
     bool frames_updated = false;
@@ -517,7 +517,7 @@ bool ObjectGraphics::setModel(const std::shared_ptr<Ego::ModelDescriptor> &model
 
     if (getModelDescriptor() != model) {
         updated = true;
-        setModelDescriptor(model);
+        _modelDescriptor = model;
     }
 
     // set the vertex size
@@ -528,10 +528,10 @@ bool ObjectGraphics::setModel(const std::shared_ptr<Ego::ModelDescriptor> &model
     }
 
     // set the frames to frame 0 of this object's data
-    if (0 != getTargetFrameIndex() || 0 != getSourceFrameIndex()) {
+    if (0 != _targetFrameIndex || 0 != _sourceFrameIndex) {
         updated = true;
-        setSourceFrameIndex(0);
-        setTargetFrameIndex(0);
+        _sourceFrameIndex = 0;
+        _targetFrameIndex = 0;
     }
 
     if (updated) {
@@ -620,17 +620,31 @@ BIT_FIELD ObjectGraphics::getFrameFX() const
 
 const MD2_Frame& ObjectGraphics::getNextFrame() const
 {
-    return getTargetFrame();
+    assertFrameIndex(_targetFrameIndex);
+    return getModelDescriptor()->getMD2()->getFrames()[_targetFrameIndex];
 }
 
 const MD2_Frame& ObjectGraphics::getLastFrame() const
 {
-    return getSourceFrame();
+    assertFrameIndex(_sourceFrameIndex);
+    return getModelDescriptor()->getMD2()->getFrames()[_sourceFrameIndex];
 }
 
 bool ObjectGraphics::isVertexCacheValid() const
 {
-    return _vertexCache.isValid();
+    if (_sourceFrameIndex != _vertexCache.frame_nxt) {
+        return false;
+    }
+
+    if (_sourceFrameIndex != _vertexCache.frame_lst) {
+        return false;
+    }
+
+    if ((_sourceFrameIndex != _vertexCache.frame_lst) && std::abs(_animationProgress - _vertexCache.flip) > Ego::Graphics::FLIP_TOLERANCE) {
+        return false;
+    }
+
+    return true;
 }
 
 void ObjectGraphics::getTint(GLXvector4f tint, const bool reflection, const int type)
@@ -793,33 +807,6 @@ const std::shared_ptr<Ego::ModelDescriptor>& ObjectGraphics::getModelDescriptor(
     return _modelDescriptor;
 }
 
-void ObjectGraphics::setModelDescriptor(const std::shared_ptr<Ego::ModelDescriptor>& modelDescriptor) {
-    _modelDescriptor = modelDescriptor;
-}
-
-int ObjectGraphics::getSourceFrameIndex() const {
-    return _sourceFrameIndex;
-}
-void ObjectGraphics::setSourceFrameIndex(int sourceFrameIndex) {
-    _sourceFrameIndex = sourceFrameIndex;
-}
-int ObjectGraphics::getTargetFrameIndex() const {
-    return _targetFrameIndex;
-}
-
-void ObjectGraphics::setTargetFrameIndex(int targetFrameIndex) {
-    _targetFrameIndex = targetFrameIndex;
-}
-const MD2_Frame& ObjectGraphics::getTargetFrame() const {
-    assertFrameIndex(getTargetFrameIndex());
-    return getModelDescriptor()->getMD2()->getFrames()[getTargetFrameIndex()];
-}
-
-const MD2_Frame& ObjectGraphics::getSourceFrame() const {
-    assertFrameIndex(getSourceFrameIndex());
-    return getModelDescriptor()->getMD2()->getFrames()[getSourceFrameIndex()];
-}
-
 void ObjectGraphics::assertFrameIndex(int frameIndex) const {
     if (frameIndex > getModelDescriptor()->getMD2()->getFrames().size()) {
         Log::Entry e(Log::Level::Error, __FILE__, __LINE__);
@@ -977,8 +964,8 @@ void ObjectGraphics::incrementFrame()
     _animationProgress = fmod(_animationProgress, 1.0f);
 
     // Change frames
-    int frame_lst = getTargetFrameIndex();
-    int frame_nxt = getTargetFrameIndex() + 1;
+    int frame_lst = _targetFrameIndex;
+    int frame_nxt = _targetFrameIndex + 1;
 
     // detect the end of the animation and handle special end conditions
     if (frame_nxt > getModelDescriptor()->getLastFrame(_currentAnimation))
@@ -1024,12 +1011,12 @@ void ObjectGraphics::incrementFrame()
             incrementAction();
 
             // incrementAction() actually sets this value properly. just grab the new value.
-            frame_nxt = getTargetFrameIndex();
+            frame_nxt = _targetFrameIndex;
         }
     }
 
-    setSourceFrameIndex(frame_lst);
-    setTargetFrameIndex(frame_nxt);
+    _sourceFrameIndex = frame_lst;
+    _targetFrameIndex = frame_nxt;
 
     // if the instance is invalid, invalidate everything that depends on this object
     if (!_object.inst.isVertexCacheValid()) {
@@ -1065,8 +1052,8 @@ bool ObjectGraphics::setFrame(int frame)
     // jump to the next frame
     _animationProgress = 0.0f;
     _animationProgressInteger = 0;
-    setSourceFrameIndex(getTargetFrameIndex());
-    setTargetFrameIndex(frame);
+    _sourceFrameIndex = _targetFrameIndex;
+    _targetFrameIndex = frame;
 
     return true;
 }
@@ -1313,7 +1300,7 @@ bool ObjectGraphics::setFrameFull(int frame_along, int ilip)
     int new_nxt = frame_stt + frame_along;
     new_nxt = std::min(new_nxt, frame_end);
 
-    setTargetFrameIndex(new_nxt);
+    _targetFrameIndex = new_nxt;
     _animationProgressInteger = ilip;
     _animationProgress = _animationProgressInteger * 0.25f;
 
@@ -1328,8 +1315,8 @@ ModelAction ObjectGraphics::getCurrentAnimation() const
 
 void ObjectGraphics::removeInterpolation()
 {
-    if (getSourceFrameIndex() != getTargetFrameIndex() ) {
-        setSourceFrameIndex(getTargetFrameIndex());
+    if (_sourceFrameIndex != _targetFrameIndex ) {
+        _sourceFrameIndex = _targetFrameIndex;
         _animationProgressInteger = 0;
         _animationProgress = 0.0f;
     }
@@ -1338,7 +1325,7 @@ void ObjectGraphics::removeInterpolation()
 oct_bb_t ObjectGraphics::getBoundingBox() const
 {
     //Beginning of a frame animation
-    if (getTargetFrameIndex() == getSourceFrameIndex() || _animationProgress == 0.0f) {
+    if (_targetFrameIndex == _sourceFrameIndex || _animationProgress == 0.0f) {
         return _object.inst.getLastFrame().bb;
     } 
 
@@ -1353,20 +1340,3 @@ oct_bb_t ObjectGraphics::getBoundingBox() const
 
 } //namespace Graphics
 } //namespace Ego
-
-bool VertexListCache::isValid() const
-{
-    if (_instance.getSourceFrameIndex() != frame_nxt) {
-        return false;
-    }
-
-    if (_instance.getSourceFrameIndex() != frame_lst) {
-        return false;
-    }
-
-    if ((_instance.getSourceFrameIndex() != frame_lst) && std::abs(_instance.getFlip() - flip) > Ego::Graphics::FLIP_TOLERANCE) {
-        return false;
-    }
-
-    return true;
-}

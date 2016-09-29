@@ -71,6 +71,7 @@ GameModule::GameModule(const std::shared_ptr<ModuleProfile> &profile, const uint
         throw Id::RuntimeErrorException(__FILE__, __LINE__, "Failed to setup module vfs"); 
     }
 
+    //Initialize random seeds
     srand( _seed );
     Random::setSeed(_seed);
 

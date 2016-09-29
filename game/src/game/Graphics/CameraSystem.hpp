@@ -45,7 +45,6 @@ public:
 	 */
 	bool isInitialized();
 
-	void resetAll( const ego_mesh_t * mesh );
 	void updateAll( const ego_mesh_t * mesh );
 	void resetAllTargets( const ego_mesh_t * mesh );
 

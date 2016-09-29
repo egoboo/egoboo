@@ -62,15 +62,14 @@ struct colorshift_t {
 /// the data to determine whether re-calculation of vlst is necessary
 struct VertexListCache
 {
-    VertexListCache(const Ego::Graphics::ObjectGraphics &instance) :
+    VertexListCache() :
         flip(0.0f),
         frame_nxt(0),
         frame_lst(0),
         frame_wld(0),
         vmin(-1),
         vmax(-1),
-        vert_wld(0),
-        _instance(instance)
+        vert_wld(0)
     {
         //ctor
     }
@@ -86,9 +85,6 @@ struct VertexListCache
         vert_wld = 0;
     }
 
-    // do we know whether this cache is valid or not?
-    bool isValid() const;
-
     float  flip;              ///< the in-betweening  the last time the animation was updated
     uint16_t frame_nxt;         ///< the initial frame  the last time the animation was updated
     uint16_t frame_lst;         ///< the final frame  the last time the animation was updated
@@ -97,9 +93,6 @@ struct VertexListCache
     int    vmin;              ///< the minimum clean vertex the last time the vertices were updated
     int    vmax;              ///< the maximum clean vertex the last time the vertices were updated
     uint32_t vert_wld;          ///< the update_wld the last time the vertices were updated
-
-private:
-    const Ego::Graphics::ObjectGraphics &_instance;
 };
 
 namespace Ego
@@ -136,25 +129,11 @@ public:
 
     bool isVertexCacheValid() const;
 
-    //Only used by CharacterAnimation.c
     bool updateGripVertices(const uint16_t vrt_lst[], const size_t vrt_count);
-    void updateOneLip();
 
     bool playAction(const ModelAction action, const bool actionready);
 
 	BIT_FIELD getFrameFX() const;
-
-    /**
-    * @brief
-    *   Get the desired/next frame in the current animation action
-    **/
-    const MD2_Frame& getNextFrame() const;
-
-    /**
-    * @brief
-    *   Get the current/previous frame in the current animation action
-    **/
-    const MD2_Frame& getLastFrame() const;
 
     gfx_rv updateVertices(int vmin, int vmax, bool force);
         
@@ -212,32 +191,6 @@ public:
     /// Get the model descriptor.
     /// @return the model descriptor
     const std::shared_ptr<ModelDescriptor>& getModelDescriptor() const;
-
-    /// Set the model descriptor.
-    /// @param modelDescriptor the model descriptor
-    void setModelDescriptor(const std::shared_ptr<ModelDescriptor>& modelDescriptor);
-
-    /// @brief Get the index of the source frame.
-    /// @return the index of the source frame
-    int getSourceFrameIndex() const;
-
-    /// @brief Set the index of the source frame.
-    /// @param sourceFrameIndex the index of the source frame
-    void setSourceFrameIndex(int sourceFrameIndex);
-
-    /// @brief Get the index of the target frame.
-    /// @return the index of the target frame
-    int getTargetFrameIndex() const;
-
-    /// @brief Set the index of the target frame.
-    /// @param targetFrameIndex the index of the target frame
-    void setTargetFrameIndex(int targetFrameIndex);
-
-    const MD2_Frame& getTargetFrame() const;
-
-    const MD2_Frame& getSourceFrame() const;
-
-    void reset();
 
     /**
     * @brief
@@ -297,9 +250,24 @@ public:
     **/
     oct_bb_t getBoundingBox() const;
 
-    float getFlip() const { return _animationProgress; }
+private:
 
-private:	
+    /// Set the model descriptor.
+    /// @param modelDescriptor the model descriptor
+    void setModelDescriptor(const std::shared_ptr<ModelDescriptor>& modelDescriptor);
+
+    /**
+    * @brief
+    *   Get the desired/next frame in the current animation action
+    **/
+    const MD2_Frame& getNextFrame() const;
+
+    /**
+    * @brief
+    *   Get the current/previous frame in the current animation action
+    **/
+    const MD2_Frame& getLastFrame() const;
+
 	gfx_rv updateVertexCache(int vmax, int vmin, bool force, bool vertices_match, bool frames_match);
 
     /**
