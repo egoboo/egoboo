@@ -23,6 +23,13 @@
 EgoTest_TestCase(StringUtilities)
 {
 
+EgoTest_Test(trim)
+{
+    std::string input = " \tfo \to \t";
+    std::string output = Ego::trim(input);
+    EgoTest_Assert(output == "fo \to");
+}
+
 EgoTest_Test(split)
 {
     std::vector<std::string> v;

@@ -45,7 +45,7 @@ bool activate_spawn_file_load_object( spawn_file_info_t& psp_info )
     {
         // we are relying on the virtual mount point "mp_objects", so use
         // the vfs/PHYSFS file naming conventions
-        snprintf( filename, SDL_arraysize( filename ), "mp_objects/%s", psp_info.spawn_comment );
+        snprintf( filename, SDL_arraysize( filename ), "mp_objects/%s", psp_info.spawn_comment.c_str() );
 
         if(!vfs_exists(filename)) {
             if(psp_info.slot > MAX_IMPORT_PER_PLAYER * MAX_PLAYER) {
@@ -67,24 +67,24 @@ void convert_spawn_file_load_name(spawn_file_info_t& psp_info, const Ego::Treasu
     /// @details This turns a spawn comment line into an actual folder name we can use to load something with
 
     // trim any excess spaces off the psp_info->spawn_coment
-    str_trim( psp_info.spawn_comment );
+    psp_info.spawn_comment = Ego::trim(psp_info.spawn_comment);
 
     //If it is a reference to a random treasure table then get a random object from that table
     if ( '%' == psp_info.spawn_comment[0] )
     {
         std::string treasureTableName = psp_info.spawn_comment;
         std::string treasureName = treasureTables.getRandomTreasure(treasureTableName);
-        strncpy(psp_info.spawn_comment, treasureName.c_str(), SDL_arraysize(psp_info.spawn_comment));
+        psp_info.spawn_comment = treasureName;
     }
 
     // make sure it ends with a .obj extension
-    if ( NULL == strstr( psp_info.spawn_comment, ".obj" ) )
+    if ( !Ego::isSuffix(psp_info.spawn_comment, std::string(".obj") ) )
     {
-        strcat( psp_info.spawn_comment, ".obj" );
+        psp_info.spawn_comment += ".obj";
     }
 
     // no capital letters
-    strlwr( psp_info.spawn_comment );
+    Ego::tolower(psp_info.spawn_comment);
 }
 
 //--------------------------------------------------------------------------------------------

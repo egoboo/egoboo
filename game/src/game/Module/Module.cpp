@@ -924,7 +924,7 @@ void GameModule::spawnAllObjects()
             // check to see if the slot is valid
             if ( entry.slot >= INVALID_PRO_REF )
             {
-                Log::get().warn("Invalid slot %d for \"%s\" in file \"%s\".\n", entry.slot, entry.spawn_comment, ctxt.getFileName().c_str() );
+                Log::get().warn("Invalid slot %d for \"%s\" in file \"%s\".\n", entry.slot, entry.spawn_comment.c_str(), ctxt.getFileName().c_str() );
                 continue;
             }
 
@@ -1004,7 +1004,7 @@ void GameModule::spawnAllObjects()
                     if ( import_object )
                     {
                         Log::get().warn("%s:%d:%s: the object \"%s\"(slot %d) in file \"%s\" does not exist on this machine\n", \
-                                        __FILE__, __LINE__, __FUNCTION__, spawnInfo.spawn_comment, spawnInfo.slot, \
+                                        __FILE__, __LINE__, __FUNCTION__, spawnInfo.spawn_comment.c_str(), spawnInfo.slot, \
                                         ctxt.getFileName().c_str() );
                     }
                     continue;
@@ -1038,16 +1038,16 @@ std::shared_ptr<Object> GameModule::spawnObjectFromFileEntry(const spawn_file_in
 
     //Require a valid parent?
     if(psp_info.attach != ATTACH_NONE && !parent) {
-        Log::get().warn("Failed to spawn %s due to missing parent!\n", psp_info.spawn_name);
+        Log::get().warn("Failed to spawn %s due to missing parent!\n", psp_info.spawn_name.c_str());
         return nullptr;
     }
 
     // Spawn the character
-    std::shared_ptr<Object> pobject = spawnObject(psp_info.pos, iprofile, psp_info.team, psp_info.skin, Facing(psp_info.facing), psp_info.pname == nullptr ? "" : psp_info.pname, ObjectRef::Invalid);
+    std::shared_ptr<Object> pobject = spawnObject(psp_info.pos, iprofile, psp_info.team, psp_info.skin, psp_info.facing, psp_info.pname == nullptr ? "" : *psp_info.pname, ObjectRef::Invalid);
 
     //Failed to spawn?
     if (!pobject) {
-        Log::get().warn("Failed to spawn %s!\n", psp_info.spawn_name);
+        Log::get().warn("Failed to spawn %s!\n", psp_info.spawn_name.c_str());
         return nullptr;
     }
 

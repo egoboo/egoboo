@@ -46,10 +46,10 @@ public:
     spawn_file_info_t();
 
     bool       do_spawn;
-    STRING     spawn_comment;
+    std::string spawn_comment;
 
-    STRING     spawn_name;
-    char      *pname;
+    std::string spawn_name;
+    std::string *pname;
     int        slot;
 	Vector3f   pos;
     int        passage;
@@ -59,19 +59,8 @@ public:
     int        skin;
     bool       stat;
     REF_T      team;
-    FACING_T   facing;
+    Facing     facing;
     REF_T      attach;
-    
-	/**
-	* @brief
-	*  Assign safe values to all fields.
-	*/
-	static void init(spawn_file_info_t& self);
-	/**
-	* @brief
-	*  Assign safe values to all fields, keep the parent.
-	*/
-	static void reinit(spawn_file_info_t& self);
 };
 
 bool spawn_file_read(ReadContext& ctxt, spawn_file_info_t& info);

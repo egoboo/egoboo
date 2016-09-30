@@ -33,46 +33,13 @@ std::string str_trim(const std::string& source)
     return Ego::trim(source);
 }
 
-void str_trim( char *pStr )
-{
-    Sint32 DebPos = 0, EndPos = 0, CurPos = 0;
-
-    if ( INVALID_CSTR( pStr ) )
-    {
+void str_trim(char *pStr) {
+    if (INVALID_CSTR(pStr)) {
         return;
     }
-
-    // look for the first character in string
-    DebPos = 0;
-    while (Ego::isspace(pStr[DebPos]) && CSTR_END != pStr[DebPos])
-    {
-        DebPos++;
-    }
-
-    // look for the last character in string
-    CurPos = DebPos;
-    while ( pStr[CurPos] != 0 )
-    {
-        if (!Ego::isspace(pStr[CurPos]))
-        {
-            EndPos = CurPos;
-        }
-        CurPos++;
-    }
-
-    if ( DebPos != 0 )
-    {
-        // shift string left
-        for ( CurPos = 0; CurPos <= ( EndPos - DebPos ); CurPos++ )
-        {
-            pStr[CurPos] = pStr[CurPos + DebPos];
-        }
-        pStr[CurPos] = CSTR_END;
-    }
-    else
-    {
-        pStr[EndPos + 1] = CSTR_END;
-    }
+    std::string temporary(pStr);
+    temporary = Ego::trim(temporary);
+    strcpy(pStr, temporary.c_str());
 }
 
 //--------------------------------------------------------------------------------------------
