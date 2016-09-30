@@ -509,6 +509,8 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Math\Functors\IsEven.hpp" />
+    <ClInclude Include="src\egolib\Math\Functors\IsOdd.hpp" />
     <ClInclude Include="src\egolib\Script\IRuntimeStatistics.hpp" />
     <ClInclude Include="src\egolib\Math\Interval.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\Convert.hpp" />
