@@ -280,39 +280,6 @@ int vfs_putc(int c, vfs_FILE *file);
 int vfs_getc(vfs_FILE *file);
 int vfs_ungetc(int c, vfs_FILE *file);
 int vfs_puts(const char *s, vfs_FILE *file);
-/**
- * @brief
- *  Read a single line of characters into a buffer.
- * @param buffer
- *  a pointer to a buffer which can accomodate @a buffer_size characters
- * @param buffer_size
- *  the size of the buffer,in characters, pointed to by @a buffer
- * @param file
- *  the file
- * @return
- *  @a buffer or @a NULL
- * @remark
- *  This function reacts on invalid arguments as follows:
- * - If @a buffer is @a NULL,
- *   then this function returns @a NULL and the file was not modified.
- * - If @a file is @a NULL,
- *   then this function returns @a NULL and the buffer was not modified,
- * - If buffer_size is @a 0,
- *   then this  function returns @a NULL and neither the buffer nor the file were not modified.
- * @remark
- *  Reads characters from stream and stores them into @a buffer until <tt>buffer_size-</tt>
- *  characters have been read or either a newline or the end-of-file is reached, whichever
- *  happens first. A newline character makes this function stop reading, but it is considered
- *  a valid character by the function and included in the string copied. A terminating null
- *  character is automatically appended after the characters copied to str.
- * @remark
- *  If the end-of-file is encountered while attempting to read a character,
- *  the eof indicator is set. If this happens before any characters could
- *  be read, the pointer returned is a null pointer (and the contents of buffer remain unchanged).
- *  If a read error occurs, the error indicator is set and a null pointer is also returned
- *  (but the contents pointed by buffer may have changed).
- */
-char *vfs_gets(char *s, int, vfs_FILE *file);
 
 void         vfs_empty_temp_directories();
 

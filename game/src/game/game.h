@@ -195,30 +195,6 @@ struct import_list_t
 
 //--------------------------------------------------------------------------------------------
 
-/// List of objects with status displays
-struct status_list_t
-{
-	/// Status display info
-	struct element_t
-	{
-		int camera_index;
-		ObjectRef who;
-		element_t()
-			: camera_index(-1), who(ObjectRef::Invalid) {
-		}
-	};
-    bool on;
-    size_t count;
-    element_t lst[MAX_STATUS];
-
-	status_list_t()
-		: on(false), count(0), lst() {
-	}
-};
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
 // special terrain and wawalite-related data structs (TODO: move into Module class)
 extern WeatherState g_weatherState;
 extern fog_instance_t fog;
@@ -250,7 +226,6 @@ void game_quit_module();
 bool game_finish_module();
 bool game_begin_module(const std::shared_ptr<ModuleProfile> &module);
 void game_load_module_profiles(const std::string& modname);
-void game_load_global_profiles();
 
 /// Exporting stuff
 egolib_rv export_one_character( ObjectRef character, ObjectRef owner, int chr_obj_index, bool is_local );
@@ -279,7 +254,6 @@ void    disaffirm_attached_particles(ObjectRef objectRef);
 int reaffirm_attached_particles(ObjectRef objectRef);
 
 //Latches
-bool chr_do_latch_button( Object * pchr );
 bool chr_do_latch_attack( Object * pchr, slot_t which_slot );
 void character_swipe( ObjectRef cnt, slot_t slot );
 
@@ -291,8 +265,6 @@ ObjectRef prt_find_target( const Vector3f& pos, Facing facing, const PIP_REF ipi
 std::string expandEscapeCodes(const std::shared_ptr<Object> &object, const script_state_t &scriptState, const std::string &text);
 
 Uint8 get_light( int alpha, float seedark_mag );
-
-bool attach_one_particle( prt_bundle_t * pbdl_prt );
 
 ObjectRef chr_get_lowest_attachment(ObjectRef object_ref, bool non_item );
 
@@ -317,8 +289,6 @@ enum class Time {
 bool CheckTime(Time time);
 }
 //--------------------------------------------------------------------------------------------
-
-void   game_update_timers();
 
 // wawalite functions
 struct wawalite_data_t * read_wawalite_vfs();
