@@ -34,22 +34,22 @@
 // The data needed to describe a single link between modules
 struct Link_t
 {
-    bool   valid;
-    STRING   modname;
+    bool valid;
+    std::string modname;
     PASS_REF passage;
 };
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-extern Link_t LinkList[LINK_COUNT];
+extern std::array<Link_t, LINK_COUNT> LinkList;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 // Function prototypes
 bool link_follow_modname( const char * modname, bool push_current_module );
-bool link_build_vfs( const char * fname, Link_t list[] );
+bool link_build_vfs( const char * fname, std::array<Link_t, LINK_COUNT>& list );
 
 bool link_pop_module();
 bool link_load_parent( const char * modname, const Vector3f& pos );

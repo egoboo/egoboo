@@ -317,12 +317,14 @@ public:
 
 // Utility functions.
 void vfs_get_next_name(ReadContext& ctxt, char *buf, size_t max);
+void vfs_get_next_name(ReadContext& ctxt, std::string& name);
 Ego::Math::Interval<float> vfs_get_next_range(ReadContext& ctxt);
 bool vfs_get_next_pair(ReadContext& ctxt, IPair *pair);
 IDSZ2 vfs_get_next_idsz(ReadContext& ctxt);
 bool vfs_get_next_bool(ReadContext& ctxt);
 int32_t vfs_get_next_int32(ReadContext& ctxt);
 void vfs_get_next_string_lit(ReadContext& ctxt, char *str, size_t max);
+void vfs_get_next_string_lit(ReadContext& ctxt, std::string& stringLiteral);
 UFP8_T vfs_get_ufp8(ReadContext& ctxt);
 SFP8_T vfs_get_sfp8(ReadContext& ctxt);
 char vfs_get_next_printable(ReadContext& ctxt);
@@ -353,6 +355,7 @@ float  vfs_get_damage_resist(ReadContext& ctxt);
  *  Transitional C form, remove this.
  */
 void vfs_read_name(ReadContext& ctxt, char *buf, size_t max);
+void vfs_read_name(ReadContext& ctxt, std::string& buffer);
 /**
  * @brief
  *  Read a string (transitional C form).

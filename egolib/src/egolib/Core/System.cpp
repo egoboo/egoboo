@@ -138,7 +138,7 @@ System::System(const std::string& binaryPath) {
 
     // Start initializing the various subsystems.
     Log::get().message("Starting Egoboo Engine %s\n", VERSION.c_str());
-    Log::get().info("PhysFS file system version %s has been initialized...\n", vfs_getVersion());
+    Log::get().info("PhysFS file system version %s has been initialized...\n", vfs_getVersion().c_str());
 
     // Load "setup.txt".
     setup_begin();
@@ -227,7 +227,7 @@ System::System(const std::string& binaryPath, const std::string& egobooPath) {
 
     // Start initializing the various subsystems.
     Log::get().message("Starting Egoboo Engine %s\n", VERSION.c_str());
-    Log::get().info("PhysFS file system version %s has been initialized...\n", vfs_getVersion());
+    Log::get().info("PhysFS file system version %s has been initialized...\n", vfs_getVersion().c_str());
 
     // Load "setup.txt".
     setup_begin();

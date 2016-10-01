@@ -257,18 +257,22 @@ void _vfs_exit()
 }
 
 //--------------------------------------------------------------------------------------------
-const char *vfs_getVersion()
+std::string vfs_getLinkedVersion()
 {
-    /// @author ZF
-    /// @details  returns the current version of the PhysFS library which was used for compiling the binary
     PHYSFS_Version version;
-    static STRING buffer = EMPTY_CSTR;
+    PHYSFS_getLinkedVersion(&version);        // Linked version number
+    std::stringstream stream;
+    stream << version.major << "." << version.minor << "." << version.patch;
+    return stream.str();
+}
 
-    //PHYSFS_getLinkedVersion(&version);        //Linked version number
-    PHYSFS_VERSION( &version );         //Compiled version number
-    snprintf( buffer, SDL_arraysize( buffer ), "%d.%d.%d", version.major, version.minor, version.patch );
-
-    return buffer;
+std::string vfs_getVersion()
+{
+    PHYSFS_Version version;
+    PHYSFS_VERSION(&version);                 // Compiled version number
+    std::stringstream stream;
+    stream << version.major << "." << version.minor << "." << version.patch;
+    return stream.str();
 }
 
 #include "egolib/VFS/Pathname.hpp"

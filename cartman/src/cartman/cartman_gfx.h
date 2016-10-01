@@ -148,7 +148,7 @@ void ogl_endFrame();
 void draw_sprite( SDL_Surface * dst, SDL_Surface * sprite, int x, int y );
 int cartman_BlitScreen( SDL_Surface * bmp, SDL_Rect * prect );
 int cartman_BlitSurface( SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_Rect *dstrect );
-SDL_Surface * cartman_LoadIMG( const char * szName );
+SDL_Surface * cartman_LoadIMG( const std::string& szName );
 
 // camera stuff
 void cartman_begin_ortho_camera_hrz(Cartman::Gui::Window& pwin, camera_t *pcam, float zoom_x, float zoom_y);

@@ -174,8 +174,6 @@ struct import_element_t
 		player = INVALID_PLA_REF;
 		slot = -1;
 	}
-
-	static void init(import_element_t& self);
 };
 
 

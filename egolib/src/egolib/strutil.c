@@ -27,36 +27,32 @@
 #include "egolib/platform.h" /**<< @todo Remove this include. */
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-std::string str_trim(const std::string& source)
-{
-    return Ego::trim(source);
-}
-
-void str_trim(char *pStr) {
-    if (INVALID_CSTR(pStr)) {
-        return;
-    }
-    std::string temporary(pStr);
-    temporary = Ego::trim(temporary);
-    strcpy(pStr, temporary.c_str());
-}
-
-//--------------------------------------------------------------------------------------------
-std::string str_decode(const std::string& source)
-{
-    static const std::vector<std::pair<char,char>> substitutions =
-    {
-        { '_',  ' ' },
-        { '~', '\t' },
+std::string str_decode(const std::string& source) {
+    static const auto transcode = [](char source) {
+        switch (source) {
+            case '_': return ' ';
+            case '~': return '\t';
+            default: return source;
+        }
     };
-    std::string temporary = source;
-    for (auto& substitution : substitutions)
-    {
-        temporary.replace(temporary.begin(), temporary.end(), substitution.first, substitution.second);
-    }
+    auto temporary = source;
+    std::transform(temporary.begin(), temporary.end(), temporary.begin(), transcode);
     return temporary;
 }
+
+std::string str_encode(const std::string& source) {
+    static const auto transcode = [](char source) {
+        switch (source) {
+            case ' ': return '_';
+            case '\t': return '~';
+            default: return source;
+        };
+    };
+    auto temporary = source;
+    std::transform(temporary.begin(), temporary.end(), temporary.begin(), transcode);
+    return temporary;
+}
+
 char * str_decode( char *strout, size_t insize, const char * strin )
 {
     /// @author BB
@@ -275,6 +271,54 @@ std::string str_encode_path( const std::string& objectName)
 }
 
 //--------------------------------------------------------------------------------------------
+
+std::string add_linebreak_cpp(const std::string& text, size_t lineLength) {
+    if (0 == text.length() || 0 == lineLength) return text;
+
+    struct line_t {
+        line_t(size_t start, size_t end) : start(start), end(end) {}
+        size_t length() const {
+            return end - start;
+        }
+        size_t start, end;
+    };
+    std::string newText = text;
+    line_t line(0, 0);
+    // Memoize the last whitespace in this line.
+    size_t last_ws = std::string::npos;
+    while (newText[line.end] != '\0') {
+        if (newText[line.end] == ' ') {
+            // If a whitespace is encountered, memoize that whitespace.
+            last_ws = line.end;
+            // Expand line.
+            line.end++;
+        } else if (newText[line.end] == '\n') {
+            // Begin a new line.
+            line.start = line.end + 1;
+            line.end = line.start;
+            // No whitespace in that new line (so far).
+            last_ws = std::string::npos;
+        } else {
+            // Expand line.
+            line.end++;
+        }
+        // If the sub-length exceeds the limit
+        if (line.length() > lineLength) {
+            // If a whitespace exists in that line ...
+            if (last_ws != std::string::npos) {
+                // If a whitespace character in this line was found replace it by a newline character.
+                // This effectively starts a new line.
+                newText[last_ws] = '\n';
+                line.start = last_ws + 1;
+            } else {
+                // Otherwise there is nothing we can do: advance to end of string, whitespace, or end of line.
+                while (newText[line.end] != '\n' && newText[line.end] != ' ' && newText[line.end] != '\0') line.end++;
+            }
+        }
+    }
+    return newText;
+}
+
 void str_add_linebreaks( char * text, size_t text_len, size_t line_len )
 {
     char * text_end, * text_break, * text_stt;

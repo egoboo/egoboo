@@ -430,8 +430,6 @@ egolib_rv phys_intersect_oct_bb_index(int index, const oct_bb_t& src1, const oct
             // so do 8 tests.
 
             float time[8];
-            float tmp_min1, tmp_max1;
-            float tmp_min2, tmp_max2;
 
             // Assume: 2nd object is platform.
             plat_min = src2_min;
@@ -441,8 +439,8 @@ egolib_rv phys_intersect_oct_bb_index(int index, const oct_bb_t& src1, const oct
             time[1] = (src1_min - plat_max) / vdiff;
             time[2] = (src1_max - plat_min) / vdiff;
             time[3] = (src1_max - plat_max) / vdiff;
-            tmp_min1 = std::min(std::min(time[0], time[1]), std::min(time[2], time[3]));
-            tmp_max1 = std::max(std::max(time[0], time[1]), std::max(time[2], time[3]));
+            float tmp_min1 = std::min({time[0], time[1], time[2], time[3]});
+            float tmp_max1 = std::max({time[0], time[1], time[2], time[3]});
 
             // Assume: 1st object is platform.
             plat_min = src1_min;
@@ -452,8 +450,8 @@ egolib_rv phys_intersect_oct_bb_index(int index, const oct_bb_t& src1, const oct
             time[5] = (plat_min - src2_max) / vdiff;
             time[6] = (plat_max - src2_min) / vdiff;
             time[7] = (plat_max - src2_max) / vdiff;
-            tmp_min2 = std::min(std::min(time[4], time[5]), std::min(time[6], time[7]));
-            tmp_max2 = std::max(std::max(time[4], time[5]), std::max(time[6], time[7]));
+            float tmp_min2 = std::min({time[4], time[5], time[6], time[7]});
+            float tmp_max2 = std::max({time[4], time[5], time[6], time[7]});
 
             *tmin = std::min(tmp_min1, tmp_min2);
             *tmax = std::max(tmp_max1, tmp_max2);
@@ -688,8 +686,8 @@ egolib_rv phys_intersect_oct_bb_close_index(int index, const oct_bb_t& src1, con
             time[2] = (opos1 - src2_min) / vdiff;
             time[3] = (opos1 - src2_max) / vdiff;
 
-            *tmin = std::min(std::min(time[0], time[1]), std::min(time[2], time[3]));
-            *tmax = std::max(std::max(time[0], time[1]), std::max(time[2], time[3]));
+            *tmin = std::min({time[0], time[1], time[2], time[3]});
+            *tmax = std::max({time[0], time[1], time[2], time[3]});
         }
     }
     else /* OCT_Z == index */
@@ -940,9 +938,7 @@ void apos_t::join(const float t, const size_t index) {
 }
 
 void apos_t::evaluate(const apos_t& self, Vector3f& dst) {
-    for (size_t i = 0; i < 3; ++i) {
-        dst[i] = self.maxs[i] + self.mins[i];
-    }
+    dst = self.maxs + self.mins;
 }
 
 //--------------------------------------------------------------------------------------------

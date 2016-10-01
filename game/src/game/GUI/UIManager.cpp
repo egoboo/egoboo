@@ -143,13 +143,15 @@ void UIManager::drawImage(const Point2f& position, const Vector2f& size, const s
 bool UIManager::dumpScreenshot() {
     int i;
     bool saved = false;
-    STRING szFilename, szResolvedFilename;
+    std::string szFilename, szResolvedFilename;
 
     // find a valid file name
     bool savefound = false;
     i = 0;
     while (!savefound && (i < 100)) {
-        snprintf(szFilename, SDL_arraysize(szFilename), "ego%02d.png", i);
+        std::stringstream stream;
+        stream << "ego" << std::setfill('0') << std::setw(2) << i << ".png";
+        szFilename = stream.str();
 
         // lame way of checking if the file already exists...
         savefound = !vfs_exists(szFilename);
@@ -161,7 +163,7 @@ bool UIManager::dumpScreenshot() {
     if (!savefound) return false;
 
     // convert the file path to the correct write path
-    strncpy(szResolvedFilename, szFilename, SDL_arraysize(szFilename));
+    szResolvedFilename = szFilename;
 
     // if we are not using OpenGL, use SDL to dump the screen
     if (HAS_NO_BITS(SDL_GetWindowFlags(Ego::GraphicsSystem::window->get()), SDL_WINDOW_OPENGL)) {
@@ -221,7 +223,7 @@ bool UIManager::dumpScreenshot() {
             SDL_FreeSurface(temp);
             if (saved) {
                 // tell the user what we did
-                DisplayMsg_printf("Saved to %s", szFilename);
+                DisplayMsg_printf("Saved to %s", szFilename.c_str());
             }
         }
     }

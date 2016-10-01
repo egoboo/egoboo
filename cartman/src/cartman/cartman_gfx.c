@@ -945,13 +945,13 @@ int cartman_BlitSurface( SDL_Surface *src, ::SDL_Rect *srcrect, SDL_Surface *dst
 }
 
 //--------------------------------------------------------------------------------------------
-SDL_Surface *cartman_LoadIMG(const char *name)
+SDL_Surface *cartman_LoadIMG(const std::string& name)
 {
     // Load the image.
     SDL_Surface *originalImage = IMG_Load_RW(vfs_openRWopsRead(name), 1);
     if (!originalImage)
     {
-		Log::get().error("unable to load image `%s` - reason `%s`\n", name, IMG_GetError());
+		Log::get().error("unable to load image `%s` - reason `%s`\n", name.c_str(), IMG_GetError());
         return nullptr;
     }
 
@@ -960,7 +960,7 @@ SDL_Surface *cartman_LoadIMG(const char *name)
     SDL_FreeSurface(originalImage);
     if (!convertedImage)
     {
-		Log::get().error("unable to convert image `%s`\n", name);
+		Log::get().error("unable to convert image `%s`\n", name.c_str());
 		return nullptr;
     }
 

@@ -702,13 +702,12 @@ void ModelDescriptor::healActions(const std::string &filePath)
     }
         while (ctxt->skipToColon(true))
         {
-            char szOne[16] = EMPTY_CSTR;
-            char szTwo[16] = EMPTY_CSTR;
+            std::string szOne, szTwo;
 
-            vfs_read_string_lit( *ctxt, szOne, SDL_arraysize( szOne ) );
+            vfs_read_string_lit( *ctxt, szOne );
             ModelAction actiona = ModelDescriptor::charToAction(szOne[0]);
 
-            vfs_read_string_lit( *ctxt, szTwo, SDL_arraysize( szTwo ) );
+            vfs_read_string_lit( *ctxt, szTwo );
             ModelAction actionb = ModelDescriptor::charToAction(szTwo[0]);
 
             actionCopyCorrect(static_cast<ModelAction>(actiona + 0), static_cast<ModelAction>(actionb + 0));

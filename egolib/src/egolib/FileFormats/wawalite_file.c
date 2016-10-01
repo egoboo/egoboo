@@ -161,10 +161,10 @@ void wawalite_weather_t::read(ReadContext& ctxt, wawalite_data_t *enclosing, waw
     profile->part_gpip = LocalParticleProfileRef(PIP_WEATHER);
     if (enclosing->version >= WAWALITE_FILE_VERSION)
     {
-        STRING line;
+        std::string line;
 
         //Parse the weather type line
-        vfs_get_next_string_lit(ctxt, line, SDL_arraysize(line));
+        vfs_get_next_string_lit(ctxt, line);
         profile->weather_name = line;
         Ego::toupper(profile->weather_name);
     }

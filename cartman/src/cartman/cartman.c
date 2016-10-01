@@ -58,7 +58,7 @@ static void cart_mouse_data_mesh_replace_fx();
 
 //--------------------------------------------------------------------------------------------
 
-STRING egoboo_path = { "" };
+std::string egoboo_path = "";
 
 int     onscreen_count = 0;
 Uint32  onscreen_vert[MAXPOINTS];
@@ -99,7 +99,7 @@ static void   cartman_check_input( const char *modname, cartman_mpd_t * pmesh );
 
 // loading
 static bool load_module( const char *modname, cartman_mpd_t * pmesh );
-static void gfx_system_load_basic_textures( const char *modname );
+static void gfx_system_load_basic_textures( const std::string& modname );
 static void cartman_create_mesh( cartman_mpd_t * pmesh );
 
 // saving
@@ -308,7 +308,7 @@ void make_onscreen( cartman_mpd_t * pmesh )
 
 //--------------------------------------------------------------------------------------------
 
-void gfx_system_load_basic_textures( const char *modname )
+void gfx_system_load_basic_textures( const std::string& modname )
 {
     // ZZ> This function loads the standard textures for a module
 
@@ -317,26 +317,23 @@ void gfx_system_load_basic_textures( const char *modname )
     vfs_listSearchPaths();
     */
 
-    STRING newloadname;
     SDL_Surface *bmptemp;       // A temporary bitmap
 
-    make_newloadname(modname, C_SLASH_STR"gamedat" C_SLASH_STR "tile0.bmp", newloadname);
-    bmptemp = cartman_LoadIMG( newloadname );
+    std::string prefix = modname + C_SLASH_STR + "gamedat" + C_SLASH_STR;
+
+    bmptemp = cartman_LoadIMG(prefix + "tile0.bmp");
     get_tiles( bmptemp );
     SDL_FreeSurface( bmptemp );
 
-    make_newloadname(modname, C_SLASH_STR "gamedat" C_SLASH_STR "tile1.bmp", newloadname);
-    bmptemp = cartman_LoadIMG( newloadname );
+    bmptemp = cartman_LoadIMG(prefix + "tile1.bmp");
     get_tiles( bmptemp );
     SDL_FreeSurface( bmptemp );
 
-    make_newloadname(modname, C_SLASH_STR "gamedat" C_SLASH_STR "tile2.bmp", newloadname);
-    bmptemp = cartman_LoadIMG( newloadname );
+    bmptemp = cartman_LoadIMG(prefix + "tile2.bmp");
     get_tiles( bmptemp );
     SDL_FreeSurface( bmptemp );
 
-    make_newloadname(modname, C_SLASH_STR "gamedat" C_SLASH_STR "tile3.bmp", newloadname);
-    bmptemp = cartman_LoadIMG( newloadname );
+    bmptemp = cartman_LoadIMG(prefix + "tile3.bmp");
     get_tiles( bmptemp );
     SDL_FreeSurface( bmptemp );
 }
@@ -345,12 +342,11 @@ void gfx_system_load_basic_textures( const char *modname )
 
 bool load_module( const char *modname, cartman_mpd_t * pmesh )
 {
-    STRING mod_path = EMPTY_CSTR;
     wawalite_data_t *pdata;
 
     if (!pmesh) pmesh = &mesh;
 
-    sprintf(mod_path, "/modules/%s", modname);
+    std::string mod_path = std::string("/modules/") + modname;
 
     if (!setup_init_module_vfs_paths(modname))
     {
@@ -1687,7 +1683,7 @@ int SDL_main( int argcnt, char* argtext[] )
     }
     else if ( argcnt < 3 )
     {
-        sprintf( egoboo_path, "%s", "." );
+        egoboo_path = ".";
         sprintf( modulename, "%s.mod", argtext[1] );
     }
     else if ( argcnt < 4 )
@@ -1699,11 +1695,11 @@ int SDL_main( int argcnt, char* argtext[] )
             pstr[len-1] = '\0';
             pstr++;
         }
-        sprintf( egoboo_path, "%s", pstr );
+        egoboo_path = pstr;
         sprintf( modulename, "%s.mod", argtext[2] );
     }
 
-    Ego::Core::System::initialize(std::string(argtext[0]), std::string(egoboo_path));
+    Ego::Core::System::initialize(std::string(argtext[0]), egoboo_path);
 
     // Construct the input system.
     Cartman::Input::initialize();
@@ -1802,7 +1798,7 @@ void cartman_save_mesh( const char * modname, cartman_mpd_t * pmesh )
     numwritten = 0;
     numattempt = 0;
 
-    sprintf( newloadname, "%s" SLASH_STR "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "plan.bmp", egoboo_path, modname );
+    sprintf( newloadname, "%s" SLASH_STR "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "plan.bmp", egoboo_path.c_str(), modname );
 
     make_planmap( pmesh );
     if (Resources::get().bmphitemap )

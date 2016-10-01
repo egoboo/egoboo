@@ -325,7 +325,10 @@ const char *vfs_resolveReadFilename(const char *src_filename);
 const char *vfs_resolveWriteFilename(const char *src_filename);
 
 const char *vfs_getError();
-const char *vfs_getVersion();
+/// @brief Get the version of the PhysFS library which was used for linking the binary.
+std::string vfs_getLinkedVersion();
+/// @brief Get the version of the PhysFS library which used for compiling the binary.
+std::string vfs_getVersion();
 
 int vfs_add_mount_point(const char *dirname, const char *relative_path, const char *mount_point, int append);
 int vfs_remove_mount_point(const char *mount_point);

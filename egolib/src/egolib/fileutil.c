@@ -362,6 +362,10 @@ void vfs_read_name(ReadContext& ctxt, char *buffer, size_t max)
     std::string _literal = ctxt.readName();
     strncpy(buffer,_literal.c_str(),max);
 }
+void vfs_read_name(ReadContext& ctxt, std::string& buffer)
+{
+    buffer = ctxt.readName();
+}
 //--------------------------------------------------------------------------------------------
 void vfs_put_int( vfs_FILE* filewrite, const char* text, int ival )
 {
@@ -1400,6 +1404,12 @@ void vfs_get_next_string_lit(ReadContext& ctxt, char *str, size_t max)
     vfs_read_string_lit(ctxt, str, max);
 }
 
+void vfs_get_next_string_lit(ReadContext& ctxt, std::string& str)
+{
+    ctxt.skipToColon(false);
+    vfs_read_string_lit(ctxt, str);
+}
+
 //--------------------------------------------------------------------------------------------
 float vfs_get_next_float(ReadContext& ctxt)
 {
@@ -1412,6 +1422,12 @@ void vfs_get_next_name(ReadContext& ctxt, char *buffer, size_t max)
 {
     ctxt.skipToColon(false);
     vfs_read_name(ctxt, buffer, max);
+}
+
+void vfs_get_next_name(ReadContext& ctxt, std::string& buffer)
+{
+    ctxt.skipToColon(false);
+    vfs_read_name(ctxt, buffer);
 }
 
 //--------------------------------------------------------------------------------------------

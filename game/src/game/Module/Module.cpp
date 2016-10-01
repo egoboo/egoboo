@@ -837,18 +837,18 @@ void GameModule::loadTeamAlliances()
     //Found the file, parse the contents
     while (ctxt->skipToColon(true))
     {
-        char buffer[1024 + 1];
-        vfs_read_string_lit(*ctxt, buffer, 1024);
-        if (strlen(buffer) < 1) {
-            throw Id::SyntacticalErrorException(__FILE__, __LINE__, Id::Location(ctxt->getFileName(), ctxt->getLineNumber()),
-                                                "empty string literal");
+        std::string buffer;
+        vfs_read_string_lit(*ctxt, buffer);
+        if (buffer.length() < 1) {
+            throw SyntacticalErrorException(__FILE__, __LINE__, Id::Location(ctxt->getFileName(), ctxt->getLineNumber()),
+                                            "empty string literal");
         }
         TEAM_REF teama = (buffer[0] - 'A') % Team::TEAM_MAX;
 
-        vfs_read_string_lit(*ctxt, buffer, 1024);
-        if (strlen(buffer) < 1) {
-            throw Id::SyntacticalErrorException(__FILE__, __LINE__, Id::Location(ctxt->getFileName(), ctxt->getLineNumber()),
-                                                "empty string literal");
+        vfs_read_string_lit(*ctxt, buffer);
+        if (buffer.length() < 1) {
+            throw SyntacticalErrorException(__FILE__, __LINE__, Id::Location(ctxt->getFileName(), ctxt->getLineNumber()),
+                                            "empty string literal");
         }
         TEAM_REF teamb = (buffer[0] - 'A') % Team::TEAM_MAX;
         _teamList[teama].makeAlliance(_teamList[teamb]);
