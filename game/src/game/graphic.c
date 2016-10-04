@@ -1894,7 +1894,7 @@ gfx_rv gfx_make_dynalist(dynalist_t& dyl, Camera& cam)
                 if (dyl.lst[tnc].distance > distance_max)
                 {
                     plight_max = dyl.lst + tnc;
-                    distance_max = plight->distance;
+                    distance_max = plight_max->distance;
                 }
             }
         }
