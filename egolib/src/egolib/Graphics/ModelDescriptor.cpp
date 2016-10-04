@@ -429,7 +429,7 @@ void ModelDescriptor::parseFrameDescriptors(const char * cFrameName, int frame)
     name_fx[15] = CSTR_END;
 
     // check for a non-trivial fx command
-    if ( !VALID_CSTR( name_fx ) ) return;
+    if ( name_fx[0] == '\0' ) return;
 
     // scan the fx string for valid commands
     ptmp     = name_fx;
