@@ -57,8 +57,11 @@
 	 */
     std::string str_encode_path(const std::string& objectName);
 
+    std::string str_clean_path(const std::string& pathname);
     char * str_clean_path( char * str, size_t size );
+    std::string str_convert_slash_net(const std::string& pathname);
     char * str_convert_slash_net( char * str, size_t size );
+    std::string str_convert_slash_sys(const std::string& pathname);
     char * str_convert_slash_sys( char * str, size_t size );
 
 	/// Append a operating system slash to a filename

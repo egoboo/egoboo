@@ -49,7 +49,7 @@ struct opcode_data_t
 {
     Token::Type _type;
     uint32_t iValue;
-    char cName[MAXCODENAMESIZE];
+    std::string cName;
 };
 
 /// The opcodes.

@@ -154,18 +154,15 @@ struct fog_instance_t
 // Imports
 struct import_element_t
 {
-    STRING          srcDir;
-    STRING          dstDir;
-    STRING          name;
+    std::string          srcDir;
+    std::string          dstDir;
+    std::string          name;
 
     size_t          local_player_num;   ///< Local player number (player 1, 2, 3 or 4)
     size_t          player;             ///< Which player is this?
     int             slot;               ///< which slot it it to be loaded into
 
-	import_element_t() {
-		srcDir[0] = '\0';
-		dstDir[0] = '\0';
-		name[0] = '\0';
+	import_element_t() : srcDir(), dstDir(), name() {
 		local_player_num = 0;
 		// all non-zero, non-null values
 		player = INVALID_PLA_REF;

@@ -54,6 +54,17 @@ std::string str_encode(const std::string& source) {
 }
 
 //--------------------------------------------------------------------------------------------
+std::string str_clean_path(const std::string& pathname) {
+    struct predicate {
+        bool operator()(char a, char b) const {
+            return (a == '/' || a == '\\') && (b == '/'||  b == '\\');
+        }
+    };
+    auto temporary = pathname;
+    temporary.erase(std::unique(temporary.begin(), temporary.end(), predicate()), temporary.end());
+    return temporary;
+}
+
 char * str_clean_path( char * str, size_t size )
 {
     /// @author BB
@@ -95,6 +106,16 @@ char * str_clean_path( char * str, size_t size )
 }
 
 //--------------------------------------------------------------------------------------------
+std::string str_convert_slash_net(const std::string& pathname) {
+    static const auto transcode = [](char source) {
+        if (source == C_SLASH_CHR || source == C_BACKSLASH_CHR) return NET_SLASH_CHR;
+        else return source;
+    };
+    auto temporary = pathname;
+    std::transform(temporary.begin(), temporary.end(), temporary.begin(), transcode);
+    return str_clean_path(temporary);
+}
+
 char * str_convert_slash_net( char * str, size_t size )
 {
     /// @author BB
@@ -124,6 +145,16 @@ char * str_convert_slash_net( char * str, size_t size )
 }
 
 //--------------------------------------------------------------------------------------------
+std::string str_convert_slash_sys(const std::string& pathname) {
+    static const auto transcode = [](char source) {
+        if (source == C_SLASH_CHR || source == C_BACKSLASH_CHR) return SLASH_CHR;
+        else return source;
+    };
+    auto temporary = pathname;
+    std::transform(temporary.begin(), temporary.end(), temporary.begin(), transcode);
+    return str_clean_path(temporary);
+}
+
 char * str_convert_slash_sys( char * str, size_t size )
 {
     /// @author BB

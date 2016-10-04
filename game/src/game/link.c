@@ -79,7 +79,7 @@ static link_stack_entry_t link_stack[LINK_STACK_MAX];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool link_follow_modname( const char * modname, bool push_current_module )
+bool link_follow_modname( const std::string& modname, bool push_current_module )
 {
 //ZF> TODO: not implemented
     return false;
@@ -137,10 +137,8 @@ bool link_follow_modname( const char * modname, bool push_current_module )
 }
 
 //--------------------------------------------------------------------------------------------
-bool link_build_vfs( const char * fname, std::array<Link_t, LINK_COUNT>& list )
+bool link_build_vfs( const std::string& fname, std::array<Link_t, LINK_COUNT>& list )
 {
-    if (!VALID_CSTR(fname)) return false;
-
     ReadContext ctxt(fname);
 
     size_t i = 0;

@@ -410,7 +410,7 @@ size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_
         int i;
         tok.setText(buffer.toString());
         for (i = 0; i < Opcodes.size(); ++i) {
-            if (0 == strncmp(tok.getText().c_str(), Opcodes[i].cName, MAXCODENAMESIZE)) {
+            if (tok.getText() == Opcodes[i].cName) {
                 tok.setValue(Opcodes[i].iValue);
                 tok.setType(Opcodes[i]._type);
                 tok.setIndex(i);
@@ -464,7 +464,7 @@ size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_
         tok.setText(buffer.toString());
         int i;
         for (i = 0; i < Opcodes.size(); ++i) {
-            if (0 == strncmp(tok.getText().c_str(), Opcodes[i].cName, MAXCODENAMESIZE)) {
+            if (tok.getText() == Opcodes[i].cName) {
                 tok.setValue(Opcodes[i].iValue);
                 tok.setType(Opcodes[i]._type);
                 tok.setIndex(i);
@@ -1034,7 +1034,7 @@ bool load_ai_codes_vfs()
     for (size_t i = 0, n = sizeof(AICODES) / sizeof(aicode_t); i < n; ++i)
     {
         Opcodes.push_back(opcode_data_t());
-        strncpy(Opcodes[i].cName, AICODES[i]._name, SDL_arraysize(Opcodes[i].cName));
+        Opcodes[i].cName = AICODES[i]._name;
         Opcodes[i]._type = AICODES[i]._type;
         Opcodes[i].iValue = AICODES[i]._value;
     }

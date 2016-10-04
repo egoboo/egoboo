@@ -1364,16 +1364,16 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
 
     if ( profile->_bumpOverrideSize || profile->_bumpOverrideSizeBig ||  profile->_bumpOverrideHeight )
     {
-        STRING sz_tmp = EMPTY_CSTR;
+        std::string sz_tmp;
 
-        if ( profile->_bumpOverrideSize ) strcat( sz_tmp, "S" );
-        if ( profile->_bumpOverrideSizeBig ) strcat( sz_tmp, "B" );
-        if ( profile->_bumpOverrideHeight ) strcat( sz_tmp, "H" );
-        if ( profile->_dontCullBackfaces ) strcat( sz_tmp, "C" );
+        if ( profile->_bumpOverrideSize ) sz_tmp += "S";
+        if ( profile->_bumpOverrideSizeBig ) sz_tmp += "B";
+        if ( profile->_bumpOverrideHeight ) sz_tmp += "H";
+        if ( profile->_dontCullBackfaces ) sz_tmp += "C";
 
-        if ( CSTR_END != sz_tmp[0] )
+        if ( sz_tmp != "" )
         {
-            vfs_put_expansion_string( fileWrite, "", IDSZ2( 'M', 'O', 'D', 'L' ), sz_tmp );
+            vfs_put_expansion_string( fileWrite, "", IDSZ2( 'M', 'O', 'D', 'L' ), sz_tmp.c_str() );
         }
     }
 

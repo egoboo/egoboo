@@ -137,8 +137,8 @@ bool LoadingState::loadPlayers()
         import_ptr->slot            = (import_ptr->local_player_num) * MAX_IMPORT_PER_PLAYER;
         import_ptr->player          = (import_ptr->local_player_num);
 
-        strncpy( import_ptr->srcDir, loadPath.c_str(), SDL_arraysize( import_ptr->srcDir ) );
-        import_ptr->dstDir[0] = CSTR_END;
+        import_ptr->srcDir = loadPath;
+        import_ptr->dstDir = "";
     }
 
     if(g_importList.count > 0) {
