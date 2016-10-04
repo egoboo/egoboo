@@ -322,7 +322,7 @@ uint32_t getPixel(const SharedPtr<const SDL_Surface>& surface, int x, int y) {
             return *p;
 
         case 2:
-            return *(uint16_t *)p;
+            return *reinterpret_cast<uint16_t*>(p);
 
         case 3:
 			if (SDL_BYTEORDER == SDL_BIG_ENDIAN) {
@@ -333,7 +333,7 @@ uint32_t getPixel(const SharedPtr<const SDL_Surface>& surface, int x, int y) {
             break;
 
         case 4:
-            return *(uint32_t *)p;
+            return *reinterpret_cast<uint32_t*>(p);
 
         default:
             throw UnhandledSwitchCaseException(__FILE__, __LINE__, "unreachable code reached"); /* shouldn't happen, but avoids warnings */
@@ -354,23 +354,23 @@ void putPixel(const SharedPtr<SDL_Surface>& surface, int x, int y, uint32_t pixe
             break;
 
         case 2:
-            *(uint16_t *)p = pixel;
+            *reinterpret_cast<uint16_t*>(p) = pixel;
             break;
 
         case 3:
-            if (SDL_BYTEORDER == SDL_BIG_ENDIAN) {
+#if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
                 p[0] = (pixel >> 16) & 0xff;
                 p[1] = (pixel >> 8) & 0xff;
                 p[2] = pixel & 0xff;
-            } else {
+#else
                 p[0] = pixel & 0xff;
                 p[1] = (pixel >> 8) & 0xff;
                 p[2] = (pixel >> 16) & 0xff;
-            }
+#endif
             break;
 
         case 4:
-            *(uint32_t *)p = pixel;
+            *reinterpret_cast<uint32_t*>(p) = pixel;
             break;
 
         default:
@@ -496,9 +496,9 @@ bool testAlpha(const SharedPtr<SDL_Surface>& surface) {
     for (int y = 0; y < height; ++y) {
         const char *char_ptr = row_ptr;
         for (int x = 0; x < width; ++x) {
-            Uint32 *ui32_ptr = (Uint32 *)char_ptr;
-            Uint32 pixel = (*ui32_ptr) & bitMask;
-            Uint8 r, g, b, a;
+            const uint32_t *ui32_ptr = reinterpret_cast<const uint32_t*>(char_ptr);
+            uint32_t pixel = (*ui32_ptr) & bitMask;
+            uint8_t r, g, b, a;
             SDL_GetRGBA(pixel, format, &r, &g, &b, &a);
 
             if (0xFF != a) {
