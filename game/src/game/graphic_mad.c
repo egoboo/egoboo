@@ -46,31 +46,24 @@ struct Md2Vertex {
 };
 
 struct Md2VertexBuffer {
-    size_t size;
-    Md2Vertex *vertices;
-    Md2VertexBuffer(size_t size) : size(size), vertices(new Md2Vertex[size]) {
+    std::vector<Md2Vertex> vertices;
+    Md2VertexBuffer(size_t size) : vertices() {
+        vertices.resize(size);
         // Intentionally empty.
     }
     Md2VertexBuffer() : Md2VertexBuffer(0) {
         // Intentionally empty.
     }
     ~Md2VertexBuffer() {
-        if (nullptr != vertices) {
-            delete[] vertices;
-            vertices = nullptr;
-        }
+        //dtor
     }
+
     void ensureSize(size_t requiredSize) {
-        if (requiredSize > size) {
-            Md2Vertex *requiredVertices = new Md2Vertex[requiredSize];
-            for (size_t i = 0; i < size; ++i) {
-                requiredVertices[i] = vertices[i];
-            }
-            delete[] vertices;
-            vertices = requiredVertices;
-            size = requiredSize;
+        if (requiredSize > vertices.size()) {
+            vertices.resize(requiredSize);
         }
     }
+
     void render(GLenum mode, size_t start, size_t length) {
         glBegin(mode); {
             for (size_t vertexIndex = start; vertexIndex < start + length; ++vertexIndex) {
