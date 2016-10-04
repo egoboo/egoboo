@@ -68,8 +68,6 @@
 	/// if there is no slash or backslash.
     std::string str_append_slash_net(const std::string& filename);
 
-    void   str_add_linebreaks( char * text, size_t text_len, size_t line_len );
-
 #if defined(__GNUC__) && !(defined (__MINGW) || defined(__MINGW32__))
     char* strupr( char * str );
     char* strlwr( char * str );

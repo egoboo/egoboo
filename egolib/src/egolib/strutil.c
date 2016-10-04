@@ -244,56 +244,6 @@ std::string add_linebreak_cpp(const std::string& text, size_t lineLength) {
     return newText;
 }
 
-void str_add_linebreaks( char * text, size_t text_len, size_t line_len )
-{
-    char * text_end, * text_break, * text_stt;
-
-    if ( INVALID_CSTR( text ) || 0 == text_len  || 0 == line_len ) return;
-
-    text_end = text + text_len;
-    text_break = text_stt = text;
-    while ( text < text_end && CSTR_END != *text )
-    {
-        // scan for the next whitespace
-        text = strpbrk( text, " \n" );
-
-        if ( text >= text_end )
-        {
-            break;
-        }
-        else if ( NULL == text )
-        {
-            // reached the end of the string
-            break;
-        }
-        else if ( C_LINEFEED_CHAR == *text )
-        {
-            // respect existing line breaks
-            text_break = text;
-            text++;
-            continue;
-        }
-
-        // until the line is too long, then insert
-        // replace the last good ' ' with C_NEW_LINE_CHAR
-        if ((( size_t )text - ( size_t )text_break ) > line_len )
-        {
-            if ( ' ' != *text_break )
-            {
-                text_break = text;
-            }
-
-            // convert the character
-            *text_break = C_LINEFEED_CHAR;
-
-            // start over again
-            text = text_break;
-        }
-
-        text++;
-    }
-}
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // gcc does not define these functions on linux (at least not Ubuntu),
