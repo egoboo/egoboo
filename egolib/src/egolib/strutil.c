@@ -27,142 +27,30 @@
 #include "egolib/platform.h" /**<< @todo Remove this include. */
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-std::string str_trim(const std::string& source)
-{
-    return Ego::trim(source);
-}
-
-void str_trim( char *pStr )
-{
-    Sint32 DebPos = 0, EndPos = 0, CurPos = 0;
-
-    if ( INVALID_CSTR( pStr ) )
-    {
-        return;
-    }
-
-    // look for the first character in string
-    DebPos = 0;
-    while (Ego::isspace(pStr[DebPos]) && CSTR_END != pStr[DebPos])
-    {
-        DebPos++;
-    }
-
-    // look for the last character in string
-    CurPos = DebPos;
-    while ( pStr[CurPos] != 0 )
-    {
-        if (!Ego::isspace(pStr[CurPos]))
-        {
-            EndPos = CurPos;
+std::string str_decode(const std::string& source) {
+    static const auto transcode = [](char source) {
+        switch (source) {
+            case '_': return ' ';
+            case '~': return '\t';
+            default: return source;
         }
-        CurPos++;
-    }
-
-    if ( DebPos != 0 )
-    {
-        // shift string left
-        for ( CurPos = 0; CurPos <= ( EndPos - DebPos ); CurPos++ )
-        {
-            pStr[CurPos] = pStr[CurPos + DebPos];
-        }
-        pStr[CurPos] = CSTR_END;
-    }
-    else
-    {
-        pStr[EndPos + 1] = CSTR_END;
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-std::string str_decode(const std::string& source)
-{
-    static const std::vector<std::pair<char,char>> substitutions =
-    {
-        { '_',  ' ' },
-        { '~', '\t' },
     };
-    std::string temporary = source;
-    for (auto& substitution : substitutions)
-    {
-        temporary.replace(temporary.begin(), temporary.end(), substitution.first, substitution.second);
-    }
+    auto temporary = source;
+    std::transform(temporary.begin(), temporary.end(), temporary.begin(), transcode);
     return temporary;
 }
-char * str_decode( char *strout, size_t insize, const char * strin )
-{
-    /// @author BB
-    /// @details str_decode converts a string from "storage mode" to an actual string
 
-    char *pin = ( char * )strin, *pout = strout, *plast = pout + insize;
-
-    if ( NULL == strin || NULL == strout || 0 == insize ) return NULL;
-    while ( pout < plast && CSTR_END != *pin )
-    {
-        *pout = *pin;
-        if ( '_' == *pout ) *pout = ' ';
-        else if ( '~' == *pout ) *pout = C_TAB_CHAR;
-        pout++;
-        pin++;
+std::string str_encode(const std::string& source) {
+    static const auto transcode = [](char source) {
+        switch (source) {
+            case ' ': return '_';
+            case '\t': return '~';
+            default: return source;
+        };
     };
-
-    if ( pout < plast ) *pout = CSTR_END;
-
-    return strout;
-}
-
-//--------------------------------------------------------------------------------------------
-char * str_encode( char *strout, size_t insize, const char * strin )
-{
-    /// @author BB
-    /// @details str_encode converts an actual string to "storage mode"
-
-    char chrlast = 0;
-    char *pin = ( char * )strin, *pout = strout, *plast = pout + insize;
-
-    if ( NULL == strin || NULL == strout || 0 == insize ) return NULL;
-    while ( pout < plast && CSTR_END != *pin )
-    {
-        if (!Ego::isspace(*pin) && Ego::isprint(*pin))
-        {
-            chrlast = *pout = Ego::tolower(*pin);
-            pin++;
-            pout++;
-        }
-        else if (' ' == *pin)
-        {
-            chrlast = *pout = '_';
-            pin++;
-            pout++;
-        }
-        else if (C_TAB_CHAR == *pin)
-        {
-            chrlast = *pout = '~';
-            pin++;
-            pout++;
-        }
-        else if (Ego::isspace(*pin))
-        {
-            chrlast = *pout = '_';
-            pin++;
-            pout++;
-        }
-        else if ( '_' != chrlast )
-        {
-            chrlast = *pout = '_';
-            pin++;
-            pout++;
-        }
-        else
-        {
-            pin++;
-        }
-    };
-
-    if ( pout < plast ) *pout = CSTR_END;
-
-    return strout;
+    auto temporary = source;
+    std::transform(temporary.begin(), temporary.end(), temporary.begin(), transcode);
+    return temporary;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -308,6 +196,54 @@ std::string str_encode_path( const std::string& objectName)
 }
 
 //--------------------------------------------------------------------------------------------
+
+std::string add_linebreak_cpp(const std::string& text, size_t lineLength) {
+    if (0 == text.length() || 0 == lineLength) return text;
+
+    struct line_t {
+        line_t(size_t start, size_t end) : start(start), end(end) {}
+        size_t length() const {
+            return end - start;
+        }
+        size_t start, end;
+    };
+    std::string newText = text;
+    line_t line(0, 0);
+    // Memoize the last whitespace in this line.
+    size_t last_ws = std::string::npos;
+    while (newText[line.end] != '\0') {
+        if (newText[line.end] == ' ') {
+            // If a whitespace is encountered, memoize that whitespace.
+            last_ws = line.end;
+            // Expand line.
+            line.end++;
+        } else if (newText[line.end] == '\n') {
+            // Begin a new line.
+            line.start = line.end + 1;
+            line.end = line.start;
+            // No whitespace in that new line (so far).
+            last_ws = std::string::npos;
+        } else {
+            // Expand line.
+            line.end++;
+        }
+        // If the sub-length exceeds the limit
+        if (line.length() > lineLength) {
+            // If a whitespace exists in that line ...
+            if (last_ws != std::string::npos) {
+                // If a whitespace character in this line was found replace it by a newline character.
+                // This effectively starts a new line.
+                newText[last_ws] = '\n';
+                line.start = last_ws + 1;
+            } else {
+                // Otherwise there is nothing we can do: advance to end of string, whitespace, or end of line.
+                while (newText[line.end] != '\n' && newText[line.end] != ' ' && newText[line.end] != '\0') line.end++;
+            }
+        }
+    }
+    return newText;
+}
+
 void str_add_linebreaks( char * text, size_t text_len, size_t line_len )
 {
     char * text_end, * text_break, * text_stt;

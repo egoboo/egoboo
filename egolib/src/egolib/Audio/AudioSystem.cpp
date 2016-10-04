@@ -326,8 +326,8 @@ void AudioSystem::loadAllMusic()
     // Load all music data into memory
     while (ctxt.skipToColon(true))
     {
-        char songName[256];
-        vfs_read_name(ctxt, songName, SDL_arraysize(songName));
+        std::string songName;
+        vfs_read_name(ctxt, songName);
         loadMusic(std::string("mp_data/music/") + songName + ".ogg");
     }
 

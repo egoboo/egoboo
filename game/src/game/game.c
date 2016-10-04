@@ -1931,19 +1931,6 @@ float get_chr_level( ego_mesh_t *mesh, Object *object )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void import_element_t::init(import_element_t& self)
-{
-	self.srcDir[0] = '\0';
-	self.dstDir[0] = '\0';
-	self.name[0] = '\0';
-	self.local_player_num = 0;
-    // all non-zero, non-null values
-    self.player = INVALID_PLA_REF;
-    self.slot = -1;
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 egolib_rv game_copy_imports( import_list_t * imp_lst )
 {
     int       tnc;
@@ -2013,7 +2000,7 @@ void import_list_t::init(import_list_t& self)
 {
     for (size_t i = 0; i < (size_t)MAX_IMPORTS; ++i)
     {
-        import_element_t::init(self.lst[i]);
+        self.lst[i] = import_element_t();
     }
     self.count = 0;
 }

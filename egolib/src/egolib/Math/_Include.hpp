@@ -42,6 +42,10 @@
 #include "egolib/Math/Functors/Interpolate_Linear_ColourRGBA.hpp"
 
 //
+#include "egolib/Math/Functors/IsEven.hpp"
+#include "egolib/Math/Functors/IsOdd.hpp"
+
+//
 #include "egolib/Math/Functors/Contains_AxisAlignedBox_AxisAlignedBox.hpp"
 #include "egolib/Math/Functors/Contains_AxisAlignedCube_AxisAlignedCube.hpp"
 #include "egolib/Math/Functors/Contains_Point_Point.hpp"

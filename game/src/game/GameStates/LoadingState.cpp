@@ -267,13 +267,13 @@ bool LoadingState::loadGlobalHints()
     // Load the data
     while (ctxt.skipToColon(true))
     {
-        char buffer[1024+1];
+        std::string buffer;
 
         //Read the line
-        vfs_read_string_lit(ctxt, buffer, 1024);
+        vfs_read_string_lit(ctxt, buffer);
 
         //Make it look nice
-        str_add_linebreaks(buffer, 1024, 50);
+        buffer = add_linebreak_cpp(buffer, 50);
 
         _globalGameTips.push_back(buffer);
     }
@@ -287,21 +287,18 @@ bool LoadingState::loadGlobalHints()
 
 bool LoadingState::loadLocalModuleHints()
 {
-    STRING buffer;
-
     // Open all the tips
-    snprintf(buffer, SDL_arraysize( buffer ), "mp_modules/%s/gamedat/gametips.txt", _loadModule->getFolderName().c_str());
-    ReadContext ctxt(buffer);
+    ReadContext ctxt("mp_modules/" + _loadModule->getFolderName() + "/gamedat/gametips.txt");
 
     // Load the data
     while (ctxt.skipToColon(true))
     {
-
+        std::string buffer;
         //Read the line
-        vfs_read_string_lit(ctxt, buffer, SDL_arraysize(buffer));
+        vfs_read_string_lit(ctxt, buffer);
 
         //Make it look nice
-        str_add_linebreaks(buffer, SDL_arraysize(buffer), 50);
+        buffer = add_linebreak_cpp(buffer, 50);
 
         _localGameTips.push_back(buffer);
     }

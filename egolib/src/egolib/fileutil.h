@@ -316,13 +316,12 @@ public:
 };
 
 // Utility functions.
-void vfs_get_next_name(ReadContext& ctxt, char *buf, size_t max);
+void vfs_get_next_name(ReadContext& ctxt, std::string& name);
 Ego::Math::Interval<float> vfs_get_next_range(ReadContext& ctxt);
-bool vfs_get_next_pair(ReadContext& ctxt, IPair *pair);
 IDSZ2 vfs_get_next_idsz(ReadContext& ctxt);
 bool vfs_get_next_bool(ReadContext& ctxt);
 int32_t vfs_get_next_int32(ReadContext& ctxt);
-void vfs_get_next_string_lit(ReadContext& ctxt, char *str, size_t max);
+void vfs_get_next_string_lit(ReadContext& ctxt, std::string& stringLiteral);
 UFP8_T vfs_get_ufp8(ReadContext& ctxt);
 SFP8_T vfs_get_sfp8(ReadContext& ctxt);
 char vfs_get_next_printable(ReadContext& ctxt);
@@ -352,21 +351,11 @@ float  vfs_get_damage_resist(ReadContext& ctxt);
  * @todo
  *  Transitional C form, remove this.
  */
-void vfs_read_name(ReadContext& ctxt, char *buf, size_t max);
-/**
- * @brief
- *  Read a string (transitional C form).
- * @param buf, max
- *  @a buf is a pointer to a buffer of <tt>max+1</tt> bytes
- * @see
- *  ReadContext::readString
- * @todo
- *  Transitional C form, remove this.
- */
-void vfs_read_string_lit(ReadContext& ctxt, char *buf, size_t max);
+void vfs_read_name(ReadContext& ctxt, std::string& buffer);
 /**
  * @brief Read a string.
- * @param [out] receiver
+ * @param ctxt the context
+ * @param [out] literal a reference to a std::string receiving the literal
  * @see ReadContext::readString
  * @remark A consecutive sequence of characters <tt>'_'</tt> is mapped to <tt>' '</tt> and <tt>'~'</tt> is mapped to <tt>'\\t'</tt>.
  */
@@ -382,34 +371,12 @@ void vfs_read_string_lit(ReadContext& ctxt, std::string& literal);
  */
 Ego::Math::Interval<float> vfs_get_range(ReadContext& ctxt);
 
-/**
- * @brief
- *  Read a pair.
- * @remark
- *  In this revision a pair are the strings
- *  @code
- *  pair := range
- *  @endcode
- */
-bool vfs_get_pair(ReadContext& ctxt, IPair *pair);
-
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 DamageType vfs_get_next_damage_type(ReadContext& ctxt);
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 // Stuff to remove.
-
-bool read_to_delimiter_vfs(ReadContext& ctxt, std::string& buffer, char delimiter, bool optional);
-bool read_to_colon_vfs(ReadContext& ctxt, std::string& buffer, bool optional);
-bool read_to_delimiter_list_vfs(ReadContext& ctxt, std::string& buffer, const char *delimiters, bool optional);
-
-void make_newloadname(const char *modname, const char *appendname, char *newloadname);
-
-bool copy_line_vfs(vfs_FILE * fileread, vfs_FILE * filewrite);
-char vfs_get_first_letter(ReadContext& ctxt);
-char * copy_to_delimiter_mem(char * pmem, char * pmem_end, vfs_FILE * filewrite, int delim, char * user_buffer, size_t user_buffer_len);
-bool copy_to_delimiter_vfs(vfs_FILE * fileread, vfs_FILE * filewrite, int delim, char * buffer, size_t bufflen);
 
 bool ego_texture_exists_vfs(const std::string &filename);
 

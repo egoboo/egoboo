@@ -162,28 +162,6 @@ IDSZ2 ReadContext::readIDSZ() {
 }
 
 //--------------------------------------------------------------------------------------------
-bool copy_line_vfs( vfs_FILE * fileread, vfs_FILE * filewrite )
-{
-    /// @author BB
-    /// @details copy a line of arbitrary length, in chunks of length sizeof(linebuffer)
-    /// @todo This should be moved to file_common.c
-
-    char linebuffer[64];
-    if ( NULL == fileread || NULL == filewrite ) return false;
-    if ( vfs_eof( fileread ) || vfs_eof( filewrite ) ) return false;
-
-    vfs_gets( linebuffer, SDL_arraysize( linebuffer ), fileread );
-    vfs_puts( linebuffer, filewrite );
-    while ( strlen( linebuffer ) == SDL_arraysize( linebuffer ) )
-    {
-        vfs_gets( linebuffer, SDL_arraysize( linebuffer ), fileread );
-        vfs_puts( linebuffer, filewrite );
-    }
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
 bool ReadContext::skipToDelimiter(char delimiter, bool optional)
 {
     if (!Traits::isValid(delimiter))
@@ -228,119 +206,11 @@ bool ReadContext::skipToDelimiter(char delimiter, bool optional)
     }
 }
 
-bool read_to_delimiter_vfs(ReadContext& ctxt, std::string& buffer, char delimiter, bool optional)
-{
-    if (!ReadContext::Traits::isValid(delimiter))
-    {
-        std::invalid_argument("!ReadContext::Traits::isValid(delimiter)");
-    }
-    if (ctxt.is(ReadContext::Traits::startOfInput()))
-    {
-        ctxt.next();
-    }
-    ctxt._buffer.clear();
-    while (true)
-    {
-        if (ctxt.is(ReadContext::Traits::error()))
-        {
-            throw LexicalErrorException(__FILE__, __LINE__, Location(ctxt.getFileName(), ctxt.getLineNumber()),
-                                            "read error");
-        }
-        if (ctxt.is(ReadContext::Traits::endOfInput()))
-        {
-            if (optional)
-            {
-                buffer = ctxt._buffer.toString();
-                return false;
-            }
-            else
-            {
-                throw MissingDelimiterError(__FILE__, __LINE__, Location(ctxt.getFileName(), ctxt.getLineNumber()), delimiter);
-            }
-        }
-        bool isDelimiter = ctxt.is(delimiter);
-        if (ctxt.isNewLine())
-        {
-            ctxt.newLines();
-        }
-        else
-        {
-            ctxt.saveAndNext();
-        }
-        if (isDelimiter)
-        {
-            buffer = ctxt._buffer.toString();
-            return true;
-        }
-    }
-    
-}
-
-//--------------------------------------------------------------------------------------------
-bool read_to_delimiter_list_vfs(ReadContext& ctxt, std::string& buffer, const char *delimiters, bool optional)
-{
-    if (!delimiters)
-    {
-        throw std::invalid_argument("nullptr == delimiters");
-    }
-    if (ctxt.is(ReadContext::Traits::startOfInput()))
-    {
-        ctxt.next();
-    }
-    ctxt._buffer.clear();
-    while (true)
-    {
-        if (ctxt.is(ReadContext::Traits::error()))
-        {
-            throw LexicalErrorException(__FILE__, __LINE__, Location(ctxt.getFileName(), ctxt.getLineNumber()),
-                                            "read error");
-        }
-        if (ctxt.is(ReadContext::Traits::endOfInput()))
-        {
-            if (optional)
-            {
-                buffer = ctxt._buffer.toString();
-                return false;
-            }
-            else
-            {
-                /// @todo Need to be able to pass a list of delimiters.
-                throw MissingDelimiterError(__FILE__, __LINE__, Location(ctxt.getFileName(), ctxt.getLineNumber()), delimiters[0]);
-            }
-        }
-
-        bool isDelimiter = false;
-        for (size_t i = 0, n = strlen(delimiters); i < n; ++i)
-        {
-            isDelimiter |= ctxt.is(delimiters[i]);
-        }
-        if (ctxt.isNewLine())
-        {
-            ctxt.newLines();
-        }
-        else
-        {
-            ctxt.saveAndNext();
-        }
-        if (isDelimiter)
-        {
-            buffer = ctxt._buffer.toString();
-            return true;
-        }
-    }
-
-}
-
 //--------------------------------------------------------------------------------------------
 
 bool ReadContext::skipToColon(bool optional)
 {
     return skipToDelimiter(':', optional);
-}
-
-bool read_to_colon_vfs(ReadContext& ctxt,std::string& buffer, bool optional)
-{
-    return read_to_delimiter_vfs(ctxt, buffer, ':', optional);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -350,17 +220,10 @@ void vfs_read_string_lit(ReadContext& ctxt, std::string& literal)
     temporary = str_decode(temporary);
     literal = temporary;
 }
-void vfs_read_string_lit(ReadContext& ctxt, char *buffer, size_t max)
-{
-    std::string _literal = ctxt.readStringLiteral();
-    strncpy(buffer,_literal.c_str(), max);
-    str_decode(buffer, max, buffer);
-}
 //--------------------------------------------------------------------------------------------
-void vfs_read_name(ReadContext& ctxt, char *buffer, size_t max)
+void vfs_read_name(ReadContext& ctxt, std::string& buffer)
 {
-    std::string _literal = ctxt.readName();
-    strncpy(buffer,_literal.c_str(),max);
+    buffer = ctxt.readName();
 }
 //--------------------------------------------------------------------------------------------
 void vfs_put_int( vfs_FILE* filewrite, const char* text, int ival )
@@ -651,66 +514,6 @@ Ego::Math::Interval<float> vfs_get_next_range(ReadContext& ctxt)
 }
 
 //--------------------------------------------------------------------------------------------
-bool vfs_get_pair(ReadContext& ctxt, IPair *pair)
-{
-    float lowerbound, upperbound;
-    try {
-        TextTokenDecoder<float> decoder;
-        lowerbound = decoder(ctxt.parseRealLiteral());
-        upperbound = lowerbound;
-        ctxt.skipWhiteSpaces();
-        if (ctxt.is('-')) {
-            ctxt.next();
-            upperbound = decoder(ctxt.parseRealLiteral());
-        }
-    } catch (const LexicalErrorException& ex) {
-        return false;
-    }
-    Ego::Math::Interval<float> interval(lowerbound, upperbound);
-
-
-    if (pair)
-    {
-        // Convert the range to a pair.
-        pair->base = FLOAT_TO_FP8(interval.getLowerbound());
-        pair->rand = FLOAT_TO_FP8(interval.getUpperbound() - interval.getLowerbound());
-    }
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
-void make_newloadname( const char *modname, const char *appendname,  char *newloadname )
-{
-    /// @author ZZ
-    /// @details This function takes some names and puts 'em together
-    int cnt, tnc;
-    char ctmp;
-
-    cnt = 0;
-    ctmp = modname[cnt];
-    while ( CSTR_END != ctmp )
-    {
-        newloadname[cnt] = ctmp;
-        cnt++;
-        ctmp = modname[cnt];
-    }
-
-    tnc = 0;
-    ctmp = appendname[tnc];
-    while ( CSTR_END != ctmp )
-    {
-        newloadname[cnt] = ctmp;
-        cnt++;
-        tnc++;
-        ctmp = appendname[tnc];
-    }
-
-    newloadname[cnt] = 0;
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 /// Read a version number.
 /// @code
 /// versionNumber = '$VERSION_NUMBER' natural
@@ -744,70 +547,6 @@ bool vfs_put_version( vfs_FILE* filewrite, const int version )
     if ( vfs_error( filewrite ) ) return false;
 
     return 0 != vfs_printf( filewrite, "$FILE_VERSION %i\n\n", version );
-}
-
-//--------------------------------------------------------------------------------------------
-char * copy_to_delimiter_mem( char * pmem, char * pmem_end, vfs_FILE * filewrite, int delim, char * user_buffer, size_t user_buffer_len )
-{
-    /// @author BB
-    /// @details copy data from one file to another until the delimiter delim has been found
-    ///    could be used to merge a template file with data
-
-    size_t write;
-    char cTmp, temp_buffer[1024] = EMPTY_CSTR;
-
-    if ( NULL == pmem || NULL == filewrite ) return pmem;
-
-    if ( vfs_error( filewrite ) ) return pmem;
-
-    write = 0;
-    temp_buffer[0] = CSTR_END;
-    cTmp = *( pmem++ );
-    while ( pmem < pmem_end )
-    {
-        if ( delim == cTmp ) break;
-
-        if ( ASCII_LINEFEED_CHAR ==  cTmp || C_CARRIAGE_RETURN_CHAR ==  cTmp )
-        {
-            // output the temp_buffer
-            temp_buffer[write] = CSTR_END;
-            vfs_puts( temp_buffer, filewrite );
-            vfs_putc( cTmp, filewrite );
-
-            // reset the temp_buffer pointer
-            write = 0;
-            temp_buffer[0] = CSTR_END;
-        }
-        else
-        {
-            if ( write > SDL_arraysize( temp_buffer ) - 2 )
-            {
-				std::ostringstream os;
-				os << "copy_to_delimiter_mem() - temp_buffer overflow." << std::endl;
-				Log::get().error("%s", os.str().c_str());
-				throw std::runtime_error(os.str());
-            }
-
-            temp_buffer[write++] = cTmp;
-        }
-
-        // only copy if it is not the
-        cTmp = *( pmem++ );
-    }
-    temp_buffer[write] = CSTR_END;
-
-    if ( NULL != user_buffer )
-    {
-        strncpy( user_buffer, temp_buffer, user_buffer_len - 1 );
-        user_buffer[user_buffer_len - 1] = CSTR_END;
-    }
-
-    if ( delim == cTmp )
-    {
-        pmem--;
-    }
-
-    return pmem;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1394,10 +1133,10 @@ void vfs_read_string(ReadContext& ctxt, char *str, size_t max)
     }
 }
 
-void vfs_get_next_string_lit(ReadContext& ctxt, char *str, size_t max)
+void vfs_get_next_string_lit(ReadContext& ctxt, std::string& str)
 {
     ctxt.skipToColon(false);
-    vfs_read_string_lit(ctxt, str, max);
+    vfs_read_string_lit(ctxt, str);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1408,17 +1147,11 @@ float vfs_get_next_float(ReadContext& ctxt)
 }
 
 //--------------------------------------------------------------------------------------------
-void vfs_get_next_name(ReadContext& ctxt, char *buffer, size_t max)
-{
-    ctxt.skipToColon(false);
-    vfs_read_name(ctxt, buffer, max);
-}
 
-//--------------------------------------------------------------------------------------------
-bool vfs_get_next_pair(ReadContext& ctxt, IPair *pair)
+void vfs_get_next_name(ReadContext& ctxt, std::string& buffer)
 {
     ctxt.skipToColon(false);
-    return vfs_get_pair(ctxt, pair);
+    vfs_read_name(ctxt, buffer);
 }
 
 //--------------------------------------------------------------------------------------------

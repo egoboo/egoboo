@@ -1403,7 +1403,7 @@ Uint8 scr_AddIDSZ( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( ModuleProfile::moduleAddIDSZ(_currentModule->getPath().c_str(), Interpreter::safeCast<IDSZ2>(state.argument), 0, NULL) )
+    if ( ModuleProfile::moduleAddIDSZ(_currentModule->getPath(), Interpreter::safeCast<IDSZ2>(state.argument)) )
     {
         // invalidate any module list so that we will reload them
         //module_list_valid = false;
@@ -7615,10 +7615,7 @@ Uint8 scr_IfModuleHasIDSZ( script_state_t& state, ai_state_t& self )
     ///use message.txt to send the module name
     if ( !ppro->isValidMessageID((int)state.argument) ) return false;
 
-    STRING buffer;
-    strncpy(buffer, ppro->getMessage(state.argument).c_str(), SDL_arraysize(buffer));
-
-    returncode = ModuleProfile::moduleHasIDSZ( _currentModule->getName().c_str(), state.distance, 0, buffer);
+    returncode = ModuleProfile::moduleHasIDSZ( _currentModule->getName(), state.distance);
 
     SCRIPT_FUNCTION_END();
 }

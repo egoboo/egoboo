@@ -23,6 +23,26 @@
 EgoTest_TestCase(StringUtilities)
 {
 
+EgoTest_Test(textFormatter)
+{
+    std::string input, output;
+
+    input = "How many G'nomes does it take to change a Light Bulb? None, they can't figure out how to change one with gonnepowder or grog.";
+    output = add_linebreak_cpp(input, 50);
+    EgoTest_Assert(output == "How many G'nomes does it take to change a Light\nBulb? None, they can't figure out how to change\none with gonnepowder or grog.");
+
+    input = "1234567 cf qos a";
+    output = add_linebreak_cpp(input, 6);
+    EgoTest_Assert(output == "1234567\ncf qos\na");
+}
+
+EgoTest_Test(trim)
+{
+    std::string input = " \tfo \to \t";
+    std::string output = Ego::trim(input);
+    EgoTest_Assert(output == "fo \to");
+}
+
 EgoTest_Test(split)
 {
     std::vector<std::string> v;

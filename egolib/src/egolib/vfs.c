@@ -257,18 +257,22 @@ void _vfs_exit()
 }
 
 //--------------------------------------------------------------------------------------------
-const char *vfs_getVersion()
+std::string vfs_getLinkedVersion()
 {
-    /// @author ZF
-    /// @details  returns the current version of the PhysFS library which was used for compiling the binary
     PHYSFS_Version version;
-    static STRING buffer = EMPTY_CSTR;
+    PHYSFS_getLinkedVersion(&version);        // Linked version number
+    std::stringstream stream;
+    stream << version.major << "." << version.minor << "." << version.patch;
+    return stream.str();
+}
 
-    //PHYSFS_getLinkedVersion(&version);        //Linked version number
-    PHYSFS_VERSION( &version );         //Compiled version number
-    snprintf( buffer, SDL_arraysize( buffer ), "%d.%d.%d", version.major, version.minor, version.patch );
-
-    return buffer;
+std::string vfs_getVersion()
+{
+    PHYSFS_Version version;
+    PHYSFS_VERSION(&version);                 // Compiled version number
+    std::stringstream stream;
+    stream << version.major << "." << version.minor << "." << version.patch;
+    return stream.str();
 }
 
 #include "egolib/VFS/Pathname.hpp"
@@ -760,32 +764,6 @@ int _vfs_ensure_write_directory( const char * filename, bool is_directory )
 }
 
 //--------------------------------------------------------------------------------------------
-#if 0
-bool _vfs_ensure_destination_file(const char * filename)
-{
-    /// @author BB
-    /// @details make sure that a copy of filename from the read path exists in
-    ///     the write directory, but do not overwrite any existing file
-
-    VFS_PATH local_filename = EMPTY_CSTR;
-
-    BAIL_IF_NOT_INIT();
-
-    if ( INVALID_CSTR( filename ) ) return false;
-
-    // make a local copy of the filename
-    // and make sure that PHYSFS gets the filename with the slashes it wants
-    strncpy( local_filename, vfs_convert_fname( filename ), SDL_arraysize( local_filename ) );
-
-    // make sure that the output directory exists
-    if ( !_vfs_ensure_write_directory( local_filename, false ) ) return false;
-
-    // be a bit carefil here, in case the file exists in the read path and not in the write
-    // directory
-    
-    return vfs_copyFile(filename, filename);
-}
-#endif
 
 int vfs_isReading(vfs_FILE *file)
 {
@@ -2484,89 +2462,6 @@ int vfs_puts( const char * str , vfs_FILE * pfile )
         size_t len = strlen( str );
 
         retval = vfs_write( str, len, sizeof( char ), pfile );
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-char * vfs_gets(char *buffer, int buffer_size, vfs_FILE *file)
-{
-    char *retval = NULL;
-
-    BAIL_IF_NOT_INIT();
-
-    // According to gets spec, both cases are undefined behavior.
-    if (!file || !buffer)
-    {
-        return NULL;
-    }
-    // Short read.
-    if (0 == buffer_size)
-    {
-        return buffer;
-    }
-    if (VFS_FILE_TYPE_CSTDIO == file->type)
-    {
-        retval = fgets(buffer, buffer_size, file->ptr.c);
-        if (feof(file->ptr.c))
-        {
-            file->flags |= VFS_FILE_FLAG_EOF;
-            // retval is NULL if nothing was read and not NULL if something was read.
-            return retval;
-        }
-        if (!retval)
-        {
-            file->flags |= VFS_FILE_FLAG_ERROR;
-            // ferror(file->ptr.c) should return non-zero
-            return NULL;
-        }
-    }
-    else if (VFS_FILE_TYPE_PHYSFS == file->type)
-    {
-        char *str_ptr = buffer;
-        char *str_end = buffer + buffer_size;
-
-        int cTmp;
-        int iTmp = PHYSFS_read(file->ptr.p, &cTmp, 1, sizeof(cTmp));
-        if (-1 == iTmp)
-        {
-            file->flags |= VFS_FILE_FLAG_ERROR;
-            return NULL;
-        }
-        if (0 == iTmp)
-        {
-            file->flags |= VFS_FILE_FLAG_EOF;
-            return NULL;
-        }
-        while (iTmp && (str_ptr < str_end - 1) && CSTR_END != cTmp && 0 == (file->flags & (VFS_FILE_FLAG_EOF | VFS_FILE_FLAG_ERROR)))
-        {
-            *str_ptr = cTmp;
-            str_ptr++;
-
-            if (C_LINEFEED_CHAR == cTmp || C_CARRIAGE_RETURN_CHAR == cTmp) break;
-
-            iTmp = PHYSFS_read(file->ptr.p, &cTmp, 1, sizeof(cTmp));
-
-            if (-1 == iTmp)
-            {
-                file->flags |= VFS_FILE_FLAG_ERROR;
-                return NULL;
-            }
-            if (0 == iTmp)
-            {
-                file->flags |= VFS_FILE_FLAG_EOF;
-                return buffer;
-            }
-        }
-        *str_ptr = CSTR_END;
-
-        retval = buffer;
-    }
-    else
-    {
-        // Corrupted file handle.
-        return NULL;
     }
 
     return retval;

@@ -363,11 +363,9 @@ void template_put_string_under( vfs_FILE* filetemp, vfs_FILE* filewrite, const c
 {
     if ( template_copy_to_marker( filetemp, filewrite, "#%" ) )
     {
-        STRING tmp_str;
+        auto usename_encoded = str_encode( usename );
 
-        str_encode( tmp_str, SDL_arraysize( tmp_str ), usename );
-
-        vfs_printf( filewrite, "%s", tmp_str );
+        vfs_printf( filewrite, "%s", usename_encoded.c_str() );
     }
 }
 

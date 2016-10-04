@@ -112,8 +112,8 @@ public:
     }
 
     static std::shared_ptr<ModuleProfile> loadFromFile(const std::string &filePath);
-    static bool moduleHasIDSZ(const char *szModName, const IDSZ2& idsz, size_t buffer_len, char * buffer);
-    static bool moduleAddIDSZ(const char *szModName, const IDSZ2& idsz, size_t buffer_len, const char * buffer);
+    static bool moduleHasIDSZ(const std::string& szModName, const IDSZ2& idsz);
+    static bool moduleAddIDSZ(const std::string& szModName, const IDSZ2& idsz);
 
 private:
     bool _loaded;

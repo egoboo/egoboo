@@ -48,20 +48,9 @@ spawn_file_info_t::spawn_file_info_t() :
     //ctor
 }
 
-void spawn_file_info_t::init(spawn_file_info_t& self)
-{
-	self = spawn_file_info_t();
-}
-
-void spawn_file_info_t::reinit(spawn_file_info_t& self)
-{
-    // Reset the data.
-    init(self);
-}
-
 bool spawn_file_read(ReadContext& ctxt, spawn_file_info_t& info)
 {
-    spawn_file_info_t::reinit(info);
+    info = spawn_file_info_t();
 
     // Until we hit something else than newlines, whitespaces or comments.
     while (true)
@@ -102,16 +91,15 @@ bool spawn_file_read(ReadContext& ctxt, spawn_file_info_t& info)
                                             "expected `:`");
         }
         ctxt.next();
-        std::string name = Ego::trim(ctxt._buffer.toString());
 
-        
-        strncpy(info.spawn_comment, name.c_str(), SDL_arraysize(info.spawn_comment));
+        info.spawn_comment = Ego::trim(ctxt._buffer.toString());      
+       
         info.do_spawn = true;
 
-        vfs_read_string_lit(ctxt, info.spawn_name, SDL_arraysize(info.spawn_name));
+        vfs_read_string_lit(ctxt, info.spawn_name);
 
-        info.pname = info.spawn_name;
-        if (!strcmp(info.spawn_name, "NONE"))
+        info.pname = &(info.spawn_name);
+        if (info.spawn_name == "NONE")
         {
             // A random name is selected.
             info.pname = nullptr;
@@ -123,16 +111,16 @@ bool spawn_file_read(ReadContext& ctxt, spawn_file_info_t& info)
         info.pos[kY] = ctxt.readRealLiteral() * Info<float>::Grid::Size();
         info.pos[kZ] = ctxt.readRealLiteral() * Info<float>::Grid::Size();
 
-        info.facing = FACING_T(Facing::FACE_NORTH);
+        info.facing = Facing::FACE_NORTH;
         info.attach = ATTACH_NONE;
         char chr = ctxt.readPrintable();
         switch (Ego::toupper(chr))
         {
-            case 'S': info.facing = FACING_T(Facing::FACE_SOUTH);       break;
-            case 'E': info.facing = FACING_T(Facing::FACE_EAST);        break;
-            case 'W': info.facing = FACING_T(Facing::FACE_WEST);        break;
-            case 'N': info.facing = FACING_T(Facing::FACE_NORTH);       break;
-            case '?': info.facing = FACE_RANDOM;      break;
+            case 'S': info.facing = Facing::FACE_SOUTH;       break;
+            case 'E': info.facing = Facing::FACE_EAST;        break;
+            case 'W': info.facing = Facing::FACE_WEST;        break;
+            case 'N': info.facing = Facing::FACE_NORTH;       break;
+            case '?': info.facing = Facing(FACE_RANDOM);      break;
             case 'L': info.attach = ATTACH_LEFT;      break;
             case 'R': info.attach = ATTACH_RIGHT;     break;
             case 'I': info.attach = ATTACH_INVENTORY; break;
@@ -192,14 +180,9 @@ bool spawn_file_read(ReadContext& ctxt, spawn_file_info_t& info)
             throw Id::SyntacticalErrorException(__FILE__, __LINE__, Id::Location(ctxt.getFileName(), ctxt.getLineNumber()),
                                                 "syntax error");
         }
-        if (who.length() >= SDL_arraysize(info.spawn_comment))
-        {
-            throw Id::SyntacticalErrorException(__FILE__, __LINE__, Id::Location(ctxt.getFileName(), ctxt.getLineNumber()),
-                                                "syntax error");
-        }
         int slot = ctxt.readIntegerLiteral();
         // Store the data.
-        strncpy(info.spawn_comment, who.c_str(), SDL_arraysize(info.spawn_comment));
+        info.spawn_comment = who;
         info.slot = slot;
         return true;
     }

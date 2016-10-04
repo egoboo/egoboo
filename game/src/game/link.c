@@ -72,7 +72,7 @@ struct s_link_stack_entry
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-Link_t LinkList[LINK_COUNT];
+std::array<Link_t, LINK_COUNT> LinkList;
 
 static int                link_stack_count = 0;
 static link_stack_entry_t link_stack[LINK_STACK_MAX];
@@ -137,7 +137,7 @@ bool link_follow_modname( const char * modname, bool push_current_module )
 }
 
 //--------------------------------------------------------------------------------------------
-bool link_build_vfs( const char * fname, Link_t list[] )
+bool link_build_vfs( const char * fname, std::array<Link_t, LINK_COUNT>& list )
 {
     if (!VALID_CSTR(fname)) return false;
 
@@ -146,7 +146,7 @@ bool link_build_vfs( const char * fname, Link_t list[] )
     size_t i = 0;
     while (ctxt.skipToColon(true) && i < LINK_COUNT)
     {
-        vfs_read_string_lit( ctxt, list[i].modname, SDL_arraysize( list[i].modname ) );
+        vfs_read_string_lit( ctxt, list[i].modname );
         list[i].valid = true;
         i++;
     }

@@ -67,7 +67,7 @@ bool ModuleProfile::isModuleUnlocked() const
         return true;
     }
 
-    if (moduleHasIDSZ(_reference.c_str(), _unlockQuest, 0, nullptr))
+    if (moduleHasIDSZ(_reference, _unlockQuest))
     {
         return true;
     }
@@ -98,19 +98,19 @@ ModuleFilter ModuleProfile::getModuleType() const
 
 std::shared_ptr<ModuleProfile> ModuleProfile::loadFromFile(const std::string &folderPath)
 {
-    STRING buffer;
-
     // see if we can open menu.txt file (required)
     ReadContext ctxt(folderPath + "/gamedat/menu.txt");
 
     //Allocate memory
     std::shared_ptr<ModuleProfile> result = std::make_shared<ModuleProfile>();
 
+    std::string buffer;
+
     // Read basic data
-    vfs_get_next_string_lit(ctxt, buffer, SDL_arraysize(buffer));
+    vfs_get_next_string_lit(ctxt, buffer);
     result->_name = buffer;
 
-    vfs_get_next_name(ctxt, buffer, SDL_arraysize(buffer));
+    vfs_get_next_name(ctxt, buffer);
     result->_reference = buffer;
 
     result->_unlockQuest = vfs_get_next_idsz(ctxt);
@@ -142,9 +142,9 @@ std::shared_ptr<ModuleProfile> ModuleProfile::loadFromFile(const std::string &fo
     // Skip RTS option.
     vfs_get_next_printable(ctxt);
 
-    vfs_get_next_string_lit(ctxt, buffer, SDL_arraysize(buffer));
-    str_trim(buffer);
-    result->_rank = strlen(buffer);
+    vfs_get_next_string_lit(ctxt, buffer);
+    buffer = Ego::trim(buffer);
+    result->_rank = buffer.length();
 
     // convert the special ranks of "unranked" or "-" ("rank 0")
     if ( '-' == buffer[0] || 'U' == Ego::toupper(buffer[0]) )
@@ -156,7 +156,7 @@ std::shared_ptr<ModuleProfile> ModuleProfile::loadFromFile(const std::string &fo
     for (size_t cnt = 0; cnt < SUMMARYLINES; cnt++)
     {
         // load the string
-        vfs_get_next_string_lit(ctxt, buffer, SDL_arraysize(buffer));
+        vfs_get_next_string_lit(ctxt, buffer);
 
         result->_summary.push_back(buffer);
     }
@@ -203,7 +203,7 @@ std::shared_ptr<ModuleProfile> ModuleProfile::loadFromFile(const std::string &fo
     return result;
 }
 
-bool ModuleProfile::moduleHasIDSZ(const char *szModName, const IDSZ2& idsz, size_t buffer_len, char * buffer)
+bool ModuleProfile::moduleHasIDSZ(const std::string& szModName, const IDSZ2& idsz)
 {
     /// @author ZZ
     /// @details This function returns true if the named module has the required IDSZ
@@ -211,9 +211,9 @@ bool ModuleProfile::moduleHasIDSZ(const char *szModName, const IDSZ2& idsz, size
 
     if ( idsz == IDSZ2::None ) return true;
 
-    if ( 0 == strcmp( szModName, "NONE" ) ) return false;
+    if ( szModName == "NONE" ) return false;
 
-    std::string newLoadName = "mp_modules/" + std::string(szModName) + "/gamedat/menu.txt";
+    std::string newLoadName = "mp_modules/" + szModName + "/gamedat/menu.txt";
 
     ReadContext ctxt(newLoadName);
 
@@ -246,26 +246,10 @@ bool ModuleProfile::moduleHasIDSZ(const char *szModName, const IDSZ2& idsz, size
         }
     }
 
-    if (buffer)
-    {
-        if (buffer_len < 1 )
-        {
-            /* nothing */
-        }
-        else if (1 == buffer_len)
-        {
-            buffer[0] = CSTR_END;
-        }
-        else
-        {
-            vfs_read_string_lit(ctxt, buffer, buffer_len);
-        }
-    }
-
     return foundidsz;
 }
 
-bool ModuleProfile::moduleAddIDSZ(const char *szModName, const IDSZ2& idsz, size_t buffer_len, const char * buffer)
+bool ModuleProfile::moduleAddIDSZ(const std::string& szModName, const IDSZ2& idsz)
 {
     /// @author ZZ
     /// @details This function appends an IDSZ to the module's menu.txt file
@@ -274,11 +258,11 @@ bool ModuleProfile::moduleAddIDSZ(const char *szModName, const IDSZ2& idsz, size
     bool retval = false;
 
     // Only add if there isn't one already
-    if ( !moduleHasIDSZ( szModName, idsz, 0, NULL ) )
+    if ( !moduleHasIDSZ( szModName, idsz ) )
     {
         // make sure that the file exists in the user data directory since we are WRITING to it
-        std::string src_file = std::string("mp_modules/") + szModName + "/gamedat/menu.txt";
-        std::string dst_file = std::string("/modules/") + szModName + "/gamedat/menu.txt";
+        std::string src_file = "mp_modules/" + szModName + "/gamedat/menu.txt";
+        std::string dst_file = "/modules/" + szModName + "/gamedat/menu.txt";
         vfs_copyFile( src_file, dst_file );
 
         // Try to open the file in append mode
@@ -287,12 +271,6 @@ bool ModuleProfile::moduleAddIDSZ(const char *szModName, const IDSZ2& idsz, size
         {
             // output the expansion IDSZ
             vfs_printf( filewrite, "\n:[%s]", idsz.toString().c_str() );
-
-            // output an optional parameter
-            if ( NULL != buffer && buffer_len > 1 )
-            {
-                vfs_printf( filewrite, " %s", idsz.toString().c_str() );
-            }
 
             // end the line
             vfs_printf( filewrite, "\n" );

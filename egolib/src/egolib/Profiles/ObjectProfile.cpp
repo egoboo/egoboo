@@ -318,12 +318,12 @@ void ObjectProfile::loadAllMessages(const std::string &filePath)
     } catch (...) {
         return;
     }
-    STRING line;
+    std::string line;
 
     while (ctxt->skipToColon(true))
     {
         //Load one line
-        vfs_read_string_lit(*ctxt, line, SDL_arraysize(line));
+        vfs_read_string_lit(*ctxt, line);
         addMessage(line);
     }
 }
@@ -431,8 +431,8 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     //_slotNumber = vfs_get_next_int(ctxt);
 
     // Read in the class name
-    char buffer[256];
-    vfs_get_next_string_lit(ctxt, buffer, SDL_arraysize(buffer));
+    std::string buffer;
+    vfs_get_next_string_lit(ctxt, buffer);
 
     // fix class name capitalization
     buffer[0] = Ego::toupper(buffer[0]);
@@ -658,8 +658,8 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
 
     for (size_t cnt = 0; cnt < SKINS_PEROBJECT_MAX; cnt++)
     {
-        char skinName[256];
-        vfs_get_next_string_lit(ctxt, skinName, 256);
+        std::string skinName;
+        vfs_get_next_string_lit(ctxt, skinName);
         _skinInfo[cnt].name = skinName;
     }
 
@@ -822,35 +822,33 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
 
             case IDSZ2::caseLabel( 'M', 'O', 'D', 'L' ):
             {
-                char tmp_buffer[1024+1];
-                vfs_read_string_lit(ctxt, tmp_buffer, 1024);
-                if (strlen(tmp_buffer) > 0)
+                std::string tmp_buffer;
+                vfs_read_string_lit(ctxt, tmp_buffer);
+                if (tmp_buffer.length() > 0)
                 {
-                    char * ptr;
-
-                    ptr = strpbrk( tmp_buffer, "SBHCT" );
-                    while ( NULL != ptr )
+                    size_t position = tmp_buffer.find_first_of("SBHCT");
+                    while (position != std::string::npos)
                     {
-                        if ( 'S' == *ptr )
+                        if ( 'S' == tmp_buffer[position] )
                         {
                             _bumpOverrideSize = true;
                         }
-                        else if ( 'B' == *ptr )
+                        else if ( 'B' == tmp_buffer[position] )
                         {
                             _bumpOverrideSizeBig = true;
                         }
-                        else if ( 'H' == *ptr )
+                        else if ( 'H' == tmp_buffer[position] )
                         {
                             _bumpOverrideHeight = true;
                         }
-                        else if ( 'C' == *ptr )
+                        else if ( 'C' == tmp_buffer[position])
                         {
                             _dontCullBackfaces = true;
                         }
 
                         // start on the next character
-                        ptr++;
-                        ptr = strpbrk( ptr, "SBHCT" );
+                        position++;
+                        position = tmp_buffer.find_first_of("SBHCT", position);
                     }
                 }
             }
@@ -997,9 +995,7 @@ std::shared_ptr<ObjectProfile> ObjectProfile::loadFromFile(const std::string &fo
         }
 
         // Load the enchantment for this profile (optional)
-        STRING newloadname;
-        make_newloadname( folderPath.c_str(), "/enchant.txt", newloadname );
-        profile->_ieve = ProfileSystem::get().EnchantProfileSystem.load_one( newloadname, static_cast<EVE_REF>(slotNumber) );
+        profile->_ieve = ProfileSystem::get().EnchantProfileSystem.load_one(folderPath + "/enchant.txt", static_cast<EVE_REF>(slotNumber) );
 
         // Load the messages for this profile, do this before loading the AI script
         // to ensure any dynamic loaded messages get loaded last (optional)
