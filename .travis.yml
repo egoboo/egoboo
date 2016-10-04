@@ -1,22 +1,37 @@
 sudo: required
 dist: trusty
 
+# Compiler selection
+compiler:
+  - clang
+  - gcc
+
+
+addons:
+  apt:
+    sources:
+    # add PPAs with more up-to-date toolchains
+    - ubuntu-toolchain-r-test
+    - llvm-toolchain-precise-3.8
+    packages:
+    # install toolchains
+    - gcc-5
+    - g++-5
+    - clang-3.8
+    - libc++-dev
+
 before_install:
-- sudo add-apt-repository ppa:kxstudio-team/builds -y
-- sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
 - sudo add-apt-repository ppa:zoogie/sdl2-snapshots -y
 - sudo apt-get update -qq
-- if [ "$CC" = "gcc" ];  then sudo apt-get install -qq -y gcc-4.9; fi
-- if [ "$CC" = "gcc" ];  then export CC="gcc-4.9" CC="gcc-4.9"; fi
-- if [ "$CXX" = "g++" ]; then sudo apt-get install -qq -y g++-4.9; fi
-- if [ "$CXX" = "g++" ]; then export CXX="g++-4.9" CC="gcc-4.9"; fi
 - sudo apt-get install -y libphysfs-dev libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev
 - sudo apt-get install -y --no-install-recommends doxygen valgrind graphviz
-- sudo apt-get install -y clang libc++-dev
-language: cpp
+- export CC="gcc-5"
+- export CXX="g++-5"
+-language: generic
 script:
+- clang++ --version
 - make -f Makefile.Linux clang -j4
-- make all test -j4
+- make all test -j4 
 
 notifications:
   webhooks:
