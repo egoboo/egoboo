@@ -84,8 +84,8 @@ Facing rotate(const Facing& source, const Facing& target, const float weight) {
     int32_t delta = static_cast<int32_t>(target) - static_cast<int32_t>(source);
 
     //Figure out if it is faster to wrap around the other direction
-    if(std::abs(delta) > std::numeric_limits<uint16_t>::max() / 2) {
-        delta = -delta/2;
+    if(std::abs(delta) > (std::numeric_limits<uint16_t>::max() / 2)) {
+        delta = -(delta/2);
     }
 
     int32_t weightedDelta = static_cast<float>(delta) / weight;

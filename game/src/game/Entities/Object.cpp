@@ -762,8 +762,8 @@ void Object::update()
                     && getPosZ() + chr_min_cv._mins[OCT_Z] < _currentModule->getWater().get_level())
                 {
                     // suppress ripples if we are far below the surface
-                    int ripple_suppression = _currentModule->getWater().get_level() - (getPosZ() + chr_min_cv._maxs[OCT_Z]);
-                    ripple_suppression = ( 4 * ripple_suppression ) / RIPPLETOLERANCE;
+                    int ripple_suppression = 4 * (_currentModule->getWater().get_level() - (getPosZ() + chr_min_cv._maxs[OCT_Z]));
+                    ripple_suppression = ripple_suppression / RIPPLETOLERANCE;
                     ripple_suppression = Ego::Math::constrain(ripple_suppression, 0, 4);
 
                     // make more ripples if we are moving

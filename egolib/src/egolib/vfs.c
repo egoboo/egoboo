@@ -55,7 +55,6 @@ typedef struct s_vfs_path_data vfs_path_data_t;
 	if(!_vfs_initialized) { \
 		std::ostringstream os; \
 		os << __FUNCTION__ << ": EgoLib VFS function called while the VFS was not initialized" << std::endl; \
-		Log::get().error("%s", os.str().c_str()); \
 		throw std::runtime_error(os.str()); \
 	}
 
