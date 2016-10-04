@@ -72,7 +72,6 @@ public:
 
 private:
     std::string                     _name;
-    TX_REF                          _icon;
     std::shared_ptr<ObjectProfile>  _profile;
     uint16_t                        _skinRef;
     Ego::QuestLog                   _questLog;          ///< all the quests this player has

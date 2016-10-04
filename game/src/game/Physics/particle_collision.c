@@ -34,8 +34,6 @@ static int spawn_bump_particles(ObjectRef objectRef, const ParticleRef particle)
 
 //Constants
 static constexpr float MAX_KNOCKBACK_VELOCITY = 40.0f;
-static constexpr float DEFAULT_KNOCKBACK_VELOCITY = 10.0f;
-static constexpr size_t COLLISION_LIST_SIZE = 256;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -1093,6 +1091,8 @@ void do_chr_prt_collision_knockback(chr_prt_collision_data_t &pdata)
 
     //Apply knockback to the victim (limit between 0% and 300% knockback)
     Vector3f knockbackVelocity = pdata.pprt->vel * Ego::Math::constrain(knockbackFactor, 0.0f, 3.0f);
+
+    //static constexpr float DEFAULT_KNOCKBACK_VELOCITY = 10.0f;
     //knockbackVelocity[kX] = std::cos(pdata.pprt->vel[kX]) * DEFAULT_KNOCKBACK_VELOCITY;
     //knockbackVelocity[kY] = std::sin(pdata.pprt->vel[kY]) * DEFAULT_KNOCKBACK_VELOCITY;
     //knockbackVelocity[kZ] = DEFAULT_KNOCKBACK_VELOCITY / 2;

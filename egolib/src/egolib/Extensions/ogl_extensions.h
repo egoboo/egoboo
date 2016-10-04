@@ -226,10 +226,8 @@ public:
 };
 
 struct PushAttrib {
-private:
-    GLbitfield bitfield;
 public:
-    PushAttrib(GLbitfield bitfield) : bitfield(bitfield) {
+    PushAttrib(GLbitfield bitfield) {
         glPushAttrib(bitfield);
     }
     ~PushAttrib() {
@@ -239,10 +237,8 @@ public:
 }; // struct PushAttrib
 
 struct PushClientAttrib {
-private:
-    GLbitfield bitfield;
 public:
-    PushClientAttrib(GLbitfield bitfield) : bitfield(bitfield) {
+    PushClientAttrib(GLbitfield bitfield) {
         glPushClientAttrib(bitfield);
     }
     ~PushClientAttrib() {

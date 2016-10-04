@@ -94,8 +94,6 @@ static Ego::Rectangle<int> tabrect[NUMBAR];            // The tab rectangles
 static bool  gfx_page_flip_requested = false;
 static bool  gfx_page_clear_requested = true;
 
-const static float DYNALIGHT_KEEP = 0.9f;
-
 static dynalist_t _dynalist;
 
 //--------------------------------------------------------------------------------------------
@@ -2085,7 +2083,7 @@ gfx_rv GridIllumination::do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_
     sum_global_lighting(global_lighting);
 
     // make the grids update their lighting every 4 frames
-    local_keep = 0.0f; //std::pow(DYNALIGHT_KEEP, 4);
+    local_keep = 0.0f; //std::pow(DYNALIGHT_KEEP, 4); //const static float DYNALIGHT_KEEP = 0.9f;
 
     // Add to base light level in normal mode
     for (size_t entry = 0; entry < tl._all.size; entry++)

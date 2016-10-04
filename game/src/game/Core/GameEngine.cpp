@@ -49,7 +49,6 @@ const std::string GameEngine::GAME_VERSION = "2.9.0";
 
 GameEngine::GameEngine() :
     _startupTimestamp(),
-	_isInitialized(false),
 	_terminateRequested(false),
 	_updateTimeout(0),
 	_renderTimeout(0),

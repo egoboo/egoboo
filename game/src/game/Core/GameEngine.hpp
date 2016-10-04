@@ -239,7 +239,6 @@ private:
 
 private:
     std::chrono::high_resolution_clock::time_point _startupTimestamp;
-    bool _isInitialized;
     bool _terminateRequested;		///< true if the GameEngine should deinitialize and shutdown
     uint64_t _updateTimeout;		///< Timestamp when updateOneFrame() should be run again
     uint64_t _renderTimeout;		///< Timestamp when renderOneFrame() should be run again
