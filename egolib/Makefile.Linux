@@ -40,6 +40,3 @@ all: $(EGOLIB_TARGET)
 
 $(EGOLIB_TARGET): $(OBJECTS)
 	$(ARCHIVER) rcsv $(EGOLIB_TARGET) $(OBJECTS)
-
-clean:
-	rm -f $(EGOLIB_TARGET) ./src/egolib/*.o ./src/egolib/*/*.o ./src/egolib/*/*/*.o

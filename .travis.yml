@@ -1,3 +1,6 @@
+sudo: required
+dist: trusty
+
 before_install:
 - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
 - sudo add-apt-repository ppa:zoogie/sdl2-snapshots -y

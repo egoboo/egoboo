@@ -31,6 +31,3 @@ all: $(IDLIB_TARGET)
 
 $(IDLIB_TARGET): $(OBJECTS)
 	$(ARCHIVER) rcsv $(IDLIB_TARGET) $(OBJECTS) 
-
-clean:
-	rm -f $(IDLIB_TARGET) ./src/IdLib/*.o

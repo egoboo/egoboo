@@ -51,6 +51,3 @@ all: $(BIN)
 
 $(BIN): $(OBJECTS)
 	$(CXX) -o $@ $^ -Wl,-fuse-ld=gold $(LINKER_LIBS)
-
-clean:
-	rm -f ./src/game/*.o ./src/game/*/*.o $(BIN)
