@@ -36,11 +36,11 @@ void ImageManager::registerImageLoaders() {
         Log::get().info("[image manager]: SDL_image %d.%d.%d\n", SDL_IMAGE_MAJOR_VERSION, SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL);
         // JPG support is optional.
         if ((IMG_Init(IMG_INIT_JPG) & IMG_INIT_JPG) == IMG_INIT_JPG) {
-            loaders.push_back(move(make_unique<ImageLoader_SDL_image>(Set{".jpg", ".jpeg"})));
+            loaders.push_back(make_unique<ImageLoader_SDL_image>(Set{".jpg", "jpeg"}));
         }
         // PNG support is mandatory.
         if ((IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG) == IMG_INIT_PNG) {
-            loaders.push_back(move(make_unique<ImageLoader_SDL_image>(Set{".png"})));
+            loaders.push_back(make_unique<ImageLoader_SDL_image>(Set{".png"}));
         } else {
             Log::Entry e(Log::Level::Warning, __FILE__, __LINE__);
             e << "[image manager]: SDL_image does not support PNG file format: " << SDL_GetError() << Log::EndOfLine;
@@ -50,32 +50,32 @@ void ImageManager::registerImageLoaders() {
         // WEBP support is optional and available in SDL_image 1.2.11 or higher.
     #if SDL_VERSIONNUM(SDL_IMAGE_MAJOR_VERSION, SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL) >= SDL_VERSIONNUM(1, 2, 11)
         if ((IMG_Init(IMG_INIT_WEBP) & IMG_INIT_WEBP) == IMG_INIT_WEBP) {
-            loaders.push_back(move(make_unique<ImageLoader_SDL_image>(Set{".webp"})));
+            loaders.push_back(make_unique<ImageLoader_SDL_image>(Set{".webp"}));
         }
     #endif
         // TIF support is optional.
         if ((IMG_Init(IMG_INIT_TIF) & IMG_INIT_TIF) == IMG_INIT_TIF) {
-            loaders.push_back(move(make_unique<ImageLoader_SDL_image>(Set{".tif", ".tiff"})));
+            loaders.push_back(make_unique<ImageLoader_SDL_image>(Set{".tif", "tiff"}));
         }
-        loaders.push_back(move(make_unique<ImageLoader_SDL_image>(Set{".gif"})));
-        loaders.push_back(move(make_unique<ImageLoader_SDL_image>(Set{".pcx"})));
-        loaders.push_back(move(make_unique<ImageLoader_SDL_image>(Set{".ppm"})));
-        loaders.push_back(move(make_unique<ImageLoader_SDL_image>(Set{".xpm"})));
-        loaders.push_back(move(make_unique<ImageLoader_SDL_image>(Set{".pnm"})));
-        loaders.push_back(move(make_unique<ImageLoader_SDL_image>(Set{".lbm"})));
+        loaders.push_back(make_unique<ImageLoader_SDL_image>(Set{".gif"}));
+        loaders.push_back(make_unique<ImageLoader_SDL_image>(Set{".pcx"}));
+        loaders.push_back(make_unique<ImageLoader_SDL_image>(Set{".ppm"}));
+        loaders.push_back(make_unique<ImageLoader_SDL_image>(Set{".xpm"}));
+        loaders.push_back(make_unique<ImageLoader_SDL_image>(Set{".pnm"}));
+        loaders.push_back(make_unique<ImageLoader_SDL_image>(Set{".lbm"}));
         // Loading TGA images using the standard method does not work according to SDL_Image documentation.
         // @todo MH: A solution is to provide a subclass of ImageLoader_SDL_image for this special case.
     #if 0
-        loaders.push_back(move(make_unique<ImageLoader_SDL_image>(Set{".tga"})));
+        loaders.push_back(make_unique<ImageLoader_SDL_image>(Set{".tga"}));
     #endif
-        loaders.push_back(move(make_unique<ImageLoader_SDL_image>(Set{".bmp"})));
+        loaders.push_back(make_unique<ImageLoader_SDL_image>(Set{".bmp"}));
     } else {
         Log::get().info("[image manager]: SDL_image disable by %s = \"false\" in `setup.txt` - using SDL -  only support for .bmp files\n",
                         egoboo_config_t::get().debug_sdlImage_enable.getName().c_str());
     }
     // These loaders are natively supported with SDL.
     // Place them *after* the SDL_image loaders, such that the SDL_image loader loaders are preferred.
-    loaders.push_back(move(make_unique<ImageLoader_SDL>(Set{".bmp"})));
+    loaders.push_back(make_unique<ImageLoader_SDL>(Set{".bmp"}));
 }
 
 ImageManager::ImageManager() :
