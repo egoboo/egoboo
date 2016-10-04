@@ -30,11 +30,15 @@ namespace Log {
 static constexpr size_t MAX_LOG_MESSAGE = 1024; ///< Max length of log messages.
 
 DefaultTarget::DefaultTarget(const std::string& filename, Level level)
-	: Target(level) {
+	: Target(level),
+	  _file(nullptr) {
+	
+	/*
 	_file = vfs_openWrite(filename);
 	if (!_file) {
 		throw std::runtime_error("unable to open log file `" + filename + "`");
 	}
+	*/
 }
 
 DefaultTarget::~DefaultTarget() {

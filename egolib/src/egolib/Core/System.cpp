@@ -122,6 +122,10 @@ InputService::~InputService() {
 const std::string System::VERSION = "0.1.9";
 
 System::System(const std::string& binaryPath) {
+
+    // Initialize logging, so that we can use it everywhere.
+    Log::initialize("/debug/log.txt", Log::Level::Debug);
+
     // Initialize the virtual file system.
     vfs_init(binaryPath.c_str(), nullptr);
     /*
@@ -133,8 +137,6 @@ System::System(const std::string& binaryPath) {
     // Uncomment to display the search paths.
     vfs_listSearchPaths();
     */
-    // Initialize logging, so that we can use it everywhere.
-    Log::initialize("/debug/log.txt", Log::Level::Debug);
 
     // Start initializing the various subsystems.
     Log::get().message("Starting Egoboo Engine %s\n", VERSION.c_str());
