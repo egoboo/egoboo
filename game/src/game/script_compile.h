@@ -31,7 +31,6 @@
 // AI stuff
 #define MAXLINESIZE         1024
 #define MAX_OPCODE          1024                ///< Number of lines in AICODES.TXT
-#define MAXCODENAMESIZE     64
 
 #define END_VALUE    (script_t::Instruction::FUNCTIONBIT | FEND)
 
