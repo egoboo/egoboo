@@ -8,14 +8,16 @@ before_install:
 - if [ "$CXX" = "g++" ]; then export CXX="g++-4.9" CC="gcc-4.9"; fi
 - sudo apt-get install -y libphysfs-dev libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libenet-dev
 - sudo apt-get install -y --no-install-recommends doxygen valgrind graphviz
+- sudo apt-get install -y clang libc++-dev
 language: cpp
 script:
 - make all test -j4
+- make -f Makefile.Linux clang -j4
 
 notifications:
   webhooks:
     urls:
       - https://webhooks.gitter.im/e/bf24f1666021dc4df89a
-    on_success: always  # options: [always|never|change] default: always
-    on_failure: always  # options: [always|never|change] default: always
+    on_success: never  # options: [always|never|change] default: always
+    on_failure: never  # options: [always|never|change] default: always
     on_start:   false   # default: false
