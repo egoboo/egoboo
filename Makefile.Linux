@@ -15,7 +15,7 @@ COMPILE_FLAGS := -std=c++14 $(shell sdl2-config --cflags)
 COMPILE_WARNINGS := -Wall -Wextra -Wfatal-errors
 COMPILE_DEBUG_FLAGS := -fdiagnostics-color=always
 COMPILE_OPTIMIZE := -O0
-SANITIZER_FLAGS := -fno-sanitize=all
+SANITIZER_FLAGS := 
 LINKER_FLAGS := 
 
 #Silence warnings we do not care about
@@ -40,6 +40,7 @@ set_gcc_flags:
 	$(eval COMPILE_DEBUG_FLAGS += -fvar-tracking-assignments)
 	$(eval COMPILE_FLAGS += -x c++ -D_FORTIFY_SOURCE=2)
 	$(eval LINKER_FLAGS += -flto=jobserver)
+	$(eval SANITIZER_FLAGS := -fno-sanitize=all)
 
 set_sanitizer_flags:
 	$(eval SANITIZER_FLAGS := -fsanitize=undefined -fsanitize=leak -fsanitize=address)
