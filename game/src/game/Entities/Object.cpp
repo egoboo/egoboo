@@ -3133,6 +3133,6 @@ void Object::updateLatchButtons()
     }
     if ( !attack_handled && _inputLatchesPressed[LATCHBUTTON_RIGHT] && 0 == reload_timer )
     {
-        attack_handled = chr_do_latch_attack(this, SLOT_RIGHT);
+        chr_do_latch_attack(this, SLOT_RIGHT);
     }
 }

@@ -1439,7 +1439,6 @@ int vfs_printf( vfs_FILE * pfile, const char *format, ... )
 
     if ( NULL == pfile ) return 0;
 
-    retval = 0;
     va_start( args, format );
     if ( VFS_FILE_TYPE_CSTDIO == pfile->type )
     {

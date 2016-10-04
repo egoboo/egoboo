@@ -188,7 +188,6 @@ float CharacterStatus::draw_one_bar(uint8_t bartype, float x_stt, float y_stt, i
 		_gameEngine->getUIManager()->drawQuad2D(sc_rect, tx_rect, std::make_shared<Material>(tx_ptr, Math::Colour4f::white(), true));
 
 		y += size.y();
-		ticks = 0;
 		total_ticks -= NUMTICK;
 	}
 
