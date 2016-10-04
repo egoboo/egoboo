@@ -28,7 +28,7 @@ COMPILE_WARNINGS += -Wnull-dereference -Wshift-negative-value
 #-Wcast-qual -Wswitch-enum -Wshadow -Wsuggest-attribute=const -Wsuggest-attribute=format -Wsuggest-override
 
 set_clang_flags:
-	$(eval CXX := /usr/share/clang/scan-build-3.8/bin/../libexec/c++-analyzer) #clang++
+	$(eval CXX := clang++) #/usr/share/clang/scan-build-3.8/bin/../libexec/c++-analyzer
 	$(eval ARCHIVER := llvm-ar)
 	$(eval COMPILE_DEBUG_FLAGS += -ggdb3 -D_DEBUG)
 	$(eval COMPILE_OPTIMIZE := -O1 -march=native)
@@ -72,9 +72,10 @@ egoboo: idlib egolib
 	${MAKE} -C ./game -f Makefile.Linux
 	
 clean:
-	${MAKE} -C ./egolib -f Makefile.Linux clean
-	${MAKE} -C ./game -f Makefile.Linux clean
-	${MAKE} -C ./idlib -f Makefile.Linux clean
+	find . -name "*.o" -exec $(RM) {} \;
+#	find . -name "*.plist" -exec $(RM) -r {} \;
+	find . -name "clang_output_*" -exec $(RM) {} \;
+	find . -name "temp_buf_*" -exec $(RM) {} \;
 	
 configure:
 	git submodule init
