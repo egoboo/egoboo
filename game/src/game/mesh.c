@@ -1073,7 +1073,7 @@ Vector3f ego_mesh_t::get_diff(const Vector3f& pos, float radius, float center_pr
 	/// by 1/2 a tile.
 
 	const float jitter_size = Info<float>::Grid::Size() * 0.5f;
-	float pressure_ary[9];
+	std::array<float, 9> pressure_ary = {};
 	float fx, fy;
 	Vector3f diff = Vector3f::zero();
 	float   sum_diff = 0.0f;
@@ -1140,8 +1140,6 @@ Vector3f ego_mesh_t::get_diff(const Vector3f& pos, float radius, float center_pr
 }
 
 BIT_FIELD ego_mesh_t::hit_wall(const Vector3f& pos, float radius, const BIT_FIELD bits, Vector2f& nrm, float *pressure, const mesh_wall_data_t& data) const {
-	BIT_FIELD loc_pass;
-	Uint32 pass;
 	bool invalid;
 
 	float  loc_pressure;
@@ -1158,7 +1156,7 @@ BIT_FIELD ego_mesh_t::hit_wall(const Vector3f& pos, float radius, const BIT_FIEL
 
 	// ego_mesh_test_wall() clamps pdata->ix_* and pdata->iy_* to valid values
 
-	pass = loc_pass = 0;
+	BIT_FIELD loc_pass = 0;
 	nrm[kX] = nrm[kY] = 0.0f;
 	for (int iy = data._i._min.getY(); iy <= data._i._max.getY(); iy++)
 	{
@@ -1221,7 +1219,7 @@ BIT_FIELD ego_mesh_t::hit_wall(const Vector3f& pos, float radius, const BIT_FIEL
 		}
 	}
 
-	pass = loc_pass & bits;
+	uint32_t pass = loc_pass & bits;
 
 	if (0 == pass)
 	{
