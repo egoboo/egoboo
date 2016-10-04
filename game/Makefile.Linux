@@ -44,12 +44,13 @@ all: $(BIN)
 
 # Generic rule
 %.o: %.c
-	ccache $(CXX) -o $@ $(CXXFLAGS) -c $<
+	$(CXX) -o $@ $(CXXFLAGS) -c $<
 %.o: %.cpp
-	ccache $(CXX) -o $@ $(CXXFLAGS) -c $<
+	$(CXX) -o $@ $(CXXFLAGS) -c $<
+	#clang-tidy $< -checks=clang-analyzer-*,-clang-analyzer-alpha*,misc-*,modernize-*,performance-*, -- $(CXXFLAGS) #readability-*
 
 $(BIN): $(OBJECTS)
-	ccache $(CXX) -o $@ $^ $(LINKER_LIBS) -Wl,-fuse-ld=gold -flto=jobserver
+	$(CXX) -o $@ $^ -Wl,-fuse-ld=gold $(LINKER_LIBS)
 
 clean:
 	rm -f ./src/game/*.o ./src/game/*/*.o $(BIN)

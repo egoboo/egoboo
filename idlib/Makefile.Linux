@@ -25,12 +25,12 @@ all: $(IDLIB_TARGET)
 
 # Generic rule
 %.o: %.c
-	ccache $(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 %.o: %.cpp
-	ccache $(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(IDLIB_TARGET): $(OBJECTS)
-	gcc-ar rcsv $(IDLIB_TARGET) $(OBJECTS) 
+	$(ARCHIVER) rcsv $(IDLIB_TARGET) $(OBJECTS) 
 
 clean:
 	rm -f $(IDLIB_TARGET) ./src/IdLib/*.o
