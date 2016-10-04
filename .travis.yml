@@ -3,6 +3,8 @@ dist: trusty
 
 before_install:
 - sudo add-apt-repository ppa:kxstudio-team/builds -y
+- sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+- sudo add-apt-repository ppa:zoogie/sdl2-snapshots -y
 - sudo apt-get update -qq
 - if [ "$CC" = "gcc" ];  then sudo apt-get install -qq -y gcc-4.9; fi
 - if [ "$CC" = "gcc" ];  then export CC="gcc-4.9" CC="gcc-4.9"; fi
