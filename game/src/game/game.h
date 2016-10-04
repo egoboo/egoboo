@@ -45,9 +45,6 @@ struct prt_bundle_t;
 // status list
 #define MAX_STATUS          10                             ///< Maximum status displays
 
-// end text
-#define MAXENDTEXT 1024                                    ///< longest end text message
-
 // imports
 #define MAX_IMPORTS 16
 #define MAX_IMPORT_OBJECTS     ( Inventory::MAXNUMINPACK + 2 )        ///< left hand + right hand + MAXINVENTORY
@@ -200,9 +197,24 @@ extern WeatherState g_weatherState;
 extern fog_instance_t fog;
 extern AnimatedTilesState g_animatedTilesState;
 
-// End text
-extern char   endtext[MAXENDTEXT];     ///< The end-module text
-extern size_t endtext_carat;
+struct EndText {
+private:
+    std::string _text;
+    size_t _carat;
+public:
+    EndText() : _text(), _carat(0) {}
+    void setText(const std::string& text) {
+        _text = text;
+        add_linebreak_cpp(_text, 30);
+        _carat = _text.length();
+    }
+    const std::string& getText() const {
+        return _text;
+    }
+};
+
+// The end module text.
+extern EndText g_endText;
 
 extern bool    overrideslots;          ///< Override existing slots?
 extern import_list_t g_importList;

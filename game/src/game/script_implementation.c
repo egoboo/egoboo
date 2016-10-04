@@ -400,12 +400,8 @@ Uint8 AddEndMessage( Object * pchr, const int message_index, script_state_t * ps
 
     if ( !pchr->getProfile()->isValidMessageID( message_index ) ) return false;
 
-    std::string escapedText = endtext + expandEscapeCodes(pchr->toSharedPointer(), *pstate, pchr->getProfile()->getMessage(message_index));
-    strncpy(endtext, escapedText.c_str(), SDL_arraysize(endtext));
-
-    endtext_carat = strlen(endtext);
-    str_add_linebreaks(endtext, strlen(endtext), 30);
-
+    std::string escapedText = g_endText.getText() + expandEscapeCodes(pchr->toSharedPointer(), *pstate, pchr->getProfile()->getMessage(message_index));
+    g_endText.setText(escapedText);
     return true;
 }
 

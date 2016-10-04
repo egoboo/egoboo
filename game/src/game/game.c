@@ -56,9 +56,7 @@
 
 bool  overrideslots      = false;
 
-// End text
-char   endtext[MAXENDTEXT] = EMPTY_CSTR;
-size_t endtext_carat = 0;
+EndText g_endText;
 
 WeatherState g_weatherState;
 fog_instance_t fog;
@@ -1187,7 +1185,7 @@ void reset_end_text()
     /// @author ZZ
     /// @details This function resets the end-module text
 
-    endtext_carat = snprintf( endtext, SDL_arraysize( endtext ), "The game has ended..." );
+    g_endText.setText("The game has ended ...");
 
     /*
     if ( PlaStack.count > 1 )
@@ -1208,8 +1206,6 @@ void reset_end_text()
         }
     }
     */
-
-    str_add_linebreaks( endtext, endtext_carat, 20 );
 }
 
 std::string expandEscapeCodes(const std::shared_ptr<Object> &object, const script_state_t &scriptState, const std::string &text)

@@ -6121,8 +6121,7 @@ Uint8 scr_ClearEndMessage( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    endtext[0] = CSTR_END;
-    endtext_carat = 0;
+    g_endText.setText("");
 
     SCRIPT_FUNCTION_END();
 }
