@@ -97,7 +97,7 @@ bool matrix_cache_t::isValid() const {
         // handle differences in our own scale
         for (int cnt = 0; cnt < 3; cnt++) {
             float ftmp = this->self_scale[cnt] - rhs.self_scale[cnt];
-            if (0.0f != ftmp) { itmp = sgn(ftmp); return false; }
+            if (0.0f != ftmp) { return false; }
         }
     }
 

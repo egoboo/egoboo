@@ -599,12 +599,7 @@ bool do_chr_prt_collision_deflect(chr_prt_collision_data_t& pdata)
 //--------------------------------------------------------------------------------------------
 bool do_chr_prt_collision_damage( chr_prt_collision_data_t& pdata )
 {
-    Object * powner = NULL;
-
-    if ( _currentModule->getObjectHandler().exists( pdata.pprt->owner_ref ) )
-    {
-        powner = _currentModule->getObjectHandler().get( pdata.pprt->owner_ref );
-    }
+    std::shared_ptr<Object> powner = _currentModule->getObjectHandler()[pdata.pprt->owner_ref];
 
     //Get the Profile of the Object that spawned this particle (i.e the weapon itself, not the holder)
     const std::shared_ptr<ObjectProfile> &spawnerProfile = ProfileSystem::get().getProfile(pdata.pprt->getSpawnerProfile());
@@ -638,7 +633,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t& pdata )
         pdata.pchr->setLife(pdata.pchr->getLife() - drain);
 
         // ... and add it to the "caster".
-        if ( NULL != powner )
+        if (powner != nullptr)
         {
             powner->setLife(powner->getLife() + drain);
         }
@@ -654,7 +649,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t& pdata )
         pdata.pchr->setMana(pdata.pchr->getMana() - drain);
 
         // add it to the "caster"
-        if ( NULL != powner )
+        if (powner != nullptr)
         {
             powner->setMana(powner->getMana() + drain);
         }
@@ -666,7 +661,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t& pdata )
         SET_BIT( pdata.pchr->ai.alert, ALERTIF_CONFUSED );
         pdata.pchr->grog_timer = std::max(static_cast<unsigned>(pdata.pchr->grog_timer), pdata.ppip->grogTime );
 
-        BillboardSystem::get().makeBillboard(powner->getObjRef(), "Groggy!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::green(), 3, Billboard::Flags::All);
+        BillboardSystem::get().makeBillboard(pdata.pchr->getObjRef(), "Groggy!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::green(), 3, Billboard::Flags::All);
     }
 
     // Do daze
@@ -675,7 +670,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t& pdata )
         SET_BIT( pdata.pchr->ai.alert, ALERTIF_CONFUSED );
         pdata.pchr->daze_timer = std::max(static_cast<unsigned>(pdata.pchr->daze_timer), pdata.ppip->dazeTime );
 
-        BillboardSystem::get().makeBillboard(powner->getObjRef(), "Dazed!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::yellow(), 3, Billboard::Flags::All);
+        BillboardSystem::get().makeBillboard(pdata.pchr->getObjRef(), "Dazed!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::yellow(), 3, Billboard::Flags::All);
     }
 
     //---- Damage the character, if necessary
@@ -837,7 +832,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t& pdata )
             }
 
             //Is it a critical hit?
-            if(powner && powner->hasPerk(Ego::Perks::CRITICAL_HIT) && DamageType_isPhysical(pdata.pprt->damagetype)) {
+            if(powner != nullptr && powner->hasPerk(Ego::Perks::CRITICAL_HIT) && DamageType_isPhysical(pdata.pprt->damagetype)) {
                 //0.5% chance per agility to deal max damage
                 float critChance = powner->getAttribute(Ego::Attribute::AGILITY)*0.5f;
 

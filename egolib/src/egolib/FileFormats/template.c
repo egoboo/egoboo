@@ -134,9 +134,6 @@ bool template_copy_to_marker( vfs_FILE * tempfile, vfs_FILE * outfile, const cha
                 pcarat  = buffer;
                 *pcarat = CSTR_END;
 
-                // reset the marker string
-                pmark = marker_str;
-
                 break;
             }
         }
