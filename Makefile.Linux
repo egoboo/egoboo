@@ -11,7 +11,7 @@ clang: set_clang_flags all
 
 all: idlib egolib egoboo
 
-COMPILE_FLAGS := -std=c++14 $(shell sdl2-config --cflags)
+COMPILE_FLAGS := -x c++ -std=c++14 $(shell sdl2-config --cflags)
 COMPILE_WARNINGS := -Wall -Wextra -Wfatal-errors
 COMPILE_DEBUG_FLAGS := -fdiagnostics-color=always
 COMPILE_OPTIMIZE := -O0
@@ -38,7 +38,7 @@ set_clang_flags:
 set_gcc_flags:
 	$(eval COMPILE_WARNINGS += -Wduplicated-cond -Wlogical-op -Wstrict-overflow=4 -Wshift-overflow=2)
 	$(eval COMPILE_DEBUG_FLAGS += -fvar-tracking-assignments)
-	$(eval COMPILE_FLAGS += -x c++ -D_FORTIFY_SOURCE=2)
+	$(eval COMPILE_FLAGS += -D_FORTIFY_SOURCE=2)
 	$(eval LINKER_FLAGS += -flto=jobserver)
 	$(eval SANITIZER_FLAGS := -fno-sanitize=all)
 
