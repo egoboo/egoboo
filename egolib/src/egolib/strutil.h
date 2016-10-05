@@ -57,12 +57,20 @@
 	 */
     std::string str_encode_path(const std::string& objectName);
 
+    /// @brief Replace consecutive multiple slashes by a single slash.
+    /// @param pathname the input pathname
+    /// @return the converted pathname
     std::string str_clean_path(const std::string& pathname);
-    char * str_clean_path( char * str, size_t size );
+
+    /// @brief Convert all slashes to network-specific format.
+    /// @param pathname the input pathname
+    /// @return the converted pathname
     std::string str_convert_slash_net(const std::string& pathname);
-    char * str_convert_slash_net( char * str, size_t size );
+    
+    /// @brief Convert all slashes to system-specific format.
+    /// @param pathname the input pathname
+    /// @return the converted pathname
     std::string str_convert_slash_sys(const std::string& pathname);
-    char * str_convert_slash_sys( char * str, size_t size );
 
 	/// Append a operating system slash to a filename
 	/// if there is no slash or backslash.

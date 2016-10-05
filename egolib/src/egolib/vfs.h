@@ -101,8 +101,36 @@
 // TYPEDEFS
 //--------------------------------------------------------------------------------------------
 
-struct s_vfs_search_context;
-typedef struct s_vfs_search_context vfs_search_context_t;
+/// A container for holding all the data for a search
+struct  vfs_search_context_t {
+    std::string path_2;
+    std::string extension_2;
+    BIT_FIELD bits;
+
+    std::vector<std::string> file_list_2;
+    std::vector<std::string>::const_iterator file_list_iterator_2;
+    std::string found_2;
+
+    /// Construct this search context.
+    vfs_search_context_t();
+
+    /// Destruct this search context.
+    ~vfs_search_context_t();
+
+    /// Get if there is data in this context available.
+    bool hasData() const;
+    /// Get the data available in this context.
+    /// Raises an exception if there is no data available.
+    const std::string& getData() const;
+    /// Compute the next data.
+    void nextData();
+public:
+    /// @return @a true if the specified file name is acceptable, @a false otherwise
+    bool predicate(const std::string& fileName) const;
+    std::string makeAbsolute(const std::string& pathname) const;
+};
+
+vfs_search_context_t *vfs_findFirst(const char *searchPath, const char *searchExtension, Uint32 searchBits);
 
 // use this ugly thing, since there is no other way to hide the actual structure of the vfs_FILE...
 struct vsf_file;
@@ -260,20 +288,9 @@ int vfs_write<Uint64>(vfs_FILE& file, const Uint64& val);
 template <>
 int vfs_write<float>(vfs_FILE& file, const float& val);
 
-/// the file searching routines
-char **vfs_enumerateFiles(const char *directory);
-void vfs_freeList(void *listVar);
-
-const char *vfs_search_context_get_current(struct s_vfs_search_context *ctxt);
-
-vfs_search_context_t *vfs_findFirst(const char *searchPath, const char *searchExtension, Uint32 searchBits);
-vfs_search_context_t *vfs_findNext(vfs_search_context_t **searchContext);
-void vfs_findClose(vfs_search_context_t **searchContext);
-
 long vfs_fileLength(vfs_FILE *file);
 int vfs_rewind(vfs_FILE *file);
 
-int vfs_scanf(vfs_FILE *file, const char *format, ...) GCC_SCANF_FUNC(2);
 int vfs_printf(vfs_FILE *file, const char *format, ...) GCC_PRINTF_FUNC(2);
 
 int vfs_putc(int c, vfs_FILE *file);
@@ -288,8 +305,19 @@ int          vfs_copyDirectory(const char *sourceDir, const char *destDir);
 
 int    vfs_removeDirectoryAndContents(const char * dirname, int recursive);
 
-const char *vfs_resolveReadFilename(const char *src_filename);
-const char *vfs_resolveWriteFilename(const char *src_filename);
+// @brief Resolve the specified filename.
+// @param filename the filename
+// @remark Resolution follows the same rules as if the file was opened for reading.
+// @return <c>(true,resolvedFilename)</c> on success, <c>(false,filename)</c> on failure
+// where <c>resolvedFilename</c> is the resolved filename in system-specific notation.
+std::pair<bool, std::string> vfs_resolveReadFilename(const std::string& filename);
+// @brief Resolve the specified filename.
+// @param filename the filename
+// @remark Resolution follows the same rules as if the file was opened/created for writing.
+// @return <c>(true,resolvedFilename)</c> on success, <c>(false,filename)</c> on failure
+// where <c>resolvedFilename</c> is the resolved filename in system-specific notation.
+// @throw std::runtime_error if no write directory was specified
+std::pair<bool, std::string> vfs_resolveWriteFilename(const std::string& filename);
 
 const char *vfs_getError();
 /// @brief Get the version of the PhysFS library which was used for linking the binary.
@@ -300,7 +328,7 @@ std::string vfs_getVersion();
 int vfs_add_mount_point(const char *dirname, const char *relative_path, const char *mount_point, int append);
 int vfs_remove_mount_point(const char *mount_point);
 
-const char *vfs_convert_fname(const char *fname);
+std::string vfs_convert_fname(const std::string& fname);
 
 void vfs_set_base_search_paths();
 const char *vfs_mount_info_strip_path(const char * some_path);

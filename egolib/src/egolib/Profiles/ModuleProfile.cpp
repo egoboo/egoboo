@@ -198,7 +198,8 @@ std::shared_ptr<ModuleProfile> ModuleProfile::loadFromFile(const std::string &fo
     result->_icon = Ego::DeferredTexture(folderPath + "/gamedat/title");
 
     //Strip the prefix path and get just the folder name of the module
-    result->_folderName = folderPath.substr(folderPath.find_first_of('/')+1);
+    result->_folderName = folderPath.substr(folderPath.find_last_of('/', folderPath.size() - 1) + 1);
+                       /* folderPath.substr(folderPath.find_first_of('/') + 1); */
 
     return result;
 }

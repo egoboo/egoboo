@@ -173,27 +173,20 @@ egolib_rv export_one_character( ObjectRef character, ObjectRef owner, int chr_ob
 
     // copy every file that does not already exist in the todir
     {
-        vfs_search_context_t * ctxt;
-        const char * searchResult;
-
-        ctxt = vfs_findFirst( fromdir.c_str(), NULL, VFS_SEARCH_FILE | VFS_SEARCH_BARE );
-        searchResult = vfs_search_context_get_current( ctxt );
-
-        while ( NULL != ctxt && VALID_CSTR( searchResult ) )
-        {
+        vfs_search_context_t *ctxt = vfs_findFirst( fromdir.c_str(), NULL, VFS_SEARCH_FILE | VFS_SEARCH_BARE );
+        if (!ctxt) return rv_success;
+        while (ctxt->hasData()) {
+            auto searchResult = ctxt->getData();
             fromfile = fromdir + "/" + searchResult;
             tofile = todir + "/" + searchResult;
-
-            if ( !vfs_exists( tofile ) )
-            {
-                vfs_copyFile( fromfile, tofile );
+            if (!vfs_exists(tofile)) {
+                vfs_copyFile(fromfile, tofile);
             }
-
-            vfs_findNext( &ctxt );
-            searchResult = vfs_search_context_get_current( ctxt );
+            ctxt->nextData();
         }
 
-        vfs_findClose( &ctxt );
+        delete ctxt;
+        ctxt = nullptr;
     }
 
     return rv_success;
@@ -1002,15 +995,15 @@ void game_load_module_profiles( const std::string& modname )
     std::string folderPath = modname + "/objects";
 
     vfs_search_context_t* ctxt = vfs_findFirst(folderPath.c_str(), "obj", VFS_SEARCH_DIR);
-    const char* filehandle = vfs_search_context_get_current(ctxt);
+    if (!ctxt) return;
 
-    while (NULL != ctxt && VALID_CSTR(filehandle)) {
-        ProfileSystem::get().loadOneProfile(filehandle);
-
-        ctxt = vfs_findNext(&ctxt);
-        filehandle = vfs_search_context_get_current(ctxt);
+    while (ctxt->hasData()) {
+        auto searchResult = ctxt->getData();
+        ProfileSystem::get().loadOneProfile(searchResult);
+        ctxt->nextData();
     }
-    vfs_findClose(&ctxt);
+    delete ctxt;
+    ctxt = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------

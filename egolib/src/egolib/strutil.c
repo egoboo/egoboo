@@ -65,46 +65,6 @@ std::string str_clean_path(const std::string& pathname) {
     return temporary;
 }
 
-char * str_clean_path( char * str, size_t size )
-{
-    /// @author BB
-    /// @details remove any accidentally doubled slash characters from the stream
-
-    char *psrc, *psrc_end, *pdst, *pdst_end;
-
-    if ( INVALID_CSTR( str ) ) return str;
-
-    for ( psrc = str, pdst = str, psrc_end = str + size, pdst_end = str + size;
-          psrc < psrc_end && pdst < pdst_end;
-          /*nothing*/ )
-    {
-        if ( C_SLASH_CHR == *psrc || C_BACKSLASH_CHR == *psrc )
-        {
-            *pdst = *psrc;
-            psrc++;
-            pdst++;
-
-            while ( psrc < psrc_end && ( C_SLASH_CHR == *psrc || C_BACKSLASH_CHR == *psrc ) )
-            {
-                psrc++;
-            }
-        }
-        else
-        {
-            *pdst = *psrc;
-            psrc++;
-            pdst++;
-        }
-    }
-
-    if ( pdst < pdst_end )
-    {
-        *pdst = CSTR_END;
-    }
-
-    return str;
-}
-
 //--------------------------------------------------------------------------------------------
 std::string str_convert_slash_net(const std::string& pathname) {
     static const auto transcode = [](char source) {
@@ -116,34 +76,6 @@ std::string str_convert_slash_net(const std::string& pathname) {
     return str_clean_path(temporary);
 }
 
-char * str_convert_slash_net( char * str, size_t size )
-{
-    /// @author BB
-    /// @details converts the slashes in a string to those appropriate for the Net
-
-    char * psrc, *psrc_end, *pdst, *pdst_end;
-
-    if ( INVALID_CSTR( str ) ) return str;
-
-    for ( psrc = str, pdst = str, psrc_end = str + size, pdst_end = str + size;
-          CSTR_END != *psrc && psrc < psrc_end && pdst < pdst_end;
-          psrc++, pdst++ )
-    {
-        char cTmp = *psrc;
-
-        if ( C_SLASH_CHR == cTmp || C_BACKSLASH_CHR == cTmp ) cTmp = NET_SLASH_CHR;
-
-        *pdst = cTmp;
-    }
-
-    if ( pdst < pdst_end )
-    {
-        *pdst = CSTR_END;
-    }
-
-    return str_clean_path( str, size );
-}
-
 //--------------------------------------------------------------------------------------------
 std::string str_convert_slash_sys(const std::string& pathname) {
     static const auto transcode = [](char source) {
@@ -153,34 +85,6 @@ std::string str_convert_slash_sys(const std::string& pathname) {
     auto temporary = pathname;
     std::transform(temporary.begin(), temporary.end(), temporary.begin(), transcode);
     return str_clean_path(temporary);
-}
-
-char * str_convert_slash_sys( char * str, size_t size )
-{
-    /// @author BB
-    /// @details converts the slashes in a string to those appropriate this system
-
-    char * psrc, *psrc_end, *pdst, *pdst_end;
-
-    if ( INVALID_CSTR( str ) ) return str;
-
-    for ( psrc = str, pdst = str, psrc_end = str + size, pdst_end = str + size;
-          CSTR_END != *psrc && psrc < psrc_end && pdst < pdst_end;
-          psrc++, pdst++ )
-    {
-        char cTmp = *psrc;
-
-        if ( C_SLASH_CHR == cTmp || C_BACKSLASH_CHR == cTmp ) cTmp = SLASH_CHR;
-
-        *pdst = cTmp;
-    }
-
-    if ( pdst < pdst_end )
-    {
-        *pdst = CSTR_END;
-    }
-
-    return str_clean_path( str, size );
 }
 
 //--------------------------------------------------------------------------------------------
