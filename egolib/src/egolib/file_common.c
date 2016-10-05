@@ -141,13 +141,13 @@ void fs_copyDirectory(const char *sourceDir, const char *targetDir)
 }
 
 //--------------------------------------------------------------------------------------------
-int fs_fileExists(const char *filename)
+int fs_fileExists(const std::string& filename)
 {
-    if (INVALID_CSTR(filename))
+    if (filename.empty())
     {
         return -1;
     }
-    FILE *ptmp = fopen(filename, "rb");
+    FILE *ptmp = fopen(filename.c_str(), "rb");
     if (ptmp)
     {
         fclose(ptmp);
@@ -171,7 +171,7 @@ bool fs_ensureUserFile( const char * relative_filename, bool required )
     std::string path_str = fs_getUserDirectory() + std::string(SLASH_STR) + relative_filename;
     path_str = str_convert_slash_sys( path_str );
 
-    int found = fs_fileExists( path_str.c_str() );
+    int found = fs_fileExists( path_str );
     if ( 0 == found )
     {
         // copy the file from the Data Directory to the User Directory

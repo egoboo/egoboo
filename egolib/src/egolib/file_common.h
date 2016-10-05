@@ -102,70 +102,33 @@ int fs_init(const char *argv0);
  *  The C strings may not be modified and remain unchanged until the file system is uninitialized..
  */
 
-/**
- * @brief
- *  Get the binary directory pathname.
- * @return
- *  the binary directory pathname
- */
-const char *fs_getBinaryDirectory();
+/// @brief Get the binary directory pathname.
+/// @return the binary directory pathname
+std::string fs_getBinaryDirectory();
 
-/**
- * @brief
- *  Get the data directory pathname
- * @return
- *  the data directory pathname
- */
-const char *fs_getDataDirectory();
+/// @brief Get the data directory pathname
+/// @return the data directory pathname
+std::string fs_getDataDirectory();
 
-/**
- * @breif
- *  Get the user directory pathname
- * @return
- *  the user directory pathname
- */
-const char *fs_getUserDirectory();
+/// @brief Get the user directory pathname
+/// @return the user directory pathname
+std::string fs_getUserDirectory();
 
-/**
- * @brief
- *  Get the configuration directory pathname.
- * @return
- *  the configuration directory pathname
- */
-const char *fs_getConfigDirectory();
+/// @brief Get the configuration directory pathname.
+/// @return the configuration directory pathname
+std::string fs_getConfigDirectory();
 
 /**@}*/
 
-#if 0
-const char *fs_createBinaryDirectoryFilename(const char *relative_pathname);
-const char *fs_createDataDirectoryFilename(const char *relative_pathname);
-const char *fs_createUserDirectoryFilename(const char *relative_pathname);
-const char *fs_createConfigDirectoryFilename(const char *relative_pathname);
-FILE *fs_openBinaryDirectoryFile(const char *relative_pathname, const char *mode);
-FILE *fs_openDataDirectoryFile(const char *relative_pathname, const char *mode);
-FILE *fs_openUserDirectoryFile(const char *relative_pathname, const char *mode);
-FILE *fs_openConfigDirectoryFile(const char *relative_pathname, const char *mode);
-#endif
+/// @brief Get if a file exists.
+/// @param pathname the pathname
+/// @return @a 1 if the file exists, @a 0 if it does not exist, @a -1 if an invalid argument was passed.
+int fs_fileExists(const std::string& pathname);
 
-/**
- * @brief
- *  Get if a file exists.
- * @param pathname
- *  a pathname
- * @return
- *  @a 1 if the file exists, @a 0 if it does not exist, @a -1 if an invalid argument was passed.
- */
-int fs_fileExists(const char *pathname);
-
-/**
- * @brief
- *  Get if a directory exists.
- * @param pathname
- *  the pathname
- * @return
- *  @a 1 if the directory exists, @a 0 if it does not exist, @a -1 if an invalid argument was passed.
- */
-int fs_fileIsDirectory(const char *pathname);
+/// @brief Get if a directory exists.
+/// @param pathname the pathname
+/// @return @a 1 if the directory exists, @a 0 if it does not exist, @a -1 if an invalid argument was passed.
+int fs_fileIsDirectory(const std::string& pathname);
 
 /**
  * @brief
@@ -178,7 +141,7 @@ int fs_fileIsDirectory(const char *pathname);
  *  All intermediate directories must exist;
  *  this function will only create the final directory in the path.
  */
-int fs_createDirectory(const char *pathname);
+int fs_createDirectory(const std::string& pathname);
 /**
  * @brief
  *  Remove a directory.
@@ -189,15 +152,15 @@ int fs_createDirectory(const char *pathname);
  * @remark
  *  This function will only remove the final directory in the path.
  */
-int fs_removeDirectory(const char *pathname);
+int fs_removeDirectory(const std::string& pathname);
 /**
  * @brief
  *  Delete a file.
  * @param pathname
  *  the pathname of the file
  */
-void fs_deleteFile(const char *pathname);
-bool fs_copyFile(const char *source, const char *dest);
+void fs_deleteFile(const std::string& pathname);
+bool fs_copyFile(const std::string& source, const std::string& target);
 void fs_removeDirectoryAndContents(const char *pathname, int recursive);
 /**
  * @brief

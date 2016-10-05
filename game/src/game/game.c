@@ -173,12 +173,12 @@ egolib_rv export_one_character( ObjectRef character, ObjectRef owner, int chr_ob
 
     // copy every file that does not already exist in the todir
     {
-        vfs_search_context_t *ctxt = vfs_findFirst( fromdir.c_str(), NULL, VFS_SEARCH_FILE | VFS_SEARCH_BARE );
+        SearchContext *ctxt = new SearchContext(Ego::VfsPath(fromdir), VFS_SEARCH_FILE | VFS_SEARCH_BARE );
         if (!ctxt) return rv_success;
         while (ctxt->hasData()) {
             auto searchResult = ctxt->getData();
-            fromfile = fromdir + "/" + searchResult;
-            tofile = todir + "/" + searchResult;
+            fromfile = fromdir + "/" + searchResult.string();
+            tofile = todir + "/" + searchResult.string();
             if (!vfs_exists(tofile)) {
                 vfs_copyFile(fromfile, tofile);
             }
@@ -994,12 +994,12 @@ void game_load_module_profiles( const std::string& modname )
     import_data.slot = -100;
     std::string folderPath = modname + "/objects";
 
-    vfs_search_context_t* ctxt = vfs_findFirst(folderPath.c_str(), "obj", VFS_SEARCH_DIR);
+    SearchContext* ctxt = new SearchContext(Ego::VfsPath(folderPath), Ego::Extension("obj"), VFS_SEARCH_DIR);
     if (!ctxt) return;
 
     while (ctxt->hasData()) {
         auto searchResult = ctxt->getData();
-        ProfileSystem::get().loadOneProfile(searchResult);
+        ProfileSystem::get().loadOneProfile(searchResult.string());
         ctxt->nextData();
     }
     delete ctxt;
@@ -1931,7 +1931,7 @@ egolib_rv game_copy_imports( import_list_t * imp_lst )
 
     // delete the data in the directory
     vfs_removeDirectoryAndContents( "import", VFS_TRUE );
-    vfs_remove_mount_point("import");
+    vfs_remove_mount_point(Ego::VfsPath("import"));
 
     // make sure the directory exists
     if ( !vfs_mkdir( "/import" ) )
@@ -1939,7 +1939,7 @@ egolib_rv game_copy_imports( import_list_t * imp_lst )
 		Log::get().warn("%s:%d:%s: unable to create import folder `%s`\n", __FILE__, __LINE__, __FUNCTION__, vfs_getError() );
         return rv_error;
     }
-    vfs_add_mount_point( fs_getUserDirectory(), "import", "mp_import", 1 );
+    vfs_add_mount_point( fs_getUserDirectory(), Ego::FsPath("import"), Ego::VfsPath("mp_import"), 1 );
 
     // copy all of the imports over
     for (auto import_idx = 0; import_idx < imp_lst->count; import_idx++ )

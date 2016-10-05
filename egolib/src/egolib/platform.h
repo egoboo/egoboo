@@ -92,16 +92,23 @@ extern "C"
 #define WIN32_SLASH_STR C_BACKSLASH_STR
 
 // everyone uses the same convention for the internet...
-#define NET_SLASH_CHR C_SLASH_CHR
-#define NET_SLASH_STR C_SLASH_STR
+#define NETWORK_SLASH_CHR C_SLASH_CHR
+#define NETWORK_SLASH_STR C_SLASH_STR
+
+#define NET_SLASH_CHR NETWORK_SLASH_CHR
+#define NET_SLASH_STR NETWORK_SLASH_STR
 
 #if defined(ID_WINDOWS)
-    #define SLASH_STR WIN32_SLASH_STR
-    #define SLASH_CHR WIN32_SLASH_CHR
+    #define SYSTEM_SLASH_STR WIN32_SLASH_STR
+    #define SYSTEM_SLASH_CHR WIN32_SLASH_CHR
 #else
-    #define SLASH_STR NET_SLASH_STR
-    #define SLASH_CHR NET_SLASH_CHR
+    #define SYSTEM_SLASH_STR NET_SLASH_STR
+    #define SYSTEM_SLASH_CHR NET_SLASH_CHR
 #endif
+
+#define SLASH_STR SYSTEM_SLASH_STR
+#define SLASH_CHR SYSTEM_SLASH_CHR
+
 
 //--------------------------------------------------------------------------------------------
 

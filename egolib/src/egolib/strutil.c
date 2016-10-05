@@ -66,14 +66,8 @@ std::string str_clean_path(const std::string& pathname) {
 }
 
 //--------------------------------------------------------------------------------------------
-std::string str_convert_slash_net(const std::string& pathname) {
-    static const auto transcode = [](char source) {
-        if (source == C_SLASH_CHR || source == C_BACKSLASH_CHR) return NET_SLASH_CHR;
-        else return source;
-    };
-    auto temporary = pathname;
-    std::transform(temporary.begin(), temporary.end(), temporary.begin(), transcode);
-    return str_clean_path(temporary);
+std::string str_convert_slash_net(const Ego::VfsPath& path) {
+    return path.string(Ego::VfsPath::Kind::Network);
 }
 
 //--------------------------------------------------------------------------------------------

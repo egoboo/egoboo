@@ -67,7 +67,7 @@ void convert_spawn_file_load_name(spawn_file_info_t& psp_info, const Ego::Treasu
     /// @details This turns a spawn comment line into an actual folder name we can use to load something with
 
     // trim any excess spaces off the psp_info->spawn_coment
-    psp_info.spawn_comment = Ego::trim(psp_info.spawn_comment);
+    psp_info.spawn_comment = Ego::trim_ws(psp_info.spawn_comment);
 
     //If it is a reference to a random treasure table then get a random object from that table
     if ( '%' == psp_info.spawn_comment[0] )

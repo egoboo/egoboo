@@ -531,7 +531,7 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
         size_t parseposition = parse_token(_token, ppro, script, 0 );
         if ( Token::Type::Function == _token.getType() )
         {
-            if ( Ego::ScriptFunctions::End == _token.getValue() && 0 == highbits )
+            if ( Ego::Script::ScriptFunctions::End == _token.getValue() && 0 == highbits )
             {
                 // stop processing the lines, since we're finished
                 break;
@@ -656,7 +656,7 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
         }
     }
 
-    _token.setValue(Ego::ScriptFunctions::End);
+    _token.setValue(Ego::Script::ScriptFunctions::End);
     _token.setType(Token::Type::Function);
     emit_opcode( _token, 0, script );
     _token.setValue(script._instructions.getLength() + 1);

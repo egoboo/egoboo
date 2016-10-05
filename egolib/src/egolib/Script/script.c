@@ -394,7 +394,7 @@ Uint8 script_state_t::run_function(script_state_t& self, ai_state_t& aiState, sc
         }
     }
 
-    if ( valuecode > Ego::ScriptFunctions::SCRIPT_FUNCTIONS_COUNT )
+    if (valuecode > Ego::Script::ScriptFunctions::SCRIPT_FUNCTIONS_COUNT)
     {
     	//TODO: empty block? why?
     }

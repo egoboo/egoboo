@@ -205,21 +205,21 @@ void ProfileSystem::loadModuleProfiles()
     _moduleProfilesLoaded.clear();
 
     // Search for all .mod directories and load the module info
-    vfs_search_context_t *ctxt = vfs_findFirst("mp_modules", "mod", VFS_SEARCH_DIR);
+    SearchContext *ctxt = new SearchContext(Ego::VfsPath("mp_modules"), Ego::Extension("mod"), VFS_SEARCH_DIR);
     if (!ctxt) return;
     
     while (ctxt->hasData())
     {
         auto vfs_ModPath = ctxt->getData();
         //Try to load menu.txt
-        std::shared_ptr<ModuleProfile> module = ModuleProfile::loadFromFile(vfs_ModPath);
+        std::shared_ptr<ModuleProfile> module = ModuleProfile::loadFromFile(vfs_ModPath.string());
         if (module)
         {
             _moduleProfilesLoaded.push_back(module);
         }
         else
         {
-			Log::get().warn("unable to load module: %s\n", vfs_ModPath.c_str());
+			Log::get().warn("unable to load module: %s\n", vfs_ModPath.string().c_str());
         }
         ctxt->nextData();
     }
@@ -273,13 +273,13 @@ void ProfileSystem::loadAllSavedCharacters(const std::string &saveGameDirectory)
     _loadPlayerList.clear();
 
     // Search for all objects
-    vfs_search_context_t *ctxt = vfs_findFirst(saveGameDirectory.c_str(), "obj", VFS_SEARCH_DIR);
+    SearchContext *ctxt = new SearchContext(Ego::VfsPath(saveGameDirectory), Ego::Extension("obj"), VFS_SEARCH_DIR);
     if (!ctxt) return;
 
     while (ctxt->hasData())
     {
         auto foundFile = ctxt->getData();
-        std::string folderPath = foundFile;
+        auto folderPath = foundFile;
 
         // is it a valid filename?
         if (folderPath.empty()) {
@@ -288,7 +288,7 @@ void ProfileSystem::loadAllSavedCharacters(const std::string &saveGameDirectory)
         }
 
         // does the directory exist?
-        if (!vfs_exists(folderPath)) {
+        if (!vfs_exists(folderPath.string())) {
             ctxt->nextData();
             continue;
         }
@@ -297,7 +297,7 @@ void ProfileSystem::loadAllSavedCharacters(const std::string &saveGameDirectory)
         int slot = (MAX_IMPORT_OBJECTS + 2) * _loadPlayerList.size();
 
         // try to load the character profile (do a lightweight load, we don't need all data)
-        std::shared_ptr<ObjectProfile> profile = ObjectProfile::loadFromFile(folderPath, slot, true);
+        std::shared_ptr<ObjectProfile> profile = ObjectProfile::loadFromFile(folderPath.string(), slot, true);
         if (!profile) {
             ctxt->nextData();
             continue;

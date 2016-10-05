@@ -36,10 +36,24 @@ EgoTest_Test(textFormatter)
     EgoTest_Assert(output == "1234567\ncf qos\na");
 }
 
-EgoTest_Test(trim)
+EgoTest_Test(left_trim_ws)
 {
     std::string input = " \tfo \to \t";
-    std::string output = Ego::trim(input);
+    std::string output = Ego::left_trim_ws(input);
+    EgoTest_Assert(output == "fo \to \t");
+}
+
+EgoTest_Test(right_trim_ws)
+{
+    std::string input = " \tfo \to \t";
+    std::string output = Ego::right_trim_ws(input);
+    EgoTest_Assert(output == " \tfo \to");
+}
+
+EgoTest_Test(trim_ws)
+{
+    std::string input = " \tfo \to \t";
+    std::string output = Ego::trim_ws(input);
     EgoTest_Assert(output == "fo \to");
 }
 
