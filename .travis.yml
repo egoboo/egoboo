@@ -36,15 +36,12 @@ before_install:
       export CC="gcc-4.9" CXX="g++-4.9";
   fi
 script:
-#- clang++-3.8 --version
-#- g++ --version
-#- make -f Makefile.Linux clang -j4
 - make all test -j4 
 
 notifications:
   webhooks:
     urls:
       - https://webhooks.gitter.im/e/bf24f1666021dc4df89a
-    on_success: never  # options: [always|never|change] default: always
-    on_failure: never  # options: [always|never|change] default: always
+    on_success: always  # options: [always|never|change] default: always
+    on_failure: always  # options: [always|never|change] default: always
     on_start:   false   # default: false
