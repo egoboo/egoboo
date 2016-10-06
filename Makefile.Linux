@@ -1,13 +1,9 @@
 .PHONY: idlib egolib egoboo clean set_debug_flags debug
-
-#Select compiler
-CXX := ccache g++
-ARCHIVER := gcc-ar
 	
 debug: set_gcc_flags set_debug_flags all
 debug-extra: set_gcc_flags set_debug_flags set_sanitizer_flags all
 release: set_gcc_flags set_release_flags all
-clang: set_clang_flags all
+clang: set_clang_flags set_sanitizer_flags all
 
 all: idlib egolib egoboo
 
@@ -36,6 +32,8 @@ set_clang_flags:
 	$(eval LINKER_FLAGS += -stdlib=libc++)
 
 set_gcc_flags:
+	$(eval CXX := ccache g++)
+	$(eval ARCHIVER := gcc-ar)
 	$(eval COMPILE_WARNINGS += -Wduplicated-cond -Wlogical-op -Wstrict-overflow=4 -Wshift-overflow=2)
 	$(eval COMPILE_DEBUG_FLAGS += -fvar-tracking-assignments)
 	$(eval COMPILE_FLAGS += -D_FORTIFY_SOURCE=2)
@@ -43,12 +41,7 @@ set_gcc_flags:
 	$(eval SANITIZER_FLAGS := -fno-sanitize=all)
 
 set_sanitizer_flags:
-	$(eval SANITIZER_FLAGS := -fsanitize=undefined -fsanitize=leak -fsanitize=address)
-	$(eval SANITIZER_FLAGS += -fsanitize=integer-divide-by-zero -fsanitize=null -fsanitize=vla-bound -fsanitize=return -fsanitize=enum -fsanitize=shift)
-	$(eval SANITIZER_FLAGS += -fsanitize=bounds -fsanitize=object-size -fsanitize=float-divide-by-zero -fsanitize=vptr)
-	$(eval SANITIZER_FLAGS += -fsanitize=bool -fsanitize=alignment -fsanitize=bounds-strict)
-	$(eval SANITIZER_FLAGS += -fsanitize=float-cast-overflow -fsanitize=signed-integer-overflow)
-	#-fsanitize-undefined-trap-on-error
+	$(eval SANITIZER_FLAGS := -fsanitize=undefined -fsanitize=leak -fsanitize=address, -fsanitize=integer)
 
 set_debug_flags:
 	$(eval COMPILE_DEBUG_FLAGS += -ggdb3 -D_DEBUG)
@@ -74,7 +67,7 @@ egoboo: idlib egolib
 	
 clean:
 	find . -name "*.o" -exec $(RM) {} \;
-#	find . -name "*.plist" -exec $(RM) -r {} \;
+	find . -name "*.plist" -exec $(RM) -r {} \;
 	find . -name "clang_output_*" -exec $(RM) {} \;
 	find . -name "temp_buf_*" -exec $(RM) {} \;
 	
