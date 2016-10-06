@@ -295,6 +295,7 @@ bool GameEngine::initialize()
 
     // camera options
     CameraSystem::getCameraOptions().turnMode = egoboo_config_t::get().camera_control.getValue();
+    CameraSystem::Singleton::initialize();
 
     // renderer options
     gfx_config_t::download(gfx, egoboo_config_t::get());

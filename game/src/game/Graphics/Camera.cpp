@@ -92,9 +92,6 @@ Camera::Camera(const CameraOptions &options) :
     _ori.facing_z = TurnToFacing(_turnZ_turns);
     resetView();
 
-    // Connect the tile list to the mesh.
-    _tileList->setMesh(_currentModule->getMeshPointer());
-
     // Assume that the camera is fullscreen.
     setScreen(0, 0, Ego::GraphicsSystem::window->getSize().width(), Ego::GraphicsSystem::window->getSize().height());
 }

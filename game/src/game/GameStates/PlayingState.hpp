@@ -26,7 +26,6 @@
 #include "game/GameStates/GameState.hpp"
 
 //Forward declarations
-class CameraSystem;
 class Object;
 
 namespace Ego { namespace GUI { 
@@ -39,7 +38,7 @@ class MessageLog;
 class PlayingState : public GameState
 {
 public:
-    PlayingState(std::shared_ptr<CameraSystem> cameraSystem);
+    PlayingState();
 
     ~PlayingState();
 
@@ -70,7 +69,6 @@ private:
     void updateStatusBarPosition();
 
 private:
-	std::shared_ptr<CameraSystem> _cameraSystem;
     std::shared_ptr<Ego::GUI::MiniMap> _miniMap;
     std::shared_ptr<Ego::GUI::MessageLog> _messageLog;
     std::vector<std::weak_ptr<Ego::GUI::CharacterStatus>> _statusList;

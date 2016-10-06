@@ -75,7 +75,7 @@ void Player::updateLatches()
     object->resetInputCommands();
 
     // find the camera that is following this character
-    const auto &pcam = CameraSystem::get()->getCamera(object->getObjRef());
+    const auto &pcam = CameraSystem::get().getCamera(object->getObjRef());
     if (!pcam) {
         return;
     }

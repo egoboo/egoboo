@@ -33,13 +33,21 @@ static constexpr size_t MAX_CAMERAS = MAX_LOCAL_PLAYERS;
  *  A multi-camera system consisting of 1 to @a n cameras with indices @a 0 to <tt>n-1</tt>.
  *  The camera at index @a 0 is called the "main camera".
  */
-class CameraSystem
+class CameraSystem : public Ego::Core::Singleton<CameraSystem>
 {
-public:	
-	CameraSystem(const size_t numberOfCameras);
+protected:
+    friend Ego::Core::Singleton<CameraSystem>::CreateFunctorType;
+    friend Ego::Core::Singleton<CameraSystem>::DestroyFunctorType;
+    /**
+     * @brief Construct this texture atlas manager.
+     */
+    CameraSystem();
+    /**
+     * @brief Destruct this texture atlas manager.
+     */
+    virtual ~CameraSystem();
 
-	~CameraSystem();
-
+public:
 	/**
 	 * @return true if the camera system has been initialized and can be used
 	 */
@@ -83,15 +91,9 @@ public:
 
 	/**
 	* @brief
-	*	Singleton accessor for CameraSystem
+	*	Initialize camera system with the specified number of cameras
 	**/
-	static std::shared_ptr<CameraSystem> get() {return _singleton.lock();}
-
-	/**
-	* @brief
-	*	Request singleton access or create it if needed
-	**/
-	static std::shared_ptr<CameraSystem> request(size_t numberOfCameras);
+	void initialize(size_t numberOfCameras);
 
 private:
 
@@ -114,6 +116,5 @@ private:
 	std::vector<std::shared_ptr<Camera>> _cameraList;
 	std::shared_ptr<Camera> _mainCamera;
 
-	static std::weak_ptr<CameraSystem> _singleton;
 	static CameraOptions _cameraOptions;
 };

@@ -26,30 +26,40 @@
 #include "game/Entities/_Include.hpp"
 
 //Define static variables
-std::weak_ptr<CameraSystem> CameraSystem::_singleton;
 CameraOptions CameraSystem::_cameraOptions;
 
-CameraSystem::CameraSystem(const size_t numberOfCameras) :
+CameraSystem::CameraSystem() :
 	_initialized(false),
 	_cameraList(),
     _mainCamera(nullptr)
 {
+    //ctor
+}
+
+CameraSystem::~CameraSystem()
+{
+    _cameraList.clear();
+    _initialized = false;
+    _mainCamera = nullptr;
+}
+
+void CameraSystem::initialize(const size_t numberOfCameras)
+{
+    // we're initialized.
+    _initialized = true;
+
     //Create cameras
+    _cameraList.clear();
     for(size_t i = 0; i < Ego::Math::constrain<size_t>(numberOfCameras, 1, MAX_CAMERAS); ++i) {
-        _cameraList.push_back( std::make_shared<Camera>(_cameraOptions) );
+        _cameraList.push_back(std::make_shared<Camera>(_cameraOptions));
     }
+
+    //Set camera 1 as main camera by default
+    _mainCamera = _cameraList[0];
 
     //If there are no valid players then make free movement camera
     if(numberOfCameras == 0) {
         _cameraList[0]->setCameraMovementMode(CameraMovementMode::Free);
-    }
-
-    // we're initialized.
-    _initialized = true;
-
-    //Set camera 1 as main camera by default
-    if(!_cameraList.empty()) {
-        _mainCamera = _cameraList[0];
     }
 
     // set camera size depending on resolution
@@ -60,13 +70,6 @@ CameraSystem::CameraSystem(const size_t numberOfCameras) :
 
     // make sure the cameras are centered on something or there will be a graphics error
     resetAllTargets(_currentModule->getMeshPointer().get());
-}
-
-CameraSystem::~CameraSystem()
-{
-    _cameraList.clear();
-    _initialized = false;
-    _mainCamera = nullptr;
 }
 
 bool CameraSystem::isInitialized()
@@ -313,18 +316,4 @@ void CameraSystem::autoSetTargets()
 CameraOptions& CameraSystem::getCameraOptions()
 {
     return _cameraOptions;
-}
-
-std::shared_ptr<CameraSystem> CameraSystem::request(size_t numberOfCameras) 
-{
-    //Check if it is already allocated
-    std::shared_ptr<CameraSystem> allocatedSystem = _singleton.lock();
-    if(allocatedSystem && allocatedSystem->_cameraList.size() >= numberOfCameras) {
-        return _singleton.lock();
-    }
-
-    //Allocate new one
-    allocatedSystem = std::make_shared<CameraSystem>(numberOfCameras);
-    _singleton = allocatedSystem;
-    return allocatedSystem;
 }

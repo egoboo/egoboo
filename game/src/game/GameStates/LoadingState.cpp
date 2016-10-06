@@ -208,7 +208,7 @@ void LoadingState::loadModuleData()
 
         // set up the cameras *after* game_begin_module() or the player devices will not be initialized
         // and camera_system_begin() will not set up thte correct view
-        std::shared_ptr<CameraSystem> cameraSystem = CameraSystem::request(local_stats.player_count);
+        CameraSystem::get().initialize(local_stats.player_count);
 
         // Fade out music when finished loading
         AudioSystem::get().stopMusic();
@@ -230,14 +230,14 @@ void LoadingState::loadModuleData()
         startButton->setSize(Vector2f(400, 30));
         startButton->setPosition(Point2f(SCREEN_WIDTH/2 - startButton->getWidth()/2, SCREEN_HEIGHT-50));
         _connections.push_back(startButton->Clicked.subscribe(
-            [cameraSystem]{
+            []{
 
                 //Have to do this function in the OpenGL context thread or else it will fail
                 Ego::Graphics::TextureAtlasManager::get().loadTileSet();
 
                 //Hush gong
                 AudioSystem::get().fadeAllSounds();
-                _gameEngine->setGameState(std::make_shared<PlayingState>(cameraSystem));
+                _gameEngine->setGameState(std::make_shared<PlayingState>());
             }));
         addComponent(startButton);
 

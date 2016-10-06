@@ -738,9 +738,7 @@ void Reflective0::doReflectionsEnabled(::Camera& camera, const TileList& tl, con
 		// speed-up drawing of surfaces with alpha == 0.0f sections
 		renderer.setAlphaFunction(CompareFunction::Greater, 0.0f);
 		// reduce texture hashing by loading up each texture only once
-		if (tl._mesh) {
-			Internal::TileListV2::render(*tl._mesh, tl._reflective);
-		}
+		Internal::TileListV2::render(*tl.getMesh(), tl._reflective);
 	}
 }
 
@@ -778,9 +776,7 @@ void Reflective1::doReflectionsEnabled(::Camera& camera, const TileList& tl, con
 		renderer.setBlendFunction(BlendFunction::SourceAlpha, BlendFunction::One);
 
 		// reduce texture hashing by loading up each texture only once
-		if (tl._mesh) {
-			Internal::TileListV2::render(*tl._mesh, tl._reflective);
-		}
+		Internal::TileListV2::render(*tl.getMesh(), tl._reflective);
 	}
 }
 
@@ -804,9 +800,7 @@ void Reflective1::doReflectionsDisabled(::Camera& camera, const TileList& tl, co
 		renderer.setAlphaFunction(CompareFunction::Greater, 0.0f);
 
 		// reduce texture hashing by loading up each texture only once
-		if (tl._mesh) {
-			Internal::TileListV2::render(*tl._mesh, tl._reflective);
-		}
+		Internal::TileListV2::render(*tl.getMesh(), tl._reflective);
 	}
 }
 
@@ -831,9 +825,7 @@ void NonReflective::doRun(::Camera& camera, const TileList& tl, const EntityList
 		renderer.setAlphaFunction(CompareFunction::Greater, 0.0f);
 
 		// reduce texture hashing by loading up each texture only once
-		if (tl._mesh) {
-			Internal::TileListV2::render(*tl._mesh, tl._nonReflective);
-		}
+		Internal::TileListV2::render(*tl.getMesh(), tl._nonReflective);
 	}
 	OpenGL::Utilities::isError();
 }

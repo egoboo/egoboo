@@ -38,8 +38,7 @@
 #include "game/Entities/_Include.hpp"
 #include "game/Module/Module.hpp"
 
-PlayingState::PlayingState(std::shared_ptr<CameraSystem> cameraSystem) :
-    _cameraSystem(cameraSystem),
+PlayingState::PlayingState() :
     _miniMap(std::make_shared<Ego::GUI::MiniMap>()),
     _messageLog(std::make_shared<Ego::GUI::MessageLog>()),
     _statusList()
@@ -107,7 +106,7 @@ void PlayingState::updateStatusBarPosition()
                 std::shared_ptr<Object> object = status->getObject();
                 if(object)
                 {
-                    auto camera = _cameraSystem->getCamera(object->getObjRef());
+                    auto camera = CameraSystem::get().getCamera(object->getObjRef());
 
                     //Shift component down a bit if required
                     status->setPosition(Point2f(status->getX(), maxY[camera] + 10.0f));
@@ -215,7 +214,7 @@ void PlayingState::addStatusMonitor(const std::shared_ptr<Object> &object)
     }
 
     //Get the camera that is following this object (defaults to main camera)
-    auto camera = CameraSystem::get()->getCamera(object->getObjRef());
+    auto camera = CameraSystem::get().getCamera(object->getObjRef());
 
     auto status = std::make_shared<Ego::GUI::CharacterStatus>(object);
 

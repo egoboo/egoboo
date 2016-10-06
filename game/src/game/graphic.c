@@ -346,7 +346,7 @@ void gfx_system_main()
     /// @author ZZ
     /// @details This function does all the drawing stuff
 
-    CameraSystem::get()->renderAll(gfx_system_render_world);
+    CameraSystem::get().renderAll(gfx_system_render_world);
 
     draw_hud();
 
@@ -614,9 +614,9 @@ float draw_debug(float y)
         y = _gameEngine->getUIManager()->drawBitmapFontString(Vector2f(0, y), "!!!DEBUG MODE-5!!!");
         std::ostringstream os;
         os << "~~CAM"
-           << " " << CameraSystem::get()->getMainCamera()->getPosition()[kX]
-           << " " << CameraSystem::get()->getMainCamera()->getPosition()[kY]
-           << " " << CameraSystem::get()->getMainCamera()->getPosition()[kZ];
+           << " " << CameraSystem::get().getMainCamera()->getPosition()[kX]
+           << " " << CameraSystem::get().getMainCamera()->getPosition()[kY]
+           << " " << CameraSystem::get().getMainCamera()->getPosition()[kZ];
         y = _gameEngine->getUIManager()->drawBitmapFontString(Vector2f(0, y), os.str(), 0, 1.0f);
         if (_currentModule->getPlayerList().size() > 0)
         {
@@ -669,7 +669,7 @@ float draw_debug(float y)
 
     if (Ego::Input::InputSystem::get().isKeyDown(SDLK_F7))
     {
-        std::shared_ptr<Camera> camera = CameraSystem::get()->getMainCamera();
+        std::shared_ptr<Camera> camera = CameraSystem::get().getMainCamera();
 
         std::ostringstream os;
         // White debug mode
@@ -904,18 +904,13 @@ gfx_rv render_scene_mesh(Camera& cam, const Ego::Graphics::TileList& tl, const E
     /// @author BB
     /// @details draw the mesh and reflections of entities
 
-	if (!tl._mesh)
-	{
-		throw Id::RuntimeErrorException(__FILE__, __LINE__, "tile list is not attached to a mesh");
-	}
-
     gfx_rv retval;
 
     // assume the best
     retval = gfx_success;
     //--------------------------------
     // advance the animation of all animated tiles
-    animate_all_tiles(*tl._mesh);
+    animate_all_tiles(*tl.getMesh());
 
 	// Render non-reflective tiles.
 	Ego::Graphics::RenderPasses::g_nonReflective.run(cam, tl, el);
@@ -947,7 +942,7 @@ gfx_rv render_scene_mesh(Camera& cam, const Ego::Graphics::TileList& tl, const E
 		// render the heighmap
 		for (size_t i = 0; i < tl._all.size; ++i)
 		{
-			Ego::Graphics::RenderPasses::Internal::TileListV2::render_hmap_fan(tl._mesh.get(), tl._all.lst[i]._index);
+			Ego::Graphics::RenderPasses::Internal::TileListV2::render_hmap_fan(tl.getMesh().get(), tl._all.lst[i]._index);
 		}
 
 		// let the mesh texture code know that someone else is in control now

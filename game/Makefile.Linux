@@ -42,12 +42,13 @@ LINKER_LIBS += $(SANITIZER_FLAGS)
 
 all: $(BIN)
 
-# Generic rule
+# Generic compile rule
 %.o: %.c
 	$(CXX) -o $@ $(CXXFLAGS) -c $<
 %.o: %.cpp
 	$(CXX) -o $@ $(CXXFLAGS) -c $<
 	#clang-tidy $< -checks=clang-analyzer-*,-clang-analyzer-alpha*,misc-*,modernize-*,performance-*, -- $(CXXFLAGS) #readability-*
 
+#Linking
 $(BIN): $(OBJECTS)
 	$(CXX) -o $@ $^ -Wl,-fuse-ld=gold $(LINKER_LIBS)

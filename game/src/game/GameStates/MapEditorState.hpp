@@ -51,7 +51,6 @@ private:
 	void addModeEditButton(EditorMode mode, const std::string &label);
 
 private:
-	std::shared_ptr<CameraSystem> _cameraSystem;
     std::shared_ptr<Ego::GUI::MiniMap> _miniMap;
     std::vector<std::shared_ptr<Ego::GUI::Button>> _modeButtons;
     EditorMode _editMode;
