@@ -191,6 +191,12 @@ public:
     **/
     uint32_t getCurrentUpdateFrame() const;
 
+    /**
+    * @brief
+    *   Get the number of frames that have been rendered so far
+    **/
+    uint32_t getNumberOfFramesRendered() const;
+
 private:
     /**
     * @brief
@@ -259,6 +265,8 @@ private:
     uint32_t _lastUPSCount;
     float _estimatedFPS;
     float _estimatedUPS;
+
+    uint32_t _totalFramesRendered; ///< The total number of frames drawn so far
 
     //GameEngine Submodules
     std::unique_ptr<Ego::GUI::UIManager> _uiManager;

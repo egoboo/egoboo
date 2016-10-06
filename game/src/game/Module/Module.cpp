@@ -124,7 +124,6 @@ GameModule::GameModule(const std::shared_ptr<ModuleProfile> &profile, const uint
 
     // reset some counters
     timeron = false;
-    game_frame_all = 0;
     update_wld = 0;
     clock_chr_stat = 0;    
 }

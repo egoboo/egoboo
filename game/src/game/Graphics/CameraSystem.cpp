@@ -22,6 +22,7 @@
 #include "game/graphic.h"
 #include "game/game.h"
 #include "game/Logic/Player.hpp"
+#include "game/Core/GameEngine.hpp"
 
 #include "game/Entities/_Include.hpp"
 
@@ -120,7 +121,7 @@ egolib_rv CameraSystem::renderAll(std::function<void(std::shared_ptr<Camera>, st
         _mainCamera = camera;
 
 	    // has this camera already rendered this frame?
-        if ( camera->getLastFrame() >= 0 && static_cast<uint32_t>(camera->getLastFrame()) >= game_frame_all ) {
+        if ( camera->getLastFrame() >= 0 && static_cast<uint32_t>(camera->getLastFrame()) >= _gameEngine->getNumberOfFramesRendered()) {
             continue;
         }
 
@@ -134,7 +135,7 @@ egolib_rv CameraSystem::renderAll(std::function<void(std::shared_ptr<Camera>, st
         endCameraMode();
 
         //Set last update frame
-        camera->setLastFrame(game_frame_all);
+        camera->setLastFrame(_gameEngine->getNumberOfFramesRendered());
     }
 
     // reset the "global" camera pointer to whatever it was

@@ -67,6 +67,8 @@ GameEngine::GameEngine() :
     _estimatedFPS(GAME_TARGET_FPS),
     _estimatedUPS(GAME_TARGET_UPS),
 
+    _totalFramesRendered(0),
+
     // Subscriptions
     shown(),
     hidden(),
@@ -134,7 +136,7 @@ void GameEngine::start()
             renderOneFrame();
 
             // Stabilize FPS throttle every so often in case rendering is lagging behind
-            if(game_frame_all % GAME_TARGET_FPS == 0)
+            if(_totalFramesRendered % GAME_TARGET_FPS == 0)
             {
                 _renderTimeout = getMicros() + DELAY_PER_RENDER_FRAME;
             }
@@ -170,10 +172,10 @@ void GameEngine::estimateFrameRate()
         return;
     }
 
-    _estimatedFPS = (game_frame_all-_lastFPSCount) / dt;
+    _estimatedFPS = (_totalFramesRendered-_lastFPSCount) / dt;
     _estimatedUPS = (update_wld-_lastUPSCount) / dt;
 
-    _lastFPSCount = game_frame_all;
+    _lastFPSCount = _totalFramesRendered;
     _lastUPSCount = update_wld;
     _lastFrameEstimation = now;
 }
@@ -233,7 +235,7 @@ void GameEngine::renderOneFrame()
 
     Ego::GUI::DrawingContext drawingContext;
     _currentGameState->drawAll(drawingContext);
-    game_frame_all++;
+    _totalFramesRendered++;
 
     //Draw mouse cursor last
     if(_drawCursor)
@@ -647,4 +649,9 @@ int SDL_main(int argc, char **argv)
 uint32_t GameEngine::getCurrentUpdateFrame() const
 {
     return update_wld;
+}
+
+uint32_t GameEngine::getNumberOfFramesRendered() const
+{
+    return _totalFramesRendered;
 }
