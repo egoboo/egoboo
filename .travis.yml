@@ -30,7 +30,7 @@ addons:
 
 before_install:
 - sudo apt-get install -y --no-install-recommends doxygen valgrind graphviz
-- if [ "$CC" -e "clang" ]; then 
+- if [ "$CC" = "clang" ]; then 
       export CC="clang-3.8" CXX="clang++-3.8" CXXFLAGS="-ftemplate-depth=1024";
   else
       export CC="gcc-4.9" CXX="g++-4.9";
