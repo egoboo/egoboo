@@ -171,8 +171,6 @@ int vfs_init(const char *argv0, const char *root_dir)
     
     if (!fs_fileIsDirectory(fs_getDataDirectory()))
     {
-        // We can call log functions, they won't try to write to unopened log files
-        // But mainly this is used for sys_popup
         Log::get().error("The data path isn't a directory.\nData path: '%s'\n", fs_getDataDirectory().c_str());
         return 1;
     }

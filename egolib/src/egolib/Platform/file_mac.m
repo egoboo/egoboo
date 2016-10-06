@@ -17,7 +17,6 @@ struct s_mac_find_context : Id::NonCopyable
     std::string currentFile;
 };
 
-static NSString *binaryPath = nil;
 static NSString *dataPath = nil;
 static NSString *userPath = nil;
 //static NSString *configPath = nil;
@@ -46,26 +45,18 @@ int sys_fs_init(const char *root_path)
         
         NSLog(@"Loading from bundle identified as %@", [rootBundle bundleIdentifier]);
 
-        binaryPath = [rootBundle bundlePath];
         dataPath = [rootBundle resourcePath];
         userPath = [[NSFileManager defaultManager] documentsDirectory];
         //configPath = [[NSFileManager defaultManager] applicationSupportDirectory];
 
-        [binaryPath retain];
         [dataPath retain];
         [userPath retain];
 
-        NSLog(@"sys_fs_init: Game directory is %@", binaryPath);
         NSLog(@"sys_fs_init: Data directory is %@", dataPath);
         NSLog(@"sys_fs_init: User directory is %@", userPath);
         NSLog(@"sys_fs_init: Config directory is %@", dataPath);
         return 0;
     }
-}
-
-std::string fs_getBinaryDirectory()
-{
-    return [binaryPath UTF8String];
 }
 
 std::string fs_getDataDirectory()

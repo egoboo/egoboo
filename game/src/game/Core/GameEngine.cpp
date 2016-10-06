@@ -311,6 +311,7 @@ bool GameEngine::initialize()
 
     // Initialize the GFX system.
     GFX::initialize();
+    
     // Subscribe to window events.
     subscribe();
 
