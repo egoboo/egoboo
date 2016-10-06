@@ -25,13 +25,11 @@
 
 #include "game/Entities/_Include.hpp"
 
-//Define static variables
-CameraOptions CameraSystem::_cameraOptions;
-
 CameraSystem::CameraSystem() :
 	_initialized(false),
 	_cameraList(),
-    _mainCamera(nullptr)
+    _mainCamera(nullptr),
+    _cameraOptions()
 {
     //ctor
 }

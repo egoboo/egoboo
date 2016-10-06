@@ -85,7 +85,7 @@ public:
     /**
      * @brief write access to global camera options
      */
-    static CameraOptions& getCameraOptions();
+    CameraOptions& getCameraOptions();
 
 	inline std::shared_ptr<Camera> getMainCamera() const {return _mainCamera;}
 
@@ -115,6 +115,5 @@ private:
 	bool _initialized;
 	std::vector<std::shared_ptr<Camera>> _cameraList;
 	std::shared_ptr<Camera> _mainCamera;
-
-	static CameraOptions _cameraOptions;
+	CameraOptions _cameraOptions;
 };
