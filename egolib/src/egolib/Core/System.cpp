@@ -123,8 +123,8 @@ const std::string System::VERSION = "0.1.9";
 
 System::System(const std::string& binaryPath) {
 
-    // Initialize logging, so that we can use it everywhere.
-    Log::initialize("/debug/log.txt", Log::Level::Debug);
+    // Initialize logging first, so that we can use it everywhere.
+    Log::initialize("log.txt", Log::Level::Debug);
 
     // Initialize the virtual file system.
     vfs_init(binaryPath.c_str(), nullptr);
@@ -152,57 +152,15 @@ System::System(const std::string& binaryPath) {
     Log::get().message("Initializing SDL version %d.%d.%d ... ", SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL);
     try {
         timerService = std::make_unique<TimerService>();
-    } catch (...) {
-        SDL_Quit();
-        setup_end();
-        /*sys_uninitialize();*/
-        Log::uninitialize();
-        /*vfs_uninitialize();*/
-        std::rethrow_exception(std::current_exception());
-    }
-    try {
         eventService = std::make_unique<EventService>();
-    } catch (...) {
-        timerService = nullptr;
-        SDL_Quit();
-        setup_end();
-        /*sys_uninitialize();*/
-        Log::uninitialize();
-        /*vfs_uninitialize();*/
-        std::rethrow_exception(std::current_exception());
-    }
-    try {
         videoService = std::make_unique<VideoService>();
-    } catch (...) {
-        eventService = nullptr;
-        timerService = nullptr;
-        SDL_Quit();
-        setup_end();
-        /*sys_uninitialize();*/
-        Log::uninitialize();
-        /*vfs_uninitialize();*/
-        std::rethrow_exception(std::current_exception());
-    }
-    try {
         audioService = std::make_unique<AudioService>();
-    } catch (...) {
-        videoService = nullptr;
-        eventService = nullptr;
-        timerService = nullptr;
-        SDL_Quit();
-        setup_end();
-        /*sys_uninitialize();*/
-        Log::uninitialize();
-        /*vfs_uninitialize();*/
-        std::rethrow_exception(std::current_exception());
-    }
-    try {
         inputService = std::make_unique<InputService>();
     } catch (...) {
-        audioService = nullptr;
-        videoService = nullptr;
-        eventService = nullptr;
-        timerService = nullptr;
+        audioService.reset(nullptr);
+        videoService.reset(nullptr);
+        eventService.reset(nullptr);
+        timerService.reset(nullptr);
         SDL_Quit();
         setup_end();
         /*sys_uninitialize();*/

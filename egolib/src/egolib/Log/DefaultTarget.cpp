@@ -24,6 +24,7 @@
 
 #include "egolib/strutil.h"
 #include "egolib/Log/ConsoleColor.hpp"
+#include <fstream>
 
 namespace Log {
 
@@ -31,25 +32,26 @@ static constexpr size_t MAX_LOG_MESSAGE = 1024; ///< Max length of log messages.
 
 DefaultTarget::DefaultTarget(const std::string& filename, Level level)
 	: Target(level),
-	  _file(nullptr) {
+	  _applicationPath(SDL_GetBasePath()),
+	  _file(std::make_unique<std::ofstream>(_applicationPath + filename, std::ios_base::out)) {
 	
-	/*
-	_file = vfs_openWrite(filename);
-	if (!_file) {
-		throw std::runtime_error("unable to open log file `" + filename + "`");
-	}
-	*/
+	 if(!_file->is_open()) {
+	 	std::string message = "Unable to create file for logging: " + filename + " (" + strerror(errno) + ")";
+	 	error("%s\n", message.c_str());
+	 	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "Warning", message.c_str(), nullptr);
+	 }
+	 else {
+	 	info("Log system initialized (logging to \"%s%s\")\n", _applicationPath, filename.c_str());
+	 }
 }
 
 DefaultTarget::~DefaultTarget() {
-	if (_file) {
-		vfs_close(_file);
-		_file = nullptr;
-	}
+	_file->close();
+	SDL_free(_applicationPath);
 }
 
 void DefaultTarget::writev(Level level, const char *format, va_list args) {
-	char logBuffer[MAX_LOG_MESSAGE] = EMPTY_CSTR;
+	std::array<char, MAX_LOG_MESSAGE> logBuffer;
 
 	// Add prefix
 	const char *prefix;
@@ -82,18 +84,17 @@ void DefaultTarget::writev(Level level, const char *format, va_list args) {
 	}
 
 	// Build log message
-	vsnprintf(logBuffer, MAX_LOG_MESSAGE - 1, format, args);
+	vsnprintf(logBuffer.data(), logBuffer.size() - 1, format, args);
 
-	if (nullptr != _file)
+	if (_file->is_open())
 	{
 		// Log to file
-		vfs_puts(prefix, _file);
-		vfs_puts(logBuffer, _file);
+		(*_file) << prefix << logBuffer.data();
 	}
 
 	// Log to console
 	fputs(prefix, stdout);
-	fputs(logBuffer, stdout);
+	fputs(logBuffer.data(), stdout);
 
 	// Restore default color
 	setConsoleColor(ConsoleColor::Default);

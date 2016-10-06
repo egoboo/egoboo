@@ -27,17 +27,19 @@
 
 namespace Log {
 
-struct DefaultTarget : Target {
-private:
-	/**
-	* @brief
-	*  The log file.
-	*/
-	vfs_FILE *_file;
+class DefaultTarget : public Target {
 public:
 	DefaultTarget(const std::string& filename, Level level = Level::Warning);
 	virtual ~DefaultTarget();
 	void writev(Level level, const char *format, va_list args) override;
+
+private:
+	char* _applicationPath;
+	/**
+	* @brief
+	*  The log file.
+	*/
+	std::unique_ptr<std::ofstream> _file;
 };
 
 } // namespace Log
