@@ -23,7 +23,6 @@
 #pragma once
 
 #include "egolib/Log/Target.hpp"
-#include "egolib/vfs.h"
 
 namespace Log {
 
