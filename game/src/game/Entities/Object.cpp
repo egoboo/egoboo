@@ -1782,7 +1782,7 @@ bool Object::costMana(int amount, const ObjectRef killer)
     const std::shared_ptr<Object> &pkiller = _currentModule->getObjectHandler()[killer];
 
     bool manaPaid  = false;
-    int manaFinal = FLOAT_TO_FP8(getMana()) - amount;
+    int manaFinal = static_cast<int>(FLOAT_TO_FP8(getMana())) - amount;
 
     if (manaFinal < 0)
     {
