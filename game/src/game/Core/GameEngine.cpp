@@ -148,11 +148,12 @@ void GameEngine::start()
         else
         {
             //Don't hog CPU if we have nothing to do
-            int delay = std::min<int64_t>(_renderTimeout-getMicros(), _updateTimeout-getMicros());
-            if(delay > 1)
-            {
+            uint64_t now = getMicros();
+            if(now < _renderTimeout && now < _updateTimeout) {
+                int delay = std::min(_renderTimeout-now, _updateTimeout-now);
                 std::this_thread::sleep_for(std::chrono::microseconds(delay));
             }
+
         }
 
         // Calculate estimations for FPS and UPS
