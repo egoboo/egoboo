@@ -2778,12 +2778,13 @@ bool Object::hasSkillIDSZ(const IDSZ2& whichskill) const
 
 void Object::dropMoney(int amount)
 {
-    static constexpr std::array<int, PIP_MONEY_COUNT> vals = {1, 5, 25, 100, 200, 500, 1000, 2000};
+    static constexpr std::array<int, PIP_MONEY_COUNT> vals = {2000, 1000, 500, 200, 100, 25, 5, 1};
     static constexpr std::array<PIP_REF, PIP_MONEY_COUNT> pips =
     {
-        PIP_COIN1, PIP_COIN5, PIP_COIN25, PIP_COIN100,
-        PIP_GEM200, PIP_GEM500, PIP_GEM1000, PIP_GEM2000
+        PIP_GEM2000, PIP_GEM1000, PIP_GEM500, PIP_GEM200, 
+        PIP_COIN100, PIP_COIN25, PIP_COIN5, PIP_COIN1
     };
+    static_assert(vals.size() == pips.size(), "Number of money particles != list size for value of money particles");
 
     // limit the about of money to the character's actual money
     amount = Ego::Math::constrain<int>(amount, 0, getMoney());
@@ -2805,14 +2806,14 @@ void Object::dropMoney(int amount)
     damage_timer = DAMAGETIME;
 
     // count and spawn the various denominations
-    for (size_t cnt = PIP_MONEY_COUNT - 1; amount > 0; cnt--)
+    for (size_t cnt = 0; amount > 0 && cnt < vals.size(); cnt++)
     {
         int count = amount / vals[cnt];
         amount -= count * vals[cnt];
 
-        for (size_t tnc = 0; tnc < count; tnc++)
+        for (size_t i = 0; i < count; i++)
         {
-            ParticleHandler::get().spawnGlobalParticle(pos, Facing::ATK_FRONT, LocalParticleProfileRef(pips[cnt]), tnc);
+            ParticleHandler::get().spawnGlobalParticle(pos, Facing::ATK_FRONT, LocalParticleProfileRef(pips[cnt]), i);
         }
     }
 }
