@@ -296,9 +296,8 @@ void ego_mesh_t::make_normals()
     {
         for (size_t ix = 0; ix < _info.getTileCountX(); ix++ )
         {
-            int ix_off[4] = {0, 1, 1, 0};
-            int iy_off[4] = {0, 0, 1, 1};
-            int i, j, k;
+            constexpr int ix_off[4] = {0, 1, 1, 0};
+            constexpr int iy_off[4] = {0, 0, 1, 1};
 
             Index1D fan0 = getTileIndex(Index2D(ix, iy));
 			if (!grid_is_valid(fan0)) {
@@ -310,30 +309,38 @@ void ego_mesh_t::make_normals()
             nrm_lst[0][kZ] = _tmem._nlst[fan0.getI()][ZZ];
 
             // for each corner of this tile
-            for ( i = 0; i < 4; i++ )
+            for (int i = 0; i < 4; i++ )
             {
+                // the offset list needs to be shifted depending on what i is
                 int dx, dy;
+                size_t shift = ( 6 - i ) % 4;
+                if ( 1 == ix_off[(4-shift) % 4] ){
+                  dx = -1;  
+                }  
+                else {
+                  dx = 0;  
+                } 
+                if ( 1 == iy_off[(4-shift) % 4] ){
+                  dy = -1;  
+                }  
+                else{
+                    dy = 0;
+                } 
+
                 int loc_ix_off[4];
                 int loc_iy_off[4];
-
-                // the offset list needs to be shifted depending on what i is
-                j = ( 6 - i ) % 4;
-
-                if ( 1 == ix_off[(4-j)%4] ) dx = -1; else dx = 0;
-                if ( 1 == iy_off[(4-j)%4] ) dy = -1; else dy = 0;
-
-                for ( k = 0; k < 4; k++ )
+                for (int k = 0; k < 4; k++ )
                 {
-                    loc_ix_off[k] = ix_off[( 4-j + k ) % 4 ] + dx;
-                    loc_iy_off[k] = iy_off[( 4-j + k ) % 4 ] + dy;
+                    loc_ix_off[k] = ix_off[( 4-shift + k ) % 4 ] + dx;
+                    loc_iy_off[k] = iy_off[( 4-shift + k ) % 4 ] + dy;
                 }
 
                 // cache the normals
                 // nrm_lst[0] is already known.
-                for ( j = 1; j < 4; j++ )
+                for (int j = 1; j < 4; j++ )
                 {
-                    int jx = ix + loc_ix_off[j];
-                    int jy = iy + loc_iy_off[j];
+                    int jx = static_cast<int>(ix) + loc_ix_off[j];
+                    int jy = static_cast<int>(iy) + loc_iy_off[j];
 
                     Index1D fan1 = getTileIndex(Index2D(jx, jy));
 
@@ -355,7 +362,7 @@ void ego_mesh_t::make_normals()
                 }
 
                 // find the creases
-                for ( j = 0; j < 4; j++ )
+                for (int j = 0; j < 4; j++ )
                 {
                     float vdot;
                     int m = ( j + 1 ) % 4;
@@ -388,7 +395,7 @@ void ego_mesh_t::make_normals()
                 }
 
                 vec_sum = nrm_lst[0];
-                for ( j = 1; j < 4; j++ )
+                for (int j = 1; j < 4; j++ )
                 {
                     if ( weight_lst[j] > 0.0f )
                     {
