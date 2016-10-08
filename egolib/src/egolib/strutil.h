@@ -57,9 +57,20 @@
 	 */
     std::string str_encode_path(const std::string& objectName);
 
-    char * str_clean_path( char * str, size_t size );
-    char * str_convert_slash_net( char * str, size_t size );
-    char * str_convert_slash_sys( char * str, size_t size );
+    /// @brief Replace consecutive multiple slashes by a single slash.
+    /// @param pathname the input pathname
+    /// @return the converted pathname
+    std::string str_clean_path(const std::string& pathname);
+
+    /// @brief Convert all slashes to network-specific format.
+    /// @param pathname the input pathname
+    /// @return the converted pathname
+    std::string str_convert_slash_net(const std::string& pathname);
+    
+    /// @brief Convert all slashes to system-specific format.
+    /// @param pathname the input pathname
+    /// @return the converted pathname
+    std::string str_convert_slash_sys(const std::string& pathname);
 
 	/// Append a operating system slash to a filename
 	/// if there is no slash or backslash.
@@ -67,8 +78,6 @@
 	/// Append a network slash to a filename
 	/// if there is no slash or backslash.
     std::string str_append_slash_net(const std::string& filename);
-
-    void   str_add_linebreaks( char * text, size_t text_len, size_t line_len );
 
 #if defined(__GNUC__) && !(defined (__MINGW) || defined(__MINGW32__))
     char* strupr( char * str );

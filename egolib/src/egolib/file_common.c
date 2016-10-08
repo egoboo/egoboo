@@ -168,24 +168,16 @@ bool fs_ensureUserFile( const char * relative_filename, bool required )
     /// the fact that PHYSFS will not add the same directory to 2 different mount points...
     /// seems pretty stupid to me, but there you have it.
 
-    STRING path_str;
-    int found;
+    std::string path_str = fs_getUserDirectory() + std::string(SLASH_STR) + relative_filename;
+    path_str = str_convert_slash_sys( path_str );
 
-    snprintf( path_str, SDL_arraysize( path_str ), "%s" SLASH_STR "%s", fs_getUserDirectory(), relative_filename );
-    str_convert_slash_sys( path_str, SDL_arraysize( path_str ) );
-
-    found = fs_fileExists( path_str );
+    int found = fs_fileExists( path_str.c_str() );
     if ( 0 == found )
     {
-        STRING src_path_str;
-
         // copy the file from the Data Directory to the User Directory
-
-        snprintf( src_path_str, SDL_arraysize( src_path_str ), "%s" SLASH_STR "%s", fs_getConfigDirectory(), relative_filename );
-
-        fs_copyFile( src_path_str, path_str );
-
-        found = fs_fileExists( path_str );
+        std::string src_path_str = fs_getConfigDirectory() + std::string(SLASH_STR) + relative_filename;
+        fs_copyFile( src_path_str.c_str(), path_str.c_str() );
+        found = fs_fileExists( path_str.c_str() );
     }
 
     // if it still doesn't exist, we have problems

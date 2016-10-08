@@ -57,7 +57,7 @@ VictoryScreen::VictoryScreen(PlayingState *playingState, const bool forceExit) :
 		addComponent(abortButton);		
 	}
 
-	auto victoryText = std::make_shared<Ego::GUI::Label>(endtext);
+	auto victoryText = std::make_shared<Ego::GUI::Label>(g_endText.getText());
 	victoryText->setPosition(Point2f(50, 50));
 	addComponent(victoryText);
 }

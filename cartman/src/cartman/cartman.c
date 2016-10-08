@@ -98,7 +98,7 @@ static bool cartman_check_mouse( const char *modname, cartman_mpd_t * pmesh );
 static void   cartman_check_input( const char *modname, cartman_mpd_t * pmesh );
 
 // loading
-static bool load_module( const char *modname, cartman_mpd_t * pmesh );
+static bool load_module( const std::string& modname, cartman_mpd_t * pmesh );
 static void gfx_system_load_basic_textures( const std::string& modname );
 static void cartman_create_mesh( cartman_mpd_t * pmesh );
 
@@ -340,7 +340,7 @@ void gfx_system_load_basic_textures( const std::string& modname )
 
 //--------------------------------------------------------------------------------------------
 
-bool load_module( const char *modname, cartman_mpd_t * pmesh )
+bool load_module( const std::string& modname, cartman_mpd_t * pmesh )
 {
     wawalite_data_t *pdata;
 
@@ -348,7 +348,7 @@ bool load_module( const char *modname, cartman_mpd_t * pmesh )
 
     std::string mod_path = std::string("/modules/") + modname;
 
-    if (!setup_init_module_vfs_paths(modname))
+    if (!setup_init_module_vfs_paths(modname.c_str()))
     {
         return false;
     }

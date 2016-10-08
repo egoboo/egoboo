@@ -158,13 +158,14 @@ public:
     void loadObjectList() {
         auto self = shared_from_this();
         setupPaths();
-        vfs_search_context_t *context = vfs_findFirst(_objectLocationPath.c_str(), "obj", VFS_SEARCH_DIR | VFS_SEARCH_BARE);
-        while (context) {
-            std::string objName = vfs_search_context_get_current(context);
+        vfs_search_context_t *ctxt = vfs_findFirst(_objectLocationPath.c_str(), "obj", VFS_SEARCH_DIR | VFS_SEARCH_BARE);
+        while (ctxt->hasData()) {
+            auto objName = ctxt->getData();
             _objects.emplace_back(new ObjectGUIContainer(objName, self));
-            vfs_findNext(&context);
+            ctxt->nextData();
         }
-        vfs_findClose(&context);
+        delete ctxt;
+        ctxt = nullptr;
     }
     
     void setupPaths() {
@@ -218,14 +219,15 @@ _currentLoader()
     
     vfs_search_context_t *context = vfs_findFirst("/modules", "mod", VFS_SEARCH_DIR | VFS_SEARCH_BARE);
     
-    while (context)
+    while (context->hasData())
     {
-        std::string moduleName = vfs_search_context_get_current(context);
+        auto moduleName = context->getData();
         auto module = std::make_shared<ModuleLoader>(moduleName);
         _moduleList.emplace_back(module);
-        vfs_findNext(&context);
+        context->nextData();
     }
-    vfs_findClose(&context);
+    delete context;
+    context = nullptr;
     
     for (const auto &loader : _moduleList) {
         auto button = std::make_shared<Ego::GUI::Button>(loader->getModuleName());

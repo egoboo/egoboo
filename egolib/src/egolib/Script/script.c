@@ -312,41 +312,37 @@ bool script_state_t::run_function_call( script_state_t& state, ai_state_t& aiSta
 /// @todo Merge with caller.
 bool script_state_t::run_operation( script_state_t& state, ai_state_t& aiState, script_info_t& script )
 {
-    const char * variable;
-    Uint32 var_value, operand_count, i;
-
-
     // check for valid execution pointer
     if ( script.get_pos() >= script._instructions.getLength() ) return false;
 
-    var_value = script._instructions[script.get_pos()].getValueBits();
+    auto var_value = script._instructions[script.get_pos()].getValueBits();
 
     // debug stuff
-    variable = "UNKNOWN";
+    std::string variable = "UNKNOWN";
     if ( debug_scripts && debug_script_file )
     {
 
-        for ( i = 0; i < script.indent; i++ ) { vfs_printf( debug_script_file, "  " ); }
+        for (auto  i = 0; i < script.indent; i++ ) { vfs_printf( debug_script_file, "  " ); }
 
-        for ( i = 0; i < Opcodes.size(); i++ )
+        for (auto i = 0; i < Opcodes.size(); i++ )
         {
             if ( Token::Type::Variable == Opcodes[i]._type && var_value == Opcodes[i].iValue )
             {
                 variable = Opcodes[i].cName;
                 break;
-            };
+            }
         }
 
-        vfs_printf( debug_script_file, "%s = ", variable );
+        vfs_printf( debug_script_file, "%s = ", variable.c_str() );
     }
 
     // Get the number of operands
 	script.increment_pos();
-    operand_count = script._instructions[script.get_pos()]._value;
+    auto operand_count = script._instructions[script.get_pos()]._value;
 
     // Now run the operation
     state.operationsum = 0;
-    for ( i = 0; i < operand_count && script.get_pos() < script._instructions.getLength(); ++i )
+    for (auto i = 0; i < operand_count && script.get_pos() < script._instructions.getLength(); ++i )
     {
 		script.increment_pos();
 		script_state_t::run_operand(state, aiState, script);
@@ -392,7 +388,7 @@ Uint8 script_state_t::run_function(script_state_t& self, ai_state_t& aiState, sc
         {
             if ( Token::Type::Function == Opcodes[i]._type && valuecode == Opcodes[i].iValue )
             {
-                vfs_printf( debug_script_file,  "%s\n", Opcodes[i].cName );
+                vfs_printf( debug_script_file,  "%s\n", Opcodes[i].cName.c_str() );
                 break;
             };
         }
@@ -462,43 +458,40 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
     /// @author ZZ
     /// @details This function does the scripted arithmetic in OPERATOR, OPERAND pscriptrs
 
-    const char * varname, * op;
-
-    STRING buffer = EMPTY_CSTR;
-    Uint8  variable;
-    Uint8  operation;
-
-    int32_t iTmp;
-
-    Object * pchr = NULL, * ptarget = NULL, * powner = NULL;
-
 	if (!_currentModule->getObjectHandler().exists(aiState.getSelf())) return;
-	pchr = _currentModule->getObjectHandler().get(aiState.getSelf());
+	Object *pchr = _currentModule->getObjectHandler().get(aiState.getSelf());
 
+    Object *ptarget = nullptr;
 	if (_currentModule->getObjectHandler().exists(aiState.getTarget()))
     {
 		ptarget = _currentModule->getObjectHandler().get(aiState.getTarget());
     }
 
+    Object *powner = nullptr;
 	if (_currentModule->getObjectHandler().exists(aiState.owner))
     {
 		powner = _currentModule->getObjectHandler().get(aiState.owner);
     }
 
+    std::string varname;
+
     // get the operator
-    iTmp      = 0;
-    varname   = buffer;
-    operation = script._instructions[script.get_pos()].getDataBits();
-    if ( script._instructions[script.get_pos()].isLdc() )
-    {
+    int32_t iTmp = 0;
+    
+    uint8_t operation = script._instructions[script.get_pos()].getDataBits();
+    if (script._instructions[script.get_pos()].isLdc()) {
         // Get the working opcode from a constant, constants are all but high 5 bits
         iTmp = script._instructions[script.get_pos()].getValueBits();
-        if ( debug_scripts ) snprintf( buffer, SDL_arraysize( buffer ), "%d", iTmp );
+        if (debug_scripts) {
+            std::stringstream stringStream;
+            stringStream << iTmp;
+            varname = stringStream.str();
+        }
     }
     else
     {
         // Get the variable opcode from a register
-        variable = script._instructions[script.get_pos()].getValueBits();
+        uint8_t variable = script._instructions[script.get_pos()].getValueBits();
 
         switch ( variable )
         {
@@ -1032,7 +1025,7 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
     }
 
     // Now do the math
-    op = "UNKNOWN";
+    std::string op = "UNKNOWN";
     switch ( operation )
     {
         case OPADD:
@@ -1099,7 +1092,7 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
 
     if ( debug_scripts && debug_script_file )
     {
-        vfs_printf( debug_script_file, "%s %s(%d) ", op, varname, iTmp );
+        vfs_printf( debug_script_file, "%s %s(%d) ", op.c_str(), varname.c_str(), iTmp );
     }
 }
 

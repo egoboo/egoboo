@@ -108,31 +108,6 @@ struct vsf_file
     vfs_fileptr_t ptr;
 };
 
-/// A container for holding all the data for a search
-struct s_vfs_search_context
-{
-    char **    file_list;
-    char **    ptr;
-
-    char       path[VFS_MAX_PATH];
-    char       ext[255];
-    BIT_FIELD  bits;
-
-    VFS_PATH found;
-
-    s_vfs_search_context() :
-        file_list(nullptr),
-        ptr(nullptr),
-        path(),
-        ext(),
-        bits(0),
-        found()
-    {
-        memset(path, 0, VFS_MAX_PATH);
-        memset(ext, 0, 255);
-    }
-};
-
 struct s_vfs_path_data
 {
     VFS_PATH mount;
@@ -154,12 +129,10 @@ static bool _vfs_initialized = false;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-//static int _vfs_vfscanf(FILE * file, const char * format, va_list args);
-//static bool _vfs_ensure_destination_file(const char * filename);
 
 static void _vfs_exit();
 static vfs_search_context_t *_vfs_search(vfs_search_context_t **ctxt);
-static int _vfs_ensure_write_directory(const char *filename, bool is_directory);
+static int _vfs_ensure_write_directory(const std::string& filename, bool is_directory);
 
 
 static void _vfs_translate_error(vfs_FILE *file);
@@ -167,10 +140,8 @@ static void _vfs_translate_error(vfs_FILE *file);
 static bool _vfs_mount_info_add(const char *mount_point, const char *root_path, const char *relative_path);
 static int _vfs_mount_info_matches(const char *mount_point, const char *local_path);
 static bool _vfs_mount_info_remove(int cnt);
-static int _vfs_mount_info_search(const char *some_path);
+static int _vfs_mount_info_search(const std::string& pathname);
 
-//static const char *_vfs_potential_mount_point(const char *some_path, const char **pstripped_pos);
-static void _vfs_findClose(vfs_search_context_t *ctxt);
 
 static int fake_physfs_vprintf(PHYSFS_File *file, const char *format, va_list args);
 
@@ -178,7 +149,7 @@ static int fake_physfs_vprintf(PHYSFS_File *file, const char *format, va_list ar
 //--------------------------------------------------------------------------------------------
 int vfs_init(const char *argv0, const char *root_dir)
 {
-    VFS_PATH tmp_path;
+    std::string temp_path;
 
     if (fs_init(root_dir))
     {
@@ -203,8 +174,8 @@ int vfs_init(const char *argv0, const char *root_dir)
         return 1;
     }
     // Append the data directory to the search directories.
-    snprintf(tmp_path, SDL_arraysize(tmp_path), "%s" SLASH_STR, fs_getDataDirectory());
-    if (!PHYSFS_mount(tmp_path, "/", 1))
+    temp_path = std::string(fs_getDataDirectory()) + SLASH_STR;
+    if (!PHYSFS_mount(temp_path.c_str(), "/", 1))
     {
         PHYSFS_deinit();
         return 1;
@@ -225,12 +196,9 @@ int vfs_init(const char *argv0, const char *root_dir)
     }
     else
     {
-        char loc_path[1024] = EMPTY_CSTR;
-
-        snprintf(loc_path, SDL_arraysize( loc_path ), "%s/debug", fs_getUserDirectory());
-
-        str_convert_slash_sys(loc_path, SDL_arraysize(loc_path));
-        fs_createDirectory(loc_path);
+        temp_path = std::string(fs_getUserDirectory()) + "/debug";
+        temp_path = str_convert_slash_sys(temp_path);
+        fs_createDirectory(temp_path.c_str());
     }
 
     // Set the write directory to the root user directory.
@@ -332,7 +300,7 @@ vfs_FILE *vfs_openWrite(const std::string& pathname)
     }
 
     // Make sure that the output directory exists.
-    if (!_vfs_ensure_write_directory(temporary.c_str(), false))
+    if (!_vfs_ensure_write_directory(temporary, false))
     {
         return NULL;
     }
@@ -395,191 +363,35 @@ vfs_FILE *vfs_openAppend(const std::string& pathname)
 }
 
 //--------------------------------------------------------------------------------------------
-const char * vfs_convert_fname_sys( const char * fname )
+std::string vfs_convert_fname( const std::string& fname )
 {
-    // PHYSFS and this vfs use a C_SLASH_STR at the front of relative filenames. if this is not removed
-    // when converting to system dependent filenames, it will reference the filename relative to the
-    // root point, rather than relative to the current directory.
-    //
-    // Added complication: if you are trying to specify a root filename,
-    // then you might expect a SLASH_CHR at the beginning of the pathname.
-    // To fix this, call str_convert_slash_sys(), and then check to see if the
-    // directory exists in the filesystem.
-    //
-    // This is not an ideal solution since we may be trying to specify a path for
-    // a tile that needs to be created. The optimal solution might be to check to see if
-    // the path belongs to a registered virtual mount point?
-
-    static VFS_PATH local_fname = EMPTY_CSTR;
-
-    size_t   offset;
-    VFS_PATH copy_fname  = EMPTY_CSTR;
-    char *   string_ptr;
-
-    BAIL_IF_NOT_INIT();
-
-    // test for a bad input filename
-    if ( INVALID_CSTR( fname ) )
-    {
-        strncpy( local_fname, SLASH_STR, SDL_arraysize( local_fname ) );
-        return local_fname;
-    }
-
-    if ( VFS_TRUE == _vfs_mount_info_search( fname ) )
-    {
-        // this path contains a virtual mount point
-        EGOBOO_ASSERT( false );
-        return local_fname;
-    }
-
-    // make a local copy of the original filename, in case fname is
-    // a string literal or a pointer to local_fname
-    strncpy( copy_fname, fname, SDL_arraysize( copy_fname ) );
-
-    // convert the path string to local notation
-    string_ptr = str_convert_slash_sys( copy_fname, strlen( fname ) );
-    if ( !VALID_CSTR( string_ptr ) )
-    {
-        strncpy( local_fname, SLASH_STR, SDL_arraysize( local_fname ) );
-        return local_fname;
-    }
-
-    // resolve the conflict between
-    //    -1- directories relative to the PHYSFS root path starting with NET_SLASH
-    // and
-    //    -2- directories relative to the root of the filesystem beginning with a slash
-    // by trying to find the original path
-    //
-    // The following method is not exactly secure, since it would allow access to generic
-    // root directories using this code...
-
-    // if the path already exists, just return the path
-    if ( fs_fileExists( copy_fname ) )
-    {
-        strncpy( local_fname, copy_fname, SDL_arraysize( local_fname ) );
-        return local_fname;
-    }
-
-    // if the path didn't exist it might be because it contains a file that has not yet been created...
-    // no solution to that problem, yet.
-
-    // ---- if we got to this point, we need to strip off any beginning slashes
-
-    offset = 0;
-    if ( '.' == copy_fname[0] && '.' == copy_fname[1] )
-    {
-        offset++;
-    }
-
-    // the string has already been converted to a system filename, so just check SLASH_CHR
-    while ( offset < SDL_arraysize(copy_fname) && SLASH_CHR == copy_fname[offset] )
-    {
-        offset++;
-    }
-
-    // copy the proper relative filename
-    strncpy( local_fname, copy_fname + offset, SDL_arraysize( local_fname ) );
-
-    return local_fname;
-}
-
-//--------------------------------------------------------------------------------------------
-const char * vfs_convert_fname( const char * fname )
-{
-    VFS_PATH        copy_fname  = EMPTY_CSTR;
-    static VFS_PATH local_fname = EMPTY_CSTR;
-
     BAIL_IF_NOT_INIT();
 
     // test for a bad iput filename
-    if ( INVALID_CSTR( fname ) )
+    if ( fname  == "" )
     {
-        strncpy( local_fname, NET_SLASH_STR, SDL_arraysize( local_fname ) );
-        return local_fname;
+        return NET_SLASH_STR;
     }
 
     // make a copy of the original filename, in case fname is
     // a literal string or a pointer to local_fname
-    strncpy( copy_fname, fname, SDL_arraysize( copy_fname ) );
-
-    if ( _vfs_mount_info_search( copy_fname ) )
+    std::string copy_fname = fname;
+    std::string local_fname;
+    if ( _vfs_mount_info_search( copy_fname.c_str() ) )
     {
-        snprintf( local_fname, SDL_arraysize( local_fname ), "%s", copy_fname );
+        local_fname = copy_fname;
     }
     else if ( NET_SLASH_CHR == copy_fname[0] || WIN32_SLASH_CHR == copy_fname[0] )
     {
-        snprintf( local_fname, SDL_arraysize( local_fname ), "%s", copy_fname );
+        local_fname = copy_fname;
     }
     else
     {
-        snprintf( local_fname, SDL_arraysize( local_fname ), NET_SLASH_STR "%s", copy_fname );
+        local_fname = std::string(NET_SLASH_STR) + copy_fname;
     }
 
-    return str_convert_slash_net( local_fname, strlen( local_fname ) );
+    return str_convert_slash_net( local_fname );
 }
-
-//--------------------------------------------------------------------------------------------
-/*const char * _vfs_potential_mount_point( const char * some_path, const char ** pstripped_pos )
-{
-    // This helper function was devised to read the first potential directory name
-    // from the given path. Because:
-    //
-    // 1) To use the PHYSFS_getMountPoint() function, the mount point you are testing
-    //    must be a system-dependent pathname, ending with a system-dependent path
-    //    separator.
-    //
-    // 2) if you use PHYSFS_getRealDir() to give you a path to a file, what it really does is
-    //    resolve the mount point, rather than the whole path name (path name without the
-    //    file, that is). To do the job we want in vfs_resolveReadFilename(), we need to be able
-    //    to strip the mount point off of the path that we were given before prepending the
-    //    path returned by PHYSFS_getRealDir()
-
-    const char * ptmp, *path_begin, *path_end;
-    static VFS_PATH found_path;
-
-    found_path[0] = CSTR_END;
-
-    BAIL_IF_NOT_INIT();
-
-    if ( !VALID_CSTR( some_path ) ) return found_path;
-
-    ptmp = some_path;
-
-    path_begin = some_path;
-    path_end   = some_path + VFS_MAX_PATH - 1;
-
-    // strip any starting slashes
-    for ( ptmp = path_begin; ptmp < path_end; ptmp++ )
-    {
-        if ( NET_SLASH_CHR != *ptmp && WIN32_SLASH_CHR != *ptmp )
-        {
-            path_begin = ptmp;
-            break;
-        }
-    }
-
-    // identify the slash after the mount point
-    ptmp = strpbrk( path_begin, "/\\" );
-    if ( NULL != ptmp ) path_end = ptmp + 1;
-
-    // make sre we do not have an empty string
-    if ( path_end > path_begin )
-    {
-		assert(path_end > path_begin);
-        size_t count = path_end - path_begin;
-        strncpy( found_path, path_begin, count );
-        found_path[count] = CSTR_END;
-    }
-
-    // export the beginning of the string after the mount point, if possible
-    if ( NULL != pstripped_pos )
-    {
-        *pstripped_pos = path_end;
-    }
-
-    // return the potential mount point in system-dependent format
-    return str_convert_slash_sys( found_path, strlen( found_path ) );
-}*/
 
 //--------------------------------------------------------------------------------------------
 void vfs_listSearchPaths( void )
@@ -597,167 +409,107 @@ void vfs_listSearchPaths( void )
 }
 
 //--------------------------------------------------------------------------------------------
-const char * vfs_resolveReadFilename( const char * src_filename )
+std::pair<bool, std::string> vfs_resolveReadFilename( const std::string& filename )
 {
-    static STRING read_name_str = EMPTY_CSTR;
-    VFS_PATH      loc_fname = EMPTY_CSTR, szTemp = EMPTY_CSTR;
-    int           retval_len = 0;
-    const char   *retval = NULL;
-
     BAIL_IF_NOT_INIT();
 
-    if ( INVALID_CSTR( src_filename ) ) return NULL;
-
-    // make a copy of the szTemp, in case we are passed a string literal
-    // as the argument of this function
-    strncpy( szTemp, src_filename, SDL_arraysize( szTemp ) );
+    if (filename == "") std::make_pair(false, filename);
 
     // make a temporary copy of the given filename with system-dependent slashes
     // to see if the filename is already resolved
-    strncpy( loc_fname, szTemp, SDL_arraysize( loc_fname ) );
-    str_convert_slash_sys( loc_fname, SDL_arraysize( loc_fname ) );
+    std::string filename_specific = str_convert_slash_sys(filename);
 
-    if ( fs_fileExists( loc_fname ) )
-    {
-        strncpy( read_name_str, loc_fname, SDL_arraysize( read_name_str ) );
-
-        return read_name_str;
+    if (fs_fileExists(filename_specific.c_str())) {
+        return std::make_pair(true, filename_specific);
     }
 
-    // make another copy of the local filename
-    // and make sure that PHYSFS gets the filename with the slashes it wants
-    strncpy( loc_fname, vfs_convert_fname( szTemp ), SDL_arraysize( loc_fname ) );
+    // The specified filename (in system-specific notation) does not exist.
+    // Convert the filename in PhysFS-specific notation.
+    filename_specific = vfs_convert_fname(filename_specific.c_str());
 
-    retval = NULL;
-    retval_len = 0;
-    if ( PHYSFS_isDirectory( loc_fname ) )
-    {
-        retval = PHYSFS_getRealDir( loc_fname );
+    // If the specified filename denotes an existing file or directory, then this file or directory must have a containing directory.
+    const char *prefix = PHYSFS_getRealDir(filename_specific.c_str());
+    if (nullptr == prefix) {
+        return std::make_pair(false, filename);
+    }
 
-        if ( VALID_CSTR( retval ) )
-        {
-            const char * ptmp = vfs_mount_info_strip_path( loc_fname );
-
-            if ( VALID_CSTR( ptmp ) )
-            {
-                snprintf( read_name_str, SDL_arraysize( read_name_str ), "%s/%s", retval, ptmp );
-            }
-            else
-            {
-                snprintf( read_name_str, SDL_arraysize( read_name_str ), "%s/", retval );
-            }
-
-            retval     = read_name_str;
-            retval_len = SDL_arraysize( read_name_str );
+    // The specified filename denotes an existing file or directory.
+    if (PHYSFS_isDirectory(filename_specific.c_str())) {
+        // If it denotes a directory then it must be splittable into a prefix and a suffix.
+        const char *suffix = vfs_mount_info_strip_path(filename_specific.c_str());
+        if (nullptr != suffix) {
+            return std::make_pair(true, str_convert_slash_sys(std::string(prefix) + "/" + suffix));
+        } else {
+            return std::make_pair(true, str_convert_slash_sys(std::string(prefix) + "/"));
+        }
+    } else {
+        // The specified filename denotes a file.
+        const char *suffix = vfs_mount_info_strip_path(filename_specific.c_str());
+        if (nullptr != suffix) {
+            return std::make_pair(true, str_convert_slash_sys(std::string(prefix) + "/" + suffix));
+        } else {
+            return std::make_pair(false, filename);
         }
     }
-    else
-    {
-        const char * tmp_dirname;
-        const char * ptmp = loc_fname;
-
-        // make PHYSFS grab the actual directory
-        tmp_dirname = PHYSFS_getRealDir( loc_fname );
-
-        if ( INVALID_CSTR( tmp_dirname ) )
-        {
-            // not found... just punt
-            strncpy( read_name_str, loc_fname, SDL_arraysize( read_name_str ) );
-            retval     = read_name_str;
-            retval_len = SDL_arraysize( read_name_str );
-        }
-        else
-        {
-            ptmp = vfs_mount_info_strip_path( loc_fname );
-
-            snprintf( read_name_str, SDL_arraysize( read_name_str ), "%s/%s", tmp_dirname, ptmp );
-            retval     = read_name_str;
-            retval_len = SDL_arraysize( read_name_str );
-        }
-    }
-
-    if ( VALID_CSTR( retval ) && retval_len > 0 )
-    {
-        retval = str_convert_slash_sys(( char* )retval, retval_len );
-    }
-
-    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-const char * vfs_resolveWriteFilename( const char * src_filename )
-{
-    static VFS_PATH  szFname = EMPTY_CSTR;
-    VFS_PATH szTemp;
-    const  char    * write_dir;
-
+std::pair<bool, std::string> vfs_resolveWriteFilename(const std::string& filename) {
+    // Validate state.
     BAIL_IF_NOT_INIT();
-
-    if ( INVALID_CSTR( src_filename ) ) return szFname;
-
-    // make a copy of the src_filename, in case we are passed a string literal
-    // as the argument of this function
-    strncpy( szTemp, src_filename, SDL_arraysize( szTemp ) );
-
-    write_dir = PHYSFS_getWriteDir();
-	if (nullptr == write_dir)
-	{
-		Log::get().warn("PhysFS could not get write directory!\n");
-		return nullptr;
-	}
-
-    // append the write_dir to the szTemp to get the total path
-    snprintf( szFname, SDL_arraysize( szFname ), "%s" SLASH_STR "%s", write_dir, szTemp );
-
-    // make sure that the slashes are correct for this system, and that they are not doubled
-
-    return str_convert_slash_sys( szFname, SDL_arraysize( szFname ) );
+    // Validate arguments.
+    if (filename == "") {
+        return std::make_pair(false, filename);
+    }
+    // Get the write directory.
+    const char *writeDirectory = PHYSFS_getWriteDir();
+    if (!writeDirectory) {
+        throw std::runtime_error("unable to get write directory");
+    }
+    // Append the filename to the write directory.
+    auto resolvedFilename = std::string(writeDirectory) + SLASH_STR + filename;
+    // Ensure system-specific encoding of the resolved filename.
+    return std::make_pair(true, str_convert_slash_sys(resolvedFilename));
 }
 
 //--------------------------------------------------------------------------------------------
-int _vfs_ensure_write_directory( const char * filename, bool is_directory )
+int _vfs_ensure_write_directory( const std::string& filename, bool is_directory )
 {
     /// @author BB
     /// @details
-
-    int           retval;
-    VFS_PATH      temp_dirname = EMPTY_CSTR;
-    char        * tmpstr;
-
     BAIL_IF_NOT_INIT();
 
-    if ( INVALID_CSTR( filename ) ) return 0;
+    if ( filename == "" ) return 0;
 
     // make a working copy of the filename
     // and make sure that PHYSFS gets the filename with the slashes it wants
-    strncpy( temp_dirname, vfs_convert_fname( filename ), SDL_arraysize( temp_dirname ) );
+    std::string temp_dirname = vfs_convert_fname(filename.c_str());
 
     // grab the system-independent path relative to the write directory
     if ( !is_directory && !vfs_isDirectory( temp_dirname ) )
     {
-        tmpstr = strrchr( temp_dirname, NET_SLASH_CHR );
-        if ( NULL == tmpstr )
+        size_t index = temp_dirname.rfind(NET_SLASH_CHR);
+        if (std::string::npos == index)
         {
-            strncpy( temp_dirname, NET_SLASH_STR, SDL_arraysize( temp_dirname ) );
+            temp_dirname = NET_SLASH_STR;
         }
         else
         {
-            *tmpstr = CSTR_END;
+            temp_dirname = temp_dirname.substr(0, index);
         }
 
-        if ( CSTR_END == temp_dirname[0] )
+        if ( temp_dirname.length() == 0 )
         {
-            temp_dirname[0] = C_SLASH_CHR;
-            temp_dirname[1] = CSTR_END;
+            temp_dirname = C_SLASH_STR;
         }
     }
 
     // call mkdir() on this directory. PHYSFS will automatically generate the
     // directories needed between the write directory and the specified directory
-    retval = 1;
-    if ( VALID_CSTR( temp_dirname ) )
+    int retval = 1;
+    if ( temp_dirname != "" )
     {
-        retval = vfs_mkdir( temp_dirname );
+        retval = vfs_mkdir( temp_dirname.c_str() );
     }
 
     return retval;
@@ -1670,197 +1422,6 @@ int vfs_write<float>( vfs_FILE& file, const float& val )
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-static int fake_physfs_vscanf_read_char( PHYSFS_File * pfile )
-{
-    unsigned char ch;
-    int retval = PHYSFS_read( pfile, &ch, sizeof( unsigned char ), 1);
-	if (1 != retval) return -1;
-	return ch;
-}
-
-static void fake_physfs_vscanf_eat_whitespace( PHYSFS_File * pfile )
-{
-    int ch;
-    do
-    {
-        ch = fake_physfs_vscanf_read_char( pfile );
-    } while ( ch == -1 || isspace( ch ) );
-    PHYSFS_seek( pfile, PHYSFS_tell( pfile ) - 1 );
-}
-
-static void fake_physfs_vscanf_read_word( PHYSFS_File * pfile, char * buffer, const int max_length )
-{
-    int length = 0;
-    while ( max_length <= 0 || length < max_length )
-    {
-        int ch = fake_physfs_vscanf_read_char( pfile );
-        if ( ch == -1 || isspace( ch ) )
-        {
-            PHYSFS_seek( pfile, PHYSFS_tell( pfile ) - 1 );
-            break;
-        }
-        buffer[length] = (char)(ch);
-        length++;
-    }
-    buffer[length] = CSTR_END;
-}
-
-int fake_physfs_vscanf( PHYSFS_File * pfile, const char *format, va_list args )
-{
-    int argcount = 0;
-    const char * format_start = format;
-    const char * format_end = format + strlen(format);
-    
-    while ( format < format_end )
-    {
-        char format_tmp = *format;
-        format++;
-        
-        if ( format_tmp == ' ' )
-        {
-            fake_physfs_vscanf_eat_whitespace( pfile );
-        }
-        else if ( format_tmp == '%' )
-        {
-            STRING buffer = EMPTY_CSTR;
-            int buffer_size = 0;
-            int max_width = -1;
-            char format_spec = CSTR_END;
-            bool ignore_argument = false;
-            bool invalid = false;
-            
-            if ( format >= format_end ) break;
-            
-            if ( *format == '*' )
-            {
-                ignore_argument = true;
-                format++;
-            }
-            if ( format >= format_end ) break;
-            
-            while ( isdigit( *format ) && buffer_size < sizeof(buffer) )
-            {
-                buffer[buffer_size] = *format;
-                buffer_size++;
-                format++;
-            }
-            if ( format >= format_end ) break;
-            
-            if ( buffer_size )
-            {
-                buffer[buffer_size] = CSTR_END;
-                max_width = strtol(buffer, NULL, 10);
-                
-                buffer_size = 0;
-                buffer[buffer_size] = CSTR_END;
-            }
-            
-            while ( format < format_end && format_spec == CSTR_END && !invalid )
-            {
-                char spec = *format;
-                format++;
-                
-                switch (spec)
-                {
-                        // specifiers
-                    case '%':
-                    case 'c':
-                    case 's':
-                    case 'd':
-                    case 'f':
-                        format_spec = spec;
-                        break;
-                        
-                        // length modifiers
-                        
-                        // invalid?
-                    default:
-                        invalid = true;
-						std::ostringstream os;
-						os << "invalid format specifier `%" << format_start << "` at `" << (format - 1) << "`" << std::endl;
-                        Log::get().error("%s",os.str().c_str());
-						throw std::runtime_error(os.str());
-                }
-            }
-            
-            EGOBOO_ASSERT( format < format_end || format_spec != CSTR_END );
-            
-            if ( 'c' == format_spec )
-            {
-                int ch = fake_physfs_vscanf_read_char( pfile );
-                if ( !ignore_argument )
-                {
-                    char * arg_ptr = va_arg( args, char * );
-                    *arg_ptr = ch;
-                    argcount++;
-                }
-            }
-            else
-            {
-                fake_physfs_vscanf_eat_whitespace( pfile );
-                if ( '%' == format_spec )
-                {
-                    int tmp = fake_physfs_vscanf_read_char( pfile );
-                    if ( '%' != tmp ) break;
-                }
-                else if ( 's' == format_spec )
-                {
-                    fake_physfs_vscanf_read_word( pfile, buffer, max_width );
-                    if ( !ignore_argument )
-                    {
-                        char * arg_ptr = va_arg( args, char * );
-                        int length = strlen( buffer );
-                        strncpy( arg_ptr, buffer, length );
-                        arg_ptr[length] = CSTR_END;
-                        argcount++;
-                    }
-                }
-                else if ( 'd' == format_spec )
-                {
-                    char * buffer_end;
-                    int arg;
-                    fake_physfs_vscanf_read_word( pfile, buffer, sizeof(buffer) );
-                    buffer_size = strlen( buffer );
-                    arg = strtol( buffer, &buffer_end, 10 );
-                    PHYSFS_seek( pfile, PHYSFS_tell( pfile ) - (buffer_size - (buffer_end - buffer)) );
-                    if ( !ignore_argument )
-                    {
-                        int * arg_ptr = va_arg( args, int * );
-                        *arg_ptr = arg;
-                        argcount++;
-                    }
-                }
-                else if ( 'f' == format_spec )
-                {
-                    char * buffer_end;
-                    float arg;
-                    fake_physfs_vscanf_read_word( pfile, buffer, sizeof(buffer) );
-                    buffer_size = strlen( buffer );
-                    arg = strtof( buffer, &buffer_end );
-                    PHYSFS_seek( pfile, PHYSFS_tell( pfile ) - (buffer_size - (buffer_end - buffer)) );
-                    if ( !ignore_argument )
-                    {
-                        float * arg_ptr = va_arg( args, float * );
-                        *arg_ptr = arg;
-                        argcount++;
-                    }
-                }
-            }
-        }
-        else
-        {
-            int pfile_in = fake_physfs_vscanf_read_char( pfile );
-            if ( pfile_in != format_tmp )
-                break;
-        }
-    }
-    
-    return argcount;
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 int fake_physfs_vprintf( PHYSFS_File * pfile, const char *format, va_list args )
 {
     // fake an actual streaming write to the file by writing the string to a
@@ -1909,269 +1470,17 @@ int vfs_printf( vfs_FILE * pfile, const char *format, ... )
 }
 
 //--------------------------------------------------------------------------------------------
-int vfs_scanf( vfs_FILE * pfile, const char *format, ... )
-{
-    va_list args;
-    int retval;
 
-    BAIL_IF_NOT_INIT();
-
-    if ( NULL == pfile ) return 0;
-
-    retval = 0;
-    va_start( args, format );
-    if ( VFS_FILE_TYPE_CSTDIO == pfile->type )
-    {
-        retval = vfscanf( pfile->ptr.c, format, args );
-    }
-    else if( VFS_FILE_TYPE_PHYSFS == pfile->type )
-    {
-        retval = fake_physfs_vscanf( pfile->ptr.p, format, args );
-    }
-    va_end( args );
-
-    return retval;
+vfs_search_context_t::vfs_search_context_t() :
+    file_list_2(), file_list_iterator_2(),
+    path_2(), extension_2(),
+    bits(0), found_2() {
+   /* Intentionally empty. */
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-char ** vfs_enumerateFiles( const char * dir_name )
-{
+vfs_search_context_t::~vfs_search_context_t() {
     BAIL_IF_NOT_INIT();
-
-    return PHYSFS_enumerateFiles( vfs_convert_fname( dir_name ) );
-}
-
-//--------------------------------------------------------------------------------------------
-void    vfs_freeList( void * listVar )
-{
-    BAIL_IF_NOT_INIT();
-
-    PHYSFS_freeList( listVar );
-}
-
-//--------------------------------------------------------------------------------------------
-void _vfs_findClose( vfs_search_context_t * ctxt )
-{
-    BAIL_IF_NOT_INIT();
-
-    if ( NULL == ctxt ) return;
-
-    if ( NULL != ctxt->file_list )
-    {
-        PHYSFS_freeList( ctxt->file_list );
-        ctxt->file_list = NULL;
-    }
-    ctxt->ptr       = NULL;
-}
-
-//--------------------------------------------------------------------------------------------
-vfs_search_context_t * _vfs_search( vfs_search_context_t ** pctxt )
-{
-    const char * retval = NULL;
-    static VFS_PATH  path_buffer = EMPTY_CSTR;
-
-    BAIL_IF_NOT_INIT();
-
-    if ( NULL == pctxt ) return NULL;
-
-    // uninitialized file list?
-    if ( NULL == ( *pctxt ) || NULL == ( *pctxt )->file_list )
-    {
-        ( *pctxt )->found[0] = CSTR_END;
-        return ( *pctxt );
-    }
-
-    // emptry file list?
-    if ( NULL == *(( *pctxt )->file_list ) )
-    {
-        goto _vfs_search_file_error;
-    }
-
-    if ( NULL == ( *pctxt )->ptr )
-    {
-        // if we haven't begun the search yet, get started
-        ( *pctxt )->ptr = ( *pctxt )->file_list;
-    }
-    else
-    {
-        ( *pctxt )->ptr++;
-    }
-
-    // NULL == *((*pctxt)->ptr) signals the end of the list
-    // if we exhausted the list, reset everything
-    if ( NULL == ( *pctxt )->ptr || NULL == *(( *pctxt )->ptr ) )
-    {
-        goto _vfs_search_file_error;
-    }
-
-    // search for the correct extension (if any)
-    retval = NULL;
-    if ( CSTR_END == *( *pctxt )->ext )
-    {
-        int  found;
-
-        for ( /* nothing */; NULL != *(( *pctxt )->ptr ); ( *pctxt )->ptr++ )
-        {
-            int is_dir;
-            char * loc_path;
-
-            if ( INVALID_CSTR(( *pctxt )->path ) )
-            {
-                snprintf( path_buffer, SDL_arraysize( path_buffer ), NET_SLASH_STR "%s", *(( *pctxt )->ptr ) );
-            }
-            else
-            {
-                snprintf( path_buffer, SDL_arraysize( path_buffer ), "%s" NET_SLASH_STR "%s", ( *pctxt )->path, *(( *pctxt )->ptr ) );
-            }
-
-            loc_path = ( char * )vfs_convert_fname( path_buffer );
-
-            // have we found the correct type of object?
-            found  = VFS_FALSE;
-            is_dir = vfs_isDirectory( loc_path );
-
-            if ( 0 != ( VFS_SEARCH_FILE & ( *pctxt )->bits ) )
-            {
-                found = !is_dir;
-            }
-            else if ( 0 != ( VFS_SEARCH_DIR & ( *pctxt )->bits ) )
-            {
-                found = is_dir;
-            }
-            else
-            {
-                found = VFS_TRUE;
-            }
-
-            if ( found )
-            {
-                retval = loc_path;
-                break;
-            }
-        }
-    }
-    else
-    {
-        size_t extension_length = strlen(( *pctxt )->ext );
-
-        // scan through the list
-        for ( /* nothing */; NULL != *(( *pctxt )->ptr ); ( *pctxt )->ptr++ )
-        {
-            int found, is_dir;
-            size_t string_length;
-            char * sztest;
-            char * loc_path;
-
-            //---- have we found the correct type of object?
-
-            if ( INVALID_CSTR(( *pctxt )->path ) )
-            {
-                snprintf( path_buffer, SDL_arraysize( path_buffer ), NET_SLASH_STR "%s", *(( *pctxt )->ptr ) );
-            }
-            else
-            {
-                snprintf( path_buffer, SDL_arraysize( path_buffer ), "%s" NET_SLASH_STR "%s", ( *pctxt )->path, *(( *pctxt )->ptr ) );
-            }
-
-            loc_path = ( char * )vfs_convert_fname( path_buffer );
-
-            found = VFS_FALSE;
-            is_dir = vfs_isDirectory( loc_path );
-            if ( 0 != ( VFS_SEARCH_FILE & ( *pctxt )->bits ) )
-            {
-                found = !is_dir;
-            }
-            else if ( 0 != ( VFS_SEARCH_DIR & ( *pctxt )->bits ) )
-            {
-                found = is_dir;
-            }
-            else
-            {
-                found = VFS_TRUE;
-            }
-
-            if ( !found ) continue;
-
-            //---- does the extension match?
-            sztest = *(( *pctxt )->ptr );
-
-            // get the length
-            string_length = strlen( sztest );
-
-            // grab the last bit of the test string
-            if ((( signed )string_length - ( signed )extension_length ) >= 0 )
-            {
-                sztest += ( string_length - extension_length );
-            }
-            else
-            {
-                sztest = NULL;
-            }
-            if ( INVALID_CSTR( sztest ) ) continue;
-
-            if ( 0 == strcmp( sztest, ( *pctxt )->ext ) )
-            {
-                retval = loc_path;
-                break;
-            }
-        };
-    }
-
-    // reset the path buffer
-    path_buffer[0] = CSTR_END;
-
-    // test for the end condition again
-    if ( NULL == ( *pctxt )->ptr || NULL == *(( *pctxt )->ptr ) )
-    {
-        vfs_findClose( pctxt );
-        retval = NULL;
-    }
-    else
-    {
-        if ( 0 != ( VFS_SEARCH_BARE & ( *pctxt )->bits ) )
-        {
-            // do the "bare" option
-            retval = NULL;
-            if ( VALID_CSTR( *(( *pctxt )->ptr ) ) )
-            {
-                strncpy( path_buffer, *(( *pctxt )->ptr ), SDL_arraysize( path_buffer ) );
-                retval = path_buffer;
-            }
-        }
-        else
-        {
-            // return the full path
-            if ( VALID_CSTR( retval ) )
-            {
-                strncpy( path_buffer, retval, SDL_arraysize( path_buffer ) );
-                retval = path_buffer;
-            }
-            else
-            {
-                retval = NULL;
-            }
-        }
-    }
-
-    if ( NULL == retval )
-    {
-        if ( NULL != *pctxt )
-        {
-            ( *pctxt )->found[0] = CSTR_END;
-        }
-    }
-    else
-    {
-        strncpy(( *pctxt )->found, path_buffer, SDL_arraysize(( *pctxt )->found ) );
-    }
-
-    return *pctxt;
-
-_vfs_search_file_error:
-
-    vfs_findClose( pctxt );
-    return NULL;
+    this->file_list_iterator_2 = this->file_list_2.cend();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2183,96 +1492,154 @@ vfs_search_context_t * vfs_findFirst( const char * search_path, const char * sea
 	vfs_search_context_t *ctxt = new vfs_search_context_t();
 
     // grab all the files
-    ctxt->file_list = vfs_enumerateFiles( vfs_convert_fname( search_path ) );
-    ctxt->ptr       = NULL;
-
-    // no search list generated
-    if ( NULL == ctxt->file_list )
-    {
-        return NULL;
+    char **file_list = PHYSFS_enumerateFiles(vfs_convert_fname(search_path).c_str());
+    if (!file_list) {
+        delete ctxt;
+        throw std::runtime_error("unable to enumerate files");
     }
-
-    // empty search list
-    if ( NULL == *( ctxt->file_list ) )
-    {
-        vfs_findClose( &ctxt );
-        return NULL;
+    char **file = file_list;
+    for (; nullptr != *file; ++file) {
+        try {
+            ctxt->file_list_2.push_back(*file);
+        } catch (...) {
+            PHYSFS_freeList(file_list);
+            std::rethrow_exception(std::current_exception());
+        }
     }
+    PHYSFS_freeList(file_list);
 
-    // set the search extension
-    if ( INVALID_CSTR( search_extension ) )
-    {
-        ctxt->ext[0] = CSTR_END;
-    }
-    else
-    {
-        snprintf( ctxt->ext, SDL_arraysize( ctxt->ext ), ".%s", search_extension );
+    // Set the search extension.
+    if (INVALID_CSTR(search_extension)) {
+        ctxt->extension_2 = "";
+    } else {
+        ctxt->extension_2 = std::string(".") + search_extension;
     }
 
-    // set the search path
-    if ( INVALID_CSTR( search_path ) )
-    {
-        ctxt->path[0] = CSTR_END;
-    }
-    else
-    {
-        strncpy( ctxt->path, search_path, SDL_arraysize( ctxt->path ) );
+    // Set the search path.
+    if (INVALID_CSTR(search_path)) {
+        ctxt->path_2 = "";
+    } else {
+        ctxt->path_2 = search_path;
     }
 
+    // Set the search bits.
     ctxt->bits = search_bits;
 
-    ctxt = _vfs_search( &ctxt );
-
+    // Begin the iterator.
+    try {
+        ctxt->file_list_iterator_2 = ctxt->file_list_2.begin();
+        // Search the first acceptable filename.
+        for (; ctxt->file_list_iterator_2 != ctxt->file_list_2.cend(); ctxt->file_list_iterator_2++) {
+            if (ctxt->predicate(*ctxt->file_list_iterator_2)) {
+                break;
+            }
+        }
+        if (ctxt->file_list_iterator_2 != ctxt->file_list_2.cend()) {
+            if (0 != (VFS_SEARCH_BARE & ctxt->bits)) {
+                ctxt->found_2 = *ctxt->file_list_iterator_2;
+            } else {
+                ctxt->found_2 = ctxt->makeAbsolute(*ctxt->file_list_iterator_2);
+            }
+        }
+    } catch (...) {
+        delete ctxt;
+        std::rethrow_exception(std::current_exception());
+    }
     return ctxt;
 }
 
 //--------------------------------------------------------------------------------------------
-vfs_search_context_t * vfs_findNext( vfs_search_context_t ** pctxt )
+bool vfs_search_context_t::predicate(const std::string& pathname) const {
+    auto pathname_absoluteSanitized = makeAbsolute(pathname);
+    // Filter by type if desired.
+    if (VFS_SEARCH_ALL != (this->bits & VFS_SEARCH_ALL)) {
+        bool isDirectory = vfs_isDirectory(pathname_absoluteSanitized);
+        bool isFile = !isDirectory;
+        if (isFile) {
+            return (VFS_SEARCH_FILE == (VFS_SEARCH_FILE & this->bits));
+        }
+        if (isDirectory) {
+            return (VFS_SEARCH_DIR == (VFS_SEARCH_DIR & this->bits));
+        }
+    }
+
+    // Filter by extension if desired.
+    if (this->extension_2.length() > 0) {
+        size_t extensionPointPosition = pathname_absoluteSanitized.rfind('.');
+        if (extensionPointPosition == std::string::npos) {
+            return false;
+        }
+
+        auto extensionString = pathname_absoluteSanitized.substr(extensionPointPosition + 1);
+        if (extensionString != this->extension_2) {
+            return false;
+        }
+    }
+    return true;
+}
+
+std::string vfs_search_context_t::makeAbsolute(const std::string& pathname) const {
+    auto pathname_absoluteSanitized = pathname;
+    if (this->path_2.length() == 0) {
+        // If no path was specified, prepend a slash.
+        pathname_absoluteSanitized = std::string(NET_SLASH_STR) + pathname_absoluteSanitized;
+    } else {
+        // Otherwise: Prepend the specified path.
+        pathname_absoluteSanitized = this->path_2 + NET_SLASH_STR + pathname_absoluteSanitized;
+    }
+
+    // Sanitize the path.
+    pathname_absoluteSanitized = vfs_convert_fname(pathname_absoluteSanitized.c_str());
+
+    // Return result.
+    return pathname_absoluteSanitized;
+}
+
+void vfs_search_context_t::nextData()
 {
     // if there are no files, return an error value
 
     BAIL_IF_NOT_INIT();
 
-    if ( NULL == pctxt || NULL == *pctxt ) return NULL;
-
-    if ( NULL == ( *pctxt )->file_list )
-    {
-        return NULL;
+    // Hit the end? Nothing to do.
+    if (this->file_list_iterator_2 == this->file_list_2.cend()) {
+        return;
     }
 
-    *pctxt = _vfs_search( pctxt );
+    // Increment at least once. Increment until a file is accepted or the end is reached.
+    while (true) {
+        this->file_list_iterator_2++;
+        if (this->file_list_iterator_2 == this->file_list_2.cend()) break;
+        if (this->predicate(*this->file_list_iterator_2)) break;
+    }
 
-    return *pctxt;
+    // If no suitable file was found ...
+    if (this->file_list_iterator_2 == this->file_list_2.cend()) {
+        // ... return.
+        this->found_2 = "";
+        return;
+    }
+
+    if (0 != (VFS_SEARCH_BARE & this->bits)) {
+        this->found_2 = *this->file_list_iterator_2;
+    } else {
+        this->found_2 = makeAbsolute(*this->file_list_iterator_2);
+    }
 }
 
 //--------------------------------------------------------------------------------------------
-void vfs_findClose( vfs_search_context_t ** ctxt )
-{
-    BAIL_IF_NOT_INIT();
-
-    if ( nullptr != ctxt )
-    {
-        _vfs_findClose( *ctxt );
-        delete *ctxt;
-		*ctxt = nullptr;
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-int vfs_removeDirectoryAndContents( const char * dirname, int recursive )
-{
+int vfs_removeDirectoryAndContents(const char * dirname, int recursive) {
     // buffer the directory delete through PHYSFS, so that we so not access functions that
     // we have no right to! :)
-
-    const char *  write_dir;
 
     BAIL_IF_NOT_INIT();
 
     // make sure that this is a valid directory
-    write_dir = vfs_resolveWriteFilename( dirname );
-    if ( !fs_fileIsDirectory( write_dir ) ) return VFS_FALSE;
+    auto resolvedWriteFilename = vfs_resolveWriteFilename(dirname);
+    if (!resolvedWriteFilename.first) return VFS_FALSE;
+    if (!fs_fileIsDirectory(resolvedWriteFilename.second.c_str())) return VFS_FALSE;
 
-    fs_removeDirectoryAndContents( write_dir, recursive );
+    fs_removeDirectoryAndContents(resolvedWriteFilename.second.c_str(), recursive);
 
     return VFS_TRUE;
 }
@@ -2296,10 +1663,6 @@ int vfs_copyDirectory( const char *sourceDir, const char *destDir )
     /// @author ZZ
     /// @details This function copies all files in a directory
     VFS_PATH srcPath = EMPTY_CSTR, destPath = EMPTY_CSTR;
-    const char *fileName;
-
-    //VFS_PATH     szDst = EMPTY_CSTR;
-    //const char * real_dst;
 
     vfs_search_context_t * ctxt;
 
@@ -2321,16 +1684,16 @@ int vfs_copyDirectory( const char *sourceDir, const char *destDir )
     //real_dst = szDst;
 
     // List all the files in the directory
-    ctxt = vfs_findFirst( vfs_convert_fname( sourceDir ), NULL, VFS_SEARCH_FILE | VFS_SEARCH_BARE );
-    fileName = vfs_search_context_get_current( ctxt );
-
-    while ( NULL != ctxt && VALID_CSTR( fileName ) )
+    ctxt = vfs_findFirst( vfs_convert_fname( sourceDir ).c_str(), NULL, VFS_SEARCH_FILE | VFS_SEARCH_BARE );
+    if (!ctxt) return VFS_FALSE;
+    while (ctxt->hasData())
     {
+        auto fileName = ctxt->getData();
         // Ignore files that begin with a .
         if ( '.' != fileName[0] )
         {
-            snprintf( srcPath, SDL_arraysize( srcPath ), "%s/%s", sourceDir, fileName );
-            snprintf( destPath, SDL_arraysize( destPath ), "%s/%s", destDir, fileName );
+            snprintf( srcPath, SDL_arraysize( srcPath ), "%s/%s", sourceDir, fileName.c_str() );
+            snprintf( destPath, SDL_arraysize( destPath ), "%s/%s", destDir, fileName.c_str() );
 
             if ( !vfs_copyFile( srcPath, destPath ) )
             {
@@ -2338,11 +1701,10 @@ int vfs_copyDirectory( const char *sourceDir, const char *destDir )
 					             __FILE__, __LINE__, __FUNCTION__, srcPath, destPath, vfs_getError() );
             }
         }
-        ctxt = vfs_findNext( &ctxt );
-
-        fileName = vfs_search_context_get_current( ctxt );
+        ctxt->nextData();
     }
-    vfs_findClose( &ctxt );
+    delete ctxt;
+    ctxt = nullptr;
 
     return VFS_TRUE;
 }
@@ -2647,51 +2009,37 @@ int vfs_remove_mount_point( const char * mount_point )
 }
 
 //--------------------------------------------------------------------------------------------
-const char * vfs_search_context_get_current( vfs_search_context_t * ctxt )
-{
-    BAIL_IF_NOT_INIT();
-
-    if ( NULL == ctxt ) return NULL;
-
-    return ctxt->found;
+bool vfs_search_context_t::hasData() const {
+    return this->file_list_iterator_2 != this->file_list_2.cend();
+}
+const std::string& vfs_search_context_t::getData() const {
+    return this->found_2;
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-int _vfs_mount_info_search( const char * some_path )
-{
-    /// @author BB
-    /// @details check to see if the given path is actually relative to a registered
-    ///               virtual mount point
-
-    int cnt, retval = VFS_FALSE;
-    VFS_PATH temp_path;
-
+/// @brief Get if the specified path is equivalent to a virtual mount point.
+/// @param pathname the pathname
+/// @return #VFS_TRUE if @a pathname is equivalent to a virtual mount point, #VFS_FALSE otherwise
+int _vfs_mount_info_search(const std::string& pathname) {
     BAIL_IF_NOT_INIT();
 
-    if ( !VALID_CSTR( some_path ) ) return retval;
+    if (pathname == "") return VFS_FALSE;
 
-    for ( cnt = 0; cnt < _vfs_mount_info_count; cnt++ )
-    {
-        int len;
+    // Get the sanitized pathname.
+    auto sanitizedPathname = str_clean_path(pathname);
 
-        if ( 0 == strcmp( _vfs_mount_info[cnt].mount, some_path ) )
-        {
-            retval = VFS_TRUE;
-            break;
+    for (auto cnt = 0; cnt < _vfs_mount_info_count; cnt++) {
+        if (sanitizedPathname == _vfs_mount_info[cnt].mount) {
+            return VFS_TRUE;
         }
 
-        snprintf( temp_path, SDL_arraysize( temp_path ), "%s" NET_SLASH_STR, _vfs_mount_info[cnt].mount );
-        len = strlen( temp_path );
-
-        if ( 0 == strncmp( temp_path, some_path, len ) )
-        {
-            retval = VFS_TRUE;
-            break;
+        if (sanitizedPathname == (std::string(_vfs_mount_info[cnt].mount) + NET_SLASH_STR)) {
+            return VFS_TRUE;
         }
     }
 
-    return retval;
+    return VFS_FALSE;
 }
 
 //--------------------------------------------------------------------------------------------

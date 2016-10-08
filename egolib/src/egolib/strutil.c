@@ -54,102 +54,37 @@ std::string str_encode(const std::string& source) {
 }
 
 //--------------------------------------------------------------------------------------------
-char * str_clean_path( char * str, size_t size )
-{
-    /// @author BB
-    /// @details remove any accidentally doubled slash characters from the stream
-
-    char *psrc, *psrc_end, *pdst, *pdst_end;
-
-    if ( INVALID_CSTR( str ) ) return str;
-
-    for ( psrc = str, pdst = str, psrc_end = str + size, pdst_end = str + size;
-          psrc < psrc_end && pdst < pdst_end;
-          /*nothing*/ )
-    {
-        if ( C_SLASH_CHR == *psrc || C_BACKSLASH_CHR == *psrc )
-        {
-            *pdst = *psrc;
-            psrc++;
-            pdst++;
-
-            while ( psrc < psrc_end && ( C_SLASH_CHR == *psrc || C_BACKSLASH_CHR == *psrc ) )
-            {
-                psrc++;
-            }
+std::string str_clean_path(const std::string& pathname) {
+    struct predicate {
+        bool operator()(char a, char b) const {
+            return (a == '/' || a == '\\') && (b == '/'||  b == '\\');
         }
-        else
-        {
-            *pdst = *psrc;
-            psrc++;
-            pdst++;
-        }
-    }
-
-    if ( pdst < pdst_end )
-    {
-        *pdst = CSTR_END;
-    }
-
-    return str;
+    };
+    auto temporary = pathname;
+    temporary.erase(std::unique(temporary.begin(), temporary.end(), predicate()), temporary.end());
+    return temporary;
 }
 
 //--------------------------------------------------------------------------------------------
-char * str_convert_slash_net( char * str, size_t size )
-{
-    /// @author BB
-    /// @details converts the slashes in a string to those appropriate for the Net
-
-    char * psrc, *psrc_end, *pdst, *pdst_end;
-
-    if ( INVALID_CSTR( str ) ) return str;
-
-    for ( psrc = str, pdst = str, psrc_end = str + size, pdst_end = str + size;
-          CSTR_END != *psrc && psrc < psrc_end && pdst < pdst_end;
-          psrc++, pdst++ )
-    {
-        char cTmp = *psrc;
-
-        if ( C_SLASH_CHR == cTmp || C_BACKSLASH_CHR == cTmp ) cTmp = NET_SLASH_CHR;
-
-        *pdst = cTmp;
-    }
-
-    if ( pdst < pdst_end )
-    {
-        *pdst = CSTR_END;
-    }
-
-    return str_clean_path( str, size );
+std::string str_convert_slash_net(const std::string& pathname) {
+    static const auto transcode = [](char source) {
+        if (source == C_SLASH_CHR || source == C_BACKSLASH_CHR) return NET_SLASH_CHR;
+        else return source;
+    };
+    auto temporary = pathname;
+    std::transform(temporary.begin(), temporary.end(), temporary.begin(), transcode);
+    return str_clean_path(temporary);
 }
 
 //--------------------------------------------------------------------------------------------
-char * str_convert_slash_sys( char * str, size_t size )
-{
-    /// @author BB
-    /// @details converts the slashes in a string to those appropriate this system
-
-    char * psrc, *psrc_end, *pdst, *pdst_end;
-
-    if ( INVALID_CSTR( str ) ) return str;
-
-    for ( psrc = str, pdst = str, psrc_end = str + size, pdst_end = str + size;
-          CSTR_END != *psrc && psrc < psrc_end && pdst < pdst_end;
-          psrc++, pdst++ )
-    {
-        char cTmp = *psrc;
-
-        if ( C_SLASH_CHR == cTmp || C_BACKSLASH_CHR == cTmp ) cTmp = SLASH_CHR;
-
-        *pdst = cTmp;
-    }
-
-    if ( pdst < pdst_end )
-    {
-        *pdst = CSTR_END;
-    }
-
-    return str_clean_path( str, size );
+std::string str_convert_slash_sys(const std::string& pathname) {
+    static const auto transcode = [](char source) {
+        if (source == C_SLASH_CHR || source == C_BACKSLASH_CHR) return SLASH_CHR;
+        else return source;
+    };
+    auto temporary = pathname;
+    std::transform(temporary.begin(), temporary.end(), temporary.begin(), transcode);
+    return str_clean_path(temporary);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -242,56 +177,6 @@ std::string add_linebreak_cpp(const std::string& text, size_t lineLength) {
         }
     }
     return newText;
-}
-
-void str_add_linebreaks( char * text, size_t text_len, size_t line_len )
-{
-    char * text_end, * text_break, * text_stt;
-
-    if ( INVALID_CSTR( text ) || 0 == text_len  || 0 == line_len ) return;
-
-    text_end = text + text_len;
-    text_break = text_stt = text;
-    while ( text < text_end && CSTR_END != *text )
-    {
-        // scan for the next whitespace
-        text = strpbrk( text, " \n" );
-
-        if ( text >= text_end )
-        {
-            break;
-        }
-        else if ( NULL == text )
-        {
-            // reached the end of the string
-            break;
-        }
-        else if ( C_LINEFEED_CHAR == *text )
-        {
-            // respect existing line breaks
-            text_break = text;
-            text++;
-            continue;
-        }
-
-        // until the line is too long, then insert
-        // replace the last good ' ' with C_NEW_LINE_CHAR
-        if ((( size_t )text - ( size_t )text_break ) > line_len )
-        {
-            if ( ' ' != *text_break )
-            {
-                text_break = text;
-            }
-
-            // convert the character
-            *text_break = C_LINEFEED_CHAR;
-
-            // start over again
-            text = text_break;
-        }
-
-        text++;
-    }
 }
 
 //--------------------------------------------------------------------------------------------

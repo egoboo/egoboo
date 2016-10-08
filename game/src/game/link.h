@@ -48,8 +48,8 @@ extern std::array<Link_t, LINK_COUNT> LinkList;
 //--------------------------------------------------------------------------------------------
 
 // Function prototypes
-bool link_follow_modname( const char * modname, bool push_current_module );
-bool link_build_vfs( const char * fname, std::array<Link_t, LINK_COUNT>& list );
+bool link_follow_modname( const std::string& modname, bool push_current_module );
+bool link_build_vfs( const std::string& fname, std::array<Link_t, LINK_COUNT>& list );
 
 bool link_pop_module();
 bool link_load_parent( const char * modname, const Vector3f& pos );

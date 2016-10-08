@@ -546,7 +546,6 @@ int Object::damage(Facing direction, const IPair  damage, const DamageType damag
 #endif
                 {
                     const int lifetime = 2;
-                    STRING text_buffer = EMPTY_CSTR;
 
                     // friendly damage = "purple"
                     // @todo MH: The colour here is approximately "mauve" and it is already associated with "holy" damage.
@@ -556,7 +555,10 @@ int Object::damage(Facing direction, const IPair  damage, const DamageType damag
                     const auto tint_enemy = Ego::Math::Colour4f(DamageType_getColour(damagetype), 1);
 
                     // write the string into the buffer
-                    snprintf( text_buffer, SDL_arraysize( text_buffer ), "%.1f", static_cast<float>(actual_damage) / 256.0f );
+                    std::stringstream stringStream;
+                    stringStream.precision(1);
+                    stringStream << (static_cast<float>(actual_damage) / 256.0f);
+                    auto text_buffer = stringStream.str();
 
                     //Size depends on the amount of damage (more = bigger)
                     float size = Ego::Math::constrain(0.35f + std::abs(FP8_TO_FLOAT(actual_damage)) * 0.075f, 0.35f, 1.5f);

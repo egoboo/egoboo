@@ -56,9 +56,7 @@
 
 bool  overrideslots      = false;
 
-// End text
-char   endtext[MAXENDTEXT] = EMPTY_CSTR;
-size_t endtext_carat = 0;
+EndText g_endText;
 
 WeatherState g_weatherState;
 fog_instance_t fog;
@@ -102,12 +100,12 @@ egolib_rv export_one_character( ObjectRef character, ObjectRef owner, int chr_ob
 {
     /// @author ZZ
     /// @details This function exports a character
-    STRING fromdir;
-    STRING todir;
-    STRING fromfile;
-    STRING tofile;
-    STRING todirname;
-    STRING todirfullname;
+    std::string fromdir;
+    std::string todir;
+    std::string fromfile;
+    std::string tofile;
+    std::string todirname;
+    std::string todirfullname;
 
     const std::shared_ptr<Object> &object = _currentModule->getObjectHandler()[character];
     if(!object) {
@@ -120,80 +118,75 @@ egolib_rv export_one_character( ObjectRef character, ObjectRef owner, int chr_ob
     }
 
     // TWINK_BO.OBJ
-    snprintf( todirname, SDL_arraysize( todirname ), "%s", str_encode_path( _currentModule->getObjectHandler()[owner]->getName() ).c_str() );
+    todirname = str_encode_path(_currentModule->getObjectHandler()[owner]->getName());
 
     // Is it a character or an item?
     if ( chr_obj_index < 0 )
     {
         // Character directory
-        snprintf( todirfullname, SDL_arraysize( todirfullname ), "%s", todirname );
+        todirfullname = todirname;
     }
     else
     {
         // Item is a subdirectory of the owner directory...
-        snprintf( todirfullname, SDL_arraysize( todirfullname ), "%s/%d.obj", todirname, chr_obj_index );
+        std::stringstream stringStream;
+        stringStream << todirname << "/" << chr_obj_index << ".obj";
+        todirfullname = stringStream.str();
     }
 
     // players/twink.obj or players/twink.obj/0.obj
     if ( is_local )
     {
-        snprintf( todir, SDL_arraysize( todir ), "/players/%s", todirfullname );
+        todir = "/players/" + todirfullname;
     }
     else
     {
-        snprintf( todir, SDL_arraysize( todir ), "/remote/%s", todirfullname );
+        todir = "/remote/" + todirfullname;
     }
 
     // Remove all the original info
     if ( chr_obj_index < 0 )
     {
-        vfs_removeDirectoryAndContents( todir, VFS_TRUE );
+        vfs_removeDirectoryAndContents( todir.c_str(), VFS_TRUE );
         if ( !vfs_mkdir( todir ) )
         {
-			Log::get().warn("%s:%d:%s: cannot create object directory `%s`\n", __FILE__, __LINE__, __FUNCTION__, todir);
+			Log::get().warn("%s:%d:%s: cannot create object directory `%s`\n", __FILE__, __LINE__, __FUNCTION__, todir.c_str());
             return rv_error;
         }
     }
 
     // modules/advent.mod/objects/advent.obj
-    snprintf(fromdir, SDL_arraysize(fromdir), "%s", object->getProfile()->getPathname().c_str());
+    fromdir = object->getProfile()->getPathname();
 
     // Build the DATA.TXT file
-    if(!ObjectProfile::exportCharacterToFile(std::string(todir) + "/data.txt", object.get())) {
-		Log::get().warn( "export_one_character() - unable to save data.txt \"%s/data.txt\"\n", todir );
+    if(!ObjectProfile::exportCharacterToFile(todir + "/data.txt", object.get())) {
+		Log::get().warn( "export_one_character() - unable to save data.txt \"%s/data.txt\"\n", todir.c_str() );
         return rv_error;
     }
 
     // Build the NAMING.TXT file
-    snprintf( tofile, SDL_arraysize( tofile ), "%s/naming.txt", todir ); /*NAMING.TXT*/
-    export_one_character_name_vfs( tofile, character );
+    tofile = todir + "/naming.txt"; /*NAMING.TXT*/
+    export_one_character_name_vfs( tofile.c_str(), character );
 
     // Build the QUEST.TXT file
-    export_one_character_quest_vfs( todir, character );
+    export_one_character_quest_vfs( todir.c_str(), character );
 
     // copy every file that does not already exist in the todir
     {
-        vfs_search_context_t * ctxt;
-        const char * searchResult;
-
-        ctxt = vfs_findFirst( fromdir, NULL, VFS_SEARCH_FILE | VFS_SEARCH_BARE );
-        searchResult = vfs_search_context_get_current( ctxt );
-
-        while ( NULL != ctxt && VALID_CSTR( searchResult ) )
-        {
-            snprintf( fromfile, SDL_arraysize( fromfile ), "%s/%s", fromdir, searchResult );
-            snprintf( tofile, SDL_arraysize( tofile ), "%s/%s", todir, searchResult );
-
-            if ( !vfs_exists( tofile ) )
-            {
-                vfs_copyFile( fromfile, tofile );
+        vfs_search_context_t *ctxt = vfs_findFirst( fromdir.c_str(), NULL, VFS_SEARCH_FILE | VFS_SEARCH_BARE );
+        if (!ctxt) return rv_success;
+        while (ctxt->hasData()) {
+            auto searchResult = ctxt->getData();
+            fromfile = fromdir + "/" + searchResult;
+            tofile = todir + "/" + searchResult;
+            if (!vfs_exists(tofile)) {
+                vfs_copyFile(fromfile, tofile);
             }
-
-            vfs_findNext( &ctxt );
-            searchResult = vfs_search_context_get_current( ctxt );
+            ctxt->nextData();
         }
 
-        vfs_findClose( &ctxt );
+        delete ctxt;
+        ctxt = nullptr;
     }
 
     return rv_success;
@@ -893,16 +886,12 @@ void show_armor( int statindex )
     /// @author ZF
     /// @details This function shows detailed armor information for the character
 
-    STRING tmps;
-
-    SKIN_T  skinlevel;
-
     const std::shared_ptr<Object> &pchr = _gameEngine->getActivePlayingState()->getStatusCharacter(statindex);
     if(!pchr) {
         return;
     }
 
-    skinlevel = pchr->skin;
+    SKIN_T skinlevel = pchr->skin;
 
     const std::shared_ptr<ObjectProfile> &profile = pchr->getProfile();
     const SkinInfo &skinInfo = profile->getSkinInfo(skinlevel);
@@ -926,17 +915,17 @@ void show_armor( int statindex )
     DisplayMsg_printf("~Type: %s", skinInfo.dressy ? "Light Armor" : "Heavy Armor");
 
     // jumps
-    tmps[0] = CSTR_END;
+    std::stringstream stringStream;
     switch ( static_cast<int>(pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS)) )
     {
-        case 0:  snprintf( tmps, SDL_arraysize( tmps ), "None    (%d)", (int)pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) ); break;
-        case 1:  snprintf( tmps, SDL_arraysize( tmps ), "Novice  (%d)", (int)pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) ); break;
-        case 2:  snprintf( tmps, SDL_arraysize( tmps ), "Skilled (%d)", (int)pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) ); break;
-        case 3:  snprintf( tmps, SDL_arraysize( tmps ), "Adept   (%d)", (int)pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) ); break;
-        default: snprintf( tmps, SDL_arraysize( tmps ), "Master  (%d)", (int)pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) ); break;
+        case 0:  stringStream << "None    (" << (int)pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) << ")"; break;
+        case 1:  stringStream << "Novice  (" << (int)pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) << ")"; break;
+        case 2:  stringStream << "Skilled (" << (int)pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) << ")"; break;
+        case 3:  stringStream << "Adept   (" << (int)pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) << ")"; break;
+        default: stringStream << "Master  (" << (int)pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) << ")"; break;
     };
 
-    DisplayMsg_printf( "~Speed:~%3.0f~Jump Skill:~%s", skinInfo.maxAccel*80, tmps );
+    DisplayMsg_printf( "~Speed:~%3.0f~Jump Skill:~%s", skinInfo.maxAccel*80, stringStream.str().c_str() );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1006,15 +995,15 @@ void game_load_module_profiles( const std::string& modname )
     std::string folderPath = modname + "/objects";
 
     vfs_search_context_t* ctxt = vfs_findFirst(folderPath.c_str(), "obj", VFS_SEARCH_DIR);
-    const char* filehandle = vfs_search_context_get_current(ctxt);
+    if (!ctxt) return;
 
-    while (NULL != ctxt && VALID_CSTR(filehandle)) {
-        ProfileSystem::get().loadOneProfile(filehandle);
-
-        ctxt = vfs_findNext(&ctxt);
-        filehandle = vfs_search_context_get_current(ctxt);
+    while (ctxt->hasData()) {
+        auto searchResult = ctxt->getData();
+        ProfileSystem::get().loadOneProfile(searchResult);
+        ctxt->nextData();
     }
-    vfs_findClose(&ctxt);
+    delete ctxt;
+    ctxt = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1187,7 +1176,7 @@ void reset_end_text()
     /// @author ZZ
     /// @details This function resets the end-module text
 
-    endtext_carat = snprintf( endtext, SDL_arraysize( endtext ), "The game has ended..." );
+    g_endText.setText("The game has ended ...");
 
     /*
     if ( PlaStack.count > 1 )
@@ -1208,8 +1197,6 @@ void reset_end_text()
         }
     }
     */
-
-    str_add_linebreaks( endtext, endtext_carat, 20 );
 }
 
 std::string expandEscapeCodes(const std::shared_ptr<Object> &object, const script_state_t &scriptState, const std::string &text)
@@ -1933,12 +1920,7 @@ float get_chr_level( ego_mesh_t *mesh, Object *object )
 //--------------------------------------------------------------------------------------------
 egolib_rv game_copy_imports( import_list_t * imp_lst )
 {
-    int       tnc;
     egolib_rv retval;
-    STRING    tmp_src_dir, tmp_dst_dir;
-
-    int                import_idx = 0;
-    import_element_t * import_ptr = NULL;
 
     if ( NULL == imp_lst ) return rv_error;
 
@@ -1960,32 +1942,38 @@ egolib_rv game_copy_imports( import_list_t * imp_lst )
     vfs_add_mount_point( fs_getUserDirectory(), "import", "mp_import", 1 );
 
     // copy all of the imports over
-    for ( import_idx = 0; import_idx < imp_lst->count; import_idx++ )
+    for (auto import_idx = 0; import_idx < imp_lst->count; import_idx++ )
     {
         // grab the loadplayer info
-        import_ptr = imp_lst->lst + import_idx;
+        import_element_t * import_ptr = imp_lst->lst + import_idx;
 
-        snprintf( import_ptr->dstDir, SDL_arraysize( import_ptr->dstDir ), "/import/temp%04d.obj", import_ptr->slot );
+        std::stringstream stringStream;
+        stringStream << "/import/temp" << std::setfill('0') << std::setw(2) << import_ptr->slot << ".obj";
+        import_ptr->dstDir = stringStream.str();
 
-        if ( !vfs_copyDirectory( import_ptr->srcDir, import_ptr->dstDir ) )
+        if ( !vfs_copyDirectory( import_ptr->srcDir.c_str(), import_ptr->dstDir.c_str() ) )
         {
             retval = rv_error;
-			Log::get().warn( "mnu_copy_local_imports() - Failed to copy an import character \"%s\" to \"%s\" (%s)\n", import_ptr->srcDir, import_ptr->dstDir, vfs_getError() );
+			Log::get().warn( "mnu_copy_local_imports() - Failed to copy an import character \"%s\" to \"%s\" (%s)\n", import_ptr->srcDir.c_str(), import_ptr->dstDir.c_str(), vfs_getError() );
         }
 
         // Copy all of the character's items to the import directory
-        for ( tnc = 0; tnc < MAX_IMPORT_OBJECTS; tnc++ )
+        for (auto tnc = 0; tnc < MAX_IMPORT_OBJECTS; tnc++ )
         {
-            snprintf( tmp_src_dir, SDL_arraysize( tmp_src_dir ), "%s/%d.obj", import_ptr->srcDir, tnc );
+            stringStream.clear();
+            stringStream << import_ptr->srcDir << tnc;
+            auto tmp_src_dir = stringStream.str();
 
             // make sure the source directory exists
             if ( vfs_isDirectory( tmp_src_dir ) )
             {
-                snprintf( tmp_dst_dir, SDL_arraysize( tmp_dst_dir ), "/import/temp%04d.obj", import_ptr->slot + tnc + 1 );
-                if ( !vfs_copyDirectory( tmp_src_dir, tmp_dst_dir ) )
+                stringStream.clear();
+                stringStream << "/import/temp" << std::setfill('0') << std::setw(4) << import_ptr->slot + tnc + 1 << ".obj";
+                auto tmp_dst_dir = stringStream.str();
+                if ( !vfs_copyDirectory( tmp_src_dir.c_str(), tmp_dst_dir.c_str() ) )
                 {
                     retval = rv_error;
-					Log::get().warn( "mnu_copy_local_imports() - Failed to copy an import inventory item \"%s\" to \"%s\" (%s)\n", tmp_src_dir, tmp_dst_dir, vfs_getError() );
+					Log::get().warn( "mnu_copy_local_imports() - Failed to copy an import inventory item \"%s\" to \"%s\" (%s)\n", tmp_src_dir.c_str(), tmp_dst_dir.c_str(), vfs_getError() );
                 }
             }
         }
@@ -2028,8 +2016,8 @@ egolib_rv import_list_t::from_players(import_list_t& self)
 		import_ptr->slot = player_idx * MAX_IMPORT_PER_PLAYER;
 		import_ptr->srcDir[0] = CSTR_END;
 		import_ptr->dstDir[0] = CSTR_END;
-		strncpy(import_ptr->name, pchr->getName().c_str(), SDL_arraysize(import_ptr->name));
-		snprintf(import_ptr->srcDir, SDL_arraysize(import_ptr->srcDir), "mp_players/%s", str_encode_path(pchr->getName()).c_str());
+        import_ptr->name = pchr->getName();
+        import_ptr->srcDir = "mp_players/" + str_encode_path(pchr->getName());
 	}
 
 	return (self.count > 0) ? rv_success : rv_fail;
