@@ -117,7 +117,6 @@ Object::Object(const PRO_REF proRef, ObjectRef objRef) :
     bumplist_next(),
 
     turnmode(TURNMODE_VELOCITY),
-    movement_bits(std::numeric_limits<BIT_FIELD>::max()),    // all movements valid
 
     inwater(false),
     dismount_timer(0),  /// @note ZF@> If this is != 0 then scorpion claws and riders are dropped at spawn (non-item objects)

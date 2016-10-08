@@ -7912,7 +7912,7 @@ Uint8 scr_DrawBillboard( script_state_t& state, ai_state_t& self )
 
     if ( !ppro->isValidMessageID(state.argument) ) return false;
 
-    auto* tint = &tint_white;
+    auto* tint;
     //Figure out which color to use
     switch ( state.turn )
     {

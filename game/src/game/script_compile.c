@@ -564,7 +564,6 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
             emit_opcode( _token, 0, script );
 
             // handle the "="
-            highbits = 0;
             parseposition = parse_token(_token, ppro, script, parseposition );  // EQUALS
 			if ( Token::Type::Operator != _token.getType() || ( _token.getText() != "=" ) )
             {

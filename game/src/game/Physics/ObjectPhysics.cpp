@@ -385,17 +385,6 @@ float ObjectPhysics::getMaxSpeed() const
         }
     }
 
-    if ( sneak_mode_active )
-    {
-        // sneak mode
-        _object.movement_bits = CHR_MOVEMENT_BITS_SNEAK | CHR_MOVEMENT_BITS_STOP;
-    }
-    else
-    {
-        // non-sneak mode
-        _object.movement_bits = ( unsigned )( ~CHR_MOVEMENT_BITS_SNEAK );
-    }
-
     return maxspeed;    
 }
 

@@ -230,7 +230,6 @@ gfx_rv TileListV2::render_hmap_fan(const ego_mesh_t * mesh, const Index1D& tileI
     int cnt, vertex;
     size_t badvertex;
     int ix, iy, ix_off[4] = {0, 1, 1, 0}, iy_off[4] = {0, 0, 1, 1};
-    Uint8  type, twist;
 
     if (NULL == mesh) {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "NULL mesh");
@@ -251,10 +250,7 @@ gfx_rv TileListV2::render_hmap_fan(const ego_mesh_t * mesh, const Index1D& tileI
     // vertex is a value from 0-15, for the meshcommandref/u/v variables
     // badvertex is a value that references the actual vertex number
 
-    type = ptile._type;                     // Command type ( index to points in itile )
-    twist = ptile._twist;
-
-    type &= 0x3F;
+    const uint8_t twist = ptile._twist;
 
     // Original points
     badvertex = ptile._vrtstart;          // Get big reference value
