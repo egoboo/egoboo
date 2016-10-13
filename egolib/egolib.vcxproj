@@ -305,6 +305,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\VFS\FsPath.cpp" />
     <ClCompile Include="src\egolib\Script\IRuntimeStatistics.cpp" />
     <ClCompile Include="src\egolib\Signal\Connection.hpp" />
     <ClCompile Include="src\egolib\InputControl\ControlSettingsFile.cpp" />
@@ -383,7 +384,7 @@
     <ClCompile Include="src\egolib\Platform\file_win.c" />
     <ClCompile Include="src\egolib\Logic\Team.cpp" />
     <ClCompile Include="src\egolib\Math\Standard.cpp" />
-    <ClCompile Include="src\egolib\VFS\Pathname.cpp" />
+    <ClCompile Include="src\egolib\VFS\VfsPath.cpp" />
     <ClCompile Include="src\egolib\AI\WaypointList.c" />
     <ClCompile Include="src\egolib\Graphics\ModelDescriptor.cpp" />
     <ClCompile Include="src\egolib\Graphics\MD2Model.cpp" />
@@ -509,6 +510,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\VFS\FsPath.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\IsEven.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\IsOdd.hpp" />
     <ClInclude Include="src\egolib\Script\IRuntimeStatistics.hpp" />
@@ -668,7 +670,7 @@
     <ClInclude Include="src\egolib\Math\Scalar.hpp" />
     <ClInclude Include="src\egolib\Math\Standard.hpp" />
     <ClInclude Include="src\egolib\Math\AxisAlignedBox.hpp" />
-    <ClInclude Include="src\egolib\VFS\Pathname.hpp" />
+    <ClInclude Include="src\egolib\VFS\VfsPath.hpp" />
     <ClInclude Include="src\egolib\AI\WaypointList.h" />
     <ClInclude Include="src\egolib\Graphics\ModelDescriptor.hpp" />
     <ClInclude Include="src\egolib\Graphics\MD2Model.hpp" />

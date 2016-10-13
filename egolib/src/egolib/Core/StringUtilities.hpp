@@ -25,190 +25,159 @@
 
 #include "egolib/platform.h"
 
-namespace Ego
-{
+namespace Ego {
 
-using namespace std;
-
-/**
- * @brief
- *  Convert a character to upper case.
- * @param chr
- *  the character
- * @param lc
- *  the locale to use. Default is std::locale().
- * @return
- *  the upper case character
- * @todo
- *  Rename to @a toUpper.
- */
+/// @brief Get if a character is an alphabetic character.
+/// @param chr the character
+/// @param lc the locale to use. Default is std::locale().
+/// @return @a true if the character is an alphabetic character, @a false otherwise
 template <class CharType>
-inline CharType toupper(CharType chr, const std::locale& lc = locale())
-{
-    return std::toupper(chr, lc);
-}
-
-/**
- * @brief
- *  In-place convert a string to upper case.
- * @param str
- *  the string
- * @param lc
- *  the locale to use. Default is std::locale().
- * @todo
- *  Rename to @a toUpper.
- */
-template <typename CharType>
-inline void toupper(basic_string<CharType>& str, const locale& lc = locale())
-{
-    // Capture lc by reference, capture nothing else.
-    auto f = [&lc](const CharType chr) -> CharType { return Ego::toupper(chr, lc); };
-    transform(str.begin(), str.end(), str.begin(), f);
-}
-
-/**
- * @brief
- *  Convert a character to lower case.
- * @param chr
- *  the character
- * @param lc
- *  the locale to use. Default is std::locale().
- * @return
- *  the lower case character
- * @todo
- *  Rename to @a toLower.
- */
-template <class CharType>
-inline CharType tolower(CharType chr, const locale& lc = locale())
-{
-    return std::tolower(chr, lc);
-}
-
-/**
- * @brief
- *  In-place convert a string to lower case.
- * @param str
- *  the string
- * @param lc
- *  the locale to use. Default is std::locale().
- * @todo
- *  Rename to @a toLower.
- */
-template <class CharType>
-inline void tolower(basic_string<CharType>& str, const locale& lc = locale())
-{
-    // Capture lc by reference, capture nothing else.
-    auto f = [&lc] (const CharType chr) -> CharType { return Ego::tolower(chr, lc); };
-    transform(str.begin(), str.end(), str.begin(), f);
-}
-
-/**
- * @brief
- *  Get if a character is an alphabetic character.
- * @param chr
- *  the character
- * @param lc
- *  the locale to use. Default is std::locale().
- * @return
- *  @a true if the character is an alphabetic character, @a false otherwise
- * @todo
- *  Rename to @a isAlpha.
- */
-template <class CharType>
-inline bool isalpha(CharType chr, const std::locale& lc = locale())
-{
+inline bool isalpha(CharType chr, const std::locale& lc = std::locale()) {
     return std::isalpha(chr, lc);
 }
 
-/**
- * @brief
- *  Get if a character is a printable character.
- * @param chr
- *  the character
- * @param lc
- *  the locale to use. Default is std::locale().
- * @return
- *  @a true if the character is a printable character, @a false otherwise
- * @todo
- *  Rename to @a isPrint.
- */
+/// @brief Get if a character is a printable character.
+/// @param chr the character
+/// @param lc the locale to use. Default is std::locale().
+/// @return @a true if the character is a printable character, @a false otherwise
 template <class CharType>
-inline bool isprint(CharType chr, const std::locale& lc = std::locale())
-{
+inline bool isprint(CharType chr, const std::locale& lc = std::locale()) {
     return std::isprint(chr, lc);
 }
 
-/**
- * @brief
- *  Get if a character is a digit character.
- * @param chr
- *  the character
- * @param lc
- *  the locale to use. Default is std::locale().
- * @return
- *  @a true if the character is a digit character, @a false otherwise
- * @todo
- *  Rename to @a isDigit.
- */
+/// @brief Get if a character is a digit character.
+/// @param chr the character
+/// @param lc the locale to use. Default is std::locale().
+/// @return @a true if the character is a digit character, @a false otherwise
 template <class CharType>
-inline bool isdigit(CharType chr, const std::locale& lc = std::locale())
-{
+inline bool isdigit(CharType chr, const std::locale& lc = std::locale()) {
     return std::isdigit(chr, lc);
 }
 
-/**
- * @brief
- *  Get if a character is a control character.
- * @param chr
- *  the character
- * @param lc
- *  the locale to use. Default is std::locale().
- * @return
- *  @a true if the character is a control character, @a false otherwise
- * @todo
- *  Rename to @a isCntrl.
- */
+/// @brief Get if a character is a control character.
+/// @param chr the character
+/// @param lc the locale to use. Default is std::locale().
+/// @return @a true if the character is a control character, @a false otherwise
 template <class CharType>
-inline bool iscntrl(CharType chr, const std::locale& lc = std::locale())
-{
+inline bool iscntrl(CharType chr, const std::locale& lc = std::locale()) {
     return std::iscntrl(chr, lc);
 }
 
-/**
- * @brief
- *  Get if a character is a whitespace character.
- * @param chr
- *  the character
- * @param lc
- *  the locale to use. Default is std::locale().
- * @return
- *  @a true if the character is a whitespace character, @a false otherwise
- * @todo
- *  Rename to @a isSpace.
- */
+/// @brief Get if a character is a whitespace character.
+/// @param chr the character
+/// @param lc the locale to use. Default is std::locale().
+/// @return @a true if the character is a whitespace character, @a false otherwise
 template <class CharType>
-inline bool isspace(CharType chr, const std::locale& lc = locale())
-{
+inline bool isspace(CharType chr, const std::locale& lc = std::locale()) {
     return std::isspace(chr, lc);
 }
 
-/**
- * @brief
- *  Trim leading and trailing spaces.
- * @param str
- *  the string
- * @param lc
- *  the locale to use. Default is std::locale().
- * @return
- *  a string equal to @a str but with leading and trailing spaces removed
- */
+} // namespace Ego
+
+namespace Ego {
+
+/// @brief Convert a character to upper case.
+/// @param chr the character
+/// @param lc the locale to use. Default is std::locale().
+/// @return the upper case character
+template <class CharType>
+inline CharType toupper(CharType chr, const std::locale& lc = std::locale()) {
+    return std::toupper(chr, lc);
+}
+
+/// @brief In-place convert a string to upper case.
+/// @param str the string
+/// @param lc the locale to use. Default is std::locale().
 template <typename CharType>
-inline std::basic_string<CharType> trim(const std::basic_string<CharType>& str, const locale& lc = locale())
-{
+inline void toupper(std::basic_string<CharType>& str, const std::locale& lc = std::locale()) {
     // Capture lc by reference, capture nothing else.
-    auto f = [&lc](const CharType chr) { return Ego::isspace(chr, lc); };
-    auto front = std::find_if_not(str.begin(), str.end(), f);
-    return std::basic_string<CharType>(front, std::find_if_not(str.rbegin(), typename std::basic_string<CharType>::const_reverse_iterator(front), f).base());
+    auto f = [&lc](const CharType chr) -> CharType { return Ego::toupper(chr, lc); };
+    std::transform(str.begin(), str.end(), str.begin(), f);
+}
+
+/// @brief Convert a character to lower case.
+/// @param chr the character
+/// @param lc the locale to use. Default is std::locale().
+/// @return the lower case character
+template <class CharType>
+inline CharType tolower(CharType chr, const std::locale& lc = std::locale()) {
+    return std::tolower(chr, lc);
+}
+
+/// @brief In-place convert a string to lower case.
+/// @param str the string
+/// @param lc the locale to use. Default is std::locale().
+template <class CharType>
+inline void tolower(std::basic_string<CharType>& str, const std::locale& lc = std::locale()) {
+    // Capture lc by reference, capture nothing else.
+    auto f = [&lc] (const CharType chr) -> CharType { return Ego::tolower(chr, lc); };
+    std::transform(str.begin(), str.end(), str.begin(), f);
+}
+
+/// @brief Trim leading and trailing characters matching a predicate.
+/// @param str the string
+/// @param pred the predicate
+/// @param lc the locale to use. Default is std::locale().
+/// @return a string equal to @a str but with leading and trailing characters removed
+template <typename CharType>
+inline std::basic_string<CharType> trim(const std::basic_string<CharType>& str, std::function<bool(const CharType&)> pred, const std::locale& lc = std::locale()) {
+    auto front = std::find_if_not(str.begin(), str.end(), pred);
+    auto back = std::find_if_not(str.rbegin(), typename std::basic_string<CharType>::const_reverse_iterator(front), pred).base();
+    return std::basic_string<CharType>(front, back);
+}
+
+/// @brief Trim leading characters matching a predicate.
+/// @param str the string
+/// @param pred the predicate
+/// @param lc the locale to use. Default is std::locale().
+/// @return a string equal to @a str but with leading characters removed
+template <typename CharType>
+inline std::basic_string<CharType> left_trim(const std::basic_string<CharType>& str, std::function<bool(const CharType&)> pred, const std::locale& lc = std::locale()) {
+    auto front = std::find_if_not(str.begin(), str.end(), pred);
+    auto back = str.end();
+    return std::basic_string<CharType>(front, back);
+}
+
+/// @brief Trim trailing characters matching a predicate.
+/// @param str the string
+/// @param pred the predicate
+/// @param lc the locale to use. Default is std::locale().
+/// @return a string equal to @a str but with trailing characters removed
+template <typename CharType>
+inline std::basic_string<CharType> right_trim(const std::basic_string<CharType>& str, std::function<bool(const CharType&)> pred, const std::locale& lc = std::locale()) {
+    auto front = str.begin();
+    auto back = std::find_if_not(str.rbegin(), typename std::basic_string<CharType>::const_reverse_iterator(front), pred).base();
+    return std::basic_string<CharType>(front, back);
+}
+
+/// @brief Trim leading spaces.
+/// @param str the string
+/// @param lc the locale to use. Default is std::locale().
+/// @return a string equal to @a str but with leading spaces removed
+template <typename CharType>
+inline std::basic_string<CharType> left_trim_ws(const std::basic_string<CharType>& str, const std::locale& lc = std::locale()) {
+    // Capture lc by reference, capture nothing else.
+    return left_trim<CharType>(str, [&lc](const CharType& chr) { return Ego::isspace(chr, lc); }, lc);
+}
+
+/// @brief Trim trailing spaces.
+/// @param str the string
+/// @param lc the locale to use. Default is std::locale().
+/// @return a string equal to @a str but with trailing spaces removed
+template <typename CharType>
+inline std::basic_string<CharType> right_trim_ws(const std::basic_string<CharType>& str, const std::locale& lc = std::locale()) {
+    // Capture lc by reference, capture nothing else.
+    return right_trim<CharType>(str, [&lc](const CharType& chr) { return Ego::isspace(chr, lc); }, lc);
+}
+
+/// @brief Trim leading and trailing spaces.
+/// @param str the string
+/// @param lc the locale to use. Default is std::locale().
+/// @return a string equal to @a str but with leading and trailing spaces removed
+template <typename CharType>
+inline std::basic_string<CharType> trim_ws(const std::basic_string<CharType>& str, const std::locale& lc = std::locale()) {
+    // Capture lc by reference, capture nothing else.
+    return trim<CharType>(str, [&lc](const CharType& chr) { return Ego::isspace(chr, lc); }, lc);
 }
 
 /**
@@ -222,12 +191,12 @@ inline std::basic_string<CharType> trim(const std::basic_string<CharType>& str, 
  *  a list of tokens
  */
 template <typename CharType>
-vector< basic_string<CharType> > split(const basic_string<CharType>& str, const basic_string<CharType>& delims)
+std::vector<std::basic_string<CharType>> split(const std::basic_string<CharType>& str, const std::basic_string<CharType>& delims)
 {
-    vector< basic_string<CharType> > v;
-    typename basic_string<CharType>::size_type start = 0;
+    std::vector<std::basic_string<CharType>> v;
+    typename std::basic_string<CharType>::size_type start = 0;
     auto pos = str.find_first_of(delims, start);
-    while (pos != basic_string<CharType>::npos)
+    while (pos != std::basic_string<CharType>::npos)
     {
         if (pos > start) // If the contents before the delimiter are non-empty, add them.
         {
@@ -256,7 +225,7 @@ vector< basic_string<CharType> > split(const basic_string<CharType>& str, const 
  *  @a false otherwise
  */
 template <typename CharType>
-bool isPrefix(const basic_string<CharType>& string, const basic_string<CharType>& prefix) {
+bool isPrefix(const std::basic_string<CharType>& string, const std::basic_string<CharType>& prefix) {
     if (prefix.size() > string.size()) return false;
     auto result = std::mismatch(prefix.begin(), prefix.end(), string.begin());
     return result.first == prefix.end();
@@ -274,7 +243,7 @@ bool isPrefix(const basic_string<CharType>& string, const basic_string<CharType>
  *  @a false otherwise
  */
 template <typename CharType>
-bool isSuffix(const basic_string<CharType>& string, const basic_string<CharType>& suffix) {
+bool isSuffix(const std::basic_string<CharType>& string, const std::basic_string<CharType>& suffix) {
     if (suffix.size() > string.size()) return false;
     return std::equal(suffix.rbegin(), suffix.rend(), string.rbegin());
 }

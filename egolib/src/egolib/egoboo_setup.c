@@ -304,33 +304,33 @@ void setup_init_base_vfs_paths()
     //---- mount all of the default global directories
 
     // mount the global basicdat directory t the beginning of the list
-    vfs_add_mount_point( fs_getDataDirectory(), "basicdat", "mp_data", 1 );
+    vfs_add_mount_point( fs_getDataDirectory(), Ego::FsPath("basicdat"), Ego::VfsPath("mp_data"), 1 );
 
     // Create a mount point for the /user/modules directory
-    vfs_add_mount_point( fs_getUserDirectory(), "modules", "mp_modules", 1 );
+    vfs_add_mount_point( fs_getUserDirectory(), Ego::FsPath("modules"), Ego::VfsPath("mp_modules"), 1 );
 
     // Create a mount point for the /data/modules directory
-    vfs_add_mount_point( fs_getDataDirectory(), "modules", "mp_modules", 1 );
+    vfs_add_mount_point( fs_getDataDirectory(), Ego::FsPath("modules"), Ego::VfsPath("mp_modules"), 1 );
 
     // Create a mount point for the /user/players directory
-    vfs_add_mount_point( fs_getUserDirectory(), "players", "mp_players", 1 );
+    vfs_add_mount_point( fs_getUserDirectory(), Ego::FsPath("players"), Ego::VfsPath("mp_players"), 1 );
 
     // Create a mount point for the /data/players directory
-    //vfs_add_mount_point( fs_getDataDirectory(), "players", "mp_players", 1 );     //ZF> Let's remove the local players folder since it caused so many problems for people
+    //vfs_add_mount_point( fs_getDataDirectory(), Ego::FsPath("players"), Ego::VfsPath("mp_players"), 1 );     //ZF> Let's remove the local players folder since it caused so many problems for people
 
     // Create a mount point for the /user/remote directory
-    vfs_add_mount_point( fs_getUserDirectory(), "import", "mp_import", 1 );
+    vfs_add_mount_point( fs_getUserDirectory(), Ego::FsPath("import"), Ego::VfsPath("mp_import"), 1 );
 
     // Create a mount point for the /user/remote directory
-    vfs_add_mount_point( fs_getUserDirectory(), "remote", "mp_remote", 1 );
+    vfs_add_mount_point( fs_getUserDirectory(), Ego::FsPath("remote"), Ego::VfsPath("mp_remote"), 1 );
 }
 
 void setup_clear_base_vfs_paths()
 {
-    vfs_remove_mount_point( "mp_data" );
-    vfs_remove_mount_point( "mp_modules" );
-    vfs_remove_mount_point( "mp_players" );
-    vfs_remove_mount_point( "mp_remote" );
+    vfs_remove_mount_point( Ego::VfsPath("mp_data") );
+    vfs_remove_mount_point( Ego::VfsPath("mp_modules") );
+    vfs_remove_mount_point( Ego::VfsPath("mp_players") );
+    vfs_remove_mount_point( Ego::VfsPath("mp_remote") );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -368,39 +368,39 @@ bool setup_init_module_vfs_paths(const char *mod_path)
     snprintf( tmpDir, SDL_arraysize( tmpDir ), "modules" SLASH_STR "%s" SLASH_STR "objects", mod_dir_string );
 
     // mount the user's module objects directory at the beginning of the mount point list
-    vfs_add_mount_point( fs_getDataDirectory(), tmpDir, "mp_objects", 1 );
+    vfs_add_mount_point( fs_getDataDirectory(), Ego::FsPath(tmpDir), Ego::VfsPath("mp_objects"), 1 );
 
     // mount the global module objects directory next in the mount point list
-    vfs_add_mount_point( fs_getUserDirectory(), tmpDir, "mp_objects", 1 );
+    vfs_add_mount_point( fs_getUserDirectory(), Ego::FsPath(tmpDir), Ego::VfsPath("mp_objects"), 1 );
 
     //---- add the "/basicdat/globalobjects/*" directories to mp_objects
     //ZF> TODO: Maybe we should dynamically search for all folders in this directory and add them as valid mount points?
-    vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "items",            "mp_objects", 1 );
-    vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "magic",            "mp_objects", 1 );
-    vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "magic_item",       "mp_objects", 1 );
-    vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "misc",             "mp_objects", 1 );
-    vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "monsters",         "mp_objects", 1 );
-    vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "players",          "mp_objects", 1 );
-    vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "potions",          "mp_objects", 1 );
-    vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "unique",           "mp_objects", 1 );
-    vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "weapons",          "mp_objects", 1 );
-    vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "work_in_progress", "mp_objects", 1 );
-    vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "traps",            "mp_objects", 1 );
-    vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "pets",             "mp_objects", 1 );
-    vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "scrolls",          "mp_objects", 1 );
-    vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "armor",            "mp_objects", 1 );
+    vfs_add_mount_point( fs_getDataDirectory(), Ego::FsPath("basicdat" SLASH_STR "globalobjects" SLASH_STR "items"),            Ego::VfsPath("mp_objects"), 1 );
+    vfs_add_mount_point( fs_getDataDirectory(), Ego::FsPath("basicdat" SLASH_STR "globalobjects" SLASH_STR "magic"),            Ego::VfsPath("mp_objects"), 1 );
+    vfs_add_mount_point( fs_getDataDirectory(), Ego::FsPath("basicdat" SLASH_STR "globalobjects" SLASH_STR "magic_item"),       Ego::VfsPath("mp_objects"), 1 );
+    vfs_add_mount_point( fs_getDataDirectory(), Ego::FsPath("basicdat" SLASH_STR "globalobjects" SLASH_STR "misc"),             Ego::VfsPath("mp_objects"), 1 );
+    vfs_add_mount_point( fs_getDataDirectory(), Ego::FsPath("basicdat" SLASH_STR "globalobjects" SLASH_STR "monsters"),         Ego::VfsPath("mp_objects"), 1 );
+    vfs_add_mount_point( fs_getDataDirectory(), Ego::FsPath("basicdat" SLASH_STR "globalobjects" SLASH_STR "players"),          Ego::VfsPath("mp_objects"), 1 );
+    vfs_add_mount_point( fs_getDataDirectory(), Ego::FsPath("basicdat" SLASH_STR "globalobjects" SLASH_STR "potions"),          Ego::VfsPath("mp_objects"), 1 );
+    vfs_add_mount_point( fs_getDataDirectory(), Ego::FsPath("basicdat" SLASH_STR "globalobjects" SLASH_STR "unique"),           Ego::VfsPath("mp_objects"), 1 );
+    vfs_add_mount_point( fs_getDataDirectory(), Ego::FsPath("basicdat" SLASH_STR "globalobjects" SLASH_STR "weapons"),          Ego::VfsPath("mp_objects"), 1 );
+    vfs_add_mount_point( fs_getDataDirectory(), Ego::FsPath("basicdat" SLASH_STR "globalobjects" SLASH_STR "work_in_progress"), Ego::VfsPath("mp_objects"), 1 );
+    vfs_add_mount_point( fs_getDataDirectory(), Ego::FsPath("basicdat" SLASH_STR "globalobjects" SLASH_STR "traps"),            Ego::VfsPath("mp_objects"), 1 );
+    vfs_add_mount_point( fs_getDataDirectory(), Ego::FsPath("basicdat" SLASH_STR "globalobjects" SLASH_STR "pets"),             Ego::VfsPath("mp_objects"), 1 );
+    vfs_add_mount_point( fs_getDataDirectory(), Ego::FsPath("basicdat" SLASH_STR "globalobjects" SLASH_STR "scrolls"),          Ego::VfsPath("mp_objects"), 1 );
+    vfs_add_mount_point( fs_getDataDirectory(), Ego::FsPath("basicdat" SLASH_STR "globalobjects" SLASH_STR "armor"),            Ego::VfsPath("mp_objects"), 1 );
 
     //---- add the "/modules/*.mod/gamedat" directory to mp_data
     snprintf( tmpDir, SDL_arraysize( tmpDir ), "modules" SLASH_STR "%s" SLASH_STR "gamedat",  mod_dir_string );
 
     // mount the user's module gamedat directory at the beginning of the mount point list
-    vfs_add_mount_point( fs_getUserDirectory(), tmpDir, "mp_data", 1 );
+    vfs_add_mount_point( fs_getUserDirectory(), Ego::FsPath(tmpDir), Ego::VfsPath("mp_data"), 1 );
 
     // append the global module gamedat directory
-    vfs_add_mount_point( fs_getDataDirectory(), tmpDir, "mp_data", 1 );
+    vfs_add_mount_point( fs_getDataDirectory(), Ego::FsPath(tmpDir), Ego::VfsPath("mp_data"), 1 );
 
     // put the global globalparticles data after the module gamedat data
-    vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalparticles", "mp_data", 1 );
+    vfs_add_mount_point( fs_getDataDirectory(), Ego::FsPath("basicdat" SLASH_STR "globalparticles"), Ego::VfsPath("mp_data"), 1 );
 
     return true;
 }
@@ -415,7 +415,7 @@ void setup_clear_module_vfs_paths()
     setup_clear_base_vfs_paths();
 
     // clear out the module's mount points
-    vfs_remove_mount_point( "mp_objects" );
+    vfs_remove_mount_point( Ego::VfsPath("mp_objects") );
 
     // set up the basic mount points again
     setup_init_base_vfs_paths();

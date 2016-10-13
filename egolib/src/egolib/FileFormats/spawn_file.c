@@ -92,7 +92,7 @@ bool spawn_file_read(ReadContext& ctxt, spawn_file_info_t& info)
         }
         ctxt.next();
 
-        info.spawn_comment = Ego::trim(ctxt._buffer.toString());      
+        info.spawn_comment = Ego::trim_ws(ctxt._buffer.toString());      
        
         info.do_spawn = true;
 

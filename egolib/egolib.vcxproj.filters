@@ -372,9 +372,6 @@
     <ClCompile Include="src\egolib\AI\WaypointList.c">
       <Filter>Source Files\AI</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\VFS\Pathname.cpp">
-      <Filter>Source Files\VFS</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\Math\Standard.cpp">
       <Filter>Source Files\Math</Filter>
     </ClCompile>
@@ -533,6 +530,12 @@
     </ClCompile>
     <ClCompile Include="src\egolib\Script\IRuntimeStatistics.cpp">
       <Filter>Source Files\Script</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\VFS\FsPath.cpp">
+      <Filter>Source Files\VFS</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\VFS\VfsPath.cpp">
+      <Filter>Source Files\VFS</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -835,9 +838,6 @@
     </ClInclude>
     <ClInclude Include="src\egolib\AI\WaypointList.h">
       <Filter>Header Files\AI</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\VFS\Pathname.hpp">
-      <Filter>Header Files\VFS</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Math\Scalar.hpp">
       <Filter>Header Files\Math</Filter>
@@ -1342,6 +1342,12 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Math\Functors\IsOdd.hpp">
       <Filter>Header Files\Math\Functors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\VFS\FsPath.hpp">
+      <Filter>Header Files\VFS</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\VFS\VfsPath.hpp">
+      <Filter>Header Files\VFS</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

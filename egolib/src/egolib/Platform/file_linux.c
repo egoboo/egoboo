@@ -110,27 +110,19 @@ int sys_fs_init(const char *root_dir)
     return 0;
 }
 
-int fs_fileIsDirectory(const char *pathname)
+int fs_fileIsDirectory(const std::string& pathname)
 {
-    if (!pathname)
-    {
-        return -1;
-    }
     struct stat stats;
-    if (!stat(pathname, &stats))
+    if (!stat(pathname.c_str(), &stats))
     {
         return S_ISDIR(stats.st_mode);
     }
     return 0;
 }
 
-int fs_createDirectory(const char *pathname)
+int fs_createDirectory(const std::string& pathname)
 {
-    if (!pathname)
-    {
-        return -1;
-    }
-    if (0 != mkdir(pathname, 0755))
+    if (0 != mkdir(pathname.c_str(), 0755))
     {
         errno = 0; /// Clear errno.
         return 1;
@@ -138,13 +130,9 @@ int fs_createDirectory(const char *pathname)
     return 0;
 }
 
-int fs_removeDirectory(const char *pathname)
+int fs_removeDirectory(const std::string& pathname)
 {
-    if (!pathname)
-    {
-        return -1;
-    }
-    if (0 != rmdir(pathname))
+    if (0 != rmdir(pathname.c_str()))
     {
         errno = 0; // Clear errno.
         return 1;
@@ -152,37 +140,24 @@ int fs_removeDirectory(const char *pathname)
     return 0;
 }
 
-void fs_deleteFile(const char *pathname)
+void fs_deleteFile(const std::string& pathname)
 {
-    if (!pathname)
-    {
-        return;
-    }
-    unlink(pathname);
+    unlink(pathname.c_str());
 }
 
-bool fs_copyFile(const char *source, const char *dest)
-{
-    if (!source)
-    {
-        return false;
-    }
-    if (!dest)
-    {
-        return false;
-    }
-    
+bool fs_copyFile(const std::string& source, const std::string& target)
+{  
     char buf[4096] = EMPTY_CSTR;
     int bytes_read;
 
     // Open source file descriptor.
-    FILE *sourcefd = fopen(source, "rb");
+    FILE *sourcefd = fopen(source.c_str(), "rb");
     if (!sourcefd)
     {
         return false;
     }
     // Open target file descriptor.
-    FILE *targetfd = fopen(dest, "wb");
+    FILE *targetfd = fopen(target.c_str(), "wb");
     if (!targetfd)
     {
         fclose(sourcefd);
@@ -275,22 +250,22 @@ void fs_findClose(fs_find_context_t *fs_search)
 	fs_search->ptr.v = nullptr;
 }
 
-const char *fs_getBinaryDirectory()
+std::string fs_getBinaryDirectory()
 {
     return _binaryPath;
 }
 
-const char *fs_getDataDirectory()
+std::string fs_getDataDirectory()
 {
     return _dataPath;
 }
 
-const char *fs_getUserDirectory()
+std::string fs_getUserDirectory()
 {
     return _userPath;
 }
 
-const char *fs_getConfigDirectory()
+std::string fs_getConfigDirectory()
 {
     return _configPath;
 }

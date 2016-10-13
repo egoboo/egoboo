@@ -63,22 +63,22 @@ int sys_fs_init(const char *root_path)
     }
 }
 
-const char *fs_getBinaryDirectory()
+std::string fs_getBinaryDirectory()
 {
     return [binaryPath UTF8String];
 }
 
-const char *fs_getDataDirectory()
+std::string fs_getDataDirectory()
 {
     return [dataPath UTF8String];
 }
 
-const char *fs_getUserDirectory()
+std::string fs_getUserDirectory()
 {
     return [userPath UTF8String];
 }
 
-const char *fs_getConfigDirectory()
+std::string fs_getConfigDirectory()
 {
     return [dataPath UTF8String];
 }
@@ -122,19 +122,19 @@ void fs_deleteFile(const char *fileName)
     }
 }
 
-bool fs_copyFile(const char *source, const char *dest)
+bool fs_copyFile(const std::string& source, const std::string& target)
 {
     @autoreleasepool {
         BOOL didCopy;
-        NSString *srcPath, *destPath;
+        NSString *sourcePath, *targetPath;
 
-        srcPath = [[NSString alloc] initWithUTF8String:source];
-        destPath = [[NSString alloc] initWithUTF8String:dest];
+        sourcePath = [[NSString alloc] initWithUTF8String:source.c_str()];
+        targetPath = [[NSString alloc] initWithUTF8String:target.c_str()];
 
-        didCopy = [[NSFileManager defaultManager] copyItemAtPath:srcPath toPath:destPath error:nil];
+        didCopy = [[NSFileManager defaultManager] copyItemAtPath:sourcePath toPath:targetPath error:nil];
 
-        [srcPath release];
-        [destPath release];
+        [sourcePath release];
+        [targetPath release];
         return didCopy;
     }
 }

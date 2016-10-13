@@ -143,7 +143,7 @@ std::shared_ptr<ModuleProfile> ModuleProfile::loadFromFile(const std::string &fo
     vfs_get_next_printable(ctxt);
 
     vfs_get_next_string_lit(ctxt, buffer);
-    buffer = Ego::trim(buffer);
+    buffer = Ego::trim_ws(buffer);
     result->_rank = buffer.length();
 
     // convert the special ranks of "unranked" or "-" ("rank 0")
@@ -262,12 +262,12 @@ bool ModuleProfile::moduleAddIDSZ(const std::string& szModName, const IDSZ2& ids
     if ( !moduleHasIDSZ( szModName, idsz ) )
     {
         // make sure that the file exists in the user data directory since we are WRITING to it
-        std::string src_file = "mp_modules/" + szModName + "/gamedat/menu.txt";
-        std::string dst_file = "/modules/" + szModName + "/gamedat/menu.txt";
-        vfs_copyFile( src_file, dst_file );
+        std::string source_file = "mp_modules/" + szModName + "/gamedat/menu.txt";
+        std::string target_file = "/modules/" + szModName + "/gamedat/menu.txt";
+        vfs_copyFile( source_file, target_file );
 
         // Try to open the file in append mode
-        filewrite = vfs_openAppend(dst_file);
+        filewrite = vfs_openAppend(target_file);
         if ( NULL != filewrite )
         {
             // output the expansion IDSZ

@@ -34,6 +34,8 @@
 #pragma once
 
 #include "egolib/egolib_config.h"
+#include "egolib/VFS/FsPath.hpp"
+#include "egolib/VFS/VfsPath.hpp"
 
 //--------------------------------------------------------------------------------------------
 // MACROS
@@ -102,35 +104,81 @@
 //--------------------------------------------------------------------------------------------
 
 /// A container for holding all the data for a search
-struct  vfs_search_context_t {
-    std::string path_2;
-    std::string extension_2;
-    BIT_FIELD bits;
-
+struct SearchContext {   
+public:
+    Ego::VfsPath path_2;
     std::vector<std::string> file_list_2;
     std::vector<std::string>::const_iterator file_list_iterator_2;
-    std::string found_2;
+    Ego::VfsPath found_2;
+    // 
+    bool bare;
+    /// The predicates: a pathname must be accepted by all predicates in this list in order to be considered.
+    std::vector<std::function<bool(const Ego::VfsPath&)>> predicates;
 
-    /// Construct this search context.
-    vfs_search_context_t();
+public:
+    /// @brief Construct this search context.
+    /// @param searchPath the search path
+    /// @param searchBits the search bits
+    SearchContext(const Ego::VfsPath& searchPath, uint32_t searchBits);
 
+    /// @brief Construct this search context.
+    /// @param searchPath the search path
+    /// @param searchExtension the search extension
+    /// @param searchBits the search bits
+    SearchContext(const Ego::VfsPath& searchPath, const Ego::Extension& searchExtension, uint32_t searchBits);
+
+public:
+    /// @brief Construct this search context.
+    /// @param searchBits the search bits
+    /// @remark
+    /// Same as
+    /// @code
+    /// SearchContext(Path("/"), searchBits)
+    /// @endcode
+    SearchContext(uint32_t searchBits);
+
+    /// @brief Construct this search context.
+    /// @param searchExtension the search extension
+    /// @param searchBits the search bits
+    /// @remark
+    /// Same as
+    /// @code
+    /// SearchContext(Path("/"), searchExtension, searchBits)
+    /// @endcode
+    SearchContext(const Ego::Extension& searchExtension, uint32_t searchBits);
+
+public:
     /// Destruct this search context.
-    ~vfs_search_context_t();
+    ~SearchContext();
 
+public:
     /// Get if there is data in this context available.
     bool hasData() const;
+
     /// Get the data available in this context.
     /// Raises an exception if there is no data available.
-    const std::string& getData() const;
+    const Ego::VfsPath& getData() const;
+
     /// Compute the next data.
     void nextData();
-public:
-    /// @return @a true if the specified file name is acceptable, @a false otherwise
-    bool predicate(const std::string& fileName) const;
-    std::string makeAbsolute(const std::string& pathname) const;
-};
 
-vfs_search_context_t *vfs_findFirst(const char *searchPath, const char *searchExtension, Uint32 searchBits);
+protected:
+    /// @brief Create a predicate that filters a pathname by the specified search bits.
+    /// @param searchBits the search bits
+    /// @return the predicate, expects an absolute, sanitized pathname
+    static std::function<bool(const Ego::VfsPath&)> makePredicate(uint32_t searchBits);
+    
+    /// @brief Create a predicate that filters a pathname by the specified extension.
+    /// @param extension the extension without the extension separator <c>.</c>
+    /// @return the predicate, expects an absolute, sanitized pathname
+    static std::function<bool(const Ego::VfsPath&)> makePredicate(std::string extension);
+
+protected:
+    /// @return @a true if the specified path is acceptable, @a false otherwise
+    bool predicate(const Ego::VfsPath& path) const;
+    /// @todo Move to traits.
+    static std::vector<std::string> enumerateFiles(const Ego::VfsPath& pathname);
+};
 
 // use this ugly thing, since there is no other way to hide the actual structure of the vfs_FILE...
 struct vsf_file;
@@ -300,7 +348,7 @@ int vfs_puts(const char *s, vfs_FILE *file);
 
 void         vfs_empty_temp_directories();
 
-int          vfs_copyFile(const std::string& source, const std::string& dest);
+int          vfs_copyFile(const std::string& source, const std::string& target);
 int          vfs_copyDirectory(const char *sourceDir, const char *destDir);
 
 int    vfs_removeDirectoryAndContents(const char * dirname, int recursive);
@@ -325,13 +373,20 @@ std::string vfs_getLinkedVersion();
 /// @brief Get the version of the PhysFS library which used for compiling the binary.
 std::string vfs_getVersion();
 
-int vfs_add_mount_point(const char *dirname, const char *relative_path, const char *mount_point, int append);
-int vfs_remove_mount_point(const char *mount_point);
+/// @param rootPath the root path in platform-specific notation e.g. <c>C:\Program Files\Egoboo\data</c>
+/// @param relativePath the path relative to the root path in platform-specific notation e.g. <c>modules</c>
+/// @param mountPoint the mount point in vfs-specific notation e.g. <c>mp_modules</c>
+/// <c>""</c> is equivalent to <c>"/"</c>.
+int vfs_add_mount_point(const std::string& rootPath, const Ego::FsPath& relativePath, const Ego::VfsPath& mountPoint, int append);
+/// @brief Remove every search path related to the given mount point
+/// @param mountPoint the mount point in vfs-specific notation e.g. <c>mp_modules</c>
+int vfs_remove_mount_point(const Ego::VfsPath& mountPoint);
 
-std::string vfs_convert_fname(const std::string& fname);
+Ego::VfsPath vfs_convert_fname(const Ego::VfsPath& path);
+Ego::VfsPath vfs_convert_fname(const std::string& pathString);
 
 void vfs_set_base_search_paths();
-const char *vfs_mount_info_strip_path(const char * some_path);
+std::pair<bool, std::string> vfs_mount_info_strip_path(const std::string& some_path);
 
 void vfs_listSearchPaths();
     

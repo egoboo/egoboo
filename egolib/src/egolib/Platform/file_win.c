@@ -141,71 +141,71 @@ int sys_fs_init(const char *argv0)
     return 0;
 }
 
-const char *fs_getBinaryDirectory()
+std::string fs_getBinaryDirectory()
 {
     return _binaryPath;
 }
 
-const char *fs_getDataDirectory()
+std::string fs_getDataDirectory()
 {
     return _dataPath;
 }
 
-const char *fs_getUserDirectory()
+std::string fs_getUserDirectory()
 {
     return _userPath;
 }
 
-const char *fs_getConfigDirectory()
+std::string fs_getConfigDirectory()
 {
     return _configPath;
 }
 
-int fs_fileIsDirectory(const char *filename)
+int fs_fileIsDirectory(const std::string& filename)
 {
-    if (INVALID_CSTR(filename))
+    if (filename.empty())
     {
         return -1;
     }
-    DWORD fileAttrs = GetFileAttributes(filename);
+    DWORD fileAttrs = GetFileAttributes(filename.c_str());
 
     return HAS_ATTRIBS(FILE_ATTRIBUTE_DIRECTORY, fileAttrs);
 }
 
 // Had to revert back to prog x code to prevent import/skin bug
-int fs_createDirectory(const char *dirname)
+int fs_createDirectory(const std::string& dirname)
 {
-    if (INVALID_CSTR(dirname))
+    if (dirname.empty())
     {
         return 1;
     }
-    return (0 != CreateDirectory(dirname, NULL)) ? 0 : 1;
+    return (0 != CreateDirectory(dirname.c_str(), NULL)) ? 0 : 1;
 }
 
-int fs_removeDirectory(const char *dirname)
+int fs_removeDirectory(const std::string& dirname)
 {
-    if (INVALID_CSTR(dirname))
+    if (dirname.empty())
     {
         return 1;
     }
-    return (0 != RemoveDirectory(dirname)) ? 0 : 1;
+    return (0 != RemoveDirectory(dirname.c_str())) ? 0 : 1;
 }
 
-void fs_deleteFile( const char *filename )
+void fs_deleteFile( const std::string& filename )
 {
-    if (VALID_CSTR(filename ))
+    if (!filename.empty())
     {
-        DeleteFile(filename);
+        DeleteFile(filename.c_str());
     }
 }
 
-bool fs_copyFile(const char *source, const char *dest)
+bool fs_copyFile(const std::string& source, const std::string& target)
 {
-    if (INVALID_CSTR(source) || INVALID_CSTR(dest))
+    if (source.empty() || target.empty())
     {
         return false;
     }
-    return (TRUE == CopyFile(source, dest, false));
+    return (TRUE == CopyFile(source.c_str(), target.c_str(), false));
 }
 
 //--------------------------------------------------------------------------------------------

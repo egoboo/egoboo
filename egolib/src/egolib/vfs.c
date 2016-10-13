@@ -31,7 +31,7 @@
 #include "egolib/strutil.h"
 #include "egolib/endian.h"
 #include "egolib/fileutil.h"
-#include "egolib/platform.h"
+#include "egolib/Core/StringUtilities.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -63,8 +63,6 @@ typedef struct s_vfs_path_data vfs_path_data_t;
 //--------------------------------------------------------------------------------------------
 
 typedef char VFS_PATH[VFS_MAX_PATH];
-
-#define MAX_MOUNTINFO 128
 
 /// The following flags set in vfs_file::flags provide information about the state of a file.
 typedef enum vfs_file_flags
@@ -110,35 +108,51 @@ struct vsf_file
 
 struct s_vfs_path_data
 {
-    VFS_PATH mount;
+    std::string mount;
+    std::string full_path;
+    std::string root_path;
+    std::string relative_path;
 
-    VFS_PATH full_path;
-    VFS_PATH root_path;
-    VFS_PATH relative_path;
+    s_vfs_path_data()
+        : mount(),
+          full_path(),
+          root_path(),
+          relative_path() {}
+
+    s_vfs_path_data(const s_vfs_path_data& other)
+        : mount(other.mount),
+          full_path(other.full_path),
+          root_path(other.root_path),
+          relative_path(other.relative_path) {}
+    
+    s_vfs_path_data& operator=(const s_vfs_path_data& other) {
+        mount = other.mount;
+        full_path = other.full_path;
+        root_path = other.root_path;
+        relative_path = other.relative_path;
+        return *this;
+    }
 };
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static int             _vfs_mount_info_count = 0;
-static vfs_path_data_t _vfs_mount_info[MAX_MOUNTINFO];
-
+static std::vector<vfs_path_data_t> _vfs_mount_infos;
 static bool _vfs_atexit_registered = false;
-
 static bool _vfs_initialized = false;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 static void _vfs_exit();
-static vfs_search_context_t *_vfs_search(vfs_search_context_t **ctxt);
 static int _vfs_ensure_write_directory(const std::string& filename, bool is_directory);
 
 
 static void _vfs_translate_error(vfs_FILE *file);
 
-static bool _vfs_mount_info_add(const char *mount_point, const char *root_path, const char *relative_path);
-static int _vfs_mount_info_matches(const char *mount_point, const char *local_path);
+static bool _vfs_mount_info_add(const Ego::VfsPath& mountPoint, const std::string& rootPath, const std::string& relativePath);
+static int _vfs_mount_info_matches(const Ego::VfsPath& mountPoint);
+static int _vfs_mount_info_matches(const Ego::VfsPath& mountPoint, const std::string& localPath);
 static bool _vfs_mount_info_remove(int cnt);
 static int _vfs_mount_info_search(const std::string& pathname);
 
@@ -160,7 +174,7 @@ int vfs_init(const char *argv0, const char *root_dir)
     {
         // We can call log functions, they won't try to write to unopened log files
         // But mainly this is used for sys_popup
-        Log::get().error("The data path isn't a directory.\nData path: '%s'\n", fs_getDataDirectory());
+        Log::get().error("The data path isn't a directory.\nData path: '%s'\n", fs_getDataDirectory().c_str());
         return 1;
     }
 
@@ -192,7 +206,7 @@ int vfs_init(const char *argv0, const char *root_dir)
     // Ensure that the /user/debug directory exists.
     if (!fs_fileIsDirectory(fs_getUserDirectory()))
     {
-        printf("WARNING: cannot create write directory %s\n", fs_getUserDirectory());
+        printf("WARNING: cannot create write directory %s\n", fs_getUserDirectory().c_str());
     }
     else
     {
@@ -202,7 +216,7 @@ int vfs_init(const char *argv0, const char *root_dir)
     }
 
     // Set the write directory to the root user directory.
-    if (!PHYSFS_setWriteDir(fs_getUserDirectory()))
+    if (!PHYSFS_setWriteDir(fs_getUserDirectory().c_str()))
     {
         PHYSFS_deinit();
         return 1;
@@ -243,14 +257,11 @@ std::string vfs_getVersion()
     return stream.str();
 }
 
-#include "egolib/VFS/Pathname.hpp"
-
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 bool validate(const std::string& source, std::string& target) {
     try {
-        target = Ego::VFS::Pathname(source).toString();
+        target = Ego::VfsPath(source).string();
         return true;
     } catch (...) {
         return false;
@@ -363,34 +374,23 @@ vfs_FILE *vfs_openAppend(const std::string& pathname)
 }
 
 //--------------------------------------------------------------------------------------------
-std::string vfs_convert_fname( const std::string& fname )
-{
+Ego::VfsPath vfs_convert_fname(const Ego::VfsPath& path) {
     BAIL_IF_NOT_INIT();
+    static const auto slash = Ego::VfsPath(Ego::VfsPath::getDefaultPathSeparator());
+    // If the path is empty ...
+    if (path.empty()) {
+        // ... assume root.
+        return slash;
+    }
+    if (_vfs_mount_info_search(path.string().c_str()) || NETWORK_SLASH_CHR == path.string()[0]) {
+        return path;
+    } else {
+        return (slash + path);
+    }
+}
 
-    // test for a bad iput filename
-    if ( fname  == "" )
-    {
-        return NET_SLASH_STR;
-    }
-
-    // make a copy of the original filename, in case fname is
-    // a literal string or a pointer to local_fname
-    std::string copy_fname = fname;
-    std::string local_fname;
-    if ( _vfs_mount_info_search( copy_fname.c_str() ) )
-    {
-        local_fname = copy_fname;
-    }
-    else if ( NET_SLASH_CHR == copy_fname[0] || WIN32_SLASH_CHR == copy_fname[0] )
-    {
-        local_fname = copy_fname;
-    }
-    else
-    {
-        local_fname = std::string(NET_SLASH_STR) + copy_fname;
-    }
-
-    return str_convert_slash_net( local_fname );
+Ego::VfsPath vfs_convert_fname(const std::string& pathString) {
+    return vfs_convert_fname(Ego::VfsPath(pathString));
 }
 
 //--------------------------------------------------------------------------------------------
@@ -413,40 +413,41 @@ std::pair<bool, std::string> vfs_resolveReadFilename( const std::string& filenam
 {
     BAIL_IF_NOT_INIT();
 
-    if (filename == "") std::make_pair(false, filename);
+    if (filename.empty()) {
+        std::make_pair(false, filename);
+    }
 
     // make a temporary copy of the given filename with system-dependent slashes
     // to see if the filename is already resolved
     std::string filename_specific = str_convert_slash_sys(filename);
 
-    if (fs_fileExists(filename_specific.c_str())) {
+    if (fs_fileExists(filename_specific)) {
         return std::make_pair(true, filename_specific);
     }
 
     // The specified filename (in system-specific notation) does not exist.
     // Convert the filename in PhysFS-specific notation.
-    filename_specific = vfs_convert_fname(filename_specific.c_str());
+    filename_specific = vfs_convert_fname(Ego::VfsPath(filename_specific)).string();
 
     // If the specified filename denotes an existing file or directory, then this file or directory must have a containing directory.
     const char *prefix = PHYSFS_getRealDir(filename_specific.c_str());
     if (nullptr == prefix) {
         return std::make_pair(false, filename);
     }
-
     // The specified filename denotes an existing file or directory.
     if (PHYSFS_isDirectory(filename_specific.c_str())) {
         // If it denotes a directory then it must be splittable into a prefix and a suffix.
-        const char *suffix = vfs_mount_info_strip_path(filename_specific.c_str());
-        if (nullptr != suffix) {
-            return std::make_pair(true, str_convert_slash_sys(std::string(prefix) + "/" + suffix));
+        auto suffix = vfs_mount_info_strip_path(filename_specific.c_str());
+        if (suffix.first) {
+            return std::make_pair(true, (Ego::VfsPath(prefix) + Ego::VfsPath(suffix.second)).string(Ego::VfsPath::Kind::System));
         } else {
-            return std::make_pair(true, str_convert_slash_sys(std::string(prefix) + "/"));
+            return std::make_pair(true, (Ego::VfsPath(prefix) + Ego::VfsPath("/")).string(Ego::VfsPath::Kind::System));
         }
     } else {
         // The specified filename denotes a file.
-        const char *suffix = vfs_mount_info_strip_path(filename_specific.c_str());
-        if (nullptr != suffix) {
-            return std::make_pair(true, str_convert_slash_sys(std::string(prefix) + "/" + suffix));
+        auto suffix = vfs_mount_info_strip_path(filename_specific.c_str());
+        if (suffix.first) {
+            return std::make_pair(true, (Ego::VfsPath(prefix) + Ego::VfsPath(suffix.second)).string(Ego::VfsPath::Kind::System));
         } else {
             return std::make_pair(false, filename);
         }
@@ -458,7 +459,7 @@ std::pair<bool, std::string> vfs_resolveWriteFilename(const std::string& filenam
     // Validate state.
     BAIL_IF_NOT_INIT();
     // Validate arguments.
-    if (filename == "") {
+    if (filename.empty()) {
         return std::make_pair(false, filename);
     }
     // Get the write directory.
@@ -467,9 +468,9 @@ std::pair<bool, std::string> vfs_resolveWriteFilename(const std::string& filenam
         throw std::runtime_error("unable to get write directory");
     }
     // Append the filename to the write directory.
-    auto resolvedFilename = std::string(writeDirectory) + SLASH_STR + filename;
+    auto resolvedFilename = Ego::VfsPath(writeDirectory) + Ego::VfsPath(filename);
     // Ensure system-specific encoding of the resolved filename.
-    return std::make_pair(true, str_convert_slash_sys(resolvedFilename));
+    return std::make_pair(true, resolvedFilename.string(Ego::VfsPath::Kind::System));
 }
 
 //--------------------------------------------------------------------------------------------
@@ -479,11 +480,11 @@ int _vfs_ensure_write_directory( const std::string& filename, bool is_directory 
     /// @details
     BAIL_IF_NOT_INIT();
 
-    if ( filename == "" ) return 0;
+    if ( filename.empty() ) return 0;
 
     // make a working copy of the filename
     // and make sure that PHYSFS gets the filename with the slashes it wants
-    std::string temp_dirname = vfs_convert_fname(filename.c_str());
+    std::string temp_dirname = vfs_convert_fname(Ego::VfsPath(filename)).string();
 
     // grab the system-independent path relative to the write directory
     if ( !is_directory && !vfs_isDirectory( temp_dirname ) )
@@ -735,17 +736,11 @@ long vfs_fileLength( vfs_FILE * pfile )
 //--------------------------------------------------------------------------------------------
 bool vfs_mkdir(const std::string& pathname) {
     BAIL_IF_NOT_INIT();
-
-    std::string temporary;
-    if (!validate(pathname, temporary)) {
-        return false;
-    }
-
+    std::string temporary = Ego::VfsPath(pathname).string();
     if (!PHYSFS_mkdir(temporary.c_str())) {
         Log::get().debug("PHYSF_mkdir(%s) failed: %s\n", pathname.c_str(), vfs_getError());
         return false;
     }
-
     return true;
 }
 
@@ -753,10 +748,7 @@ bool vfs_delete_file(const std::string& pathname)
 {
     BAIL_IF_NOT_INIT();
 
-    std::string temporary;
-    if (!validate(pathname, temporary)) {
-        return false;
-    }
+    std::string temporary = Ego::VfsPath(pathname).string();
 
     if (!PHYSFS_delete(temporary.c_str())) {
         Log::get().debug("PHYSF_delete(%s) failed: %s\n", pathname.c_str(), vfs_getError());
@@ -767,19 +759,13 @@ bool vfs_delete_file(const std::string& pathname)
 
 bool vfs_exists(const std::string& pathname) {
     BAIL_IF_NOT_INIT();
-    std::string temporary;
-    if (!validate(pathname, temporary)) {
-        return false;
-    }
+    std::string temporary = Ego::VfsPath(pathname).string();
     return (0 != PHYSFS_exists(temporary.c_str()));
 }
 
 bool vfs_isDirectory(const std::string& pathname) {
     BAIL_IF_NOT_INIT();
-    std::string temporary;
-    if (!validate(pathname, temporary)) {
-        return false;
-    }
+    std::string temporary = Ego::VfsPath(pathname).string();
     return 0 != PHYSFS_isDirectory(temporary.c_str());
 }
 
@@ -1471,131 +1457,139 @@ int vfs_printf( vfs_FILE * pfile, const char *format, ... )
 
 //--------------------------------------------------------------------------------------------
 
-vfs_search_context_t::vfs_search_context_t() :
-    file_list_2(), file_list_iterator_2(),
-    path_2(), extension_2(),
-    bits(0), found_2() {
-   /* Intentionally empty. */
-}
-
-vfs_search_context_t::~vfs_search_context_t() {
-    BAIL_IF_NOT_INIT();
-    this->file_list_iterator_2 = this->file_list_2.cend();
-}
-
-//--------------------------------------------------------------------------------------------
-vfs_search_context_t * vfs_findFirst( const char * search_path, const char * search_extension, Uint32 search_bits )
-{
-    BAIL_IF_NOT_INIT();
-
-    // create the new context
-	vfs_search_context_t *ctxt = new vfs_search_context_t();
-
-    // grab all the files
-    char **file_list = PHYSFS_enumerateFiles(vfs_convert_fname(search_path).c_str());
-    if (!file_list) {
-        delete ctxt;
+std::vector<std::string> SearchContext::enumerateFiles(const Ego::VfsPath& pathname) {
+    std::vector<std::string> result;
+    char **fileList = PHYSFS_enumerateFiles(pathname.string().c_str());
+    if (!fileList) {
         throw std::runtime_error("unable to enumerate files");
     }
-    char **file = file_list;
-    for (; nullptr != *file; ++file) {
+    for (char **file = fileList; nullptr != *file; ++file) {
         try {
-            ctxt->file_list_2.push_back(*file);
+            result.push_back(*file);
         } catch (...) {
-            PHYSFS_freeList(file_list);
+            PHYSFS_freeList(fileList);
             std::rethrow_exception(std::current_exception());
         }
     }
-    PHYSFS_freeList(file_list);
-
-    // Set the search extension.
-    if (INVALID_CSTR(search_extension)) {
-        ctxt->extension_2 = "";
-    } else {
-        ctxt->extension_2 = std::string(".") + search_extension;
-    }
-
-    // Set the search path.
-    if (INVALID_CSTR(search_path)) {
-        ctxt->path_2 = "";
-    } else {
-        ctxt->path_2 = search_path;
-    }
-
-    // Set the search bits.
-    ctxt->bits = search_bits;
-
-    // Begin the iterator.
-    try {
-        ctxt->file_list_iterator_2 = ctxt->file_list_2.begin();
-        // Search the first acceptable filename.
-        for (; ctxt->file_list_iterator_2 != ctxt->file_list_2.cend(); ctxt->file_list_iterator_2++) {
-            if (ctxt->predicate(*ctxt->file_list_iterator_2)) {
-                break;
-            }
-        }
-        if (ctxt->file_list_iterator_2 != ctxt->file_list_2.cend()) {
-            if (0 != (VFS_SEARCH_BARE & ctxt->bits)) {
-                ctxt->found_2 = *ctxt->file_list_iterator_2;
-            } else {
-                ctxt->found_2 = ctxt->makeAbsolute(*ctxt->file_list_iterator_2);
-            }
-        }
-    } catch (...) {
-        delete ctxt;
-        std::rethrow_exception(std::current_exception());
-    }
-    return ctxt;
+    PHYSFS_freeList(fileList);
+    return result;
 }
 
-//--------------------------------------------------------------------------------------------
-bool vfs_search_context_t::predicate(const std::string& pathname) const {
-    auto pathname_absoluteSanitized = makeAbsolute(pathname);
-    // Filter by type if desired.
-    if (VFS_SEARCH_ALL != (this->bits & VFS_SEARCH_ALL)) {
-        bool isDirectory = vfs_isDirectory(pathname_absoluteSanitized);
-        bool isFile = !isDirectory;
-        if (isFile) {
-            return (VFS_SEARCH_FILE == (VFS_SEARCH_FILE & this->bits));
-        }
-        if (isDirectory) {
-            return (VFS_SEARCH_DIR == (VFS_SEARCH_DIR & this->bits));
+SearchContext::SearchContext(const Ego::VfsPath& searchPath, const Ego::Extension& searchExtension, uint32_t searchBits)
+    : file_list_2(), file_list_iterator_2(), path_2(), bare(false), predicates(), found_2() {
+    // Bare search results?
+    if (VFS_SEARCH_BARE == (VFS_SEARCH_BARE & searchBits)) {
+        bare = true;
+    }
+    // Filter by type?
+    predicates.push_back(makePredicate(searchBits));
+    // Enumerate using PhysFS.
+    path_2 = vfs_convert_fname(searchPath);
+    file_list_2 = enumerateFiles(path_2);
+    // Filter by extension?
+    if (!searchExtension.empty()) {
+        predicates.push_back(makePredicate(searchExtension.toString()));
+    }
+    // Begin iteration.
+    file_list_iterator_2 = file_list_2.begin();
+    // Search the first acceptable filename.
+    for (; file_list_iterator_2 != file_list_2.cend(); file_list_iterator_2++) {
+        /// @todo: Possibly virtual function call. Not acceptable.
+        if (predicate(Ego::VfsPath(*file_list_iterator_2))) {
+            break;
         }
     }
-
-    // Filter by extension if desired.
-    if (this->extension_2.length() > 0) {
-        size_t extensionPointPosition = pathname_absoluteSanitized.rfind('.');
-        if (extensionPointPosition == std::string::npos) {
-            return false;
+    if (file_list_iterator_2 != file_list_2.cend()) {
+        if (bare) {
+            found_2 = Ego::VfsPath(*file_list_iterator_2);
+        } else {
+            /// @todo Possibly virtual function call. Not acceptable.
+            found_2 = path_2 + Ego::VfsPath(NETWORK_SLASH_STR) + Ego::VfsPath(*file_list_iterator_2);
         }
+    }
+}
 
-        auto extensionString = pathname_absoluteSanitized.substr(extensionPointPosition + 1);
-        if (extensionString != this->extension_2) {
-            return false;
+SearchContext::SearchContext(const Ego::VfsPath& searchPath, uint32_t searchBits) :
+    file_list_2(), file_list_iterator_2(), path_2(), bare(false), predicates(), found_2() {
+    // Bare search results?
+    if (VFS_SEARCH_BARE == (VFS_SEARCH_BARE & searchBits)) {
+        bare = true;
+    }
+    // Filter by type?
+    predicates.push_back(makePredicate(searchBits));
+    // Enumerate using PhysFS.
+    path_2 = vfs_convert_fname(searchPath);
+    file_list_2 = enumerateFiles(path_2);
+
+    // Begin iteration.
+    file_list_iterator_2 = file_list_2.begin();
+    // Search the first acceptable filename.
+    for (; file_list_iterator_2 != file_list_2.cend(); file_list_iterator_2++) {
+        /// @todo: Possibly virtual function call. Not acceptable.
+        if (predicate(Ego::VfsPath(*file_list_iterator_2))) {
+            break;
+        }
+    }
+    if (file_list_iterator_2 != file_list_2.cend()) {
+        if (bare) {
+            found_2 = Ego::VfsPath(*file_list_iterator_2);
+        } else {
+            /// @todo Possibly virtual function call. Not acceptable.
+            found_2 = path_2 + Ego::VfsPath(NETWORK_SLASH_STR) + Ego::VfsPath(*file_list_iterator_2);
+        }
+    }
+}
+
+SearchContext::SearchContext(uint32_t searchBits)
+    : SearchContext(Ego::VfsPath("/"), searchBits)
+{ /* Intentionally empty. */}
+
+SearchContext::SearchContext(const Ego::Extension& searchExtension, uint32_t searchBits)
+    : SearchContext(Ego::VfsPath("/"), searchExtension, searchBits)
+{ /* Intentionally empty. */ }
+
+SearchContext::~SearchContext()
+{ /* Intentionally empty. */ }
+
+//--------------------------------------------------------------------------------------------
+std::function<bool(const Ego::VfsPath&)> SearchContext::makePredicate(uint32_t searchBits) {
+    auto predicate = [searchBits](const Ego::VfsPath& path) {
+        if (VFS_SEARCH_ALL != (searchBits & VFS_SEARCH_ALL)) {
+            bool isDirectory = vfs_isDirectory(path.string());
+            bool isFile = !isDirectory;
+            if (isFile) {
+                return (VFS_SEARCH_FILE == (VFS_SEARCH_FILE & searchBits));
+            }
+            if (isDirectory) {
+                return (VFS_SEARCH_DIR == (VFS_SEARCH_DIR & searchBits));
+            }
+        }
+        return true;
+    };
+    return predicate;
+}
+
+std::function<bool(const Ego::VfsPath&)> SearchContext::makePredicate(std::string extension) {
+    auto predicate = [extension](const Ego::VfsPath& path) {
+        return path.getExtension() == extension;
+    };
+    return predicate;
+}
+
+bool SearchContext::predicate(const Ego::VfsPath& path) const {
+    auto fullPath = path_2 + Ego::VfsPath(NETWORK_SLASH_STR) + path;
+    // Apply predicates.
+    for (const auto& predicate : predicates) {
+        if (nullptr != predicate) {
+            if (!predicate(fullPath)) {
+                return false;
+            }
         }
     }
     return true;
 }
 
-std::string vfs_search_context_t::makeAbsolute(const std::string& pathname) const {
-    auto pathname_absoluteSanitized = pathname;
-    if (this->path_2.length() == 0) {
-        // If no path was specified, prepend a slash.
-        pathname_absoluteSanitized = std::string(NET_SLASH_STR) + pathname_absoluteSanitized;
-    } else {
-        // Otherwise: Prepend the specified path.
-        pathname_absoluteSanitized = this->path_2 + NET_SLASH_STR + pathname_absoluteSanitized;
-    }
-
-    // Sanitize the path.
-    pathname_absoluteSanitized = vfs_convert_fname(pathname_absoluteSanitized.c_str());
-
-    // Return result.
-    return pathname_absoluteSanitized;
-}
-
-void vfs_search_context_t::nextData()
+void SearchContext::nextData()
 {
     // if there are no files, return an error value
 
@@ -1610,20 +1604,20 @@ void vfs_search_context_t::nextData()
     while (true) {
         this->file_list_iterator_2++;
         if (this->file_list_iterator_2 == this->file_list_2.cend()) break;
-        if (this->predicate(*this->file_list_iterator_2)) break;
+        if (this->predicate(Ego::VfsPath(*this->file_list_iterator_2))) break;
     }
 
     // If no suitable file was found ...
     if (this->file_list_iterator_2 == this->file_list_2.cend()) {
         // ... return.
-        this->found_2 = "";
+        this->found_2 = Ego::VfsPath();
         return;
     }
 
-    if (0 != (VFS_SEARCH_BARE & this->bits)) {
-        this->found_2 = *this->file_list_iterator_2;
+    if (this->bare) {
+        this->found_2 = Ego::VfsPath(*this->file_list_iterator_2);
     } else {
-        this->found_2 = makeAbsolute(*this->file_list_iterator_2);
+        this->found_2 = path_2 + Ego::VfsPath(NETWORK_SLASH_STR) + Ego::VfsPath(*this->file_list_iterator_2);
     }
 }
 
@@ -1664,7 +1658,7 @@ int vfs_copyDirectory( const char *sourceDir, const char *destDir )
     /// @details This function copies all files in a directory
     VFS_PATH srcPath = EMPTY_CSTR, destPath = EMPTY_CSTR;
 
-    vfs_search_context_t * ctxt;
+    SearchContext *ctxt;
 
     BAIL_IF_NOT_INIT();
 
@@ -1684,16 +1678,16 @@ int vfs_copyDirectory( const char *sourceDir, const char *destDir )
     //real_dst = szDst;
 
     // List all the files in the directory
-    ctxt = vfs_findFirst( vfs_convert_fname( sourceDir ).c_str(), NULL, VFS_SEARCH_FILE | VFS_SEARCH_BARE );
+    ctxt = new SearchContext(vfs_convert_fname(sourceDir), VFS_SEARCH_FILE | VFS_SEARCH_BARE );
     if (!ctxt) return VFS_FALSE;
     while (ctxt->hasData())
     {
         auto fileName = ctxt->getData();
         // Ignore files that begin with a .
-        if ( '.' != fileName[0] )
+        if ( '.' != fileName.string()[0] )
         {
-            snprintf( srcPath, SDL_arraysize( srcPath ), "%s/%s", sourceDir, fileName.c_str() );
-            snprintf( destPath, SDL_arraysize( destPath ), "%s/%s", destDir, fileName.c_str() );
+            snprintf( srcPath, SDL_arraysize( srcPath ), "%s/%s", sourceDir, fileName.string().c_str() );
+            snprintf( destPath, SDL_arraysize( destPath ), "%s/%s", destDir, fileName.string().c_str() );
 
             if ( !vfs_copyFile( srcPath, destPath ) )
             {
@@ -1913,35 +1907,38 @@ const char * vfs_getError( void )
 }
 
 //--------------------------------------------------------------------------------------------
-int vfs_add_mount_point( const char * root_path, const char * relative_path, const char * mount_point, int append )
+int vfs_add_mount_point( const std::string& rootPath, const Ego::FsPath& relativePath, const Ego::VfsPath& mountPoint, int append )
 {
-    /// @author BB
-    /// @details a wrapper for PHYSFS_mount
-
     int retval = -1;
-    const char * loc_dirname;
-    VFS_PATH     dirname;
 
     BAIL_IF_NOT_INIT();
 
-    // a bare slash is taken to mean the PHYSFS root directory, not the root of the currently mounted volume
-    if ( !VALID_CSTR( mount_point ) || 0 == strcmp( mount_point, C_SLASH_STR ) ) return 0;
+    // If mount point is empty or a slash indicates the PhysFS root directory, not the root of the currently mounted volume.
+    if ( mountPoint.empty() || mountPoint == Ego::VfsPath("/") ) return 0;
 
-    // make a complete version of the pathname
-    if ( VALID_CSTR( root_path ) && VALID_CSTR( relative_path ) )
+    Ego::FsPath dirname;
+    if ( !rootPath.empty() && !relativePath.empty() )
     {
-        snprintf( dirname, SDL_arraysize( dirname ), "%s" SLASH_STR "%s", root_path, relative_path );
+        // both the root path and the relative path are non-empty:
+        // the directory is meant to be the concatenation of both.
+        dirname = Ego::FsPath(rootPath + SYSTEM_SLASH_STR + relativePath.string());
     }
-    else if ( VALID_CSTR( root_path ) )
+    else if ( !rootPath.empty() )
     {
-        strncpy( dirname, root_path, SDL_arraysize( dirname ) );
+        // the root path is non-empty, the relative path is empty:
+        // the direcotry i meant to be the root path.
+        dirname = Ego::FsPath(rootPath);
     }
-    else if ( VALID_CSTR( relative_path ) )
+    else if ( !relativePath.empty() )
     {
-        strncpy( dirname, relative_path, SDL_arraysize( dirname ) );
+        // the root path is empty, the relative path is non-empty:
+        // the directory is meant to be the relative path.
+        dirname = relativePath;
     }
     else
     {
+        // both the root path and the relative path are empty:
+        // reject.
         return 0;
     }
 
@@ -1950,19 +1947,19 @@ int vfs_add_mount_point( const char * root_path, const char * relative_path, con
     /// @note PF@> 2015-01-01 this should be unneeded. root_path and relative_path should both
     ///                       sys-dependent paths, unless Windows does something strange?
 #if 0
-    loc_dirname = vfs_convert_fname_sys( dirname );
+    std::string loc_dirname = vfs_convert_fname_sys( dirname );
 #else
-    loc_dirname = dirname;
+    Ego::FsPath loc_dirname = dirname;
 #endif
 
-    if ( _vfs_mount_info_add( mount_point, root_path, relative_path ) )
+    if ( _vfs_mount_info_add( mountPoint, rootPath, relativePath.string() ) )
     {
-        retval = PHYSFS_mount( loc_dirname, mount_point, append );
+        retval = PHYSFS_mount( loc_dirname.string().c_str(), mountPoint.string().c_str(), append );
         if ( 0 == retval )
         {
             // go back and remove the mount info, since PHYSFS rejected the
             // data we gave it
-            int i = _vfs_mount_info_matches( mount_point, loc_dirname );
+            int i = _vfs_mount_info_matches( mountPoint, loc_dirname.string() );
             _vfs_mount_info_remove( i );
         }
     }
@@ -1971,24 +1968,18 @@ int vfs_add_mount_point( const char * root_path, const char * relative_path, con
 }
 
 //--------------------------------------------------------------------------------------------
-int vfs_remove_mount_point( const char * mount_point )
+int vfs_remove_mount_point( const Ego::VfsPath& mountPoint )
 {
-    /// @author BB
-    /// @details Remove every single search path related to the given mount point.
-
-    int retval, cnt;
-
     BAIL_IF_NOT_INIT();
 
     // don't allow it to remove the default directory
-    if ( !VALID_CSTR( mount_point ) ) return 0;
-    if ( 0 == strcmp( mount_point, C_SLASH_STR ) ) return 0;
+    if ( mountPoint.empty() || mountPoint == Ego::VfsPath("/") ) return 0;
 
     // assume we are going to fail
-    retval = 0;
+    int retval = 0;
 
     // see if we have the mount point
-    cnt = _vfs_mount_info_matches( mount_point, NULL );
+    int cnt = _vfs_mount_info_matches( mountPoint );
 
     // does it exist in the list?
     if ( cnt < 0 ) return false;
@@ -1996,23 +1987,24 @@ int vfs_remove_mount_point( const char * mount_point )
     while ( cnt >= 0 )
     {
         // we have to use the path name to remove the search path, not the mount point name
-        PHYSFS_removeFromSearchPath( _vfs_mount_info[cnt].full_path );
+        PHYSFS_removeFromSearchPath( _vfs_mount_infos[cnt].full_path.c_str() );
 
         // remove the mount info from this index
         // PF> we remove it even if PHYSFS_removeFromSearchPath() fails or else we might get an infinite loop
         _vfs_mount_info_remove( cnt );
 
-        cnt = _vfs_mount_info_matches( mount_point, NULL );
+        cnt = _vfs_mount_info_matches( mountPoint );
     }
 
     return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-bool vfs_search_context_t::hasData() const {
+bool SearchContext::hasData() const {
     return this->file_list_iterator_2 != this->file_list_2.cend();
 }
-const std::string& vfs_search_context_t::getData() const {
+
+const Ego::VfsPath& SearchContext::getData() const {
     return this->found_2;
 }
 
@@ -2024,17 +2016,17 @@ const std::string& vfs_search_context_t::getData() const {
 int _vfs_mount_info_search(const std::string& pathname) {
     BAIL_IF_NOT_INIT();
 
-    if (pathname == "") return VFS_FALSE;
+    if (pathname.empty()) return VFS_FALSE;
 
     // Get the sanitized pathname.
     auto sanitizedPathname = str_clean_path(pathname);
 
-    for (auto cnt = 0; cnt < _vfs_mount_info_count; cnt++) {
-        if (sanitizedPathname == _vfs_mount_info[cnt].mount) {
+    for (const auto& mount_info : _vfs_mount_infos) {
+        if (sanitizedPathname == mount_info.mount) {
             return VFS_TRUE;
         }
 
-        if (sanitizedPathname == (std::string(_vfs_mount_info[cnt].mount) + NET_SLASH_STR)) {
+        if (sanitizedPathname == (std::string(mount_info.mount) + NET_SLASH_STR)) {
             return VFS_TRUE;
         }
     }
@@ -2043,179 +2035,119 @@ int _vfs_mount_info_search(const std::string& pathname) {
 }
 
 //--------------------------------------------------------------------------------------------
-const char * vfs_mount_info_strip_path( const char * some_path )
+std::pair<bool, std::string> vfs_mount_info_strip_path( const std::string& path )
 {
-    int cnt;
-    size_t offset;
-    const char * ptmp, * stripped_pos;
-
     BAIL_IF_NOT_INIT();
 
-    stripped_pos = some_path;
+    // Strip any starting slashes.
+    std::string path_2 = Ego::left_trim<char>(path, [](const char& chr) { return chr == NET_SLASH_CHR || chr == WIN32_SLASH_CHR; });
 
-    // strip any starting slashes
-    for ( ptmp = some_path; ( CSTR_END != *ptmp ) && ptmp < some_path + VFS_MAX_PATH; ptmp++ )
-    {
-        if ( NET_SLASH_CHR != *ptmp && WIN32_SLASH_CHR != *ptmp )
-        {
-            break;
+    // Find the first mount point path that is a prefix of the specified path.
+    // If such a path is discovered, return the specified path with the prefix removed.
+    for (const auto& mount_info : _vfs_mount_infos) {
+        if (Ego::isPrefix(path_2, mount_info.mount)) {
+            return std::make_pair(true, path_2.substr(mount_info.mount.length()));
         }
     }
-    some_path = ptmp;
-
-    ptmp   = NULL;
-    offset = 0;
-    for ( cnt = 0; cnt < _vfs_mount_info_count; cnt++ )
-    {
-        offset = strlen( _vfs_mount_info[cnt].mount );
-        if ( offset <= 0 ) continue;
-
-        if ( 0 == strncmp( some_path, _vfs_mount_info[cnt].mount, offset ) )
-        {
-            stripped_pos = some_path + offset;
-            break;
-        }
-    }
-
-    return stripped_pos;
+    return std::make_pair(false, path);
 }
 
 //--------------------------------------------------------------------------------------------
-int _vfs_mount_info_matches( const char * mount_point, const char * local_path )
-{
-    int cnt, retval;
-    const char * ptmp;
-
+int _vfs_mount_info_matches(const Ego::VfsPath& mountPoint) {
     BAIL_IF_NOT_INIT();
-
-    // set to an invalid value;
-    retval = -1;
 
     // are there any in the list?
-    if ( 0 == _vfs_mount_info_count ) return retval;
+    if (_vfs_mount_infos.empty()) return -1;
 
-    // alias the mount point
-    ptmp = mount_point;
+    // Strip any starting slashes.
+    auto tmp = Ego::VfsPath(Ego::left_trim<char>(mountPoint.string(), [](const char& chr) { return chr == NET_SLASH_CHR || chr == WIN32_SLASH_CHR; }));
 
-    // strip any starting slashes
-    if ( VALID_CSTR( ptmp ) )
-    {
-        for ( /* nothing */; ptmp < mount_point + VFS_MAX_PATH; ptmp++ )
-        {
-            if (( NET_SLASH_CHR != *ptmp && WIN32_SLASH_CHR != *ptmp ) || CSTR_END == *ptmp )
-            {
-                break;
-            }
-        }
-    }
-
-    if ( VALID_CSTR( ptmp ) && VALID_CSTR( local_path ) )
-    {
-        // find the first path info with the given mount_point and local_path
-        for ( cnt = 0; cnt < _vfs_mount_info_count; cnt++ )
-        {
-            if ( 0 == strncmp( _vfs_mount_info[cnt].mount,     mount_point, VFS_MAX_PATH ) &&
-                 0 == strncmp( _vfs_mount_info[cnt].full_path, local_path,  VFS_MAX_PATH ) )
-            {
-                retval = cnt;
-                break;
-            }
-        }
-    }
-    else if ( VALID_CSTR( ptmp ) )
-    {
+    if (!tmp.empty()) {
         // find the first path info with the given mount_point
-        for ( cnt = 0; cnt < _vfs_mount_info_count; cnt++ )
-        {
-            if ( 0 == strncmp( _vfs_mount_info[cnt].mount, mount_point, VFS_MAX_PATH ) )
-            {
-                retval = cnt;
-                break;
-            }
-        }
-    }
-    else if ( VALID_CSTR( local_path ) )
-    {
-        // find the first path info with the given local_path
-        for ( cnt = 0; cnt < _vfs_mount_info_count; cnt++ )
-        {
-            if ( 0 == strncmp( _vfs_mount_info[cnt].full_path, local_path, VFS_MAX_PATH ) )
-            {
-                retval = cnt;
-                break;
+        for (auto cnt = 0; cnt < _vfs_mount_infos.size(); cnt++) {
+            if (_vfs_mount_infos[cnt].mount == mountPoint.string()) {
+                return cnt;
             }
         }
     }
 
-    return retval;
+    return -1;
+}
+int _vfs_mount_info_matches(const Ego::VfsPath& mountPoint, const std::string& local_path) {
+    BAIL_IF_NOT_INIT();
+
+    // are there any in the list?
+    if (_vfs_mount_infos.empty()) return -1;
+
+    // Strip any starting slashes.
+    auto tmp = Ego::VfsPath(Ego::left_trim<char>(mountPoint.string(), [](const char& chr) { return chr == NET_SLASH_CHR || chr == WIN32_SLASH_CHR; }));
+
+    if (!tmp.empty() && !local_path.empty()) {
+        // find the first path info with the given mount_point and local_path
+        for (auto cnt = 0; cnt < _vfs_mount_infos.size(); cnt++) {
+            if (_vfs_mount_infos[cnt].mount == mountPoint.string() &&
+                _vfs_mount_infos[cnt].full_path == local_path) {
+                return cnt;
+            }
+        }
+    } else if (!tmp.empty()) {
+        // find the first path info with the given mount_point
+        for (auto cnt = 0; cnt < _vfs_mount_infos.size(); cnt++) {
+            if (_vfs_mount_infos[cnt].mount == mountPoint.string()) {
+                return cnt;
+            }
+        }
+    } else if (!local_path.empty()) {
+        // find the first path info with the given local_path
+        for (auto cnt = 0; cnt < _vfs_mount_infos.size(); cnt++) {
+            if (_vfs_mount_infos[cnt].full_path == local_path) {
+                return cnt;
+            }
+        }
+    }
+
+    return -1;
 }
 
 //--------------------------------------------------------------------------------------------
-bool _vfs_mount_info_add(const char * mount_point, const char * root_path, const char * relative_path)
-{
-    const char * ptmp;
-
-    VFS_PATH     local_path;
-
+bool _vfs_mount_info_add(const Ego::VfsPath& mountPoint, const std::string& rootPath, const std::string& relativePath) {
     BAIL_IF_NOT_INIT();
 
-    // can we add it?
-    if ( _vfs_mount_info_count >= MAX_MOUNTINFO ) return false;
-
-    // if the mount point is not a string, do nothing
-    if ( !VALID_CSTR( mount_point ) ) return false;
+    // If the mount point is empty, do nothing.
+    if (mountPoint.empty()) return false;
 
     // make a complete version of the pathname
-    if ( VALID_CSTR( root_path ) && VALID_CSTR( relative_path ) )
-    {
-        snprintf( local_path, SDL_arraysize( local_path ), "%s" SLASH_STR "%s", root_path, relative_path );
-    }
-    else if ( VALID_CSTR( root_path ) )
-    {
-        strncpy( local_path, root_path, SDL_arraysize( local_path ) );
-    }
-    else if ( VALID_CSTR( relative_path ) )
-    {
-        strncpy( local_path, relative_path, SDL_arraysize( local_path ) );
-    }
-    else
-    {
+    std::string local_path;
+    if (!rootPath.empty() && !relativePath.empty()) {
+        local_path = rootPath + SLASH_STR + relativePath;
+    } else if (!rootPath.empty()) {
+        local_path = rootPath;
+    } else if (!relativePath.empty()) {
+        local_path = relativePath;
+    } else {
         return false;
     }
 
     // do we want to add it?
-    if ( !VALID_CSTR( local_path ) ) return false;
+    if (local_path.empty()) return false;
 
-    if ( _vfs_mount_info_matches( mount_point, local_path ) >= 0 ) return false;
+    if (_vfs_mount_info_matches(mountPoint, local_path) >= 0) return false;
 
     // strip any starting slashes
-    for ( ptmp = mount_point; ptmp < mount_point + VFS_MAX_PATH; ptmp++ )
-    {
-        if (( NET_SLASH_CHR != *ptmp && WIN32_SLASH_CHR != *ptmp ) || CSTR_END == *ptmp )
-        {
-            break;
-        }
-    }
-
-    if ( CSTR_END == *ptmp ) return false;
+    auto tmp = Ego::VfsPath(Ego::left_trim<char>(mountPoint.string(), [](const char& chr) { return chr == NET_SLASH_CHR || chr == WIN32_SLASH_CHR; }));
+    if (tmp.empty()) return false;
 
     // save the mount point in a list for later detection
-    strncpy( _vfs_mount_info[_vfs_mount_info_count].mount,     ptmp,       VFS_MAX_PATH );
-    strncpy( _vfs_mount_info[_vfs_mount_info_count].full_path, local_path, VFS_MAX_PATH );
-
-    _vfs_mount_info[_vfs_mount_info_count].root_path[0] = CSTR_END;
-    if ( VALID_CSTR( root_path ) )
-    {
-        strncpy( _vfs_mount_info[_vfs_mount_info_count].root_path, root_path, VFS_MAX_PATH );
+    vfs_path_data_t path_data;
+    path_data.mount = tmp.string();
+    path_data.full_path = local_path;
+    if (!rootPath.empty()) {
+        path_data.root_path = rootPath;
     }
-
-    _vfs_mount_info[_vfs_mount_info_count].relative_path[0] = CSTR_END;
-    if ( VALID_CSTR( relative_path ) )
-    {
-        strncpy( _vfs_mount_info[_vfs_mount_info_count].relative_path, relative_path, VFS_MAX_PATH );
+    if (!relativePath.empty()) {
+        path_data.relative_path = relativePath;
     }
-
-    _vfs_mount_info_count++;
+    _vfs_mount_infos.push_back(path_data);
 
     return true;
 }
@@ -2226,16 +2158,10 @@ bool _vfs_mount_info_remove(int cnt)
     BAIL_IF_NOT_INIT();
 
     // does it exist in the list?
-    if ( cnt < 0 || cnt > _vfs_mount_info_count ) return false;
+    if ( cnt < 0 || cnt >= _vfs_mount_infos.size() ) return false;
 
     // fill in the hole in the list
-    if ( _vfs_mount_info_count > 1 )
-    {
-        memmove( _vfs_mount_info + cnt, _vfs_mount_info + ( _vfs_mount_info_count - 1 ), sizeof( vfs_path_data_t ) );
-    }
-
-    // shorten the list
-    _vfs_mount_info_count--;
+    _vfs_mount_infos.erase(_vfs_mount_infos.begin() + cnt);
 
     return true;
 }
@@ -2247,13 +2173,13 @@ void vfs_set_base_search_paths( void )
     BAIL_IF_NOT_INIT();
 
     // Put write dir first in search path...
-    PHYSFS_addToSearchPath( fs_getUserDirectory(), 0 );
+    PHYSFS_addToSearchPath( fs_getUserDirectory().c_str(), 0 );
 
     // Put base path on search path...
-    PHYSFS_addToSearchPath( fs_getDataDirectory(), 1 );
+    PHYSFS_addToSearchPath( fs_getDataDirectory().c_str(), 1 );
     
     // Put config path on search path...
-    PHYSFS_addToSearchPath(fs_getConfigDirectory(), 1);
+    PHYSFS_addToSearchPath(fs_getConfigDirectory().c_str(), 1);
 }
 
 //--------------------------------------------------------------------------------------------

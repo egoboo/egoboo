@@ -61,11 +61,6 @@
     /// @param pathname the input pathname
     /// @return the converted pathname
     std::string str_clean_path(const std::string& pathname);
-
-    /// @brief Convert all slashes to network-specific format.
-    /// @param pathname the input pathname
-    /// @return the converted pathname
-    std::string str_convert_slash_net(const std::string& pathname);
     
     /// @brief Convert all slashes to system-specific format.
     /// @param pathname the input pathname
