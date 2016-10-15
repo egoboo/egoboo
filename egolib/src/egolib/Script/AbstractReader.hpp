@@ -52,7 +52,7 @@ protected:
     /// @post The reader is in its initial state w.r.t. the specified input if no exception is raised.
     /// If an exception is raised, the reader retains its state.
     void SetInput(const std::string& fileName) {
-        Buffer temporaryBuffer;
+        Buffer temporaryBuffer(512);
         std::string temporaryFileName = fileName;
         // If this succeeds, then we're set.
         vfs_readEntireFile(fileName, [&temporaryBuffer](size_t numberOfBytes, const char *bytes) {

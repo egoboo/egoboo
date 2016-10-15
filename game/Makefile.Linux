@@ -42,14 +42,13 @@ LINKER_LIBS += $(SANITIZER_FLAGS)
 
 all: $(BIN)
 
-# Generic rule
+# Generic compile rule
 %.o: %.c
-	ccache $(CXX) -o $@ $(CXXFLAGS) -c $<
+	$(CXX) -o $@ $(CXXFLAGS) -c $<
 %.o: %.cpp
-	ccache $(CXX) -o $@ $(CXXFLAGS) -c $<
+	$(CXX) -o $@ $(CXXFLAGS) -c $<
+	#clang-tidy $< -checks=clang-analyzer-*,-clang-analyzer-alpha*,misc-*,modernize-*,performance-*, -- $(CXXFLAGS) #readability-*
 
+#Linking
 $(BIN): $(OBJECTS)
-	ccache $(CXX) -o $@ $^ $(LINKER_LIBS) -Wl,-fuse-ld=gold -flto=jobserver
-
-clean:
-	rm -f ./src/game/*.o ./src/game/*/*.o $(BIN)
+	$(CXX) -o $@ $^ -Wl,-fuse-ld=gold $(LINKER_LIBS)

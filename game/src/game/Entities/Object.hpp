@@ -959,8 +959,6 @@ public:
     // movement properties
     turn_mode_t  turnmode;                        ///< Turning mode
 
-    BIT_FIELD      movement_bits;                 ///< What movement modes are allowed?
-
     // data for doing the physics in bump_all_objects()|
 
     bool inwater;

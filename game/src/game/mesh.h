@@ -366,7 +366,7 @@ private:
     static AxisAlignedBox2f leastClosure(const Circle2f& circle) {
         auto circle0 = Circle2f(circle.getCenter(),
                                 std::max(circle.getRadius(), Info<float>::Grid::Size() * 0.5f));
-        static const Ego::Math::Closure<AxisAlignedBox2f, Circle2f> closure;
+        static const Ego::Math::Closure<AxisAlignedBox2f, Circle2f> closure{};
         return closure(circle0);
     }
 };

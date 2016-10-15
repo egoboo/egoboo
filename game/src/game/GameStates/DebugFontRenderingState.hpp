@@ -39,7 +39,7 @@ public:
     
     void update() override {}
     
-    void draw(Ego::GUI::DrawingContext& drawingContext) { drawContainer(drawingContext); }
+    void draw(Ego::GUI::DrawingContext& drawingContext) override { drawContainer(drawingContext); }
 protected:
     void drawContainer(Ego::GUI::DrawingContext& drawingContext) override {}
     

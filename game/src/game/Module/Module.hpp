@@ -289,7 +289,6 @@ private:
     std::string  _name;                       ///< Module load names
     bool _exportValid;                          ///< Allow to export when module is reset?
     bool  _exportReset;                       ///< Remember original export mode if the module is restarted
-    bool  _canRespawnAnyTime;                 ///< True if it's a small level...
     bool _isRespawnValid;                      ///< Can players respawn with Spacebar?
     bool _isBeaten;                               ///< Have the players won?
     uint32_t  _seed;                          ///< The module seed

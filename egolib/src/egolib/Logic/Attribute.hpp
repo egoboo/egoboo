@@ -16,7 +16,7 @@
 //*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
-/// @file game/Logic/Attribute.hpp
+/// @file egolib/Logic/Attribute.hpp
 /// @brief Type for Object attributes (Strength, Dexterity, etc.)
 /// @author Johan Jansen
 

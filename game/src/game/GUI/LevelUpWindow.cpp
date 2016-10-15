@@ -340,13 +340,13 @@ void LevelUpWindow::doLevelUp(PerkButton *selectedPerk) {
 
     //Selected perk animation
     _selectedPerk = std::make_shared<Image>(selectedPerk->getPerk().getIcon().getFilePath());
-    _selectedPerk->setPosition(selectedPerk->getPosition() + Vector2f(-getX(), -getY()));
+    _selectedPerk->setPosition(selectedPerk->getPosition());
     _selectedPerk->setSize(selectedPerk->getSize());
     _selectedPerk->setTint(selectedPerk->getPerk().getColour());
     addComponent(_selectedPerk);
 
     //Make icon move into the corner and use about 1 second to do so
-    const Vector2f DESIRED_ICON_POS = Vector2f(float(-PERK_THUMBNAIL_SIZE - 10),
+    const Vector2f DESIRED_ICON_POS = Vector2f(float(PERK_THUMBNAIL_SIZE + 10),
                                                float(getHeight() - PERK_THUMBNAIL_SIZE - 20));
     _animationPos[0] = _selectedPerk->getX();
     _animationPos[1] = _selectedPerk->getY();

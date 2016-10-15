@@ -34,7 +34,6 @@
 #include "game/Logic/Player.hpp"
 #include "game/graphic_billboard.h"
 #include "game/script_implementation.h"
-#include "game/ObjectAnimation.h"
 #include "game/Inventory.hpp"
 #include "game/Entities/_Include.hpp"
 #include "game/mesh.h"
@@ -3603,7 +3602,7 @@ Uint8 scr_SendMessageNear( script_state_t& state, ai_state_t& self )
 
     // iterate over all cameras and find the minimum distance
     min_distance = -1;
-    for(std::shared_ptr<Camera> camera : CameraSystem::get()->getCameraList())
+    for(std::shared_ptr<Camera> camera : CameraSystem::get().getCameraList())
     {
         iTmp = std::abs( pchr->getOldPosition()[kX] - camera->getTrackPosition()[kX] ) + std::fabs( pchr->getOldPosition()[kY] - camera->getTrackPosition()[kY] );
 
@@ -7916,7 +7915,6 @@ Uint8 scr_DrawBillboard( script_state_t& state, ai_state_t& self )
     //Figure out which color to use
     switch ( state.turn )
     {
-        default:
         case COLOR_WHITE:   tint = &tint_white;   break;
         case COLOR_RED:     tint = &tint_red;     break;
         case COLOR_PURPLE:  tint = &tint_purple;  break;

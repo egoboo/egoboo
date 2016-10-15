@@ -26,7 +26,6 @@
 #include "game/game.h"
 #include "game/Core/GameEngine.hpp"
 #include "game/GameStates/PlayingState.hpp"
-#include "game/ObjectAnimation.h"
 
 namespace Ego
 {
@@ -75,7 +74,7 @@ void Player::updateLatches()
     object->resetInputCommands();
 
     // find the camera that is following this character
-    const auto &pcam = CameraSystem::get()->getCamera(object->getObjRef());
+    const auto &pcam = CameraSystem::get().getCamera(object->getObjRef());
     if (!pcam) {
         return;
     }
@@ -136,7 +135,7 @@ void Player::updateLatches()
 
             //Make inventory movement wrap around
             if(new_selected < 0) {
-                new_selected = object->getInventory().getMaxItems() - 1;
+                _inventorySlot = object->getInventory().getMaxItems() - 1;
             }
             else if(new_selected >= object->getInventory().getMaxItems()) {
                 _inventorySlot = 0;

@@ -480,13 +480,8 @@ void Particle::updateAnimation()
     // update the particle size
     if (0 != size_add)
     {
-        int size_new;
-
         // resize the paricle
-        size_new = size + size_add;
-        size_new = Ego::Math::constrain(size_new, 0, 0xFFFF);
-
-        setSize(size_new);
+        setSize(static_cast<int>(size) + size_add);
     }
 
     // spin the particle

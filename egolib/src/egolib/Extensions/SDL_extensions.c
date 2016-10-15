@@ -153,8 +153,7 @@ void SDLX_sdl_gl_attrib_t::validate(SDLX_sdl_gl_attrib_t& self) {
     int frameBufferSize = self.buffer_size;
     int colorBufferRedDepth = self.colourBufferDepth.getRedDepth(),
         colorBufferGreenDepth = self.colourBufferDepth.getGreenDepth(),
-        colorBufferBlueDepth = self.colourBufferDepth.getBlueDepth(),
-        colorBufferAlphaDepth = self.colourBufferDepth.getAlphaDepth();
+        colorBufferBlueDepth = self.colourBufferDepth.getBlueDepth();
     if (0 == frameBufferSize) frameBufferSize = self.colourBufferDepth.getDepth();
     if (0 == frameBufferSize) frameBufferSize = 32;
     if (frameBufferSize > 32) frameBufferSize = 32;
@@ -178,6 +177,7 @@ void SDLX_sdl_gl_attrib_t::validate(SDLX_sdl_gl_attrib_t& self) {
     }
 
     // Fix the alpha alpha depth.
+    int colorBufferAlphaDepth;// = self.colourBufferDepth.getAlphaDepth();
     colorBufferAlphaDepth = frameBufferSize - colorBufferRedDepth - colorBufferGreenDepth - colorBufferBlueDepth;
     colorBufferAlphaDepth = (colorBufferAlphaDepth < 0) ? 0 : colorBufferAlphaDepth;
 

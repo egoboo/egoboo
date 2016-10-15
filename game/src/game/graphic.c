@@ -72,9 +72,6 @@ Clock<ClockPolicy::NonRecursive>  light_fans_timer("light.fans", 512);
 Clock<ClockPolicy::NonRecursive>  gfx_update_all_chr_instance_timer("gfx.update.all.chr.instance", 512);
 Clock<ClockPolicy::NonRecursive>  update_all_prt_instance_timer("update.all.prt.instance", 512);
 
-
-Uint32          game_frame_all = 0;             ///< The total number of frames drawn so far
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -93,8 +90,6 @@ static Ego::Rectangle<int> tabrect[NUMBAR];            // The tab rectangles
 
 static bool  gfx_page_flip_requested = false;
 static bool  gfx_page_clear_requested = true;
-
-const static float DYNALIGHT_KEEP = 0.9f;
 
 static dynalist_t _dynalist;
 
@@ -323,7 +318,7 @@ void gfx_system_render_world(std::shared_ptr<Camera> camera, std::shared_ptr<Ego
     err_tmp = gfx_error_pop();
     if (err_tmp)
     {
-        printf("**** Encountered graphics errors in frame %d ****\n\n", game_frame_all);
+        printf("**** Encountered graphics errors in frame %d ****\n\n", _gameEngine->getNumberOfFramesRendered());
         while (err_tmp)
         {
             printf("vvvv\n");
@@ -348,7 +343,7 @@ void gfx_system_main()
     /// @author ZZ
     /// @details This function does all the drawing stuff
 
-    CameraSystem::get()->renderAll(gfx_system_render_world);
+    CameraSystem::get().renderAll(gfx_system_render_world);
 
     draw_hud();
 
@@ -616,9 +611,9 @@ float draw_debug(float y)
         y = _gameEngine->getUIManager()->drawBitmapFontString(Vector2f(0, y), "!!!DEBUG MODE-5!!!");
         std::ostringstream os;
         os << "~~CAM"
-           << " " << CameraSystem::get()->getMainCamera()->getPosition()[kX]
-           << " " << CameraSystem::get()->getMainCamera()->getPosition()[kY]
-           << " " << CameraSystem::get()->getMainCamera()->getPosition()[kZ];
+           << " " << CameraSystem::get().getMainCamera()->getPosition()[kX]
+           << " " << CameraSystem::get().getMainCamera()->getPosition()[kY]
+           << " " << CameraSystem::get().getMainCamera()->getPosition()[kZ];
         y = _gameEngine->getUIManager()->drawBitmapFontString(Vector2f(0, y), os.str(), 0, 1.0f);
         if (_currentModule->getPlayerList().size() > 0)
         {
@@ -671,7 +666,7 @@ float draw_debug(float y)
 
     if (Ego::Input::InputSystem::get().isKeyDown(SDLK_F7))
     {
-        std::shared_ptr<Camera> camera = CameraSystem::get()->getMainCamera();
+        std::shared_ptr<Camera> camera = CameraSystem::get().getMainCamera();
 
         std::ostringstream os;
         // White debug mode
@@ -906,18 +901,13 @@ gfx_rv render_scene_mesh(Camera& cam, const Ego::Graphics::TileList& tl, const E
     /// @author BB
     /// @details draw the mesh and reflections of entities
 
-	if (!tl._mesh)
-	{
-		throw Id::RuntimeErrorException(__FILE__, __LINE__, "tile list is not attached to a mesh");
-	}
-
     gfx_rv retval;
 
     // assume the best
     retval = gfx_success;
     //--------------------------------
     // advance the animation of all animated tiles
-    animate_all_tiles(*tl._mesh);
+    animate_all_tiles(*tl.getMesh());
 
 	// Render non-reflective tiles.
 	Ego::Graphics::RenderPasses::g_nonReflective.run(cam, tl, el);
@@ -949,7 +939,7 @@ gfx_rv render_scene_mesh(Camera& cam, const Ego::Graphics::TileList& tl, const E
 		// render the heighmap
 		for (size_t i = 0; i < tl._all.size; ++i)
 		{
-			Ego::Graphics::RenderPasses::Internal::TileListV2::render_hmap_fan(tl._mesh.get(), tl._all.lst[i]._index);
+			Ego::Graphics::RenderPasses::Internal::TileListV2::render_hmap_fan(tl.getMesh().get(), tl._all.lst[i]._index);
 		}
 
 		// let the mesh texture code know that someone else is in control now
@@ -1198,7 +1188,7 @@ float GridIllumination::light_corners(ego_mesh_t& mesh, ego_tile_info_t& tile, b
 	}
 
 	// has the lighting already been calculated this frame?
-	if (tile._lightingCache.isValid(game_frame_all))
+	if (tile._lightingCache.isValid(_gameEngine->getNumberOfFramesRendered()))
 	{
 		return -1.0f;
 	}
@@ -1258,7 +1248,7 @@ float GridIllumination::light_corners(ego_mesh_t& mesh, ego_tile_info_t& tile, b
 
 	// un-mark the lcache
 	tile._lightingCache.setNeedUpdate(false);
-	tile._lightingCache.setLastFrame(game_frame_all);
+	tile._lightingCache.setLastFrame(_gameEngine->getNumberOfFramesRendered());
 
 	return max_delta;
 }
@@ -1498,7 +1488,7 @@ gfx_rv GridIllumination::light_fans_throttle_update(ego_mesh_t * mesh, ego_tile_
         // use a kind of checkerboard pattern
         int ix = tileIndex.getI() % tmem.getInfo().getTileCountX();
         int iy = tileIndex.getI() / tmem.getInfo().getTileCountX();
-        if (0 != (((ix ^ iy) + game_frame_all) & 0x03))
+        if (0 != (((ix ^ iy) + _gameEngine->getNumberOfFramesRendered()) & 0x03))
         {
             retval = true;
         }
@@ -1537,7 +1527,7 @@ void GridIllumination::light_fans_update_lcache(Ego::Graphics::TileList& tl)
 
 #if defined(CLIP_ALL_LIGHT_FANS)
 	// Update all visible fans once every 4 frames.
-	if (0 != (game_frame_all & frame_mask)) {
+	if (0 != (_gameEngine->getNumberOfFramesRendered() & frame_mask)) {
 		return;
 }
 #endif
@@ -1564,10 +1554,10 @@ void GridIllumination::light_fans_update_lcache(Ego::Graphics::TileList& tl)
         // - ptile->_lcache_frame is updated inside ego_mesh_light_corners()
 #if defined(CLIP_LIGHT_FANS)
         // clip the updated on each individual tile
-        is_valid = ptile._lightingCache.isValid(game_frame_all, frame_skip);
+        is_valid = ptile._lightingCache.isValid(_gameEngine->getNumberOfFramesRendered(), frame_skip);
 #else
         // let the function clip all tile updates
-        is_valid = ptile._lightingCache.isValid(game_frame_all);
+        is_valid = ptile._lightingCache.isValid(_gameEngine->getNumberOfFramesRendered());
 #endif
 	if (is_valid)
         {
@@ -1701,7 +1691,7 @@ void GridIllumination::light_fans_update_clst(Ego::Graphics::TileList& tl)
         }
 
         // Do nothing if the update was performed in this frame.
-        if (ptile._vertexLightingCache.isValid(game_frame_all)) {
+        if (ptile._vertexLightingCache.isValid(_gameEngine->getNumberOfFramesRendered())) {
             continue;
         }
 
@@ -1738,7 +1728,7 @@ void GridIllumination::light_fans_update_clst(Ego::Graphics::TileList& tl)
 
         // This tile was updated this frame and does not require an update (for some time).
 		ptile._vertexLightingCache.setNeedUpdate(false);
-		ptile._vertexLightingCache._lastFrame = game_frame_all;
+		ptile._vertexLightingCache._lastFrame = _gameEngine->getNumberOfFramesRendered();
     }
 }
 
@@ -1835,11 +1825,11 @@ gfx_rv gfx_make_dynalist(dynalist_t& dyl, Camera& cam)
     dynalight_data_t * plight_max = NULL;
 
     // HACK: if dynalist is ahead of the game by 30 frames or more, reset and force an update
-    if ((Uint32)(dyl.frame + 30) >= game_frame_all)
+    if ((Uint32)(dyl.frame + 30) >= _gameEngine->getNumberOfFramesRendered())
         dyl.frame = -1;
 
     // do not update the dynalist more than once a frame
-    if (dyl.frame >= 0 && (Uint32)dyl.frame >= game_frame_all)
+    if (dyl.frame >= 0 && (Uint32)dyl.frame >= _gameEngine->getNumberOfFramesRendered())
     {
         return gfx_success;
     }
@@ -1896,7 +1886,7 @@ gfx_rv gfx_make_dynalist(dynalist_t& dyl, Camera& cam)
                 if (dyl.lst[tnc].distance > distance_max)
                 {
                     plight_max = dyl.lst + tnc;
-                    distance_max = plight->distance;
+                    distance_max = plight_max->distance;
                 }
             }
         }
@@ -1911,7 +1901,7 @@ gfx_rv gfx_make_dynalist(dynalist_t& dyl, Camera& cam)
     }
 
     // the list is updated, so update the frame count
-    dyl.frame = game_frame_all;
+    dyl.frame = _gameEngine->getNumberOfFramesRendered();
 
     return gfx_success;
 }
@@ -2085,7 +2075,7 @@ gfx_rv GridIllumination::do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_
     sum_global_lighting(global_lighting);
 
     // make the grids update their lighting every 4 frames
-    local_keep = 0.0f; //std::pow(DYNALIGHT_KEEP, 4);
+    local_keep = 0.0f; //std::pow(DYNALIGHT_KEEP, 4); //const static float DYNALIGHT_KEEP = 0.9f;
 
     // Add to base light level in normal mode
     for (size_t entry = 0; entry < tl._all.size; entry++)
@@ -2099,7 +2089,7 @@ gfx_rv GridIllumination::do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_
         ego_tile_info_t& ptile = mesh->getTileInfo(fan);
 
         // do not update this more than once a frame
-        if (ptile._cache_frame >= 0 && (uint32_t)ptile._cache_frame >= game_frame_all) continue;
+        if (ptile._cache_frame >= 0 && (uint32_t)ptile._cache_frame >= _gameEngine->getNumberOfFramesRendered()) continue;
 
         ix = fan.getI() % pinfo.getTileCountX();
         iy = fan.getI() / pinfo.getTileCountX();
@@ -2107,7 +2097,7 @@ gfx_rv GridIllumination::do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_
         // Resist the lighting calculation?
         // This is a speedup for lighting calculations so that
         // not every light-tile calculation is done every single frame
-        resist_lighting_calculation = (0 != (((ix + iy) ^ game_frame_all) & 0x03));
+        resist_lighting_calculation = (0 != (((ix + iy) ^ _gameEngine->getNumberOfFramesRendered()) & 0x03));
 
         if (resist_lighting_calculation) continue;
 
@@ -2189,7 +2179,7 @@ gfx_rv GridIllumination::do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_
         // find the max intensity
         pcache_old.max_light();
 
-        ptile._cache_frame = game_frame_all;
+        ptile._cache_frame = _gameEngine->getNumberOfFramesRendered();
     }
 
     return gfx_success;
@@ -2202,8 +2192,8 @@ gfx_rv gfx_make_tileList(Ego::Graphics::TileList& tl, Camera& cam)
 
     // Because the main loop of the program will always flip the
     // page before rendering the 1st frame of the actual game,
-    // game_frame_all will always start at 1
-    if (1 != (game_frame_all & 3))
+    // _gameEngine->getNumberOfFramesRendered() will always start at 1
+    if (1 != (_gameEngine->getNumberOfFramesRendered() & 3))
     {
         return gfx_success;
     }
@@ -2347,7 +2337,7 @@ gfx_rv gfx_update_flashing(Ego::Graphics::EntityList& el)
         // Do flashing
         if (DONTFLASH != object->getProfile()->getFlashAND())
         {
-            if (HAS_NO_BITS(game_frame_all, object->getProfile()->getFlashAND()))
+            if (HAS_NO_BITS(_gameEngine->getNumberOfFramesRendered(), object->getProfile()->getFlashAND()))
             {
 				object->inst.flash(255);
             }
@@ -2359,7 +2349,7 @@ gfx_rv gfx_update_flashing(Ego::Graphics::EntityList& el)
         tmp_seekurse_level = std::min(local_stats.seekurse_level, 1.0f);
         if ((local_stats.seekurse_level > 0.0f) && object->iskursed && 1.0f != tmp_seekurse_level)
         {
-            if (HAS_NO_BITS(game_frame_all, SEEKURSEAND))
+            if (HAS_NO_BITS(_gameEngine->getNumberOfFramesRendered(), SEEKURSEAND))
             {
 				object->inst.flash(255.0f *(1.0f - tmp_seekurse_level));
             }

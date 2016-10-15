@@ -62,7 +62,7 @@ MapEditorState::MapEditorState(std::shared_ptr<ModuleProfile> module) :
     mapCenter.x() = _currentModule->getMeshPointer()->_info.getTileCountX()*Info<float>::Grid::Size() * 0.5f;
     mapCenter.y() = _currentModule->getMeshPointer()->_info.getTileCountY()*Info<float>::Grid::Size() * 0.5f;
     mapCenter.z() = _currentModule->getMeshPointer()->getElevation(Vector2f(mapCenter.x(), mapCenter.y()), false);
-    _cameraSystem->getMainCamera()->setPosition(mapCenter);
+    CameraSystem::get().getMainCamera()->setPosition(mapCenter);
 }
 
 void MapEditorState::addModeEditButton(EditorMode mode, const std::string &label)
@@ -98,7 +98,7 @@ void MapEditorState::update()
     _currentModule->getWater().move();
 
     //Update camera movement
-    _cameraSystem->getMainCamera()->updateFreeControl();
+    CameraSystem::get().getMainCamera()->updateFreeControl();
 }
 
 void MapEditorState::drawContainer(Ego::GUI::DrawingContext& drawingContext)
@@ -107,7 +107,7 @@ void MapEditorState::drawContainer(Ego::GUI::DrawingContext& drawingContext)
 
     //Draw passages?
     if(_editMode == EditorMode::MAP_EDIT_PASSAGES) {
-        draw_passages(*_cameraSystem->getMainCamera());
+        draw_passages(*CameraSystem::get().getMainCamera());
     }
 }
 
@@ -146,8 +146,8 @@ void MapEditorState::loadModuleData(std::shared_ptr<ModuleProfile> module)
 
     // set up the cameras *after* game_begin_module() or the player devices will not be initialized
     // and camera_system_begin() will not set up the correct view
-    _cameraSystem = CameraSystem::request(1);
-    _cameraSystem->getMainCamera()->setCameraMovementMode(CameraMovementMode::Free);
+    CameraSystem::get().initialize(1);
+    CameraSystem::get().getMainCamera()->setCameraMovementMode(CameraMovementMode::Free);
 
     // make sure the per-module configuration settings are correct
     config_synch(&egoboo_config_t::get(), true, false);

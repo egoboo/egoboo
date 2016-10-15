@@ -287,7 +287,9 @@ std::shared_ptr<MD2Model> MD2Model::loadFromFile(const std::string &fileName)
             cmd_size += sizeof(int32_t) / sizeof(int32_t);
 
             // auto-convert the byte ordering
+#if SDL_BYTEORDER != SDL_LIL_ENDIAN
             commands = ENDIAN_TO_SYS_INT32( commands );
+#endif
 
             if ( 0 == commands || cmd_size == md2Header.size_glcmds ) break;
 

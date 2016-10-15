@@ -191,6 +191,12 @@ public:
     **/
     uint32_t getCurrentUpdateFrame() const;
 
+    /**
+    * @brief
+    *   Get the number of frames that have been rendered so far
+    **/
+    uint32_t getNumberOfFramesRendered() const;
+
 private:
     /**
     * @brief
@@ -239,7 +245,6 @@ private:
 
 private:
     std::chrono::high_resolution_clock::time_point _startupTimestamp;
-    bool _isInitialized;
     bool _terminateRequested;		///< true if the GameEngine should deinitialize and shutdown
     uint64_t _updateTimeout;		///< Timestamp when updateOneFrame() should be run again
     uint64_t _renderTimeout;		///< Timestamp when renderOneFrame() should be run again
@@ -260,6 +265,8 @@ private:
     uint32_t _lastUPSCount;
     float _estimatedFPS;
     float _estimatedUPS;
+
+    uint32_t _totalFramesRendered; ///< The total number of frames drawn so far
 
     //GameEngine Submodules
     std::unique_ptr<Ego::GUI::UIManager> _uiManager;

@@ -230,7 +230,6 @@ gfx_rv TileListV2::render_hmap_fan(const ego_mesh_t * mesh, const Index1D& tileI
     int cnt, vertex;
     size_t badvertex;
     int ix, iy, ix_off[4] = {0, 1, 1, 0}, iy_off[4] = {0, 0, 1, 1};
-    Uint8  type, twist;
 
     if (NULL == mesh) {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "NULL mesh");
@@ -251,10 +250,7 @@ gfx_rv TileListV2::render_hmap_fan(const ego_mesh_t * mesh, const Index1D& tileI
     // vertex is a value from 0-15, for the meshcommandref/u/v variables
     // badvertex is a value that references the actual vertex number
 
-    type = ptile._type;                     // Command type ( index to points in itile )
-    twist = ptile._twist;
-
-    type &= 0x3F;
+    const uint8_t twist = ptile._twist;
 
     // Original points
     badvertex = ptile._vrtstart;          // Get big reference value
@@ -738,9 +734,7 @@ void Reflective0::doReflectionsEnabled(::Camera& camera, const TileList& tl, con
 		// speed-up drawing of surfaces with alpha == 0.0f sections
 		renderer.setAlphaFunction(CompareFunction::Greater, 0.0f);
 		// reduce texture hashing by loading up each texture only once
-		if (tl._mesh) {
-			Internal::TileListV2::render(*tl._mesh, tl._reflective);
-		}
+		Internal::TileListV2::render(*tl.getMesh(), tl._reflective);
 	}
 }
 
@@ -778,9 +772,7 @@ void Reflective1::doReflectionsEnabled(::Camera& camera, const TileList& tl, con
 		renderer.setBlendFunction(BlendFunction::SourceAlpha, BlendFunction::One);
 
 		// reduce texture hashing by loading up each texture only once
-		if (tl._mesh) {
-			Internal::TileListV2::render(*tl._mesh, tl._reflective);
-		}
+		Internal::TileListV2::render(*tl.getMesh(), tl._reflective);
 	}
 }
 
@@ -804,9 +796,7 @@ void Reflective1::doReflectionsDisabled(::Camera& camera, const TileList& tl, co
 		renderer.setAlphaFunction(CompareFunction::Greater, 0.0f);
 
 		// reduce texture hashing by loading up each texture only once
-		if (tl._mesh) {
-			Internal::TileListV2::render(*tl._mesh, tl._reflective);
-		}
+		Internal::TileListV2::render(*tl.getMesh(), tl._reflective);
 	}
 }
 
@@ -831,9 +821,7 @@ void NonReflective::doRun(::Camera& camera, const TileList& tl, const EntityList
 		renderer.setAlphaFunction(CompareFunction::Greater, 0.0f);
 
 		// reduce texture hashing by loading up each texture only once
-		if (tl._mesh) {
-			Internal::TileListV2::render(*tl._mesh, tl._nonReflective);
-		}
+		Internal::TileListV2::render(*tl.getMesh(), tl._nonReflective);
 	}
 	OpenGL::Utilities::isError();
 }

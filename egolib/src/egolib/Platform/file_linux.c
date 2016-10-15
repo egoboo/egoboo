@@ -50,7 +50,6 @@ extern int sys_fs_init(const char *root_dir);
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // Paths that the game will deal with
-static char _binaryPath[PATH_MAX]   = EMPTY_CSTR;
 static char _dataPath[PATH_MAX]     = EMPTY_CSTR;
 static char _userPath[PATH_MAX] = EMPTY_CSTR;
 static char _configPath[PATH_MAX]   = EMPTY_CSTR;
@@ -68,40 +67,50 @@ int sys_fs_init(const char *root_dir)
 
     printf("initializing filesystem services\n");
 
-    // grab the user's home directory
-    char *userHome = getenv("HOME");
-    snprintf(_userPath, SDL_arraysize(_userPath), "%s/.egoboo-2.x", userHome);
-
 #if defined(_NIX_PREFIX) && defined(PREFIX)
     // the access to these directories is completely unknown
     // The default setting from the Makefile is to set PREFIX = "/usr/local",
     // so that the program will compile and install just like any other
     // .rpm or .deb package.
 
+    // grab the user's home directory
+    char *userHome = getenv("HOME");
+    snprintf(_userPath, SDL_arraysize(_userPath), "%s/.egoboo-2.x", userHome);
+
     snprintf(_configPath, SDL_arraysize(_configPath), "%s/etc/egoboo-2.x/", PREFIX);
-    snprintf(_binaryPath, SDL_arraysize(_binaryPath), "%s/games/", PREFIX);
     snprintf(_dataPath, SDL_arraysize(_dataPath), "%s/share/games/egoboo-2.x/", PREFIX);
 #elif !defined(_NIX_PREFIX) && defined(_DEBUG)
     // assume we are debugging using the "install directory" rather than using a real installation
     strncpy(_configPath, ".", SDL_arraysize(_configPath));
-    strncpy(_binaryPath, ".", SDL_arraysize(_binaryPath));
     strncpy(_dataPath, ".", SDL_arraysize(_dataPath));
     strncpy(_userPath, ".", SDL_arraysize(_userPath));
 #else
+    //Writeable directories
+    char* applicationPreferencePath = SDL_GetPrefPath("egoboo", "egoboo");
+    if(!applicationPreferencePath) {
+        applicationPreferencePath = (char*)SDL_malloc(128);
+        snprintf(_userPath, SDL_arraysize(_userPath), "%s/.egoboo", getenv("HOME"));        
+    }
+    strncpy(_configPath, applicationPreferencePath, SDL_arraysize(_configPath));
+    strncpy(_userPath, applicationPreferencePath, SDL_arraysize(_userPath));
+    SDL_free(applicationPreferencePath);
+
     // these are read-only directories
-    strncpy(_configPath, "/etc/egoboo-2.x/", SDL_arraysize(_configPath));
-    strncpy(_binaryPath, "/usr/games/", SDL_arraysize(_binaryPath));
-    strncpy(_dataPath, "/usr/share/games/egoboo-2.x/", SDL_arraysize(_dataPath));
+    char* applicationPath = SDL_GetBasePath();
+    if(applicationPath == nullptr) {
+        applicationPath = SDL_strdup("./");
+    }
+    strncpy(_dataPath, applicationPath, SDL_arraysize(_dataPath));
+    SDL_free(applicationPath);
 #endif
 
     // the log file cannot be started until there is a user data path to dump the file into
     // so dump this debug info to stdout
     printf("Game directories are:\n"
-           "\tBinaries: %s\n"
            "\tData: %s\n"
            "\tUser: %s\n"
            "\tConfiguration: %s\n",
-           _binaryPath, _dataPath, _userPath, _configPath);
+           _dataPath, _userPath, _configPath);
 
     if (!fs_fileIsDirectory(_userPath))
     {
@@ -248,11 +257,6 @@ void fs_findClose(fs_find_context_t *fs_search)
 
 	fs_search->type = unknown_find;
 	fs_search->ptr.v = nullptr;
-}
-
-std::string fs_getBinaryDirectory()
-{
-    return _binaryPath;
 }
 
 std::string fs_getDataDirectory()

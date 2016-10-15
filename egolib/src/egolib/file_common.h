@@ -104,8 +104,6 @@ int fs_init(const char *argv0);
 
 /// @brief Get the binary directory pathname.
 /// @return the binary directory pathname
-std::string fs_getBinaryDirectory();
-
 /// @brief Get the data directory pathname
 /// @return the data directory pathname
 std::string fs_getDataDirectory();

@@ -49,7 +49,6 @@ const std::string GameEngine::GAME_VERSION = "2.9.0";
 
 GameEngine::GameEngine() :
     _startupTimestamp(),
-	_isInitialized(false),
 	_terminateRequested(false),
 	_updateTimeout(0),
 	_renderTimeout(0),
@@ -67,6 +66,8 @@ GameEngine::GameEngine() :
     _lastUPSCount(0),
     _estimatedFPS(GAME_TARGET_FPS),
     _estimatedUPS(GAME_TARGET_UPS),
+
+    _totalFramesRendered(0),
 
     // Subscriptions
     shown(),
@@ -135,7 +136,7 @@ void GameEngine::start()
             renderOneFrame();
 
             // Stabilize FPS throttle every so often in case rendering is lagging behind
-            if(game_frame_all % GAME_TARGET_FPS == 0)
+            if(_totalFramesRendered % GAME_TARGET_FPS == 0)
             {
                 _renderTimeout = getMicros() + DELAY_PER_RENDER_FRAME;
             }
@@ -147,11 +148,12 @@ void GameEngine::start()
         else
         {
             //Don't hog CPU if we have nothing to do
-            int delay = std::min<int64_t>(_renderTimeout-getMicros(), _updateTimeout-getMicros());
-            if(delay > 1)
-            {
+            uint64_t now = getMicros();
+            if(now < _renderTimeout && now < _updateTimeout) {
+                int delay = std::min(_renderTimeout-now, _updateTimeout-now);
                 std::this_thread::sleep_for(std::chrono::microseconds(delay));
             }
+
         }
 
         // Calculate estimations for FPS and UPS
@@ -171,10 +173,10 @@ void GameEngine::estimateFrameRate()
         return;
     }
 
-    _estimatedFPS = (game_frame_all-_lastFPSCount) / dt;
+    _estimatedFPS = (_totalFramesRendered-_lastFPSCount) / dt;
     _estimatedUPS = (update_wld-_lastUPSCount) / dt;
 
-    _lastFPSCount = game_frame_all;
+    _lastFPSCount = _totalFramesRendered;
     _lastUPSCount = update_wld;
     _lastFrameEstimation = now;
 }
@@ -234,7 +236,7 @@ void GameEngine::renderOneFrame()
 
     Ego::GUI::DrawingContext drawingContext;
     _currentGameState->drawAll(drawingContext);
-    game_frame_all++;
+    _totalFramesRendered++;
 
     //Draw mouse cursor last
     if(_drawCursor)
@@ -295,7 +297,8 @@ bool GameEngine::initialize()
     Ego::Input::InputSystem::initialize();
 
     // camera options
-    CameraSystem::getCameraOptions().turnMode = egoboo_config_t::get().camera_control.getValue();
+    CameraSystem::Singleton::initialize();
+    CameraSystem::get().getCameraOptions().turnMode = egoboo_config_t::get().camera_control.getValue();
 
     // renderer options
     gfx_config_t::download(gfx, egoboo_config_t::get());
@@ -309,6 +312,7 @@ bool GameEngine::initialize()
 
     // Initialize the GFX system.
     GFX::initialize();
+    
     // Subscribe to window events.
     subscribe();
 
@@ -647,4 +651,9 @@ int SDL_main(int argc, char **argv)
 uint32_t GameEngine::getCurrentUpdateFrame() const
 {
     return update_wld;
+}
+
+uint32_t GameEngine::getNumberOfFramesRendered() const
+{
+    return _totalFramesRendered;
 }

@@ -25,7 +25,6 @@
 #include "game/Core/GameEngine.hpp"
 #include "game/Shop.hpp"
 #include "game/CharacterMatrix.h"
-#include "game/ObjectAnimation.h"
 
 namespace Ego
 {
@@ -370,8 +369,6 @@ float ObjectPhysics::getMaxSpeed() const
         maxspeed *= _object.ai.maxSpeed;
     }
 
-    bool sneak_mode_active = _object.isStealthed();
-
     //Reduce speed while stealthed
     if(_object.isStealthed()) {
         if(_object.hasPerk(Ego::Perks::SHADE)) {
@@ -383,17 +380,6 @@ float ObjectPhysics::getMaxSpeed() const
         else {
             maxspeed *= 0.33f;  //Can only move at 33% speed while stealthed
         }
-    }
-
-    if ( sneak_mode_active )
-    {
-        // sneak mode
-        _object.movement_bits = CHR_MOVEMENT_BITS_SNEAK | CHR_MOVEMENT_BITS_STOP;
-    }
-    else
-    {
-        // non-sneak mode
-        _object.movement_bits = ( unsigned )( ~CHR_MOVEMENT_BITS_SNEAK );
     }
 
     return maxspeed;    

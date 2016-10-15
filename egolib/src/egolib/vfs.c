@@ -55,7 +55,6 @@ typedef struct s_vfs_path_data vfs_path_data_t;
 	if(!_vfs_initialized) { \
 		std::ostringstream os; \
 		os << __FUNCTION__ << ": EgoLib VFS function called while the VFS was not initialized" << std::endl; \
-		Log::get().error("%s", os.str().c_str()); \
 		throw std::runtime_error(os.str()); \
 	}
 
@@ -172,8 +171,6 @@ int vfs_init(const char *argv0, const char *root_dir)
     
     if (!fs_fileIsDirectory(fs_getDataDirectory()))
     {
-        // We can call log functions, they won't try to write to unopened log files
-        // But mainly this is used for sys_popup
         Log::get().error("The data path isn't a directory.\nData path: '%s'\n", fs_getDataDirectory().c_str());
         return 1;
     }
@@ -1440,7 +1437,6 @@ int vfs_printf( vfs_FILE * pfile, const char *format, ... )
 
     if ( NULL == pfile ) return 0;
 
-    retval = 0;
     va_start( args, format );
     if ( VFS_FILE_TYPE_CSTDIO == pfile->type )
     {

@@ -53,7 +53,6 @@ extern int sys_fs_init(const char *argv0);
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // Paths that the game will deal with
-static char _binaryPath[MAX_PATH] = EMPTY_CSTR;
 static char _dataPath[MAX_PATH] = EMPTY_CSTR;
 static char _userPath[MAX_PATH] = EMPTY_CSTR;
 static char _configPath[MAX_PATH] = EMPTY_CSTR;
@@ -73,14 +72,7 @@ static bool computeUserDataPath()
     strncat(_userPath, SLASH_STR "Egoboo", MAX_PATH);
     return true;
 }
-/// @brief Compute the binary path.
-/// @return @a true on success, @a false on failure
-static bool computeBinaryPath()
-{
-    GetModuleFileName(NULL, _binaryPath, MAX_PATH);
-    PathRemoveFileSpec(_binaryPath);
-    return true;
-}
+
 /// @brief Compute the basicdata path.
 /// @return @a true on success, @a false on failure
 static bool computeBasicDataPath()
@@ -98,11 +90,15 @@ static bool computeBasicDataPath()
     }
     // IF (1) failed
     // THEN check for data in the binary directory
-    snprintf(temporary, MAX_PATH, "%s" SLASH_STR "basicdat", _binaryPath);
+    char binaryPath[MAX_PATH];
+    GetModuleFileName(NULL, binaryPath, MAX_PATH);
+    PathRemoveFileSpec(binaryPath);
+
+    snprintf(temporary, MAX_PATH, "%s" SLASH_STR "basicdat", binaryPath);
     attrib = GetFileAttributes(temporary);
     if (HAS_ATTRIBS(FILE_ATTRIBUTE_DIRECTORY, attrib))
     {
-        strncpy(_dataPath, _binaryPath, MAX_PATH);
+        strncpy(_dataPath, binaryPath, MAX_PATH);
         return true;
     }
     return false;
@@ -118,12 +114,6 @@ int sys_fs_init(const char *argv0)
         printf(" FAILURE: could not find user data path!\n");
         return 1;
     }
-    if (!computeBinaryPath())
-    {
-        // Fatal error here, we can't find the binary path.
-        printf(" FAILURE: could not find binary path!\n");
-        return 1;
-    }
     if (!computeBasicDataPath())
     {
         // Fatal error here, we can't find the basic data path.
@@ -136,14 +126,9 @@ int sys_fs_init(const char *argv0)
 
     // the log file cannot be started until there is a user data path to dump the file into
     // so dump this debug info to stdout
-    printf("Game directories are:\n\tBinaries: %s\n\tData: %s\n\tUser Data: %s\n\tConfig Files: %s\n",
-           _binaryPath, _dataPath, _userPath, _configPath);
+    printf("Game directories are:\n\tData: %s\n\tUser Data: %s\n\tConfig Files: %s\n",
+           _dataPath, _userPath, _configPath);
     return 0;
-}
-
-std::string fs_getBinaryDirectory()
-{
-    return _binaryPath;
 }
 
 std::string fs_getDataDirectory()

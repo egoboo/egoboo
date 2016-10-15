@@ -242,7 +242,7 @@ struct Transform {
     }
 
     static Matrix4f4f rotationY(const Ego::Math::Turns& a) {
-        return rotationY(Ego::Math::Turns(a));
+        return rotationY(Ego::Math::Radians(a));
     }
 
     static Matrix4f4f rotationY(const Ego::Math::Radians& a) {

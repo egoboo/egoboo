@@ -455,7 +455,7 @@ float AudioSystem::getSoundDistance(const Vector3f& soundPosition)
 {
     //Pick the camera that is nearest to the sound
     float distance = std::numeric_limits<float>::max();
-    for(const std::shared_ptr<Camera> &camera : CameraSystem::get()->getCameraList()) {
+    for(const std::shared_ptr<Camera> &camera : CameraSystem::get().getCameraList()) {
         Vector3f cameraPosition = Vector3f(camera->getCenter().x(), camera->getCenter().y(), camera->getPosition().z());
         distance = std::min(distance, (cameraPosition - soundPosition).length());
     }
@@ -469,13 +469,13 @@ void AudioSystem::mixAudioPosition3D(const int channel, float distance, const Ve
     //Calculate the average position and rotation of all cameras
     Vector2f averageCameraPosition = Vector2f::zero();
     auto averageRotation = Ego::Math::Turns(0.0f);
-    for(const std::shared_ptr<Camera>& camera : CameraSystem::get()->getCameraList()) {
+    for(const std::shared_ptr<Camera>& camera : CameraSystem::get().getCameraList()) {
         averageCameraPosition.x() += camera->getCenter().x();
         averageCameraPosition.y() += camera->getCenter().y();
         averageRotation += camera->getTurnZ_turns();
     }
-    averageCameraPosition *= 1.0f / CameraSystem::get()->getCameraList().size();
-    averageRotation /= CameraSystem::get()->getCameraList().size();
+    averageCameraPosition *= 1.0f / CameraSystem::get().getCameraList().size();
+    averageRotation /= CameraSystem::get().getCameraList().size();
 
     //Scale distance (0 is very close 255 is very far away)
     distance *= 255.0f / _maxSoundDistance;
@@ -536,12 +536,6 @@ int AudioSystem::playSound(const Vector3f& snd_pos, const SoundID soundID)
     if (!egoboo_config_t::get().sound_effects_enable.getValue())
     {
         // ... return invalid channel.
-        return INVALID_SOUND_CHANNEL;
-    }
-
-    // Don't play sounds until the camera has been properly initialized.
-    if (!CameraSystem::get())
-    {
         return INVALID_SOUND_CHANNEL;
     }
 

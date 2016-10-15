@@ -23,6 +23,8 @@
 
 #include "game/Graphics/TileList.hpp"
 #include "game/graphic.h"
+#include "game/Core/GameEngine.hpp" //only for _currentModule
+#include "game/Module/Module.hpp" //only for _currentModule
 
 namespace Ego {
 namespace Graphics {
@@ -41,7 +43,6 @@ bool renderlist_lst_t::push(const Index1D& index, float distance) {
 }
 
 TileList::TileList() :
-	_mesh(nullptr), 
 	_all(), 
 	_ref(), 
 	_sha(), 
@@ -65,44 +66,28 @@ void TileList::init()
 	_reflective.reset();
 	_nonReflective.reset();
 	_water.reset();
-
-	_mesh = nullptr;
 }
 
 gfx_rv TileList::reset()
 {
-	if (!_mesh)
-	{
-		Log::get().error("%s:%s:%d: tile list not attached to a mesh\n", __FILE__, __FUNCTION__, __LINE__);
-		return gfx_error;
-	}
-
 	// Clear out the "in render list" flag for the old mesh.
 	_lastRenderTiles = _renderTiles;
 	_renderTiles.reset();
 
 	// Re-initialize the renderlist.
-	auto mesh = _mesh;
 	init();
-	setMesh(mesh);
 
 	return gfx_success;
 }
 
 gfx_rv TileList::insert(const Index1D& index, const ::Camera &cam)
 {
-	if (!_mesh)
-	{
-		Log::get().error("%s:%s:%d: tile list not attached to a mesh\n", __FILE__, __FUNCTION__, __LINE__);
-		return gfx_error;
-	}
-
 	// check for a valid tile
-	if (index >= _mesh->_tmem.getInfo().getTileCount())
+	if (index >= getMesh()->_tmem.getInfo().getTileCount())
 	{
 		return gfx_fail;
 	}
-	ego_tile_info_t& ptile = _mesh->_tmem.get(index);
+	ego_tile_info_t& ptile = getMesh()->_tmem.get(index);
 
 	// we can only accept so many tiles
 	if (_all.size >= renderlist_lst_t::CAPACITY)
@@ -110,8 +95,8 @@ gfx_rv TileList::insert(const Index1D& index, const ::Camera &cam)
 		return gfx_fail;
 	}
 
-	int ix = index.getI() % _mesh->_info.getTileCountX();
-	int iy = index.getI() / _mesh->_info.getTileCountX();
+	int ix = index.getI() % getMesh()->_info.getTileCountX();
+	int iy = index.getI() / getMesh()->_info.getTileCountX();
 	float dx = (ix + Info<float>::Grid::Size() * 0.5f) - cam.getCenter()[kX];
 	float dy = (iy + Info<float>::Grid::Size() * 0.5f) - cam.getCenter()[kY];
 	float distance = dx * dx + dy * dy;
@@ -148,12 +133,7 @@ gfx_rv TileList::insert(const Index1D& index, const ::Camera &cam)
 
 std::shared_ptr<ego_mesh_t> TileList::getMesh() const
 {
-	return _mesh;
-}
-
-void TileList::setMesh(std::shared_ptr<ego_mesh_t> mesh)
-{
-	_mesh = mesh;
+	return _currentModule->getMeshPointer();
 }
 
 gfx_rv TileList::add(const Index1D& index, ::Camera& camera)
@@ -162,7 +142,7 @@ gfx_rv TileList::add(const Index1D& index, ::Camera& camera)
 
 	// if the tile was not in the renderlist last frame, then we need to force a lighting update of this tile
 	if(!_lastRenderTiles[index.getI()]) {
-		ego_tile_info_t& tile = _mesh->_tmem.get(index);
+		ego_tile_info_t& tile = getMesh()->_tmem.get(index);
 		tile._lightingCache.setNeedUpdate(true);
 		tile._lightingCache.setLastFrame(-1);
 	}

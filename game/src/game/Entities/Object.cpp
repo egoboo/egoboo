@@ -27,11 +27,11 @@
 #include "game/Entities/Object.hpp"
 #include "game/Entities/ObjectHandler.hpp"
 #include "game/Entities/ParticleHandler.hpp"
+#include "game/Entities/Enchant.hpp"
 #include "game/Logic/Player.hpp"
 #include "game/game.h"
 #include "egolib/Graphics/ModelDescriptor.hpp"
 #include "game/script_implementation.h" //for stealth
-#include "game/ObjectAnimation.h"
 #include "game/CharacterMatrix.h"
 
 //For the minimap
@@ -117,7 +117,6 @@ Object::Object(const PRO_REF proRef, ObjectRef objRef) :
     bumplist_next(),
 
     turnmode(TURNMODE_VELOCITY),
-    movement_bits(std::numeric_limits<BIT_FIELD>::max()),    // all movements valid
 
     inwater(false),
     dismount_timer(0),  /// @note ZF@> If this is != 0 then scorpion claws and riders are dropped at spawn (non-item objects)
@@ -762,8 +761,8 @@ void Object::update()
                     && getPosZ() + chr_min_cv._mins[OCT_Z] < _currentModule->getWater().get_level())
                 {
                     // suppress ripples if we are far below the surface
-                    int ripple_suppression = _currentModule->getWater().get_level() - (getPosZ() + chr_min_cv._maxs[OCT_Z]);
-                    ripple_suppression = ( 4 * ripple_suppression ) / RIPPLETOLERANCE;
+                    int ripple_suppression = 4 * (_currentModule->getWater().get_level() - (getPosZ() + chr_min_cv._maxs[OCT_Z]));
+                    ripple_suppression = ripple_suppression / RIPPLETOLERANCE;
                     ripple_suppression = Ego::Math::constrain(ripple_suppression, 0, 4);
 
                     // make more ripples if we are moving
@@ -1704,7 +1703,7 @@ BIT_FIELD Object::hit_wall(const Vector3f& pos, Vector2f& nrm, float *pressure)
 
 	// Calculate the radius based on whether the character is on camera.
 	float radius = 0.0f;
-	if (CameraSystem::get() && CameraSystem::get()->getMainCamera()->getTileList()->inRenderList(getTile()))
+	if (CameraSystem::get().isInitialized() && CameraSystem::get().getMainCamera()->getTileList()->inRenderList(getTile()))
 	{
 		radius = bump_1.size;
 	}
@@ -1728,7 +1727,7 @@ BIT_FIELD Object::hit_wall(const Vector3f& pos, Vector2f& nrm, float * pressure,
 
     // Calculate the radius based on whether the character is on camera.
 	float radius = 0.0f;
-	if (CameraSystem::get() && CameraSystem::get()->getMainCamera()->getTileList()->inRenderList(getTile()))
+	if (CameraSystem::get().isInitialized() && CameraSystem::get().getMainCamera()->getTileList()->inRenderList(getTile()))
 	{
 		radius = bump_1.size;
 	}
@@ -1758,7 +1757,7 @@ BIT_FIELD Object::test_wall(const Vector3f& pos)
 #if 0
 	if (egoboo_config_t::get().debug_developerMode_enable.getValue() && !SDL_KEYDOWN(keyb, SDLK_F8))
 	{
-		if (CameraSystem::get() && CameraSystem::get()->getMainCamera()->getTileList()->inRenderList(getTile()))
+		if (CameraSystem::get() && CameraSystem::get().getMainCamera()->getTileList()->inRenderList(getTile()))
 		{
 			radius = bump_1.size;
 		}
@@ -1782,7 +1781,7 @@ bool Object::costMana(int amount, const ObjectRef killer)
     const std::shared_ptr<Object> &pkiller = _currentModule->getObjectHandler()[killer];
 
     bool manaPaid  = false;
-    int manaFinal = FLOAT_TO_FP8(getMana()) - amount;
+    int manaFinal = static_cast<int>(FLOAT_TO_FP8(getMana())) - amount;
 
     if (manaFinal < 0)
     {
@@ -2056,6 +2055,9 @@ float Object::getAttribute(const Ego::Attribute::AttributeType type) const
             if(hasPerk(Ego::Perks::ATHLETICS)) {
                 attributeValue *= 1.25f;
             }
+
+            //Every point of Might increases jump power by 1%
+            attributeValue *= 1.0f + (getAttribute(Ego::Attribute::MIGHT) / 100.0f);
         break;
 
         //Limit lowest acceleration to zero
@@ -2775,12 +2777,13 @@ bool Object::hasSkillIDSZ(const IDSZ2& whichskill) const
 
 void Object::dropMoney(int amount)
 {
-    static constexpr std::array<int, PIP_MONEY_COUNT> vals = {1, 5, 25, 100, 200, 500, 1000, 2000};
+    static constexpr std::array<int, PIP_MONEY_COUNT> vals = {2000, 1000, 500, 200, 100, 25, 5, 1};
     static constexpr std::array<PIP_REF, PIP_MONEY_COUNT> pips =
     {
-        PIP_COIN1, PIP_COIN5, PIP_COIN25, PIP_COIN100,
-        PIP_GEM200, PIP_GEM500, PIP_GEM1000, PIP_GEM2000
+        PIP_GEM2000, PIP_GEM1000, PIP_GEM500, PIP_GEM200, 
+        PIP_COIN100, PIP_COIN25, PIP_COIN5, PIP_COIN1
     };
+    static_assert(vals.size() == pips.size(), "Number of money particles != list size for value of money particles");
 
     // limit the about of money to the character's actual money
     amount = Ego::Math::constrain<int>(amount, 0, getMoney());
@@ -2802,14 +2805,14 @@ void Object::dropMoney(int amount)
     damage_timer = DAMAGETIME;
 
     // count and spawn the various denominations
-    for (size_t cnt = PIP_MONEY_COUNT - 1; amount > 0; cnt--)
+    for (size_t cnt = 0; amount > 0 && cnt < vals.size(); cnt++)
     {
         int count = amount / vals[cnt];
         amount -= count * vals[cnt];
 
-        for (size_t tnc = 0; tnc < count; tnc++)
+        for (size_t i = 0; i < count; i++)
         {
-            ParticleHandler::get().spawnGlobalParticle(pos, Facing::ATK_FRONT, LocalParticleProfileRef(pips[cnt]), tnc);
+            ParticleHandler::get().spawnGlobalParticle(pos, Facing::ATK_FRONT, LocalParticleProfileRef(pips[cnt]), i);
         }
     }
 }
@@ -3039,7 +3042,7 @@ void Object::updateLatchButtons()
                 }
 
                 // Make the character jump
-                float jumpPower = getAttribute(Ego::Attribute::JUMP_POWER) * 1.5f;
+                float jumpPower = getAttribute(Ego::Attribute::JUMP_POWER);
                 hitready = true;
                 jump_timer = Object::JUMPDELAY;
 
@@ -3130,6 +3133,6 @@ void Object::updateLatchButtons()
     }
     if ( !attack_handled && _inputLatchesPressed[LATCHBUTTON_RIGHT] && 0 == reload_timer )
     {
-        attack_handled = chr_do_latch_attack(this, SLOT_RIGHT);
+        chr_do_latch_attack(this, SLOT_RIGHT);
     }
 }

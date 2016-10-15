@@ -33,7 +33,6 @@
 #include "game/Logic/Player.hpp"
 #include "game/Entities/_Include.hpp"
 #include "game/CharacterMatrix.h"
-#include "game/ObjectAnimation.h"
 
 /// @todo Remove this global.
 std::unique_ptr<GameModule> _currentModule = nullptr;
@@ -71,6 +70,7 @@ GameModule::GameModule(const std::shared_ptr<ModuleProfile> &profile, const uint
         throw Id::RuntimeErrorException(__FILE__, __LINE__, "Failed to setup module vfs"); 
     }
 
+    //Initialize random seeds
     srand( _seed );
     Random::setSeed(_seed);
 
@@ -123,7 +123,6 @@ GameModule::GameModule(const std::shared_ptr<ModuleProfile> &profile, const uint
 
     // reset some counters
     timeron = false;
-    game_frame_all = 0;
     update_wld = 0;
     clock_chr_stat = 0;    
 }

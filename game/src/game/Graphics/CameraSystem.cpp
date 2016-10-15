@@ -22,34 +22,43 @@
 #include "game/graphic.h"
 #include "game/game.h"
 #include "game/Logic/Player.hpp"
+#include "game/Core/GameEngine.hpp"
 
 #include "game/Entities/_Include.hpp"
 
-//Define static variables
-std::weak_ptr<CameraSystem> CameraSystem::_singleton;
-CameraOptions CameraSystem::_cameraOptions;
-
-CameraSystem::CameraSystem(const size_t numberOfCameras) :
+CameraSystem::CameraSystem() :
 	_initialized(false),
 	_cameraList(),
-    _mainCamera(nullptr)
+    _mainCamera(nullptr),
+    _cameraOptions()
 {
+    //ctor
+}
+
+CameraSystem::~CameraSystem()
+{
+    _cameraList.clear();
+    _initialized = false;
+    _mainCamera = nullptr;
+}
+
+void CameraSystem::initialize(const size_t numberOfCameras)
+{
+    // we're initialized.
+    _initialized = true;
+
     //Create cameras
+    _cameraList.clear();
     for(size_t i = 0; i < Ego::Math::constrain<size_t>(numberOfCameras, 1, MAX_CAMERAS); ++i) {
-        _cameraList.push_back( std::make_shared<Camera>(_cameraOptions) );
+        _cameraList.push_back(std::make_shared<Camera>(_cameraOptions));
     }
+
+    //Set camera 1 as main camera by default
+    _mainCamera = _cameraList[0];
 
     //If there are no valid players then make free movement camera
     if(numberOfCameras == 0) {
         _cameraList[0]->setCameraMovementMode(CameraMovementMode::Free);
-    }
-
-    // we're initialized.
-    _initialized = true;
-
-    //Set camera 1 as main camera by default
-    if(!_cameraList.empty()) {
-        _mainCamera = _cameraList[0];
     }
 
     // set camera size depending on resolution
@@ -62,29 +71,9 @@ CameraSystem::CameraSystem(const size_t numberOfCameras) :
     resetAllTargets(_currentModule->getMeshPointer().get());
 }
 
-CameraSystem::~CameraSystem()
-{
-    _cameraList.clear();
-    _initialized = false;
-    _mainCamera = nullptr;
-}
-
 bool CameraSystem::isInitialized()
 {
 	return _initialized;
-}
-
-void CameraSystem::resetAll(const ego_mesh_t * mesh)
-{
-	if(!isInitialized()) {
-		return;
-	}
-
-    // reset each camera
-    for(const std::shared_ptr<Camera> &camera : _cameraList)
-    {
-    	camera->reset(mesh);
-    }
 }
 
 void CameraSystem::updateAll( const ego_mesh_t * mesh )
@@ -132,7 +121,7 @@ egolib_rv CameraSystem::renderAll(std::function<void(std::shared_ptr<Camera>, st
         _mainCamera = camera;
 
 	    // has this camera already rendered this frame?
-        if ( camera->getLastFrame() >= 0 && static_cast<uint32_t>(camera->getLastFrame()) >= game_frame_all ) {
+        if ( camera->getLastFrame() >= 0 && static_cast<uint32_t>(camera->getLastFrame()) >= _gameEngine->getNumberOfFramesRendered()) {
             continue;
         }
 
@@ -146,7 +135,7 @@ egolib_rv CameraSystem::renderAll(std::function<void(std::shared_ptr<Camera>, st
         endCameraMode();
 
         //Set last update frame
-        camera->setLastFrame(game_frame_all);
+        camera->setLastFrame(_gameEngine->getNumberOfFramesRendered());
     }
 
     // reset the "global" camera pointer to whatever it was
@@ -326,18 +315,4 @@ void CameraSystem::autoSetTargets()
 CameraOptions& CameraSystem::getCameraOptions()
 {
     return _cameraOptions;
-}
-
-std::shared_ptr<CameraSystem> CameraSystem::request(size_t numberOfCameras) 
-{
-    //Check if it is already allocated
-    std::shared_ptr<CameraSystem> allocatedSystem = _singleton.lock();
-    if(allocatedSystem && allocatedSystem->_cameraList.size() >= numberOfCameras) {
-        return _singleton.lock();
-    }
-
-    //Allocate new one
-    allocatedSystem = std::make_shared<CameraSystem>(numberOfCameras);
-    _singleton = allocatedSystem;
-    return allocatedSystem;
 }

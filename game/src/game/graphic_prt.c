@@ -107,10 +107,7 @@ gfx_rv render_one_prt_solid(const ParticleRef iprt)
     // only render solid sprites
     if (SPRITE_SOLID != pprt->type) return gfx_fail;
 
-    // billboard for the particle
-    auto vb = std::make_shared<Ego::VertexBuffer>(4, Ego::GraphicsUtilities::get<Ego::VertexFormat::P3FT2F>());
-    calc_billboard_verts(*vb, pinst, pinst.size, false);
-
+    Ego::Renderer::get().setWorldMatrix(Matrix4f4f::identity());
     {
         Ego::OpenGL::PushAttrib pa(GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT);
         {
@@ -137,6 +134,10 @@ gfx_rv render_one_prt_solid(const ParticleRef iprt)
             renderer.getTextureUnit().setActivated(ParticleHandler::get().getTransparentParticleTexture().get());
 
             renderer.setColour(Ego::Math::Colour4f(pinst.fintens, pinst.fintens, pinst.fintens, 1.0f));
+
+            // billboard for the particle
+            auto vb = std::make_shared<Ego::VertexBuffer>(4, Ego::GraphicsUtilities::get<Ego::VertexFormat::P3FT2F>());
+            calc_billboard_verts(*vb, pinst, pinst.size, false);
 
             renderer.render(*vb, Ego::PrimitiveType::TriangleFan, 0, 4);
         }
@@ -181,67 +182,78 @@ gfx_rv render_one_prt_trans(const ParticleRef iprt)
             renderer.setCullingMode(Ego::CullingMode::None);
 
             Ego::Math::Colour4f particleColour;
-            bool drawParticle = false;
-            // Solid sprites.
-            if (SPRITE_SOLID == pprt->type) {
-                // Do the alpha blended edge ("anti-aliasing") of the solid particle.
-                // Only display the alpha-edge of the particle.
-                renderer.setAlphaTestEnabled(true);
-                renderer.setAlphaFunction(Ego::CompareFunction::Less, 1.0f);
 
-                renderer.setBlendingEnabled(true);
-                renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
+            switch(pprt->type)
+            {
+                // Solid sprites.
+                case SPRITE_SOLID:
+                {
+                    // Do the alpha blended edge ("anti-aliasing") of the solid particle.
+                    // Only display the alpha-edge of the particle.
+                    renderer.setAlphaTestEnabled(true);
+                    renderer.setAlphaFunction(Ego::CompareFunction::Less, 1.0f);
 
-                float fintens = inst.fintens;
-                particleColour = Ego::Math::Colour4f(fintens, fintens, fintens, 1.0f);
+                    renderer.setBlendingEnabled(true);
+                    renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
 
-                renderer.getTextureUnit().setActivated(ParticleHandler::get().getTransparentParticleTexture().get());
+                    particleColour = Ego::Math::Colour4f(inst.fintens, inst.fintens, inst.fintens, 1.0f);
 
-                drawParticle = true;
-            }
-            // Light sprites.
-            else if (SPRITE_LIGHT == pprt->type) {
-                renderer.setAlphaTestEnabled(false);
-                renderer.setBlendingEnabled(true);
-                renderer.setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::One);
+                    renderer.getTextureUnit().setActivated(ParticleHandler::get().getTransparentParticleTexture().get());
+                }
+                break;
 
-                float fintens = inst.fintens * inst.falpha;
-                particleColour = Ego::Math::Colour4f(fintens, fintens, fintens, 1.0f);
+                // Light sprites.
+                case SPRITE_LIGHT:
+                {
+                    //Is particle invisible?
+                    if(inst.fintens * inst.falpha <= 0.0f) {
+                        return gfx_success;
+                    }
 
-                renderer.getTextureUnit().setActivated(ParticleHandler::get().getLightParticleTexture().get());
+                    renderer.setAlphaTestEnabled(false);
+                    renderer.setBlendingEnabled(true);
+                    renderer.setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::One);
 
-                drawParticle = (fintens > 0.0f);
-            }
-            // Transparent sprites.
-            else if (SPRITE_ALPHA == pprt->type) {
-                // do not display the completely transparent portion
-                renderer.setAlphaTestEnabled(true);
-                renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
+                    particleColour = Ego::Math::Colour4f(1.0f, 1.0f, 1.0f, inst.fintens * inst.falpha);
 
-                renderer.setBlendingEnabled(true);
-                renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
+                    renderer.getTextureUnit().setActivated(ParticleHandler::get().getLightParticleTexture().get());
+                }
+                break;
 
-                float fintens = inst.fintens;
-                float falpha = inst.falpha;
-                particleColour = Ego::Math::Colour4f(fintens, fintens, fintens, falpha);
+                // Transparent sprites.
+                case SPRITE_ALPHA:
+                {
+                    //Is particle invisible?
+                    if(inst.falpha <= 0.0f) {
+                        return gfx_success;
+                    }
 
-                renderer.getTextureUnit().setActivated(ParticleHandler::get().getTransparentParticleTexture().get());
+                    // do not display the completely transparent portion
+                    renderer.setAlphaTestEnabled(true);
+                    renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
 
-                drawParticle = (falpha > 0.0f);
-            } else {
+                    renderer.setBlendingEnabled(true);
+                    renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
+
+                    particleColour = Ego::Math::Colour4f(inst.fintens, inst.fintens, inst.fintens, inst.falpha);
+
+                    renderer.getTextureUnit().setActivated(ParticleHandler::get().getTransparentParticleTexture().get());
+                }
+                break;
+
                 // unknown type
-                return gfx_error;
+                default:
+                    return gfx_error;
+                break;
             }
 
-            if (drawParticle) {
-                auto vb = std::make_shared<Ego::VertexBuffer>(4, Ego::GraphicsUtilities::get<Ego::VertexFormat::P3FT2F>());
-                calc_billboard_verts(*vb, inst, inst.size, false);
+            auto vb = std::make_shared<Ego::VertexBuffer>(4, Ego::GraphicsUtilities::get<Ego::VertexFormat::P3FT2F>());
+            calc_billboard_verts(*vb, inst, inst.size, false);
 
-                renderer.setColour(particleColour);
+            renderer.setColour(particleColour);
 
-                // Go on and draw it
-                renderer.render(*vb, Ego::PrimitiveType::TriangleFan, 0, 4);
-            }
+            // Go on and draw it
+            renderer.render(*vb, Ego::PrimitiveType::TriangleFan, 0, 4);
         }
     }
 
@@ -252,8 +264,6 @@ gfx_rv render_one_prt_ref(const ParticleRef iprt)
 {
     /// @author BB
     /// @details render one particle
-    int startalpha;
-
     const std::shared_ptr<Ego::Particle>& pprt = ParticleHandler::get()[iprt];
     if(!pprt || pprt->isTerminated()) {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, iprt.get(), "invalid particle");
@@ -266,17 +276,14 @@ gfx_rv render_one_prt_ref(const ParticleRef iprt)
     if (!pprt->inst.valid || !pprt->inst.ref_valid) return gfx_fail;
     prt_instance_t& inst = pprt->inst;
 
-    // Fill in the rest of the data. (make it match the case for characters)
-    startalpha = 255;
-    startalpha -= 2.0f * (pprt->enviro.floor_level - inst.ref_pos[kZ]);
-    startalpha *= 0.5f;
-    startalpha = Ego::Math::constrain(startalpha, 0, 255);
+    //Calculate the fadeoff factor depending on how high above the floor the particle is 
+    float fadeoff = 255.0f - (pprt->enviro.floor_level - inst.ref_pos.z()); //255 - distance over ground
+    fadeoff *= 0.5f;
+    fadeoff = Ego::Math::constrain(fadeoff*INV_FF<float>(), 0.0f, 1.0f);
 
-    //startalpha = ( startalpha | gfx.reffadeor ) >> 1;  // Fix for Riva owners
-    //startalpha = CLIP(startalpha, 0, 255);
-
-    if (startalpha > 0)
+    if (fadeoff > 0.0f)
     {
+        Ego::Renderer::get().setWorldMatrix(Matrix4f4f::identity());
         {
             Ego::OpenGL::PushAttrib pa(GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_CURRENT_BIT);
             {
@@ -293,56 +300,64 @@ gfx_rv render_one_prt_ref(const ParticleRef iprt)
                 // draw draw front and back faces of polygons
                 renderer.setCullingMode(Ego::CullingMode::None);
 
-                bool draw_particle = false;
-                if (SPRITE_LIGHT == pprt->type) {
-                    // do the light sprites
-                    float intens = startalpha * INV_FF<float>() * inst.falpha * inst.fintens;
+                // do not display the completely transparent portion
+                renderer.setAlphaTestEnabled(true);
+                renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
 
-                    renderer.setAlphaTestEnabled(false);
+                renderer.setBlendingEnabled(true);
+                renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
 
-                    renderer.setBlendingEnabled(true);
-                    renderer.setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::One);
+                switch(pprt->type) 
+                {
+                    case SPRITE_LIGHT:
+                    {
+                        // do the light sprites
+                        float alpha = fadeoff * inst.falpha;
 
-                    particle_colour = Ego::Math::Colour4f(intens, intens, intens, 1.0f);
+                        //Nothing to draw?
+                        if(alpha <= 0.0f) {
+                            return gfx_fail;
+                        }
 
-                    renderer.getTextureUnit().setActivated(ParticleHandler::get().getLightParticleTexture().get());
+                        particle_colour = Ego::Math::Colour4f(1.0f, 1.0f, 1.0f, alpha);
 
-                    draw_particle = intens > 0.0f;
-                } else if (SPRITE_SOLID == pprt->type || SPRITE_ALPHA == pprt->type) {
-                    // do the transparent sprites
-
-                    float alpha = startalpha * INV_FF<float>();
-                    if (SPRITE_ALPHA == pprt->type) {
-                        alpha *= inst.falpha;
+                        renderer.getTextureUnit().setActivated(ParticleHandler::get().getLightParticleTexture().get());
                     }
+                    break;
 
-                    // do not display the completely transparent portion
-                    renderer.setAlphaTestEnabled(true);
-                    renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
+                    case SPRITE_SOLID:
+                    case SPRITE_ALPHA:
+                    {
+                        float alpha = fadeoff;
+                        if (SPRITE_ALPHA == pprt->type) {
+                            alpha *= inst.falpha;
 
-                    renderer.setBlendingEnabled(true);
-                    renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
+                            //Nothing to draw?
+                            if(alpha <= 0.0f) {
+                                return gfx_fail;
+                            }
+                        }
 
-                    particle_colour = Ego::Math::Colour4f(inst.fintens, inst.fintens, inst.fintens, alpha);
+                        particle_colour = Ego::Math::Colour4f(inst.fintens, inst.fintens, inst.fintens, alpha);
 
-                    renderer.getTextureUnit().setActivated(ParticleHandler::get().getTransparentParticleTexture().get());
+                        renderer.getTextureUnit().setActivated(ParticleHandler::get().getTransparentParticleTexture().get());
+                    }
+                    break;
 
-                    draw_particle = alpha > 0.0f;
-                } else {
                     // unknown type
-                    return gfx_fail;
+                    default:
+                        return gfx_fail;
+                    break;
                 }
 
-                if (draw_particle) {
-                    // Calculate the position of the four corners of the billboard
-                    // used to display the particle.
-                    auto vb = std::make_shared<Ego::VertexBuffer>(4, Ego::GraphicsUtilities::get<Ego::VertexFormat::P3FT2F>());
-                    calc_billboard_verts(*vb, inst, inst.size, true);
+                // Calculate the position of the four corners of the billboard
+                // used to display the particle.
+                auto vb = std::make_shared<Ego::VertexBuffer>(4, Ego::GraphicsUtilities::get<Ego::VertexFormat::P3FT2F>());
+                calc_billboard_verts(*vb, inst, inst.size, true);
 
-                    renderer.setColour(particle_colour); // GL_CURRENT_BIT
+                renderer.setColour(particle_colour); // GL_CURRENT_BIT
 
-                    renderer.render(*vb, Ego::PrimitiveType::TriangleFan, 0, 4);
-                }
+                renderer.render(*vb, Ego::PrimitiveType::TriangleFan, 0, 4);
             }
         }
     }

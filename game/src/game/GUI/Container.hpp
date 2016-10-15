@@ -11,57 +11,56 @@ public:
     public:
 
         inline std::vector<std::shared_ptr<Component>>::const_iterator cbegin() const {
-            return container.components.cbegin();
+            return _components.cbegin();
         }
 
         inline std::vector<std::shared_ptr<Component>>::const_iterator cend() const {
-            return container.components.cend();
+            return _components.cend();
         }
 
         inline std::vector<std::shared_ptr<Component>>::iterator begin() {
-            return container.components.begin();
+            return _components.begin();
         }
 
         inline std::vector<std::shared_ptr<Component>>::iterator end() {
-            return container.components.end();
+            return _components.end();
         }
 
         inline std::vector<std::shared_ptr<Component>>::const_reverse_iterator crbegin() const {
-            return container.components.crbegin();
+            return _components.crbegin();
         }
 
         inline std::vector<std::shared_ptr<Component>>::const_reverse_iterator crend() const {
-            return container.components.crend();
+            return _components.crend();
         }
 
         inline std::vector<std::shared_ptr<Component>>::reverse_iterator rbegin() {
-            return container.components.rbegin();
+            return _components.rbegin();
         }
 
         inline std::vector<std::shared_ptr<Component>>::reverse_iterator rend() {
-            return container.components.rend();
+            return _components.rend();
         }
 
         ~ContainerIterator() {
-            // Free the ComponentContainer lock
-            container.unlock();
         }
 
         // Copy constructor
         ContainerIterator(const ContainerIterator &other) : NonCopyable(),
-            container(other.container) {
-            container.lock();
+            _components(other._components) {
         }
 
 
     private:
-        ContainerIterator(Container &container) :
-            container(container) {
-            // Ensure the ComponentContainer is locked as long as we are in existance.
-            container.lock();
+        ContainerIterator(const std::vector<std::shared_ptr<Component>> &components) :
+            _components(components) 
+        {
+            //ctor
         }
 
-        Container& container;
+    private:
+        //Copy of the vector member in the Container (for thread safety)
+        std::vector<std::shared_ptr<Component>> _components;
 
         friend class Container;
     };
@@ -77,15 +76,6 @@ public:
     /// @param component the component
     /// @throw Id::InvalidArgumentException @a component is a null pointer
     virtual void removeComponent(const std::shared_ptr<Component>& component);
-public:
-    /// @brief
-    /// Locks this container to ensure no destroyed components will be removed until unlock() has been called.
-    /// A container can be locked multiple times and only once all locks have been released will it clean destroyed components.
-    void lock();
-    /// @brief
-    /// Releases one lock from the container.
-    /// If all locks are released, then any GUI components marked for destruction will be removed from the container.
-    void unlock();
 
 public:
     /// @copydoc InputListener::notifyMouseMoved
@@ -98,10 +88,6 @@ public:
     virtual bool notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs& e) override;
     /// @copydoc InputListener::notifyMouseWheelTurned
     virtual bool notifyMouseWheelTurned(const Events::MouseWheelTurnedEventArgs& e) override;
-
-    /// @brief Notifies this container that one or more of its components have been destroyed.
-    /// The next time the container is unlocked, it will remove all destroyed components.
-    void notifyDestruction();
 
     /// @brief Bring a GUI component to the front of this container, so that it is drawn on top of all others and consumes input events first.
     /// @param component the component
@@ -118,7 +104,11 @@ public:
 
     /// @brief Return a thread-safe iterator to this container.
     /// @return the iterator
-    inline ContainerIterator iterator() { return ContainerIterator(*this); }
+    inline ContainerIterator iterator() 
+    {
+        std::lock_guard<std::mutex> lock(_mutex);
+        return ContainerIterator(_components); 
+    }
 
     /**
     * @return
@@ -131,20 +121,13 @@ public:
     virtual void drawAll(DrawingContext& drawingContext);
 
 protected:
-
-
     virtual void drawContainer(DrawingContext& drawingContext) = 0;
 
 private:
     /// @brief The component list.
-    std::vector<std::shared_ptr<Component>> components;
+    std::vector<std::shared_ptr<Component>> _components;
     /// @brief The mutex.
-    std::mutex mutex;
-    /// @brief If the container has destroyed components.
-    bool componentDestroyed;
-    /// @brief The semaphore.
-    /// Semaphore does not need to be atomic because of mutex locks.
-    size_t semaphore;
+    std::mutex _mutex;
 };
 } // namespace GUI
 } // namespace Ego

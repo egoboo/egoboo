@@ -91,18 +91,22 @@ void font_bmp_load_vfs( const std::string& szBitmap, const char* szSpacing )
     // Figure out where each font is and its spacing
     ReadContext ctxt(szSpacing);
 
-    int stt_x = 0;
-    int stt_y = 0;
+    uint32_t stt_x = 0;
+    uint32_t stt_y = 0;
 
     // Uniform font height is at the top
-    int yspacing = vfs_get_next_int(ctxt);
+    uint32_t yspacing = vfs_get_next_int(ctxt);
     fontoffset = yspacing;
     for (size_t cnt = 0; cnt < NUMFONT && ctxt.skipToColon(true); ++cnt)
     {
-        char chr = ctxt.readCharacterLiteral();
-        int xspacing = ctxt.readIntegerLiteral();
-        if ( asciitofont[( Uint8 )chr] == 255 ) asciitofont[( Uint8 )chr] = ( Uint8 ) cnt;
-        if ( stt_x + xspacing + 1 > 255 )
+        uint8_t chr = static_cast<uint8_t>(ctxt.readCharacterLiteral());
+        uint32_t xspacing = ctxt.readIntegerLiteral();
+        
+        if (asciitofont[chr] == 255) {
+            asciitofont[chr] = static_cast<uint8_t>(cnt);
+        }
+
+        if (stt_x + xspacing + 1 > 255)
         {
             stt_x = 0;
             stt_y += yspacing;
@@ -118,7 +122,7 @@ void font_bmp_load_vfs( const std::string& szBitmap, const char* szSpacing )
     }
 
     // Space between lines
-    fontyspacing = ( yspacing >> 1 ) + FONTADD;
+    fontyspacing = (yspacing / 2) + FONTADD;
 }
 
 //--------------------------------------------------------------------------------------------

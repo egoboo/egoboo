@@ -832,7 +832,7 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
             case VARSWINGTURN:
                 varname = "SWINGTURN";
                 {
-					auto camera = CameraSystem::get()->getCamera(aiState.getSelf());
+					auto camera = CameraSystem::get().getCamera(aiState.getSelf());
                     iTmp = nullptr != camera ? camera->getSwing() << 2 : 0;
                 }
                 break;
