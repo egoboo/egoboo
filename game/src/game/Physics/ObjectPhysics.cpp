@@ -25,7 +25,6 @@
 #include "game/Core/GameEngine.hpp"
 #include "game/Shop.hpp"
 #include "game/CharacterMatrix.h"
-#include "game/ObjectAnimation.h"
 
 namespace Ego
 {
@@ -369,8 +368,6 @@ float ObjectPhysics::getMaxSpeed() const
     {
         maxspeed *= _object.ai.maxSpeed;
     }
-
-    bool sneak_mode_active = _object.isStealthed();
 
     //Reduce speed while stealthed
     if(_object.isStealthed()) {

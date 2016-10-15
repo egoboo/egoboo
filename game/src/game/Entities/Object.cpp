@@ -27,11 +27,11 @@
 #include "game/Entities/Object.hpp"
 #include "game/Entities/ObjectHandler.hpp"
 #include "game/Entities/ParticleHandler.hpp"
+#include "game/Entities/Enchant.hpp"
 #include "game/Logic/Player.hpp"
 #include "game/game.h"
 #include "egolib/Graphics/ModelDescriptor.hpp"
 #include "game/script_implementation.h" //for stealth
-#include "game/ObjectAnimation.h"
 #include "game/CharacterMatrix.h"
 
 //For the minimap

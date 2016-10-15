@@ -34,7 +34,6 @@
 #include "game/Logic/Player.hpp"
 #include "game/graphic_billboard.h"
 #include "game/script_implementation.h"
-#include "game/ObjectAnimation.h"
 #include "game/Inventory.hpp"
 #include "game/Entities/_Include.hpp"
 #include "game/mesh.h"
@@ -7912,11 +7911,10 @@ Uint8 scr_DrawBillboard( script_state_t& state, ai_state_t& self )
 
     if ( !ppro->isValidMessageID(state.argument) ) return false;
 
-    auto* tint;
+    auto* tint = &tint_white;
     //Figure out which color to use
     switch ( state.turn )
     {
-        default:
         case COLOR_WHITE:   tint = &tint_white;   break;
         case COLOR_RED:     tint = &tint_red;     break;
         case COLOR_PURPLE:  tint = &tint_purple;  break;

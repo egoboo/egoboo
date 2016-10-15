@@ -33,7 +33,6 @@
 #include "game/Logic/Player.hpp"
 #include "game/Entities/_Include.hpp"
 #include "game/CharacterMatrix.h"
-#include "game/ObjectAnimation.h"
 
 /// @todo Remove this global.
 std::unique_ptr<GameModule> _currentModule = nullptr;

@@ -1,7 +1,6 @@
 #include "ObjectGraphics.hpp"
 #include "game/Entities/_Include.hpp"
 #include "game/game.h" //only for character_swipe()
-#include "game/ObjectAnimation.h"
 
 namespace Ego
 {

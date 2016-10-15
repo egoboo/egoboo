@@ -40,12 +40,10 @@
 #include "game/Module/Passage.hpp"
 #include "game/Graphics/CameraSystem.hpp"
 #include "game/Module/Module.hpp"
-#include "game/ObjectAnimation.h"
 #include "game/Physics/CollisionSystem.hpp"
 #include "game/physics.h"
 #include "game/Physics/PhysicalConstants.hpp"
-#include "game/Entities/ObjectHandler.hpp"
-#include "game/Entities/ParticleHandler.hpp"
+#include "game/Entities/_Include.hpp"
 #include "game/GUI/MessageLog.hpp"
 
 //--------------------------------------------------------------------------------------------

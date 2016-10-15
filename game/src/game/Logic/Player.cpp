@@ -26,7 +26,6 @@
 #include "game/game.h"
 #include "game/Core/GameEngine.hpp"
 #include "game/GameStates/PlayingState.hpp"
-#include "game/ObjectAnimation.h"
 
 namespace Ego
 {
