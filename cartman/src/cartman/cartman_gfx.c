@@ -508,8 +508,8 @@ void draw_schematic(std::shared_ptr<Cartman::Gui::Window> pwin, int fantype, int
                 stt = plines->start[cnt];
                 end = plines->end[cnt];
 
-                glVertex2f( GRID_TO_POS( pdef->grid_ix[stt] ) + x, GRID_TO_POS( pdef->grid_iy[stt] ) + y );
-                glVertex2f( GRID_TO_POS( pdef->grid_ix[end] ) + x, GRID_TO_POS( pdef->grid_iy[end] ) + y );
+                glVertex2f( GRID_TO_POS( pdef->vertices[stt].grid_ix ) + x, GRID_TO_POS( pdef->vertices[stt].grid_iy ) + y );
+                glVertex2f( GRID_TO_POS( pdef->vertices[end].grid_ix ) + x, GRID_TO_POS( pdef->vertices[end].grid_iy ) + y );
             }
         }
         glEnd();

@@ -252,8 +252,8 @@ int get_fan_vertex_by_coord( const cartman_mpd_t * pmesh, const cartman_mpd_tile
     for ( cnt = 0, ivrt = pfan->vrtstart; cnt < pdef->numvertices && CHAINEND != ivrt; cnt++, ivrt = pmesh->vrt2[ivrt].next )
     {
         // find the array index for this vertex
-        gx = pdef->grid_ix[cnt];
-        gy = pdef->grid_iy[cnt];
+        gx = pdef->vertices[cnt].grid_ix;
+        gy = pdef->vertices[cnt].grid_iy;
         idx = gx | ( gy << 2 );
 
         // get a pointer to the vertex data
@@ -520,8 +520,8 @@ void weld_edge_verts( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, tile_def
     if ( allocate_rv < 0 ) return;
 
     // alias for the grid location
-    int grid_ix = pdef->grid_ix[cnt];
-    int grid_iy = pdef->grid_iy[cnt];
+    int grid_ix = pdef->vertices[cnt].grid_ix;
+    int grid_iy = pdef->vertices[cnt].grid_iy;
 
     // is this an edge?
     bool is_edge_x = ( 0 == grid_ix ) || ( 3 == grid_ix );
@@ -750,8 +750,8 @@ int nearest_edge_vertex( cartman_mpd_t * pmesh, int mapx, int mapy, float nearx,
         for ( int cnt = 4; cnt < num && CHAINEND != ivrt; cnt++ )
         {
             // where is this point in the "grid"?
-            grid_fx = GRID_TO_POS( pdef->grid_ix[cnt] );
-            grid_fy = GRID_TO_POS( pdef->grid_iy[cnt] );
+            grid_fx = GRID_TO_POS( pdef->vertices[cnt].grid_ix );
+            grid_fy = GRID_TO_POS( pdef->vertices[cnt].grid_iy );
 
             prox_x = grid_fx - nearx;
             prox_y = grid_fy - neary;
@@ -1334,11 +1334,11 @@ void MeshEditor::set_barrier_height( cartman_mpd_t * pmesh, int mapx, int mapy )
         {
             if ( !floor_mx )
             {
-                weight = ( float )( pdef->grid_iy[cnt] ) / 3.0f;
+                weight = ( float )( pdef->vertices[cnt].grid_iy ) / 3.0f;
                 ftmp   = weight * corner_hgt[CORNER_BL] + ( 1.0f - weight ) * corner_hgt[CORNER_TL];
                 ftmp  -= min_hgt;
 
-                weight = ( float )( 3 - pdef->grid_ix[cnt] ) / 3.0f;
+                weight = ( float )( 3 - pdef->vertices[cnt].grid_ix ) / 3.0f;
                 ftmp *= BARRIER_FUNC( weight );
 
                 vsum += weight * ftmp;
@@ -1347,11 +1347,11 @@ void MeshEditor::set_barrier_height( cartman_mpd_t * pmesh, int mapx, int mapy )
 
             if ( !floor_px )
             {
-                weight = ( float )( pdef->grid_iy[cnt] ) / 3.0f;
+                weight = ( float )( pdef->vertices[cnt].grid_iy ) / 3.0f;
                 ftmp   = weight * corner_hgt[CORNER_BR] + ( 1.0f - weight ) * corner_hgt[CORNER_TR];
                 ftmp  -= min_hgt;
 
-                weight = ( float )( pdef->grid_ix[cnt] ) / 3.0f;
+                weight = ( float )( pdef->vertices[cnt].grid_ix ) / 3.0f;
                 ftmp *= BARRIER_FUNC( weight );
 
                 vsum += weight * ftmp;
@@ -1360,11 +1360,11 @@ void MeshEditor::set_barrier_height( cartman_mpd_t * pmesh, int mapx, int mapy )
 
             if ( !floor_my )
             {
-                weight = ( float )( 3 - pdef->grid_ix[cnt] ) / 3.0f;
+                weight = ( float )( 3 - pdef->vertices[cnt].grid_ix ) / 3.0f;
                 ftmp   = weight * corner_hgt[CORNER_TL] + ( 1.0f - weight ) * corner_hgt[CORNER_TR];
                 ftmp  -= min_hgt;
 
-                weight = ( float )( 3 - pdef->grid_iy[cnt] ) / 3.0f;
+                weight = ( float )( 3 - pdef->vertices[cnt].grid_iy ) / 3.0f;
                 ftmp *= BARRIER_FUNC( weight );
 
                 vsum += weight * ftmp;
@@ -1373,11 +1373,11 @@ void MeshEditor::set_barrier_height( cartman_mpd_t * pmesh, int mapx, int mapy )
 
             if ( !floor_py )
             {
-                weight = ( float )( pdef->grid_ix[cnt] ) / 3.0f;
+                weight = ( float )( pdef->vertices[cnt].grid_ix ) / 3.0f;
                 ftmp   = weight * corner_hgt[CORNER_BR] + ( 1.0f - weight ) * corner_hgt[CORNER_BL];
                 ftmp  -= min_hgt;
 
-                weight = ( float )( pdef->grid_iy[cnt] ) / 3.0f;
+                weight = ( float )( pdef->vertices[cnt].grid_iy ) / 3.0f;
                 ftmp *= BARRIER_FUNC( weight );
 
                 vsum += weight * ftmp;
@@ -1391,7 +1391,7 @@ void MeshEditor::set_barrier_height( cartman_mpd_t * pmesh, int mapx, int mapy )
             {
                 ftmp = corner_hgt[CORNER_BR] - min_hgt;
 
-                weight = ( float )std::max( pdef->grid_ix[cnt], pdef->grid_iy[cnt] ) / 3.0f;
+                weight = ( float )std::max( pdef->vertices[cnt].grid_ix, pdef->vertices[cnt].grid_iy ) / 3.0f;
                 ftmp *= BARRIER_FUNC( weight );
 
                 vsum += weight * ftmp;
@@ -1402,7 +1402,7 @@ void MeshEditor::set_barrier_height( cartman_mpd_t * pmesh, int mapx, int mapy )
             {
                 ftmp = corner_hgt[CORNER_TR] - min_hgt;
 
-                weight = ( float )std::min( pdef->grid_ix[cnt], 3 - pdef->grid_iy[cnt] ) / 3.0f;
+                weight = ( float )std::min( pdef->vertices[cnt].grid_ix, 3 - pdef->vertices[cnt].grid_iy ) / 3.0f;
                 ftmp *= BARRIER_FUNC( weight );
 
                 vsum += weight * ftmp;
@@ -1413,7 +1413,7 @@ void MeshEditor::set_barrier_height( cartman_mpd_t * pmesh, int mapx, int mapy )
             {
                 ftmp = corner_hgt[CORNER_BL] - min_hgt;
 
-                weight = ( float )std::min( 3 - pdef->grid_ix[cnt], pdef->grid_iy[cnt] ) / 3.0f;
+                weight = ( float )std::min( 3 - pdef->vertices[cnt].grid_ix, pdef->vertices[cnt].grid_iy ) / 3.0f;
                 ftmp *= BARRIER_FUNC( weight );
 
                 vsum += weight * ftmp;
@@ -1424,7 +1424,7 @@ void MeshEditor::set_barrier_height( cartman_mpd_t * pmesh, int mapx, int mapy )
             {
                 ftmp = corner_hgt[CORNER_TL] - min_hgt;
 
-                weight = ( float )std::min( 3 - pdef->grid_ix[cnt], 3 - pdef->grid_iy[cnt] ) / 3.0f;
+                weight = ( float )std::min( 3 - pdef->vertices[cnt].grid_ix, 3 - pdef->vertices[cnt].grid_iy ) / 3.0f;
                 ftmp *= BARRIER_FUNC( weight );
 
                 vsum += weight * ftmp;

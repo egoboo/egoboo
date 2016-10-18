@@ -22,6 +22,7 @@
 /// @details
 
 #include "egolib/FileFormats/map_tile_dictionary.h"
+#include "egolib/FileFormats/MapTileDefinitionsDictionary.hpp"
 
 #include "egolib/strutil.h"
 #include "egolib/fileutil.h"
@@ -31,30 +32,21 @@
 
 //--------------------------------------------------------------------------------------------
 
-static tile_dictionary_t *tile_dictionary_finalize( tile_dictionary_t * pdict );
+static void tile_dictionary_finalize( tile_dictionary_t& dict );
 
 //--------------------------------------------------------------------------------------------
-bool tile_dictionary_load_vfs( const char * filename, tile_dictionary_t * pdict, int max_dict_size )
+bool tile_dictionary_load_vfs( const std::string& filename, tile_dictionary_t& dict, int max_dict_size )
 {
     /// @author ZZ
     /// @details This function loads fan types for the terrain
 
-    Uint32 cnt, entry, vertices, commandsize;
-    int fantype_count, fantype_offset, fantype;
-    int command_count, command;
-    int definition_count;
-    int itmp;
-    float ftmp;
-
-    if ( NULL == pdict ) return false;
-
     // "delete" the old list
-    *pdict = tile_dictionary_t();
+    dict = tile_dictionary_t();
 
-    if ( !VALID_CSTR( filename ) ) return false;
+    if (filename.empty()) return false;
 
     // handle default parameters
-    if ( max_dict_size < 0 )
+    if (max_dict_size < 0)
     {
         max_dict_size = MAP_FAN_TYPE_MAX;
     }
@@ -62,9 +54,9 @@ bool tile_dictionary_load_vfs( const char * filename, tile_dictionary_t * pdict,
     // Try to open a context.
     ReadContext ctxt(filename);
 
-    fantype_count    = vfs_get_next_int(ctxt);
-    fantype_offset   = 2 * std::pow( 2.0f, std::floor( std::log( fantype_count ) / std::log( 2.0f ) ) );
-    definition_count = 2 * fantype_offset;
+    int fantype_count    = vfs_get_next_int(ctxt);
+    int fantype_offset   = 2 * std::pow( 2.0f, std::floor( std::log( fantype_count ) / std::log( 2.0f ) ) );
+    int definition_count = 2 * fantype_offset;
 
     if ( definition_count > MAP_FAN_TYPE_MAX )
     {
@@ -77,93 +69,95 @@ bool tile_dictionary_load_vfs( const char * filename, tile_dictionary_t * pdict,
         return false;
     }
 
-    pdict->offset    = fantype_offset;
-    pdict->def_count = definition_count;
+    dict.offset    = fantype_offset;
+    dict.def_count = definition_count;
 
-    for ( fantype = 0; fantype < fantype_count; fantype++ )
+    for (int fantype = 0; fantype < fantype_count; fantype++ )
     {
-        tile_definition_t& pdef_sml = pdict->def_lst[fantype];
-        tile_definition_t& pdef_big = pdict->def_lst[fantype + fantype_offset];
+        tile_definition_t& pdef_sml = dict.def_lst[fantype];
+        tile_definition_t& pdef_big = dict.def_lst[fantype + fantype_offset];
 
-        vertices = vfs_get_next_int(ctxt);
+        int numberOfVertices = vfs_get_next_int(ctxt);
 
-        pdef_sml.numvertices = vertices;
-        pdef_big.numvertices = vertices;  // Dupe
+        pdef_sml.numvertices = numberOfVertices;
+        pdef_big.numvertices = numberOfVertices;  // Dupe
 
-        for ( cnt = 0; cnt < vertices; cnt++ )
+        for (int i = 0; i < numberOfVertices; ++i)
         {
+            int itmp;
+
             itmp = vfs_get_next_int(ctxt);
-            pdef_sml.ref[cnt]    = itmp;
-            pdef_sml.grid_ix[cnt] = itmp & 3;
-            pdef_sml.grid_iy[cnt] = ( itmp >> 2 ) & 3;
+            pdef_sml.vertices[i].ref = itmp;
+            pdef_sml.vertices[i].grid_ix = itmp & 3;
+            pdef_sml.vertices[i].grid_iy = ( itmp >> 2 ) & 3;
+
+            float ftmp;
 
             ftmp = vfs_get_next_float(ctxt);
-            pdef_sml.u[cnt] = ftmp;
+            pdef_sml.vertices[i].u = ftmp;
 
             ftmp = vfs_get_next_float(ctxt);
-            pdef_sml.v[cnt] = ftmp;
+            pdef_sml.vertices[i].v = ftmp;
 
             // Dupe
-            pdef_big.ref[cnt]    = pdef_sml.ref[cnt];
-            pdef_big.grid_ix[cnt] = pdef_sml.grid_ix[cnt];
-            pdef_big.grid_iy[cnt] = pdef_sml.grid_iy[cnt];
-            pdef_big.u[cnt]      = pdef_sml.u[cnt];
-            pdef_big.v[cnt]      = pdef_sml.v[cnt];
+            pdef_big.vertices[i].ref = pdef_sml.vertices[i].ref;
+            pdef_big.vertices[i].grid_ix = pdef_sml.vertices[i].grid_ix;
+            pdef_big.vertices[i].grid_iy = pdef_sml.vertices[i].grid_iy;
+            pdef_big.vertices[i].u = pdef_sml.vertices[i].u;
+            pdef_big.vertices[i].v = pdef_sml.vertices[i].v;
         }
 
-        command_count = vfs_get_next_int(ctxt);
-        pdef_sml.command_count = command_count;
-        pdef_big.command_count = command_count;  // Dupe
+        int numberOfCommands = vfs_get_next_int(ctxt);
+        pdef_sml.command_count = numberOfCommands;
+        pdef_big.command_count = numberOfCommands;  // Dupe
 
-        for ( entry = 0, command = 0; command < command_count; command++ )
+        // concatenate the index lists into a single index list
+        int contiguousIndex = 0;
+        for (int i = 0; i < numberOfCommands; i++ )
         {
-            commandsize = vfs_get_next_int(ctxt);
-            pdef_sml.command_entries[command] = commandsize;
-            pdef_big.command_entries[command] = commandsize;  // Dupe
+            int numberOfIndices = vfs_get_next_int(ctxt);
+            pdef_sml.command_entries[i] = numberOfIndices;
+            pdef_big.command_entries[i] = numberOfIndices;  // Dupe
 
-            for ( cnt = 0; cnt < commandsize; cnt++ )
+            for (int j = 0; j < numberOfIndices; j++ )
             {
-                itmp = vfs_get_next_int(ctxt);
-                pdef_sml.command_verts[entry] = itmp;
-                pdef_big.command_verts[entry] = itmp;  // Dupe
+                int index = vfs_get_next_int(ctxt);
+                pdef_sml.command_verts[contiguousIndex] = index;
+                pdef_big.command_verts[contiguousIndex] = index;  // Dupe
 
-                entry++;
+                contiguousIndex++;
             }
         }
     }
 
-    pdict->loaded = true;
+    dict.loaded = true;
 
-    tile_dictionary_finalize( pdict );
+    tile_dictionary_finalize( dict );
 
     return true;
 }
 
 //--------------------------------------------------------------------------------------------
-tile_dictionary_t * tile_dictionary_finalize( tile_dictionary_t * pdict )
+void tile_dictionary_finalize( tile_dictionary_t& dict )
 {
     const int   tile_pix_sml = 32;
     const int   tile_pix_big = tile_pix_sml * 2;
     const float texture_offset = 0.5f;
 
-    if ( NULL == pdict ) return pdict;
-
     // Correct all of them silly texture positions for seamless tiling
-    size_t fantype_offset = pdict->offset;
+    size_t fantype_offset = dict.offset;
     for (size_t entry = 0; entry < fantype_offset; entry++)
     {
-        tile_definition_t& pdef_sml = pdict->def_lst[entry];
-        tile_definition_t& pdef_big = pdict->def_lst[entry + fantype_offset];
+        tile_definition_t& pdef_sml = dict.def_lst[entry];
+        tile_definition_t& pdef_big = dict.def_lst[entry + fantype_offset];
 
         for (size_t cnt = 0; cnt < pdef_sml.numvertices; cnt++ )
         {
-            pdef_sml.u[cnt] = ( texture_offset + pdef_sml.u[cnt] * ( tile_pix_sml - 2.0f * texture_offset ) ) / tile_pix_sml;
-            pdef_sml.v[cnt] = ( texture_offset + pdef_sml.v[cnt] * ( tile_pix_sml - 2.0f * texture_offset ) ) / tile_pix_sml;
+            pdef_sml.vertices[cnt].u = ( texture_offset + pdef_sml.vertices[cnt].u * ( tile_pix_sml - 2.0f * texture_offset ) ) / tile_pix_sml;
+            pdef_sml.vertices[cnt].v = ( texture_offset + pdef_sml.vertices[cnt].v * ( tile_pix_sml - 2.0f * texture_offset ) ) / tile_pix_sml;
 
-            pdef_big.u[cnt] = ( texture_offset + pdef_big.u[cnt] * ( tile_pix_big - 2.0f * texture_offset ) ) / tile_pix_big;
-            pdef_big.v[cnt] = ( texture_offset + pdef_big.v[cnt] * ( tile_pix_big - 2.0f * texture_offset ) ) / tile_pix_big;
+            pdef_big.vertices[cnt].u = ( texture_offset + pdef_big.vertices[cnt].u * ( tile_pix_big - 2.0f * texture_offset ) ) / tile_pix_big;
+            pdef_big.vertices[cnt].v = ( texture_offset + pdef_big.vertices[cnt].v * ( tile_pix_big - 2.0f * texture_offset ) ) / tile_pix_big;
         }
     }
-
-    return pdict;
 }

@@ -650,8 +650,8 @@ int cartman_mpd_t::add_pfan(cartman_mpd_tile_t *pfan, float x, float y)
     {
         pvrt = get_vertex(vertex);
 
-        pvrt->x = x + GRID_TO_POS( pdef->grid_ix[cnt] );
-        pvrt->y = y + GRID_TO_POS( pdef->grid_iy[cnt] );
+        pvrt->x = x + GRID_TO_POS( pdef->vertices[cnt].grid_ix );
+        pvrt->y = y + GRID_TO_POS( pdef->vertices[cnt].grid_iy );
         pvrt->z = 0.0f;
     }
 
@@ -1100,7 +1100,7 @@ void cartman_tile_dictionary_load_vfs()
 {
     tile_definition_t * pdef;
 
-    tile_dictionary_load_vfs( "mp_data/fans.txt", &tile_dict, -1 );
+    tile_dictionary_load_vfs( "mp_data/fans.txt", tile_dict, -1 );
 
     // generate the lines for each fan type
     for ( size_t fantype = 0;  fantype < tile_dict.def_count; fantype++ )
