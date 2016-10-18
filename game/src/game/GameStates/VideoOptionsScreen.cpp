@@ -219,7 +219,7 @@ VideoOptionsScreen::VideoOptionsScreen() :
         endState();
 
         // save the setup file
-        setup_upload(&egoboo_config_t::get());
+        Ego::Setup::upload(egoboo_config_t::get());
     });
     addComponent(backButton);
 

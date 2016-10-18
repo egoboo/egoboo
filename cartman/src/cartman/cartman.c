@@ -1836,14 +1836,14 @@ void cartman_check_input( const char * modulename, cartman_mpd_t * pmesh )
 
 //--------------------------------------------------------------------------------------------
 
-bool config_download(egoboo_config_t * pcfg)
+bool config_download(egoboo_config_t& cfg)
 {
-    return setup_download(pcfg);
+    return Ego::Setup::download(cfg);
 }
 
-bool config_upload(egoboo_config_t * pcfg)
+bool config_upload(egoboo_config_t& cfg)
 {
-    return setup_upload( pcfg );
+    return Ego::Setup::upload(cfg);
 }
 
 //--------------------------------------------------------------------------------------------

@@ -94,4 +94,4 @@ extern local_stats_t local_stats;
  *  are uploaded into the egoboo_config_data_t data structure. Finally, if @a tofile
  *  is @a true, the values from the egoboo_config_data_t are uploaded into <tt>"setup.txt"</tt>.
  */
-bool config_synch(egoboo_config_t *pcfg, bool fromfile, bool tofile);
+bool config_synch(egoboo_config_t& cfg, bool fromfile, bool tofile);

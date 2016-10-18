@@ -782,40 +782,39 @@ public:
 
 };
 
+namespace Ego {
+struct Setup {
+private:
+    /// The configuration file.
+    static std::shared_ptr<ConfigFile> file;
+    /// The filename of the configuration file.
+    static const std::string fileName;
+    /// If the setup has started.
+    static bool started;
 
-/**
- * @brief
- *  Load the local <tt>"setup.txt"</tt>.
- * @remark
- *  This will initialize a represention fromload the configuration from the local <tt>"setup.txt"</tt>.
- *  If loading fails, the outcome of this function is equivalent to the case in which that file is empty.
- */
-bool setup_begin();
+public:
+    /// @brief Load the local <tt>"setup.txt"</tt>.
+    /// @remark
+    /// This will initialize a represention fromload the configuration from the local <tt>"setup.txt"</tt>.
+    /// If loading fails, the outcome of this function is equivalent to the case in which that file is empty.
+    static bool begin();
 
-/**
- * @brief
- *  Save the local <tt>"setup.txt"</tt>.
- * @remark
- *  This will write the configuration to the local <tt>"setup.txt"</tt>.
- */
-bool setup_end();
+    /// @brief Save the local <tt>"setup.txt"</tt>.
+    /// @remark This will write the configuration to the local <tt>"setup.txt"</tt>.
+    static bool end();
 
-/**
- * @brief
- *  Download the local <tt>"setup.txt"</tt> into an Egoob configuration.
- * @return
- *  @a true on success, @a false on failure
- * @remark
- *  If the local <tt>"setup.txt"</tt> is missing values,
- *  those value will be replaced by values from the default Egoboo configuration.
- */
-bool setup_download(egoboo_config_t *cfg);
+    /// @brief Download the local <tt>"setup.txt"</tt> into an Egoob configuration.
+    /// @return @a true on success, @a false on failure
+    /// @remark
+    ///  If the local <tt>"setup.txt"</tt> is missing values,
+    ///  those value will be replaced by values from the default Egoboo configuration.
+    static bool download(egoboo_config_t& cfg);
 
-/**
- * @brief
- *  Upload an Egoboo configuration into the local <tt>"setup.txt"</tt>.
- */
-bool setup_upload(egoboo_config_t *cfg);
+    /// @brief Upload an Egoboo configuration into the local <tt>"setup.txt"</tt>.
+    static bool upload(egoboo_config_t& cfg);
+};
+
+} // namespace Ego
 
 /// Set in the VFS the basic mount points/search paths.
 void setup_init_base_vfs_paths();

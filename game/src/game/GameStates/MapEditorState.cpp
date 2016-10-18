@@ -150,7 +150,7 @@ void MapEditorState::loadModuleData(std::shared_ptr<ModuleProfile> module)
     CameraSystem::get().getMainCamera()->setCameraMovementMode(CameraMovementMode::Free);
 
     // make sure the per-module configuration settings are correct
-    config_synch(&egoboo_config_t::get(), true, false);
+    config_synch(egoboo_config_t::get(), true, false);
 
     //Have to do this function in the OpenGL context thread or else it will fail
     Ego::Graphics::TextureAtlasManager::get().loadTileSet();
