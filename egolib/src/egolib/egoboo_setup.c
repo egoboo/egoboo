@@ -132,6 +132,8 @@ egoboo_config_t::egoboo_config_t() :
     // Debug configuration section.
 	debug_mesh_renderHeightMap(false, "debug.mesh.renderHeightMap", "render mesh's height map"),
 	debug_mesh_renderNormals(false, "debug.mesh.renderNormals", "render mesh's normals"),
+    debug_object_renderBoundingBoxes(false, "debug.object.renderBoundingBoxes", "render object's bounding boxes"),
+    debug_object_renderGrips(false, "debug.object.renderGrips", "render object's grips"),
     debug_hideMouse(true,"debug.hideMouse","show/hide mouse"),
     debug_grabMouse(true,"debug.grabMouse","grab/don't grab mouse"),
     debug_developerMode_enable(false,"debug.developerMode.enable","enable/disable developer mode"),
@@ -207,6 +209,8 @@ egoboo_config_t& egoboo_config_t::operator=(const egoboo_config_t& other)
     // Debug configuration section.
 	debug_mesh_renderHeightMap = other.debug_mesh_renderHeightMap;
 	debug_mesh_renderNormals = other.debug_mesh_renderNormals;
+    debug_object_renderBoundingBoxes = other.debug_object_renderBoundingBoxes;
+    debug_object_renderGrips = other.debug_object_renderGrips;
     debug_hideMouse = other.debug_hideMouse;
     debug_grabMouse = other.debug_grabMouse;
     debug_developerMode_enable = other.debug_developerMode_enable;

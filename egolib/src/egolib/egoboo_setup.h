@@ -229,6 +229,8 @@ public:
             //
 			debug_mesh_renderHeightMap,
 			debug_mesh_renderNormals,
+            debug_object_renderBoundingBoxes,
+            debug_object_renderGrips,
             debug_hideMouse,
             debug_grabMouse,
             debug_developerMode_enable,
@@ -703,6 +705,22 @@ public:
 	 *  Default value is @a false.
 	 */
 	StandardVariable<bool> debug_mesh_renderNormals;
+
+    /**
+     * @brief
+     *  Render object's bounding boxes?
+     * @remark
+     *  Default value is @a false.
+     */
+    StandardVariable<bool> debug_object_renderBoundingBoxes;
+
+    /**
+     * @brief
+     *  Render object's grips?
+     * @remark
+     *  Default value is @a false.
+     */
+    StandardVariable<bool> debug_object_renderGrips;
     
     /**
      * @brief

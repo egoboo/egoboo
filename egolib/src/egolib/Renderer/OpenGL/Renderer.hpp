@@ -58,52 +58,32 @@ using namespace Math;
 class Renderer : public Ego::Renderer
 {
 protected:
-    /**
-     * @brief
-     *  The accumulation buffer facade.
-     */
+    /// @brief The accumulation buffer facade.
     AccumulationBuffer _accumulationBuffer;
-    /**
-     * @brief
-     *  The colour buffer facade.
-     */
+    
+    /// @brief The colour buffer facade.
     ColourBuffer _colourBuffer;
-    /**
-     * @brief
-     *  The depth buffer facade.
-     */
+
+    /// @brief The depth buffer facade.
     DepthBuffer _depthBuffer;
-    /**
-     * @brief
-     *  The stencil buffer facade.
-     */
+    
+    /// @brief The stencil buffer facade.
     StencilBuffer _stencilBuffer;
-    /**
-     * @brief
-     *  The texture unit facade
-     */
+    
+    /// @brief The texture unit facade
     TextureUnit _textureUnit;
-    /**
-     * @brief
-     *  Information about the backend.
-     */
+
+    /// @brief Information about the backend.
     RendererInfo info;
-    /**
-     * @brief
-     *  The set of OpenGL extensions supported by this OpenGL implementation.
-     */
+
+    /// @brief The set of OpenGL extensions supported by this OpenGL implementation.
     UnorderedSet<String> _extensions;
 
 public:
-    /**
-     * @brief
-     *  Construct this OpenGL renderer.
-     */
+    /// @brief Construct this OpenGL renderer.
     Renderer();
-    /**
-     * @brief
-     *  Destruct this OpenGL renderer.
-     */
+
+    /// @brief Destruct this OpenGL renderer.
     virtual ~Renderer();
 
 public:
