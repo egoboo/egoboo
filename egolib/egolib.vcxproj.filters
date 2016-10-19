@@ -537,6 +537,9 @@
     <ClCompile Include="src\egolib\VFS\VfsPath.cpp">
       <Filter>Source Files\VFS</Filter>
     </ClCompile>
+    <ClCompile Include="src\egolib\FileFormats\MapTileDefinitionsDictionary.cpp">
+      <Filter>File Formats</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\egolib\vfs.h">
@@ -1349,6 +1352,9 @@
     <ClInclude Include="src\egolib\VFS\VfsPath.hpp">
       <Filter>Header Files\VFS</Filter>
     </ClInclude>
+    <ClInclude Include="src\egolib\FileFormats\MapTileDefinitionsDictionary.hpp">
+      <Filter>File Formats</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\egolib\platform\NSFileManager+DirectoryLocations.m">
@@ -1374,6 +1380,9 @@
     </None>
     <None Include="src\egolib\Math\ColourL.hpp">
       <Filter>Header Files\Math</Filter>
+    </None>
+    <None Include="src\egolib\FileFormats\MapTileDefinitionsDictionary.html">
+      <Filter>File Formats</Filter>
     </None>
   </ItemGroup>
 </Project>
