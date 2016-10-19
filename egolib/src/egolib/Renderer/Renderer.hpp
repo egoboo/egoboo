@@ -612,13 +612,6 @@ public:
     /// @param mode the winding mode
     virtual void setWindingMode(WindingMode mode) = 0;
 
-    /**
-     * @brief
-     *  Replace the current matrix with the given matrix.
-     * @param matrix
-     *  the matrix
-     */
-    virtual void loadMatrix(const Matrix4f4f& matrix) = 0;
 
     /**
      * @brief

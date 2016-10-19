@@ -156,9 +156,6 @@ public:
     /** @copydoc Ego::Renderer::setWindingMode */
     virtual void setWindingMode(WindingMode mode) override;
 
-    /** @copydoc Ego::Renderer::loadMatrix */
-    virtual void loadMatrix(const Matrix4f4f& matrix) override;
-
     /** @copydoc Ego::Renderer::multMatrix */
     virtual void multiplyMatrix(const Matrix4f4f& matrix) override;
 
@@ -212,6 +209,7 @@ public:
     void setWorldMatrix(const Matrix4f4f& worldMatrix) override;
 
 private:
+    std::array<float, 16> toOpenGL(const Matrix4f4f& source);
     GLenum toOpenGL(BlendFunction source);
 
 }; // class Renderer
