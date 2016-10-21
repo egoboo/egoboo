@@ -32,19 +32,12 @@ class IndexDescriptor {
 public:
     /// @brief An enum class of the syntactic forms of indices.
     enum class Syntax {
-
-        /**
-        * @brief
-        *  Unsigned 16-Bit indices.
-        */
+        /// @brief Unsigned 8-Bit indices.
+        U8,
+        /// @brief Unsigned 16-Bit indices.
         U16,
-
-        /**
-        * @brief
-        *  Unsigned 32-Bit indices.
-        */
+        /// @brief Unsigned 32-Bit indices.
         U32,
-
     }; // enum class Syntax
 
 private:
