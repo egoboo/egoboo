@@ -21,7 +21,6 @@
 /// @brief Vertex buffers.
 /// @author Michael Heilmann
 
-
 #pragma once
 
 #include "egolib/Graphics/Buffer.hpp"
@@ -29,61 +28,33 @@
 
 namespace Ego {
 
-/**
- * @brief
- *  A vertex buffer.
- */
+/// @brief A vertex buffer.
 class VertexBuffer : public Ego::Buffer {
 private:
-    /**
-     * @brief
-     *  The number of vertices.
-     */
+    /// @brief The number of vertices.
     size_t numberOfVertices;
 
-    /**
-     * @brief
-     *  The vertex descriptor.
-     */
+    /// @brief The vertex descriptor.
     VertexDescriptor vertexDescriptor;
 
-    /**
-     * @brief
-     *  The vertices.
-     */
+    /// @brief The vertices.
     char *vertices;
 
 public:
-    /** 
-     * @brief
-     *  Construct this vertex buffer.
-     * @param numberOfVertices
-     *  the number of vertices
-     * @param vertexDescriptor
-     *  the vertex descriptor
-     */
+    /// @brief Construct this vertex buffer.
+    /// @param numberOfVertices the number of vertices
+    /// @param vertexDescriptor the vertex descriptor
     VertexBuffer(size_t numberOfVertices, const VertexDescriptor& vertexDescriptor);
 
-    /**
-     * @brief
-     *  Destruct this vertex buffer.
-     */
+    /// @brief Destruct this vertex buffer.
     virtual ~VertexBuffer();
 
-    /**
-     * @brief
-     *  Get the number of vertices of this vertex buffer.
-     * @return
-     *  the number of vertices of this vertex buffer
-     */
+    /// @brief Get the number of vertices of this vertex buffer.
+    /// @return the number of vertices of this vertex buffer
     size_t getNumberOfVertices() const;
     
-    /**
-     * @brief
-     *  Get the vertex descriptor of this vertex buffer.
-     * @return
-     *  the vertex descriptor of this vertex buffer
-     */
+    /// @brief Get the vertex descriptor of this vertex buffer.
+    /// @return the vertex descriptor of this vertex buffer
     const VertexDescriptor& getVertexDescriptor() const;
     
     /** @copydoc Buffer::lock */
@@ -94,53 +65,28 @@ public:
 
 }; // class VertexBuffer
 
-/**
- * @brief
- *	Provides convenient RAII-style mechanism for locking/unlocking a vertex buffer.
- * @author
- *  Michael Heilmann
- */
+/// @brief Provides convenient RAII-style mechanism for locking/unlocking a vertex buffer.
 struct VertexBufferScopedLock {
 private:
-	/**
-	 * @brief
-	 *  A pointer to the backing memory of the vertex buffer.
-	 */
+	/// @brief A pointer to the backing memory of the vertex buffer.
 	void *pointer;
-	/**
-	 * @brief
-	 *  A pointer to the vertex buffer.
-	 */
+	/// @brief A pointer to the vertex buffer.
 	VertexBuffer *vertexBuffer;
 public:
-	/**
-	 * @brief
-	 *  Construct this vertex buffer scoped lock, locking the vertex buffer.
-	 * @param vertexBuffer
-	 *  the vertex buffer
-	 * @throw Ego::Core::LockFailedException
-	 *	if the vertex buffer can not be locked
-	 * @todo
-	 *  Use an other exception type than std::runtime_error.
-	 */
+	/// @brief Construct this vertex buffer scoped lock, locking the vertex buffer.
+	/// @param vertexBuffer the vertex buffer
+	/// @throw Ego::Core::LockFailedException the vertex buffer can not be locked
 	VertexBufferScopedLock(VertexBuffer& vertexBuffer)
 		: vertexBuffer(&vertexBuffer), pointer(vertexBuffer.lock()) {
 	}
 
-	/**
-	 * @brief
-	 *  Destruct his vertex buffer scoped lock, unlocking the vertex buffer.
-	 */
+	/// @brief Destruct his vertex buffer scoped lock, unlocking the vertex buffer.
 	~VertexBufferScopedLock() {
 		vertexBuffer->unlock();
 	}
 
-	/**
-	 * @brief
-	 *  Get a pointer to the backing memory of the vertex buffer.
-	 * @return
-	 *  a pointer to the backing memory of the vertex buffer
-	 */
+	/// @brief Get a pointer to the backing memory of the vertex buffer.
+	/// @return a pointer to the backing memory of the vertex buffer
 	template <typename Type>
 	Type *get() {
 		return static_cast<Type *>(pointer);

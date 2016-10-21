@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Graphics/VertexFormat.hpp
-/// @brief  Vertex formats and vertex format descriptors.
+/// @file egolib/Graphics/VertexFormat.hpp
+/// @brief Canonical identifiers for vertex format descriptors.
 /// @author Michael Heilmann
 
 #pragma once
@@ -27,84 +27,56 @@
 
 namespace Ego {
 
-/**
- * @brief
- *  Enumeration of canonical identifiers for a vertex formats.
- * @author
- *  Michael Heilmann
- */
+/// @brief Enumeration of canonical identifiers for vertex formats.
 enum class VertexFormat {
-    /**
-     * @brief
-     *  Two floats for the position component.
-     */
+    /// @brief
+    /// Two floats for the position component.
     P2F,
 
-	/**
-	 * @brief
-	 *	Two floats for the position component,
-	 *	two floats for the texture component.
-	 */
+	/// @brief
+	/// Two floats for the position component,
+	/// two floats for the texture component.
 	P2FT2F,
 
-    /**
-     * @brief
-     *  Three floats for the position component.
-     */
+    /// @brief
+    /// Three floats for the position component.
     P3F,
 
-    /**
-     * @brief
-     *  Three floats for the position component and
-     *  four floats for colour component.
-     */
+    /// @brief
+    /// Three floats for the position component and
+    /// four floats for colour component.
     P3FC4F,
 
-    /**
-     * @brief
-     *  Three floats for the position component and
-     *  two floats for the texture component.
-     */
+    /// @brief
+    /// Three floats for the position component and
+    /// two floats for the texture component.
     P3FT2F,
 
-    /**
-     * @brief
-     *  Three floats for the position component,
-     *  four floats for the colour component, and
-     *  three floats for the normal component.
-     */
+    /// @brief
+    /// Three floats for the position component,
+    /// four floats for the colour component, and
+    /// three floats for the normal component.
     P3FC4FN3F,
 
-    /**
-     * @brief
-     *  Three floats for the position component,
-     *  four floats for the colour component, and
-     *  two floats for the texture component.
-     */
+    /// @brief
+    /// Three floats for the position component,
+    /// four floats for the colour component, and
+    /// two floats for the texture component.
     P3FC4FT2F,
 
-    /**
-     * @brief
-     *  Three floats for the position component,
-     *  four floats for the colour component,
-     *  two floats for the texture component, and
-     *  three floats for the normal component.
-     */
-     P3FC4FT2FN3F,
+    /// @brief
+    /// Three floats for the position component,
+    /// four floats for the colour component,
+    /// two floats for the texture component, and
+    /// three floats for the normal component.
+    P3FC4FT2FN3F,
 
 }; // enum class VertexFormat
 
-
-
 struct GraphicsUtilities {
-    /**
-     * @brief
-     *  Get the vertex descriptor for a vertex format.
-     * @param vertexFormat
-     *  the vertex format
-     * @return
-     *  the vertex descriptor for the vertex format
-     */
+    /// @brief Get the vertex descriptor for a vertex format.
+    /// @param vertexFormat the vertex format
+    /// @return the vertex descriptor for the vertex format
     static const VertexDescriptor& get(VertexFormat vertexFormat);
 
     template <VertexFormat _VertexFormat>

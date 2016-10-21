@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Graphics/PixelFormat.hpp
-/// @brief  Pixel formats and pixel format descriptors.
+/// @file egolib/Graphics/PixelFormat.hpp
+/// @brief Pixel formats and pixel format descriptors.
 /// @author Michael Heilmann
 
 
@@ -28,12 +28,7 @@
 
 namespace Ego {
 
-/**
- * @brief
- *  Enumeration of canonical identifiers for a pixel formats.
- * @author
- *  Michael Heilmann
- */
+/// @brief Enumeration of canonical identifiers for a pixel formats.
 enum class PixelFormat {
 
     /**
@@ -127,41 +122,24 @@ enum class PixelFormat {
 
 };
 
-/**
- * @brief
- *  A pixel format descriptor suitable to describe the pixel formats
- *  as specified by the Ego::PixelFormat enumeration.
- * @todo
- *  Provide specializations of PixelDescriptor::get() for A8R8G8B8 and A8B8G8R8.
- * @author
- *  Michael Heilmann
- */
+/// @brief
+/// A pixel format descriptor suitable to describe the pixel formats
+/// as specified by the Ego::PixelFormat enumeration.
+/// @todo
+/// Provide specializations of PixelDescriptor::get() for A8R8G8B8 and A8B8G8R8.
 struct PixelFormatDescriptor {
-
 private:
-    /**
-     * @brief
-     *  The pixel format.
-     */
+    /// @brief The pixel format.
     PixelFormat pixelFormat;
 
 private:
-    /**
-     * @brief
-     *  The mask for the alpha Bits.
-     */
+    /// @brief The mask for the alpha Bits.
     uint32_t alphaMask;
 
-    /**
-     * @brief
-     *  The mask for the blue Bits.
-     */
+    /// @brief The mask for the blue Bits.
     uint32_t blueMask;
 
-    /**
-     * @brief
-     *  The mask for the green Bits.
-     */
+    /// @brief The mask for the green Bits.
     uint32_t greenMask;
 
     /**
@@ -171,35 +149,20 @@ private:
     uint32_t redMask;
 
 private:
-    /**
-     * @brief
-     *  The shift for the alpha bits.
-     */
+    /// @brief The shift for the alpha bits.
     uint32_t alphaShift;
 
-    /**
-     * @brief
-     *  The shift for the blue Bits.
-     */
+    /// @brief The shift for the blue Bits.
     uint32_t blueShift;
 
-    /**
-     * @brief
-     *  The shift for the green Bits.
-     */
+    /// @brief The shift for the green Bits.
     uint32_t greenShift;
 
-    /**
-     * @brief
-     *  The shift for the red Bits.
-     */
+    /// @brief The shift for the red Bits.
     uint32_t redShift;
 
 private:
-    /**
-     * @brief
-     *  The colour depth of this pixel format.
-     */
+    /// @brief The colour depth of this pixel format.
     ColourDepth colourDepth;
 
 protected:
@@ -224,87 +187,47 @@ protected:
                           const ColourDepth& colourDepth);
 
 public:
-    /**
-     * @brief
-     *  Get the shift of the alpha Bits.
-     * @return
-     *  the shift of the alpha Bits
-     */
+    /// @brief Get the shift of the alpha Bits.
+    /// @return the shift of the alpha Bits
     uint32_t getAlphaShift() const;
 
-    /**
-     * @brief
-     *  Get the shift of the blue Bits.
-     * @return
-     *  the shift of the blue Bits
-     */
+    /// @brief Get the shift of the blue Bits.
+    /// @return the shift of the blue Bits
     uint32_t getBlueShift() const;
 
-    /**
-     * @brief
-     *  Get the shift of the green Bits.
-     * @return
-     *  the shift of the green Bits
-     */
+    /// @brief Get the shift of the green Bits.
+    /// @return the shift of the green Bits
     uint32_t getGreenShift() const;
 
-    /**
-     * @brief
-     *  Get the shift of the red Bits.
-     * @return
-     *  the shift of the red Bits
-     */
+    /// @brief Get the shift of the red Bits.
+    /// @return the shift of the red Bits
     uint32_t getRedShift() const;
 
 public:
-    /**
-     * @brief
-     *  The mask for the alpha Bits.
-     * @return
-     *  the mask of the alpha Bits
-     */
+    /// @brief The mask for the alpha Bits.
+    /// @return the mask of the alpha Bits
     uint32_t getAlphaMask() const;
 
-    /**
-     * @brief
-     *   Get the mask for the blue Bits.
-     * @return
-     *  the mask of the blue Bits
-     */
+    /// @brief Get the mask for the blue Bits.
+    /// @return the mask of the blue Bits
     uint32_t getBlueMask() const;
 
-    /**
-     * @brief
-     *  The mask for the green Bits.
-     * @return
-     *  the mask of the green Bits
-     */
+    /// @brief The mask for the green Bits.
+    /// @return the mask of the green Bits
     uint32_t getGreenMask() const;
 
-    /**
-     * @brief
-     *  Get the mask for the red Bits.
-     * @return
-     *  the mask of the red Bits
-     */
+    /// @brief Get the mask for the red Bits.
+    /// @return the mask of the red Bits
     uint32_t getRedMask() const;
 
 public:
-    /**
-     * @brief
-     *  Get the colour depth of this pixel format.
-     * @return
-     *  the colour depth of this pixel format
-     */
+    /// @brief Get the colour depth of this pixel format.
+    /// @return the colour depth of this pixel format
     const ColourDepth& getColourDepth() const;
 
 public:
-    /**
-     * @brief
-     *  Get the pixel format.
-     * @return
-     *  the pixel format
-     */
+    /// @brief Get the pixel format.
+    /// @return the pixel format
     PixelFormat getPixelFormat() const;
 
     template<PixelFormat _PixelFormat>

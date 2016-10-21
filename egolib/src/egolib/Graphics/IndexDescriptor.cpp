@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Graphics/IndexDescriptor.cpp
-/// @brief  Descriptions of indices.
+/// @file egolib/Graphics/IndexDescriptor.cpp
+/// @brief Descriptors of indices.
 /// @author Michael Heilmann
 
 #include "egolib/Graphics/IndexDescriptor.hpp"

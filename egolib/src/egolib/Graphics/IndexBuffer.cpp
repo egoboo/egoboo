@@ -24,6 +24,7 @@
 #include "egolib/Graphics/IndexBuffer.hpp"
 
 namespace Ego {
+
 IndexBuffer::IndexBuffer(size_t numberOfIndices,
                          const IndexDescriptor& indexDescriptor) :
     Buffer(indexDescriptor.getIndexSize() * numberOfIndices),
@@ -50,6 +51,5 @@ void *IndexBuffer::lock() {
 void IndexBuffer::unlock() {
     /* Intentionally empty for the moment. */
 }
-
 
 } // namespace Ego

@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Graphics/IndexDescriptor.hpp
-/// @brief  Description of an index.
+/// @file egolib/Graphics/IndexDescriptor.hpp
+/// @brief Descriptors of indices.
 /// @author Michael Heilmann
 
 #pragma once
@@ -27,15 +27,10 @@
 
 namespace Ego {
 
-/**
- * @brief The descriptor of an index.
- */
+/// @brief The descriptor of an index.
 class IndexDescriptor {
 public:
-    /**
-    * @brief
-    *  An enum class of the syntactic forms of indices.
-    */
+    /// @brief An enum class of the syntactic forms of indices.
     enum class Syntax {
 
         /**
@@ -50,39 +45,29 @@ public:
         */
         U32,
 
-    }; // enum class IndexFormat
+    }; // enum class Syntax
 
 private:
-    /**
-     * @brief The syntax of this index descriptor.
-     */
+    /// @brief The syntax of this index descriptor.
     Syntax syntax;
     
 public:
-    /**
-     * @brief Construct this index descriptor.
-     * @param syntax the synax
-     */
+    /// @brief Construct this index descriptor.
+    /// @param syntax the synax
     IndexDescriptor(Syntax syntax);
 
-    /**
-     * @brief Copy-construct this index descriptor with the values of another index descriptor.
-     * @param other the other index descriptor
-     */
+    /// @brief Copy-construct this index descriptor with the values of another index descriptor.
+    /// @param other the other index descriptor
     IndexDescriptor(const IndexDescriptor& other) noexcept;
 
-    /**
-     * @brief Assign this index descriptor with the values of another index descriptor.
-     * @param other the other index descriptor
-     * @return this index descriptor
-     */
+    /// @brief Assign this index descriptor with the values of another index descriptor.
+    /// @param other the other index descriptor
+    /// @return this index descriptor
     const IndexDescriptor& operator=(const IndexDescriptor& other) noexcept;
 
 public:
-    /**
-     * @brief Get the size, in Bytes, of an index.
-     * @return the size, in Bytes, of an index
-     */
+    /// @brief Get the size, in Bytes, of an index.
+    /// @return the size, in Bytes, of an index
     size_t getIndexSize() const {
 
         // Compute the index size.
@@ -97,19 +82,16 @@ public:
     }
 
 public:
-    /**
-     * @brief Compare this index descriptor with another index descriptor for equality.
-     * @param other the other index descriptor
-     * @return @a true if this index descriptor is equal to the other index descriptor,
-     *         @a false otherwise
-     */
+    /// @brief Compare this index descriptor with another index descriptor for equality.
+    /// @param other the other index descriptor
+    /// @return @a true if this index descriptor is equal to the other index descriptor,
+    ///         @a false otherwise
     bool operator==(const IndexDescriptor&) const noexcept;
-    /**
-     * @brief Compare this index descriptor with another index descriptor for inequality.
-     * @param other the other index descriptor
-     * @return @a true if this index descriptor is not equal to the other index descriptor,
-     *         @a false otherwise
-     */
+
+    /// @brief Compare this index descriptor with another index descriptor for inequality.
+    /// @param other the other index descriptor
+    /// @return @a true if this index descriptor is not equal to the other index descriptor,
+    ///         @a false otherwise
     bool operator!=(const IndexDescriptor&) const noexcept;
 
 }; // class IndexDescriptor

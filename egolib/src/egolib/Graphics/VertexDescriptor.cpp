@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Graphics/VertexDescriptor.cpp
-/// @brief  Descriptions of vertices.
+/// @file egolib/Graphics/VertexDescriptor.cpp
+/// @brief Descriptors of vertices.
 /// @author Michael Heilmann
 
 #include "egolib/Graphics/VertexDescriptor.hpp"

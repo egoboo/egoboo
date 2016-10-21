@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Graphics/VertexFormat.cpp
-/// @brief  Vertex formats and vertex format descriptors.
+/// @file egolib/Graphics/VertexFormat.cpp
+/// @brief Canonical identifiers for vertex format descriptors.
 /// @author Michael Heilmann
 
 #include "egolib/Graphics/VertexFormat.hpp"
