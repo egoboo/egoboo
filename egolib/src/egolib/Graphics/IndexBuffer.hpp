@@ -65,4 +65,7 @@ public:
     
 }; // class IndexBuffer
 
+/// @brief Provides convenient RAII-style mechanism for locking/unlocking an index buffer.
+using IndexBufferScopedLock = BufferScopedLock;
+
 } // namespace Ego

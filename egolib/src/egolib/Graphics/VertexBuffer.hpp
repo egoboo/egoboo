@@ -66,32 +66,6 @@ public:
 }; // class VertexBuffer
 
 /// @brief Provides convenient RAII-style mechanism for locking/unlocking a vertex buffer.
-struct VertexBufferScopedLock {
-private:
-	/// @brief A pointer to the backing memory of the vertex buffer.
-	void *pointer;
-	/// @brief A pointer to the vertex buffer.
-	VertexBuffer *vertexBuffer;
-public:
-	/// @brief Construct this vertex buffer scoped lock, locking the vertex buffer.
-	/// @param vertexBuffer the vertex buffer
-	/// @throw Ego::Core::LockFailedException the vertex buffer can not be locked
-	VertexBufferScopedLock(VertexBuffer& vertexBuffer)
-		: vertexBuffer(&vertexBuffer), pointer(vertexBuffer.lock()) {
-	}
-
-	/// @brief Destruct his vertex buffer scoped lock, unlocking the vertex buffer.
-	~VertexBufferScopedLock() {
-		vertexBuffer->unlock();
-	}
-
-	/// @brief Get a pointer to the backing memory of the vertex buffer.
-	/// @return a pointer to the backing memory of the vertex buffer
-	template <typename Type>
-	Type *get() {
-		return static_cast<Type *>(pointer);
-	}
-
-}; // struct VertexBufferScopedLock
+using VertexBufferScopedLock = BufferScopedLock;
 
 } // namespace Ego
