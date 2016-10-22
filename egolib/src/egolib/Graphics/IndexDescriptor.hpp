@@ -59,20 +59,13 @@ public:
     const IndexDescriptor& operator=(const IndexDescriptor& other) noexcept;
 
 public:
+    /// @brief Get the syntax of an index.
+    /// @return the syntax of an index.
+    Syntax getSyntax() const;
+
     /// @brief Get the size, in Bytes, of an index.
     /// @return the size, in Bytes, of an index
-    size_t getIndexSize() const {
-
-        // Compute the index size.
-        switch (syntax) {
-            case Syntax::U16:
-                return sizeof(uint16_t); //16 / 8
-            case Syntax::U32:
-                return sizeof(uint32_t); //32 / 8
-        }
-
-        throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
-    }
+    size_t getIndexSize() const;
 
 public:
     /// @brief Compare this index descriptor with another index descriptor for equality.

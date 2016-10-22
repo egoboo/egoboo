@@ -447,7 +447,7 @@ std::shared_ptr<Font::LaidTextRenderer> Font::layoutToBuffer(const std::string &
 
     LaidOutText laidText = layout(text, options);
 
-    const auto &vertexDesc = Ego::GraphicsUtilities::get(Ego::VertexFormat::P3FT2F);
+    const auto &vertexDesc = Ego::VertexFormatFactory::get(Ego::VertexFormat::P3FT2F);
     std::shared_ptr<VertexBuffer> buffer = std::make_shared<VertexBuffer>(4 * laidText.codepoints.size(), vertexDesc);
 
     TextVertex *vertices = reinterpret_cast<TextVertex *>(buffer->lock());

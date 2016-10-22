@@ -355,7 +355,7 @@ gfx_rv TileListV2::render_water_fan(ego_mesh_t& mesh, const Index1D& tileIndex, 
         float r, g, b, a;
         float s, t;
     };
-    auto vb = std::make_shared<Ego::VertexBuffer>(4, Ego::GraphicsUtilities::get<Ego::VertexFormat::P3FC4FT2F>());
+    auto vb = std::make_shared<Ego::VertexBuffer>(4, Ego::VertexFormatFactory::get<Ego::VertexFormat::P3FC4FT2F>());
     Vertex *v = static_cast<Vertex *>(vb->lock());
 
     // Original points

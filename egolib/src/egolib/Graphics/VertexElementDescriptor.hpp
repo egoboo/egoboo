@@ -44,6 +44,8 @@ public:
 
     /// @brief An enum class of the semantic forms of vertex elements.
     enum class Semantics {
+        /// None.
+        None,
         /// Position.
         Position,
         /// Colour.
