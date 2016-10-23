@@ -72,10 +72,22 @@ public:
 	}
 
 public:
+    _Type& x() {
+        return _x;
+    }
+    const _Type& x() const {
+        return _x;
+    }
 	const _Type& getX() const {
 		return _x;
 	}
 
+    _Type& y() {
+        return _y;
+    }
+    const _Type& y() const {
+        return _y;
+    }
 	const _Type& getY() const {
 		return _y;
 	}

@@ -286,7 +286,7 @@ struct cartman_mpd_t
      * @return
      *  the fan index if it exists at the point, @a -1 otherwise
      */
-    int get_ifan(int mapx, int mapy);
+    int get_ifan(const Index2D& index2d);
 
     /**
      * @brief
@@ -305,7 +305,7 @@ struct cartman_mpd_t
      *  get_pfan(get_ifan(mapx,mapy))
      *  @endcode
      */
-    cartman_mpd_tile_t *get_pfan(int mapx, int mapy);
+    cartman_mpd_tile_t *get_pfan(const Index2D& index2d);
 
     /**
      * @brief
@@ -334,7 +334,7 @@ struct cartman_mpd_t
      *  the elevation at the point.
      *  In particular, the elevation is @a 0 if the point is outside the map bounds.
      */
-    float get_level(int mapx, int mapy);
+    float get_level(const Index2D& index2d);
 
     /**
      * @brief
@@ -366,7 +366,7 @@ struct cartman_mpd_t
      *  get_ivrt(get_fan(mapx,mapy),index)
      *  @endcode
      */
-    int get_ivrt_xy(int mapx, int mapy, int index);
+    int get_ivrt_xy(Index2D index2d, int index);
 
     /**
      * @brief

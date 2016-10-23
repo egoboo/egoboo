@@ -143,7 +143,7 @@ static void onscreen_add_fan( cartman_mpd_t * pmesh, Uint32 fan );
 static void ease_up_mesh( cartman_mpd_t * pmesh, float zoom_vrt );
 
 // cartman versions of these functions
-static int cartman_get_vertex(cartman_mpd_t *pmesh, int mapx, int mapy, int num);
+static int cartman_get_vertex(cartman_mpd_t *pmesh, Index2D index2d, int num);
 
 
 
@@ -224,16 +224,16 @@ void draw_cursor_in_window(Cartman::Gui::Window& pwin)
 
 //--------------------------------------------------------------------------------------------
 
-int cartman_get_vertex( cartman_mpd_t * pmesh, int mapx, int mapy, int num )
+int cartman_get_vertex( cartman_mpd_t * pmesh, Index2D index2d, int num )
 {
     if ( NULL == pmesh ) pmesh = &mesh;
 
-    int vert = pmesh->get_ivrt_xy(mapx, mapy, num);
+    int vert = pmesh->get_ivrt_xy(index2d, num);
 
     if ( vert == -1 )
     {
         return vert;
-        printf( "BAD GET_VERTEX NUMBER(2nd), %d at %d, %d...\n", num, mapx, mapy );
+        printf( "BAD GET_VERTEX NUMBER(2nd), %d at %d, %d...\n", num, index2d.x(), index2d.y() );
         exit( -1 );
     }
 
@@ -298,7 +298,7 @@ void make_onscreen( cartman_mpd_t * pmesh )
         {
             if ( mapx < 0 || mapx >= pmesh->info.getTileCountX() ) continue;
 
-            int fan = pmesh->get_ifan(mapx, mapy);
+            int fan = pmesh->get_ifan({mapx, mapy});
             if ( !VALID_MPD_TILE_RANGE( fan ) ) continue;
 
             onscreen_add_fan( pmesh, fan );
@@ -569,7 +569,7 @@ void mesh_calc_vrta(cartman_mpd_t *self)
     {
         for (int mapx = 0; mapx < self->info.getTileCountX(); mapx++)
         {
-            int fan = self->get_ifan(mapx, mapy);
+            int fan = self->get_ifan({mapx, mapy});
 
             fan_calc_vrta(self, fan);
         }
@@ -832,7 +832,7 @@ void cartman_check_mouse_tile(std::shared_ptr<Cartman::Gui::Window> pwin, float 
         debugy = mpos_y;
 
         // update mdata.win_fan only if the tile is valid
-        fan_tmp = pwin->pmesh->get_ifan(mdata.win_fan_x, mdata.win_fan_y);
+        fan_tmp = pwin->pmesh->get_ifan({mdata.win_fan_x, mdata.win_fan_y});
         if ( VALID_MPD_TILE_RANGE( fan_tmp ) ) mdata.win_fan = fan_tmp;
 
         if (CART_BUTTONDOWN(SDL_BUTTON_LEFT))
@@ -946,7 +946,7 @@ void cartman_check_mouse_fx(std::shared_ptr<Cartman::Gui::Window> pwin, float zo
         debugx = mpos_x;
         debugy = mpos_y;
 
-        fan_tmp = pwin->pmesh->get_ifan(mdata.win_fan_x, mdata.win_fan_y);
+        fan_tmp = pwin->pmesh->get_ifan({mdata.win_fan_x, mdata.win_fan_y});
         if ( VALID_MPD_TILE_RANGE( fan_tmp ) ) mdata.win_fan = fan_tmp;
 
         if (CART_BUTTONDOWN(SDL_BUTTON_LEFT))
@@ -1109,8 +1109,8 @@ void cartman_check_mouse_vertex(std::shared_ptr<Cartman::Gui::Window> pwin, floa
 
         if ( CART_KEYDOWN( SDLK_f ) )
         {
-            //    weld_corner_verts(mdata.win_mpos_x>>7, mdata.win_mpos_y>>7);
-            fix_vertices( pwin->pmesh,  std::floor( mdata.win_mpos_x / Info<float>::Grid::Size()), std::floor( mdata.win_mpos_y / Info<float>::Grid::Size()) );
+            //    weld_corner_verts({mdata.win_mpos_x>>7, mdata.win_mpos_y>>7});
+            fix_vertices(pwin->pmesh, Index2D(std::floor(mdata.win_mpos_x / Info<float>::Grid::Size()), std::floor(mdata.win_mpos_y / Info<float>::Grid::Size())));
         }
 
         if (CART_KEYDOWN(SDLK_p) || (CART_BUTTONDOWN(SDL_BUTTON_RIGHT) && 0 == mdata.win_select.count()))

@@ -39,12 +39,12 @@ enum
 
 //--------------------------------------------------------------------------------------------
 
-static void weld_TL( cartman_mpd_t * pmesh, int mapx, int mapy );
-static void weld_TR( cartman_mpd_t * pmesh, int mapx, int mapy );
-static void weld_BR( cartman_mpd_t * pmesh, int mapx, int mapy );
-static void weld_BL( cartman_mpd_t * pmesh, int mapx, int mapy );
+static void weld_TL( cartman_mpd_t * pmesh, Index2D index2d );
+static void weld_TR( cartman_mpd_t * pmesh, Index2D index2d );
+static void weld_BR( cartman_mpd_t * pmesh, Index2D index2d );
+static void weld_BL( cartman_mpd_t * pmesh, Index2D index2d );
 
-static void weld_edge_verts( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, tile_definition_t * pdef, int cnt, int mapx, int mapy );
+static void weld_edge_verts( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, tile_definition_t * pdef, int cnt, Index2D index2d );
 
 //--------------------------------------------------------------------------------------------
 
@@ -67,19 +67,18 @@ float dist_from_border( cartman_mpd_t * pmesh, float x, float y )
     return ( x < y ) ? x : y;
 }
 
-int dist_from_edge( cartman_mpd_t * pmesh, int mapx, int mapy )
+int dist_from_edge( cartman_mpd_t * pmesh, Index2D index2d )
 {
     if ( NULL == pmesh ) pmesh = &mesh;
+    if ( index2d.x() > ( pmesh->info.getTileCountX() >> 1 ) )
+        index2d.x() = pmesh->info.getTileCountX() - index2d.x() - 1;
+    if ( index2d.y() > ( pmesh->info.getTileCountY() >> 1 ) )
+        index2d.y() = pmesh->info.getTileCountY() - index2d.y() - 1;
 
-    if ( mapx > ( pmesh->info.getTileCountX() >> 1 ) )
-        mapx = pmesh->info.getTileCountX() - mapx - 1;
-    if ( mapy > ( pmesh->info.getTileCountY() >> 1 ) )
-        mapy = pmesh->info.getTileCountY() - mapy - 1;
+    if ( index2d.x() < index2d.y() )
+        return index2d.x();
 
-    if ( mapx < mapy )
-        return mapx;
-
-    return mapy;
+    return index2d.y();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -94,7 +93,7 @@ void fix_corners( cartman_mpd_t * pmesh )
     {
         for ( size_t x = y & 1; x < pmesh->info.getTileCountX(); x += 2 )
         {
-            weld_corner_verts(pmesh, x, y);
+            weld_corner_verts(pmesh, Index2D(x, y));
         }
     }
 }
@@ -106,7 +105,7 @@ void fix_edges(cartman_mpd_t *pmesh) {
     // weld the edges of all tiles
     for (size_t y = 0; y < pmesh->info.getTileCountY(); ++y) {
         for (size_t x = 0; x < pmesh->info.getTileCountX(); ++x) {
-            fix_vertices( pmesh, x, y );
+            fix_vertices(pmesh, Index2D(x, y));
         }
     }
 }
@@ -121,11 +120,11 @@ void fix_mesh( cartman_mpd_t * pmesh )
     fix_edges( pmesh );
 }
 
-void fix_vertices( cartman_mpd_t * pmesh, int mapx, int mapy )
+void fix_vertices( cartman_mpd_t * pmesh, Index2D index2d )
 {
     if ( NULL == pmesh ) pmesh = &mesh;
 
-	cartman_mpd_tile_t *pfan = pmesh->get_pfan(mapx, mapy);
+    cartman_mpd_tile_t *pfan = pmesh->get_pfan(index2d);
     if ( NULL == pfan ) return;
 
 	tile_definition_t *pdef = tile_dict.get(pfan->type);
@@ -133,30 +132,30 @@ void fix_vertices( cartman_mpd_t * pmesh, int mapx, int mapy )
 
     for ( int cnt = 4; cnt < pdef->numvertices; cnt++ )
     {
-        weld_edge_verts( pmesh, pfan, pdef, cnt, mapx, mapy );
+        weld_edge_verts( pmesh, pfan, pdef, cnt, index2d );
     }
 }
 
 //--------------------------------------------------------------------------------------------
-void weld_corner_verts(cartman_mpd_t *self, int mapx, int mapy)
+void weld_corner_verts(cartman_mpd_t *self, Index2D index2d)
 {
     if (!self)
     {
         self = &mesh;
     }
-	int fan = self->get_ifan(mapx, mapy);
+    int fan = self->get_ifan(index2d);
     if (!VALID_MPD_TILE_RANGE(fan))
     {
         return;
     }
-    weld_TL(self, mapx, mapy);
-    weld_TR(self, mapx, mapy);
-    weld_BL(self, mapx, mapy);
-    weld_BR(self, mapx, mapy);
+    weld_TL(self, index2d);
+    weld_TR(self, index2d);
+    weld_BL(self, index2d);
+    weld_BR(self, index2d);
 }
 
 //--------------------------------------------------------------------------------------------
-void weld_TL( cartman_mpd_t * pmesh, int mapx, int mapy )
+void weld_TL( cartman_mpd_t * pmesh, Index2D index2d )
 {
 	if (!pmesh) {
 		return;
@@ -164,16 +163,16 @@ void weld_TL( cartman_mpd_t * pmesh, int mapx, int mapy )
 	select_lst_t loc_lst;
     loc_lst.init( pmesh );
 
-    loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy(mapx, mapy, CORNER_TL));
-    loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy(mapx - 1, mapy, CORNER_TR));
-    loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy(mapx - 1, mapy - 1, CORNER_BR));
-    loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy(mapx, mapy - 1, CORNER_BL));
+    loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy({index2d.x(), index2d.y()}, CORNER_TL));
+    loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy({index2d.x() - 1, index2d.y()}, CORNER_TR));
+    loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy({index2d.x() - 1, index2d.y() - 1}, CORNER_BR));
+    loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy({index2d.x(), index2d.y() - 1}, CORNER_BL));
 
     mesh_select_weld( &loc_lst );
 }
 
 //--------------------------------------------------------------------------------------------
-void weld_TR( cartman_mpd_t * pmesh, int mapx, int mapy )
+void weld_TR( cartman_mpd_t * pmesh, Index2D index2d )
 {
 	if (!pmesh) {
 		return;
@@ -181,16 +180,16 @@ void weld_TR( cartman_mpd_t * pmesh, int mapx, int mapy )
 	select_lst_t loc_lst;
     loc_lst.init( pmesh );
 
-    loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy(mapx, mapy, CORNER_TR));
-    loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy(mapx, mapy - 1, CORNER_BR));
-    loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy(mapx + 1, mapy - 1, CORNER_BL));
-    loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy(mapx + 1, mapy, CORNER_TL));
+    loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy({index2d.x(), index2d.y()}, CORNER_TR));
+    loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy({index2d.x(), index2d.y() - 1}, CORNER_BR));
+    loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy({index2d.x() + 1, index2d.y() - 1}, CORNER_BL));
+    loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy({index2d.x() + 1, index2d.y()}, CORNER_TL));
 
     mesh_select_weld( &loc_lst );
 }
 
 //--------------------------------------------------------------------------------------------
-void weld_BR( cartman_mpd_t * pmesh, int mapx, int mapy )
+void weld_BR( cartman_mpd_t * pmesh, Index2D index2d )
 {
 	if (!pmesh) {
 		return;
@@ -198,16 +197,16 @@ void weld_BR( cartman_mpd_t * pmesh, int mapx, int mapy )
     select_lst_t loc_lst;
     loc_lst.init( pmesh );
 
-    loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy(mapx, mapy, CORNER_BR));
-    loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy(mapx + 1, mapy, CORNER_BL));
-    loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy(mapx + 1, mapy + 1, CORNER_TL));
-    loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy(mapx, mapy + 1, CORNER_TR));
+    loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy({index2d.x(), index2d.y()}, CORNER_BR));
+    loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy({index2d.x() + 1, index2d.y()}, CORNER_BL));
+    loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy({index2d.x() + 1, index2d.y() + 1}, CORNER_TL));
+    loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy({index2d.x(), index2d.y() + 1}, CORNER_TR));
 
     mesh_select_weld( &loc_lst );
 }
 
 //--------------------------------------------------------------------------------------------
-void weld_BL( cartman_mpd_t * pmesh, int mapx, int mapy )
+void weld_BL( cartman_mpd_t * pmesh, Index2D index2d )
 {
 	if (!pmesh) {
 		return;
@@ -215,10 +214,10 @@ void weld_BL( cartman_mpd_t * pmesh, int mapx, int mapy )
 	select_lst_t loc_lst;
     loc_lst.init( pmesh );
 
-    loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy(mapx, mapy, CORNER_BL));
-    loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy(mapx, mapy + 1, CORNER_TL));
-    loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy(mapx - 1, mapy + 1, CORNER_TR));
-    loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy(mapx - 1, mapy, CORNER_BR));
+    loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy({index2d.x(), index2d.y()}, CORNER_BL));
+    loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy({index2d.x(), index2d.y() + 1}, CORNER_TL));
+    loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy({index2d.x() - 1, index2d.y() + 1}, CORNER_TR));
+    loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy({index2d.x() - 1, index2d.y()}, CORNER_BR));
 
     mesh_select_weld( &loc_lst );
 }
@@ -463,14 +462,14 @@ bool interpolate_coord( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, int gr
 }
 
 //--------------------------------------------------------------------------------------------
-int select_lst_add_fan_vertex( select_lst_t& plst, int mapx, int mapy, int grid_ix, int grid_iy, int fake_vert )
+int select_lst_add_fan_vertex( select_lst_t& plst, Index2D index2d, int grid_ix, int grid_iy, int fake_vert )
 {
     int vert_lst[16];
 
 	if (!plst.get_mesh()) {
 		return -1;
 	}
-	cartman_mpd_tile_t *pfan = plst.get_mesh()->get_pfan(mapx, mapy);
+    cartman_mpd_tile_t *pfan = plst.get_mesh()->get_pfan(index2d);
     if (!pfan) return -1;
 
     int ivrt = get_fan_vertex_by_coord(plst.get_mesh(), pfan, grid_ix, grid_iy, vert_lst );
@@ -509,7 +508,7 @@ int select_lst_add_fan_vertex( select_lst_t& plst, int mapx, int mapy, int grid_
 }
 
 //--------------------------------------------------------------------------------------------
-void weld_edge_verts( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, tile_definition_t * pdef, int cnt, int mapx, int mapy )
+void weld_edge_verts( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, tile_definition_t * pdef, int cnt, Index2D index2d )
 {
     int fake_edge_count = 0;
     int fake_edge_verts[8 + 1];
@@ -535,7 +534,7 @@ void weld_edge_verts( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, tile_def
         loc_lst.init( pmesh );
 
         // add the point on this fan
-        pfan = pmesh->get_pfan(mapx, mapy);
+        pfan = pmesh->get_pfan(index2d);
         if ( NULL != pfan )
         {
             int ivrt;
@@ -548,7 +547,7 @@ void weld_edge_verts( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, tile_def
 
         if ( 0 == grid_ix )
         {
-            added_vert = select_lst_add_fan_vertex( loc_lst, mapx - 1, mapy, 3 - grid_ix, grid_iy, fake_edge_verts[fake_edge_count] );
+            added_vert = select_lst_add_fan_vertex(loc_lst, {index2d.x() - 1, index2d.y()}, 3 - grid_ix, grid_iy, fake_edge_verts[fake_edge_count]);
 
             // did the function use the "fake" vertex?
             if ( added_vert == fake_edge_verts[fake_edge_count] )
@@ -559,7 +558,7 @@ void weld_edge_verts( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, tile_def
 
         if ( 3 == grid_ix )
         {
-            added_vert = select_lst_add_fan_vertex( loc_lst, mapx + 1, mapy, 3 - grid_ix, grid_iy, fake_edge_verts[fake_edge_count] );
+            added_vert = select_lst_add_fan_vertex(loc_lst, {index2d.x() + 1, index2d.y()}, 3 - grid_ix, grid_iy, fake_edge_verts[fake_edge_count]);
 
             // did the function use the "fake" vertex?
             if ( added_vert == fake_edge_verts[fake_edge_count] )
@@ -570,7 +569,7 @@ void weld_edge_verts( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, tile_def
 
         if ( 0 == grid_iy )
         {
-            added_vert = select_lst_add_fan_vertex( loc_lst, mapx, mapy - 1, grid_ix, 3 - grid_iy, fake_edge_verts[fake_edge_count] );
+            added_vert = select_lst_add_fan_vertex(loc_lst, {index2d.x(), index2d.y() - 1}, grid_ix, 3 - grid_iy, fake_edge_verts[fake_edge_count]);
 
             // did the function use the "fake" vertex?
             if ( added_vert == fake_edge_verts[fake_edge_count] )
@@ -581,7 +580,7 @@ void weld_edge_verts( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, tile_def
 
         if ( 3 == grid_iy )
         {
-            added_vert = select_lst_add_fan_vertex( loc_lst, mapx, mapy + 1, grid_ix, 3 - grid_iy, fake_edge_verts[fake_edge_count] );
+            added_vert = select_lst_add_fan_vertex(loc_lst, {index2d.x(), index2d.y() + 1}, grid_ix, 3 - grid_iy, fake_edge_verts[fake_edge_count]);
 
             // did the function use the "fake" vertex?
             if ( added_vert == fake_edge_verts[fake_edge_count] )
@@ -717,7 +716,7 @@ void select_lst_remove_rect( select_lst_t& plst, const Vector3f& a, const Vector
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-int nearest_edge_vertex( cartman_mpd_t * pmesh, int mapx, int mapy, float nearx, float neary )
+int nearest_edge_vertex( cartman_mpd_t * pmesh, Index2D index2d, float nearx, float neary )
 {
     // ZZ> This function gets a vertex number or -1
     int bestvert;
@@ -726,7 +725,7 @@ int nearest_edge_vertex( cartman_mpd_t * pmesh, int mapx, int mapy, float nearx,
 
     if ( NULL == pmesh ) pmesh = &mesh;
 
-	cartman_mpd_tile_t *pfan = pmesh->get_pfan(mapx, mapy);
+    cartman_mpd_tile_t *pfan = pmesh->get_pfan(index2d);
     if ( NULL == pfan ) return -1;
 
 	tile_definition_t *pdef = tile_dict.get(pfan->type);
@@ -858,7 +857,7 @@ void mesh_select_verts_connected(select_lst_t& plst) {
     {
         for ( int mapx = 0; mapx < pinfo.getTileCountX(); mapx++ )
         {
-			cartman_mpd_tile_t *pfan = pmesh->get_pfan(mapx, mapy);
+            cartman_mpd_tile_t *pfan = pmesh->get_pfan({mapx, mapy});
             if ( NULL == pfan ) continue;
 
 			tile_definition_t *pdef = tile_dict.get(pfan->type);
@@ -961,7 +960,7 @@ void MeshEditor::mesh_set_tile( cartman_mpd_t * pmesh, Uint16 tiletoset, Uint8 u
     {
         for (int mapx = 0; mapx < pmesh->info.getTileCountX(); mapx++)
         {
-			cartman_mpd_tile_t *pfan = pmesh->get_pfan(mapx, mapy);
+            cartman_mpd_tile_t *pfan = pmesh->get_pfan({mapx, mapy});
             if ( NULL == pfan ) continue;
 
             if ( TILE_IS_FANOFF( pfan->tx_bits ) ) continue;
@@ -1009,7 +1008,7 @@ void MeshEditor::move_mesh_z( cartman_mpd_t * pmesh, int z, Uint16 tiletype, Uin
     {
         for ( int mapx = 0; mapx < pmesh->info.getTileCountX(); mapx++ )
         {
-			cartman_mpd_tile_t *pfan = pmesh->get_pfan(mapx, mapy);
+            cartman_mpd_tile_t *pfan = pmesh->get_pfan({mapx, mapy});
             if ( NULL == pfan ) continue;
 
 			tile_definition_t *pdef = tile_dict.get(pfan->type);
@@ -1082,7 +1081,7 @@ void MeshEditor::level_vrtz( cartman_mpd_t * pmesh )
     {
         for ( int mapx = 0; mapx < pmesh->info.getTileCountX(); mapx++ )
         {
-			cartman_mpd_tile_t *pfan = pmesh->get_pfan(mapx, mapy);
+            cartman_mpd_tile_t *pfan = pmesh->get_pfan({mapx, mapy});
             if ( NULL == pfan ) continue;
 
 			tile_definition_t *pdef = tile_dict.get(pfan->type);
@@ -1113,7 +1112,7 @@ void MeshEditor::jitter_mesh( cartman_mpd_t * pmesh )
     {
         for ( int mapx = 0; mapx < pmesh->info.getTileCountX(); mapx++ )
         {
-			cartman_mpd_tile_t *pfan = pmesh->get_pfan(mapx, mapy);
+            cartman_mpd_tile_t *pfan = pmesh->get_pfan({mapx, mapy});
             if ( NULL == pfan ) continue;
 
 			tile_definition_t *pdef = tile_dict.get(pfan->type);
@@ -1152,7 +1151,7 @@ void MeshEditor::flatten_mesh( cartman_mpd_t * pmesh, int y0 )
     {
         for ( int mapx = 0; mapx < pmesh->info.getTileCountX(); mapx++ )
         {
-			cartman_mpd_tile_t *pfan = pmesh->get_pfan(mapx, mapy);
+            cartman_mpd_tile_t *pfan = pmesh->get_pfan({mapx, mapy});
             if ( NULL == pfan ) continue;
 
 			tile_definition_t *pdef = tile_dict.get(pfan->type);
@@ -1190,7 +1189,7 @@ void MeshEditor::clear_mesh( cartman_mpd_t * pmesh, Uint8 upper, Uint16 presser,
         {
             for ( int mapx = 0; mapx < pmesh->info.getTileCountX(); mapx++ )
             {
-    			cartman_mpd_tile_t *pfan = pmesh->get_pfan(mapx, mapy);
+                cartman_mpd_tile_t *pfan = pmesh->get_pfan({mapx, mapy});
                 if ( NULL == pfan ) continue;
 
                 pmesh->remove_pfan(pfan);
@@ -1242,7 +1241,7 @@ void MeshEditor::three_e_mesh( cartman_mpd_t * pmesh, Uint8 upper, Uint8 tx )
     {
         for (int mapx = 0; mapx < pmesh->info.getTileCountX(); mapx++)
         {
-			cartman_mpd_tile_t *pfan = pmesh->get_pfan(mapx, mapy);
+            cartman_mpd_tile_t *pfan = pmesh->get_pfan({mapx, mapy});
             if ( NULL == pfan ) continue;
 
             if ( 0x3F == pfan->tx_bits )
@@ -1254,18 +1253,18 @@ void MeshEditor::three_e_mesh( cartman_mpd_t * pmesh, Uint8 upper, Uint8 tx )
 }
 
 //--------------------------------------------------------------------------------------------
-bool MeshEditor::fan_isPassableFloor( cartman_mpd_t * pmesh, int mapx, int mapy )
+bool MeshEditor::fan_isPassableFloor( cartman_mpd_t * pmesh, const Index2D& index2d )
 {
     if (!pmesh ) pmesh = &mesh;
-	cartman_mpd_tile_t *ptile = pmesh->get_pfan(mapx, mapy);
+	cartman_mpd_tile_t *ptile = pmesh->get_pfan(index2d);
     if (!ptile) return false;
 	return ptile->isPassableFloor();
 }
 
-bool MeshEditor::isImpassableWall( cartman_mpd_t *pmesh, int mapx, int mapy )
+bool MeshEditor::isImpassableWall( cartman_mpd_t *pmesh, const Index2D& index2d )
 {
     if (!pmesh) pmesh = &mesh;
-	cartman_mpd_tile_t *ptile = pmesh->get_pfan(mapx, mapy);
+	cartman_mpd_tile_t *ptile = pmesh->get_pfan(index2d);
     if (!ptile) return true;
 	return ptile->isImpassableWall();
 }
@@ -1273,14 +1272,14 @@ bool MeshEditor::isImpassableWall( cartman_mpd_t *pmesh, int mapx, int mapy )
 //--------------------------------------------------------------------------------------------
 #define BARRIER_FUNC(XX) ( 1.0f - (1.0f - (XX)) * (1.0f - (XX)) * (1.0f - (XX)) )
 
-void MeshEditor::set_barrier_height( cartman_mpd_t * pmesh, int mapx, int mapy )
+void MeshEditor::set_barrier_height( cartman_mpd_t * pmesh, const Index2D& index2d )
 {
     float corner_hgt[4];
 
     if ( NULL == pmesh ) pmesh = &mesh;
 
     // does the fan exist?
-	cartman_mpd_tile_t *pfan = pmesh->get_pfan(mapx, mapy);
+	cartman_mpd_tile_t *pfan = pmesh->get_pfan(index2d);
     if ( NULL == pfan ) return;
 
     // fan is defined?
@@ -1289,19 +1288,19 @@ void MeshEditor::set_barrier_height( cartman_mpd_t * pmesh, int mapx, int mapy )
     Uint32 vert_count = pdef->numvertices;
 
     // must not be a passable floor
-    if ( fan_isPassableFloor( pmesh,  mapx, mapy ) ) return;
+    if ( fan_isPassableFloor( pmesh,  index2d ) ) return;
 
     // find other walls around this tile
-    bool floor_mx = fan_isPassableFloor( pmesh,  mapx - 1, mapy );
-    bool floor_px = fan_isPassableFloor( pmesh,  mapx + 1, mapy );
-    bool floor_my = fan_isPassableFloor( pmesh,  mapx, mapy - 1 );
-    bool floor_py = fan_isPassableFloor( pmesh,  mapx, mapy + 1 );
+    bool floor_mx = fan_isPassableFloor(pmesh, {index2d.x() - 1, index2d.y()});
+    bool floor_px = fan_isPassableFloor(pmesh, {index2d.x() + 1, index2d.y()});
+    bool floor_my = fan_isPassableFloor(pmesh, {index2d.x(), index2d.y() - 1});
+    bool floor_py = fan_isPassableFloor(pmesh, {index2d.x(), index2d.y() + 1});
     bool noedges  = !floor_mx && !floor_px && !floor_my && !floor_py;
 
-    bool floor_mxmy = fan_isPassableFloor( pmesh,  mapx - 1, mapy - 1 );
-    bool floor_mxpy = fan_isPassableFloor( pmesh,  mapx - 1, mapy + 1 );
-    bool floor_pxmy = fan_isPassableFloor( pmesh,  mapx + 1, mapy - 1 );
-    bool floor_pxpy = fan_isPassableFloor( pmesh,  mapx + 1, mapy + 1 );
+    bool floor_mxmy = fan_isPassableFloor(pmesh, {index2d.x() - 1, index2d.y() - 1});
+    bool floor_mxpy = fan_isPassableFloor(pmesh, {index2d.x() - 1, index2d.y() + 1});
+    bool floor_pxmy = fan_isPassableFloor(pmesh, {index2d.x() + 1, index2d.y() - 1});
+    bool floor_pxpy = fan_isPassableFloor(pmesh, {index2d.x() + 1, index2d.y() + 1});
     bool nocorners  = !floor_mxmy && !floor_mxpy && !floor_pxmy && !floor_pxpy;
 
     // if it is completely surrounded by walls, there's nothing to do
@@ -1471,7 +1470,7 @@ void MeshEditor::fix_walls( cartman_mpd_t * pmesh )
     {
         for ( int mapx = 0; mapx < pmesh->info.getTileCountX(); mapx++ )
         {
-            set_barrier_height( pmesh, mapx, mapy );
+            set_barrier_height(pmesh, {mapx, mapy});
         }
     }
 }
@@ -1485,9 +1484,9 @@ void MeshEditor::impass_edges( cartman_mpd_t * pmesh, int amount )
     {
         for ( int mapx = 0; mapx < pmesh->info.getTileCountX(); mapx++ )
         {
-            if ( dist_from_edge( pmesh,  mapx, mapy ) < amount )
+            if (dist_from_edge(pmesh, {mapx, mapy}) < amount)
             {
-				cartman_mpd_tile_t *tile = pmesh->get_pfan(mapx, mapy);
+                cartman_mpd_tile_t *tile = pmesh->get_pfan({mapx, mapy});
                 if (!tile) continue;
 				tile->setImpassable();
             }
@@ -1508,7 +1507,7 @@ void MeshEditor::mesh_replace_fx( cartman_mpd_t * pmesh, Uint16 fx_bits, Uint16 
     {
         for (int mapx = 0; mapx < pmesh->info.getTileCountX(); mapx++)
         {
-			cartman_mpd_tile_t *pfan = pmesh->get_pfan(mapx, mapy);
+            cartman_mpd_tile_t *pfan = pmesh->get_pfan({mapx, mapy});
             if ( NULL == pfan ) continue;
 
             if ( fx_bits == ( pfan->tx_bits&fx_mask ) )
@@ -1521,12 +1520,12 @@ void MeshEditor::mesh_replace_fx( cartman_mpd_t * pmesh, Uint16 fx_bits, Uint16 
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-Uint8 tile_is_different( cartman_mpd_t * pmesh, int mapx, int mapy, Uint16 fx_bits, Uint16 fx_mask )
+Uint8 tile_is_different( cartman_mpd_t * pmesh, Index2D index2d, Uint16 fx_bits, Uint16 fx_mask )
 {
     // ZZ> false if of same set, true if different
     if ( NULL == pmesh ) pmesh = &mesh;
 
-	cartman_mpd_tile_t *pfan = pmesh->get_pfan(mapx, mapy);
+    cartman_mpd_tile_t *pfan = pmesh->get_pfan(index2d);
     if ( NULL == pfan ) return false;
 
     if ( fx_mask == 0xC0 )
@@ -1546,7 +1545,7 @@ Uint8 tile_is_different( cartman_mpd_t * pmesh, int mapx, int mapy, Uint16 fx_bi
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 trim_code( cartman_mpd_t * pmesh, int mapx, int mapy, Uint16 fx_bits )
+Uint16 trim_code( cartman_mpd_t * pmesh, const Index2D& index2d, Uint16 fx_bits )
 {
     // ZZ> This function returns the standard tile set value thing...  For
     //     Trimming tops of walls and floors
@@ -1555,16 +1554,16 @@ Uint16 trim_code( cartman_mpd_t * pmesh, int mapx, int mapy, Uint16 fx_bits )
 
     if ( NULL == pmesh ) pmesh = &mesh;
 
-    if ( tile_is_different( pmesh,  mapx, mapy - 1, fx_bits, 0xF0 ) )
+    if (tile_is_different(pmesh, {index2d.x(), index2d.y() - 1}, fx_bits, 0xF0))
     {
         // Top
         code = 0;
-        if ( tile_is_different( pmesh,  mapx - 1, mapy, fx_bits, 0xF0 ) )
+        if (tile_is_different(pmesh, {index2d.x() - 1, index2d.y()}, fx_bits, 0xF0))
         {
             // Left
             code = 8;
         }
-        if ( tile_is_different( pmesh,  mapx + 1, mapy, fx_bits, 0xF0 ) )
+        if (tile_is_different(pmesh, {index2d.x() + 1, index2d.y()}, fx_bits, 0xF0))
         {
             // Right
             code = 9;
@@ -1572,16 +1571,16 @@ Uint16 trim_code( cartman_mpd_t * pmesh, int mapx, int mapy, Uint16 fx_bits )
         return code;
     }
 
-    if ( tile_is_different( pmesh,  mapx, mapy + 1, fx_bits, 0xF0 ) )
+    if (tile_is_different(pmesh, {index2d.x(), index2d.y() + 1}, fx_bits, 0xF0))
     {
         // Bottom
         code = 1;
-        if ( tile_is_different( pmesh,  mapx - 1, mapy, fx_bits, 0xF0 ) )
+        if (tile_is_different(pmesh, {index2d.x() - 1, index2d.y()}, fx_bits, 0xF0))
         {
             // Left
             code = 10;
         }
-        if ( tile_is_different( pmesh,  mapx + 1, mapy, fx_bits, 0xF0 ) )
+        if (tile_is_different(pmesh, {index2d.x() + 1, index2d.y()}, fx_bits, 0xF0))
         {
             // Right
             code = 11;
@@ -1589,38 +1588,38 @@ Uint16 trim_code( cartman_mpd_t * pmesh, int mapx, int mapy, Uint16 fx_bits )
         return code;
     }
 
-    if ( tile_is_different( pmesh,  mapx - 1, mapy, fx_bits, 0xF0 ) )
+    if (tile_is_different(pmesh, {index2d.x() - 1, index2d.y()}, fx_bits, 0xF0))
     {
         // Left
         code = 2;
         return code;
     }
-    if ( tile_is_different( pmesh,  mapx + 1, mapy, fx_bits, 0xF0 ) )
+    if (tile_is_different(pmesh, {index2d.x() + 1, index2d.y()}, fx_bits, 0xF0))
     {
         // Right
         code = 3;
         return code;
     }
 
-    if ( tile_is_different( pmesh,  mapx + 1, mapy + 1, fx_bits, 0xF0 ) )
+    if (tile_is_different(pmesh, {index2d.x() + 1, index2d.y() + 1}, fx_bits, 0xF0))
     {
         // Bottom Right
         code = 4;
         return code;
     }
-    if ( tile_is_different( pmesh,  mapx - 1, mapy + 1, fx_bits, 0xF0 ) )
+    if (tile_is_different(pmesh, {index2d.x() - 1, index2d.y() + 1}, fx_bits, 0xF0))
     {
         // Bottom Left
         code = 5;
         return code;
     }
-    if ( tile_is_different( pmesh,  mapx + 1, mapy - 1, fx_bits, 0xF0 ) )
+    if (tile_is_different(pmesh, {index2d.x() + 1, index2d.y() - 1}, fx_bits, 0xF0))
     {
         // Top Right
         code = 6;
         return code;
     }
-    if ( tile_is_different( pmesh,  mapx - 1, mapy - 1, fx_bits, 0xF0 ) )
+    if (tile_is_different(pmesh, {index2d.x() - 1, index2d.y() - 1}, fx_bits, 0xF0))
     {
         // Top Left
         code = 7;
@@ -1634,7 +1633,7 @@ Uint16 trim_code( cartman_mpd_t * pmesh, int mapx, int mapy, Uint16 fx_bits )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 wall_code( cartman_mpd_t * pmesh, int mapx, int mapy, Uint16 fx_bits )
+Uint16 wall_code( cartman_mpd_t * pmesh, const Index2D& index2d, Uint16 fx_bits )
 {
     // ZZ> This function returns the standard tile set value thing...  For
     //     Trimming tops of walls and floors
@@ -1643,16 +1642,16 @@ Uint16 wall_code( cartman_mpd_t * pmesh, int mapx, int mapy, Uint16 fx_bits )
 
     if ( NULL == pmesh ) pmesh = &mesh;
 
-    if ( tile_is_different( pmesh,  mapx, mapy - 1, fx_bits, 0xC0 ) )
+    if (tile_is_different(pmesh, {index2d.x(), index2d.y() - 1}, fx_bits, 0xC0))
     {
         // Top
         code = Random::next(1) * 2 + 20;
-        if ( tile_is_different( pmesh,  mapx - 1, mapy, fx_bits, 0xC0 ) )
+        if (tile_is_different(pmesh, {index2d.x() - 1, index2d.y()}, fx_bits, 0xC0))
         {
             // Left
             code = 48;
         }
-        if ( tile_is_different( pmesh,  mapx + 1, mapy, fx_bits, 0xC0 ) )
+        if (tile_is_different(pmesh, {index2d.x() + 1, index2d.y()}, fx_bits, 0xC0))
         {
             // Right
             code = 50;
@@ -1661,16 +1660,16 @@ Uint16 wall_code( cartman_mpd_t * pmesh, int mapx, int mapy, Uint16 fx_bits )
         return code;
     }
 
-    if ( tile_is_different( pmesh,  mapx, mapy + 1, fx_bits, 0xC0 ) )
+    if (tile_is_different(pmesh, {index2d.x(), index2d.y() + 1}, fx_bits, 0xC0))
     {
         // Bottom
         code = Random::next(1) * 2;
-        if ( tile_is_different( pmesh,  mapx - 1, mapy, fx_bits, 0xC0 ) )
+        if (tile_is_different(pmesh, {index2d.x() - 1, index2d.y()}, fx_bits, 0xC0))
         {
             // Left
             code = 52;
         }
-        if ( tile_is_different( pmesh,  mapx + 1, mapy, fx_bits, 0xC0 ) )
+        if (tile_is_different(pmesh, {index2d.x() + 1, index2d.y()}, fx_bits, 0xC0))
         {
             // Right
             code = 54;
@@ -1678,39 +1677,39 @@ Uint16 wall_code( cartman_mpd_t * pmesh, int mapx, int mapy, Uint16 fx_bits )
         return code;
     }
 
-    if ( tile_is_different( pmesh,  mapx - 1, mapy, fx_bits, 0xC0 ) )
+    if (tile_is_different(pmesh, {index2d.x() - 1, index2d.y()}, fx_bits, 0xC0))
     {
         // Left
         code = Random::next(1) * 2 + 16;
         return code;
     }
 
-    if ( tile_is_different( pmesh,  mapx + 1, mapy, fx_bits, 0xC0 ) )
+    if (tile_is_different(pmesh, {index2d.x() + 1, index2d.y()}, fx_bits, 0xC0))
     {
         // Right
         code = Random::next(1) * 2 + 4;
         return code;
     }
 
-    if ( tile_is_different( pmesh,  mapx + 1, mapy + 1, fx_bits, 0xC0 ) )
+    if (tile_is_different(pmesh, {index2d.x() + 1, index2d.y() + 1}, fx_bits, 0xC0))
     {
         // Bottom Right
         code = 32;
         return code;
     }
-    if ( tile_is_different( pmesh,  mapx - 1, mapy + 1, fx_bits, 0xC0 ) )
+    if (tile_is_different(pmesh, {index2d.x() - 1, index2d.y() + 1}, fx_bits, 0xC0))
     {
         // Bottom Left
         code = 34;
         return code;
     }
-    if ( tile_is_different( pmesh,  mapx + 1, mapy - 1, fx_bits, 0xC0 ) )
+    if (tile_is_different(pmesh, {index2d.x() + 1, index2d.y() - 1}, fx_bits, 0xC0))
     {
         // Top Right
         code = 36;
         return code;
     }
-    if ( tile_is_different( pmesh,  mapx - 1, mapy - 1, fx_bits, 0xC0 ) )
+    if (tile_is_different(pmesh, {index2d.x() - 1, index2d.y() - 1}, fx_bits, 0xC0))
     {
         // Top Left
         code = 38;
@@ -1735,7 +1734,7 @@ void trim_mesh_tile( cartman_mpd_t * pmesh, Uint16 fx_bits, Uint16 fx_mask )
     {
         for ( int mapx = 0; mapx < pmesh->info.getTileCountX(); mapx++ )
         {
-			cartman_mpd_tile_t *pfan = pmesh->get_pfan(mapx, mapy);
+            cartman_mpd_tile_t *pfan = pmesh->get_pfan({mapx, mapy});
             if ( NULL == pfan ) continue;
 
             if ( fx_bits == ( pfan->tx_bits&fx_mask ) )
@@ -1743,11 +1742,11 @@ void trim_mesh_tile( cartman_mpd_t * pmesh, Uint16 fx_bits, Uint16 fx_mask )
 				int code;
                 if ( fx_mask == 0xC0 )
                 {
-                    code = wall_code( pmesh,  mapx, mapy, fx_bits );
+                    code = wall_code(pmesh, {mapx, mapy}, fx_bits);
                 }
                 else
                 {
-                    code = trim_code( pmesh,  mapx, mapy, fx_bits );
+                    code = trim_code(pmesh, {mapx, mapy}, fx_bits);
                 }
 
                 if ( code != 255 )
@@ -1880,7 +1879,7 @@ void MeshEditor::mesh_move( cartman_mpd_t * pmesh, float dx, float dy, float dz 
         {
             int count;
 
-            pfan = pmesh->get_pfan(mapx, mapy);
+            pfan = pmesh->get_pfan({mapx, mapy});
             if ( NULL == pfan ) continue;
 
             pdef = tile_dict.get(pfan->type );

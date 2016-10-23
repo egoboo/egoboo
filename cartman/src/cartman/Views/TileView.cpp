@@ -41,7 +41,7 @@ void TileView::render(Gui::Window& window, float zoom_hrz, float zoom_vrt) {
             getTileRange(cam, *window.pmesh, indices);
 
             for (auto index : indices) {
-                int fan = window.pmesh->get_ifan(index.first, index.second);
+                int fan = window.pmesh->get_ifan({index.first, index.second});
                 if (!VALID_MPD_TILE_RANGE(fan)) continue;
 
                 int x = index.first * Info<int>::Grid::Size();

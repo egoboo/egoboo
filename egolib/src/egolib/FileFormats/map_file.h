@@ -25,6 +25,7 @@
 #include "egolib/Math/_Include.hpp"
 #include "egolib/FileFormats/map_tile_dictionary.h"
 #include "egolib/Math/Vector.hpp"
+#include "egolib/Mesh/Info.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -379,7 +380,7 @@ public:
 	 * @return
 	 *  the 1D index of the tile \f$y \cdot w + x\f$ where \f$w\f$ is the width of the map
 	 */
-	size_t getTileIndex(int x, int y) const;
+	size_t getTileIndex(Index2D index2d) const;
 
 	/**
 	 * @brief

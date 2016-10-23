@@ -44,7 +44,7 @@ void VertexView::render(Gui::Window& window, float zoom_hrz, float zoom_vrt) {
 
 
             for (auto index : indices) {
-                int fan = window.pmesh->get_ifan(index.first, index.second);
+                int fan = window.pmesh->get_ifan({index.first, index.second});
                 if (!VALID_MPD_TILE_RANGE(fan)) continue;
 
                 draw_top_fan(mdata.win_select, fan, zoom_hrz, zoom_vrt);

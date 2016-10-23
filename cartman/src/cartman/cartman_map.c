@@ -169,22 +169,18 @@ void cartman_mpd_make_twist(cartman_mpd_t *pmesh) {
     }
 }
 
-int cartman_mpd_t::get_ifan(int mapx, int mapy)
-{
-    if (mapy >= 0 && mapy < info.getTileCountY() && mapy < MAP_TILE_MAX_Y)
-    {
-        if (mapx >= 0 && mapx < info.getTileCountX() && mapx < MAP_TILE_MAX_X)
-        {
-            return fanstart2[mapy] + mapx;
+int cartman_mpd_t::get_ifan(const Index2D& index2d) {
+    if (index2d.y() >= 0 && index2d.y() < info.getTileCountY() && index2d.y() < MAP_TILE_MAX_Y) {
+        if (index2d.x() >= 0 && index2d.x() < info.getTileCountX() && index2d.x() < MAP_TILE_MAX_X) {
+            return fanstart2[index2d.y()] + index2d.x();
         }
     }
 
     return -1;
 }
 
-cartman_mpd_tile_t *cartman_mpd_t::get_pfan(int mapx, int mapy)
-{
-    int ifan = get_ifan(mapx, mapy);
+cartman_mpd_tile_t *cartman_mpd_t::get_pfan(const Index2D& index2d) {
+    int ifan = get_ifan(index2d);
     return get_pfan(ifan);
 }
 
@@ -257,7 +253,7 @@ int cartman_mpd_t::count_used_vertices()
     {
         for (int mapx = 0; mapx < info.getTileCountX(); mapx++)
         {
-            int ifan = get_ifan(mapx, mapy);
+            int ifan = get_ifan({mapx, mapy});
             if (!VALID_MPD_TILE_RANGE(ifan))
             {
                 continue;
@@ -379,12 +375,12 @@ Uint8 cartman_mpd_get_fan_twist( cartman_mpd_t * pmesh, Uint32 fan )
     return twist;
 }
 
-float cartman_mpd_t::get_level(int mapx, int mapy)
+float cartman_mpd_t::get_level(const Index2D& index2d)
 {
     float zleft, zright;   // Weighted height of each side.
     float zdone = 0.0f;
 
-    cartman_mpd_tile_t *pfan = get_pfan(mapx, mapy);
+    cartman_mpd_tile_t *pfan = get_pfan(index2d);
     if (!pfan) return zdone;
 
     int v0, v1, v2, v3;   // The vertex index of each fan corner
@@ -427,9 +423,9 @@ float cartman_mpd_t::get_level(int mapx, int mapy)
         z3 = 0;
     }
 
-    zleft = (z0 * (Info<int>::Grid::Size() - mapy) + z3 * mapy) / Info<float>::Grid::Size();
-    zright = (z1 * (Info<int>::Grid::Size() - mapy) + z2 * mapy) / Info<float>::Grid::Size();
-    zdone = (zleft * (Info<int>::Grid::Size() - mapx) + zright * mapx) / Info<float>::Grid::Size();
+    zleft = (z0 * (Info<int>::Grid::Size() - index2d.y()) + z3 * index2d.y()) / Info<float>::Grid::Size();
+    zright = (z1 * (Info<int>::Grid::Size() - index2d.y()) + z2 * index2d.y()) / Info<float>::Grid::Size();
+    zdone = (zleft * (Info<int>::Grid::Size() - index2d.x()) + zright * index2d.x()) / Info<float>::Grid::Size();
 
     return zdone;
 }
@@ -441,7 +437,7 @@ float cartman_mpd_t::get_level(float x, float y)
     if (y < 0.0f || y >= info.getEdgeY()) return zdone;
     int mapx, mapy;
     worldToMap(x, y, mapx, mapy);
-    return get_level(mapx, mapy);
+    return get_level({mapx, mapy});
 }
 
 int cartman_mpd_free_vertex_list(cartman_mpd_t *self, int list[], size_t size)
@@ -727,10 +723,10 @@ int cartman_mpd_t::get_ivrt_fan(int ifan, int index)
     return get_ivrt_pfan(pfan, index);
 }
 
-int cartman_mpd_t::get_ivrt_xy(int mapx, int mapy, int index)
+int cartman_mpd_t::get_ivrt_xy(Index2D index2d, int index)
 {
     // find the fan
-    int ifan = get_ifan(mapx, mapy);
+    int ifan = get_ifan(index2d);
     if (ifan < 0) return -1;
 
     return get_ivrt_fan(ifan, index);

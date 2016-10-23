@@ -23,6 +23,7 @@
 #pragma once
 
 #include "cartman/cartman_typedef.h"
+#include "egolib/Mesh/Info.hpp"
 
 //--------------------------------------------------------------------------------------------
 
@@ -36,14 +37,14 @@
 //--------------------------------------------------------------------------------------------
 
 float dist_from_border( cartman_mpd_t * pmesh, float x, float y );
-int dist_from_edge( cartman_mpd_t * pmesh, int mapx, int mapy );
-int nearest_edge_vertex( cartman_mpd_t * pmesh, int mapx, int mapy, float nearx, float neary );
+int dist_from_edge( cartman_mpd_t * pmesh, Index2D index2d );
+int nearest_edge_vertex( cartman_mpd_t * pmesh, Index2D index2d, float nearx, float neary );
 
 void fix_mesh( cartman_mpd_t * pmesh );
 void fix_corners( cartman_mpd_t * pmesh );
 void fix_edges( cartman_mpd_t * pmesh );
-void fix_vertices( cartman_mpd_t * pmesh, int mapx, int mapy );
-void weld_corner_verts( cartman_mpd_t * pmesh, int mapx, int mapy );
+void fix_vertices( cartman_mpd_t * pmesh, Index2D index2d );
+void weld_corner_verts( cartman_mpd_t * pmesh, Index2D index2d );
 
 // functions taking a selection as an argument
 // Weld selected vertices.
@@ -72,9 +73,9 @@ struct MeshEditor {
 	static void flatten_mesh(cartman_mpd_t * pmesh, int y0);
 	static void clear_mesh(cartman_mpd_t * pmesh, Uint8 upper, Uint16 presser, Uint8 tx, Uint8 type);
 	static void three_e_mesh(cartman_mpd_t * pmesh, Uint8 upper, Uint8 tx);
-	static bool fan_isPassableFloor(cartman_mpd_t * pmesh, int mapx, int mapy);
-	static bool isImpassableWall(cartman_mpd_t * pmesh, int mapx, int mapy);
-	static void set_barrier_height(cartman_mpd_t * pmesh, int mapx, int mapy);
+	static bool fan_isPassableFloor(cartman_mpd_t * pmesh, const Index2D& index2d);
+	static bool isImpassableWall(cartman_mpd_t * pmesh, const Index2D& index2d);
+	static void set_barrier_height(cartman_mpd_t * pmesh, const Index2D& index2d);
 	static void fix_walls(cartman_mpd_t * pmesh);
 	static void impass_edges(cartman_mpd_t * pmesh, int amount);
 
@@ -85,7 +86,7 @@ struct MeshEditor {
 };
 
 // indecipherable legacy code
-Uint8  tile_is_different( cartman_mpd_t * pmesh, int fan_x, int fan_y, Uint16 fx_bits, Uint16 fx_mask );
-Uint16 trim_code( cartman_mpd_t * pmesh, int mapx, int mapy, Uint16 fx_bits );
-Uint16 wall_code( cartman_mpd_t * pmesh, int mapx, int mapy, Uint16 fx_bits );
+Uint8  tile_is_different( cartman_mpd_t * pmesh, Index2D index2d, Uint16 fx_bits, Uint16 fx_mask );
+Uint16 trim_code( cartman_mpd_t * pmesh, const Index2D& index2d, Uint16 fx_bits );
+Uint16 wall_code( cartman_mpd_t * pmesh, const Index2D& index2d, Uint16 fx_bits );
 void   trim_mesh_tile( cartman_mpd_t * pmesh, Uint16 fx_bits, Uint16 fx_mask );
