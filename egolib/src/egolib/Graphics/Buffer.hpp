@@ -64,13 +64,13 @@ private:
     void *pointer;
 
     /// @brief A pointer to the buffer.
-    Ego::Buffer *buffer;
+    Buffer *buffer;
 
 public:
     /// @brief Construct this buffer scoped lock, locking the buffer.
     /// @param buffer the buffer
     /// @throw Ego::Core::LockFailedException the buffer can not be locked
-    BufferScopedLock(Ego::Buffer& buffer)
+    BufferScopedLock(Buffer& buffer)
         : buffer(&buffer), pointer(buffer.lock()) {}
 
     /// @brief Destruct his buffer scoped lock, unlocking the buffer.
