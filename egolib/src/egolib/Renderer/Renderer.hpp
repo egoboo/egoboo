@@ -35,12 +35,6 @@
 #include "egolib/Renderer/RendererInfo.hpp"
 #include "egolib/Graphics/VertexBuffer.hpp"
 #include "egolib/Renderer/Texture.hpp"
-#include "egolib/Extensions/ogl_debug.h"
-#include "egolib/Extensions/ogl_extensions.h"
-#include "egolib/Extensions/ogl_include.h"
-#include "egolib/Extensions/SDL_extensions.h"
-#include "egolib/Extensions/SDL_GL_extensions.h"
-
 
 namespace Ego {
 
