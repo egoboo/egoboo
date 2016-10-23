@@ -54,10 +54,8 @@ public:
     QuadTree(const float minX, const float minY, const float maxX, const float maxY) :
         _bounds(Point2f(minX, minY), Point2f(maxX, maxY)),
         _nodes(),
-        _northWest(nullptr),
-        _northEast(nullptr),
-        _southWest(nullptr),
-        _southEast(nullptr)
+        _size(0),
+        _quadrants()
     {
         //ctor
     }
@@ -77,23 +75,22 @@ public:
         }
 
         //Check if we have room
-        if(_nodes.size() < QUAD_TREE_NODE_CAPACITY) {
-            _nodes.push_back(element);
+        if(_size < _nodes.size()) {
+            _nodes[_size++] = element;
             return true;
         }
 
         // Otherwise, subdivide and then add the point to whichever node will accept it
-        if(_northWest == nullptr) {
+        if(_quadrants[0] == nullptr) {
             subdivide();
         }
 
         //Add element to a sub-tree
-        _northWest->insert(element);
-        _northEast->insert(element);
-        _southWest->insert(element);
-        _southEast->insert(element);
+        for(size_t i = 0; i < _quadrants.size(); ++i) {
+            _quadrants[i]->insert(element);
+        }
 
-        //Should be added to at least 1
+        //Should be added to at least 1 sub-tree
         return true;
     }
 
@@ -115,8 +112,8 @@ public:
         }
 
         //Check all nodes in this QuadTree
-        for(const std::weak_ptr<T> &weakElement : _nodes) {
-            std::shared_ptr<T> element = weakElement.lock();
+        for(size_t i = 0; i < _size; ++i) {
+            std::shared_ptr<T> element = _nodes[i].lock();
 
             //Make sure element still exists
             if(element != nullptr) {
@@ -134,11 +131,10 @@ public:
         }
 
         //Check subtrees (if any)
-        if(_northWest != nullptr) {
-            _northWest->find(searchArea, result);
-            _northEast->find(searchArea, result);
-            _southWest->find(searchArea, result);
-            _southEast->find(searchArea, result);
+        if(_quadrants[0] != nullptr) {
+            for(size_t i = 0; i < _quadrants.size(); ++i) {
+                _quadrants[i]->find(searchArea, result);
+            }
         }
     }
 
@@ -152,11 +148,10 @@ public:
         _bounds = AxisAlignedBox2f(Point2f(minX, minY), Point2f(maxX, maxY));
 
         //Clear children and all elements
-        _nodes.clear();
-        _northWest.reset();
-        _northEast.reset();
-        _southWest.reset();
-        _southEast.reset();
+        _size = 0;
+        for(std::unique_ptr<QuadTree<T>> &subTree : _quadrants) {
+            subTree.reset(nullptr);
+        }
     }
 
 private:
@@ -176,23 +171,21 @@ private:
         float midY = (topLeftY + bottomRightY) * 0.5f;
 
         //Allocate memory for the subdivision
-        _northWest = std::make_unique<QuadTree<T>>(topLeftX, topLeftY, midX, midY);
-        _northEast = std::make_unique<QuadTree<T>>(midX, topLeftY, bottomRightX, midY);
-        _southWest = std::make_unique<QuadTree<T>>(topLeftX, midY, midX, bottomRightY);
-        _southEast = std::make_unique<QuadTree<T>>(midX, midY, bottomRightX, bottomRightY);
+        _quadrants[0] = std::make_unique<QuadTree<T>>(topLeftX, topLeftY, midX, midY);         //North-West
+        _quadrants[1] = std::make_unique<QuadTree<T>>(midX, topLeftY, bottomRightX, midY);     //North-East
+        _quadrants[2] = std::make_unique<QuadTree<T>>(topLeftX, midY, midX, bottomRightY);     //South-West
+        _quadrants[3] = std::make_unique<QuadTree<T>>(midX, midY, bottomRightX, bottomRightY); //South-East
     }
 
 private:
-    static const size_t QUAD_TREE_NODE_CAPACITY = 4;    //< Maximum number of nodes in tree before subdivision
+    static constexpr size_t QUAD_TREE_NODE_CAPACITY = 4;            //< Maximum number of nodes in tree before subdivision occurs
 
-    AxisAlignedBox2f _bounds;                                     //< 2D AABB
+    AxisAlignedBox2f _bounds;                                       //< 2D AABB
 
-    std::vector<std::weak_ptr<T>> _nodes;               //< List of nodes contained in this QuadTree
+    std::array<std::weak_ptr<T>, QUAD_TREE_NODE_CAPACITY> _nodes;   //< List of nodes contained in this QuadTree
+    size_t _size;                                                   //< Number of nodes actually contained in the quad tree
 
-    std::unique_ptr<QuadTree<T>> _northWest;
-    std::unique_ptr<QuadTree<T>> _northEast;
-    std::unique_ptr<QuadTree<T>> _southWest;
-    std::unique_ptr<QuadTree<T>> _southEast;
+    std::array<std::unique_ptr<QuadTree<T>>, 4> _quadrants;
 };
 
 } //namespace Ego
