@@ -21,6 +21,8 @@
 /// @brief Abstract base class of all buffers.
 /// @author Michael Heilmann
 
+#pragma once
+
 #include "egolib/platform.h"
 
 namespace Ego {
