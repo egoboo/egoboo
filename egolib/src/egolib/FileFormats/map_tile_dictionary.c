@@ -24,7 +24,6 @@
 #include "egolib/FileFormats/map_tile_dictionary.h"
 #include "egolib/FileFormats/MapTileDefinitionsDictionary.hpp"
 
-#include "egolib/strutil.h"
 #include "egolib/fileutil.h"
 #include "egolib/Log/_Include.hpp"
 
@@ -35,27 +34,22 @@
 static void tile_dictionary_finalize( tile_dictionary_t& dict );
 
 //--------------------------------------------------------------------------------------------
-bool tile_dictionary_load_vfs( const std::string& filename, tile_dictionary_t& dict, int max_dict_size )
+bool tile_dictionary_load_vfs( const std::string& filename, tile_dictionary_t& dict )
 {
-    /// @author ZZ
     /// @details This function loads fan types for the terrain
 
     // "delete" the old list
     dict = tile_dictionary_t();
 
-    if (filename.empty()) return false;
-
-    // handle default parameters
-    if (max_dict_size < 0)
-    {
-        max_dict_size = MAP_FAN_TYPE_MAX;
-    }
-
     // Try to open a context.
     ReadContext ctxt(filename);
+    auto definitionList = Ego::FileFormats::MapTileDefinitionsDictionary::DefinitionList::read(ctxt);
 
-    int fantype_count    = vfs_get_next_int(ctxt);
-    int fantype_offset   = 2 * std::pow( 2.0f, std::floor( std::log( fantype_count ) / std::log( 2.0f ) ) );
+    // handle default parameters
+    int max_dict_size = MAP_FAN_TYPE_MAX;
+
+    int fantype_count = definitionList.definitions.size();
+    int fantype_offset = 2 * std::pow( 2.0f, std::floor( std::log( fantype_count ) / std::log( 2.0f ) ) );
     int definition_count = 2 * fantype_offset;
 
     if ( definition_count > MAP_FAN_TYPE_MAX )
@@ -63,13 +57,8 @@ bool tile_dictionary_load_vfs( const std::string& filename, tile_dictionary_t& d
 		Log::get().error( "%s - tile dictionary has too many tile definitions (%d/%d).\n", __FUNCTION__, definition_count, MAP_FAN_TYPE_MAX );
         return false;
     }
-    else if ( definition_count > max_dict_size )
-    {
-		Log::get().error( "%s - the number of tile difinitions has exceeded the requested number (%d/%d).\n", __FUNCTION__, definition_count, max_dict_size );
-        return false;
-    }
 
-    dict.offset    = fantype_offset;
+    dict.offset = fantype_offset;
     dict.def_count = definition_count;
 
     for (int fantype = 0; fantype < fantype_count; fantype++ )
@@ -77,27 +66,23 @@ bool tile_dictionary_load_vfs( const std::string& filename, tile_dictionary_t& d
         tile_definition_t& pdef_sml = dict.def_lst[fantype];
         tile_definition_t& pdef_big = dict.def_lst[fantype + fantype_offset];
 
-        int numberOfVertices = vfs_get_next_int(ctxt);
+        const auto& definition = definitionList.definitions[fantype];
+        int numberOfVertices = definition.vertices.size();
 
         pdef_sml.numvertices = numberOfVertices;
         pdef_big.numvertices = numberOfVertices;  // Dupe
 
         for (int i = 0; i < numberOfVertices; ++i)
         {
-            int itmp;
+            const auto& vertex = definition.vertices[i];
+            
+            int position = vertex.position;
+            pdef_sml.vertices[i].ref = position;
+            pdef_sml.vertices[i].grid_ix = position & 3;
+            pdef_sml.vertices[i].grid_iy = (position >> 2 ) & 3;
 
-            itmp = vfs_get_next_int(ctxt);
-            pdef_sml.vertices[i].ref = itmp;
-            pdef_sml.vertices[i].grid_ix = itmp & 3;
-            pdef_sml.vertices[i].grid_iy = ( itmp >> 2 ) & 3;
-
-            float ftmp;
-
-            ftmp = vfs_get_next_float(ctxt);
-            pdef_sml.vertices[i].u = ftmp;
-
-            ftmp = vfs_get_next_float(ctxt);
-            pdef_sml.vertices[i].v = ftmp;
+            pdef_sml.vertices[i].u = vertex.u;
+            pdef_sml.vertices[i].v = vertex.v;
 
             // Dupe
             pdef_big.vertices[i].ref = pdef_sml.vertices[i].ref;
@@ -107,7 +92,7 @@ bool tile_dictionary_load_vfs( const std::string& filename, tile_dictionary_t& d
             pdef_big.vertices[i].v = pdef_sml.vertices[i].v;
         }
 
-        int numberOfCommands = vfs_get_next_int(ctxt);
+        int numberOfCommands = definition.indexLists.size();
         pdef_sml.command_count = numberOfCommands;
         pdef_big.command_count = numberOfCommands;  // Dupe
 
@@ -115,13 +100,14 @@ bool tile_dictionary_load_vfs( const std::string& filename, tile_dictionary_t& d
         int contiguousIndex = 0;
         for (int i = 0; i < numberOfCommands; i++ )
         {
-            int numberOfIndices = vfs_get_next_int(ctxt);
+            const auto& indexList = definition.indexLists[i];
+            int numberOfIndices = indexList.indices.size();
             pdef_sml.command_entries[i] = numberOfIndices;
             pdef_big.command_entries[i] = numberOfIndices;  // Dupe
 
             for (int j = 0; j < numberOfIndices; j++ )
             {
-                int index = vfs_get_next_int(ctxt);
+                int index = indexList.indices[j];
                 pdef_sml.command_verts[contiguousIndex] = index;
                 pdef_big.command_verts[contiguousIndex] = index;  // Dupe
 

@@ -78,4 +78,4 @@
 
 //--------------------------------------------------------------------------------------------
 
-bool tile_dictionary_load_vfs( const std::string& filename, tile_dictionary_t& dict, int max_dict_size );
+bool tile_dictionary_load_vfs( const std::string& filename, tile_dictionary_t& dict );

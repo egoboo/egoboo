@@ -1100,7 +1100,7 @@ void cartman_tile_dictionary_load_vfs()
 {
     tile_definition_t * pdef;
 
-    tile_dictionary_load_vfs( "mp_data/fans.txt", tile_dict, -1 );
+    tile_dictionary_load_vfs( "mp_data/fans.txt", tile_dict );
 
     // generate the lines for each fan type
     for ( size_t fantype = 0;  fantype < tile_dict.def_count; fantype++ )

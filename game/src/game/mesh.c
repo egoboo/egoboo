@@ -161,7 +161,7 @@ std::shared_ptr<ego_mesh_t> MeshLoader::operator()(const std::string& moduleName
 {
 	map_t map;
 	// Load the map data.
-	tile_dictionary_load_vfs("mp_data/fans.txt", tile_dict, -1);
+	tile_dictionary_load_vfs("mp_data/fans.txt", tile_dict);
 	if (!map.load("mp_data/level.mpd"))
 	{
         Log::Entry entry(Log::Level::Error, __FILE__, __LINE__);
