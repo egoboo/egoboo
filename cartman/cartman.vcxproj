@@ -361,9 +361,6 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClCompile Include="src\cartman\cartman_select.c" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="src\cartman\standard.inl" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="src\cartman\Clocks.h" />
     <ClInclude Include="src\cartman\View.hpp" />
     <ClInclude Include="src\cartman\Views\FxView.hpp" />
