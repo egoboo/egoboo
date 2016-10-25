@@ -39,41 +39,29 @@ enum
 
 //--------------------------------------------------------------------------------------------
 
-static void weld_TL( cartman_mpd_t * pmesh, Index2D index2d );
-static void weld_TR( cartman_mpd_t * pmesh, Index2D index2d );
-static void weld_BR( cartman_mpd_t * pmesh, Index2D index2d );
-static void weld_BL( cartman_mpd_t * pmesh, Index2D index2d );
-
-static void weld_edge_verts( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, tile_definition_t * pdef, int cnt, Index2D index2d );
-
-//--------------------------------------------------------------------------------------------
-
-float dist_from_border( cartman_mpd_t * pmesh, float x, float y )
+float dist_from_border( cartman_mpd_t& mesh, float x, float y )
 {
     float x_dst, y_dst;
 
-    if ( NULL == pmesh ) pmesh = &mesh;
-
     if ( x < 0.0f ) x_dst = 0.0f;
-    else if ( x > pmesh->info.getEdgeX() * 0.5f ) x_dst = pmesh->info.getEdgeX() - x;
-    else if ( x > pmesh->info.getEdgeX() ) x_dst = 0.0f;
+    else if ( x > mesh.info.getEdgeX() * 0.5f ) x_dst = mesh.info.getEdgeX() - x;
+    else if ( x > mesh.info.getEdgeX() ) x_dst = 0.0f;
     else x_dst = x;
 
     if ( y < 0.0f ) y_dst = 0.0f;
-    else if ( y > pmesh->info.getEdgeY() * 0.5f ) y_dst = pmesh->info.getEdgeY() - y;
-    else if ( y > pmesh->info.getEdgeY() ) y_dst = 0.0f;
+    else if ( y > mesh.info.getEdgeY() * 0.5f ) y_dst = mesh.info.getEdgeY() - y;
+    else if ( y > mesh.info.getEdgeY() ) y_dst = 0.0f;
     else y_dst = x;
 
     return ( x < y ) ? x : y;
 }
 
-int dist_from_edge( cartman_mpd_t * pmesh, Index2D index2d )
+int dist_from_edge( cartman_mpd_t& mesh, Index2D index2d )
 {
-    if ( NULL == pmesh ) pmesh = &mesh;
-    if ( index2d.x() > ( pmesh->info.getTileCountX() >> 1 ) )
-        index2d.x() = pmesh->info.getTileCountX() - index2d.x() - 1;
-    if ( index2d.y() > ( pmesh->info.getTileCountY() >> 1 ) )
-        index2d.y() = pmesh->info.getTileCountY() - index2d.y() - 1;
+    if ( index2d.x() > ( mesh.info.getTileCountX() >> 1 ) )
+        index2d.x() = mesh.info.getTileCountX() - index2d.x() - 1;
+    if ( index2d.y() > ( mesh.info.getTileCountY() >> 1 ) )
+        index2d.y() = mesh.info.getTileCountY() - index2d.y() - 1;
 
     if ( index2d.x() < index2d.y() )
         return index2d.x();
@@ -83,48 +71,41 @@ int dist_from_edge( cartman_mpd_t * pmesh, Index2D index2d )
 
 //--------------------------------------------------------------------------------------------
 
-void fix_corners( cartman_mpd_t * pmesh )
+void fix_corners( cartman_mpd_t& mesh )
 {
     // ZZ> This function corrects corners across entire mesh
-    if (!pmesh) pmesh = &mesh;
 
     // weld the corners in a checkerboard pattern
-    for (size_t y = 0; y < pmesh->info.getTileCountY(); y += 2 )
+    for (size_t y = 0; y < mesh.info.getTileCountY(); y += 2 )
     {
-        for ( size_t x = y & 1; x < pmesh->info.getTileCountX(); x += 2 )
+        for ( size_t x = y & 1; x < mesh.info.getTileCountX(); x += 2 )
         {
-            weld_corner_verts(pmesh, Index2D(x, y));
+            weld_corner_verts(mesh, Index2D(x, y));
         }
     }
 }
 
-void fix_edges(cartman_mpd_t *pmesh) {
+void fix_edges(cartman_mpd_t& mesh) {
     // ZZ> This function seals the tile edges across the entire mesh
-    if (!pmesh) pmesh = &mesh;
 
     // weld the edges of all tiles
-    for (size_t y = 0; y < pmesh->info.getTileCountY(); ++y) {
-        for (size_t x = 0; x < pmesh->info.getTileCountX(); ++x) {
-            fix_vertices(pmesh, Index2D(x, y));
+    for (size_t y = 0; y < mesh.info.getTileCountY(); ++y) {
+        for (size_t x = 0; x < mesh.info.getTileCountX(); ++x) {
+            fix_vertices(mesh, Index2D(x, y));
         }
     }
 }
 
-void fix_mesh( cartman_mpd_t * pmesh )
+void fix_mesh( cartman_mpd_t& mesh )
 {
     // ZZ> This function corrects corners across entire mesh
-
-    if ( NULL == pmesh ) pmesh = &mesh;
-
-    fix_corners( pmesh );
-    fix_edges( pmesh );
+    fix_corners( mesh );
+    fix_edges( mesh );
 }
 
-void fix_vertices( cartman_mpd_t * pmesh, Index2D index2d )
+void fix_vertices( cartman_mpd_t& mesh, Index2D index2d )
 {
-    if ( NULL == pmesh ) pmesh = &mesh;
-
-    cartman_mpd_tile_t *pfan = pmesh->get_pfan(index2d);
+    cartman_mpd_tile_t *pfan = mesh.get_pfan(index2d);
     if ( NULL == pfan ) return;
 
 	tile_definition_t *pdef = tile_dict.get(pfan->type);
@@ -132,94 +113,78 @@ void fix_vertices( cartman_mpd_t * pmesh, Index2D index2d )
 
     for ( int cnt = 4; cnt < pdef->numvertices; cnt++ )
     {
-        weld_edge_verts( pmesh, pfan, pdef, cnt, index2d );
+        weld_edge_verts( mesh, pfan, pdef, cnt, index2d );
     }
 }
 
 //--------------------------------------------------------------------------------------------
-void weld_corner_verts(cartman_mpd_t *self, Index2D index2d)
+void weld_corner_verts(cartman_mpd_t& mesh, Index2D index2d)
 {
-    if (!self)
-    {
-        self = &mesh;
-    }
-    int fan = self->get_ifan(index2d);
+    int fan = mesh.get_ifan(index2d);
     if (!VALID_MPD_TILE_RANGE(fan))
     {
         return;
     }
-    weld_TL(self, index2d);
-    weld_TR(self, index2d);
-    weld_BL(self, index2d);
-    weld_BR(self, index2d);
+    weld_TL(mesh, index2d);
+    weld_TR(mesh, index2d);
+    weld_BL(mesh, index2d);
+    weld_BR(mesh, index2d);
 }
 
 //--------------------------------------------------------------------------------------------
-void weld_TL( cartman_mpd_t * pmesh, Index2D index2d )
+void weld_TL( cartman_mpd_t& mesh, Index2D index2d )
 {
-	if (!pmesh) {
-		return;
-	}
 	select_lst_t loc_lst;
-    loc_lst.init( pmesh );
+    loc_lst.init( &mesh );
 
     loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy({index2d.x(), index2d.y()}, CORNER_TL));
     loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy({index2d.x() - 1, index2d.y()}, CORNER_TR));
     loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy({index2d.x() - 1, index2d.y() - 1}, CORNER_BR));
     loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy({index2d.x(), index2d.y() - 1}, CORNER_BL));
 
-    mesh_select_weld( &loc_lst );
+    mesh_select_weld( loc_lst );
 }
 
 //--------------------------------------------------------------------------------------------
-void weld_TR( cartman_mpd_t * pmesh, Index2D index2d )
+void weld_TR( cartman_mpd_t& mesh, Index2D index2d )
 {
-	if (!pmesh) {
-		return;
-	}
 	select_lst_t loc_lst;
-    loc_lst.init( pmesh );
+    loc_lst.init( &mesh );
 
     loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy({index2d.x(), index2d.y()}, CORNER_TR));
     loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy({index2d.x(), index2d.y() - 1}, CORNER_BR));
     loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy({index2d.x() + 1, index2d.y() - 1}, CORNER_BL));
     loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy({index2d.x() + 1, index2d.y()}, CORNER_TL));
 
-    mesh_select_weld( &loc_lst );
+    mesh_select_weld( loc_lst );
 }
 
 //--------------------------------------------------------------------------------------------
-void weld_BR( cartman_mpd_t * pmesh, Index2D index2d )
+void weld_BR( cartman_mpd_t& mesh, Index2D index2d )
 {
-	if (!pmesh) {
-		return;
-	}
     select_lst_t loc_lst;
-    loc_lst.init( pmesh );
+    loc_lst.init( &mesh );
 
     loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy({index2d.x(), index2d.y()}, CORNER_BR));
     loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy({index2d.x() + 1, index2d.y()}, CORNER_BL));
     loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy({index2d.x() + 1, index2d.y() + 1}, CORNER_TL));
     loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy({index2d.x(), index2d.y() + 1}, CORNER_TR));
 
-    mesh_select_weld( &loc_lst );
+    mesh_select_weld( loc_lst );
 }
 
 //--------------------------------------------------------------------------------------------
-void weld_BL( cartman_mpd_t * pmesh, Index2D index2d )
+void weld_BL( cartman_mpd_t& mesh, Index2D index2d )
 {
-	if (!pmesh) {
-		return;
-	}
 	select_lst_t loc_lst;
-    loc_lst.init( pmesh );
+    loc_lst.init( &mesh );
 
     loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy({index2d.x(), index2d.y()}, CORNER_BL));
     loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy({index2d.x(), index2d.y() + 1}, CORNER_TL));
     loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy({index2d.x() - 1, index2d.y() + 1}, CORNER_TR));
     loc_lst.add(loc_lst.get_mesh()->get_ivrt_xy({index2d.x() - 1, index2d.y()}, CORNER_BR));
 
-    mesh_select_weld( &loc_lst );
+    mesh_select_weld( loc_lst );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -508,14 +473,14 @@ int select_lst_add_fan_vertex( select_lst_t& plst, Index2D index2d, int grid_ix,
 }
 
 //--------------------------------------------------------------------------------------------
-void weld_edge_verts( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, tile_definition_t * pdef, int cnt, Index2D index2d )
+void weld_edge_verts( cartman_mpd_t& mesh, cartman_mpd_tile_t * pfan, tile_definition_t * pdef, int cnt, Index2D index2d )
 {
     int fake_edge_count = 0;
     int fake_edge_verts[8 + 1];
-    if ( NULL == pmesh || NULL == pfan || NULL == pdef ) return;
+    if (NULL == pfan || NULL == pdef ) return;
 
     // allocate some fake edge verts just in case
-    int allocate_rv = cartman_mpd_allocate_vertex_list( pmesh, fake_edge_verts, SDL_arraysize( fake_edge_verts ), 8 );
+    int allocate_rv = cartman_mpd_allocate_vertex_list( &mesh, fake_edge_verts, SDL_arraysize( fake_edge_verts ), 8 );
     if ( allocate_rv < 0 ) return;
 
     // alias for the grid location
@@ -531,14 +496,14 @@ void weld_edge_verts( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, tile_def
         int added_vert;
 		select_lst_t loc_lst;
 
-        loc_lst.init( pmesh );
+        loc_lst.init( &mesh );
 
         // add the point on this fan
-        pfan = pmesh->get_pfan(index2d);
+        pfan = mesh.get_pfan(index2d);
         if ( NULL != pfan )
         {
             int ivrt;
-            Cartman::mpd_vertex_t *pvrt = cartman_mpd_t::get_pvrt_idx(pmesh, pfan, cnt, &ivrt);
+            Cartman::mpd_vertex_t *pvrt = cartman_mpd_t::get_pvrt_idx(&mesh, pfan, cnt, &ivrt);
             if ( NULL != pvrt )
             {
                 loc_lst.add( ivrt );
@@ -589,11 +554,11 @@ void weld_edge_verts( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, tile_def
             }
         }
 
-        mesh_select_weld( &loc_lst );
+        mesh_select_weld( loc_lst );
     }
 
     // free all allocated vertices
-    cartman_mpd_free_vertex_list( pmesh, fake_edge_verts, SDL_arraysize( fake_edge_verts ) );
+    cartman_mpd_free_vertex_list( &mesh, fake_edge_verts, SDL_arraysize( fake_edge_verts ) );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -716,16 +681,14 @@ void select_lst_remove_rect( select_lst_t& plst, const Vector3f& a, const Vector
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-int nearest_edge_vertex( cartman_mpd_t * pmesh, Index2D index2d, float nearx, float neary )
+int nearest_edge_vertex( cartman_mpd_t& mesh, Index2D index2d, float nearx, float neary )
 {
     // ZZ> This function gets a vertex number or -1
     int bestvert;
     float grid_fx, grid_fy;
     float prox_x, prox_y, dist_abs, bestprox;
 
-    if ( NULL == pmesh ) pmesh = &mesh;
-
-    cartman_mpd_tile_t *pfan = pmesh->get_pfan(index2d);
+    cartman_mpd_tile_t *pfan = mesh.get_pfan(index2d);
     if ( NULL == pfan ) return -1;
 
 	tile_definition_t *pdef = tile_dict.get(pfan->type);
@@ -742,7 +705,7 @@ int nearest_edge_vertex( cartman_mpd_t * pmesh, Index2D index2d, float nearx, fl
         // skip over the 4 corner vertices
         for ( int cnt = 0; cnt < 4 && CHAINEND != ivrt; cnt++ )
         {
-            ivrt = pmesh->vrt2[ivrt].next;
+            ivrt = mesh.vrt2[ivrt].next;
         }
 
         bestprox = 9000;
@@ -762,7 +725,7 @@ int nearest_edge_vertex( cartman_mpd_t * pmesh, Index2D index2d, float nearx, fl
                 bestprox = dist_abs;
             }
 
-            ivrt = pmesh->vrt2[ivrt].next;
+            ivrt = mesh.vrt2[ivrt].next;
             if ( CHAINEND == ivrt ) break;
         }
     }
@@ -771,18 +734,18 @@ int nearest_edge_vertex( cartman_mpd_t * pmesh, Index2D index2d, float nearx, fl
 }
 
 //--------------------------------------------------------------------------------------------
-void mesh_select_move( select_lst_t * plst, float x, float y, float z )
+void mesh_select_move( select_lst_t& plst, float x, float y, float z )
 {
-    if ( NULL == plst ) return;
-
     // get the proper mesh
-	cartman_mpd_t *pmesh = (*plst).get_mesh();
-    if ( NULL == pmesh ) pmesh = &mesh;
+	cartman_mpd_t *pmesh = plst.get_mesh();
+    if (nullptr == pmesh) {
+        throw Id::RuntimeErrorException(__FILE__, __LINE__, "selection list has no mesh");
+    }
 
     // limit the movement by the bounds of the mesh
-    for ( int cnt = 0; cnt < (*plst).count(); cnt++ )
+    for ( int cnt = 0; cnt < plst.count(); cnt++ )
     {
-        int ivrt = select_lst_t::at(*plst, cnt);
+        int ivrt = select_lst_t::at(plst, cnt);
         float newx = pmesh->vrt2[ivrt].x + x;
         float newy = pmesh->vrt2[ivrt].y + y;
         float newz = pmesh->vrt2[ivrt].z + z;
@@ -796,9 +759,9 @@ void mesh_select_move( select_lst_t * plst, float x, float y, float z )
     }
 
     // do the movement
-    for ( int cnt = 0; cnt < (*plst).count(); cnt++ )
+    for ( int cnt = 0; cnt < plst.count(); cnt++ )
     {
-        int ivrt = select_lst_t::at(*plst, cnt);
+        int ivrt = select_lst_t::at(plst, cnt);
 
         float newx = pmesh->vrt2[ivrt].x + x;
         float newy = pmesh->vrt2[ivrt].y + y;
@@ -815,17 +778,17 @@ void mesh_select_move( select_lst_t * plst, float x, float y, float z )
 }
 
 //--------------------------------------------------------------------------------------------
-void mesh_select_set_z_no_bound( select_lst_t * plst, float z )
+void mesh_select_set_z_no_bound( select_lst_t& plst, float z )
 {
-    if ( NULL == plst ) return;
-
     // get the mesh
-	cartman_mpd_t *pmesh = (*plst).get_mesh();
-    if ( NULL == pmesh ) pmesh = &mesh;
+	cartman_mpd_t *pmesh = plst.get_mesh();
+    if (nullptr == pmesh) {
+        throw Id::RuntimeErrorException(__FILE__, __LINE__, "selection list has no mesh");
+    }
 
-    for ( int cnt = 0; cnt < (*plst).count(); cnt++ )
+    for ( int cnt = 0; cnt < plst.count(); cnt++ )
     {
-        Uint32 vert = select_lst_t::at(*plst, cnt);
+        Uint32 vert = select_lst_t::at(plst, cnt);
         if ( vert > pmesh->info.getVertexCount() ) continue;
 
         pmesh->vrt2[vert].z = z;
@@ -833,22 +796,23 @@ void mesh_select_set_z_no_bound( select_lst_t * plst, float z )
 }
 
 //--------------------------------------------------------------------------------------------
-void mesh_select_jitter(select_lst_t *plst) {
-    if (!plst) return;
-
-	cartman_mpd_t *pmesh = (*plst).get_mesh();
-    if (!pmesh) pmesh = &mesh;
-
-	for (int i = 0; i < (*plst).count(); ++i) {
-		int vertex = select_lst_t::at(*plst, i);
-        MeshEditor::move_vert((*plst).get_mesh(),  vertex, Random::next(2) - 1, Random::next(2) - 1, 0);
+void mesh_select_jitter(select_lst_t& plst) {
+	cartman_mpd_t *pmesh = plst.get_mesh();
+    if (nullptr == pmesh)         {
+        throw Id::RuntimeErrorException(__FILE__, __LINE__, "selection list has no mesh");
+    }
+	for (int i = 0; i < plst.count(); ++i) {
+		int vertex = select_lst_t::at(plst, i);
+        MeshEditor::move_vert(*pmesh,  vertex, Random::next(2) - 1, Random::next(2) - 1, 0);
     }
 }
 
 //--------------------------------------------------------------------------------------------
 void mesh_select_verts_connected(select_lst_t& plst) {
 	cartman_mpd_t *pmesh = plst.get_mesh();
-    if (!pmesh) pmesh = &mesh;
+    if (nullptr == pmesh) {
+        throw Id::RuntimeErrorException(__FILE__, __LINE__, "selection list has no mesh");
+    }
 
     // get vertex list alias
 	cartman_mpd_info_t& pinfo = pmesh->info;
@@ -895,14 +859,14 @@ void mesh_select_verts_connected(select_lst_t& plst) {
 }
 
 //--------------------------------------------------------------------------------------------
-void mesh_select_weld(select_lst_t *plst)
+void mesh_select_weld(select_lst_t& plst)
 {
-    if (!plst) return;
+	cartman_mpd_t *pmesh = plst.get_mesh();
+    if (nullptr == pmesh) {
+        throw Id::RuntimeErrorException(__FILE__, __LINE__, "selection list has no mesh");
+    }
 
-	cartman_mpd_t *pmesh = (*plst).get_mesh();
-    if (!pmesh) pmesh = &mesh;
-
-    if ( (*plst).count() > 1 )
+    if ( plst.count() > 1 )
     {
 		float sum_x, sum_y, sum_z, sum_a;
         sum_x = 0.0f;
@@ -910,9 +874,9 @@ void mesh_select_weld(select_lst_t *plst)
         sum_z = 0.0f;
         sum_a = 0.0f;
 
-        for ( int cnt = 0; cnt < (*plst).count(); cnt++ )
+        for ( int cnt = 0; cnt < plst.count(); cnt++ )
         {
-            Uint32 vert = select_lst_t::at(*plst,cnt);
+            Uint32 vert = select_lst_t::at(plst,cnt);
             if ( CHAINEND == vert ) break;
 
             sum_x += pmesh->vrt2[vert].x;
@@ -922,12 +886,12 @@ void mesh_select_weld(select_lst_t *plst)
         }
 
 		float avg_x, avg_y, avg_z, avg_a;
-        if ( (*plst).count() > 1 )
+        if ( plst.count() > 1 )
         {
-            avg_x = sum_x / (*plst).count();
-            avg_y = sum_y / (*plst).count();
-            avg_z = sum_z / (*plst).count();
-            avg_a = sum_a / (*plst).count();
+            avg_x = sum_x / plst.count();
+            avg_y = sum_y / plst.count();
+            avg_z = sum_z / plst.count();
+            avg_a = sum_a / plst.count();
         }
         else
         {
@@ -937,9 +901,9 @@ void mesh_select_weld(select_lst_t *plst)
             avg_a = sum_a;
         }
 
-        for ( int cnt = 0; cnt < (*plst).count(); cnt++ )
+        for ( int cnt = 0; cnt < plst.count(); cnt++ )
         {
-            int vertex = select_lst_t::at(*plst, cnt);
+            int vertex = select_lst_t::at(plst, cnt);
             if (CHAINEND == vertex) break;
 
             pmesh->vrt2[vertex].x = avg_x;
@@ -951,16 +915,14 @@ void mesh_select_weld(select_lst_t *plst)
 }
 
 //--------------------------------------------------------------------------------------------
-void MeshEditor::mesh_set_tile( cartman_mpd_t * pmesh, Uint16 tiletoset, Uint8 upper, Uint16 presser, Uint8 tx )
+void MeshEditor::mesh_set_tile( cartman_mpd_t& mesh, Uint16 tiletoset, Uint8 upper, Uint16 presser, Uint8 tx )
 {
     // ZZ> This function sets one tile type to another
-    if ( NULL == pmesh ) pmesh = &mesh;
-
-    for (int mapy = 0; mapy < pmesh->info.getTileCountY(); mapy++)
+    for (int mapy = 0; mapy < mesh.info.getTileCountY(); mapy++)
     {
-        for (int mapx = 0; mapx < pmesh->info.getTileCountX(); mapx++)
+        for (int mapx = 0; mapx < mesh.info.getTileCountX(); mapx++)
         {
-            cartman_mpd_tile_t *pfan = pmesh->get_pfan({mapx, mapy});
+            cartman_mpd_tile_t *pfan = mesh.get_pfan({mapx, mapy});
             if ( NULL == pfan ) continue;
 
             if ( TILE_IS_FANOFF( pfan->tx_bits ) ) continue;
@@ -998,17 +960,15 @@ void MeshEditor::mesh_set_tile( cartman_mpd_t * pmesh, Uint16 tiletoset, Uint8 u
 }
 
 //--------------------------------------------------------------------------------------------
-void MeshEditor::move_mesh_z( cartman_mpd_t * pmesh, int z, Uint16 tiletype, Uint16 tileand )
+void MeshEditor::move_mesh_z( cartman_mpd_t& mesh, int z, Uint16 tiletype, Uint16 tileand )
 {
-    if ( NULL == pmesh ) pmesh = &mesh;
-
     tiletype = tiletype & tileand;
 
-    for ( int mapy = 0; mapy < pmesh->info.getTileCountY(); mapy++ )
+    for ( int mapy = 0; mapy < mesh.info.getTileCountY(); mapy++ )
     {
-        for ( int mapx = 0; mapx < pmesh->info.getTileCountX(); mapx++ )
+        for ( int mapx = 0; mapx < mesh.info.getTileCountX(); mapx++ )
         {
-            cartman_mpd_tile_t *pfan = pmesh->get_pfan({mapx, mapy});
+            cartman_mpd_tile_t *pfan = mesh.get_pfan({mapx, mapy});
             if ( NULL == pfan ) continue;
 
 			tile_definition_t *pdef = tile_dict.get(pfan->type);
@@ -1019,11 +979,11 @@ void MeshEditor::move_mesh_z( cartman_mpd_t * pmesh, int z, Uint16 tiletype, Uin
                 int vert = pfan->vrtstart;
                 for ( int cnt = 0; cnt < pdef->numvertices; cnt++ )
                 {
-                    float newz = pmesh->vrt2[vert].z + z;
-					newz = Ego::Math::constrain(newz, 0.0f, pmesh->info.getEdgeZ());
-                    pmesh->vrt2[vert].z = newz;
+                    float newz = mesh.vrt2[vert].z + z;
+					newz = Ego::Math::constrain(newz, 0.0f, mesh.info.getEdgeZ());
+                    mesh.vrt2[vert].z = newz;
 
-                    vert = pmesh->vrt2[vert].next;
+                    vert = mesh.vrt2[vert].next;
                 }
             }
         }
@@ -1031,57 +991,51 @@ void MeshEditor::move_mesh_z( cartman_mpd_t * pmesh, int z, Uint16 tiletype, Uin
 }
 
 //--------------------------------------------------------------------------------------------
-void MeshEditor::move_vert( cartman_mpd_t * pmesh, int vert, float x, float y, float z )
+void MeshEditor::move_vert( cartman_mpd_t& mesh, int vert, float x, float y, float z )
 {
-    if ( NULL == pmesh ) pmesh = &mesh;
+    int newx = mesh.vrt2[vert].x + x;
+    int newy = mesh.vrt2[vert].y + y;
+    int newz = mesh.vrt2[vert].z + z;
 
-	int newx = pmesh->vrt2[vert].x + x;
-    int newy = pmesh->vrt2[vert].y + y;
-    int newz = pmesh->vrt2[vert].z + z;
+	newx = Ego::Math::constrain(newx, 0, (int)mesh.info.getEdgeX());
+	newy = Ego::Math::constrain(newy, 0, (int)mesh.info.getEdgeY());
+	newz = Ego::Math::constrain(newz, -(int)mesh.info.getEdgeZ(), +(int)mesh.info.getEdgeZ());
 
-	newx = Ego::Math::constrain(newx, 0, (int)pmesh->info.getEdgeX());
-	newy = Ego::Math::constrain(newy, 0, (int)pmesh->info.getEdgeY());
-	newz = Ego::Math::constrain(newz, -(int)pmesh->info.getEdgeZ(), +(int)pmesh->info.getEdgeZ());
-
-    pmesh->vrt2[vert].x = newx;
-    pmesh->vrt2[vert].y = newy;
-    pmesh->vrt2[vert].z = newz;
+    mesh.vrt2[vert].x = newx;
+    mesh.vrt2[vert].y = newy;
+    mesh.vrt2[vert].z = newz;
 }
 
 //--------------------------------------------------------------------------------------------
-void MeshEditor::raise_mesh( cartman_mpd_t * pmesh, Uint32 point_lst[], size_t point_cnt, float x, float y, int amount, int size )
+void MeshEditor::raise_mesh( cartman_mpd_t& mesh, Uint32 point_lst[], size_t point_cnt, float x, float y, int amount, int size )
 {
     if ( NULL == point_lst || 0 == point_cnt ) return;
-
-    if ( NULL == pmesh ) pmesh = &mesh;
 
     for ( size_t cnt = 0; cnt < point_cnt; cnt++ )
     {
         Uint32 vert = point_lst[cnt];
         if ( !CART_VALID_VERTEX_RANGE( vert ) ) break;
 
-        float disx = pmesh->vrt2[vert].x - x;
-        float disy = pmesh->vrt2[vert].y - y;
+        float disx = mesh.vrt2[vert].x - x;
+        float disy = mesh.vrt2[vert].y - y;
         float dis  = std::sqrt( disx * disx + disy * disy );
 
         float newamount = std::abs( amount ) - ( 2.0f * dis ) / ((float)size);
         if ( newamount < 0 ) newamount = 0;
         if ( amount < 0 )    newamount = -newamount;
 
-        move_vert( pmesh,  vert, 0, 0, newamount );
+        move_vert( mesh,  vert, 0, 0, newamount );
     }
 }
 
 //--------------------------------------------------------------------------------------------
-void MeshEditor::level_vrtz( cartman_mpd_t * pmesh )
+void MeshEditor::level_vrtz( cartman_mpd_t& mesh )
 {
-    if ( NULL == pmesh ) pmesh = &mesh;
-
-    for ( int mapy = 0; mapy < pmesh->info.getTileCountY(); mapy++ )
+    for ( int mapy = 0; mapy < mesh.info.getTileCountY(); mapy++ )
     {
-        for ( int mapx = 0; mapx < pmesh->info.getTileCountX(); mapx++ )
+        for ( int mapx = 0; mapx < mesh.info.getTileCountX(); mapx++ )
         {
-            cartman_mpd_tile_t *pfan = pmesh->get_pfan({mapx, mapy});
+            cartman_mpd_tile_t *pfan = mesh.get_pfan({mapx, mapy});
             if ( NULL == pfan ) continue;
 
 			tile_definition_t *pdef = tile_dict.get(pfan->type);
@@ -1090,29 +1044,26 @@ void MeshEditor::level_vrtz( cartman_mpd_t * pmesh )
             Uint32 vert = pfan->vrtstart;
             for ( int cnt = 0; cnt < pdef->numvertices; cnt++ )
             {
-                pmesh->vrt2[vert].z = 0;
-                vert = pmesh->vrt2[vert].next;
+                mesh.vrt2[vert].z = 0;
+                vert = mesh.vrt2[vert].next;
             }
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------
-void MeshEditor::jitter_mesh( cartman_mpd_t * pmesh )
+void MeshEditor::jitter_mesh( cartman_mpd_t& mesh )
 {
 	select_lst_t loc_lst;
 
-    // grab the correct mesh
-    if ( NULL == pmesh ) pmesh = &mesh;
-
     // initialize the local selection
-    loc_lst.init( pmesh );
+    loc_lst.init( &mesh );
 
-    for ( int mapy = 0; mapy < pmesh->info.getTileCountY(); mapy++ )
+    for ( int mapy = 0; mapy < mesh.info.getTileCountY(); mapy++ )
     {
-        for ( int mapx = 0; mapx < pmesh->info.getTileCountX(); mapx++ )
+        for ( int mapx = 0; mapx < mesh.info.getTileCountX(); mapx++ )
         {
-            cartman_mpd_tile_t *pfan = pmesh->get_pfan({mapx, mapy});
+            cartman_mpd_tile_t *pfan = mesh.get_pfan({mapx, mapy});
             if ( NULL == pfan ) continue;
 
 			tile_definition_t *pdef = tile_dict.get(pfan->type);
@@ -1128,30 +1079,28 @@ void MeshEditor::jitter_mesh( cartman_mpd_t * pmesh )
 			Uint32 vert;
             for ( cnt = 0, vert = pfan->vrtstart;
                   cnt < num;
-                  cnt++, vert = pmesh->vrt2[vert].next)
+                  cnt++, vert = mesh.vrt2[vert].next)
             {
                 loc_lst.add( vert );
             }
 
             // jitter the tile verts
-            mesh_select_move( &loc_lst, Random::next(-3, 4), Random::next(-3, 4), Random::next(-32, 31) );
+            mesh_select_move( loc_lst, Random::next(-3, 4), Random::next(-3, 4), Random::next(-32, 31) );
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------
-void MeshEditor::flatten_mesh( cartman_mpd_t * pmesh, int y0 )
+void MeshEditor::flatten_mesh( cartman_mpd_t& mesh, int y0 )
 {
-    if ( NULL == pmesh ) pmesh = &mesh;
-
     int height = ( 780 - ( y0 ) ) * 4;
-	height = int(Ego::Math::constrain(float(height), 0.0f, pmesh->info.getEdgeZ()));
+	height = int(Ego::Math::constrain(float(height), 0.0f, mesh.info.getEdgeZ()));
 
-    for ( int mapy = 0; mapy < pmesh->info.getTileCountY(); mapy++ )
+    for ( int mapy = 0; mapy < mesh.info.getTileCountY(); mapy++ )
     {
-        for ( int mapx = 0; mapx < pmesh->info.getTileCountX(); mapx++ )
+        for ( int mapx = 0; mapx < mesh.info.getTileCountX(); mapx++ )
         {
-            cartman_mpd_tile_t *pfan = pmesh->get_pfan({mapx, mapy});
+            cartman_mpd_tile_t *pfan = mesh.get_pfan({mapx, mapy});
             if ( NULL == pfan ) continue;
 
 			tile_definition_t *pdef = tile_dict.get(pfan->type);
@@ -1162,14 +1111,14 @@ void MeshEditor::flatten_mesh( cartman_mpd_t * pmesh, int y0 )
             Uint32 vert = pfan->vrtstart;
             for ( int cnt = 0; cnt < num; cnt++ )
             {
-                float ftmp = pmesh->vrt2[vert].z - height;
+                float ftmp = mesh.vrt2[vert].z - height;
 
 				if (std::abs(ftmp) < 50)
                 {
-                    pmesh->vrt2[vert].z = height;
+                    mesh.vrt2[vert].z = height;
                 }
 
-                vert = pmesh->vrt2[vert].next;
+                vert = mesh.vrt2[vert].next;
             }
         }
     }
@@ -1177,22 +1126,20 @@ void MeshEditor::flatten_mesh( cartman_mpd_t * pmesh, int y0 )
 }
 
 //--------------------------------------------------------------------------------------------
-void MeshEditor::clear_mesh( cartman_mpd_t * pmesh, Uint8 upper, Uint16 presser, Uint8 tx, Uint8 type )
+void MeshEditor::clear_mesh( cartman_mpd_t& mesh, Uint8 upper, Uint16 presser, Uint8 tx, Uint8 type )
 {
     int loc_type = type;
 
-    if ( NULL == pmesh ) pmesh = &mesh;
-
     if ( !TILE_IS_FANOFF( TILE_SET_BITS( upper, tx ) ) )
     {
-        for ( int mapy = 0; mapy < pmesh->info.getTileCountY(); mapy++ )
+        for ( int mapy = 0; mapy < mesh.info.getTileCountY(); mapy++ )
         {
-            for ( int mapx = 0; mapx < pmesh->info.getTileCountX(); mapx++ )
+            for ( int mapx = 0; mapx < mesh.info.getTileCountX(); mapx++ )
             {
-                cartman_mpd_tile_t *pfan = pmesh->get_pfan({mapx, mapy});
+                cartman_mpd_tile_t *pfan = mesh.get_pfan({mapx, mapy});
                 if ( NULL == pfan ) continue;
 
-                pmesh->remove_pfan(pfan);
+                mesh.remove_pfan(pfan);
 
                 int tx_bits = TILE_SET_UPPER_BITS( upper );
                 switch ( presser )
@@ -1220,28 +1167,26 @@ void MeshEditor::clear_mesh( cartman_mpd_t * pmesh, Uint8 upper, Uint16 presser,
                 if ( loc_type == 32 || loc_type == 33 ) loc_type = 32 + Random::next(1);
                 pfan->type = loc_type;
 
-                pmesh->add_pfan(pfan, mapx * Info<int>::Grid::Size(), mapy * Info<int>::Grid::Size());
+                mesh.add_pfan(pfan, mapx * Info<int>::Grid::Size(), mapy * Info<int>::Grid::Size());
             }
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------
-void MeshEditor::three_e_mesh( cartman_mpd_t * pmesh, Uint8 upper, Uint8 tx )
+void MeshEditor::three_e_mesh( cartman_mpd_t& mesh, Uint8 upper, Uint8 tx )
 {
     // ZZ> Replace all 3F tiles with 3E tiles...
-    if ( NULL == pmesh ) pmesh = &mesh;
-
     if ( TILE_IS_FANOFF( TILE_SET_BITS( upper, tx ) ) )
     {
         return;
     }
 
-    for (int mapy = 0; mapy < pmesh->info.getTileCountY(); mapy++)
+    for (int mapy = 0; mapy < mesh.info.getTileCountY(); mapy++)
     {
-        for (int mapx = 0; mapx < pmesh->info.getTileCountX(); mapx++)
+        for (int mapx = 0; mapx < mesh.info.getTileCountX(); mapx++)
         {
-            cartman_mpd_tile_t *pfan = pmesh->get_pfan({mapx, mapy});
+            cartman_mpd_tile_t *pfan = mesh.get_pfan({mapx, mapy});
             if ( NULL == pfan ) continue;
 
             if ( 0x3F == pfan->tx_bits )
@@ -1253,18 +1198,16 @@ void MeshEditor::three_e_mesh( cartman_mpd_t * pmesh, Uint8 upper, Uint8 tx )
 }
 
 //--------------------------------------------------------------------------------------------
-bool MeshEditor::fan_isPassableFloor( cartman_mpd_t * pmesh, const Index2D& index2d )
+bool MeshEditor::fan_isPassableFloor( cartman_mpd_t& mesh, const Index2D& index2d )
 {
-    if (!pmesh ) pmesh = &mesh;
-	cartman_mpd_tile_t *ptile = pmesh->get_pfan(index2d);
+	cartman_mpd_tile_t *ptile = mesh.get_pfan(index2d);
     if (!ptile) return false;
 	return ptile->isPassableFloor();
 }
 
-bool MeshEditor::isImpassableWall( cartman_mpd_t *pmesh, const Index2D& index2d )
+bool MeshEditor::isImpassableWall( cartman_mpd_t& mesh, const Index2D& index2d )
 {
-    if (!pmesh) pmesh = &mesh;
-	cartman_mpd_tile_t *ptile = pmesh->get_pfan(index2d);
+	cartman_mpd_tile_t *ptile = mesh.get_pfan(index2d);
     if (!ptile) return true;
 	return ptile->isImpassableWall();
 }
@@ -1272,14 +1215,12 @@ bool MeshEditor::isImpassableWall( cartman_mpd_t *pmesh, const Index2D& index2d 
 //--------------------------------------------------------------------------------------------
 #define BARRIER_FUNC(XX) ( 1.0f - (1.0f - (XX)) * (1.0f - (XX)) * (1.0f - (XX)) )
 
-void MeshEditor::set_barrier_height( cartman_mpd_t * pmesh, const Index2D& index2d )
+void MeshEditor::set_barrier_height( cartman_mpd_t& mesh, const Index2D& index2d )
 {
     float corner_hgt[4];
 
-    if ( NULL == pmesh ) pmesh = &mesh;
-
     // does the fan exist?
-	cartman_mpd_tile_t *pfan = pmesh->get_pfan(index2d);
+	cartman_mpd_tile_t *pfan = mesh.get_pfan(index2d);
     if ( NULL == pfan ) return;
 
     // fan is defined?
@@ -1288,19 +1229,19 @@ void MeshEditor::set_barrier_height( cartman_mpd_t * pmesh, const Index2D& index
     Uint32 vert_count = pdef->numvertices;
 
     // must not be a passable floor
-    if ( fan_isPassableFloor( pmesh,  index2d ) ) return;
+    if ( fan_isPassableFloor( mesh,  index2d ) ) return;
 
     // find other walls around this tile
-    bool floor_mx = fan_isPassableFloor(pmesh, {index2d.x() - 1, index2d.y()});
-    bool floor_px = fan_isPassableFloor(pmesh, {index2d.x() + 1, index2d.y()});
-    bool floor_my = fan_isPassableFloor(pmesh, {index2d.x(), index2d.y() - 1});
-    bool floor_py = fan_isPassableFloor(pmesh, {index2d.x(), index2d.y() + 1});
+    bool floor_mx = fan_isPassableFloor(mesh, {index2d.x() - 1, index2d.y()});
+    bool floor_px = fan_isPassableFloor(mesh, {index2d.x() + 1, index2d.y()});
+    bool floor_my = fan_isPassableFloor(mesh, {index2d.x(), index2d.y() - 1});
+    bool floor_py = fan_isPassableFloor(mesh, {index2d.x(), index2d.y() + 1});
     bool noedges  = !floor_mx && !floor_px && !floor_my && !floor_py;
 
-    bool floor_mxmy = fan_isPassableFloor(pmesh, {index2d.x() - 1, index2d.y() - 1});
-    bool floor_mxpy = fan_isPassableFloor(pmesh, {index2d.x() - 1, index2d.y() + 1});
-    bool floor_pxmy = fan_isPassableFloor(pmesh, {index2d.x() + 1, index2d.y() - 1});
-    bool floor_pxpy = fan_isPassableFloor(pmesh, {index2d.x() + 1, index2d.y() + 1});
+    bool floor_mxmy = fan_isPassableFloor(mesh, {index2d.x() - 1, index2d.y() - 1});
+    bool floor_mxpy = fan_isPassableFloor(mesh, {index2d.x() - 1, index2d.y() + 1});
+    bool floor_pxmy = fan_isPassableFloor(mesh, {index2d.x() + 1, index2d.y() - 1});
+    bool floor_pxpy = fan_isPassableFloor(mesh, {index2d.x() + 1, index2d.y() + 1});
     bool nocorners  = !floor_mxmy && !floor_mxpy && !floor_pxmy && !floor_pxpy;
 
     // if it is completely surrounded by walls, there's nothing to do
@@ -1308,21 +1249,21 @@ void MeshEditor::set_barrier_height( cartman_mpd_t * pmesh, const Index2D& index
 
     // initialize the min/max values
     Uint32 vert   = pfan->vrtstart;
-    corner_hgt[0] = pmesh->vrt2[vert].z;
+    corner_hgt[0] = mesh.vrt2[vert].z;
     float min_hgt = corner_hgt[0];
     float max_hgt = corner_hgt[0];
-    vert = pmesh->vrt2[vert].next;
+    vert = mesh.vrt2[vert].next;
 
     // iterate through the corners
-    for (Uint32 cnt = 1; cnt < 4 && CHAINEND != vert; vert = pmesh->vrt2[vert].next, cnt++)
+    for (Uint32 cnt = 1; cnt < 4 && CHAINEND != vert; vert = mesh.vrt2[vert].next, cnt++)
     {
-        corner_hgt[cnt] = pmesh->vrt2[vert].z;
+        corner_hgt[cnt] = mesh.vrt2[vert].z;
 		min_hgt = std::min(min_hgt, corner_hgt[cnt]);
         max_hgt = std::max( max_hgt, corner_hgt[cnt] );
     }
 
     // correct all vertices
-    for (Uint32 cnt = 0, vert = pfan->vrtstart; cnt < vert_count && CHAINEND != vert; cnt++, vert = pmesh->vrt2[vert].next)
+    for (Uint32 cnt = 0, vert = pfan->vrtstart; cnt < vert_count && CHAINEND != vert; cnt++, vert = mesh.vrt2[vert].next)
     {
         float ftmp, weight;
 
@@ -1433,7 +1374,7 @@ void MeshEditor::set_barrier_height( cartman_mpd_t * pmesh, const Index2D& index
 
         if ( 0.0f == wsum )
         {
-            vsum = pmesh->vrt2[vert].z - min_hgt;
+            vsum = mesh.vrt2[vert].z - min_hgt;
             wsum = 1.0f;
         }
 
@@ -1453,40 +1394,36 @@ void MeshEditor::set_barrier_height( cartman_mpd_t * pmesh, const Index2D& index
         }
 
         // interpolate a value
-        pmesh->vrt2[vert].z = ftmp + min_hgt;
+        mesh.vrt2[vert].z = ftmp + min_hgt;
     }
 }
 
 //--------------------------------------------------------------------------------------------
-void MeshEditor::fix_walls( cartman_mpd_t * pmesh )
+void MeshEditor::fix_walls( cartman_mpd_t& mesh )
 {
-    if ( NULL == pmesh ) pmesh = &mesh;
-
     // make sure the corners are correct
-    fix_corners( pmesh );
+    fix_corners( mesh );
 
     // adjust the wall-icity of all non-corner vertices
-    for ( int mapy = 0; mapy < pmesh->info.getTileCountY(); mapy++ )
+    for ( int mapy = 0; mapy < mesh.info.getTileCountY(); mapy++ )
     {
-        for ( int mapx = 0; mapx < pmesh->info.getTileCountX(); mapx++ )
+        for ( int mapx = 0; mapx < mesh.info.getTileCountX(); mapx++ )
         {
-            set_barrier_height(pmesh, {mapx, mapy});
+            set_barrier_height(mesh, {mapx, mapy});
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------
-void MeshEditor::impass_edges( cartman_mpd_t * pmesh, int amount )
+void MeshEditor::impass_edges( cartman_mpd_t& mesh, int amount )
 {
-    if ( NULL == pmesh ) pmesh = &mesh;
-
-    for ( int mapy = 0; mapy < pmesh->info.getTileCountY(); mapy++ )
+    for ( int mapy = 0; mapy < mesh.info.getTileCountY(); mapy++ )
     {
-        for ( int mapx = 0; mapx < pmesh->info.getTileCountX(); mapx++ )
+        for ( int mapx = 0; mapx < mesh.info.getTileCountX(); mapx++ )
         {
-            if (dist_from_edge(pmesh, {mapx, mapy}) < amount)
+            if (dist_from_edge(mesh, {mapx, mapy}) < amount)
             {
-                cartman_mpd_tile_t *tile = pmesh->get_pfan({mapx, mapy});
+                cartman_mpd_tile_t *tile = mesh.get_pfan({mapx, mapy});
                 if (!tile) continue;
 				tile->setImpassable();
             }
@@ -1495,19 +1432,18 @@ void MeshEditor::impass_edges( cartman_mpd_t * pmesh, int amount )
 }
 
 //--------------------------------------------------------------------------------------------
-void MeshEditor::mesh_replace_fx( cartman_mpd_t * pmesh, Uint16 fx_bits, Uint16 fx_mask, Uint8 fx_new )
+void MeshEditor::mesh_replace_fx( cartman_mpd_t& mesh, Uint16 fx_bits, Uint16 fx_mask, Uint8 fx_new )
 {
     // ZZ> This function sets the fx for a group of tiles
-    if ( NULL == pmesh ) pmesh = &mesh;
 
     // trim away any bits that can't be matched
     fx_bits &= fx_mask;
 
-    for (int mapy = 0; mapy < pmesh->info.getTileCountY(); mapy++)
+    for (int mapy = 0; mapy < mesh.info.getTileCountY(); mapy++)
     {
-        for (int mapx = 0; mapx < pmesh->info.getTileCountX(); mapx++)
+        for (int mapx = 0; mapx < mesh.info.getTileCountX(); mapx++)
         {
-            cartman_mpd_tile_t *pfan = pmesh->get_pfan({mapx, mapy});
+            cartman_mpd_tile_t *pfan = mesh.get_pfan({mapx, mapy});
             if ( NULL == pfan ) continue;
 
             if ( fx_bits == ( pfan->tx_bits&fx_mask ) )
@@ -1520,12 +1456,10 @@ void MeshEditor::mesh_replace_fx( cartman_mpd_t * pmesh, Uint16 fx_bits, Uint16 
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-Uint8 tile_is_different( cartman_mpd_t * pmesh, Index2D index2d, Uint16 fx_bits, Uint16 fx_mask )
+Uint8 tile_is_different( cartman_mpd_t& mesh, Index2D index2d, Uint16 fx_bits, Uint16 fx_mask )
 {
     // ZZ> false if of same set, true if different
-    if ( NULL == pmesh ) pmesh = &mesh;
-
-    cartman_mpd_tile_t *pfan = pmesh->get_pfan(index2d);
+    cartman_mpd_tile_t *pfan = mesh.get_pfan(index2d);
     if ( NULL == pfan ) return false;
 
     if ( fx_mask == 0xC0 )
@@ -1545,25 +1479,23 @@ Uint8 tile_is_different( cartman_mpd_t * pmesh, Index2D index2d, Uint16 fx_bits,
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 trim_code( cartman_mpd_t * pmesh, const Index2D& index2d, Uint16 fx_bits )
+Uint16 trim_code( cartman_mpd_t& mesh, const Index2D& index2d, Uint16 fx_bits )
 {
     // ZZ> This function returns the standard tile set value thing...  For
     //     Trimming tops of walls and floors
 
     Uint16 code;
 
-    if ( NULL == pmesh ) pmesh = &mesh;
-
-    if (tile_is_different(pmesh, {index2d.x(), index2d.y() - 1}, fx_bits, 0xF0))
+    if (tile_is_different(mesh, {index2d.x(), index2d.y() - 1}, fx_bits, 0xF0))
     {
         // Top
         code = 0;
-        if (tile_is_different(pmesh, {index2d.x() - 1, index2d.y()}, fx_bits, 0xF0))
+        if (tile_is_different(mesh, {index2d.x() - 1, index2d.y()}, fx_bits, 0xF0))
         {
             // Left
             code = 8;
         }
-        if (tile_is_different(pmesh, {index2d.x() + 1, index2d.y()}, fx_bits, 0xF0))
+        if (tile_is_different(mesh, {index2d.x() + 1, index2d.y()}, fx_bits, 0xF0))
         {
             // Right
             code = 9;
@@ -1571,16 +1503,16 @@ Uint16 trim_code( cartman_mpd_t * pmesh, const Index2D& index2d, Uint16 fx_bits 
         return code;
     }
 
-    if (tile_is_different(pmesh, {index2d.x(), index2d.y() + 1}, fx_bits, 0xF0))
+    if (tile_is_different(mesh, {index2d.x(), index2d.y() + 1}, fx_bits, 0xF0))
     {
         // Bottom
         code = 1;
-        if (tile_is_different(pmesh, {index2d.x() - 1, index2d.y()}, fx_bits, 0xF0))
+        if (tile_is_different(mesh, {index2d.x() - 1, index2d.y()}, fx_bits, 0xF0))
         {
             // Left
             code = 10;
         }
-        if (tile_is_different(pmesh, {index2d.x() + 1, index2d.y()}, fx_bits, 0xF0))
+        if (tile_is_different(mesh, {index2d.x() + 1, index2d.y()}, fx_bits, 0xF0))
         {
             // Right
             code = 11;
@@ -1588,38 +1520,38 @@ Uint16 trim_code( cartman_mpd_t * pmesh, const Index2D& index2d, Uint16 fx_bits 
         return code;
     }
 
-    if (tile_is_different(pmesh, {index2d.x() - 1, index2d.y()}, fx_bits, 0xF0))
+    if (tile_is_different(mesh, {index2d.x() - 1, index2d.y()}, fx_bits, 0xF0))
     {
         // Left
         code = 2;
         return code;
     }
-    if (tile_is_different(pmesh, {index2d.x() + 1, index2d.y()}, fx_bits, 0xF0))
+    if (tile_is_different(mesh, {index2d.x() + 1, index2d.y()}, fx_bits, 0xF0))
     {
         // Right
         code = 3;
         return code;
     }
 
-    if (tile_is_different(pmesh, {index2d.x() + 1, index2d.y() + 1}, fx_bits, 0xF0))
+    if (tile_is_different(mesh, {index2d.x() + 1, index2d.y() + 1}, fx_bits, 0xF0))
     {
         // Bottom Right
         code = 4;
         return code;
     }
-    if (tile_is_different(pmesh, {index2d.x() - 1, index2d.y() + 1}, fx_bits, 0xF0))
+    if (tile_is_different(mesh, {index2d.x() - 1, index2d.y() + 1}, fx_bits, 0xF0))
     {
         // Bottom Left
         code = 5;
         return code;
     }
-    if (tile_is_different(pmesh, {index2d.x() + 1, index2d.y() - 1}, fx_bits, 0xF0))
+    if (tile_is_different(mesh, {index2d.x() + 1, index2d.y() - 1}, fx_bits, 0xF0))
     {
         // Top Right
         code = 6;
         return code;
     }
-    if (tile_is_different(pmesh, {index2d.x() - 1, index2d.y() - 1}, fx_bits, 0xF0))
+    if (tile_is_different(mesh, {index2d.x() - 1, index2d.y() - 1}, fx_bits, 0xF0))
     {
         // Top Left
         code = 7;
@@ -1633,25 +1565,23 @@ Uint16 trim_code( cartman_mpd_t * pmesh, const Index2D& index2d, Uint16 fx_bits 
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 wall_code( cartman_mpd_t * pmesh, const Index2D& index2d, Uint16 fx_bits )
+Uint16 wall_code( cartman_mpd_t& mesh, const Index2D& index2d, Uint16 fx_bits )
 {
     // ZZ> This function returns the standard tile set value thing...  For
     //     Trimming tops of walls and floors
 
     Uint16 code;
 
-    if ( NULL == pmesh ) pmesh = &mesh;
-
-    if (tile_is_different(pmesh, {index2d.x(), index2d.y() - 1}, fx_bits, 0xC0))
+    if (tile_is_different(mesh, {index2d.x(), index2d.y() - 1}, fx_bits, 0xC0))
     {
         // Top
         code = Random::next(1) * 2 + 20;
-        if (tile_is_different(pmesh, {index2d.x() - 1, index2d.y()}, fx_bits, 0xC0))
+        if (tile_is_different(mesh, {index2d.x() - 1, index2d.y()}, fx_bits, 0xC0))
         {
             // Left
             code = 48;
         }
-        if (tile_is_different(pmesh, {index2d.x() + 1, index2d.y()}, fx_bits, 0xC0))
+        if (tile_is_different(mesh, {index2d.x() + 1, index2d.y()}, fx_bits, 0xC0))
         {
             // Right
             code = 50;
@@ -1660,16 +1590,16 @@ Uint16 wall_code( cartman_mpd_t * pmesh, const Index2D& index2d, Uint16 fx_bits 
         return code;
     }
 
-    if (tile_is_different(pmesh, {index2d.x(), index2d.y() + 1}, fx_bits, 0xC0))
+    if (tile_is_different(mesh, {index2d.x(), index2d.y() + 1}, fx_bits, 0xC0))
     {
         // Bottom
         code = Random::next(1) * 2;
-        if (tile_is_different(pmesh, {index2d.x() - 1, index2d.y()}, fx_bits, 0xC0))
+        if (tile_is_different(mesh, {index2d.x() - 1, index2d.y()}, fx_bits, 0xC0))
         {
             // Left
             code = 52;
         }
-        if (tile_is_different(pmesh, {index2d.x() + 1, index2d.y()}, fx_bits, 0xC0))
+        if (tile_is_different(mesh, {index2d.x() + 1, index2d.y()}, fx_bits, 0xC0))
         {
             // Right
             code = 54;
@@ -1677,39 +1607,39 @@ Uint16 wall_code( cartman_mpd_t * pmesh, const Index2D& index2d, Uint16 fx_bits 
         return code;
     }
 
-    if (tile_is_different(pmesh, {index2d.x() - 1, index2d.y()}, fx_bits, 0xC0))
+    if (tile_is_different(mesh, {index2d.x() - 1, index2d.y()}, fx_bits, 0xC0))
     {
         // Left
         code = Random::next(1) * 2 + 16;
         return code;
     }
 
-    if (tile_is_different(pmesh, {index2d.x() + 1, index2d.y()}, fx_bits, 0xC0))
+    if (tile_is_different(mesh, {index2d.x() + 1, index2d.y()}, fx_bits, 0xC0))
     {
         // Right
         code = Random::next(1) * 2 + 4;
         return code;
     }
 
-    if (tile_is_different(pmesh, {index2d.x() + 1, index2d.y() + 1}, fx_bits, 0xC0))
+    if (tile_is_different(mesh, {index2d.x() + 1, index2d.y() + 1}, fx_bits, 0xC0))
     {
         // Bottom Right
         code = 32;
         return code;
     }
-    if (tile_is_different(pmesh, {index2d.x() - 1, index2d.y() + 1}, fx_bits, 0xC0))
+    if (tile_is_different(mesh, {index2d.x() - 1, index2d.y() + 1}, fx_bits, 0xC0))
     {
         // Bottom Left
         code = 34;
         return code;
     }
-    if (tile_is_different(pmesh, {index2d.x() + 1, index2d.y() - 1}, fx_bits, 0xC0))
+    if (tile_is_different(mesh, {index2d.x() + 1, index2d.y() - 1}, fx_bits, 0xC0))
     {
         // Top Right
         code = 36;
         return code;
     }
-    if (tile_is_different(pmesh, {index2d.x() - 1, index2d.y() - 1}, fx_bits, 0xC0))
+    if (tile_is_different(mesh, {index2d.x() - 1, index2d.y() - 1}, fx_bits, 0xC0))
     {
         // Top Left
         code = 38;
@@ -1723,18 +1653,16 @@ Uint16 wall_code( cartman_mpd_t * pmesh, const Index2D& index2d, Uint16 fx_bits 
 }
 
 //--------------------------------------------------------------------------------------------
-void trim_mesh_tile( cartman_mpd_t * pmesh, Uint16 fx_bits, Uint16 fx_mask )
+void trim_mesh_tile( cartman_mpd_t& mesh, Uint16 fx_bits, Uint16 fx_mask )
 {
     // ZZ> This function trims walls and floors and tops automagically
-    if ( NULL == pmesh ) pmesh = &mesh;
-
     fx_bits = fx_bits & fx_mask;
 
-    for ( int mapy = 0; mapy < pmesh->info.getTileCountY(); mapy++ )
+    for ( int mapy = 0; mapy < mesh.info.getTileCountY(); mapy++ )
     {
-        for ( int mapx = 0; mapx < pmesh->info.getTileCountX(); mapx++ )
+        for ( int mapx = 0; mapx < mesh.info.getTileCountX(); mapx++ )
         {
-            cartman_mpd_tile_t *pfan = pmesh->get_pfan({mapx, mapy});
+            cartman_mpd_tile_t *pfan = mesh.get_pfan({mapx, mapy});
             if ( NULL == pfan ) continue;
 
             if ( fx_bits == ( pfan->tx_bits&fx_mask ) )
@@ -1742,11 +1670,11 @@ void trim_mesh_tile( cartman_mpd_t * pmesh, Uint16 fx_bits, Uint16 fx_mask )
 				int code;
                 if ( fx_mask == 0xC0 )
                 {
-                    code = wall_code(pmesh, {mapx, mapy}, fx_bits);
+                    code = wall_code(mesh, {mapx, mapy}, fx_bits);
                 }
                 else
                 {
-                    code = trim_code(pmesh, {mapx, mapy}, fx_bits);
+                    code = trim_code(mesh, {mapx, mapy}, fx_bits);
                 }
 
                 if ( code != 255 )
@@ -1759,14 +1687,12 @@ void trim_mesh_tile( cartman_mpd_t * pmesh, Uint16 fx_bits, Uint16 fx_mask )
 }
 
 //--------------------------------------------------------------------------------------------
-void MeshEditor::mesh_replace_tile(cartman_mpd_t * pmesh, int _xfan, int _yfan, int _onfan, Uint8 _tx, Uint8 _upper, Uint8 _fx, Uint8 _type, Uint16 _presser, bool tx_only, bool at_floor_level)
+void MeshEditor::mesh_replace_tile(cartman_mpd_t& mesh, int _xfan, int _yfan, int _onfan, Uint8 _tx, Uint8 _upper, Uint8 _fx, Uint8 _type, Uint16 _presser, bool tx_only, bool at_floor_level)
 {
     cart_vec_t pos[CORNER_COUNT];
     int tx_bits;
 
-	if ( NULL == pmesh ) pmesh = &mesh;
-
-	cartman_mpd_tile_t *pfan = CART_MPD_FAN_PTR(pmesh, _onfan);
+	cartman_mpd_tile_t *pfan = CART_MPD_FAN_PTR(&mesh, _onfan);
     if ( NULL == pfan ) return;
 
     if ( !tx_only )
@@ -1775,26 +1701,26 @@ void MeshEditor::mesh_replace_tile(cartman_mpd_t * pmesh, int _xfan, int _yfan, 
         {
             // Save corner positions
             int vert = pfan->vrtstart;
-            pos[CORNER_TL][kX] = pmesh->vrt2[vert].x;
-            pos[CORNER_TL][kY] = pmesh->vrt2[vert].y;
-            pos[CORNER_TL][kZ] = pmesh->vrt2[vert].z;
+            pos[CORNER_TL][kX] = mesh.vrt2[vert].x;
+            pos[CORNER_TL][kY] = mesh.vrt2[vert].y;
+            pos[CORNER_TL][kZ] = mesh.vrt2[vert].z;
 
-            vert = pmesh->vrt2[vert].next;
-            pos[CORNER_TR][kX] = pmesh->vrt2[vert].x;
-            pos[CORNER_TR][kY] = pmesh->vrt2[vert].y;
-            pos[CORNER_TR][kZ] = pmesh->vrt2[vert].z;
+            vert = mesh.vrt2[vert].next;
+            pos[CORNER_TR][kX] = mesh.vrt2[vert].x;
+            pos[CORNER_TR][kY] = mesh.vrt2[vert].y;
+            pos[CORNER_TR][kZ] = mesh.vrt2[vert].z;
 
-            vert = pmesh->vrt2[vert].next;
-            pos[CORNER_BR][kX] = pmesh->vrt2[vert].x;
-            pos[CORNER_BR][kY] = pmesh->vrt2[vert].y;
-            pos[CORNER_BR][kZ] = pmesh->vrt2[vert].z;
+            vert = mesh.vrt2[vert].next;
+            pos[CORNER_BR][kX] = mesh.vrt2[vert].x;
+            pos[CORNER_BR][kY] = mesh.vrt2[vert].y;
+            pos[CORNER_BR][kZ] = mesh.vrt2[vert].z;
 
-            vert = pmesh->vrt2[vert].next;
-            pos[CORNER_BL][kX] = pmesh->vrt2[vert].x;
-            pos[CORNER_BL][kY] = pmesh->vrt2[vert].y;
-            pos[CORNER_BL][kZ] = pmesh->vrt2[vert].z;
+            vert = mesh.vrt2[vert].next;
+            pos[CORNER_BL][kX] = mesh.vrt2[vert].x;
+            pos[CORNER_BL][kY] = mesh.vrt2[vert].y;
+            pos[CORNER_BL][kZ] = mesh.vrt2[vert].z;
         }
-        pmesh->remove_ifan(_onfan);
+        mesh.remove_ifan(_onfan);
     }
 
     // set the texture info
@@ -1822,7 +1748,7 @@ void MeshEditor::mesh_replace_tile(cartman_mpd_t * pmesh, int _xfan, int _yfan, 
     if ( !tx_only )
     {
         pfan->type = _type;
-        pmesh->add_ifan(_onfan, _xfan * Info<int>::Grid::Size(), _yfan * Info<int>::Grid::Size());
+        mesh.add_ifan(_onfan, _xfan * Info<int>::Grid::Size(), _yfan * Info<int>::Grid::Size());
         pfan->fx = _fx;
 
         if ( 0 /*!at_floor_level*/ )
@@ -1830,40 +1756,39 @@ void MeshEditor::mesh_replace_tile(cartman_mpd_t * pmesh, int _xfan, int _yfan, 
 			int vert;
             // Return corner positions
             vert = pfan->vrtstart;
-            pmesh->vrt2[vert].x = pos[CORNER_TL][kX];
-            pmesh->vrt2[vert].y = pos[CORNER_TL][kY];
-            pmesh->vrt2[vert].z = pos[CORNER_TL][kZ];
+            mesh.vrt2[vert].x = pos[CORNER_TL][kX];
+            mesh.vrt2[vert].y = pos[CORNER_TL][kY];
+            mesh.vrt2[vert].z = pos[CORNER_TL][kZ];
 
-            vert = pmesh->vrt2[vert].next;
-            pmesh->vrt2[vert].x = pos[CORNER_TR][kX];
-            pmesh->vrt2[vert].y = pos[CORNER_TR][kY];
-            pmesh->vrt2[vert].z = pos[CORNER_TR][kZ];
+            vert = mesh.vrt2[vert].next;
+            mesh.vrt2[vert].x = pos[CORNER_TR][kX];
+            mesh.vrt2[vert].y = pos[CORNER_TR][kY];
+            mesh.vrt2[vert].z = pos[CORNER_TR][kZ];
 
-            vert = pmesh->vrt2[vert].next;
-            pmesh->vrt2[vert].x = pos[CORNER_BR][kX];
-            pmesh->vrt2[vert].y = pos[CORNER_BR][kY];
-            pmesh->vrt2[vert].z = pos[CORNER_BR][kZ];
+            vert = mesh.vrt2[vert].next;
+            mesh.vrt2[vert].x = pos[CORNER_BR][kX];
+            mesh.vrt2[vert].y = pos[CORNER_BR][kY];
+            mesh.vrt2[vert].z = pos[CORNER_BR][kZ];
 
-            vert = pmesh->vrt2[vert].next;
-            pmesh->vrt2[vert].x = pos[CORNER_BL][kX];
-            pmesh->vrt2[vert].y = pos[CORNER_BL][kY];
-            pmesh->vrt2[vert].z = pos[CORNER_BL][kZ];
+            vert = mesh.vrt2[vert].next;
+            mesh.vrt2[vert].x = pos[CORNER_BL][kX];
+            mesh.vrt2[vert].y = pos[CORNER_BL][kY];
+            mesh.vrt2[vert].z = pos[CORNER_BL][kZ];
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------
 
-void MeshEditor::setFX( cartman_mpd_t * pmesh, int ifan, uint8_t fx )
+void MeshEditor::setFX( cartman_mpd_t& mesh, int ifan, uint8_t fx )
 {
-    if (!pmesh) pmesh = &mesh;
-    cartman_mpd_tile_t *tile = pmesh->get_pfan(ifan);
+    cartman_mpd_tile_t *tile = mesh.get_pfan(ifan);
     if (!tile) return;
 	tile->setFX(fx);
 }
 
 //--------------------------------------------------------------------------------------------
-void MeshEditor::mesh_move( cartman_mpd_t * pmesh, float dx, float dy, float dz )
+void MeshEditor::mesh_move( cartman_mpd_t& mesh, float dx, float dy, float dz )
 {
     Uint32 vert;
     int mapx, mapy, cnt;
@@ -1871,15 +1796,13 @@ void MeshEditor::mesh_move( cartman_mpd_t * pmesh, float dx, float dy, float dz 
     cartman_mpd_tile_t * pfan   = NULL;
     tile_definition_t  * pdef    = NULL;
 
-    if ( NULL == pmesh ) pmesh = &mesh;
-
-    for ( mapy = 0; mapy < pmesh->info.getTileCountY(); mapy++ )
+    for ( mapy = 0; mapy < mesh.info.getTileCountY(); mapy++ )
     {
-        for ( mapx = 0; mapx < pmesh->info.getTileCountX(); mapx++ )
+        for ( mapx = 0; mapx < mesh.info.getTileCountX(); mapx++ )
         {
             int count;
 
-            pfan = pmesh->get_pfan({mapx, mapy});
+            pfan = mesh.get_pfan({mapx, mapy});
             if ( NULL == pfan ) continue;
 
             pdef = tile_dict.get(pfan->type );
@@ -1889,9 +1812,9 @@ void MeshEditor::mesh_move( cartman_mpd_t * pmesh, float dx, float dy, float dz 
 
             for ( cnt = 0, vert = pfan->vrtstart;
                   cnt < count && CHAINEND != vert;
-                  cnt++, vert = pmesh->vrt2[vert].next )
+                  cnt++, vert = mesh.vrt2[vert].next )
             {
-                MeshEditor::move_vert( pmesh,  vert, dx, dy, dz );
+                MeshEditor::move_vert( mesh,  vert, dx, dy, dz );
             }
         }
     }

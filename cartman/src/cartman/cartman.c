@@ -140,7 +140,7 @@ static void fan_calc_vrta( cartman_mpd_t * pmesh, int fan );
 static int  vertex_calc_vrta( cartman_mpd_t * pmesh, Uint32 vert );
 static void make_onscreen();
 static void onscreen_add_fan( cartman_mpd_t * pmesh, Uint32 fan );
-static void ease_up_mesh( cartman_mpd_t * pmesh, float zoom_vrt );
+static void ease_up_mesh( cartman_mpd_t& mesh, float zoom_vrt );
 
 // cartman versions of these functions
 static int cartman_get_vertex(cartman_mpd_t *pmesh, Index2D index2d, int num);
@@ -838,13 +838,13 @@ void cartman_check_mouse_side(std::shared_ptr<Cartman::Gui::Window> pwin, float 
 
         if (CART_BUTTONDOWN(SDL_BUTTON_RIGHT))
         {
-            mesh_select_move(&(mdata.win_select), Input::get()._mouse.cx / zoom_hrz, 0, -Input::get()._mouse.cy / zoom_vrt);
+            mesh_select_move( mdata.win_select, Input::get()._mouse.cx / zoom_hrz, 0, -Input::get()._mouse.cy / zoom_vrt );
             bound_mouse();
         }
 
         if ( CART_KEYDOWN( SDLK_y ) )
         {
-            mesh_select_move( &( mdata.win_select ), 0, 0, -Input::get()._mouse.cy / zoom_vrt );
+            mesh_select_move( mdata.win_select, 0, 0, -Input::get()._mouse.cy / zoom_vrt );
             bound_mouse();
         }
 
@@ -852,11 +852,11 @@ void cartman_check_mouse_side(std::shared_ptr<Cartman::Gui::Window> pwin, float 
         {
             if ( mdata.type >= tile_dict.offset )
             {
-                MeshEditor::move_mesh_z(mdata.win_mesh, -Input::get()._mouse.cy / zoom_vrt, mdata.tx, 0xC0);
+                MeshEditor::move_mesh_z(mdata.win_mesh != nullptr ? *mdata.win_mesh : mesh, -Input::get()._mouse.cy / zoom_vrt, mdata.tx, 0xC0);
             }
             else
             {
-                MeshEditor::move_mesh_z(mdata.win_mesh, -Input::get()._mouse.cy / zoom_vrt, mdata.tx, 0xF0);
+                MeshEditor::move_mesh_z(mdata.win_mesh != nullptr ? *mdata.win_mesh : mesh, -Input::get()._mouse.cy / zoom_vrt, mdata.tx, 0xF0);
             }
             bound_mouse();
         }
@@ -866,12 +866,12 @@ void cartman_check_mouse_side(std::shared_ptr<Cartman::Gui::Window> pwin, float 
             if ( CART_KEYDOWN( SDLK_RSHIFT ) )
             {
                 // Move the first 16 up and down
-                MeshEditor::move_mesh_z(mdata.win_mesh, -Input::get()._mouse.cy / zoom_vrt, 0, 0xF0);
+                MeshEditor::move_mesh_z(mdata.win_mesh != nullptr ? *mdata.win_mesh : mesh, -Input::get()._mouse.cy / zoom_vrt, 0, 0xF0);
             }
             else
             {
                 // Move the entire mesh up and down
-                MeshEditor::move_mesh_z(mdata.win_mesh, -Input::get()._mouse.cy / zoom_vrt, 0, 0);
+                MeshEditor::move_mesh_z(mdata.win_mesh != nullptr ? *mdata.win_mesh : mesh, -Input::get()._mouse.cy / zoom_vrt, 0, 0);
             }
             bound_mouse();
         }
@@ -1220,19 +1220,19 @@ void cartman_check_mouse_vertex(std::shared_ptr<Cartman::Gui::Window> pwin, floa
 
         if (CART_BUTTONDOWN(SDL_BUTTON_RIGHT))
         {
-            mesh_select_move( &( mdata.win_select ), Input::get()._mouse.cx / zoom_vrt, Input::get()._mouse.cy / zoom_vrt, 0 );
+            mesh_select_move( mdata.win_select, Input::get()._mouse.cx / zoom_vrt, Input::get()._mouse.cy / zoom_vrt, 0 );
             bound_mouse();
         }
 
         if ( CART_KEYDOWN( SDLK_f ) )
         {
             //    weld_corner_verts({mdata.win_mpos_x>>7, mdata.win_mpos_y>>7});
-            fix_vertices(pwin->pmesh, Index2D(std::floor(mdata.win_mpos_x / Info<float>::Grid::Size()), std::floor(mdata.win_mpos_y / Info<float>::Grid::Size())));
+            fix_vertices(pwin->pmesh != nullptr ? *pwin->pmesh : mesh, Index2D(std::floor(mdata.win_mpos_x / Info<float>::Grid::Size()), std::floor(mdata.win_mpos_y / Info<float>::Grid::Size())));
         }
 
         if (CART_KEYDOWN(SDLK_p) || (CART_BUTTONDOWN(SDL_BUTTON_RIGHT) && 0 == mdata.win_select.count()))
         {
-            MeshEditor::raise_mesh( mdata.win_mesh, onscreen_vert, onscreen_count, mdata.win_mpos_x, mdata.win_mpos_y, brushamount, brushsize );
+            MeshEditor::raise_mesh( mdata.win_mesh != nullptr ? *mdata.win_mesh : mesh, onscreen_vert, onscreen_count, mdata.win_mpos_x, mdata.win_mpos_y, brushamount, brushsize );
         }
     }
 }
@@ -1280,16 +1280,12 @@ bool cartman_check_mouse( const char * modulename, cartman_mpd_t * pmesh )
 
 //--------------------------------------------------------------------------------------------
 
-void ease_up_mesh( cartman_mpd_t * pmesh, float zoom_vrt )
+void ease_up_mesh( cartman_mpd_t& mesh, float zoom_vrt )
 {
     // ZZ> This function lifts the entire mesh
     using namespace Cartman;
-    if ( NULL == pmesh ) pmesh = &mesh;
-
     Input::get()._mouse.position = Input::get()._mouse.positionOld;
-
-
-    MeshEditor::mesh_move( pmesh, 0, 0, -Input::get()._mouse.cy / zoom_vrt );
+    MeshEditor::mesh_move( mesh, 0, 0, -Input::get()._mouse.cy / zoom_vrt );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1351,7 +1347,7 @@ bool cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
     }
     if ( CART_KEYDOWN( SDLK_g ) )
     {
-        fix_mesh( pmesh );
+        fix_mesh( pmesh != nullptr ? *pmesh : mesh);
         Input::get()._keyboard.delay = KEYDELAY;
     }
     if ( CART_KEYDOWN( SDLK_z ) )
@@ -1373,11 +1369,11 @@ bool cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
 
             if ( type >= tile_dict.offset )
             {
-                trim_mesh_tile( pmesh, tx_bits, 0xC0 );
+                trim_mesh_tile( pmesh != nullptr ? *pmesh : mesh, tx_bits, 0xC0 );
             }
             else
             {
-                trim_mesh_tile( pmesh, tx_bits, 0xF0 );
+                trim_mesh_tile( pmesh != nullptr ? *pmesh : mesh, tx_bits, 0xF0 );
             }
         }
 
@@ -1386,7 +1382,7 @@ bool cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
 
     if ( CART_KEYDOWN( SDLK_e ) )
     {
-        ease_up_mesh( pmesh, cartman_zoom_vrt );
+        ease_up_mesh( pmesh != nullptr ? *pmesh : mesh, cartman_zoom_vrt );
     }
 
     if ( CART_KEYDOWN( SDLK_LEFTBRACKET ) || CART_KEYDOWN( SDLK_RIGHTBRACKET ) )
@@ -1400,8 +1396,8 @@ bool cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
     }
     if ( CART_KEYDOWN( SDLK_j ) )
     {
-        if ( 0 == mdata.win_select.count() ) { MeshEditor::jitter_mesh( pmesh ); }
-        else { mesh_select_jitter( &( mdata.win_select ) ); }
+        if ( 0 == mdata.win_select.count() ) { MeshEditor::jitter_mesh( pmesh != nullptr ? *pmesh : mesh ); }
+        else { mesh_select_jitter( mdata.win_select ); }
         Input::get()._keyboard.delay = KEYDELAY;
     }
 
@@ -1414,7 +1410,7 @@ bool cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
     }
     if ( CART_KEYDOWN( SDLK_SPACE ) )
     {
-        mesh_select_weld( &( mdata.win_select ) );
+        mesh_select_weld( mdata.win_select );
         Input::get()._keyboard.delay = KEYDELAY;
     }
     if ( CART_KEYDOWN( SDLK_INSERT ) )
@@ -1518,7 +1514,7 @@ bool cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
 
     if ( CART_KEYDOWN( SDLK_q ) )
     {
-        MeshEditor::fix_walls( pmesh );
+        MeshEditor::fix_walls( pmesh != nullptr ? *pmesh : mesh);
         Input::get()._keyboard.delay = KEYDELAY;
     }
 
@@ -1527,19 +1523,19 @@ bool cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
 
     if ( CART_KEYDOWN( SDLK_5 ) )
     {
-        mesh_select_set_z_no_bound( &( mdata.win_select ), -8000 * 4 );
+        mesh_select_set_z_no_bound( mdata.win_select, -8000 * 4 );
         Input::get()._keyboard.delay = KEYDELAY;
     }
 
     if ( CART_KEYDOWN( SDLK_6 ) )
     {
-        mesh_select_set_z_no_bound( &( mdata.win_select ), -127 * 4 );
+        mesh_select_set_z_no_bound( mdata.win_select, -127 * 4 );
         Input::get()._keyboard.delay = KEYDELAY;
     }
 
     if ( CART_KEYDOWN( SDLK_7 ) )
     {
-        mesh_select_set_z_no_bound( &( mdata.win_select ), 127 * 4 );
+        mesh_select_set_z_no_bound( mdata.win_select, 127 * 4 );
         Input::get()._keyboard.delay = KEYDELAY;
     }
 
@@ -1551,7 +1547,7 @@ bool cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
 
     if ( CART_KEYDOWN_MOD( SDLK_l, KMOD_SHIFT ) )
     {
-        MeshEditor::level_vrtz( pmesh );
+        MeshEditor::level_vrtz( pmesh != nullptr ? *pmesh : mesh);
     }
 
     // brush size
@@ -1901,7 +1897,7 @@ void cartman_create_mesh( cartman_mpd_t * pmesh )
         }
     }
 
-    fix_mesh( pmesh );
+    fix_mesh( pmesh != nullptr ? *pmesh : mesh );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1989,32 +1985,32 @@ Cartman_MouseData *Cartman_MouseData::ctor(Cartman_MouseData *self)
 
 void cart_mouse_data_mesh_set_tile( Uint16 tiletoset )
 {
-    MeshEditor::mesh_set_tile( mdata.win_mesh, tiletoset, mdata.upper, mdata.presser, mdata.tx );
+    MeshEditor::mesh_set_tile(mdata.win_mesh != nullptr ? *mdata.win_mesh : mesh, tiletoset, mdata.upper, mdata.presser, mdata.tx );
 }
 
 void cart_mouse_data_flatten_mesh()
 {
-    MeshEditor::flatten_mesh( mdata.win_mesh, mdata.win_mpos_y );
+    MeshEditor::flatten_mesh( mdata.win_mesh != nullptr ? *mdata.win_mesh : mesh, mdata.win_mpos_y );
 }
 
 void cart_mouse_data_clear_mesh()
 {
-	MeshEditor::clear_mesh(mdata.win_mesh, mdata.upper, mdata.presser, mdata.tx, mdata.type);
+	MeshEditor::clear_mesh(mdata.win_mesh != nullptr ? *mdata.win_mesh : mesh, mdata.upper, mdata.presser, mdata.tx, mdata.type);
 }
 
 void cart_mouse_data_three_e_mesh()
 {
-    MeshEditor::three_e_mesh( mdata.win_mesh, mdata.upper, mdata.tx );
+    MeshEditor::three_e_mesh( mdata.win_mesh != nullptr ? *mdata.win_mesh : mesh, mdata.upper, mdata.tx );
 }
 
 void cart_mouse_data_mesh_replace_tile( bool tx_only, bool at_floor_level )
 {
-    MeshEditor::mesh_replace_tile( mdata.win_mesh, mdata.win_fan_x, mdata.win_fan_y, mdata.win_fan, mdata.tx, mdata.upper, mdata.fx, mdata.type, mdata.presser, tx_only, at_floor_level );
+    MeshEditor::mesh_replace_tile( mdata.win_mesh != nullptr ? *mdata.win_mesh : mesh, mdata.win_fan_x, mdata.win_fan_y, mdata.win_fan, mdata.tx, mdata.upper, mdata.fx, mdata.type, mdata.presser, tx_only, at_floor_level );
 }
 
 void cart_mouse_data_mesh_set_fx()
 {
-    MeshEditor::setFX( mdata.win_mesh, mdata.win_fan, mdata.fx );
+    MeshEditor::setFX( mdata.win_mesh != nullptr ? *mdata.win_mesh : mesh, mdata.win_fan, mdata.fx );
 }
 
 void cart_mouse_data_toggle_fx( int fxmask )
@@ -2049,10 +2045,10 @@ void cart_mouse_data_mesh_replace_fx()
 
     if ( type >= tile_dict.offset )
     {
-        MeshEditor::mesh_replace_fx( mdata.win_mesh, tx_bits, 0xC0, mdata.fx );
+        MeshEditor::mesh_replace_fx( mdata.win_mesh != nullptr ? *mdata.win_mesh : mesh, tx_bits, 0xC0, mdata.fx );
     }
     else
     {
-        MeshEditor::mesh_replace_fx( mdata.win_mesh, tx_bits, 0xF0, mdata.fx );
+        MeshEditor::mesh_replace_fx( mdata.win_mesh != nullptr ? *mdata.win_mesh : mesh, tx_bits, 0xF0, mdata.fx );
     }
 }
