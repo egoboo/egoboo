@@ -55,7 +55,7 @@ void SideView::render(Gui::Window& window, float zoom_hrz, float zoom_vrt) {
                 float z_min, z_max;
 
                 color = make_rgba(255, 128 + (Clocks::timePassed<Time::Unit::Ticks, int>() & 128),
-                                       128 + (Clocks::timePassed<Time::Unit::Ticks, int>() & 128), 0);
+                                       128 + (Clocks::timePassed<Time::Unit::Ticks, int>() & 128), 64);
 
                 x_min = mdata.rect_x0;
                 x_max = mdata.rect_x1;

@@ -52,7 +52,7 @@ void VertexView::render(Gui::Window& window, float zoom_hrz, float zoom_vrt) {
 
             if (mdata.rect_draw) {
                 auto color = make_rgba(255, 128 + (Clocks::timePassed<Time::Unit::Ticks, int>() & 128),
-                                            128 + (Clocks::timePassed<Time::Unit::Ticks, int>() & 128), 0);
+                                            128 + (Clocks::timePassed<Time::Unit::Ticks, int>() & 128), 64);
 
                 float x_min = mdata.rect_x0;
                 float x_max = mdata.rect_x1;
