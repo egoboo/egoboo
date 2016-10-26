@@ -37,15 +37,15 @@ void TileView::render(Gui::Window& window, float zoom_hrz, float zoom_vrt) {
         beginRender(window, zoom_hrz, zoom_vrt);
         cartman_begin_ortho_camera_hrz(window, &cam, zoom_hrz, zoom_hrz);
         {
-            std::vector<std::pair<int, int>> indices;
+            std::vector<Index2D> indices;
             getTileRange(cam, *window.pmesh, indices);
 
             for (auto index : indices) {
-                int fan = window.pmesh->get_ifan({index.first, index.second});
+                int fan = window.pmesh->get_ifan(index);
                 if (!VALID_MPD_TILE_RANGE(fan)) continue;
 
-                int x = index.first * Info<int>::Grid::Size();
-                int y = index.second * Info<int>::Grid::Size();
+                int x = index.x() * Info<int>::Grid::Size();
+                int y = index.y() * Info<int>::Grid::Size();
                 auto tx_tile = tile_at(window.pmesh, fan);
                 if (!tx_tile) continue;
 

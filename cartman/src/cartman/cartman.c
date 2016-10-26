@@ -682,14 +682,10 @@ void mesh_calc_vrta(cartman_mpd_t *self)
 {
     if (NULL == self) self = &mesh;
 
-    for (int mapy = 0; mapy < self->info.getTileCountY(); mapy++)
-    {
-        for (int mapx = 0; mapx < self->info.getTileCountX(); mapx++)
-        {
-            int fan = self->get_ifan({mapx, mapy});
+    for (auto it = self->info.begin(); it != self->info.end(); ++it) {
+            int fan = self->get_ifan(*it);
 
             fan_calc_vrta(self, fan);
-        }
     }
 }
 

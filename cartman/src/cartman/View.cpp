@@ -38,7 +38,7 @@ void View::beginRender(Cartman::Gui::Window& window, float zoom_hrz, float zoom_
     Ego::Renderer::get().setScissorRectangle(left, bottom , width, height);
 }
 
-void View::getTileRange(camera_t& camera, cartman_mpd_t& mesh, std::vector<std::pair<int, int>>& indices) {
+void View::getTileRange(camera_t& camera, cartman_mpd_t& mesh, std::vector<Index2D>& indices) {
     int mapxstt, mapystt, mapxend, mapyend;
     getTileRange(camera, mesh, mapxstt, mapystt, mapxend, mapyend);
     // Loop over the tails and get index pairs.
@@ -46,7 +46,7 @@ void View::getTileRange(camera_t& camera, cartman_mpd_t& mesh, std::vector<std::
         if (mapy < 0 || mapy >= mesh.info.getTileCountY()) continue;
         for (int mapx = mapxstt; mapx <= mapxend; mapx++) {
             if (mapx < 0 || mapx >= mesh.info.getTileCountX()) continue;
-            indices.push_back(std::make_pair(mapx, mapy));
+            indices.push_back(Index2D(mapx, mapy));
         }
     }
 }

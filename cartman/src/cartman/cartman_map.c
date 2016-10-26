@@ -249,11 +249,8 @@ void cartman_mpd_t::free_vertex_count()
 int cartman_mpd_t::count_used_vertices()
 {
     int totalvert = 0;
-    for (int mapy = 0; mapy < info.getTileCountY(); mapy++)
-    {
-        for (int mapx = 0; mapx < info.getTileCountX(); mapx++)
-        {
-            int ifan = get_ifan({mapx, mapy});
+    for (auto it = info.begin(); it != info.end(); ++it) {
+            int ifan = get_ifan(*it);
             if (!VALID_MPD_TILE_RANGE(ifan))
             {
                 continue;
@@ -268,7 +265,6 @@ int cartman_mpd_t::count_used_vertices()
             {
                 totalvert++;
             }
-        }
     }
 
     return totalvert;
@@ -1076,15 +1072,12 @@ cartman_mpd_t *cartman_mpd_create(cartman_mpd_t *self, int tiles_x, int tiles_y)
 
 	self->info = cartman_mpd_info_t(tiles_x, tiles_y);
 
-    for (size_t mapy = 0, fan = 0; mapy < self->info.getTileCountY(); mapy++)
-    {
-        for (size_t mapx = 0; mapx < self->info.getTileCountX(); mapx++)
-        {
+    int fan = 0;
+    for (auto it = self->info.begin(); it != self->info.end(); ++it) {
             self->fan2[fan].type = 0;
-            self->fan2[fan].tx_bits = (((mapx & 1) + (mapy & 1)) & 1) + DEFAULT_TILE;
+            self->fan2[fan].tx_bits = ((((*it).x() & 1) + ((*it).y() & 1)) & 1) + DEFAULT_TILE;
 
             fan++;
-        }
     }
 
     cartman_mpd_make_fanstart(self);
