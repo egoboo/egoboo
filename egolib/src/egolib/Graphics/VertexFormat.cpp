@@ -30,6 +30,7 @@ struct Generator;
 
 template <>
 struct Generator<IndexFormat, IndexFormat::IU8> {
+    Generator() {}
     const IndexDescriptor& operator()() const {
         static const IndexDescriptor descriptor(IndexDescriptor::Syntax::U8);
         return descriptor;
@@ -38,6 +39,7 @@ struct Generator<IndexFormat, IndexFormat::IU8> {
 
 template <>
 struct Generator<IndexFormat, IndexFormat::IU16> {
+    Generator() {}
     const IndexDescriptor& operator()() const {
         static const IndexDescriptor descriptor(IndexDescriptor::Syntax::U16);
         return descriptor;
@@ -46,6 +48,7 @@ struct Generator<IndexFormat, IndexFormat::IU16> {
 
 template <>
 struct Generator<IndexFormat, IndexFormat::IU32> {
+    Generator() {}
     const IndexDescriptor& operator()() const {
         static const IndexDescriptor descriptor(IndexDescriptor::Syntax::U32);
         return descriptor;
@@ -54,6 +57,7 @@ struct Generator<IndexFormat, IndexFormat::IU32> {
 
 template <>
 struct Generator<VertexFormat, VertexFormat::P2F> {
+    Generator() {}
 	const VertexDescriptor& operator()() const {
 		static const VertexElementDescriptor position(0, VertexElementDescriptor::Syntax::F2, VertexElementDescriptor::Semantics::Position);
 		static const VertexDescriptor descriptor({position});
@@ -63,6 +67,7 @@ struct Generator<VertexFormat, VertexFormat::P2F> {
 
 template <>
 struct Generator<VertexFormat, VertexFormat::P2FT2F> {
+    Generator() {}
 	const VertexDescriptor& operator()() const {
 		static const VertexElementDescriptor position(0, VertexElementDescriptor::Syntax::F2, VertexElementDescriptor::Semantics::Position);
 		static const VertexElementDescriptor texture(position.getOffset() + position.getSize(), VertexElementDescriptor::Syntax::F2, VertexElementDescriptor::Semantics::Texture);
@@ -73,6 +78,7 @@ struct Generator<VertexFormat, VertexFormat::P2FT2F> {
 
 template <>
 struct Generator<VertexFormat, VertexFormat::P3F> {
+    Generator() {}
 	const VertexDescriptor& operator()() const {
 		static const VertexElementDescriptor position(0, VertexElementDescriptor::Syntax::F3, VertexElementDescriptor::Semantics::Position);
 		static const VertexDescriptor descriptor({position});
@@ -82,6 +88,7 @@ struct Generator<VertexFormat, VertexFormat::P3F> {
 
 template <>
 struct Generator<VertexFormat, VertexFormat::P3FC4F> {
+    Generator() {}
 	const VertexDescriptor& operator()() const {	
 		static const VertexElementDescriptor position(0, VertexElementDescriptor::Syntax::F3, VertexElementDescriptor::Semantics::Position);
 		static const VertexElementDescriptor colour(position.getOffset() + position.getSize(), VertexElementDescriptor::Syntax::F4, VertexElementDescriptor::Semantics::Colour);
@@ -92,6 +99,7 @@ struct Generator<VertexFormat, VertexFormat::P3FC4F> {
 
 template <>
 struct Generator<VertexFormat, VertexFormat::P3FT2F> {
+    Generator() {}
 	const VertexDescriptor& operator()() const {
 		static const VertexElementDescriptor position(0, VertexElementDescriptor::Syntax::F3, VertexElementDescriptor::Semantics::Position);
 		static const VertexElementDescriptor texture(position.getOffset() + position.getSize(), VertexElementDescriptor::Syntax::F2, VertexElementDescriptor::Semantics::Texture);
@@ -102,6 +110,7 @@ struct Generator<VertexFormat, VertexFormat::P3FT2F> {
 
 template <>
 struct Generator<VertexFormat, VertexFormat::P3FC4FN3F> {
+    Generator() {}
 	const VertexDescriptor& operator()() const {
 		static const VertexElementDescriptor position(0, VertexElementDescriptor::Syntax::F3, VertexElementDescriptor::Semantics::Position);
 		static const VertexElementDescriptor colour(position.getOffset() + position.getSize(), VertexElementDescriptor::Syntax::F4, VertexElementDescriptor::Semantics::Colour);
@@ -113,6 +122,7 @@ struct Generator<VertexFormat, VertexFormat::P3FC4FN3F> {
 
 template <>
 struct Generator<VertexFormat, VertexFormat::P3FC4FT2F> {
+    Generator() {}
 	const VertexDescriptor& operator()() const {
 		static const VertexElementDescriptor position(0, VertexElementDescriptor::Syntax::F3, VertexElementDescriptor::Semantics::Position);
 		static const VertexElementDescriptor colour(position.getOffset() + position.getSize(), VertexElementDescriptor::Syntax::F4, VertexElementDescriptor::Semantics::Colour);
@@ -124,6 +134,7 @@ struct Generator<VertexFormat, VertexFormat::P3FC4FT2F> {
 
 template <>
 struct Generator<VertexFormat, VertexFormat::P3FC4FT2FN3F> {
+    Generator() {}
 	const VertexDescriptor& operator()() const {
 		static const VertexElementDescriptor position(0, VertexElementDescriptor::Syntax::F3, VertexElementDescriptor::Semantics::Position);
 		static const VertexElementDescriptor colour(position.getOffset() + position.getSize(), VertexElementDescriptor::Syntax::F4, VertexElementDescriptor::Semantics::Colour);
@@ -136,6 +147,7 @@ struct Generator<VertexFormat, VertexFormat::P3FC4FT2FN3F> {
 
 template <>
 struct Generator<VertexFormat, VertexFormat::P3FC3FT2F> {
+    Generator() {}
     const VertexDescriptor& operator()() const {
         static const VertexElementDescriptor position(0, VertexElementDescriptor::Syntax::F3, VertexElementDescriptor::Semantics::Position);
         static const VertexElementDescriptor colour(position.getOffset() + position.getSize(), VertexElementDescriptor::Syntax::F3, VertexElementDescriptor::Semantics::Colour);
@@ -179,23 +191,23 @@ const IndexDescriptor& IndexFormatFactory::get<IndexFormat::IU32>() {
 const VertexDescriptor& VertexFormatFactory::get(VertexFormat vertexFormat) {
     switch (vertexFormat) {
         case VertexFormat::P2F:
-        { static const Generator<VertexFormat, VertexFormat::P2F> g; return g(); }
+        { static const Generator<VertexFormat, VertexFormat::P2F> g{}; return g(); }
 		case VertexFormat::P2FT2F:
-        { static const Generator<VertexFormat, VertexFormat::P2FT2F> g; return g(); }
+        { static const Generator<VertexFormat, VertexFormat::P2FT2F> g{}; return g(); }
         case VertexFormat::P3F:
-        { static const Generator<VertexFormat, VertexFormat::P3F> g; return g(); }
+        { static const Generator<VertexFormat, VertexFormat::P3F> g{}; return g(); }
         case VertexFormat::P3FT2F:
-        { static const Generator<VertexFormat, VertexFormat::P3FT2F> g; return g(); }
+        { static const Generator<VertexFormat, VertexFormat::P3FT2F> g{}; return g(); }
         case VertexFormat::P3FC4F:
-        { static const Generator<VertexFormat, VertexFormat::P3FC4F> g; return g(); }
+        { static const Generator<VertexFormat, VertexFormat::P3FC4F> g{}; return g(); }
         case VertexFormat::P3FC4FN3F:
-        { static const Generator<VertexFormat, VertexFormat::P3FC4FN3F> g; return g(); }
+        { static const Generator<VertexFormat, VertexFormat::P3FC4FN3F> g{}; return g(); }
         case VertexFormat::P3FC4FT2F:
-        { static const Generator<VertexFormat, VertexFormat::P3FC4FT2F> g; return g(); }
+        { static const Generator<VertexFormat, VertexFormat::P3FC4FT2F> g{}; return g(); }
         case VertexFormat::P3FC4FT2FN3F:
-        { static const Generator<VertexFormat, VertexFormat::P3FC4FT2FN3F> g; return g(); }
+        { static const Generator<VertexFormat, VertexFormat::P3FC4FT2FN3F> g{}; return g(); }
         case VertexFormat::P3FC3FT2F:
-        { static const Generator<VertexFormat, VertexFormat::P3FC3FT2F> g; return g(); }
+        { static const Generator<VertexFormat, VertexFormat::P3FC3FT2F> g{}; return g(); }
         default:
 			throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
     };
@@ -203,49 +215,49 @@ const VertexDescriptor& VertexFormatFactory::get(VertexFormat vertexFormat) {
 
 template <>
 const VertexDescriptor& VertexFormatFactory::get<VertexFormat::P2F>() {
-	static const Generator<VertexFormat, VertexFormat::P2F> g;
+    static const Generator<VertexFormat, VertexFormat::P2F> g;
 	return g();
 }
 
 template <>
 const VertexDescriptor& VertexFormatFactory::get<VertexFormat::P2FT2F>() {
-	static const Generator<VertexFormat, VertexFormat::P2FT2F> g;
+    static const Generator<VertexFormat, VertexFormat::P2FT2F> g;
 	return g();
 }
 
 template <>
 const VertexDescriptor& VertexFormatFactory::get<VertexFormat::P3F>() {
-	static const Generator<VertexFormat, VertexFormat::P3F> g;
+    static const Generator<VertexFormat, VertexFormat::P3F> g;
 	return g();
 }
 
 template <>
 const VertexDescriptor& VertexFormatFactory::get<VertexFormat::P3FC4F>() {
-	static const Generator<VertexFormat, VertexFormat::P3FC4F> g;
+    static const Generator<VertexFormat, VertexFormat::P3FC4F> g;
 	return g();
 }
 
 template <>
 const VertexDescriptor& VertexFormatFactory::get<VertexFormat::P3FT2F>() {
-	static const Generator<VertexFormat, VertexFormat::P3FT2F> g;
+    static const Generator<VertexFormat, VertexFormat::P3FT2F> g;
 	return g();
 }
 
 template <>
 const VertexDescriptor& VertexFormatFactory::get<VertexFormat::P3FC4FN3F>() {
-	static const Generator<VertexFormat, VertexFormat::P3FC4FN3F> g;
+    static const Generator<VertexFormat, VertexFormat::P3FC4FN3F> g;
 	return g();
 }
 
 template <>
 const VertexDescriptor& VertexFormatFactory::get<VertexFormat::P3FC4FT2F>() {
-	static const Generator<VertexFormat, VertexFormat::P3FC4FT2F> g;
+    static const Generator<VertexFormat, VertexFormat::P3FC4FT2F> g;
 	return g();
 }
 
 template <>
 const VertexDescriptor& VertexFormatFactory::get<VertexFormat::P3FC4FT2FN3F>() {
-	static const Generator<VertexFormat, VertexFormat::P3FC4FT2FN3F> g;
+    static const Generator<VertexFormat, VertexFormat::P3FC4FT2FN3F> g;
 	return g();
 }
 
