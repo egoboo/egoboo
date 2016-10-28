@@ -540,6 +540,9 @@
     <ClCompile Include="src\egolib\FileFormats\MapTileDefinitionsDictionary.cpp">
       <Filter>File Formats</Filter>
     </ClCompile>
+    <ClCompile Include="src\egolib\Mesh\TileFX.cpp">
+      <Filter>Source Files\Mesh</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\egolib\vfs.h">
@@ -1354,6 +1357,9 @@
     </ClInclude>
     <ClInclude Include="src\egolib\FileFormats\MapTileDefinitionsDictionary.hpp">
       <Filter>File Formats</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Mesh\TileFX.hpp">
+      <Filter>Header Files\Mesh</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
