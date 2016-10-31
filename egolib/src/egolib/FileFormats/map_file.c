@@ -238,7 +238,11 @@ bool map_t::load(vfs_FILE& file)
         }
         else
         {
-            if (!map_generate_tile_twist_data(this))
+            try
+            {
+                map_generate_tile_twist_data(*this);
+            }
+            catch (...)
             {
                 goto Fail;
             }
@@ -254,7 +258,11 @@ bool map_t::load(vfs_FILE& file)
         }
         else
         {
-            if (!map_generate_fan_type_data(this))
+            try
+            {
+                map_generate_fan_type_data(*this);
+            }
+            catch (...)
             {
                 goto Fail;
             }
