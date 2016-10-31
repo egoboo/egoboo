@@ -429,7 +429,7 @@ BIT_FIELD ego_mesh_t::test_wall(const BIT_FIELD bits, const mesh_wall_data_t& da
 
 	// Detect out of bounds in the x- and/or y-direction.
 	// In that case, return "wall" and "impassable".
-	if ((data._i._min.getX() < 0 || data._i._min.getX() >= data._mesh->_info.getTileCountX()) ||
+	if ((data._i._min.getX() < 0 || data._i._max.getX() >= data._mesh->_info.getTileCountX()) ||
 		(data._i._min.getY() < 0 || data._i._max.getY() >= data._mesh->_info.getTileCountY())) {
 		pass = (MAPFX_IMPASS | MAPFX_WALL) & bits;
 		g_meshStats.boundTests++;
