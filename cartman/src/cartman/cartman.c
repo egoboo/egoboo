@@ -140,10 +140,10 @@ static void fan_calc_vrta( cartman_mpd_t * pmesh, int fan );
 static int  vertex_calc_vrta( cartman_mpd_t * pmesh, Uint32 vert );
 static void make_onscreen();
 static void onscreen_add_fan( cartman_mpd_t * pmesh, Uint32 fan );
-static void ease_up_mesh( cartman_mpd_t * pmesh, float zoom_vrt );
+static void ease_up_mesh( cartman_mpd_t& mesh, float zoom_vrt );
 
 // cartman versions of these functions
-static int cartman_get_vertex(cartman_mpd_t *pmesh, int mapx, int mapy, int num);
+static int cartman_get_vertex(cartman_mpd_t *pmesh, Index2D index2d, int num);
 
 
 
@@ -158,7 +158,124 @@ static void main_end();
 //--------------------------------------------------------------------------------------------
 
 #include "cartman/Clocks.h"
-#include "cartman/standard.inl"           // Some functions that I always use
+
+int          dunframe = 0;
+int          secframe = 0;
+Uint8        lastsecframe = 0;
+volatile int minsecframe = 10000;
+int          worldclock = 0;
+int          seed;
+Uint16       entry;
+char         charread;
+FILE        *fileread;
+char         nameread[80];
+char         fpstext[256][8];
+
+//--------------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------
+void sectim(void) {
+    if (secframe < minsecframe) {
+        minsecframe = secframe;
+    }
+    lastsecframe = secframe;
+    secframe = 0;
+}
+
+//--------------------------------------------------------------------------------------------
+void reset_minfps(void) {
+    minsecframe = 0;
+    secframe = -9999;
+    while (minsecframe > -9999) {
+    }
+    minsecframe = 10000;
+    lastsecframe = 0;
+
+    return;
+}
+
+//--------------------------------------------------------------------------------------------
+void comment(void) {
+    fscanf(fileread, "%c", &charread);
+    while ('\n' != charread) {
+        fscanf(fileread, "%c", &charread);
+    }
+
+    return;
+}
+
+//--------------------------------------------------------------------------------------------
+void show_info(void) {
+    printf("%s - %s\n", NAME, VERSION_STR);
+
+    if (Clocks::timePassed<Time::Unit::Ticks, int>() != 0) {
+        printf("Seconds = %15f\n", Clocks::timePassed<Time::Unit::Seconds, double>());
+        printf("Avg FPS = %15f\n", dunframe * 1000.0 / Clocks::timePassed<Time::Unit::Milliseconds, double>());
+        if (minsecframe != 10000) {
+            printf("Min FPS = %8d.000000\n", minsecframe);
+        }
+    }
+    printf("\n\n");
+
+    return;
+}
+
+//--------------------------------------------------------------------------------------------
+void fill_fpstext(void) {
+    int cnt;
+
+    for (cnt = 0; cnt < 256; cnt++) {
+        fpstext[cnt][0] = 'F';
+        fpstext[cnt][1] = 'P';
+        fpstext[cnt][2] = 'S';
+        fpstext[cnt][3] = ' ';
+        if (cnt >= 100) {
+            fpstext[cnt][4] = '0' + (cnt / 100);
+        } else {
+            fpstext[cnt][4] = ' ';
+        }
+        if (cnt >= 10) {
+            fpstext[cnt][5] = '0' + ((cnt / 10) % 10);
+        } else {
+            fpstext[cnt][5] = ' ';
+        }
+        fpstext[cnt][6] = '0' + (cnt % 10);
+        fpstext[cnt][7] = 0;
+    }
+
+    return;
+}
+
+//--------------------------------------------------------------------------------------------
+void scan_pair(int *one, int *two) {
+    char temp;
+
+    fscanf(fileread, "%d", one);
+    fscanf(fileread, "%c", &temp);
+    if (temp == '-') {
+        fscanf(fileread, "%d", two);
+        *two = (*two) - (*one) + 1;
+        *two = abs(*two);
+    } else {
+        *two = 1;
+    }
+
+    return;
+}
+
+//--------------------------------------------------------------------------------------------
+void limit(int low, int *value, int high) {
+    if (*value < low) {
+        *value = low;
+        return;
+    }
+    if (*value > high) {
+        *value = high;
+    }
+
+    return;
+}
+
 
 //--------------------------------------------------------------------------------------------
 
@@ -224,16 +341,16 @@ void draw_cursor_in_window(Cartman::Gui::Window& pwin)
 
 //--------------------------------------------------------------------------------------------
 
-int cartman_get_vertex( cartman_mpd_t * pmesh, int mapx, int mapy, int num )
+int cartman_get_vertex( cartman_mpd_t * pmesh, Index2D index2d, int num )
 {
     if ( NULL == pmesh ) pmesh = &mesh;
 
-    int vert = pmesh->get_ivrt_xy(mapx, mapy, num);
+    int vert = pmesh->get_ivrt_xy(index2d, num);
 
     if ( vert == -1 )
     {
         return vert;
-        printf( "BAD GET_VERTEX NUMBER(2nd), %d at %d, %d...\n", num, mapx, mapy );
+        printf( "BAD GET_VERTEX NUMBER(2nd), %d at %d, %d...\n", num, index2d.x(), index2d.y() );
         exit( -1 );
     }
 
@@ -298,7 +415,7 @@ void make_onscreen( cartman_mpd_t * pmesh )
         {
             if ( mapx < 0 || mapx >= pmesh->info.getTileCountX() ) continue;
 
-            int fan = pmesh->get_ifan(mapx, mapy);
+            int fan = pmesh->get_ifan({mapx, mapy});
             if ( !VALID_MPD_TILE_RANGE( fan ) ) continue;
 
             onscreen_add_fan( pmesh, fan );
@@ -565,14 +682,10 @@ void mesh_calc_vrta(cartman_mpd_t *self)
 {
     if (NULL == self) self = &mesh;
 
-    for (int mapy = 0; mapy < self->info.getTileCountY(); mapy++)
-    {
-        for (int mapx = 0; mapx < self->info.getTileCountX(); mapx++)
-        {
-            int fan = self->get_ifan(mapx, mapy);
+    for (auto it = self->info.begin(); it != self->info.end(); ++it) {
+            int fan = self->get_ifan(*it);
 
             fan_calc_vrta(self, fan);
-        }
     }
 }
 
@@ -721,13 +834,13 @@ void cartman_check_mouse_side(std::shared_ptr<Cartman::Gui::Window> pwin, float 
 
         if (CART_BUTTONDOWN(SDL_BUTTON_RIGHT))
         {
-            mesh_select_move(&(mdata.win_select), Input::get()._mouse.cx / zoom_hrz, 0, -Input::get()._mouse.cy / zoom_vrt);
+            mesh_select_move( mdata.win_select, Input::get()._mouse.cx / zoom_hrz, 0, -Input::get()._mouse.cy / zoom_vrt );
             bound_mouse();
         }
 
         if ( CART_KEYDOWN( SDLK_y ) )
         {
-            mesh_select_move( &( mdata.win_select ), 0, 0, -Input::get()._mouse.cy / zoom_vrt );
+            mesh_select_move( mdata.win_select, 0, 0, -Input::get()._mouse.cy / zoom_vrt );
             bound_mouse();
         }
 
@@ -735,11 +848,11 @@ void cartman_check_mouse_side(std::shared_ptr<Cartman::Gui::Window> pwin, float 
         {
             if ( mdata.type >= tile_dict.offset )
             {
-                MeshEditor::move_mesh_z(mdata.win_mesh, -Input::get()._mouse.cy / zoom_vrt, mdata.tx, 0xC0);
+                MeshEditor::move_mesh_z(mdata.win_mesh != nullptr ? *mdata.win_mesh : mesh, -Input::get()._mouse.cy / zoom_vrt, mdata.tx, 0xC0);
             }
             else
             {
-                MeshEditor::move_mesh_z(mdata.win_mesh, -Input::get()._mouse.cy / zoom_vrt, mdata.tx, 0xF0);
+                MeshEditor::move_mesh_z(mdata.win_mesh != nullptr ? *mdata.win_mesh : mesh, -Input::get()._mouse.cy / zoom_vrt, mdata.tx, 0xF0);
             }
             bound_mouse();
         }
@@ -749,12 +862,12 @@ void cartman_check_mouse_side(std::shared_ptr<Cartman::Gui::Window> pwin, float 
             if ( CART_KEYDOWN( SDLK_RSHIFT ) )
             {
                 // Move the first 16 up and down
-                MeshEditor::move_mesh_z(mdata.win_mesh, -Input::get()._mouse.cy / zoom_vrt, 0, 0xF0);
+                MeshEditor::move_mesh_z(mdata.win_mesh != nullptr ? *mdata.win_mesh : mesh, -Input::get()._mouse.cy / zoom_vrt, 0, 0xF0);
             }
             else
             {
                 // Move the entire mesh up and down
-                MeshEditor::move_mesh_z(mdata.win_mesh, -Input::get()._mouse.cy / zoom_vrt, 0, 0);
+                MeshEditor::move_mesh_z(mdata.win_mesh != nullptr ? *mdata.win_mesh : mesh, -Input::get()._mouse.cy / zoom_vrt, 0, 0);
             }
             bound_mouse();
         }
@@ -832,7 +945,7 @@ void cartman_check_mouse_tile(std::shared_ptr<Cartman::Gui::Window> pwin, float 
         debugy = mpos_y;
 
         // update mdata.win_fan only if the tile is valid
-        fan_tmp = pwin->pmesh->get_ifan(mdata.win_fan_x, mdata.win_fan_y);
+        fan_tmp = pwin->pmesh->get_ifan({mdata.win_fan_x, mdata.win_fan_y});
         if ( VALID_MPD_TILE_RANGE( fan_tmp ) ) mdata.win_fan = fan_tmp;
 
         if (CART_BUTTONDOWN(SDL_BUTTON_LEFT))
@@ -946,7 +1059,7 @@ void cartman_check_mouse_fx(std::shared_ptr<Cartman::Gui::Window> pwin, float zo
         debugx = mpos_x;
         debugy = mpos_y;
 
-        fan_tmp = pwin->pmesh->get_ifan(mdata.win_fan_x, mdata.win_fan_y);
+        fan_tmp = pwin->pmesh->get_ifan({mdata.win_fan_x, mdata.win_fan_y});
         if ( VALID_MPD_TILE_RANGE( fan_tmp ) ) mdata.win_fan = fan_tmp;
 
         if (CART_BUTTONDOWN(SDL_BUTTON_LEFT))
@@ -1103,19 +1216,19 @@ void cartman_check_mouse_vertex(std::shared_ptr<Cartman::Gui::Window> pwin, floa
 
         if (CART_BUTTONDOWN(SDL_BUTTON_RIGHT))
         {
-            mesh_select_move( &( mdata.win_select ), Input::get()._mouse.cx / zoom_vrt, Input::get()._mouse.cy / zoom_vrt, 0 );
+            mesh_select_move( mdata.win_select, Input::get()._mouse.cx / zoom_vrt, Input::get()._mouse.cy / zoom_vrt, 0 );
             bound_mouse();
         }
 
         if ( CART_KEYDOWN( SDLK_f ) )
         {
-            //    weld_corner_verts(mdata.win_mpos_x>>7, mdata.win_mpos_y>>7);
-            fix_vertices( pwin->pmesh,  std::floor( mdata.win_mpos_x / Info<float>::Grid::Size()), std::floor( mdata.win_mpos_y / Info<float>::Grid::Size()) );
+            //    weld_corner_verts({mdata.win_mpos_x>>7, mdata.win_mpos_y>>7});
+            fix_vertices(pwin->pmesh != nullptr ? *pwin->pmesh : mesh, Index2D(std::floor(mdata.win_mpos_x / Info<float>::Grid::Size()), std::floor(mdata.win_mpos_y / Info<float>::Grid::Size())));
         }
 
         if (CART_KEYDOWN(SDLK_p) || (CART_BUTTONDOWN(SDL_BUTTON_RIGHT) && 0 == mdata.win_select.count()))
         {
-            MeshEditor::raise_mesh( mdata.win_mesh, onscreen_vert, onscreen_count, mdata.win_mpos_x, mdata.win_mpos_y, brushamount, brushsize );
+            MeshEditor::raise_mesh( mdata.win_mesh != nullptr ? *mdata.win_mesh : mesh, onscreen_vert, onscreen_count, mdata.win_mpos_x, mdata.win_mpos_y, brushamount, brushsize );
         }
     }
 }
@@ -1163,16 +1276,12 @@ bool cartman_check_mouse( const char * modulename, cartman_mpd_t * pmesh )
 
 //--------------------------------------------------------------------------------------------
 
-void ease_up_mesh( cartman_mpd_t * pmesh, float zoom_vrt )
+void ease_up_mesh( cartman_mpd_t& mesh, float zoom_vrt )
 {
     // ZZ> This function lifts the entire mesh
     using namespace Cartman;
-    if ( NULL == pmesh ) pmesh = &mesh;
-
     Input::get()._mouse.position = Input::get()._mouse.positionOld;
-
-
-    MeshEditor::mesh_move( pmesh, 0, 0, -Input::get()._mouse.cy / zoom_vrt );
+    MeshEditor::mesh_move( mesh, 0, 0, -Input::get()._mouse.cy / zoom_vrt );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1234,7 +1343,7 @@ bool cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
     }
     if ( CART_KEYDOWN( SDLK_g ) )
     {
-        fix_mesh( pmesh );
+        fix_mesh( pmesh != nullptr ? *pmesh : mesh);
         Input::get()._keyboard.delay = KEYDELAY;
     }
     if ( CART_KEYDOWN( SDLK_z ) )
@@ -1256,11 +1365,11 @@ bool cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
 
             if ( type >= tile_dict.offset )
             {
-                trim_mesh_tile( pmesh, tx_bits, 0xC0 );
+                trim_mesh_tile( pmesh != nullptr ? *pmesh : mesh, tx_bits, 0xC0 );
             }
             else
             {
-                trim_mesh_tile( pmesh, tx_bits, 0xF0 );
+                trim_mesh_tile( pmesh != nullptr ? *pmesh : mesh, tx_bits, 0xF0 );
             }
         }
 
@@ -1269,7 +1378,7 @@ bool cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
 
     if ( CART_KEYDOWN( SDLK_e ) )
     {
-        ease_up_mesh( pmesh, cartman_zoom_vrt );
+        ease_up_mesh( pmesh != nullptr ? *pmesh : mesh, cartman_zoom_vrt );
     }
 
     if ( CART_KEYDOWN( SDLK_LEFTBRACKET ) || CART_KEYDOWN( SDLK_RIGHTBRACKET ) )
@@ -1283,8 +1392,8 @@ bool cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
     }
     if ( CART_KEYDOWN( SDLK_j ) )
     {
-        if ( 0 == mdata.win_select.count() ) { MeshEditor::jitter_mesh( pmesh ); }
-        else { mesh_select_jitter( &( mdata.win_select ) ); }
+        if ( 0 == mdata.win_select.count() ) { MeshEditor::jitter_mesh( pmesh != nullptr ? *pmesh : mesh ); }
+        else { mesh_select_jitter( mdata.win_select ); }
         Input::get()._keyboard.delay = KEYDELAY;
     }
 
@@ -1297,7 +1406,7 @@ bool cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
     }
     if ( CART_KEYDOWN( SDLK_SPACE ) )
     {
-        mesh_select_weld( &( mdata.win_select ) );
+        mesh_select_weld( mdata.win_select );
         Input::get()._keyboard.delay = KEYDELAY;
     }
     if ( CART_KEYDOWN( SDLK_INSERT ) )
@@ -1401,7 +1510,7 @@ bool cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
 
     if ( CART_KEYDOWN( SDLK_q ) )
     {
-        MeshEditor::fix_walls( pmesh );
+        MeshEditor::fix_walls( pmesh != nullptr ? *pmesh : mesh);
         Input::get()._keyboard.delay = KEYDELAY;
     }
 
@@ -1410,19 +1519,19 @@ bool cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
 
     if ( CART_KEYDOWN( SDLK_5 ) )
     {
-        mesh_select_set_z_no_bound( &( mdata.win_select ), -8000 * 4 );
+        mesh_select_set_z_no_bound( mdata.win_select, -8000 * 4 );
         Input::get()._keyboard.delay = KEYDELAY;
     }
 
     if ( CART_KEYDOWN( SDLK_6 ) )
     {
-        mesh_select_set_z_no_bound( &( mdata.win_select ), -127 * 4 );
+        mesh_select_set_z_no_bound( mdata.win_select, -127 * 4 );
         Input::get()._keyboard.delay = KEYDELAY;
     }
 
     if ( CART_KEYDOWN( SDLK_7 ) )
     {
-        mesh_select_set_z_no_bound( &( mdata.win_select ), 127 * 4 );
+        mesh_select_set_z_no_bound( mdata.win_select, 127 * 4 );
         Input::get()._keyboard.delay = KEYDELAY;
     }
 
@@ -1434,7 +1543,7 @@ bool cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
 
     if ( CART_KEYDOWN_MOD( SDLK_l, KMOD_SHIFT ) )
     {
-        MeshEditor::level_vrtz( pmesh );
+        MeshEditor::level_vrtz( pmesh != nullptr ? *pmesh : mesh);
     }
 
     // brush size
@@ -1784,7 +1893,7 @@ void cartman_create_mesh( cartman_mpd_t * pmesh )
         }
     }
 
-    fix_mesh( pmesh );
+    fix_mesh( pmesh != nullptr ? *pmesh : mesh );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1836,14 +1945,14 @@ void cartman_check_input( const char * modulename, cartman_mpd_t * pmesh )
 
 //--------------------------------------------------------------------------------------------
 
-bool config_download(egoboo_config_t * pcfg)
+bool config_download(egoboo_config_t& cfg)
 {
-    return setup_download(pcfg);
+    return Ego::Setup::download(cfg);
 }
 
-bool config_upload(egoboo_config_t * pcfg)
+bool config_upload(egoboo_config_t& cfg)
 {
-    return setup_upload( pcfg );
+    return Ego::Setup::upload(cfg);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1872,32 +1981,32 @@ Cartman_MouseData *Cartman_MouseData::ctor(Cartman_MouseData *self)
 
 void cart_mouse_data_mesh_set_tile( Uint16 tiletoset )
 {
-    MeshEditor::mesh_set_tile( mdata.win_mesh, tiletoset, mdata.upper, mdata.presser, mdata.tx );
+    MeshEditor::mesh_set_tile(mdata.win_mesh != nullptr ? *mdata.win_mesh : mesh, tiletoset, mdata.upper, mdata.presser, mdata.tx );
 }
 
 void cart_mouse_data_flatten_mesh()
 {
-    MeshEditor::flatten_mesh( mdata.win_mesh, mdata.win_mpos_y );
+    MeshEditor::flatten_mesh( mdata.win_mesh != nullptr ? *mdata.win_mesh : mesh, mdata.win_mpos_y );
 }
 
 void cart_mouse_data_clear_mesh()
 {
-	MeshEditor::clear_mesh(mdata.win_mesh, mdata.upper, mdata.presser, mdata.tx, mdata.type);
+	MeshEditor::clear_mesh(mdata.win_mesh != nullptr ? *mdata.win_mesh : mesh, mdata.upper, mdata.presser, mdata.tx, mdata.type);
 }
 
 void cart_mouse_data_three_e_mesh()
 {
-    MeshEditor::three_e_mesh( mdata.win_mesh, mdata.upper, mdata.tx );
+    MeshEditor::three_e_mesh( mdata.win_mesh != nullptr ? *mdata.win_mesh : mesh, mdata.upper, mdata.tx );
 }
 
 void cart_mouse_data_mesh_replace_tile( bool tx_only, bool at_floor_level )
 {
-    MeshEditor::mesh_replace_tile( mdata.win_mesh, mdata.win_fan_x, mdata.win_fan_y, mdata.win_fan, mdata.tx, mdata.upper, mdata.fx, mdata.type, mdata.presser, tx_only, at_floor_level );
+    MeshEditor::mesh_replace_tile( mdata.win_mesh != nullptr ? *mdata.win_mesh : mesh, mdata.win_fan_x, mdata.win_fan_y, mdata.win_fan, mdata.tx, mdata.upper, mdata.fx, mdata.type, mdata.presser, tx_only, at_floor_level );
 }
 
 void cart_mouse_data_mesh_set_fx()
 {
-    MeshEditor::setFX( mdata.win_mesh, mdata.win_fan, mdata.fx );
+    MeshEditor::setFX( mdata.win_mesh != nullptr ? *mdata.win_mesh : mesh, mdata.win_fan, mdata.fx );
 }
 
 void cart_mouse_data_toggle_fx( int fxmask )
@@ -1932,10 +2041,10 @@ void cart_mouse_data_mesh_replace_fx()
 
     if ( type >= tile_dict.offset )
     {
-        MeshEditor::mesh_replace_fx( mdata.win_mesh, tx_bits, 0xC0, mdata.fx );
+        MeshEditor::mesh_replace_fx( mdata.win_mesh != nullptr ? *mdata.win_mesh : mesh, tx_bits, 0xC0, mdata.fx );
     }
     else
     {
-        MeshEditor::mesh_replace_fx( mdata.win_mesh, tx_bits, 0xF0, mdata.fx );
+        MeshEditor::mesh_replace_fx( mdata.win_mesh != nullptr ? *mdata.win_mesh : mesh, tx_bits, 0xF0, mdata.fx );
     }
 }

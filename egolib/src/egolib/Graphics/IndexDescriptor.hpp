@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Graphics/IndexDescriptor.hpp
-/// @brief  Description of an index.
+/// @file egolib/Graphics/IndexDescriptor.hpp
+/// @brief Descriptors of indices.
 /// @author Michael Heilmann
 
 #pragma once
@@ -27,89 +27,57 @@
 
 namespace Ego {
 
-/**
- * @brief The descriptor of an index.
- */
+/// @brief The descriptor of an index.
 class IndexDescriptor {
 public:
-    /**
-    * @brief
-    *  An enum class of the syntactic forms of indices.
-    */
+    /// @brief An enum class of the syntactic forms of indices.
     enum class Syntax {
-
-        /**
-        * @brief
-        *  Unsigned 16-Bit indices.
-        */
+        /// @brief Unsigned 8-Bit indices.
+        U8,
+        /// @brief Unsigned 16-Bit indices.
         U16,
-
-        /**
-        * @brief
-        *  Unsigned 32-Bit indices.
-        */
+        /// @brief Unsigned 32-Bit indices.
         U32,
-
-    }; // enum class IndexFormat
+    }; // enum class Syntax
 
 private:
-    /**
-     * @brief The syntax of this index descriptor.
-     */
+    /// @brief The syntax of this index descriptor.
     Syntax syntax;
     
 public:
-    /**
-     * @brief Construct this index descriptor.
-     * @param syntax the synax
-     */
+    /// @brief Construct this index descriptor.
+    /// @param syntax the synax
     IndexDescriptor(Syntax syntax);
 
-    /**
-     * @brief Copy-construct this index descriptor with the values of another index descriptor.
-     * @param other the other index descriptor
-     */
+    /// @brief Copy-construct this index descriptor with the values of another index descriptor.
+    /// @param other the other index descriptor
     IndexDescriptor(const IndexDescriptor& other) noexcept;
 
-    /**
-     * @brief Assign this index descriptor with the values of another index descriptor.
-     * @param other the other index descriptor
-     * @return this index descriptor
-     */
+    /// @brief Assign this index descriptor with the values of another index descriptor.
+    /// @param other the other index descriptor
+    /// @return this index descriptor
     const IndexDescriptor& operator=(const IndexDescriptor& other) noexcept;
 
 public:
-    /**
-     * @brief Get the size, in Bytes, of an index.
-     * @return the size, in Bytes, of an index
-     */
-    size_t getIndexSize() const {
+    /// @brief Get the syntax of an index.
+    /// @return the syntax of an index.
+    Syntax getSyntax() const;
 
-        // Compute the index size.
-        switch (syntax) {
-            case Syntax::U16:
-                return sizeof(uint16_t); //16 / 8
-            case Syntax::U32:
-                return sizeof(uint32_t); //32 / 8
-        }
-
-        throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
-    }
+    /// @brief Get the size, in Bytes, of an index.
+    /// @return the size, in Bytes, of an index
+    size_t getIndexSize() const;
 
 public:
-    /**
-     * @brief Compare this index descriptor with another index descriptor for equality.
-     * @param other the other index descriptor
-     * @return @a true if this index descriptor is equal to the other index descriptor,
-     *         @a false otherwise
-     */
+    /// @brief Compare this index descriptor with another index descriptor for equality.
+    /// @param other the other index descriptor
+    /// @return @a true if this index descriptor is equal to the other index descriptor,
+    ///         @a false otherwise
     bool operator==(const IndexDescriptor&) const noexcept;
-    /**
-     * @brief Compare this index descriptor with another index descriptor for inequality.
-     * @param other the other index descriptor
-     * @return @a true if this index descriptor is not equal to the other index descriptor,
-     *         @a false otherwise
-     */
+
+    /// @brief Compare this index descriptor with another index descriptor for inequality.
+    /// @param other the other index descriptor
+    /// @return @a true if this index descriptor is not equal to the other index descriptor,
+    ///         @a false otherwise
     bool operator!=(const IndexDescriptor&) const noexcept;
 
 }; // class IndexDescriptor

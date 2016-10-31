@@ -39,11 +39,11 @@ void SideView::render(Gui::Window& window, float zoom_hrz, float zoom_vrt) {
         beginRender(window, zoom_hrz, zoom_vrt);
         cartman_begin_ortho_camera_vrt(window, &cam, zoom_hrz, zoom_vrt * 2.0f);
         {
-            std::vector<std::pair<int, int>> indices;
+            std::vector<Index2D> indices;
             getTileRange(cam, *window.pmesh, indices);
 
             for (auto index : indices) {
-                int fan = window.pmesh->get_ifan(index.first, index.second);
+                int fan = window.pmesh->get_ifan(index);
                 if (!VALID_MPD_TILE_RANGE(fan)) continue;
 
                 draw_side_fan(mdata.win_select, fan, zoom_hrz, zoom_vrt);
@@ -55,7 +55,7 @@ void SideView::render(Gui::Window& window, float zoom_hrz, float zoom_vrt) {
                 float z_min, z_max;
 
                 color = make_rgba(255, 128 + (Clocks::timePassed<Time::Unit::Ticks, int>() & 128),
-                                       128 + (Clocks::timePassed<Time::Unit::Ticks, int>() & 128), 0);
+                                       128 + (Clocks::timePassed<Time::Unit::Ticks, int>() & 128), 64);
 
                 x_min = mdata.rect_x0;
                 x_max = mdata.rect_x1;

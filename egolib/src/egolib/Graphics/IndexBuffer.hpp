@@ -28,69 +28,44 @@
 
 namespace Ego {
     
-/**
- * @brief
- *  An index buffer.
- */
+/// @brief An index buffer.
 class IndexBuffer : public Ego::Buffer {
 private:
-    /**
-     * @brief
-     *  The number of indices.
-     */
+    /// @brief The number of indices.
     size_t numberOfIndices;
 
-    /**
-     * @brief
-     *  The index descriptor.
-     */
+    /// @brief The index descriptor.
     IndexDescriptor indexDescriptor;
 
-    /**
-     * @brief
-     *  The indices.
-     */
+    /// @brief The indices.
     char *indices;
 
 public:
-    /** 
-     * @brief
-     *  Construct this index buffer.
-     * @param numberOfIndices
-     *  the number of indices
-     * @param indexFormatDescriptor
-     *  the index format descriptor
-     */
+    /// @brief Construct this index buffer.
+    /// @param numberOfIndices the number of indices
+    /// @param indexFormatDescriptor the index format descriptor
     IndexBuffer(size_t numberOfIndices, const IndexDescriptor& indexDescriptor);
 
-    /**
-     * @brief
-     *  Destruct this index buffer.
-     */
+    /// @brief Destruct this index buffer.
     virtual ~IndexBuffer();
     
-    /**
-     * @brief
-     *  Get the number of indices of this index buffer.
-     * @return
-     *  the number of indices of this index buffer
-     */
+    /// @brief Get the number of indices of this index buffer.
+    /// @return the number of indices of this index buffer
     size_t getNumberOfIndices() const;
 
-    /**
-     * @brief
-     *  Get the index descriptor of this index buffer.
-     * @return
-     *  the index descriptor of this index buffer
-     */
+    /// @brief Get the index descriptor of this index buffer.
+    /// @return the index descriptor of this index buffer
     const IndexDescriptor& getIndexDescriptor() const;
     
-    /** @copydoc Buffer::lock */
+    /// @copydoc Buffer::lock
     void *lock() override;
      
-    /** @copydoc Buffer::unlock */
+    /// @copydoc Buffer::unlock
     void unlock() override;
     
 }; // class IndexBuffer
+
+/// @brief Provides convenient RAII-style mechanism for locking/unlocking an index buffer.
+using IndexBufferScopedLock = BufferScopedLock;
 
 } // namespace Ego

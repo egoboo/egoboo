@@ -147,7 +147,7 @@ BillboardSystem *BillboardSystem::singleton = nullptr;
 
 BillboardSystem::BillboardSystem() :
     _billboardList(), 
-    vertexBuffer(4, Ego::GraphicsUtilities::get<Ego::VertexFormat::P3FT2F>()) {
+    vertexBuffer(4, Ego::VertexFormatFactory::get<Ego::VertexFormat::P3FT2F>()) {
 }
 
 BillboardSystem::~BillboardSystem() {

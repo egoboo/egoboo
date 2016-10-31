@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx</Extensions>
     </Filter>
-    <Filter Include="Inline Files">
-      <UniqueIdentifier>{2f277393-d4e2-406c-9b06-3f86b2a38e56}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Views">
       <UniqueIdentifier>{a4aec66e-e501-44fb-87d0-a09178d066e2}</UniqueIdentifier>
     </Filter>
@@ -72,11 +69,6 @@
     <ClCompile Include="src\cartman\Clocks.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="src\cartman\standard.inl">
-      <Filter>Inline Files</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\cartman\cartman.h">

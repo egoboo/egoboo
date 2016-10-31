@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file  egolib/Graphics/TextureManager.hpp
+/// @file egolib/Graphics/TextureManager.hpp
 /// @brief the texture manager.
 
 #pragma once

@@ -161,7 +161,7 @@ void load_img();
 void get_tiles(SDL_Surface* bmpload);
 
 // misc
-std::shared_ptr<Ego::Texture> tiny_tile_at( cartman_mpd_t * pmesh, int mapx, int mapy );
+std::shared_ptr<Ego::Texture> tiny_tile_at( cartman_mpd_t * pmesh, Index2D index2d );
 std::shared_ptr<Ego::Texture> tile_at( cartman_mpd_t * pmesh, int fan );
 
 /**

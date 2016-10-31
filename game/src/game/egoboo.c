@@ -42,7 +42,7 @@ Uint32 timervalue = 0; ///< Timer time ( 50ths of a second )
  * @return
  *  @a true on success, @a false on failure
  */
-bool config_download(egoboo_config_t *cfg);
+bool config_download(egoboo_config_t& cfg);
 
 /**
  * @brief
@@ -54,14 +54,14 @@ bool config_download(egoboo_config_t *cfg);
  * @note
  *  This function must be implemented by the user
  */
-bool config_upload(egoboo_config_t *cfg);
+bool config_upload(egoboo_config_t& cfg);
 
 
-bool config_synch(egoboo_config_t *cfg, bool fromFile,bool toFile)
+bool config_synch(egoboo_config_t& cfg, bool fromFile,bool toFile)
 {
     if (fromFile)
     {
-        if (!setup_download(cfg))   // Download 'setup.txt' into the Egoboo configuration.
+        if (!Ego::Setup::download(cfg))   // Download 'setup.txt' into the Egoboo configuration.
         {
             return false;
         }
@@ -76,40 +76,33 @@ bool config_synch(egoboo_config_t *cfg, bool fromFile,bool toFile)
     }
     if (toFile)
     {
-        return setup_upload(cfg);   // Upload the Egoboo configuration into 'setup.txt'.
+        return Ego::Setup::upload(cfg);   // Upload the Egoboo configuration into 'setup.txt'.
     }
     return true;
 }
 
-bool config_download( egoboo_config_t *cfg)
+bool config_download(egoboo_config_t& cfg)
 {
-    if (!cfg)
-    {
-        return false;
-    }
-
     // Download configuration.
-    ParticleHandler::get().download(*cfg);
-    AudioSystem::get().download(*cfg);
+    ParticleHandler::get().download(cfg);
+    AudioSystem::get().download(cfg);
 
     /// @todo Fix old-style download.
-    CameraSystem::get().getCameraOptions().turnMode = cfg->camera_control.getValue();
-    gfx_config_t::download(gfx, *cfg);
-    oglx_texture_parameters_t::download(g_ogl_textureParameters, *cfg);
+    CameraSystem::get().getCameraOptions().turnMode = cfg.camera_control.getValue();
+    gfx_config_t::download(gfx, cfg);
+    oglx_texture_parameters_t::download(g_ogl_textureParameters, cfg);
 
     return true;
 }
 
-bool config_upload(egoboo_config_t *cfg)
+bool config_upload(egoboo_config_t& cfg)
 {
-    if (!cfg) return false;
-
     /// @todo Fix old-style upload.
-    cfg->camera_control.setValue(CameraSystem::get().getCameraOptions().turnMode);
+    cfg.camera_control.setValue(CameraSystem::get().getCameraOptions().turnMode);
 
     // Upload configuration.
-    AudioSystem::get().upload(*cfg);
-    ParticleHandler::get().upload(*cfg);
+    AudioSystem::get().upload(cfg);
+    ParticleHandler::get().upload(cfg);
 
     return true;
 }

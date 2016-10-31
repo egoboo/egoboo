@@ -32,9 +32,11 @@ struct select_lst_t;
 struct ogl_surface_t;
 struct s_tile_definition_t;
 
-namespace Cartman { namespace Gui {
+namespace Cartman {
+namespace Gui {
 struct Cursor;
 struct Manager;
 struct Window;
-} } // namespace Cartman::Gui
+} // namespace GUI
+} // namespace Cartman
 

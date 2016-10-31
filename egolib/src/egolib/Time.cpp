@@ -31,7 +31,7 @@ namespace Time {
 
 template <>
 typename UnitTraits<Unit::Ticks>::Type now<Unit::Ticks>() {
-    return Ego::Core::System::get().getTimerService().getTicks();
+    return Ego::Core::System::get().getSystemService().getTicks();
 }
 
 template <>

@@ -305,6 +305,8 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\Mesh\TileFX.cpp" />
+    <ClCompile Include="src\egolib\FileFormats\MapTileDefinitionsDictionary.cpp" />
     <ClCompile Include="src\egolib\VFS\FsPath.cpp" />
     <ClCompile Include="src\egolib\Script\IRuntimeStatistics.cpp" />
     <ClCompile Include="src\egolib\Signal\Connection.hpp" />
@@ -510,6 +512,8 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Mesh\TileFX.hpp" />
+    <ClInclude Include="src\egolib\FileFormats\MapTileDefinitionsDictionary.hpp" />
     <ClInclude Include="src\egolib\VFS\FsPath.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\IsEven.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\IsOdd.hpp" />
@@ -808,6 +812,7 @@
       <FileType>Document</FileType>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</DeploymentContent>
     </ClInclude>
+    <None Include="src\egolib\FileFormats\MapTileDefinitionsDictionary.html" />
     <None Include="src\egolib\Math\ColourL.hpp" />
     <None Include="src\egolib\Script\Functions.in" />
     <None Include="src\egolib\Script\Operators.in" />

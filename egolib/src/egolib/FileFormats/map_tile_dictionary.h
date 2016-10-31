@@ -31,13 +31,17 @@
 /// A description of a tile type that allows some compression in the way vertices are stored in the mpd file
     struct tile_definition_t
     {
-        Uint8           numvertices;                        ///< Number of vertices
-        int             ref[MAP_FAN_VERTICES_MAX];          ///< encoded "position" of the vertex
-        int             grid_ix[MAP_FAN_VERTICES_MAX];      ///< decoded x-index
-        int             grid_iy[MAP_FAN_VERTICES_MAX];      ///< decoded y-index
+        struct vertex_t
+        {
+            int ref;          ///< encoded x-/y-index of the vertex
+            int grid_ix;      ///< decoded x-index
+            int grid_iy;      ///< decoded y-index
 
-        float           u[MAP_FAN_VERTICES_MAX];            ///< "horizontal" texture position
-        float           v[MAP_FAN_VERTICES_MAX];            ///< "vertical" texture position
+            float u;            ///< "horizontal" texture position
+            float v;            ///< "vertical" texture position
+        };
+        Uint8           numvertices;                    ///< The number of vertices
+        vertex_t        vertices[MAP_FAN_VERTICES_MAX]; ///< The vertices.
 
         Uint8           command_count;                      ///< Number of commands
         Uint8           command_entries[MAP_FAN_MAX];       ///< Entries in each command
@@ -60,7 +64,7 @@
 			if (!loaded || type > def_count) {
 				return nullptr;
 			}
-			return def_lst + type;
+			return &(def_lst[type]);
 		}
 
 		inline tile_definition_t* get(const uint8_t type)
@@ -68,10 +72,10 @@
 			if (!loaded || type > def_count) {
 				return nullptr;
 			}
-			return def_lst + type;
+			return &(def_lst[type]);
 		}
     };
 
 //--------------------------------------------------------------------------------------------
 
-bool tile_dictionary_load_vfs( const char * filename, tile_dictionary_t * pdict, int max_dict_size );
+bool tile_dictionary_load_vfs( const std::string& filename, tile_dictionary_t& dict );

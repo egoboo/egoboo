@@ -34,6 +34,31 @@ MeshInfo& MeshInfo::operator=(const MeshInfo& other) {
 	return *this;
 }
 
+size_t MeshInfo::getTileCountX() const
+{
+    return _tileCountX;
+}
+
+size_t MeshInfo::getTileCountY() const
+{
+    return _tileCountY;
+}
+
+size_t MeshInfo::getTileCount() const
+{
+    return _tileCount;
+}
+
+size_t MeshInfo::getVertexCount() const
+{
+    return _vertexCount;
+}
+
+void MeshInfo::setVertexCount(size_t vertexCount)
+{
+    _vertexCount = vertexCount;
+}
+
 void MeshInfo::reset() {
 	_tileCountX = 0;
 	_tileCountY = 0;
@@ -46,6 +71,72 @@ void MeshInfo::reset(size_t tileCountX, size_t tileCountY) {
 	_tileCountY = tileCountY;
 	_tileCount = _tileCountX * _tileCountY;
 	_vertexCount = MAP_FAN_VERTICES_MAX * _tileCount;
+}
+
+void MeshInfo::Iterator::increment()
+{
+    if (x == target->getTileCountX())
+    {
+        if (y == target->getTileCountY())
+        { 
+            /* Undefined behavior. Shall raise an exception in debug mode. */
+        }
+        x = 0;
+        y++;
+    }
+    else
+    {
+        x++;
+    }
+}
+
+MeshInfo::Iterator::Iterator(size_t x, size_t y, MeshInfo *target)
+    : x(x), y(y), target(target) {}
+
+MeshInfo::Iterator::Iterator(const Iterator& other)
+    : x(other.x), y(other.y), target(other.target) {}
+
+const MeshInfo::Iterator& MeshInfo::Iterator::operator=(const Iterator& rhs)
+{
+    x = rhs.x;
+    y = rhs.y;
+    target = rhs.target;
+    return *this;
+}
+
+bool MeshInfo::Iterator::operator==(const Iterator& rhs) const
+{
+    return x == rhs.x
+        && y == rhs.y;
+}
+
+bool MeshInfo::Iterator::operator!=(const MeshInfo::Iterator& rhs) const
+{
+    return x != rhs.x
+        || y != rhs.y;
+}
+
+MeshInfo::Iterator MeshInfo::Iterator::operator++()
+{
+    Iterator i = *this;
+    increment();
+    return i;
+}
+
+MeshInfo::Iterator MeshInfo::Iterator::operator++(int junk)
+{
+    increment();
+    return *this;
+}
+
+const Index2D MeshInfo::Iterator::operator*()
+{ 
+    return Index2D(x, y); 
+}
+
+const Index2D MeshInfo::Iterator::operator->()
+{ 
+    return Index2D(x, y); 
 }
 
 } // namespace Ego

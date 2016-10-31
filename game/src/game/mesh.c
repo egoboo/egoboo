@@ -161,7 +161,7 @@ std::shared_ptr<ego_mesh_t> MeshLoader::operator()(const std::string& moduleName
 {
 	map_t map;
 	// Load the map data.
-	tile_dictionary_load_vfs("mp_data/fans.txt", &tile_dict, -1);
+	tile_dictionary_load_vfs("mp_data/fans.txt", tile_dict);
 	if (!map.load("mp_data/level.mpd"))
 	{
         Log::Entry entry(Log::Level::Error, __FILE__, __LINE__);
@@ -1329,8 +1329,8 @@ bool ego_mesh_t::update_texture(const Index1D& i)
 
 	size_t mesh_vrt = tile._vrtstart;
 	for (uint16_t tile_vrt = 0; tile_vrt < pdef->numvertices; tile_vrt++, mesh_vrt++) {
-		_tmem._tlst[mesh_vrt][SS] = pdef->u[tile_vrt];
-		_tmem._tlst[mesh_vrt][TT] = pdef->v[tile_vrt];
+		_tmem._tlst[mesh_vrt][SS] = pdef->vertices[tile_vrt].u;
+		_tmem._tlst[mesh_vrt][TT] = pdef->vertices[tile_vrt].v;
 	}
 
 	return true;

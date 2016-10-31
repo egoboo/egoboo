@@ -29,10 +29,6 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static bool _setup_started = false;
-static std::string _config_filename = "";
-std::shared_ptr<ConfigFile> _lpConfigSetup = nullptr;
-
 egoboo_config_t egoboo_config_t::_singleton;
 
 egoboo_config_t& egoboo_config_t::get()
@@ -132,6 +128,8 @@ egoboo_config_t::egoboo_config_t() :
     // Debug configuration section.
 	debug_mesh_renderHeightMap(false, "debug.mesh.renderHeightMap", "render mesh's height map"),
 	debug_mesh_renderNormals(false, "debug.mesh.renderNormals", "render mesh's normals"),
+    debug_object_renderBoundingBoxes(false, "debug.object.renderBoundingBoxes", "render object's bounding boxes"),
+    debug_object_renderGrips(false, "debug.object.renderGrips", "render object's grips"),
     debug_hideMouse(true,"debug.hideMouse","show/hide mouse"),
     debug_grabMouse(true,"debug.grabMouse","grab/don't grab mouse"),
     debug_developerMode_enable(false,"debug.developerMode.enable","enable/disable developer mode"),
@@ -207,6 +205,8 @@ egoboo_config_t& egoboo_config_t::operator=(const egoboo_config_t& other)
     // Debug configuration section.
 	debug_mesh_renderHeightMap = other.debug_mesh_renderHeightMap;
 	debug_mesh_renderNormals = other.debug_mesh_renderNormals;
+    debug_object_renderBoundingBoxes = other.debug_object_renderBoundingBoxes;
+    debug_object_renderGrips = other.debug_object_renderGrips;
     debug_hideMouse = other.debug_hideMouse;
     debug_grabMouse = other.debug_grabMouse;
     debug_developerMode_enable = other.debug_developerMode_enable;
@@ -216,83 +216,89 @@ egoboo_config_t& egoboo_config_t::operator=(const egoboo_config_t& other)
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-bool setup_begin()
-{
-    if (_setup_started)
-    {
+
+namespace Ego {
+
+std::shared_ptr<ConfigFile> Setup::file = nullptr;
+const std::string Setup::fileName = "setup.txt";
+bool Setup::started = false;
+
+bool Setup::begin() {
+    if (started) {
         return true;
     }
-
-    // Select the local "setup.txt".
-    _config_filename = "setup.txt";
-    // Parse the local "setup.txt".
-    ConfigFileParser parser(_config_filename);
-    _lpConfigSetup = parser.parse();
-    if (!_lpConfigSetup)
-    {
-		Log::get().warn("unable to load setup file `%s`\n", _config_filename.c_str());
-        try
-        {
-            _lpConfigSetup = std::make_shared<ConfigFile>(_config_filename);
+    // Parse the configuration file.
+    ConfigFileParser parser(fileName);
+    try {
+        file = parser.parse();
+    } catch (...) {
+    }
+    // If parsing the configuration file failed:
+    if (!file) {
+        // Revert to default configuration.
+        Log::Entry e(Log::Level::Warning, __FILE__, __LINE__);
+        e << "unable to load setup file `" << file->getFileName() << "` - reverting to default configuration" << Log::EndOfEntry;
+        Log::get() << e;
+        started = true;
+        try {
+            file = std::make_shared<ConfigFile>(fileName);
+        } catch (...) {
         }
-        catch (...)
-        {
+        // If reverting to default configuration failed:
+        if (!file) {
+            // Fail.
+            Log::Entry e(Log::Level::Error, __FILE__, __LINE__);
+            e << "unable to revert to default configuration" << Log::EndOfEntry;
+            Log::get() << e;
             return false;
         }
-        _setup_started = true;
+        started = true;
+    } else {
+        Log::Entry e(Log::Level::Info, __FILE__, __LINE__);
+        e << "setup file `" << file->getFileName() << "` loaded" << Log::EndOfEntry;
+        Log::get() << e;
+        started = true;
     }
-    else
-    {
-		Log::get().info("loaded setup file `%s`\n", _config_filename.c_str());
-        _setup_started = true;
-    }
-    return _setup_started;
+    return started;
 }
 
-bool setup_end()
-{
-    if (ConfigFileUnParser().unparse(_lpConfigSetup))
-    {
-        _lpConfigSetup = nullptr;
+bool Setup::end() {
+    ConfigFileUnParser unparser;
+    if (unparser.unparse(file)) {
+        file = nullptr;
         return true;
-    }
-    else
-    {
-		Log::get().warn("unable to save setup file `%s`\n", _lpConfigSetup->getFileName().c_str());
-        _lpConfigSetup = nullptr;
+    } else {
+        Log::Entry e(Log::Level::Warning, __FILE__, __LINE__);
+        e << "unable to save setup file `" << file->getFileName() << "`" << Log::EndOfEntry;
+        Log::get() << e;
+        file = nullptr;
         return false;
     }
 }
 
-//--------------------------------------------------------------------------------------------
-bool setup_download(egoboo_config_t *cfg)
-{
-    if (!cfg)
-    {
-        throw std::invalid_argument("nullptr == cfg");
+bool Setup::download(egoboo_config_t& cfg) {
+    if (!file) {
+        Log::Entry e(Log::Level::Error, __FILE__, __LINE__);
+        e << "setup file `" << fileName << "` not loaded" << Log::EndOfEntry;
+        Log::get() << e;
+        throw std::logic_error(e.getText());
     }
-    if (!_lpConfigSetup)
-    {
-        throw std::logic_error("`setup.txt` not initialized");
-    }
-    cfg->for_each(egoboo_config_t::Load(_lpConfigSetup));
+    cfg.for_each(egoboo_config_t::Load(file));
     return true;
 }
 
-bool setup_upload(egoboo_config_t *cfg)
-{
-    if (!cfg)
-    {
-        throw std::invalid_argument("nullptr == cfg");
+bool Setup::upload(egoboo_config_t& cfg) {
+    if (!file) {
+        Log::Entry e(Log::Level::Error, __FILE__, __LINE__);
+        e << "setup file `" << fileName << " not loaded" << Log::EndOfEntry;
+        Log::get() << e;
+        throw std::logic_error(e.getText());
     }
-    if (!_lpConfigSetup)
-    {
-        throw std::logic_error("`setup.txt` not initialized");
-    }
-    cfg->for_each(egoboo_config_t::Store(_lpConfigSetup));   
+    cfg.for_each(egoboo_config_t::Store(file));
     return true;
 }
+
+} // namespace Ego
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

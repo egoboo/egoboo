@@ -291,18 +291,6 @@ void Renderer::setWindingMode(WindingMode mode) {
     Utilities::isError();
 }
 
-void Renderer::loadMatrix(const Matrix4f4f& matrix) {
-    // Convert from Matrix4f4f to an OpenGL matrix.
-    GLfloat t[16];
-    for (size_t i = 0; i < 4; ++i) {
-        for (size_t j = 0; j < 4; ++j) {
-            t[i * 4 + j] = matrix(j * 4 + i);
-        }
-    }
-    glLoadMatrixf(t);
-    Utilities::isError();
-}
-
 void Renderer::multiplyMatrix(const Matrix4f4f& matrix) {
     // Convert from Matrix4f4f to an OpenGL matrix.
     GLfloat t[16];
@@ -562,6 +550,17 @@ void Renderer::render(VertexBuffer& vertexBuffer, PrimitiveType primitiveType, s
     glDisableClientState(GL_NORMAL_ARRAY);
 }
 
+std::array<float, 16> Renderer::toOpenGL(const Matrix4f4f& source) {
+    // Convert from Matrix4f4f to an OpenGL matrix.
+    std::array<float, 16> target;
+    for (size_t i = 0; i < 4; ++i) {
+        for (size_t j = 0; j < 4; ++j) {
+            target[i * 4 + j] = source(j * 4 + i);
+        }
+    }
+    return target;
+}
+
 GLenum Renderer::toOpenGL(BlendFunction source) {
     switch (source) {
         case BlendFunction::Zero: return GL_ZERO;
@@ -591,7 +590,9 @@ SharedPtr<Ego::Texture> Renderer::createTexture() {
 void Renderer::setProjectionMatrix(const Matrix4f4f& projectionMatrix) {
     this->Ego::Renderer::setProjectionMatrix(projectionMatrix);
     glMatrixMode(GL_PROJECTION);
-    loadMatrix(projectionMatrix);
+    auto matrix = projectionMatrix;
+    glLoadMatrixf(toOpenGL(matrix).data());
+    Utilities::isError();
 }
 
 void Renderer::setViewMatrix(const Matrix4f4f& viewMatrix) {
@@ -599,7 +600,8 @@ void Renderer::setViewMatrix(const Matrix4f4f& viewMatrix) {
     glMatrixMode(GL_MODELVIEW);
     // model -> world, world -> view
     auto matrix = getViewMatrix() * getWorldMatrix();
-    loadMatrix(matrix);
+    glLoadMatrixf(toOpenGL(matrix).data());
+    Utilities::isError();
 }
 
 void Renderer::setWorldMatrix(const Matrix4f4f& worldMatrix) {
@@ -607,7 +609,8 @@ void Renderer::setWorldMatrix(const Matrix4f4f& worldMatrix) {
     glMatrixMode(GL_MODELVIEW);
     // model -> world, world -> view
     auto matrix = getViewMatrix() * getWorldMatrix();
-    loadMatrix(matrix);
+    glLoadMatrixf(toOpenGL(matrix).data());
+    Utilities::isError();
 }
 
 } // namespace OpenGL

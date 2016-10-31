@@ -35,12 +35,6 @@
 #include "egolib/Renderer/RendererInfo.hpp"
 #include "egolib/Graphics/VertexBuffer.hpp"
 #include "egolib/Renderer/Texture.hpp"
-#include "egolib/Extensions/ogl_debug.h"
-#include "egolib/Extensions/ogl_extensions.h"
-#include "egolib/Extensions/ogl_include.h"
-#include "egolib/Extensions/SDL_extensions.h"
-#include "egolib/Extensions/SDL_GL_extensions.h"
-
 
 namespace Ego {
 
@@ -556,22 +550,12 @@ public:
      */
     virtual void setDepthFunction(CompareFunction function) = 0;
 
-    /**
-     * @brief
-     *  Enable/disable depth tests and depth buffer updates.
-     * @param enabled
-     *  @a true enables depth tests and depth buffer updates,
-     *  @a false disables them
-     */
+    /// @brief Enable/disable depth testss.
+    /// @param enabled @a true enables depth tests, @a false disables them
     virtual void setDepthTestEnabled(bool enabled) = 0;
 
-    /**
-     * @brief
-     *  Enable/disable the depth buffer writes.
-     * @param enable
-     *  @a true enables scissor tests,
-     *  @a false disables then
-     */
+    /// @brief Enable/disable the depth buffer writes.
+    /// @param enable @a true enables depth buffer writes, @a false disables then
     virtual void setDepthWriteEnabled(bool enabled) = 0;
 
     /**
@@ -586,23 +570,13 @@ public:
      */
     virtual void setScissorRectangle(float left, float bottom, float width, float height) = 0;
 
-    /**
-     * @brief
-     *    Enable/disable scissor tests.
-     * @param enable
-     *    @a true enables scissor tests,
-     *    @a false disables then
-     */
+    /// @brief Enable/disable scissor tests.
+    /// @param enable @a true enables scissor tests, @a false disables then
     virtual void setScissorTestEnabled(bool enabled) = 0;
 
-    /**
-     * @brief
-     *  Set the stencil bit mask affecting back-facing polygons.
-     * @param mask
-     *  the mask
-     * @see
-     *  Ego::Renderer::setStencilMaskFront
-     */
+    /// @brief Set the stencil bit mask affecting back-facing polygons.
+    /// @param mask the mask
+    /// @see Ego::Renderer::setStencilMaskFront
     virtual void setStencilMaskBack(uint32_t mask) = 0;
 
     /**
@@ -618,42 +592,20 @@ public:
      */
     virtual void setStencilMaskFront(uint32_t mask) = 0;
 
-    /**
-     * @brief
-     *  Enable/disable stencil test and stencil buffer updates.
-     * @param enable
-     *  @a true enables stencil tests and stencil buffer updates,
-     *  @a false disables them
-     */
+    /// @brief Enable/disable stencil tests and stencil buffer updates.
+    /// @param enable @a true enables stencil tests and stencil buffer updates, @a false disables them
     virtual void setStencilTestEnabled(bool enabled) = 0;
 
-    /**
-     * @brief
-     *  Set the viewport rectangle.
-     * @param left, bottom
-     *  the left/bottom corner of the viewport rectangle
-     * @param width, height
-     *  the width and height of the viewport rectangle
-     * @throw std::invalid_argument
-     *  if @a width or @a height are smaller than @a 0
-     */
+    /// @brief Set the viewport rectangle.
+    /// @param left, bottom the left/bottom corner of the viewport rectangle
+    /// @param width, height the width and height of the viewport rectangle
+    /// @throw std::invalid_argument if @a width or @a height are smaller than @a 0
     virtual void setViewportRectangle(float left, float bottom, float width, float height) = 0;
 
-    /**
-     * @brief
-     *  Set the winding mode.
-     * @param mode
-     *  the winding mode
-     */
+    /// @brief Set the winding mode.
+    /// @param mode the winding mode
     virtual void setWindingMode(WindingMode mode) = 0;
 
-    /**
-     * @brief
-     *  Replace the current matrix with the given matrix.
-     * @param matrix
-     *  the matrix
-     */
-    virtual void loadMatrix(const Matrix4f4f& matrix) = 0;
 
     /**
      * @brief
@@ -663,109 +615,57 @@ public:
      */
     virtual void multiplyMatrix(const Matrix4f4f& matrix) = 0;
 
-    /**
-    * @brief
-    *  Enable/disable perspective correction.
-    * @param enable
-    *  @a true enables perspective correction,
-    *  @a false disables it
-    */
+    /// @brief Enable/disable perspective correction.
+    /// @param enable @a true enables perspective correction, @a false disables it
     virtual void setPerspectiveCorrectionEnabled(bool enabled) = 0;
 
-    /**
-     * @brief
-     *  Enable/disable dithering.
-     * @param enable
-     *  @a true enables dithering,
-     *  @a false disables it
-     */
+    /// @brief Enable/disable dithering.
+    /// @param enable @a true enables dithering, @a false disables it
     virtual void setDitheringEnabled(bool enabled) = 0;
 
-    /**
-     * @brief
-     *  Enable/disable antialiasing of points.
-     * @param enable
-     *  @a true enables antialiasing of points,
-     *  @a false disables it
-     * @remark
-     *  Enabling/disabling antialiasing of points has no impact if
-     *  multisampling is enabled (cfg. "OpenGL 1.3 Specification", sec. 3.3.3).
-     */
+    /// @brief Enable/disable antialiasing of points.
+    /// @param enable @a true enables antialiasing of points, @a false disables it
+    /// @remark
+    /// Enabling/disabling antialiasing of points has no impact if
+    /// multisampling is enabled (cfg. "OpenGL 1.3 Specification", sec. 3.3.3).
     virtual void setPointSmoothEnabled(bool enabled) = 0;
 
-    /**
-     * @brief
-     *  Enable/disable antialiasing of lines.
-     * @param enabled
-     *  @a true enables antialiasing of lines,
-     *  @a false disables it
-     * @remark
-     *  Enabling/disabling antialiasing of lines has no impact if
-     *  multisampling is enabled (cfg. "OpenGL 1.3 Specification", sec. 3.4.4).
-     */
+    /// @brief Enable/disable antialiasing of lines.
+    /// @param enabled @a true enables antialiasing of lines, @a false disables it
+    /// @remark
+    /// Enabling/disabling antialiasing of lines has no impact if
+    /// multisampling is enabled (cfg. "OpenGL 1.3 Specification", sec. 3.4.4).
     virtual void setLineSmoothEnabled(bool enabled) = 0;
 
-    /**
-     * @brief
-     *  Set line width.
-     * @param width
-     *  the line width
-     */
+    /// @brief Set line width.
+    /// @param width the line width
     virtual void setLineWidth(float width) = 0;
 
-    /**
-     * @brief
-     *  Set point size.
-     * @param size
-     *  the point size
-     */
+    /// @brief Set point size.
+    /// @param size the point size
     virtual void setPointSize(float size) = 0;
 
-    /**
-     * @brief
-     *  Enable/disable antialiasing of lines.
-     * @param enabled
-     *  @a true enables antialiasing of lines,
-     *  @a false disables it
-     * @remark
-     *  Enabling/disabling antialiasing of polygons has no impact if
-     *  multisampling is enabled (cfg. "OpenGL 1.3 Specification", sec. 3.5.6).
-     */
+    /// @brief Enable/disable antialiasing of lines.
+    /// @param enabled @a true enables antialiasing of lines, @a false disables it
+    /// @remark
+    /// Enabling/disabling antialiasing of polygons has no impact if
+    /// multisampling is enabled (cfg. "OpenGL 1.3 Specification", sec. 3.5.6).
     virtual void setPolygonSmoothEnabled(bool enabled) = 0;
 
-    /**
-     * @brief
-     *  Enable/disable multisamples.
-     * @param enabled
-     *  @a true enables multisamples,
-     *  @a false disables it
-     */
+    /// @brief Enable/disable multisamples.
+    /// @param enabled @a true enables multisamples, @a false disables then
     virtual void setMultisamplesEnabled(bool enabled) = 0;
 
-    /**
-     * @brief
-     *  Enable/disable lighting.
-     * @param enabled
-     *  @a true enables lighting,
-     *  @a false disables it
-     */
+    /// @brief Enable/disable lighting.
+    /// @param enabled @a true enables lighting, @a false disables it
     virtual void setLightingEnabled(bool enabled) = 0;
 
-    /**
-     * @brief
-     *  Set the rasterization mode (for front- and back-facing polygons).
-     * @param mode
-     *  the rasterization mode
-     */
+    /// @brief Set the rasterization mode (for front- and back-facing polygons).
+    /// @param mode the rasterization mode
     virtual void setRasterizationMode(RasterizationMode mode) = 0;
 
-    /**
-     * @brief
-     *  Enable/disable Gouraud shading.
-     * @param enable
-     *  @a true enables Gouraud shading,
-     *  @a false disables it
-     */
+    /// @brief Enable/disable Gouraud shading.
+    /// @param enable @a true enables Gouraud shading, @a false disables it
     virtual void setGouraudShadingEnabled(bool enabled) = 0;
 
     /**
@@ -804,58 +704,33 @@ private:
     Matrix4f4f worldMatrix;
 
 public:
-    /**
-     * @brief
-     *  Set the projection matrix.
-     * @param projectionMatrix
-     *  the projection matrix
-     */
+    /// @brief Set the projection matrix.
+    /// @param projectionMatrix the projection matrix
     virtual void setProjectionMatrix(const Matrix4f4f& projectionMatrix);
-    /**
-     * @brief
-     *  Get the projection matrix.
-     * @return
-     *  the projection matrix
-     * @remark
-     *  The default projection matrix is a perspective projection matrix
-     *  with a field of view angle in the y direction of 45 degrees, an
-     *  aspect ratio in the x-direction of 4/3 with the near clipping
-     *  plane in distance 0.1 and the far clipping plane in distance 1000.
-     */
+    /// @brief Get the projection matrix.
+    /// @return the projection matrix
+    /// @remark
+    /// The default projection matrix is a perspective projection matrix
+    /// with a field of view angle in the y direction of 45 degrees, an
+    /// aspect ratio in the x-direction of 4/3 with the near clipping
+    /// plane in distance 0.1 and the far clipping plane in distance 1000.
     virtual Matrix4f4f getProjectionMatrix() const;
 
-    /**
-     * @brief
-     *  Set the view matrix.
-     * @param viewMatrix
-     *  the view matrix
-     */
+    /// @brief Set the view matrix.
+    /// @param viewMatrix the view matrix
     virtual void setViewMatrix(const Matrix4f4f& viewMatrix);
-    /**
-     * @brief
-     *  Get the view matrix.
-     * @return
-     *  the view matrix
-     * @remark
-     *  The default view matrix is the identity matrix.
-     */
+    /// @brief Get the view matrix.
+    /// @return the view matrix
+    /// @remark
+    /// The default view matrix is the identity matrix.
     virtual Matrix4f4f getViewMatrix() const;
 
-    /**
-     * @brief
-     *  Set the world matrix.
-     * @param worldMatrix
-     *  the world matrix
-     */
+    /// @brief Set the world matrix.
+    /// @param worldMatrix the world matrix
     virtual void setWorldMatrix(const Matrix4f4f& worldMatrix);
-    /**
-     * @brief
-     *  Get the world matrix.
-     * @return
-     *  the world matrix
-     * @remark
-     *  The default world matrix is the identity matrix.
-     */
+    /// @brief Get the world matrix.
+    /// @return the world matrix
+    /// @remark The default world matrix is the identity matrix.
     virtual Matrix4f4f getWorldMatrix() const;
 
 };

@@ -23,22 +23,21 @@
 #pragma once
 
 #include "egolib/Log/Target.hpp"
+#include "egolib/vfs.h"
 
 namespace Log {
 
-class DefaultTarget : public Target {
-public:
-	DefaultTarget(const std::string& filename, Level level = Level::Warning);
-	virtual ~DefaultTarget();
-	void writev(Level level, const char *format, va_list args) override;
-
+struct DefaultTarget : Target {
 private:
-	char* _applicationPath;
 	/**
 	* @brief
 	*  The log file.
 	*/
-	std::unique_ptr<std::ofstream> _file;
+	vfs_FILE *_file;
+public:
+	DefaultTarget(const std::string& filename, Level level = Level::Warning);
+	virtual ~DefaultTarget();
+	void writev(Level level, const char *format, va_list args) override;
 };
 
 } // namespace Log

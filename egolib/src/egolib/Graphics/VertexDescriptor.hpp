@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Graphics/VertexDescriptor.hpp
-/// @brief  Descriptions of vertices.
+/// @file egolib/Graphics/VertexDescriptor.hpp
+/// @brief Descriptors of vertices.
 /// @author Michael Heilmann
 
 #pragma once
@@ -27,104 +27,76 @@
 
 namespace Ego {
 
-/**
- * @brief
- *  The descriptor of a vertex.
- */
+/// @brief The descriptor of a vertex.
 class VertexDescriptor {
 private:
-    /**
-     * @brief
-     *  The list of vertex element descriptors.
-     */
+    /// @brief The list of vertex element descriptors.
     std::vector<VertexElementDescriptor> vertexElementDescriptors;
 
-    /**
-     * @brief
-     *  The size, in Bytes, of a vertex.
-     */
+    /// @brief The size, in Bytes, of a vertex.
     size_t vertexSize;
 
 public:
-    /**
-     * @brief
-     *  Construct this vertex descriptor.
-     * @param vertexElementDescriptors
-     *  the vertex element descriptors
-     */
+    /// @brief Construct this vertex descriptor.
+    /// @param vertexElementDescriptors the vertex element descriptors
     VertexDescriptor(std::initializer_list<VertexElementDescriptor> vertexElementDescriptors);
 
-    /**
-     * @brief
-     *  Copy-construct this vertex descriptor with the values of another vertex descriptor.
-     * @param other
-     *  the other vertex descriptor
-     */
+    /// @brief Copy-construct this vertex descriptor with the values of another vertex descriptor.
+    /// @param other the other vertex descriptor
     VertexDescriptor(const VertexDescriptor& other);
 
-    /**
-     * @brief
-     *  Assign this vertex descriptor with the values of another vertex descriptor.
-     * @param other
-     *  the other vertex descriptor
-     * @return
-     *  this vertex descriptor
-     */
+    /// @brief Assign this vertex descriptor with the values of another vertex descriptor.
+    /// @param other the other vertex descriptor
+    /// @return this vertex descriptor
     const VertexDescriptor& operator=(const VertexDescriptor& other);
 
 
 public:
-    /** @brief The type of an iterator of the vertex element descriptors. */
+    /// @brief The type of an iterator of the vertex element descriptors.
     using const_iterator = std::vector<VertexElementDescriptor>::const_iterator;
-    /** @brief The type of an iterator over the vertex element descriptors. */
+    
+    /// @brief The type of an iterator over the vertex element descriptors.
     using iterator = std::vector<VertexElementDescriptor>::iterator;
 
     /**@{*/
-    /**
-     * @brief Return an iterator to the beginning.
-     * @return an iterator to the beginning
-     */
+
+    /// @brief Return an iterator to the beginning.
+    /// @return an iterator to the beginning
     iterator begin() { return vertexElementDescriptors.begin(); }
     const_iterator begin() const { return vertexElementDescriptors.begin(); }
     const_iterator cbegin() const { return vertexElementDescriptors.cbegin(); }
+    
     /**@}*/
 
     /**@{*/
-    /**
-    * @brief Return an iterator to the end.
-    * @return an iterator to the end
-    */
+    
+    /// @brief Return an iterator to the end.
+    /// @return an iterator to the end
     iterator end() { return vertexElementDescriptors.end(); }
     const_iterator end() const { return vertexElementDescriptors.end(); }
     const_iterator cend() const { return vertexElementDescriptors.cend(); }
+    
     /**@}*/
 
 
 public:
-    /**
-     * @brief
-     *  Get the size, in Bytes, of a vertex.
-     * @return
-     *  the size, in Bytes, of a vertex.
-     */
+    /// @brief Get the size, in Bytes, of a vertex.
+    /// @return the size, in Bytes, of a vertex.
     size_t getVertexSize() const {
         return vertexSize;
     }
 
 public:
-    /**
-     * @brief Compare this vertex descriptor with another vertex descriptor for equality.
-     * @param other the other index descriptor
-     * @return @a true if this vertex descriptor is equal to the other vertex descriptor,
-     *         @a false otherwise
-     */
+    /// @brief Compare this vertex descriptor with another vertex descriptor for equality.
+    /// @param other the other index descriptor
+    /// @return @a true if this vertex descriptor is equal to the other vertex descriptor,
+    ///         @a false otherwise
     bool operator==(const VertexDescriptor&) const;
-    /**
-     * @brief Compare this vertex descriptor with another index descriptor for inequality.
-     * @param other the other vertex descriptor
-     * @return @a true if this vertex descriptor is not equal to the other vertex descriptor,
-     *         @a false otherwise
-     */
+
+    /// @brief Compare this vertex descriptor with another index descriptor for inequality.
+    /// @param other the other vertex descriptor
+    /// @return @a true if this vertex descriptor is not equal to the other vertex descriptor,
+    ///         @a false otherwise
     bool operator!=(const VertexDescriptor&) const;
 
 }; // class VertexDescriptor

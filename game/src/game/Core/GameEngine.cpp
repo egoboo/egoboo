@@ -355,7 +355,7 @@ bool GameEngine::initialize()
     // do this after the ego_init_SDL() and gfx_system_init_OpenGL() in case the config values are clamped
     // to valid values
     renderPreloadText("Configurating game data...");
-    config_synch(&egoboo_config_t::get(), false, false);
+    config_synch(egoboo_config_t::get(), false, false);
 
     // load input
     input_settings_load_vfs("/controls.txt");
@@ -435,7 +435,7 @@ void GameEngine::uninitialize()
     _currentModule.release();
 
     // synchronize the config values with the various game subsystems
-    config_synch(&egoboo_config_t::get(), true, true);
+    config_synch(egoboo_config_t::get(), true, true);
 
     // delete all the graphics allocated by SDL and OpenGL
     gfx_system_release_all_graphics();

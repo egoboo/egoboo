@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Graphics/PixelFormat.cpp
-/// @brief  Pixel formats and pixel format descriptors.
+/// @file egolib/Graphics/PixelFormat.cpp
+/// @brief Pixel formats and pixel format descriptors.
 /// @author Michael Heilmann
 
 #include "egolib/Graphics/PixelFormat.hpp"

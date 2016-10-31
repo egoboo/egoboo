@@ -22,6 +22,7 @@
 
 #include "egolib/map_functions.h"
 #include "egolib/FileFormats/map_file.h"
+#include "egolib/Mesh/Info.hpp"
 
 bool twist_to_normal( Uint8 twist, Vector3f& v, float slide )
 {
@@ -134,11 +135,11 @@ bool map_has_some_fx_itile( map_t * pmesh, int itile, Uint8 test_fx ) {
     return HAS_SOME_BITS( tile_fx, test_fx );
 }
 
-bool map_has_some_fx_pos( map_t * pmesh, int mapx, int mapy, Uint8 test_fx ) {
+bool map_has_some_fx_pos( map_t * pmesh, Index2D index2d, Uint8 test_fx ) {
 	if (!pmesh) {
 		throw std::runtime_error("nullptr == pmesh");
 	}
-    return map_has_some_fx_itile( pmesh, pmesh->getTileIndex( mapx, mapy ), test_fx );
+    return map_has_some_fx_itile( pmesh, pmesh->getTileIndex( index2d ), test_fx );
 }
 
 map_t * map_generate_fan_type_data( map_t * pmesh )
@@ -192,7 +193,7 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
                 {
                     tmpx = mapx + dx;
 
-                    if ( map_has_some_fx_pos( pmesh, tmpx, tmpy, WALL_BITS ) )
+                    if (map_has_some_fx_pos(pmesh, {tmpx, tmpy}, WALL_BITS))
                     {
                         wall_count++;
                     }
@@ -251,7 +252,7 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
             // this must be a "wall" tile
             // check the neighboring tiles to set the corner positions
 
-            jtile = pmesh->getTileIndex(mapx, mapy - 1);
+            jtile = pmesh->getTileIndex({int(mapx), int(mapy) - 1});
             if ( jtile > 0 )
             {
                 if ( FLOOR == ary[jtile] )
@@ -264,7 +265,7 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
                 }
             }
 
-            jtile = pmesh->getTileIndex(mapx + 1, mapy );
+            jtile = pmesh->getTileIndex({int(mapx) + 1, int(mapy)});
             if ( jtile > 0 )
             {
                 if ( FLOOR == ary[jtile] )
@@ -277,7 +278,7 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
                 }
             }
 
-            jtile = pmesh->getTileIndex( mapx, mapy + 1 );
+            jtile = pmesh->getTileIndex({int(mapx), int(mapy) + 1});
             if ( jtile > 0 )
             {
                 if ( FLOOR == ary[jtile] )
@@ -290,7 +291,7 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
                 }
             }
 
-            jtile = pmesh->getTileIndex( mapx - 1, mapy );
+            jtile = pmesh->getTileIndex({int(mapx) - 1, int(mapy)});
             if ( jtile > 0 )
             {
                 if ( FLOOR == ary[jtile] )
@@ -305,7 +306,7 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
 
             if ( zpos[1] < 0.0f )
             {
-                jtile = pmesh->getTileIndex( mapx + 1, mapy - 1 );
+                jtile = pmesh->getTileIndex({int(mapx) + 1, int(mapy) - 1});
                 if ( jtile > 0 )
                 {
                     if ( FLOOR == ary[jtile] )
@@ -321,7 +322,7 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
 
             if ( zpos[3] < 0.0f )
             {
-                jtile = pmesh->getTileIndex( mapx + 1, mapy + 1 );
+                jtile = pmesh->getTileIndex({int(mapx) + 1, int(mapy) + 1});
                 if ( jtile > 0 )
                 {
                     if ( FLOOR == ary[jtile] )
@@ -337,7 +338,7 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
 
             if ( zpos[5] < 0.0f )
             {
-                jtile = pmesh->getTileIndex( mapx - 1, mapy + 1 );
+                jtile = pmesh->getTileIndex({int(mapx) - 1, int(mapy) + 1});
                 if ( jtile > 0 )
                 {
                     if ( FLOOR == ary[jtile] )
@@ -353,7 +354,7 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
 
             if ( zpos[7] < 0.0f )
             {
-                jtile = pmesh->getTileIndex( mapx - 1, mapy + 1 );
+                jtile = pmesh->getTileIndex({int(mapx) - 1, int(mapy) + 1});
                 if ( jtile > 0 )
                 {
                     if ( FLOOR == ary[jtile] )

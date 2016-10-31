@@ -88,7 +88,7 @@ void gfx_system_end()
 
 //--------------------------------------------------------------------------------------------
 
-std::shared_ptr<Ego::Texture> tiny_tile_at( cartman_mpd_t * pmesh, int mapx, int mapy )
+std::shared_ptr<Ego::Texture> tiny_tile_at( cartman_mpd_t * pmesh, Index2D index2d )
 {
     Uint16 tx_bits, basetile;
     Uint8 fantype, fx;
@@ -101,12 +101,12 @@ std::shared_ptr<Ego::Texture> tiny_tile_at( cartman_mpd_t * pmesh, int mapx, int
 
     if ( NULL == pmesh ) pmesh = &mesh;
 
-    if ( mapx < 0 || mapx >= pmesh->info.getTileCountX() || mapy < 0 || mapy >= pmesh->info.getTileCountY() )
+    if ( index2d.x() < 0 || index2d.x() >= pmesh->info.getTileCountX() || index2d.y() < 0 || index2d.y() >= pmesh->info.getTileCountY() )
     {
         return NULL;
     }
 
-    pfan = pmesh->get_pfan(mapx, mapy);
+    pfan = pmesh->get_pfan(index2d);
     if ( NULL == pfan ) return NULL;
 
     if ( TILE_IS_FANOFF( pfan->tx_bits ) )
@@ -222,7 +222,7 @@ void make_hitemap( cartman_mpd_t * pmesh )
             int level = ( pmesh->get_level(x, y) * 255 ) / pmesh->info.getEdgeZ();  // level is 0 to 255
             if ( level > 252 ) level = 252;
 
-            cartman_mpd_tile_t *pfan = pmesh->get_pfan(pixx >> 2, pixy >> 2);
+            cartman_mpd_tile_t *pfan = pmesh->get_pfan({pixx >> 2, pixy >> 2});
             if ( NULL == pfan ) continue;
 
             if ( HAS_BITS( pfan->fx, MAPFX_WALL ) ) level = 253;  // Wall
@@ -257,7 +257,7 @@ void make_planmap( cartman_mpd_t * pmesh )
         for ( x = 0; x < pmesh->info.getTileCountX(); x++ )
         {
             std::shared_ptr<Ego::Texture> tx_tile;
-            tx_tile = tiny_tile_at( pmesh, x, y );
+            tx_tile = tiny_tile_at(pmesh, {x, y});
 
             if ( NULL != tx_tile )
             {
@@ -508,8 +508,8 @@ void draw_schematic(std::shared_ptr<Cartman::Gui::Window> pwin, int fantype, int
                 stt = plines->start[cnt];
                 end = plines->end[cnt];
 
-                glVertex2f( GRID_TO_POS( pdef->grid_ix[stt] ) + x, GRID_TO_POS( pdef->grid_iy[stt] ) + y );
-                glVertex2f( GRID_TO_POS( pdef->grid_ix[end] ) + x, GRID_TO_POS( pdef->grid_iy[end] ) + y );
+                glVertex2f( GRID_TO_POS( pdef->vertices[stt].grid_ix ) + x, GRID_TO_POS( pdef->vertices[stt].grid_iy ) + y );
+                glVertex2f( GRID_TO_POS( pdef->vertices[end].grid_ix ) + x, GRID_TO_POS( pdef->vertices[end].grid_iy ) + y );
             }
         }
         glEnd();

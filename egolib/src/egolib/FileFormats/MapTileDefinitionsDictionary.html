@@ -1,0 +1,126 @@
+<html>
+<head>
+<title>MapTileDefinitionDictionary</title>
+</head>
+<body>
+<h1>MapTileDefinitionDictionary</h1>
+This document intends to describe the <i>MapTileDefinitionDictionary</i> file format.
+A <i>MapTileDeinitionDictionary</i> file is used by Egoboo and provides definitions of map tiles. Maps can consist of tiles and tiles are described in terms of properties called map tile definitions. There are many tiles in a map, but usually many of these tiles share the same map tile definitions. To conserve space, equal sets of
+properties are stored once in a <i>MapTileDefinitionDictionary</i> and are merely
+referenced by the tiles.
+
+A <i>MapTileDefinitionDictionary</i> contains a single <b>DefinitionList</b> block.
+
+<h4>DefinitionList Block</h4>
+<table>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>description</th>
+</tr>
+<tr>
+<td>numberOfDefinitions</td>
+<td>uint32</td>
+<td>the number of map tile definitions</td>
+</tr>
+<tr>
+<td>definitions</td>
+<td>Definition[numberOfDefinitions]</td>
+<td>a sequence of numberDefinitions <b>Definition</b> blocks</td>
+</tr>
+</table>
+
+<h4>Definition Block</h4>
+<table>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>remarks</th>
+</tr>
+<tr>
+
+<tr>
+<td>numberOfVertices</td>
+<td>uint32</td>
+<td>the number of vertices</td>
+</tr>
+
+<tr>
+<td>vertices</td>
+<td>Vertex[numberOfVertices]</td>
+<td>the vertices</td>
+</tr>
+
+<tr>
+<td>numberOfIndexLists</td>
+<td>uint32</td>
+<td>the number of index lists</td>
+</tr>
+
+<tr>
+<td>indexLists</td>
+<td>IndexList[numberOfIndexLists]</td>
+<td>a sequence of numberOfIndexLists <b>IndexList</b> blocks</td>
+</tr>
+</table>
+
+<h4>Vertex Block</h4>
+<table>
+<tr>
+<td>position</td>
+<td>uint32</td>
+<td>encoded x/y position of the vertices<br/>
+decoding: x = position % 4, y = (position / 4) % 4<br/>
+encoding: position = (x % 4) | ((y % 4) * 4)
+</td>
+</tr>
+
+<tr>
+<td>u</td>
+<td>float</td>
+<td>horizontal texture coordinate</td>
+<td></td>
+</tr>
+
+<tr>
+<td>v</td>
+<td>float</td>
+<td>vertical texture coordinate</td>
+</tr>
+</table>
+
+<h4>VertexList Block</h4>
+A vertex list contains the vertices of a tile.
+
+<table>
+
+<tr>
+<th>name</th>
+<th>type</th>
+<th>remarks</th>
+</tr>
+
+</table>
+
+<h4>IndexList Block</h4>
+An index list contains the indices of a part of tile called a "fan".
+
+<table>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>remarks</th>
+</tr>
+<tr>
+<td>numberOfIndices</td>
+<td>uint32</td>
+<td>the number of indices</td>
+</tr>
+<tr>
+<td>indices</td>
+<td>uint32_t[numberOfIndices]</td>
+<td>a sequence of numberOfIndices indices</td>
+</tr>
+</table>
+</body>
+</html>

@@ -379,11 +379,11 @@ map_t::map_t(const map_info_t& info) :
 map_t::~map_t()
 {}
 
-size_t map_t::getTileIndex(int x, int y) const {
-	if (x < 0 || x >= _info.getTileCountX() || y < 0 || y >= _info.getTileCountY()) {
+size_t map_t::getTileIndex(Index2D index2d) const {
+	if (index2d.x() < 0 || index2d.x() >= _info.getTileCountX() || index2d.y() < 0 || index2d.y() >= _info.getTileCountY()) {
 		throw std::runtime_error("index out of bounds");
 	} else {
-		return x + _info.getTileCountX() * y;
+		return index2d.x() + _info.getTileCountX() * index2d.y();
 	}
 }
 

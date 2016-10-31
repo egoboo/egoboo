@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Graphics/IndexDescriptor.cpp
-/// @brief  Descriptions of indices.
+/// @file egolib/Graphics/IndexDescriptor.cpp
+/// @brief Descriptors of indices.
 /// @author Michael Heilmann
 
 #include "egolib/Graphics/IndexDescriptor.hpp"
@@ -30,6 +30,20 @@ IndexDescriptor::IndexDescriptor(IndexDescriptor::Syntax syntax) :
 }
 
 IndexDescriptor::IndexDescriptor(const IndexDescriptor& other) noexcept : syntax(other.syntax) {
+}
+
+IndexDescriptor::Syntax IndexDescriptor::getSyntax() const {
+    return syntax;
+}
+
+size_t IndexDescriptor::getIndexSize() const {
+    switch (syntax) {
+        case Syntax::U16:
+            return sizeof(uint16_t); // 16 / 8
+        case Syntax::U32:
+            return sizeof(uint32_t); // 32 / 8
+    }
+    throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
 }
 
 const IndexDescriptor& IndexDescriptor::operator=(const IndexDescriptor& other) noexcept {

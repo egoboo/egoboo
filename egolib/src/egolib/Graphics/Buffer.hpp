@@ -21,110 +21,65 @@
 /// @brief Abstract base class of all buffers.
 /// @author Michael Heilmann
 
+#pragma once
+
 #include "egolib/platform.h"
 
 namespace Ego {
 
-/**
- * @brief
- *  The abstract base class of all vertex- and index buffers.
- */
+/// @brief The abstract base class of all vertex- and index buffers.
 class Buffer : private Id::NonCopyable {
 private:
-    /**
-     * @brief
-     *  The size, in Bytes, of this buffer.
-     */
+    /// @brief The size, in Bytes, of this buffer.
     size_t size;
 
 protected:
-    /**
-     * @brief
-     *  Construct this buffer.
-     * @param size
-     *  the size, in Bytes, of this buffer
-     */
+    /// @brief Construct this buffer.
+    /// @param size the size, in Bytes, of this buffer
     Buffer(size_t size);
 
-    /**
-     * @brief
-     *  Destruct this buffer.
-     */
+    /// @brief Destruct this buffer.
     virtual ~Buffer();
 
 public:
-    /**
-     * @brief
-     *  Get the size, in Bytes, of this buffer.
-     * @return
-     *  the size, in Bytes, of this buffer
-     */
+    /// @brief Get the size, in Bytes, of this buffer.
+    /// @return the size, in Bytes, of this buffer
     size_t getSize() const;
 
-    /**
-     * @brief
-     *  Lock this buffer.
-     * @return
-     *  a pointer to the buffer data
-     * @throw Ego::Core::LockFailedException
-     *  if locking the buffer failed
-     */
+    /// @brief Lock this buffer.
+    /// @return a pointer to the buffer data
+    /// @throw Ego::Core::LockFailedException locking the buffer failed
     virtual void *lock() = 0;
 
-    /**
-     * @brief
-     *  Unlock this buffer.
-     * @remark
-     *  If the buffer is not locked, a call to this method is a no-op.
-     */
+    /// @brief Unlock this buffer.
+    /// @remark If the buffer is not locked, a call to this method is a no-op.
     virtual void unlock() = 0;
 
 }; // class Buffer
 
-/**
- * @brief
- *	Provides convenient RAII-style mechanism for locking/unlocking a buffers.
- */
+/// @brief Provides convenient RAII-style mechanism for locking/unlocking a buffers.
 struct BufferScopedLock {
 private:
-    /**
-    * @brief
-    *  A pointer to the backing memory of the buffer.
-    */
+    /// @brief A pointer to the backing memory of the buffer.
     void *pointer;
-    /**
-    * @brief
-    *  A pointer to the buffer.
-    */
-    Ego::Buffer *buffer;
+
+    /// @brief A pointer to the buffer.
+    Buffer *buffer;
+
 public:
-    /**
-    * @brief
-    *  Construct this buffer scoped lock, locking the buffer.
-    * @param buffer
-    *  the buffer buffer
-    * @throw Ego::Core::LockFailedException
-    *	if the buffer buffer can not be locked
-    * @todo
-    *  Use an other exception type than std::runtime_error.
-    */
-    BufferScopedLock(Ego::Buffer& buffer)
+    /// @brief Construct this buffer scoped lock, locking the buffer.
+    /// @param buffer the buffer
+    /// @throw Ego::Core::LockFailedException the buffer can not be locked
+    BufferScopedLock(Buffer& buffer)
         : buffer(&buffer), pointer(buffer.lock()) {}
 
-    /**
-    * @brief
-    *  Destruct his buffer scoped lock, unlocking the buffer.
-    */
+    /// @brief Destruct his buffer scoped lock, unlocking the buffer.
     ~BufferScopedLock() {
         buffer->unlock();
     }
 
-    /**
-    * @brief
-    *  Get a pointer to the backing memory of the vertex buffer.
-    * @return
-    *  a pointer to the backing memory of the vertex buffer
-    */
+    /// @brief Get a pointer to the backing memory of the vertex buffer.
+    /// @return a pointer to the backing memory of the vertex buffer
     template <typename Type>
     Type *get() {
         return static_cast<Type *>(pointer);
