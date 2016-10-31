@@ -106,7 +106,7 @@ std::shared_ptr<ego_mesh_t> MeshLoader::convert(const map_t& source) const
     // copy all the per-tile info
     for (Index1D cnt = 0; cnt < info_dst.getTileCount(); cnt++)
     {
-        const tile_info_t& ptile_src = source._mem.tiles[cnt.getI()];
+        const tile_info_t& ptile_src = source._mem.tiles[cnt.i()];
         ego_tile_info_t& ptile_dst = tmem_dst.get(cnt);
 
         // do not BLANK_STRUCT_PTR() here, since these were constructed when they were allocated
@@ -234,7 +234,7 @@ void ego_mesh_t::make_bbox()
         oct_bb_t& poct = ptile._oct;
 
 
-        ptile._itile = cnt.getI();
+        ptile._itile = cnt.i();
 
 		tile_definition_t *pdef = tile_dict.get(ptile._type & 0x3F);
 		if (NULL == pdef) continue;
@@ -282,9 +282,9 @@ void ego_mesh_t::make_normals()
     {
         uint8_t twist = _tmem.get(fan0)._twist;
 
-        _tmem._nlst[fan0.getI()][XX] = g_meshLookupTables.twist_nrm[twist][kX];
-        _tmem._nlst[fan0.getI()][YY] = g_meshLookupTables.twist_nrm[twist][kY];
-        _tmem._nlst[fan0.getI()][ZZ] = g_meshLookupTables.twist_nrm[twist][kZ];
+        _tmem._nlst[fan0.i()][XX] = g_meshLookupTables.twist_nrm[twist][kX];
+        _tmem._nlst[fan0.i()][YY] = g_meshLookupTables.twist_nrm[twist][kY];
+        _tmem._nlst[fan0.i()][ZZ] = g_meshLookupTables.twist_nrm[twist][kZ];
     }
 
 	int      edge_is_crease[4];
@@ -304,9 +304,9 @@ void ego_mesh_t::make_normals()
 				continue;
 			}
 
-            nrm_lst[0][kX] = _tmem._nlst[fan0.getI()][XX];
-            nrm_lst[0][kY] = _tmem._nlst[fan0.getI()][YY];
-            nrm_lst[0][kZ] = _tmem._nlst[fan0.getI()][ZZ];
+            nrm_lst[0][kX] = _tmem._nlst[fan0.i()][XX];
+            nrm_lst[0][kY] = _tmem._nlst[fan0.i()][YY];
+            nrm_lst[0][kZ] = _tmem._nlst[fan0.i()][ZZ];
 
             // for each corner of this tile
             for (int i = 0; i < 4; i++ )
@@ -346,9 +346,9 @@ void ego_mesh_t::make_normals()
 
                     if ( grid_is_valid( fan1 ) )
                     {
-                        nrm_lst[j][kX] = _tmem._nlst[fan1.getI()][XX];
-                        nrm_lst[j][kY] = _tmem._nlst[fan1.getI()][YY];
-                        nrm_lst[j][kZ] = _tmem._nlst[fan1.getI()][ZZ];
+                        nrm_lst[j][kX] = _tmem._nlst[fan1.i()][XX];
+                        nrm_lst[j][kY] = _tmem._nlst[fan1.i()][YY];
+                        nrm_lst[j][kZ] = _tmem._nlst[fan1.i()][ZZ];
 
                         if ( nrm_lst[j][kZ] < 0 )
                         {
@@ -429,8 +429,8 @@ BIT_FIELD ego_mesh_t::test_wall(const BIT_FIELD bits, const mesh_wall_data_t& da
 
 	// Detect out of bounds in the x- and/or y-direction.
 	// In that case, return "wall" and "impassable".
-	if ((data._i._min.getX() < 0 || data._i._max.getX() >= data._mesh->_info.getTileCountX()) ||
-		(data._i._min.getY() < 0 || data._i._max.getY() >= data._mesh->_info.getTileCountY())) {
+	if ((data._i.min().x() < 0 || data._i.max().x() >= data._mesh->_info.getTileCountX()) ||
+		(data._i.min().y() < 0 || data._i.max().y() >= data._mesh->_info.getTileCountY())) {
 		pass = (MAPFX_IMPASS | MAPFX_WALL) & bits;
 		g_meshStats.boundTests++;
 	}
@@ -438,8 +438,8 @@ BIT_FIELD ego_mesh_t::test_wall(const BIT_FIELD bits, const mesh_wall_data_t& da
 		return pass;
 	}
 
-	for (int iy = data._i._min.getY(); iy <= data._i._max.getY(); ++iy) {
-		for (int ix = data._i._min.getX(); ix <= data._i._max.getX(); ++ix) {
+	for (int iy = data._i.min().y(); iy <= data._i.max().y(); ++iy) {
+		for (int ix = data._i.min().x(); ix <= data._i.max().x(); ++ix) {
 			Index1D tileIndex(ix + iy * data._mesh->_tmem.getInfo().getTileCountX());
 			BIT_FIELD pass = data._mesh->getTileInfo(tileIndex).testFX(bits);
 			if (EMPTY_BIT_FIELD != pass) {
@@ -614,8 +614,7 @@ float ego_mesh_t::get_pressure(const Vector3f& pos, float radius, const BIT_FIEL
                                std::floor(_f.getMin().y() / Info<float>::Grid::Size()));
             auto max = Index2D(std::floor(_f.getMax().x() / Info<float>::Grid::Size()),
                                std::floor(_f.getMax().y() / Info<float>::Grid::Size()));
-            _i._min = min;
-            _i._max = max;
+            _i = IndexRect(min, max);
         }
 	}
 
@@ -863,7 +862,7 @@ bool ego_mesh_t::grid_is_valid(const Index1D& i) const
 }
 
 Vector2f toWorldLT(const Index2D i) {
-    return Vector2f((float)i.getX(), (float)i.getY()) * Info<float>::Grid::Size();
+    return Vector2f((float)i.x(), (float)i.y()) * Info<float>::Grid::Size();
 }
 
 float ego_mesh_t::getElevation(const Vector2f& p) const
@@ -1058,8 +1057,8 @@ float ego_mesh_t::get_max_vertex_1(const Index2D& i, float xmin, float ymin, flo
 		GLXvector3f& vert = _tmem._plst[ivrt];
 
 		// we are evaluating the height based on the grid, not the actual vertex positions
-		float fx = (i.getX() + ix_off[cnt]) * Info<float>::Grid::Size();
-		float fy = (i.getY() + iy_off[cnt]) * Info<float>::Grid::Size();
+		float fx = (i.x() + ix_off[cnt]) * Info<float>::Grid::Size();
+		float fy = (i.y() + iy_off[cnt]) * Info<float>::Grid::Size();
 
 		if (fx >= xmin && fx <= xmax && fy >= ymin && fy <= ymax)
 		{
@@ -1165,7 +1164,7 @@ BIT_FIELD ego_mesh_t::hit_wall(const Vector3f& pos, float radius, const BIT_FIEL
 
 	BIT_FIELD loc_pass = 0;
 	nrm[kX] = nrm[kY] = 0.0f;
-	for (int iy = data._i._min.getY(); iy <= data._i._max.getY(); iy++)
+	for (int iy = data._i.min().y(); iy <= data._i.max().y(); iy++)
 	{
 		invalid = false;
 
@@ -1185,7 +1184,7 @@ BIT_FIELD ego_mesh_t::hit_wall(const Vector3f& pos, float radius, const BIT_FIEL
 			g_meshStats.boundTests++;
 		}
 
-		for (int ix = data._i._min.getX(); ix <= data._i._max.getX(); ix++)
+		for (int ix = data._i.min().x(); ix <= data._i.max().x(); ix++)
 		{
 			float tx_min = (ix + 0) * Info<float>::Grid::Size();
 			float tx_max = (ix + 1) * Info<float>::Grid::Size();

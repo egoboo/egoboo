@@ -282,21 +282,21 @@ public:
 public:
 	ego_tile_info_t& get(const Index1D& i) {
         _info.assertValid(i);
-		return _tileList[i.getI()];
+		return _tileList[i.i()];
 	}
     const ego_tile_info_t& get(const Index1D& i) const {
         _info.assertValid(i);
-		return _tileList[i.getI()];
+		return _tileList[i.i()];
     }
 
 public:
 	ego_tile_info_t& get(const Index2D& i) {
         _info.assertValid(i);
-		return _tileList[_info.map(i).getI()];
+		return _tileList[_info.map(i).i()];
 	}
 	const ego_tile_info_t& get(const Index2D& i) const {
         _info.assertValid(i);
-		return _tileList[_info.map(i).getI()];
+		return _tileList[_info.map(i).i()];
 	}
 
 public:

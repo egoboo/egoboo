@@ -139,7 +139,7 @@ void TileListV2::render(const ego_mesh_t& mesh, const Graphics::renderlist_lst_t
 		gfx_rv render_rv = render_fan(mesh, tmp_itile);
 		if (egoboo_config_t::get().debug_developerMode_enable.getValue() && gfx_error == render_rv)
 		{
-			Log::get().warn("%s - error rendering tile %d.\n", __FUNCTION__, tmp_itile.getI());
+			Log::get().warn("%s - error rendering tile %d.\n", __FUNCTION__, tmp_itile.i());
 		}
 	}
 
@@ -229,7 +229,7 @@ gfx_rv TileListV2::render_hmap_fan(const ego_mesh_t * mesh, const Index1D& tileI
 
     int cnt, vertex;
     size_t badvertex;
-    int ix, iy, ix_off[4] = {0, 1, 1, 0}, iy_off[4] = {0, 0, 1, 1};
+    int ix_off[4] = {0, 1, 1, 0}, iy_off[4] = {0, 0, 1, 1};
 
     if (NULL == mesh) {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "NULL mesh");
@@ -243,9 +243,7 @@ gfx_rv TileListV2::render_hmap_fan(const ego_mesh_t * mesh, const Index1D& tileI
     /// @author BB
     /// @details the water info is for TILES, not for vertices, so ignore all vertex info and just draw the water
     ///     tile where it's supposed to go
-
-    ix = tileIndex.getI() % mesh->_info.getTileCountX();
-    iy = tileIndex.getI() / mesh->_info.getTileCountX();
+    auto i2 = Grid::map<int>(tileIndex, mesh->_info.getTileCountX());
 
     // vertex is a value from 0-15, for the meshcommandref/u/v variables
     // badvertex is a value that references the actual vertex number
@@ -256,8 +254,8 @@ gfx_rv TileListV2::render_hmap_fan(const ego_mesh_t * mesh, const Index1D& tileI
     badvertex = ptile._vrtstart;          // Get big reference value
     for (cnt = 0; cnt < 4; cnt++) {
         float tmp;
-        v[cnt].pos[XX] = (ix + ix_off[cnt]) * Info<float>::Grid::Size();
-        v[cnt].pos[YY] = (iy + iy_off[cnt]) * Info<float>::Grid::Size();
+        v[cnt].pos[XX] = (i2.x() + ix_off[cnt]) * Info<float>::Grid::Size();
+        v[cnt].pos[YY] = (i2.y() + iy_off[cnt]) * Info<float>::Grid::Size();
         v[cnt].pos[ZZ] = ptmem._plst[badvertex][ZZ];
 
         tmp = g_meshLookupTables.twist_nrm[twist][kZ];
@@ -309,9 +307,7 @@ gfx_rv TileListV2::render_water_fan(ego_mesh_t& mesh, const Index1D& tileIndex, 
 
     /// @note BB@> the water info is for TILES, not for vertices, so ignore all vertex info and just draw the water
     ///            tile where it's supposed to go
-
-    int ix = tileIndex.getI() % info.getTileCountX();
-    int iy = tileIndex.getI() / info.getTileCountX();
+    auto i2 = Grid::map<int>(tileIndex, info.getTileCountX());
 
     // To make life easier
     uint16_t type = 0;                                         // Command type ( index to points in tile )
@@ -337,12 +333,12 @@ gfx_rv TileListV2::render_water_fan(ego_mesh_t& mesh, const Index1D& tileIndex, 
     }
 
     // flip the coordinates around based on the "mode" of the tile
-    if ((ix & 1) == 0) {
+    if ((i2.x() & 1) == 0) {
         std::swap(imap[0], imap[3]);
         std::swap(imap[1], imap[2]);
     }
 
-    if ((iy & 1) == 0) {
+    if ((i2.y() & 1) == 0) {
         std::swap(imap[0], imap[1]);
         std::swap(imap[2], imap[3]);
     }
@@ -371,8 +367,8 @@ gfx_rv TileListV2::render_water_fan(ego_mesh_t& mesh, const Index1D& tileIndex, 
 
             tnc = imap[cnt];
 
-            int jx = ix + ix_off[cnt];
-            int jy = iy + iy_off[cnt];
+            int jx = i2.x() + ix_off[cnt];
+            int jy = i2.y() + iy_off[cnt];
 
             v0.x = jx * Info<float>::Grid::Size();
             v0.y = jy * Info<float>::Grid::Size();

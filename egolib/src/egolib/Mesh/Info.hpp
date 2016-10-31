@@ -1,13 +1,10 @@
 #pragma once
 
-#include "egolib/platform.h"
-
-#include "egolib/Grid/Index.hpp"
 #include "egolib/Grid/Rect.hpp"
 
-using Index2D = Grid::Index<int, Grid::CoordinateSystem::Grid>;
-using Index1D = Grid::Index<int, Grid::CoordinateSystem::List>;
-using IndexRect = Grid::Rect<int, Grid::CoordinateSystem::Grid>;
+using IndexRect = Grid::IndexRectangle<int, Grid::CoordinateSystem::Grid>;
+using Index2D = typename IndexRect::Index2Type;
+using Index1D = typename IndexRect::Index1Type;
 
 namespace Ego {
 
@@ -118,10 +115,10 @@ public:
     /// @param index the index
     /// @return @a true if the index is valid and within bounds
     bool isValid(const Index2D& index) const {
-        return index.getX() < getTileCountX()
-            && index.getY() < getTileCountY()
-            && index.getX() >= 0
-            && index.getY() >= 0;
+        return index.x() < getTileCountX()
+            && index.y() < getTileCountY()
+            && index.x() >= 0
+            && index.y() >= 0;
     }
 
     /// @brief Assert that an index is valid and within bounds.
@@ -140,10 +137,10 @@ public:
     /// @param index the index
     /// @throw Id::RuntimeErrorException if the index is not valid or not within bounds
     void assertValid(const Index2D& index) const {
-        if (index.getX() >= getTileCountX() || index.getX() < 0) {
+        if (index.x() >= getTileCountX() || index.x() < 0) {
             throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
         }
-        if (index.getY() >= getTileCountY() || index.getY() < 0) {
+        if (index.y() >= getTileCountY() || index.y() < 0) {
             throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
         }
     }
