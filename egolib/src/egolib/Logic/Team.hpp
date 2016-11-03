@@ -28,7 +28,7 @@
 #include "game/egoboo.h"
 
 /// The description of a single team
-class Team : public Id::Equatable<Team>
+class Team : public Id::EqualToExpr<Team>
 {
 public:
     enum TeamTypes : uint8_t

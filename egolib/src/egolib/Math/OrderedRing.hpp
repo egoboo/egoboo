@@ -176,21 +176,31 @@ struct OrderedRing<_ElementType, std::enable_if_t<IsInteger<_ElementType>::value
         }
     };
 
-    /**
-     * @brief Functor computing the additive inverse of an element.
-     */
-    struct AdditiveInverseFunctor {
-        /**
-         * @brief The result type.
-         */
+    /// @brief Functor computing the unary minus of an element.
+    struct UnaryMinusFunctor
+    {
+        /// @brief The result type.
         using ResultType = ElementType;
-        /**
-         * @brief Compute the additive inverse of an element.
-         * @param a the element
-         * @return the additive inverse <tt>-a</tt> of the element
-         */
-        ElementType operator()(const ElementType& a) const {
+        /// @brief Compute the additive inverse of an element.
+        /// @param a the element
+        /// @return the unary minus <tt>-a</tt> of the element
+        ElementType operator()(const ElementType& a) const
+        {
             return -a;
+        }
+    };
+
+    /// @brief Functor computing the unary plus of an element.
+    struct UnaryPlusFunctor
+    {
+        /// @brief The result type.
+        using ResultType = ElementType;
+        /// @brief Compute the identity of an element.
+        /// @param a the element
+        /// @return the unary plus <tt>+a</tt> of the element
+        ElementType operator()(const ElementType& a) const
+        {
+            return +a;
         }
     };
 

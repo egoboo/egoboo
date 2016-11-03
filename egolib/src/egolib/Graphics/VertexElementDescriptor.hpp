@@ -28,7 +28,7 @@
 namespace Ego {
 
 /// @brief The description of a vertex element.
-class VertexElementDescriptor : public Id::Equatable<VertexElementDescriptor> {
+class VertexElementDescriptor : public Id::EqualToExpr<VertexElementDescriptor> {
 public:
     /// @brief An enum class of the syntactic forms of vertex elements.
     enum class Syntax {

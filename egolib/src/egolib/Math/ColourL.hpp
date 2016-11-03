@@ -30,7 +30,8 @@ namespace Math {
 
 template <typename _ColourSpaceType>
 struct Colour<_ColourSpaceType, std::enable_if_t<Internal::IsL<_ColourSpaceType>::value>> :
-    public ColourComponents<_ColourSpaceType> {
+    public ColourComponents<_ColourSpaceType>,
+    public Id::EqualToExpr<Colour<_ColourSpaceType>> {
 public:
     using ColourSpaceType = _ColourSpaceType;
     using ComponentType = typename ColourSpaceType::ComponentType;
@@ -80,6 +81,13 @@ public:
     const MyType& operator=(const MyType& other) {
         this->ColourComponents<ColourSpaceType>::assign(other);
         return *this;
+    }
+
+public:
+	// CRTP
+    bool equalTo(const MyType& other) const
+    {
+        return this->getLuminance() == other.getLuminance();
     }
 
 };

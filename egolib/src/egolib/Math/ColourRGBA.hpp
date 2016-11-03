@@ -30,7 +30,8 @@ namespace Math {
 
 template <typename _ColourSpaceType>
 struct Colour<_ColourSpaceType, std::enable_if_t<Internal::IsRgba<_ColourSpaceType>::value>> : 
-    public ColourComponents<_ColourSpaceType> {
+    public ColourComponents<_ColourSpaceType>,
+    public Id::EqualToExpr<Colour<_ColourSpaceType>> {
 public:
     using ColourSpaceType = _ColourSpaceType;
     using ComponentType = typename ColourSpaceType::ComponentType;
@@ -257,17 +258,12 @@ public:
     }
 
 public:
-    bool operator==(const MyType& other) const {
+	// CRTP
+    bool equalTo(const MyType& other) const {
         return this->getRed() == other.getRed()
             && this->getGreen() == other.getGreen()
             && this->getBlue() == other.getBlue()
             && this->getAlpha() == other.getAlpha();
-    }
-    bool operator!=(const MyType& other) const {
-        return this->getRed() != other.getRed()
-            || this->getGreen() != other.getGreen()
-            || this->getBlue() != other.getBlue()
-            || this->getAlpha() != other.getAlpha();
     }
 };
 

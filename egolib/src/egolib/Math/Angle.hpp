@@ -121,7 +121,8 @@ inline float convert<AngleUnit::Radians, AngleUnit::Turns>(float x) {
 }
 
 template <AngleUnit _AngleUnitType>
-struct Angle : public Id::Equatable<Angle<_AngleUnitType>>, public Id::Comparable<Angle<_AngleUnitType>> {
+struct Angle : public Id::EqualToExpr<Angle<_AngleUnitType>>,
+               public Id::LowerThanExpr<Angle<_AngleUnitType>> {
 private:
     float _angle;
 

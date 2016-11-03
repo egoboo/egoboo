@@ -40,7 +40,8 @@ namespace Math {
  *  Michael Heilmann
  */
 template <typename _ScalarFieldType, size_t _Dimensionality>
-struct Vector : public Tuple<typename _ScalarFieldType::ScalarType, _Dimensionality> {
+struct Vector : public Tuple<typename _ScalarFieldType::ScalarType, _Dimensionality>,
+                public Internal::VectorExpr<Vector<_ScalarFieldType, _Dimensionality>, typename _ScalarFieldType::ScalarType> {
 public:
     /// @brief The scalar field type.
     using ScalarFieldType = _ScalarFieldType;
@@ -412,15 +413,6 @@ public:
     }
 
 public:
-    bool operator==(const MyType& other) const {
-        return TupleUtilities::foldTT(typename ScalarFieldType::EqualsFunctor(), true, *this, other);
-    }
-
-    bool operator!=(const MyType& other) const {
-        return !(*this == other);
-    }
-
-public:
     // As always, return non-const reference in order to allow chaining for the sake of orthogonality.
     MyType& operator=(const MyType& other) {
         assign(other);
@@ -437,54 +429,53 @@ public:
     }
 
 public:
-    // Core operators.
-    MyType operator+(const MyType& other) const {
+    // CRTP
+    bool equalTo(const MyType& other) const
+    {
+        return TupleUtilities::foldTT(typename ScalarFieldType::EqualsFunctor(), true, *this, other);
+    }
+
+    // CRTP
+    void add(const MyType& other)
+    {
         static const typename ScalarFieldType::SumFunctor functor{};
-        return TupleUtilities::mapTT<MyType>(functor, *this, other, IndexSequence{});
+        (*this) = TupleUtilities::mapTT<MyType>(functor, *this, other, IndexSequence{});
     }
-    
-    MyType operator-(const MyType& other) const {
+
+    // CRTP
+    void subtract(const MyType& other)
+    {
         static const typename ScalarFieldType::DifferenceFunctor functor{};
-        return TupleUtilities::mapTT<MyType>(functor, *this, other, IndexSequence{});
+        (*this) = TupleUtilities::mapTT<MyType>(functor, *this, other, IndexSequence{});
     }
 
-    MyType operator*(ScalarType other) const {
+    // CRTP
+    void multiply(const ScalarType& other)
+    {
         static const typename ScalarFieldType::ProductFunctor functor{};
-        return TupleUtilities::mapTe<MyType>(functor, *this, other, IndexSequence{});
+        (*this) = TupleUtilities::mapTe<MyType>(functor, *this, other, IndexSequence{});
     }
 
-    MyType operator/(ScalarType other) const {
+    // CRTP
+    void divide(const ScalarType& other)
+    {
         static const typename ScalarFieldType::QuotientFunctor functor{};
         return TupleUtilities::mapTe<MyType>(functor, *this, other, IndexSequence{});
     }
 
-    MyType operator-() const {
-        static const typename ScalarFieldType::AdditiveInverseFunctor functor{};
+    // CRTP
+    MyType unaryPlus() const
+    {
+        static const typename ScalarFieldType::UnaryPlusFunctor functor{};
         return TupleUtilities::mapT<MyType>(functor, *this, IndexSequence{});
     }
 
-public:
-    // Derived operators.
-    MyType& operator+=(const MyType& other) {
-        *this = *this + other;
-        return *this;
+    // CRTP
+    MyType unaryMinus() const
+    {
+        static const typename ScalarFieldType::UnaryMinusFunctor functor{};
+        return TupleUtilities::mapT<MyType>(functor, *this, IndexSequence{});
     }
-
-    MyType& operator-=(const MyType& other) {
-        *this = *this - other;
-        return *this;
-    }
-
-    MyType& operator*=(ScalarType scalar) {
-        *this = *this * scalar;
-        return *this;
-    }
-
-    MyType& operator/=(ScalarType scalar) {
-        *this = *this / scalar;
-        return *this;
-    }
-
 
 public:
     /**

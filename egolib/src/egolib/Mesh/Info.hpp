@@ -25,8 +25,8 @@ protected:
 	size_t _tileCount;
 
 public:
-    struct Iterator : public Id::Equatable<Iterator>,
-                      public Id::Incrementable<Iterator>
+    struct Iterator : public Id::EqualToExpr<Iterator>,
+                      public Id::IncrementExpr<Iterator>
     {
     private:
         size_t x, y;

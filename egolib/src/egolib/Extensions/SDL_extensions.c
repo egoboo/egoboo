@@ -109,13 +109,9 @@ SDLX_sdl_gl_multisampling_t::SDLX_sdl_gl_multisampling_t()
       multisamples(4) {
 }
 
-bool SDLX_sdl_gl_multisampling_t::operator==(const SDLX_sdl_gl_multisampling_t& other) const {
+bool SDLX_sdl_gl_multisampling_t::equalTo(const SDLX_sdl_gl_multisampling_t& other) const {
     return multibuffers == other.multibuffers
         && multisamples == other.multisamples;
-}
-
-bool SDLX_sdl_gl_multisampling_t::operator!=(const SDLX_sdl_gl_multisampling_t& other) const {
-    return !((*this) == other);
 }
 
 void SDLX_sdl_gl_multisampling_t::upload() const {

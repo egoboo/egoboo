@@ -35,7 +35,7 @@ namespace Id {
  * @brief
  *  A location is identified by the load name of the Egoboo DSL file and a line number within that file.
  */
-class Location : public Equatable<Location> {
+class Location : public EqualToExpr<Location> {
 
 private:
 

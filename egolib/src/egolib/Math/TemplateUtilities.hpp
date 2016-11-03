@@ -91,46 +91,6 @@ using AllConvertible = AllTrue<std::is_convertible<ArgumentTypes, TargetType>::v
 } // namespace Ego
 
 namespace Ego {
-namespace Core {
-
-/**@{*/
-/**
- * @brief
- *  The following templates obtain the relation of two @a size_t compile-time constants.
- * @todo
- *  Make more general and simplify.
- */
-
-/** @a std::true_type if <tt>n == m</tt>, @a std::false_type otherwise */
-template <size_t n, size_t m>
-using EqualTo = std::conditional_t<(n == m), std::true_type, std::false_type>;
-
-/** @a std::true_type if <tt>n != m</tt>, @a std::false_type otherwise. */
-template <size_t n, size_t m>
-using NotEqualTo = std::conditional_t<(n != m), std::true_type, std::false_type>;
-
-/** @a std::true_type if <tt>n > m</tt>, @a std::false_type otherwise */
-template <size_t n, size_t m>
-using GreaterThan = std::conditional_t<(n > m), std::true_type, std::false_type>;
-
-/** @ astd::true_type if <tt>n >= m</tt>, @a std::false_type_otherwise */
-template <size_t n, size_t m>
-using GreaterThanOrEqualTo = std::conditional_t<(n >= m), std::true_type, std::false_type>;
-
-/** @ std::true_type if <tt>n < m</tt>, @a std::false_type otherwise. */
-template <size_t n, size_t m>
-using LowerThan = std::conditional_t<(n < m), std::true_type, std::false_type>;
-
-/** @a std::true_type if <tt>n <= m</tt>, @a std::false_type otherwise. */
-template<size_t n, size_t m>
-using LowerThanOrEqualTo = std::conditional_t<(n <= m), std::true_type, std::false_type>;
-
-/**@}*/
-
-} // namespace Core
-} // namespace Ego
-
-namespace Ego {
 namespace Math {
 namespace Internal {
 
@@ -168,6 +128,78 @@ void unpack(Type(&dst)[Size], Args&& ...args) {
 	static_assert(Size == sizeof ... (args), "wrong number of arguments");
 	_unpack<0, Type, Size>(dst, args ...);
 }
+
+template <typename VectorType, typename ScalarType>
+struct VectorExpr : public Id::EqualToExpr<VectorType>,
+                    public Id::PlusExpr<VectorType>,
+                    public Id::MinusExpr<VectorType>,
+                    public Id::UnaryPlusExpr<VectorType>,
+                    public Id::UnaryMinusExpr<VectorType>
+{
+    VectorType& operator*=(const ScalarType& scalar)
+    {
+        static_cast<VectorType *>(this)->multiply(scalar);
+        return *static_cast<VectorType *>(this);
+    }
+
+    // friends defined inside class body are inline and are hidden from non-ADL lookup
+    friend VectorType operator*(VectorType lhs,        // passing lhs by value helps optimize chained a+b+c
+                                const ScalarType& rhs) // otherwise, both parameters may be const references
+    {
+        lhs *= rhs; // reuse compound assignment
+        return lhs; // return the result by value (uses move constructor)
+    }
+
+    VectorType& operator/=(const ScalarType& scalar)
+    {
+        static_cast<VectorType *>(this)->divide(scalar);
+        return *static_cast<VectorType *>(this);
+    }
+
+    // friends defined inside class body are inline and are hidden from non-ADL lookup
+    friend VectorType operator/(VectorType lhs,        // passing lhs by value helps optimize chained a+b+c
+                                const ScalarType& rhs) // otherwise, both parameters may be const references
+    {
+        lhs /= rhs; // reuse compound assignment
+        return lhs; // return the result by value (uses move constructor)
+    }
+};
+
+template <typename PointType, typename VectorType>
+struct PointExpr : public Id::EqualToExpr<PointType>
+{
+    friend VectorType operator-(const PointType& a, const PointType& b)
+    {
+        return static_cast<const PointType *>(&a)->difference(b);
+    }
+
+    PointType& operator+=(const VectorType& rhs)
+    {
+        static_cast<PointType *>(this)->translate(rhs);
+        return *static_cast<PointType *>(this);
+    }
+    // friends defined inside class body are inline and are hidden from non-ADL lookup
+    friend PointType operator+(PointType lhs,        // passing lhs by value helps optimize chained a+b+c
+                               const VectorType& rhs) // otherwise, both parameters may be const references
+    {
+        lhs += rhs; // reuse compound assignment
+        return lhs; // return the result by value (uses move constructor)
+    }
+
+    PointType& operator-=(const VectorType& rhs) // compound assignment (does not need to be a member,
+    {                                 // but often is, to modify the private members)
+       
+        (*static_cast<PointType *>(this)) += -rhs;
+        return *static_cast<PointType *>(this); // return the result by reference
+    }
+    // friends defined inside class body are inline and are hidden from non-ADL lookup
+    friend PointType operator-(PointType lhs,        // passing lhs by value helps optimize chained a+b+c
+                               const VectorType& rhs) // otherwise, both parameters may be const references
+    {
+        lhs -= rhs; // reuse compound assignment
+        return lhs; // return the result by value (uses move constructor)
+    }
+};
 
 } // namespace Internal
 } // namespace Math

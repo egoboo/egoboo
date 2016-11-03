@@ -40,8 +40,8 @@ template <typename _ElementType, size_t _NumberOfRows, size_t _NumberOfColumns>
 struct MatrixEnable
     : public std::conditional <
     (std::is_floating_point<_ElementType>::value) &&
-    (Ego::Core::GreaterThan<_NumberOfRows, 0>::value) &&
-    (Ego::Core::GreaterThan<_NumberOfColumns, 0>::value),
+    (_NumberOfRows > 0) &&
+    (_NumberOfColumns > 0),
     std::true_type,
     std::false_type
     >::type
@@ -69,7 +69,7 @@ template <typename _ElementType, size_t _NumberOfRows, size_t _NumberOfColumns, 
 struct MatrixConstructorEnable
     : public std::conditional
              <
-               Ego::Core::EqualTo<sizeof...(ArgTypes), _NumberOfRows * _NumberOfColumns - 1>::value,
+               sizeof...(ArgTypes) == _NumberOfRows * _NumberOfColumns - 1,
                std::true_type,
                std::false_type
              >::type
@@ -82,8 +82,12 @@ struct Matrix;
 
 template <typename _ElementType, size_t _NumberOfRows, size_t _NumberOfColumns>
 struct Matrix<_ElementType, _NumberOfRows, _NumberOfColumns,
-              typename std::enable_if<Internal::MatrixEnable<_ElementType, _NumberOfRows, _NumberOfColumns>::value>::type> {
-
+              std::enable_if_t<Internal::MatrixEnable<_ElementType, _NumberOfRows, _NumberOfColumns>::value>>
+    : public Id::EqualToExpr<Matrix<_ElementType, _NumberOfRows, _NumberOfColumns>>,
+      public Id::PlusExpr<Matrix<_ElementType, _NumberOfRows, _NumberOfColumns>>,
+      public Id::MinusExpr<Matrix<_ElementType, _NumberOfRows, _NumberOfColumns>>,
+      public Id::UnaryPlusExpr<Matrix<_ElementType, _NumberOfRows, _NumberOfColumns>>,
+      public Id::UnaryMinusExpr<Matrix<_ElementType, _NumberOfRows, _NumberOfColumns>> {
     /**
      * @brief
      *  Get if this matrix type is square matrix type.
@@ -184,7 +188,7 @@ struct Matrix<_ElementType, _NumberOfRows, _NumberOfColumns,
      *  \end{matrix}\right]
      *  \f]
      */
-    static typename std::enable_if<MyType::isSquare(), MyType>::type
+    static std::enable_if_t<MyType::isSquare(), MyType>
     identity() {
         MyType identity = zero();
         for (size_t i = 0; i < order(); ++i) {
@@ -214,7 +218,7 @@ struct Matrix<_ElementType, _NumberOfRows, _NumberOfColumns,
         return zero;
     }
 
-    template<typename ... ArgTypes, typename = typename std::enable_if<Internal::MatrixConstructorEnable<_ElementType, _NumberOfRows, _NumberOfColumns, ArgTypes ...>::value>::type>
+    template<typename ... ArgTypes, typename = std::enable_if_t<Internal::MatrixConstructorEnable<_ElementType, _NumberOfRows, _NumberOfColumns, ArgTypes ...>::value>>
     Matrix(_ElementType v, ArgTypes&& ... args) {
         static_assert(_NumberOfRows * _NumberOfColumns - 1 == sizeof ... (args), "wrong number of arguments");
         Internal::unpack<_ElementType, _NumberOfRows * _NumberOfColumns>(_v, std::forward<_ElementType>(v), args ...);
@@ -266,34 +270,6 @@ protected:
     void mul(const ElementType& other) {
         for (size_t i = 0; i < numberOfElements(); ++i) {
             at(i) *= other;
-        }
-    }
-
-    /**
-     * @brief
-     *  Compute the sum of this matrix (the augend) and another matrix (the addend), assign there result to this matrix.
-     * @param other
-     *  the other matrix, the addend
-     * @post
-     *  This matrix was assigned the sum of this matrix and the other matrix.
-     */
-    void add(const MyType& other) {
-        for (size_t i = 0; i < numberOfElements(); ++i) {
-            at(i) += other.at(i);
-        }
-    }
-
-    /**
-     * @brief
-     *  Compute the difference of this matrix (the minuend) and another matrix (the subtrahend), assign the result to this matrix.
-     * @param other
-     *  the other matrix, the subtrahend
-     * @post
-     *  This matrix was assigned the difference of this matrix and the other matrix.
-     */
-    void sub(const MyType& other) {
-        for (size_t i = 0; i < numberOfElements(); ++i) {
-            at(i) -= other.at(i);
         }
     }
 
@@ -377,14 +353,8 @@ protected:
         return _v2[i][j];
     }
 
-    /**
-     * @brief
-     *  Get if this matrix is equal to another matrix.
-     * @param other
-     *  the other matrix
-     * @return
-     *  @a true if this matrix is equal to the other matrix
-     */
+public:
+    // CRTP
     bool equalTo(const MyType& other) const {
         for (size_t i = 0; i < numberOfElements(); ++i) {
             if (at(i) != other.at(i)) {
@@ -394,21 +364,40 @@ protected:
         return true;
     }
 
-    /**
-     * @brief
-     *  Get if this matrix is not equal to another matrix.
-     * @param other
-     *  the other matrix
-     * @return
-     *  @a true if this matrix is not equal to the other matrix
-     */
-    bool notEqualTo(const MyType& other) const {
-        for (size_t i = 0; i < numberOfElements(); ++i) {
-            if (at(i) != other.at(i)) {
-                return true;
-            }
+    // CRTP
+    void add(const MyType& other)
+    {
+        for (size_t i = 0; i < numberOfElements(); ++i)
+        {
+            at(i) += other.at(i);
         }
-        return false;
+    }
+
+    // CRTP
+    void subtract(const MyType& other)
+    {
+        for (size_t i = 0; i < numberOfElements(); ++i)
+        {
+            at(i) -= other.at(i);
+        }
+    }
+
+    // CRTP
+    MyType unaryPlus() const
+    {
+        for (size_t i = 0; i < numberOfElements(); ++i)
+        {
+            at(i) = +at(i);
+        }
+    }
+
+    // CRTP
+    MyType unaryMinus() const
+    {
+        for (size_t i = 0; i < numberOfElements(); ++i)
+        {
+            at(i) = -at(i);
+        }
     }
 
 public:
@@ -419,7 +408,7 @@ public:
      * @return
      *  the order of this type of matrix
      */
-    constexpr static typename std::enable_if<MyType::isSquare(),size_t>::type
+    constexpr static std::enable_if_t<MyType::isSquare(),size_t>
     order() {
         return _NumberOfRows;
     }
@@ -435,7 +424,7 @@ public:
      *  sum_{i=0}^{n-1} M_{i,i}
      *  \f]
      */
-    typename std::enable_if<MyType::isSquare(), ElementType>::type
+    std::enable_if_t<MyType::isSquare(), ElementType>
     trace() const {
         ElementType t = 0;
         for (size_t i = 0; i < order(); ++i) {
@@ -495,32 +484,6 @@ public:
 
     /**
      * @brief
-     *  Get if this matrix is equal to another matrix.
-     * @param other
-     *  the other matrix
-     * @return
-     *  @a true if this matrix is equal to the other matrix
-     */
-    bool operator==(const MyType& other) const {
-        return equalTo(other);
-    }
-
-    /**
-     * @brief
-     *  Get if this matrix is not equal to another matrix
-     * @param other
-     *  the other matrix
-     * @return
-     *  @a true if this matrix is not equal to the other matrix
-     */
-    bool operator!=(const MyType& other) const {
-        return notEqualTo(other);
-    }
-
-public:
-
-    /**
-     * @brief
      *  Assign this matrix the values of another matrix.
      * @param other
      *  the other matrix
@@ -532,59 +495,6 @@ public:
     MyType& operator=(const MyType& other) {
         assign(other);
         return *this;
-    }
-
-public:
-
-    /**
-     * @brief
-     *  Overloaded assignment addition operator.
-     */
-    MyType& operator+=(const MyType& other) {
-        add(other);
-        return *this;
-    }
-
-    /**
-     * @brief
-     *  Overloaded assignment subtraction operator.
-     */
-    MyType& operator-=(const MyType& other) {
-        sub(other);
-        return *this;
-    }
-
-public:
-
-    /**
-     * @brief
-     *  Overloaded addition operator.
-     */
-    MyType operator+(const MyType& other) const {
-        MyType result = *this;
-        return result += other;
-    }
-
-
-    /**
-     * @brief
-     *  Overloaded subtraction operator.
-     */
-    MyType operator-(const MyType& other) const {
-        MyType result = *this;
-        return result -= other;
-    }
-
-public:
-
-    /**
-     * @brief
-     *  Overloaded unary minus operator.
-     */
-    MyType operator-() const {
-        MyType result = *this;
-        result.arithmeticNegation();
-        return result;
     }
 
 public:

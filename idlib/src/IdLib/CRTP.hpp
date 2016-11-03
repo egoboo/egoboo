@@ -47,7 +47,7 @@ namespace Id {
  *  Michael Heilmann
  */
 template <typename Derived>
-class Incrementable {
+class IncrementExpr {
 public:
     Derived& operator++()
     { 
@@ -68,7 +68,7 @@ public:
  *  The derived class needs to define a <tt>void decrement();</tt> function.
  */
 template <typename Derived>
-class Decrementable {
+class DecrementExpr {
 public:
     Derived& operator--()
     { 
@@ -89,7 +89,7 @@ public:
  *  The derived class needs to define a <tt>bool equalTo(const Derived&) const;</tt> function.
  */
 template <typename Derived>
-class Equatable {
+class EqualToExpr {
 public:
     bool operator==(const Derived& other) const
     {
@@ -103,12 +103,12 @@ public:
 
 /**
  * @brief
- *  Inherit from this class define the lower than, lower than or equal to,
+ *  Inherit from this class to define the lower than, lower than or equal to,
  *  greater than, and greater than or equal to operators.
  *  The derived class needs to define a <tt>bool lowerThan(const Derived&) const;</tt> function.
  */
 template <typename Derived>
-class Comparable {
+class LowerThanExpr {
 public:
 	bool operator<(const Derived& other) const
     {
@@ -125,6 +125,81 @@ public:
     bool operator>=(const Derived& other) const
     {
         return !(*static_cast<const Derived *>(this) < other);
+    }
+};
+
+/**
+ * @brief
+ *  Inherit from this class to define the addition and compount addition operators.
+ *  The derived class needs to define a <tt>void add(const Derived&);</tt> function.
+ */
+template <typename Derived>
+struct PlusExpr
+{
+    Derived& operator+=(const Derived& rhs) // compound assignment (does not need to be a member,
+    {                                 // but often is, to modify the private members)
+        static_cast<Derived *>(this)->add(rhs);
+        return *static_cast<Derived *>(this); // return the result by reference
+    }
+    // friends defined inside class body are inline and are hidden from non-ADL lookup
+    friend Derived operator+(Derived lhs,        // passing lhs by value helps optimize chained a+b+c
+                             const Derived& rhs) // otherwise, both parameters may be const references
+    {
+        lhs += rhs; // reuse compound assignment
+        return lhs; // return the result by value (uses move constructor)
+    }
+};
+
+/**
+ * @brief
+ *  Inherit from this class to define the subtraction and compount subtraction operators.
+ *  The derived class needs to define a <tt>void subtract(const Derived&);</tt> function.
+ */
+template <typename Derived>
+struct MinusExpr
+{
+public:
+    Derived& operator-=(const Derived& rhs) // compound assignment (does not need to be a member,
+    {                                 // but often is, to modify the private members)
+        static_cast<Derived *>(this)->subtract(rhs);
+        return *static_cast<Derived *>(this); // return the result by reference
+    }
+    // friends defined inside class body are inline and are hidden from non-ADL lookup
+    friend Derived operator-(Derived lhs,        // passing lhs by value helps optimize chained a+b+c
+                             const Derived& rhs) // otherwise, both parameters may be const references
+    {
+        lhs -= rhs; // reuse compound assignment
+        return lhs; // return the result by value (uses move constructor)
+    }
+};
+
+/**
+ * @brief
+ *  Inherit from this class to define the unary plus operator.
+ *  The derived class needs to define a <tt>Derived unaryPlus() const;</tt> function.
+ */
+template <typename Derived>
+struct UnaryPlusExpr
+{
+public:
+    Derived operator+() const
+    {
+        return static_cast<const Derived *>(this)->unaryPlus();
+    }
+};
+
+/**
+ * @brief
+ *  Inherit from this class to define the unary minus operator.
+ *  The derived class needs to define a <tt>Derived unaryMinus() const;</tt> function.
+ */
+template <typename Derived>
+struct UnaryMinusExpr
+{
+public:
+    Derived operator-() const
+    {
+        return static_cast<const Derived *>(this)->unaryMinus();
     }
 };
  

@@ -27,7 +27,7 @@ template <typename _ScalarType, typename _Enabled = void>
 struct OrderedField;
 
 template <typename _ScalarType>
-struct OrderedField<_ScalarType, typename std::enable_if<IsScalar<_ScalarType>::value>::type>
+struct OrderedField<_ScalarType, std::enable_if_t<IsScalar<_ScalarType>::value>>
 	: public OrderedIntegralDomain<_ScalarType>{
 
     /**

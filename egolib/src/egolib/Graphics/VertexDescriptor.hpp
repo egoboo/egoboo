@@ -28,7 +28,7 @@
 namespace Ego {
 
 /// @brief The descriptor of a vertex.
-class VertexDescriptor : public Id::Equatable<VertexDescriptor> {
+class VertexDescriptor : public Id::EqualToExpr<VertexDescriptor> {
 private:
     /// @brief The list of vertex element descriptors.
     std::vector<VertexElementDescriptor> vertexElementDescriptors;

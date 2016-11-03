@@ -48,9 +48,9 @@ struct OrderedIntegralDomain;
 
 template <typename _ElementType>
 struct OrderedIntegralDomain<_ElementType, 
-	typename std::enable_if<
+	std::enable_if_t<
 		(std::is_integral<_ElementType>::value && std::is_signed<_ElementType>::value && !std::is_const<_ElementType>::value) ||
-		std::is_floating_point<_ElementType>::value>::type>
+		std::is_floating_point<_ElementType>::value>>
 	: public OrderedRing<_ElementType> {
 	
 	/**

@@ -45,8 +45,8 @@ private:
     Loaders loaders;
 
     struct Iterator : public std::iterator<std::forward_iterator_tag, ImageLoader>,
-                      public Id::Incrementable<Iterator>,
-                      public Id::Equatable<Iterator> {
+                      public Id::IncrementExpr<Iterator>,
+                      public Id::EqualToExpr<Iterator> {
         ImageManager::Loaders::const_iterator _inner;
     public:
         Iterator(const ImageManager::Loaders::const_iterator& inner) :

@@ -39,7 +39,7 @@ namespace Math {
 template <size_t _Dimensionality>
 struct IsDimensionality
     : public std::conditional<
-    (Ego::Core::GreaterThan<_Dimensionality, 0>::value),
+    (_Dimensionality > 0),
     std::true_type,
     std::false_type
     >::type {};

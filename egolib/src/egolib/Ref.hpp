@@ -21,10 +21,10 @@ enum class RefKind
  *  Michael Heilmann
  */
 template <typename TYPE, TYPE MIN, TYPE MAX, TYPE INVALID, RefKind KIND>
-struct Ref : public Id::Equatable<Ref<TYPE, MIN, MAX, INVALID, KIND>>,
-             public Id::Comparable<Ref<TYPE, MIN, MAX, INVALID, KIND>>,
-             public Id::Incrementable<Ref<TYPE, MIN, MAX, INVALID, KIND>>,
-             public Id::Decrementable<Ref<TYPE, MIN, MAX, INVALID, KIND>>
+struct Ref : public Id::EqualToExpr<Ref<TYPE, MIN, MAX, INVALID, KIND>>,
+             public Id::LowerThanExpr<Ref<TYPE, MIN, MAX, INVALID, KIND>>,
+             public Id::IncrementExpr<Ref<TYPE, MIN, MAX, INVALID, KIND>>,
+             public Id::DecrementExpr<Ref<TYPE, MIN, MAX, INVALID, KIND>>
 {
 
 private:

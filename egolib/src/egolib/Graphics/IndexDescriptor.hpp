@@ -28,7 +28,7 @@
 namespace Ego {
 
 /// @brief The descriptor of an index.
-class IndexDescriptor : public Id::Equatable<IndexDescriptor> {
+class IndexDescriptor : public Id::EqualToExpr<IndexDescriptor> {
 public:
     /// @brief An enum class of the syntactic forms of indices.
     enum class Syntax {

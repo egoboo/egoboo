@@ -46,14 +46,14 @@ struct GraphicsWindow;
 /// that system framebuffer. Clean, simple. Then the GPU vendors added support
 /// for supersample antialiasing(SSAA), coverage sample antialiasing(CSAA), and
 /// combinations of the three.
-struct SDLX_sdl_gl_multisampling_t {
+struct SDLX_sdl_gl_multisampling_t : public Id::EqualToExpr<SDLX_sdl_gl_multisampling_t> {
     int multibuffers; /// SDL_GL_MULTISAMPLEBUFFERS
     int multisamples; /// SDL_GL_MULTISAMPLESAMPLES
     SDLX_sdl_gl_multisampling_t();
-    bool operator==(const SDLX_sdl_gl_multisampling_t& other) const;
-    bool operator!=(const SDLX_sdl_gl_multisampling_t& other) const;
     void upload() const;
     void download();
+    // CRTP
+    bool equalTo(const SDLX_sdl_gl_multisampling_t& other) const;
 };
 
 Log::Entry& operator<<(Log::Entry& e, const SDLX_sdl_gl_multisampling_t& s);
