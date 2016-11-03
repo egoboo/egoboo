@@ -25,13 +25,12 @@ protected:
 	size_t _tileCount;
 
 public:
-    struct Iterator
+    struct Iterator : public Id::Equatable<Iterator>,
+                      public Id::Incrementable<Iterator>
     {
     private:
         size_t x, y;
         MeshInfo *target;
-
-        void increment();
 
     protected:
         friend struct MeshInfo;
@@ -41,12 +40,11 @@ public:
 
     public:
         const Iterator& operator=(const Iterator& rhs);
-
-        bool operator==(const Iterator& rhs) const;
-        bool operator!=(const Iterator& rhs) const;
-
-        Iterator operator++();
-        Iterator operator++(int junk);
+    
+		// CRTP
+        void increment();
+		// CRTP
+        bool equalTo(const Iterator& other) const noexcept;
 
         const Index2D operator*();
         const Index2D operator->();

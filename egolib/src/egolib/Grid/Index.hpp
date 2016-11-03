@@ -33,6 +33,7 @@ using EnableIndex2 = std::enable_if_t<CoordinateSystem_ == CoordinateSystem::Gri
 /// @brief A "tile grid"/"2D" index.
 template <typename UnderlayingType_, CoordinateSystem CoordinateSystem_>
 struct Index<UnderlayingType_, CoordinateSystem_, Internal::EnableIndex2<UnderlayingType_, CoordinateSystem_>>
+    : public Id::Equatable<Index<UnderlayingType_, CoordinateSystem_>>
 {
 public:
     using UnderlayingType = UnderlayingType_;
@@ -55,16 +56,11 @@ public:
     }
 
 public:
-    bool operator==(const MyType& other) const
+	// CRTP
+    bool equalTo(const MyType& other) const
     {
         return _x == other._x
             && _y == other._y;
-    }
-
-    bool operator!=(const MyType& other) const
-    {
-        return _x != other._x
-            || _y != other._y;
     }
 
 public:
@@ -100,6 +96,9 @@ using EnableIndex1 = std::enable_if_t<CoordinateSystem_ == CoordinateSystem::Lis
 /// @brief A "list"/"1D" index.
 template <typename UnderlayingType_, CoordinateSystem CoordinateSystem_>
 struct Index<UnderlayingType_, CoordinateSystem_, Internal::EnableIndex1<UnderlayingType_, CoordinateSystem_>>
+    : public Id::Equatable<Index<UnderlayingType_, CoordinateSystem_>>,
+      public Id::Comparable<Index<UnderlayingType_, CoordinateSystem_>>,
+      public Id::Incrementable<Index<UnderlayingType_, CoordinateSystem_>>
 {
 public:
     using UnderlayingType = UnderlayingType_;
@@ -135,37 +134,22 @@ public:
     }
 
 public:
-
-    bool operator==(const MyType& other) const
+	// CRTP
+    bool equalTo(const MyType& other) const
     {
         return _i == other._i;
     }
 
-    bool operator!=(const MyType& other) const
-    {
-        return _i != other._i;
-    }
-
-public:
-
-    bool operator<(const MyType& other) const
+	// CRTP
+    bool lowerThan(const MyType& other) const
     {
         return _i < other._i;
     }
 
-    bool operator<=(const MyType& other) const
+	// CRTP
+    void increment()
     {
-        return _i <= other._i;
-    }
-
-    bool operator>(const MyType& other) const
-    {
-        return _i > other._i;
-    }
-
-    bool operator>=(const MyType& other) const
-    {
-        return _i >= other._i;
+        _i++;
     }
 
 public:
@@ -179,22 +163,6 @@ public:
     {
         return _i;
     }
-
-public:
-
-    MyType& operator++()
-    {
-        _i++;
-        return *this;
-    }
-
-    MyType operator++(int)
-    {
-        UnderlayingType j = _i;
-        _i++;
-        return MyType(j);
-    }
-
 };
 
 template <typename UnderlayingType_, CoordinateSystem CoordinateSystem_>

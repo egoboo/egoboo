@@ -47,16 +47,10 @@ TileFX& TileFX::operator=(TileFX&& rhs)
 }
 
 
-bool TileFX::operator==(const TileFX& other) const
+bool TileFX::equalTo(const TileFX& other) const noexcept
 {
     return fx == other.fx;
 }
-
-bool TileFX::operator!=(const TileFX& other) const
-{
-    return fx != other.fx;
-}
-
 
 TileFX TileFX::operator~() const
 {

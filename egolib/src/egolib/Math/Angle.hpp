@@ -121,7 +121,7 @@ inline float convert<AngleUnit::Radians, AngleUnit::Turns>(float x) {
 }
 
 template <AngleUnit _AngleUnitType>
-struct Angle {
+struct Angle : public Id::Equatable<Angle<_AngleUnitType>>, public Id::Comparable<Angle<_AngleUnitType>> {
 private:
     float _angle;
 
@@ -149,30 +149,15 @@ public:
     }
 
 public:
-    bool operator==(const Angle& other) const {
+	// CRTP
+    bool equalTo(const Angle<_AngleUnitType>& other) const
+    {
         return _angle == other._angle;
     }
-
-    bool operator!=(const Angle& other) const {
-        return _angle != other._angle;
-    }
-
-public:
-    bool operator<(const Angle& other) const {
+	// CRTP
+    bool lowerThan(const Angle<_AngleUnitType>& other) const
+    {
         return _angle < other._angle;
-    }
-
-    bool operator<=(const Angle& other) const {
-        return _angle <= other._angle;
-    }
-
-public:
-    bool operator>(const Angle& other) const {
-        return _angle > other._angle;
-    }
-
-    bool operator>=(const Angle& other) const {
-        return _angle >= other._angle;
     }
 
 public:

@@ -41,7 +41,7 @@ bool matrix_cache_t::isValid() const {
     return valid && matrix_valid;
 }
 
- bool matrix_cache_t::operator==(const matrix_cache_t &rhs) const {
+ bool matrix_cache_t::equalTo(const matrix_cache_t &rhs) const {
 
     // handle problems with pointers
     if (this == &rhs) {

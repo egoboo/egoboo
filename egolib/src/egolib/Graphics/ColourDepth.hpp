@@ -32,7 +32,7 @@ namespace Ego {
  * The number of bits used to represent the red, green, blue or alpha component is called
  * the "red depth", "green depth", "blue depth" and "alpha depth" of the colour.
  */
-struct ColourDepth {
+struct ColourDepth : public Id::Equatable<ColourDepth> {
 private:
 	/// @brief The colour depth.
 	uint16_t depth;
@@ -71,20 +71,9 @@ public:
 	const ColourDepth& operator=(const ColourDepth& other);
 
 public:
-	/**
-	 * @brief Get if this colour depth is equal to another colour depth.
-	 * @param other the other colour depth
-	 * @return @a true if this colour depth is equal to the other colour depth, @a false otherwise
-	 */
-	bool operator==(const ColourDepth& other) const;
+	// CRTP
+    bool equalTo(const ColourDepth& other) const EGO_NOEXCEPT;
 
-	/**
-	 * @brief Get if this colour depth is not equal to another colour depth.
-	 * @param other the other colour depth
-	 * @return @a true if this colour depth is not equal to the other colour depth, @a false otherwise
-	 */
-	bool operator!=(const ColourDepth& other) const;
-	
 public:
 	/**
 	 * @brief Get the depth.

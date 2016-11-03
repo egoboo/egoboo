@@ -44,25 +44,25 @@ private:
     /// Vector of available image loaders, ordered by priority from highest to lowest.
     Loaders loaders;
 
-    struct Iterator : public std::iterator<std::forward_iterator_tag, ImageLoader> {
+    struct Iterator : public std::iterator<std::forward_iterator_tag, ImageLoader>,
+                      public Id::Incrementable<Iterator>,
+                      public Id::Equatable<Iterator> {
         ImageManager::Loaders::const_iterator _inner;
     public:
         Iterator(const ImageManager::Loaders::const_iterator& inner) :
             _inner(inner) {}
-    public:
-        // Forward iterator.
-
-        // Prefix increment.
-        Iterator& operator++() {
+    
+	public:	
+		// CRTP
+        void increment()
+        {
             ++_inner;
-            return *this;
         }
-
-        // Postfix increment.
-        Iterator operator++(int) {
-            Iterator copy = *this;
-            ++_inner;
-            return copy;
+		
+		// CRTP
+        bool equalTo(const Iterator& other) const
+        {
+            return _inner == other._inner;
         }
 
     public:
@@ -78,14 +78,6 @@ private:
         Iterator& operator=(const Iterator& other) {
             _inner = other._inner;
             return *this;
-        }
-
-        bool operator==(const Iterator& other) const {
-            return _inner == other._inner;
-        }
-
-        bool operator!=(const Iterator& other) const {
-            return _inner != other._inner;
         }
 
         reference operator*() const {

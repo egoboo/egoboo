@@ -104,29 +104,10 @@ const MeshInfo::Iterator& MeshInfo::Iterator::operator=(const Iterator& rhs)
     return *this;
 }
 
-bool MeshInfo::Iterator::operator==(const Iterator& rhs) const
+bool MeshInfo::Iterator::equalTo(const Iterator& rhs) const noexcept
 {
     return x == rhs.x
         && y == rhs.y;
-}
-
-bool MeshInfo::Iterator::operator!=(const MeshInfo::Iterator& rhs) const
-{
-    return x != rhs.x
-        || y != rhs.y;
-}
-
-MeshInfo::Iterator MeshInfo::Iterator::operator++()
-{
-    Iterator i = *this;
-    increment();
-    return i;
-}
-
-MeshInfo::Iterator MeshInfo::Iterator::operator++(int junk)
-{
-    increment();
-    return *this;
 }
 
 const Index2D MeshInfo::Iterator::operator*()

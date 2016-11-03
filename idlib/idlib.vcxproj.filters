@@ -76,6 +76,9 @@
     <ClInclude Include="src\IdLib\BitmaskTypes.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\IdLib\CRTP.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\IdLib\CurrentFunction.inline">

@@ -21,7 +21,10 @@ enum class RefKind
  *  Michael Heilmann
  */
 template <typename TYPE, TYPE MIN, TYPE MAX, TYPE INVALID, RefKind KIND>
-struct Ref
+struct Ref : public Id::Equatable<Ref<TYPE, MIN, MAX, INVALID, KIND>>,
+             public Id::Comparable<Ref<TYPE, MIN, MAX, INVALID, KIND>>,
+             public Id::Incrementable<Ref<TYPE, MIN, MAX, INVALID, KIND>>,
+             public Id::Decrementable<Ref<TYPE, MIN, MAX, INVALID, KIND>>
 {
 
 private:
@@ -85,42 +88,17 @@ public:
         return _ref == INVALID;
     }
 
-
-    // Relational operator overloads.
-
-    bool operator>=(const Ref<TYPE, MIN, MAX, INVALID, KIND>& other) const EGO_NOEXCEPT
+	// CRTP
+    bool equalTo(const Ref<TYPE, MIN, MAX, INVALID, KIND>& other) const EGO_NOEXCEPT
     {
-        return _ref >= other._ref;
+        return _ref == other._ref;
     }
-
-    bool operator<=(const Ref<TYPE, MIN, MAX, INVALID, KIND>& other) const EGO_NOEXCEPT
-    {
-        return _ref <= other._ref;
-    }
-
-    bool operator<(const Ref<TYPE, MIN, MAX, INVALID, KIND>& other) const EGO_NOEXCEPT
+    bool lowerThan(const Ref<TYPE, MIN, MAX, INVALID, KIND>& other) const EGO_NOEXCEPT
     {
         return _ref < other._ref;
     }
 
-    bool operator>(const Ref<TYPE, MIN, MAX, INVALID, KIND>& other) const EGO_NOEXCEPT
-    {
-        return _ref > other._ref;
-    }
-
-    bool operator==(const Ref<TYPE, MIN, MAX, INVALID, KIND>& other) const EGO_NOEXCEPT
-    {
-        return _ref == other._ref;
-    }
-
-    bool operator!=(const Ref<TYPE, MIN, MAX, INVALID, KIND>& other) const EGO_NOEXCEPT
-    {
-        return _ref != other._ref;
-    }
-
-
     // Assignment operator overloads.
-
     Ref<TYPE, MIN, MAX, INVALID, KIND>& operator=(const Ref<TYPE, MIN, MAX, INVALID, KIND>& other) EGO_NOEXCEPT
     {
         _ref = other._ref;
@@ -183,24 +161,7 @@ public:
         return _ref;
     }
 
-
-    // Post- and pre-increment operator overloads.
-
-    // Post-increment.
-    Ref<TYPE, MIN, MAX, INVALID, KIND> operator++(int)
-    {
-        if (_ref == MAX)
-        {
-            std::ostringstream msg;
-            msg << __FILE__ << ":" << __LINE__ << ": " << "reference overflow";
-            std::overflow_error(msg.str());
-        }
-        TYPE old = _ref;
-        ++_ref;
-        return Ref<TYPE, MIN, MAX, INVALID, KIND>(old);
-    }
-
-    Ref<TYPE, MIN, MAX, INVALID, KIND>& operator++()
+    void increment()
     {
         if (MAX == _ref)
         {
@@ -209,27 +170,9 @@ public:
             std::overflow_error(msg.str());
         }
         ++_ref;
-        return *this;
     }
 
-
-    // Post- and pre-decrement operator overloads.
-
-    // Post-decrement.
-    Ref<TYPE, MIN, MAX, INVALID, KIND> operator--(int)
-    {
-        if (0 == _ref)
-        {
-            std::ostringstream msg;
-            msg << __FILE__ << ":" << __LINE__ << ": " << "reference underflow";
-            std::underflow_error(msg.str());
-        }
-        TYPE old = _ref;
-        --_ref;
-        return Ref<TYPE, MIN, MAX, INVALID, KIND>(old);
-    }
-
-    Ref<TYPE, MIN, MAX, INVALID, KIND>& operator--()
+    void decrement()
     {
         if (0 == _ref)
         {
@@ -238,9 +181,7 @@ public:
             std::underflow_error(msg.str());
         }
         --_ref;
-        return *this;
     }
-
 };
 
 template <typename TYPE, TYPE MIN, TYPE MAX, TYPE INVALID, RefKind KIND>

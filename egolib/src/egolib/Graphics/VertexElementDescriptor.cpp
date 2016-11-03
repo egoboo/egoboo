@@ -40,16 +40,10 @@ const VertexElementDescriptor& VertexElementDescriptor::operator=(const VertexEl
     return *this;
 }
 
-bool VertexElementDescriptor::operator==(const VertexElementDescriptor& other) const {
+bool VertexElementDescriptor::equalTo(const VertexElementDescriptor& other) const EGO_NOEXCEPT {
     return offset == other.offset
         && syntax == other.syntax
         && semantics == other.semantics;
-}
-
-bool VertexElementDescriptor::operator!=(const VertexElementDescriptor& other) const {
-    return offset != other.offset
-        || syntax != other.syntax
-        || semantics != other.semantics;
 }
 
 size_t VertexElementDescriptor::getOffset() const {
