@@ -258,51 +258,68 @@ void LoadingState::loadModuleData()
     }
 }
 
-
-bool LoadingState::loadGlobalHints()
+static void loadGameTips(std::shared_ptr<ReadContext>& ctxt, std::vector<std::string>& tips)
 {
-    // Open the file with all the tips
-    ReadContext ctxt("mp_data/gametips.txt");
-
     // Load the data
-    while (ctxt.skipToColon(true))
+    while (ctxt->skipToColon(true))
     {
         std::string buffer;
 
         //Read the line
-        vfs_read_string_lit(ctxt, buffer);
+        vfs_read_string_lit(*ctxt, buffer);
 
         //Make it look nice
         buffer = add_linebreak_cpp(buffer, 50);
 
-        _globalGameTips.push_back(buffer);
+        tips.push_back(buffer);
     }
+}
 
-    if(_globalGameTips.empty()) {
-		Log::get().warn( "Could not load the game tips and hints. (\"basicdat/gametips.txt\")\n" );
+bool LoadingState::loadGlobalHints()
+{
+    const std::string pathname = "mp_data/gametips.txt";
+    // Open the read context.
+    std::shared_ptr<ReadContext> ctxt = nullptr;
+    try
+    {
+        ctxt = std::make_shared<ReadContext>(pathname);
     }
- 
+    catch (...)
+    {
+        return false;
+    }
+    // Load the data.
+    loadGameTips(ctxt, _globalGameTips);
+    if(_globalGameTips.empty())
+    {
+        Log::Entry e(Log::Level::Warning, __FILE__, __LINE__);
+        e << "unable to load the global game tips and hints. (\"" << pathname << "\")" << Log::EndOfEntry;
+        Log::get() << e;
+    }
     return !_globalGameTips.empty();
 }
 
 bool LoadingState::loadLocalModuleHints()
 {
-    // Open all the tips
-    ReadContext ctxt("mp_modules/" + _loadModule->getFolderName() + "/gamedat/gametips.txt");
-
-    // Load the data
-    while (ctxt.skipToColon(true))
+    const std::string pathname = "mp_modules/" + _loadModule->getFolderName() + "/gamedat/gametips.txt";
+    std::shared_ptr<ReadContext> ctxt = nullptr;
+    // Open the read context.
+    try
     {
-        std::string buffer;
-        //Read the line
-        vfs_read_string_lit(ctxt, buffer);
-
-        //Make it look nice
-        buffer = add_linebreak_cpp(buffer, 50);
-
-        _localGameTips.push_back(buffer);
+        ctxt = std::make_shared<ReadContext>(pathname);
     }
-
+    catch (...)
+    {
+        return false;
+    }
+    // Load the data.
+    loadGameTips(ctxt, _localGameTips);
+    if (_localGameTips.empty())
+    {
+        Log::Entry e(Log::Level::Warning, __FILE__, __LINE__);
+        e << "unable to load the local game tips and hints. (\"" << pathname << "\")" << Log::EndOfEntry;
+        Log::get() << e;
+    }
     return !_localGameTips.empty();
 }
 
