@@ -2,7 +2,9 @@
 
 #include "egolib/platform.h"
 
-struct LocalParticleProfileRef {
+struct LocalParticleProfileRef : public Id::EqualToExpr<LocalParticleProfileRef>,
+                                 public Id::LowerThanExpr<LocalParticleProfileRef>,
+                                 public Id::IncrementExpr<LocalParticleProfileRef> {
 private:
     int _value;
 public:
@@ -27,52 +29,28 @@ public:
         return *this;
     }
 
-    bool operator<(const LocalParticleProfileRef& other) const {
+	// CRTP
+    bool lowerThan(const LocalParticleProfileRef& other) const {
         return _value < other._value;
     }
 
-    bool operator<=(const LocalParticleProfileRef& other) const {
-        return _value <= other._value;
-    }
-
-    bool operator>(const LocalParticleProfileRef& other) const {
-        return _value > other._value;
-    }
-
-    bool operator>=(const LocalParticleProfileRef& other) const {
-        return _value >= other._value;
-    }
-
-    bool operator==(const LocalParticleProfileRef& other) const {
+	// CRTP
+    bool equalTo(const LocalParticleProfileRef& other) const
+    {
         return _value == other._value;
     }
 
-    bool operator!=(const LocalParticleProfileRef& other) const {
-        return _value != other._value;
-    }
-
-    // Post-increment.
-    LocalParticleProfileRef operator++(int) {
-        if (_value == std::numeric_limits<int>::max()) {
-            std::ostringstream msg;
-            msg << __FILE__ << ":" << __LINE__ << ": " << "reference overflow";
-            std::overflow_error(msg.str());
-        }
-        int old = _value;
-        ++_value;
-        return LocalParticleProfileRef(old);
-    }
-
-    LocalParticleProfileRef& operator++() {
-        if (_value == std::numeric_limits<int>::max()) {
+	// CRTP
+    void increment()
+    {
+        if (_value == std::numeric_limits<int>::max())
+        {
             std::ostringstream msg;
             msg << __FILE__ << ":" << __LINE__ << ": " << "reference overflow";
             std::overflow_error(msg.str());
         }
         ++_value;
-        return *this;
     }
-
 };
 
 namespace std {

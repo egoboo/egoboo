@@ -39,7 +39,7 @@ enum matrix_cache_type_t
 
 
 /// the data necessary to cache the last values required to create the character matrix
-struct matrix_cache_t
+struct matrix_cache_t : public Id::EqualToExpr<matrix_cache_t>
 {
     matrix_cache_t() :
         valid(false),
@@ -91,15 +91,8 @@ struct matrix_cache_t
      */
     bool isValid() const;
 
-	/**
-	 * @brief
-	 *  Compare matrix caches.
-	 * @param rhs
-	 *  the second matrix cache
-	 * @return
-	 * true if both matrix caches are equal, false otherwise
-	 */
-    bool operator==(const matrix_cache_t &rhs) const;
+	// CRTP
+    bool equalTo(const matrix_cache_t& other) const;
 };
 
 //Function prototypes

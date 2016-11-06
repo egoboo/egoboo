@@ -17,35 +17,42 @@
 //*
 //********************************************************************************************
 
-/// @file   IdLib/Location.cpp
-/// @brief  Definition of a location in an Egoboo DSL file
-/// @author Michael Heilmann
+#include "EgoTest/EgoTest.hpp"
+#include "egolib/Mesh/Info.hpp"
 
-#define IDLIB_PRIVATE 1
-#include "IdLib/Location.hpp"
-#undef IDLIB_PRIVATE
+namespace Ego {
+namespace Test {
 
-namespace Id {
+EgoTest_TestCase(MeshInfoIterator)
+{
+    EgoTest_Test(zeroElements0)
+    {
+        auto info = Ego::MeshInfo(8, 8, 0);
+        for (auto it = info.begin(); it != info.end(); ++it)
+        {
+            EgoTest_Assert(false);
+        }
+    }
+    EgoTest_Test(zeroElements1)
+    {
+        auto info = Ego::MeshInfo(8, 0, 8);
+        for (auto it = info.begin(); it != info.end(); ++it)
+        {
+            EgoTest_Assert(false);
+        }
+    }
+    EgoTest_Test(oneElement0)
+    {
+        std::vector<Index2D> v{{0,0}};
+        auto info = Ego::MeshInfo(8, 1, 1);
+        int i = 0;
+        for (auto it = info.begin(); it != info.end(); ++it)
+        {
+            EgoTest_Assert(*it == v[i]);
+            i++;
+        }
+    }
+};
 
-Location::Location(const std::string& loadName, const size_t lineNumber) :
-    _loadName(loadName), _lineNumber(lineNumber) {
-}
-
-Location::Location(const Location& other) :
-    _loadName(other._loadName), _lineNumber(other._lineNumber) {
-}
-
-bool Location::equalTo(const Location& other) const {
-    return _loadName == other._loadName
-        && _lineNumber == other._lineNumber;
-}
-
-const std::string& Location::getLoadName() const {
-    return _loadName;
-}
-
-size_t Location::getLineNumber() const {
-    return _lineNumber;
-}
-
-} // namespace Id
+} // namespace Test
+} // namespace Ego

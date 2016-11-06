@@ -3,17 +3,67 @@
 #include "egolib/Grid/Index.hpp"
 
 namespace Grid {
-template <typename _Type, CoordinateSystem _CoordinateSystem>
-struct Rect {
 
-	Index<_Type, _CoordinateSystem> _min;
+/// @todo Shall be renamed to <tt>IndexRange</tt> and shall have specializations
+/// for all coordinate systems as well as support empty ranges and iterators.
+template <typename UnderlayingType_, CoordinateSystem CoordinateSystem_>
+struct IndexRectangle : public Id::EqualToExpr<IndexRectangle<UnderlayingType_, CoordinateSystem_>>
+{
+public:
+    using UnderlayingType = UnderlayingType_;
+    using Index2Type = Index<UnderlayingType, CoordinateSystem::Grid>;
+    using Index1Type = Index<UnderlayingType, CoordinateSystem::List>;
+    using MyType = IndexRectangle<UnderlayingType, CoordinateSystem_>;
 
-	Index<_Type, _CoordinateSystem> _max;
+private:
+    Index2Type _min;
+    Index2Type _max;
 
-	Rect(const Index<_Type, _CoordinateSystem>& min, const Index<_Type, _CoordinateSystem>& max)
-		: _min(min), _max(max) {}
+public:
+    IndexRectangle(const Index2Type& min, const Index2Type& max)
+        : _min(min), _max(max)
+    {}
 
-	Rect(const Rect& other)
-		: _min(other._min), _max(other._max) {}
+    IndexRectangle(const MyType& other)
+        : _min(other._min), _max(other._max)
+    {}
+
+public:
+    const MyType& operator=(const MyType& other)
+    {
+        _min = other._min;
+        _max = other._max;
+        return *this;
+    }
+
+public:
+    // CRTP
+    bool equalTo(const MyType& other) const
+    {
+        return _min == other._min
+            && _max == other._max;
+    }
+
+public:
+    Index2Type& min()
+    {
+        return _min;
+    }
+
+    const Index2Type& min() const
+    {
+        return _min;
+    }
+
+    Index2Type& max()
+    {
+        return _max;
+    }
+
+    const Index2Type& max() const
+    {
+        return _max;
+    }
 };
-}
+
+} // namespace Grid

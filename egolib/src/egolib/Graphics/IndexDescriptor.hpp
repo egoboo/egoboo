@@ -28,7 +28,7 @@
 namespace Ego {
 
 /// @brief The descriptor of an index.
-class IndexDescriptor {
+class IndexDescriptor : public Id::EqualToExpr<IndexDescriptor> {
 public:
     /// @brief An enum class of the syntactic forms of indices.
     enum class Syntax {
@@ -68,17 +68,8 @@ public:
     size_t getIndexSize() const;
 
 public:
-    /// @brief Compare this index descriptor with another index descriptor for equality.
-    /// @param other the other index descriptor
-    /// @return @a true if this index descriptor is equal to the other index descriptor,
-    ///         @a false otherwise
-    bool operator==(const IndexDescriptor&) const noexcept;
-
-    /// @brief Compare this index descriptor with another index descriptor for inequality.
-    /// @param other the other index descriptor
-    /// @return @a true if this index descriptor is not equal to the other index descriptor,
-    ///         @a false otherwise
-    bool operator!=(const IndexDescriptor&) const noexcept;
+	// CRTP
+    bool equalTo(const IndexDescriptor& other) const noexcept;
 
 }; // class IndexDescriptor
 

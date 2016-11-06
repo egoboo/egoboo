@@ -32,7 +32,7 @@ namespace Ego {
 namespace Math {
 
 template <typename _EuclideanSpaceType>
-struct AxisAlignedCube {
+struct AxisAlignedCube : public Id::EqualToExpr<AxisAlignedCube<_EuclideanSpaceType>> {
 public:
     Ego_Math_EuclideanSpace_CommonDefinitions(AxisAlignedCube);
 
@@ -176,14 +176,10 @@ public:
     }
 
 public:
-    bool operator==(const MyType& other) const {
+	// CRTP
+    bool equalTo(const MyType& other) const {
         return _center == other._center
             && _size == other._size;
-    }
-
-    bool operator!=(const MyType& other) const {
-        return _center != other._center
-            || _size != other._size;
     }
 
 }; // struct AxisAlignedCube

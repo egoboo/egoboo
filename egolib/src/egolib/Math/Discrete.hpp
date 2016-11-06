@@ -2,22 +2,6 @@
 
 #include "egolib/platform.h"
 
-#define Add(ResultType, OperandType0, OperandType1) \
-    ResultType operator+=(const OperandType1& other) { \
-        (*this) = (*this) + other; \
-        return *this;\
-    }
-#define Subtract(ResultType, OperadnType0, OperandType1) \
-    ResultType operator-=(const OperandType1& other) { \
-        (*this) = (*this) - other; \
-        return *this; \
-    }
-#define NotEqualTo(OperandType0,OperandType1) \
-    bool operator!=(const OperandType1& other) const { \
-        return !(*this == other); \
-    }
-
-
 namespace Ego {
 namespace Math {
 namespace Discrete {
@@ -26,7 +10,8 @@ template <typename T, typename Enabled = void>
 struct Size2;
 
 template <typename T>
-struct Size2<T, std::enable_if_t<std::is_same<T, int>::value>> {
+struct Size2<T, std::enable_if_t<std::is_same<T, int>::value>>
+    : public Id::EqualToExpr<Size2<T>> {
 private:
     using MyType = Size2<T>;
     std::array<T, 2> elements;
@@ -37,18 +22,12 @@ public:
     Size2(const MyType& other) : elements(other.elements) {}
 
 public:
-    const MyType& operator=(const MyType& other) {
-        elements = other.elements;
-        return *this;
-    }
-    bool operator==(const MyType& other) const {
+    // CRTP
+    bool equalTo(const MyType& other) const
+    {
         return elements[0] == other.elements[0]
             && elements[1] == other.elements[1];
     }
-
-public:
-    // Derived operators
-    NotEqualTo(MyType, MyType);
 
 public:
     T& width() {
@@ -70,7 +49,9 @@ template <typename T, typename Enabled = void>
 struct Vector2;
 
 template <typename T>
-struct Vector2<T, std::enable_if_t<std::is_same<T, int>::value>> {
+struct Vector2<T, std::enable_if_t<std::is_same<T, int>::value>>
+    : public Internal::VectorExpr<Vector2<T>, T>
+{
 private:
     using MyType = Vector2<T>;
     std::array<T, 2> elements;
@@ -85,42 +66,72 @@ public:
         elements = other.elements;
         return *this;
     }
-    MyType operator+(const MyType& other) const {
-        return MyType(elements[0] + other.elements[0],
-                      elements[1] + other.elements[1]);
+
+public:
+    // CRTP
+    void add(const MyType& other)
+    {
+        elements[0] += other.elements[0];
+        elements[1] += other.elements[1];
     }
-    MyType operator-(const MyType& other) const {
-        return MyType(elements[0] - other.elements[0],
-                      elements[1] - other.elements[1]);
+
+    // CRTP
+    void subtract(const MyType& other)
+    {
+        elements[0] -= other.elements[0];
+        elements[1] -= other.elements[1];
     }
-    bool operator==(const MyType& other) const {
+
+    // CRTP
+    bool equalTo(const MyType& other) const {
         return elements[0] == other.elements[0]
             && elements[1] == other.elements[1];
     }
-    MyType operator+() const {
-        return *this;
+
+    // CRTP
+    MyType unaryPlus() const
+    {
+        return MyType(+elements[0], +elements[1]);
     }
-    MyType operator-() const {
+    
+    // CRTP
+    MyType unaryMinus() const
+    {
         return MyType(-elements[0], -elements[1]);
     }
 
-public:
-    // Derived operators
-    Add(MyType, MyType, MyType);
-    Subtract(MyType, MyType, MyType);
-    NotEqualTo(MyType, MyType);
+    // CRTP
+    void multiply(const T& scalar)
+    {
+        elements[0] *= scalar;
+        elements[1] *= scalar;
+    }
+
+    // CRTP
+    void divide(const T& scalar)
+    {
+        elements[0] /= scalar;
+        elements[1] /= scalar;
+    }
 
 public:
-    T& x() {
+    T& x()
+    {
         return elements[0];
     }
-    const T& x() const {
+    
+    const T& x() const
+    {
         return elements[0];
     }
-    T& y() {
+    
+    T& y()
+    {
         return elements[1];
     }
-    const T& y() const {
+
+    const T& y() const
+    {
         return elements[1];
     }
 
@@ -130,7 +141,8 @@ template <typename T, typename Enabled = void>
 struct Point2;
 
 template <typename T>
-struct Point2<T, std::enable_if_t<std::is_same<T, int>::value>> {
+struct Point2<T, std::enable_if_t<std::is_same<T, int>::value>>
+    : public Internal::PointExpr<Point2<T>, Vector2<T>> {
 private:
     using VectorType = Vector2<T>;
     using MyType = Point2<T>;
@@ -148,27 +160,22 @@ public:
     }
 
 public:
-    bool operator==(const MyType& other) const {
+    // CRTP
+    bool equalTo(const MyType& other) const {
         return elements[0] == other.elements[0]
             && elements[1] == other.elements[1];
     }
-
-public:
-    MyType operator+(const VectorType& t) const {
-        return MyType(elements[0] + t.x(), elements[1] + t.y());
-    }
-    MyType operator-(const VectorType& t) const {
-        return MyType(elements[0] - t.x(), elements[1] - t.y());
-    }
-    VectorType operator-(const MyType& other) const {
+    // CRTP
+    VectorType difference(const MyType& other) const
+    {
         return VectorType(elements[0] - other.x(), elements[1] - other.y());
     }
-
-public:
-    // Derived operators
-    Add(MyType, MyType, VectorType);
-    Subtract(MyType, MyType, VectorType);
-    NotEqualTo(MyType, MyType);
+    // CRTP
+    void translate(const VectorType& other)
+    {
+        elements[0] += other.x();
+        elements[1] += other.y();
+    }
 
 public:
     T& x() {
@@ -189,7 +196,3 @@ public:
 } // namespace Discrete
 } // namespace Math
 } // namespace Ego
-
-#undef Subtract
-#undef NotEqualTo
-#undef Add

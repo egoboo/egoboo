@@ -43,7 +43,7 @@ namespace Math {
  *  Michael Heilmann
  */
 template <typename _EuclideanSpaceType, typename _EnabledType = std::enable_if_t<_EuclideanSpaceType::dimensionality() == 3>>
-struct Plane3 {
+struct Plane3 : public Id::EqualToExpr<Plane3<_EuclideanSpaceType>> {
 public:
     Ego_Math_EuclideanSpace_CommonDefinitions(Plane3);
 
@@ -255,14 +255,10 @@ public:
     }
 
 public:
-    bool operator==(const MyType& other) const {
+	// CRTP
+    bool equalTo(const MyType& other) const {
         return _d == other._d
             && _n == other._n;
-    }
-
-    bool operator!=(const MyType& other) const {
-        return _d != other._d
-            || _n != other._n;
     }
 
 public:

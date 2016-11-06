@@ -44,16 +44,12 @@ const ColourDepth& ColourDepth::operator=(const ColourDepth& other) {
 	return *this;
 }
 
-bool ColourDepth::operator==(const ColourDepth& other) const {
+bool ColourDepth::equalTo(const ColourDepth& other) const EGO_NOEXCEPT {
 	return depth == other.depth
 		&& redDepth == other.redDepth
 		&& greenDepth == other.greenDepth
 		&& blueDepth == other.blueDepth
 		&& alphaDepth == other.alphaDepth;
-}
-
-bool ColourDepth::operator!=(const ColourDepth& other) const {
-	return !((*this) == other);
 }
 
 uint16_t ColourDepth::getDepth() const {

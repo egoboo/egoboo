@@ -42,6 +42,9 @@
 // Bitmask types.
 #include "IdLib/BitmaskTypes.hpp"
 
+// CRTP.
+#include "IdLib/CRTP.hpp"
+
 // DSL utilities.
 #include "IdLib/Location.hpp"
 

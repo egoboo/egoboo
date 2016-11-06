@@ -34,7 +34,8 @@ namespace Math {
 /// @brief A point in the \f$n\f$-dimensional Euclidean space.
 /// @tparam _EuclideanSpace the Euclidean space over which the points are defined.
 template <typename _VectorSpaceType>
-struct Point : public Tuple<typename _VectorSpaceType::ScalarType, _VectorSpaceType::dimensionality()> {
+struct Point : public Tuple<typename _VectorSpaceType::ScalarType, _VectorSpaceType::dimensionality()>,
+               public Internal::PointExpr<Point<_VectorSpaceType>, typename _VectorSpaceType::VectorType> {
 public:
     /// @brief The vector space of this vector.
     using VectorSpaceType = _VectorSpaceType;
@@ -195,47 +196,32 @@ public:
     }
 
 public:
-    bool operator==(const MyType& other) const {
+    // CRTP
+    bool equalTo(const MyType& other) const
+    {
         return TupleUtilities::foldTT(typename ScalarFieldType::EqualsFunctor(), true, *this, other);
     }
 
-    bool operator!=(const MyType& other) const {
-        return !(*this == other);
+    // CRTP
+    void translate(const VectorType& other)
+    {
+        static const typename ScalarFieldType::SumFunctor functor{};
+        (*this) = TupleUtilities::mapTT<MyType>(functor, *this, other, IndexSequence{});
     }
+
+    // CRTP
+    VectorType difference(const MyType& other) const
+    {
+        static const typename ScalarFieldType::DifferenceFunctor functor{};
+        return TupleUtilities::mapTT<VectorType>(functor, *this, other, IndexSequence{});
+    }
+    
+
 
 public:
     // As always, return non-const reference in order to allow chaining for the sake of orthogonality.
     MyType& operator=(const MyType& other) {
         assign(other);
-        return *this;
-    }
-
-public:
-    // Core operators.
-    MyType operator+(const VectorType& other) const {
-        static const typename ScalarFieldType::SumFunctor functor{};
-        return TupleUtilities::mapTT<MyType>(functor, *this, other, IndexSequence{});
-    }
-
-    MyType operator-(const VectorType& other) const {
-        static const typename ScalarFieldType::DifferenceFunctor functor{};
-        return TupleUtilities::mapTT<MyType>(functor, *this, other, IndexSequence{});
-    }
-
-    VectorType operator-(const MyType& other) const {
-        static const typename ScalarFieldType::DifferenceFunctor functor{};
-        return TupleUtilities::mapTT<VectorType>(functor, *this, other, IndexSequence{});
-    }
-
-public:
-    // Derived operators.
-    MyType& operator+=(const VectorType& other) {
-        *this = *this + other;
-        return *this;
-    }
-
-    MyType& operator-=(const VectorType& other) {
-        *this = *this - other;
         return *this;
     }
 

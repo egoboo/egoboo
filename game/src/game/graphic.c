@@ -1486,9 +1486,8 @@ gfx_rv GridIllumination::light_fans_throttle_update(ego_mesh_t * mesh, ego_tile_
     if (!retval)
     {
         // use a kind of checkerboard pattern
-        int ix = tileIndex.getI() % tmem.getInfo().getTileCountX();
-        int iy = tileIndex.getI() / tmem.getInfo().getTileCountX();
-        if (0 != (((ix ^ iy) + _gameEngine->getNumberOfFramesRendered()) & 0x03))
+        auto i2 = Grid::map<int>(tileIndex, (int)tmem.getInfo().getTileCountX());
+        if (0 != (((i2.x() ^ i2.y()) + _gameEngine->getNumberOfFramesRendered()) & 0x03))
         {
             retval = true;
         }
@@ -1915,7 +1914,7 @@ gfx_rv GridIllumination::do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_
     size_t cnt;
 
     int    tnc;
-    int ix, iy;
+
     float x0, y0, local_keep;
     bool needs_dynalight;
 
@@ -1944,7 +1943,7 @@ gfx_rv GridIllumination::do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_
     for (size_t entry = 0; entry < tl._all.size; entry++)
     {
         Index1D fan = tl._all.lst[entry]._index;
-        if (fan.getI() >= pinfo.getTileCount()) continue;
+        if (fan.i() >= pinfo.getTileCount()) continue;
 
 		const oct_bb_t& poct = tmem.get(fan)._oct;
 
@@ -2090,14 +2089,11 @@ gfx_rv GridIllumination::do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_
 
         // do not update this more than once a frame
         if (ptile._cache_frame >= 0 && (uint32_t)ptile._cache_frame >= _gameEngine->getNumberOfFramesRendered()) continue;
-
-        ix = fan.getI() % pinfo.getTileCountX();
-        iy = fan.getI() / pinfo.getTileCountX();
-
+        auto i2 = Grid::map<int>(fan, pinfo.getTileCountX());
         // Resist the lighting calculation?
         // This is a speedup for lighting calculations so that
         // not every light-tile calculation is done every single frame
-        resist_lighting_calculation = (0 != (((ix + iy) ^ _gameEngine->getNumberOfFramesRendered()) & 0x03));
+        resist_lighting_calculation = (0 != (((i2.x() + i2.y()) ^ _gameEngine->getNumberOfFramesRendered()) & 0x03));
 
         if (resist_lighting_calculation) continue;
 
@@ -2121,8 +2117,8 @@ gfx_rv GridIllumination::do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_
 
             ego_frect_t fgrid_rect;
 
-            x0 = ix * Info<float>::Grid::Size();
-            y0 = iy * Info<float>::Grid::Size();
+            x0 = i2.x() * Info<float>::Grid::Size();
+            y0 = i2.y() * Info<float>::Grid::Size();
 
             // check this grid vertex relative to the measured light_bound
             fgrid_rect.xmin = x0 - Info<float>::Grid::Size() * 0.5f;

@@ -51,12 +51,8 @@ const IndexDescriptor& IndexDescriptor::operator=(const IndexDescriptor& other) 
     return *this;
 }
 
-bool IndexDescriptor::operator==(const IndexDescriptor& other) const noexcept {
+bool IndexDescriptor::equalTo(const IndexDescriptor& other) const noexcept {
     return syntax == other.syntax;
-}
-
-bool IndexDescriptor::operator!=(const IndexDescriptor& other) const noexcept {
-    return syntax != other.syntax;
 }
 
 } // namespace Ego

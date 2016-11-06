@@ -47,45 +47,45 @@ struct EnableBitmaskOperators {
 
 /// Bitwise |.
 template<typename E>
-typename std::enable_if<Id::EnableBitmaskOperators<E>::enable,E>::type
+std::enable_if_t<Id::EnableBitmaskOperators<E>::enable,E>
 operator|(E lhs,E rhs){
-	typedef typename std::underlying_type<E>::type underlying;
+	typedef std::underlying_type_t<E> underlying;
 	return static_cast<E>(
 		static_cast<underlying>(lhs) | static_cast<underlying>(rhs));
 }
 
 // Bitwise &.
 template<typename E>
-typename std::enable_if<Id::EnableBitmaskOperators<E>::enable,E>::type
+std::enable_if_t<Id::EnableBitmaskOperators<E>::enable,E>
 operator&(E lhs,E rhs){
-	typedef typename std::underlying_type<E>::type underlying;
+	typedef std::underlying_type_t<E> underlying;
 	return static_cast<E>(
 		static_cast<underlying>(lhs) & static_cast<underlying>(rhs));
 }
 
 // Bitwise ^.
 template<typename E>
-typename std::enable_if<Id::EnableBitmaskOperators<E>::enable,E>::type
+std::enable_if_t<Id::EnableBitmaskOperators<E>::enable,E>
 operator^(E lhs,E rhs){
-    typedef typename std::underlying_type<E>::type underlying;
+    typedef std::underlying_type_t<E> underlying;
     return static_cast<E>(
         static_cast<underlying>(lhs) ^ static_cast<underlying>(rhs));
 }
 
 // Bitwise ~.
 template<typename E>
-typename std::enable_if<Id::EnableBitmaskOperators<E>::enable,E>::type
+std::enable_if_t<Id::EnableBitmaskOperators<E>::enable,E>
 operator~(E lhs){
-    typedef typename std::underlying_type<E>::type underlying;
+    typedef std::underlying_type_t<E> underlying;
     return static_cast<E>(
         ~static_cast<underlying>(lhs));
 }
 
 // Bitwise |=.
 template<typename E>
-typename std::enable_if<Id::EnableBitmaskOperators<E>::enable,E&>::type
+std::enable_if_t<Id::EnableBitmaskOperators<E>::enable,E&>
 operator|=(E& lhs,E rhs){
-    typedef typename std::underlying_type<E>::type underlying;
+    typedef std::underlying_type_t<E> underlying;
     lhs=static_cast<E>(
         static_cast<underlying>(lhs) | static_cast<underlying>(rhs));
     return lhs;
@@ -93,9 +93,9 @@ operator|=(E& lhs,E rhs){
 
 // Bitwise &=.
 template<typename E>
-typename std::enable_if<Id::EnableBitmaskOperators<E>::enable,E&>::type
+std::enable_if_t<Id::EnableBitmaskOperators<E>::enable,E&>
 operator&=(E& lhs,E rhs){
-    typedef typename std::underlying_type<E>::type underlying;
+    typedef std::underlying_type_t<E> underlying;
     lhs=static_cast<E>(
         static_cast<underlying>(lhs) & static_cast<underlying>(rhs));
     return lhs;
@@ -103,9 +103,9 @@ operator&=(E& lhs,E rhs){
 
 // Bitwise ^=.
 template<typename E>
-typename std::enable_if<Id::EnableBitmaskOperators<E>::enable,E&>::type
+std::enable_if_t<Id::EnableBitmaskOperators<E>::enable,E&>
 operator^=(E& lhs,E rhs){
-    typedef typename std::underlying_type<E>::type underlying;
+    typedef std::underlying_type_t<E> underlying;
     lhs=static_cast<E>(
         static_cast<underlying>(lhs) ^ static_cast<underlying>(rhs));
     return lhs;

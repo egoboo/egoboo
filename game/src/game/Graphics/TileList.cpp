@@ -95,10 +95,9 @@ gfx_rv TileList::insert(const Index1D& index, const ::Camera &cam)
 		return gfx_fail;
 	}
 
-	int ix = index.getI() % getMesh()->_info.getTileCountX();
-	int iy = index.getI() / getMesh()->_info.getTileCountX();
-	float dx = (ix + Info<float>::Grid::Size() * 0.5f) - cam.getCenter()[kX];
-	float dy = (iy + Info<float>::Grid::Size() * 0.5f) - cam.getCenter()[kY];
+    auto i2 = Grid::map<int>(index, (int)getMesh()->_info.getTileCountX());
+	float dx = (i2.x() + Info<float>::Grid::Size() * 0.5f) - cam.getCenter()[kX];
+	float dy = (i2.y() + Info<float>::Grid::Size() * 0.5f) - cam.getCenter()[kY];
 	float distance = dx * dx + dy * dy;
 
 	// Put each tile in basic list
@@ -138,10 +137,10 @@ std::shared_ptr<ego_mesh_t> TileList::getMesh() const
 
 gfx_rv TileList::add(const Index1D& index, ::Camera& camera)
 {
-	_renderTiles[index.getI()] = true;
+	_renderTiles[index.i()] = true;
 
 	// if the tile was not in the renderlist last frame, then we need to force a lighting update of this tile
-	if(!_lastRenderTiles[index.getI()]) {
+	if(!_lastRenderTiles[index.i()]) {
 		ego_tile_info_t& tile = getMesh()->_tmem.get(index);
 		tile._lightingCache.setNeedUpdate(true);
 		tile._lightingCache.setLastFrame(-1);
@@ -158,7 +157,7 @@ gfx_rv TileList::add(const Index1D& index, ::Camera& camera)
 bool TileList::inRenderList(const Index1D& index) const
 {
 	if(index == Index1D::Invalid) return false;
-	return _renderTiles[index.getI()];
+	return _renderTiles[index.i()];
 }
 
 }

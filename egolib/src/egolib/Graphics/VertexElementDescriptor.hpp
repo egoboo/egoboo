@@ -28,7 +28,7 @@
 namespace Ego {
 
 /// @brief The description of a vertex element.
-class VertexElementDescriptor {
+class VertexElementDescriptor : public Id::EqualToExpr<VertexElementDescriptor> {
 public:
     /// @brief An enum class of the syntactic forms of vertex elements.
     enum class Syntax {
@@ -86,19 +86,8 @@ public:
     const VertexElementDescriptor& operator=(const VertexElementDescriptor& other);
     
 public:
-    /// @brief Get if this vertex element descriptor is equivalent to another vertex element descriptor.
-    /// @param otherthe other vertex element descriptor
-    /// @return
-    /// @a true if this vertex element descriptor is equivalent to the other vertex element descriptor,
-    /// @a false otherwise
-    bool operator==(const VertexElementDescriptor& other) const;
-
-    /// @brief Get if this vertex element descriptor is not equivalent to another vertex element descriptor.
-    /// @param other the other vertex element descriptor
-    /// @return
-    /// @a true if this vertex element descriptor is not equivalent to the other vertex element descriptor,
-    /// @a false otherwise
-    bool operator!=(const VertexElementDescriptor& other) const;
+	// CRTP
+    bool equalTo(const VertexElementDescriptor& other) const EGO_NOEXCEPT;
     
 public:
     /// @brief Get the offset, in Bytes, of the vertex element from the beginning of the vertex.

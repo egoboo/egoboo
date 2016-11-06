@@ -27,7 +27,7 @@
 #error(do not include directly, include `IdLib/IdLib.hpp` instead)
 #endif
 
-#include "IdLib/Platform.hpp"
+#include "IdLib/CRTP.hpp"
 
 namespace Id {
 
@@ -35,7 +35,7 @@ namespace Id {
  * @brief
  *  A location is identified by the load name of the Egoboo DSL file and a line number within that file.
  */
-class Location {
+class Location : public EqualToExpr<Location> {
 
 private:
 
@@ -71,27 +71,8 @@ public:
      */
     Location(const Location& other);
 
-    /**
-     * @brief
-     *  Is this location equal to another location.
-     * @param other
-     *  the other location
-     * @return
-     *  @a true if this position is equal to the other location,
-     *  @a false otherwise
-     */
-    bool operator==(const Location& other) const;
-
-    /**
-     * @brief
-     *  Is this location not equal to another location.
-     * @param other
-     *  the other location
-     * @return
-     *  @a true if this position is not equal to the other location,
-     *  @a false otherwise
-     */
-    bool operator!=(const Location& other) const;
+	// CRTP
+    bool equalTo(const Location& other) const;
 
     /**
      * @brief

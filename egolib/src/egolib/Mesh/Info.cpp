@@ -75,23 +75,42 @@ void MeshInfo::reset(size_t tileCountX, size_t tileCountY) {
 
 void MeshInfo::Iterator::increment()
 {
-    if (x == target->getTileCountX())
+    int endx = target->getTileCountX(),
+        endy = target->getTileCountY();
+    if (endx == 0 || endy == 0)
     {
-        if (y == target->getTileCountY())
-        { 
-            /* Undefined behavior. Shall raise an exception in debug mode. */
-        }
-        x = 0;
-        y++;
+        x = endx;
+        y = endy;
     }
-    else
+    // If x is not at the end, increment x.
+    else if (x < endx)
     {
         x++;
+        // If x is NOW at the end, increment y.
+        if (x == endx)
+        {
+            // If y is not at the end, increment y.
+            if (y < endy)
+            {
+                y++;
+                // If y is not at the end, set x to begin.
+                if (y < endy) x = 0;
+            }
+        }
     }
 }
 
 MeshInfo::Iterator::Iterator(size_t x, size_t y, MeshInfo *target)
-    : x(x), y(y), target(target) {}
+    : x(x), y(y), target(target)
+{
+    int endx = target->getTileCountX(),
+        endy = target->getTileCountY();
+    if (endx == 0 || endy == 0)
+    {
+        this->x = endx;
+        this->y = endy;
+    }
+}
 
 MeshInfo::Iterator::Iterator(const Iterator& other)
     : x(other.x), y(other.y), target(other.target) {}
@@ -104,29 +123,10 @@ const MeshInfo::Iterator& MeshInfo::Iterator::operator=(const Iterator& rhs)
     return *this;
 }
 
-bool MeshInfo::Iterator::operator==(const Iterator& rhs) const
+bool MeshInfo::Iterator::equalTo(const Iterator& rhs) const noexcept
 {
     return x == rhs.x
         && y == rhs.y;
-}
-
-bool MeshInfo::Iterator::operator!=(const MeshInfo::Iterator& rhs) const
-{
-    return x != rhs.x
-        || y != rhs.y;
-}
-
-MeshInfo::Iterator MeshInfo::Iterator::operator++()
-{
-    Iterator i = *this;
-    increment();
-    return i;
-}
-
-MeshInfo::Iterator MeshInfo::Iterator::operator++(int junk)
-{
-    increment();
-    return *this;
 }
 
 const Index2D MeshInfo::Iterator::operator*()

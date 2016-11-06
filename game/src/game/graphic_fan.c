@@ -43,7 +43,7 @@ void animate_all_tiles( ego_mesh_t& mesh )
     for (const Index1D& element : mesh._fxlists.anm.elements)
     {
         // If the tile is out of range, then skip this tile.
-        if (element.getI() >= numberOfTiles) continue;
+        if (element.i() >= numberOfTiles) continue;
         // Otherwise animate the tile.
         animate_tile(mesh, element);
     }

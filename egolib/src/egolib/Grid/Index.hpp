@@ -3,218 +3,196 @@
 #include "egolib/typedef.h"
 
 namespace Grid {
-/**
-* @brief
-*  An enumeration of coordinate system used by/for/together with meshes.
-*/
-enum class CoordinateSystem {
-	/**
-	* @brief
-	*  "tile grid"/"2D" coordinates.
-	*/
-	Grid,
-	/**
-	* @brief
-	*  "tile list"/"1D" coordinates.
-	*/
-	List,
-};
-}
 
-namespace  Grid {
-/**
- * @brief
- *  An index "tile grid"/"2D" or "tile list"/"1D" coordinates.
- */
-template <typename _Type, CoordinateSystem _CoordinateSystem, typename _Enabled = void>
+/// @brief An enumeration of coordinate system used by/for/together with meshes.
+enum class CoordinateSystem
+{
+    /// @brief "tile grid"/"2D" coordinates.
+    Grid,
+    /// @brief "tile list"/"1D" coordinates.
+    List,
+};
+
+/// @brief An index "tile grid"/"2D" or "tile list"/"1D" coordinates.
+/// @tparam UnderlayingType_ the underlaying index type
+/// @tparam CoordinateSystem_ the coordinate system
+/// @remark Specializations for
+/// <tt>UnderlayingType_ = int</tt> and
+/// all coordinate systems
+/// are provided.
+template <typename UnderlayingType_, CoordinateSystem CoordinateSystem_, typename Enabled_ = void>
 struct Index;
-}
 
+namespace Internal {
 
-namespace Grid {
-/**
- * @brief
- *  A "tile grid"/"2D" index.
- */
-template <typename _Type, CoordinateSystem _CoordinateSystem>
-struct Index<_Type, _CoordinateSystem,
-	         typename std::enable_if<(_CoordinateSystem == CoordinateSystem::Grid) && std::is_same<_Type, int>::value>::type
-            >
+template <typename UnderlayingType_, CoordinateSystem CoordinateSystem_>
+using EnableIndex2 = std::enable_if_t<CoordinateSystem_ == CoordinateSystem::Grid && std::is_same<UnderlayingType_, int>::value>;
+
+} // namespace Internal
+
+/// @brief A "tile grid"/"2D" index.
+template <typename UnderlayingType_, CoordinateSystem CoordinateSystem_>
+struct Index<UnderlayingType_, CoordinateSystem_, Internal::EnableIndex2<UnderlayingType_, CoordinateSystem_>>
+    : public Id::EqualToExpr<Index<UnderlayingType_, CoordinateSystem_>>
 {
+public:
+    using UnderlayingType = UnderlayingType_;
+    using MyType = Index<UnderlayingType, CoordinateSystem_>;
 private:
-	_Type _x; ///< @brief The x-coordinate.
-	_Type _y; ///< @brief The y-coordinate.
+    UnderlayingType _x; ///< @brief The x-coordinate.
+    UnderlayingType _y; ///< @brief The y-coordinate.
 
 public:
-	using MyType = Index<_Type, _CoordinateSystem>;
+    Index(const UnderlayingType& x, const UnderlayingType& y) :
+        _x(x), _y(y)
+    {}
 
 public:
-	Index(const _Type& x, const _Type& y) :
-		_x(x), _y(y)
-	{}
+    MyType& operator=(const MyType& other)
+    {
+        _x = other._x;
+        _y = other._y;
+        return *this;
+    }
 
 public:
-	MyType& operator=(const MyType& other) {
-		_x = other._x;
-		_y = other._y;
-		return *this;
-	}
+	// CRTP
+    bool equalTo(const MyType& other) const
+    {
+        return _x == other._x
+            && _y == other._y;
+    }
 
 public:
-	bool operator==(const MyType& other) const {
-		return _x == other._x
-			&& _y == other._y;
-	}
-
-	bool operator!=(const MyType& other) const {
-		return _x != other._x
-			|| _y != other._y;
-	}
-
-public:
-    _Type& x() {
+    UnderlayingType& x()
+    {
         return _x;
     }
-    const _Type& x() const {
+
+    const UnderlayingType& x() const
+    {
         return _x;
     }
-	const _Type& getX() const {
-		return _x;
-	}
 
-    _Type& y() {
+    UnderlayingType& y()
+    {
         return _y;
     }
-    const _Type& y() const {
+
+    const UnderlayingType& y() const
+    {
         return _y;
     }
-	const _Type& getY() const {
-		return _y;
-	}
-
-};
-}
-
-namespace Grid {
-/**
- * @brief
- *  A "list"/"1D" index.
- */
-template <typename _Type, CoordinateSystem _CoordinateSystem>
-struct Index<_Type, _CoordinateSystem,
-	         typename std::enable_if<(_CoordinateSystem == CoordinateSystem::List) && std::is_same<_Type, int>::value>::type
-            >
-{
-private:
-
-	_Type _i; ///< @brief The i-coordinate.
-
-	static const _Type _InvalidIndex = std::numeric_limits<_Type>::max();
-
-public:
-	using MyType = Index<_Type, _CoordinateSystem>;
-
-	static const MyType Invalid;
-
-	Index() :
-		_i(_InvalidIndex)
-	{}
-
-	Index(const _Type& i) :
-		_i(i)
-	{}
-
-public:
-
-	Index(const MyType& other) :
-		_i(other._i)
-	{}
-
-	MyType& operator=(const MyType& other)
-	{
-		_i = other._i;
-		return *this;
-	}
-
-public:
-
-	bool operator==(const MyType& other) const {
-		return _i == other._i;
-	}
-
-	bool operator!=(const MyType& other) const {
-		return _i != other._i;
-	}
-
-public:
-
-	bool operator<(const MyType& other) const {
-		return _i < other._i;
-	}
-
-	bool operator<=(const MyType& other) const {
-		return _i <= other._i;
-	}
-
-	bool operator>(const MyType& other) const {
-		return _i > other._i;
-	}
-
-	bool operator>=(const MyType& other) const {
-		return _i >= other._i;
-	}
-
-public:
-
-	const _Type& getI() const {
-		return _i;
-	}
-
-public:
-
-	MyType& operator++() {
-		_i++;
-		return *this;
-	}
-
-	MyType operator++(int) {
-		_Type j = _i;
-		_i++;
-		return MyType(j);
-	}
 
 };
 
-template <typename _Type, CoordinateSystem _CoordinateSystem>
-const Index<_Type, _CoordinateSystem> Index<_Type, _CoordinateSystem,
-	        typename std::enable_if<(_CoordinateSystem == CoordinateSystem::List) && std::is_same<_Type, int>::value>::type
-           >::Invalid;
-} // namespace Grid
+namespace Internal {
 
-namespace Grid {
-template <typename _Type>
-Index<_Type, CoordinateSystem::List> map(Index<_Type, CoordinateSystem::Grid> source, _Type width) {
-	// Assume a grid of 3 x 3 elements as displayed below:
-	// 0  1  2
-	// 3  4  5
-	// 6  7  8
-	// 9 10 11
-	// The grid index row y = 3 and the column x = 1 should map to list index i = 10.
-	// Using the formula we obtain i = 3 * 3 + 1 = 10 as desired.
-	return Index<_Type, CoordinateSystem::List>(source.getX() + source.getY() * width);
-}
-} // namespace Grid
+template <typename UnderlayingType_, CoordinateSystem CoordinateSystem_>
+using EnableIndex1 = std::enable_if_t<CoordinateSystem_ == CoordinateSystem::List && std::is_same<UnderlayingType_, int>::value>;
 
-namespace Grid {
-template <typename _Type>
-Index<_Type, CoordinateSystem::Grid> map(Index<_Type, CoordinateSystem::List> source, _Type width) {
-	// Assume a grid of 3 x 3 elements as displayed below:
-	// 0  1  2
-	// 3  4  5
-	// 6  7  8
-	// 9 10 11
-	// The index i = 10 should map to row y = 3 and to column x = 1.
-	// Using the formula we obtain x = 10 % 3 = 1 and y = 10 / 3 = 3 as desired.
-	return Index<_Type, CoordinateSystem::Grid>(source.getI() % width, source.getI() / width);
+} // namespace Internal
+
+/// @brief A "list"/"1D" index.
+template <typename UnderlayingType_, CoordinateSystem CoordinateSystem_>
+struct Index<UnderlayingType_, CoordinateSystem_, Internal::EnableIndex1<UnderlayingType_, CoordinateSystem_>>
+    : public Id::EqualToExpr<Index<UnderlayingType_, CoordinateSystem_>>,
+      public Id::LowerThanExpr<Index<UnderlayingType_, CoordinateSystem_>>,
+      public Id::IncrementExpr<Index<UnderlayingType_, CoordinateSystem_>>
+{
+public:
+    using UnderlayingType = UnderlayingType_;
+    using MyType = Index<UnderlayingType, CoordinateSystem_>;
+
+private:
+
+    UnderlayingType _i; ///< @brief The i-coordinate.
+
+    static const UnderlayingType _InvalidIndex = std::numeric_limits<UnderlayingType>::max();
+
+public:
+    static const MyType Invalid;
+
+    Index() :
+        _i(_InvalidIndex)
+    {}
+
+    Index(const UnderlayingType& i) :
+        _i(i)
+    {}
+
+public:
+
+    Index(const MyType& other) :
+        _i(other._i)
+    {}
+
+    MyType& operator=(const MyType& other)
+    {
+        _i = other._i;
+        return *this;
+    }
+
+public:
+	// CRTP
+    bool equalTo(const MyType& other) const
+    {
+        return _i == other._i;
+    }
+
+	// CRTP
+    bool lowerThan(const MyType& other) const
+    {
+        return _i < other._i;
+    }
+
+	// CRTP
+    void increment()
+    {
+        _i++;
+    }
+
+public:
+
+    UnderlayingType& i()
+    {
+        return _i;
+    }
+
+    const UnderlayingType& i() const
+    {
+        return _i;
+    }
+};
+
+template <typename UnderlayingType_, CoordinateSystem CoordinateSystem_>
+const Index<UnderlayingType_, CoordinateSystem_>
+Index<UnderlayingType_, CoordinateSystem_, Internal::EnableIndex1<UnderlayingType_, CoordinateSystem_>>::Invalid;
+
+template <typename UnderlayingType>
+Index<UnderlayingType, CoordinateSystem::List> map(Index<UnderlayingType, CoordinateSystem::Grid> source, UnderlayingType width)
+{
+    // Assume a grid of 3 x 3 elements as displayed below:
+    // 0  1  2
+    // 3  4  5
+    // 6  7  8
+    // 9 10 11
+    // The grid index row y = 3 and the column x = 1 should map to list index i = 10.
+    // Using the formula we obtain i = 3 * 3 + 1 = 10 as desired.
+    return Index<UnderlayingType, CoordinateSystem::List>(source.x() + source.y() * width);
 }
+
+template <typename UnderlayingType>
+Index<UnderlayingType, CoordinateSystem::Grid> map(Index<UnderlayingType, CoordinateSystem::List> source, UnderlayingType width)
+{
+    // Assume a grid of 3 x 3 elements as displayed below:
+    // 0  1  2
+    // 3  4  5
+    // 6  7  8
+    // 9 10 11
+    // The index i = 10 should map to row y = 3 and to column x = 1.
+    // Using the formula we obtain x = 10 % 3 = 1 and y = 10 / 3 = 3 as desired.
+    return Index<UnderlayingType, CoordinateSystem::Grid>(source.i() % width, source.i() / width);
+}
+
 } // namespace Grid
