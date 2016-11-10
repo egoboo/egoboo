@@ -232,20 +232,20 @@ public:
 struct InstructionList
 {
 	InstructionList()
-		: _length(0)
+		: numberOfInstructions(0)
 	{
 	}
 	InstructionList(const InstructionList& other)
-		: _length(other._length)
+		: numberOfInstructions(other.numberOfInstructions)
 	{
-		for (size_t i = 0; i < _length; ++i) {
+		for (size_t i = 0; i < numberOfInstructions; ++i) {
 			_instructions[i] = other._instructions[i];
 		}
 	}
 	InstructionList operator=(const InstructionList& other)
 	{
-		_length = other._length;
-		for (size_t i = 0; i < _length; ++i) {
+        numberOfInstructions = other.numberOfInstructions;
+		for (size_t i = 0; i < numberOfInstructions; ++i) {
 			_instructions[i] = other._instructions[i];
 		}
 		return *this;
@@ -255,15 +255,15 @@ struct InstructionList
 	 *	The actual length of the instruction list.
 	 *	The first @a length entries in the instruction array are used.
 	 */
-	uint32_t _length;
+	uint32_t numberOfInstructions;
 	/**
 	 * @brief
 	 *	Get the length of this instruction list.
 	 * @return
 	 *	the length of this instruciton list
 	 */
-	uint32_t getLength() const {
-		return _length;
+	uint32_t getNumberOfInstructions() const {
+		return numberOfInstructions;
 	}
 	/**
 	 * @brief
@@ -273,7 +273,7 @@ struct InstructionList
 	 *	@a false otherwise
 	 */
 	bool isFull() const {
-		return MAXAICOMPILESIZE == getLength();
+		return MAXAICOMPILESIZE == getNumberOfInstructions();
 	}
 	/**
 	 * @brief
@@ -282,10 +282,10 @@ struct InstructionList
 	Instruction _instructions[MAXAICOMPILESIZE];          // Compiled script data
 
 	void append(const Instruction& instruction) {
-		if (_length == MAXAICOMPILESIZE) {
+		if (isFull()) {
 			throw std::overflow_error("instruction list overflow");
 		}
-		_instructions[_length++] = instruction;
+		_instructions[numberOfInstructions++] = instruction;
 	}
 	const Instruction& operator[](size_t index) const {
 		return _instructions[index];
@@ -293,6 +293,10 @@ struct InstructionList
 	Instruction& operator[](size_t index) {
 		return _instructions[index];
 	}
+    void clear()
+    {
+        numberOfInstructions = 0;
+    }
 };
 
 struct script_info_t

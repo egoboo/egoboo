@@ -221,7 +221,7 @@ void scr_run_chr_script(Object *pchr) {
 
 	// Run the AI Script.
 	script.set_pos(0);
-	while (!aiState.terminate && script.get_pos() < script._instructions.getLength()) {
+	while (!aiState.terminate && script.get_pos() < script._instructions.getNumberOfInstructions()) {
 		// This is used by the Else function
 		// it only keeps track of functions.
 		script.indent_last = script.indent;
@@ -281,7 +281,7 @@ bool script_state_t::run_function_call( script_state_t& state, ai_state_t& aiSta
     Uint8  functionreturn;
 
     // check for valid execution pointer
-    if ( script.get_pos() >= script._instructions.getLength() ) return false;
+    if ( script.get_pos() >= script._instructions.getNumberOfInstructions() ) return false;
 
     // Run the function
 	functionreturn = script_state_t::run_function(state, aiState, script);
@@ -296,10 +296,10 @@ bool script_state_t::run_function_call( script_state_t& state, ai_state_t& aiSta
     else
     {
         // use the jump code to jump to the right location
-        size_t new_index = script._instructions[script.get_pos()]._value;
+        size_t new_index = script._instructions[script.get_pos()].getBits();
 
         // make sure the value is valid
-        EGOBOO_ASSERT( new_index <= script._instructions.getLength() );
+        EGOBOO_ASSERT( new_index <= script._instructions.getNumberOfInstructions() );
 
         // actually do the jump
 		script.set_pos(new_index);
@@ -313,7 +313,7 @@ bool script_state_t::run_function_call( script_state_t& state, ai_state_t& aiSta
 bool script_state_t::run_operation( script_state_t& state, ai_state_t& aiState, script_info_t& script )
 {
     // check for valid execution pointer
-    if ( script.get_pos() >= script._instructions.getLength() ) return false;
+    if ( script.get_pos() >= script._instructions.getNumberOfInstructions() ) return false;
 
     auto var_value = script._instructions[script.get_pos()].getValueBits();
 
@@ -342,7 +342,7 @@ bool script_state_t::run_operation( script_state_t& state, ai_state_t& aiState, 
 
     // Now run the operation
     state.operationsum = 0;
-    for (auto i = 0; i < operand_count && script.get_pos() < script._instructions.getLength(); ++i )
+    for (auto i = 0; i < operand_count && script.get_pos() < script._instructions.getNumberOfInstructions(); ++i )
     {
 		script.increment_pos();
 		script_state_t::run_operand(state, aiState, script);
@@ -1099,7 +1099,7 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
 //--------------------------------------------------------------------------------------------
 
 bool script_info_t::increment_pos() {
-	if (_position >= _instructions.getLength()) {
+	if (_position >= _instructions.getNumberOfInstructions()) {
 		return false;
 	}
 	_position++;
@@ -1111,7 +1111,7 @@ size_t script_info_t::get_pos() const {
 }
 
 bool script_info_t::set_pos(size_t position) {
-	if (position >= _instructions.getLength()) {
+	if (position >= _instructions.getNumberOfInstructions()) {
 		return false;
 	}
 	_position = position;

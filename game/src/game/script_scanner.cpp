@@ -19,30 +19,38 @@
 #include "game/script_scanner.hpp"
 
 Token::Token()
-	: _text(), _line(1), _index(MAX_OPCODE), _value(0), _type(Type::Unknown) {
-}
+	: _text(), _location("<unknown>", 1), _index(MAX_OPCODE), _value(0), _type(Type::Unknown) 
+{}
+
+Token::Token(Type type, const Id::Location& location)
+    : _text(), _location(location), _index(MAX_OPCODE), _value(0), _type(type)
+{}
 
 Token::Token(const Token& other)
-	: _text(other._text),  _line(other._line), _index(other._index), _value(other._value), _type(other._type) {
-}
+	: _text(other._text),  _location(other._location), _index(other._index), _value(other._value), _type(other._type)
+{}
 
-Token::~Token() {
-}
+Token::~Token()
+{}
 
 std::ostream& operator<<(std::ostream& os, const Token::Type& tokenType) {
 	switch (tokenType) {
-		case Token::Type::Constant: os << "Constant"; break;
-		case Token::Type::Function: os << "Function"; break;
-		case Token::Type::Operator: os << "Operator"; break;
-		case Token::Type::Unknown:  os << "Unknown" ; break;
-		case Token::Type::Variable: os << "Variable"; break;
+		case Token::Type::Constant:       os << "Constant";       break;
+		case Token::Type::Function:       os << "Function";       break;
+		case Token::Type::Operator:       os << "Operator";       break;
+		case Token::Type::Unknown:        os << "Unknown" ;       break;
+		case Token::Type::Variable:       os << "Variable";       break;
+        case Token::Type::Name:           os << "Name";           break;
+        case Token::Type::IDSZ:           os << "IDSZ";           break;
+        case Token::Type::NumericLiteral: os << "NumericLiteral"; break;
+        case Token::Type::Reference:      os << "Reference";      break;
 	};
 	return os;
 }
 
 std::ostream& operator<<(std::ostream& os, const Token& token) {
 	os << "token {";
-	os << "line = " << token.getLine() << "," << std::endl;
+	os << "location = " << token.getLocation().getLoadName() << ":" << token.getLocation().getLineNumber() << "," << std::endl;
 	os << "value = " << token.getValue() << "," << std::endl;
 	os << "index = " << token.getIndex() << "," << std::endl;
 	os << "type = " << token.getType() << "," << std::endl;

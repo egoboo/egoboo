@@ -40,7 +40,7 @@ struct CompilerEntry : Entry {
 static bool load_ai_codes_vfs();
 
 parser_state_t::parser_state_t()
-	: _loadBuffer(1024), _token(), _linebuffer()
+	: _loadBuffer(1024), _token(), _lineBuffer(256)
 {
 	_line_count = 0;
 
@@ -88,7 +88,7 @@ void print_token(const Token& token);
 #endif
 
 //--------------------------------------------------------------------------------------------
-static bool isNewline(char x) {
+static bool isNewline(int x) {
     return ASCII_LINEFEED_CHAR == x || C_CARRIAGE_RETURN_CHAR == x;
 }
 
@@ -122,14 +122,14 @@ size_t parser_state_t::load_one_line( size_t read, script_info_t& script )
     char cTmp;
 
     // Parse to start to maintain indentation
-	_linebuffer.clear();
+	_lineBuffer.clear();
 
     // try to trap all end of line conditions so we can properly count the lines
     bool tabs_warning_needed = false;
     while ( read < _loadBuffer.getSize() )
     {
         if (skipNewline(read, script)) {
-            _linebuffer.clear();
+            _lineBuffer.clear();
             return read;
         }
 
@@ -145,7 +145,7 @@ size_t parser_state_t::load_one_line( size_t read, script_info_t& script )
             break;
         }
 
-        _linebuffer.append(' ');
+        _lineBuffer.append(' ');
 
         read++;
     }
@@ -199,7 +199,7 @@ size_t parser_state_t::load_one_line( size_t read, script_info_t& script )
         {
             foundtext = true;
 
-            _linebuffer.append(cTmp);
+            _lineBuffer.append(cTmp);
         }
 
         read++;
@@ -207,14 +207,14 @@ size_t parser_state_t::load_one_line( size_t read, script_info_t& script )
 
     if ( !foundtext )
     {
-        _linebuffer.clear();
+        _lineBuffer.clear();
     }
 
-    if ( _linebuffer.size() > 0  && tabs_warning_needed )
+    if ( _lineBuffer.getSize() > 0  && tabs_warning_needed )
     {
-        Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, {script.getName(), _token.getLine()});
+        Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getLocation());
 		e << "compilation error - tab character used to define spacing will cause an error `"
-		  << " - \n`" << _linebuffer.data() << "`" << Log::EndOfEntry;
+		  << " - \n`" << _lineBuffer.toString() << "`" << Log::EndOfEntry;
 		Log::get() << e;
     }
 
@@ -223,11 +223,7 @@ size_t parser_state_t::load_one_line( size_t read, script_info_t& script )
     {
         if (skipNewline(read, script)) {
             break;
-        } else if (CSTR_END == _loadBuffer.get(read)) {
-            read += 1;
-            break;
         }
-
         read++;
     }
 
@@ -235,259 +231,414 @@ size_t parser_state_t::load_one_line( size_t read, script_info_t& script )
 }
 
 //--------------------------------------------------------------------------------------------
-int parser_state_t::get_indentation(script_info_t& script )
+
+line_scanner_state_t::line_scanner_state_t(Ego::Script::Buffer *inputBuffer, const Id::Location& location)
+    : m_inputPosition(0), m_inputBuffer(inputBuffer), m_location(location),
+      m_lexemeBuffer(128)
+{}
+
+Id::Location line_scanner_state_t::getLocation() const
 {
-    int cnt = 0;
-    char cTmp = _linebuffer[cnt];
-    while (Ego::isspace(cTmp))
+    return m_location;
+}
+
+void line_scanner_state_t::next()
+{
+    if (m_inputPosition < m_inputBuffer->getSize()) m_inputPosition++;
+}
+
+void line_scanner_state_t::write(int symbol)
+{
+    m_lexemeBuffer.append(symbol);
+}
+
+void line_scanner_state_t::save()
+{
+    write(getCurrent());
+}
+
+void line_scanner_state_t::saveAndNext()
+{
+    save();
+    next();
+}
+
+int line_scanner_state_t::getCurrent() const
+{
+    if (m_inputPosition >= m_inputBuffer->getSize()) return EndOfInputSymbol();
+    else return m_inputBuffer->get(m_inputPosition);
+}
+
+bool line_scanner_state_t::is(int symbol) const
+{
+    return symbol == getCurrent();
+}
+
+bool line_scanner_state_t::isDoubleQuote() const
+{
+    return is(DoubleQuoteSymbol());
+}
+
+bool line_scanner_state_t::isStartOfInput() const
+{
+    return is(StartOfInputSymbol());
+}
+
+bool line_scanner_state_t::isEndOfInput() const
+{
+    return is(EndOfInputSymbol());
+}
+
+bool line_scanner_state_t::isWhiteSpace() const
+{
+    return Ego::isspace(getCurrent());
+}
+
+bool line_scanner_state_t::isDigit() const
+{
+    return Ego::isdigit(getCurrent());
+}
+
+bool line_scanner_state_t::isAlphabetic() const
+{
+    return Ego::isalpha(getCurrent());
+}
+
+bool line_scanner_state_t::isNewLine() const
+{
+    return ASCII_LINEFEED_CHAR == getCurrent() || C_CARRIAGE_RETURN_CHAR == getCurrent();
+}
+
+bool line_scanner_state_t::isOperator() const
+{
+    return
+        is('+') || is('-') ||
+        is('*') || is('/') ||
+        is('%') ||
+        is('>') || is('<') ||
+        is('&') || is('=');
+}
+
+Token line_scanner_state_t::scanWhiteSpaces()
+{
+    int numberOfWhiteSpaces = 0;
+    if (isWhiteSpace())
     {
-        cnt++;
-        cTmp = _linebuffer[cnt];
+        do
+        {
+            numberOfWhiteSpaces++;
+            next();
+        } while (isWhiteSpace());
     }
-    if ( HAS_SOME_BITS( cnt, 1 ) )
+    Token token;
+    token.setLocation(getLocation());
+    token.setType(Token::Type::Whitespace);
+    token.setValue(numberOfWhiteSpaces);
+    return token;
+}
+
+Token line_scanner_state_t::scanNewLines()
+{
+    int numberOfNewLines = 0;
+    while (isNewLine())
     {
-        Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, {script.getName(), _token.getLine()});
-		e << "invalid indention - number of spaces must be even - \n"
-		  << " - \n`" << _linebuffer.data() << "`" << Log::EndOfEntry;
-		Log::get() << e;
+        // '\n' | '\r' | '\n\r' | '\r\n'
+        int old = getCurrent();
+        next();
+        if (old != getCurrent() && isNewLine())
+        {
+            next();
+        }
+        m_location = Id::Location(m_location.getLoadName(), m_location.getLineNumber() + 1);
+        numberOfNewLines++;
+    }
+    Token token;
+    token.setLocation(getLocation());
+    token.setType(Token::Type::Newline);
+    token.setValue(numberOfNewLines);
+    return token;
+}
+
+Token line_scanner_state_t::scanNumericLiteral()
+{
+    m_lexemeBuffer.clear();
+    if (!isDigit())
+    {
+        throw Id::RuntimeErrorException(__FILE__, __LINE__, "<internal error>");
+    }
+    do
+    {
+        saveAndNext();
+    } while (isDigit());
+    Token token = Token(Token::Type::NumericLiteral, getLocation());
+    token.setText(m_lexemeBuffer.toString());
+    return token;
+}
+
+Token line_scanner_state_t::scanName()
+{
+    m_lexemeBuffer.clear();
+    if (!is('_') && !isAlphabetic())
+    {
+        throw Id::RuntimeErrorException(__FILE__, __LINE__, "<internal error>");
+    }
+    do
+    {
+        saveAndNext();
+    } while (is('_') || isDigit() || isAlphabetic());
+    Token token = Token(Token::Type::Name, getLocation());
+    token.setText(m_lexemeBuffer.toString());
+    return token;
+}
+
+Token line_scanner_state_t::scanStringOrReference()
+{
+    m_lexemeBuffer.clear();
+    if (!isDoubleQuote())
+    {
+        throw Id::RuntimeErrorException(__FILE__, __LINE__, "<internal error>");
+    }
+
+    next(); // Skip leading quotation mark.
+    // If a string starts with a shebang, its contents is considered as a reference.
+    bool isReference = is('#');
+    if (isReference) next();
+   
+    
+    while (!isEndOfInput() && !isNewLine() && !isDoubleQuote())
+    {
+        saveAndNext();
+    }
+
+    if (isDoubleQuote())
+    {
+        next(); // Skip ending quotation mark.
+    }
+    else /* if (isNewline() || isEndOfInput()) */
+    {
+        throw LexicalErrorException(__FILE__, __LINE__, getLocation(), "unclosed string literal");
+    }
+    Token token = Token(isReference ? Token::Type::Reference : Token::Type::String, getLocation());
+    token.setText(m_lexemeBuffer.toString());
+    return token;
+}
+
+Token line_scanner_state_t::scanIDSZ()
+{
+    m_lexemeBuffer.clear();
+    if (!is('['))
+    {
+        throw Id::RuntimeErrorException(__FILE__, __LINE__, "<internal error>");
+    }
+    saveAndNext();
+    for (auto i = 0; i < 4; ++i)
+    {
+        if (!isDigit() && !isAlphabetic())
+        {
+            throw LexicalErrorException(__FILE__, __LINE__, getLocation(), "invalid IDSZ");
+        }
+        saveAndNext();
+    }
+    if (!is(']'))
+    {
+        throw LexicalErrorException(__FILE__, __LINE__, getLocation(), "invalid IDSZ");
+    }
+    saveAndNext();
+    Token token = Token(Token::Type::IDSZ, getLocation());
+    token.setText(m_lexemeBuffer.toString());
+    return token;
+}
+
+Token line_scanner_state_t::scanOperator()
+{
+    m_lexemeBuffer.clear();
+    if (!isOperator())
+    {
+        throw Id::RuntimeErrorException(__FILE__, __LINE__, "<internal error>");
+    }
+    saveAndNext();
+    Token token = Token(Token::Type::Operator, getLocation());
+    token.setText(m_lexemeBuffer.toString());
+    return token;
+}
+
+Token parser_state_t::parse_indention(script_info_t& script, line_scanner_state_t& state)
+{
+    auto source = state.scanWhiteSpaces();
+    if (source.getType() != Token::Type::Whitespace)
+    {
+        throw RuntimeErrorException(__FILE__, __LINE__, "internal error");
+    }
+
+    size_t indent = source.getValue();
+    static Ego::IsOdd<int> isOdd;
+    if (isOdd(indent))
+    {
+        Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getLocation());
+        e << "invalid indention - number of spaces must be even - \n"
+          << " - \n`" << _lineBuffer.toString() << "`" << Log::EndOfEntry;
+        Log::get() << e;
         _error = true;
     }
 
-    cnt >>= 1;
-    if ( cnt > 15 )
+    indent >>= 1;
+    if (indent > 15)
     {
-        Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, {script.getName(), _token.getLine()});
-		e << "invalid indention - too many spaces - \n"
-	      << " - \n`" << _linebuffer.data() << "`" << Log::EndOfEntry;
-		Log::get() << e;
+        Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getLocation());
+        e << "invalid indention - too many spaces - \n"
+          << " - \n`" << _lineBuffer.toString() << "`" << Log::EndOfEntry;
+        Log::get() << e;
         _error = true;
-        cnt = 15;
+        indent = 15;
     }
-
-    return cnt;
+    Token token;
+    token.setLocation(source.getLocation());
+    token.setType(Token::Type::Indent);
+    token.setValue(indent);
+    return token;
 }
 
 //--------------------------------------------------------------------------------------------
-void parser_state_t::parse_string(std::string string, Token& token, script_info_t& script, ObjectProfile *ppro)
+Token parser_state_t::parse_token(ObjectProfile *ppro, script_info_t& script, line_scanner_state_t& state)
 {
-    auto makeMessage = [&string, &token, &ppro]() {
-        // Add the string as a message message to the available messages of the object.
-        token.setValue(ppro->addMessage(string, true));
-        token.setType(Token::Type::Constant);
-        token.setIndex(MAX_OPCODE);
-    };
-    // The string is normal, empty string:
-    if (string.length() == 0) {
-        // Create a message for the string.
-        makeMessage();
-        // Emit a warning that the string is empty.
-        Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, {script.getName(), token.getLine()});
-        e << "empty string literal\n" << Log::EndOfEntry;
-        Log::get() << e;
-
-        return;
-    }
-    // The string is not empty.
-    
-    // If the string begins with a shebang ...
-    if (string[0] == '#') {
-        // ... then it is a profile reference.
-        auto fileName = string.substr(1);
-        // Invalid profile as default.
-        token.setValue(INVALID_PRO_REF);
-        // Convert reference to slot number.
-        for (const auto& element : ProfileSystem::get().getLoadedProfiles()) {
-            const auto& profile = element.second;
-            if (profile == nullptr) continue;
-            // Is this the object we are looking for?
-            if (Ego::isSuffix(profile->getPathname(), fileName)) {
-                token.setValue(profile->getSlotNumber());
-                break;
-            }
-        }
-
-        // Do we need to load the object?
-        if (!ProfileSystem::get().isValidProfileID((PRO_REF)token.getValue())) {
-            auto loadName = "mp_objects/" + fileName;
-
-            // Find first free slot number.
-            for (PRO_REF ipro = MAX_IMPORT_PER_PLAYER * 4; ipro < INVALID_PRO_REF; ipro++) {
-                //skip loaded profiles
-                if (ProfileSystem::get().isValidProfileID(ipro)) continue;
-
-                //found a free slot
-                token.setValue(ProfileSystem::get().loadOneProfile(loadName, REF_TO_INT(ipro)));
-                if (token.getValue() == ipro) break;
-            }
-        }
-
-        // Failed to load object!
-        if (!ProfileSystem::get().isValidProfileID((PRO_REF)token.getValue())) {
-            Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, {script.getName(), token.getLine()});
-            e << "failed to load object " << token.getText() << " - \n"
-                << " - \n`" << _linebuffer.data() << "`" << Log::EndOfEntry;
-            Log::get() << e;
-        }
-
-        token.setType(Token::Type::Constant);
-        token.setIndex(MAX_OPCODE);
-    // The string is a normal, non-empty string:
-    } else {
-        // Create a message for the string.
-        makeMessage();
-    }
-}
-size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_t& script, size_t read)
-{
-    /// @author ZZ
     /// @details This function tells what code is being indexed by read, it
-    ///    will return the next spot to read from and stick the code number
-    ///    in ptok->iIndex
-
-    char cTmp;
-
-    Ego::Script::Buffer buffer(512);
-
-    // Reset the token
-	tok = Token();
+    /// will return the next spot to read from and stick the code number in
+    /// ptok->iIndex
 
     // Check bounds
-	if ( read >= _linebuffer.size() )
+    if (state.isEndOfInput())
     {
-        return _linebuffer.size();
+        return Token(Token::Type::EndOfLine, state.getLocation());
     }
 
-    auto write = [&buffer](char c) {
-        buffer.append(c);
-    };
-    auto save = [&cTmp, &write, &tok]() { write(cTmp); };
-    auto next = [this, &cTmp, &read]() {
-        read++;
-        cTmp = _linebuffer[read];
-    };
-    auto saveAndNext = [&save, &next]() { save(); next(); };
+    // Skip whitespaces.
+    state.scanWhiteSpaces();
 
-    // Skip any initial spaces
-    cTmp = _linebuffer[read];
-    while (Ego::isspace(cTmp) && read < _linebuffer.size())
+    // Stop if the line is empty.
+    if (state.isEndOfInput())
     {
-        next();
-    }
-
-    // break if there was nothing here
-    if ( read >= _linebuffer.size())
-    {
-        print_token(tok);
-        return read;
+        return Token(Token::Type::EndOfLine, state.getLocation());
     }
 
     // initialize the word
-    if (C_DOUBLE_QUOTE_CHAR == cTmp) {
-        // `doubleQuotedString|reference`
-        // strings of the form "Here lies \"The Sandwich King\"" are not supported
+    if (state.isDoubleQuote())
+    {
+        Token token = state.scanStringOrReference();
+        if (token.getType() == Token::Type::Reference)
+        {
+            // If it is a profile reference.
 
-        next(); // skip the leading quotation mark
+            // Invalid profile as default.
+            token.setValue(INVALID_PRO_REF);
+            // Convert reference to slot number.
+            for (const auto& element : ProfileSystem::get().getLoadedProfiles())
+            {
+                const auto& profile = element.second;
+                if (profile == nullptr) continue;
+                // Is this the object we are looking for?
+                if (Ego::isSuffix(profile->getPathname(), token.getText()))
+                {
+                    token.setValue(profile->getSlotNumber());
+                    break;
+                }
+            }
 
-        while (CSTR_END != cTmp && C_DOUBLE_QUOTE_CHAR != cTmp && read < _linebuffer.size()) {
-            saveAndNext();
-        }
+            // Do we need to load the object?
+            if (!ProfileSystem::get().isValidProfileID((PRO_REF)token.getValue()))
+            {
+                auto loadName = "mp_objects/" + token.getText();
 
-        if (C_DOUBLE_QUOTE_CHAR == cTmp) {
-            next(); // skip the ending quotation mark
-        } else {
-            if (CSTR_END == cTmp) {
-                throw LexicalErrorException(__FILE__, __LINE__, {script.getName(), tok.getLine()}, "unclosed string literal");
-            } else {
-                throw LexicalErrorException(__FILE__, __LINE__, {script.getName(), tok.getLine()}, "string literal too long");
+                // Find first free slot number.
+                for (PRO_REF ipro = MAX_IMPORT_PER_PLAYER * 4; ipro < INVALID_PRO_REF; ipro++)
+                {
+                    //skip loaded profiles
+                    if (ProfileSystem::get().isValidProfileID(ipro)) continue;
+
+                    //found a free slot
+                    token.setValue(ProfileSystem::get().loadOneProfile(loadName, REF_TO_INT(ipro)));
+                    if (token.getValue() == ipro) break;
+                }
             }
-        }
-        tok.setText(buffer.toString());
-        parse_string(tok.getText(), tok, script, ppro);
-    } else if ('+' == cTmp || '-' == cTmp || '/' == cTmp || '*' == cTmp ||
-               '%' == cTmp || '>' == cTmp || '<' == cTmp || '&' == cTmp) {
-        saveAndNext();
-        int i;
-        tok.setText(buffer.toString());
-        for (i = 0; i < Opcodes.size(); ++i) {
-            if (tok.getText() == Opcodes[i].cName) {
-                tok.setValue(Opcodes[i].iValue);
-                tok.setType(Opcodes[i]._type);
-                tok.setIndex(i);
-                break;
+
+            // Failed to load object!
+            if (!ProfileSystem::get().isValidProfileID((PRO_REF)token.getValue()))
+            {
+                Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, token.getLocation());
+                e << "failed to load object " << token.getText() << " - \n"
+                    << " - \n`" << _lineBuffer.toString() << "`" << Log::EndOfEntry;
+                Log::get() << e;
             }
+            token.setType(Token::Type::Constant);
         }
-        // We couldn't figure out what this is, throw out an error code
-        if (i == Opcodes.size()) {
-            throw LexicalErrorException(__FILE__, __LINE__, {script.getName(), tok.getLine()}, "not an opcode");
+        else
+        {
+            // Add the string as a message message to the available messages of the object.
+            token.setValue(ppro->addMessage(token.getText(), true));
+            token.setType(Token::Type::Constant);
+            // Emit a warning that the string is empty.
+            Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, token.getLocation());
+            e << "empty string literal\n" << Log::EndOfEntry;
+            Log::get() << e;
         }
-    } else if ('=' == cTmp) {
-        // `assign = '='`
-        saveAndNext();
-        tok.setText(buffer.toString());
-        tok.setValue(-1);
-        tok.setType(Token::Type::Operator);
-        tok.setIndex(MAX_OPCODE);
-    } else if ('[' == cTmp) {
-        // `idsz = '[' (digit|alpha)^4 ']'`
-        saveAndNext();
-        for (auto i = 0; i < 4; ++i) {
-            if (!Ego::isdigit(cTmp) && !Ego::isalpha(cTmp)) {
-                throw LexicalErrorException(__FILE__, __LINE__, {script.getName(), tok.getLine()}, "invalid IDSZ");
+        return token;
+    } else if (state.isOperator()) {
+        auto token = state.scanOperator();
+        /// @todo Totally inconsequent "semantic" analysis.
+        if (token.getText() == "=")
+        {
+            token.setValue(-1);
+            return token;
+        }
+        else
+        {
+            auto it = std::find_if(Opcodes.cbegin(), Opcodes.cend(), [&token](const auto& opcode) { return token.getText() == opcode.cName; });
+            // We couldn't figure out what this is, throw out an error code
+            if (it == Opcodes.cend())
+            {
+                throw LexicalErrorException(__FILE__, __LINE__, state.getLocation(), "not an opcode");
             }
-            saveAndNext();
+            token.setValue((*it).iValue);
+            token.setType((*it)._type);
+            token.setIndex(it - Opcodes.cbegin());
+            return token;
         }
-        if (cTmp != ']') {
-            throw LexicalErrorException(__FILE__, __LINE__, {script.getName(), tok.getLine()}, "invalid IDSZ");
-        }
-        saveAndNext();
-        tok.setText(buffer.toString());
-        IDSZ2 idsz = IDSZ2(tok.getText());
-        tok.setValue(idsz.toUint32());
-        tok.setType(Token::Type::Constant);
-        tok.setIndex(MAX_OPCODE);
-    } else if (Ego::isdigit(cTmp)) {
-        // `numericLiteral`
-        do {
-            saveAndNext();
-        } while (Ego::isdigit(cTmp));
-        tok.setText(buffer.toString());
+    } else if (state.is('[')) {
+        Token token = state.scanIDSZ();
+        token.setType(Token::Type::Constant);
+        IDSZ2 idsz = IDSZ2(token.getText());
+        token.setValue(idsz.toUint32());
+        return token;
+    } else if (state.isDigit()) {
+        auto token = state.scanNumericLiteral();
+        token.setType(Token::Type::Constant);
         int temporary;
-        sscanf(tok.getText().c_str(), "%d", &temporary);
-        tok.setValue(temporary);
-        tok.setType(Token::Type::Constant);
-        tok.setIndex(MAX_OPCODE);
-    } else if ('_' == cTmp || Ego::isalpha(cTmp)) {
-        do {
-            saveAndNext();
-        } while ('_' == cTmp || Ego::isdigit(cTmp) || Ego::isalpha(cTmp));
-        tok.setText(buffer.toString());
-        int i;
-        for (i = 0; i < Opcodes.size(); ++i) {
-            if (tok.getText() == Opcodes[i].cName) {
-                tok.setValue(Opcodes[i].iValue);
-                tok.setType(Opcodes[i]._type);
-                tok.setIndex(i);
-                break;
-            }
-        }
+        sscanf(token.getText().c_str(), "%d", &temporary);
+        token.setValue(temporary);
+        return token;
+    } else if (state.is('_') || state.isAlphabetic()) {
+        Token token = state.scanName();
+        auto it = std::find_if(Opcodes.cbegin(), Opcodes.cend(), [&token](const auto& opcode) { return token.getText() == opcode.cName; });
         // We couldn't figure out what this is, throw out an error code
-        if (i == Opcodes.size()) {
-            throw LexicalErrorException(__FILE__, __LINE__, {script.getName(), tok.getLine()}, "not an opcode");
+        if (it == Opcodes.cend())
+        {
+            throw LexicalErrorException(__FILE__, __LINE__, state.getLocation(), "not an opcode");
         }
+        token.setValue((*it).iValue);
+        token.setType((*it)._type);
+        token.setIndex(it - Opcodes.cbegin());
+        return token;
     } else {
-        throw LexicalErrorException(__FILE__, __LINE__, {script.getName(), tok.getLine()}, "unexpected symbol");
+        throw LexicalErrorException(__FILE__, __LINE__, state.getLocation(), "unexpected symbol");
     }
-    print_token(tok);
-    return read;
 }
 
 //--------------------------------------------------------------------------------------------
-void parser_state_t::emit_opcode( Token& tok, const BIT_FIELD highbits, script_info_t& script )
+void parser_state_t::emit_opcode(const Token& token, const BIT_FIELD highbits, script_info_t& script)
 {
     BIT_FIELD loc_highbits = highbits;
 
     // emit constant or a function
-    if ( Token::Type::Constant == tok.getType() || Token::Type::Function == tok.getType() )
+    if ( Token::Type::Constant == token.getType() || Token::Type::Function == token.getType() )
     {
         SET_BIT( loc_highbits, Instruction::FUNCTIONBITS );
     }
@@ -495,39 +646,47 @@ void parser_state_t::emit_opcode( Token& tok, const BIT_FIELD highbits, script_i
     // emit the opcode
     if (!script._instructions.isFull())
     {
-		script._instructions.append(Instruction(loc_highbits | tok.getValue()));
+		script._instructions.append(Instruction(loc_highbits | token.getValue()));
     }
     else
     {
-        Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, {script.getName(), tok.getLine()});
-		e << "script index larger than array - \n"
-		  << " - \n`" << _linebuffer.data() << "`" << Log::EndOfEntry;
-		Log::get() << e;
+		script._instructions.append(Instruction(loc_highbits | token.getValue()));
     }
-
 }
 
 //--------------------------------------------------------------------------------------------
+
 void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& script )
 {
     /// @author ZF
     /// @details This parses an AI script line by line
 
     size_t read = 0;
-    for ( _token.setLine(0); read < _loadBuffer.getSize(); _token.setLine(_token.getLine() + 1) )
+    size_t line = 1;
+    for (_token.setLocation({script.getName(), 1}); read < _loadBuffer.getSize(); _token.setLocation({script.getName(), _token.getLocation().getLineNumber()}))
     {
         read = load_one_line( read, script );
-        if ( 0 == _linebuffer.size() ) continue;
+        if ( 0 == _lineBuffer.getSize() ) continue;
 
 #if (DEBUG_SCRIPT_LEVEL > 2) && defined(_DEBUG)
         print_line();
 #endif
+        line_scanner_state_t state(&_lineBuffer, {script.getName(), line});
 
         //------------------------------
         // grab the first opcode
 
-        uint32_t highbits = SetDataBits( get_indentation( script ) );
-        size_t parseposition = parse_token(_token, ppro, script, 0 );
+        _token = parse_indention(script, state);
+        if (Token::Type::Indent != _token.getType())
+        {
+            Log::CompilerEntry e(Log::Level::Error, __FILE__, __LINE__, __FUNCTION__, _token.getLocation());
+            e << "expected operator - \n"
+              << " - \n`" << _lineBuffer.toString() << "`" << Log::EndOfEntry;
+            Log::get() << e;
+            throw LexicalErrorException(__FILE__, __LINE__, _token.getLocation(), e.getText());
+        }
+        uint32_t highbits = SetDataBits( _token.getValue() );
+        _token = parse_token(ppro, script, state);
         if ( Token::Type::Function == _token.getType() )
         {
             if ( Ego::Script::ScriptFunctions::End == _token.getValue() && 0 == highbits )
@@ -560,54 +719,54 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
 
             // save a position for the operand count
             _token.setValue(0);
-            operand_index = script._instructions.getLength();    //AisCompiled_offset;
+            operand_index = script._instructions.getNumberOfInstructions();
             emit_opcode( _token, 0, script );
 
             // handle the "="
-            parseposition = parse_token(_token, ppro, script, parseposition );  // EQUALS
+            _token = parse_token(ppro, script, state);  // EQUALS
 			if ( Token::Type::Operator != _token.getType() || ( _token.getText() != "=" ) )
             {
-                Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, {script.getName(), _token.getLine()});
+                Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getLocation());
 				e << "invalid equation - \n"
-				  << " - \n`" << _linebuffer.data() << "`" << Log::EndOfEntry;
+				  << " - \n`" << _lineBuffer.toString() << "`" << Log::EndOfEntry;
             }
 
             //------------------------------
             // grab the next opcode
 
-            parseposition = parse_token( _token, ppro, script, parseposition );
+            _token = parse_token( ppro, script, state );
             if ( Token::Type::Variable == _token.getType() || Token::Type::Constant == _token.getType() )
             {
                 // this is a value or a constant
                 emit_opcode( _token, 0, script );
                 operands++;
 
-                parseposition = parse_token(_token, ppro, script, parseposition );
+                _token = parse_token( ppro, script, state );
             }
             else if ( Token::Type::Operator != _token.getType() )
             {
                 // this is a function or an unknown value. do not break the script.
-                Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, {script.getName(), _token.getLine()});
+                Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getLocation());
 				e << "invalid operand " << _token.getText() << " - \n"
-				  << " - \n`" << _linebuffer.data() << "`" << Log::EndOfEntry;
+				  << " - \n`" << _lineBuffer.toString() << "`" << Log::EndOfEntry;
 				Log::get() << e;
 
                 emit_opcode( _token, 0, script );
                 operands++;
 
-                parseposition = parse_token(_token, ppro, script, parseposition );
+                _token = parse_token( ppro, script, state );
             }
 
             // expects a OPERATOR VALUE OPERATOR VALUE OPERATOR VALUE pattern
-            while ( parseposition < _linebuffer.size() )
+            while ( _token.getType() != Token::Type::EndOfLine )
             {
                 // the current token should be an operator
                 if ( Token::Type::Operator != _token.getType() )
                 {
                     // problem with the loop
-                    Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, {script.getName(), _token.getLine()});
+                    Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getLocation());
 					e << "expected operator - \n"
-					  << " - \n`" << _linebuffer.data() << "`" << Log::EndOfEntry;
+					  << " - \n`" << _lineBuffer.toString() << "`" << Log::EndOfEntry;
 					Log::get() << e;
                     break;
                 }
@@ -616,11 +775,11 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
 				highbits = SetDataBits( _token.getValue() );
 
                 // VALUE
-                parseposition = parse_token(_token, ppro, script, parseposition );
+                _token = parse_token(ppro, script, state);
                 if ( Token::Type::Constant != _token.getType() && Token::Type::Variable != _token.getType() )
                 {
                     // not having a constant or a value here breaks the function. stop processsing
-                    Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, {script.getName(), _token.getLine()});
+                    Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getLocation());
                     e << "invalid operand `" << _token.getText() << "`" << Log::EndOfEntry;
                     Log::get() << e;
                     break;
@@ -630,34 +789,36 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
                 operands++;
 
                 // OPERATOR
-                parseposition = parse_token( _token, ppro, script, parseposition );
+                _token = parse_token( ppro, script, state);
             }
             script._instructions[operand_index]._value = operands;
         }
         else if ( Token::Type::Constant == _token.getType() )
         {
-            Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, {script.getName(), _token.getLine()});
+            Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getLocation());
             e << "invalid constant " << _token.getText() << Log::EndOfEntry;
             Log::get() << e;
         }
         else if ( Token::Type::Unknown == _token.getType() )
         {
             // unknown opcode, do not process this line
-            Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, {script.getName(), _token.getLine()});
+            Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getLocation());
             e << "invalid operand " << _token.getText() << Log::EndOfEntry;
             Log::get() << e;
         }
         else
         {
             throw RuntimeErrorException(__FILE__, __LINE__, "internal error");
-            break;
         }
+
+        //
+        line++;
     }
 
     _token.setValue(Ego::Script::ScriptFunctions::End);
     _token.setType(Token::Type::Function);
     emit_opcode( _token, 0, script );
-    _token.setValue(script._instructions.getLength() + 1);
+    _token.setValue(script._instructions.getNumberOfInstructions() + 1);
     emit_opcode( _token, 0, script );
 }
 
@@ -669,14 +830,15 @@ Uint32 parser_state_t::jump_goto( int index, int index_end, script_info_t& scrip
     ///    starting location and the following code.  The starting location
     ///    should always be a function code with indentation
 
-    auto value = script._instructions[index]; /*AisCompiled_buffer[index];*/  index += 2;
-    int targetindent = GetDataBits( value._value );
+    auto value = script._instructions[index];
+    index += 2;
+    int targetindent = GetDataBits( value.getBits() );
     int indent = 100;
 
     while ( indent > targetindent && index < index_end )
     {
-        value = script._instructions[index]; //AisCompiled_buffer[index];
-        indent = GetDataBits ( value._value );
+        value = script._instructions[index];
+        indent = GetDataBits ( value.getBits() );
         if ( indent > targetindent )
         {
             // Was it a function
@@ -692,7 +854,7 @@ Uint32 parser_state_t::jump_goto( int index, int index_end, script_info_t& scrip
                 index++;
                 value = script._instructions[index]; //AisCompiled_buffer[index];
                 index++;
-                index += ( value._value & 255 );
+                index += ( value.getBits() & 255 );
             }
         }
     }
@@ -707,7 +869,7 @@ void parser_state_t::parse_jumps( script_info_t& script )
     /// @details This function sets up the fail jumps for the down and dirty code
 
     uint32_t index     = 0;
-    uint32_t index_end = script._instructions.getLength();
+    uint32_t index_end = script._instructions.getNumberOfInstructions();
 
     auto value = script._instructions[index];
     while ( index < index_end )
@@ -720,16 +882,16 @@ void parser_state_t::parse_jumps( script_info_t& script )
             // Each function needs a jump
             auto iTmp = jump_goto( index, index_end, script );
             index++;
-            script._instructions[index]._value = iTmp;              //AisCompiled_buffer[index] = iTmp;
+            script._instructions[index].setBits(iTmp);
             index++;
         }
         else
         {
             // Operations cover each operand
             index++;
-            auto iTmp = script._instructions[index];              //AisCompiled_buffer[index];
+            auto iTmp = script._instructions[index];
             index++;
-			index += Ego::Math::clipBits<8>( iTmp._value );
+			index += Ego::Math::clipBits<8>( iTmp.getBits() );
         }
     }
 }
@@ -1062,16 +1224,12 @@ egolib_rv load_ai_script_vfs0(parser_state_t& ps, const std::string& loadname, O
             return rv_fail;
         }
     }
-    // Append a zero terminator.
-    /** @todo This is for compatibility with legacy code. */
-    ps._loadBuffer.append(CSTR_END);
-
     try {
         // save the filename for error logging
         script._name = loadname;
 
         // we have parsed nothing yet
-        script._instructions._length = 0;
+        script._instructions.clear();
 
         // parse/compile the scripts
         ps.parse_line_by_line(ppro, script);

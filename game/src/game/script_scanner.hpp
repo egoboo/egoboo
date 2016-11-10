@@ -25,20 +25,41 @@
 /// @brief A token.
 struct Token {
 	enum class Type {
-		Unknown = '?',
-		Function = 'F',
-		Variable = 'V',
-		Constant = 'C',
-		Operator = 'O',
+		Unknown,
+		Function,
+		Variable,
+		Constant,
+		Operator,
+        // Token type of zero or more whitespaces.
+        // getValue indicates the number of whitespaces.
+        Whitespace,
+        // Token type of zero or more newlines.
+        // getValue indicates the number of newlines.
+        Newline,
+        // Token type of zero to 15 indentions.
+        // etValue indicates the number of indentions.
+        Indent,
+        // Token type of the end of a line.
+        EndOfLine,
+        /// Token type of a numeric literal.
+        NumericLiteral,
+        /// Token type of a name.
+        Name,
+        /// Token type of a string.
+        String,
+        /// Token type of a reference.
+        Reference,
+        /// Token type of an IDSZ.
+        IDSZ,
+
 	};
 
 private:
 	/// @brief The type of this token.
 	Type _type;
 
-	/// @brief The line number.
-    /// @todo Use Id::Location.
-	size_t _line;
+	/// @brief The location.
+	Id::Location _location;
 
 	/// @brief The index of this token.
     int _index;
@@ -78,19 +99,19 @@ public:
 		_value = value;
 	}
 
-	/// @brief Get the line number of this token.
-    /// @return the line number of this token
-    /// @see setLine
-    /// @remark The line number is the line number of the line in which the lexeme of this token starts in.
-	size_t getLine() const {
-		return _line;
+	/// @brief Get the location of this token.
+    /// @return the location of this token
+    /// @see setLocation
+    /// @remark The location is the location at which the lexeme of this token starts at.
+	Id::Location getLocation() const {
+		return _location;
 	}
 
-	/// @brief Set the line number of this token.
-	/// @param line the line number
-	/// @see getLine
-	void setLine(size_t line) {
-		_line = line;
+	/// @brief Set the location of this token.
+	/// @param location the location
+	/// @see getLocation
+	void setLocation(const Id::Location& location) {
+		_location = location;
 	}
 
 	/// @brief Get the type of this token.
@@ -123,6 +144,8 @@ public:
 
 	/// @brief Construct this token with default values.
 	Token();
+
+    Token(Type type, const Id::Location& location);
 
 	/// @brief Construct this token with values of another token.
 	/// @param other the other token
