@@ -124,7 +124,11 @@ public:
     // for function/assignment, it's the indentation of the line i.e. there are 2^4 = 16 possible indention levels.
     // for operands, it's the operator
 	static const uint32_t DATABITS = 0x78000000;
+
+private:
 	uint32_t _value;
+
+public:
 	Instruction()
 		: _value() {
 	}

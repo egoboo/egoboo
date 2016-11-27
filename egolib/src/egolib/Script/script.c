@@ -338,7 +338,7 @@ bool script_state_t::run_operation( script_state_t& state, ai_state_t& aiState, 
 
     // Get the number of operands
 	script.increment_pos();
-    auto operand_count = script._instructions[script.get_pos()]._value;
+    auto operand_count = script._instructions[script.get_pos()].getBits();
 
     // Now run the operation
     state.operationsum = 0;
