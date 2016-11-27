@@ -246,35 +246,27 @@ struct InstructionList
     uint32_t numberOfInstructions;
 
     /// @brief The instructions.
-    Instruction _instructions[MAXAICOMPILESIZE];
+    std::array<Instruction, MAXAICOMPILESIZE> instructions;
 
     /// @brief Construct this instruction list.
     /// @post The instruction list is empty.
     InstructionList()
-        : numberOfInstructions(0)
+        : instructions(), numberOfInstructions(0)
     {}
 
     /// @brief Construct an instruction list with the values of another instruction list.
     /// @param other the other instruction list
     InstructionList(const InstructionList& other)
-        : numberOfInstructions(other.numberOfInstructions)
-    {
-        for (size_t i = 0; i < numberOfInstructions; ++i)
-        {
-            _instructions[i] = other._instructions[i];
-        }
-    }
+        : instructions(other.instructions), numberOfInstructions(other.numberOfInstructions)
+    {}
 
     /// @brief Assign this instruction list with the values of another instruction list.
     /// @param other the other instruction list
     /// @return this instruction list
-    InstructionList operator=(const InstructionList& other)
+    InstructionList& operator=(const InstructionList& other)
     {
+        instructions = other.instructions;
         numberOfInstructions = other.numberOfInstructions;
-        for (size_t i = 0; i < numberOfInstructions; ++i)
-        {
-            _instructions[i] = other._instructions[i];
-        }
         return *this;
     }
     
@@ -298,7 +290,7 @@ struct InstructionList
         {
             throw std::overflow_error("instruction list overflow");
         }
-        _instructions[numberOfInstructions++] = instruction;
+        instructions[numberOfInstructions++] = instruction;
     }
 
     /// @brief Get the instruction at the specified index.
@@ -306,7 +298,7 @@ struct InstructionList
     /// @return a reference to the instruction
     const Instruction& operator[](size_t index) const
     {
-        return _instructions[index];
+        return instructions[index];
     }
 
     /// @brief Get the instruction at the specified index.
@@ -314,7 +306,7 @@ struct InstructionList
     /// @return a constant reference to the instruction
     Instruction& operator[](size_t index)
     {
-        return _instructions[index];
+        return instructions[index];
     }
 
     void clear()
