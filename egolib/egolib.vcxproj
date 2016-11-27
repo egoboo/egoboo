@@ -305,6 +305,8 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\Script\ConstantPool.cpp" />
+    <ClCompile Include="src\egolib\Script\Constant.cpp" />
     <ClCompile Include="src\egolib\Mesh\TileFX.cpp" />
     <ClCompile Include="src\egolib\FileFormats\MapTileDefinitionsDictionary.cpp" />
     <ClCompile Include="src\egolib\VFS\FsPath.cpp" />
@@ -512,6 +514,8 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Script\ConstantPool.hpp" />
+    <ClInclude Include="src\egolib\Script\Constant.hpp" />
     <ClInclude Include="src\egolib\Mesh\TileFX.hpp" />
     <ClInclude Include="src\egolib\FileFormats\MapTileDefinitionsDictionary.hpp" />
     <ClInclude Include="src\egolib\VFS\FsPath.hpp" />
