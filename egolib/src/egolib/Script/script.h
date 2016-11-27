@@ -137,6 +137,21 @@ public:
         : _value(other._value)
     {}
 
+    Instruction(Instruction&& other)
+        : _value(std::move(other._value))
+    {}
+
+    Instruction& operator=(Instruction other)
+    {
+        std::swap(_value, other._value);
+        return *this;
+    }
+
+    friend void swap(Instruction& x, Instruction& y)
+    {
+        std::swap(x._value, y._value);
+    }
+
 public:
     Instruction(uint32_t value)
         : _value(value)
