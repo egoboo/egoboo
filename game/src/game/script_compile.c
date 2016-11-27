@@ -232,12 +232,12 @@ size_t parser_state_t::load_one_line( size_t read, script_info_t& script )
 
 //--------------------------------------------------------------------------------------------
 
-line_scanner_state_t::line_scanner_state_t(Ego::Script::Buffer *inputBuffer, const Id::Location& location)
+line_scanner_state_t::line_scanner_state_t(Buffer *inputBuffer, const Location& location)
     : m_inputPosition(0), m_inputBuffer(inputBuffer), m_location(location),
       m_lexemeBuffer(128)
 {}
 
-Id::Location line_scanner_state_t::getLocation() const
+Location line_scanner_state_t::getLocation() const
 {
     return m_location;
 }
@@ -364,7 +364,7 @@ Token line_scanner_state_t::scanNumericLiteral()
     m_lexemeBuffer.clear();
     if (!isDigit())
     {
-        throw Id::RuntimeErrorException(__FILE__, __LINE__, "<internal error>");
+        throw RuntimeErrorException(__FILE__, __LINE__, "<internal error>");
     }
     do
     {
@@ -380,7 +380,7 @@ Token line_scanner_state_t::scanName()
     m_lexemeBuffer.clear();
     if (!is('_') && !isAlphabetic())
     {
-        throw Id::RuntimeErrorException(__FILE__, __LINE__, "<internal error>");
+        throw RuntimeErrorException(__FILE__, __LINE__, "<internal error>");
     }
     do
     {
@@ -396,7 +396,7 @@ Token line_scanner_state_t::scanStringOrReference()
     m_lexemeBuffer.clear();
     if (!isDoubleQuote())
     {
-        throw Id::RuntimeErrorException(__FILE__, __LINE__, "<internal error>");
+        throw RuntimeErrorException(__FILE__, __LINE__, "<internal error>");
     }
 
     next(); // Skip leading quotation mark.
@@ -428,7 +428,7 @@ Token line_scanner_state_t::scanIDSZ()
     m_lexemeBuffer.clear();
     if (!is('['))
     {
-        throw Id::RuntimeErrorException(__FILE__, __LINE__, "<internal error>");
+        throw RuntimeErrorException(__FILE__, __LINE__, "<internal error>");
     }
     saveAndNext();
     for (auto i = 0; i < 4; ++i)
@@ -454,7 +454,7 @@ Token line_scanner_state_t::scanOperator()
     m_lexemeBuffer.clear();
     if (!isOperator())
     {
-        throw Id::RuntimeErrorException(__FILE__, __LINE__, "<internal error>");
+        throw RuntimeErrorException(__FILE__, __LINE__, "<internal error>");
     }
     saveAndNext();
     Token token = Token(Token::Type::Operator, getLocation());
@@ -689,7 +689,7 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
         _token = parse_token(ppro, script, state);
         if ( Token::Type::Function == _token.getType() )
         {
-            if ( Ego::Script::ScriptFunctions::End == _token.getValue() && 0 == highbits )
+            if ( ScriptFunctions::End == _token.getValue() && 0 == highbits )
             {
                 // stop processing the lines, since we're finished
                 break;
@@ -791,7 +791,7 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
                 // OPERATOR
                 _token = parse_token( ppro, script, state);
             }
-            script._instructions[operand_index]._value = operands;
+            script._instructions[operand_index].setBits(operands);
         }
         else if ( Token::Type::Constant == _token.getType() )
         {
@@ -815,7 +815,7 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
         line++;
     }
 
-    _token.setValue(Ego::Script::ScriptFunctions::End);
+    _token.setValue(ScriptFunctions::End);
     _token.setType(Token::Type::Function);
     emit_opcode( _token, 0, script );
     _token.setValue(script._instructions.getNumberOfInstructions() + 1);

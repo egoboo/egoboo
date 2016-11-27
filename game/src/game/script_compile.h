@@ -64,20 +64,20 @@ public:
     static int StartOfInputSymbol() { return 255 + 1; }
 
 private:
-    Id::Location m_location;
+    Location m_location;
     size_t m_inputPosition;
-    Ego::Script::Buffer *m_inputBuffer;
-    Ego::Script::Buffer m_lexemeBuffer;
+    Buffer *m_inputBuffer;
+    Buffer m_lexemeBuffer;
 
 public:
-    line_scanner_state_t(Ego::Script::Buffer *inputBuffer, const Id::Location& location);
+    line_scanner_state_t(Buffer *inputBuffer, const Location& location);
 
 public:
     line_scanner_state_t(const line_scanner_state_t& other) = delete;
     line_scanner_state_t& operator=(const line_scanner_state_t&) = delete;
 
 public:
-    Id::Location getLocation() const;
+    Location getLocation() const;
 
     void next();
     void write(int symbol);
@@ -166,10 +166,10 @@ protected:
     // @post @a read was incremented by the number of input symbols consumed
     bool skipNewline(size_t& read, script_info_t& script);
 
-    Ego::Script::Buffer _lineBuffer;
+    Buffer _lineBuffer;
 
 public:
-    Ego::Script::Buffer _loadBuffer;
+    Buffer _loadBuffer;
 
     /// @brief Get the error variable value.
     /// @return the error variable value
