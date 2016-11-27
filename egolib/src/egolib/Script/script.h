@@ -254,20 +254,33 @@ struct InstructionList
         : instructions(), numberOfInstructions(0)
     {}
 
+    /**@{*/
+
     /// @brief Construct an instruction list with the values of another instruction list.
     /// @param other the other instruction list
     InstructionList(const InstructionList& other)
         : instructions(other.instructions), numberOfInstructions(other.numberOfInstructions)
     {}
 
+    InstructionList(InstructionList&& other)
+        : instructions(std::move(other.instructions)), numberOfInstructions(std::move(other.numberOfInstructions))
+    {}
+
+    /**@}*/
+
     /// @brief Assign this instruction list with the values of another instruction list.
     /// @param other the other instruction list
     /// @return this instruction list
-    InstructionList& operator=(const InstructionList& other)
+    InstructionList& operator=(InstructionList other)
     {
-        instructions = other.instructions;
-        numberOfInstructions = other.numberOfInstructions;
+        std::swap(*this, other);
         return *this;
+    }
+
+    friend void swap(InstructionList& x, InstructionList& y)
+    {
+        std::swap(x.instructions, y.instructions);
+        std::swap(x.numberOfInstructions, y.numberOfInstructions);
     }
     
     /// @brief Get the number of instructions in this instruction list.
