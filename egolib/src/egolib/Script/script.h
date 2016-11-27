@@ -116,187 +116,192 @@ enum chr_alert_bits
 struct Instruction
 {
 public:
-	// 1000 0000.0000 0000.0000 0000.0000 0000
-	static const uint32_t FUNCTIONBITS = 0x80000000;
-	// 0000 0111 1111 1111 1111 1111 1111 1111
-	static const uint32_t VALUEBITS = 0x07FFFFFF;
-	// 0111 1000 0000 0000 0000 0000 0000 0000
+    // 1000 0000.0000 0000.0000 0000.0000 0000
+    static const uint32_t FUNCTIONBITS = 0x80000000;
+    // 0000 0111 1111 1111 1111 1111 1111 1111
+    static const uint32_t VALUEBITS = 0x07FFFFFF;
+    // 0111 1000 0000 0000 0000 0000 0000 0000
     // for function/assignment, it's the indentation of the line i.e. there are 2^4 = 16 possible indention levels.
     // for operands, it's the operator
-	static const uint32_t DATABITS = 0x78000000;
+    static const uint32_t DATABITS = 0x78000000;
 
 private:
-	uint32_t _value;
+    uint32_t _value;
 
 public:
-	Instruction()
-		: _value() {
-	}
-	Instruction(uint32_t value)
-		: _value(value) {
-	}
-	Instruction(const Instruction& other)
-		: _value(other._value) {
-	}
-	uint32_t operator&(uint32_t bitmask) {
-		return _value & bitmask;
-	}
-	size_t getIndex() const {
-		static_assert(std::numeric_limits<size_t>::max() >= std::numeric_limits<uint32_t>::max(),
-			          "maximum value of size_t is smaller than maximum value of uint32_t");
-		return (size_t)_value;
-	}
-	/**
-	 * @brief
-	 *	Get if this instruction is an "inv" (~"invoke") instruction.
-	 * @return
-	 *	@a true if this instruction is an "inv" instruction,
-	 *	@a false otherwise
-	 * @todo
-	 *	Rename to "isInv".
-	 * @todo
-	 *	EgoScript has some decision logic built-in if an instruction is an
-	 *	"inv" or "ldc" instruction. Clean up this mess.
-	 */
-	bool isInv() const {
-		return hasSomeBits(FUNCTIONBITS);
-	}
-	/**
-	 * @brief
-	 *	Get if this instruction is a "ldc" (~"load constant") instruction.
-	 * @return
-	 *	@a true if this instruction is a "ldc" instruction,
-	 *	@a false otherwise
-	 * @todo
-	 *	Rename to "isLdc".
-	 * @todo
-	 *	EgoScript has some decision logic built-in if an instruction is an
-	 *	"inv" or "ldc" instruction. Clean up this mess.
-	 */
-	bool isLdc() const {
-		return hasSomeBits(FUNCTIONBITS);
-	}
-	uint32_t getBits() const {
-		return _value;
-	}
-	void setBits(uint32_t bits) {
-		_value = bits;
-	}
-	/**
-	 * @brief
-	 *	Get the data bits.
-	 * @return
-	 *	the data bits
-	 * @remark
-	 *	the data bits are the upper 5 Bits of the 32 value bits
-	 */
-	uint8_t getDataBits() const {
-		return (getBits() >> 27) & 0x0f;
-	}
-    uint32_t getValueBits() const {
+    Instruction()
+        : _value()
+    {}
+
+    Instruction(const Instruction& other)
+        : _value(other._value)
+    {}
+
+public:
+    Instruction(uint32_t value)
+        : _value(value)
+    {}
+
+    uint32_t operator&(uint32_t bitmask)
+    {
+        return _value & bitmask;
+    }
+
+    size_t getIndex() const
+    {
+        static_assert(std::numeric_limits<size_t>::max() >= std::numeric_limits<uint32_t>::max(),
+                      "maximum value of size_t is smaller than maximum value of uint32_t");
+        return (size_t)_value;
+    }
+
+    /// @brief Get if this instruction is an "inv" (~"invoke") instruction.
+    /// @return @a true if this instruction is an "inv" instruction, @a false otherwise
+    /// @todo
+    /// EgoScript has some decision logic built-in if an instruction is an
+    /// "inv" or "ldc" instruction. Clean up this mess.
+    bool isInv() const
+    {
+        return hasSomeBits(FUNCTIONBITS);
+    }
+
+    /// @brief Get if this instruction is a "ldc" (~"load constant") instruction.
+    /// @return @a true if this instruction is a "ldc" instruction, @a false otherwise
+    /// @todo
+    /// EgoScript has some decision logic built-in if an instruction is an
+    /// "inv" or "ldc" instruction. Clean up this mess.
+    bool isLdc() const
+    {
+        return hasSomeBits(FUNCTIONBITS);
+    }
+
+    uint32_t getBits() const
+    {
+        return _value;
+    }
+
+    void setBits(uint32_t bits)
+    {
+        _value = bits;
+    }
+
+    /// @brief Get the data bits.
+    /// @return the data bits
+    /// @remark The data bits are the upper 5 Bits of the 32 value bits
+    uint8_t getDataBits() const
+    {
+        return (getBits() >> 27) & 0x0f;
+    }
+
+    /// @brief Get the value bits.
+    /// @return the value bits
+    uint32_t getValueBits() const
+    {
         return getBits() & Instruction::VALUEBITS;
     }
 
-	/**
-	 * @brief
-	 *	Get if this instruction has none of the bits in the specified bitmask set.
-	 * @param bitmask
-	 *	the bitmask
-	 * @return
-	 *	@a true if this instruction has none of the bits in the bitmask set,
-	 *	@a false otherwise.
-	 */
-	bool hasNoBits(uint32_t bitmask) const {
-		return 0 == (getBits() & bitmask);
-	}
-	/**
-	 * @brief
-	 *	Get if this instruction has some of the bits set in the specified bitmask set.
-	 * @param bitmask
-	 *	the bitmask
-	 * @return
-	 *	@a true if this instruction has any of the bits in the bitmask set, @a false otherwise
-	 */
-	bool hasSomeBits(uint32_t bitmask) const {
-		return 0 != (getBits() & bitmask);
-	}
-	/**
-	 * @brief
-	 *	Get if this instruction has all of the bits in the specified bitmask set.
-	 * @param bitmask
-	 *	the bitmask
-	 * @return
-	 *	@a true if this instruction has all of the bits in the bitmask set, @a false otherwise.
-	 */
-	bool hasAllBitsSet(uint32_t bitmask) const {
-		return bitmask == (getBits() & bitmask);
-	}
+    /// @brief Get if this instruction has none of the bits in the specified bitmask set.
+    /// @param bitmask the bitmask
+    /// @return @a true if this instruction has none of the bits in the bitmask set, @a false otherwise
+    bool hasNoBits(uint32_t bitmask) const
+    {
+        return 0 == (getBits() & bitmask);
+    }
+
+    /// @brief Get if this instruction has some of the bits set in the specified bitmask set.
+    /// @param bitmask the bitmask
+    /// @return @a true if this instruction has any of the bits in the bitmask set, @a false otherwise
+    bool hasSomeBits(uint32_t bitmask) const
+    {
+        return 0 != (getBits() & bitmask);
+    }
+
+    /// @brief Get if this instruction has all of the bits in the specified bitmask set.
+    /// @param bitmask the bitmask
+    /// @return @a true if this instruction has all of the bits in the bitmask set, @a false otherwise
+    bool hasAllBitsSet(uint32_t bitmask) const
+    {
+        return bitmask == (getBits() & bitmask);
+    }
 };
 
 struct InstructionList
 {
-	InstructionList()
-		: numberOfInstructions(0)
-	{
-	}
-	InstructionList(const InstructionList& other)
-		: numberOfInstructions(other.numberOfInstructions)
-	{
-		for (size_t i = 0; i < numberOfInstructions; ++i) {
-			_instructions[i] = other._instructions[i];
-		}
-	}
-	InstructionList operator=(const InstructionList& other)
-	{
-        numberOfInstructions = other.numberOfInstructions;
-		for (size_t i = 0; i < numberOfInstructions; ++i) {
-			_instructions[i] = other._instructions[i];
-		}
-		return *this;
-	}
-	/**
-	 * @brief
-	 *	The actual length of the instruction list.
-	 *	The first @a length entries in the instruction array are used.
-	 */
-	uint32_t numberOfInstructions;
-	/**
-	 * @brief
-	 *	Get the length of this instruction list.
-	 * @return
-	 *	the length of this instruciton list
-	 */
-	uint32_t getNumberOfInstructions() const {
-		return numberOfInstructions;
-	}
-	/**
-	 * @brief
-	 *	Get if this instruction list is full.
-	 * @return
-	 *	@a true if this instruction list is full,
-	 *	@a false otherwise
-	 */
-	bool isFull() const {
-		return MAXAICOMPILESIZE == getNumberOfInstructions();
-	}
-	/**
-	 * @brief
-	 *	The instructions.
-	 */
-	Instruction _instructions[MAXAICOMPILESIZE];          // Compiled script data
+    /// @brief The number of instructions in this instruction list.
+    /// @remark The first @a numberOfInstructions entries in the instruction array are used.
+    uint32_t numberOfInstructions;
 
-	void append(const Instruction& instruction) {
-		if (isFull()) {
-			throw std::overflow_error("instruction list overflow");
-		}
-		_instructions[numberOfInstructions++] = instruction;
-	}
-	const Instruction& operator[](size_t index) const {
-		return _instructions[index];
-	}
-	Instruction& operator[](size_t index) {
-		return _instructions[index];
-	}
+    /// @brief The instructions.
+    Instruction _instructions[MAXAICOMPILESIZE];
+
+    /// @brief Construct this instruction list.
+    /// @post The instruction list is empty.
+    InstructionList()
+        : numberOfInstructions(0)
+    {}
+
+    /// @brief Construct an instruction list with the values of another instruction list.
+    /// @param other the other instruction list
+    InstructionList(const InstructionList& other)
+        : numberOfInstructions(other.numberOfInstructions)
+    {
+        for (size_t i = 0; i < numberOfInstructions; ++i)
+        {
+            _instructions[i] = other._instructions[i];
+        }
+    }
+
+    /// @brief Assign this instruction list with the values of another instruction list.
+    /// @param other the other instruction list
+    /// @return this instruction list
+    InstructionList operator=(const InstructionList& other)
+    {
+        numberOfInstructions = other.numberOfInstructions;
+        for (size_t i = 0; i < numberOfInstructions; ++i)
+        {
+            _instructions[i] = other._instructions[i];
+        }
+        return *this;
+    }
+    
+    /// @brief Get the number of instructions in this instruction list.
+    /// @return the number of instructions in this instruction list
+    uint32_t getNumberOfInstructions() const
+    {
+        return numberOfInstructions;
+    }
+
+    /// @brief Get if this instruction list is full.
+    /// @return @a true if this instruction list is full, @a false otherwise
+    bool isFull() const
+    {
+        return MAXAICOMPILESIZE == getNumberOfInstructions();
+    }
+
+    void append(const Instruction& instruction)
+    {
+        if (isFull())
+        {
+            throw std::overflow_error("instruction list overflow");
+        }
+        _instructions[numberOfInstructions++] = instruction;
+    }
+
+    /// @brief Get the instruction at the specified index.
+    /// @param index the index
+    /// @return a reference to the instruction
+    const Instruction& operator[](size_t index) const
+    {
+        return _instructions[index];
+    }
+
+    /// @brief Get the instruction at the specified index.
+    /// @param index the index
+    /// @return a constant reference to the instruction
+    Instruction& operator[](size_t index)
+    {
+        return _instructions[index];
+    }
+
     void clear()
     {
         numberOfInstructions = 0;
