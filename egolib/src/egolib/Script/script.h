@@ -321,7 +321,7 @@ public:
     {
         if (isFull())
         {
-            throw std::overflow_error("instruction list overflow");
+            throw Id::RuntimeErrorException(__FILE__, __LINE__, "instruction list overflow");
         }
         instructions[numberOfInstructions++] = instruction;
     }
