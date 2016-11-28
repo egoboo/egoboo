@@ -334,7 +334,7 @@ public:
     {
         if (index >= getNumberOfInstructions())
         {
-            throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
+            throw Id::RuntimeErrorException(__FILE__, __LINE__, "instruction index out of bounds");
         }
 		return instructions[index];
 	}
@@ -347,7 +347,7 @@ public:
     {
         if (index >= getNumberOfInstructions())
         {
-            throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
+            throw Id::RuntimeErrorException(__FILE__, __LINE__, "instruction index out of bounds");
         }
 		return instructions[index];
 	}
