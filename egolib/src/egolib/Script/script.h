@@ -28,6 +28,7 @@
 #include "egolib/Clock.hpp"
 #include "egolib/AI/WaypointList.h"
 #include "egolib/_math.h"
+#include "egolib/Script/ConstantPool.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -126,47 +127,47 @@ public:
     static const uint32_t DATABITS = 0x78000000;
 
 private:
-    uint32_t _value;
+    uint32_t bits;
 
 public:
     Instruction()
-        : _value()
+        : bits()
     {}
 
     Instruction(const Instruction& other)
-        : _value(other._value)
+        : bits(other.bits)
     {}
 
     Instruction(Instruction&& other)
-        : _value(std::move(other._value))
+        : bits(std::move(other.bits))
     {}
 
     Instruction& operator=(Instruction other)
     {
-        std::swap(_value, other._value);
+        std::swap(*this, other);
         return *this;
     }
 
     friend void swap(Instruction& x, Instruction& y)
     {
-        std::swap(x._value, y._value);
+        std::swap(x.bits, y.bits);
     }
 
 public:
-    Instruction(uint32_t value)
-        : _value(value)
+    Instruction(uint32_t bits)
+        : bits(bits)
     {}
 
     uint32_t operator&(uint32_t bitmask)
     {
-        return _value & bitmask;
+        return bits & bitmask;
     }
 
     size_t getIndex() const
     {
         static_assert(std::numeric_limits<size_t>::max() >= std::numeric_limits<uint32_t>::max(),
                       "maximum value of size_t is smaller than maximum value of uint32_t");
-        return (size_t)_value;
+        return (size_t)bits;
     }
 
     /// @brief Get if this instruction is an "inv" (~"invoke") instruction.
@@ -191,12 +192,12 @@ public:
 
     uint32_t getBits() const
     {
-        return _value;
+        return bits;
     }
 
     void setBits(uint32_t bits)
     {
-        _value = bits;
+        this->bits = bits;
     }
 
     /// @brief Get the data bits.
@@ -255,11 +256,14 @@ private:
     /// @brief The instructions.
     std::array<Instruction, MAXAICOMPILESIZE> instructions;
 
+    /// @brief The constant pool.
+    Ego::Script::ConstantPool constantPool;
+
 public:
-    /// @brief Construct this instruction list.
-    /// @post The instruction list is empty.
+    /// @brief Construct an empty instruction list.
+    /// @post The instruction list has an empty constant pool and zero instructions.
     InstructionList()
-        : instructions(), numberOfInstructions(0)
+        : constantPool(), instructions(), numberOfInstructions(0)
     {}
 
     /**@{*/
@@ -267,11 +271,11 @@ public:
     /// @brief Construct an instruction list with the values of another instruction list.
     /// @param other the other instruction list
     InstructionList(const InstructionList& other)
-        : instructions(other.instructions), numberOfInstructions(other.numberOfInstructions)
+        : constantPool(other.constantPool), instructions(other.instructions), numberOfInstructions(other.numberOfInstructions)
     {}
 
     InstructionList(InstructionList&& other)
-        : instructions(std::move(other.instructions)), numberOfInstructions(std::move(other.numberOfInstructions))
+        : constantPool(std::move(other.constantPool)), instructions(std::move(other.instructions)), numberOfInstructions(std::move(other.numberOfInstructions))
     {}
 
     /**@}*/
@@ -288,6 +292,7 @@ public:
     friend void swap(InstructionList& x, InstructionList& y)
     {
         std::swap(x.instructions, y.instructions);
+        std::swap(x.constantPool, y.constantPool);
         std::swap(x.numberOfInstructions, y.numberOfInstructions);
     }
     
@@ -323,22 +328,43 @@ public:
 
     /// @brief Get the instruction at the specified index.
     /// @param index the index
-    /// @return a reference to the instruction
-    const Instruction& operator[](size_t index) const
+    /// @return a constant reference to the instruction
+    /// @throw Id::RuntimeErrorException @a index is out of bounds
+	const Instruction& operator[](Index index) const 
     {
-        return instructions[index];
-    }
+        if (index >= getNumberOfInstructions())
+        {
+            throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
+        }
+		return instructions[index];
+	}
 
     /// @brief Get the instruction at the specified index.
     /// @param index the index
-    /// @return a constant reference to the instruction
-    Instruction& operator[](size_t index)
+    /// @return a reference to the instruction
+    /// @throw Id::RuntimeErrorException @a index is out of bounds
+    Instruction& operator[](Index index)
     {
-        return instructions[index];
+        if (index >= getNumberOfInstructions())
+        {
+            throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
+        }
+		return instructions[index];
+	}
+
+    const Ego::Script::ConstantPool& getConstantPool() const
+    {
+        return constantPool;
+    }
+
+    Ego::Script::ConstantPool& getConstantPool()
+    {
+        return constantPool;
     }
 
     void clear()
     {
+        constantPool.clear();
         numberOfInstructions = 0;
     }
 };

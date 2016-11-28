@@ -637,16 +637,25 @@ void parser_state_t::emit_opcode(const Token& token, const BIT_FIELD highbits, s
 {
     BIT_FIELD loc_highbits = highbits;
 
-    // emit constant or a function
-    if ( Token::Type::Constant == token.getType() || Token::Type::Function == token.getType() )
+    // If the instruction list is full ...
+    if (script._instructions.isFull())
     {
-        SET_BIT( loc_highbits, Instruction::FUNCTIONBITS );
+        // ... raise an exception.
+        /** @todo This is not an error of the syntactical analysis. */
+        throw SyntacticalErrorException(__FILE__, __LINE__, token.getLocation(), "instruction list overflow");
     }
 
-    // emit the opcode
-    if (!script._instructions.isFull())
+    // Emit the opcode.
+    if (Token::Type::Constant == token.getType())
     {
-		script._instructions.append(Instruction(loc_highbits | token.getValue()));
+        loc_highbits |= Instruction::FUNCTIONBITS;
+        auto constantIndex = script._instructions.getConstantPool().getOrCreateConstant(token.getValue());
+        script._instructions.append(Instruction(loc_highbits | constantIndex));
+    }
+    else if (Token::Type::Function == token.getType())
+    {
+        loc_highbits |= Instruction::FUNCTIONBITS;
+        script._instructions.append(Instruction(loc_highbits | token.getValue()));
     }
     else
     {

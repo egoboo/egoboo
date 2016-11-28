@@ -481,7 +481,9 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
     uint8_t operation = script._instructions[script.get_pos()].getDataBits();
     if (script._instructions[script.get_pos()].isLdc()) {
         // Get the working opcode from a constant, constants are all but high 5 bits
-        iTmp = script._instructions[script.get_pos()].getValueBits();
+        auto constantIndex = script._instructions[script.get_pos()].getValueBits();
+        const auto& constant = script._instructions.getConstantPool().getConstant(constantIndex);
+        iTmp = constant.getAsInteger();
         if (debug_scripts) {
             std::stringstream stringStream;
             stringStream << iTmp;
