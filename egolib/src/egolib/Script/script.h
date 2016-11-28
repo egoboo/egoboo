@@ -241,13 +241,21 @@ public:
 
 struct InstructionList
 {
+public:
+    /// @brief A size of an instruction list.
+    using Size = uint32_t;
+    /// @brief An index in an instruction list.
+    using Index = uint32_t;
+
+private:
     /// @brief The number of instructions in this instruction list.
     /// @remark The first @a numberOfInstructions entries in the instruction array are used.
-    uint32_t numberOfInstructions;
+    Size numberOfInstructions;
 
     /// @brief The instructions.
     std::array<Instruction, MAXAICOMPILESIZE> instructions;
 
+public:
     /// @brief Construct this instruction list.
     /// @post The instruction list is empty.
     InstructionList()
@@ -285,7 +293,7 @@ struct InstructionList
     
     /// @brief Get the number of instructions in this instruction list.
     /// @return the number of instructions in this instruction list
-    uint32_t getNumberOfInstructions() const
+    Size getNumberOfInstructions() const
     {
         return numberOfInstructions;
     }
@@ -295,6 +303,13 @@ struct InstructionList
     bool isFull() const
     {
         return MAXAICOMPILESIZE == getNumberOfInstructions();
+    }
+
+    /// @brief Get if this instruction list is empty.
+    /// @return @a true if this instruction list is empty, @a false otherwise
+    bool isEmpty() const
+    {
+        return 0 == getNumberOfInstructions();
     }
 
     void append(const Instruction& instruction)
