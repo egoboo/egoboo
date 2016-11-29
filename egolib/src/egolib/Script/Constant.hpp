@@ -62,15 +62,17 @@ public:
 public:
     friend void swap(Constant& x, Constant& y)
     {
+        using std::swap;
+
         if (&x == &y)
         {
             return;
         }
-        std::swap(x.m_kind, y.m_kind);
+        swap(x.m_kind, y.m_kind);
         switch (x.m_kind)
         {
             case Constant::Kind::Integer:
-                std::swap(x.m_integer, y.m_integer);
+                swap(x.m_integer, y.m_integer);
                 break;
             case Constant::Kind::Void:
                 break;

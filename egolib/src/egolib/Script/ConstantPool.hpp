@@ -73,7 +73,9 @@ public:
 public:
     friend void swap(ConstantPool& x, ConstantPool& y)
     {
-        std::swap(x.m_constants, y.m_constants);
+        using std::swap;
+
+        swap(x.m_constants, y.m_constants);
     }
 };
 

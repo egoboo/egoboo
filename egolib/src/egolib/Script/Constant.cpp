@@ -41,7 +41,7 @@ Constant::Constant(int value)
 
 Constant& Constant::operator=(Constant other)
 {
-    std::swap(*this, other);
+    swap(*this, other);
     return *this;
 }
 

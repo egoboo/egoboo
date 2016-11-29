@@ -16,7 +16,7 @@ ConstantPool::ConstantPool(ConstantPool&& other)
 
 ConstantPool& ConstantPool::operator=(ConstantPool other)
 {
-    std::swap(m_constants, other.m_constants);
+    swap(*this, other);
     return *this;
 }
 

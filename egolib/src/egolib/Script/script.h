@@ -144,13 +144,15 @@ public:
 
     Instruction& operator=(Instruction other)
     {
-        std::swap(*this, other);
+        swap(*this, other);
         return *this;
     }
 
     friend void swap(Instruction& x, Instruction& y)
     {
-        std::swap(x.bits, y.bits);
+        using std::swap;
+
+        swap(x.bits, y.bits);
     }
 
 public:
@@ -285,15 +287,17 @@ public:
     /// @return this instruction list
     InstructionList& operator=(InstructionList other)
     {
-        std::swap(*this, other);
+        swap(*this, other);
         return *this;
     }
 
     friend void swap(InstructionList& x, InstructionList& y)
     {
-        std::swap(x.instructions, y.instructions);
-        std::swap(x.constantPool, y.constantPool);
-        std::swap(x.numberOfInstructions, y.numberOfInstructions);
+        using std::swap;
+
+        swap(x.instructions, y.instructions);
+        swap(x.constantPool, y.constantPool);
+        swap(x.numberOfInstructions, y.numberOfInstructions);
     }
     
     /// @brief Get the number of instructions in this instruction list.
