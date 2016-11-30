@@ -71,6 +71,28 @@ private:
     std::string _text;
 
 public:
+    /// @brief Get if this token is a token of a given token type.
+    /// @param type the token type
+    /// @return @a true if this token is of the token type @a type, @a false otherwise
+    bool is(Type type) const
+    {
+        return type == getType();
+    }
+
+    /// @brief Get if this token is an operator token.
+    /// @return @a true if this token is an operator token, @a false otherwise
+    bool isOperator() const
+    {
+        return Type::Operator == _type;
+    }
+
+    /// @brief Get if this token is an "assign" operator token.
+    /// @return @a true if this token is an "assign" operator token, @a false otherwise
+    bool isAssignOperator() const
+    {
+        return is(Token::Type::Operator) && getText() == "=";
+    }
+
 	/// @brief Get the index of this token.
 	/// @return the index of this token
     /// @see setIndex

@@ -686,7 +686,7 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
         // grab the first opcode
 
         _token = parse_indention(script, state);
-        if (Token::Type::Indent != _token.getType())
+        if (!_token.is(Token::Type::Indent))
         {
             Log::CompilerEntry e(Log::Level::Error, __FILE__, __LINE__, __FUNCTION__, _token.getLocation());
             e << "expected operator - \n"
@@ -696,7 +696,7 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
         }
         uint32_t highbits = SetDataBits( _token.getValue() );
         _token = parse_token(ppro, script, state);
-        if ( Token::Type::Function == _token.getType() )
+        if ( _token.is(Token::Type::Function) )
         {
             if ( ScriptFunctions::End == _token.getValue() && 0 == highbits )
             {
@@ -715,7 +715,7 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
             emit_opcode( _token, 0, script );
 
         }
-        else if ( Token::Type::Variable == _token.getType() )
+        else if ( _token.is(Token::Type::Variable) )
         {
             //------------------------------
             // the code type is a math operation
@@ -733,18 +733,16 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
 
             // handle the "="
             _token = parse_token(ppro, script, state);  // EQUALS
-			if ( Token::Type::Operator != _token.getType() || ( _token.getText() != "=" ) )
+			if ( !_token.isAssignOperator() )
             {
-                Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getLocation());
-				e << "invalid equation - \n"
-				  << " - \n`" << _lineBuffer.toString() << "`" << Log::EndOfEntry;
+                throw SyntacticalErrorException(__FILE__, __LINE__, _token.getLocation(), "expected an assignment operator");
             }
 
             //------------------------------
             // grab the next opcode
 
             _token = parse_token( ppro, script, state );
-            if ( Token::Type::Variable == _token.getType() || Token::Type::Constant == _token.getType() )
+            if ( _token.is(Token::Type::Variable) || _token.is(Token::Type::Constant) )
             {
                 // this is a value or a constant
                 emit_opcode( _token, 0, script );
@@ -752,7 +750,7 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
 
                 _token = parse_token( ppro, script, state );
             }
-            else if ( Token::Type::Operator != _token.getType() )
+            else if ( !_token.isOperator() )
             {
                 // this is a function or an unknown value. do not break the script.
                 Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getLocation());
@@ -767,10 +765,10 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
             }
 
             // expects a OPERATOR VALUE OPERATOR VALUE OPERATOR VALUE pattern
-            while ( _token.getType() != Token::Type::EndOfLine )
+            while ( !_token.is(Token::Type::EndOfLine) )
             {
                 // the current token should be an operator
-                if ( Token::Type::Operator != _token.getType() )
+                if ( !_token.isOperator() )
                 {
                     // problem with the loop
                     Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getLocation());
@@ -802,13 +800,13 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
             }
             script._instructions[operand_index].setBits(operands);
         }
-        else if ( Token::Type::Constant == _token.getType() )
+        else if ( _token.is(Token::Type::Constant) )
         {
             Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getLocation());
             e << "invalid constant " << _token.getText() << Log::EndOfEntry;
             Log::get() << e;
         }
-        else if ( Token::Type::Unknown == _token.getType() )
+        else if ( _token.is(Token::Type::Unknown) )
         {
             // unknown opcode, do not process this line
             Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getLocation());
