@@ -35,15 +35,17 @@ Token::~Token()
 
 std::ostream& operator<<(std::ostream& os, const Token::Type& tokenType) {
 	switch (tokenType) {
-		case Token::Type::Constant:       os << "Constant";       break;
-		case Token::Type::Function:       os << "Function";       break;
-		case Token::Type::Operator:       os << "Operator";       break;
-		case Token::Type::Unknown:        os << "Unknown" ;       break;
-		case Token::Type::Variable:       os << "Variable";       break;
-        case Token::Type::Name:           os << "Name";           break;
-        case Token::Type::IDSZ:           os << "IDSZ";           break;
-        case Token::Type::NumericLiteral: os << "NumericLiteral"; break;
-        case Token::Type::Reference:      os << "Reference";      break;
+    #define Define(enumElementName, string) case Token::Type::##enumElementName: os << string; break;
+		Define(Constant, "Constant")
+		Define(Function, "Function")
+		Define(Operator, "Operator")
+		Define(Unknown, "Unknown")
+		Define(Variable, "Variable")
+        Define(Name, "Name")
+        Define(IDSZ, "IDSZ")
+        Define(NumericLiteral, "NumericLiteral")
+        Define(Reference, "Reference")
+    #undef Define
 	};
 	return os;
 }
