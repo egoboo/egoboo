@@ -29,7 +29,17 @@ struct Token {
 		Function,
 		Variable,
 		Constant,
-		Operator,
+
+        Assign, ///< Token type of an "assign" operator.
+        And, ///< Token type of an "and" operator.
+        Plus, ///< Token type of a "plus" ("add" or "unary plus") operator.
+        Minus, ///< Token type of a "minus" ("subtract" or "unary minus") operator.
+        Multiply, ///< Token type of a "multiply" operator.
+        Divide, ///< Token type of a "divide" operator.
+        Modulus, ///< Token type of a "modulus" operator.
+        ShiftRight, ///< Token type of a "shift right" operator.
+        ShiftLeft, ///< Token type of a "shift left" operator.
+
         // Token type of zero or more whitespaces.
         // getValue indicates the number of whitespaces.
         Whitespace,
@@ -83,14 +93,23 @@ public:
     /// @return @a true if this token is an operator token, @a false otherwise
     bool isOperator() const
     {
-        return Type::Operator == _type;
+        return Type::Assign == _type
+            || Type::Plus == _type
+            || Type::Minus == _type
+            || Type::And == _type
+            || Type::Multiply == _type
+            || Type::Divide == _type
+            || Type::Modulus == _type
+            || Type::ShiftRight == _type
+            || Type::ShiftLeft == _type;
     }
+
 
     /// @brief Get if this token is an "assign" operator token.
     /// @return @a true if this token is an "assign" operator token, @a false otherwise
     bool isAssignOperator() const
     {
-        return is(Token::Type::Operator) && getText() == "=";
+        return is(Token::Type::Assign);
     }
 
 	/// @brief Get the index of this token.

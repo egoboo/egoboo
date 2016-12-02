@@ -456,8 +456,22 @@ Token line_scanner_state_t::scanOperator()
     {
         throw RuntimeErrorException(__FILE__, __LINE__, "<internal error>");
     }
+    //saveAndNext();
+    Token token;
+    switch (getCurrent())
+    {
+        case '+': token = Token(Token::Type::Plus, getLocation()); break;
+        case '-': token = Token(Token::Type::Minus, getLocation()); break;
+        case '*': token = Token(Token::Type::Multiply, getLocation()); break;
+        case '/': token = Token(Token::Type::Divide, getLocation()); break;
+        case '%': token = Token(Token::Type::Modulus, getLocation()); break;
+        case '>': token = Token(Token::Type::ShiftRight, getLocation()); break;
+        case '<': token = Token(Token::Type::ShiftLeft, getLocation()); break;
+        case '&': token = Token(Token::Type::And, getLocation()); break;
+        case '=': token = Token(Token::Type::Assign, getLocation()); break;
+        default: throw RuntimeErrorException(__FILE__, __LINE__, "internal error");
+    }
     saveAndNext();
-    Token token = Token(Token::Type::Operator, getLocation());
     token.setText(m_lexemeBuffer.toString());
     return token;
 }
@@ -750,7 +764,7 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
 
                 _token = parse_token( ppro, script, state );
             }
-            else if ( !_token.isOperator() )
+            else if (!(_token.isOperator() && !_token.isAssignOperator()))
             {
                 // this is a function or an unknown value. do not break the script.
                 Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getLocation());
@@ -764,11 +778,11 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
                 _token = parse_token( ppro, script, state );
             }
 
-            // expects a OPERATOR VALUE OPERATOR VALUE OPERATOR VALUE pattern
+            // `((operator - assignmentOperator) value)*`
             while ( !_token.is(Token::Type::EndOfLine) )
             {
-                // the current token should be an operator
-                if ( !_token.isOperator() )
+                // The current token should be a non-assignment operator.
+                if ( !(_token.isOperator() && !_token.isAssignOperator()) )
                 {
                     // problem with the loop
                     Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getLocation());
@@ -1188,14 +1202,14 @@ bool load_ai_codes_vfs()
 		{ Token::Type::Variable, ScriptVariables::VARDATEMONTH, "datemonth" },
 		{ Token::Type::Variable, ScriptVariables::VARDATEDAY, "dateday" },
 
-		{ Token::Type::Operator, ScriptOperators::OPADD, "+" },
-		{ Token::Type::Operator, ScriptOperators::OPSUB, "-" },
-		{ Token::Type::Operator, ScriptOperators::OPAND, "&" },
-		{ Token::Type::Operator, ScriptOperators::OPSHR, ">" },
-		{ Token::Type::Operator, ScriptOperators::OPSHL, "<" },
-		{ Token::Type::Operator, ScriptOperators::OPMUL, "*" },
-		{ Token::Type::Operator, ScriptOperators::OPDIV, "/" },
-		{ Token::Type::Operator, ScriptOperators::OPMOD, "%" },
+		{ Token::Type::Plus, ScriptOperators::OPADD, "+" },
+		{ Token::Type::Minus, ScriptOperators::OPSUB, "-" },
+		{ Token::Type::And, ScriptOperators::OPAND, "&" },
+		{ Token::Type::ShiftRight, ScriptOperators::OPSHR, ">" },
+		{ Token::Type::ShiftLeft, ScriptOperators::OPSHL, "<" },
+		{ Token::Type::Multiply, ScriptOperators::OPMUL, "*" },
+		{ Token::Type::Divide, ScriptOperators::OPDIV, "/" },
+		{ Token::Type::Modulus, ScriptOperators::OPMOD, "%" },
 	};
 
     for (size_t i = 0, n = sizeof(AICODES) / sizeof(aicode_t); i < n; ++i)
