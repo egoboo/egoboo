@@ -940,183 +940,186 @@ bool load_ai_codes_vfs()
     #include "egolib/Script/Functions.in"
     #undef DefineAlias
     #undef Define
-		{ Token::Type::Constant, 1, "BLAHDEAD" },
-		{ Token::Type::Constant, 2, "BLAHENEMIES" },
-		{ Token::Type::Constant, 4, "BLAHFRIENDS" },
-		{ Token::Type::Constant, 8, "BLAHITEMS" },
-		{ Token::Type::Constant, 16, "BLAHINVERTID" },
-		{ Token::Type::Constant, 32, "BLAHPLAYERS" },
-		{ Token::Type::Constant, 64, "BLAHSKILL" },
-		{ Token::Type::Constant, 128, "BLAHQUEST" },
-		{ Token::Type::Constant, 0, "STATEPARRY" },
-		{ Token::Type::Constant, 1, "STATEWANDER" },
-		{ Token::Type::Constant, 2, "STATEGUARD" },
-		{ Token::Type::Constant, 3, "STATEFOLLOW" },
-		{ Token::Type::Constant, 4, "STATESURROUND" },
-		{ Token::Type::Constant, 5, "STATERETREAT" },
-		{ Token::Type::Constant, 6, "STATECHARGE" },
-		{ Token::Type::Constant, 7, "STATECOMBAT" },
-		{ Token::Type::Constant, 4, "GRIPONLY" },
-		{ Token::Type::Constant, 4, "GRIPLEFT" },
-		{ Token::Type::Constant, 8, "GRIPRIGHT" },
-		{ Token::Type::Constant, 0, "SPAWNORIGIN" },
-		{ Token::Type::Constant, 1, "SPAWNLAST" },
-		{ Token::Type::Constant, 0, "LATCHLEFT" },
-		{ Token::Type::Constant, 1, "LATCHRIGHT" },
-		{ Token::Type::Constant, 2, "LATCHJUMP" },
-		{ Token::Type::Constant, 3, "LATCHALTLEFT" },
-		{ Token::Type::Constant, 4, "LATCHALTRIGHT" },
-		{ Token::Type::Constant, 5, "LATCHPACKLEFT" },
-		{ Token::Type::Constant, 6, "LATCHPACKRIGHT" },
-		{ Token::Type::Constant, 0, "DAMAGESLASH" },
-		{ Token::Type::Constant, 1, "DAMAGECRUSH" },
-		{ Token::Type::Constant, 2, "DAMAGEPOKE" },
-		{ Token::Type::Constant, 3, "DAMAGEHOLY" },
-		{ Token::Type::Constant, 4, "DAMAGEEVIL" },
-		{ Token::Type::Constant, 5, "DAMAGEFIRE" },
-		{ Token::Type::Constant, 6, "DAMAGEICE" },
-		{ Token::Type::Constant, 7, "DAMAGEZAP" },
-		{ Token::Type::Constant, 0, "ACTIONDA" },
-		{ Token::Type::Constant, 1, "ACTIONDB" },
-		{ Token::Type::Constant, 2, "ACTIONDC" },
-		{ Token::Type::Constant, 3, "ACTIONDD" },
-		{ Token::Type::Constant, 4, "ACTIONUA" },
-		{ Token::Type::Constant, 5, "ACTIONUB" },
-		{ Token::Type::Constant, 6, "ACTIONUC" },
-		{ Token::Type::Constant, 7, "ACTIONUD" },
-		{ Token::Type::Constant, 8, "ACTIONTA" },
-		{ Token::Type::Constant, 9, "ACTIONTB" },
-		{ Token::Type::Constant, 10, "ACTIONTC" },
-		{ Token::Type::Constant, 11, "ACTIONTD" },
-		{ Token::Type::Constant, 12, "ACTIONCA" },
-		{ Token::Type::Constant, 13, "ACTIONCB" },
-		{ Token::Type::Constant, 14, "ACTIONCC" },
-		{ Token::Type::Constant, 15, "ACTIONCD" },
-		{ Token::Type::Constant, 16, "ACTIONSA" },
-		{ Token::Type::Constant, 17, "ACTIONSB" },
-		{ Token::Type::Constant, 18, "ACTIONSC" },
-		{ Token::Type::Constant, 19, "ACTIONSD" },
-		{ Token::Type::Constant, 20, "ACTIONBA" },
-		{ Token::Type::Constant, 21, "ACTIONBB" },
-		{ Token::Type::Constant, 22, "ACTIONBC" },
-		{ Token::Type::Constant, 23, "ACTIONBD" },
-		{ Token::Type::Constant, 24, "ACTIONLA" },
-		{ Token::Type::Constant, 25, "ACTIONLB" },
-		{ Token::Type::Constant, 26, "ACTIONLC" },
-		{ Token::Type::Constant, 27, "ACTIONLD" },
-		{ Token::Type::Constant, 28, "ACTIONXA" },
-		{ Token::Type::Constant, 29, "ACTIONXB" },
-		{ Token::Type::Constant, 30, "ACTIONXC" },
-		{ Token::Type::Constant, 31, "ACTIONXD" },
-		{ Token::Type::Constant, 32, "ACTIONFA" },
-		{ Token::Type::Constant, 33, "ACTIONFB" },
-		{ Token::Type::Constant, 34, "ACTIONFC" },
-		{ Token::Type::Constant, 35, "ACTIONFD" },
-		{ Token::Type::Constant, 36, "ACTIONPA" },
-		{ Token::Type::Constant, 37, "ACTIONPB" },
-		{ Token::Type::Constant, 38, "ACTIONPC" },
-		{ Token::Type::Constant, 39, "ACTIONPD" },
-		{ Token::Type::Constant, 40, "ACTIONEA" },
-		{ Token::Type::Constant, 41, "ACTIONEB" },
-		{ Token::Type::Constant, 42, "ACTIONRA" },
-		{ Token::Type::Constant, 43, "ACTIONZA" },
-		{ Token::Type::Constant, 44, "ACTIONZB" },
-		{ Token::Type::Constant, 45, "ACTIONZC" },
-		{ Token::Type::Constant, 46, "ACTIONZD" },
-		{ Token::Type::Constant, 47, "ACTIONWA" },
-		{ Token::Type::Constant, 48, "ACTIONWB" },
-		{ Token::Type::Constant, 49, "ACTIONWC" },
-		{ Token::Type::Constant, 50, "ACTIONWD" },
-		{ Token::Type::Constant, 51, "ACTIONJA" },
-		{ Token::Type::Constant, 52, "ACTIONJB" },
-		{ Token::Type::Constant, 53, "ACTIONJC" },
-		{ Token::Type::Constant, 54, "ACTIONHA" },
-		{ Token::Type::Constant, 55, "ACTIONHB" },
-		{ Token::Type::Constant, 56, "ACTIONHC" },
-		{ Token::Type::Constant, 57, "ACTIONHD" },
-		{ Token::Type::Constant, 58, "ACTIONKA" },
-		{ Token::Type::Constant, 59, "ACTIONKB" },
-		{ Token::Type::Constant, 60, "ACTIONKC" },
-		{ Token::Type::Constant, 61, "ACTIONKD" },
-		{ Token::Type::Constant, 62, "ACTIONMA" },
-		{ Token::Type::Constant, 63, "ACTIONMB" },
-		{ Token::Type::Constant, 64, "ACTIONMC" },
-		{ Token::Type::Constant, 65, "ACTIONMD" },
-		{ Token::Type::Constant, 66, "ACTIONME" },
-		{ Token::Type::Constant, 67, "ACTIONMF" },
-		{ Token::Type::Constant, 68, "ACTIONMG" },
-		{ Token::Type::Constant, 69, "ACTIONMH" },
-		{ Token::Type::Constant, 70, "ACTIONMI" },
-		{ Token::Type::Constant, 71, "ACTIONMJ" },
-		{ Token::Type::Constant, 72, "ACTIONMK" },
-		{ Token::Type::Constant, 73, "ACTIONML" },
-		{ Token::Type::Constant, 74, "ACTIONMM" },
-		{ Token::Type::Constant, 75, "ACTIONMN" },
-		{ Token::Type::Constant, 0, "EXPSECRET" },
-		{ Token::Type::Constant, 1, "EXPQUEST" },
-		{ Token::Type::Constant, 2, "EXPDARE" },
-		{ Token::Type::Constant, 3, "EXPKILL" },
-		{ Token::Type::Constant, 4, "EXPMURDER" },
-		{ Token::Type::Constant, 5, "EXPREVENGE" },
-		{ Token::Type::Constant, 6, "EXPTEAMWORK" },
-		{ Token::Type::Constant, 7, "EXPROLEPLAY" },
-		{ Token::Type::Constant, 0, "MESSAGEDEATH" },
-		{ Token::Type::Constant, 1, "MESSAGEHATE" },
-		{ Token::Type::Constant, 2, "MESSAGEOUCH" },
-		{ Token::Type::Constant, 3, "MESSAGEFRAG" },
-		{ Token::Type::Constant, 4, "MESSAGEACCIDENT" },
-		{ Token::Type::Constant, 5, "MESSAGECOSTUME" },
-		{ Token::Type::Constant, 0, "ORDERMOVE" },
-		{ Token::Type::Constant, 1, "ORDERATTACK" },
-		{ Token::Type::Constant, 2, "ORDERASSIST" },
-		{ Token::Type::Constant, 3, "ORDERSTAND" },
-		{ Token::Type::Constant, 4, "ORDERTERRAIN" },
-		{ Token::Type::Constant, 0, "WHITE" },
-		{ Token::Type::Constant, 1, "RED" },
-		{ Token::Type::Constant, 2, "YELLOW" },
-		{ Token::Type::Constant, 3, "GREEN" },
-		{ Token::Type::Constant, 4, "BLUE" },
-		{ Token::Type::Constant, 5, "PURPLE" },
-		{ Token::Type::Constant, 1, "FXNOREFLECT" },
-		{ Token::Type::Constant, 2, "FXDRAWREFLECT" },
-		{ Token::Type::Constant, 4, "FXANIM" },
-		{ Token::Type::Constant, 8, "FXWATER" },
-		{ Token::Type::Constant, 16, "FXBARRIER" },
-		{ Token::Type::Constant, 32, "FXIMPASS" },
-		{ Token::Type::Constant, 64, "FXDAMAGE" },
-		{ Token::Type::Constant, 128, "FXSLIPPY" },
-		{ Token::Type::Constant, 0, "TEAMA" },
-		{ Token::Type::Constant, 1, "TEAMB" },
-		{ Token::Type::Constant, 2, "TEAMC" },
-		{ Token::Type::Constant, 3, "TEAMD" },
-		{ Token::Type::Constant, 4, "TEAME" },
-		{ Token::Type::Constant, 5, "TEAMF" },
-		{ Token::Type::Constant, 6, "TEAMG" },
-		{ Token::Type::Constant, 7, "TEAMH" },
-		{ Token::Type::Constant, 8, "TEAMI" },
-		{ Token::Type::Constant, 9, "TEAMJ" },
-		{ Token::Type::Constant, 10, "TEAMK" },
-		{ Token::Type::Constant, 11, "TEAML" },
-		{ Token::Type::Constant, 12, "TEAMM" },
-		{ Token::Type::Constant, 13, "TEAMN" },
-		{ Token::Type::Constant, 14, "TEAMO" },
-		{ Token::Type::Constant, 15, "TEAMP" },
-		{ Token::Type::Constant, 16, "TEAMQ" },
-		{ Token::Type::Constant, 17, "TEAMR" },
-		{ Token::Type::Constant, 18, "TEAMS" },
-		{ Token::Type::Constant, 19, "TEAMT" },
-		{ Token::Type::Constant, 20, "TEAMU" },
-		{ Token::Type::Constant, 21, "TEAMV" },
-		{ Token::Type::Constant, 22, "TEAMW" },
-		{ Token::Type::Constant, 23, "TEAMX" },
-		{ Token::Type::Constant, 24, "TEAMY" },
-		{ Token::Type::Constant, 25, "TEAMZ" },
-		{ Token::Type::Constant, 1, "INVENTORY" },
-		{ Token::Type::Constant, 2, "LEFT" },
-		{ Token::Type::Constant, 3, "RIGHT" },
-		{ Token::Type::Constant, 0, "EASY" },
-		{ Token::Type::Constant, 1, "NORMAL" },
-		{ Token::Type::Constant, 2, "HARD" },
+
+    #define Define(value, name) { Token::Type::Constant, value, name },
+		Define(1, "BLAHDEAD")
+		Define(2, "BLAHENEMIES")
+		Define(4, "BLAHFRIENDS")
+		Define(8, "BLAHITEMS")
+		Define(16, "BLAHINVERTID")
+		Define(32, "BLAHPLAYERS")
+		Define(64, "BLAHSKILL")
+		Define(128, "BLAHQUEST")
+		Define(0, "STATEPARRY")
+		Define(1, "STATEWANDER")
+		Define(2, "STATEGUARD")
+		Define(3, "STATEFOLLOW")
+		Define(4, "STATESURROUND")
+		Define(5, "STATERETREAT")
+		Define(6, "STATECHARGE")
+		Define(7, "STATECOMBAT")
+		Define(4, "GRIPONLY")
+		Define(4, "GRIPLEFT")
+		Define(8, "GRIPRIGHT")
+		Define(0, "SPAWNORIGIN")
+		Define(1, "SPAWNLAST")
+		Define(0, "LATCHLEFT")
+		Define(1, "LATCHRIGHT")
+		Define(2, "LATCHJUMP")
+		Define(3, "LATCHALTLEFT")
+		Define(4, "LATCHALTRIGHT")
+		Define(5, "LATCHPACKLEFT")
+		Define(6, "LATCHPACKRIGHT")
+		Define(0, "DAMAGESLASH")
+		Define(1, "DAMAGECRUSH")
+		Define(2, "DAMAGEPOKE")
+		Define(3, "DAMAGEHOLY")
+		Define(4, "DAMAGEEVIL")
+		Define(5, "DAMAGEFIRE")
+		Define(6, "DAMAGEICE")
+		Define(7, "DAMAGEZAP")
+		Define(0, "ACTIONDA")
+		Define(1, "ACTIONDB")
+		Define(2, "ACTIONDC")
+		Define(3, "ACTIONDD")
+		Define(4, "ACTIONUA")
+		Define(5, "ACTIONUB")
+		Define(6, "ACTIONUC")
+		Define(7, "ACTIONUD")
+		Define(8, "ACTIONTA")
+		Define(9, "ACTIONTB")
+		Define(10, "ACTIONTC")
+		Define(11, "ACTIONTD")
+		Define(12, "ACTIONCA")
+		Define(13, "ACTIONCB")
+		Define(14, "ACTIONCC")
+		Define(15, "ACTIONCD")
+		Define(16, "ACTIONSA")
+		Define(17, "ACTIONSB")
+		Define(18, "ACTIONSC")
+		Define(19, "ACTIONSD")
+		Define(20, "ACTIONBA")
+		Define(21, "ACTIONBB")
+		Define(22, "ACTIONBC")
+		Define(23, "ACTIONBD")
+		Define(24, "ACTIONLA")
+		Define(25, "ACTIONLB")
+		Define(26, "ACTIONLC")
+		Define(27, "ACTIONLD")
+		Define(28, "ACTIONXA")
+		Define(29, "ACTIONXB")
+		Define(30, "ACTIONXC")
+		Define(31, "ACTIONXD")
+		Define(32, "ACTIONFA")
+		Define(33, "ACTIONFB")
+		Define(34, "ACTIONFC")
+		Define(35, "ACTIONFD")
+		Define(36, "ACTIONPA")
+		Define(37, "ACTIONPB")
+		Define(38, "ACTIONPC")
+		Define(39, "ACTIONPD")
+		Define(40, "ACTIONEA")
+		Define(41, "ACTIONEB")
+		Define(42, "ACTIONRA")
+		Define(43, "ACTIONZA")
+		Define(44, "ACTIONZB")
+		Define(45, "ACTIONZC")
+		Define(46, "ACTIONZD")
+		Define(47, "ACTIONWA")
+		Define(48, "ACTIONWB")
+		Define(49, "ACTIONWC")
+		Define(50, "ACTIONWD")
+		Define(51, "ACTIONJA")
+		Define(52, "ACTIONJB")
+		Define(53, "ACTIONJC")
+		Define(54, "ACTIONHA")
+		Define(55, "ACTIONHB")
+		Define(56, "ACTIONHC")
+		Define(57, "ACTIONHD")
+		Define(58, "ACTIONKA")
+		Define(59, "ACTIONKB")
+		Define(60, "ACTIONKC")
+		Define(61, "ACTIONKD")
+		Define(62, "ACTIONMA")
+		Define(63, "ACTIONMB")
+		Define(64, "ACTIONMC")
+		Define(65, "ACTIONMD")
+		Define(66, "ACTIONME")
+		Define(67, "ACTIONMF")
+		Define(68, "ACTIONMG")
+		Define(69, "ACTIONMH")
+		Define(70, "ACTIONMI")
+		Define(71, "ACTIONMJ")
+		Define(72, "ACTIONMK")
+		Define(73, "ACTIONML")
+		Define(74, "ACTIONMM")
+		Define(75, "ACTIONMN")
+		Define(0, "EXPSECRET")
+		Define(1, "EXPQUEST")
+		Define(2, "EXPDARE")
+		Define(3, "EXPKILL")
+		Define(4, "EXPMURDER")
+		Define(5, "EXPREVENGE")
+		Define(6, "EXPTEAMWORK")
+		Define(7, "EXPROLEPLAY")
+		Define(0, "MESSAGEDEATH")
+		Define(1, "MESSAGEHATE")
+		Define(2, "MESSAGEOUCH")
+		Define(3, "MESSAGEFRAG")
+		Define(4, "MESSAGEACCIDENT")
+		Define(5, "MESSAGECOSTUME")
+		Define(0, "ORDERMOVE")
+		Define(1, "ORDERATTACK")
+		Define(2, "ORDERASSIST")
+		Define(3, "ORDERSTAND")
+		Define(4, "ORDERTERRAIN")
+		Define(0, "WHITE")
+		Define(1, "RED")
+		Define(2, "YELLOW")
+		Define(3, "GREEN")
+		Define(4, "BLUE")
+		Define(5, "PURPLE")
+		Define(1, "FXNOREFLECT")
+		Define(2, "FXDRAWREFLECT")
+		Define(4, "FXANIM")
+		Define(8, "FXWATER")
+		Define(16, "FXBARRIER")
+		Define(32, "FXIMPASS")
+		Define(64, "FXDAMAGE")
+		Define(128, "FXSLIPPY")
+		Define(0, "TEAMA")
+		Define(1, "TEAMB")
+		Define(2, "TEAMC")
+		Define(3, "TEAMD")
+		Define(4, "TEAME")
+		Define(5, "TEAMF")
+		Define(6, "TEAMG")
+		Define(7, "TEAMH")
+		Define(8, "TEAMI")
+		Define(9, "TEAMJ")
+		Define(10, "TEAMK")
+		Define(11, "TEAML")
+		Define(12, "TEAMM")
+		Define(13, "TEAMN")
+		Define(14, "TEAMO")
+		Define(15, "TEAMP")
+		Define(16, "TEAMQ")
+		Define(17, "TEAMR")
+		Define(18, "TEAMS")
+		Define(19, "TEAMT")
+		Define(20, "TEAMU")
+		Define(21, "TEAMV")
+		Define(22, "TEAMW")
+		Define(23, "TEAMX")
+		Define(24, "TEAMY")
+		Define(25, "TEAMZ")
+		Define(1, "INVENTORY")
+		Define(2, "LEFT")
+		Define(3, "RIGHT")
+		Define(0, "EASY")
+		Define(1, "NORMAL")
+		Define(2, "HARD")
+    #undef Define
 		{ Token::Type::Variable, ScriptVariables::VARTMPX, "tmpx" },
 		{ Token::Type::Variable, ScriptVariables::VARTMPY, "tmpy" },
 		{ Token::Type::Variable, ScriptVariables::VARTMPDISTANCE, "tmpdist" },
