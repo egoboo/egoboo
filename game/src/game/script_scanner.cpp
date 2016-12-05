@@ -35,7 +35,7 @@ Token::~Token()
 
 std::ostream& operator<<(std::ostream& os, const Token::Type& tokenType) {
 	switch (tokenType) {
-    #define Define(enumElementName, string) case Token::Type::##enumElementName: os << string; break;
+    #define Define(enumElementName, string) case Token::Type::enumElementName: os << string; break;
 		Define(Constant, "constant")
 		Define(Function, "function")
         Define(Assign, "assign")
