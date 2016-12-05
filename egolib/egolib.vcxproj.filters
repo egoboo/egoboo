@@ -1402,5 +1402,8 @@
     <None Include="src\egolib\FileFormats\MapTileDefinitionsDictionary.html">
       <Filter>File Formats</Filter>
     </None>
+    <None Include="src\egolib\Script\Constants.in">
+      <Filter>Header Files\Script</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -816,6 +816,7 @@
       <FileType>Document</FileType>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</DeploymentContent>
     </ClInclude>
+    <None Include="src\egolib\Script\Constants.in" />
     <None Include="src\egolib\FileFormats\MapTileDefinitionsDictionary.html" />
     <None Include="src\egolib\Math\ColourL.hpp" />
     <None Include="src\egolib\Script\Functions.in" />
