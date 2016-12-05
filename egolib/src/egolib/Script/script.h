@@ -568,8 +568,8 @@ extern std::array<std::string, ScriptFunctions::SCRIPT_FUNCTIONS_COUNT> _scriptF
 
 /// @brief A list of all possible EgoScript variables.
 enum ScriptVariables {
-#define Define(name) name,
-#define DefineAlias(alias, name) alias = name,
+#define Define(cName, eName) cName,
+#define DefineAlias(cName, eName)
 #include "egolib/Script/Variables.in"
 #undef DefineAlias
 #undef Define

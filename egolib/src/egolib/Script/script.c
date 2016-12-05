@@ -54,8 +54,8 @@ public:
 };
 
 std::array<std::string, ScriptVariables::SCRIPT_VARIABLES_COUNT> _scriptVariableNames = {
-#define Define(name) #name,
-#define DefineAlias(alias, name)
+#define Define(cName, eName) #cName,
+#define DefineAlias(cName, eName)
 #include "egolib/Script/Variables.in"
 #undef DefineAlias
 #undef Define
