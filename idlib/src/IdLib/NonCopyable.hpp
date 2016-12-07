@@ -36,16 +36,14 @@ namespace Id {
  *  class Foo : Bar, NonCopyable
  *  { ... }
  *  @endcode
- * @see http://en.cppreference.com/w/cpp/language/as_operator
+ * @see http://en.cppreference.com/w/cpp/language/copy_assignment
+ * @see http://en.cppreference.com/w/cpp/language/move_assignment
  * @see http://en.cppreference.com/w/cpp/language/copy_constructor
- * @author
- *  Michael Heilmann
+ * @see http://en.cppreference.com/w/cpp/language/move_constructor
  */
-class NonCopyable {
-
-protected:
-    NonCopyable() {}
-    ~NonCopyable() {}
+struct NonCopyable
+{
+    NonCopyable() = default;
     NonCopyable(const NonCopyable&) = delete;
     NonCopyable& operator=(const NonCopyable&) = delete;
 };
