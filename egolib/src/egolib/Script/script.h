@@ -497,7 +497,7 @@ public:
 
 /// The state of the scripting system
 /// @details It is not persistent between one evaluation of a script and another
-struct script_state_t
+struct script_state_t : Id::NonCopyable
 {
     int x;
     int y;
@@ -509,7 +509,6 @@ struct script_state_t
 
 	// public
 	script_state_t();
-	script_state_t(const script_state_t& self);
 	// protected
 	static Uint8 run_function(script_state_t& self, ai_state_t& aiState, script_info_t& script);
 	static void set_operand(script_state_t& self, Uint8 variable);

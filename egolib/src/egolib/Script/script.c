@@ -1438,9 +1438,3 @@ script_state_t::script_state_t()
 	  argument(0), operationsum()
 {
 }
-
-script_state_t::script_state_t(const script_state_t& other)
-	: x(other.x), y(other.y), turn(other.turn), distance(other.distance),
-	  argument(other.argument), operationsum(other.operationsum)
-{
-}
