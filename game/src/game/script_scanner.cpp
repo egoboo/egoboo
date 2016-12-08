@@ -19,15 +19,15 @@
 #include "game/script_scanner.hpp"
 
 Token::Token()
-	: _text(), _location("<unknown>", 1), _index(MAX_OPCODE), _value(0), _type(Type::Unknown) 
+	: _text(), _location("<unknown>", 1), _value(0), _type(Type::Unknown) 
 {}
 
 Token::Token(Type type, const Id::Location& location)
-    : _text(), _location(location), _index(MAX_OPCODE), _value(0), _type(type)
+    : _text(), _location(location), _value(0), _type(type)
 {}
 
 Token::Token(const Token& other)
-	: _text(other._text),  _location(other._location), _index(other._index), _value(other._value), _type(other._type)
+	: _text(other._text),  _location(other._location), _value(other._value), _type(other._type)
 {}
 
 Token::~Token()
@@ -62,7 +62,6 @@ std::ostream& operator<<(std::ostream& os, const Token& token) {
 	os << "token {";
 	os << "location = " << token.getLocation().getLoadName() << ":" << token.getLocation().getLineNumber() << "," << std::endl;
 	os << "value = " << token.getValue() << "," << std::endl;
-	os << "index = " << token.getIndex() << "," << std::endl;
 	os << "type = " << token.getType() << "," << std::endl;
 	os << "text = " << token.getText() << std::endl;
 	os << "}" << std::endl;

@@ -71,9 +71,6 @@ private:
 	/// @brief The location.
 	Id::Location _location;
 
-	/// @brief The index of this token.
-    int _index;
-
 	/// @brief The value of this token.
     int _value;
 
@@ -111,20 +108,6 @@ public:
     {
         return is(Token::Type::Assign);
     }
-
-	/// @brief Get the index of this token.
-	/// @return the index of this token
-    /// @see setIndex
-	int getIndex() const {
-		return _index;
-	}
-
-	/// @brief Set the index of this token.
-	/// @param index the index
-	/// @see getIndex
-	void setIndex(int index) {
-		_index = index;
-	}
 
 	/// @brief Get the value of this token.
 	/// @return the value of this token

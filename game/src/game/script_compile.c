@@ -613,7 +613,6 @@ Token parser_state_t::parse_token(ObjectProfile *ppro, script_info_t& script, li
             }
             token.setValue((*it).iValue);
             token.setType((*it)._type);
-            token.setIndex(it - Opcodes.cbegin());
             return token;
         }
     } else if (state.is('[')) {
@@ -639,7 +638,6 @@ Token parser_state_t::parse_token(ObjectProfile *ppro, script_info_t& script, li
         }
         token.setValue((*it).iValue);
         token.setType((*it)._type);
-        token.setIndex(it - Opcodes.cbegin());
         return token;
     } else {
         throw LexicalErrorException(__FILE__, __LINE__, state.getLocation(), "unexpected symbol");
