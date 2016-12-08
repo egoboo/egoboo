@@ -597,24 +597,19 @@ Token parser_state_t::parse_token(ObjectProfile *ppro, script_info_t& script, li
         return token;
     } else if (state.isOperator()) {
         auto token = state.scanOperator();
-        /// @todo Totally inconsequent "semantic" analysis.
-        if (token.getText() == "=")
+        switch (token.getType())
         {
-            token.setValue(-1);
-            return token;
-        }
-        else
-        {
-            auto it = std::find_if(Opcodes.cbegin(), Opcodes.cend(), [&token](const auto& opcode) { return token.getText() == opcode.cName; });
-            // We couldn't figure out what this is, throw out an error code
-            if (it == Opcodes.cend())
-            {
-                throw LexicalErrorException(__FILE__, __LINE__, state.getLocation(), "not an opcode");
-            }
-            token.setValue((*it).iValue);
-            token.setType((*it)._type);
-            return token;
-        }
+            case Token::Type::Plus: token.setValue(ScriptOperators::OPADD); break;
+            case Token::Type::Minus: token.setValue(ScriptOperators::OPSUB); break;
+            case Token::Type::And: token.setValue(ScriptOperators::OPAND); break;
+            case Token::Type::ShiftRight: token.setValue(ScriptOperators::OPSHR); break;
+            case Token::Type::ShiftLeft: token.setValue(ScriptOperators::OPSHL); break;
+            case Token::Type::Multiply: token.setValue(ScriptOperators::OPMUL); break;
+            case Token::Type::Divide: token.setValue(ScriptOperators::OPDIV); break;
+            case Token::Type::Modulus: token.setValue(ScriptOperators::OPMOD); break;
+            case Token::Type::Assign: token.setValue(-1); break;
+            default: throw RuntimeErrorException(__FILE__, __LINE__, "internal error");
+        };
     } else if (state.is('[')) {
         Token token = state.scanIDSZ();
         token.setType(Token::Type::Constant);
@@ -948,15 +943,6 @@ bool load_ai_codes_vfs()
     #include "egolib/Script/Variables.in"
     #undef DefineAlias
     #undef Define
-
-		{ Token::Type::Plus, ScriptOperators::OPADD, "+" },
-		{ Token::Type::Minus, ScriptOperators::OPSUB, "-" },
-		{ Token::Type::And, ScriptOperators::OPAND, "&" },
-		{ Token::Type::ShiftRight, ScriptOperators::OPSHR, ">" },
-		{ Token::Type::ShiftLeft, ScriptOperators::OPSHL, "<" },
-		{ Token::Type::Multiply, ScriptOperators::OPMUL, "*" },
-		{ Token::Type::Divide, ScriptOperators::OPDIV, "/" },
-		{ Token::Type::Modulus, ScriptOperators::OPMOD, "%" },
 	};
 
     for (size_t i = 0, n = sizeof(AICODES) / sizeof(aicode_t); i < n; ++i)
