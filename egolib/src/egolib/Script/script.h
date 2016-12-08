@@ -29,6 +29,7 @@
 #include "egolib/AI/WaypointList.h"
 #include "egolib/_math.h"
 #include "egolib/Script/ConstantPool.hpp"
+#include "egolib/Script/Interpreter/TaggedValue.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -492,8 +493,6 @@ public:
 //--------------------------------------------------------------------------------------------
 // struct script_state_t
 //--------------------------------------------------------------------------------------------
-
-#include "egolib/Script/Interpreter/TaggedValue.hpp"
 
 /// The state of the scripting system
 /// @details It is not persistent between one evaluation of a script and another
