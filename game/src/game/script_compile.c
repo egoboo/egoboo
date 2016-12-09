@@ -604,6 +604,7 @@ Token parser_state_t::parse_token(ObjectProfile *ppro, script_info_t& script, li
             case Token::Type::Assign: token.setValue(-1); break;
             default: throw RuntimeErrorException(__FILE__, __LINE__, "internal error");
         };
+        return token;
     } else if (state.is('[')) {
         Token token = state.scanIDSZ();
         token.setType(Token::Type::Constant);
