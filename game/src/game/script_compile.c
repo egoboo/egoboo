@@ -662,7 +662,8 @@ void parser_state_t::emit_opcode(const Token& token, const BIT_FIELD highbits, s
     else if (Token::Type::Function == token.getType())
     {
         loc_highbits |= Instruction::FUNCTIONBITS;
-        script._instructions.append(Instruction(loc_highbits | token.getValue()));
+        auto constantIndex = script._instructions.getConstantPool().getOrCreateConstant(token.getValue());
+        script._instructions.append(Instruction(loc_highbits | constantIndex));
     }
     else
     {

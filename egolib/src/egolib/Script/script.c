@@ -284,7 +284,7 @@ bool script_state_t::run_function_call( script_state_t& state, ai_state_t& aiSta
     if ( script.get_pos() >= script._instructions.getNumberOfInstructions() ) return false;
 
     // Run the function
-	functionreturn = script_state_t::run_function(state, aiState, script);
+	functionreturn = state.run_function(aiState, script);
 
     // move the execution pointer to the jump code
     script.increment_pos();
@@ -362,61 +362,27 @@ bool script_state_t::run_operation( script_state_t& state, ai_state_t& aiState, 
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 script_state_t::run_function(script_state_t& self, ai_state_t& aiState, script_info_t& script)
+Uint8 script_state_t::run_function(ai_state_t& aiState, script_info_t& script)
 {
-    /// @author BB
-    /// @details This is about half-way to what is needed for Lua integration
-
-    // Mask out the indentation
-    uint32_t valuecode = script._instructions[script.get_pos()].getValueBits();
+    auto constantIndex = script._instructions[script.get_pos()].getValueBits();
+    const auto& constant = script._instructions.getConstantPool().getConstant(constantIndex);
+    uint32_t functionIndex = constant.getAsInteger();
 
     // Assume that the function will pass, as most do
-    Uint8 returncode = true;
-    if ( MAX_OPCODE == valuecode )
+    uint8_t returnCode = true;
+    auto& runtime = Runtime::get();
     {
-		Log::get().message("%s:%d:%s: model == %d, class name == \"%s\" - Unknown opcode found!\n", \
-			               __FILE__, __LINE__, __FUNCTION__, REF_TO_INT(script_error_model), script_error_classname);
-        return false;
-    }
 
-    // debug stuff
-    if ( debug_scripts && debug_script_file )
-    {
-        for (uint32_t i = 0; i < script.indent; i++ ) { vfs_printf( debug_script_file,  "  " ); }
-
-        for (uint32_t i = 0; i < Opcodes.size(); i++ )
+        Ego::Time::ClockScope<Ego::Time::ClockPolicy::NonRecursive> scope(runtime.getClock());
+        const auto& result = runtime._functionValueCodeToFunctionPointer.find(functionIndex);
+        if (runtime._functionValueCodeToFunctionPointer.cend() == result)
         {
-            if ( Token::Type::Function == Opcodes[i]._type && valuecode == Opcodes[i].iValue )
-            {
-                vfs_printf( debug_script_file,  "%s\n", Opcodes[i].cName.c_str() );
-                break;
-            };
+            throw RuntimeErrorException(__FILE__, __LINE__, "function not found");
         }
+        returnCode = result->second(*this, aiState);
     }
-
-    if (valuecode > Ego::Script::ScriptFunctions::SCRIPT_FUNCTIONS_COUNT)
-    {
-    	//TODO: empty block? why?
-    }
-    else
-    {
-        auto& runtime = Runtime::get();
-		{ 
-
-			Ego::Time::ClockScope<Ego::Time::ClockPolicy::NonRecursive> scope(runtime.getClock());
-			const auto& result = runtime._functionValueCodeToFunctionPointer.find(valuecode);
-			if (Runtime::get()._functionValueCodeToFunctionPointer.cend() == result) {
-				Log::get().message("%s:%d:%s: script error - ai script \"%s\" - unhandled script function %d\n", \
-					               __FILE__, __LINE__, __FUNCTION__, script._name.c_str(), valuecode);
-				returncode = false;
-			} else {
-				returncode = result->second(self, aiState);
-			}
-        }
-        runtime.getStatistics().onFunctionInvoked(valuecode, runtime.getClock().lst());
-    }
-
-    return returncode;
+    runtime.getStatistics().onFunctionInvoked(functionIndex, runtime.getClock().lst());
+    return returnCode;
 }
 
 //--------------------------------------------------------------------------------------------

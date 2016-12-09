@@ -509,7 +509,7 @@ struct script_state_t : Id::NonCopyable
 	// public
 	script_state_t();
 	// protected
-	static Uint8 run_function(script_state_t& self, ai_state_t& aiState, script_info_t& script);
+	uint8_t run_function(ai_state_t& aiState, script_info_t& script);
 	void store(uint8_t variableIndex);
 	static void run_operand(script_state_t& self, ai_state_t& aiState, script_info_t& script);
 	static bool run_operation(script_state_t& self, ai_state_t& aiState, script_info_t& script);
