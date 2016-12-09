@@ -118,7 +118,7 @@ std::ostream& operator<<(std::ostream& os, const Token::Type& tokenType) {
 
 std::ostream& operator<<(std::ostream& os, const Token& token) {
 	os << "token {";
-	os << "location = " << token.getLocation().getLoadName() << ":" << token.getLocation().getLineNumber() << "," << std::endl;
+    os << "location = " << token.getLocation().getFileName() << ":" << token.getLocation().getLineNumber() << "," << std::endl;
 	os << "value = " << token.getValue() << "," << std::endl;
 	os << "type = " << token.getType() << "," << std::endl;
 	os << "text = " << token.getText() << std::endl;

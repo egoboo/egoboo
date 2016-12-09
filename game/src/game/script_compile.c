@@ -32,7 +32,7 @@ struct CompilerEntry : Entry {
 	CompilerEntry(Level level, const std::string& file, int line, const std::string& function,
 		          const Location& location)
 		: Entry(level, file, line, function), _location(location) {
-		getSink() << ": " << _location.getLoadName() << ":" << _location.getLineNumber() << ": ";
+		getSink() << ": " << _location.getFileName() << ":" << _location.getLineNumber() << ": ";
 	}
 };
 }
@@ -347,7 +347,7 @@ Token line_scanner_state_t::scanNewLines()
         {
             next();
         }
-        m_location = Id::Location(m_location.getLoadName(), m_location.getLineNumber() + 1);
+        m_location = Id::Location(m_location.getFileName(), m_location.getLineNumber() + 1);
         numberOfNewLines++;
     }
     Token token = Token(Token::Type::Newline, getLocation());

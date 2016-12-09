@@ -27,25 +27,38 @@
 
 namespace Id {
 
-Location::Location(const std::string& loadName, const size_t lineNumber) :
-    _loadName(loadName), _lineNumber(lineNumber) {
+Location::Location(const std::string& fileName, const size_t lineNumber)
+    : m_fileName(fileName), m_lineNumber(lineNumber)
+{}
+
+Location::Location(const Location& other)
+    : m_fileName(other.m_fileName), m_lineNumber(other.m_lineNumber)
+{}
+
+Location::Location(Location&& other)
+    : m_fileName(std::move(other.m_fileName)), m_lineNumber(std::move(other.m_lineNumber))
+{}
+
+Location& Location::operator=(Location other)
+{
+    swap(*this, other);
+    return *this;
 }
 
-Location::Location(const Location& other) :
-    _loadName(other._loadName), _lineNumber(other._lineNumber) {
+bool Location::equalTo(const Location& other) const
+{
+    return m_fileName == other.m_fileName
+        && m_lineNumber == other.m_lineNumber;
 }
 
-bool Location::equalTo(const Location& other) const {
-    return _loadName == other._loadName
-        && _lineNumber == other._lineNumber;
+const std::string& Location::getFileName() const
+{
+    return m_fileName;
 }
 
-const std::string& Location::getLoadName() const {
-    return _loadName;
-}
-
-size_t Location::getLineNumber() const {
-    return _lineNumber;
+size_t Location::getLineNumber() const
+{
+    return m_lineNumber;
 }
 
 } // namespace Id
