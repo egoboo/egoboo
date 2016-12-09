@@ -46,7 +46,7 @@ extern vfs_FILE * debug_script_file;
 /// temporary data describing a single egoscript opcode
 struct opcode_data_t
 {
-    Token::Type _type;
+    Token::Kind _kind;
     uint32_t iValue;
     std::string cName;
 };

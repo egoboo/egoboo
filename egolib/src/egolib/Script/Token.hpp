@@ -33,7 +33,7 @@ namespace Script {
 struct TextToken
 {
     /// @brief An enumeration of the token kinds of the non-executable sub-language of EgoScript.
-    enum Type
+    enum class Kind
     {
         /// @brief An integer number literal.
         Integer,
@@ -58,33 +58,33 @@ struct TextToken
     };
 
 private:
-    /// @brief The type of this token.
-    Type _type;
+    /// @brief The kind of this token.
+    Kind m_kind;
 
-    /// @brief The location of this token.
-    Id::Location _location;
+    /// @brief The start location of this token.
+    Id::Location m_startLocation;
 
     /// @brief The lexeme of this token.
-    std::string _lexeme;
+    std::string m_lexeme;
 
 public:
     /// @brief Construct this token.
-    /// @param type the type of this token
-    /// @param location the location of this token
+    /// @param kind the kind of this token
+    /// @param startLocation the start location of this token
     /// @param lexeme the lexeme of this token. Default is the empty string.
-    TextToken(Type type, const Id::Location& location, const std::string& lexeme = std::string());
+    TextToken(Kind kind, const Id::Location& startLocation, const std::string& lexeme = std::string());
 
     /// @brief Copy-construct this token from another token.
     /// @param other the other token
     TextToken(const TextToken& other);
 
-    /// @brief Get the type of this token.
-    /// @return the type of this token
-    Type getType() const;
+    /// @brief Get the kind of this token.
+    /// @return the kind of this token
+    Kind getKind() const;
 
-    /// @brief Get the location of this token.
-    /// @return the location of this token
-    const Id::Location& getLocation() const;
+    /// @brief Get the start location of this token.
+    /// @return the start location of this token
+    const Id::Location& getStartLocation() const;
 
     /// @brief Assign this token from another token.
     /// @param other the construction source
@@ -116,7 +116,7 @@ struct TextTokenDecoder<TargetType, std::enable_if_t<IsBoolean<TargetType>::valu
         TargetType temporary;
         if (!Decoder<TargetType>()(token.getLexeme(), temporary))
         {
-            throw Id::LexicalErrorException(__FILE__, __LINE__, token.getLocation(),
+            throw Id::LexicalErrorException(__FILE__, __LINE__, token.getStartLocation(),
                                             "unable to convert literal `" + token.getLexeme() +
                                             "` into a value of EgoScript boolean type `" + typeid(TargetType).name() + "`");
         }
@@ -133,7 +133,7 @@ struct TextTokenDecoder<TargetType, std::enable_if_t<IsCharacter<TargetType>::va
         TargetType temporary;
         if (!Decoder<TargetType>()(token.getLexeme(), temporary))
         {
-            throw Id::LexicalErrorException(__FILE__, __LINE__, token.getLocation(),
+            throw Id::LexicalErrorException(__FILE__, __LINE__, token.getStartLocation(),
                                             "unable to convert literal `" + token.getLexeme() +
                                             "` into a value of EgoScript character type `" + typeid(TargetType).name() + "`");
         }
@@ -150,7 +150,7 @@ struct TextTokenDecoder<TargetType, std::enable_if_t<IsReal<TargetType>::value>>
         TargetType temporary;
         if (!Decoder<TargetType>()(token.getLexeme(), temporary))
         {
-            throw Id::LexicalErrorException(__FILE__, __LINE__, token.getLocation(),
+            throw Id::LexicalErrorException(__FILE__, __LINE__, token.getStartLocation(),
                                             "unable to convert literal `" + token.getLexeme() +
                                             "` into a value of EgoScript real type " + "`" + typeid(TargetType).name() + "`");
         }
@@ -167,7 +167,7 @@ struct TextTokenDecoder<TargetType, std::enable_if_t<IsInteger<TargetType>::valu
         TargetType temporary;
         if (!Decoder<TargetType>()(token.getLexeme(), temporary))
         {
-            throw Id::LexicalErrorException(__FILE__, __LINE__, token.getLocation(),
+            throw Id::LexicalErrorException(__FILE__, __LINE__, token.getStartLocation(),
                                             "unable to convert literal `" + token.getLexeme() +
                                             "` into a value of EgoScript integer type " + "`" + typeid(TargetType).name() + "`");
         }
@@ -184,7 +184,7 @@ struct TextTokenDecoder<TargetType, std::enable_if_t<IsNatural<TargetType>::valu
         TargetType temporary;
         if (!Decoder<TargetType>()(token.getLexeme(), temporary))
         {
-            throw Id::LexicalErrorException(__FILE__, __LINE__, token.getLocation(),
+            throw Id::LexicalErrorException(__FILE__, __LINE__, token.getStartLocation(),
                                             "unable to convert literal `" + token.getLexeme() +
                                             "` into a value of EgoScript natural type " + "`" + typeid(int).name() + "`");
         }
@@ -201,7 +201,7 @@ struct TextTokenDecoder<TargetType, std::enable_if_t<IsString<TargetType>::value
         TargetType temporary;
         if (!Decoder<TargetType>()(token.getLexeme(), temporary))
         {
-            throw Id::LexicalErrorException(__FILE__, __LINE__, token.getLocation(),
+            throw Id::LexicalErrorException(__FILE__, __LINE__, token.getStartLocation(),
                                             "unable to convert literal `" + token.getLexeme() +
                                             "` into a value of EgoScript string type " + "`" + typeid(TargetType).name() + "`");
         }

@@ -19,83 +19,83 @@
 #include "game/script_scanner.hpp"
 
 Token::Token()
-    : _text(), _location("<unknown>", 1), _value(0), _type(Type::Unknown)
+    : m_lexeme(), m_startLocation("<unknown>", 1), m_value(0), m_kind(Kind::Unknown)
 {}
 
-Token::Token(Type type, const Location& location)
-    : _text(), _location(location), _value(0), _type(type)
+Token::Token(Kind kind, const Location& startLocation, const std::string& lexeme)
+    : m_lexeme(lexeme), m_startLocation(startLocation), m_value(0), m_kind(kind)
 {}
 
 Token::Token(const Token& other)
-    : _text(other._text), _location(other._location), _value(other._value), _type(other._type)
+    : m_lexeme(other.m_lexeme), m_startLocation(other.m_startLocation), m_value(other.m_value), m_kind(other.m_kind)
 {}
 
 Token::~Token()
 {}
 
-bool Token::is(Token::Type type) const
+bool Token::is(Token::Kind kind) const
 {
-    return type == getType();
+    return kind == getKind();
 }
 
-bool Token::isOneOf(Token::Type type0, Token::Type type1) const
+bool Token::isOneOf(Token::Kind kind1, Token::Kind kind2) const
 {
-    return is(type0) || is(type1);
+    return is(kind1) || is(kind2);
 }
 
 bool Token::isOperator() const
 {
-    return isOneOf(Type::Assign,
-                   Type::Plus,
-                   Type::Minus,
-                   Type::And,
-                   Type::Multiply,
-                   Type::Divide,
-                   Type::Modulus,
-                   Type::ShiftRight,
-                   Type::ShiftLeft);
+    return isOneOf(Kind::Assign,
+                   Kind::Plus,
+                   Kind::Minus,
+                   Kind::And,
+                   Kind::Multiply,
+                   Kind::Divide,
+                   Kind::Modulus,
+                   Kind::ShiftRight,
+                   Kind::ShiftLeft);
 }
 
 bool Token::isAssignOperator() const
 {
-    return is(Token::Type::Assign);
+    return is(Token::Kind::Assign);
 }
 
-Location Token::getLocation() const
+Location Token::getStartLocation() const
 {
-    return _location;
+    return m_startLocation;
 }
 
-void Token::setLocation(const Location& location)
+void Token::setStartLocation(const Location& startLocation)
 {
-    _location = location;
+    m_startLocation = startLocation;
 }
 
-Token::Type Token::getType() const
+Token::Kind Token::getKind() const
 {
-    return _type;
+    return m_kind;
 }
 
-void Token::setType(Token::Type type)
+void Token::setKind(Token::Kind kind)
 {
-    _type = type;
+    m_kind = kind;
 }
 
-void Token::setText(const std::string& text)
+void Token::setLexeme(const std::string& lexeme)
 {
-    _text = text;
+    m_lexeme = lexeme;
 }
 
-const std::string& Token::getText() const
+const std::string& Token::getLexeme() const
 {
-    return _text;
+    return m_lexeme;
 }
 
-std::ostream& operator<<(std::ostream& os, const Token::Type& tokenType)
+std::ostream& operator<<(std::ostream& os, const Token::Kind& tokenKind)
 {
-    switch (tokenType)
+    switch (tokenKind)
     {
-    #define Define(enumElementName, string) case Token::Type::enumElementName: os << string; break;
+    #define Define(enumElementName, string) case Token::Kind::enumElementName: os << string; break;
         Define(Constant, "constant")
         Define(Function, "function")
         Define(Assign, "assign")
@@ -121,10 +121,10 @@ std::ostream& operator<<(std::ostream& os, const Token::Type& tokenType)
 std::ostream& operator<<(std::ostream& os, const Token& token)
 {
     os << "token {";
-    os << "location = " << token.getLocation().getFileName() << ":" << token.getLocation().getLineNumber() << "," << std::endl;
+    os << "location = " << token.getStartLocation().getFileName() << ":" << token.getStartLocation().getLineNumber() << "," << std::endl;
     os << "value = " << token.getValue() << "," << std::endl;
-    os << "type = " << token.getType() << "," << std::endl;
-    os << "text = " << token.getText() << std::endl;
+    os << "type = " << token.getKind() << "," << std::endl;
+    os << "text = " << token.getLexeme() << std::endl;
     os << "}" << std::endl;
     return os;
 }

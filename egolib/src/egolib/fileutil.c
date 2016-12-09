@@ -692,7 +692,7 @@ TextToken ReadContext::parseStringLiteral()
 			saveAndNext();
 		}
 	}
-	return TextToken(TextToken::Type::String, startLocation, _buffer.toString());
+	return TextToken(TextToken::Kind::String, startLocation, _buffer.toString());
 }
 
 TextToken ReadContext::parseCharacterLiteral() {
@@ -793,7 +793,7 @@ TextToken ReadContext::parseCharacterLiteral() {
 		throw MissingDelimiterError(__FILE__, __LINE__, Location(getFileName(), getLineNumber()), '\'');
 	}
 	next();
-	return TextToken(TextToken::Type::Character, startLocation, _buffer.toString());
+	return TextToken(TextToken::Kind::Character, startLocation, _buffer.toString());
 }
 
 TextToken ReadContext::parseIntegerLiteral()
@@ -860,7 +860,7 @@ TextToken ReadContext::parseIntegerLiteral()
 			saveAndNext();
 		} while (isDigit());
 	}
-	return TextToken(TextToken::Type::Integer, startLocation, _buffer.toString());
+	return TextToken(TextToken::Kind::Integer, startLocation, _buffer.toString());
 }
 
 TextToken ReadContext::parseNaturalLiteral()
@@ -927,7 +927,7 @@ TextToken ReadContext::parseNaturalLiteral()
 			saveAndNext();
 		} while (isDigit());
 	}
-	return TextToken(TextToken::Type::Integer, startLocation, _buffer.toString());
+	return TextToken(TextToken::Kind::Integer, startLocation, _buffer.toString());
 }
 
 TextToken ReadContext::parseRealLiteral()
@@ -1013,7 +1013,7 @@ TextToken ReadContext::parseRealLiteral()
 			saveAndNext();
 		} while (isDigit());
 	}
-	return TextToken(TextToken::Type::Real, startLocation, _buffer.toString());
+	return TextToken(TextToken::Kind::Real, startLocation, _buffer.toString());
 }
 
 std::string ReadContext::readStringLiteral() {

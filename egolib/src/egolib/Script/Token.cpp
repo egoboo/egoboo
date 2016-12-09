@@ -27,35 +27,35 @@
 namespace Ego {
 namespace Script {
 
-TextToken::TextToken(TextToken::Type type, const Id::Location& location, const std::string& lexeme)
-    : _type(type), _location(location), _lexeme(lexeme)
+TextToken::TextToken(TextToken::Kind kind, const Id::Location& startLocation, const std::string& lexeme)
+    : m_kind(kind), m_startLocation(startLocation), m_lexeme(lexeme)
 {}
 
 TextToken::TextToken(const TextToken& other)
-    : _type(other._type), _location(other._location), _lexeme(other._lexeme)
+    : m_kind(other.m_kind), m_startLocation(other.m_startLocation), m_lexeme(other.m_lexeme)
 {}
 
 TextToken& TextToken::operator=(const TextToken& other)
 {
-    _type = other._type;
-    _location = other._location;
-    _lexeme = other._lexeme;
+    m_kind = other.m_kind;
+    m_startLocation = other.m_startLocation;
+    m_lexeme = other.m_lexeme;
     return *this;
 }
 
-TextToken::Type TextToken::getType() const
+TextToken::Kind TextToken::getKind() const
 {
-    return _type;
+    return m_kind;
 }
 
 const std::string& TextToken::getLexeme() const
 {
-    return _lexeme;
+    return m_lexeme;
 }
 
-const Id::Location& TextToken::getLocation() const
+const Id::Location& TextToken::getStartLocation() const
 {
-    return _location;
+    return m_startLocation;
 }
 
 } // namespace Script

@@ -25,7 +25,7 @@
 /// @brief A token.
 struct Token
 {
-    enum class Type
+    enum class Kind
     {
         Unknown,
         Function,
@@ -74,44 +74,44 @@ struct Token
     };
 
 private:
-    /// @brief The type of this token.
-    Type _type;
+    /// @brief The kind of this token.
+    Kind m_kind;
 
-    /// @brief The location.
-    Location _location;
+    /// @brief The start location of this token.
+    Location m_startLocation;
 
     /// @brief The value of this token.
-    int _value;
+    int m_value;
 
-    /// @brief The text of this token.
-    std::string _text;
+    /// @brief The lexeme of this token.
+    std::string m_lexeme;
 
 public:
-    /// @brief Get if this token is of the given token type.
-    /// @param type the token type
-    /// @return @a true if this token is of the token type @a type, @a false otherwise
-    bool is(Type type) const;
+    /// @brief Get if this token is of the given kinds.
+    /// @param kind the kind
+    /// @return @a true if this token is of the given kind @a kind, @a false otherwise
+    bool is(Kind kind) const;
 
-    /// @brief Get if this token is of one of the given token types.
-    /// @param type0, type1 the token types
-    /// @return @a true if this token is of one of the given token types, @a false otherwise
-    bool isOneOf(Type type0, Type type1) const;
+    /// @brief Get if this token is of one of the given kinds.
+    /// @param kind1, kind2 the kinds
+    /// @return @a true if this token is of one of the given kinds @a kind1 or @a kind2, @a false otherwise
+    bool isOneOf(Kind kind1, Kind kind2) const;
 
-    /// @brief Get if this token is of one of the given token types.
-    /// @param type0, type1, types the token types
-    /// @return @a true if this token is of one of the given token types, @a false otherwise
-    template <typename ... Types>
-    bool isOneOf(Type type0, Type type1, Types ... types) const
+    /// @brief Get if this token is of one of the given kinds.
+    /// @param kind1, kind2, kinds ... the kinds
+    /// @return @a true if this token is of one of the given kinds @a kind1, @a kind2, or @a kinds ..., @a false otherwise
+    template <typename ... Kinds>
+    bool isOneOf(Kind kind1, Kind kind2, Kinds ... kinds) const
     {
-        return is(type0) || isOneOf(type1, types ...);
+        return is(kind1) || isOneOf(kind2, kinds ...);
     }
 
-    /// @brief Get if this token is an operator token.
+    /// @brief Get if this token is an operator token i.e. is of one of the kinds which are called operators.
     /// @return @a true if this token is an operator token, @a false otherwise
     bool isOperator() const;
 
-    /// @brief Get if this token is an "assign" operator token.
-    /// @return @a true if this token is an "assign" operator token, @a false otherwise
+    /// @brief Get if this token is an assign operator token i.e. is of the kind "assign".
+    /// @return @a true if this token is an assign operator token, @a false otherwise
     bool isAssignOperator() const;
 
     /// @brief Get the value of this token.
@@ -119,7 +119,7 @@ public:
     /// @see setValue
     int getValue() const
     {
-        return _value;
+        return m_value;
     }
 
     /// @brief Set the value of this token.
@@ -127,49 +127,49 @@ public:
     /// @see getValue
     void setValue(int value)
     {
-        _value = value;
+        m_value = value;
     }
 
-    /// @brief Get the location of this token.
-    /// @return the location of this token
-    /// @see setLocation
-    /// @remark The location is the location at which the lexeme of this token starts at.
-    Location getLocation() const;
+    /// @brief Get the start location of this token.
+    /// @return the start location of this token
+    /// @see setStartLocation
+    /// @remark The start location is the location at which the lexeme of this token starts at.
+    Location getStartLocation() const;
 
-    /// @brief Set the location of this token.
-    /// @param location the location
-    /// @see getLocation
-    void setLocation(const Location& location);
+    /// @brief Set the start location of this token.
+    /// @param startLocation the start location
+    /// @see getStartLocation
+    void setStartLocation(const Location& startLocation);
 
-    /// @brief Get the type of this token.
-    /// @return the type of this token
-    /// @see setType
-    Type getType() const;
+    /// @brief Get the kind of this token.
+    /// @return the kind of this token
+    /// @see setKind
+    Kind getKind() const;
 
-    /// @brief Set the type of this token.
-    /// @param type the type
-    /// @see getType
-    void setType(Type type);
+    /// @brief Set the kind of this token.
+    /// @param kind the kind
+    /// @see getKind
+    void setKind(Kind kind);
 
-    /// @brief Set the text of this token.
-    /// @param text the text
-    /// @see getText
-    void setText(const std::string& text);
+    /// @brief Set the lexeme of this token.
+    /// @param lexeme the lexeme
+    /// @see getLexeme
+    void setLexeme(const std::string& lexeme);
 
-    /// @brief Get the text of this token.
-    /// @return the text of this token
-    /// @see setText
-    const std::string& getText() const;
+    /// @brief Get the lexeme of this token.
+    /// @return the lexeme of this token
+    /// @see setLexeme
+    const std::string& getLexeme() const;
 
     /// @brief Construct this token with default values.
     /// @remark The text of the token is the empty string, its type and its location is unknown.
     Token();
 
     /// @brief Construct this token with the specified type, location, and text.
-    /// @param type the type of the token
+    /// @param kind the kind of the token
     /// @param location the location of the token
-    /// @remark The text of the token is the empty string.
-    Token(Type type, const Location& location);
+    /// @param lexeme the lexeme of this token. Default is the empty string.
+    Token(Kind kind, const Location& startLocation, const std::string& lexeme = std::string());
 
     /// @brief Construct this token with values of another token.
     /// @param other the other token
@@ -185,7 +185,7 @@ public:
 /// @param ostream the output stream to write to
 /// @param tokenType the token type to write
 /// @return the outputstream
-std::ostream& operator<<(std::ostream& os, const Token::Type& tokenType);
+std::ostream& operator<<(std::ostream& os, const Token::Kind& tokenType);
 
 /// @brief Overloaded &lt;&lt; operator for a token.
 /// @param ostream the output stream to write to
