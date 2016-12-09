@@ -150,9 +150,9 @@
     <Lib>
       <OutputFile>$(OutDir)$(TargetFileName)</OutputFile>
       <TargetMachine>MachineX86</TargetMachine>
-      <Verbose>false</Verbose>
       <SubSystem>
       </SubSystem>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
     <Xdcmake>
       <DocumentLibraryDependencies>true</DocumentLibraryDependencies>
@@ -302,6 +302,7 @@
     </ClCompile>
     <Lib>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <OutputFile>$(OutDir)$(TargetFileName)</OutputFile>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
