@@ -330,9 +330,7 @@ Token line_scanner_state_t::scanWhiteSpaces()
             next();
         } while (isWhiteSpace());
     }
-    Token token;
-    token.setLocation(getLocation());
-    token.setType(Token::Type::Whitespace);
+    Token token = Token(Token::Type::Whitespace, getLocation());
     token.setValue(numberOfWhiteSpaces);
     return token;
 }
@@ -352,9 +350,7 @@ Token line_scanner_state_t::scanNewLines()
         m_location = Id::Location(m_location.getLoadName(), m_location.getLineNumber() + 1);
         numberOfNewLines++;
     }
-    Token token;
-    token.setLocation(getLocation());
-    token.setType(Token::Type::Newline);
+    Token token = Token(Token::Type::Newline, getLocation());
     token.setValue(numberOfNewLines);
     return token;
 }
@@ -505,9 +501,7 @@ Token parser_state_t::parse_indention(script_info_t& script, line_scanner_state_
         _error = true;
         indent = 15;
     }
-    Token token;
-    token.setLocation(source.getLocation());
-    token.setType(Token::Type::Indent);
+    Token token = Token(Token::Type::Indent, source.getLocation());
     token.setValue(indent);
     return token;
 }
