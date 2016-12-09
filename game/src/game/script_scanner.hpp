@@ -69,7 +69,7 @@ private:
 	Type _type;
 
 	/// @brief The location.
-	Id::Location _location;
+	Location _location;
 
 	/// @brief The value of this token.
     int _value;
@@ -78,36 +78,32 @@ private:
     std::string _text;
 
 public:
-    /// @brief Get if this token is a token of a given token type.
+    /// @brief Get if this token is of the given token type.
     /// @param type the token type
     /// @return @a true if this token is of the token type @a type, @a false otherwise
-    bool is(Type type) const
+    bool is(Type type) const;
+
+    /// @brief Get if this token is of one of the given token types.
+    /// @param type0, type1 the token types
+    /// @return @a true if this token is of one of the given token types, @a false otherwise
+    bool isOneOf(Type type0, Type type1) const;
+
+    /// @brief Get if this token is of one of the given token types.
+    /// @param type0, type1, types the token types
+    /// @return @a true if this token is of one of the given token types, @a false otherwise
+    template <typename ... Types>
+    bool isOneOf(Type type0, Type type1, Types ... types) const
     {
-        return type == getType();
+        return is(type0) || isOneOf(type1, types ...);
     }
 
     /// @brief Get if this token is an operator token.
     /// @return @a true if this token is an operator token, @a false otherwise
-    bool isOperator() const
-    {
-        return Type::Assign == _type
-            || Type::Plus == _type
-            || Type::Minus == _type
-            || Type::And == _type
-            || Type::Multiply == _type
-            || Type::Divide == _type
-            || Type::Modulus == _type
-            || Type::ShiftRight == _type
-            || Type::ShiftLeft == _type;
-    }
-
+    bool isOperator() const;
 
     /// @brief Get if this token is an "assign" operator token.
     /// @return @a true if this token is an "assign" operator token, @a false otherwise
-    bool isAssignOperator() const
-    {
-        return is(Token::Type::Assign);
-    }
+    bool isAssignOperator() const;
 
 	/// @brief Get the value of this token.
 	/// @return the value of this token
@@ -127,49 +123,42 @@ public:
     /// @return the location of this token
     /// @see setLocation
     /// @remark The location is the location at which the lexeme of this token starts at.
-	Id::Location getLocation() const {
-		return _location;
-	}
+    Location getLocation() const;
 
 	/// @brief Set the location of this token.
 	/// @param location the location
 	/// @see getLocation
-	void setLocation(const Id::Location& location) {
-		_location = location;
-	}
+    void setLocation(const Location& location);
 
 	/// @brief Get the type of this token.
 	/// @return the type of this token
     /// @see setType
-	Type getType() const {
-		return _type;
-	}
+    Type getType() const;
 
 	/// @brief Set the type of this token.
 	/// @param type the type
     /// @see getType
-	void setType(Type type) {
-		_type = type;
-	}
+    void setType(Type type);
 
 	/// @brief Set the text of this token.
 	/// @param text the text
     /// @see getText
-	void setText(const std::string& text) {
-		_text = text;
-	}
+    void setText(const std::string& text);
 
     /// @brief Get the text of this token.
     /// @return the text of this token
     /// @see setText
-    const std::string& getText() const {
-        return _text;
-    }
+    const std::string& getText() const;
 
 	/// @brief Construct this token with default values.
+    /// @remark The text of the token is the empty string, its type and its location is unknown.
 	Token();
 
-    Token(Type type, const Id::Location& location);
+    /// @brief Construct this token with the specified type, location, and text.
+    /// @param type the type of the token
+    /// @param location the location of the token
+    /// @remark The text of the token is the empty string.
+    Token(Type type, const Location& location);
 
 	/// @brief Construct this token with values of another token.
 	/// @param other the other token

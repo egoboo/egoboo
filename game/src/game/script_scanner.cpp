@@ -22,7 +22,7 @@ Token::Token()
 	: _text(), _location("<unknown>", 1), _value(0), _type(Type::Unknown) 
 {}
 
-Token::Token(Type type, const Id::Location& location)
+Token::Token(Type type, const Location& location)
     : _text(), _location(location), _value(0), _type(type)
 {}
 
@@ -32,6 +32,64 @@ Token::Token(const Token& other)
 
 Token::~Token()
 {}
+
+bool Token::is(Token::Type type) const
+{
+    return type == getType();
+}
+
+bool Token::isOneOf(Token::Type type0, Token::Type type1) const
+{
+    return is(type0) || is(type1);
+}
+
+bool Token::isOperator() const
+{
+    return isOneOf(Type::Assign,
+                   Type::Plus,
+                   Type::Minus,
+                   Type::And,
+                   Type::Multiply,
+                   Type::Divide,
+                   Type::Modulus,
+                   Type::ShiftRight,
+                   Type::ShiftLeft);
+}
+
+bool Token::isAssignOperator() const
+{
+    return is(Token::Type::Assign);
+}
+
+Location Token::getLocation() const
+{
+    return _location;
+}
+
+void Token::setLocation(const Location& location)
+{
+    _location = location;
+}
+
+Token::Type Token::getType() const
+{
+    return _type;
+}
+
+void Token::setType(Token::Type type)
+{
+    _type = type;
+}
+
+void Token::setText(const std::string& text)
+{
+    _text = text;
+}
+
+const std::string& Token::getText() const
+{
+    return _text;
+}
 
 std::ostream& operator<<(std::ostream& os, const Token::Type& tokenType) {
 	switch (tokenType) {
