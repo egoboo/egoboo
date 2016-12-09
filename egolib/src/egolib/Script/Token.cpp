@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Script/Token.cpp
-/// @brief  A basic token class
+/// @file egolib/Script/Token.cpp
+/// @brief Token of the non-executable sub-language of EgoScript.
 /// @author Michael Heilmann
 
 #include "egolib/Script/Token.hpp"
@@ -28,30 +28,34 @@ namespace Ego {
 namespace Script {
 
 TextToken::TextToken(TextToken::Type type, const Id::Location& location, const std::string& lexeme)
-	: _type(type), _location(location), _lexeme(lexeme)
+    : _type(type), _location(location), _lexeme(lexeme)
 {}
 
 TextToken::TextToken(const TextToken& other)
-	: _type(other._type), _location(other._location), _lexeme(other._lexeme)
+    : _type(other._type), _location(other._location), _lexeme(other._lexeme)
 {}
 
-TextToken& TextToken::operator=(const TextToken& other) {
-	_type = other._type;
-	_location = other._location;
-	_lexeme = other._lexeme;
-	return *this;
+TextToken& TextToken::operator=(const TextToken& other)
+{
+    _type = other._type;
+    _location = other._location;
+    _lexeme = other._lexeme;
+    return *this;
 }
 
-TextToken::Type TextToken::getType() const {
-	return _type;
+TextToken::Type TextToken::getType() const
+{
+    return _type;
 }
 
-const std::string& TextToken::getLexeme() const {
-	return _lexeme;
+const std::string& TextToken::getLexeme() const
+{
+    return _lexeme;
 }
 
-const Id::Location& TextToken::getLocation() const {
-	return _location;
+const Id::Location& TextToken::getLocation() const
+{
+    return _location;
 }
 
 } // namespace Script

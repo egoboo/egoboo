@@ -23,12 +23,14 @@
 #define MAX_OPCODE 1024 ///< Number of lines in AICODES.TXT
 
 /// @brief A token.
-struct Token {
-	enum class Type {
-		Unknown,
-		Function,
-		Variable,
-		Constant,
+struct Token
+{
+    enum class Type
+    {
+        Unknown,
+        Function,
+        Variable,
+        Constant,
 
         Assign, ///< Token type of an "assign" operator.
         And, ///< Token type of an "and" operator.
@@ -40,38 +42,45 @@ struct Token {
         ShiftRight, ///< Token type of a "shift right" operator.
         ShiftLeft, ///< Token type of a "shift left" operator.
 
-        // Token type of zero or more whitespaces.
-        // getValue indicates the number of whitespaces.
+        /// Token type of zero or more whitespaces.
+        /// getValue indicates the number of whitespaces.
         Whitespace,
-        // Token type of zero or more newlines.
-        // getValue indicates the number of newlines.
+
+        /// Token type of zero or more newlines.
+        /// getValue indicates the number of newlines.
         Newline,
-        // Token type of zero to 15 indentions.
-        // etValue indicates the number of indentions.
+
+        /// Token type of zero to 15 indentions.
+        /// getValue indicates the number of indentions.
         Indent,
-        // Token type of the end of a line.
+
+        /// Token type of the end of a line.
         EndOfLine,
+
         /// Token type of a numeric literal.
         NumericLiteral,
+
         /// Token type of a name.
         Name,
+
         /// Token type of a string.
         String,
+
         /// Token type of a reference.
         Reference,
+
         /// Token type of an IDSZ.
         IDSZ,
-
-	};
+    };
 
 private:
-	/// @brief The type of this token.
-	Type _type;
+    /// @brief The type of this token.
+    Type _type;
 
-	/// @brief The location.
-	Location _location;
+    /// @brief The location.
+    Location _location;
 
-	/// @brief The value of this token.
+    /// @brief The value of this token.
     int _value;
 
     /// @brief The text of this token.
@@ -105,43 +114,45 @@ public:
     /// @return @a true if this token is an "assign" operator token, @a false otherwise
     bool isAssignOperator() const;
 
-	/// @brief Get the value of this token.
-	/// @return the value of this token
+    /// @brief Get the value of this token.
+    /// @return the value of this token
     /// @see setValue
-	int getValue() const {
-		return _value;
-	}
+    int getValue() const
+    {
+        return _value;
+    }
 
-	/// @brief Set the value of this token.
-	/// @param value the value
-	/// @see getValue
-	void setValue(int value) {
-		_value = value;
-	}
+    /// @brief Set the value of this token.
+    /// @param value the value
+    /// @see getValue
+    void setValue(int value)
+    {
+        _value = value;
+    }
 
-	/// @brief Get the location of this token.
+    /// @brief Get the location of this token.
     /// @return the location of this token
     /// @see setLocation
     /// @remark The location is the location at which the lexeme of this token starts at.
     Location getLocation() const;
 
-	/// @brief Set the location of this token.
-	/// @param location the location
-	/// @see getLocation
+    /// @brief Set the location of this token.
+    /// @param location the location
+    /// @see getLocation
     void setLocation(const Location& location);
 
-	/// @brief Get the type of this token.
-	/// @return the type of this token
+    /// @brief Get the type of this token.
+    /// @return the type of this token
     /// @see setType
     Type getType() const;
 
-	/// @brief Set the type of this token.
-	/// @param type the type
+    /// @brief Set the type of this token.
+    /// @param type the type
     /// @see getType
     void setType(Type type);
 
-	/// @brief Set the text of this token.
-	/// @param text the text
+    /// @brief Set the text of this token.
+    /// @param text the text
     /// @see getText
     void setText(const std::string& text);
 
@@ -150,9 +161,9 @@ public:
     /// @see setText
     const std::string& getText() const;
 
-	/// @brief Construct this token with default values.
+    /// @brief Construct this token with default values.
     /// @remark The text of the token is the empty string, its type and its location is unknown.
-	Token();
+    Token();
 
     /// @brief Construct this token with the specified type, location, and text.
     /// @param type the type of the token
@@ -160,14 +171,14 @@ public:
     /// @remark The text of the token is the empty string.
     Token(Type type, const Location& location);
 
-	/// @brief Construct this token with values of another token.
-	/// @param other the other token
-	Token(const Token& other);
+    /// @brief Construct this token with values of another token.
+    /// @param other the other token
+    Token(const Token& other);
 
-	/// @brief Destruct this token.
-	~Token();
+    /// @brief Destruct this token.
+    ~Token();
 
-	friend std::ostream& operator<<(std::ostream& os, const Token& token);
+    friend std::ostream& operator<<(std::ostream& os, const Token& token);
 };
 
 /// @brief Overloaded &lt;&lt; operator for a token type.

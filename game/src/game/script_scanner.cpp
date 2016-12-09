@@ -19,7 +19,7 @@
 #include "game/script_scanner.hpp"
 
 Token::Token()
-	: _text(), _location("<unknown>", 1), _value(0), _type(Type::Unknown) 
+    : _text(), _location("<unknown>", 1), _value(0), _type(Type::Unknown)
 {}
 
 Token::Token(Type type, const Location& location)
@@ -27,7 +27,7 @@ Token::Token(Type type, const Location& location)
 {}
 
 Token::Token(const Token& other)
-	: _text(other._text),  _location(other._location), _value(other._value), _type(other._type)
+    : _text(other._text), _location(other._location), _value(other._value), _type(other._type)
 {}
 
 Token::~Token()
@@ -91,11 +91,13 @@ const std::string& Token::getText() const
     return _text;
 }
 
-std::ostream& operator<<(std::ostream& os, const Token::Type& tokenType) {
-	switch (tokenType) {
+std::ostream& operator<<(std::ostream& os, const Token::Type& tokenType)
+{
+    switch (tokenType)
+    {
     #define Define(enumElementName, string) case Token::Type::enumElementName: os << string; break;
-		Define(Constant, "constant")
-		Define(Function, "function")
+        Define(Constant, "constant")
+        Define(Function, "function")
         Define(Assign, "assign")
         Define(And, "and")
         Define(Plus, "plus")
@@ -105,23 +107,24 @@ std::ostream& operator<<(std::ostream& os, const Token::Type& tokenType) {
         Define(Modulus, "modulus")
         Define(ShiftRight, "shift right")
         Define(ShiftLeft, "shift left")
-		Define(Unknown, "unknown")
-		Define(Variable, "variable")
+        Define(Unknown, "unknown")
+        Define(Variable, "variable")
         Define(Name, "name")
         Define(IDSZ, "idsz")
         Define(NumericLiteral, "numeric literal")
         Define(Reference, "reference")
     #undef Define
-	};
-	return os;
+    };
+    return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const Token& token) {
-	os << "token {";
+std::ostream& operator<<(std::ostream& os, const Token& token)
+{
+    os << "token {";
     os << "location = " << token.getLocation().getFileName() << ":" << token.getLocation().getLineNumber() << "," << std::endl;
-	os << "value = " << token.getValue() << "," << std::endl;
-	os << "type = " << token.getType() << "," << std::endl;
-	os << "text = " << token.getText() << std::endl;
-	os << "}" << std::endl;
-	return os;
+    os << "value = " << token.getValue() << "," << std::endl;
+    os << "type = " << token.getType() << "," << std::endl;
+    os << "text = " << token.getText() << std::endl;
+    os << "}" << std::endl;
+    return os;
 }
