@@ -24,7 +24,6 @@
 #pragma once
 
 #include "egolib/Script/DDLTokenKind.hpp"
-#include "egolib/Script/Conversion.hpp"
 
 namespace Ego {
 namespace Script {
@@ -70,118 +69,6 @@ public:
     /// @return the lexeme of this token
     const std::string& getLexeme() const;
 
-};
-
-/// @brief Convert this token into a value of type @a type.
-/// @tparam Type the type of the value to convert the value of this token into
-/// @return the converted value
-/// @throw Id::LexicalErrorException the conversion failed
-template <typename TargetType, typename EnabledType = void>
-struct DDLTokenDecoder
-{
-    TargetType operator()(const DDLToken& token) const;
-};
-
-/// @brief Specialization for EgoScript boolean types.
-template <typename TargetType>
-struct DDLTokenDecoder<TargetType, std::enable_if_t<IsBoolean<TargetType>::value>>
-{
-    TargetType operator()(const DDLToken& token) const
-    {
-        TargetType temporary;
-        if (!Decoder<TargetType>()(token.getLexeme(), temporary))
-        {
-            throw Id::LexicalErrorException(__FILE__, __LINE__, token.getStartLocation(),
-                                            "unable to convert literal `" + token.getLexeme() +
-                                            "` into a value of EgoScript boolean type `" + typeid(TargetType).name() + "`");
-        }
-        return temporary;
-    }
-};
-
-/// @brief Specialization for EgoScript character types.
-template <typename TargetType>
-struct DDLTokenDecoder<TargetType, std::enable_if_t<IsCharacter<TargetType>::value>>
-{
-    TargetType operator()(const DDLToken& token) const
-    {
-        TargetType temporary;
-        if (!Decoder<TargetType>()(token.getLexeme(), temporary))
-        {
-            throw Id::LexicalErrorException(__FILE__, __LINE__, token.getStartLocation(),
-                                            "unable to convert literal `" + token.getLexeme() +
-                                            "` into a value of EgoScript character type `" + typeid(TargetType).name() + "`");
-        }
-        return temporary;
-    }
-};
-
-/// @brief Specialization for EgoScript real types.
-template <typename TargetType>
-struct DDLTokenDecoder<TargetType, std::enable_if_t<IsReal<TargetType>::value>>
-{
-    TargetType operator()(const DDLToken& token) const
-    {
-        TargetType temporary;
-        if (!Decoder<TargetType>()(token.getLexeme(), temporary))
-        {
-            throw Id::LexicalErrorException(__FILE__, __LINE__, token.getStartLocation(),
-                                            "unable to convert literal `" + token.getLexeme() +
-                                            "` into a value of EgoScript real type " + "`" + typeid(TargetType).name() + "`");
-        }
-        return temporary;
-    }
-};
-
-/// @brief Specialization for EgoScript integer types.
-template <typename TargetType>
-struct DDLTokenDecoder<TargetType, std::enable_if_t<IsInteger<TargetType>::value>>
-{
-    TargetType operator()(const DDLToken& token) const
-    {
-        TargetType temporary;
-        if (!Decoder<TargetType>()(token.getLexeme(), temporary))
-        {
-            throw Id::LexicalErrorException(__FILE__, __LINE__, token.getStartLocation(),
-                                            "unable to convert literal `" + token.getLexeme() +
-                                            "` into a value of EgoScript integer type " + "`" + typeid(TargetType).name() + "`");
-        }
-        return temporary;
-    }
-};
-
-/// @brief Specialization for EgoScript natural types.
-template<typename TargetType>
-struct DDLTokenDecoder<TargetType, std::enable_if_t<IsNatural<TargetType>::value>>
-{
-    TargetType operator()(const DDLToken& token) const
-    {
-        TargetType temporary;
-        if (!Decoder<TargetType>()(token.getLexeme(), temporary))
-        {
-            throw Id::LexicalErrorException(__FILE__, __LINE__, token.getStartLocation(),
-                                            "unable to convert literal `" + token.getLexeme() +
-                                            "` into a value of EgoScript natural type " + "`" + typeid(int).name() + "`");
-        }
-        return temporary;
-    }
-};
-
-/// @brief Specialization for EgoScript string types.
-template <typename TargetType>
-struct DDLTokenDecoder<TargetType, std::enable_if_t<IsString<TargetType>::value>>
-{
-    TargetType operator()(const DDLToken& token) const
-    {
-        TargetType temporary;
-        if (!Decoder<TargetType>()(token.getLexeme(), temporary))
-        {
-            throw Id::LexicalErrorException(__FILE__, __LINE__, token.getStartLocation(),
-                                            "unable to convert literal `" + token.getLexeme() +
-                                            "` into a value of EgoScript string type " + "`" + typeid(TargetType).name() + "`");
-        }
-        return temporary;
-    }
 };
 
 } // namespace Script

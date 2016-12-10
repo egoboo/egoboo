@@ -23,6 +23,7 @@
 
 #include "egolib/fileutil.h"
 
+#include "egolib/Script/DDLTokenDecoder.hpp"
 #include "egolib/Log/_Include.hpp"
 #include "egolib/strutil.h"
 #include "egolib/platform.h"

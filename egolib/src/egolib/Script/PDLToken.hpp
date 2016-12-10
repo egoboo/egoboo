@@ -24,7 +24,6 @@
 #pragma once
 
 #include "egolib/Script/PDLTokenKind.hpp"
-#include "egolib/Script/Conversion.hpp"
 
 namespace Ego {
 namespace Script {

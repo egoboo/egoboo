@@ -306,6 +306,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\Script\DDLTokenDecoder.cpp" />
     <ClCompile Include="src\egolib\Script\DDLTokenKind.cpp" />
     <ClCompile Include="src\egolib\Script\PDLTokenKind.cpp" />
     <ClCompile Include="src\egolib\Script\PDLToken.cpp" />
@@ -518,6 +519,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Script\DDLTokenDecoder.hpp" />
     <ClInclude Include="src\egolib\Script\DDLTokenKind.hpp" />
     <ClInclude Include="src\egolib\Script\PDLTokenKind.hpp" />
     <ClInclude Include="src\egolib\Script\PDLToken.hpp" />
