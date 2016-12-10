@@ -31,52 +31,21 @@ namespace Script {
 /// @brief An enumeration of the token kinds of the PDL of EgoScript.
 enum class PDLTokenKind
 {
-    Unknown,
-    Function,
-    Variable,
-    Constant,
-
-    Assign, ///< Token type of an "assign" operator.
-    And, ///< Token type of an "and" operator.
-    Plus, ///< Token type of a "plus" ("add" or "unary plus") operator.
-    Minus, ///< Token type of a "minus" ("subtract" or "unary minus") operator.
-    Multiply, ///< Token type of a "multiply" operator.
-    Divide, ///< Token type of a "divide" operator.
-    Modulus, ///< Token type of a "modulus" operator.
-    ShiftRight, ///< Token type of a "shift right" operator.
-    ShiftLeft, ///< Token type of a "shift left" operator.
-
-    /// Token type of zero or more whitespaces.
-    /// getValue indicates the number of whitespaces.
-    Whitespace,
-
-    /// Token type of zero or more newlines.
-    /// getValue indicates the number of newlines.
-    Newline,
-
-    /// Token type of zero to 15 indentions.
-    /// getValue indicates the number of indentions.
-    Indent,
-
-    /// Token type of the end of a line.
-    EndOfLine,
-
-    /// Token type of a numeric literal.
-    NumericLiteral,
-
-    /// Token type of a name.
-    Name,
-
-    /// Token type of a string.
-    String,
-
-    /// Token type of a reference.
-    Reference,
-
-    /// Token type of an IDSZ.
-    IDSZ,
-
+#define Define(name, string) name,
+#include "egolib/Script/PDLTokenKind.in"
+#undef Define
 }; // enum class PDLTokenKind
+
+/// @brief Get a human-readable string describing a token kind.
+/// @param kind the token kind
+/// @return a human-readable string describing the token kind @a kind
+std::string toString(PDLTokenKind kind);
+
+/// @brief Overloaded &lt;&lt; operator for a token kind.
+/// @param ostream the output stream to write to
+/// @param tokenType the token kind to write
+/// @return the output stream
+std::ostream& operator<<(std::ostream& os, const PDLTokenKind& kind);
 
 } // namespace Script
 } // namespace Ego

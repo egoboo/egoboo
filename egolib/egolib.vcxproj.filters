@@ -1423,5 +1423,11 @@
     <None Include="src\egolib\Script\Constants.in">
       <Filter>Header Files\Script</Filter>
     </None>
+    <None Include="src\egolib\Script\DDLTokenKind.in">
+      <Filter>Header Files\Script</Filter>
+    </None>
+    <None Include="src\egolib\Script\PDLTokenKind.in">
+      <Filter>Header Files\Script</Filter>
+    </None>
   </ItemGroup>
 </Project>

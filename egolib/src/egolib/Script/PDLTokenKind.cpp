@@ -25,5 +25,24 @@
 
 namespace Ego {
 namespace Script {
+
+std::string toString(PDLTokenKind kind)
+{
+    switch (kind)
+    {
+    #define Define(name, string) case PDLTokenKind::name: return string;
+    #include "egolib/Script/PDLTokenKind.in"
+    #undef Define
+        default:
+            throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__, "unknown token type");
+    };
+}
+
+std::ostream& operator<<(std::ostream& os, const PDLTokenKind& kind)
+{
+    os << toString(kind);
+    return os;
+}
+
 } // namespace Script
 } // namespace Ego

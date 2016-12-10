@@ -99,33 +99,6 @@ const std::string& PDLToken::getLexeme() const
     return m_lexeme;
 }
 
-std::ostream& operator<<(std::ostream& os, const PDLTokenKind& tokenKind)
-{
-    switch (tokenKind)
-    {
-    #define Define(enumElementName, string) case PDLTokenKind::enumElementName: os << string; break;
-        Define(Constant, "constant")
-        Define(Function, "function")
-        Define(Assign, "assign")
-        Define(And, "and")
-        Define(Plus, "plus")
-        Define(Minus, "minus")
-        Define(Multiply, "multiply")
-        Define(Divide, "divide")
-        Define(Modulus, "modulus")
-        Define(ShiftRight, "shift right")
-        Define(ShiftLeft, "shift left")
-        Define(Unknown, "unknown")
-        Define(Variable, "variable")
-        Define(Name, "name")
-        Define(IDSZ, "idsz")
-        Define(NumericLiteral, "numeric literal")
-        Define(Reference, "reference")
-    #undef Define
-    };
-    return os;
-}
-
 std::ostream& operator<<(std::ostream& os, const PDLToken& token)
 {
     os << "token {";

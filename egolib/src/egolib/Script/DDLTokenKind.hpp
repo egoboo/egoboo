@@ -31,28 +31,21 @@ namespace Script {
 /// @brief An enumeration of the token kinds of the DDL of EgoScript.
 enum class DDLTokenKind
 {
-    /// @brief An integer number literal.
-    Integer,
-
-    /// @brief A real number literal.
-    Real,
-
-    /// @brief A character literal.
-    Character,
-
-    /// @brief A string literal.
-    String,
-
-    /// @brief A boolean literal.
-    Boolean,
-
-    /// @brief A name (aka identifier).
-    Name,
-
-    /// @brief A comment.
-    Comment,
-
+#define Define(name, string) name,
+#include "egolib/Script/DDLTokenKind.in"
+#undef Define
 }; // enum DDLTokenKind
+
+/// @brief Get a human-readable string describing a token kind.
+/// @param kind the token kind
+/// @return a human-readable string describing the token kind @a kind
+std::string toString(DDLTokenKind kind);
+
+/// @brief Overloaded &lt;&lt; operator for a token kind.
+/// @param ostream the output stream to write to
+/// @param tokenType the token kind to write
+/// @return the output stream
+std::ostream& operator<<(std::ostream& os, const DDLTokenKind& kind);
 
 } // namespace Script
 } // namespace Ego

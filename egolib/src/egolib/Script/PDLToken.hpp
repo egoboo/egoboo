@@ -140,12 +140,6 @@ public:
     friend std::ostream& operator<<(std::ostream& os, const PDLToken& token);
 };
 
-/// @brief Overloaded &lt;&lt; operator for a token type.
-/// @param ostream the output stream to write to
-/// @param tokenType the token type to write
-/// @return the outputstream
-std::ostream& operator<<(std::ostream& os, const PDLTokenKind& tokenType);
-
 /// @brief Overloaded &lt;&lt; operator for a token.
 /// @param ostream the output stream to write to
 /// @param token the token to write

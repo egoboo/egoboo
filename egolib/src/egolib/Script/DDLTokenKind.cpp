@@ -25,5 +25,24 @@
 
 namespace Ego {
 namespace Script {
+
+std::string toString(DDLTokenKind kind)
+{
+    switch (kind)
+    {
+    #define Define(name, string) case DDLTokenKind::name: return string;
+    #include "egolib/Script/DDLTokenKind.in"
+    #undef Define
+        default:
+            throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__, "unknown token type");
+    };
+}
+
+std::ostream& operator<<(std::ostream& os, const DDLTokenKind& kind)
+{
+    os << toString(kind);
+    return os;
+}
+
 } // namespace Script
 } // namespace Ego
