@@ -20,8 +20,6 @@
 
 #include "game/egoboo.h"
 
-#define MAX_OPCODE 1024 ///< Number of lines in AICODES.TXT
-
 /// @brief A token.
 struct Token
 {
