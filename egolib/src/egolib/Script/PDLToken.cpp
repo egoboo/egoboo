@@ -27,10 +27,10 @@ namespace Ego {
 namespace Script {
 
 PDLToken::PDLToken()
-    : m_lexeme(), m_startLocation("<unknown>", 1), m_value(0), m_kind(Kind::Unknown)
+    : m_lexeme(), m_startLocation("<unknown>", 1), m_value(0), m_kind(PDLTokenKind::Unknown)
 {}
 
-PDLToken::PDLToken(Kind kind, const Id::Location& startLocation, const std::string& lexeme)
+PDLToken::PDLToken(PDLTokenKind kind, const Id::Location& startLocation, const std::string& lexeme)
     : m_lexeme(lexeme), m_startLocation(startLocation), m_value(0), m_kind(kind)
 {}
 
@@ -41,32 +41,32 @@ PDLToken::PDLToken(const PDLToken& other)
 PDLToken::~PDLToken()
 {}
 
-bool PDLToken::is(PDLToken::Kind kind) const
+bool PDLToken::is(PDLTokenKind kind) const
 {
     return kind == getKind();
 }
 
-bool PDLToken::isOneOf(PDLToken::Kind kind1, PDLToken::Kind kind2) const
+bool PDLToken::isOneOf(PDLTokenKind kind1, PDLTokenKind kind2) const
 {
     return is(kind1) || is(kind2);
 }
 
 bool PDLToken::isOperator() const
 {
-    return isOneOf(Kind::Assign,
-                   Kind::Plus,
-                   Kind::Minus,
-                   Kind::And,
-                   Kind::Multiply,
-                   Kind::Divide,
-                   Kind::Modulus,
-                   Kind::ShiftRight,
-                   Kind::ShiftLeft);
+    return isOneOf(PDLTokenKind::Assign,
+                   PDLTokenKind::Plus,
+                   PDLTokenKind::Minus,
+                   PDLTokenKind::And,
+                   PDLTokenKind::Multiply,
+                   PDLTokenKind::Divide,
+                   PDLTokenKind::Modulus,
+                   PDLTokenKind::ShiftRight,
+                   PDLTokenKind::ShiftLeft);
 }
 
 bool PDLToken::isAssignOperator() const
 {
-    return is(PDLToken::Kind::Assign);
+    return is(PDLTokenKind::Assign);
 }
 
 Id::Location PDLToken::getStartLocation() const
@@ -79,12 +79,12 @@ void PDLToken::setStartLocation(const Id::Location& startLocation)
     m_startLocation = startLocation;
 }
 
-PDLToken::Kind PDLToken::getKind() const
+PDLTokenKind PDLToken::getKind() const
 {
     return m_kind;
 }
 
-void PDLToken::setKind(PDLToken::Kind kind)
+void PDLToken::setKind(PDLTokenKind kind)
 {
     m_kind = kind;
 }
@@ -99,11 +99,11 @@ const std::string& PDLToken::getLexeme() const
     return m_lexeme;
 }
 
-std::ostream& operator<<(std::ostream& os, const PDLToken::Kind& tokenKind)
+std::ostream& operator<<(std::ostream& os, const PDLTokenKind& tokenKind)
 {
     switch (tokenKind)
     {
-    #define Define(enumElementName, string) case PDLToken::Kind::enumElementName: os << string; break;
+    #define Define(enumElementName, string) case PDLTokenKind::enumElementName: os << string; break;
         Define(Constant, "constant")
         Define(Function, "function")
         Define(Assign, "assign")

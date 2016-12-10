@@ -17,46 +17,13 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/Script/DDLToken.cpp
-/// @brief Token of the DDL (Data Definition Language) of EgoScript.
+/// @file egolib/Script/DDLTokenKind.cpp
+/// @brief Token kinds of the DDL (Data Definition Language) of EgoScript.
 /// @author Michael Heilmann
 
-#include "egolib/Script/DDLToken.hpp"
-
+#include "egolib/Script/DDLTokenKind.hpp"
 
 namespace Ego {
 namespace Script {
-
-DDLToken::DDLToken(DDLTokenKind kind, const Id::Location& startLocation, const std::string& lexeme)
-    : m_kind(kind), m_startLocation(startLocation), m_lexeme(lexeme)
-{}
-
-DDLToken::DDLToken(const DDLToken& other)
-    : m_kind(other.m_kind), m_startLocation(other.m_startLocation), m_lexeme(other.m_lexeme)
-{}
-
-DDLToken& DDLToken::operator=(const DDLToken& other)
-{
-    m_kind = other.m_kind;
-    m_startLocation = other.m_startLocation;
-    m_lexeme = other.m_lexeme;
-    return *this;
-}
-
-DDLTokenKind DDLToken::getKind() const
-{
-    return m_kind;
-}
-
-const std::string& DDLToken::getLexeme() const
-{
-    return m_lexeme;
-}
-
-const Id::Location& DDLToken::getStartLocation() const
-{
-    return m_startLocation;
-}
-
 } // namespace Script
 } // namespace Ego

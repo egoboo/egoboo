@@ -692,7 +692,7 @@ DDLToken ReadContext::parseStringLiteral()
 			saveAndNext();
 		}
 	}
-	return DDLToken(DDLToken::Kind::String, startLocation, _buffer.toString());
+	return DDLToken(DDLTokenKind::String, startLocation, _buffer.toString());
 }
 
 DDLToken ReadContext::parseCharacterLiteral() {
@@ -793,7 +793,7 @@ DDLToken ReadContext::parseCharacterLiteral() {
 		throw MissingDelimiterError(__FILE__, __LINE__, Location(getFileName(), getLineNumber()), '\'');
 	}
 	next();
-	return DDLToken(DDLToken::Kind::Character, startLocation, _buffer.toString());
+	return DDLToken(DDLTokenKind::Character, startLocation, _buffer.toString());
 }
 
 DDLToken ReadContext::parseIntegerLiteral()
@@ -860,7 +860,7 @@ DDLToken ReadContext::parseIntegerLiteral()
 			saveAndNext();
 		} while (isDigit());
 	}
-	return DDLToken(DDLToken::Kind::Integer, startLocation, _buffer.toString());
+    return DDLToken(DDLTokenKind::Integer, startLocation, _buffer.toString());
 }
 
 DDLToken ReadContext::parseNaturalLiteral()
@@ -927,7 +927,7 @@ DDLToken ReadContext::parseNaturalLiteral()
 			saveAndNext();
 		} while (isDigit());
 	}
-	return DDLToken(DDLToken::Kind::Integer, startLocation, _buffer.toString());
+	return DDLToken(DDLTokenKind::Integer, startLocation, _buffer.toString());
 }
 
 DDLToken ReadContext::parseRealLiteral()
@@ -1013,7 +1013,7 @@ DDLToken ReadContext::parseRealLiteral()
 			saveAndNext();
 		} while (isDigit());
 	}
-	return DDLToken(DDLToken::Kind::Real, startLocation, _buffer.toString());
+	return DDLToken(DDLTokenKind::Real, startLocation, _buffer.toString());
 }
 
 std::string ReadContext::readStringLiteral() {

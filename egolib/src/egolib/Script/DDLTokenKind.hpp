@@ -17,46 +17,42 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/Script/DDLToken.cpp
-/// @brief Token of the DDL (Data Definition Language) of EgoScript.
+/// @file egolib/Script/DDLTokenKind.hpp
+/// @brief Token kinds of the DDL (Data Definition Language) of EgoScript.
 /// @author Michael Heilmann
 
-#include "egolib/Script/DDLToken.hpp"
+#pragma once
 
+#include "egolib/platform.h"
 
 namespace Ego {
 namespace Script {
 
-DDLToken::DDLToken(DDLTokenKind kind, const Id::Location& startLocation, const std::string& lexeme)
-    : m_kind(kind), m_startLocation(startLocation), m_lexeme(lexeme)
-{}
-
-DDLToken::DDLToken(const DDLToken& other)
-    : m_kind(other.m_kind), m_startLocation(other.m_startLocation), m_lexeme(other.m_lexeme)
-{}
-
-DDLToken& DDLToken::operator=(const DDLToken& other)
+/// @brief An enumeration of the token kinds of the DDL of EgoScript.
+enum class DDLTokenKind
 {
-    m_kind = other.m_kind;
-    m_startLocation = other.m_startLocation;
-    m_lexeme = other.m_lexeme;
-    return *this;
-}
+    /// @brief An integer number literal.
+    Integer,
 
-DDLTokenKind DDLToken::getKind() const
-{
-    return m_kind;
-}
+    /// @brief A real number literal.
+    Real,
 
-const std::string& DDLToken::getLexeme() const
-{
-    return m_lexeme;
-}
+    /// @brief A character literal.
+    Character,
 
-const Id::Location& DDLToken::getStartLocation() const
-{
-    return m_startLocation;
-}
+    /// @brief A string literal.
+    String,
+
+    /// @brief A boolean literal.
+    Boolean,
+
+    /// @brief A name (aka identifier).
+    Name,
+
+    /// @brief A comment.
+    Comment,
+
+}; // enum DDLTokenKind
 
 } // namespace Script
 } // namespace Ego

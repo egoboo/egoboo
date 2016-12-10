@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "egolib/typedef.h"
+#include "egolib/Script/DDLTokenKind.hpp"
 #include "egolib/Script/Conversion.hpp"
 
 namespace Ego {
@@ -32,34 +32,9 @@ namespace Script {
 /// @brief A token of the DDL (Data Definition Language) of EgoScript.
 struct DDLToken
 {
-    /// @brief An enumeration of the token kinds of the DDL of EgoScript.
-    enum class Kind
-    {
-        /// @brief An integer number literal.
-        Integer,
-
-        /// @brief A real number literal.
-        Real,
-
-        /// @brief A character literal.
-        Character,
-
-        /// @brief A string literal.
-        String,
-
-        /// @brief A boolean literal.
-        Boolean,
-
-        /// @brief A name (aka identifier).
-        Name,
-
-        /// @brief A comment.
-        Comment,
-    };
-
 private:
     /// @brief The kind of this token.
-    Kind m_kind;
+    DDLTokenKind m_kind;
 
     /// @brief The start location of this token.
     Id::Location m_startLocation;
@@ -72,7 +47,7 @@ public:
     /// @param kind the kind of this token
     /// @param startLocation the start location of this token
     /// @param lexeme the lexeme of this token. Default is the empty string.
-    DDLToken(Kind kind, const Id::Location& startLocation, const std::string& lexeme = std::string());
+    DDLToken(DDLTokenKind kind, const Id::Location& startLocation, const std::string& lexeme = std::string());
 
     /// @brief Copy-construct this token from another token.
     /// @param other the other token
@@ -80,7 +55,7 @@ public:
 
     /// @brief Get the kind of this token.
     /// @return the kind of this token
-    Kind getKind() const;
+    DDLTokenKind getKind() const;
 
     /// @brief Get the start location of this token.
     /// @return the start location of this token

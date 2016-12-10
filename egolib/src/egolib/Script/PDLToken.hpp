@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "egolib/typedef.h"
+#include "egolib/Script/PDLTokenKind.hpp"
 #include "egolib/Script/Conversion.hpp"
 
 namespace Ego {
@@ -32,58 +32,9 @@ namespace Script {
 /// @brief A token of the PDL (Program Definition Language) of EgoScript.
 struct PDLToken
 {
-    /// @brief An enumeration of the token kinds of the PDL of EgoScript.
-    enum class Kind
-    {
-        Unknown,
-        Function,
-        Variable,
-        Constant,
-
-        Assign, ///< Token type of an "assign" operator.
-        And, ///< Token type of an "and" operator.
-        Plus, ///< Token type of a "plus" ("add" or "unary plus") operator.
-        Minus, ///< Token type of a "minus" ("subtract" or "unary minus") operator.
-        Multiply, ///< Token type of a "multiply" operator.
-        Divide, ///< Token type of a "divide" operator.
-        Modulus, ///< Token type of a "modulus" operator.
-        ShiftRight, ///< Token type of a "shift right" operator.
-        ShiftLeft, ///< Token type of a "shift left" operator.
-
-        /// Token type of zero or more whitespaces.
-        /// getValue indicates the number of whitespaces.
-        Whitespace,
-
-        /// Token type of zero or more newlines.
-        /// getValue indicates the number of newlines.
-        Newline,
-
-        /// Token type of zero to 15 indentions.
-        /// getValue indicates the number of indentions.
-        Indent,
-
-        /// Token type of the end of a line.
-        EndOfLine,
-
-        /// Token type of a numeric literal.
-        NumericLiteral,
-
-        /// Token type of a name.
-        Name,
-
-        /// Token type of a string.
-        String,
-
-        /// Token type of a reference.
-        Reference,
-
-        /// Token type of an IDSZ.
-        IDSZ,
-    };
-
 private:
     /// @brief The kind of this token.
-    Kind m_kind;
+    PDLTokenKind m_kind;
 
     /// @brief The start location of this token.
     Id::Location m_startLocation;
@@ -98,18 +49,18 @@ public:
     /// @brief Get if this token is of the given kinds.
     /// @param kind the kind
     /// @return @a true if this token is of the given kind @a kind, @a false otherwise
-    bool is(Kind kind) const;
+    bool is(PDLTokenKind kind) const;
 
     /// @brief Get if this token is of one of the given kinds.
     /// @param kind1, kind2 the kinds
     /// @return @a true if this token is of one of the given kinds @a kind1 or @a kind2, @a false otherwise
-    bool isOneOf(Kind kind1, Kind kind2) const;
+    bool isOneOf(PDLTokenKind kind1, PDLTokenKind kind2) const;
 
     /// @brief Get if this token is of one of the given kinds.
     /// @param kind1, kind2, kinds ... the kinds
     /// @return @a true if this token is of one of the given kinds @a kind1, @a kind2, or @a kinds ..., @a false otherwise
     template <typename ... Kinds>
-    bool isOneOf(Kind kind1, Kind kind2, Kinds ... kinds) const
+    bool isOneOf(PDLTokenKind kind1, PDLTokenKind kind2, Kinds ... kinds) const
     {
         return is(kind1) || isOneOf(kind2, kinds ...);
     }
@@ -152,12 +103,12 @@ public:
     /// @brief Get the kind of this token.
     /// @return the kind of this token
     /// @see setKind
-    Kind getKind() const;
+    PDLTokenKind getKind() const;
 
     /// @brief Set the kind of this token.
     /// @param kind the kind
     /// @see getKind
-    void setKind(Kind kind);
+    void setKind(PDLTokenKind kind);
 
     /// @brief Set the lexeme of this token.
     /// @param lexeme the lexeme
@@ -177,7 +128,7 @@ public:
     /// @param kind the kind of the token
     /// @param location the location of the token
     /// @param lexeme the lexeme of this token. Default is the empty string.
-    PDLToken(Kind kind, const Id::Location& startLocation, const std::string& lexeme = std::string());
+    PDLToken(PDLTokenKind kind, const Id::Location& startLocation, const std::string& lexeme = std::string());
 
     /// @brief Construct this token with values of another token.
     /// @param other the other token
@@ -193,7 +144,7 @@ public:
 /// @param ostream the output stream to write to
 /// @param tokenType the token type to write
 /// @return the outputstream
-std::ostream& operator<<(std::ostream& os, const PDLToken::Kind& tokenType);
+std::ostream& operator<<(std::ostream& os, const PDLTokenKind& tokenType);
 
 /// @brief Overloaded &lt;&lt; operator for a token.
 /// @param ostream the output stream to write to

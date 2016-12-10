@@ -330,7 +330,7 @@ PDLToken line_scanner_state_t::scanWhiteSpaces()
             next();
         } while (isWhiteSpace());
     }
-    PDLToken token = PDLToken(PDLToken::Kind::Whitespace, getLocation());
+    PDLToken token = PDLToken(PDLTokenKind::Whitespace, getLocation());
     token.setValue(numberOfWhiteSpaces);
     return token;
 }
@@ -350,7 +350,7 @@ PDLToken line_scanner_state_t::scanNewLines()
         m_location = Id::Location(m_location.getFileName(), m_location.getLineNumber() + 1);
         numberOfNewLines++;
     }
-    PDLToken token = PDLToken(PDLToken::Kind::Newline, getLocation());
+    PDLToken token = PDLToken(PDLTokenKind::Newline, getLocation());
     token.setValue(numberOfNewLines);
     return token;
 }
@@ -366,7 +366,7 @@ PDLToken line_scanner_state_t::scanNumericLiteral()
     {
         saveAndNext();
     } while (isDigit());
-    PDLToken token = PDLToken(PDLToken::Kind::NumericLiteral, getLocation());
+    PDLToken token = PDLToken(PDLTokenKind::NumericLiteral, getLocation());
     token.setLexeme(m_lexemeBuffer.toString());
     return token;
 }
@@ -382,7 +382,7 @@ PDLToken line_scanner_state_t::scanName()
     {
         saveAndNext();
     } while (is('_') || isDigit() || isAlphabetic());
-    PDLToken token = PDLToken(PDLToken::Kind::Name, getLocation());
+    PDLToken token = PDLToken(PDLTokenKind::Name, getLocation());
     token.setLexeme(m_lexemeBuffer.toString());
     return token;
 }
@@ -414,7 +414,7 @@ PDLToken line_scanner_state_t::scanStringOrReference()
     {
         throw LexicalErrorException(__FILE__, __LINE__, getLocation(), "unclosed string literal");
     }
-    PDLToken token = PDLToken(isReference ? PDLToken::Kind::Reference : PDLToken::Kind::String, getLocation());
+    PDLToken token = PDLToken(isReference ? PDLTokenKind::Reference : PDLTokenKind::String, getLocation());
     token.setLexeme(m_lexemeBuffer.toString());
     return token;
 }
@@ -440,7 +440,7 @@ PDLToken line_scanner_state_t::scanIDSZ()
         throw LexicalErrorException(__FILE__, __LINE__, getLocation(), "invalid IDSZ");
     }
     saveAndNext();
-    PDLToken token = PDLToken(PDLToken::Kind::IDSZ, getLocation());
+    PDLToken token = PDLToken(PDLTokenKind::IDSZ, getLocation());
     token.setLexeme(m_lexemeBuffer.toString());
     return token;
 }
@@ -456,15 +456,15 @@ PDLToken line_scanner_state_t::scanOperator()
     PDLToken token;
     switch (getCurrent())
     {
-        case '+': token = PDLToken(PDLToken::Kind::Plus, getLocation()); break;
-        case '-': token = PDLToken(PDLToken::Kind::Minus, getLocation()); break;
-        case '*': token = PDLToken(PDLToken::Kind::Multiply, getLocation()); break;
-        case '/': token = PDLToken(PDLToken::Kind::Divide, getLocation()); break;
-        case '%': token = PDLToken(PDLToken::Kind::Modulus, getLocation()); break;
-        case '>': token = PDLToken(PDLToken::Kind::ShiftRight, getLocation()); break;
-        case '<': token = PDLToken(PDLToken::Kind::ShiftLeft, getLocation()); break;
-        case '&': token = PDLToken(PDLToken::Kind::And, getLocation()); break;
-        case '=': token = PDLToken(PDLToken::Kind::Assign, getLocation()); break;
+        case '+': token = PDLToken(PDLTokenKind::Plus, getLocation()); break;
+        case '-': token = PDLToken(PDLTokenKind::Minus, getLocation()); break;
+        case '*': token = PDLToken(PDLTokenKind::Multiply, getLocation()); break;
+        case '/': token = PDLToken(PDLTokenKind::Divide, getLocation()); break;
+        case '%': token = PDLToken(PDLTokenKind::Modulus, getLocation()); break;
+        case '>': token = PDLToken(PDLTokenKind::ShiftRight, getLocation()); break;
+        case '<': token = PDLToken(PDLTokenKind::ShiftLeft, getLocation()); break;
+        case '&': token = PDLToken(PDLTokenKind::And, getLocation()); break;
+        case '=': token = PDLToken(PDLTokenKind::Assign, getLocation()); break;
         default: throw RuntimeErrorException(__FILE__, __LINE__, "internal error");
     }
     saveAndNext();
@@ -475,7 +475,7 @@ PDLToken line_scanner_state_t::scanOperator()
 PDLToken parser_state_t::parse_indention(script_info_t& script, line_scanner_state_t& state)
 {
     auto source = state.scanWhiteSpaces();
-    if (source.getKind() != PDLToken::Kind::Whitespace)
+    if (source.getKind() != PDLTokenKind::Whitespace)
     {
         throw RuntimeErrorException(__FILE__, __LINE__, "internal error");
     }
@@ -501,7 +501,7 @@ PDLToken parser_state_t::parse_indention(script_info_t& script, line_scanner_sta
         _error = true;
         indent = 15;
     }
-    PDLToken token = PDLToken(PDLToken::Kind::Indent, source.getStartLocation());
+    PDLToken token = PDLToken(PDLTokenKind::Indent, source.getStartLocation());
     token.setValue(indent);
     return token;
 }
@@ -516,7 +516,7 @@ PDLToken parser_state_t::parse_token(ObjectProfile *ppro, script_info_t& script,
     // Check bounds
     if (state.isEndOfInput())
     {
-        return PDLToken(PDLToken::Kind::EndOfLine, state.getLocation());
+        return PDLToken(PDLTokenKind::EndOfLine, state.getLocation());
     }
 
     // Skip whitespaces.
@@ -525,14 +525,14 @@ PDLToken parser_state_t::parse_token(ObjectProfile *ppro, script_info_t& script,
     // Stop if the line is empty.
     if (state.isEndOfInput())
     {
-        return PDLToken(PDLToken::Kind::EndOfLine, state.getLocation());
+        return PDLToken(PDLTokenKind::EndOfLine, state.getLocation());
     }
 
     // initialize the word
     if (state.isDoubleQuote())
     {
         PDLToken token = state.scanStringOrReference();
-        if (token.getKind() == PDLToken::Kind::Reference)
+        if (token.getKind() == PDLTokenKind::Reference)
         {
             // If it is a profile reference.
 
@@ -576,13 +576,13 @@ PDLToken parser_state_t::parse_token(ObjectProfile *ppro, script_info_t& script,
                     << " - \n`" << _lineBuffer.toString() << "`" << Log::EndOfEntry;
                 Log::get() << e;
             }
-            token.setKind(PDLToken::Kind::Constant);
+            token.setKind(PDLTokenKind::Constant);
         }
         else
         {
             // Add the string as a message message to the available messages of the object.
             token.setValue(ppro->addMessage(token.getLexeme(), true));
-            token.setKind(PDLToken::Kind::Constant);
+            token.setKind(PDLTokenKind::Constant);
             // Emit a warning that the string is empty.
             Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, token.getStartLocation());
             e << "empty string literal\n" << Log::EndOfEntry;
@@ -593,27 +593,27 @@ PDLToken parser_state_t::parse_token(ObjectProfile *ppro, script_info_t& script,
         auto token = state.scanOperator();
         switch (token.getKind())
         {
-            case PDLToken::Kind::Plus: token.setValue(ScriptOperators::OPADD); break;
-            case PDLToken::Kind::Minus: token.setValue(ScriptOperators::OPSUB); break;
-            case PDLToken::Kind::And: token.setValue(ScriptOperators::OPAND); break;
-            case PDLToken::Kind::ShiftRight: token.setValue(ScriptOperators::OPSHR); break;
-            case PDLToken::Kind::ShiftLeft: token.setValue(ScriptOperators::OPSHL); break;
-            case PDLToken::Kind::Multiply: token.setValue(ScriptOperators::OPMUL); break;
-            case PDLToken::Kind::Divide: token.setValue(ScriptOperators::OPDIV); break;
-            case PDLToken::Kind::Modulus: token.setValue(ScriptOperators::OPMOD); break;
-            case PDLToken::Kind::Assign: token.setValue(-1); break;
+            case PDLTokenKind::Plus: token.setValue(ScriptOperators::OPADD); break;
+            case PDLTokenKind::Minus: token.setValue(ScriptOperators::OPSUB); break;
+            case PDLTokenKind::And: token.setValue(ScriptOperators::OPAND); break;
+            case PDLTokenKind::ShiftRight: token.setValue(ScriptOperators::OPSHR); break;
+            case PDLTokenKind::ShiftLeft: token.setValue(ScriptOperators::OPSHL); break;
+            case PDLTokenKind::Multiply: token.setValue(ScriptOperators::OPMUL); break;
+            case PDLTokenKind::Divide: token.setValue(ScriptOperators::OPDIV); break;
+            case PDLTokenKind::Modulus: token.setValue(ScriptOperators::OPMOD); break;
+            case PDLTokenKind::Assign: token.setValue(-1); break;
             default: throw RuntimeErrorException(__FILE__, __LINE__, "internal error");
         };
         return token;
     } else if (state.is('[')) {
         PDLToken token = state.scanIDSZ();
-        token.setKind(PDLToken::Kind::Constant);
+        token.setKind(PDLTokenKind::Constant);
         IDSZ2 idsz = IDSZ2(token.getLexeme());
         token.setValue(idsz.toUint32());
         return token;
     } else if (state.isDigit()) {
         auto token = state.scanNumericLiteral();
-        token.setKind(PDLToken::Kind::Constant);
+        token.setKind(PDLTokenKind::Constant);
         int temporary;
         sscanf(token.getLexeme().c_str(), "%d", &temporary);
         token.setValue(temporary);
@@ -648,13 +648,13 @@ void parser_state_t::emit_opcode(const PDLToken& token, const BIT_FIELD highbits
     }
 
     // Emit the opcode.
-    if (PDLToken::Kind::Constant == token.getKind())
+    if (PDLTokenKind::Constant == token.getKind())
     {
         loc_highbits |= Instruction::FUNCTIONBITS;
         auto constantIndex = script._instructions.getConstantPool().getOrCreateConstant(token.getValue());
         script._instructions.append(Instruction(loc_highbits | constantIndex));
     }
-    else if (PDLToken::Kind::Function == token.getKind())
+    else if (PDLTokenKind::Function == token.getKind())
     {
         loc_highbits |= Instruction::FUNCTIONBITS;
         auto constantIndex = script._instructions.getConstantPool().getOrCreateConstant(token.getValue());
@@ -689,7 +689,7 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
         // grab the first opcode
 
         _token = parse_indention(script, state);
-        if (!_token.is(PDLToken::Kind::Indent))
+        if (!_token.is(PDLTokenKind::Indent))
         {
             Log::CompilerEntry e(Log::Level::Error, __FILE__, __LINE__, __FUNCTION__, _token.getStartLocation());
             e << "expected operator - \n"
@@ -699,7 +699,7 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
         }
         uint32_t highbits = SetDataBits( _token.getValue() );
         _token = parse_token(ppro, script, state);
-        if ( _token.is(PDLToken::Kind::Function) )
+        if ( _token.is(PDLTokenKind::Function) )
         {
             if ( ScriptFunctions::End == _token.getValue() && 0 == highbits )
             {
@@ -718,7 +718,7 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
             emit_opcode( _token, 0, script );
 
         }
-        else if ( _token.is(PDLToken::Kind::Variable) )
+        else if ( _token.is(PDLTokenKind::Variable) )
         {
             //------------------------------
             // the code type is a math operation
@@ -745,7 +745,7 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
             // grab the next opcode
 
             _token = parse_token( ppro, script, state );
-            if ( _token.is(PDLToken::Kind::Variable) || _token.is(PDLToken::Kind::Constant) )
+            if ( _token.is(PDLTokenKind::Variable) || _token.is(PDLTokenKind::Constant) )
             {
                 // this is a value or a constant
                 emit_opcode( _token, 0, script );
@@ -768,7 +768,7 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
             }
 
             // `((operator - assignmentOperator) value)*`
-            while ( !_token.is(PDLToken::Kind::EndOfLine) )
+            while ( !_token.is(PDLTokenKind::EndOfLine) )
             {
                 // The current token should be a non-assignment operator.
                 if ( !(_token.isOperator() && !_token.isAssignOperator()) )
@@ -786,7 +786,7 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
 
                 // VALUE
                 _token = parse_token(ppro, script, state);
-                if ( PDLToken::Kind::Constant != _token.getKind() && PDLToken::Kind::Variable != _token.getKind() )
+                if ( PDLTokenKind::Constant != _token.getKind() && PDLTokenKind::Variable != _token.getKind() )
                 {
                     // not having a constant or a value here breaks the function. stop processsing
                     Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getStartLocation());
@@ -803,13 +803,13 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
             }
             script._instructions[operand_index].setBits(operands);
         }
-        else if ( _token.is(PDLToken::Kind::Constant) )
+        else if ( _token.is(PDLTokenKind::Constant) )
         {
             Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getStartLocation());
             e << "invalid constant " << _token.getLexeme() << Log::EndOfEntry;
             Log::get() << e;
         }
-        else if ( _token.is(PDLToken::Kind::Unknown) )
+        else if ( _token.is(PDLTokenKind::Unknown) )
         {
             // unknown opcode, do not process this line
             Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getStartLocation());
@@ -826,7 +826,7 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
     }
 
     _token.setValue(ScriptFunctions::End);
-    _token.setKind(PDLToken::Kind::Function);
+    _token.setKind(PDLTokenKind::Function);
     emit_opcode( _token, 0, script );
     _token.setValue(script._instructions.getNumberOfInstructions() + 1);
     emit_opcode( _token, 0, script );
@@ -915,7 +915,7 @@ bool load_ai_codes_vfs()
 	struct aicode_t
 	{
 		/// The kind.
-		PDLToken::Kind _kind;
+		PDLTokenKind _kind;
 		/// The value of th constant.
 		uint32_t _value;
 		/// The name.
@@ -924,18 +924,18 @@ bool load_ai_codes_vfs()
 
 	static const aicode_t AICODES[] =
 	{
-    #define Define(name) { PDLToken::Kind::Function, ScriptFunctions::name, #name }, 
-    #define DefineAlias(alias, name) { PDLToken::Kind::Function, ScriptFunctions::alias, #alias },
+    #define Define(name) { PDLTokenKind::Function, ScriptFunctions::name, #name }, 
+    #define DefineAlias(alias, name) { PDLTokenKind::Function, ScriptFunctions::alias, #alias },
     #include "egolib/Script/Functions.in"
     #undef DefineAlias
     #undef Define
 
-    #define Define(value, name) { PDLToken::Kind::Constant, value, name },
+    #define Define(value, name) { PDLTokenKind::Constant, value, name },
     #include "egolib/Script/Constants.in"
     #undef Define
 
-    #define Define(cName, eName) { PDLToken::Kind::Variable, ScriptVariables::cName, eName },
-    #define DefineAlias(cName, eName) { PDLToken::Kind::Variable, ScriptVariables::cName, eName },
+    #define Define(cName, eName) { PDLTokenKind::Variable, ScriptVariables::cName, eName },
+    #define DefineAlias(cName, eName) { PDLTokenKind::Variable, ScriptVariables::cName, eName },
     #include "egolib/Script/Variables.in"
     #undef DefineAlias
     #undef Define

@@ -42,7 +42,7 @@ extern vfs_FILE * debug_script_file;
 /// temporary data describing a single egoscript opcode
 struct opcode_data_t
 {
-    PDLToken::Kind _kind;
+    PDLTokenKind _kind;
     uint32_t iValue;
     std::string cName;
 };
