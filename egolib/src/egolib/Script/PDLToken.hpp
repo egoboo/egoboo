@@ -123,13 +123,13 @@ public:
     /// @remark The text of the token is the empty string, its type and its location is unknown.
     PDLToken();
 
-    /// @brief Construct this token with the specified type, location, and text.
+    /// @brief Construct this token with the specified values.
     /// @param kind the kind of the token
-    /// @param location the location of the token
+    /// @param startLocation the start location of the token
     /// @param lexeme the lexeme of this token. Default is the empty string.
     PDLToken(PDLTokenKind kind, const Id::Location& startLocation, const std::string& lexeme = std::string());
 
-    /// @brief Construct this token with values of another token.
+    /// @brief Copy-construct this token from another token.
     /// @param other the other token
     PDLToken(const PDLToken& other);
 

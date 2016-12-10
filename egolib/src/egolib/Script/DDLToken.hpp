@@ -42,7 +42,7 @@ private:
     std::string m_lexeme;
 
 public:
-    /// @brief Construct this token.
+    /// @brief Construct this token with the specified values.
     /// @param kind the kind of this token
     /// @param startLocation the start location of this token
     /// @param lexeme the lexeme of this token. Default is the empty string.
@@ -61,7 +61,7 @@ public:
     const Id::Location& getStartLocation() const;
 
     /// @brief Assign this token from another token.
-    /// @param other the construction source
+    /// @param other the other token
     /// @return this token
     DDLToken& operator=(const DDLToken& other);
 
