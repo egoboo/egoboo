@@ -18,7 +18,8 @@
 //********************************************************************************************
 #pragma once
 
-#include "game/egoboo.h"
+#include "egolib/typedef.h"
+#include "egolib/Script/Conversion.hpp"
 
 /// @brief A token.
 struct Token
@@ -76,7 +77,7 @@ private:
     Kind m_kind;
 
     /// @brief The start location of this token.
-    Location m_startLocation;
+    Id::Location m_startLocation;
 
     /// @brief The value of this token.
     int m_value;
@@ -132,12 +133,12 @@ public:
     /// @return the start location of this token
     /// @see setStartLocation
     /// @remark The start location is the location at which the lexeme of this token starts at.
-    Location getStartLocation() const;
+    Id::Location getStartLocation() const;
 
     /// @brief Set the start location of this token.
     /// @param startLocation the start location
     /// @see getStartLocation
-    void setStartLocation(const Location& startLocation);
+    void setStartLocation(const Id::Location& startLocation);
 
     /// @brief Get the kind of this token.
     /// @return the kind of this token
@@ -167,7 +168,7 @@ public:
     /// @param kind the kind of the token
     /// @param location the location of the token
     /// @param lexeme the lexeme of this token. Default is the empty string.
-    Token(Kind kind, const Location& startLocation, const std::string& lexeme = std::string());
+    Token(Kind kind, const Id::Location& startLocation, const std::string& lexeme = std::string());
 
     /// @brief Construct this token with values of another token.
     /// @param other the other token

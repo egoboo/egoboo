@@ -22,7 +22,7 @@ Token::Token()
     : m_lexeme(), m_startLocation("<unknown>", 1), m_value(0), m_kind(Kind::Unknown)
 {}
 
-Token::Token(Kind kind, const Location& startLocation, const std::string& lexeme)
+Token::Token(Kind kind, const Id::Location& startLocation, const std::string& lexeme)
     : m_lexeme(lexeme), m_startLocation(startLocation), m_value(0), m_kind(kind)
 {}
 
@@ -61,12 +61,12 @@ bool Token::isAssignOperator() const
     return is(Token::Kind::Assign);
 }
 
-Location Token::getStartLocation() const
+Id::Location Token::getStartLocation() const
 {
     return m_startLocation;
 }
 
-void Token::setStartLocation(const Location& startLocation)
+void Token::setStartLocation(const Id::Location& startLocation)
 {
     m_startLocation = startLocation;
 }
