@@ -16,14 +16,23 @@
 //*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
+
+/// @file egolib/Script/script_scanner.hpp
+/// @brief Token of the PDL (Program Definition Language) of EgoScript.
+/// @author Michael Heilmann
+
 #pragma once
 
 #include "egolib/typedef.h"
 #include "egolib/Script/Conversion.hpp"
 
-/// @brief A token.
-struct Token
+namespace Ego {
+namespace Script {
+
+/// @brief A token of the PDL (Program Definition Language) of EgoScript.
+struct PDLToken
 {
+    /// @brief An enumeration of the token kinds of the PDL of EgoScript.
     enum class Kind
     {
         Unknown,
@@ -162,32 +171,35 @@ public:
 
     /// @brief Construct this token with default values.
     /// @remark The text of the token is the empty string, its type and its location is unknown.
-    Token();
+    PDLToken();
 
     /// @brief Construct this token with the specified type, location, and text.
     /// @param kind the kind of the token
     /// @param location the location of the token
     /// @param lexeme the lexeme of this token. Default is the empty string.
-    Token(Kind kind, const Id::Location& startLocation, const std::string& lexeme = std::string());
+    PDLToken(Kind kind, const Id::Location& startLocation, const std::string& lexeme = std::string());
 
     /// @brief Construct this token with values of another token.
     /// @param other the other token
-    Token(const Token& other);
+    PDLToken(const PDLToken& other);
 
     /// @brief Destruct this token.
-    ~Token();
+    ~PDLToken();
 
-    friend std::ostream& operator<<(std::ostream& os, const Token& token);
+    friend std::ostream& operator<<(std::ostream& os, const PDLToken& token);
 };
 
 /// @brief Overloaded &lt;&lt; operator for a token type.
 /// @param ostream the output stream to write to
 /// @param tokenType the token type to write
 /// @return the outputstream
-std::ostream& operator<<(std::ostream& os, const Token::Kind& tokenType);
+std::ostream& operator<<(std::ostream& os, const PDLToken::Kind& tokenType);
 
 /// @brief Overloaded &lt;&lt; operator for a token.
 /// @param ostream the output stream to write to
 /// @param token the token to write
 /// @return the output stream
-std::ostream& operator<<(std::ostream& os, const Token& token);
+std::ostream& operator<<(std::ostream& os, const PDLToken& token);
+
+} // namespace Script
+} // namespace Ego

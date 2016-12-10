@@ -326,7 +326,7 @@ bool script_state_t::run_operation( script_state_t& state, ai_state_t& aiState, 
 
         for (auto i = 0; i < Opcodes.size(); i++ )
         {
-            if ( Token::Kind::Variable == Opcodes[i]._kind && var_value == Opcodes[i].iValue )
+            if ( PDLToken::Kind::Variable == Opcodes[i]._kind && var_value == Opcodes[i].iValue )
             {
                 variable = Opcodes[i].cName;
                 break;

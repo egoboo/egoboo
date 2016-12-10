@@ -42,7 +42,7 @@ extern vfs_FILE * debug_script_file;
 /// temporary data describing a single egoscript opcode
 struct opcode_data_t
 {
-    Token::Kind _kind;
+    PDLToken::Kind _kind;
     uint32_t iValue;
     std::string cName;
 };
@@ -96,27 +96,27 @@ public:
     /// @code
     /// WhiteSpaces := WhiteSpace*
     /// @endcode
-    Token scanWhiteSpaces();
+    PDLToken scanWhiteSpaces();
 
     /// @code
     /// NewLines := NewLine*
     /// @endcode
-    Token scanNewLines();
+    PDLToken scanNewLines();
 
     /// @code
     /// NumericLiteral := Digit+
     /// @endcode
-    Token scanNumericLiteral();
+    PDLToken scanNumericLiteral();
 
     /// @code
     /// Name := ('_'|Alphabetic)('_'|Alphabetic|Digit)
     /// @endcode
-    Token scanName();
+    PDLToken scanName();
 
     /// @code
     /// IDSZ := '[' (Digit|Alphabetic)^4 ']'
     /// @endcode
-    Token scanIDSZ();
+    PDLToken scanIDSZ();
 
     /// @code
     /// String := '"' !'#' StringInfix '"'
@@ -126,7 +126,7 @@ public:
     /// @todo
     /// As the grammar already indicates,
     /// escape codes are not supported (yet).
-    Token scanStringOrReference();
+    PDLToken scanStringOrReference();
 
     /// @code
     /// Operator := '+' | '-'
@@ -136,7 +136,7 @@ public:
     ///           | '&'
     ///           | '='
     /// @endcode
-    Token scanOperator();
+    PDLToken scanOperator();
 };
 
 // the current state of the parser
@@ -153,7 +153,7 @@ protected:
 	virtual ~parser_state_t();
 public:
     bool _error;
-    Token _token;
+    PDLToken _token;
     int _line_count;
 
 protected:
@@ -175,21 +175,21 @@ public:
     void clear_error();
 
 private:
-	void emit_opcode(const Token& token, const BIT_FIELD highbits, script_info_t& script);
+	void emit_opcode(const PDLToken& token, const BIT_FIELD highbits, script_info_t& script);
 
 	static Uint32 jump_goto(int index, int index_end, script_info_t& script);
 public:
 	static void parse_jumps(script_info_t& script);
 
 private:
-	Token parse_token(ObjectProfile *ppro, script_info_t& script, line_scanner_state_t& state);
+	PDLToken parse_token(ObjectProfile *ppro, script_info_t& script, line_scanner_state_t& state);
 	size_t load_one_line(size_t read, script_info_t& script);
 	/// @brief Compute the indention level of a line.
 	/// @remark
 	/// A line must begin with a number of spaces \f$2k\f$ where \f$k=0,1,\ldots$, otherwise an error shall be raised.
 	/// The indention level $j$ of a line with \f$2k\f$ leading spaces for some $k=0,1,\ldots$ is given by \f$\frac{2k
 	/// }{2}=k\f$. The indention level \f$j\f$ of a line may not exceed \f$15\f$.
-    Token parse_indention(script_info_t& script, line_scanner_state_t& state);
+    PDLToken parse_indention(script_info_t& script, line_scanner_state_t& state);
 public:
 	void parse_line_by_line(ObjectProfile *ppro, script_info_t& script);
 

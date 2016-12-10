@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/Script/Token.cpp
-/// @brief Token of the non-executable sub-language of EgoScript.
+/// @file egolib/Script/Token.hpp
+/// @brief Token of the DDL (Data Definition Language) of EgoScript.
 /// @author Michael Heilmann
 
 #pragma once
@@ -29,10 +29,10 @@
 namespace Ego {
 namespace Script {
 
-/// @brief A token of the non-executable sub-language of EgoScript.
-struct TextToken
+/// @brief A token of the DDL (Data Definition Language) of EgoScript.
+struct DDLToken
 {
-    /// @brief An enumeration of the token kinds of the non-executable sub-language of EgoScript.
+    /// @brief An enumeration of the token kinds of the DDL of EgoScript.
     enum class Kind
     {
         /// @brief An integer number literal.
@@ -72,11 +72,11 @@ public:
     /// @param kind the kind of this token
     /// @param startLocation the start location of this token
     /// @param lexeme the lexeme of this token. Default is the empty string.
-    TextToken(Kind kind, const Id::Location& startLocation, const std::string& lexeme = std::string());
+    DDLToken(Kind kind, const Id::Location& startLocation, const std::string& lexeme = std::string());
 
     /// @brief Copy-construct this token from another token.
     /// @param other the other token
-    TextToken(const TextToken& other);
+    DDLToken(const DDLToken& other);
 
     /// @brief Get the kind of this token.
     /// @return the kind of this token
@@ -89,7 +89,7 @@ public:
     /// @brief Assign this token from another token.
     /// @param other the construction source
     /// @return this token
-    TextToken& operator=(const TextToken& other);
+    DDLToken& operator=(const DDLToken& other);
 
     /// @brief Get the lexeme of this token.
     /// @return the lexeme of this token
@@ -102,16 +102,16 @@ public:
 /// @return the converted value
 /// @throw Id::LexicalErrorException the conversion failed
 template <typename TargetType, typename EnabledType = void>
-struct TextTokenDecoder
+struct DDLTokenDecoder
 {
-    TargetType operator()(const TextToken& token) const;
+    TargetType operator()(const DDLToken& token) const;
 };
 
 /// @brief Specialization for EgoScript boolean types.
 template <typename TargetType>
-struct TextTokenDecoder<TargetType, std::enable_if_t<IsBoolean<TargetType>::value>>
+struct DDLTokenDecoder<TargetType, std::enable_if_t<IsBoolean<TargetType>::value>>
 {
-    TargetType operator()(const TextToken& token) const
+    TargetType operator()(const DDLToken& token) const
     {
         TargetType temporary;
         if (!Decoder<TargetType>()(token.getLexeme(), temporary))
@@ -126,9 +126,9 @@ struct TextTokenDecoder<TargetType, std::enable_if_t<IsBoolean<TargetType>::valu
 
 /// @brief Specialization for EgoScript character types.
 template <typename TargetType>
-struct TextTokenDecoder<TargetType, std::enable_if_t<IsCharacter<TargetType>::value>>
+struct DDLTokenDecoder<TargetType, std::enable_if_t<IsCharacter<TargetType>::value>>
 {
-    TargetType operator()(const TextToken& token) const
+    TargetType operator()(const DDLToken& token) const
     {
         TargetType temporary;
         if (!Decoder<TargetType>()(token.getLexeme(), temporary))
@@ -143,9 +143,9 @@ struct TextTokenDecoder<TargetType, std::enable_if_t<IsCharacter<TargetType>::va
 
 /// @brief Specialization for EgoScript real types.
 template <typename TargetType>
-struct TextTokenDecoder<TargetType, std::enable_if_t<IsReal<TargetType>::value>>
+struct DDLTokenDecoder<TargetType, std::enable_if_t<IsReal<TargetType>::value>>
 {
-    TargetType operator()(const TextToken& token) const
+    TargetType operator()(const DDLToken& token) const
     {
         TargetType temporary;
         if (!Decoder<TargetType>()(token.getLexeme(), temporary))
@@ -160,9 +160,9 @@ struct TextTokenDecoder<TargetType, std::enable_if_t<IsReal<TargetType>::value>>
 
 /// @brief Specialization for EgoScript integer types.
 template <typename TargetType>
-struct TextTokenDecoder<TargetType, std::enable_if_t<IsInteger<TargetType>::value>>
+struct DDLTokenDecoder<TargetType, std::enable_if_t<IsInteger<TargetType>::value>>
 {
-    TargetType operator()(const TextToken& token) const
+    TargetType operator()(const DDLToken& token) const
     {
         TargetType temporary;
         if (!Decoder<TargetType>()(token.getLexeme(), temporary))
@@ -177,9 +177,9 @@ struct TextTokenDecoder<TargetType, std::enable_if_t<IsInteger<TargetType>::valu
 
 /// @brief Specialization for EgoScript natural types.
 template<typename TargetType>
-struct TextTokenDecoder<TargetType, std::enable_if_t<IsNatural<TargetType>::value>>
+struct DDLTokenDecoder<TargetType, std::enable_if_t<IsNatural<TargetType>::value>>
 {
-    TargetType operator()(const TextToken& token) const
+    TargetType operator()(const DDLToken& token) const
     {
         TargetType temporary;
         if (!Decoder<TargetType>()(token.getLexeme(), temporary))
@@ -194,9 +194,9 @@ struct TextTokenDecoder<TargetType, std::enable_if_t<IsNatural<TargetType>::valu
 
 /// @brief Specialization for EgoScript string types.
 template <typename TargetType>
-struct TextTokenDecoder<TargetType, std::enable_if_t<IsString<TargetType>::value>>
+struct DDLTokenDecoder<TargetType, std::enable_if_t<IsString<TargetType>::value>>
 {
-    TargetType operator()(const TextToken& token) const
+    TargetType operator()(const DDLToken& token) const
     {
         TargetType temporary;
         if (!Decoder<TargetType>()(token.getLexeme(), temporary))

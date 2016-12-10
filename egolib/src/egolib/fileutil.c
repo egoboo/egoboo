@@ -659,7 +659,7 @@ char ReadContext::readPrintable()
     return tmp;
 }
 
-TextToken ReadContext::parseStringLiteral()
+DDLToken ReadContext::parseStringLiteral()
 {
 	Location startLocation(getFileName(), getLineNumber());
 	_buffer.clear();
@@ -692,10 +692,10 @@ TextToken ReadContext::parseStringLiteral()
 			saveAndNext();
 		}
 	}
-	return TextToken(TextToken::Kind::String, startLocation, _buffer.toString());
+	return DDLToken(DDLToken::Kind::String, startLocation, _buffer.toString());
 }
 
-TextToken ReadContext::parseCharacterLiteral() {
+DDLToken ReadContext::parseCharacterLiteral() {
 	Location startLocation(getFileName(), getLineNumber());
 	_buffer.clear();
 	if (is(Traits::startOfInput()))
@@ -793,10 +793,10 @@ TextToken ReadContext::parseCharacterLiteral() {
 		throw MissingDelimiterError(__FILE__, __LINE__, Location(getFileName(), getLineNumber()), '\'');
 	}
 	next();
-	return TextToken(TextToken::Kind::Character, startLocation, _buffer.toString());
+	return DDLToken(DDLToken::Kind::Character, startLocation, _buffer.toString());
 }
 
-TextToken ReadContext::parseIntegerLiteral()
+DDLToken ReadContext::parseIntegerLiteral()
 {
 	Location startLocation(getFileName(), getLineNumber());
 	_buffer.clear();
@@ -860,10 +860,10 @@ TextToken ReadContext::parseIntegerLiteral()
 			saveAndNext();
 		} while (isDigit());
 	}
-	return TextToken(TextToken::Kind::Integer, startLocation, _buffer.toString());
+	return DDLToken(DDLToken::Kind::Integer, startLocation, _buffer.toString());
 }
 
-TextToken ReadContext::parseNaturalLiteral()
+DDLToken ReadContext::parseNaturalLiteral()
 {
 	_buffer.clear();
 	Location startLocation(getFileName(), getLineNumber());
@@ -927,10 +927,10 @@ TextToken ReadContext::parseNaturalLiteral()
 			saveAndNext();
 		} while (isDigit());
 	}
-	return TextToken(TextToken::Kind::Integer, startLocation, _buffer.toString());
+	return DDLToken(DDLToken::Kind::Integer, startLocation, _buffer.toString());
 }
 
-TextToken ReadContext::parseRealLiteral()
+DDLToken ReadContext::parseRealLiteral()
 {
 	_buffer.clear();
 	Location startLocation(getFileName(), getLineNumber());
@@ -1013,37 +1013,37 @@ TextToken ReadContext::parseRealLiteral()
 			saveAndNext();
 		} while (isDigit());
 	}
-	return TextToken(TextToken::Kind::Real, startLocation, _buffer.toString());
+	return DDLToken(DDLToken::Kind::Real, startLocation, _buffer.toString());
 }
 
 std::string ReadContext::readStringLiteral() {
 	skipWhiteSpaces();
 	auto token = parseStringLiteral();
-	return TextTokenDecoder<std::string>()(token);
+	return DDLTokenDecoder<std::string>()(token);
 }
 
 char ReadContext::readCharacterLiteral() {
 	skipWhiteSpaces();
 	auto token = parseCharacterLiteral();
-	return TextTokenDecoder<char>()(token);
+	return DDLTokenDecoder<char>()(token);
 }
 
 signed int ReadContext::readIntegerLiteral() {
 	skipWhiteSpaces();
 	auto token = parseIntegerLiteral();
-	return TextTokenDecoder<signed int>()(token);
+	return DDLTokenDecoder<signed int>()(token);
 }
 
 unsigned int ReadContext::readNaturalLiteral() {
     skipWhiteSpaces();
 	auto token = parseNaturalLiteral();
-	return TextTokenDecoder<unsigned int>()(token);
+	return DDLTokenDecoder<unsigned int>()(token);
 }
 
 float ReadContext::readRealLiteral() {
 	skipWhiteSpaces();
 	auto token = parseRealLiteral();
-	return TextTokenDecoder<float>()(token);
+	return DDLTokenDecoder<float>()(token);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1077,7 +1077,7 @@ int32_t vfs_get_next_int32(ReadContext& ctxt)
     ctxt.skipToColon(false);
     ctxt.skipWhiteSpaces();
     auto token = ctxt.parseIntegerLiteral();
-    return TextTokenDecoder<int32_t>()(token);
+    return DDLTokenDecoder<int32_t>()(token);
 }
 
 unsigned int vfs_get_next_nat(ReadContext& ctxt)

@@ -18,7 +18,7 @@
 //********************************************************************************************
 
 /// @file egolib/Script/Token.cpp
-/// @brief Token of the non-executable sub-language of EgoScript.
+/// @brief Token of the DDL (Data Definition Language) of EgoScript.
 /// @author Michael Heilmann
 
 #include "egolib/Script/Token.hpp"
@@ -27,15 +27,15 @@
 namespace Ego {
 namespace Script {
 
-TextToken::TextToken(TextToken::Kind kind, const Id::Location& startLocation, const std::string& lexeme)
+DDLToken::DDLToken(DDLToken::Kind kind, const Id::Location& startLocation, const std::string& lexeme)
     : m_kind(kind), m_startLocation(startLocation), m_lexeme(lexeme)
 {}
 
-TextToken::TextToken(const TextToken& other)
+DDLToken::DDLToken(const DDLToken& other)
     : m_kind(other.m_kind), m_startLocation(other.m_startLocation), m_lexeme(other.m_lexeme)
 {}
 
-TextToken& TextToken::operator=(const TextToken& other)
+DDLToken& DDLToken::operator=(const DDLToken& other)
 {
     m_kind = other.m_kind;
     m_startLocation = other.m_startLocation;
@@ -43,17 +43,17 @@ TextToken& TextToken::operator=(const TextToken& other)
     return *this;
 }
 
-TextToken::Kind TextToken::getKind() const
+DDLToken::Kind DDLToken::getKind() const
 {
     return m_kind;
 }
 
-const std::string& TextToken::getLexeme() const
+const std::string& DDLToken::getLexeme() const
 {
     return m_lexeme;
 }
 
-const Id::Location& TextToken::getStartLocation() const
+const Id::Location& DDLToken::getStartLocation() const
 {
     return m_startLocation;
 }

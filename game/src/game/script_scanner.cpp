@@ -16,34 +16,42 @@
 //*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
+
+/// @file egolib/Script/script_scanner.cpp
+/// @brief Token of the PDL (Program Definition Language) of EgoScript.
+/// @author Michael Heilmann
+
 #include "game/script_scanner.hpp"
 
-Token::Token()
+namespace Ego {
+namespace Script {
+
+PDLToken::PDLToken()
     : m_lexeme(), m_startLocation("<unknown>", 1), m_value(0), m_kind(Kind::Unknown)
 {}
 
-Token::Token(Kind kind, const Id::Location& startLocation, const std::string& lexeme)
+PDLToken::PDLToken(Kind kind, const Id::Location& startLocation, const std::string& lexeme)
     : m_lexeme(lexeme), m_startLocation(startLocation), m_value(0), m_kind(kind)
 {}
 
-Token::Token(const Token& other)
+PDLToken::PDLToken(const PDLToken& other)
     : m_lexeme(other.m_lexeme), m_startLocation(other.m_startLocation), m_value(other.m_value), m_kind(other.m_kind)
 {}
 
-Token::~Token()
+PDLToken::~PDLToken()
 {}
 
-bool Token::is(Token::Kind kind) const
+bool PDLToken::is(PDLToken::Kind kind) const
 {
     return kind == getKind();
 }
 
-bool Token::isOneOf(Token::Kind kind1, Token::Kind kind2) const
+bool PDLToken::isOneOf(PDLToken::Kind kind1, PDLToken::Kind kind2) const
 {
     return is(kind1) || is(kind2);
 }
 
-bool Token::isOperator() const
+bool PDLToken::isOperator() const
 {
     return isOneOf(Kind::Assign,
                    Kind::Plus,
@@ -56,46 +64,46 @@ bool Token::isOperator() const
                    Kind::ShiftLeft);
 }
 
-bool Token::isAssignOperator() const
+bool PDLToken::isAssignOperator() const
 {
-    return is(Token::Kind::Assign);
+    return is(PDLToken::Kind::Assign);
 }
 
-Id::Location Token::getStartLocation() const
+Id::Location PDLToken::getStartLocation() const
 {
     return m_startLocation;
 }
 
-void Token::setStartLocation(const Id::Location& startLocation)
+void PDLToken::setStartLocation(const Id::Location& startLocation)
 {
     m_startLocation = startLocation;
 }
 
-Token::Kind Token::getKind() const
+PDLToken::Kind PDLToken::getKind() const
 {
     return m_kind;
 }
 
-void Token::setKind(Token::Kind kind)
+void PDLToken::setKind(PDLToken::Kind kind)
 {
     m_kind = kind;
 }
 
-void Token::setLexeme(const std::string& lexeme)
+void PDLToken::setLexeme(const std::string& lexeme)
 {
     m_lexeme = lexeme;
 }
 
-const std::string& Token::getLexeme() const
+const std::string& PDLToken::getLexeme() const
 {
     return m_lexeme;
 }
 
-std::ostream& operator<<(std::ostream& os, const Token::Kind& tokenKind)
+std::ostream& operator<<(std::ostream& os, const PDLToken::Kind& tokenKind)
 {
     switch (tokenKind)
     {
-    #define Define(enumElementName, string) case Token::Kind::enumElementName: os << string; break;
+    #define Define(enumElementName, string) case PDLToken::Kind::enumElementName: os << string; break;
         Define(Constant, "constant")
         Define(Function, "function")
         Define(Assign, "assign")
@@ -118,7 +126,7 @@ std::ostream& operator<<(std::ostream& os, const Token::Kind& tokenKind)
     return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const Token& token)
+std::ostream& operator<<(std::ostream& os, const PDLToken& token)
 {
     os << "token {";
     os << "location = " << token.getStartLocation().getFileName() << ":" << token.getStartLocation().getLineNumber() << "," << std::endl;
@@ -128,3 +136,6 @@ std::ostream& operator<<(std::ostream& os, const Token& token)
     os << "}" << std::endl;
     return os;
 }
+
+} // namespace Script
+} // namespace Ego
