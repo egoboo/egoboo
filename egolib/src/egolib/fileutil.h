@@ -25,7 +25,7 @@
 #include "egolib/typedef.h"
 #include "egolib/Script/EnumDescriptor.hpp"
 #include "egolib/vfs.h"
-#include "egolib/Script/Token.hpp"
+#include "egolib/Script/DDLToken.hpp"
 #include "egolib/Script/Traits.hpp"
 #include "egolib/Log/_Include.hpp"
 #include "egolib/file_common.h"

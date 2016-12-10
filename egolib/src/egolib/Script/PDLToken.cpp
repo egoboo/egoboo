@@ -17,11 +17,11 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/Script/script_scanner.cpp
+/// @file egolib/Script/PDLToken.cpp
 /// @brief Token of the PDL (Program Definition Language) of EgoScript.
 /// @author Michael Heilmann
 
-#include "game/script_scanner.hpp"
+#include "egolib/Script/PDLToken.hpp"
 
 namespace Ego {
 namespace Script {

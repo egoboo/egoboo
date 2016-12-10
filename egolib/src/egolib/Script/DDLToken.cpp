@@ -17,11 +17,11 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/Script/Token.cpp
+/// @file egolib/Script/DDLToken.cpp
 /// @brief Token of the DDL (Data Definition Language) of EgoScript.
 /// @author Michael Heilmann
 
-#include "egolib/Script/Token.hpp"
+#include "egolib/Script/DDLToken.hpp"
 
 
 namespace Ego {

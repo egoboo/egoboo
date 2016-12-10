@@ -408,9 +408,6 @@
     <ClCompile Include="src\egolib\Mesh\Info.cpp">
       <Filter>Source Files\Mesh</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\Script\Token.cpp">
-      <Filter>Source Files\Script</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\Log\_Include.cpp">
       <Filter>Source Files\Log</Filter>
     </ClCompile>
@@ -547,6 +544,12 @@
       <Filter>Source Files\Script</Filter>
     </ClCompile>
     <ClCompile Include="src\egolib\Script\ConstantPool.cpp">
+      <Filter>Source Files\Script</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Script\PDLToken.cpp">
+      <Filter>Source Files\Script</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Script\DDLToken.cpp">
       <Filter>Source Files\Script</Filter>
     </ClCompile>
   </ItemGroup>
@@ -940,9 +943,6 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Mesh\Info.hpp">
       <Filter>Header Files\Mesh</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Script\Token.hpp">
-      <Filter>Header Files\Script</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Log\Entry.hpp">
       <Filter>Header Files\Log</Filter>
@@ -1371,6 +1371,12 @@
       <Filter>Header Files\Script</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Script\ConstantPool.hpp">
+      <Filter>Header Files\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Script\DDLToken.hpp">
+      <Filter>Header Files\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Script\PDLToken.hpp">
       <Filter>Header Files\Script</Filter>
     </ClInclude>
   </ItemGroup>

@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/Script/Token.hpp
+/// @file egolib/Script/DDLToken.hpp
 /// @brief Token of the DDL (Data Definition Language) of EgoScript.
 /// @author Michael Heilmann
 

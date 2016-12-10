@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "game/script_scanner.hpp"
+#include "egolib/Script/PDLToken.hpp"
 #include "game/egoboo.h"
 #include "egolib/Script/script.h"
 

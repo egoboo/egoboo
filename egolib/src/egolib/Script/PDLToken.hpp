@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/Script/script_scanner.hpp
+/// @file egolib/Script/PDLToken.hpp
 /// @brief Token of the PDL (Program Definition Language) of EgoScript.
 /// @author Michael Heilmann
 

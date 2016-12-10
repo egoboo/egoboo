@@ -306,6 +306,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\Script\PDLToken.cpp" />
     <ClCompile Include="src\egolib\Script\ConstantPool.cpp" />
     <ClCompile Include="src\egolib\Script\Constant.cpp" />
     <ClCompile Include="src\egolib\Mesh\TileFX.cpp" />
@@ -377,7 +378,7 @@
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)Log\_Include.o</ObjectFileName>
     </ClCompile>
     <ClCompile Include="src\egolib\Log\Target.cpp" />
-    <ClCompile Include="src\egolib\Script\Token.cpp" />
+    <ClCompile Include="src\egolib\Script\DDLToken.cpp" />
     <ClCompile Include="src\egolib\Mesh\Info.cpp" />
     <ClCompile Include="src\egolib\FileFormats\Globals.cpp" />
     <ClCompile Include="src\egolib\Console\Console.cpp" />
@@ -515,6 +516,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Script\PDLToken.hpp" />
     <ClInclude Include="src\egolib\Script\ConstantPool.hpp" />
     <ClInclude Include="src\egolib\Script\Constant.hpp" />
     <ClInclude Include="src\egolib\Mesh\TileFX.hpp" />
@@ -649,7 +651,7 @@
     <ClInclude Include="src\egolib\Log\Target.hpp" />
     <ClInclude Include="src\egolib\Log\_Include.hpp" />
     <ClInclude Include="src\egolib\Log\Entry.hpp" />
-    <ClInclude Include="src\egolib\Script\Token.hpp" />
+    <ClInclude Include="src\egolib\Script\DDLToken.hpp" />
     <ClInclude Include="src\egolib\FileFormats\map_fx.hpp" />
     <ClInclude Include="src\egolib\Mesh\Info.hpp" />
     <ClInclude Include="src\egolib\FileFormats\Globals.hpp" />
