@@ -501,6 +501,7 @@ void script_state_t::run_operand(script_state_t& state, ai_state_t& aiState, scr
         // Get the variable opcode from a register
         uint8_t variableIndex = script._instructions[script.get_pos()].getValueBits();
         varname = getVariableName(variableIndex);
+        std::shared_ptr<Object> pleader = _currentModule->getTeamList()[pobject->team].getLeader();
         switch (variableIndex)
         {
             case VARTMPX:
@@ -580,27 +581,28 @@ void script_state_t::run_operand(script_state_t& state, ai_state_t& aiState, scr
                 break;
 
             case VARLEADERX:
-            {
-                iTmp = pobject->getPosX();
-                std::shared_ptr<Object> leader = _currentModule->getTeamList()[pobject->team].getLeader();
-                if (leader)
-                    iTmp = leader->getPosX();
+                if (pleader)
+                {
+                    iTmp = pleader->getPosX();
+                }
+                else
+                {
+                    iTmp = pobject->getPosX();
+                }
                 break;
-            }
 
             case VARLEADERY:
-            {
-                iTmp = pobject->getPosY();
-                std::shared_ptr<Object> leader = _currentModule->getTeamList()[pobject->team].getLeader();
-                if (leader)
-                    iTmp = leader->getPosY();
-
+                if (pleader)
+                {
+                    iTmp = pleader->getPosY();
+                }
+                else
+                {
+                    iTmp = pobject->getPosY();
+                }
                 break;
-            }
 
             case VARLEADERDISTANCE:
-            {
-                std::shared_ptr<Object> pleader = _currentModule->getTeamList()[pobject->team].getLeader();
                 if (!pleader)
                 {
                     iTmp = 0x7FFFFFFF;
@@ -610,14 +612,17 @@ void script_state_t::run_operand(script_state_t& state, ai_state_t& aiState, scr
                     iTmp = std::abs(pleader->getPosX() - pobject->getPosX())
                          + std::abs(pleader->getPosY() - pobject->getPosY());
                 }
-            }
-            break;
+                break;
 
             case VARLEADERTURN:
-                iTmp = uint16_t(pobject->ori.facing_z);
-                if (_currentModule->getTeamList()[pobject->team].getLeader())
-                    iTmp = uint16_t(_currentModule->getTeamList()[pobject->team].getLeader()->ori.facing_z);
-
+                if (pleader)
+                {
+                    iTmp = uint16_t(pleader->ori.facing_z);
+                }
+                else
+                {
+                    iTmp = uint16_t(pobject->ori.facing_z);
+                }
                 break;
 
             case VARGOTOX:
@@ -661,7 +666,7 @@ void script_state_t::run_operand(script_state_t& state, ai_state_t& aiState, scr
                 break;
 
             case VARTARGETTURNTO:
-                if (NULL == ptarget)
+                if (nullptr == ptarget)
                 {
                     iTmp = 0;
                 }
@@ -694,28 +699,30 @@ void script_state_t::run_operand(script_state_t& state, ai_state_t& aiState, scr
 
             case VARSELFMANA:
                 iTmp = FLOAT_TO_FP8(pobject->getMana());
-                if (pobject->getAttribute(Ego::Attribute::CHANNEL_LIFE))  iTmp += FLOAT_TO_FP8(pobject->getLife());
-
+                if (pobject->getAttribute(Ego::Attribute::CHANNEL_LIFE))
+                {
+                    iTmp += FLOAT_TO_FP8(pobject->getLife());
+                }
                 break;
 
             case VARTARGETSTR:
-                iTmp = (NULL == ptarget) ? 0 : FLOAT_TO_FP8(ptarget->getAttribute(Ego::Attribute::MIGHT));
+                iTmp = (nullptr == ptarget) ? 0 : FLOAT_TO_FP8(ptarget->getAttribute(Ego::Attribute::MIGHT));
                 break;
 
             case VARTARGETINT:
-                iTmp = (NULL == ptarget) ? 0 : FLOAT_TO_FP8(ptarget->getAttribute(Ego::Attribute::INTELLECT));
+                iTmp = (nullptr == ptarget) ? 0 : FLOAT_TO_FP8(ptarget->getAttribute(Ego::Attribute::INTELLECT));
                 break;
 
             case VARTARGETDEX:
-                iTmp = (NULL == ptarget) ? 0 : FLOAT_TO_FP8(ptarget->getAttribute(Ego::Attribute::AGILITY));
+                iTmp = (nullptr == ptarget) ? 0 : FLOAT_TO_FP8(ptarget->getAttribute(Ego::Attribute::AGILITY));
                 break;
 
             case VARTARGETLIFE:
-                iTmp = (NULL == ptarget) ? 0 : FLOAT_TO_FP8(ptarget->getLife());
+                iTmp = (nullptr == ptarget) ? 0 : FLOAT_TO_FP8(ptarget->getLife());
                 break;
 
             case VARTARGETMANA:
-                if (NULL == ptarget)
+                if (nullptr == ptarget)
                 {
                     iTmp = 0;
                 }
@@ -730,19 +737,19 @@ void script_state_t::run_operand(script_state_t& state, ai_state_t& aiState, scr
                 break;
 
             case VARTARGETLEVEL:
-                iTmp = (NULL == ptarget) ? 0 : ptarget->experiencelevel;
+                iTmp = (nullptr == ptarget) ? 0 : ptarget->experiencelevel;
                 break;
 
             case VARTARGETSPEEDX:
-                iTmp = (NULL == ptarget) ? 0 : std::abs(ptarget->vel[kX]);
+                iTmp = (nullptr == ptarget) ? 0 : std::abs(ptarget->vel[kX]);
                 break;
 
             case VARTARGETSPEEDY:
-                iTmp = (NULL == ptarget) ? 0 : std::abs(ptarget->vel[kY]);
+                iTmp = (nullptr == ptarget) ? 0 : std::abs(ptarget->vel[kY]);
                 break;
 
             case VARTARGETSPEEDZ:
-                iTmp = (NULL == ptarget) ? 0 : std::abs(ptarget->vel[kZ]);
+                iTmp = (nullptr == ptarget) ? 0 : std::abs(ptarget->vel[kZ]);
                 break;
 
             case VARSELFSPAWNX:
@@ -778,7 +785,7 @@ void script_state_t::run_operand(script_state_t& state, ai_state_t& aiState, scr
                 break;
 
             case VARTARGETMANAFLOW:
-                iTmp = (NULL == ptarget) ? 0 : FLOAT_TO_FP8(ptarget->getAttribute(Ego::Attribute::SPELL_POWER));
+                iTmp = (nullptr == ptarget) ? 0 : FLOAT_TO_FP8(ptarget->getAttribute(Ego::Attribute::SPELL_POWER));
                 break;
 
             case VARSELFATTACHED:
@@ -786,11 +793,11 @@ void script_state_t::run_operand(script_state_t& state, ai_state_t& aiState, scr
                 break;
 
             case VARSWINGTURN:
-            {
-                auto camera = CameraSystem::get().getCamera(aiState.getSelf());
-                iTmp = nullptr != camera ? camera->getSwing() << 2 : 0;
-            }
-            break;
+                {
+                    auto camera = CameraSystem::get().getCamera(aiState.getSelf());
+                    iTmp = nullptr != camera ? camera->getSwing() << 2 : 0;
+                }
+                break;
 
             case VARXYDISTANCE:
                 iTmp = std::sqrt(state.x * state.x + state.y * state.y);
@@ -801,11 +808,11 @@ void script_state_t::run_operand(script_state_t& state, ai_state_t& aiState, scr
                 break;
 
             case VARTARGETALTITUDE:
-                iTmp = (NULL == ptarget) ? 0 : ptarget->getPosZ() - ptarget->getObjectPhysics().getGroundElevation();
+                iTmp = (nullptr == ptarget) ? 0 : ptarget->getPosZ() - ptarget->getObjectPhysics().getGroundElevation();
                 break;
 
             case VARTARGETZ:
-                iTmp = (NULL == ptarget) ? 0 : ptarget->getPosZ();
+                iTmp = (nullptr == ptarget) ? 0 : ptarget->getPosZ();
                 break;
 
             case VARSELFINDEX:
@@ -813,19 +820,19 @@ void script_state_t::run_operand(script_state_t& state, ai_state_t& aiState, scr
                 break;
 
             case VAROWNERX:
-                iTmp = (NULL == powner) ? 0 : powner->getPosX();
+                iTmp = (nullptr == powner) ? 0 : powner->getPosX();
                 break;
 
             case VAROWNERY:
-                iTmp = (NULL == powner) ? 0 : powner->getPosY();
+                iTmp = (nullptr == powner) ? 0 : powner->getPosY();
                 break;
 
             case VAROWNERTURN:
-                iTmp = (NULL == powner) ? 0 : uint16_t(powner->ori.facing_z);
+                iTmp = (nullptr == powner) ? 0 : uint16_t(powner->ori.facing_z);
                 break;
 
             case VAROWNERDISTANCE:
-                if (NULL == powner)
+                if (nullptr == powner)
                 {
                     iTmp = 0x7FFFFFFF;
                 }
@@ -837,7 +844,7 @@ void script_state_t::run_operand(script_state_t& state, ai_state_t& aiState, scr
                 break;
 
             case VAROWNERTURNTO:
-                if (NULL == powner)
+                if (nullptr == powner)
                 {
                     iTmp = 0;
                 }
@@ -862,7 +869,7 @@ void script_state_t::run_operand(script_state_t& state, ai_state_t& aiState, scr
                 break;
 
             case VARTARGETEXP:
-                iTmp = (NULL == ptarget) ? 0 : ptarget->experience;
+                iTmp = (nullptr == ptarget) ? 0 : ptarget->experience;
                 break;
 
             case VARSELFAMMO:
@@ -870,15 +877,15 @@ void script_state_t::run_operand(script_state_t& state, ai_state_t& aiState, scr
                 break;
 
             case VARTARGETAMMO:
-                iTmp = (NULL == ptarget) ? 0 : ptarget->ammo;
+                iTmp = (nullptr == ptarget) ? 0 : ptarget->ammo;
                 break;
 
             case VARTARGETMONEY:
-                iTmp = (NULL == ptarget) ? 0 : ptarget->getMoney();
+                iTmp = (nullptr == ptarget) ? 0 : ptarget->getMoney();
                 break;
 
             case VARTARGETTURNAWAY:
-                if (NULL == ptarget)
+                if (nullptr == ptarget)
                 {
                     iTmp = 0;
                 }
@@ -894,7 +901,7 @@ void script_state_t::run_operand(script_state_t& state, ai_state_t& aiState, scr
                 break;
 
             case VARTARGETRELOADTIME:
-                iTmp = (NULL == ptarget) ? 0 : ptarget->reload_timer;
+                iTmp = (nullptr == ptarget) ? 0 : ptarget->reload_timer;
                 break;
 
             case VARSPAWNDISTANCE:
@@ -903,16 +910,15 @@ void script_state_t::run_operand(script_state_t& state, ai_state_t& aiState, scr
                 break;
 
             case VARTARGETMAXLIFE:
-                iTmp = (NULL == ptarget) ? 0 : FLOAT_TO_FP8(ptarget->getAttribute(Ego::Attribute::MAX_LIFE));
+                iTmp = (nullptr == ptarget) ? 0 : FLOAT_TO_FP8(ptarget->getAttribute(Ego::Attribute::MAX_LIFE));
                 break;
 
             case VARTARGETTEAM:
-                iTmp = (NULL == ptarget) ? 0 : ptarget->team;
-                //iTmp = REF_TO_INT( chr_get_iteam( pself->target ) );
+                iTmp = (nullptr == ptarget) ? 0 : ptarget->team;
                 break;
 
             case VARTARGETARMOR:
-                iTmp = (NULL == ptarget) ? 0 : ptarget->skin;
+                iTmp = (nullptr == ptarget) ? 0 : ptarget->skin;
                 break;
 
             case VARDIFFICULTY:
