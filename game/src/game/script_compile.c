@@ -366,7 +366,7 @@ PDLToken line_scanner_state_t::scanNumericLiteral()
     {
         saveAndNext();
     } while (isDigit());
-    PDLToken token = PDLToken(PDLTokenKind::NumericLiteral, getLocation());
+    PDLToken token = PDLToken(PDLTokenKind::NumberLiteral, getLocation());
     token.setLexeme(m_lexemeBuffer.toString());
     return token;
 }
@@ -414,7 +414,7 @@ PDLToken line_scanner_state_t::scanStringOrReference()
     {
         throw LexicalErrorException(__FILE__, __LINE__, getLocation(), "unclosed string literal");
     }
-    PDLToken token = PDLToken(isReference ? PDLTokenKind::Reference : PDLTokenKind::String, getLocation());
+    PDLToken token = PDLToken(isReference ? PDLTokenKind::ReferenceLiteral : PDLTokenKind::StringLiteral, getLocation());
     token.setLexeme(m_lexemeBuffer.toString());
     return token;
 }
@@ -440,7 +440,7 @@ PDLToken line_scanner_state_t::scanIDSZ()
         throw LexicalErrorException(__FILE__, __LINE__, getLocation(), "invalid IDSZ");
     }
     saveAndNext();
-    PDLToken token = PDLToken(PDLTokenKind::IDSZ, getLocation());
+    PDLToken token = PDLToken(PDLTokenKind::IdszLiteral, getLocation());
     token.setLexeme(m_lexemeBuffer.toString());
     return token;
 }
@@ -532,7 +532,7 @@ PDLToken parser_state_t::parse_token(ObjectProfile *ppro, script_info_t& script,
     if (state.isDoubleQuote())
     {
         PDLToken token = state.scanStringOrReference();
-        if (token.getKind() == PDLTokenKind::Reference)
+        if (token.getKind() == PDLTokenKind::ReferenceLiteral)
         {
             // If it is a profile reference.
 
