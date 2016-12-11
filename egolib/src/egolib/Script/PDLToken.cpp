@@ -63,6 +63,19 @@ bool PDLToken::isAssignOperator() const
     return is(PDLTokenKind::Assign);
 }
 
+bool PDLToken::isLiteral() const
+{
+    return isOneOf(PDLTokenKind::IdszLiteral,
+                   PDLTokenKind::NumberLiteral,
+                   PDLTokenKind::ReferenceLiteral,
+                   PDLTokenKind::StringLiteral);
+}
+
+bool PDLToken::isConstant() const
+{
+    return is(PDLTokenKind::Constant);
+}
+
 PDLToken& PDLToken::operator=(PDLToken other)
 {
     swap(*this, other);

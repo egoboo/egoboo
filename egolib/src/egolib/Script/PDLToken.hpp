@@ -84,6 +84,14 @@ public:
     /// @return @a true if this token is an assign operator token, @a false otherwise
     bool isAssignOperator() const;
 
+    /// @brief Get if this token is a literal token i.e. is of the kinds which are called literals.
+    /// @return @a true if this token is a literal token, @a false otherwise
+    bool isLiteral() const;
+
+    /// @brief Get if this token is a constant token i.e. is of the kind "constant".
+    /// @return @a true if this token is a constant token, @a false otherwise
+    bool isConstant() const;
+
     /// @brief Get the value of this token.
     /// @return the value of this token
     /// @see setValue
