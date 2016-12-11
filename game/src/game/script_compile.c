@@ -331,7 +331,7 @@ PDLToken line_scanner_state_t::scanWhiteSpaces()
             next();
         } while (isWhiteSpace());
     }
-    auto token = PDLToken(PDLTokenKind::Whitespace, getLocation());
+    auto token = PDLToken(PDLTokenKind::Whitespace, startLocation);
     token.setValue(numberOfWhiteSpaces);
     return token;
 }
@@ -352,7 +352,7 @@ PDLToken line_scanner_state_t::scanNewLines()
         m_location = Location(m_location.getFileName(), m_location.getLineNumber() + 1);
         numberOfNewLines++;
     }
-    auto token = PDLToken(PDLTokenKind::Newline, getLocation());
+    auto token = PDLToken(PDLTokenKind::Newline, startLocation);
     token.setValue(numberOfNewLines);
     return token;
 }
@@ -369,7 +369,7 @@ PDLToken line_scanner_state_t::scanNumericLiteral()
     {
         saveAndNext();
     } while (isDigit());
-    return PDLToken(PDLTokenKind::NumberLiteral, getLocation(),
+    return PDLToken(PDLTokenKind::NumberLiteral, startLocation,
                     m_lexemeBuffer.toString());
 }
 
@@ -385,7 +385,7 @@ PDLToken line_scanner_state_t::scanName()
     {
         saveAndNext();
     } while (is('_') || isDigit() || isAlphabetic());
-    return PDLToken(PDLTokenKind::Name, getLocation(),
+    return PDLToken(PDLTokenKind::Name, startLocation,
                     m_lexemeBuffer.toString());
 }
 
@@ -418,7 +418,7 @@ PDLToken line_scanner_state_t::scanStringOrReference()
         throw LexicalErrorException(__FILE__, __LINE__, getLocation(), "unclosed string literal");
     }
     return PDLToken(isReference ? PDLTokenKind::ReferenceLiteral : PDLTokenKind::StringLiteral,
-                    getLocation(), m_lexemeBuffer.toString());
+                    startLocation, m_lexemeBuffer.toString());
 }
 
 PDLToken line_scanner_state_t::scanIDSZ()
@@ -443,7 +443,7 @@ PDLToken line_scanner_state_t::scanIDSZ()
         throw LexicalErrorException(__FILE__, __LINE__, getLocation(), "invalid IDSZ");
     }
     saveAndNext();
-    return PDLToken(PDLTokenKind::IdszLiteral, getLocation(),
+    return PDLToken(PDLTokenKind::IdszLiteral, startLocation,
                     m_lexemeBuffer.toString());
 }
 
