@@ -417,15 +417,21 @@ void script_state_t::store(uint8_t variableIndex)
             break;
 
         default:
-            Log::Entry e(Log::Level::Warning, __FILE__, __LINE__);
-            e << "variable " << variableName << "/" << variableIndex << " not found" << Log::EndOfEntry;
-            Log::get() << e;
-            break;
+            onVariableNotDefinedError(variableIndex);
     }
 }
 
 //--------------------------------------------------------------------------------------------
 
+
+void script_state_t::onVariableNotDefinedError(uint8_t variableIndex)
+{
+    auto variableName = getVariableName(variableIndex);
+    Log::Entry e(Log::Level::Warning, __FILE__, __LINE__);
+    e << "variable " << variableName << "/" << variableIndex << " not defined" << Log::EndOfEntry;
+    Log::get() << e;
+    throw Id::RuntimeErrorException(__FILE__, __LINE__, e.getText());
+}
 
 void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, script_info_t& script )
 {
@@ -909,9 +915,7 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
                 break;
 
             default:
-				Log::get().message("%s:%d:%s: script error - model == %d, class name == \"%s\" - Unknown variable found!\n", \
-					               __FILE__, __LINE__, __FUNCTION__, REF_TO_INT(script_error_model), script_error_classname);
-                break;
+                state.onVariableNotDefinedError(variableIndex);
         }
     }
 

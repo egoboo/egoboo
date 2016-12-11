@@ -508,6 +508,12 @@ struct script_state_t : Id::NonCopyable
 
 	// public
 	script_state_t();
+
+    /// @brief Error handler for the error "variable not defined".
+    /// Writes a warning log messages and raises an Id::RuntimeErrorException.
+    /// @param variableIndex the variable index
+    /// @throw Id::RuntimeErrorException
+    void onVariableNotDefinedError(uint8_t variableIndex);
 	// protected
 	uint8_t run_function(ai_state_t& aiState, script_info_t& script);
 	void store(uint8_t variableIndex);
