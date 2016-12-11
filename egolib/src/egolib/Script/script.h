@@ -28,6 +28,8 @@
 #include "egolib/Clock.hpp"
 #include "egolib/AI/WaypointList.h"
 #include "egolib/_math.h"
+#include "egolib/Script/ConstantPool.hpp"
+#include "egolib/Script/Interpreter/TaggedValue.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -116,183 +118,260 @@ enum chr_alert_bits
 struct Instruction
 {
 public:
-	// 1000 0000.0000 0000.0000 0000.0000 0000
-	static const uint32_t FUNCTIONBITS = 0x80000000;
-	// 0000 0111 1111 1111 1111 1111 1111 1111
-	static const uint32_t VALUEBITS = 0x07FFFFFF;
-	// 0111 1000 0000 0000 0000 0000 0000 0000
+    // 1000 0000.0000 0000.0000 0000.0000 0000
+    static const uint32_t FUNCTIONBITS = 0x80000000;
+    // 0000 0111 1111 1111 1111 1111 1111 1111
+    static const uint32_t VALUEBITS = 0x07FFFFFF;
+    // 0111 1000 0000 0000 0000 0000 0000 0000
     // for function/assignment, it's the indentation of the line i.e. there are 2^4 = 16 possible indention levels.
     // for operands, it's the operator
-	static const uint32_t DATABITS = 0x78000000;
-	uint32_t _value;
-	Instruction()
-		: _value() {
-	}
-	Instruction(uint32_t value)
-		: _value(value) {
-	}
-	Instruction(const Instruction& other)
-		: _value(other._value) {
-	}
-	uint32_t operator&(uint32_t bitmask) {
-		return _value & bitmask;
-	}
-	size_t getIndex() const {
-		static_assert(std::numeric_limits<size_t>::max() >= std::numeric_limits<uint32_t>::max(),
-			          "maximum value of size_t is smaller than maximum value of uint32_t");
-		return (size_t)_value;
-	}
-	/**
-	 * @brief
-	 *	Get if this instruction is an "inv" (~"invoke") instruction.
-	 * @return
-	 *	@a true if this instruction is an "inv" instruction,
-	 *	@a false otherwise
-	 * @todo
-	 *	Rename to "isInv".
-	 * @todo
-	 *	EgoScript has some decision logic built-in if an instruction is an
-	 *	"inv" or "ldc" instruction. Clean up this mess.
-	 */
-	bool isInv() const {
-		return hasSomeBits(FUNCTIONBITS);
-	}
-	/**
-	 * @brief
-	 *	Get if this instruction is a "ldc" (~"load constant") instruction.
-	 * @return
-	 *	@a true if this instruction is a "ldc" instruction,
-	 *	@a false otherwise
-	 * @todo
-	 *	Rename to "isLdc".
-	 * @todo
-	 *	EgoScript has some decision logic built-in if an instruction is an
-	 *	"inv" or "ldc" instruction. Clean up this mess.
-	 */
-	bool isLdc() const {
-		return hasSomeBits(FUNCTIONBITS);
-	}
-	uint32_t getBits() const {
-		return _value;
-	}
-	void setBits(uint32_t bits) {
-		_value = bits;
-	}
-	/**
-	 * @brief
-	 *	Get the data bits.
-	 * @return
-	 *	the data bits
-	 * @remark
-	 *	the data bits are the upper 5 Bits of the 32 value bits
-	 */
-	uint8_t getDataBits() const {
-		return (getBits() >> 27) & 0x0f;
-	}
-    uint32_t getValueBits() const {
+    static const uint32_t DATABITS = 0x78000000;
+
+private:
+    uint32_t bits;
+
+public:
+    Instruction()
+        : bits()
+    {}
+
+    Instruction(const Instruction& other)
+        : bits(other.bits)
+    {}
+
+    Instruction(Instruction&& other)
+        : bits(std::move(other.bits))
+    {}
+
+    Instruction& operator=(Instruction other)
+    {
+        swap(*this, other);
+        return *this;
+    }
+
+    friend void swap(Instruction& x, Instruction& y)
+    {
+        using std::swap;
+
+        swap(x.bits, y.bits);
+    }
+
+public:
+    Instruction(uint32_t bits)
+        : bits(bits)
+    {}
+
+    uint32_t operator&(uint32_t bitmask)
+    {
+        return bits & bitmask;
+    }
+
+    size_t getIndex() const
+    {
+        static_assert(std::numeric_limits<size_t>::max() >= std::numeric_limits<uint32_t>::max(),
+                      "maximum value of size_t is smaller than maximum value of uint32_t");
+        return (size_t)bits;
+    }
+
+    /// @brief Get if this instruction is an "inv" (~"invoke") instruction.
+    /// @return @a true if this instruction is an "inv" instruction, @a false otherwise
+    /// @todo
+    /// EgoScript has some decision logic built-in if an instruction is an
+    /// "inv" or "ldc" instruction. Clean up this mess.
+    bool isInv() const
+    {
+        return hasSomeBits(FUNCTIONBITS);
+    }
+
+    /// @brief Get if this instruction is a "ldc" (~"load constant") instruction.
+    /// @return @a true if this instruction is a "ldc" instruction, @a false otherwise
+    /// @todo
+    /// EgoScript has some decision logic built-in if an instruction is an
+    /// "inv" or "ldc" instruction. Clean up this mess.
+    bool isLdc() const
+    {
+        return hasSomeBits(FUNCTIONBITS);
+    }
+
+    uint32_t getBits() const
+    {
+        return bits;
+    }
+
+    void setBits(uint32_t bits)
+    {
+        this->bits = bits;
+    }
+
+    /// @brief Get the data bits.
+    /// @return the data bits
+    /// @remark The data bits are the upper 5 Bits of the 32 value bits
+    uint8_t getDataBits() const
+    {
+        return (getBits() >> 27) & 0x0f;
+    }
+
+    /// @brief Get the value bits.
+    /// @return the value bits
+    uint32_t getValueBits() const
+    {
         return getBits() & Instruction::VALUEBITS;
     }
 
-	/**
-	 * @brief
-	 *	Get if this instruction has none of the bits in the specified bitmask set.
-	 * @param bitmask
-	 *	the bitmask
-	 * @return
-	 *	@a true if this instruction has none of the bits in the bitmask set,
-	 *	@a false otherwise.
-	 */
-	bool hasNoBits(uint32_t bitmask) const {
-		return 0 == (getBits() & bitmask);
-	}
-	/**
-	 * @brief
-	 *	Get if this instruction has some of the bits set in the specified bitmask set.
-	 * @param bitmask
-	 *	the bitmask
-	 * @return
-	 *	@a true if this instruction has any of the bits in the bitmask set, @a false otherwise
-	 */
-	bool hasSomeBits(uint32_t bitmask) const {
-		return 0 != (getBits() & bitmask);
-	}
-	/**
-	 * @brief
-	 *	Get if this instruction has all of the bits in the specified bitmask set.
-	 * @param bitmask
-	 *	the bitmask
-	 * @return
-	 *	@a true if this instruction has all of the bits in the bitmask set, @a false otherwise.
-	 */
-	bool hasAllBitsSet(uint32_t bitmask) const {
-		return bitmask == (getBits() & bitmask);
-	}
+    /// @brief Get if this instruction has none of the bits in the specified bitmask set.
+    /// @param bitmask the bitmask
+    /// @return @a true if this instruction has none of the bits in the bitmask set, @a false otherwise
+    bool hasNoBits(uint32_t bitmask) const
+    {
+        return 0 == (getBits() & bitmask);
+    }
+
+    /// @brief Get if this instruction has some of the bits set in the specified bitmask set.
+    /// @param bitmask the bitmask
+    /// @return @a true if this instruction has any of the bits in the bitmask set, @a false otherwise
+    bool hasSomeBits(uint32_t bitmask) const
+    {
+        return 0 != (getBits() & bitmask);
+    }
+
+    /// @brief Get if this instruction has all of the bits in the specified bitmask set.
+    /// @param bitmask the bitmask
+    /// @return @a true if this instruction has all of the bits in the bitmask set, @a false otherwise
+    bool hasAllBitsSet(uint32_t bitmask) const
+    {
+        return bitmask == (getBits() & bitmask);
+    }
 };
 
 struct InstructionList
 {
-	InstructionList()
-		: _length(0)
-	{
-	}
-	InstructionList(const InstructionList& other)
-		: _length(other._length)
-	{
-		for (size_t i = 0; i < _length; ++i) {
-			_instructions[i] = other._instructions[i];
-		}
-	}
-	InstructionList operator=(const InstructionList& other)
-	{
-		_length = other._length;
-		for (size_t i = 0; i < _length; ++i) {
-			_instructions[i] = other._instructions[i];
-		}
-		return *this;
-	}
-	/**
-	 * @brief
-	 *	The actual length of the instruction list.
-	 *	The first @a length entries in the instruction array are used.
-	 */
-	uint32_t _length;
-	/**
-	 * @brief
-	 *	Get the length of this instruction list.
-	 * @return
-	 *	the length of this instruciton list
-	 */
-	uint32_t getLength() const {
-		return _length;
-	}
-	/**
-	 * @brief
-	 *	Get if this instruction list is full.
-	 * @return
-	 *	@a true if this instruction list is full,
-	 *	@a false otherwise
-	 */
-	bool isFull() const {
-		return MAXAICOMPILESIZE == getLength();
-	}
-	/**
-	 * @brief
-	 *	The instructions.
-	 */
-	Instruction _instructions[MAXAICOMPILESIZE];          // Compiled script data
+public:
+    /// @brief A size of an instruction list.
+    using Size = uint32_t;
+    /// @brief An index in an instruction list.
+    using Index = uint32_t;
 
-	void append(const Instruction& instruction) {
-		if (_length == MAXAICOMPILESIZE) {
-			throw std::overflow_error("instruction list overflow");
-		}
-		_instructions[_length++] = instruction;
+private:
+    /// @brief The number of instructions in this instruction list.
+    /// @remark The first @a numberOfInstructions entries in the instruction array are used.
+    Size numberOfInstructions;
+
+    /// @brief The instructions.
+    std::array<Instruction, MAXAICOMPILESIZE> instructions;
+
+    /// @brief The constant pool.
+    Ego::Script::ConstantPool constantPool;
+
+public:
+    /// @brief Construct an empty instruction list.
+    /// @post The instruction list has an empty constant pool and zero instructions.
+    InstructionList()
+        : constantPool(), instructions(), numberOfInstructions(0)
+    {}
+
+    /**@{*/
+
+    /// @brief Construct an instruction list with the values of another instruction list.
+    /// @param other the other instruction list
+    InstructionList(const InstructionList& other)
+        : constantPool(other.constantPool), instructions(other.instructions), numberOfInstructions(other.numberOfInstructions)
+    {}
+
+    InstructionList(InstructionList&& other)
+        : constantPool(std::move(other.constantPool)), instructions(std::move(other.instructions)), numberOfInstructions(std::move(other.numberOfInstructions))
+    {}
+
+    /**@}*/
+
+    /// @brief Assign this instruction list with the values of another instruction list.
+    /// @param other the other instruction list
+    /// @return this instruction list
+    InstructionList& operator=(InstructionList other)
+    {
+        swap(*this, other);
+        return *this;
+    }
+
+    friend void swap(InstructionList& x, InstructionList& y)
+    {
+        using std::swap;
+
+        swap(x.instructions, y.instructions);
+        swap(x.constantPool, y.constantPool);
+        swap(x.numberOfInstructions, y.numberOfInstructions);
+    }
+    
+    /// @brief Get the number of instructions in this instruction list.
+    /// @return the number of instructions in this instruction list
+    Size getNumberOfInstructions() const
+    {
+        return numberOfInstructions;
+    }
+
+    /// @brief Get if this instruction list is full.
+    /// @return @a true if this instruction list is full, @a false otherwise
+    bool isFull() const
+    {
+        return MAXAICOMPILESIZE == getNumberOfInstructions();
+    }
+
+    /// @brief Get if this instruction list is empty.
+    /// @return @a true if this instruction list is empty, @a false otherwise
+    bool isEmpty() const
+    {
+        return 0 == getNumberOfInstructions();
+    }
+
+    void append(const Instruction& instruction)
+    {
+        if (isFull())
+        {
+            throw Id::RuntimeErrorException(__FILE__, __LINE__, "instruction list overflow");
+        }
+        instructions[numberOfInstructions++] = instruction;
+    }
+
+    /// @brief Get the instruction at the specified index.
+    /// @param index the index
+    /// @return a constant reference to the instruction
+    /// @throw Id::RuntimeErrorException @a index is out of bounds
+	const Instruction& operator[](Index index) const 
+    {
+        if (index >= getNumberOfInstructions())
+        {
+            throw Id::RuntimeErrorException(__FILE__, __LINE__, "instruction index out of bounds");
+        }
+		return instructions[index];
 	}
-	const Instruction& operator[](size_t index) const {
-		return _instructions[index];
+
+    /// @brief Get the instruction at the specified index.
+    /// @param index the index
+    /// @return a reference to the instruction
+    /// @throw Id::RuntimeErrorException @a index is out of bounds
+    Instruction& operator[](Index index)
+    {
+        if (index >= getNumberOfInstructions())
+        {
+            throw Id::RuntimeErrorException(__FILE__, __LINE__, "instruction index out of bounds");
+        }
+		return instructions[index];
 	}
-	Instruction& operator[](size_t index) {
-		return _instructions[index];
-	}
+
+    const Ego::Script::ConstantPool& getConstantPool() const
+    {
+        return constantPool;
+    }
+
+    Ego::Script::ConstantPool& getConstantPool()
+    {
+        return constantPool;
+    }
+
+    void clear()
+    {
+        constantPool.clear();
+        numberOfInstructions = 0;
+    }
 };
 
 struct script_info_t
@@ -415,11 +494,9 @@ public:
 // struct script_state_t
 //--------------------------------------------------------------------------------------------
 
-#include "egolib/Script/Interpreter/TaggedValue.hpp"
-
 /// The state of the scripting system
 /// @details It is not persistent between one evaluation of a script and another
-struct script_state_t
+struct script_state_t : Id::NonCopyable
 {
     int x;
     int y;
@@ -431,10 +508,9 @@ struct script_state_t
 
 	// public
 	script_state_t();
-	script_state_t(const script_state_t& self);
 	// protected
-	static Uint8 run_function(script_state_t& self, ai_state_t& aiState, script_info_t& script);
-	static void set_operand(script_state_t& self, Uint8 variable);
+	uint8_t run_function(ai_state_t& aiState, script_info_t& script);
+	void store(uint8_t variableIndex);
 	static void run_operand(script_state_t& self, ai_state_t& aiState, script_info_t& script);
 	static bool run_operation(script_state_t& self, ai_state_t& aiState, script_info_t& script);
 	static bool run_function_call(script_state_t& self, ai_state_t& aiState, script_info_t& script);
@@ -490,8 +566,8 @@ extern std::array<std::string, ScriptFunctions::SCRIPT_FUNCTIONS_COUNT> _scriptF
 
 /// @brief A list of all possible EgoScript variables.
 enum ScriptVariables {
-#define Define(name) name,
-#define DefineAlias(alias, name) alias = name,
+#define Define(cName, eName) cName,
+#define DefineAlias(cName, eName)
 #include "egolib/Script/Variables.in"
 #undef DefineAlias
 #undef Define

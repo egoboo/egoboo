@@ -17,48 +17,32 @@
 //*
 //********************************************************************************************
 
-/// @file   IdLib/Location.cpp
-/// @brief  Definition of a location in an Egoboo DSL file
+/// @file egolib/Script/DDLTokenKind.cpp
+/// @brief Token kinds of the DDL (Data Definition Language) of EgoScript.
 /// @author Michael Heilmann
 
-#define IDLIB_PRIVATE 1
-#include "IdLib/Location.hpp"
-#undef IDLIB_PRIVATE
+#include "egolib/Script/DDLTokenKind.hpp"
 
-namespace Id {
+namespace Ego {
+namespace Script {
 
-Location::Location(const std::string& fileName, const size_t lineNumber)
-    : m_fileName(fileName), m_lineNumber(lineNumber)
-{}
-
-Location::Location(const Location& other)
-    : m_fileName(other.m_fileName), m_lineNumber(other.m_lineNumber)
-{}
-
-Location::Location(Location&& other)
-    : m_fileName(std::move(other.m_fileName)), m_lineNumber(std::move(other.m_lineNumber))
-{}
-
-Location& Location::operator=(Location other)
+std::string toString(DDLTokenKind kind)
 {
-    swap(*this, other);
-    return *this;
+    switch (kind)
+    {
+    #define Define(name, string) case DDLTokenKind::name: return string;
+    #include "egolib/Script/DDLTokenKind.in"
+    #undef Define
+        default:
+            throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__, "unknown token type");
+    };
 }
 
-bool Location::equalTo(const Location& other) const
+std::ostream& operator<<(std::ostream& os, const DDLTokenKind& kind)
 {
-    return m_fileName == other.m_fileName
-        && m_lineNumber == other.m_lineNumber;
+    os << toString(kind);
+    return os;
 }
 
-const std::string& Location::getFileName() const
-{
-    return m_fileName;
-}
-
-size_t Location::getLineNumber() const
-{
-    return m_lineNumber;
-}
-
-} // namespace Id
+} // namespace Script
+} // namespace Ego

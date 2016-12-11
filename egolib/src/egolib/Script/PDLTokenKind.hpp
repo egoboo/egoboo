@@ -17,42 +17,35 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Script/Token.cpp
-/// @brief  A basic token class
+/// @file egolib/Script/PDLTokenKind.hpp
+/// @brief Token kinds of the PDL (Program Definition Language) of EgoScript.
 /// @author Michael Heilmann
 
-#include "egolib/Script/Token.hpp"
+#pragma once
 
+#include "egolib/platform.h"
 
 namespace Ego {
 namespace Script {
 
-TextToken::TextToken(TextToken::Type type, const Id::Location& location, const std::string& lexeme)
-	: _type(type), _location(location), _lexeme(lexeme)
-{}
+/// @brief An enumeration of the token kinds of the PDL of EgoScript.
+enum class PDLTokenKind
+{
+#define Define(name, string) name,
+#include "egolib/Script/PDLTokenKind.in"
+#undef Define
+}; // enum class PDLTokenKind
 
-TextToken::TextToken(const TextToken& other)
-	: _type(other._type), _location(other._location), _lexeme(other._lexeme)
-{}
+/// @brief Get a human-readable string describing a token kind.
+/// @param kind the token kind
+/// @return a human-readable string describing the token kind @a kind
+std::string toString(PDLTokenKind kind);
 
-TextToken& TextToken::operator=(const TextToken& other) {
-	_type = other._type;
-	_location = other._location;
-	_lexeme = other._lexeme;
-	return *this;
-}
-
-TextToken::Type TextToken::getType() const {
-	return _type;
-}
-
-const std::string& TextToken::getLexeme() const {
-	return _lexeme;
-}
-
-const Id::Location& TextToken::getLocation() const {
-	return _location;
-}
+/// @brief Overloaded &lt;&lt; operator for a token kind.
+/// @param ostream the output stream to write to
+/// @param tokenType the token kind to write
+/// @return the output stream
+std::ostream& operator<<(std::ostream& os, const PDLTokenKind& kind);
 
 } // namespace Script
 } // namespace Ego

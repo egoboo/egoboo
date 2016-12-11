@@ -17,35 +17,35 @@
 //*
 //********************************************************************************************
 
-/// @file   IdLib/NonCopyable.hpp
-/// @brief  Make classes non-copyable.
+/// @file egolib/Script/DDLTokenKind.hpp
+/// @brief Token kinds of the DDL (Data Definition Language) of EgoScript.
 /// @author Michael Heilmann
 
 #pragma once
 
-#if !defined(IDLIB_PRIVATE) || IDLIB_PRIVATE != 1
-#error(do not include directly, include `IdLib/IdLib.hpp` instead)
-#endif
+#include "egolib/platform.h"
 
-namespace Id {
-/**
- * @brief
- *  Inherit from this class to make the inheriting class and its descendant class non-copyable.
- *  Example usage
- *  @code
- *  class Foo : Bar, NonCopyable
- *  { ... }
- *  @endcode
- * @see http://en.cppreference.com/w/cpp/language/copy_assignment
- * @see http://en.cppreference.com/w/cpp/language/move_assignment
- * @see http://en.cppreference.com/w/cpp/language/copy_constructor
- * @see http://en.cppreference.com/w/cpp/language/move_constructor
- */
-struct NonCopyable
+namespace Ego {
+namespace Script {
+
+/// @brief An enumeration of the token kinds of the DDL of EgoScript.
+enum class DDLTokenKind
 {
-    NonCopyable() = default;
-    NonCopyable(const NonCopyable&) = delete;
-    NonCopyable& operator=(const NonCopyable&) = delete;
-};
+#define Define(name, string) name,
+#include "egolib/Script/DDLTokenKind.in"
+#undef Define
+}; // enum DDLTokenKind
 
-} // namespace Id
+/// @brief Get a human-readable string describing a token kind.
+/// @param kind the token kind
+/// @return a human-readable string describing the token kind @a kind
+std::string toString(DDLTokenKind kind);
+
+/// @brief Overloaded &lt;&lt; operator for a token kind.
+/// @param ostream the output stream to write to
+/// @param tokenType the token kind to write
+/// @return the output stream
+std::ostream& operator<<(std::ostream& os, const DDLTokenKind& kind);
+
+} // namespace Script
+} // namespace Ego

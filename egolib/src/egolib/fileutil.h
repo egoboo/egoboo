@@ -25,7 +25,7 @@
 #include "egolib/typedef.h"
 #include "egolib/Script/EnumDescriptor.hpp"
 #include "egolib/vfs.h"
-#include "egolib/Script/Token.hpp"
+#include "egolib/Script/DDLToken.hpp"
 #include "egolib/Script/Traits.hpp"
 #include "egolib/Log/_Include.hpp"
 #include "egolib/file_common.h"
@@ -169,7 +169,7 @@ public:
 	 *  stringLiteral := (character|digit|'~'|'_')*
 	 *  @endcode
 	 */
-	TextToken parseStringLiteral();
+    DDLToken parseStringLiteral();
 
 	/**
 	 * @throw LexicalErrorException
@@ -183,7 +183,7 @@ public:
 	 * @todo
 	 *  Use Unicode notation for better readbility.
 	 */
-	TextToken parseCharacterLiteral();
+    DDLToken parseCharacterLiteral();
 
     /**
      * @throw LexicalErrorException
@@ -194,7 +194,7 @@ public:
      *  integer := ('+'|'-')? digit+ ('e'|'E' digit+)?
      *  @endcode
      */
-	TextToken parseIntegerLiteral();
+    DDLToken parseIntegerLiteral();
 
     /**
      * @throw LexicalErrorException
@@ -205,7 +205,7 @@ public:
      *  integer := '+'? digit+ ('e'|'E' digit+)?
      *  @endcode
      */
-	TextToken parseNaturalLiteral();
+    DDLToken parseNaturalLiteral();
 
     /**
      * @throw LexicalErrorException
@@ -218,7 +218,7 @@ public:
      *  realExponent := ('e'|'E' ('+'|'-')? digit+)?
      *  @endcode
      */
-	TextToken parseRealLiteral();
+    DDLToken parseRealLiteral();
 
 public:
 

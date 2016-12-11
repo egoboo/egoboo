@@ -1,0 +1,76 @@
+/// @brief An unknown token.
+/// @todo Remove this.
+Define(Unknown, "<unknown>")
+
+/// @brief A function token.
+/// @todo Remove this.
+Define(Function, "<function>")
+
+/// @brief A variable token.
+/// @todo Remove this.
+Define(Variable, "<variable>")
+
+/// @brief A constant token.
+/// @todo Remove this!
+Define(Constant, "<constant>")
+
+/// @brief An assign (operator) token.
+Define(Assign, "`=`")
+
+/// @brief An and (operator) token.
+Define(And, "`&`")
+
+/// @brief A plus (operator) token.
+Define(Plus, "`+`")
+
+/// @brief A minus (operator) token.
+Define(Minus, "`-`")
+
+/// @brief A multiply (operator) token.
+Define(Multiply, "`*`")
+
+/// @brief A divide (operator) token.
+Define(Divide, "`/`")
+
+/// @brief A modulus (operator) token.
+Define(Modulus, "`%`")
+
+/// @brief A shift right (operator) token.
+Define(ShiftRight, "`>`")
+
+/// @brief A shift left (operator) token.
+Define(ShiftLeft, "`<`")
+
+/// Token type of zero or more whitespaces.
+/// getValue indicates the number of whitespaces.
+Define(Whitespace, "<whitespace>")
+
+/// Token type of zero or more newlines.
+/// getValue indicates the number of newlines.
+Define(Newline, "<newline>")
+
+/// Token type of zero to 15 indentions.
+/// getValue indicates the number of indentions.
+Define(Indent, "<indent>")
+
+/// @brief An end of line token.
+Define(EndOfLine, "<end of line>")
+
+/// @brief A number literal token.
+/// @todo Rename to <c>NumberLiteral</c>.
+Define(NumericLiteral, "<number literal>")
+
+/// @brief A name token.
+Define(Name, "<name>")
+
+/// @brief A string literal token.
+/// @todo Rename to <c>StringLiteral</c>.
+Define(String, "<string literal>")
+
+/// @brief A reference literal token.
+/// @todo Rename to <c>ReferenceLiteral</c>.
+Define(Reference, "<reference literal>")
+
+/// @brief An IDSZ literal token.
+/// @todo Rename to <c>IDSZLiteral</c>.
+Define(IDSZ, "<idsz literal>")

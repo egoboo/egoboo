@@ -150,9 +150,9 @@
     <Lib>
       <OutputFile>$(OutDir)$(TargetFileName)</OutputFile>
       <TargetMachine>MachineX86</TargetMachine>
-      <Verbose>false</Verbose>
       <SubSystem>
       </SubSystem>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
     <Xdcmake>
       <DocumentLibraryDependencies>true</DocumentLibraryDependencies>
@@ -302,9 +302,16 @@
     </ClCompile>
     <Lib>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <OutputFile>$(OutDir)$(TargetFileName)</OutputFile>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\Script\DDLTokenDecoder.cpp" />
+    <ClCompile Include="src\egolib\Script\DDLTokenKind.cpp" />
+    <ClCompile Include="src\egolib\Script\PDLTokenKind.cpp" />
+    <ClCompile Include="src\egolib\Script\PDLToken.cpp" />
+    <ClCompile Include="src\egolib\Script\ConstantPool.cpp" />
+    <ClCompile Include="src\egolib\Script\Constant.cpp" />
     <ClCompile Include="src\egolib\Mesh\TileFX.cpp" />
     <ClCompile Include="src\egolib\FileFormats\MapTileDefinitionsDictionary.cpp" />
     <ClCompile Include="src\egolib\VFS\FsPath.cpp" />
@@ -374,7 +381,7 @@
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)Log\_Include.o</ObjectFileName>
     </ClCompile>
     <ClCompile Include="src\egolib\Log\Target.cpp" />
-    <ClCompile Include="src\egolib\Script\Token.cpp" />
+    <ClCompile Include="src\egolib\Script\DDLToken.cpp" />
     <ClCompile Include="src\egolib\Mesh\Info.cpp" />
     <ClCompile Include="src\egolib\FileFormats\Globals.cpp" />
     <ClCompile Include="src\egolib\Console\Console.cpp" />
@@ -512,6 +519,12 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Script\DDLTokenDecoder.hpp" />
+    <ClInclude Include="src\egolib\Script\DDLTokenKind.hpp" />
+    <ClInclude Include="src\egolib\Script\PDLTokenKind.hpp" />
+    <ClInclude Include="src\egolib\Script\PDLToken.hpp" />
+    <ClInclude Include="src\egolib\Script\ConstantPool.hpp" />
+    <ClInclude Include="src\egolib\Script\Constant.hpp" />
     <ClInclude Include="src\egolib\Mesh\TileFX.hpp" />
     <ClInclude Include="src\egolib\FileFormats\MapTileDefinitionsDictionary.hpp" />
     <ClInclude Include="src\egolib\VFS\FsPath.hpp" />
@@ -644,7 +657,7 @@
     <ClInclude Include="src\egolib\Log\Target.hpp" />
     <ClInclude Include="src\egolib\Log\_Include.hpp" />
     <ClInclude Include="src\egolib\Log\Entry.hpp" />
-    <ClInclude Include="src\egolib\Script\Token.hpp" />
+    <ClInclude Include="src\egolib\Script\DDLToken.hpp" />
     <ClInclude Include="src\egolib\FileFormats\map_fx.hpp" />
     <ClInclude Include="src\egolib\Mesh\Info.hpp" />
     <ClInclude Include="src\egolib\FileFormats\Globals.hpp" />
@@ -812,6 +825,9 @@
       <FileType>Document</FileType>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</DeploymentContent>
     </ClInclude>
+    <None Include="src\egolib\Script\DDLTokenKind.in" />
+    <None Include="src\egolib\Script\PDLTokenKind.in" />
+    <None Include="src\egolib\Script\Constants.in" />
     <None Include="src\egolib\FileFormats\MapTileDefinitionsDictionary.html" />
     <None Include="src\egolib\Math\ColourL.hpp" />
     <None Include="src\egolib\Script\Functions.in" />

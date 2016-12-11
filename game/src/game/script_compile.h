@@ -21,16 +21,12 @@
 
 #pragma once
 
-#include "game/script_scanner.hpp"
+#include "egolib/Script/PDLToken.hpp"
 #include "game/egoboo.h"
 #include "egolib/Script/script.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
-// AI stuff
-#define MAXLINESIZE         1024
-#define MAX_OPCODE          1024                ///< Number of lines in AICODES.TXT
 
 #define END_VALUE    (script_t::Instruction::FUNCTIONBIT | FEND)
 
@@ -46,7 +42,7 @@ extern vfs_FILE * debug_script_file;
 /// temporary data describing a single egoscript opcode
 struct opcode_data_t
 {
-    Token::Type _type;
+    PDLTokenKind _kind;
     uint32_t iValue;
     std::string cName;
 };
@@ -56,56 +52,91 @@ extern std::vector<opcode_data_t> Opcodes;
 
 //--------------------------------------------------------------------------------------------
 
-template <size_t Capacity>
-struct buffer_t {
-    size_t _size;
-    char _elements[Capacity];
-    buffer_t() {
-        _size = 0;
-        _elements[0] = CSTR_END;
-    }
-    size_t capacity() const {
-        return Capacity;
-    }
-    char& operator[](size_t i) {
-        return _elements[i];
-    }
-    size_t size() const {
-        return _size;
-    }
-    void clear() {
-        _elements[0] = CSTR_END;
-        _size = 0;
-    }
-    void append(char c) {
-        if (_size >= Capacity) {
-            throw std::runtime_error("buffer overflow");
-        }
-        _elements[_size++] = c;
-        _elements[_size] = CSTR_END;
-    }
-    const char *data() const {
-        return _elements;
-    }
-    // 0 (before the first character) and n-1 (before the last character), n (behind the last character)
-    void insert(char c, size_t i) {
-        if (i > _size) {
-            throw std::runtime_error("index out of bounds");
-        }
-        if (size() >= capacity()) {
-            throw std::runtime_error("buffer overflow");
-        }
-        size_t j = i;
-        char d = c;
-        // Bubble the values starting at i (inclusive) up.
-        while (j <= _size)
-        {
-            std::swap(_elements[j], d); // Swap the existing value with the incoming value.
-            j++;
-        }
-        _elements[++_size] = CSTR_END;
+struct line_scanner_state_t
+{
+public:
+    static int DoubleQuoteSymbol() { return C_DOUBLE_QUOTE_CHAR; }
+    static int EndOfInputSymbol() { return 255 + 2; }
+    static int StartOfInputSymbol() { return 255 + 1; }
 
-    }
+private:
+    Location m_location;
+    size_t m_inputPosition;
+    Buffer *m_inputBuffer;
+    Buffer m_lexemeBuffer;
+
+public:
+    line_scanner_state_t(Buffer *inputBuffer, const Location& location);
+
+public:
+    line_scanner_state_t(const line_scanner_state_t& other) = delete;
+    line_scanner_state_t& operator=(const line_scanner_state_t&) = delete;
+
+public:
+    Location getLocation() const;
+
+    void next();
+    void write(int symbol);
+    void save();
+    void saveAndNext();
+
+    int getCurrent() const;
+
+public:
+    bool is(int symbol) const;
+    bool isDoubleQuote() const;
+    bool isEndOfInput() const;
+    bool isStartOfInput() const;
+    bool isWhiteSpace() const;
+    bool isDigit() const;
+    bool isAlphabetic() const;
+    bool isNewLine() const;
+    bool isOperator() const;
+public:
+    /// @code
+    /// WhiteSpaces := WhiteSpace*
+    /// @endcode
+    PDLToken scanWhiteSpaces();
+
+    /// @code
+    /// NewLines := NewLine*
+    /// @endcode
+    PDLToken scanNewLines();
+
+    /// @code
+    /// NumericLiteral := Digit+
+    /// @endcode
+    PDLToken scanNumericLiteral();
+
+    /// @code
+    /// Name := ('_'|Alphabetic)('_'|Alphabetic|Digit)
+    /// @endcode
+    PDLToken scanName();
+
+    /// @code
+    /// IDSZ := '[' (Digit|Alphabetic)^4 ']'
+    /// @endcode
+    PDLToken scanIDSZ();
+
+    /// @code
+    /// String := '"' !'#' StringInfix '"'
+    /// Reference := '"' '#' StringInfix '"'
+    /// StringInfix := (. - (Newline|'"')*
+    /// @endcode
+    /// @todo
+    /// As the grammar already indicates,
+    /// escape codes are not supported (yet).
+    PDLToken scanStringOrReference();
+
+    /// @code
+    /// Operator := '+' | '-'
+    ///           | '*' | '/'
+    ///           | '%'
+    ///           | '>' | '<'
+    ///           | '&'
+    ///           | '='
+    /// @endcode
+    PDLToken scanOperator();
 };
 
 // the current state of the parser
@@ -122,7 +153,7 @@ protected:
 	virtual ~parser_state_t();
 public:
     bool _error;
-    Token _token;
+    PDLToken _token;
     int _line_count;
 
 protected:
@@ -130,49 +161,35 @@ protected:
     // @return @a true if input symbols were consumed, @a false otherwise
     // @post @a read was incremented by the number of input symbols consumed
     bool skipNewline(size_t& read, script_info_t& script);
-    struct linebuffer_t : buffer_t<MAXLINESIZE> {};
 
-    linebuffer_t _linebuffer;
+    Buffer _lineBuffer;
 
 public:
-    Ego::Script::Buffer _loadBuffer;
+    Buffer _loadBuffer;
 
-    /// @brief Analyse the contents of a string.
-    /// @param string the string with the leading and trailing quotation marks stripped
-    void parse_string(std::string string, Token& token, script_info_t& script, ObjectProfile *ppro);
-
-    /**
-    * @brief
-    *  Get the error variable value.
-    * @return
-    *  the error variable value
-    */
+    /// @brief Get the error variable value.
+    /// @return the error variable value
     bool get_error() const;
-    /**
-    * @brief
-    *  Clear the error variable.
-    */
+
+    /// @brief Clear the error variable.
     void clear_error();
 
 private:
-	void emit_opcode(Token& tok, const BIT_FIELD highbits, script_info_t& script);
+	void emit_opcode(const PDLToken& token, const BIT_FIELD highbits, script_info_t& script);
 
 	static Uint32 jump_goto(int index, int index_end, script_info_t& script);
 public:
 	static void parse_jumps(script_info_t& script);
 
 private:
-	size_t parse_token(Token& tok, ObjectProfile *ppro, script_info_t& script, size_t read);
+	PDLToken parse_token(ObjectProfile *ppro, script_info_t& script, line_scanner_state_t& state);
 	size_t load_one_line(size_t read, script_info_t& script);
-	/**
-	 * @brief
-	 *  Compute the indention level of a line.
-	 * @remark
-	 *  A line must begin with a number of spaces \f$2k\f$ where \f$k=0,1,\ldots$, otherwise an error shall be raised.
-	 *  The indention level $j$ of a line with \f$2k\f$ leading spaces for some $k=0,1,\ldots$ is given by \f$\frac{2k
-	 *  }{2}=k\f$. The indention level \f$j\f$ of a line may not exceed \f$15\f$.
-	 */
-	int get_indentation(script_info_t& script);
+	/// @brief Compute the indention level of a line.
+	/// @remark
+	/// A line must begin with a number of spaces \f$2k\f$ where \f$k=0,1,\ldots$, otherwise an error shall be raised.
+	/// The indention level $j$ of a line with \f$2k\f$ leading spaces for some $k=0,1,\ldots$ is given by \f$\frac{2k
+	/// }{2}=k\f$. The indention level \f$j\f$ of a line may not exceed \f$15\f$.
+    PDLToken parse_indention(script_info_t& script, line_scanner_state_t& state);
 public:
 	void parse_line_by_line(ObjectProfile *ppro, script_info_t& script);
 

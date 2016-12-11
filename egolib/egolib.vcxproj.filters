@@ -408,9 +408,6 @@
     <ClCompile Include="src\egolib\Mesh\Info.cpp">
       <Filter>Source Files\Mesh</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\Script\Token.cpp">
-      <Filter>Source Files\Script</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\Log\_Include.cpp">
       <Filter>Source Files\Log</Filter>
     </ClCompile>
@@ -542,6 +539,27 @@
     </ClCompile>
     <ClCompile Include="src\egolib\Mesh\TileFX.cpp">
       <Filter>Source Files\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Script\Constant.cpp">
+      <Filter>Source Files\Script</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Script\ConstantPool.cpp">
+      <Filter>Source Files\Script</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Script\PDLToken.cpp">
+      <Filter>Source Files\Script</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Script\DDLToken.cpp">
+      <Filter>Source Files\Script</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Script\DDLTokenKind.cpp">
+      <Filter>Source Files\Script</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Script\PDLTokenKind.cpp">
+      <Filter>Source Files\Script</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Script\DDLTokenDecoder.cpp">
+      <Filter>Source Files\Script</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -934,9 +952,6 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Mesh\Info.hpp">
       <Filter>Header Files\Mesh</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Script\Token.hpp">
-      <Filter>Header Files\Script</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Log\Entry.hpp">
       <Filter>Header Files\Log</Filter>
@@ -1361,6 +1376,27 @@
     <ClInclude Include="src\egolib\Mesh\TileFX.hpp">
       <Filter>Header Files\Mesh</Filter>
     </ClInclude>
+    <ClInclude Include="src\egolib\Script\Constant.hpp">
+      <Filter>Header Files\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Script\ConstantPool.hpp">
+      <Filter>Header Files\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Script\DDLToken.hpp">
+      <Filter>Header Files\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Script\PDLToken.hpp">
+      <Filter>Header Files\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Script\PDLTokenKind.hpp">
+      <Filter>Header Files\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Script\DDLTokenKind.hpp">
+      <Filter>Header Files\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Script\DDLTokenDecoder.hpp">
+      <Filter>Header Files\Script</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\egolib\platform\NSFileManager+DirectoryLocations.m">
@@ -1389,6 +1425,15 @@
     </None>
     <None Include="src\egolib\FileFormats\MapTileDefinitionsDictionary.html">
       <Filter>File Formats</Filter>
+    </None>
+    <None Include="src\egolib\Script\Constants.in">
+      <Filter>Header Files\Script</Filter>
+    </None>
+    <None Include="src\egolib\Script\DDLTokenKind.in">
+      <Filter>Header Files\Script</Filter>
+    </None>
+    <None Include="src\egolib\Script\PDLTokenKind.in">
+      <Filter>Header Files\Script</Filter>
     </None>
   </ItemGroup>
 </Project>

@@ -1,0 +1,20 @@
+/// @brief An integer number literal.
+Define(Integer, "<integer literal>")
+
+/// @brief A real number literal.
+Define(Real, "<real literal>")
+
+/// @brief A character literal.
+Define(Character, "<character literal>")
+
+/// @brief A string literal.
+Define(String, "<string literal>")
+
+/// @brief A boolean literal.
+Define(Boolean, "<boolean literal>")
+
+/// @brief A name (aka identifier).
+Define(Name, "<name>")
+
+/// @brief A comment.
+Define(Comment, "<comment>")

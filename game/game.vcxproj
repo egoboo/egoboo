@@ -446,7 +446,6 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClCompile Include="src\game\Inventory.cpp" />
     <ClCompile Include="src\game\GameStates\DebugModuleLoadingState.cpp" />
     <ClCompile Include="src\game\GUI\ScrollableList.cpp" />
-    <ClCompile Include="src\game\script_scanner.cpp" />
     <ClCompile Include="src\game\gamestates\OptionsScreen.cpp" />
     <ClCompile Include="src\game\gamestates\VideoOptionsScreen.cpp" />
     <ClCompile Include="src\game\gui\OptionsButton.cpp" />
@@ -544,7 +543,6 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClInclude Include="src\game\Entities\Common.hpp" />
     <ClInclude Include="src\game\GameStates\DebugModuleLoadingState.hpp" />
     <ClInclude Include="src\game\GUI\ScrollableList.hpp" />
-    <ClInclude Include="src\game\script_scanner.hpp" />
     <ClInclude Include="src\game\gamestates\OptionsScreen.hpp" />
     <ClInclude Include="src\game\gui\OptionsButton.hpp" />
     <ClInclude Include="src\game\gui\InternalDebugWindow.hpp" />

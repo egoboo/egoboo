@@ -32,7 +32,7 @@ struct CompilerEntry : Entry {
 	CompilerEntry(Level level, const std::string& file, int line, const std::string& function,
 		          const Location& location)
 		: Entry(level, file, line, function), _location(location) {
-		getSink() << ": " << _location.getLoadName() << ":" << _location.getLineNumber() << ": ";
+		getSink() << ": " << _location.getFileName() << ":" << _location.getLineNumber() << ": ";
 	}
 };
 }
@@ -40,7 +40,7 @@ struct CompilerEntry : Entry {
 static bool load_ai_codes_vfs();
 
 parser_state_t::parser_state_t()
-	: _loadBuffer(1024), _token(), _linebuffer()
+	: _loadBuffer(1024), _token(), _lineBuffer(256)
 {
 	_line_count = 0;
 
@@ -80,7 +80,7 @@ vfs_FILE *debug_script_file = NULL;
 //--------------------------------------------------------------------------------------------
 
 /// Emit a token to standard output in debug mode.
-void print_token(const Token& token);
+void print_token(const PDLToken& token);
 #if (DEBUG_SCRIPT_LEVEL > 2) && defined(_DEBUG)
     static void print_line();
 #else
@@ -88,7 +88,7 @@ void print_token(const Token& token);
 #endif
 
 //--------------------------------------------------------------------------------------------
-static bool isNewline(char x) {
+static bool isNewline(int x) {
     return ASCII_LINEFEED_CHAR == x || C_CARRIAGE_RETURN_CHAR == x;
 }
 
@@ -122,14 +122,14 @@ size_t parser_state_t::load_one_line( size_t read, script_info_t& script )
     char cTmp;
 
     // Parse to start to maintain indentation
-	_linebuffer.clear();
+	_lineBuffer.clear();
 
     // try to trap all end of line conditions so we can properly count the lines
     bool tabs_warning_needed = false;
     while ( read < _loadBuffer.getSize() )
     {
         if (skipNewline(read, script)) {
-            _linebuffer.clear();
+            _lineBuffer.clear();
             return read;
         }
 
@@ -145,7 +145,7 @@ size_t parser_state_t::load_one_line( size_t read, script_info_t& script )
             break;
         }
 
-        _linebuffer.append(' ');
+        _lineBuffer.append(' ');
 
         read++;
     }
@@ -199,7 +199,7 @@ size_t parser_state_t::load_one_line( size_t read, script_info_t& script )
         {
             foundtext = true;
 
-            _linebuffer.append(cTmp);
+            _lineBuffer.append(cTmp);
         }
 
         read++;
@@ -207,14 +207,14 @@ size_t parser_state_t::load_one_line( size_t read, script_info_t& script )
 
     if ( !foundtext )
     {
-        _linebuffer.clear();
+        _lineBuffer.clear();
     }
 
-    if ( _linebuffer.size() > 0  && tabs_warning_needed )
+    if ( _lineBuffer.getSize() > 0  && tabs_warning_needed )
     {
-        Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, {script.getName(), _token.getLine()});
+        Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getStartLocation());
 		e << "compilation error - tab character used to define spacing will cause an error `"
-		  << " - \n`" << _linebuffer.data() << "`" << Log::EndOfEntry;
+		  << " - \n`" << _lineBuffer.toString() << "`" << Log::EndOfEntry;
 		Log::get() << e;
     }
 
@@ -223,11 +223,7 @@ size_t parser_state_t::load_one_line( size_t read, script_info_t& script )
     {
         if (skipNewline(read, script)) {
             break;
-        } else if (CSTR_END == _loadBuffer.get(read)) {
-            read += 1;
-            break;
         }
-
         read++;
     }
 
@@ -235,302 +231,477 @@ size_t parser_state_t::load_one_line( size_t read, script_info_t& script )
 }
 
 //--------------------------------------------------------------------------------------------
-int parser_state_t::get_indentation(script_info_t& script )
+
+line_scanner_state_t::line_scanner_state_t(Buffer *inputBuffer, const Location& location)
+    : m_inputPosition(0), m_inputBuffer(inputBuffer), m_location(location),
+      m_lexemeBuffer(128)
+{}
+
+Location line_scanner_state_t::getLocation() const
 {
-    int cnt = 0;
-    char cTmp = _linebuffer[cnt];
-    while (Ego::isspace(cTmp))
+    return m_location;
+}
+
+void line_scanner_state_t::next()
+{
+    if (m_inputPosition < m_inputBuffer->getSize()) m_inputPosition++;
+}
+
+void line_scanner_state_t::write(int symbol)
+{
+    m_lexemeBuffer.append(symbol);
+}
+
+void line_scanner_state_t::save()
+{
+    write(getCurrent());
+}
+
+void line_scanner_state_t::saveAndNext()
+{
+    save();
+    next();
+}
+
+int line_scanner_state_t::getCurrent() const
+{
+    if (m_inputPosition >= m_inputBuffer->getSize()) return EndOfInputSymbol();
+    else return m_inputBuffer->get(m_inputPosition);
+}
+
+bool line_scanner_state_t::is(int symbol) const
+{
+    return symbol == getCurrent();
+}
+
+bool line_scanner_state_t::isDoubleQuote() const
+{
+    return is(DoubleQuoteSymbol());
+}
+
+bool line_scanner_state_t::isStartOfInput() const
+{
+    return is(StartOfInputSymbol());
+}
+
+bool line_scanner_state_t::isEndOfInput() const
+{
+    return is(EndOfInputSymbol());
+}
+
+bool line_scanner_state_t::isWhiteSpace() const
+{
+    return Ego::isspace(getCurrent());
+}
+
+bool line_scanner_state_t::isDigit() const
+{
+    return Ego::isdigit(getCurrent());
+}
+
+bool line_scanner_state_t::isAlphabetic() const
+{
+    return Ego::isalpha(getCurrent());
+}
+
+bool line_scanner_state_t::isNewLine() const
+{
+    return ASCII_LINEFEED_CHAR == getCurrent() || C_CARRIAGE_RETURN_CHAR == getCurrent();
+}
+
+bool line_scanner_state_t::isOperator() const
+{
+    return
+        is('+') || is('-') ||
+        is('*') || is('/') ||
+        is('%') ||
+        is('>') || is('<') ||
+        is('&') || is('=');
+}
+
+PDLToken line_scanner_state_t::scanWhiteSpaces()
+{
+    int numberOfWhiteSpaces = 0;
+    if (isWhiteSpace())
     {
-        cnt++;
-        cTmp = _linebuffer[cnt];
+        do
+        {
+            numberOfWhiteSpaces++;
+            next();
+        } while (isWhiteSpace());
     }
-    if ( HAS_SOME_BITS( cnt, 1 ) )
+    PDLToken token = PDLToken(PDLTokenKind::Whitespace, getLocation());
+    token.setValue(numberOfWhiteSpaces);
+    return token;
+}
+
+PDLToken line_scanner_state_t::scanNewLines()
+{
+    int numberOfNewLines = 0;
+    while (isNewLine())
     {
-        Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, {script.getName(), _token.getLine()});
-		e << "invalid indention - number of spaces must be even - \n"
-		  << " - \n`" << _linebuffer.data() << "`" << Log::EndOfEntry;
-		Log::get() << e;
+        // '\n' | '\r' | '\n\r' | '\r\n'
+        int old = getCurrent();
+        next();
+        if (old != getCurrent() && isNewLine())
+        {
+            next();
+        }
+        m_location = Id::Location(m_location.getFileName(), m_location.getLineNumber() + 1);
+        numberOfNewLines++;
+    }
+    PDLToken token = PDLToken(PDLTokenKind::Newline, getLocation());
+    token.setValue(numberOfNewLines);
+    return token;
+}
+
+PDLToken line_scanner_state_t::scanNumericLiteral()
+{
+    m_lexemeBuffer.clear();
+    if (!isDigit())
+    {
+        throw RuntimeErrorException(__FILE__, __LINE__, "<internal error>");
+    }
+    do
+    {
+        saveAndNext();
+    } while (isDigit());
+    PDLToken token = PDLToken(PDLTokenKind::NumericLiteral, getLocation());
+    token.setLexeme(m_lexemeBuffer.toString());
+    return token;
+}
+
+PDLToken line_scanner_state_t::scanName()
+{
+    m_lexemeBuffer.clear();
+    if (!is('_') && !isAlphabetic())
+    {
+        throw RuntimeErrorException(__FILE__, __LINE__, "<internal error>");
+    }
+    do
+    {
+        saveAndNext();
+    } while (is('_') || isDigit() || isAlphabetic());
+    PDLToken token = PDLToken(PDLTokenKind::Name, getLocation());
+    token.setLexeme(m_lexemeBuffer.toString());
+    return token;
+}
+
+PDLToken line_scanner_state_t::scanStringOrReference()
+{
+    m_lexemeBuffer.clear();
+    if (!isDoubleQuote())
+    {
+        throw RuntimeErrorException(__FILE__, __LINE__, "<internal error>");
+    }
+
+    next(); // Skip leading quotation mark.
+    // If a string starts with a shebang, its contents is considered as a reference.
+    bool isReference = is('#');
+    if (isReference) next();
+   
+    
+    while (!isEndOfInput() && !isNewLine() && !isDoubleQuote())
+    {
+        saveAndNext();
+    }
+
+    if (isDoubleQuote())
+    {
+        next(); // Skip ending quotation mark.
+    }
+    else /* if (isNewline() || isEndOfInput()) */
+    {
+        throw LexicalErrorException(__FILE__, __LINE__, getLocation(), "unclosed string literal");
+    }
+    PDLToken token = PDLToken(isReference ? PDLTokenKind::Reference : PDLTokenKind::String, getLocation());
+    token.setLexeme(m_lexemeBuffer.toString());
+    return token;
+}
+
+PDLToken line_scanner_state_t::scanIDSZ()
+{
+    m_lexemeBuffer.clear();
+    if (!is('['))
+    {
+        throw RuntimeErrorException(__FILE__, __LINE__, "<internal error>");
+    }
+    saveAndNext();
+    for (auto i = 0; i < 4; ++i)
+    {
+        if (!isDigit() && !isAlphabetic())
+        {
+            throw LexicalErrorException(__FILE__, __LINE__, getLocation(), "invalid IDSZ");
+        }
+        saveAndNext();
+    }
+    if (!is(']'))
+    {
+        throw LexicalErrorException(__FILE__, __LINE__, getLocation(), "invalid IDSZ");
+    }
+    saveAndNext();
+    PDLToken token = PDLToken(PDLTokenKind::IDSZ, getLocation());
+    token.setLexeme(m_lexemeBuffer.toString());
+    return token;
+}
+
+PDLToken line_scanner_state_t::scanOperator()
+{
+    m_lexemeBuffer.clear();
+    if (!isOperator())
+    {
+        throw RuntimeErrorException(__FILE__, __LINE__, "<internal error>");
+    }
+    //saveAndNext();
+    PDLToken token;
+    switch (getCurrent())
+    {
+        case '+': token = PDLToken(PDLTokenKind::Plus, getLocation()); break;
+        case '-': token = PDLToken(PDLTokenKind::Minus, getLocation()); break;
+        case '*': token = PDLToken(PDLTokenKind::Multiply, getLocation()); break;
+        case '/': token = PDLToken(PDLTokenKind::Divide, getLocation()); break;
+        case '%': token = PDLToken(PDLTokenKind::Modulus, getLocation()); break;
+        case '>': token = PDLToken(PDLTokenKind::ShiftRight, getLocation()); break;
+        case '<': token = PDLToken(PDLTokenKind::ShiftLeft, getLocation()); break;
+        case '&': token = PDLToken(PDLTokenKind::And, getLocation()); break;
+        case '=': token = PDLToken(PDLTokenKind::Assign, getLocation()); break;
+        default: throw RuntimeErrorException(__FILE__, __LINE__, "internal error");
+    }
+    saveAndNext();
+    token.setLexeme(m_lexemeBuffer.toString());
+    return token;
+}
+
+PDLToken parser_state_t::parse_indention(script_info_t& script, line_scanner_state_t& state)
+{
+    auto source = state.scanWhiteSpaces();
+    if (source.getKind() != PDLTokenKind::Whitespace)
+    {
+        throw RuntimeErrorException(__FILE__, __LINE__, "internal error");
+    }
+
+    size_t indent = source.getValue();
+    static Ego::IsOdd<int> isOdd;
+    if (isOdd(indent))
+    {
+        Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getStartLocation());
+        e << "invalid indention - number of spaces must be even - \n"
+          << " - \n`" << _lineBuffer.toString() << "`" << Log::EndOfEntry;
+        Log::get() << e;
         _error = true;
     }
 
-    cnt >>= 1;
-    if ( cnt > 15 )
+    indent >>= 1;
+    if (indent > 15)
     {
-        Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, {script.getName(), _token.getLine()});
-		e << "invalid indention - too many spaces - \n"
-	      << " - \n`" << _linebuffer.data() << "`" << Log::EndOfEntry;
-		Log::get() << e;
+        Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getStartLocation());
+        e << "invalid indention - too many spaces - \n"
+          << " - \n`" << _lineBuffer.toString() << "`" << Log::EndOfEntry;
+        Log::get() << e;
         _error = true;
-        cnt = 15;
+        indent = 15;
     }
-
-    return cnt;
+    PDLToken token = PDLToken(PDLTokenKind::Indent, source.getStartLocation());
+    token.setValue(indent);
+    return token;
 }
 
 //--------------------------------------------------------------------------------------------
-void parser_state_t::parse_string(std::string string, Token& token, script_info_t& script, ObjectProfile *ppro)
+PDLToken parser_state_t::parse_token(ObjectProfile *ppro, script_info_t& script, line_scanner_state_t& state)
 {
-    auto makeMessage = [&string, &token, &ppro]() {
-        // Add the string as a message message to the available messages of the object.
-        token.setValue(ppro->addMessage(string, true));
-        token.setType(Token::Type::Constant);
-        token.setIndex(MAX_OPCODE);
-    };
-    // The string is normal, empty string:
-    if (string.length() == 0) {
-        // Create a message for the string.
-        makeMessage();
-        // Emit a warning that the string is empty.
-        Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, {script.getName(), token.getLine()});
-        e << "empty string literal\n" << Log::EndOfEntry;
-        Log::get() << e;
-
-        return;
-    }
-    // The string is not empty.
-    
-    // If the string begins with a shebang ...
-    if (string[0] == '#') {
-        // ... then it is a profile reference.
-        auto fileName = string.substr(1);
-        // Invalid profile as default.
-        token.setValue(INVALID_PRO_REF);
-        // Convert reference to slot number.
-        for (const auto& element : ProfileSystem::get().getLoadedProfiles()) {
-            const auto& profile = element.second;
-            if (profile == nullptr) continue;
-            // Is this the object we are looking for?
-            if (Ego::isSuffix(profile->getPathname(), fileName)) {
-                token.setValue(profile->getSlotNumber());
-                break;
-            }
-        }
-
-        // Do we need to load the object?
-        if (!ProfileSystem::get().isValidProfileID((PRO_REF)token.getValue())) {
-            auto loadName = "mp_objects/" + fileName;
-
-            // Find first free slot number.
-            for (PRO_REF ipro = MAX_IMPORT_PER_PLAYER * 4; ipro < INVALID_PRO_REF; ipro++) {
-                //skip loaded profiles
-                if (ProfileSystem::get().isValidProfileID(ipro)) continue;
-
-                //found a free slot
-                token.setValue(ProfileSystem::get().loadOneProfile(loadName, REF_TO_INT(ipro)));
-                if (token.getValue() == ipro) break;
-            }
-        }
-
-        // Failed to load object!
-        if (!ProfileSystem::get().isValidProfileID((PRO_REF)token.getValue())) {
-            Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, {script.getName(), token.getLine()});
-            e << "failed to load object " << token.getText() << " - \n"
-                << " - \n`" << _linebuffer.data() << "`" << Log::EndOfEntry;
-            Log::get() << e;
-        }
-
-        token.setType(Token::Type::Constant);
-        token.setIndex(MAX_OPCODE);
-    // The string is a normal, non-empty string:
-    } else {
-        // Create a message for the string.
-        makeMessage();
-    }
-}
-size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_t& script, size_t read)
-{
-    /// @author ZZ
     /// @details This function tells what code is being indexed by read, it
-    ///    will return the next spot to read from and stick the code number
-    ///    in ptok->iIndex
-
-    char cTmp;
-
-    Ego::Script::Buffer buffer(512);
-
-    // Reset the token
-	tok = Token();
+    /// will return the next spot to read from and stick the code number in
+    /// ptok->iIndex
 
     // Check bounds
-	if ( read >= _linebuffer.size() )
+    if (state.isEndOfInput())
     {
-        return _linebuffer.size();
+        return PDLToken(PDLTokenKind::EndOfLine, state.getLocation());
     }
 
-    auto write = [&buffer](char c) {
-        buffer.append(c);
-    };
-    auto save = [&cTmp, &write, &tok]() { write(cTmp); };
-    auto next = [this, &cTmp, &read]() {
-        read++;
-        cTmp = _linebuffer[read];
-    };
-    auto saveAndNext = [&save, &next]() { save(); next(); };
+    // Skip whitespaces.
+    state.scanWhiteSpaces();
 
-    // Skip any initial spaces
-    cTmp = _linebuffer[read];
-    while (Ego::isspace(cTmp) && read < _linebuffer.size())
+    // Stop if the line is empty.
+    if (state.isEndOfInput())
     {
-        next();
-    }
-
-    // break if there was nothing here
-    if ( read >= _linebuffer.size())
-    {
-        print_token(tok);
-        return read;
+        return PDLToken(PDLTokenKind::EndOfLine, state.getLocation());
     }
 
     // initialize the word
-    if (C_DOUBLE_QUOTE_CHAR == cTmp) {
-        // `doubleQuotedString|reference`
-        // strings of the form "Here lies \"The Sandwich King\"" are not supported
+    if (state.isDoubleQuote())
+    {
+        PDLToken token = state.scanStringOrReference();
+        if (token.getKind() == PDLTokenKind::Reference)
+        {
+            // If it is a profile reference.
 
-        next(); // skip the leading quotation mark
+            // Invalid profile as default.
+            token.setValue(INVALID_PRO_REF);
+            // Convert reference to slot number.
+            for (const auto& element : ProfileSystem::get().getLoadedProfiles())
+            {
+                const auto& profile = element.second;
+                if (profile == nullptr) continue;
+                // Is this the object we are looking for?
+                if (Ego::isSuffix(profile->getPathname(), token.getLexeme()))
+                {
+                    token.setValue(profile->getSlotNumber());
+                    break;
+                }
+            }
 
-        while (CSTR_END != cTmp && C_DOUBLE_QUOTE_CHAR != cTmp && read < _linebuffer.size()) {
-            saveAndNext();
-        }
+            // Do we need to load the object?
+            if (!ProfileSystem::get().isValidProfileID((PRO_REF)token.getValue()))
+            {
+                auto loadName = "mp_objects/" + token.getLexeme();
 
-        if (C_DOUBLE_QUOTE_CHAR == cTmp) {
-            next(); // skip the ending quotation mark
-        } else {
-            if (CSTR_END == cTmp) {
-                throw LexicalErrorException(__FILE__, __LINE__, {script.getName(), tok.getLine()}, "unclosed string literal");
-            } else {
-                throw LexicalErrorException(__FILE__, __LINE__, {script.getName(), tok.getLine()}, "string literal too long");
+                // Find first free slot number.
+                for (PRO_REF ipro = MAX_IMPORT_PER_PLAYER * 4; ipro < INVALID_PRO_REF; ipro++)
+                {
+                    //skip loaded profiles
+                    if (ProfileSystem::get().isValidProfileID(ipro)) continue;
+
+                    //found a free slot
+                    token.setValue(ProfileSystem::get().loadOneProfile(loadName, REF_TO_INT(ipro)));
+                    if (token.getValue() == ipro) break;
+                }
             }
-        }
-        tok.setText(buffer.toString());
-        parse_string(tok.getText(), tok, script, ppro);
-    } else if ('+' == cTmp || '-' == cTmp || '/' == cTmp || '*' == cTmp ||
-               '%' == cTmp || '>' == cTmp || '<' == cTmp || '&' == cTmp) {
-        saveAndNext();
-        int i;
-        tok.setText(buffer.toString());
-        for (i = 0; i < Opcodes.size(); ++i) {
-            if (tok.getText() == Opcodes[i].cName) {
-                tok.setValue(Opcodes[i].iValue);
-                tok.setType(Opcodes[i]._type);
-                tok.setIndex(i);
-                break;
+
+            // Failed to load object!
+            if (!ProfileSystem::get().isValidProfileID((PRO_REF)token.getValue()))
+            {
+                Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, token.getStartLocation());
+                e << "failed to load object " << token.getLexeme() << " - \n"
+                    << " - \n`" << _lineBuffer.toString() << "`" << Log::EndOfEntry;
+                Log::get() << e;
             }
+            token.setKind(PDLTokenKind::Constant);
         }
-        // We couldn't figure out what this is, throw out an error code
-        if (i == Opcodes.size()) {
-            throw LexicalErrorException(__FILE__, __LINE__, {script.getName(), tok.getLine()}, "not an opcode");
+        else
+        {
+            // Add the string as a message message to the available messages of the object.
+            token.setValue(ppro->addMessage(token.getLexeme(), true));
+            token.setKind(PDLTokenKind::Constant);
+            // Emit a warning that the string is empty.
+            Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, token.getStartLocation());
+            e << "empty string literal\n" << Log::EndOfEntry;
+            Log::get() << e;
         }
-    } else if ('=' == cTmp) {
-        // `assign = '='`
-        saveAndNext();
-        tok.setText(buffer.toString());
-        tok.setValue(-1);
-        tok.setType(Token::Type::Operator);
-        tok.setIndex(MAX_OPCODE);
-    } else if ('[' == cTmp) {
-        // `idsz = '[' (digit|alpha)^4 ']'`
-        saveAndNext();
-        for (auto i = 0; i < 4; ++i) {
-            if (!Ego::isdigit(cTmp) && !Ego::isalpha(cTmp)) {
-                throw LexicalErrorException(__FILE__, __LINE__, {script.getName(), tok.getLine()}, "invalid IDSZ");
-            }
-            saveAndNext();
-        }
-        if (cTmp != ']') {
-            throw LexicalErrorException(__FILE__, __LINE__, {script.getName(), tok.getLine()}, "invalid IDSZ");
-        }
-        saveAndNext();
-        tok.setText(buffer.toString());
-        IDSZ2 idsz = IDSZ2(tok.getText());
-        tok.setValue(idsz.toUint32());
-        tok.setType(Token::Type::Constant);
-        tok.setIndex(MAX_OPCODE);
-    } else if (Ego::isdigit(cTmp)) {
-        // `numericLiteral`
-        do {
-            saveAndNext();
-        } while (Ego::isdigit(cTmp));
-        tok.setText(buffer.toString());
+        return token;
+    } else if (state.isOperator()) {
+        auto token = state.scanOperator();
+        switch (token.getKind())
+        {
+            case PDLTokenKind::Plus: token.setValue(ScriptOperators::OPADD); break;
+            case PDLTokenKind::Minus: token.setValue(ScriptOperators::OPSUB); break;
+            case PDLTokenKind::And: token.setValue(ScriptOperators::OPAND); break;
+            case PDLTokenKind::ShiftRight: token.setValue(ScriptOperators::OPSHR); break;
+            case PDLTokenKind::ShiftLeft: token.setValue(ScriptOperators::OPSHL); break;
+            case PDLTokenKind::Multiply: token.setValue(ScriptOperators::OPMUL); break;
+            case PDLTokenKind::Divide: token.setValue(ScriptOperators::OPDIV); break;
+            case PDLTokenKind::Modulus: token.setValue(ScriptOperators::OPMOD); break;
+            case PDLTokenKind::Assign: token.setValue(-1); break;
+            default: throw RuntimeErrorException(__FILE__, __LINE__, "internal error");
+        };
+        return token;
+    } else if (state.is('[')) {
+        PDLToken token = state.scanIDSZ();
+        token.setKind(PDLTokenKind::Constant);
+        IDSZ2 idsz = IDSZ2(token.getLexeme());
+        token.setValue(idsz.toUint32());
+        return token;
+    } else if (state.isDigit()) {
+        auto token = state.scanNumericLiteral();
+        token.setKind(PDLTokenKind::Constant);
         int temporary;
-        sscanf(tok.getText().c_str(), "%d", &temporary);
-        tok.setValue(temporary);
-        tok.setType(Token::Type::Constant);
-        tok.setIndex(MAX_OPCODE);
-    } else if ('_' == cTmp || Ego::isalpha(cTmp)) {
-        do {
-            saveAndNext();
-        } while ('_' == cTmp || Ego::isdigit(cTmp) || Ego::isalpha(cTmp));
-        tok.setText(buffer.toString());
-        int i;
-        for (i = 0; i < Opcodes.size(); ++i) {
-            if (tok.getText() == Opcodes[i].cName) {
-                tok.setValue(Opcodes[i].iValue);
-                tok.setType(Opcodes[i]._type);
-                tok.setIndex(i);
-                break;
-            }
-        }
+        sscanf(token.getLexeme().c_str(), "%d", &temporary);
+        token.setValue(temporary);
+        return token;
+    } else if (state.is('_') || state.isAlphabetic()) {
+        PDLToken token = state.scanName();
+        auto it = std::find_if(Opcodes.cbegin(), Opcodes.cend(), [&token](const auto& opcode) { return token.getLexeme() == opcode.cName; });
         // We couldn't figure out what this is, throw out an error code
-        if (i == Opcodes.size()) {
-            throw LexicalErrorException(__FILE__, __LINE__, {script.getName(), tok.getLine()}, "not an opcode");
+        if (it == Opcodes.cend())
+        {
+            throw LexicalErrorException(__FILE__, __LINE__, state.getLocation(), "not an opcode");
         }
+        token.setValue((*it).iValue);
+        token.setKind((*it)._kind);
+        return token;
     } else {
-        throw LexicalErrorException(__FILE__, __LINE__, {script.getName(), tok.getLine()}, "unexpected symbol");
+        throw LexicalErrorException(__FILE__, __LINE__, state.getLocation(), "unexpected symbol");
     }
-    print_token(tok);
-    return read;
 }
 
 //--------------------------------------------------------------------------------------------
-void parser_state_t::emit_opcode( Token& tok, const BIT_FIELD highbits, script_info_t& script )
+void parser_state_t::emit_opcode(const PDLToken& token, const BIT_FIELD highbits, script_info_t& script)
 {
     BIT_FIELD loc_highbits = highbits;
 
-    // emit constant or a function
-    if ( Token::Type::Constant == tok.getType() || Token::Type::Function == tok.getType() )
+    // If the instruction list is full ...
+    if (script._instructions.isFull())
     {
-        SET_BIT( loc_highbits, Instruction::FUNCTIONBITS );
+        // ... raise an exception.
+        /** @todo This is not an error of the syntactical analysis. */
+        throw SyntacticalErrorException(__FILE__, __LINE__, token.getStartLocation(), "instruction list overflow");
     }
 
-    // emit the opcode
-    if (!script._instructions.isFull())
+    // Emit the opcode.
+    if (PDLTokenKind::Constant == token.getKind())
     {
-		script._instructions.append(Instruction(loc_highbits | tok.getValue()));
+        loc_highbits |= Instruction::FUNCTIONBITS;
+        auto constantIndex = script._instructions.getConstantPool().getOrCreateConstant(token.getValue());
+        script._instructions.append(Instruction(loc_highbits | constantIndex));
+    }
+    else if (PDLTokenKind::Function == token.getKind())
+    {
+        loc_highbits |= Instruction::FUNCTIONBITS;
+        auto constantIndex = script._instructions.getConstantPool().getOrCreateConstant(token.getValue());
+        script._instructions.append(Instruction(loc_highbits | constantIndex));
     }
     else
     {
-        Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, {script.getName(), tok.getLine()});
-		e << "script index larger than array - \n"
-		  << " - \n`" << _linebuffer.data() << "`" << Log::EndOfEntry;
-		Log::get() << e;
+		script._instructions.append(Instruction(loc_highbits | token.getValue()));
     }
-
 }
 
 //--------------------------------------------------------------------------------------------
+
 void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& script )
 {
     /// @author ZF
     /// @details This parses an AI script line by line
 
     size_t read = 0;
-    for ( _token.setLine(0); read < _loadBuffer.getSize(); _token.setLine(_token.getLine() + 1) )
+    size_t line = 1;
+    for (_token.setStartLocation({script.getName(), 1}); read < _loadBuffer.getSize(); _token.setStartLocation({script.getName(), _token.getStartLocation().getLineNumber()}))
     {
         read = load_one_line( read, script );
-        if ( 0 == _linebuffer.size() ) continue;
+        if ( 0 == _lineBuffer.getSize() ) continue;
 
 #if (DEBUG_SCRIPT_LEVEL > 2) && defined(_DEBUG)
         print_line();
 #endif
+        line_scanner_state_t state(&_lineBuffer, {script.getName(), line});
 
         //------------------------------
         // grab the first opcode
 
-        uint32_t highbits = SetDataBits( get_indentation( script ) );
-        size_t parseposition = parse_token(_token, ppro, script, 0 );
-        if ( Token::Type::Function == _token.getType() )
+        _token = parse_indention(script, state);
+        if (!_token.is(PDLTokenKind::Indent))
         {
-            if ( Ego::Script::ScriptFunctions::End == _token.getValue() && 0 == highbits )
+            Log::CompilerEntry e(Log::Level::Error, __FILE__, __LINE__, __FUNCTION__, _token.getStartLocation());
+            e << "expected operator - \n"
+              << " - \n`" << _lineBuffer.toString() << "`" << Log::EndOfEntry;
+            Log::get() << e;
+            throw LexicalErrorException(__FILE__, __LINE__, _token.getStartLocation(), e.getText());
+        }
+        uint32_t highbits = SetDataBits( _token.getValue() );
+        _token = parse_token(ppro, script, state);
+        if ( _token.is(PDLTokenKind::Function) )
+        {
+            if ( ScriptFunctions::End == _token.getValue() && 0 == highbits )
             {
                 // stop processing the lines, since we're finished
                 break;
@@ -547,7 +718,7 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
             emit_opcode( _token, 0, script );
 
         }
-        else if ( Token::Type::Variable == _token.getType() )
+        else if ( _token.is(PDLTokenKind::Variable) )
         {
             //------------------------------
             // the code type is a math operation
@@ -560,54 +731,52 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
 
             // save a position for the operand count
             _token.setValue(0);
-            operand_index = script._instructions.getLength();    //AisCompiled_offset;
+            operand_index = script._instructions.getNumberOfInstructions();
             emit_opcode( _token, 0, script );
 
             // handle the "="
-            parseposition = parse_token(_token, ppro, script, parseposition );  // EQUALS
-			if ( Token::Type::Operator != _token.getType() || ( _token.getText() != "=" ) )
+            _token = parse_token(ppro, script, state);  // EQUALS
+			if ( !_token.isAssignOperator() )
             {
-                Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, {script.getName(), _token.getLine()});
-				e << "invalid equation - \n"
-				  << " - \n`" << _linebuffer.data() << "`" << Log::EndOfEntry;
+                throw SyntacticalErrorException(__FILE__, __LINE__, _token.getStartLocation(), "expected an assignment operator");
             }
 
             //------------------------------
             // grab the next opcode
 
-            parseposition = parse_token( _token, ppro, script, parseposition );
-            if ( Token::Type::Variable == _token.getType() || Token::Type::Constant == _token.getType() )
+            _token = parse_token( ppro, script, state );
+            if ( _token.is(PDLTokenKind::Variable) || _token.is(PDLTokenKind::Constant) )
             {
                 // this is a value or a constant
                 emit_opcode( _token, 0, script );
                 operands++;
 
-                parseposition = parse_token(_token, ppro, script, parseposition );
+                _token = parse_token( ppro, script, state );
             }
-            else if ( Token::Type::Operator != _token.getType() )
+            else if (!(_token.isOperator() && !_token.isAssignOperator()))
             {
                 // this is a function or an unknown value. do not break the script.
-                Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, {script.getName(), _token.getLine()});
-				e << "invalid operand " << _token.getText() << " - \n"
-				  << " - \n`" << _linebuffer.data() << "`" << Log::EndOfEntry;
+                Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getStartLocation());
+				e << "invalid operand " << _token.getLexeme() << " - \n"
+				  << " - \n`" << _lineBuffer.toString() << "`" << Log::EndOfEntry;
 				Log::get() << e;
 
                 emit_opcode( _token, 0, script );
                 operands++;
 
-                parseposition = parse_token(_token, ppro, script, parseposition );
+                _token = parse_token( ppro, script, state );
             }
 
-            // expects a OPERATOR VALUE OPERATOR VALUE OPERATOR VALUE pattern
-            while ( parseposition < _linebuffer.size() )
+            // `((operator - assignmentOperator) value)*`
+            while ( !_token.is(PDLTokenKind::EndOfLine) )
             {
-                // the current token should be an operator
-                if ( Token::Type::Operator != _token.getType() )
+                // The current token should be a non-assignment operator.
+                if ( !(_token.isOperator() && !_token.isAssignOperator()) )
                 {
                     // problem with the loop
-                    Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, {script.getName(), _token.getLine()});
+                    Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getStartLocation());
 					e << "expected operator - \n"
-					  << " - \n`" << _linebuffer.data() << "`" << Log::EndOfEntry;
+					  << " - \n`" << _lineBuffer.toString() << "`" << Log::EndOfEntry;
 					Log::get() << e;
                     break;
                 }
@@ -616,12 +785,12 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
 				highbits = SetDataBits( _token.getValue() );
 
                 // VALUE
-                parseposition = parse_token(_token, ppro, script, parseposition );
-                if ( Token::Type::Constant != _token.getType() && Token::Type::Variable != _token.getType() )
+                _token = parse_token(ppro, script, state);
+                if ( PDLTokenKind::Constant != _token.getKind() && PDLTokenKind::Variable != _token.getKind() )
                 {
                     // not having a constant or a value here breaks the function. stop processsing
-                    Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, {script.getName(), _token.getLine()});
-                    e << "invalid operand `" << _token.getText() << "`" << Log::EndOfEntry;
+                    Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getStartLocation());
+                    e << "invalid operand `" << _token.getLexeme() << "`" << Log::EndOfEntry;
                     Log::get() << e;
                     break;
                 }
@@ -630,34 +799,36 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
                 operands++;
 
                 // OPERATOR
-                parseposition = parse_token( _token, ppro, script, parseposition );
+                _token = parse_token( ppro, script, state);
             }
-            script._instructions[operand_index]._value = operands;
+            script._instructions[operand_index].setBits(operands);
         }
-        else if ( Token::Type::Constant == _token.getType() )
+        else if ( _token.is(PDLTokenKind::Constant) )
         {
-            Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, {script.getName(), _token.getLine()});
-            e << "invalid constant " << _token.getText() << Log::EndOfEntry;
+            Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getStartLocation());
+            e << "invalid constant " << _token.getLexeme() << Log::EndOfEntry;
             Log::get() << e;
         }
-        else if ( Token::Type::Unknown == _token.getType() )
+        else if ( _token.is(PDLTokenKind::Unknown) )
         {
             // unknown opcode, do not process this line
-            Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, {script.getName(), _token.getLine()});
-            e << "invalid operand " << _token.getText() << Log::EndOfEntry;
+            Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getStartLocation());
+            e << "invalid operand " << _token.getLexeme() << Log::EndOfEntry;
             Log::get() << e;
         }
         else
         {
             throw RuntimeErrorException(__FILE__, __LINE__, "internal error");
-            break;
         }
+
+        //
+        line++;
     }
 
-    _token.setValue(Ego::Script::ScriptFunctions::End);
-    _token.setType(Token::Type::Function);
+    _token.setValue(ScriptFunctions::End);
+    _token.setKind(PDLTokenKind::Function);
     emit_opcode( _token, 0, script );
-    _token.setValue(script._instructions.getLength() + 1);
+    _token.setValue(script._instructions.getNumberOfInstructions() + 1);
     emit_opcode( _token, 0, script );
 }
 
@@ -669,14 +840,15 @@ Uint32 parser_state_t::jump_goto( int index, int index_end, script_info_t& scrip
     ///    starting location and the following code.  The starting location
     ///    should always be a function code with indentation
 
-    auto value = script._instructions[index]; /*AisCompiled_buffer[index];*/  index += 2;
-    int targetindent = GetDataBits( value._value );
+    auto value = script._instructions[index];
+    index += 2;
+    int targetindent = GetDataBits( value.getBits() );
     int indent = 100;
 
     while ( indent > targetindent && index < index_end )
     {
-        value = script._instructions[index]; //AisCompiled_buffer[index];
-        indent = GetDataBits ( value._value );
+        value = script._instructions[index];
+        indent = GetDataBits ( value.getBits() );
         if ( indent > targetindent )
         {
             // Was it a function
@@ -692,7 +864,7 @@ Uint32 parser_state_t::jump_goto( int index, int index_end, script_info_t& scrip
                 index++;
                 value = script._instructions[index]; //AisCompiled_buffer[index];
                 index++;
-                index += ( value._value & 255 );
+                index += ( value.getBits() & 255 );
             }
         }
     }
@@ -707,7 +879,7 @@ void parser_state_t::parse_jumps( script_info_t& script )
     /// @details This function sets up the fail jumps for the down and dirty code
 
     uint32_t index     = 0;
-    uint32_t index_end = script._instructions.getLength();
+    uint32_t index_end = script._instructions.getNumberOfInstructions();
 
     auto value = script._instructions[index];
     while ( index < index_end )
@@ -720,16 +892,16 @@ void parser_state_t::parse_jumps( script_info_t& script )
             // Each function needs a jump
             auto iTmp = jump_goto( index, index_end, script );
             index++;
-            script._instructions[index]._value = iTmp;              //AisCompiled_buffer[index] = iTmp;
+            script._instructions[index].setBits(iTmp);
             index++;
         }
         else
         {
             // Operations cover each operand
             index++;
-            auto iTmp = script._instructions[index];              //AisCompiled_buffer[index];
+            auto iTmp = script._instructions[index];
             index++;
-			index += Ego::Math::clipBits<8>( iTmp._value );
+			index += Ego::Math::clipBits<8>( iTmp.getBits() );
         }
     }
 }
@@ -742,8 +914,8 @@ bool load_ai_codes_vfs()
 
 	struct aicode_t
 	{
-		/// The type.
-		Token::Type _type;
+		/// The kind.
+		PDLTokenKind _kind;
 		/// The value of th constant.
 		uint32_t _value;
 		/// The name.
@@ -752,288 +924,28 @@ bool load_ai_codes_vfs()
 
 	static const aicode_t AICODES[] =
 	{
-    #define Define(name) { Token::Type::Function, ScriptFunctions::name, #name }, 
-    #define DefineAlias(alias, name) { Token::Type::Function, ScriptFunctions::alias, #alias },
+    #define Define(name) { PDLTokenKind::Function, ScriptFunctions::name, #name }, 
+    #define DefineAlias(alias, name) { PDLTokenKind::Function, ScriptFunctions::alias, #alias },
     #include "egolib/Script/Functions.in"
     #undef DefineAlias
     #undef Define
-		{ Token::Type::Constant, 1, "BLAHDEAD" },
-		{ Token::Type::Constant, 2, "BLAHENEMIES" },
-		{ Token::Type::Constant, 4, "BLAHFRIENDS" },
-		{ Token::Type::Constant, 8, "BLAHITEMS" },
-		{ Token::Type::Constant, 16, "BLAHINVERTID" },
-		{ Token::Type::Constant, 32, "BLAHPLAYERS" },
-		{ Token::Type::Constant, 64, "BLAHSKILL" },
-		{ Token::Type::Constant, 128, "BLAHQUEST" },
-		{ Token::Type::Constant, 0, "STATEPARRY" },
-		{ Token::Type::Constant, 1, "STATEWANDER" },
-		{ Token::Type::Constant, 2, "STATEGUARD" },
-		{ Token::Type::Constant, 3, "STATEFOLLOW" },
-		{ Token::Type::Constant, 4, "STATESURROUND" },
-		{ Token::Type::Constant, 5, "STATERETREAT" },
-		{ Token::Type::Constant, 6, "STATECHARGE" },
-		{ Token::Type::Constant, 7, "STATECOMBAT" },
-		{ Token::Type::Constant, 4, "GRIPONLY" },
-		{ Token::Type::Constant, 4, "GRIPLEFT" },
-		{ Token::Type::Constant, 8, "GRIPRIGHT" },
-		{ Token::Type::Constant, 0, "SPAWNORIGIN" },
-		{ Token::Type::Constant, 1, "SPAWNLAST" },
-		{ Token::Type::Constant, 0, "LATCHLEFT" },
-		{ Token::Type::Constant, 1, "LATCHRIGHT" },
-		{ Token::Type::Constant, 2, "LATCHJUMP" },
-		{ Token::Type::Constant, 3, "LATCHALTLEFT" },
-		{ Token::Type::Constant, 4, "LATCHALTRIGHT" },
-		{ Token::Type::Constant, 5, "LATCHPACKLEFT" },
-		{ Token::Type::Constant, 6, "LATCHPACKRIGHT" },
-		{ Token::Type::Constant, 0, "DAMAGESLASH" },
-		{ Token::Type::Constant, 1, "DAMAGECRUSH" },
-		{ Token::Type::Constant, 2, "DAMAGEPOKE" },
-		{ Token::Type::Constant, 3, "DAMAGEHOLY" },
-		{ Token::Type::Constant, 4, "DAMAGEEVIL" },
-		{ Token::Type::Constant, 5, "DAMAGEFIRE" },
-		{ Token::Type::Constant, 6, "DAMAGEICE" },
-		{ Token::Type::Constant, 7, "DAMAGEZAP" },
-		{ Token::Type::Constant, 0, "ACTIONDA" },
-		{ Token::Type::Constant, 1, "ACTIONDB" },
-		{ Token::Type::Constant, 2, "ACTIONDC" },
-		{ Token::Type::Constant, 3, "ACTIONDD" },
-		{ Token::Type::Constant, 4, "ACTIONUA" },
-		{ Token::Type::Constant, 5, "ACTIONUB" },
-		{ Token::Type::Constant, 6, "ACTIONUC" },
-		{ Token::Type::Constant, 7, "ACTIONUD" },
-		{ Token::Type::Constant, 8, "ACTIONTA" },
-		{ Token::Type::Constant, 9, "ACTIONTB" },
-		{ Token::Type::Constant, 10, "ACTIONTC" },
-		{ Token::Type::Constant, 11, "ACTIONTD" },
-		{ Token::Type::Constant, 12, "ACTIONCA" },
-		{ Token::Type::Constant, 13, "ACTIONCB" },
-		{ Token::Type::Constant, 14, "ACTIONCC" },
-		{ Token::Type::Constant, 15, "ACTIONCD" },
-		{ Token::Type::Constant, 16, "ACTIONSA" },
-		{ Token::Type::Constant, 17, "ACTIONSB" },
-		{ Token::Type::Constant, 18, "ACTIONSC" },
-		{ Token::Type::Constant, 19, "ACTIONSD" },
-		{ Token::Type::Constant, 20, "ACTIONBA" },
-		{ Token::Type::Constant, 21, "ACTIONBB" },
-		{ Token::Type::Constant, 22, "ACTIONBC" },
-		{ Token::Type::Constant, 23, "ACTIONBD" },
-		{ Token::Type::Constant, 24, "ACTIONLA" },
-		{ Token::Type::Constant, 25, "ACTIONLB" },
-		{ Token::Type::Constant, 26, "ACTIONLC" },
-		{ Token::Type::Constant, 27, "ACTIONLD" },
-		{ Token::Type::Constant, 28, "ACTIONXA" },
-		{ Token::Type::Constant, 29, "ACTIONXB" },
-		{ Token::Type::Constant, 30, "ACTIONXC" },
-		{ Token::Type::Constant, 31, "ACTIONXD" },
-		{ Token::Type::Constant, 32, "ACTIONFA" },
-		{ Token::Type::Constant, 33, "ACTIONFB" },
-		{ Token::Type::Constant, 34, "ACTIONFC" },
-		{ Token::Type::Constant, 35, "ACTIONFD" },
-		{ Token::Type::Constant, 36, "ACTIONPA" },
-		{ Token::Type::Constant, 37, "ACTIONPB" },
-		{ Token::Type::Constant, 38, "ACTIONPC" },
-		{ Token::Type::Constant, 39, "ACTIONPD" },
-		{ Token::Type::Constant, 40, "ACTIONEA" },
-		{ Token::Type::Constant, 41, "ACTIONEB" },
-		{ Token::Type::Constant, 42, "ACTIONRA" },
-		{ Token::Type::Constant, 43, "ACTIONZA" },
-		{ Token::Type::Constant, 44, "ACTIONZB" },
-		{ Token::Type::Constant, 45, "ACTIONZC" },
-		{ Token::Type::Constant, 46, "ACTIONZD" },
-		{ Token::Type::Constant, 47, "ACTIONWA" },
-		{ Token::Type::Constant, 48, "ACTIONWB" },
-		{ Token::Type::Constant, 49, "ACTIONWC" },
-		{ Token::Type::Constant, 50, "ACTIONWD" },
-		{ Token::Type::Constant, 51, "ACTIONJA" },
-		{ Token::Type::Constant, 52, "ACTIONJB" },
-		{ Token::Type::Constant, 53, "ACTIONJC" },
-		{ Token::Type::Constant, 54, "ACTIONHA" },
-		{ Token::Type::Constant, 55, "ACTIONHB" },
-		{ Token::Type::Constant, 56, "ACTIONHC" },
-		{ Token::Type::Constant, 57, "ACTIONHD" },
-		{ Token::Type::Constant, 58, "ACTIONKA" },
-		{ Token::Type::Constant, 59, "ACTIONKB" },
-		{ Token::Type::Constant, 60, "ACTIONKC" },
-		{ Token::Type::Constant, 61, "ACTIONKD" },
-		{ Token::Type::Constant, 62, "ACTIONMA" },
-		{ Token::Type::Constant, 63, "ACTIONMB" },
-		{ Token::Type::Constant, 64, "ACTIONMC" },
-		{ Token::Type::Constant, 65, "ACTIONMD" },
-		{ Token::Type::Constant, 66, "ACTIONME" },
-		{ Token::Type::Constant, 67, "ACTIONMF" },
-		{ Token::Type::Constant, 68, "ACTIONMG" },
-		{ Token::Type::Constant, 69, "ACTIONMH" },
-		{ Token::Type::Constant, 70, "ACTIONMI" },
-		{ Token::Type::Constant, 71, "ACTIONMJ" },
-		{ Token::Type::Constant, 72, "ACTIONMK" },
-		{ Token::Type::Constant, 73, "ACTIONML" },
-		{ Token::Type::Constant, 74, "ACTIONMM" },
-		{ Token::Type::Constant, 75, "ACTIONMN" },
-		{ Token::Type::Constant, 0, "EXPSECRET" },
-		{ Token::Type::Constant, 1, "EXPQUEST" },
-		{ Token::Type::Constant, 2, "EXPDARE" },
-		{ Token::Type::Constant, 3, "EXPKILL" },
-		{ Token::Type::Constant, 4, "EXPMURDER" },
-		{ Token::Type::Constant, 5, "EXPREVENGE" },
-		{ Token::Type::Constant, 6, "EXPTEAMWORK" },
-		{ Token::Type::Constant, 7, "EXPROLEPLAY" },
-		{ Token::Type::Constant, 0, "MESSAGEDEATH" },
-		{ Token::Type::Constant, 1, "MESSAGEHATE" },
-		{ Token::Type::Constant, 2, "MESSAGEOUCH" },
-		{ Token::Type::Constant, 3, "MESSAGEFRAG" },
-		{ Token::Type::Constant, 4, "MESSAGEACCIDENT" },
-		{ Token::Type::Constant, 5, "MESSAGECOSTUME" },
-		{ Token::Type::Constant, 0, "ORDERMOVE" },
-		{ Token::Type::Constant, 1, "ORDERATTACK" },
-		{ Token::Type::Constant, 2, "ORDERASSIST" },
-		{ Token::Type::Constant, 3, "ORDERSTAND" },
-		{ Token::Type::Constant, 4, "ORDERTERRAIN" },
-		{ Token::Type::Constant, 0, "WHITE" },
-		{ Token::Type::Constant, 1, "RED" },
-		{ Token::Type::Constant, 2, "YELLOW" },
-		{ Token::Type::Constant, 3, "GREEN" },
-		{ Token::Type::Constant, 4, "BLUE" },
-		{ Token::Type::Constant, 5, "PURPLE" },
-		{ Token::Type::Constant, 1, "FXNOREFLECT" },
-		{ Token::Type::Constant, 2, "FXDRAWREFLECT" },
-		{ Token::Type::Constant, 4, "FXANIM" },
-		{ Token::Type::Constant, 8, "FXWATER" },
-		{ Token::Type::Constant, 16, "FXBARRIER" },
-		{ Token::Type::Constant, 32, "FXIMPASS" },
-		{ Token::Type::Constant, 64, "FXDAMAGE" },
-		{ Token::Type::Constant, 128, "FXSLIPPY" },
-		{ Token::Type::Constant, 0, "TEAMA" },
-		{ Token::Type::Constant, 1, "TEAMB" },
-		{ Token::Type::Constant, 2, "TEAMC" },
-		{ Token::Type::Constant, 3, "TEAMD" },
-		{ Token::Type::Constant, 4, "TEAME" },
-		{ Token::Type::Constant, 5, "TEAMF" },
-		{ Token::Type::Constant, 6, "TEAMG" },
-		{ Token::Type::Constant, 7, "TEAMH" },
-		{ Token::Type::Constant, 8, "TEAMI" },
-		{ Token::Type::Constant, 9, "TEAMJ" },
-		{ Token::Type::Constant, 10, "TEAMK" },
-		{ Token::Type::Constant, 11, "TEAML" },
-		{ Token::Type::Constant, 12, "TEAMM" },
-		{ Token::Type::Constant, 13, "TEAMN" },
-		{ Token::Type::Constant, 14, "TEAMO" },
-		{ Token::Type::Constant, 15, "TEAMP" },
-		{ Token::Type::Constant, 16, "TEAMQ" },
-		{ Token::Type::Constant, 17, "TEAMR" },
-		{ Token::Type::Constant, 18, "TEAMS" },
-		{ Token::Type::Constant, 19, "TEAMT" },
-		{ Token::Type::Constant, 20, "TEAMU" },
-		{ Token::Type::Constant, 21, "TEAMV" },
-		{ Token::Type::Constant, 22, "TEAMW" },
-		{ Token::Type::Constant, 23, "TEAMX" },
-		{ Token::Type::Constant, 24, "TEAMY" },
-		{ Token::Type::Constant, 25, "TEAMZ" },
-		{ Token::Type::Constant, 1, "INVENTORY" },
-		{ Token::Type::Constant, 2, "LEFT" },
-		{ Token::Type::Constant, 3, "RIGHT" },
-		{ Token::Type::Constant, 0, "EASY" },
-		{ Token::Type::Constant, 1, "NORMAL" },
-		{ Token::Type::Constant, 2, "HARD" },
-		{ Token::Type::Variable, ScriptVariables::VARTMPX, "tmpx" },
-		{ Token::Type::Variable, ScriptVariables::VARTMPY, "tmpy" },
-		{ Token::Type::Variable, ScriptVariables::VARTMPDISTANCE, "tmpdist" },
-		{ Token::Type::Variable, ScriptVariables::VARTMPDISTANCE, "tmpdistance" },
-		{ Token::Type::Variable, ScriptVariables::VARTMPTURN, "tmpturn" },
-		{ Token::Type::Variable, ScriptVariables::VARTMPARGUMENT, "tmpargument" },
-		{ Token::Type::Variable, ScriptVariables::VARRAND, "rand" },
-		{ Token::Type::Variable, ScriptVariables::VARSELFX, "selfx" },
-		{ Token::Type::Variable, ScriptVariables::VARSELFY, "selfy" },
-		{ Token::Type::Variable, ScriptVariables::VARSELFTURN, "selfturn" },
-		{ Token::Type::Variable, ScriptVariables::VARSELFCOUNTER, "selfcounter" },
-		{ Token::Type::Variable, ScriptVariables::VARSELFORDER, "selforder" },
-		{ Token::Type::Variable, ScriptVariables::VARSELFMORALE, "selfmorale" },
-		{ Token::Type::Variable, ScriptVariables::VARSELFLIFE, "selflife" },
-		{ Token::Type::Variable, ScriptVariables::VARTARGETX, "targetx" },
-		{ Token::Type::Variable, ScriptVariables::VARTARGETY, "targety" },
-		{ Token::Type::Variable, ScriptVariables::VARTARGETDISTANCE, "targetdistance" },
-		{ Token::Type::Variable, ScriptVariables::VARTARGETTURN, "targetturn" },
-		{ Token::Type::Variable, ScriptVariables::VARLEADERX, "leaderx" },
-		{ Token::Type::Variable, ScriptVariables::VARLEADERY, "leadery" },
-		{ Token::Type::Variable, ScriptVariables::VARLEADERDISTANCE, "leaderdistance" },
-		{ Token::Type::Variable, ScriptVariables::VARLEADERTURN, "leaderturn" },
-		{ Token::Type::Variable, ScriptVariables::VARGOTOX, "gotox" },
-		{ Token::Type::Variable, ScriptVariables::VARGOTOY, "gotoy" },
-		{ Token::Type::Variable, ScriptVariables::VARGOTODISTANCE, "gotodistance" },
-		{ Token::Type::Variable, ScriptVariables::VARTARGETTURNTO, "targetturnto" },
-		{ Token::Type::Variable, ScriptVariables::VARPASSAGE, "passage" },
-		{ Token::Type::Variable, ScriptVariables::VARWEIGHT, "weight" },
-		{ Token::Type::Variable, ScriptVariables::VARSELFALTITUDE, "selfaltitude" },
-		{ Token::Type::Variable, ScriptVariables::VARSELFID, "selfid" },
-		{ Token::Type::Variable, ScriptVariables::VARSELFHATEID, "selfhateid" },
-		{ Token::Type::Variable, ScriptVariables::VARSELFMANA, "selfmana" },
-		{ Token::Type::Variable, ScriptVariables::VARTARGETSTR, "targetstr" },
-		{ Token::Type::Variable, ScriptVariables::VARTARGETWIS, "targetwis" },   //deprecated
-		{ Token::Type::Variable, ScriptVariables::VARTARGETINT, "targetint" },
-		{ Token::Type::Variable, ScriptVariables::VARTARGETDEX, "targetdex" },
-		{ Token::Type::Variable, ScriptVariables::VARTARGETLIFE, "targetlife" },
-		{ Token::Type::Variable, ScriptVariables::VARTARGETMANA, "targetmana" },
-		{ Token::Type::Variable, ScriptVariables::VARTARGETLEVEL, "targetlevel" },
-		{ Token::Type::Variable, ScriptVariables::VARTARGETSPEEDX, "targetspeedx" },
-		{ Token::Type::Variable, ScriptVariables::VARTARGETSPEEDY, "targetspeedy" },
-		{ Token::Type::Variable, ScriptVariables::VARTARGETSPEEDZ, "targetspeedz" },
-		{ Token::Type::Variable, ScriptVariables::VARSELFSPAWNX, "selfspawnx" },
-		{ Token::Type::Variable, ScriptVariables::VARSELFSPAWNY, "selfspawny" },
-		{ Token::Type::Variable, ScriptVariables::VARSELFSTATE, "selfstate" },
-		{ Token::Type::Variable, ScriptVariables::VARSELFSTR, "selfstr" },
-		{ Token::Type::Variable, ScriptVariables::VARSELFWIS, "selfwis" },
-		{ Token::Type::Variable, ScriptVariables::VARSELFINT, "selfint" },
-		{ Token::Type::Variable, ScriptVariables::VARSELFDEX, "selfdex" },
-		{ Token::Type::Variable, ScriptVariables::VARSELFMANAFLOW, "selfmanaflow" },
-		{ Token::Type::Variable, ScriptVariables::VARTARGETMANAFLOW, "targetmanaflow" },
-		{ Token::Type::Variable, ScriptVariables::VARSELFATTACHED, "selfattached" },
-		{ Token::Type::Variable, ScriptVariables::VARSWINGTURN, "swingturn" },
-		{ Token::Type::Variable, ScriptVariables::VARXYDISTANCE, "xydistance" },
-		{ Token::Type::Variable, ScriptVariables::VARSELFZ, "selfz" },
-		{ Token::Type::Variable, ScriptVariables::VARTARGETALTITUDE, "targetaltitude" },
-		{ Token::Type::Variable, ScriptVariables::VARTARGETZ, "targetz" },
-		{ Token::Type::Variable, ScriptVariables::VARSELFINDEX, "selfindex" },
-		{ Token::Type::Variable, ScriptVariables::VAROWNERX, "ownerx" },
-		{ Token::Type::Variable, ScriptVariables::VAROWNERY, "ownery" },
-		{ Token::Type::Variable, ScriptVariables::VAROWNERTURN, "ownerturn" },
-		{ Token::Type::Variable, ScriptVariables::VAROWNERDISTANCE, "ownerdistance" },
-		{ Token::Type::Variable, ScriptVariables::VAROWNERTURNTO, "ownerturnto" },
-		{ Token::Type::Variable, ScriptVariables::VARXYTURNTO, "xyturnto" },
-		{ Token::Type::Variable, ScriptVariables::VARSELFMONEY, "selfmoney" },
-		{ Token::Type::Variable, ScriptVariables::VARSELFACCEL, "selfaccel" },
-		{ Token::Type::Variable, ScriptVariables::VARTARGETEXP, "targetexp" },
-		{ Token::Type::Variable, ScriptVariables::VARSELFAMMO, "selfammo" },
-		{ Token::Type::Variable, ScriptVariables::VARTARGETAMMO, "targetammo" },
-		{ Token::Type::Variable, ScriptVariables::VARTARGETMONEY, "targetmoney" },
-		{ Token::Type::Variable, ScriptVariables::VARTARGETTURNAWAY, "targetturnfrom" },
-		{ Token::Type::Variable, ScriptVariables::VARSELFLEVEL, "selflevel" },
-		{ Token::Type::Variable, ScriptVariables::VARTARGETRELOADTIME, "targetreloadtime" },
-		{ Token::Type::Variable, ScriptVariables::VARSELFCONTENT, "selfcontent" },
-		{ Token::Type::Variable, ScriptVariables::VARSPAWNDISTANCE, "spawndistance" },
-		{ Token::Type::Variable, ScriptVariables::VARTARGETMAXLIFE, "targetmaxlife" },
-		{ Token::Type::Variable, ScriptVariables::VARTARGETTEAM, "targetteam" },
-		{ Token::Type::Variable, ScriptVariables::VARTARGETARMOR, "targetarmor" },
-		{ Token::Type::Variable, ScriptVariables::VARDIFFICULTY, "difficulty" },
-		{ Token::Type::Variable, ScriptVariables::VARTIMEHOURS, "timehours" },
-		{ Token::Type::Variable, ScriptVariables::VARTIMEMINUTES, "timeminutes" },
-		{ Token::Type::Variable, ScriptVariables::VARTIMESECONDS, "timeseconds" },
-		{ Token::Type::Variable, ScriptVariables::VARDATEMONTH, "datemonth" },
-		{ Token::Type::Variable, ScriptVariables::VARDATEDAY, "dateday" },
 
-		{ Token::Type::Operator, ScriptOperators::OPADD, "+" },
-		{ Token::Type::Operator, ScriptOperators::OPSUB, "-" },
-		{ Token::Type::Operator, ScriptOperators::OPAND, "&" },
-		{ Token::Type::Operator, ScriptOperators::OPSHR, ">" },
-		{ Token::Type::Operator, ScriptOperators::OPSHL, "<" },
-		{ Token::Type::Operator, ScriptOperators::OPMUL, "*" },
-		{ Token::Type::Operator, ScriptOperators::OPDIV, "/" },
-		{ Token::Type::Operator, ScriptOperators::OPMOD, "%" },
+    #define Define(value, name) { PDLTokenKind::Constant, value, name },
+    #include "egolib/Script/Constants.in"
+    #undef Define
+
+    #define Define(cName, eName) { PDLTokenKind::Variable, ScriptVariables::cName, eName },
+    #define DefineAlias(cName, eName) { PDLTokenKind::Variable, ScriptVariables::cName, eName },
+    #include "egolib/Script/Variables.in"
+    #undef DefineAlias
+    #undef Define
 	};
 
     for (size_t i = 0, n = sizeof(AICODES) / sizeof(aicode_t); i < n; ++i)
     {
         Opcodes.push_back(opcode_data_t());
         Opcodes[i].cName = AICODES[i]._name;
-        Opcodes[i]._type = AICODES[i]._type;
+        Opcodes[i]._kind = AICODES[i]._kind;
         Opcodes[i].iValue = AICODES[i]._value;
     }
     return true;
@@ -1062,16 +974,12 @@ egolib_rv load_ai_script_vfs0(parser_state_t& ps, const std::string& loadname, O
             return rv_fail;
         }
     }
-    // Append a zero terminator.
-    /** @todo This is for compatibility with legacy code. */
-    ps._loadBuffer.append(CSTR_END);
-
     try {
         // save the filename for error logging
         script._name = loadname;
 
         // we have parsed nothing yet
-        script._instructions._length = 0;
+        script._instructions.clear();
 
         // parse/compile the scripts
         ps.parse_line_by_line(ppro, script);
@@ -1102,7 +1010,7 @@ egolib_rv load_ai_script_vfs(parser_state_t& ps, const std::string& loadname, Ob
 
 //--------------------------------------------------------------------------------------------
 
-void print_token(const Token& token) {
+void print_token(const PDLToken& token) {
 #if (DEBUG_SCRIPT_LEVEL > 2) && defined(_DEBUG)
 	std::cout << token;
 #endif

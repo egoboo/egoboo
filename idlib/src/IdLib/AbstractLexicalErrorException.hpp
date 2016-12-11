@@ -52,7 +52,7 @@ private:
 protected:
 
     ostringstream& writeLocation(ostringstream& o) const {
-        o << _location.getLoadName() << ": " << _location.getLineNumber()
+        o << _location.getFileName() << ": " << _location.getLineNumber()
           << " (raised in file " << getFile() << ", line " << getLine() << ")";
         return o;
     }

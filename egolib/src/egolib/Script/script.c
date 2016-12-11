@@ -54,8 +54,8 @@ public:
 };
 
 std::array<std::string, ScriptVariables::SCRIPT_VARIABLES_COUNT> _scriptVariableNames = {
-#define Define(name) #name,
-#define DefineAlias(alias, name)
+#define Define(cName, eName) #cName,
+#define DefineAlias(cName, eName)
 #include "egolib/Script/Variables.in"
 #undef DefineAlias
 #undef Define
@@ -221,7 +221,7 @@ void scr_run_chr_script(Object *pchr) {
 
 	// Run the AI Script.
 	script.set_pos(0);
-	while (!aiState.terminate && script.get_pos() < script._instructions.getLength()) {
+	while (!aiState.terminate && script.get_pos() < script._instructions.getNumberOfInstructions()) {
 		// This is used by the Else function
 		// it only keeps track of functions.
 		script.indent_last = script.indent;
@@ -281,10 +281,10 @@ bool script_state_t::run_function_call( script_state_t& state, ai_state_t& aiSta
     Uint8  functionreturn;
 
     // check for valid execution pointer
-    if ( script.get_pos() >= script._instructions.getLength() ) return false;
+    if ( script.get_pos() >= script._instructions.getNumberOfInstructions() ) return false;
 
     // Run the function
-	functionreturn = script_state_t::run_function(state, aiState, script);
+	functionreturn = state.run_function(aiState, script);
 
     // move the execution pointer to the jump code
     script.increment_pos();
@@ -296,10 +296,10 @@ bool script_state_t::run_function_call( script_state_t& state, ai_state_t& aiSta
     else
     {
         // use the jump code to jump to the right location
-        size_t new_index = script._instructions[script.get_pos()]._value;
+        size_t new_index = script._instructions[script.get_pos()].getBits();
 
         // make sure the value is valid
-        EGOBOO_ASSERT( new_index <= script._instructions.getLength() );
+        EGOBOO_ASSERT( new_index <= script._instructions.getNumberOfInstructions() );
 
         // actually do the jump
 		script.set_pos(new_index);
@@ -313,7 +313,7 @@ bool script_state_t::run_function_call( script_state_t& state, ai_state_t& aiSta
 bool script_state_t::run_operation( script_state_t& state, ai_state_t& aiState, script_info_t& script )
 {
     // check for valid execution pointer
-    if ( script.get_pos() >= script._instructions.getLength() ) return false;
+    if ( script.get_pos() >= script._instructions.getNumberOfInstructions() ) return false;
 
     auto var_value = script._instructions[script.get_pos()].getValueBits();
 
@@ -326,7 +326,7 @@ bool script_state_t::run_operation( script_state_t& state, ai_state_t& aiState, 
 
         for (auto i = 0; i < Opcodes.size(); i++ )
         {
-            if ( Token::Type::Variable == Opcodes[i]._type && var_value == Opcodes[i].iValue )
+            if ( PDLTokenKind::Variable == Opcodes[i]._kind && var_value == Opcodes[i].iValue )
             {
                 variable = Opcodes[i].cName;
                 break;
@@ -338,11 +338,11 @@ bool script_state_t::run_operation( script_state_t& state, ai_state_t& aiState, 
 
     // Get the number of operands
 	script.increment_pos();
-    auto operand_count = script._instructions[script.get_pos()]._value;
+    auto operand_count = script._instructions[script.get_pos()].getBits();
 
     // Now run the operation
     state.operationsum = 0;
-    for (auto i = 0; i < operand_count && script.get_pos() < script._instructions.getLength(); ++i )
+    for (auto i = 0; i < operand_count && script.get_pos() < script._instructions.getNumberOfInstructions(); ++i )
     {
 		script.increment_pos();
 		script_state_t::run_operand(state, aiState, script);
@@ -353,7 +353,7 @@ bool script_state_t::run_operation( script_state_t& state, ai_state_t& aiState, 
     }
 
     // Save the results in the register that called the arithmetic
-    script_state_t::set_operand( state, var_value );
+    state.store( var_value );
 
     // go to the next opcode
 	script.increment_pos();
@@ -362,97 +362,71 @@ bool script_state_t::run_operation( script_state_t& state, ai_state_t& aiState, 
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 script_state_t::run_function(script_state_t& self, ai_state_t& aiState, script_info_t& script)
+Uint8 script_state_t::run_function(ai_state_t& aiState, script_info_t& script)
 {
-    /// @author BB
-    /// @details This is about half-way to what is needed for Lua integration
-
-    // Mask out the indentation
-    uint32_t valuecode = script._instructions[script.get_pos()].getValueBits();
+    auto constantIndex = script._instructions[script.get_pos()].getValueBits();
+    const auto& constant = script._instructions.getConstantPool().getConstant(constantIndex);
+    uint32_t functionIndex = constant.getAsInteger();
 
     // Assume that the function will pass, as most do
-    Uint8 returncode = true;
-    if ( MAX_OPCODE == valuecode )
+    uint8_t returnCode = true;
+    auto& runtime = Runtime::get();
     {
-		Log::get().message("%s:%d:%s: model == %d, class name == \"%s\" - Unknown opcode found!\n", \
-			               __FILE__, __LINE__, __FUNCTION__, REF_TO_INT(script_error_model), script_error_classname);
-        return false;
-    }
 
-    // debug stuff
-    if ( debug_scripts && debug_script_file )
-    {
-        for (uint32_t i = 0; i < script.indent; i++ ) { vfs_printf( debug_script_file,  "  " ); }
-
-        for (uint32_t i = 0; i < Opcodes.size(); i++ )
+        Ego::Time::ClockScope<Ego::Time::ClockPolicy::NonRecursive> scope(runtime.getClock());
+        const auto& result = runtime._functionValueCodeToFunctionPointer.find(functionIndex);
+        if (runtime._functionValueCodeToFunctionPointer.cend() == result)
         {
-            if ( Token::Type::Function == Opcodes[i]._type && valuecode == Opcodes[i].iValue )
-            {
-                vfs_printf( debug_script_file,  "%s\n", Opcodes[i].cName.c_str() );
-                break;
-            };
+            throw RuntimeErrorException(__FILE__, __LINE__, "function not found");
         }
+        returnCode = result->second(*this, aiState);
     }
-
-    if (valuecode > Ego::Script::ScriptFunctions::SCRIPT_FUNCTIONS_COUNT)
-    {
-    	//TODO: empty block? why?
-    }
-    else
-    {
-        auto& runtime = Runtime::get();
-		{ 
-
-			Ego::Time::ClockScope<Ego::Time::ClockPolicy::NonRecursive> scope(runtime.getClock());
-			const auto& result = runtime._functionValueCodeToFunctionPointer.find(valuecode);
-			if (Runtime::get()._functionValueCodeToFunctionPointer.cend() == result) {
-				Log::get().message("%s:%d:%s: script error - ai script \"%s\" - unhandled script function %d\n", \
-					               __FILE__, __LINE__, __FUNCTION__, script._name.c_str(), valuecode);
-				returncode = false;
-			} else {
-				returncode = result->second(self, aiState);
-			}
-        }
-        runtime.getStatistics().onFunctionInvoked(valuecode, runtime.getClock().lst());
-    }
-
-    return returncode;
+    runtime.getStatistics().onFunctionInvoked(functionIndex, runtime.getClock().lst());
+    return returnCode;
 }
 
 //--------------------------------------------------------------------------------------------
-void script_state_t::set_operand( script_state_t& state, Uint8 variable )
+std::string getVariableName(int variableIndex)
 {
-    /// @author ZZ
-    /// @details This function sets one of the tmp* values for scripted AI
-    switch ( variable )
+    return _scriptVariableNames[variableIndex];
+}
+
+void script_state_t::store(uint8_t variableIndex)
+{
+    auto variableName = getVariableName(variableIndex);
+    switch (variableIndex)
     {
         case VARTMPX:
-            state.x = state.operationsum;
+            x = operationsum;
             break;
 
         case VARTMPY:
-            state.y = state.operationsum;
+            y = operationsum;
             break;
 
         case VARTMPDISTANCE:
-            state.distance = state.operationsum;
+            distance = operationsum;
             break;
 
         case VARTMPTURN:
-            state.turn = state.operationsum;
+            turn = operationsum;
             break;
 
         case VARTMPARGUMENT:
-            state.argument = state.operationsum;
+            argument = operationsum;
             break;
 
         default:
-			Log::get().warn( "scr_set_operand() - cannot assign a number to index %d\n", variable );
+            Log::Entry e(Log::Level::Warning, __FILE__, __LINE__);
+            e << "variable " << variableName << "/" << variableIndex << " not found" << Log::EndOfEntry;
+            Log::get() << e;
             break;
     }
 }
 
 //--------------------------------------------------------------------------------------------
+
+
 void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, script_info_t& script )
 {
     /// @author ZZ
@@ -481,7 +455,9 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
     uint8_t operation = script._instructions[script.get_pos()].getDataBits();
     if (script._instructions[script.get_pos()].isLdc()) {
         // Get the working opcode from a constant, constants are all but high 5 bits
-        iTmp = script._instructions[script.get_pos()].getValueBits();
+        auto constantIndex = script._instructions[script.get_pos()].getValueBits();
+        const auto& constant = script._instructions.getConstantPool().getConstant(constantIndex);
+        iTmp = constant.getAsInteger();
         if (debug_scripts) {
             std::stringstream stringStream;
             stringStream << iTmp;
@@ -492,86 +468,70 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
     {
         // Get the variable opcode from a register
         uint8_t variable = script._instructions[script.get_pos()].getValueBits();
-
+        varname = getVariableName(variable);
         switch ( variable )
         {
             case VARTMPX:
-                varname = "TMPX";
                 iTmp = state.x;
                 break;
 
             case VARTMPY:
-                varname = "TMPY";
                 iTmp = state.y;
                 break;
 
             case VARTMPDISTANCE:
-                varname = "TMPDISTANCE";
                 iTmp = state.distance;
                 break;
 
             case VARTMPTURN:
-                varname = "TMPTURN";
                 iTmp = state.turn;
                 break;
 
             case VARTMPARGUMENT:
-                varname = "TMPARGUMENT";
                 iTmp = state.argument;
                 break;
 
             case VARRAND:
-                varname = "RAND";
                 iTmp = Random::next(std::numeric_limits<uint16_t>::max());
                 break;
 
             case VARSELFX:
-                varname = "SELFX";
                 iTmp = pchr->getPosX();
                 break;
 
             case VARSELFY:
-                varname = "SELFY";
                 iTmp = pchr->getPosY();
                 break;
 
             case VARSELFTURN:
-                varname = "SELFTURN";
                 iTmp = uint16_t(pchr->ori.facing_z);
                 break;
 
             case VARSELFCOUNTER:
-                varname = "SELFCOUNTER";
 				iTmp = aiState.order_counter;
                 break;
 
             case VARSELFORDER:
-                varname = "SELFORDER";
 				iTmp = aiState.order_value;
                 break;
 
             case VARSELFMORALE:
-                varname = "SELFMORALE";
                 iTmp = _currentModule->getTeamList()[pchr->team_base].getMorale();
                 break;
 
             case VARSELFLIFE:
-                varname = "SELFLIFE";
                 iTmp = FLOAT_TO_FP8(pchr->getLife());
                 break;
 
             case VARTARGETX:
-                varname = "TARGETX";
                 iTmp = ( nullptr == ptarget ) ? 0 : ptarget->getPosX();
                 break;
 
             case VARTARGETY:
-                varname = "TARGETY";
                 iTmp = ( nullptr == ptarget ) ? 0 : ptarget->getPosY();
                 break;
 
             case VARTARGETDISTANCE:
-                varname = "TARGETDISTANCE";
                 if ( nullptr == ptarget )
                 {
                     iTmp = 0x7FFFFFFF;
@@ -584,13 +544,11 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
                 break;
 
             case VARTARGETTURN:
-                varname = "TARGETTURN";
                 iTmp = ( nullptr == ptarget ) ? 0 : uint16_t(ptarget->ori.facing_z);
                 break;
 
             case VARLEADERX:
             {
-                varname = "LEADERX";
                 iTmp = pchr->getPosX();
                 std::shared_ptr<Object> leader = _currentModule->getTeamList()[pchr->team].getLeader();
                 if ( leader )
@@ -600,7 +558,6 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
 
             case VARLEADERY:
             {
-                varname = "LEADERY";
                 iTmp = pchr->getPosY();
                 std::shared_ptr<Object> leader = _currentModule->getTeamList()[pchr->team].getLeader();
                 if ( leader )
@@ -611,8 +568,6 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
 
             case VARLEADERDISTANCE:
                 {
-                    varname = "LEADERDISTANCE";
-
                     std::shared_ptr<Object> pleader = _currentModule->getTeamList()[pchr->team].getLeader();
                     if ( !pleader )
                     {
@@ -627,7 +582,6 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
                 break;
 
             case VARLEADERTURN:
-                varname = "LEADERTURN";
                 iTmp = uint16_t(pchr->ori.facing_z);
                 if ( _currentModule->getTeamList()[pchr->team].getLeader() )
                     iTmp = uint16_t(_currentModule->getTeamList()[pchr->team].getLeader()->ori.facing_z);
@@ -635,8 +589,6 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
                 break;
 
             case VARGOTOX:
-                varname = "GOTOX";
-
 				ai_state_t::ensure_wp(aiState);
 
 				if (!aiState.wp_valid)
@@ -650,8 +602,6 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
                 break;
 
             case VARGOTOY:
-                varname = "GOTOY";
-
 				ai_state_t::ensure_wp(aiState);
 
 				if (!aiState.wp_valid)
@@ -665,8 +615,6 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
                 break;
 
             case VARGOTODISTANCE:
-                varname = "GOTODISTANCE";
-
 				ai_state_t::ensure_wp(aiState);
 
 				if (!aiState.wp_valid)
@@ -681,7 +629,6 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
                 break;
 
             case VARTARGETTURNTO:
-                varname = "TARGETTURNTO";
                 if ( NULL == ptarget )
                 {
                     iTmp = 0;
@@ -694,59 +641,48 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
                 break;
 
             case VARPASSAGE:
-                varname = "PASSAGE";
 				iTmp = aiState.passage;
                 break;
 
             case VARWEIGHT:
-                varname = "WEIGHT";
                 iTmp = pchr->holdingweight;
                 break;
 
             case VARSELFALTITUDE:
-                varname = "SELFALTITUDE";
                 iTmp = pchr->getPosZ() - pchr->getObjectPhysics().getGroundElevation();
                 break;
 
             case VARSELFID:
-                varname = "SELFID";
 				iTmp = pchr->getProfile()->getIDSZ(IDSZ_TYPE).toUint32();
                 break;
 
             case VARSELFHATEID:
-                varname = "SELFHATEID";
 				iTmp = pchr->getProfile()->getIDSZ(IDSZ_HATE).toUint32();
                 break;
 
             case VARSELFMANA:
-                varname = "SELFMANA";
                 iTmp = FLOAT_TO_FP8(pchr->getMana());
                 if ( pchr->getAttribute(Ego::Attribute::CHANNEL_LIFE) )  iTmp += FLOAT_TO_FP8(pchr->getLife());
 
                 break;
 
             case VARTARGETSTR:
-                varname = "TARGETSTR";
                 iTmp = ( NULL == ptarget ) ? 0 : FLOAT_TO_FP8(ptarget->getAttribute(Ego::Attribute::MIGHT));
                 break;
 
             case VARTARGETINT:
-                varname = "TARGETINT";
                 iTmp = ( NULL == ptarget ) ? 0 : FLOAT_TO_FP8(ptarget->getAttribute(Ego::Attribute::INTELLECT));
                 break;
 
             case VARTARGETDEX:
-                varname = "TARGETDEX";
                 iTmp = ( NULL == ptarget ) ? 0 : FLOAT_TO_FP8(ptarget->getAttribute(Ego::Attribute::AGILITY));
                 break;
 
             case VARTARGETLIFE:
-                varname = "TARGETLIFE";
                 iTmp = ( NULL == ptarget ) ? 0 : FLOAT_TO_FP8(ptarget->getLife());
                 break;
 
             case VARTARGETMANA:
-                varname = "TARGETMANA";
                 if ( NULL == ptarget )
                 {
                     iTmp = 0;
@@ -760,77 +696,62 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
                 break;
 
             case VARTARGETLEVEL:
-                varname = "TARGETLEVEL";
                 iTmp = ( NULL == ptarget ) ? 0 : ptarget->experiencelevel;
                 break;
 
             case VARTARGETSPEEDX:
-                varname = "TARGETSPEEDX";
                 iTmp = ( NULL == ptarget ) ? 0 : std::abs(ptarget->vel[kX]);
                 break;
 
             case VARTARGETSPEEDY:
-                varname = "TARGETSPEEDY";
                 iTmp = ( NULL == ptarget ) ? 0 : std::abs(ptarget->vel[kY]);
                 break;
 
             case VARTARGETSPEEDZ:
-                varname = "TARGETSPEEDZ";
                 iTmp = ( NULL == ptarget ) ? 0 : std::abs(ptarget->vel[kZ]);
                 break;
 
             case VARSELFSPAWNX:
-                varname = "SELFSPAWNX";
                 iTmp = pchr->getSpawnPosition()[kX];
                 break;
 
             case VARSELFSPAWNY:
-                varname = "SELFSPAWNY";
                 iTmp = pchr->getSpawnPosition()[kY];
                 break;
 
             case VARSELFSTATE:
-                varname = "SELFSTATE";
 				iTmp = aiState.state;
                 break;
 
             case VARSELFCONTENT:
-                varname = "SELFCONTENT";
 				iTmp = aiState.content;
                 break;
 
             case VARSELFSTR:
-                varname = "SELFSTR";
                 iTmp = FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::MIGHT));
                 break;
 
             case VARSELFINT:
-                varname = "SELFINT";
                 iTmp = FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::INTELLECT));
                 break;
 
             case VARSELFDEX:
-                varname = "SELFDEX";
                 iTmp = FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::AGILITY));
                 break;
 
             case VARSELFMANAFLOW:
-                varname = "SELFMANAFLOW";
                 iTmp = FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::SPELL_POWER));
                 break;
 
             case VARTARGETMANAFLOW:
-                varname = "TARGETMANAFLOW";
                 iTmp = ( NULL == ptarget ) ? 0 : FLOAT_TO_FP8(ptarget->getAttribute(Ego::Attribute::SPELL_POWER));
                 break;
 
             case VARSELFATTACHED:
-                varname = "SELFATTACHED";
 				iTmp = number_of_attached_particles(aiState.getSelf());
                 break;
 
             case VARSWINGTURN:
-                varname = "SWINGTURN";
                 {
 					auto camera = CameraSystem::get().getCamera(aiState.getSelf());
                     iTmp = nullptr != camera ? camera->getSwing() << 2 : 0;
@@ -838,47 +759,38 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
                 break;
 
             case VARXYDISTANCE:
-                varname = "XYDISTANCE";
                 iTmp = std::sqrt( state.x * state.x + state.y * state.y );
                 break;
 
             case VARSELFZ:
-                varname = "SELFZ";
                 iTmp = pchr->getPosZ();
                 break;
 
             case VARTARGETALTITUDE:
-                varname = "TARGETALTITUDE";
                 iTmp = ( NULL == ptarget ) ? 0 : ptarget->getPosZ() - ptarget->getObjectPhysics().getGroundElevation();
                 break;
 
             case VARTARGETZ:
-                varname = "TARGETZ";
                 iTmp = ( NULL == ptarget ) ? 0 : ptarget->getPosZ();
                 break;
 
             case VARSELFINDEX:
-                varname = "SELFINDEX";
 				iTmp = aiState.getSelf().get();
                 break;
 
             case VAROWNERX:
-                varname = "OWNERX";
                 iTmp = ( NULL == powner ) ? 0 : powner->getPosX();
                 break;
 
             case VAROWNERY:
-                varname = "OWNERY";
                 iTmp = ( NULL == powner ) ? 0 : powner->getPosY();
                 break;
 
             case VAROWNERTURN:
-                varname = "OWNERTURN";
                 iTmp = ( NULL == powner ) ? 0 : uint16_t(powner->ori.facing_z);
                 break;
 
             case VAROWNERDISTANCE:
-                varname = "OWNERDISTANCE";
                 if ( NULL == powner )
                 {
                     iTmp = 0x7FFFFFFF;
@@ -891,7 +803,6 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
                 break;
 
             case VAROWNERTURNTO:
-                varname = "OWNERTURNTO";
                 if ( NULL == powner )
                 {
                     iTmp = 0;
@@ -904,43 +815,35 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
                 break;
 
             case VARXYTURNTO:
-                varname = "XYTURNTO";
                 iTmp = FACING_T(vec_to_facing( state.x - pchr->getPosX() , state.y - pchr->getPosY() ));
                 iTmp = Ego::Math::clipBits<16>( iTmp );
                 break;
 
             case VARSELFMONEY:
-                varname = "SELFMONEY";
                 iTmp = pchr->getMoney();
                 break;
 
             case VARSELFACCEL:
-                varname = "SELFACCEL";
                 iTmp = ( pchr->getAttribute(Ego::Attribute::ACCELERATION) * 100.0f );
                 break;
 
             case VARTARGETEXP:
-                varname = "TARGETEXP";
                 iTmp = ( NULL == ptarget ) ? 0 : ptarget->experience;
                 break;
 
             case VARSELFAMMO:
-                varname = "SELFAMMO";
                 iTmp = pchr->ammo;
                 break;
 
             case VARTARGETAMMO:
-                varname = "TARGETAMMO";
                 iTmp = ( NULL == ptarget ) ? 0 : ptarget->ammo;
                 break;
 
             case VARTARGETMONEY:
-                varname = "TARGETMONEY";
                 iTmp = ( NULL == ptarget ) ? 0 : ptarget->getMoney();
                 break;
 
             case VARTARGETTURNAWAY:
-                varname = "TARGETTURNAWAY";
                 if ( NULL == ptarget )
                 {
                     iTmp = 0;
@@ -953,59 +856,48 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
                 break;
 
             case VARSELFLEVEL:
-                varname = "SELFLEVEL";
                 iTmp = pchr->experiencelevel;
                 break;
 
             case VARTARGETRELOADTIME:
-                varname = "TARGETRELOADTIME";
                 iTmp = ( NULL == ptarget ) ? 0 : ptarget->reload_timer;
                 break;
 
             case VARSPAWNDISTANCE:
-                varname = "SPAWNDISTANCE";
                 iTmp = std::abs( pchr->getSpawnPosition()[kX] - pchr->getPosX() )
                      + std::abs( pchr->getSpawnPosition()[kY] - pchr->getPosY() );
                 break;
 
             case VARTARGETMAXLIFE:
-                varname = "TARGETMAXLIFE";
                 iTmp = ( NULL == ptarget ) ? 0 : FLOAT_TO_FP8(ptarget->getAttribute(Ego::Attribute::MAX_LIFE));
                 break;
 
             case VARTARGETTEAM:
-                varname = "TARGETTEAM";
                 iTmp = ( NULL == ptarget ) ? 0 : ptarget->team;
                 //iTmp = REF_TO_INT( chr_get_iteam( pself->target ) );
                 break;
 
             case VARTARGETARMOR:
-                varname = "TARGETARMOR";
                 iTmp = ( NULL == ptarget ) ? 0 : ptarget->skin;
                 break;
 
             case VARDIFFICULTY:
-                varname = "DIFFICULTY";
                 iTmp = static_cast<uint32_t>(egoboo_config_t::get().game_difficulty.getValue());
                 break;
 
             case VARTIMEHOURS:
-                varname = "TIMEHOURS";
                 iTmp = Ego::Time::LocalTime().getHours();
                 break;
 
             case VARTIMEMINUTES:
-                varname = "TIMEMINUTES";
                 iTmp = Ego::Time::LocalTime().getMinutes();
                 break;
 
             case VARTIMESECONDS:
-                varname = "TIMESECONDS";
                 iTmp = Ego::Time::LocalTime().getSeconds();
                 break;
 
             case VARDATEMONTH:
-                varname = "DATEMONTH";
                 iTmp = Ego::Time::LocalTime().getMonth() + 1; /// @todo The addition of +1 should be removed and
 				                                              /// the whole Ego::Time::LocalTime class should be
 				                                              /// made available via EgoScript. However, EgoScript
@@ -1013,7 +905,6 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
                 break;
 
             case VARDATEDAY:
-                varname = "DATEDAY";
                 iTmp = Ego::Time::LocalTime().getDayOfMonth();
                 break;
 
@@ -1099,7 +990,7 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
 //--------------------------------------------------------------------------------------------
 
 bool script_info_t::increment_pos() {
-	if (_position >= _instructions.getLength()) {
+	if (_position >= _instructions.getNumberOfInstructions()) {
 		return false;
 	}
 	_position++;
@@ -1111,7 +1002,7 @@ size_t script_info_t::get_pos() const {
 }
 
 bool script_info_t::set_pos(size_t position) {
-	if (position >= _instructions.getLength()) {
+	if (position >= _instructions.getNumberOfInstructions()) {
 		return false;
 	}
 	_position = position;
@@ -1434,11 +1325,5 @@ void ai_state_t::spawn(ai_state_t& self, const ObjectRef index, const PRO_REF io
 script_state_t::script_state_t()
 	: x(0), y(0), turn(0), distance(0),
 	  argument(0), operationsum()
-{
-}
-
-script_state_t::script_state_t(const script_state_t& other)
-	: x(other.x), y(other.y), turn(other.turn), distance(other.distance),
-	  argument(other.argument), operationsum(other.operationsum)
 {
 }

@@ -131,6 +131,7 @@
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>libc.lib;msvcrt.lib;libcd.lib;libcmt.lib;msvcrtd.lib</IgnoreSpecificDefaultLibraries>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <OutputFile>$(OutDir)$(TargetFileName)</OutputFile>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y "$(SolutionDir)external\SDL2_mixer-2.0.0\VisualC\external\lib\$(PlatformTarget)\libFLAC-8.dll" "$(TargetDir)"
@@ -184,6 +185,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>libc.lib;msvcrt.lib;libcd.lib;libcmt.lib;msvcrtd.lib</IgnoreSpecificDefaultLibraries>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <OutputFile>$(OutDir)$(TargetFileName)</OutputFile>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y "$(SolutionDir)external\SDL2_mixer-2.0.0\VisualC\external\lib\$(PlatformTarget)\libFLAC-8.dll" "$(TargetDir)"
@@ -238,6 +240,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>shlwapi.lib;SHFolder.lib;Shell32.lib;ws2_32.lib;Advapi32.lib;User32.lib;Winmm.lib;Version.lib;Imm32.lib;SDL2main.lib;SDL2.lib;SDL2_image.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>libc.lib;msvcrt.lib;libcd.lib;libcmtd.lib;msvcrtd.lib</IgnoreSpecificDefaultLibraries>
+      <OutputFile>$(OutDir)$(TargetFileName)</OutputFile>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y "$(SolutionDir)external\SDL2_mixer-2.0.0\VisualC\external\lib\$(PlatformTarget)\libFLAC-8.dll" "$(TargetDir)"
@@ -293,6 +296,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>libc.lib;msvcrt.lib;libcd.lib;libcmtd.lib;msvcrtd.lib</IgnoreSpecificDefaultLibraries>
+      <OutputFile>$(OutDir)$(TargetFileName)</OutputFile>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y "$(SolutionDir)external\SDL2_mixer-2.0.0\VisualC\external\lib\$(PlatformTarget)\libFLAC-8.dll" "$(TargetDir)"
