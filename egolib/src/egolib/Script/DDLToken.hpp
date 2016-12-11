@@ -29,18 +29,8 @@ namespace Ego {
 namespace Script {
 
 /// @brief A token of the DDL (Data Definition Language) of EgoScript.
-struct DDLToken
+struct DDLToken : public Id::Token<DDLTokenKind>
 {
-private:
-    /// @brief The kind of this token.
-    DDLTokenKind m_kind;
-
-    /// @brief The start location of this token.
-    Id::Location m_startLocation;
-
-    /// @brief The lexeme of this token.
-    std::string m_lexeme;
-
 public:
     /// @brief Construct this token with the specified values.
     /// @param kind the kind of this token
@@ -52,24 +42,29 @@ public:
     /// @param other the other token
     DDLToken(const DDLToken& other);
 
-    /// @brief Get the kind of this token.
-    /// @return the kind of this token
-    DDLTokenKind getKind() const;
-
-    /// @brief Get the start location of this token.
-    /// @return the start location of this token
-    const Id::Location& getStartLocation() const;
+    /// @brief Move-construct this token from another token.
+    /// @param other the other token
+    DDLToken(DDLToken&& other);
 
     /// @brief Assign this token from another token.
     /// @param other the other token
     /// @return this token
-    DDLToken& operator=(const DDLToken& other);
+    DDLToken& operator=(DDLToken other);
 
-    /// @brief Get the lexeme of this token.
-    /// @return the lexeme of this token
-    const std::string& getLexeme() const;
+    friend void swap(DDLToken& x, DDLToken& y)
+    {
+        using std::swap;
+        swap(static_cast<Id::Token<DDLTokenKind>&>(x), static_cast<Id::Token<DDLTokenKind>&>(y));
+    }
 
+    /// @brief Overloaded &lt;&lt; operator for a token.
+    /// @param ostream the output stream to write to
+    /// @param token the token to write
+    /// @return the output stream
+    friend std::ostream& operator<<(std::ostream& os, const DDLToken& token);
 };
+
+std::ostream& operator<<(std::ostream& os, const DDLToken& token);
 
 } // namespace Script
 } // namespace Ego

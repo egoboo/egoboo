@@ -28,34 +28,32 @@ namespace Ego {
 namespace Script {
 
 DDLToken::DDLToken(DDLTokenKind kind, const Id::Location& startLocation, const std::string& lexeme)
-    : m_kind(kind), m_startLocation(startLocation), m_lexeme(lexeme)
+    : Id::Token<DDLTokenKind>(kind, startLocation, lexeme)
 {}
 
 DDLToken::DDLToken(const DDLToken& other)
-    : m_kind(other.m_kind), m_startLocation(other.m_startLocation), m_lexeme(other.m_lexeme)
+    : Id::Token<DDLTokenKind>(other)
 {}
 
-DDLToken& DDLToken::operator=(const DDLToken& other)
+DDLToken::DDLToken(DDLToken&& other)
+    : Id::Token<DDLTokenKind>(std::move(other))
+{}
+
+DDLToken& DDLToken::operator=(DDLToken other)
 {
-    m_kind = other.m_kind;
-    m_startLocation = other.m_startLocation;
-    m_lexeme = other.m_lexeme;
+    swap(*this, other);
     return *this;
 }
 
-DDLTokenKind DDLToken::getKind() const
+std::ostream& operator<<(std::ostream& os, const DDLToken& token)
 {
-    return m_kind;
-}
-
-const std::string& DDLToken::getLexeme() const
-{
-    return m_lexeme;
-}
-
-const Id::Location& DDLToken::getStartLocation() const
-{
-    return m_startLocation;
+    os << "ddl token" << std::endl;
+    os << "{" << std::endl;
+    os << "  " << "kind = " << token.getKind() << "," << std::endl;
+    os << "  " << "lexeme = " << token.getLexeme() << "," << std::endl;
+    os << "  " << "start location = " << token.getStartLocation().getFileName() << ":" << token.getStartLocation().getLineNumber() << "," << std::endl;
+    os << "}" << std::endl;
+    return os;
 }
 
 } // namespace Script

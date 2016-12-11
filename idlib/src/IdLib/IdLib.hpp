@@ -47,6 +47,7 @@
 
 // DSL utilities.
 #include "IdLib/Location.hpp"
+#include "IdLib/Token.hpp"
 
 // DSL exceptions.
 #include "IdLib/AbstractLexicalErrorException.hpp"

@@ -29,41 +29,53 @@ namespace Ego {
 namespace Script {
 
 /// @brief A token of the PDL (Program Definition Language) of EgoScript.
-struct PDLToken
+struct PDLToken : public Id::Token<PDLTokenKind>
 {
 private:
-    /// @brief The kind of this token.
-    PDLTokenKind m_kind;
-
-    /// @brief The start location of this token.
-    Id::Location m_startLocation;
-
     /// @brief The value of this token.
     int m_value;
 
-    /// @brief The lexeme of this token.
-    std::string m_lexeme;
-
 public:
-    /// @brief Get if this token is of the given kinds.
-    /// @param kind the kind
-    /// @return @a true if this token is of the given kind @a kind, @a false otherwise
-    bool is(PDLTokenKind kind) const;
+    /// @brief Construct this token with default values.
+    /// @remark The text of the token is the empty string, its type and its location is unknown.
+    PDLToken();
 
-    /// @brief Get if this token is of one of the given kinds.
-    /// @param kind1, kind2 the kinds
-    /// @return @a true if this token is of one of the given kinds @a kind1 or @a kind2, @a false otherwise
-    bool isOneOf(PDLTokenKind kind1, PDLTokenKind kind2) const;
+    /// @brief Construct this token with the specified values.
+    /// @param kind the kind of the token
+    /// @param startLocation the start location of the token
+    /// @param lexeme the lexeme of this token. Default is the empty string.
+    PDLToken(PDLTokenKind kind, const Id::Location& startLocation, const std::string& lexeme = std::string());
 
-    /// @brief Get if this token is of one of the given kinds.
-    /// @param kind1, kind2, kinds ... the kinds
-    /// @return @a true if this token is of one of the given kinds @a kind1, @a kind2, or @a kinds ..., @a false otherwise
-    template <typename ... Kinds>
-    bool isOneOf(PDLTokenKind kind1, PDLTokenKind kind2, Kinds ... kinds) const
+    /// @brief Copy-construct this token from another token.
+    /// @param other the other token
+    PDLToken(const PDLToken& other);
+
+    /// @brief Move-construct this token from another token.
+    /// @param other the other token
+    PDLToken(PDLToken&& other);
+
+    /// @brief Destruct this token.
+    ~PDLToken();
+
+    /// @brief Assign this token from another token.
+    /// @param other the other token
+    /// @return this token
+    PDLToken& operator=(PDLToken other);
+
+    friend void swap(PDLToken& x, PDLToken& y)
     {
-        return is(kind1) || isOneOf(kind2, kinds ...);
+        using std::swap;
+        swap(static_cast<Id::Token<PDLTokenKind>&>(x), static_cast<Id::Token<PDLTokenKind>&>(y));
+        swap(x.m_value, y.m_value);
     }
 
+    /// @brief Overloaded &lt;&lt; operator for a token.
+    /// @param ostream the output stream to write to
+    /// @param token the token to write
+    /// @return the output stream
+    friend std::ostream& operator<<(std::ostream& os, const PDLToken& token);
+
+public:
     /// @brief Get if this token is an operator token i.e. is of one of the kinds which are called operators.
     /// @return @a true if this token is an operator token, @a false otherwise
     bool isOperator() const;
@@ -87,62 +99,8 @@ public:
     {
         m_value = value;
     }
-
-    /// @brief Get the start location of this token.
-    /// @return the start location of this token
-    /// @see setStartLocation
-    /// @remark The start location is the location at which the lexeme of this token starts at.
-    Id::Location getStartLocation() const;
-
-    /// @brief Set the start location of this token.
-    /// @param startLocation the start location
-    /// @see getStartLocation
-    void setStartLocation(const Id::Location& startLocation);
-
-    /// @brief Get the kind of this token.
-    /// @return the kind of this token
-    /// @see setKind
-    PDLTokenKind getKind() const;
-
-    /// @brief Set the kind of this token.
-    /// @param kind the kind
-    /// @see getKind
-    void setKind(PDLTokenKind kind);
-
-    /// @brief Set the lexeme of this token.
-    /// @param lexeme the lexeme
-    /// @see getLexeme
-    void setLexeme(const std::string& lexeme);
-
-    /// @brief Get the lexeme of this token.
-    /// @return the lexeme of this token
-    /// @see setLexeme
-    const std::string& getLexeme() const;
-
-    /// @brief Construct this token with default values.
-    /// @remark The text of the token is the empty string, its type and its location is unknown.
-    PDLToken();
-
-    /// @brief Construct this token with the specified values.
-    /// @param kind the kind of the token
-    /// @param startLocation the start location of the token
-    /// @param lexeme the lexeme of this token. Default is the empty string.
-    PDLToken(PDLTokenKind kind, const Id::Location& startLocation, const std::string& lexeme = std::string());
-
-    /// @brief Copy-construct this token from another token.
-    /// @param other the other token
-    PDLToken(const PDLToken& other);
-
-    /// @brief Destruct this token.
-    ~PDLToken();
-
-    friend std::ostream& operator<<(std::ostream& os, const PDLToken& token);
 };
 
-/// @brief Overloaded &lt;&lt; operator for a token.
-/// @param ostream the output stream to write to
-/// @param token the token to write
-/// @return the output stream
 std::ostream& operator<<(std::ostream& os, const PDLToken& token);
 
 } // namespace Script
