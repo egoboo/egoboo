@@ -321,6 +321,7 @@ bool line_scanner_state_t::isOperator() const
 
 PDLToken line_scanner_state_t::scanWhiteSpaces()
 {
+    auto startLocation = getLocation();
     int numberOfWhiteSpaces = 0;
     if (isWhiteSpace())
     {
@@ -337,6 +338,7 @@ PDLToken line_scanner_state_t::scanWhiteSpaces()
 
 PDLToken line_scanner_state_t::scanNewLines()
 {
+    auto startLocation = getLocation();
     int numberOfNewLines = 0;
     while (isNewLine())
     {
@@ -358,6 +360,7 @@ PDLToken line_scanner_state_t::scanNewLines()
 PDLToken line_scanner_state_t::scanNumericLiteral()
 {
     m_lexemeBuffer.clear();
+    auto startLocation = getLocation();
     if (!isDigit())
     {
         throw RuntimeErrorException(__FILE__, __LINE__, "<internal error>");
@@ -373,6 +376,7 @@ PDLToken line_scanner_state_t::scanNumericLiteral()
 PDLToken line_scanner_state_t::scanName()
 {
     m_lexemeBuffer.clear();
+    auto startLocation = getLocation();
     if (!is('_') && !isAlphabetic())
     {
         throw RuntimeErrorException(__FILE__, __LINE__, "<internal error>");
@@ -388,6 +392,7 @@ PDLToken line_scanner_state_t::scanName()
 PDLToken line_scanner_state_t::scanStringOrReference()
 {
     m_lexemeBuffer.clear();
+    auto startLocation = getLocation();
     if (!isDoubleQuote())
     {
         throw RuntimeErrorException(__FILE__, __LINE__, "<internal error>");
@@ -419,6 +424,7 @@ PDLToken line_scanner_state_t::scanStringOrReference()
 PDLToken line_scanner_state_t::scanIDSZ()
 {
     m_lexemeBuffer.clear();
+    auto startLocation = getLocation();
     if (!is('['))
     {
         throw RuntimeErrorException(__FILE__, __LINE__, "<internal error>");
@@ -444,6 +450,7 @@ PDLToken line_scanner_state_t::scanIDSZ()
 PDLToken line_scanner_state_t::scanOperator()
 {
     m_lexemeBuffer.clear();
+    auto startLocation = getLocation();
     if (!isOperator())
     {
         throw RuntimeErrorException(__FILE__, __LINE__, "<internal error>");
@@ -453,31 +460,31 @@ PDLToken line_scanner_state_t::scanOperator()
     switch (current)
     {
         case '+':
-            return PDLToken(PDLTokenKind::Plus, getLocation(),
+            return PDLToken(PDLTokenKind::Plus, startLocation,
                             m_lexemeBuffer.toString());
         case '-':
-            return PDLToken(PDLTokenKind::Minus, getLocation(),
+            return PDLToken(PDLTokenKind::Minus, startLocation,
                             m_lexemeBuffer.toString());
         case '*':
-            return PDLToken(PDLTokenKind::Multiply, getLocation(),
+            return PDLToken(PDLTokenKind::Multiply, startLocation,
                             m_lexemeBuffer.toString());
         case '/':
-            return PDLToken(PDLTokenKind::Divide, getLocation(),
+            return PDLToken(PDLTokenKind::Divide, startLocation,
                             m_lexemeBuffer.toString());
         case '%':
-            return PDLToken(PDLTokenKind::Modulus, getLocation(),
+            return PDLToken(PDLTokenKind::Modulus, startLocation,
                             m_lexemeBuffer.toString());
         case '>':
-            return PDLToken(PDLTokenKind::ShiftRight, getLocation(),
+            return PDLToken(PDLTokenKind::ShiftRight, startLocation,
                             m_lexemeBuffer.toString());
         case '<':
-            return PDLToken(PDLTokenKind::ShiftLeft, getLocation(),
+            return PDLToken(PDLTokenKind::ShiftLeft, startLocation,
                             m_lexemeBuffer.toString());
         case '&':
-            return PDLToken(PDLTokenKind::And, getLocation(),
+            return PDLToken(PDLTokenKind::And, startLocation,
                             m_lexemeBuffer.toString());
         case '=':
-            return PDLToken(PDLTokenKind::Assign, getLocation(),
+            return PDLToken(PDLTokenKind::Assign, startLocation,
                             m_lexemeBuffer.toString());
         default:
             throw RuntimeErrorException(__FILE__, __LINE__, "internal error");
