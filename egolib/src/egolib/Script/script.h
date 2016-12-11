@@ -516,7 +516,7 @@ struct script_state_t : Id::NonCopyable
     void onVariableNotDefinedError(uint8_t variableIndex);
 	// protected
 	uint8_t run_function(ai_state_t& aiState, script_info_t& script);
-	void store(uint8_t variableIndex);
+	void storeVariable(uint8_t variableIndex);
 	static void run_operand(script_state_t& self, ai_state_t& aiState, script_info_t& script);
 	static bool run_operation(script_state_t& self, ai_state_t& aiState, script_info_t& script);
 	static bool run_function_call(script_state_t& self, ai_state_t& aiState, script_info_t& script);

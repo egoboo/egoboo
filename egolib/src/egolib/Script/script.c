@@ -353,7 +353,7 @@ bool script_state_t::run_operation( script_state_t& state, ai_state_t& aiState, 
     }
 
     // Save the results in the register that called the arithmetic
-    state.store( var_value );
+    state.storeVariable( var_value );
 
     // go to the next opcode
 	script.increment_pos();
@@ -391,7 +391,7 @@ std::string getVariableName(int variableIndex)
     return _scriptVariableNames[variableIndex];
 }
 
-void script_state_t::store(uint8_t variableIndex)
+void script_state_t::storeVariable(uint8_t variableIndex)
 {
     auto variableName = getVariableName(variableIndex);
     switch (variableIndex)
