@@ -415,6 +415,385 @@ std::string getVariableName(int variableIndex)
     return _scriptVariableNames[variableIndex];
 }
 
+int32_t script_state_t::loadVariable(uint8_t variableIndex, ai_state_t& aiState, Object *pobject, Object *ptarget, Object *powner, Object *pleader)
+{
+    switch (variableIndex)
+    {
+        case VARTMPX:
+            return x;
+
+        case VARTMPY:
+            return y;
+
+        case VARTMPDISTANCE:
+            return distance;
+
+        case VARTMPTURN:
+            return turn;
+
+        case VARTMPARGUMENT:
+            return argument;
+
+        case VARRAND:
+            return Random::next(std::numeric_limits<uint16_t>::max());
+
+        case VARSELFX:
+            return pobject->getPosX();
+
+        case VARSELFY:
+            return pobject->getPosY();
+
+        case VARSELFTURN:
+            return uint16_t(pobject->ori.facing_z);
+
+        case VARSELFCOUNTER:
+            return aiState.order_counter;
+
+        case VARSELFORDER:
+            return aiState.order_value;
+
+        case VARSELFMORALE:
+            return _currentModule->getTeamList()[pobject->team_base].getMorale();
+
+        case VARSELFLIFE:
+            return FLOAT_TO_FP8(pobject->getLife());
+
+        case VARTARGETX:
+            return (nullptr == ptarget) ? 0 : ptarget->getPosX();
+
+        case VARTARGETY:
+            return (nullptr == ptarget) ? 0 : ptarget->getPosY();
+
+        case VARTARGETDISTANCE:
+            if (nullptr == ptarget)
+            {
+                return 0x7FFFFFFF;
+            }
+            else
+            {
+                return std::abs(ptarget->getPosX() - pobject->getPosX())
+                     + std::abs(ptarget->getPosY() - pobject->getPosY());
+            }
+
+        case VARTARGETTURN:
+            return (nullptr == ptarget) ? 0 : uint16_t(ptarget->ori.facing_z);
+
+        case VARLEADERX:
+            if (pleader)
+            {
+                return pleader->getPosX();
+            }
+            else
+            {
+                return pobject->getPosX();
+            }
+
+        case VARLEADERY:
+            if (pleader)
+            {
+                return pleader->getPosY();
+            }
+            else
+            {
+                return pobject->getPosY();
+            }
+
+        case VARLEADERDISTANCE:
+            if (!pleader)
+            {
+                return 0x7FFFFFFF;
+            }
+            else
+            {
+                return std::abs(pleader->getPosX() - pobject->getPosX())
+                     + std::abs(pleader->getPosY() - pobject->getPosY());
+            }
+
+        case VARLEADERTURN:
+            if (pleader)
+            {
+                return uint16_t(pleader->ori.facing_z);
+            }
+            else
+            {
+                return uint16_t(pobject->ori.facing_z);
+            }
+
+        case VARGOTOX:
+            ai_state_t::ensure_wp(aiState);
+
+            if (!aiState.wp_valid)
+            {
+                return pobject->getPosX();
+            }
+            else
+            {
+                return aiState.wp[kX];
+            }
+
+        case VARGOTOY:
+            ai_state_t::ensure_wp(aiState);
+
+            if (!aiState.wp_valid)
+            {
+                return pobject->getPosY();
+            }
+            else
+            {
+                return aiState.wp[kY];
+            }
+
+        case VARGOTODISTANCE:
+            ai_state_t::ensure_wp(aiState);
+
+            if (!aiState.wp_valid)
+            {
+                return 0x7FFFFFFF;
+            }
+            else
+            {
+                return std::abs(aiState.wp[kX] - pobject->getPosX())
+                     + std::abs(aiState.wp[kY] - pobject->getPosY());
+            }
+ 
+        case VARTARGETTURNTO:
+            if (nullptr == ptarget)
+            {
+                return 0;
+            }
+            else
+            {
+                int32_t temporary = FACING_T(vec_to_facing(ptarget->getPosX() - pobject->getPosX(), ptarget->getPosY() - pobject->getPosY()));
+                return Ego::Math::clipBits<16>(temporary);
+            }
+
+        case VARPASSAGE:
+            return aiState.passage;
+
+        case VARWEIGHT:
+            return pobject->holdingweight;
+
+        case VARSELFALTITUDE:
+            return pobject->getPosZ() - pobject->getObjectPhysics().getGroundElevation();
+
+        case VARSELFID:
+            return pobject->getProfile()->getIDSZ(IDSZ_TYPE).toUint32();
+
+        case VARSELFHATEID:
+            return pobject->getProfile()->getIDSZ(IDSZ_HATE).toUint32();
+
+        case VARSELFMANA:
+            {
+                int32_t temporary = FLOAT_TO_FP8(pobject->getMana());
+                if (pobject->getAttribute(Ego::Attribute::CHANNEL_LIFE))
+                {
+                    temporary += FLOAT_TO_FP8(pobject->getLife());
+                }
+                return temporary;
+            }
+
+        case VARTARGETSTR:
+            return (nullptr == ptarget) ? 0 : FLOAT_TO_FP8(ptarget->getAttribute(Ego::Attribute::MIGHT));
+
+        case VARTARGETINT:
+            return (nullptr == ptarget) ? 0 : FLOAT_TO_FP8(ptarget->getAttribute(Ego::Attribute::INTELLECT));
+
+        case VARTARGETDEX:
+            return (nullptr == ptarget) ? 0 : FLOAT_TO_FP8(ptarget->getAttribute(Ego::Attribute::AGILITY));
+
+        case VARTARGETLIFE:
+            return (nullptr == ptarget) ? 0 : FLOAT_TO_FP8(ptarget->getLife());
+ 
+        case VARTARGETMANA:
+            if (nullptr == ptarget)
+            {
+                return 0;
+            }
+            else
+            {
+                int32_t temporary = FLOAT_TO_FP8(ptarget->getMana());
+                if (ptarget->getAttribute(Ego::Attribute::CHANNEL_LIFE))
+                {
+                    temporary += FLOAT_TO_FP8(ptarget->getLife());
+                }
+                return temporary;
+            }
+
+        case VARTARGETLEVEL:
+            return (nullptr == ptarget) ? 0 : ptarget->experiencelevel;
+
+        case VARTARGETSPEEDX:
+            return (nullptr == ptarget) ? 0 : std::abs(ptarget->vel[kX]);
+
+        case VARTARGETSPEEDY:
+            return (nullptr == ptarget) ? 0 : std::abs(ptarget->vel[kY]);
+
+        case VARTARGETSPEEDZ:
+            return (nullptr == ptarget) ? 0 : std::abs(ptarget->vel[kZ]);
+
+        case VARSELFSPAWNX:
+            return pobject->getSpawnPosition()[kX];
+
+        case VARSELFSPAWNY:
+            return pobject->getSpawnPosition()[kY];
+
+        case VARSELFSTATE:
+            return aiState.state;
+
+        case VARSELFCONTENT:
+            return aiState.content;
+
+        case VARSELFSTR:
+            return FLOAT_TO_FP8(pobject->getAttribute(Ego::Attribute::MIGHT));
+
+        case VARSELFINT:
+            return FLOAT_TO_FP8(pobject->getAttribute(Ego::Attribute::INTELLECT));
+
+        case VARSELFDEX:
+            return FLOAT_TO_FP8(pobject->getAttribute(Ego::Attribute::AGILITY));
+
+        case VARSELFMANAFLOW:
+            return FLOAT_TO_FP8(pobject->getAttribute(Ego::Attribute::SPELL_POWER));
+
+        case VARTARGETMANAFLOW:
+            return (nullptr == ptarget) ? 0 : FLOAT_TO_FP8(ptarget->getAttribute(Ego::Attribute::SPELL_POWER));
+
+        case VARSELFATTACHED:
+            return number_of_attached_particles(aiState.getSelf());
+
+        case VARSWINGTURN:
+            {
+                auto camera = CameraSystem::get().getCamera(aiState.getSelf());
+                return nullptr != camera ? camera->getSwing() << 2 : 0;
+            }
+
+        case VARXYDISTANCE:
+            return std::sqrt(x * x + y * y);
+
+        case VARSELFZ:
+            return pobject->getPosZ();
+
+        case VARTARGETALTITUDE:
+            return (nullptr == ptarget) ? 0 : ptarget->getPosZ() - ptarget->getObjectPhysics().getGroundElevation();
+
+        case VARTARGETZ:
+            return (nullptr == ptarget) ? 0 : ptarget->getPosZ();
+
+        case VARSELFINDEX:
+            return aiState.getSelf().get();
+
+        case VAROWNERX:
+            return (nullptr == powner) ? 0 : powner->getPosX();
+
+        case VAROWNERY:
+            return (nullptr == powner) ? 0 : powner->getPosY();
+
+        case VAROWNERTURN:
+            return (nullptr == powner) ? 0 : uint16_t(powner->ori.facing_z);
+
+        case VAROWNERDISTANCE:
+            if (nullptr == powner)
+            {
+                return 0x7FFFFFFF;
+            }
+            else
+            {
+                return std::abs(powner->getPosX() - pobject->getPosX())
+                     + std::abs(powner->getPosY() - pobject->getPosY());
+            }
+  
+        case VAROWNERTURNTO:
+            if (nullptr == powner)
+            {
+                return 0;
+            }
+            else
+            {
+                int32_t temporary = FACING_T(vec_to_facing(powner->getPosX() - pobject->getPosX(), powner->getPosY() - pobject->getPosY()));
+                return Ego::Math::clipBits<16>(temporary);
+            }
+
+        case VARXYTURNTO:
+            {
+                int32_t temporary = FACING_T(vec_to_facing(x - pobject->getPosX(), y - pobject->getPosY()));
+                return Ego::Math::clipBits<16>(temporary);
+            }
+
+        case VARSELFMONEY:
+            return pobject->getMoney();
+ 
+        case VARSELFACCEL:
+            return (pobject->getAttribute(Ego::Attribute::ACCELERATION) * 100.0f);
+
+        case VARTARGETEXP:
+            return (nullptr == ptarget) ? 0 : ptarget->experience;
+
+        case VARSELFAMMO:
+            return pobject->ammo;
+
+        case VARTARGETAMMO:
+            return (nullptr == ptarget) ? 0 : ptarget->ammo;
+
+        case VARTARGETMONEY:
+            return (nullptr == ptarget) ? 0 : ptarget->getMoney();
+
+        case VARTARGETTURNAWAY:
+            if (nullptr == ptarget)
+            {
+                return 0;
+            }
+            else
+            {
+                int32_t temporary = FACING_T(vec_to_facing(ptarget->getPosX() - pobject->getPosX(), ptarget->getPosY() - pobject->getPosY()));
+                return Ego::Math::clipBits<16>(temporary);
+            }
+
+        case VARSELFLEVEL:
+            return pobject->experiencelevel;
+
+        case VARTARGETRELOADTIME:
+            return (nullptr == ptarget) ? 0 : ptarget->reload_timer;
+ 
+        case VARSPAWNDISTANCE:
+            return std::abs(pobject->getSpawnPosition()[kX] - pobject->getPosX())
+                 + std::abs(pobject->getSpawnPosition()[kY] - pobject->getPosY());
+
+        case VARTARGETMAXLIFE:
+            return (nullptr == ptarget) ? 0 : FLOAT_TO_FP8(ptarget->getAttribute(Ego::Attribute::MAX_LIFE));
+
+        case VARTARGETTEAM:
+            return (nullptr == ptarget) ? 0 : ptarget->team;
+
+        case VARTARGETARMOR:
+            return (nullptr == ptarget) ? 0 : ptarget->skin;
+
+        case VARDIFFICULTY:
+            return static_cast<uint32_t>(egoboo_config_t::get().game_difficulty.getValue());
+
+        case VARTIMEHOURS:
+            return Ego::Time::LocalTime().getHours();
+
+        case VARTIMEMINUTES:
+            return Ego::Time::LocalTime().getMinutes();
+
+        case VARTIMESECONDS:
+            return Ego::Time::LocalTime().getSeconds();
+
+        case VARDATEMONTH:
+            return Ego::Time::LocalTime().getMonth() + 1; /// @todo The addition of +1 should be removed and
+                                                          /// the whole Ego::Time::LocalTime class should be
+                                                          /// made available via EgoScript. However, EgoScript
+                                                          /// is not yet ready for that ... not yet.
+
+        case VARDATEDAY:
+            return Ego::Time::LocalTime().getDayOfMonth();
+
+        default:
+            onVariableNotDefinedError(variableIndex);
+    }
+}
+
+
 void script_state_t::storeVariable(uint8_t variableIndex)
 {
     auto variableName = getVariableName(variableIndex);
@@ -502,455 +881,7 @@ void script_state_t::run_operand(script_state_t& state, ai_state_t& aiState, scr
         uint8_t variableIndex = script._instructions[script.get_pos()].getValueBits();
         varname = getVariableName(variableIndex);
         std::shared_ptr<Object> pleader = _currentModule->getTeamList()[pobject->team].getLeader();
-        switch (variableIndex)
-        {
-            case VARTMPX:
-                iTmp = state.x;
-                break;
-
-            case VARTMPY:
-                iTmp = state.y;
-                break;
-
-            case VARTMPDISTANCE:
-                iTmp = state.distance;
-                break;
-
-            case VARTMPTURN:
-                iTmp = state.turn;
-                break;
-
-            case VARTMPARGUMENT:
-                iTmp = state.argument;
-                break;
-
-            case VARRAND:
-                iTmp = Random::next(std::numeric_limits<uint16_t>::max());
-                break;
-
-            case VARSELFX:
-                iTmp = pobject->getPosX();
-                break;
-
-            case VARSELFY:
-                iTmp = pobject->getPosY();
-                break;
-
-            case VARSELFTURN:
-                iTmp = uint16_t(pobject->ori.facing_z);
-                break;
-
-            case VARSELFCOUNTER:
-                iTmp = aiState.order_counter;
-                break;
-
-            case VARSELFORDER:
-                iTmp = aiState.order_value;
-                break;
-
-            case VARSELFMORALE:
-                iTmp = _currentModule->getTeamList()[pobject->team_base].getMorale();
-                break;
-
-            case VARSELFLIFE:
-                iTmp = FLOAT_TO_FP8(pobject->getLife());
-                break;
-
-            case VARTARGETX:
-                iTmp = (nullptr == ptarget) ? 0 : ptarget->getPosX();
-                break;
-
-            case VARTARGETY:
-                iTmp = (nullptr == ptarget) ? 0 : ptarget->getPosY();
-                break;
-
-            case VARTARGETDISTANCE:
-                if (nullptr == ptarget)
-                {
-                    iTmp = 0x7FFFFFFF;
-                }
-                else
-                {
-                    iTmp = std::abs(ptarget->getPosX() - pobject->getPosX())
-                         + std::abs(ptarget->getPosY() - pobject->getPosY());
-                }
-                break;
-
-            case VARTARGETTURN:
-                iTmp = (nullptr == ptarget) ? 0 : uint16_t(ptarget->ori.facing_z);
-                break;
-
-            case VARLEADERX:
-                if (pleader)
-                {
-                    iTmp = pleader->getPosX();
-                }
-                else
-                {
-                    iTmp = pobject->getPosX();
-                }
-                break;
-
-            case VARLEADERY:
-                if (pleader)
-                {
-                    iTmp = pleader->getPosY();
-                }
-                else
-                {
-                    iTmp = pobject->getPosY();
-                }
-                break;
-
-            case VARLEADERDISTANCE:
-                if (!pleader)
-                {
-                    iTmp = 0x7FFFFFFF;
-                }
-                else
-                {
-                    iTmp = std::abs(pleader->getPosX() - pobject->getPosX())
-                         + std::abs(pleader->getPosY() - pobject->getPosY());
-                }
-                break;
-
-            case VARLEADERTURN:
-                if (pleader)
-                {
-                    iTmp = uint16_t(pleader->ori.facing_z);
-                }
-                else
-                {
-                    iTmp = uint16_t(pobject->ori.facing_z);
-                }
-                break;
-
-            case VARGOTOX:
-                ai_state_t::ensure_wp(aiState);
-
-                if (!aiState.wp_valid)
-                {
-                    iTmp = pobject->getPosX();
-                }
-                else
-                {
-                    iTmp = aiState.wp[kX];
-                }
-                break;
-
-            case VARGOTOY:
-                ai_state_t::ensure_wp(aiState);
-
-                if (!aiState.wp_valid)
-                {
-                    iTmp = pobject->getPosY();
-                }
-                else
-                {
-                    iTmp = aiState.wp[kY];
-                }
-                break;
-
-            case VARGOTODISTANCE:
-                ai_state_t::ensure_wp(aiState);
-
-                if (!aiState.wp_valid)
-                {
-                    iTmp = 0x7FFFFFFF;
-                }
-                else
-                {
-                    iTmp = std::abs(aiState.wp[kX] - pobject->getPosX())
-                         + std::abs(aiState.wp[kY] - pobject->getPosY());
-                }
-                break;
-
-            case VARTARGETTURNTO:
-                if (nullptr == ptarget)
-                {
-                    iTmp = 0;
-                }
-                else
-                {
-                    iTmp = FACING_T(vec_to_facing(ptarget->getPosX() - pobject->getPosX(), ptarget->getPosY() - pobject->getPosY()));
-                    iTmp = Ego::Math::clipBits<16>(iTmp);
-                }
-                break;
-
-            case VARPASSAGE:
-                iTmp = aiState.passage;
-                break;
-
-            case VARWEIGHT:
-                iTmp = pobject->holdingweight;
-                break;
-
-            case VARSELFALTITUDE:
-                iTmp = pobject->getPosZ() - pobject->getObjectPhysics().getGroundElevation();
-                break;
-
-            case VARSELFID:
-                iTmp = pobject->getProfile()->getIDSZ(IDSZ_TYPE).toUint32();
-                break;
-
-            case VARSELFHATEID:
-                iTmp = pobject->getProfile()->getIDSZ(IDSZ_HATE).toUint32();
-                break;
-
-            case VARSELFMANA:
-                iTmp = FLOAT_TO_FP8(pobject->getMana());
-                if (pobject->getAttribute(Ego::Attribute::CHANNEL_LIFE))
-                {
-                    iTmp += FLOAT_TO_FP8(pobject->getLife());
-                }
-                break;
-
-            case VARTARGETSTR:
-                iTmp = (nullptr == ptarget) ? 0 : FLOAT_TO_FP8(ptarget->getAttribute(Ego::Attribute::MIGHT));
-                break;
-
-            case VARTARGETINT:
-                iTmp = (nullptr == ptarget) ? 0 : FLOAT_TO_FP8(ptarget->getAttribute(Ego::Attribute::INTELLECT));
-                break;
-
-            case VARTARGETDEX:
-                iTmp = (nullptr == ptarget) ? 0 : FLOAT_TO_FP8(ptarget->getAttribute(Ego::Attribute::AGILITY));
-                break;
-
-            case VARTARGETLIFE:
-                iTmp = (nullptr == ptarget) ? 0 : FLOAT_TO_FP8(ptarget->getLife());
-                break;
-
-            case VARTARGETMANA:
-                if (nullptr == ptarget)
-                {
-                    iTmp = 0;
-                }
-                else
-                {
-                    iTmp = FLOAT_TO_FP8(ptarget->getMana());
-                    if (ptarget->getAttribute(Ego::Attribute::CHANNEL_LIFE))
-                    {
-                        iTmp += FLOAT_TO_FP8(ptarget->getLife());
-                    }
-                }
-                break;
-
-            case VARTARGETLEVEL:
-                iTmp = (nullptr == ptarget) ? 0 : ptarget->experiencelevel;
-                break;
-
-            case VARTARGETSPEEDX:
-                iTmp = (nullptr == ptarget) ? 0 : std::abs(ptarget->vel[kX]);
-                break;
-
-            case VARTARGETSPEEDY:
-                iTmp = (nullptr == ptarget) ? 0 : std::abs(ptarget->vel[kY]);
-                break;
-
-            case VARTARGETSPEEDZ:
-                iTmp = (nullptr == ptarget) ? 0 : std::abs(ptarget->vel[kZ]);
-                break;
-
-            case VARSELFSPAWNX:
-                iTmp = pobject->getSpawnPosition()[kX];
-                break;
-
-            case VARSELFSPAWNY:
-                iTmp = pobject->getSpawnPosition()[kY];
-                break;
-
-            case VARSELFSTATE:
-                iTmp = aiState.state;
-                break;
-
-            case VARSELFCONTENT:
-                iTmp = aiState.content;
-                break;
-
-            case VARSELFSTR:
-                iTmp = FLOAT_TO_FP8(pobject->getAttribute(Ego::Attribute::MIGHT));
-                break;
-
-            case VARSELFINT:
-                iTmp = FLOAT_TO_FP8(pobject->getAttribute(Ego::Attribute::INTELLECT));
-                break;
-
-            case VARSELFDEX:
-                iTmp = FLOAT_TO_FP8(pobject->getAttribute(Ego::Attribute::AGILITY));
-                break;
-
-            case VARSELFMANAFLOW:
-                iTmp = FLOAT_TO_FP8(pobject->getAttribute(Ego::Attribute::SPELL_POWER));
-                break;
-
-            case VARTARGETMANAFLOW:
-                iTmp = (nullptr == ptarget) ? 0 : FLOAT_TO_FP8(ptarget->getAttribute(Ego::Attribute::SPELL_POWER));
-                break;
-
-            case VARSELFATTACHED:
-                iTmp = number_of_attached_particles(aiState.getSelf());
-                break;
-
-            case VARSWINGTURN:
-                {
-                    auto camera = CameraSystem::get().getCamera(aiState.getSelf());
-                    iTmp = nullptr != camera ? camera->getSwing() << 2 : 0;
-                }
-                break;
-
-            case VARXYDISTANCE:
-                iTmp = std::sqrt(state.x * state.x + state.y * state.y);
-                break;
-
-            case VARSELFZ:
-                iTmp = pobject->getPosZ();
-                break;
-
-            case VARTARGETALTITUDE:
-                iTmp = (nullptr == ptarget) ? 0 : ptarget->getPosZ() - ptarget->getObjectPhysics().getGroundElevation();
-                break;
-
-            case VARTARGETZ:
-                iTmp = (nullptr == ptarget) ? 0 : ptarget->getPosZ();
-                break;
-
-            case VARSELFINDEX:
-                iTmp = aiState.getSelf().get();
-                break;
-
-            case VAROWNERX:
-                iTmp = (nullptr == powner) ? 0 : powner->getPosX();
-                break;
-
-            case VAROWNERY:
-                iTmp = (nullptr == powner) ? 0 : powner->getPosY();
-                break;
-
-            case VAROWNERTURN:
-                iTmp = (nullptr == powner) ? 0 : uint16_t(powner->ori.facing_z);
-                break;
-
-            case VAROWNERDISTANCE:
-                if (nullptr == powner)
-                {
-                    iTmp = 0x7FFFFFFF;
-                }
-                else
-                {
-                    iTmp = std::abs(powner->getPosX() - pobject->getPosX())
-                         + std::abs(powner->getPosY() - pobject->getPosY());
-                }
-                break;
-
-            case VAROWNERTURNTO:
-                if (nullptr == powner)
-                {
-                    iTmp = 0;
-                }
-                else
-                {
-                    iTmp = FACING_T(vec_to_facing(powner->getPosX() - pobject->getPosX(), powner->getPosY() - pobject->getPosY()));
-                    iTmp = Ego::Math::clipBits<16>(iTmp);
-                }
-                break;
-
-            case VARXYTURNTO:
-                iTmp = FACING_T(vec_to_facing(state.x - pobject->getPosX(), state.y - pobject->getPosY()));
-                iTmp = Ego::Math::clipBits<16>(iTmp);
-                break;
-
-            case VARSELFMONEY:
-                iTmp = pobject->getMoney();
-                break;
-
-            case VARSELFACCEL:
-                iTmp = (pobject->getAttribute(Ego::Attribute::ACCELERATION) * 100.0f);
-                break;
-
-            case VARTARGETEXP:
-                iTmp = (nullptr == ptarget) ? 0 : ptarget->experience;
-                break;
-
-            case VARSELFAMMO:
-                iTmp = pobject->ammo;
-                break;
-
-            case VARTARGETAMMO:
-                iTmp = (nullptr == ptarget) ? 0 : ptarget->ammo;
-                break;
-
-            case VARTARGETMONEY:
-                iTmp = (nullptr == ptarget) ? 0 : ptarget->getMoney();
-                break;
-
-            case VARTARGETTURNAWAY:
-                if (nullptr == ptarget)
-                {
-                    iTmp = 0;
-                }
-                else
-                {
-                    iTmp = FACING_T(vec_to_facing(ptarget->getPosX() - pobject->getPosX(), ptarget->getPosY() - pobject->getPosY()));
-                    iTmp = Ego::Math::clipBits<16>(iTmp);
-                }
-                break;
-
-            case VARSELFLEVEL:
-                iTmp = pobject->experiencelevel;
-                break;
-
-            case VARTARGETRELOADTIME:
-                iTmp = (nullptr == ptarget) ? 0 : ptarget->reload_timer;
-                break;
-
-            case VARSPAWNDISTANCE:
-                iTmp = std::abs(pobject->getSpawnPosition()[kX] - pobject->getPosX())
-                     + std::abs(pobject->getSpawnPosition()[kY] - pobject->getPosY());
-                break;
-
-            case VARTARGETMAXLIFE:
-                iTmp = (nullptr == ptarget) ? 0 : FLOAT_TO_FP8(ptarget->getAttribute(Ego::Attribute::MAX_LIFE));
-                break;
-
-            case VARTARGETTEAM:
-                iTmp = (nullptr == ptarget) ? 0 : ptarget->team;
-                break;
-
-            case VARTARGETARMOR:
-                iTmp = (nullptr == ptarget) ? 0 : ptarget->skin;
-                break;
-
-            case VARDIFFICULTY:
-                iTmp = static_cast<uint32_t>(egoboo_config_t::get().game_difficulty.getValue());
-                break;
-
-            case VARTIMEHOURS:
-                iTmp = Ego::Time::LocalTime().getHours();
-                break;
-
-            case VARTIMEMINUTES:
-                iTmp = Ego::Time::LocalTime().getMinutes();
-                break;
-
-            case VARTIMESECONDS:
-                iTmp = Ego::Time::LocalTime().getSeconds();
-                break;
-
-            case VARDATEMONTH:
-                iTmp = Ego::Time::LocalTime().getMonth() + 1; /// @todo The addition of +1 should be removed and
-                                                              /// the whole Ego::Time::LocalTime class should be
-                                                              /// made available via EgoScript. However, EgoScript
-                                                              /// is not yet ready for that ... not yet.
-                break;
-
-            case VARDATEDAY:
-                iTmp = Ego::Time::LocalTime().getDayOfMonth();
-                break;
-
-            default:
-                state.onVariableNotDefinedError(variableIndex);
-        }
+        iTmp = state.loadVariable(variableIndex, aiState, pobject, ptarget, powner, pleader.get());
     }
 
     // Now do the math
