@@ -24,18 +24,7 @@
 #include "game/script_compile.h"
 #include "game/game.h"
 #include "game/egoboo.h"
-#include "egolib/Log/Entry.hpp"
-
-namespace Log {
-struct CompilerEntry : Entry {
-	Location _location;
-	CompilerEntry(Level level, const std::string& file, int line, const std::string& function,
-		          const Location& location)
-		: Entry(level, file, line, function), _location(location) {
-		getSink() << ": " << _location.getFileName() << ":" << _location.getLineNumber() << ": ";
-	}
-};
-}
+#include "egolib/Script/CLogEntry.hpp"
 
 static bool load_ai_codes_vfs();
 
@@ -212,7 +201,7 @@ size_t parser_state_t::load_one_line( size_t read, script_info_t& script )
 
     if ( _lineBuffer.getSize() > 0  && tabs_warning_needed )
     {
-        Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getStartLocation());
+        Ego::Script::CLogEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getStartLocation());
 		e << "compilation error - tab character used to define spacing will cause an error `"
 		  << " - \n`" << _lineBuffer.toString() << "`" << Log::EndOfEntry;
 		Log::get() << e;
@@ -510,7 +499,7 @@ PDLToken parser_state_t::parse_indention(script_info_t& script, line_scanner_sta
     static Ego::IsOdd<int> isOdd;
     if (isOdd(indent))
     {
-        Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getStartLocation());
+        CLogEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getStartLocation());
         e << "invalid indention - number of spaces must be even - \n"
           << " - \n`" << _lineBuffer.toString() << "`" << Log::EndOfEntry;
         Log::get() << e;
@@ -520,7 +509,7 @@ PDLToken parser_state_t::parse_indention(script_info_t& script, line_scanner_sta
     indent >>= 1;
     if (indent > 15)
     {
-        Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getStartLocation());
+        CLogEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getStartLocation());
         e << "invalid indention - too many spaces - \n"
           << " - \n`" << _lineBuffer.toString() << "`" << Log::EndOfEntry;
         Log::get() << e;
@@ -597,7 +586,7 @@ PDLToken parser_state_t::parse_token(ObjectProfile *ppro, script_info_t& script,
             // Failed to load object!
             if (!ProfileSystem::get().isValidProfileID((PRO_REF)token.getValue()))
             {
-                Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, token.getStartLocation());
+                CLogEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, token.getStartLocation());
                 e << "failed to load object " << token.getLexeme() << " - \n"
                     << " - \n`" << _lineBuffer.toString() << "`" << Log::EndOfEntry;
                 Log::get() << e;
@@ -610,7 +599,7 @@ PDLToken parser_state_t::parse_token(ObjectProfile *ppro, script_info_t& script,
             token.setValue(ppro->addMessage(token.getLexeme(), true));
             token.setKind(PDLTokenKind::Constant);
             // Emit a warning that the string is empty.
-            Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, token.getStartLocation());
+            CLogEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, token.getStartLocation());
             e << "empty string literal\n" << Log::EndOfEntry;
             Log::get() << e;
         }
@@ -723,7 +712,7 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
         _token = parse_indention(script, state);
         if (!_token.is(PDLTokenKind::Indent))
         {
-            Log::CompilerEntry e(Log::Level::Error, __FILE__, __LINE__, __FUNCTION__, _token.getStartLocation());
+            CLogEntry e(Log::Level::Error, __FILE__, __LINE__, __FUNCTION__, _token.getStartLocation());
             e << "expected operator - \n"
               << " - \n`" << _lineBuffer.toString() << "`" << Log::EndOfEntry;
             Log::get() << e;
@@ -788,7 +777,7 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
             else if (!(_token.isOperator() && !_token.isAssignOperator()))
             {
                 // this is a function or an unknown value. do not break the script.
-                Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getStartLocation());
+                CLogEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getStartLocation());
 				e << "invalid operand " << _token.getLexeme() << " - \n"
 				  << " - \n`" << _lineBuffer.toString() << "`" << Log::EndOfEntry;
 				Log::get() << e;
@@ -806,7 +795,7 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
                 if ( !(_token.isOperator() && !_token.isAssignOperator()) )
                 {
                     // problem with the loop
-                    Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getStartLocation());
+                    CLogEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getStartLocation());
 					e << "expected operator - \n"
 					  << " - \n`" << _lineBuffer.toString() << "`" << Log::EndOfEntry;
 					Log::get() << e;
@@ -821,7 +810,7 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
                 if ( PDLTokenKind::Constant != _token.getKind() && PDLTokenKind::Variable != _token.getKind() )
                 {
                     // not having a constant or a value here breaks the function. stop processsing
-                    Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getStartLocation());
+                    CLogEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getStartLocation());
                     e << "invalid operand `" << _token.getLexeme() << "`" << Log::EndOfEntry;
                     Log::get() << e;
                     break;
@@ -837,14 +826,14 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
         }
         else if ( _token.is(PDLTokenKind::Constant) )
         {
-            Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getStartLocation());
+            CLogEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getStartLocation());
             e << "invalid constant " << _token.getLexeme() << Log::EndOfEntry;
             Log::get() << e;
         }
         else if ( _token.is(PDLTokenKind::Unknown) )
         {
             // unknown opcode, do not process this line
-            Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getStartLocation());
+            CLogEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getStartLocation());
             e << "invalid operand " << _token.getLexeme() << Log::EndOfEntry;
             Log::get() << e;
         }

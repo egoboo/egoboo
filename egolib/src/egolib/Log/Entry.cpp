@@ -27,46 +27,167 @@ const Manipulations::EndOfEntryManipulation EndOfEntry{};
 const Manipulations::EndOfLineManipulation EndOfLine{};
 
 Entry::Entry(Level level)
-	: _level(level), _sink() {
+    : m_level(level), m_sink()
+{}
+
+Entry::Entry(Level level, const std::string& fileName, int lineNumber)
+    : Entry(level)
+{
+    m_attributes["C/C++ file name"] = fileName;
+    m_attributes["C/C++ line number"] = std::to_string(lineNumber);
 }
 
-Entry::Entry(Level level, const std::string& file, int line)
-	: _level(level), _sink() {
-	_sink << file << ":" << line << ": ";
+Entry::Entry(Level level, const std::string& fileName, int lineNumber, const std::string& functionName)
+    : Entry(level, fileName, lineNumber)
+{
+    m_attributes["C/C++ function name"] = functionName;
 }
 
-Entry::Entry::Entry(Level level, const std::string& file, int line, const std::string& function)
-	: _level(level), _sink() {
-	_sink << file << ":" << line << ":" << function << ": ";
+bool Entry::hasAttribute(const std::string& name) const
+{
+    return m_attributes.cend() != m_attributes.find(name);
 }
 
-std::string Entry::getText() const {
-	return _sink.str();
+const std::string& Entry::getAttribute(const std::string& name) const
+{
+    return m_attributes.find(name)->second;
 }
 
-Level Entry::getLevel() const {
-	return _level;
+std::string Entry::getText() const
+{
+    return m_sink.str();
 }
 
-std::ostringstream& Entry::getSink() {
-	return _sink;
+Level Entry::getLevel() const
+{
+    return m_level;
+}
+
+Entry& operator<<(Entry& entry, const char *value)
+{
+    entry.m_sink << value;
+    return entry;
+}
+
+Entry& operator<<(Entry& entry, const std::string& value)
+{
+    entry.m_sink << value;
+    return entry;
+}
+
+Entry& operator<<(Entry& entry, char value)
+{
+    entry.m_sink << value;
+    return entry;
+}
+
+Entry& operator<<(Entry& entry, signed char value)
+{
+    entry.m_sink << value;
+    return entry;
+}
+
+Entry& operator<<(Entry& entry, unsigned char value)
+{
+    entry.m_sink << value;
+    return entry;
+}
+
+Entry& operator<<(Entry& entry, signed short value)
+{
+    entry.m_sink << value;
+    return entry;
+}
+
+Entry& operator<<(Entry& entry, unsigned short value)
+{
+    entry.m_sink << value;
+    return entry;
+}
+
+Entry& operator<<(Entry& entry, bool value)
+{
+    entry.m_sink << value;
+    return entry;
+}
+
+Entry& operator<<(Entry& entry, signed int value)
+{
+    entry.m_sink << value;
+    return entry;
+}
+
+Entry& operator<<(Entry& entry, unsigned int value)
+{
+    entry.m_sink << value;
+    return entry;
+}
+
+Entry& operator<<(Entry& entry, signed long value)
+{
+    entry.m_sink << value;
+    return entry;
+}
+
+Entry& operator<<(Entry& entry, unsigned long value)
+{
+    entry.m_sink << value;
+    return entry;
+}
+
+Entry& operator<<(Entry& entry, float value)
+{
+    entry.m_sink << value;
+    return entry;
+}
+
+Entry& operator<<(Entry& entry, double value)
+{
+    entry.m_sink << value;
+    return entry;
+}
+
+Entry& operator<<(Entry& entry, const Manipulations::EndOfLineManipulation& value)
+{
+    entry.m_sink << std::endl;
+    return entry;
+}
+
+Entry& operator<<(Entry& entry, const Manipulations::EndOfEntryManipulation& value)
+{
+    entry.m_sink << std::endl;
+    return entry;
+}
+
+Entry& operator<<(Entry& entry, signed long long value)
+{
+    entry.m_sink << value;
+    return entry;
+}
+
+Entry& operator<<(Entry& entry, unsigned long long value)
+{
+    entry.m_sink << value;
+    return entry;
+}
+
+Target& operator<<(Target& target, const Entry& entry)
+{
+    std::ostringstream temporary;
+    if (entry.hasAttribute("C/C++ file name"))
+    {
+        temporary << entry.getAttribute("C/C++ file name") << ":";
+    }
+    if (entry.hasAttribute("C/C++ line number"))
+    {
+        temporary << entry.getAttribute("C/C++ line number") << ":";
+    }
+    if (entry.hasAttribute("C/C++ function namer"))
+    {
+        temporary << entry.getAttribute("C/C++ function name") << ":";
+    }
+    target.log(entry.getLevel(), "%s%s", temporary.str().c_str(), entry.getText().c_str());
+    return target;
 }
 
 } // namespace Log
-
-template <>
-Log::Entry& operator<< <Log::Manipulations::EndOfLineManipulation>(Log::Entry& entry, const Log::Manipulations::EndOfLineManipulation& value) {
-	entry.getSink() << std::endl;
-	return entry;
-}
-
-template <>
-Log::Entry& operator<< <Log::Manipulations::EndOfEntryManipulation>(Log::Entry& entry, const Log::Manipulations::EndOfEntryManipulation& value) {
-	entry.getSink() << std::endl;
-	return entry;
-}
-
-Log::Target& operator<<(Log::Target& target, const Log::Entry& entry) {
-	target.log(entry.getLevel(), "%s", entry.getText().c_str());
-	return target;
-}

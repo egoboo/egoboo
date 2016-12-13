@@ -561,6 +561,9 @@
     <ClCompile Include="src\egolib\Script\DDLTokenDecoder.cpp">
       <Filter>Source Files\Script</Filter>
     </ClCompile>
+    <ClCompile Include="src\egolib\Script\CLogEntry.cpp">
+      <Filter>Source Files\Script</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\egolib\vfs.h">
@@ -1395,6 +1398,9 @@
       <Filter>Header Files\Script</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Script\DDLTokenDecoder.hpp">
+      <Filter>Header Files\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Script\CLogEntry.hpp">
       <Filter>Header Files\Script</Filter>
     </ClInclude>
   </ItemGroup>
