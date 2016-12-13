@@ -55,6 +55,9 @@ extern std::vector<opcode_data_t> Opcodes;
 struct line_scanner_state_t
 {
 public:
+    static int TabulatorSymbol() { return '\t'; }
+    static int TildeSymbol() { return '~'; }
+    static int UnderscoreSymbol() { return '_'; }
     static int DoubleQuoteSymbol() { return C_DOUBLE_QUOTE_CHAR; }
     static int EndOfInputSymbol() { return 255 + 2; }
     static int StartOfInputSymbol() { return 255 + 1; }
@@ -77,6 +80,7 @@ public:
 
     void next();
     void write(int symbol);
+    void writeAndNext(int symbol);
     void save();
     void saveAndNext();
 
@@ -92,6 +96,7 @@ public:
     bool isAlphabetic() const;
     bool isNewLine() const;
     bool isOperator() const;
+    bool isControl() const;
 public:
     /// @code
     /// WhiteSpaces := WhiteSpace*

@@ -164,20 +164,7 @@ size_t parser_state_t::load_one_line( size_t read, script_info_t& script )
             inside_string = !inside_string;
         }
 
-        if ( inside_string )
-        {
-            if ( '\t' == cTmp )
-            {
-                // convert tab characters to the '~' symbol
-                cTmp = '~';
-            }
-            else if (Ego::isspace(cTmp) || Ego::iscntrl(cTmp))
-            {
-                // all whitespace and control characters are converted to '_'
-                cTmp = '_';
-            }
-        }
-        else if (Ego::iscntrl(cTmp))
+        if (!inside_string && Ego::iscntrl(cTmp))
         {
             // Convert control characters to whitespace
             cTmp = ' ';
@@ -252,6 +239,12 @@ void line_scanner_state_t::saveAndNext()
     next();
 }
 
+void line_scanner_state_t::writeAndNext(int symbol)
+{
+    write(symbol);
+    next();
+}
+
 int line_scanner_state_t::getCurrent() const
 {
     if (m_inputPosition >= m_inputBuffer->getSize()) return EndOfInputSymbol();
@@ -308,6 +301,11 @@ bool line_scanner_state_t::isOperator() const
         is('&') || is('=');
 }
 
+bool line_scanner_state_t::isControl() const
+{
+    return Ego::iscntrl(getCurrent());
+}
+
 PDLToken line_scanner_state_t::scanWhiteSpaces()
 {
     auto startLocation = getLocation();
@@ -316,6 +314,12 @@ PDLToken line_scanner_state_t::scanWhiteSpaces()
     {
         do
         {
+            if (is(TabulatorSymbol()))
+            {
+                Ego::Script::CLogEntry e(Log::Level::Warning, __FILE__, __LINE__, __FUNCTION__, getLocation());
+                e << "tabulator character in source file" << Log::EndOfEntry;
+                Log::get() << e;
+            }
             numberOfWhiteSpaces++;
             next();
         } while (isWhiteSpace());
@@ -399,7 +403,20 @@ PDLToken line_scanner_state_t::scanStringOrReference()
     
     while (!isEndOfInput() && !isNewLine() && !isDoubleQuote())
     {
-        saveAndNext();
+        if (is(TabulatorSymbol()))
+        {
+            // convert tab characters to the '~' symbol.
+            writeAndNext(TildeSymbol());
+        }
+        else if (isWhiteSpace() || isControl())
+        {
+            // whitespace symbols and control symbols are converted to the '_' symbol.
+            writeAndNext(UnderscoreSymbol());
+        }
+        else
+        {
+            saveAndNext();
+        }
     }
 
     if (isDoubleQuote())
