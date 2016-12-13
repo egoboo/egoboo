@@ -339,7 +339,9 @@ bool script_state_t::run_operation(script_state_t& state, ai_state_t& aiState, s
     // check for valid execution pointer
     if (script.get_pos() >= script._instructions.getNumberOfInstructions()) return false;
 
-    auto var_value = script._instructions[script.get_pos()].getValueBits();
+    auto constantIndex = script._instructions[script.get_pos()].getValueBits();
+    const auto& constant = script._instructions.getConstantPool().getConstant(constantIndex);
+    uint32_t variableIndex = constant.getAsInteger();
 
     // debug stuff
     std::string variable = "UNKNOWN";
@@ -350,7 +352,7 @@ bool script_state_t::run_operation(script_state_t& state, ai_state_t& aiState, s
 
         for (auto i = 0; i < Opcodes.size(); i++)
         {
-            if (PDLTokenKind::Variable == Opcodes[i]._kind && var_value == Opcodes[i].iValue)
+            if (PDLTokenKind::Variable == Opcodes[i]._kind && variableIndex == Opcodes[i].iValue)
             {
                 variable = Opcodes[i].cName;
                 break;
@@ -377,7 +379,7 @@ bool script_state_t::run_operation(script_state_t& state, ai_state_t& aiState, s
     }
 
     // Save the results in the register that called the arithmetic
-    state.storeVariable(var_value);
+    state.storeVariable(variableIndex);
 
     // go to the next opcode
     script.increment_pos();
@@ -831,9 +833,9 @@ void script_state_t::onVariableNotDefinedError(uint8_t variableIndex)
 {
     auto variableName = getVariableName(variableIndex);
     Log::Entry e(Log::Level::Warning, __FILE__, __LINE__);
-    e << "variable " << variableName << "/" << variableIndex << " not defined" << Log::EndOfEntry;
+    e << "variable " << variableName << "/" << (uint16_t)variableIndex << " not defined" << Log::EndOfEntry;
     Log::get() << e;
-    throw Id::RuntimeErrorException(__FILE__, __LINE__, e.getText());
+    throw RuntimeErrorException(__FILE__, __LINE__, e.getText());
 }
 
 void script_state_t::run_operand(script_state_t& state, ai_state_t& aiState, script_info_t& script)
@@ -861,12 +863,12 @@ void script_state_t::run_operand(script_state_t& state, ai_state_t& aiState, scr
     // get the operator
     int32_t iTmp = 0;
 
+    auto constantIndex = script._instructions[script.get_pos()].getValueBits();
+    const auto& constant = script._instructions.getConstantPool().getConstant(constantIndex);
     uint8_t operation = script._instructions[script.get_pos()].getDataBits();
     if (script._instructions[script.get_pos()].isLdc())
     {
-        // Get the working opcode from a constant, constants are all but high 5 bits
-        auto constantIndex = script._instructions[script.get_pos()].getValueBits();
-        const auto& constant = script._instructions.getConstantPool().getConstant(constantIndex);
+        // Load the constant.
         iTmp = constant.getAsInteger();
         if (debug_scripts)
         {
@@ -877,10 +879,10 @@ void script_state_t::run_operand(script_state_t& state, ai_state_t& aiState, scr
     }
     else
     {
-        // Get the variable opcode from a register
-        uint8_t variableIndex = script._instructions[script.get_pos()].getValueBits();
+        // Load the variable. 
+        auto variableIndex = constant.getAsInteger();
         varname = getVariableName(variableIndex);
-        std::shared_ptr<Object> pleader = _currentModule->getTeamList()[pobject->team].getLeader();
+        auto pleader = _currentModule->getTeamList()[pobject->team].getLeader();
         iTmp = state.loadVariable(variableIndex, aiState, pobject, ptarget, powner, pleader.get());
     }
 
