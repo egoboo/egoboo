@@ -256,6 +256,12 @@ bool line_scanner_state_t::is(int symbol) const
     return symbol == getCurrent();
 }
 
+bool line_scanner_state_t::isOneOf(int symbol1, int symbol2) const
+{
+    return is(symbol1)
+        || is(symbol2);
+}
+
 bool line_scanner_state_t::isDoubleQuote() const
 {
     return is(DoubleQuoteSymbol());
@@ -288,17 +294,17 @@ bool line_scanner_state_t::isAlphabetic() const
 
 bool line_scanner_state_t::isNewLine() const
 {
-    return ASCII_LINEFEED_CHAR == getCurrent() || C_CARRIAGE_RETURN_CHAR == getCurrent();
+    return is(LinefeedSymbol())
+        || is(CarriageReturnSymbol());
 }
 
 bool line_scanner_state_t::isOperator() const
 {
-    return
-        is('+') || is('-') ||
-        is('*') || is('/') ||
-        is('%') ||
-        is('>') || is('<') ||
-        is('&') || is('=');
+    return isOneOf('+', '-', 
+                   '*', '/',
+                   '%',
+                   '>', '<',
+                   '&', '=');
 }
 
 bool line_scanner_state_t::isControl() const

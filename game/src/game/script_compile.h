@@ -61,6 +61,8 @@ public:
     static int DoubleQuoteSymbol() { return C_DOUBLE_QUOTE_CHAR; }
     static int EndOfInputSymbol() { return 255 + 2; }
     static int StartOfInputSymbol() { return 255 + 1; }
+    static int LinefeedSymbol() { return ASCII_LINEFEED_CHAR; }
+    static int CarriageReturnSymbol() { return C_CARRIAGE_RETURN_CHAR; }
 
 private:
     Location m_location;
@@ -88,6 +90,13 @@ public:
 
 public:
     bool is(int symbol) const;
+    bool isOneOf(int symbol1, int symbol2) const;
+    template <typename ... Symbols>
+    bool isOneOf(int symbol1, int symbol2, Symbols ... symbols) const
+    {
+        return is(symbol1)
+            || isOneOf(symbol2, symbols ...);
+    }
     bool isDoubleQuote() const;
     bool isEndOfInput() const;
     bool isStartOfInput() const;
