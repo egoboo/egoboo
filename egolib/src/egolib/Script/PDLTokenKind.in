@@ -53,6 +53,9 @@ Define(Newline, "<newline>")
 /// getValue indicates the number of indentions.
 Define(Indent, "<indent>")
 
+/// @brief The start of a line token.
+Define(StartOfLine, "<start of line>")
+
 /// @brief An end of line token.
 Define(EndOfLine, "<end of line>")
 

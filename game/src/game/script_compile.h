@@ -65,6 +65,13 @@ public:
     static int CarriageReturnSymbol() { return C_CARRIAGE_RETURN_CHAR; }
 
 private:
+    void emit(const PDLToken& token);
+    void emit(PDLTokenKind kind, const Id::Location& start, const Id::Location& end);
+    void emit(PDLTokenKind kind, const Id::Location& start, const Id::Location& end,
+              const std::string& lexeme);
+    void emit(PDLTokenKind kind, const Id::Location& start, const Id::Location& end,
+              int value);
+    PDLToken m_token;
     Location m_location;
     size_t m_inputPosition;
     Buffer *m_inputBuffer;
@@ -151,6 +158,8 @@ public:
     ///           | '='
     /// @endcode
     PDLToken scanOperator();
+
+    const PDLToken& getToken() const { return m_token; }
 };
 
 // the current state of the parser

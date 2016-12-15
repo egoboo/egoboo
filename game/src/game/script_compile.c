@@ -209,8 +209,8 @@ size_t parser_state_t::load_one_line( size_t read, script_info_t& script )
 //--------------------------------------------------------------------------------------------
 
 line_scanner_state_t::line_scanner_state_t(Buffer *inputBuffer, const Location& location)
-    : m_inputPosition(0), m_inputBuffer(inputBuffer), m_location(location),
-      m_lexemeBuffer(128)
+    : m_token(PDLTokenKind::StartOfLine, location, location), m_inputPosition(0),
+      m_inputBuffer(inputBuffer), m_location(location), m_lexemeBuffer(128)
 {}
 
 Location line_scanner_state_t::getLocation() const
@@ -312,6 +312,29 @@ bool line_scanner_state_t::isControl() const
     return Ego::iscntrl(getCurrent());
 }
 
+void line_scanner_state_t::emit(const PDLToken& token)
+{
+    m_token = token;
+}
+
+void line_scanner_state_t::emit(PDLTokenKind kind, const Id::Location& start, const Id::Location& end)
+{
+    m_token = PDLToken(kind, start, end);
+}
+
+void line_scanner_state_t::emit(PDLTokenKind kind, const Id::Location& start, const Id::Location& end,
+                                const std::string& lexeme)
+{
+    m_token = PDLToken(kind, start, end, lexeme);
+}
+
+void line_scanner_state_t::emit(PDLTokenKind kind, const Id::Location& start, const Id::Location& end,
+                                int value)
+{
+    m_token = PDLToken(kind, start, end);
+    m_token.setValue(value);
+}
+
 PDLToken line_scanner_state_t::scanWhiteSpaces()
 {
     auto startLocation = getLocation();
@@ -331,9 +354,8 @@ PDLToken line_scanner_state_t::scanWhiteSpaces()
         } while (isWhiteSpace());
     }
     auto endLocation = getLocation();
-    auto token = PDLToken(PDLTokenKind::Whitespace, startLocation, endLocation);
-    token.setValue(numberOfWhiteSpaces);
-    return token;
+    emit(PDLTokenKind::Whitespace, startLocation, endLocation, numberOfWhiteSpaces);
+    return m_token;
 }
 
 PDLToken line_scanner_state_t::scanNewLines()
@@ -353,9 +375,8 @@ PDLToken line_scanner_state_t::scanNewLines()
         numberOfNewLines++;
     }
     auto endLocation = getLocation();
-    auto token = PDLToken(PDLTokenKind::Newline, startLocation, endLocation);
-    token.setValue(numberOfNewLines);
-    return token;
+    emit(PDLTokenKind::Newline, startLocation, endLocation, numberOfNewLines);
+    return m_token;
 }
 
 PDLToken line_scanner_state_t::scanNumericLiteral()
@@ -371,8 +392,9 @@ PDLToken line_scanner_state_t::scanNumericLiteral()
         saveAndNext();
     } while (isDigit());
     auto endLocation = getLocation();
-    return PDLToken(PDLTokenKind::NumberLiteral, startLocation,
-                    endLocation, m_lexemeBuffer.toString());
+    emit(PDLTokenKind::NumberLiteral, startLocation,
+         endLocation, m_lexemeBuffer.toString());
+    return m_token;
 }
 
 PDLToken line_scanner_state_t::scanName()
@@ -388,8 +410,9 @@ PDLToken line_scanner_state_t::scanName()
         saveAndNext();
     } while (is('_') || isDigit() || isAlphabetic());
     auto endLocation = getLocation();
-    return PDLToken(PDLTokenKind::Name, startLocation, endLocation,
-                    m_lexemeBuffer.toString());
+    emit(PDLTokenKind::Name, startLocation, endLocation,
+         m_lexemeBuffer.toString());
+    return m_token;
 }
 
 PDLToken line_scanner_state_t::scanStringOrReference()
@@ -434,8 +457,9 @@ PDLToken line_scanner_state_t::scanStringOrReference()
         throw LexicalErrorException(__FILE__, __LINE__, getLocation(), "unclosed string literal");
     }
     auto endLocation = getLocation();
-    return PDLToken(isReference ? PDLTokenKind::ReferenceLiteral : PDLTokenKind::StringLiteral,
-                    startLocation, endLocation, m_lexemeBuffer.toString());
+    emit(isReference ? PDLTokenKind::ReferenceLiteral : PDLTokenKind::StringLiteral,
+         startLocation, endLocation, m_lexemeBuffer.toString());
+    return m_token;
 }
 
 PDLToken line_scanner_state_t::scanIDSZ()
@@ -461,8 +485,9 @@ PDLToken line_scanner_state_t::scanIDSZ()
     }
     saveAndNext();
     auto endLocation = getLocation();
-    return PDLToken(PDLTokenKind::IdszLiteral, startLocation,
-                    endLocation, m_lexemeBuffer.toString());
+    emit(PDLTokenKind::IdszLiteral, startLocation,
+         endLocation, m_lexemeBuffer.toString());
+    return m_token;
 }
 
 PDLToken line_scanner_state_t::scanOperator()
@@ -479,35 +504,45 @@ PDLToken line_scanner_state_t::scanOperator()
     switch (current)
     {
         case '+':
-            return PDLToken(PDLTokenKind::Plus, startLocation, endLocation,
-                            m_lexemeBuffer.toString());
+            emit(PDLTokenKind::Plus, startLocation, endLocation,
+                 m_lexemeBuffer.toString());
+            break;
         case '-':
-            return PDLToken(PDLTokenKind::Minus, startLocation, endLocation,
-                            m_lexemeBuffer.toString());
+            emit(PDLTokenKind::Minus, startLocation, endLocation,
+                 m_lexemeBuffer.toString());
+            break;
         case '*':
-            return PDLToken(PDLTokenKind::Multiply, startLocation, endLocation,
-                            m_lexemeBuffer.toString());
+            emit(PDLTokenKind::Multiply, startLocation, endLocation,
+                 m_lexemeBuffer.toString());
+            break;
         case '/':
-            return PDLToken(PDLTokenKind::Divide, startLocation, endLocation,
-                            m_lexemeBuffer.toString());
+            emit(PDLTokenKind::Divide, startLocation, endLocation,
+                 m_lexemeBuffer.toString());
+            break;
         case '%':
-            return PDLToken(PDLTokenKind::Modulus, startLocation, endLocation,
-                            m_lexemeBuffer.toString());
+            emit(PDLTokenKind::Modulus, startLocation, endLocation,
+                 m_lexemeBuffer.toString());
+            break;
         case '>':
-            return PDLToken(PDLTokenKind::ShiftRight, startLocation, endLocation,
-                            m_lexemeBuffer.toString());
+            emit(PDLTokenKind::ShiftRight, startLocation, endLocation,
+                 m_lexemeBuffer.toString());
+            break;
         case '<':
-            return PDLToken(PDLTokenKind::ShiftLeft, startLocation, endLocation,
-                            m_lexemeBuffer.toString());
+            emit(PDLTokenKind::ShiftLeft, startLocation, endLocation,
+                 m_lexemeBuffer.toString());
+            break;
         case '&':
-            return PDLToken(PDLTokenKind::And, startLocation, endLocation,
-                            m_lexemeBuffer.toString());
+            emit(PDLTokenKind::And, startLocation, endLocation,
+                 m_lexemeBuffer.toString());
+            break;
         case '=':
-            return PDLToken(PDLTokenKind::Assign, startLocation, endLocation,
-                            m_lexemeBuffer.toString());
+            emit(PDLTokenKind::Assign, startLocation, endLocation,
+                 m_lexemeBuffer.toString());
+            break;
         default:
             throw RuntimeErrorException(__FILE__, __LINE__, "internal error");
     }
+    return m_token;
 }
 
 PDLToken parser_state_t::parse_indention(script_info_t& script, line_scanner_state_t& state)
