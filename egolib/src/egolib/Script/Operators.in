@@ -1,16 +1,16 @@
-/// +
-Define(OPADD)
-/// -
-Define(OPSUB)
-/// &
-Define(OPAND)
-/// >
-Define(OPSHR)
-/// <
-Define(OPSHL)
-/// *
-Define(OPMUL)
-/// /
-Define(OPDIV)
-/// %
-Define(OPMOD)
+/// "add" opcode.
+Define(OPADD, "add")
+/// "subtract" opcode.
+Define(OPSUB, "subtract")
+/// "and" opcode.
+Define(OPAND, "and")
+/// "shift right" opcode.
+Define(OPSHR, "shift right")
+/// "shift left" opcode.
+Define(OPSHL, "shift left")
+/// "multiply" opcode.
+Define(OPMUL, "multiply")
+/// "divide" opcode.
+Define(OPDIV, "divide")
+/// "modulus" opcode.
+Define(OPMOD, "modulus")

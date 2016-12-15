@@ -73,24 +73,25 @@ std::array<std::string, ScriptFunctions::SCRIPT_FUNCTIONS_COUNT> _scriptFunction
 #undef Define
 };
 
-std::array<std::string, ScriptOperators::SCRIPT_OPERATORS_COUNT> _scriptOperatorNames = {
-#define Define(name) #name,
-#define DefineAlias(alias, name)
-#include "egolib/Script/Operators.in"
-#undef DefineAlias
-#undef Define
-};
-
-Runtime::Runtime()
-    :_functionValueCodeToFunctionPointer{
+Runtime::Runtime() :
+    _functionValueCodeToFunctionPointer
+    {
         #define Define(name) { name, &scr_##name },
         #define DefineAlias(alias, name) { alias, &scr_##name },     
         #include "egolib/Script/Functions.in"
         #undef DefineAlias
         #undef Define
-},
-_statistics(std::make_unique<RuntimeStatistics>()),
-_clock(std::make_unique<Ego::Time::Clock<Ego::Time::ClockPolicy::NonRecursive>>("runtime clock", 1))
+    },
+    m_opcodeInfos
+    {
+    #define Define(cname, name) { cname, { cname, #cname }},
+    #define DefineAlias(calias, cname)
+    #include "egolib/Script/Operators.in"
+    #undef DefineAlias
+    #undef Define
+    },
+    _statistics(std::make_unique<RuntimeStatistics>()),
+    _clock(std::make_unique<Ego::Time::Clock<Ego::Time::ClockPolicy::NonRecursive>>("runtime clock", 1))
 {
     /* Intentionally empty. */
 }
