@@ -823,8 +823,19 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
             //------------------------------
             // grab the next opcode
 
+            auto isOperator = [](const PDLToken& token)
+            {
+                return token.isOperator() && !token.isAssignOperator();
+            };
+
+            auto isOperand = [](const PDLToken& token)
+            {
+                return token.is(PDLTokenKind::Variable)
+                    || token.is(PDLTokenKind::Constant);
+            };
+
             _token = parse_token( ppro, script, state );
-            if ( _token.is(PDLTokenKind::Variable) || _token.is(PDLTokenKind::Constant) )
+            if (isOperand(_token))
             {
                 // this is a value or a constant
                 emit_opcode( _token, 0, script );
@@ -832,7 +843,7 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
 
                 _token = parse_token( ppro, script, state );
             }
-            else if (!(_token.isOperator() && !_token.isAssignOperator()))
+            else if (!isOperator(_token))
             {
                 // this is a function or an unknown value. do not break the script.
                 CLogEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getStartLocation());
@@ -850,7 +861,7 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
             while ( !_token.is(PDLTokenKind::EndOfLine) )
             {
                 // The current token should be a non-assignment operator.
-                if ( !(_token.isOperator() && !_token.isAssignOperator()) )
+                if (!isOperator(_token))
                 {
                     // problem with the loop
                     CLogEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getStartLocation());
@@ -865,7 +876,7 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
 
                 // VALUE
                 _token = parse_token(ppro, script, state);
-                if ( PDLTokenKind::Constant != _token.getKind() && PDLTokenKind::Variable != _token.getKind() )
+                if (!isOperand(_token))
                 {
                     // not having a constant or a value here breaks the function. stop processsing
                     CLogEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getStartLocation());
