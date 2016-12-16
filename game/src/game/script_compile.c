@@ -747,6 +747,37 @@ void parser_state_t::emit_opcode(const PDLToken& token, const BIT_FIELD highbits
 
 //--------------------------------------------------------------------------------------------
 
+void parser_state_t::raise(bool raiseException, Log::Level level, const PDLToken& received, const std::vector<PDLTokenKind>& expected)
+{
+    CLogEntry e(level, __FILE__, __LINE__, __FUNCTION__, received.getStartLocation());
+    if (expected.size() > 0)
+    {
+        e << "expected ";
+        size_t index = 0;
+        e << "`" << toString(expected[index]) << "`";
+        index++;
+        if (expected.size() == 2)
+        {
+            e << " or" << "`" << toString(expected[index]) << "`";
+        }
+        else if (expected.size() > 2)
+        {
+            for (; index < expected.size() - 1; index++)
+            {
+                e << ", " << "`" << toString(expected[index]) << "`";
+            }
+            e << ", or" << "`" << toString(expected[index]) << "`";
+        }
+        e << ", ";
+    }
+    e << "received " << "`" << toString(received.getKind()) << "`" << Log::EndOfEntry;
+    Log::get() << e;
+    if (raiseException)
+    {
+        throw SyntacticalErrorException(__FILE__, __LINE__, received.getStartLocation(), e.getText());
+    }
+}
+
 void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& script )
 {
     /// @author ZF
@@ -770,58 +801,47 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
         _token = parse_indention(script, state);
         if (!_token.is(PDLTokenKind::Indent))
         {
-            CLogEntry e(Log::Level::Error, __FILE__, __LINE__, __FUNCTION__, _token.getStartLocation());
-            e << "expected operator - \n"
-              << " - \n`" << _lineBuffer.toString() << "`" << Log::EndOfEntry;
-            Log::get() << e;
-            throw LexicalErrorException(__FILE__, __LINE__, _token.getStartLocation(), e.getText());
+            this->raise(true, Log::Level::Error, _token, {PDLTokenKind::Indent});
         }
-        uint32_t highbits = SetDataBits( _token.getValue() );
+        auto indent = _token.getValue();
         _token = parse_token(ppro, script, state);
+
+        /* `function` */
         if ( _token.is(PDLTokenKind::Function) )
         {
-            if ( ScriptFunctions::End == _token.getValue() && 0 == highbits )
+            if ( ScriptFunctions::End == _token.getValue() && 0 == indent )
             {
-                // stop processing the lines, since we're finished
+                // Stop processing.
                 break;
             }
 
-            //------------------------------
-            // the code type is a function
+            // Emit the instruction.
+            emit_opcode( _token, SetDataBits(indent), script );
 
-            // save the opcode
-            emit_opcode( _token, highbits, script );
-
-            // leave a space for the control code
+            // Space for the control(?) code.
             _token.setValue(0);
             emit_opcode( _token, 0, script );
 
         }
+        /* `variable assignOperator expression` */
         else if ( _token.is(PDLTokenKind::Variable) )
         {
-            //------------------------------
-            // the code type is a math operation
-
             int operand_index;
             int operands = 0;
 
-            // save in the value's opcode
-            emit_opcode( _token, highbits, script );
-
-            // save a position for the operand count
+            // Emit the opcode and save a position for the operand count.
+            emit_opcode( _token, SetDataBits(indent), script );
             _token.setValue(0);
             operand_index = script._instructions.getNumberOfInstructions();
             emit_opcode( _token, 0, script );
+            _token = parse_token(ppro, script, state);
 
-            // handle the "="
-            _token = parse_token(ppro, script, state);  // EQUALS
+            // `assignOperator`
 			if ( !_token.isAssignOperator() )
             {
-                throw SyntacticalErrorException(__FILE__, __LINE__, _token.getStartLocation(), "expected an assignment operator");
+                this->raise(true, Log::Level::Error, _token, {PDLTokenKind::Assign});
             }
-
-            //------------------------------
-            // grab the next opcode
+            _token = parse_token(ppro, script, state);
 
             auto isOperator = [](const PDLToken& token)
             {
@@ -833,82 +853,63 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
                 return token.is(PDLTokenKind::Variable)
                     || token.is(PDLTokenKind::Constant);
             };
-
-            _token = parse_token( ppro, script, state );
+            
             if (isOperand(_token))
             {
-                // this is a value or a constant
-                emit_opcode( _token, 0, script );
+                emit_opcode(_token, 0, script);
                 operands++;
-
-                _token = parse_token( ppro, script, state );
+                _token = parse_token(ppro, script, state);
             }
-            else if (!isOperator(_token))
+            // `unaryPlus|unaryMinus`
+            else if (_token.getKind() == PDLTokenKind::Plus || _token.getKind() == PDLTokenKind::Minus)
             {
-                // this is a function or an unknown value. do not break the script.
-                CLogEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getStartLocation());
-				e << "invalid operand " << _token.getLexeme() << " - \n"
-				  << " - \n`" << _lineBuffer.toString() << "`" << Log::EndOfEntry;
-				Log::get() << e;
-
-                emit_opcode( _token, 0, script );
+                // We have some expression of the format `('+'|'-') ...` and transform this into
+                // `0 ('+'|'-') ...`. This is as close as we can currently get to proper code.
+                auto token = PDLToken(PDLTokenKind::Constant, _token.getStartLocation(), _token.getEndLocation(), "0");
+                token.setValue(0);
+                emit_opcode(token, 0, script);
                 operands++;
-
-                _token = parse_token( ppro, script, state );
+                // Do not proceed.
+            }
+            else
+            {
+                this->raise(true, Log::Level::Error, _token, {PDLTokenKind::Plus, PDLTokenKind::Minus,
+                            PDLTokenKind::Variable, PDLTokenKind::Constant});
             }
 
-            // `((operator - assignmentOperator) value)*`
+            // `((operator - assignOperator) (constant|variable))*`
             while ( !_token.is(PDLTokenKind::EndOfLine) )
             {
-                // The current token should be a non-assignment operator.
+                // `operator`
                 if (!isOperator(_token))
                 {
-                    // problem with the loop
-                    CLogEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getStartLocation());
-					e << "expected operator - \n"
-					  << " - \n`" << _lineBuffer.toString() << "`" << Log::EndOfEntry;
-					Log::get() << e;
-                    break;
+                    this->raise(true, Log::Level::Warning, _token,
+                                {PDLTokenKind::Plus, PDLTokenKind::Minus,
+                                 PDLTokenKind::Multiply, PDLTokenKind::Divide,
+                                 PDLTokenKind::Modulus,
+                                 PDLTokenKind::And,
+                                 PDLTokenKind::ShiftLeft, PDLTokenKind::ShiftRight});
                 }
 
-                // the highbits are the operator's value
-				highbits = SetDataBits( _token.getValue() );
+				auto opcode = _token.getValue(); // The opcode.
 
-                // VALUE
+                // `(constant|variable)`
                 _token = parse_token(ppro, script, state);
                 if (!isOperand(_token))
                 {
-                    // not having a constant or a value here breaks the function. stop processsing
-                    CLogEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getStartLocation());
-                    e << "invalid operand `" << _token.getLexeme() << "`" << Log::EndOfEntry;
-                    Log::get() << e;
-                    break;
+                    this->raise(true, Log::Level::Error, _token, {PDLTokenKind::Constant, PDLTokenKind::Variable});
                 }
 
-                emit_opcode( _token, highbits, script );
+                emit_opcode( _token, SetDataBits(opcode), script );
                 operands++;
-
-                // OPERATOR
+                
                 _token = parse_token( ppro, script, state);
             }
             script._instructions[operand_index].setBits(operands);
         }
-        else if ( _token.is(PDLTokenKind::Constant) )
-        {
-            CLogEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getStartLocation());
-            e << "invalid constant " << _token.getLexeme() << Log::EndOfEntry;
-            Log::get() << e;
-        }
-        else if ( _token.is(PDLTokenKind::Unknown) )
-        {
-            // unknown opcode, do not process this line
-            CLogEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getStartLocation());
-            e << "invalid operand " << _token.getLexeme() << Log::EndOfEntry;
-            Log::get() << e;
-        }
         else
         {
-            throw RuntimeErrorException(__FILE__, __LINE__, "internal error");
+            this->raise(true, Log::Level::Error, _token, {PDLTokenKind::Function, PDLTokenKind::Variable});
         }
 
         //

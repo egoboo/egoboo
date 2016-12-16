@@ -205,6 +205,13 @@ public:
 	static void parse_jumps(script_info_t& script);
 
 private:
+    /// @brief Write a syntactical error log entry. Optionally also raises syntactical error exception.
+    /// @param raiseException if @a true, a syntactical error exception is raised 
+    /// @param level the log level. If the log level is @a Log::Level::Error, then a syntactical error exception is raised
+    /// @param received the received token
+    /// @param expected the expected token types. Can be empty, however, the information
+    /// content of the error log entry/error exception decreases.
+    void raise(bool raiseException, Log::Level level, const PDLToken& received, const std::vector<PDLTokenKind>& expected);
 	PDLToken parse_token(ObjectProfile *ppro, script_info_t& script, line_scanner_state_t& state);
 	size_t load_one_line(size_t read, script_info_t& script);
 	/// @brief Compute the indention level of a line.
