@@ -712,14 +712,6 @@ void parser_state_t::emit_opcode(const PDLToken& token, const BIT_FIELD highbits
 {
     BIT_FIELD loc_highbits = highbits;
 
-    // If the instruction list is full ...
-    if (script._instructions.isFull())
-    {
-        // ... raise an exception.
-        /** @todo This is not an error of the syntactical analysis. */
-        throw SyntacticalErrorException(__FILE__, __LINE__, token.getStartLocation(), "instruction list overflow");
-    }
-
     // Emit the opcode.
     if (PDLTokenKind::Constant == token.getKind())
     {
