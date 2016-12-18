@@ -15,15 +15,19 @@ public:
     enum class Kind
     {
         Void = 0, ///< @brief A constant of type <c>void</c>.
-        Integer,  ///< @brief A constant of tyoe <c>integer</c>.
+        Integer,  ///< @brief A constant of type <c>integer</c>.
+        String,   ///< @brief A constant of type <c>string</c>.
     };
 
 private:
     Kind m_kind; ///< @brief The kind of this constant.
-    int m_integer; ///< @brief The value of this constant.
-
+    union
+    {
+        int m_integer; ///< @brief The value of this constant. Only valid if m_kind is Kind::Integer.
+        std::string m_string; ///< @brief The value of this constant. Only valid if m_kind is Kind::String.
+    };
 public:
-	/// @brief Construct a constant of type Kind::Unknown.
+	/// @brief Construct a constant of type Kind::Void.
     Constant();
 
     /// @brief Construct this constant with the values of another constant.
@@ -31,14 +35,22 @@ public:
     Constant(const Constant& other);
     Constant(Constant&& other);
 
-	/// @brief Construct a constant of type Kind::Integer and the specified integer value.
+	/// @brief Construct a constant of kind Kind::Integer and the specified integer value.
 	/// @param value the value
-    Constant(int value);
+    explicit Constant(int value);
+
+    /// @brief Construct a constant of kind Kind::String and the specified string value.
+    /// @param value the value
+    explicit Constant(const std::string& value);
+
+    /// @brief Destruct this constant.
+    ~Constant();
 
 	/// @brief Assign this constant with the values of another constant.
 	/// @param other the other constant
 	/// @return this constant
-    Constant& operator=(Constant other);
+    /// @remark If an exception is raised, the state of the target constant was not modified.
+    Constant& operator=(const Constant& other);
 
 	/// @brief Get if this constant is equal to another constant.
 	/// @param other the other constant
@@ -49,6 +61,11 @@ public:
     bool operator==(const Constant& other) const;
 
 public:
+    Kind getKind() const
+    {
+        return m_kind;
+    }
+
     int getAsInteger() const
     {
         if (Constant::Kind::Integer != m_kind)
@@ -58,26 +75,13 @@ public:
         return m_integer;
     }
 
-
-public:
-    friend void swap(Constant& x, Constant& y)
+    const std::string& getAsString() const
     {
-        using std::swap;
-
-        if (&x == &y)
+        if (Kind::String != m_kind)
         {
-            return;
+            throw Id::RuntimeErrorException(__FILE__, __LINE__, "invalid conversion");
         }
-        swap(x.m_kind, y.m_kind);
-        switch (x.m_kind)
-        {
-            case Constant::Kind::Integer:
-                swap(x.m_integer, y.m_integer);
-                break;
-            case Constant::Kind::Void:
-                break;
-        }
-
+        return m_string;
     }
 };
 	
