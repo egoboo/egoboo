@@ -80,16 +80,10 @@ Constant& Constant::operator=(const Constant& other)
             m_integer = other.m_integer;
             break;
         case Kind::String:
-            if (m_kind == Kind::String)
-            {
-                auto temporary(other.m_string);
-                static_assert(std::is_nothrow_move_assignable<std::string>::value, "std::string is not nothrow move assignable");
-                m_string = std::move(temporary);
-            }
-            else
             {
                 auto temporary(other.m_string);
                 static_assert(std::is_nothrow_move_constructible<std::string>::value, "std::string is not nothrow move constructible");
+                m_string.~basic_string();
                 new (&m_string) auto(std::move(temporary));
             }
             break;

@@ -31,7 +31,7 @@ ConstantPool& ConstantPool::operator=(const ConstantPool&& other)
 
 const Constant& ConstantPool::getConstant(ConstantPool::Index index)
 {
-    if (index < 0 || index >= m_constants.size())
+    if (index >= m_constants.size())
     {
         throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
     }
