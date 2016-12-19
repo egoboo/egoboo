@@ -329,6 +329,9 @@
     <ClCompile Include="src\game\Graphics\ObjectGraphics.cpp">
       <Filter>Game Sources\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="src\game\script_variables.c">
+      <Filter>Game Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game\egoboo.h">
@@ -618,6 +621,9 @@
     </ClInclude>
     <ClInclude Include="src\game\Graphics\ObjectGraphics.hpp">
       <Filter>Game Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\script_variables.h">
+      <Filter>Game Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

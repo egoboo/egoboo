@@ -30,6 +30,7 @@
 #include "egolib/_math.h"
 #include "egolib/Script/ConstantPool.hpp"
 #include "egolib/Script/Interpreter/TaggedValue.hpp"
+#include "egolib/Script/OpcodeInfo.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -508,9 +509,16 @@ struct script_state_t : Id::NonCopyable
 
 	// public
 	script_state_t();
+
+    /// @brief Error handler for the error "variable not defined".
+    /// Writes a warning log messages and raises an Id::RuntimeErrorException.
+    /// @param variableIndex the variable index
+    /// @throw Id::RuntimeErrorException
+    void onVariableNotDefinedError(uint8_t variableIndex);
 	// protected
 	uint8_t run_function(ai_state_t& aiState, script_info_t& script);
-	void store(uint8_t variableIndex);
+    int32_t loadVariable(uint8_t variableIndex, ai_state_t& aiState, Object *pobject, Object *ptarget, Object *powner, Object *pleader);
+	void storeVariable(uint8_t variableIndex);
 	static void run_operand(script_state_t& self, ai_state_t& aiState, script_info_t& script);
 	static bool run_operation(script_state_t& self, ai_state_t& aiState, script_info_t& script);
 	static bool run_function_call(script_state_t& self, ai_state_t& aiState, script_info_t& script);
@@ -578,15 +586,13 @@ extern std::array<std::string, ScriptVariables::SCRIPT_VARIABLES_COUNT> _scriptV
 
 /// @brief A list of all possible EgoScript operators.
 enum ScriptOperators {
-#define Define(name) name,
-#define DefineAlias(alias, name) alias = name,
+#define Define(cname, name) cname,
+#define DefineAlias(calias, cname) calias = cname,
 #include "egolib/Script/Operators.in"
 #undef DefineAlias
 #undef Define
     SCRIPT_OPERATORS_COUNT
 };
-
-extern std::array<std::string, ScriptOperators::SCRIPT_OPERATORS_COUNT> _scriptOperatorNames;
 
 /// @brief The runtime (environment) for the scripts.
 struct Runtime : public Core::Singleton<Runtime> {
@@ -605,7 +611,7 @@ protected:
 public:
 	/// @brief A map from function value codes to function pointers.
 	std::unordered_map<uint32_t, NativeInterface::Function*> _functionValueCodeToFunctionPointer;
-
+    std::unordered_map<uint32_t, OpcodeInfo> m_opcodeInfos;
 private:
     /// @brief A clock to measure the time from the beginning to the end of an action performed by the runtime.
     /// @remark Its window size is 1 as the duration spend in the invocation is added to an histogram.

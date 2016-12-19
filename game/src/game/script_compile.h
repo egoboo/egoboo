@@ -55,11 +55,23 @@ extern std::vector<opcode_data_t> Opcodes;
 struct line_scanner_state_t
 {
 public:
+    static int TabulatorSymbol() { return '\t'; }
+    static int TildeSymbol() { return '~'; }
+    static int UnderscoreSymbol() { return '_'; }
     static int DoubleQuoteSymbol() { return C_DOUBLE_QUOTE_CHAR; }
     static int EndOfInputSymbol() { return 255 + 2; }
     static int StartOfInputSymbol() { return 255 + 1; }
+    static int LinefeedSymbol() { return ASCII_LINEFEED_CHAR; }
+    static int CarriageReturnSymbol() { return C_CARRIAGE_RETURN_CHAR; }
 
 private:
+    void emit(const PDLToken& token);
+    void emit(PDLTokenKind kind, const Id::Location& start, const Id::Location& end);
+    void emit(PDLTokenKind kind, const Id::Location& start, const Id::Location& end,
+              const std::string& lexeme);
+    void emit(PDLTokenKind kind, const Id::Location& start, const Id::Location& end,
+              int value);
+    PDLToken m_token;
     Location m_location;
     size_t m_inputPosition;
     Buffer *m_inputBuffer;
@@ -77,6 +89,7 @@ public:
 
     void next();
     void write(int symbol);
+    void writeAndNext(int symbol);
     void save();
     void saveAndNext();
 
@@ -84,6 +97,13 @@ public:
 
 public:
     bool is(int symbol) const;
+    bool isOneOf(int symbol1, int symbol2) const;
+    template <typename ... Symbols>
+    bool isOneOf(int symbol1, int symbol2, Symbols ... symbols) const
+    {
+        return is(symbol1)
+            || isOneOf(symbol2, symbols ...);
+    }
     bool isDoubleQuote() const;
     bool isEndOfInput() const;
     bool isStartOfInput() const;
@@ -92,6 +112,7 @@ public:
     bool isAlphabetic() const;
     bool isNewLine() const;
     bool isOperator() const;
+    bool isControl() const;
 public:
     /// @code
     /// WhiteSpaces := WhiteSpace*
@@ -137,6 +158,8 @@ public:
     ///           | '='
     /// @endcode
     PDLToken scanOperator();
+
+    const PDLToken& getToken() const { return m_token; }
 };
 
 // the current state of the parser
@@ -182,6 +205,13 @@ public:
 	static void parse_jumps(script_info_t& script);
 
 private:
+    /// @brief Write a syntactical error log entry. Optionally also raises syntactical error exception.
+    /// @param raiseException if @a true, a syntactical error exception is raised 
+    /// @param level the log level. If the log level is @a Log::Level::Error, then a syntactical error exception is raised
+    /// @param received the received token
+    /// @param expected the expected token types. Can be empty, however, the information
+    /// content of the error log entry/error exception decreases.
+    void raise(bool raiseException, Log::Level level, const PDLToken& received, const std::vector<PDLTokenKind>& expected);
 	PDLToken parse_token(ObjectProfile *ppro, script_info_t& script, line_scanner_state_t& state);
 	size_t load_one_line(size_t read, script_info_t& script);
 	/// @brief Compute the indention level of a line.

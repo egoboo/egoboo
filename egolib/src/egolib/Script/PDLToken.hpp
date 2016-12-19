@@ -32,6 +32,9 @@ namespace Script {
 struct PDLToken : public Id::Token<PDLTokenKind>
 {
 private:
+    /// @brief The end location of this token.
+    Id::Location m_endLocation;
+
     /// @brief The value of this token.
     int m_value;
 
@@ -43,8 +46,11 @@ public:
     /// @brief Construct this token with the specified values.
     /// @param kind the kind of the token
     /// @param startLocation the start location of the token
+    /// @param endLocation the end location of the token
     /// @param lexeme the lexeme of this token. Default is the empty string.
-    PDLToken(PDLTokenKind kind, const Id::Location& startLocation, const std::string& lexeme = std::string());
+    PDLToken(PDLTokenKind kind, const Id::Location& startLocation,
+             const Id::Location& endLocation,
+             const std::string& lexeme = std::string());
 
     /// @brief Copy-construct this token from another token.
     /// @param other the other token
@@ -66,6 +72,7 @@ public:
     {
         using std::swap;
         swap(static_cast<Id::Token<PDLTokenKind>&>(x), static_cast<Id::Token<PDLTokenKind>&>(y));
+        swap(x.m_endLocation, y.m_endLocation);
         swap(x.m_value, y.m_value);
     }
 
@@ -84,6 +91,14 @@ public:
     /// @return @a true if this token is an assign operator token, @a false otherwise
     bool isAssignOperator() const;
 
+    /// @brief Get if this token is a literal token i.e. is of the kinds which are called literals.
+    /// @return @a true if this token is a literal token, @a false otherwise
+    bool isLiteral() const;
+
+    /// @brief Get if this token is a constant token i.e. is of the kind "constant".
+    /// @return @a true if this token is a constant token, @a false otherwise
+    bool isConstant() const;
+
     /// @brief Get the value of this token.
     /// @return the value of this token
     /// @see setValue
@@ -98,6 +113,23 @@ public:
     void setValue(int value)
     {
         m_value = value;
+    }
+
+    /// @brief @brief Get the end location of this token.
+    /// @return the end location of this token
+    /// @see setEndLocation
+    /// @remark The end location is the location at which the lexeme of this token ends at.
+    const Id::Location& getEndLocation() const
+    {
+        return m_endLocation;
+    }
+
+    /// @brief Set the end location of this token.
+    /// @param endLocation the end location of this token
+    /// @see getEndlocation
+    void setEndLocation(const Id::Location& endLocation)
+    {
+        m_endLocation = endLocation;
     }
 };
 

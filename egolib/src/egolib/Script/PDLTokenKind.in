@@ -53,24 +53,23 @@ Define(Newline, "<newline>")
 /// getValue indicates the number of indentions.
 Define(Indent, "<indent>")
 
+/// @brief The start of a line token.
+Define(StartOfLine, "<start of line>")
+
 /// @brief An end of line token.
 Define(EndOfLine, "<end of line>")
 
 /// @brief A number literal token.
-/// @todo Rename to <c>NumberLiteral</c>.
-Define(NumericLiteral, "<number literal>")
+Define(NumberLiteral, "<number literal>")
 
 /// @brief A name token.
 Define(Name, "<name>")
 
 /// @brief A string literal token.
-/// @todo Rename to <c>StringLiteral</c>.
-Define(String, "<string literal>")
+Define(StringLiteral, "<string literal>")
 
 /// @brief A reference literal token.
-/// @todo Rename to <c>ReferenceLiteral</c>.
-Define(Reference, "<reference literal>")
+Define(ReferenceLiteral, "<reference literal>")
 
 /// @brief An IDSZ literal token.
-/// @todo Rename to <c>IDSZLiteral</c>.
-Define(IDSZ, "<idsz literal>")
+Define(IdszLiteral, "<idsz literal>")

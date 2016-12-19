@@ -16,10 +16,10 @@ protected:
     std::vector<Constant> m_constants;
 
 public:
-    /// @brief An index into a constant pool.
+    /// @brief The type of an index into a constant pool.
     using Index = uint32_t;
 
-    /// @brief A size of a constant pool.
+    /// @brief The type of the size of a constant pool.
     using Size = uint32_t;
 
 public:
@@ -41,12 +41,12 @@ public:
 
     /**@{*/
 
-    /// @brief Assign this constant pool with the values of another constant pool.
+    ConstantPool& operator=(const ConstantPool& other);
+    /// @brief Move-assign this constant pool with the values of another constant pool.
     /// @param other the other constant pool
     /// @return a constant reference to this constant pool
-    /// @post This constant pool has the same values as the other constant pool.
-    /// @remark Rule of 5 alternative assignment operator.
-    ConstantPool& operator=(ConstantPool other);
+    /// @post The target was assigned the values of the source. The source is empty.
+    ConstantPool& operator=(const ConstantPool&& other);
 
     /**@}*/
 
@@ -62,21 +62,19 @@ public:
     Size getNumberOfConstants() const;
 
     /// @brief Get or create an <c>integer</c> constant.
-    /// @param value the constant value
+    /// @param value the value of the constant
     /// @return the index of the constant
-    /// @throw Id::RuntimeErrorException the constant pool overflowed
+    /// @throw Id::RuntimeErrorException the constant pool would overflow
     Index getOrCreateConstant(int value);
+
+    /// @brief Get or create a <c>string</c> constant.
+    /// @param value the value of the constant.
+    /// @return the index of the constant
+    /// @throw Id::RuntimeErrorException the constant pool would overflow
+    Index getOrCreateConstant(const std::string& value);
 
     /// @brief Clear this constant pool.
     void clear();
-
-public:
-    friend void swap(ConstantPool& x, ConstantPool& y)
-    {
-        using std::swap;
-
-        swap(x.m_constants, y.m_constants);
-    }
 };
 
 } // namespace Script

@@ -27,19 +27,20 @@ namespace Ego {
 namespace Script {
 
 PDLToken::PDLToken()
-    : Id::Token<PDLTokenKind>(PDLTokenKind::Unknown, Id::Location("<unknown>", 1), std::string()), m_value(0)
+    : Id::Token<PDLTokenKind>(PDLTokenKind::Unknown, Id::Location("<unknown>", 1), std::string()), m_endLocation("<unknown>", 1), m_value(0)
 {}
 
-PDLToken::PDLToken(PDLTokenKind kind, const Id::Location& startLocation, const std::string& lexeme)
-    : Id::Token<PDLTokenKind>(kind, startLocation, lexeme), m_value(0)
+PDLToken::PDLToken(PDLTokenKind kind, const Id::Location& startLocation,
+                   const Id::Location& endLocation, const std::string& lexeme)
+    : Id::Token<PDLTokenKind>(kind, startLocation, lexeme), m_endLocation(endLocation), m_value(0)
 {}
 
 PDLToken::PDLToken(const PDLToken& other)
-    : Id::Token<PDLTokenKind>(other), m_value(other.m_value)
+    : Id::Token<PDLTokenKind>(other), m_endLocation(other.m_endLocation), m_value(other.m_value)
 {}
 
 PDLToken::PDLToken(PDLToken&& other)
-    : Id::Token<PDLTokenKind>(std::move(other)), m_value(std::move(other.m_value))
+    : Id::Token<PDLTokenKind>(std::move(other)), m_endLocation(std::move(other.m_endLocation)), m_value(std::move(other.m_value))
 {}
 
 PDLToken::~PDLToken()
@@ -63,6 +64,19 @@ bool PDLToken::isAssignOperator() const
     return is(PDLTokenKind::Assign);
 }
 
+bool PDLToken::isLiteral() const
+{
+    return isOneOf(PDLTokenKind::IdszLiteral,
+                   PDLTokenKind::NumberLiteral,
+                   PDLTokenKind::ReferenceLiteral,
+                   PDLTokenKind::StringLiteral);
+}
+
+bool PDLToken::isConstant() const
+{
+    return is(PDLTokenKind::Constant);
+}
+
 PDLToken& PDLToken::operator=(PDLToken other)
 {
     swap(*this, other);
@@ -76,6 +90,7 @@ std::ostream& operator<<(std::ostream& os, const PDLToken& token)
     os << "  " << "kind = " << token.getKind() << "," << std::endl;
     os << "  " << "lexeme = " << token.getLexeme() << "," << std::endl;
     os << "  " << "start location = " << token.getStartLocation().getFileName() << ":" << token.getStartLocation().getLineNumber() << "," << std::endl;
+    os << "  " << "end location = " << token.getEndLocation().getFileName() << ":" << token.getEndLocation().getLineNumber() << "," << std::endl;
     os << "  " << "value = " << token.getValue() << std::endl;
     os << "}" << std::endl;
     return os;
