@@ -7,6 +7,9 @@ platform:
 configuration:
     - Debug
     - Release
+    
+init:
+    - ps: Update-AppveyorBuild -Version "$(Get-Date -format yyyy-MM-dd).$env:appveyor_build_number"
 
 install:
     git submodule update --init --recursive --depth 1
