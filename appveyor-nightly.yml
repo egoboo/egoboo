@@ -54,7 +54,7 @@ artifacts:
       name: binaries-Release-x64
 
 deploy:
-    release: Egoboo-Nightly-v$(appveyor_build_version)
+    release: Egoboo-Nightly-$(appveyor_build_version)
     description: 'Egoboo Nightly'
     provider: GitHub
     force_update: true
