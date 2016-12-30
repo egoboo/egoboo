@@ -30,6 +30,7 @@
 #include "egolib/Math/_Include.hpp"
 #include "egolib/Image/ImageManager.hpp"
 #include "egolib/Graphics/PixelFormat.hpp"
+#include "egolib/Graphics/GraphicsSystem.hpp"
 
 
 //--------------------------------------------------------------------------------------------
@@ -118,9 +119,7 @@ bool SDL_GL_set_gl_mode(oglx_video_parameters_t * v)
 //--------------------------------------------------------------------------------------------
 void SDL_GL_report_mode(SDLX_video_parameters_t& retval)
 {
-	Ego::GraphicsWindow *surface = retval.surface;
-
-    SDLX_report_mode(surface, retval);
+    SDLX_report_mode(Ego::GraphicsSystem::window, retval);
 
     if (retval.windowProperties.opengl)
     {
@@ -129,52 +128,31 @@ void SDL_GL_report_mode(SDLX_video_parameters_t& retval)
 }
 
 //--------------------------------------------------------------------------------------------
-SDLX_video_parameters_t * SDL_GL_set_mode(SDLX_video_parameters_t * v_old, SDLX_video_parameters_t * v_new, oglx_video_parameters_t * gl_new, bool has_valid_mode)
+bool SDL_GL_set_mode(SDLX_video_parameters_t& v_new, oglx_video_parameters_t& gl_new)
 {
     /// @author BB
     /// @details let SDL_GL try to set a new video mode.
-
-    SDLX_video_parameters_t param_old;
-    SDLX_video_parameters_t * retval = NULL;
-
-    // initialize v_old and param_old
-    if (has_valid_mode)
-    {
-        if (NULL == v_old)
-        {
-            SDLX_video_parameters_t::defaults(param_old);
-            v_old = &param_old;
-        }
-        else
-        {
-            param_old = *v_old;
-        }
-    }
-    else
-    {
-        v_old = NULL;
-    }
-
+    
     // use the sdl extensions to set the SDL video mode
-    retval = SDLX_set_mode(v_old, v_new, has_valid_mode, false);
+    bool result = SDLX_set_mode(v_new);
 
-    if (NULL != retval)
+    if (result)
     {
         SDLX_Get_Screen_Info(sdl_scr, false);
 
         // set the opengl parameters
-        gl_new->multisample = GL_FALSE;
-        gl_new->multisample_arb = GL_FALSE;
-        if (NULL != retval->surface && retval->windowProperties.opengl)
+        gl_new.multisample = GL_FALSE;
+        gl_new.multisample_arb = GL_FALSE;
+        if (NULL != Ego::GraphicsSystem::window && v_new.windowProperties.opengl)
         {
             // correct the multisampling
-            gl_new->multisample_arb = retval->gl_att.multisampling.multisamples > 1;
+            gl_new.multisample_arb = v_new.contextProperties.multisampling.samples > 1;
 
-            SDL_GL_set_gl_mode(gl_new);
+            SDL_GL_set_gl_mode(&gl_new);
         }
     }
 
-    return retval;
+    return result;
 }
 
 namespace Ego {

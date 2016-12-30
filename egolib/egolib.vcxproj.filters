@@ -573,6 +573,9 @@
     <ClCompile Include="src\egolib\Log\EndOfLine.cpp">
       <Filter>Source Files\Log</Filter>
     </ClCompile>
+    <ClCompile Include="src\egolib\Extensions\ContextProperties.cpp">
+      <Filter>Extensions</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\egolib\vfs.h">
@@ -1420,6 +1423,9 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Log\EndOfLine.hpp">
       <Filter>Header Files\Log</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Extensions\ContextProperties.hpp">
+      <Filter>Extensions</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -14,6 +14,18 @@ GraphicsWindow *GraphicsSystem::window = nullptr;
 
 bool GraphicsSystem::initialized = false;
 
+GraphicsWindow *GraphicsSystem::createWindow(const WindowProperties& windowProperties)
+{
+    try
+    {
+        return new Ego::GraphicsWindow(windowProperties);
+    }
+    catch (...)
+    {
+        return nullptr;
+    }
+}
+
 void GraphicsSystem::initialize() {
     if (initialized) {
         return;
@@ -23,9 +35,9 @@ void GraphicsSystem::initialize() {
 
     // Set immutable parameters.
     sdl_vparam.windowProperties.opengl = true;
-    sdl_vparam.gl_att.doublebuffer = true;
-    sdl_vparam.gl_att.accelerated_visual = GL_TRUE;
-    sdl_vparam.gl_att.accumulationBufferDepth = Ego::ColourDepth(32, 8, 8, 8, 8);
+    sdl_vparam.contextProperties.doublebuffer = true;
+    sdl_vparam.contextProperties.accelerated_visual = GL_TRUE;
+    sdl_vparam.contextProperties.accumulationBufferDepth = Ego::ColourDepth(32, 8, 8, 8, 8);
 
     // Download the context parameters from the Egoboo configuration.
     oglx_video_parameters_t::download(ogl_vparam, egoboo_config_t::get());
@@ -35,13 +47,13 @@ void GraphicsSystem::initialize() {
     bool setVideoMode = false;
 
     // Actually set the video mode.
-    if (!SDL_GL_set_mode(nullptr, &sdl_vparam, &ogl_vparam, Ego::GraphicsSystem::initialized)) {
+    if (!SDL_GL_set_mode(sdl_vparam, ogl_vparam)) {
         Log::get() << Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "unable to set SDL video mode: ", SDL_GetError(), Log::EndOfEntry);
         if (egoboo_config_t::get().graphic_fullscreen.getValue())
         {
             Log::get() << Log::Entry::create(Log::Level::Info, __FILE__, __LINE__, "SDL error with fullscreen mode, retrying with windowed mode", Log::EndOfEntry);
             sdl_vparam.windowProperties.fullscreen = false;
-            if (SDL_GL_set_mode(nullptr, &sdl_vparam, &ogl_vparam, Ego::GraphicsSystem::initialized)) {
+            if (SDL_GL_set_mode(sdl_vparam, ogl_vparam)) {
                 Log::get() << Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "unable to set SDL video mode: ", SDL_GetError(), Log::EndOfEntry);
             } else {
                 egoboo_config_t::get().graphic_fullscreen.setValue(false);
