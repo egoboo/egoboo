@@ -33,7 +33,7 @@ void ImageManager::registerImageLoaders() {
     using String = std::string;
     using Set = std::unordered_set<string>;
     if (egoboo_config_t::get().debug_sdlImage_enable.getValue()) {
-        Log::get().info("[image manager]: SDL_image %d.%d.%d\n", SDL_IMAGE_MAJOR_VERSION, SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL);
+        Log::get() << Log::Entry::create(Log::Level::Info, __FILE__, __LINE__, "[image manager]: SDL_image ", SDL_IMAGE_MAJOR_VERSION, ".", SDL_IMAGE_MINOR_VERSION, ".", SDL_IMAGE_PATCHLEVEL, Log::EndOfEntry);
         // JPG support is optional.
         if ((IMG_Init(IMG_INIT_JPG) & IMG_INIT_JPG) == IMG_INIT_JPG) {
             loaders.push_back(make_unique<ImageLoader_SDL_image>(Set{".jpg", "jpeg"}));
@@ -42,10 +42,10 @@ void ImageManager::registerImageLoaders() {
         if ((IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG) == IMG_INIT_PNG) {
             loaders.push_back(make_unique<ImageLoader_SDL_image>(Set{".png"}));
         } else {
-            Log::Entry e(Log::Level::Warning, __FILE__, __LINE__);
-            e << "[image manager]: SDL_image does not support PNG file format: " << SDL_GetError() << Log::EndOfLine;
+            auto e = Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "[image manager]: SDL_image does not "
+                                        "support PNG file format: ", SDL_GetError(), Log::EndOfLine);
             Log::get() << e;
-            throw EnvironmentErrorException(__FILE__, __LINE__, "font manager", String("SDL_image does not support PNG file format: ") + SDL_GetError());
+            throw EnvironmentErrorException(__FILE__, __LINE__, "font manager", e.getText());
         }
         // WEBP support is optional and available in SDL_image 1.2.11 or higher.
     #if SDL_VERSIONNUM(SDL_IMAGE_MAJOR_VERSION, SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL) >= SDL_VERSIONNUM(1, 2, 11)
@@ -70,8 +70,8 @@ void ImageManager::registerImageLoaders() {
     #endif
         loaders.push_back(make_unique<ImageLoader_SDL_image>(Set{".bmp"}));
     } else {
-        Log::get().info("[image manager]: SDL_image disable by %s = \"false\" in `setup.txt` - using SDL -  only support for .bmp files\n",
-                        egoboo_config_t::get().debug_sdlImage_enable.getName().c_str());
+        Log::get() << Log::Entry::create(Log::Level::Info, __FILE__, __LINE__, "[image manager]: SDL_image disable by ", egoboo_config_t::get().debug_sdlImage_enable.getName(), " = false in `setup.txt` "
+                                         " - using SDL -  only support for .bmp files", Log::EndOfEntry);
     }
     // These loaders are natively supported with SDL.
     // Place them *after* the SDL_image loaders, such that the SDL_image loader loaders are preferred.

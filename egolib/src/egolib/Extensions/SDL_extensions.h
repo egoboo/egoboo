@@ -103,9 +103,9 @@ Log::Entry& operator<<(Log::Entry& e, const SDLX_sdl_gl_attrib_t& s);
         /// Context properties.
         /// @todo Rename gl_att to contextProperties.
         SDLX_sdl_gl_attrib_t gl_att;
-
-        static void report(SDLX_screen_info_t& self);
     };
+
+    Log::Entry& operator<<(Log::Entry& e, const SDLX_screen_info_t& s);
 
 //--------------------------------------------------------------------------------------------
 
@@ -126,6 +126,8 @@ Log::Entry& operator<<(Log::Entry& e, const SDLX_sdl_gl_attrib_t& s);
         static void download(SDLX_video_parameters_t& self, egoboo_config_t& cfg);
         void upload() const;
     };
+
+    Log::Entry& operator<<(Log::Entry& e, const SDLX_video_parameters_t& s);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

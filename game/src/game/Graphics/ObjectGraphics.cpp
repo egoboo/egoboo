@@ -256,7 +256,7 @@ gfx_rv ObjectGraphics::updateVertices(int vmin, int vmax, bool force)
     // make sure we have valid data
     if (_vertexList.size() != pmd2->getVertexCount())
     {
-		Log::get().warn( "chr_instance_update_vertices() - character instance vertex data does not match its md2\n" );
+        Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "character instance vertex data does not match its md2", Log::EndOfEntry);
         return gfx_error;
     }
 
@@ -323,7 +323,8 @@ gfx_rv ObjectGraphics::updateVertices(int vmin, int vmax, bool force)
     const std::vector<MD2_Frame> &frameList = pmd2->getFrames();
     if ( _targetFrameIndex >= frameList.size() || _sourceFrameIndex >= frameList.size() )
     {
-		Log::get().warn("%s:%d:%s: character instance frame is outside the range of its MD2\n", __FILE__, __LINE__, __FUNCTION__ );
+		Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "character instance frame is outside "
+                                         "the range of its MD2", Log::EndOfEntry);
         return gfx_error;
     }
 
@@ -808,8 +809,8 @@ const std::shared_ptr<Ego::ModelDescriptor>& ObjectGraphics::getModelDescriptor(
 
 void ObjectGraphics::assertFrameIndex(int frameIndex) const {
     if (frameIndex > getModelDescriptor()->getMD2()->getFrames().size()) {
-        Log::Entry e(Log::Level::Error, __FILE__, __LINE__);
-        e << "invalid frame " << frameIndex << "/" << getModelDescriptor()->getMD2()->getFrames().size() << Log::EndOfEntry;
+        auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "invalid frame ", frameIndex, "/", 
+                                    getModelDescriptor()->getMD2()->getFrames().size(), Log::EndOfEntry);
         Log::get() << e;
         throw Id::RuntimeErrorException(__FILE__, __LINE__, e.getText());
     }
@@ -846,7 +847,7 @@ void ObjectGraphics::updateAnimation()
 
         if ( _animationProgressInteger > 4 )
         {
-            Log::get().warn( "chr_increment_frame() - invalid ilip\n" );
+            Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "invalid ilip", Log::EndOfEntry);
             _animationProgressInteger = 0;
             break;
         }
@@ -877,7 +878,7 @@ void ObjectGraphics::updateAnimation()
 
             if ( _animationProgressInteger > 4 )
             {
-                Log::get().warn( "chr_increment_frame() - invalid ilip\n" );
+                Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "invalid ilip", Log::EndOfEntry);
                 _animationProgressInteger = 0;
             }
         }

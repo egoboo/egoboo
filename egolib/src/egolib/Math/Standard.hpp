@@ -259,10 +259,9 @@ template <>
 struct Validate<float> {
     void operator()(const char *file, int line, float object) const {
         if (float_bad(object)) {
-            std::ostringstream os;
-            os << file << ":" << line << ": invalid floating point value" << std::endl;
-            Log::get().error("%s", os.str().c_str());
-            throw std::runtime_error(os.str());
+            auto e = Log::Entry::create(Log::Level::Error, file, line, "invalid floating point value", Log::EndOfEntry);
+            Log::get() << e;
+            throw std::runtime_error(e.getText());
         }
     }
 };

@@ -30,19 +30,19 @@ void GraphicsSystem::initialize() {
     // Download the context parameters from the Egoboo configuration.
     oglx_video_parameters_t::download(ogl_vparam, egoboo_config_t::get());
 
-    Log::get().info("Opening SDL Video Mode...\n");
+    Log::get() << Log::Entry::create(Log::Level::Info, __FILE__, __LINE__, "setting SDL video mode", Log::EndOfEntry);
 
     bool setVideoMode = false;
 
     // Actually set the video mode.
     if (!SDL_GL_set_mode(nullptr, &sdl_vparam, &ogl_vparam, Ego::GraphicsSystem::initialized)) {
-        Log::get().message("Failed!\n");
-        if (egoboo_config_t::get().graphic_fullscreen.getValue()) {
-            Log::get().info("SDL error with fullscreen mode on: %s\n", SDL_GetError());
-            Log::get().info("Trying again in windowed mode...\n");
+        Log::get() << Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "unable to set SDL video mode: ", SDL_GetError(), Log::EndOfEntry);
+        if (egoboo_config_t::get().graphic_fullscreen.getValue())
+        {
+            Log::get() << Log::Entry::create(Log::Level::Info, __FILE__, __LINE__, "SDL error with fullscreen mode, retrying with windowed mode", Log::EndOfEntry);
             sdl_vparam.windowProperties.fullscreen = false;
-            if (!SDL_GL_set_mode(nullptr, &sdl_vparam, &ogl_vparam, Ego::GraphicsSystem::initialized)) {
-                Log::get().message("Failed!\n");
+            if (SDL_GL_set_mode(nullptr, &sdl_vparam, &ogl_vparam, Ego::GraphicsSystem::initialized)) {
+                Log::get() << Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "unable to set SDL video mode: ", SDL_GetError(), Log::EndOfEntry);
             } else {
                 egoboo_config_t::get().graphic_fullscreen.setValue(false);
                 setVideoMode = true;
@@ -53,14 +53,11 @@ void GraphicsSystem::initialize() {
     }
 
     if (!setVideoMode) {
-        Log::get().message("Failed!\n");
-        std::ostringstream os;
-        os << "unable to set any video mode - SDL_GetError() = " << SDL_GetError() << std::endl;
-        Log::get().error("%s", os.str().c_str());
-        throw std::runtime_error(os.str());
+        auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "unable to set any video mode", Log::EndOfEntry);
+        Log::get() << e;
+        throw std::runtime_error(e.getText());
     } else {
         gfx_width = (float)gfx_height / (float)sdl_vparam.resolution.height() * (float)sdl_vparam.resolution.width();
-        Log::get().message("Success!\n");
     }
 
     GraphicsWindow *window = Ego::GraphicsSystem::window;
@@ -71,7 +68,7 @@ void GraphicsSystem::initialize() {
         auto pathName = "mp_data/" + fileName;
         SDL_Surface *theSurface = IMG_Load_RW(vfs_openRWopsRead(pathName.c_str()), 1);
         if (!theSurface) {
-            Log::get().warn("unable to load icon `%s` - reason: %s\n", pathName.c_str(), SDL_GetError());
+            Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to load icon ", "`", pathName, "`: ",  SDL_GetError(), Log::EndOfEntry);
         } else {
             window->setIcon(theSurface);
             // ...and the surface containing the icon pixel data is no longer required.

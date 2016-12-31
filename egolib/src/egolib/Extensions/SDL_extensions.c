@@ -40,20 +40,22 @@ SDLX_screen_info_t sdl_scr;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void SDLX_screen_info_t::report(SDLX_screen_info_t& self)
+Log::Entry& operator<<(Log::Entry& e, const SDLX_screen_info_t& s)
 {
-	Log::get().message("\nSDL using video driver - %s\n", self.szDriver.c_str());
-
-    if (!self.displayModes.empty())
+    e << "SDL video driver = " << s.szDriver.c_str() << Log::EndOfLine;
+    if (!s.displayModes.empty())
     {
-		Log::get().message("\tAvailable full-screen video modes...\n");
-        for (const auto &displayMode : self.displayModes)
+        e << "\t" << "available fullscreen video modes:" << Log::EndOfLine;
+        for (const auto &displayMode : s.displayModes)
         {
-			Log::get().message("    \tVideo Mode - %d x %d, %d Hz\n", displayMode->getHorizontalResolution(),
-                                                                      displayMode->getVerticalResolution(),
-                                                                      displayMode->getRefreshRate());
+            e << "\t" << "\t"
+              << displayMode->getHorizontalResolution() << " pixels x "
+              << displayMode->getVerticalResolution() << " pixels x "
+              << displayMode->getRefreshRate() << " Hz"
+              << Log::EndOfLine;
         }
     }
+    return e;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -64,12 +66,12 @@ bool SDLX_Get_Screen_Info( SDLX_screen_info_t& psi, bool make_report )
     init_flags = SDL_WasInit( SDL_INIT_EVERYTHING );
     if ( 0 == init_flags )
     {
-        if ( make_report ) Log::get().message("ERROR: SDLX_Get_Screen_Info() called before initializing SDL\n");
+        if ( make_report ) Log::get() << Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "SDL not initialized", Log::EndOfEntry);
         return false;
     }
     else if ( HAS_NO_BITS( init_flags, SDL_INIT_VIDEO ) )
     {
-        if ( make_report ) Log::get().message("ERROR: SDLX_Get_Screen_Info() called before initializing SDL video driver\n");
+        if ( make_report ) Log::get() << Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "SDL video not initialized", Log::EndOfEntry);
         return false;
     }
 
@@ -97,7 +99,7 @@ bool SDLX_Get_Screen_Info( SDLX_screen_info_t& psi, bool make_report )
 
     if (make_report)
     {
-        SDLX_screen_info_t::report(psi);
+        Log::get() << Log::Entry::create(Log::Level::Info, __FILE__, __LINE__, psi);
     }
     return true;
 }
@@ -314,24 +316,25 @@ Log::Entry& operator<<(Log::Entry& e, const SDLX_sdl_gl_attrib_t& s) {
 //--------------------------------------------------------------------------------------------
 void SDLX_video_parameters_t::report(SDLX_video_parameters_t& self)
 {
-    /// @author BB
-    /// @details make a report
     Log::Entry e(Log::Level::Info, __FILE__, __LINE__);
+    e << self << Log::EndOfEntry;
+    Log::get() << e;
+}
 
+Log::Entry& operator<<(Log::Entry& e, const SDLX_video_parameters_t& s)
+{
     // Write the horizontal and vertical resolution and the color depth.
-    e << "resolution = " << self.resolution.width() << " x " << self.resolution.height() << Log::EndOfLine
-      << "color depth = " << self.colorBufferDepth << Log::EndOfLine;
+    e << "resolution = " << s.resolution.width() << " x " << s.resolution.height() << Log::EndOfLine
+      << "color depth = " << s.colorBufferDepth << Log::EndOfLine;
     // Write the window properties.
-    e << self.windowProperties;
+    e << s.windowProperties;
 
     // Write the context properties.
-    if (self.windowProperties.opengl)
+    if (s.windowProperties.opengl)
     {
-        e << self.gl_att;
+        e << s.gl_att;
     }
-
-    e << Log::EndOfEntry;
-    Log::get() << e;
+    return e;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -381,7 +384,7 @@ Ego::GraphicsWindow *SDLX_CreateWindow( SDLX_video_parameters_t& v, bool make_re
         // do our one-and-only video initialization
         ret = SDLX_CreateWindow(v.windowProperties);
         if (!ret) {
-            Log::get().message("SDL WARN: Unable to create SDL window: %s\n", SDL_GetError());
+            Log::get() << Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "unable to create SDL window: ", SDL_GetError(), Log::EndOfEntry);
         } else {
             ret->setSize(v.resolution);
             ret->center();
@@ -397,13 +400,13 @@ Ego::GraphicsWindow *SDLX_CreateWindow( SDLX_video_parameters_t& v, bool make_re
         // if it fails, then it tries to get the closest possible valid video mode
         ret = SDLX_CreateWindow(v.windowProperties);
         if ( nullptr == ret ) {
-			Log::get().warn("unable to create SDL window: %s\n", SDL_GetError());
+			Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to create SDL window: ", SDL_GetError(), Log::EndOfEntry);
         } else {
             ret->setSize(v.resolution);
             ret->center();
             SDL_GLContext context = SDLX_CreateContext(ret->get(), v.gl_att);
             if (!context) {
-				Log::get().warn("unable to create GL context: %s\n", SDL_GetError());
+				Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to create OpenGLGL context: ", SDL_GetError(), Log::EndOfEntry);
                 delete ret;
                 ret = nullptr;
             }
@@ -419,13 +422,13 @@ Ego::GraphicsWindow *SDLX_CreateWindow( SDLX_video_parameters_t& v, bool make_re
                     v.gl_att.multisampling.multibuffers = 1;                 
                     ret = SDLX_CreateWindow(v.windowProperties);
                     if ( nullptr == ret ) {
-						Log::get().warn("unable to create SDL window (%d multisamples): %s\n", v.gl_att.multisampling.multisamples, SDL_GetError());
+						Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to create SDL window (", v.gl_att.multisampling.multisamples, " multisamples): ", SDL_GetError(), Log::EndOfEntry);
                     } else {
                         ret->setSize(v.resolution);
                         ret->center();
                         SDL_GLContext context = SDLX_CreateContext(ret->get(), v.gl_att);
                         if (!context) {
-							Log::get().warn("unable to create GL context (%d multisamples): %s\n", v.gl_att.multisampling.multisamples, SDL_GetError());
+							Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to create OpenGL context (", v.gl_att.multisampling.multisamples, " multisamples): ", SDL_GetError(), Log::EndOfEntry);
                             delete ret;
                             ret = nullptr;
                         }
@@ -440,19 +443,19 @@ Ego::GraphicsWindow *SDLX_CreateWindow( SDLX_video_parameters_t& v, bool make_re
         {
             // something is interfering with our ability to generate a screen.
             // assume that it is a complete incompatability with multisampling
-            Log::get().warn("Disabled antialiasing\n");
+            Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "disabled antialiasing", Log::EndOfEntry);
             v.gl_att.multisampling.multibuffers = 0;
             v.gl_att.multisampling.multisamples = 0;
 
             ret = SDLX_CreateWindow(v.windowProperties);
             if ( nullptr == ret ) {
-				Log::get().warn("unable to create SDL window (no multisamples): %s\n", SDL_GetError());
+				Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to create SDL window (no multisamples): ", SDL_GetError(), Log::EndOfEntry);
             } else {
                 ret->setSize(v.resolution);
                 ret->center();
                 SDL_GLContext context = SDLX_CreateContext(ret->get(), v.gl_att);
                 if (!context) {
-					Log::get().warn("unable to create GL context (no multisamples): %s\n", SDL_GetError());
+					Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to create OpenGL context (no multisamples): ", SDL_GetError(), Log::EndOfEntry);
                     delete ret;
                     ret = nullptr;
                 }
@@ -511,27 +514,27 @@ void SDLX_video_parameters_t::download(SDLX_video_parameters_t& self, egoboo_con
 //--------------------------------------------------------------------------------------------
 void SDLX_report_mode( Ego::GraphicsWindow *surface, SDLX_video_parameters_t& v)
 {
-
-    if ( NULL == surface )
+    auto e = Log::Entry::create(Log::Level::Message, __FILE__, __LINE__);
+    e << "==============================================================" << Log::EndOfLine;
+    if (!surface)
     {
-		Log::get().message("\n==============================================================\n");
-		Log::get().message("!!!! SDL unable to set video mode with current parameters !!!! - \n    \"%s\"\n", SDL_GetError());
-        SDLX_video_parameters_t::report( v );
-		Log::get().message("==============================================================\n");
+        e << "SDL video mode not set:" << Log::EndOfLine
+            << SDL_GetError() << Log::EndOfLine;
     }
     else
     {
-		Log::get().message("\n==============================================================\n");
-		Log::get().message("SDL set video mode to the current parameters\n");
-		Log::get().message("\nSDL window parameters\n");
+        e << "SDL vide mode set" << Log::EndOfLine;
+    }
+    e << "SDL window parameters" << Log::EndOfLine;
+    SDLX_video_parameters_t::report(v);
 
+    if (surface)
+    {
         // report the SDL screen info
         SDLX_Get_Screen_Info( sdl_scr, SDL_FALSE );
-        SDLX_video_parameters_t::report( v );
-        SDLX_screen_info_t::report( sdl_scr );
-
-		Log::get().message("==============================================================\n");
+        e << sdl_scr;
     }
+    e << "==============================================================" << Log::EndOfLine;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -599,8 +602,9 @@ SDLX_video_parameters_t * SDLX_set_mode( SDLX_video_parameters_t * v_old, SDLX_v
 
         if ( NULL == surface )
         {
-			Log::get().error("could not restore the old video mode. Terminating.\n");
-			throw std::runtime_error("unable to restore the old video mode\n");
+            auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "unable to restore the old video mode", Log::EndOfEntry);
+            Log::get() << e;
+			throw std::runtime_error(e.getText());
         }
         else
         {

@@ -574,19 +574,19 @@ int cartman_mpd_add_fan_verts(cartman_mpd_t *self, cartman_mpd_tile_t *pfan)
     pdef = tile_dict.get( fan_type );
 	if (nullptr == pdef)
 	{
-		Log::get().warn("%s - tried to add invalid fan_idx type %d\n", __FUNCTION__, fan_type);
+		Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to add vertices: tile definition of fan type ", fan_type, " not found", Log::EndOfEntry);
 	}
 
     // check the vertex count
     vert_count = pdef->numvertices;
 	if (0 == vert_count)
 	{
-		Log::get().warn("%s - tried to add undefined fan_idx type %d\n", __FUNCTION__, fan_type);
+		Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to add vertices: invalid tile definition of fan type ", fan_type, " - too few vertices", Log::EndOfEntry);
 	}
 	if (vert_count > MAP_FAN_VERTICES_MAX)
 	{
-		Log::get().error("%s - fan_idx type %d is defined with too many vertices %d\n", __FUNCTION__, fan_type, vert_count);
-	}
+        Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to add vertices: invalid tile definition of fan type ", fan_type, " - too many vertices", Log::EndOfEntry);
+    }
 
     cartman_mpd_allocate_vertex_list(self, vertexlist, SDL_arraysize(vertexlist), vert_count);
 
@@ -601,26 +601,26 @@ int cartman_mpd_t::add_pfan(cartman_mpd_tile_t *pfan, float x, float y)
     // Check the fan.
     if (!pfan)
     {
-		Log::get().warn("%s - tried to add null fan pointer\n", __FUNCTION__);
+		Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "tried to add null fan pointer", Log::EndOfEntry);
         return -1;
     }
 
     tile_definition_t *pdef = tile_dict.get(pfan->type);
     if (!pdef)
     {
-		Log::get().warn("%s - invalid fan type %d\n", __FUNCTION__, pfan->type);
+		Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "undefined fan type ", pfan->type, Log::EndOfEntry);
         return -1;
     }
 
     int vert_count = pdef->numvertices;
     if (0 == vert_count)
     {
-		Log::get().warn("%s - undefined fan type %d\n", __FUNCTION__, pfan->type);
+		Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "too few vertices in fan type ", pfan->type, Log::EndOfEntry);
         return -1;
     }
     else if (vert_count > MAP_FAN_VERTICES_MAX)
     {
-		Log::get().warn("%s - too many vertices in fan type %d\n", __FUNCTION__, pfan->type);
+		Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "too many vertices in fan type ", pfan->type, Log::EndOfEntry);
         return -1;
     }
 
@@ -628,7 +628,7 @@ int cartman_mpd_t::add_pfan(cartman_mpd_tile_t *pfan, float x, float y)
     int start_vertex = cartman_mpd_add_fan_verts(this, pfan);
     if (start_vertex < 0)
     {
-		Log::get().warn("%s - could not allocate vertices for fan\n", __FUNCTION__);
+		Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to allocate fan vertices", Log::EndOfEntry);
         return -1;
     }
 
@@ -776,14 +776,14 @@ cartman_mpd_t * cartman_mpd_convert(cartman_mpd_t *dst, map_t *src)
         tile_definition_t *pdef = tile_dict.get(fan_dst.type);
         if (!pdef)
         {
-			Log::get().warn( "%s - invalid fan type in fan # %d\n", __FUNCTION__, ifan_dst );
+			Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__,  "invalid fan type in fan ", ifan_dst, Log::EndOfEntry);
             goto cartman_mpd_convert_fail;
         }
 
         // get an appropriate number of vertices from the tile definition
         if ( 0 == pdef->numvertices )
         {
-			Log::get().warn( "%s - undefined fan type %d in fan # %d\n", __FUNCTION__, fan_dst.type, ifan_dst );
+			Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "undefined fan type ", fan_dst.type, " in fan ", ifan_dst, Log::EndOfEntry);
             vert_count = 4;
         }
         else
@@ -794,7 +794,7 @@ cartman_mpd_t * cartman_mpd_convert(cartman_mpd_t *dst, map_t *src)
         // check for valid vertex count
         if ( vert_count > MAP_FAN_VERTICES_MAX )
         {
-			Log::get().warn( "%s - too many vertices in fan type %d in fan # %d\n", __FUNCTION__, fan_dst.type, ifan_dst );
+			Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__,  "too many vertices in fan ", ifan_dst, " of fan type ", fan_dst.type, Log::EndOfEntry);
             goto cartman_mpd_convert_fail;
         }
 
@@ -802,7 +802,7 @@ cartman_mpd_t * cartman_mpd_convert(cartman_mpd_t *dst, map_t *src)
         allocate_rv = cartman_mpd_allocate_verts(dst, vert_count);
         if ( -1 == allocate_rv )
         {
-			Log::get().warn( "%s - could not allocate enough vertices for the mesh at fan # %d\n", __FUNCTION__, ifan_dst );
+            Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to allocate vertices for fan ", ifan_dst, " of fan type ", fan_dst.type, Log::EndOfEntry);
             goto cartman_mpd_convert_fail;
         }
 
@@ -816,7 +816,7 @@ cartman_mpd_t * cartman_mpd_convert(cartman_mpd_t *dst, map_t *src)
         {
             if ( CHAINEND == ivrt_dst )
             {
-				Log::get().warn( "%s - unexpected CHAINEND in tile %d vertex %d\n.", __FUNCTION__, ifan_dst, ivrt_dst );
+				Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unexpected chained vertex ", ivrt_dst, " in fan ", ifan_dst, " of fan type ", fan_dst.type, Log::EndOfEntry);
                 goto cartman_mpd_convert_fail;
             }
 
@@ -893,7 +893,8 @@ map_t *cartman_mpd_revert(map_t *dst, cartman_mpd_t *src)
         tile_definition_t *pdef = tile_dict.get(fan_src.type);
         if (!pdef)
         {
-			Log::get().warn("%s:%d: invalid fan type %d used in the mesh\n", __FILE__, __LINE__, fan_src.type);
+            Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "invalid fan type ",
+                                             fan_src.type, " used in the mesh", Log::EndOfEntry);
             goto cartman_mpd_revert_fail;
         }
 
@@ -901,18 +902,21 @@ map_t *cartman_mpd_revert(map_t *dst, cartman_mpd_t *src)
         int vert_count = pdef->numvertices;
         if ( 0 == vert_count )
         {
-			Log::get().warn("%s:%d: undefined fan type %d used in the mesh\n", __FILE__,__LINE__, fan_src.type);
+			Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "undefined fan type ",
+                                             fan_src.type, " used in the mesh", Log::EndOfEntry);
         }
         else if ( vert_count > MAP_FAN_VERTICES_MAX )
         {
-			Log::get().warn("%s:%d: too many vertices %d used in tile type %d\n", __FILE__,__LINE__, vert_count, fan_src.type );
+            Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "too many vertices ",
+                                             vert_count, " used in tile type ", fan_src.type, Log::EndOfEntry);
             goto cartman_mpd_revert_fail;
         }
 
         // is the initial vertex valid?
         if (!CART_VALID_VERTEX_RANGE(fan_src.vrtstart))
         {
-			Log::get().warn("%s:%d: vertex %d is outside of valid vertex range\n", __FILE__, __LINE__, fan_src.vrtstart );
+            Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "vertex ", fan_src.vrtstart,
+                                             " is outside of valid vertex range", Log::EndOfEntry);
             goto cartman_mpd_revert_fail;
         }
 
@@ -925,7 +929,8 @@ map_t *cartman_mpd_revert(map_t *dst, cartman_mpd_t *src)
             // check for a bad CHAINEND
             if ( CHAINEND == ivrt_src )
             {
-				Log::get().warn( "%s - vertex %d of tile %d is marked as unused\n", __FUNCTION__, tnc, itile );
+				Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "vertex ",  tnc,
+                                                 " of tile ", itile, " is marked as unused", Log::EndOfEntry);
                 goto cartman_mpd_revert_fail;
             }
 
@@ -935,7 +940,8 @@ map_t *cartman_mpd_revert(map_t *dst, cartman_mpd_t *src)
             // check for VERTEXUNUSED
             if ( VERTEXUNUSED == pvrt_src->a )
             {
-				Log::get().warn("%s:%d: vertex %d of tile %d is marked as unused\n", __FILE__, __LINE__, tnc, itile);
+				Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "vertex ", tnc,
+                                                 " of tile ", itile, " is marked as unused", Log::EndOfEntry);
                 goto cartman_mpd_revert_fail;
             }
 

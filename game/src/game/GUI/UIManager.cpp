@@ -45,10 +45,9 @@ UIManager::UIManager() :
 #ifndef NDEBUG
     for (int i = 0; i < _fonts.size(); ++i) {
         if (!_fonts[i]) {
-            std::ostringstream os;
-            os << __FILE__ << ":" << __LINE__ << ": UI manager is missing font with ID " << i << std::endl;
-            Log::get().error("%s", os.str().c_str());
-            throw std::runtime_error(os.str());
+            auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "UI manager is missing font with ID ", i, Log::EndOfEntry);
+            Log::get() << e;
+            throw std::runtime_error(e.getText());
         }
     }
 #endif

@@ -29,13 +29,12 @@
 namespace Ego {
 
 FontManager::FontManager() {
-    Log::get().info("[font manager]: SDL_ttf %i.%i.%i\n", SDL_TTF_MAJOR_VERSION, SDL_TTF_MINOR_VERSION, SDL_TTF_PATCHLEVEL);
+    Log::get() << Log::Entry::create(Log::Level::Info, __FILE__, __LINE__, "[font manager]: SDL_ttf v", SDL_TTF_MAJOR_VERSION, ".", SDL_TTF_MINOR_VERSION, ".", SDL_TTF_PATCHLEVEL, Log::EndOfEntry);
     if (TTF_Init() < 0) {
-        Log::Entry e(Log::Level::Warning, __FILE__, __LINE__);
-        e << "[font manager]: unable to initialized SDL_ttf: " << SDL_GetError() << Log::EndOfLine;
+        auto e = Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "[font manager]: unable to initialized SDL_ttf v", SDL_TTF_MAJOR_VERSION, ".", SDL_TTF_MINOR_VERSION, ".", SDL_TTF_PATCHLEVEL, ": ",
+                                    SDL_GetError(), Log::EndOfLine);
         Log::get() << e;
-        throw Id::EnvironmentErrorException(__FILE__, __LINE__, "font manager",
-                                            std::string("unable to initialized SDL_ttf: ") + SDL_GetError());
+        throw Id::EnvironmentErrorException(__FILE__, __LINE__, "font manager", e.getText());
     }
 }
 

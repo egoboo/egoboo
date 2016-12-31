@@ -71,10 +71,9 @@ void font_bmp_load_vfs( const std::string& szBitmap, const char* szSpacing )
     const std::shared_ptr<Ego::Texture> &fontTexture = Ego::TextureManager::get().getTexture(szBitmap);
 	if (fontTexture->isDefault())
     {
-		std::ostringstream os;
-		os << "load_font() - unable to load file `" << szBitmap << "`" << std::endl;
-		Log::get().error("%s", os.str().c_str());
-		throw std::runtime_error(os.str());
+        auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "`", szBitmap, "`", ": ", "unable to load file", Log::EndOfEntry);
+        Log::get() << e;
+        throw std::runtime_error(e.getText());
     }
 
     // Get the size of the bitmap
@@ -82,10 +81,9 @@ void font_bmp_load_vfs( const std::string& szBitmap, const char* szSpacing )
     int ysize = fontTexture->getSourceHeight();
     if ( 0 == xsize || 0 == ysize )
     {
-		std::ostringstream os;
-		os << "bad font size (" << xsize << ", " << ysize << ")" << std::endl;
-		Log::get().error("%s", os.str().c_str());
-		throw std::runtime_error(os.str());
+        auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "`", szBitmap, "`", ": ", "bad font size ", "(", xsize, ", ", ysize, ")", Log::EndOfEntry);
+        Log::get() << e;
+        throw std::runtime_error(e.getText());
     }
 
     // Figure out where each font is and its spacing

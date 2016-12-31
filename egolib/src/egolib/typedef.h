@@ -26,6 +26,7 @@
 // this include must be the absolute last include
 #include "egolib/egolib_config.h"
 #include "egolib/Debug.hpp"
+#include "egolib/Log/_Include.hpp"
 
 //--------------------------------------------------------------------------------------------
 // place the definition of the lambda operator in a macro
@@ -214,6 +215,7 @@ namespace std {
         }
     };
 }
+Log::Entry& operator<<(Log::Entry& entry, const ObjectRef& ref);
 
 DECLARE_REF(TEAM_REF);
 
@@ -248,6 +250,7 @@ struct hash<ParticleProfileRef> {
     }
 };
 }
+Log::Entry& operator<<(Log::Entry& entry, const ParticleProfileRef& ref);
 
 using ParticleRef = Ref<size_t, std::numeric_limits<size_t>::min(), std::numeric_limits<size_t>::max(), std::numeric_limits<size_t>::max(), RefKind::Particle>;
 namespace std {
@@ -258,6 +261,7 @@ namespace std {
         }
     };
 }
+Log::Entry& operator<<(Log::Entry& entry, const ParticleRef& ref);
 
 DECLARE_REF(PASS_REF);
 
@@ -270,6 +274,8 @@ namespace std {
         }
     };
 }
+Log::Entry& operator<<(Log::Entry& entry, const ObjectProfileRef& ref);
+
 DECLARE_REF(PRO_REF);
 #define INVALID_PRO_REF ((PRO_REF)OBJECTPROFILES_MAX)
 

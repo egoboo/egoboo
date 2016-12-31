@@ -138,11 +138,11 @@ PRO_REF ProfileSystem::loadOneProfile(const std::string &pathName, int slot_over
         // The data file wasn't found
         if (required)
         {
-			Log::get().debug("ProfileSystem::loadOneProfile() - \"%s\" was not found. Overriding a global object?\n", pathName.c_str());
+			Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "`", pathName, "`", " was not found. Do you attempt to override a global object?", Log::EndOfEntry);
         }
         else if (required && slot_override > 4 * MAX_IMPORT_PER_PLAYER)
         {
-			Log::get().warn("ProfileSystem::loadOneProfile() - Not able to open file \"%s\"\n", pathName.c_str());
+			Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to open file ", "`", pathName, "`", Log::EndOfEntry);
         }
 
         return INVALID_PRO_REF;
@@ -158,19 +158,17 @@ PRO_REF ProfileSystem::loadOneProfile(const std::string &pathName, int slot_over
         // Make sure global objects don't load over existing models
         if (required && SPELLBOOK == iobj)
         {
-			std::ostringstream os;
-			os << __FILE__ << ":" << __LINE__ << ": "
-				<< " object slot " << SPELLBOOK << " is a special reserved slot number and cannot be used by " << pathName.c_str() << std::endl;
-			Log::get().error("%s", os.str().c_str());
-			throw std::runtime_error(os.str());
+            auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "object slot ", SPELLBOOK, " is a special "
+                                        "reserved slot number and can not be used by ", "`", pathName, "`", Log::EndOfEntry);
+            Log::get() << e;
+			throw std::runtime_error(e.getText());
         }
         else if (required && overrideslots)
         {
-			std::ostringstream os;
-			os << __FILE__ << ":" << __LINE__ << ": "
-			   << "object slot " << REF_TO_INT(iobj) << " is already used by " << _profilesLoaded[iobj]->getPathname().c_str() << " and cannot be used by " << pathName.c_str() << std::endl;
-			Log::get().error("%s", os.str().c_str());
-			throw std::runtime_error(os.str());
+            Log::Entry e(Log::Level::Error, __FILE__, __LINE__);
+            e << "object slot " << SPELLBOOK << " is already used by " << _profilesLoaded[iobj]->getPathname() << " and cannot be used by " << pathName << Log::EndOfEntry;
+            Log::get() << e;
+			throw std::runtime_error(e.getText());
         }
         else
         {
@@ -182,14 +180,15 @@ PRO_REF ProfileSystem::loadOneProfile(const std::string &pathName, int slot_over
     std::shared_ptr<ObjectProfile> profile = ObjectProfile::loadFromFile(pathName, iobj);
     if (!profile)
     {
-		Log::get().warn("ProfileSystem::loadOneProfile() - Failed to load (%s) into slot number %d\n", pathName.c_str(), iobj);
+        Log::Entry e(Log::Level::Warning, __FILE__, __LINE__);
+        e << "failed to load " << pathName << " into slot number " << iobj << Log::EndOfEntry;
+        Log::get() << e;
         return INVALID_PRO_REF;
     }
 
     //Success! Store object into the loaded profile map
     _profilesLoaded[iobj] = profile;
     _profilesLoadedByName[profile->getPathname().substr(profile->getPathname().find_last_of('/') + 1)] = profile;
-    //Log::get().debug("ProfileSystem::loadOneProfile() - Loaded (%s) into %s\n", pathName.c_str(), profile->getPathname().substr(profile->getPathname().find_last_of('/') + 1).c_str());
 
     return iobj;
 }
@@ -219,7 +218,7 @@ void ProfileSystem::loadModuleProfiles()
         }
         else
         {
-			Log::get().warn("unable to load module: %s\n", vfs_ModPath.string().c_str());
+			Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to load module ", "`", vfs_ModPath.string(), "`", Log::EndOfEntry);
         }
         ctxt->nextData();
     }
@@ -321,138 +320,123 @@ void ProfileSystem::loadGlobalParticleProfiles()
     loadpath = "mp_data/1money.txt";
     if ( INVALID_PIP_REF == ParticleProfileSystem.load_one( loadpath, ( PIP_REF )PIP_COIN1 ) )
     {
-		std::ostringstream os;
-		os << "data file `" << loadpath << "` was not found" << std::endl;
-		Log::get().error("%s",os.str().c_str());
-		throw std::runtime_error(os.str());
+        auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "data file ", "`", loadpath, "`", " was not found", Log::EndOfEntry);
+        Log::get() << e;
+		throw std::runtime_error(e.getText());
     }
 
     loadpath = "mp_data/5money.txt";
     if ( INVALID_PIP_REF == ParticleProfileSystem.load_one( loadpath, ( PIP_REF )PIP_COIN5 ) )
     {
-		std::ostringstream os;
-		os << "data file `" << loadpath << "` was not found" << std::endl;
-		Log::get().error("%s", os.str().c_str());
-		throw std::runtime_error(os.str());
+        auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "data file ", "`", loadpath, "`", " was not found", Log::EndOfEntry);
+        Log::get() << e;
+        throw std::runtime_error(e.getText());
     }
 
     loadpath = "mp_data/25money.txt";
     if ( INVALID_PIP_REF == ParticleProfileSystem.load_one( loadpath, ( PIP_REF )PIP_COIN25 ) )
     {
-		std::ostringstream os;
-		os << "data file `" << loadpath << "` was not found" << std::endl;
-		Log::get().error("%s", os.str().c_str());
-		throw std::runtime_error(os.str());
+        auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "data file ", "`", loadpath, "`", " was not found", Log::EndOfEntry);
+        Log::get() << e;
+        throw std::runtime_error(e.getText());
     }
 
     loadpath = "mp_data/100money.txt";
     if ( INVALID_PIP_REF == ParticleProfileSystem.load_one( loadpath, ( PIP_REF )PIP_COIN100 ) )
     {
-		std::ostringstream os;
-		os << "data file `" << loadpath << "` was not found" << std::endl;
-		Log::get().error("%s", os.str().c_str());
-		throw std::runtime_error(os.str());
+        auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "data file ", "`", loadpath, "`", " was not found", Log::EndOfEntry);
+        Log::get() << e;
+        throw std::runtime_error(e.getText());
     }
 
     loadpath = "mp_data/200money.txt";
     if ( INVALID_PIP_REF == ParticleProfileSystem.load_one( loadpath, ( PIP_REF )PIP_GEM200 ) )
     {
-		std::ostringstream os;
-		os << "data file `" << loadpath << "` was not found" << std::endl;
-		Log::get().error("%s", os.str().c_str());
-		throw std::runtime_error(os.str());
+        auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "data file ", "`", loadpath, "`", " was not found", Log::EndOfEntry);
+        Log::get() << e;
+        throw std::runtime_error(e.getText());
     }
 
     loadpath = "mp_data/500money.txt";
     if ( INVALID_PIP_REF == ParticleProfileSystem.load_one( loadpath, ( PIP_REF )PIP_GEM500 ) )
     {
-		std::ostringstream os;
-		os << "data file `" << loadpath << "` was not found" << std::endl;
-		Log::get().error("%s", os.str().c_str());
-		throw std::runtime_error(os.str());
+        auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "data file ", "`", loadpath, "`", " was not found", Log::EndOfEntry);
+        Log::get() << e;
+        throw std::runtime_error(e.getText());
     }
 
     loadpath = "mp_data/1000money.txt";
     if ( INVALID_PIP_REF == ParticleProfileSystem.load_one( loadpath, ( PIP_REF )PIP_GEM1000 ) )
     {
-		std::ostringstream os;
-		os << "data file `" << loadpath << "` was not found" << std::endl;
-		Log::get().error("%s", os.str().c_str());
-		throw std::runtime_error(os.str());
+        auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "data file ", "`", loadpath, "`", " was not found", Log::EndOfEntry);
+        Log::get() << e;
+        throw std::runtime_error(e.getText());
     }
 
     loadpath = "mp_data/2000money.txt";
     if ( INVALID_PIP_REF == ParticleProfileSystem.load_one( loadpath, ( PIP_REF )PIP_GEM2000 ) )
     {
-		std::ostringstream os;
-		os << "data file `" << loadpath << "` was not found" << std::endl;
-		Log::get().error("%s", os.str().c_str());
-		throw std::runtime_error(os.str());
+        auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "data file ", "`", loadpath, "`", " was not found", Log::EndOfEntry);
+        Log::get() << e;
+        throw std::runtime_error(e.getText());
     }
 
     loadpath = "mp_data/disintegrate_start.txt";
     if ( INVALID_PIP_REF == ParticleProfileSystem.load_one( loadpath, ( PIP_REF )PIP_DISINTEGRATE_START ) )
     {
-		std::ostringstream os;
-		os << "data file `" << loadpath << "` was not found" << std::endl;
-		Log::get().error("%s", os.str().c_str());
-		throw std::runtime_error(os.str());
+        auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "data file ", "`", loadpath, "`", " was not found", Log::EndOfEntry);
+        Log::get() << e;
+        throw std::runtime_error(e.getText());
     }
 
     loadpath = "mp_data/disintegrate_particle.txt";
     if ( INVALID_PIP_REF == ParticleProfileSystem.load_one( loadpath, ( PIP_REF )PIP_DISINTEGRATE_PARTICLE ) )
     {
-		std::ostringstream os;
-		os << "data file `" << loadpath << "` was not found" << std::endl;
-		Log::get().error("%s", os.str().c_str());
-		throw std::runtime_error(os.str());
+        auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "data file ", "`", loadpath, "`", " was not found", Log::EndOfEntry);
+        Log::get() << e;
+        throw std::runtime_error(e.getText());
     }
 #if 0
     // Load module specific information
     loadpath = "mp_data/weather4.txt";
     if (INVALID_PIP_REF == ParticleProfileSystem.load_one(loadpath, (PIP_REF)PIP_WEATHER))
     {
-		std::ostringstream os;
-		os << "data file `" << loadpath << "` was not found" << std::endl;
-		Log::get().error("%s", os.str().c_str());
-		throw std::runtime_error(os.str());
+        auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "data file ", "`", loadpath, "`", " was not found", Log::EndOfEntry);
+        Log::get() << e;
+        throw std::runtime_error(e.getText());
     }
 
     loadpath = "mp_data/weather5.txt";
     if (INVALID_PIP_REF == ParticleProfileSystem.load_one(loadpath, (PIP_REF)PIP_WEATHER_FINISH))
     {
-		std::ostringstream os;
-		os << "data file `" << loadpath << "` was not found" << std::endl;
-		Log::get().error("%s", os.str().c_str());
-		throw std::runtime_error(os.str());
+        auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "data file ", "`", loadpath, "`", " was not found", Log::EndOfEntry);
+        Log::get() << e;
+        throw std::runtime_error(e.getText());
     }
 #endif
 
     loadpath = "mp_data/splash.txt";
     if ( INVALID_PIP_REF == ParticleProfileSystem.load_one( loadpath, ( PIP_REF )PIP_SPLASH ) )
     {
-		std::ostringstream os;
-		os << __FILE__ << ":" << __LINE__ << ": data file `" << loadpath << "` was not found" << std::endl;
-		Log::get().error("%s", os.str().c_str());
-		throw std::runtime_error(os.str());
+        auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "data file ", "`", loadpath, "`", " was not found", Log::EndOfEntry);
+        Log::get() << e;
+        throw std::runtime_error(e.getText());
     }
 
     loadpath = "mp_data/ripple.txt";
     if ( INVALID_PIP_REF == ParticleProfileSystem.load_one( loadpath, ( PIP_REF )PIP_RIPPLE ) )
     {
-		std::ostringstream os;
-		os << __FILE__ << ":" << __LINE__ << ": data file `" << loadpath << "` was not found" << std::endl;
-		Log::get().error("%s", os.str().c_str());
-		throw std::runtime_error(os.str());
+        auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "data file ", "`", loadpath, "`", " was not found", Log::EndOfEntry);
+        Log::get() << e;
+        throw std::runtime_error(e.getText());
     }
 
     // This is also global...
     loadpath = "mp_data/defend.txt";
     if ( INVALID_PIP_REF == ParticleProfileSystem.load_one( loadpath, ( PIP_REF )PIP_DEFEND ) )
     {
-		std::ostringstream os;
-		os << "data file `" << loadpath << "` was not found" << std::endl;
-		Log::get().error("%s", os.str().c_str());
-		throw std::runtime_error(os.str());
+        auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "data file ", "`", loadpath, "`", " was not found", Log::EndOfEntry);
+        Log::get() << e;
+        throw std::runtime_error(e.getText());
     }
 }

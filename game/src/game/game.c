@@ -148,7 +148,7 @@ egolib_rv export_one_character( ObjectRef character, ObjectRef owner, int chr_ob
         vfs_removeDirectoryAndContents( todir.c_str(), VFS_TRUE );
         if ( !vfs_mkdir( todir ) )
         {
-			Log::get().warn("%s:%d:%s: cannot create object directory `%s`\n", __FILE__, __LINE__, __FUNCTION__, todir.c_str());
+			Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to create object directory ", "`", todir, "`", Log::EndOfEntry);
             return rv_error;
         }
     }
@@ -158,7 +158,7 @@ egolib_rv export_one_character( ObjectRef character, ObjectRef owner, int chr_ob
 
     // Build the DATA.TXT file
     if(!ObjectProfile::exportCharacterToFile(todir + "/data.txt", object.get())) {
-		Log::get().warn( "export_one_character() - unable to save data.txt \"%s/data.txt\"\n", todir.c_str() );
+		Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to save ", "`", todir, "/data.txt`", Log::EndOfEntry);
         return rv_error;
     }
 
@@ -1373,7 +1373,8 @@ std::string expandEscapeCodes(const std::shared_ptr<Object> &object, const scrip
                 //Unknown escape character
                 default:
                     result << '%' << c;
-                    Log::get().warn("Unknown escape character %c\n", c);
+                    Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unknown escape character ",
+                                                     "`", c, "`", Log::EndOfEntry);
                 break;
             }
 
@@ -1578,7 +1579,7 @@ void upload_light_data(const wawalite_data_t& data)
     }
     else
     {
-		Log::get().warn("%s:%d: directional light vector is 0\n", __FILE__, __LINE__);
+		Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "directional light vector is 0", Log::EndOfEntry);
     }
 
     //make_lighttable( pdata->light_x, pdata->light_y, pdata->light_z, pdata->light_a );
@@ -1673,7 +1674,7 @@ bool wawalite_finalize(wawalite_data_t *data)
         {
             if(weather_name != "none") 
             {
-				Log::get().warn("%s:%d: failed to load weather type from wawalite.txt: %s - (%s)\n", __FILE__,__LINE__, weather_name.c_str(), prt_file.c_str());
+				Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "failed to load weather type ", "`", weather_name, "`", "/", "`", prt_file, "`", " from wawalite.txt", Log::EndOfEntry);
             }
             data->weather.part_gpip = LocalParticleProfileRef::Invalid;
             data->weather.weather_name = "*NONE*";
@@ -1934,7 +1935,7 @@ egolib_rv game_copy_imports( import_list_t * imp_lst )
     // make sure the directory exists
     if ( !vfs_mkdir( "/import" ) )
     {
-		Log::get().warn("%s:%d:%s: unable to create import folder `%s`\n", __FILE__, __LINE__, __FUNCTION__, vfs_getError() );
+		Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to create import folder: ", vfs_getError(), Log::EndOfEntry);
         return rv_error;
     }
     vfs_add_mount_point( fs_getUserDirectory(), Ego::FsPath("import"), Ego::VfsPath("mp_import"), 1 );
@@ -1952,7 +1953,9 @@ egolib_rv game_copy_imports( import_list_t * imp_lst )
         if ( !vfs_copyDirectory( import_ptr->srcDir.c_str(), import_ptr->dstDir.c_str() ) )
         {
             retval = rv_error;
-			Log::get().warn( "mnu_copy_local_imports() - Failed to copy an import character \"%s\" to \"%s\" (%s)\n", import_ptr->srcDir.c_str(), import_ptr->dstDir.c_str(), vfs_getError() );
+			Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "failed to copy an import character ",
+                                             "from ", "`", import_ptr->srcDir, "`", " to ", "`", import_ptr->dstDir, "`", "(",
+                                             vfs_getError(), ")");
         }
 
         // Copy all of the character's items to the import directory
@@ -1971,7 +1974,8 @@ egolib_rv game_copy_imports( import_list_t * imp_lst )
                 if ( !vfs_copyDirectory( tmp_src_dir.c_str(), tmp_dst_dir.c_str() ) )
                 {
                     retval = rv_error;
-					Log::get().warn( "mnu_copy_local_imports() - Failed to copy an import inventory item \"%s\" to \"%s\" (%s)\n", tmp_src_dir.c_str(), tmp_dst_dir.c_str(), vfs_getError() );
+					Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "failed to copy an import inventory item from ",
+                                                     "`", tmp_src_dir, "` to `", tmp_dst_dir, "`: ", vfs_getError());
                 }
             }
         }
@@ -2724,13 +2728,13 @@ void character_swipe( ObjectRef ichr, slot_t slot )
                     }
                     else
                     {
-                        Log::get().debug("%s: - unable to spawn attack particle for %s\n", __FUNCTION__, weaponProfile->getClassName().c_str());
+                        Log::get() << Log::Entry::create(Log::Level::Debug, __FILE__, __LINE__, "unable to spawn attack particle for ", "`", weaponProfile->getClassName(), "`", Log::EndOfEntry);
                     }
                 }
             }
             else
             {
-                Log::get().debug("%s: invalid attack particle: %s\n", __FUNCTION__, weaponProfile->getClassName().c_str());
+                Log::get() << Log::Entry::create(Log::Level::Debug, __FILE__, __LINE__, "invalid attack particle ", "`", weaponProfile->getClassName(), "`", Log::EndOfEntry);
             }
         }
         else

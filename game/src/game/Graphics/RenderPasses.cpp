@@ -139,7 +139,7 @@ void TileListV2::render(const ego_mesh_t& mesh, const Graphics::renderlist_lst_t
 		gfx_rv render_rv = render_fan(mesh, tmp_itile);
 		if (egoboo_config_t::get().debug_developerMode_enable.getValue() && gfx_error == render_rv)
 		{
-			Log::get().warn("%s - error rendering tile %d.\n", __FUNCTION__, tmp_itile.i());
+			Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "error rendering tile ", tmp_itile.i(), Log::EndOfEntry);
 		}
 	}
 
@@ -1118,7 +1118,7 @@ void Water::doRun(::Camera& camera, const TileList& tl, const EntityList& el) {
 void EntityReflections::doRun(::Camera& camera, const TileList& tl, const EntityList& el) {
 	auto mesh = tl.getMesh();
 	if (!mesh) {
-		Log::get().warn("%s:%d: tile list not attached to a mesh - skipping pass\n", __FILE__, __LINE__);
+		Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "tile list not attached to a mesh - skipping pass", Log::EndOfEntry);
 		return;
 	}
 

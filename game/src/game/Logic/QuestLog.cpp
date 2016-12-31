@@ -93,7 +93,7 @@ bool QuestLog::exportToFile(const std::string& filePath) const
     // Write a new quest file with all the quests
     vfs_FILE* filewrite = vfs_openWrite(filePath + "/quest.txt");
     if (!filewrite) {
-        Log::get().warn("Cannot create quest file! (%s)\n", filePath.c_str());
+        Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to create quest file ", "`", filePath, "`", Log::EndOfEntry);
         return false;
     }
 

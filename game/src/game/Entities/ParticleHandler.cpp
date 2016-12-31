@@ -30,7 +30,7 @@ std::shared_ptr<Ego::Particle> ParticleHandler::spawnLocalParticle(const Vector3
                                                                    const ObjectRef chr_origin, const ParticleRef prt_origin, int multispawn, const ObjectRef oldtarget)
 {
     if(!ProfileSystem::get().isValidProfileID(iprofile)) {
-		Log::get().debug("spawnLocalParticle() - cannot spawn particle with invalid PRO_REF %d\n", iprofile);
+		Log::get() << Log::Entry::create(Log::Level::Debug, __FILE__, __LINE__, "unable to spawn particle with invalid profile reference ", iprofile, Log::EndOfEntry);
         return Ego::Particle::INVALID_PARTICLE;
     }
 
@@ -80,10 +80,9 @@ std::shared_ptr<Ego::Particle> ParticleHandler::spawnParticle(const Vector3f& sp
     {
         const std::string spawnOriginName = _currentModule->getObjectHandler().exists(spawnOrigin) ? _currentModule->getObjectHandler()[spawnOrigin]->getName() : "INVALID";
         const std::string spawnProfileName = ProfileSystem::get().isValidProfileID(spawnProfile) ? ProfileSystem::get().getProfile(spawnProfile)->getPathname() : "INVALID";
-		Log::get().debug("spawn_one_particle() - cannot spawn particle with invalid particle profile == %d, spawn origin == %" PRIuZ " (\"%s\"), spawn profile == %d (\"%s\"))\n",
-                         REF_TO_INT(particleProfile), 
-                         spawnOrigin.get(), spawnOriginName.c_str(),
-                         REF_TO_INT(spawnProfile), spawnProfileName.c_str());
+        Log::get() << Log::Entry::create(Log::Level::Debug, __FILE__, __LINE__, "unable to spawn particle with invalid particle profile ", REF_TO_INT(particleProfile),
+                                         ", spawn origin == ", spawnOrigin.get(), " (`", spawnOriginName, "`), spawn profile == ", REF_TO_INT(spawnProfile), " (`", spawnProfileName, "`)",
+                                         Log::EndOfEntry);
 
         return Ego::Particle::INVALID_PARTICLE;
     }
@@ -111,10 +110,11 @@ std::shared_ptr<Ego::Particle> ParticleHandler::spawnParticle(const Vector3f& sp
         const std::string spawnOriginName = _currentModule->getObjectHandler().exists(spawnOrigin) ? _currentModule->getObjectHandler().get(spawnOrigin)->getName() : "INVALID";
         const std::string particleProfileName = LOADED_PIP(particleProfile) ? ProfileSystem::get().ParticleProfileSystem.get_ptr(particleProfile)->_name : "INVALID";
         const std::string spawnProfileName = ProfileSystem::get().isValidProfileID(spawnProfile) ? ProfileSystem::get().getProfile(spawnProfile)->getPathname().c_str() : "INVALID";
-        Log::get().debug("spawn_one_particle() - cannot allocate a particle!    owner == %" PRIuZ "(\"%s\"), spawn profile == %d(\"%s\"), particle profile == %d(\"%s\")\n",
-                         spawnOrigin.get(), spawnOriginName.c_str(),
-                         REF_TO_INT(spawnProfile), spawnProfileName.c_str(),
-                         REF_TO_INT(particleProfile), particleProfileName.c_str());        
+        Log::get() << Log::Entry::create(Log::Level::Debug, __FILE__, __LINE__, "unable to allocate particle. ",
+                                         "owner == ", spawnOrigin, " (`", spawnOriginName, "`), "
+                                         "spawn profile == ", REF_TO_INT(spawnProfile), " (`", spawnProfileName, "`), ",
+                                         "particle profile == ", REF_TO_INT(particleProfile), " (`", particleProfileName, "`)",
+                                         Log::EndOfEntry);      
     }
 
     return particle;

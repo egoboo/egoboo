@@ -610,7 +610,7 @@ Font::FontAtlas Font::createFontAtlas(const std::vector<uint16_t> &codepoints) c
         if (fits)
             break;
 
-        Log::get().debug("Couldn't fit atlas into %d texture, trying %d instead\n", currentMaxSize, currentMaxSize << 1);
+        Log::get() << Log::Entry::create(Log::Level::Debug, __FILE__, __LINE__, "unable to fit atlas into a texture of size ", currentMaxSize, ", trying texture of size ", currentMaxSize * 2, " instead", Log::EndOfEntry);
         currentMaxSize <<= 1;
         pos.clear();
         SDL_FreeSurface(atlas);
@@ -618,7 +618,7 @@ Font::FontAtlas Font::createFontAtlas(const std::vector<uint16_t> &codepoints) c
     }
 
     if (!atlas) {
-        Log::get().error("Could not fit a font atlas into a %d by %d texture!\n", maxTextureSize, maxTextureSize);
+        Log::get() << Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "unable to fit a atlas into a texture of size ", maxTextureSize, Log::EndOfEntry);
         SDL_assert(atlas);
     }
 

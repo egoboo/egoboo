@@ -655,8 +655,9 @@ void script_state_t::run_operand(ai_state_t& aiState, script_info_t& script)
             }
             else
             {
-                Log::get().message("%s:%d:%s: script error - model == %d, class name == \"%s\" - Cannot divide by zero!\n", \
-                                   __FILE__, __LINE__, __FUNCTION__, REF_TO_INT(script_error_model), script_error_classname);
+                Log::get() << Log::Entry::create(Log::Level::Message, __FILE__, __LINE__, "script error - model = ",
+                                                 REF_TO_INT(script_error_model), " class name == `", script_error_classname,
+                                                 "`: divide by zero", Log::EndOfEntry);
             }
             break;
 
@@ -668,14 +669,16 @@ void script_state_t::run_operand(ai_state_t& aiState, script_info_t& script)
             }
             else
             {
-                Log::get().message("%s:%d:%s: script error - model == %d, class name == \"%s\" - Cannot modulo by zero!\n", \
-                                   __FILE__, __LINE__, __FUNCTION__, REF_TO_INT(script_error_model), script_error_classname);
+                Log::get() << Log::Entry::create(Log::Level::Message, __FILE__, __LINE__, "script error - model = ",
+                                                 REF_TO_INT(script_error_model), " class name == `", script_error_classname,
+                                                 "`: modulo by zero", Log::EndOfEntry);
             }
             break;
 
         default:
-            Log::get().message("%s:%d:%s: script error - model == %d, class name == \"%s\" - unknown op\n", \
-                               __FILE__, __LINE__, __FUNCTION__, REF_TO_INT(script_error_model), script_error_classname);
+            Log::get() << Log::Entry::create(Log::Level::Message, __FILE__, __LINE__, "script error - model = ",
+                                             REF_TO_INT(script_error_model), " class name == `", script_error_classname,
+                                             "`: unknown opcode", Log::EndOfEntry);
             break;
     }
 

@@ -54,7 +54,7 @@ bool tile_dictionary_load_vfs( const std::string& filename, tile_dictionary_t& d
 
     if ( definition_count > MAP_FAN_TYPE_MAX )
     {
-		Log::get().error( "%s - tile dictionary has too many tile definitions (%d/%d).\n", __FUNCTION__, definition_count, MAP_FAN_TYPE_MAX );
+		Log::get() << Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "tile dictionary has too many tile definitions - received ", definition_count, ", expected at most ", MAP_FAN_TYPE_MAX, Log::EndOfEntry);
         return false;
     }
 

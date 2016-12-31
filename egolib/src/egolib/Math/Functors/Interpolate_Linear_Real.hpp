@@ -54,8 +54,8 @@ struct Interpolate<T, InterpolationMethod::Linear, std::enable_if_t<IsReal<T>::v
         static const One<T> one{};
         static const Zero<T> zero{};
         if (t < zero() || t > one()) {
-            Log::Entry e(Log::Level::Error, __FILE__, __LINE__);
-            e << "parameter t = " << t << " not within the interval of [0,1]" << Log::EndOfEntry;
+            auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "parameter t = ", t, " not within the "
+                                        "interval of [0,1]", Log::EndOfEntry);
             Log::get() << e;
             throw Id::OutOfBoundsException(__FILE__, __LINE__, e.getText());
         }

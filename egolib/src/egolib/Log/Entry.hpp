@@ -2,34 +2,23 @@
 
 #include "egolib/Log/Target.hpp"
 #include "egolib/Log/Level.hpp"
+#include "egolib/Log/EndOfEntry.hpp"
+#include "egolib/Log/EndOfLine.hpp"
 
 namespace Log {
 
-/// @brief Manipulators influence the way characters, strings and entries are processed.
-namespace Manipulations {
+namespace Internal {
 
-/// @internal
-/// @brief The "end of line" manipulator type.
-struct EndOfLineManipulation {};
+struct EntryImpl;
 
-/// @internal
-/// @brief The "end of entry" manipulator type.
-struct EndOfEntryManipulation {};
+} // namespace Internal
 
-}
-
-/// @brief "end of entry" manipulation.
-extern const Manipulations::EndOfEntryManipulation EndOfEntry;
-
-/// @brief "end of line" manipulation.
-extern const Manipulations::EndOfLineManipulation EndOfLine;
-
+/// Entries are not copyable, only movable.
 struct Entry
 {
 private:
-    Level m_level;
-    std::map<std::string, std::string> m_attributes;
-    std::ostringstream m_sink;
+    /// The implementation of the entry.
+    Internal::EntryImpl *impl;
 
 public:
     /// @brief Construct this log entry.
@@ -49,6 +38,11 @@ public:
     /// @param functionName the C/C++ function name
     Entry(Level level, const std::string& fileName, int lineNumber,
           const std::string& functionName);
+
+    ~Entry();
+
+    Entry(Entry&& other);
+    Entry& operator=(Entry&& other);
 
     bool hasAttribute(const std::string& name) const;
 
@@ -78,8 +72,52 @@ public:
     friend Entry& operator<<(Entry& entry, double value);
     friend Entry& operator<<(Entry& entry, signed long long value);
     friend Entry& operator<<(Entry& entry, unsigned long long value);
-    friend Entry& operator<<(Entry& entry, const Manipulations::EndOfLineManipulation& value);
-    friend Entry& operator<<(Entry& entry, const Manipulations::EndOfEntryManipulation& value);
+    friend Entry& operator<<(Entry& entry, const Internal::EndOfLineManipulation& value);
+    friend Entry& operator<<(Entry& entry, const Internal::EndOfEntryManipulation& value);
+
+private:
+    /// @brief Write arguments into a stream.
+    /// @param ostream the target output stream.
+    /// @param head the head of the arguments list
+    /// @param rest the rest of the arguments list
+    /// @return the target output stream
+    template <typename Arg, typename ... Args>
+    static Entry& write(Entry& e, Arg&& arg, Args&& ... args)
+    {
+        e << arg;
+        write(e, std::forward<Args>(args) ...);
+        return e;
+    }
+    /// @brief Write arguments into a stream.
+    /// @param ostream the target output stream
+    /// @param arg the argument
+    /// @return the target output stream
+    template <typename Arg>
+    static Entry& write(Entry& e, Arg&& arg)
+    {
+        e << arg;
+        return e;
+    }
+
+public:
+    /// @brief Create an entry.
+    /// @param level, file, line the level, the file, and the line
+    /// @return the entry
+    template <typename ... Args>
+    static Entry create(Level level, const std::string& file, int line, Args&& ... args)
+    {
+        Entry e(level, file, line);
+        Entry::write(e, std::forward<Args>(args) ...);
+        return e;
+    }
+    /// @brief Create a message.
+    /// @param level, file, line the level, the file, and the line
+    /// @return the entry
+    static Entry create(Level level, const std::string& file, int line)
+    {
+        Entry e(level, file, line);
+        return e;
+    }
 };
 
 Entry& operator<<(Entry& entry, const char *value);
@@ -98,8 +136,8 @@ Entry& operator<<(Entry& entry, float value);
 Entry& operator<<(Entry& entry, double value);
 Entry& operator<<(Entry& entry, signed long long value);
 Entry& operator<<(Entry& entry, unsigned long long value);
-Entry& operator<<(Entry& entry, const Manipulations::EndOfLineManipulation& value);
-Entry& operator<<(Entry& entry, const Manipulations::EndOfEntryManipulation& value);
+Entry& operator<<(Entry& entry, const Internal::EndOfLineManipulation& value);
+Entry& operator<<(Entry& entry, const Internal::EndOfEntryManipulation& value);
 
 Target& operator<<(Target& target, const Entry& entry);
 

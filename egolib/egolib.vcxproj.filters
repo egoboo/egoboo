@@ -567,6 +567,12 @@
     <ClCompile Include="src\egolib\Script\OpcodeInfo.cpp">
       <Filter>Source Files\Script</Filter>
     </ClCompile>
+    <ClCompile Include="src\egolib\Log\EndOfEntry.cpp">
+      <Filter>Source Files\Log</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Log\EndOfLine.cpp">
+      <Filter>Source Files\Log</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\egolib\vfs.h">
@@ -1408,6 +1414,12 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Script\OpcodeInfo.hpp">
       <Filter>Header Files\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Log\EndOfEntry.hpp">
+      <Filter>Header Files\Log</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Log\EndOfLine.hpp">
+      <Filter>Header Files\Log</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

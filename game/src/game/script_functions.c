@@ -1904,13 +1904,13 @@ Uint8 scr_SpawnCharacter( script_state_t& state, ai_state_t& self )
 
     if ( !returncode )
     {
-		Log::get().warn( "Object %s failed to spawn a copy of itself\n", pchr->getName().c_str() );
+		Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "object ", "`", pchr->getName(), "`", " failed to spawn a copy of itself", Log::EndOfEntry);
     }
     else
     {
         // was the child spawned in a "safe" spot?
         if (!pchild->hasSafePosition()) {
-			Log::get().warn( "Object %s failed to spawn a copy of itself (no safe location)\n", pchr->getName().c_str() );
+			Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "object ", "`", pchr->getName(), "`", " failed to spawn a copy of itself (no safe location)", Log::EndOfEntry);
             pchild->requestTerminate();
         }
         else
@@ -5355,7 +5355,7 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t& state, ai_state_t& self )
     std::shared_ptr<Object> pchild = _currentModule->spawnObject( pos, pchr->getProfileID(), pchr->team, 0, Facing(Ego::Math::clipBits<16>( state.turn )), "", ObjectRef::Invalid );
     if (pchild == nullptr)
     {
-		Log::get().warn("%s:%d: object %s failed to spawn a copy of itself\n", __FILE__, __LINE__, pchr->getName().c_str() );
+		Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "object ", "`", pchr->getName(), "`", " failed to spawn a copy of itself", Log::EndOfEntry );
         returncode = false;
     }
     else
@@ -6918,7 +6918,7 @@ Uint8 scr_EnableListenSkill( script_state_t& state, ai_state_t& self )
     SCRIPT_FUNCTION_BEGIN();
 
     {
-		Log::get().warn("deprecated script function used: EnableListenSkill! (%s)\n", pchr->getProfile()->getClassName().c_str());
+		Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "deprecated script function ", "`", "EnableListenSkill", "`", " by class `", pchr->getProfile()->getClassName(), "`", Log::EndOfEntry);
     }
 
     returncode = false;
@@ -7328,8 +7328,8 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t& state, ai_state_t& self )
 
     if ( !returncode )
     {
-		Log::get().warn("%s:%d: object \"%s\"(\"%s\") failed to spawn profile index %d\n", __FILE__, __LINE__, \
-			            pchr->getName().c_str(), pchr->getProfile()->getClassName().c_str(), state.argument);
+        Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "object ", "`", pchr->getName(), "`", "/", "`", pchr->getProfile()->getClassName(), "`", " failed to spawn "
+                                         "profile index ", state.argument, Log::EndOfEntry);
     }
     else
     {

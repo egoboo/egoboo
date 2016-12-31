@@ -51,7 +51,7 @@ MiniMap::MiniMap() :
     if (ego_texture_exists_vfs("mp_data/plan")) {
         _minimapTexture = std::make_shared<DeferredTexture>("mp_data/plan");
     } else {
-        Log::get().warn("mp_data/plan - Cannot load file!\n");
+        Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to load file ", "`", "mp_data/plan", "`", Log::EndOfEntry);
     }
 }
 
