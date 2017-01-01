@@ -38,7 +38,7 @@ bool activate_spawn_file_load_object( spawn_file_info_t& psp_info )
 
     //Is it already loaded?
     ipro = ( PRO_REF )psp_info.slot;
-    if (ProfileSystem::get().isValidProfileID(ipro)) return false;
+    if (ProfileSystem::get().isLoaded(ipro)) return false;
 
     // do the loading
     if ( CSTR_END != psp_info.spawn_comment[0] )
@@ -58,7 +58,7 @@ bool activate_spawn_file_load_object( spawn_file_info_t& psp_info )
         psp_info.slot = ProfileSystem::get().loadOneProfile(filename, psp_info.slot);
     }
 
-    return ProfileSystem::get().isValidProfileID((PRO_REF)psp_info.slot);
+    return ProfileSystem::get().isLoaded((PRO_REF)psp_info.slot);
 }
 
 void convert_spawn_file_load_name(spawn_file_info_t& psp_info, const Ego::TreasureTables &treasureTables)

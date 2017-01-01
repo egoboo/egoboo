@@ -335,7 +335,7 @@ void DebugObjectLoadingState::loadObjectData()
         singleThreadRedrawHack("Loading...");
         
         PRO_REF ref = ProfileSystem::get().loadOneProfile(objectPath, 0);
-        bool isValid = ProfileSystem::get().isValidProfileID(ref);
+        bool isValid = ProfileSystem::get().isLoaded(ref);
         ProfileSystem::get().reset();
         if (!isValid)
             throw std::string("Invalid profile ref returned, check log");

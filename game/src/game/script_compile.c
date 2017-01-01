@@ -625,7 +625,7 @@ PDLToken parser_state_t::parse_token(ObjectProfile *ppro, script_info_t& script,
             }
 
             // Do we need to load the object?
-            if (!ProfileSystem::get().isValidProfileID((PRO_REF)token.getValue()))
+            if (!ProfileSystem::get().isLoaded((PRO_REF)token.getValue()))
             {
                 auto loadName = "mp_objects/" + token.getLexeme();
 
@@ -633,7 +633,7 @@ PDLToken parser_state_t::parse_token(ObjectProfile *ppro, script_info_t& script,
                 for (PRO_REF ipro = MAX_IMPORT_PER_PLAYER * 4; ipro < INVALID_PRO_REF; ipro++)
                 {
                     //skip loaded profiles
-                    if (ProfileSystem::get().isValidProfileID(ipro)) continue;
+                    if (ProfileSystem::get().isLoaded(ipro)) continue;
 
                     //found a free slot
                     token.setValue(ProfileSystem::get().loadOneProfile(loadName, REF_TO_INT(ipro)));
@@ -642,7 +642,7 @@ PDLToken parser_state_t::parse_token(ObjectProfile *ppro, script_info_t& script,
             }
 
             // Failed to load object!
-            if (!ProfileSystem::get().isValidProfileID((PRO_REF)token.getValue()))
+            if (!ProfileSystem::get().isLoaded((PRO_REF)token.getValue()))
             {
                 CLogEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, token.getStartLocation());
                 e << "failed to load object " << token.getLexeme() << " - \n"

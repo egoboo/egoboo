@@ -2164,7 +2164,7 @@ std::shared_ptr<Ego::Enchantment> Object::addEnchant(ENC_REF enchantProfile, PRO
     }    
     const std::shared_ptr<EnchantProfile> &enchantmentProfile = ProfileSystem::get().EnchantProfileSystem.get_ptr(enchantProfile);
     
-    if(!ProfileSystem::get().isValidProfileID(spawnerProfile)) {
+    if(!ProfileSystem::get().isLoaded(spawnerProfile)) {
         Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to add enchant with invalid spawner object profile ", spawnerProfile, Log::EndOfEntry);
         return nullptr;
     }
@@ -2263,7 +2263,7 @@ void Object::resetInputCommands()
 
 void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
 {
-    if(!ProfileSystem::get().isValidProfileID(profileID)) {
+    if(!ProfileSystem::get().isLoaded(profileID)) {
 		Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to polymorph object: target profile ", profileID, " does not exist", Log::EndOfEntry);
         return;
     }

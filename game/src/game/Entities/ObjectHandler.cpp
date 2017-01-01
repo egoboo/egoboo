@@ -88,7 +88,7 @@ bool ObjectHandler::exists(ObjectRef ref) const {
 std::shared_ptr<Object> ObjectHandler::insert(const PRO_REF profileRef, ObjectRef overrideRef)
 {
 	// Make sure the profile is valid.
-	if (!ProfileSystem::get().isValidProfileID(profileRef)) {
+	if (!ProfileSystem::get().isLoaded(profileRef)) {
 		Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "tried to spawn object with invalid profile reference ", profileRef, Log::EndOfEntry);
 		return nullptr;
 	}

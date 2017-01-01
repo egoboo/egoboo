@@ -1666,8 +1666,8 @@ bool wawalite_finalize(wawalite_data_t *data)
         std::string prt_end_file = "mp_data/weather_" + weather_name + "_finish.txt";
 
         // Try to load the particle files. We need at least the first particle for weather to work.
-        bool success = INVALID_PIP_REF != ProfileSystem::get().ParticleProfileSystem.load_one(prt_file.c_str(), (PIP_REF)PIP_WEATHER);
-        ProfileSystem::get().ParticleProfileSystem.load_one(prt_end_file, (PIP_REF)PIP_WEATHER_FINISH);
+        bool success = INVALID_PIP_REF != ProfileSystem::get().ParticleProfileSystem.load(prt_file.c_str(), (PIP_REF)PIP_WEATHER);
+        ProfileSystem::get().ParticleProfileSystem.load(prt_end_file, (PIP_REF)PIP_WEATHER_FINISH);
 
         // Unknown weather parsed.
         if (!success)

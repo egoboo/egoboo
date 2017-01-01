@@ -5433,7 +5433,7 @@ Uint8 scr_ChangeTargetClass( script_state_t& state, ai_state_t& self )
 
     /// @details This function polymorphs a character permanently so that it can be exported properly
     /// A character turned into a frog with this function will also export as a frog!
-    if(ProfileSystem::get().isValidProfileID(profileID)) 
+    if(ProfileSystem::get().isLoaded(profileID)) 
     {
         //Change the object
         pchr->polymorphObject(profileID, 0);

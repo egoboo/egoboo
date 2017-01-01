@@ -873,7 +873,7 @@ void GameModule::logSlotUsage(const std::string& savename)
             //ZF> ugh, import objects are currently handled in a weird special way.
             for(size_t i = lastSlotNumber; i < profile->getSlotNumber() && i <= 36; ++i)
             {
-                if (!ProfileSystem::get().isValidProfileID(i))
+                if (!ProfileSystem::get().isLoaded(i))
                 {
                     vfs_printf( hFileWrite, "%3" PRIuZ " %32s.\n", i, "Slot reserved for import players" );
                 }
@@ -959,7 +959,7 @@ void GameModule::spawnAllObjects()
             for (profileSlot = 1 + MAX_IMPORT_PER_PLAYER * MAX_PLAYER; profileSlot < INVALID_PRO_REF; ++profileSlot)
             {
                 //don't try to grab loaded profiles
-                if (ProfileSystem::get().isValidProfileID(profileSlot)) continue;
+                if (ProfileSystem::get().isLoaded(profileSlot)) continue;
 
                 //the slot already dynamically loaded by a different spawn object of the same type that we are, no need to reload in a new slot
                 if(reservedSlots[profileSlot] == spawnName) {
@@ -997,7 +997,7 @@ void GameModule::spawnAllObjects()
             }
 
             // If nothing is already in that slot, try to load it.
-            if (!ProfileSystem::get().isValidProfileID(spawnInfo.slot))
+            if (!ProfileSystem::get().isLoaded(spawnInfo.slot))
             {
                 bool import_object = spawnInfo.slot > (getImportAmount() * MAX_IMPORT_PER_PLAYER);
 
@@ -1132,7 +1132,7 @@ std::shared_ptr<Object> GameModule::spawnObjectFromFileEntry(const spawn_file_in
             int local_index = -1;
             for ( size_t tnc = 0; tnc < g_importList.count; tnc++ )
             {
-                if (pobject->getProfileID() <= import_data.max_slot && ProfileSystem::get().isValidProfileID(pobject->getProfileID()))
+                if (pobject->getProfileID() <= import_data.max_slot && ProfileSystem::get().isLoaded(pobject->getProfileID()))
                 {
                     int islot = REF_TO_INT( pobject->getProfileID() );
 

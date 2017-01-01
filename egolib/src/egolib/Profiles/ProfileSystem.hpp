@@ -68,8 +68,8 @@ protected:
 
 public:
 
-    AbstractProfileSystem<EnchantProfile, EVE_REF, INVALID_EVE_REF, ENCHANTPROFILES_MAX> EnchantProfileSystem;
-    AbstractProfileSystem<ParticleProfile, PIP_REF, INVALID_PIP_REF, MAX_PIP> ParticleProfileSystem;
+    AbstractProfileSystem<EnchantProfile, EnchantProfileRef> EnchantProfileSystem;
+    AbstractProfileSystem<ParticleProfile, ParticleProfileRef> ParticleProfileSystem;
 
     /**
      * @brief
@@ -86,7 +86,7 @@ public:
      *  @a true if the specified profile ID has been loaded,
      *  @a false otherwise
      */
-    inline bool isValidProfileID(PRO_REF id) const
+    inline bool isLoaded(PRO_REF id) const
     {
         return _profilesLoaded.find(id) != _profilesLoaded.end();
     }
@@ -151,8 +151,6 @@ public:
 private:
     std::unordered_map<PRO_REF, std::shared_ptr<ObjectProfile>> _profilesLoaded; //Maps slot numbers to ObjectProfiles
     std::unordered_map<std::string, std::shared_ptr<ObjectProfile>> _profilesLoadedByName; //Maps names to ObjectProfiles
-
-    std::unordered_map<PIP_REF, std::shared_ptr<ParticleProfile>> _particleProfilesLoaded; //Maps id's to ParticleProfiles
 
     std::vector<std::shared_ptr<ModuleProfile>> _moduleProfilesLoaded;  // List of all valid game modules loaded
 

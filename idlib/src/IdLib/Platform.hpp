@@ -158,6 +158,7 @@
 #include <bitset>
 #include <exception>
 #include <forward_list>
+#include <fstream>
 #include <functional>
 #include <iomanip>
 #include <iostream>

@@ -24,284 +24,239 @@
 
 #include "egolib/typedef.h"
 #include "egolib/vfs.h"
-#include <fstream>
 #include "egolib/Log/_Include.hpp"
 
-/**
- * @brief
- *  The base class of all profile system - in particular but not restricted to
- *  enchant, object and particle profile systems.
- * @author
- *  Michael Heilmann
- * @todo
- *  Move this class and all other profile-related things into some appropriate namespace.
- */
-template <typename TYPE, typename REFTYPE, REFTYPE INVALIDREF, size_t CAPACITY>
+/// @brief The base class of all profile system (in particular but not restricted to
+/// enchant, object and particle profile systems).
+/// @remark A profile system stores tuples. The first element (called the key) of tuple
+/// is a profile reference and the second element (called the value) is a pointer to a
+/// profile. Not two different tuples with equivalent keys exist. Tuples can be added
+/// and remove.
+/// @remark The size of a profile system is its number of entries.
+template <typename TypeArg, typename RefTypeArg>
 struct AbstractProfileSystem : public Id::NonCopyable
 {
+public:
+    using Type = TypeArg;
+    using RefType = typename RefTypeArg::ValueType;
+    static constexpr RefType MinimumRef = RefTypeArg::MinimumValue;
+    static constexpr RefType MaximumRef = RefTypeArg::MaximumValue;
+    static constexpr RefType InvalidRef = RefTypeArg::InvalidValue;
 
 protected:
+    static const std::shared_ptr<Type> nullProfile;
 
-    std::unordered_map<REFTYPE, std::shared_ptr<TYPE>> _map;
+protected:
+    std::unordered_map<RefType, std::shared_ptr<Type>> map;
 
-    const std::string _profileTypeName;
+    const std::string profileTypeName;
 
-    const std::string _debugPathName;
+    const std::string debugPathName;
 
 
 public:
-
-    /**
-     * @brief
-     *  Construct his abstract profile system.
-     * @param profileTypeName
-     *  the profile type name e.g. "enchant", "particle" or "object"
-     * @param debugPathName
-     *  the path name of a file into which debug information about this abstract profile system is dumped in
-     */
+    /// @brief Construct this profile system.
+    /// @param profileTypeName the profile type name e.g. "enchant", "particle" or "object"
+    /// @param debugPathName the path name of a file into which debug information about this abstract profile system is dumped in
     AbstractProfileSystem(const std::string& profileTypeName,const std::string& debugPathName) :
-        _map(),
-        _profileTypeName(profileTypeName), 
-        _debugPathName(debugPathName) {
-        /* Intentionally empty. */
-    }
+        map(), profileTypeName(profileTypeName), debugPathName(debugPathName)
+    { /* Intentionally empty. */ }
 
-    /**
-     * @brief
-     *  Destruct this abstract profile system.
-     * @remark
-     *  Intentionally protected.
-     */
-    virtual ~AbstractProfileSystem() {
-        /* Intentionally empty. */
-    }
+    /// @brief Destruct this profile system.
+    virtual ~AbstractProfileSystem()
+    { /* Intentionally empty. */ }
 
-    /**
-     * @brief
-     *  Get the size of this abstract profile system.
-     * @return
-     *  the size of this abstract profile system
-     * @remark
-     *  The size of an abstract profile system is the current number of profiles in that abstract profile system.
-     */
-    inline size_t get_size() const {
-        return _map.size();
-    }
-
-    /**
-     * @brief
-     *  Get the capacity of this abstract profile system.
-     * @return
-     *  the capacity of this abstract profile system
-     * @remark
-     *  The capacity of an abstract profile system is the maximum number of profiles in that abstract profile system.
-     */
-    inline size_t get_capacity() const {
-        return CAPACITY;
-    }
-
-    bool release(const REFTYPE ref)
+public:
+    /// @brief Get the size of this profile system.
+    /// @return the size of this abstract profile system
+    /// @remark The size of a profile system is its number of entries.
+    inline size_t size() const
     {
-        return _map.erase(ref);
+        return map.size();
     }
 
-    /**
-     * @brief
-     *  Get the profile for a profile reference.
-     * @param ref
-     *  the profile reference
-     * @return
-     *  a pointer to the profile for the profile reference of the profile reference is valid,
-     *  a null pointer otherwise
-     */
-    std::shared_ptr<TYPE> get_ptr(REFTYPE ref) {
-        if (!isValidRange(ref) || !isLoaded(ref)) {
+    /// @brief Remove an entry.
+    /// @param ref the reference
+    /// @return the number of removed entries (zero or one)
+    size_t unload(const RefType& ref)
+    {
+        size_t oldSize = size();
+        map.erase(ref);
+        return oldSize;
+    }
+
+    /// @brief Remove all entries.
+    /// @return the number of removed entries
+    size_t unloadAll()
+    {
+        size_t oldSize = size();
+        map.clear();
+        return oldSize;
+    }
+
+public:
+    /// @brief Get the profile for a profile reference.
+    /// @param ref the profile reference
+    /// @return a pointer to the profile the profile loaded into the references to if any, a null pointer otherwise
+    const std::shared_ptr<Type>& get_ptr(const RefType& ref) const
+    {
+        if (InvalidRef == ref)
+        {
             return nullptr;
         }
-        if (!_map[ref]) {
-            _map[ref] = std::make_shared<TYPE>();
+        auto it = map.find(ref);
+        if (it == map.cend())
+        {
+            return nullptr;
         }
-        return _map[ref];
+        return it->second;
     }
 
-    bool isValidRange(REFTYPE ref) {
-        return ref < CAPACITY;
-    }
-
-    bool isLoaded(REFTYPE ref) {
-        return _map.find(ref) != _map.end();
-    }
-
-    /// @brief Load an profile into the profile stack.
-    /// @return a reference to the profile on sucess, INVALIDREF on failure
-    REFTYPE load_one(const std::string& pathname, const REFTYPE _override)
+    bool isValid(const RefType& ref) const
     {
-        if(isLoaded(_override)) {
+        return InvalidRef != ref;
+    }
+
+    bool isLoaded(const RefType& ref) const
+    {
+        if (!isValid(ref))
+        {
+            return false;
+        }
+        return map.find(ref) != map.end();
+    }
+
+    /// Get the entries.
+    /// @return the entries
+    inline const std::unordered_map<RefType, std::shared_ptr<Type>>& getLoadedProfiles() const
+    {
+        return map;
+    }
+
+
+    /// @brief Add an entry for a profile reference and a profile.
+    /// @return the target reference (see remarks) on sucess, InvalidRef on failure
+    /// @remark If the override reference is loaded, then its entry is removed and
+    /// the override reference becomes the target reference. Otherwise the target
+    /// reference is a previously unused reference. An entry for the target reference
+    /// and the profile is added.
+    RefType load(const std::string& pathname, const RefType& override)
+    {
+        if(isLoaded(override))
+        {
 			Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "loaded over existing profile", Log::EndOfEntry);
         }
 
-        REFTYPE ref = INVALIDREF;
-        if (isValidRange(_override)) {
-            ref = _override;
+        RefType ref = InvalidRef;
+        if (isValid(override))
+        {
+            ref = override;
         }
-        else {
-            for(REFTYPE i = 0; i < CAPACITY; ++i) {
-                if(!isLoaded(i)) {
+        else
+        {
+            for (RefType i = MinimumRef; i < MaximumRef; ++i)
+            {
+                if (!isLoaded(i))
+                {
                     ref = i;
                     break;
                 }
             }
 
-            if (!isValidRange(ref)) {
-                return INVALIDREF;
+            if (!isValid(ref))
+            {
+                return InvalidRef;
             }
         }
-
-        //Allocate memory for new profile
-        std::shared_ptr<TYPE> profile = TYPE::readFromFile(pathname);
-
-        if (!profile) {
-            return INVALIDREF;
+        
+        auto profile = Type::readFromFile(pathname);
+        if (!profile)
+        {
+            return InvalidRef;
         }
 
-        _map[ref] = profile;
+        map[ref] = profile;
+
         return ref;
     }
 
-    void unintialize()
+    void uninitialize()
     {
-        _map.clear();
+        unloadAll();
     }
 
-    void reset()
+    /// @brief Statistics about a profile system.
+    struct Stats
     {
-        dump();
-        _map.clear();
-    }
+        /// @brief The size of the profile system.
+        size_t size;
 
-    /**
-     * @brief
-     *  Statistics about an abstract profile system.
-     */
-    struct Stats {
-        /**
-         * @brief
-         *  The number of loaded profiles i.e.
-         *  \f{align*}{
-         *  \left|\left\{p | p \in Profiles \wedge p.loaded = true\right\}\right|
-         *  \f}
-         *  where \f$Profiles\f$ is the set of profiles.
-         */
-        size_t _loadedCount;
-        /**
-         * @brief
-         *  The maximum spawn count (of all profiles) i.e.
-         *  \f{align*}{
-         *  \begin{cases}
-         *  \max_{i=0}^n\left(p_i._spawnCount\right) & \text{if }n > 0\\
-         *  0                                        & \text{otherwise}
-         *  \end{cases}
-         *  \f}
-         *  where \f$n=|Profiles|\f$ is the magnitude of the set of profiles.
-         */
-        size_t _maxSpawnCount;
-        /**
-         * @brief
-         *  The spawn count sum (of all profiles) i.e.
-         *  \f{align*}{
-         *  \begin{cases}
-         *  \sum_{i=0}^n p_i._spawnCount & \text{if }n > 0\\
-         *  0                            & \text{otherwise}
-         *  \end{cases}
-         *  \f}
-         *  where \f$n=|Profiles|\f$ is the magnitude of the set of profiles.
-         */
-        size_t _sumSpawnCount;
+        /// @brief The maximum spawn count of all profiles.
+        size_t maxSpawnCount;
 
-        /**
-         * @brief
-         *  The maximum spawn request count (of all profiles) i.e.
-         *  \f{align*}{
-         *  \begin{cases}
-         *  \max_{i=0}^n\left(p_i._spawnRequestCount\right) & \text{if }n > 0\\
-         *  0                                               & \text{otherwise}
-         *  \end{cases}
-         *  \f}
-         *  where \f$n=|Profiles|\f$ is the magnitude of the set of profiles.
-         */
-        size_t _maxSpawnRequestCount;
+        /// @brief The sum of the spawn counts of all profiles.
+        /// If a profile is referenced by \f$n\f$ tuples, then its spawn count is added into the sum \f$n\f$ times.
+        size_t sumSpawnCount;
+
+        /// @brief The maximum spawn request count of all profiles.
+        size_t maxSpawnRequestCount;
         
-        /**
-         * @brief
-         *  The spawn request count sum (of all profiles) i.e.
-         *  \f{align*}{
-         *  \begin{cases}
-         *  \sum_{i=0}^n p_i._spawnRequestCount & \text{if }n > 0\\
-         *  0                                   & \text{otherwise}
-         *  \end{cases}
-         *  \f}
-         *  where \f$n=|Profiles|\f$ is the magnitude of the set of profiles.
-         */
-        size_t _sumSpawnRequestCount;
+        /// @brief The sum of the spawn request counts of all profiles.
+        /// If a profile is referenced by \f$n\f$ entries, then its spawn request count is added into the sum \f$n\f$ times.
+        size_t sumSpawnRequestCount;
+
+        Stats() :
+            size(0), maxSpawnRequestCount(0), sumSpawnRequestCount(0), maxSpawnCount(0), sumSpawnCount(0)
+        {}
     };
 
-    /**
-     * @brief
-     *  Get the statistics of this abstract profile system.
-     */
-    Stats getStats() const {
+    /// @brief Get the statistics of this profile system.
+    /// @return the statistics of this profile system
+    Stats getStats() const
+    {
         Stats stats;
-        stats._loadedCount = 0;
-        stats._maxSpawnRequestCount = 0;
-        stats._sumSpawnRequestCount = 0;
-        stats._maxSpawnCount = 0;
-        stats._sumSpawnCount = 0;
-        for (const auto& pair : _map) {
+        stats.size = size();
+        for (const auto& pair : map)
+        {
             const auto ptr = pair.second;
-            stats._loadedCount++;
             // spawn request count
-            stats._sumSpawnRequestCount += ptr->_spawnRequestCount;
-            stats._maxSpawnRequestCount = std::max(stats._maxSpawnRequestCount, ptr->_spawnRequestCount);
+            stats.sumSpawnRequestCount += ptr->spawnRequestCount;
+            stats.maxSpawnRequestCount = std::max(stats.maxSpawnRequestCount, ptr->spawnRequestCount);
             // spawn count
-            stats._sumSpawnCount += ptr->_spawnCount;
-            stats._maxSpawnCount = std::max(stats._maxSpawnCount, ptr->_spawnCount);
+            stats.sumSpawnCount += ptr->spawnCount;
+            stats.maxSpawnCount = std::max(stats.maxSpawnCount, ptr->spawnCount);
         }
         return stats;
     }
 
-    /**
-     * @brief
-     *  Dump information (including the statistics) of this profile into the debug file of this
-     *  abstract profile system.
-     */
-    void dump() {
+    /// @brief Dump information (including the statistics) of this profile system intos its debug file.
+    void dump()
+    {
         std::ofstream os;
-        os.open(_debugPathName, std::ofstream::out | std::ofstream::app);
-        if (!os.is_open()) {
+        os.open(debugPathName, std::ofstream::out | std::ofstream::app);
+        if (!os.is_open())
+        {
             return;
         }
         dump(os);
         os.close();
     }
 
-
-    /**
-     * @brief
-     *  Dump information (including the stastics) of this profile system into an output stream.
-     * @param os
-     *  the output stream
-     */
-    void dump(std::ostream& os) {
+    /// @brief Dump information (including the stastics) of this profile system into an output stream.
+    /// @param os the output stream
+    void dump(std::ostream& os)
+    {
         const auto stats = getStats();
 
-        os << _profileTypeName << " profile system" << std::endl;
-        os << " loaded count:                " << stats._loadedCount << std::endl;
-        os << " maximum spawn request count: " << stats._maxSpawnRequestCount << std::endl;
-        os << " summed spawn request count:  " << stats._sumSpawnRequestCount << std::endl;
-        os << " maximum spawn count:         " << stats._maxSpawnCount << std::endl;
-        os << " summed spawn count:          " << stats._sumSpawnCount << std::endl;
+        os << profileTypeName << " profile system" << std::endl;
+        os << " size:                        " << stats.size << std::endl;
+        os << " maximum spawn request count: " << stats.maxSpawnRequestCount << std::endl;
+        os << " summed spawn request count:  " << stats.sumSpawnRequestCount << std::endl;
+        os << " maximum spawn count:         " << stats.maxSpawnCount << std::endl;
+        os << " summed spawn count:          " << stats.sumSpawnCount << std::endl;
         os << " list of loaded profiles:" << std::endl;
-        for (const auto& pair : _map) {
+        for (const auto& pair : map)
+        {
             const auto ptr = pair.second;
             os << " reference: " << pair.first << ","
                << " name: " << "`" << ptr->_name << "`" << ","
@@ -312,3 +267,6 @@ public:
     }
 
 };
+
+template <typename TypeArg, typename RefTypeArg>
+const std::shared_ptr<TypeArg> AbstractProfileSystem<TypeArg, RefTypeArg>::nullProfile = nullptr;
