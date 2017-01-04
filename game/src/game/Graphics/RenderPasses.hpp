@@ -51,7 +51,7 @@ public:
 };
 
 struct TileListV2 {
-    static void render(const ego_mesh_t& mesh, const Graphics::renderlist_lst_t& rlst);
+    static void render(const ego_mesh_t& mesh, const std::vector<ClippingEntry>& rlst);
     /// @brief Draw a fan.
     /// @param mesh the mesh
     /// @param tileIndex the tile index

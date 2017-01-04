@@ -30,89 +30,67 @@
 namespace Ego {
 namespace Graphics {
 
-struct renderlist_lst_t
+struct ClippingEntry
 {
-	struct element_t
-	{
-		Index1D _index;  ///< The index of the tile.
-		float _distance;   ///< The distance of the tile.
-		element_t() :
-			_index(), _distance(-1.0f)
-		{}
-		element_t(const Index1D& index, float distance) :
-			_index(index), _distance(distance)
-		{}
-		element_t(const element_t& other) :
-			_index(other._index), _distance(other._distance)
-		{}
-		virtual ~element_t()
-		{}
-		element_t& operator=(const element_t& other) {
-			_index = other._index;
-			_distance = other._distance;
-			return *this;
-		}
-	};
-	/**
-	* @brief
-	*    The maximum capacity of a renderlist
-	*    i.e. the maximum number of tiles in a render list
-	*    i.e. the maximum number of tiles to draw.
-	*/
-	static const size_t CAPACITY = 1024;
-	size_t size;                          ///< The number of entries.
-	std::array<element_t, CAPACITY> lst;  ///< The entries.
+private:
+    Index1D index;    ///< The index of the tile.
+    float distance;   ///< The distance of the tile.
 
-	renderlist_lst_t() :
-		size(0), lst()
-	{}
-	
-	virtual ~renderlist_lst_t()
-	{}
+public:
+    ClippingEntry() :
+        index(Index1D::Invalid), distance(std::numeric_limits<float>::infinity())
+    {}
 
-	void reset();
-	/**
-	 * @brief Add an entry
-	 * @param index the index of the tile
-	 * @param distance the distance of the tile
-	 * @return @a true if the entry was added, @a false otherwise
-	 */
-	bool push(const Index1D& index, float distance);
+    ClippingEntry(const Index1D& index, float distance) :
+        index(index), distance(distance)
+    {}
+
+    ClippingEntry(const ClippingEntry& other) :
+        index(other.index), distance(other.distance)
+    {}
+
+    virtual ~ClippingEntry()
+    {}
+
+    ClippingEntry& operator=(const ClippingEntry& other)
+    {
+        index = other.index;
+        distance = other.distance;
+        return *this;
+    }
+
+    const Index1D& getIndex() const
+    {
+        return index;
+    }
+
+    float getDistance() const
+    {
+        return distance;
+    }
 };
 
 /// Which tiles are to be drawn, arranged by MAPFX_* bits
 struct TileList
 {
-	renderlist_lst_t _all;     ///< List of which to render, total
-	renderlist_lst_t _ref;     ///< ..., is reflected in the floor
-	renderlist_lst_t _sha;     ///< ..., is not reflected in the floor
-	/**
-	 * @brief
-	 *	Tiles reflecting entities i.e. "reflective" tiles.
-	 * @remark
-	 *	Tiles on which the MAPFX_REFLECTIVE bit is set are added to this list.
-	 */
-	renderlist_lst_t _reflective;
-	/**
-	 * @brief
-	 *	Tiles not reflecting entities i.e. "non-reflective" tiles.
-	 * @remark
-	 *	Tiles on which the MAPFX_REFLECTIVE bit is <em>not</em> set are added to this list.
-	 */
-	renderlist_lst_t _nonReflective;
-	/**
-	 * @brief
-	 *	Tiles which are water.
-	 * @remark
-	 * 	Tiles on which the MAPFX_WATER bit is set are added to this list.
-	 */
-	renderlist_lst_t _water;
+	std::vector<ClippingEntry> _all;     ///< List of which to render, total
+    std::vector<ClippingEntry> _ref;     ///< ..., is reflected in the floor
+    std::vector<ClippingEntry> _sha;     ///< ..., is not reflected in the floor
+	/// @brief Tiles reflecting entities i.e. "reflective" tiles.
+    /// @remark Tiles on which the MAPFX_REFLECTIVE bit is set are added to this list.
+    std::vector<ClippingEntry> _reflective;
+	/// @brief Tiles not reflecting entities i.e. "non-reflective" tiles.
+	/// @remark Tiles on which the MAPFX_REFLECTIVE bit is <em>not</em> set are added to this list.
+    std::vector<ClippingEntry> _nonReflective;
+	/// @brief Tiles which are water.
+	/// @remark Tiles on which the MAPFX_WATER bit is set are added to this list.
+    std::vector<ClippingEntry> _water;
 
 	TileList();
 	virtual ~TileList();
 	void init();
 	/// @brief Clear a render list
-	gfx_rv reset();
+	void reset();
 	/// @brief Insert a tile into this render list.
 	/// @param index the tile index
 	/// @param camera the camera
@@ -129,14 +107,9 @@ struct TileList
 	/// @param camera the camera
 	gfx_rv add(const Index1D& index, ::Camera& camera);
 
-	/**
-	* @brief
-	*	check wheter a tile was rendered this render frame
-	* @param index
-	*	the index number of the tile
-	* @return
-	*	true if the specified tile is currently in the render list for this render frame
-	**/
+	/// @brief check wheter a tile was rendered this render frame.
+	/// @param index the index number of the tile
+	/// @return true if the specified tile is currently in the render list for this render frame
 	bool inRenderList(const Index1D& index) const;
 
 private:

@@ -29,19 +29,6 @@
 namespace Ego {
 namespace Graphics {
 
-void renderlist_lst_t::reset() {
-	size = 0;
-	lst[0]._index = Index1D::Invalid;
-}
-
-bool renderlist_lst_t::push(const Index1D& index, float distance) {
-	if (size >= renderlist_lst_t::CAPACITY) {
-		return false;
-	}
-	lst[size++] = element_t(index, distance);
-	return true;
-}
-
 TileList::TileList() :
 	_all(), 
 	_ref(), 
@@ -52,7 +39,21 @@ TileList::TileList() :
 
 	_renderTiles(),
 	_lastRenderTiles()
-{}
+{
+    try
+    {
+        _all.reserve(1024);
+        _ref.reserve(1024);
+        _sha.reserve(1024);
+        _reflective.reserve(1024);
+        _nonReflective.reserve(1024);
+        _water.reserve(1024);
+    }
+    catch (...)
+    {
+
+    }
+}
 
 TileList::~TileList()
 {}
@@ -60,15 +61,15 @@ TileList::~TileList()
 void TileList::init()
 {
 	// Initialize the render list lists.
-	_all.reset();
-	_ref.reset();
-	_sha.reset();
-	_reflective.reset();
-	_nonReflective.reset();
-	_water.reset();
+	_all.clear();
+	_ref.clear();
+	_sha.clear();
+	_reflective.clear();
+	_nonReflective.clear();
+	_water.clear();
 }
 
-gfx_rv TileList::reset()
+void TileList::reset()
 {
 	// Clear out the "in render list" flag for the old mesh.
 	_lastRenderTiles = _renderTiles;
@@ -76,8 +77,6 @@ gfx_rv TileList::reset()
 
 	// Re-initialize the renderlist.
 	init();
-
-	return gfx_success;
 }
 
 gfx_rv TileList::insert(const Index1D& index, const ::Camera &cam)
@@ -89,42 +88,36 @@ gfx_rv TileList::insert(const Index1D& index, const ::Camera &cam)
 	}
 	ego_tile_info_t& ptile = getMesh()->_tmem.get(index);
 
-	// we can only accept so many tiles
-	if (_all.size >= renderlist_lst_t::CAPACITY)
-	{
-		return gfx_fail;
-	}
-
     auto i2 = Grid::map<int>(index, (int)getMesh()->_info.getTileCountX());
 	float dx = (i2.x() + Info<float>::Grid::Size() * 0.5f) - cam.getCenter()[kX];
 	float dy = (i2.y() + Info<float>::Grid::Size() * 0.5f) - cam.getCenter()[kY];
 	float distance = dx * dx + dy * dy;
 
 	// Put each tile in basic list
-	_all.push(index, distance);
+	_all.emplace_back(index, distance);
 
 	// Put each tile in one other list, for shadows and relections
 	if (0 != ptile.testFX(MAPFX_SHA))
 	{
-		_sha.push(index, distance);
+		_sha.emplace_back(index, distance);
 	}
 	else
 	{
-		_ref.push(index, distance);
+		_ref.emplace_back(index, distance);
 	}
 
 	if (0 != ptile.testFX(MAPFX_REFLECTIVE))
 	{
-		_reflective.push(index, distance);
+		_reflective.emplace_back(index, distance);
 	}
 	else
 	{
-		_nonReflective.push(index, distance);
+		_nonReflective.emplace_back(index, distance);
 	}
 
 	if (0 != ptile.testFX(MAPFX_WATER))
 	{
-		_water.push(index, distance);
+		_water.emplace_back(index, distance);
 	}
 
 	return gfx_success;

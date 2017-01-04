@@ -937,9 +937,9 @@ gfx_rv render_scene_mesh(Camera& cam, const Ego::Graphics::TileList& tl, const E
 		TileRenderer::invalidate();
 
 		// render the heighmap
-		for (size_t i = 0; i < tl._all.size; ++i)
+		for (size_t i = 0; i < tl._all.size(); ++i)
 		{
-			Ego::Graphics::RenderPasses::Internal::TileListV2::render_hmap_fan(tl.getMesh().get(), tl._all.lst[i]._index);
+			Ego::Graphics::RenderPasses::Internal::TileListV2::render_hmap_fan(tl.getMesh().get(), tl._all[i].getIndex());
 		}
 
 		// let the mesh texture code know that someone else is in control now
@@ -1540,10 +1540,10 @@ void GridIllumination::light_fans_update_lcache(Ego::Graphics::TileList& tl)
 #endif
 
     // cache the grid lighting
-    for (size_t entry = 0; entry < tl._all.size; entry++)
+    for (size_t entry = 0; entry < tl._all.size(); entry++)
     {
         // which tile?
-        Index1D fan = tl._all.lst[entry]._index;
+        Index1D fan = tl._all[entry].getIndex();
 
         // grab a pointer to the tile
 		ego_tile_info_t& ptile = mesh->getTileInfo(fan);
@@ -1676,9 +1676,9 @@ void GridIllumination::light_fans_update_clst(Ego::Graphics::TileList& tl)
 	tile_mem_t& ptmem = mesh->_tmem;
 
     // use the grid to light the tiles
-    for (size_t entry = 0; entry < tl._all.size; entry++)
+    for (size_t entry = 0; entry < tl._all.size(); entry++)
     {
-        Index1D fan = tl._all.lst[entry]._index;
+        Index1D fan = tl._all[entry].getIndex();
         if (Index1D::Invalid == fan) continue;
 
         // valid tile?
@@ -1940,9 +1940,9 @@ gfx_rv GridIllumination::do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_
     mesh_bound.xmax = 0;
     mesh_bound.ymin = tmem._edge_y;
     mesh_bound.ymax = 0;
-    for (size_t entry = 0; entry < tl._all.size; entry++)
+    for (size_t entry = 0; entry < tl._all.size(); entry++)
     {
-        Index1D fan = tl._all.lst[entry]._index;
+        Index1D fan = tl._all[entry].getIndex();
         if (fan.i() >= pinfo.getTileCount()) continue;
 
 		const oct_bb_t& poct = tmem.get(fan)._oct;
@@ -2077,12 +2077,12 @@ gfx_rv GridIllumination::do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_
     local_keep = 0.0f; //std::pow(DYNALIGHT_KEEP, 4); //const static float DYNALIGHT_KEEP = 0.9f;
 
     // Add to base light level in normal mode
-    for (size_t entry = 0; entry < tl._all.size; entry++)
+    for (size_t entry = 0; entry < tl._all.size(); entry++)
     {
         bool resist_lighting_calculation = true;
 
         // grab each grid box in the "frustum"
-        Index1D fan = tl._all.lst[entry]._index;
+        Index1D fan = tl._all[entry].getIndex();
 
         // a valid tile?
         ego_tile_info_t& ptile = mesh->getTileInfo(fan);
@@ -2195,10 +2195,7 @@ gfx_rv gfx_make_tileList(Ego::Graphics::TileList& tl, Camera& cam)
     }
 
     // reset the renderlist
-    if (gfx_error == tl.reset())
-    {
-        return gfx_error;
-    }
+    tl.reset();
 
     // get the tiles in the center of the view (TODO: calculate actual tile view from camera frustrum)
 	int startX, startY, endX, endY;

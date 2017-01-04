@@ -95,26 +95,26 @@ bool ElementV2::compare(const ElementV2& x, const ElementV2& y) {
 	}
 }
 
-void TileListV2::render(const ego_mesh_t& mesh, const Graphics::renderlist_lst_t& rlst)
+void TileListV2::render(const ego_mesh_t& mesh, const std::vector<ClippingEntry>& rlst)
 {
 	size_t tcnt = mesh._tmem.getInfo().getTileCount();
 
-	if (0 == rlst.size) {
+	if (0 == rlst.size()) {
 		return;
 	}
 
 	// insert the rlst values into lst_vals
-	std::vector<ElementV2> lst_vals(rlst.size);
-	for (size_t i = 0; i < rlst.size; ++i)
+	std::vector<ElementV2> lst_vals(rlst.size());
+	for (size_t i = 0; i < rlst.size(); ++i)
 	{
         uint32_t textureIndex;
-		if (rlst.lst[i]._index >= tcnt)
+		if (rlst[i].getIndex() >= tcnt)
 		{
 			textureIndex = std::numeric_limits<uint32_t>::max();
 		}
 		else
 		{
-			const ego_tile_info_t& tile = mesh._tmem.get(rlst.lst[i]._index);
+			const ego_tile_info_t& tile = mesh._tmem.get(rlst[i].getIndex());
 
 			int img = TILE_GET_LOWER_BITS(tile._img);
 			if (tile._type >= tile_dict.offset)
@@ -124,7 +124,7 @@ void TileListV2::render(const ego_mesh_t& mesh, const Graphics::renderlist_lst_t
 
 			textureIndex = img;
 		}
-        lst_vals[i] = ElementV2(rlst.lst[i]._distance, rlst.lst[i]._index, textureIndex);
+        lst_vals[i] = ElementV2(rlst[i].getDistance(), rlst[i].getIndex(), textureIndex);
 	}
 
 	std::sort(lst_vals.begin(), lst_vals.end(), ElementV2::compare);
@@ -132,7 +132,7 @@ void TileListV2::render(const ego_mesh_t& mesh, const Graphics::renderlist_lst_t
 	// restart the mesh texture code
 	TileRenderer::invalidate();
 
-	for (size_t i = 0; i < rlst.size; ++i)
+	for (size_t i = 0; i < rlst.size(); ++i)
 	{
 		Index1D tmp_itile = lst_vals[i].getTileIndex();
 
@@ -1096,18 +1096,18 @@ void Water::doRun(::Camera& camera, const TileList& tl, const EntityList& el) {
 	// Bottom layer first.
 	if (gfx.draw_water_1 && _currentModule->getWater()._layer_count > 1)
 	{
-		for (size_t i = 0; i < tl._water.size; ++i)
+		for (size_t i = 0; i < tl._water.size(); ++i)
 		{
-			Internal::TileListV2::render_water_fan(mesh, tl._water.lst[i]._index, 1);
+			Internal::TileListV2::render_water_fan(mesh, tl._water[i].getIndex(), 1);
 		}
 	}
 
 	// Top layer second.
 	if (gfx.draw_water_0 && _currentModule->getWater()._layer_count > 0)
 	{
-		for (size_t i = 0; i < tl._water.size; ++i)
+		for (size_t i = 0; i < tl._water.size(); ++i)
 		{
-			Internal::TileListV2::render_water_fan(mesh, tl._water.lst[i]._index, 0);
+			Internal::TileListV2::render_water_fan(mesh, tl._water[i].getIndex(), 0);
 		}
 	}
 
