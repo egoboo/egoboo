@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file   IdLib/AssertionFailedException.hpp
-/// @brief  Definition of an exception indicating that an assertion failed.
+/// @file IdLib/AssertionFailedException.hpp
+/// @brief Definition of an exception indicating that an assertion failed.
 /// @author Michael Heilmann
 
 #pragma once
@@ -31,55 +31,32 @@
 
 namespace Id {
 
-/**
- * @brief
- *  Exception for when an assertion failed.
- */
-class AssertionFailedException : public Exception {
-
+/// @brief Exception for when an assertion failed.
+class AssertionFailedException : public Exception
+{
 private:
-        
-    /**
-     * @brief
-     *  A string describing the assertion e.g. <tt>nullptr != ptr</tt>.
-     */
+    /// @brief A string describing the assertion e.g. <tt>nullptr != ptr</tt>.
     std::string _assertion;
 
 public:
-
-    /**
-     * @brief
-     *  Construct this exception.
-     * @param file
-     *  the C++ source file associated with this exception
-     * @param line
-     *  the line within the C++ source file associated with this exception
-     * @param assertion
-     *  a description of the assertion
-     */
-	AssertionFailedException(const char *file, int line, const string& assertion) :
+    /// @brief Construct this exception.
+    /// @param file the C++ source file associated with this exception
+    /// @param line the line within the C++ source file associated with this exception
+    /// @param assertion a description of the assertion
+    AssertionFailedException(const char *file, int line, const string& assertion) :
         Exception(file, line), _assertion(assertion)
     {}
-    
-    /**
-     * @brief
-     *  Construct this exception with the value of another exception.
-     * @param other
-     *  the other exception
-     */
-	AssertionFailedException(const AssertionFailedException& other) :
+
+    /// @brief Construct this exception with the value of another exception.
+    /// @param other the other exception
+    AssertionFailedException(const AssertionFailedException& other) :
         Exception(other), _assertion(other._assertion)
     {}
- 
-    /**
-     * @brief
-     *  Assign this exception the values of another exception.
-     * @param other
-     *  the other exception
-     * @return
-     *  this exception
-     */
-	AssertionFailedException& operator=(const AssertionFailedException& other)
+
+    /// @brief Assign this exception the values of another exception.
+    /// @param other the other exception
+    /// @return this exception
+    AssertionFailedException& operator=(const AssertionFailedException& other)
     {
         Exception::operator=(other);
         _assertion = other._assertion;
@@ -87,18 +64,15 @@ public:
     }
 
 public:
-
-    /**
-     * @brief
-     *  Get a description of the assertion.
-     * @return
-     *  a description of the assertion
-     */
-    const string& getAssertion() const {
+    /// @brief Get a description of the assertion.
+    /// @return a description of the assertion
+    const string& getAssertion() const
+    {
         return _assertion;
     }
 
-    virtual operator string() const override {
+    virtual operator string() const override
+    {
         ostringstream buffer;
         buffer << "assertion `" << _assertion << "` failed";
         buffer << " (raised in file " << getFile() << ", line " << getLine() << ")";

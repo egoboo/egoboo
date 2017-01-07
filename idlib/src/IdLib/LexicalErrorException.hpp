@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file   IdLib/LexicalErrorException.hpp
-/// @brief  Definition of an  exception indicating a lexical error
+/// @file IdLib/LexicalErrorException.hpp
+/// @brief Definition of an  exception indicating a lexical error.
 /// @author Michael Heilmann
 
 #pragma once
@@ -33,56 +33,38 @@ namespace Id {
 
 using namespace std;
 
-/**
- * @brief
- *  An abstract lexical error exception.
- */
-class LexicalErrorException : public AbstractLexicalErrorException {
-
+/// @brief A lexical error exception.
+class LexicalErrorException : public AbstractLexicalErrorException
+{
 private:
-
-    /**
-     * @brief
-     *  A message describing the error.
-     */
+    /// @brief A message describing the error.
     string _message;
 
 public:
+    /// @brief Construct this exception.
+    /// @param file the C++ source file (as obtained by the __FILE__ macro) associated with this exception
+    /// @param line the line within the C++ source file (as obtained by the __LINE__ macro) associated with this exception
+    /// @param location the location associated with this error
+    /// @param message a message describing the error
+    LexicalErrorException(const char *file, int line, const Location& location, const string& message) :
+        AbstractLexicalErrorException(file, line, location), _message(message)
+    {}
 
-    /**
-     * @brief
-     *  Construct this exception.
-     * @param file
-     *  the C++ source file name associated with this error
-     * @param line
-     *  the line within the C++ source file associated with this error
-     * @param location
-     *  the location associated with this error
-     *  the load name of the file associated with this error
-     * @param message
-     *  a message describing the error
-     */
-	LexicalErrorException(const char *file, int line, const Location& location, const string& message) :
-        AbstractLexicalErrorException(file, line, location), _message(message) {
-    }
+    LexicalErrorException(const LexicalErrorException& other) :
+        AbstractLexicalErrorException(other), _message(other._message)
+    {}
 
-	LexicalErrorException(const LexicalErrorException& other) :
-        AbstractLexicalErrorException(other), _message(other._message) {
-    }
-    
-	LexicalErrorException& operator=(const LexicalErrorException& other) {
-		AbstractLexicalErrorException::operator=(other);
+    LexicalErrorException& operator=(const LexicalErrorException& other)
+    {
+        AbstractLexicalErrorException::operator=(other);
         _message = other._message;
         return *this;
     }
 
-    /**
-     * @brief
-     *  Overloaded cast to std::string operator.
-     * @return
-     *  the result of the cast
-     */
-    operator string() const override {
+    /// @brief Overloaded cast to std::string operator.
+    /// @return the result of the cast
+    operator string() const override
+    {
         ostringstream o;
         writeLocation(o);
         o << " - "

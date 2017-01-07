@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file   IdLib/CRTP.hpp
-/// @brief  CRTP (Curiously Recurring Template Pattern) for misc. operators.
+/// @file IdLib/CRTP.hpp
+/// @brief CRTP (Curiously Recurring Template Pattern) for misc. operators.
 /// @author Michael Heilmann
 
 #pragma once

@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file   IdLib/AbstractSyntacticalError.hpp
-/// @brief  Definition of an abstract exception indicating a lexical error
+/// @file IdLib/AbstractSyntacticalError.hpp
+/// @brief Definition of an abstract exception indicating a syntactical error.
 /// @author Michael Heilmann
 
 #pragma once
@@ -34,55 +34,36 @@ namespace Id {
 
 using namespace std;
 
-/**
- * @brief
- *  An abstract syntactical error exception.
- */
+/// @brief An abstract syntactical error exception.
 class AbstractSyntacticalErrorException : public Exception
 {
-
 private:
-
-    /**
-     * @brief
-     *  The location associated with this error.
-     */
+    /// @brief The location associated with this error.
     Location _location;
 
 protected:
 
-    ostringstream& writeLocation(ostringstream& o) const {
+    ostringstream& writeLocation(ostringstream& o) const
+    {
         o << _location.getFileName() << ": " << _location.getLineNumber()
-          << " (raised in file " << getFile() << ", line " << getLine() << ")";
+            << " (raised in file " << getFile() << ", line " << getLine() << ")";
         return o;
     }
 
-    /**
-     * @brief
-     *  Construct this exception.
-     * @param file
-     *  the C++ source file name associated with this error
-     * @param line
-     *  the line within the C++ source file associated with this error
-     * @param location
-     *  the location associated with this error
-     *  the load name of the file associated with this error
-     * @param message
-     *  an additional error message to be appended to the standard error information
-     */
+    /// @brief Construct this exception.
+    /// @param file the C++ source file (as obtained by the __FILE__ macro) associated with this exception
+    /// @param line the line within the C++ source file (as obtained by the __LINE__ macro) associated with this exception
+    /// @param location the location associated with this error
+    /// @param message an additional error message to be appended to the standard error information
     AbstractSyntacticalErrorException(const char *file, int line, const Location& location) :
         Exception(file, line), _location(location)
     {}
 
 public:
-
-    /**
-     * @brief
-     *  Get the location associated with the error.
-     * @return
-     *  the location associated with the error
-     */
-    const Location& getLocation() const {
+    /// @brief Get the location associated with the error.
+    /// @return the location associated with the error
+    const Location& getLocation() const
+    {
         return _location;
     }
 

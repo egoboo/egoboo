@@ -28,19 +28,17 @@
 #endif
 
 namespace Id {
-/**
- * @brief
- *  Inherit from this class to make the inheriting class and its descendant class non-copyable.
- *  Example usage
- *  @code
- *  class Foo : Bar, NonCopyable
- *  { ... }
- *  @endcode
- * @see http://en.cppreference.com/w/cpp/language/copy_assignment
- * @see http://en.cppreference.com/w/cpp/language/move_assignment
- * @see http://en.cppreference.com/w/cpp/language/copy_constructor
- * @see http://en.cppreference.com/w/cpp/language/move_constructor
- */
+
+/// @brief Inherit from this class to make the inheriting class and its descendant class non-copyable.
+/// @detail Example usage
+/// @code
+///  class Foo : Bar, NonCopyable
+///  { ... }
+///  @endcode
+/// @see http://en.cppreference.com/w/cpp/language/copy_assignment
+/// @see http://en.cppreference.com/w/cpp/language/move_assignment
+/// @see http://en.cppreference.com/w/cpp/language/copy_constructor
+/// @see http://en.cppreference.com/w/cpp/language/move_constructor
 struct NonCopyable
 {
     NonCopyable() = default;

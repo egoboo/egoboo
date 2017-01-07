@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file   IdLib/AbstractLexicalError.hpp
-/// @brief  Definition of an abstract exception indicating a lexical error
+/// @file IdLib/AbstractLexicalError.hpp
+/// @brief Definition of an abstract exception indicating a lexical error.
 /// @author Michael Heilmann
 
 #pragma once
@@ -34,58 +34,44 @@ namespace Id {
 
 using namespace std;
 
-/**
- * @brief
- *  An abstract lexical error exception.
- */
+/// @brief An abstract lexical error exception.
 class AbstractLexicalErrorException : public Exception
 {
 
 private:
 
-    /**
-     * @brief
-     *  The location associated with this error.
-     */
+    /// @brief The location associated with this error.
     Location _location;
 
 protected:
 
-    ostringstream& writeLocation(ostringstream& o) const {
+    ostringstream& writeLocation(ostringstream& o) const
+    {
         o << _location.getFileName() << ": " << _location.getLineNumber()
-          << " (raised in file " << getFile() << ", line " << getLine() << ")";
+            << " (raised in file " << getFile() << ", line " << getLine() << ")";
         return o;
     }
 
-    AbstractLexicalErrorException& operator=(const AbstractLexicalErrorException& other) {
+    AbstractLexicalErrorException& operator=(const AbstractLexicalErrorException& other)
+    {
         Exception::operator=(other);
         _location = other._location;
         return *this;
     }
 
-    /**
-     * @brief
-     *  Construct this exception.
-     * @param file
-     *  the C++ source file name associated with this error
-     * @param line
-     *  the line within the C++ source file associated with this error
-     * @param location
-     *  the location associated with this error
-     */
-	AbstractLexicalErrorException(const char *file, int line, const Location& location) :
+    /// @brief Construct this exception.
+    /// @param file the C++ source file (as obtained by the __FILE__ macro) associated with this exception
+    /// @param line the line within the C++ source file (as obtained by the __LINE__ macro) associated with this exception
+    /// @param location the location associated with this error
+    AbstractLexicalErrorException(const char *file, int line, const Location& location) :
         Exception(file, line), _location(location)
     {}
 
 public:
-
-    /**
-     * @brief
-     *  Get the location associated with this error.
-     * @return
-     *  the location associated with this error
-     */
-    const Location& getLocation() const {
+    /// @brief Get the location associated with this error.
+    /// @return the location associated with this error
+    const Location& getLocation() const
+    {
         return _location;
     }
 

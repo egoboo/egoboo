@@ -17,11 +17,9 @@
 //*
 //********************************************************************************************
 
-/**
- * @file   IdLib/IdLib.hpp
- * @brief  Master include file for IdLib.
- * @author Michael Heilmann
- */
+/// @file IdLib/IdLib.hpp
+/// @brief Master include file for IdLib.
+/// @author Michael Heilmann
 
 #pragma once
 
