@@ -26,46 +26,22 @@ namespace Script {
 using namespace Id;
 using namespace std;
 
-/**
- * @brief
- *  An exception to indicate a missing delimiter lexical error.
- * @author
- *  Michael Heilmann
- */
-class MissingDelimiterError : public AbstractLexicalErrorException
+/// @brief An exception to indicate a missing delimiter lexical error.
+/// @author Michael Heilmann
+class MissingDelimiterError : public CompilationErrorException
 {
-
 private:
-
-    /**
-     * @brief
-     *  The expected delimiter.
-     */
-    char _delimiter;
+    /// @brief The expected delimiter.
+    char delimiter;
 
 public:
-
-    /**
-     * @brief
-     *  Construct a missing delimiter error.
-     * @param file, line, location
-     *  see documentation of Id::LexicalErrorException(const char *,int,const Id::Location&)
-     * @param delimiter
-     *  the expected delimiter
-     */
+    /// @brief Construct a missing delimiter error.
+    /// @param file, line, location see documentation of Id::CompilationErrorException(const char *,int, Id::CompilationErrorException::Kind, const Id::Location&)
+    /// @param delimiter the expected delimiter
     MissingDelimiterError(const char *file, int line, const Location& location, char delimiter) :
-        AbstractLexicalErrorException(file, line, location), _delimiter(delimiter)
+        CompilationErrorException(file, line, CompilationErrorKind::Lexical, location, std::string("missing delimiter `") + delimiter + "`"),
+        delimiter(delimiter)
     {}
-
-    operator string() const override {
-        std::ostringstream o;
-        writeLocation(o);
-        o << " - "
-            << "missing delimiter `" << _delimiter << "`"
-            ;
-        return o.str();
-    }
-
 };
 
 } // namespace Script

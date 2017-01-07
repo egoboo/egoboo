@@ -43,19 +43,7 @@
     <ClInclude Include="src\IdLib\LockFailedException.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\IdLib\SyntacticalErrorException.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\IdLib\UnhandledSwitchCaseException.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\IdLib\AbstractLexicalErrorException.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\IdLib\AbstractSyntacticalErrorException.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\IdLib\LexicalErrorException.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\IdLib\EnvironmentErrorException.hpp">
@@ -80,6 +68,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\IdLib\Token.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\IdLib\CompilationErrorException.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

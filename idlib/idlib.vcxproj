@@ -254,6 +254,7 @@
     <ClCompile Include="src\IdLib\IdLib.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\IdLib\CompilationErrorException.hpp" />
     <ClInclude Include="src\IdLib\Token.hpp" />
     <ClInclude Include="src\IdLib\CRTP.hpp" />
     <ClInclude Include="src\IdLib\BitmaskTypes.hpp" />
@@ -261,15 +262,11 @@
     <ClInclude Include="src\IdLib\InvalidArgumentException.hpp" />
     <ClInclude Include="src\IdLib\OutOfBoundsException.hpp" />
     <ClInclude Include="src\IdLib\RuntimeErrorException.hpp" />
-    <ClInclude Include="src\IdLib\AbstractLexicalErrorException.hpp" />
-    <ClInclude Include="src\IdLib\AbstractSyntacticalErrorException.hpp" />
     <ClInclude Include="src\IdLib\AssertionFailedException.hpp" />
     <ClInclude Include="src\IdLib\EnvironmentErrorException.hpp" />
     <ClInclude Include="src\IdLib\Exception.hpp" />
-    <ClInclude Include="src\IdLib\LexicalErrorException.hpp" />
     <ClInclude Include="src\IdLib\Location.hpp" />
     <ClInclude Include="src\IdLib\LockFailedException.hpp" />
-    <ClInclude Include="src\IdLib\SyntacticalErrorException.hpp" />
     <ClInclude Include="src\IdLib\UnhandledSwitchCaseException.hpp" />
     <ClInclude Include="src\IdLib\NonCopyable.hpp" />
     <ClInclude Include="src\IdLib\Platform.hpp" />

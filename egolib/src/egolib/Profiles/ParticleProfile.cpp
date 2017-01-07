@@ -404,13 +404,13 @@ std::shared_ptr<ParticleProfile> ParticleProfile::readFromFile(const std::string
                 break;
 
                 default:
-                    throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(ctxt->getFileName(), ctxt->getLineNumber()),
-                                                    std::string("Unknown IDSZ type parsed: ") + idsz.toString());
+                    throw Id::CompilationErrorException(__FILE__, __LINE__, Id::CompilationErrorKind::Lexical, Id::Location(ctxt->getFileName(), ctxt->getLineNumber()),
+                                                        std::string("Unknown IDSZ type parsed: ") + idsz.toString());
                 break;
             }
         } else {
-            throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(ctxt->getFileName(), ctxt->getLineNumber()),
-                                            "expected `:`, comment, whitespace, newline or end of input");
+            throw Id::CompilationErrorException(__FILE__, __LINE__, Id::CompilationErrorKind::Lexical, Id::Location(ctxt->getFileName(), ctxt->getLineNumber()),
+                                                "expected `:`, comment, whitespace, newline or end of input");
         }
     }
 

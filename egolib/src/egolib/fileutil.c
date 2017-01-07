@@ -48,7 +48,7 @@ float ReadContext::toReal() const
     auto lexeme = _buffer.toString();
     if (!Decoder<float>()(lexeme,temporary))
     {
-        throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
+        throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
                                         "unable to convert current lexeme `" + lexeme + "` into a value of type "
                                         "`float`");
     }
@@ -63,7 +63,7 @@ void ReadContext::skipWhiteSpaces()
     }
     if (is(Traits::error()))
     {
-        throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
+        throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
                                         "read error");
     }
     if (is(Traits::endOfInput()))
@@ -75,7 +75,7 @@ void ReadContext::skipWhiteSpaces()
         next();
         if (is(Traits::error()))
         {
-            throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
+            throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
                                             "read error");
         }
         if (is(Traits::endOfInput()))
@@ -100,17 +100,17 @@ IDSZ2 ReadContext::readIDSZ() {
 	{
 		if (is(Traits::error()))
 		{
-			throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
-				"read error while scanning IDSZ");
+			throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
+				                            "read error while scanning IDSZ");
 		}
 		else if (is(Traits::endOfInput()))
 		{
-			throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
-				"premature end of input while scanning IDSZ");
+			throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
+				                            "premature end of input while scanning IDSZ");
 		}
 		else
 		{
-			throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
+			throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
 				"unexpected character while scanning IDSZ");
 		}
 	}
@@ -122,18 +122,18 @@ IDSZ2 ReadContext::readIDSZ() {
 		{
 			if (is(Traits::error()))
 			{
-				throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
-					"read error while scanning IDSZ");
+				throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
+					                            "read error while scanning IDSZ");
 			}
 			else if (is(Traits::endOfInput()))
 			{
-				throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
-					"premature end of input while scanning IDSZ");
+				throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
+					                            "premature end of input while scanning IDSZ");
 			}
 			else
 			{
-				throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
-					"unexpected character while scanning IDSZ");
+				throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
+					                            "unexpected character while scanning IDSZ");
 			}
 		}
 		c[i] = static_cast<char>(current());
@@ -144,18 +144,18 @@ IDSZ2 ReadContext::readIDSZ() {
 	{
 		if (is(Traits::error()))
 		{
-			throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
-				"read error while scanning IDSZ");
+			throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
+				                            "read error while scanning IDSZ");
 		}
 		else if (is(Traits::endOfInput()))
 		{
-			throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
-				"premature end of input while scanning IDSZ");
+			throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
+				                            "premature end of input while scanning IDSZ");
 		}
 		else
 		{
-			throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
-				"unexpected character while scanning IDSZ");
+			throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
+				                            "unexpected character while scanning IDSZ");
 		}
 	}
 	next();
@@ -177,7 +177,7 @@ bool ReadContext::skipToDelimiter(char delimiter, bool optional)
     {
         if (is(Traits::error()))
         {
-            throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
+            throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
                                             "read error");
         }
         if (is(Traits::endOfInput()))
@@ -589,13 +589,13 @@ std::string ReadContext::readSingleLineComment()
     _buffer.clear();
     if (!is('/'))
     {
-        throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
+        throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
                                         "unexpected character while scanning single line comment");
     }
     next();
     if (!is('/'))
     {
-        throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
+        throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
                                         "unexpected character while scanning single line comment");
     }
     next();
@@ -604,7 +604,7 @@ std::string ReadContext::readSingleLineComment()
     {
         if (is(Traits::error()))
         {
-            throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
+            throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
                                             "read error while scanning single line comment");
         }
         if (isNewLine())
@@ -628,12 +628,12 @@ char ReadContext::readPrintable()
     {
         if (is(Traits::error()))
         {
-            throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
+            throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
                                             "read error while scanning printable character");
         }
         else
         {
-            throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
+            throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
                                             "premature end of input while scanning printable character");
         }
     }
@@ -641,17 +641,17 @@ char ReadContext::readPrintable()
     {
         if (is(Traits::error()))
         {
-            throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
+            throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
                                             "read error while scanning printable character");
         }
         else if (is(Traits::endOfInput()))
         {
-            throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
+            throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
                                             "premature end of input while scanning a printable character");
         }
         else
         {
-            throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
+            throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
                                             "unexpected character while scanning a printable characters");
         }
     }
@@ -673,8 +673,8 @@ DDLToken ReadContext::parseStringLiteral()
 	{
 		if (is(Traits::error()))
 		{
-			throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
-				"read error");
+			throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
+				                            "read error");
 		}
 		else if (is('~'))
 		{
@@ -707,31 +707,31 @@ DDLToken ReadContext::parseCharacterLiteral() {
 	{
 		if (is(Traits::error()))
 		{
-			throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
-				"read error while scanning character literal");
+			throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
+				                            "read error while scanning character literal");
 		}
 		else if (is(Traits::endOfInput()))
 		{
-			throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
-				"premature end of input while scanning character literal");
+			throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
+				                            "premature end of input while scanning character literal");
 		}
 	}
 	if (!is('\''))
 	{
 		if (is(Traits::error()))
 		{
-			throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
-				"read error while scanning character literal");
+			throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
+				                            "read error while scanning character literal");
 		}
 		else if (is(Traits::endOfInput()))
 		{
-			throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
-				"premature end of input while scanning character literal");
+			throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
+				                            "premature end of input while scanning character literal");
 		}
 		else
 		{
-			throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
-				"unexpected character while scanning character literal");
+			throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
+				                            "unexpected character while scanning character literal");
 		}
 	}
 	next();
@@ -758,18 +758,18 @@ DDLToken ReadContext::parseCharacterLiteral() {
 		{
 			if (is(Traits::error()))
 			{
-				throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
-					"read error while scanning character literal");
+				throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
+					                            "read error while scanning character literal");
 			}
 			else if (is(Traits::endOfInput()))
 			{
-				throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
-					"premature end of input while scanning character literal");
+				throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
+					                            "premature end of input while scanning character literal");
 			}
 			else
 			{
-				throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
-					"unknown/unsupported escape sequence");
+				throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
+					                            "unknown/unsupported escape sequence");
 			}
 		}
 	}
@@ -779,12 +779,12 @@ DDLToken ReadContext::parseCharacterLiteral() {
 		{
 			if (is(Traits::error()))
 			{
-				throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
+				throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
 					"read error while scanning character literal");
 			}
 			else if (is(Traits::endOfInput()))
 			{
-				throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
+				throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
 					"empty character literal");
 			}
 		}
@@ -813,18 +813,18 @@ DDLToken ReadContext::parseIntegerLiteral()
 	{
 		if (is(Traits::error()))
 		{
-			throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
-				"read error while scanning integer literal");
+			throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
+				                            "read error while scanning integer literal");
 		}
 		else if (is(Traits::endOfInput()))
 		{
-			throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
-				"premature end of input while scanning integer literal");
+			throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
+				                            "premature end of input while scanning integer literal");
 		}
 		else
 		{
-			throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
-				"unexpected character while scanning integer literal");
+			throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
+				                            "unexpected character while scanning integer literal");
 		}
 	}
 	do
@@ -842,18 +842,18 @@ DDLToken ReadContext::parseIntegerLiteral()
 		{
 			if (is(Traits::error()))
 			{
-				throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
-					"read error while scanning integer literal");
+				throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
+					                            "read error while scanning integer literal");
 			}
 			else if (is(Traits::endOfInput()))
 			{
-				throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
-					"premature end of input while scanning integer literal");
+				throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
+					                            "premature end of input while scanning integer literal");
 			}
 			else
 			{
-				throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
-					"unexpected character while scanning integer literal");
+				throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
+					                            "unexpected character while scanning integer literal");
 			}
 		}
 		do
@@ -880,18 +880,18 @@ DDLToken ReadContext::parseNaturalLiteral()
 	{
 		if (is(Traits::error()))
 		{
-			throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
-				"read error while scanning natural literal");
+			throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
+				                            "read error while scanning natural literal");
 		}
 		else if (is(Traits::endOfInput()))
 		{
-			throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
-				"premature end of input while scanning natural literal");
+			throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
+				                            "premature end of input while scanning natural literal");
 		}
 		else
 		{
-			throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
-				"unexpected character while scanning natural literal");
+			throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
+				                            "unexpected character while scanning natural literal");
 		}
 	}
 	do
@@ -909,17 +909,17 @@ DDLToken ReadContext::parseNaturalLiteral()
 		{
 			if (is(Traits::error()))
 			{
-				throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
+				throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
 					"read error while scanning natural literal");
 			}
 			else if (is(Traits::endOfInput()))
 			{
-				throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
+				throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
 					"premature end of input while scanning natural literal");
 			}
 			else
 			{
-				throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
+				throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
 					"unexpected character while scanning natural literal");
 			}
 		}
@@ -950,18 +950,18 @@ DDLToken ReadContext::parseRealLiteral()
 		{
 			if (is(Traits::error()))
 			{
-				throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
-					"read error while scanning real literal");
+				throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
+					                            "read error while scanning real literal");
 			}
 			else if (is(Traits::endOfInput()))
 			{
-				throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
-					"premature end of input while scanning real literal");
+				throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
+					                            "premature end of input while scanning real literal");
 			}
 			else
 			{
-				throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
-					"unexpected character while scanning real literal");
+				throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
+					                            "unexpected character while scanning real literal");
 			}
 		}
 		do
@@ -995,18 +995,18 @@ DDLToken ReadContext::parseRealLiteral()
 		{
 			if (is(Traits::error()))
 			{
-				throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
-					"read error while scanning real literal exponent");
+				throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
+					                            "read error while scanning real literal exponent");
 			}
 			else if (is(Traits::endOfInput()))
 			{
-				throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
-					"premature end of input while scanning real literal exponent");
+				throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
+					                            "premature end of input while scanning real literal exponent");
 			}
 			else
 			{
-				throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
-					"unexpected character while scanning real literal exponent");
+				throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
+					                            "unexpected character while scanning real literal exponent");
 			}
 		}
 		do
@@ -1053,7 +1053,7 @@ UFP8_T vfs_get_ufp8(ReadContext& ctxt)
     float x = ctxt.readRealLiteral();
     if (x < 0.0f)
     {
-        throw LexicalErrorException(__FILE__, __LINE__, Location(ctxt.getFileName(),ctxt.getLineNumber()),
+        throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(ctxt.getFileName(),ctxt.getLineNumber()),
                                         "unable to convert current lexeme to a unsigned fixed-point number");
     }
     return FLOAT_TO_FP8(x);
@@ -1125,7 +1125,7 @@ void vfs_read_string(ReadContext& ctxt, char *str, size_t max)
         }
         if (ctxt.is(ReadContext::Traits::error()))
         {
-            throw LexicalErrorException(__FILE__,__LINE__,Location(ctxt.getFileName(),ctxt.getLineNumber()),
+            throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(ctxt.getFileName(),ctxt.getLineNumber()),
                                             "read error while reading string literal");
         }
         EGOBOO_ASSERT(ctxt._buffer.getSize() == cur && cur <= max);
@@ -1232,7 +1232,7 @@ void ReadContext::readName0()
 {
     if (!isAlpha() && !is('_'))
     {
-        throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
+        throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
                                         "invalid name");
     }
     do
@@ -1259,17 +1259,17 @@ void ReadContext::readReference0()
     {
         if (is(Traits::error()))
         {
-            throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
+            throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
                                             "read error while scanning reference literal");
         }
         else if (is(Traits::endOfInput()))
         {
-            throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
+            throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
                                             "premature end of input while scanning reference literal");
         }
         else
         {
-            throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
+            throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
                                             "unexpected character while scanning reference literal");
         }
     }
@@ -1303,7 +1303,7 @@ bool ReadContext::readBool()
     }
     else
     {
-        throw LexicalErrorException(__FILE__, __LINE__, Location(getFileName(), getLineNumber()),
+        throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()),
                                         "unexpected character while scanning boolean literal");
     }
 }

@@ -64,7 +64,8 @@ private:
         ostringstream message;
         message << file << ":" << line << ": ";
         message << "argument string `" << string << "` does not not represent a valid qualified name";
-        throw Id::LexicalErrorException(file, line, location, message.str());
+        throw Id::CompilationErrorException(file, line, Id::CompilationErrorKind::Lexical,
+                                            location, message.str());
     }
 
 private:
