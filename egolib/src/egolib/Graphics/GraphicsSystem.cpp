@@ -1,6 +1,6 @@
 #include "egolib/Graphics/GraphicsSystem.hpp"
 #include "egolib/Graphics/GraphicsWindow.hpp"
-
+#include "egolib/Graphics/GraphicsContext.hpp"
 
 namespace Ego {
 
@@ -11,8 +11,21 @@ SDLX_video_parameters_t GraphicsSystem::sdl_vparam;
 oglx_video_parameters_t GraphicsSystem::ogl_vparam;
 
 GraphicsWindow *GraphicsSystem::window = nullptr;
+GraphicsContext *GraphicsSystem::context = nullptr;
 
 bool GraphicsSystem::initialized = false;
+
+GraphicsContext *GraphicsSystem::createContext(GraphicsWindow *window, const ContextProperties& contextProperties)
+{
+    try
+    {
+        return new Ego::GraphicsContext(window, contextProperties);
+    }
+    catch (...)
+    {
+        return nullptr;
+    }
+}
 
 GraphicsWindow *GraphicsSystem::createWindow(const WindowProperties& windowProperties)
 {

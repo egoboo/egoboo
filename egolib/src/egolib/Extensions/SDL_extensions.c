@@ -148,10 +148,6 @@ void SDLX_video_parameters_t::upload() const {
 }
 
 //--------------------------------------------------------------------------------------------
-SDL_GLContext SDLX_CreateContext(Ego::GraphicsWindow *window, const Ego::ContextProperties& flags) {
-    flags.upload();
-    return SDL_GL_CreateContext(window->get());
-}
 
 Ego::GraphicsWindow *SDLX_CreateWindow( SDLX_video_parameters_t& v, bool make_report )
 {  
@@ -181,8 +177,8 @@ Ego::GraphicsWindow *SDLX_CreateWindow( SDLX_video_parameters_t& v, bool make_re
         } else {
             Ego::GraphicsSystem::window->setSize(v.resolution);
             Ego::GraphicsSystem::window->center();
-            SDL_GLContext context = SDLX_CreateContext(Ego::GraphicsSystem::window, v.contextProperties);
-            if (!context) {
+            Ego::GraphicsSystem::context = Ego::GraphicsSystem::createContext(Ego::GraphicsSystem::window, v.contextProperties);
+            if (!Ego::GraphicsSystem::context) {
 				Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to create OpenGLGL context: ", SDL_GetError(), Log::EndOfEntry);
                 delete Ego::GraphicsSystem::window;
                 Ego::GraphicsSystem::window = nullptr;
@@ -203,8 +199,8 @@ Ego::GraphicsWindow *SDLX_CreateWindow( SDLX_video_parameters_t& v, bool make_re
                     } else {
                         Ego::GraphicsSystem::window->setSize(v.resolution);
                         Ego::GraphicsSystem::window->center();
-                        SDL_GLContext context = SDLX_CreateContext(Ego::GraphicsSystem::window, v.contextProperties);
-                        if (!context) {
+                        Ego::GraphicsSystem::context = Ego::GraphicsSystem::createContext(Ego::GraphicsSystem::window, v.contextProperties);
+                        if (!Ego::GraphicsSystem::context) {
 							Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to create OpenGL context (", v.contextProperties.multisampling.samples, " multisamples): ", SDL_GetError(), Log::EndOfEntry);
                             delete Ego::GraphicsSystem::window;
                             Ego::GraphicsSystem::window = nullptr;
@@ -230,8 +226,8 @@ Ego::GraphicsWindow *SDLX_CreateWindow( SDLX_video_parameters_t& v, bool make_re
             } else {
                 Ego::GraphicsSystem::window->setSize(v.resolution);
                 Ego::GraphicsSystem::window->center();
-                SDL_GLContext context = SDLX_CreateContext(Ego::GraphicsSystem::window, v.contextProperties);
-                if (!context) {
+                Ego::GraphicsSystem::context = Ego::GraphicsSystem::createContext(Ego::GraphicsSystem::window, v.contextProperties);
+                if (!Ego::GraphicsSystem::context) {
 					Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to create OpenGL context (no multisamples): ", SDL_GetError(), Log::EndOfEntry);
                     delete Ego::GraphicsSystem::window;
                     Ego::GraphicsSystem::window = nullptr;

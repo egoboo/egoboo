@@ -306,6 +306,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\Graphics\GraphicsContext.cpp" />
     <ClCompile Include="src\egolib\Extensions\ContextProperties.cpp" />
     <ClCompile Include="src\egolib\Log\EndOfEntry.cpp" />
     <ClCompile Include="src\egolib\Log\EndOfLine.cpp" />
@@ -524,6 +525,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Graphics\GraphicsContext.hpp" />
     <ClInclude Include="src\egolib\Extensions\ContextProperties.hpp" />
     <ClInclude Include="src\egolib\Log\EndOfEntry.hpp" />
     <ClInclude Include="src\egolib\Log\EndOfLine.hpp" />

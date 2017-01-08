@@ -576,6 +576,9 @@
     <ClCompile Include="src\egolib\Extensions\ContextProperties.cpp">
       <Filter>Extensions</Filter>
     </ClCompile>
+    <ClCompile Include="src\egolib\Graphics\GraphicsContext.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\egolib\vfs.h">
@@ -1426,6 +1429,9 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Extensions\ContextProperties.hpp">
       <Filter>Extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Graphics\GraphicsContext.hpp">
+      <Filter>Header Files\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

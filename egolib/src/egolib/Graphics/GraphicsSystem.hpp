@@ -8,6 +8,7 @@ namespace Ego {
 
 // Forward declaration.
 struct GraphicsWindow;
+struct GraphicsContext;
 
 struct GraphicsSystem {
 public:
@@ -19,6 +20,9 @@ public:
     
     /// @brief A pointer to the (single) SDL window if it exists, a null pointer otherwise.
     static GraphicsWindow *window;
+    
+    /// @brief A pointer to the (single) SDL/OpenGL context if it exists, a null pointer otherwise.
+    static GraphicsContext *context;
     
     /// @brief Initialize the graphics system.
     /// @remark This method is a no-op if the graphics system is initialized.
@@ -35,6 +39,12 @@ public:
     /// @brief Get the cursor visibility.
     /// @return @a true if the cursor is shown, @a false otherwise
     static bool getCursorVisibility();
+    
+    /// @brief Create a graphics context.
+    /// @param window a pointer to a window
+    /// @param contextProperties the context properties
+    /// @return a pointer to the graphics context on success, a null pointer on failure
+    static GraphicsContext *createContext(GraphicsWindow *window, const ContextProperties& contextProperties);
     
     /// @hrief Create a graphics window.
     /// @param windowProperties the window properties
