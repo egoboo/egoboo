@@ -374,27 +374,27 @@ bool Utilities::isError()
         switch (error)
         {
             case GL_INVALID_ENUM:
-                Log::get().warn("%s:%d: %s\n", __FILE__, __LINE__, "GL_INVALID_ENUM");
+                Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "GL_INVALID_ENUM", Log::EndOfEntry);
                 break;
             case GL_INVALID_VALUE:
-                Log::get().warn("%s:%d: %s\n", __FILE__, __LINE__, "GL_INVALID_VALUE");
+                Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "GL_INVALID_VALUE", Log::EndOfEntry);
                 break;
             case GL_INVALID_OPERATION:
-                Log::get().warn("%s:%d: %s\n", __FILE__, __LINE__, "GL_INVALID_OPERATION");
+                Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "GL_INVALID_OPERATION", Log::EndOfEntry);
                 break;
         #if defined(GL_INVALID_FRAMEBUFFER_OPERATION)
             case GL_INVALID_FRAMEBUFFER_OPERATION:
-                Log::get().warn("%s:%d: %s\n", __FILE__, __LINE__, "GL_INVALID_FRAMEBUFFER_OPERATION");
+                Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "GL_INVALID_FRAMEBUFFER_OPERATION", Log::EndOfEntry);
                 break;
         #endif
             case GL_OUT_OF_MEMORY:
-                Log::get().warn("%s:%d: %s\n", __FILE__, __LINE__, "GL_OUT_OF_MEMORY");
+                Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "GL_OUT_OF_MEMORY", Log::EndOfEntry);
                 break;
             case GL_STACK_UNDERFLOW:
-                Log::get().warn("%s:%d: %s\n", __FILE__, __LINE__, "GL_STACK_UNDERFLOW");
+                Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "GL_STACK_UNDERFLOW", Log::EndOfEntry);
                 break;
             case GL_STACK_OVERFLOW:
-                Log::get().warn("%s:%d: %s\n", __FILE__, __LINE__, "GL_STACK_OVERFLOW");
+                Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "GL_STACK_OVERFLOW", Log::EndOfEntry);
                 break;
         };
         clearError();

@@ -457,7 +457,8 @@ bool wawalite_data_write(const std::string& filename,const wawalite_data_t *prof
                                                });
     if (!filewrite)
     {
-		Log::get().warn("%s:%d: unable to write file `%s`\n", __FILE__, __LINE__, filename.c_str());
+		Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to write file ",
+                                         "`", filename, "`", Log::EndOfEntry);
         return false;
     }
 

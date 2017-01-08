@@ -239,9 +239,8 @@ void DebugModuleLoadingState::loadModuleData()
         BillboardSystem::get().reset();
 
         // Linking system
-		Log::get().info("Initializing module linking... ");
-        if (link_build_vfs( "mp_data/link.txt", LinkList)) Log::get().message("Success!\n");
-        else Log::get().message( "Failure!\n" );
+		Log::get() << Log::Entry::create(Log::Level::Info, __FILE__, __LINE__, "initializing module linking", Log::EndOfEntry);
+        if (!link_build_vfs( "mp_data/link.txt", LinkList)) Log::get() << Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "unable to initialize module linking", Log::EndOfEntry);
 
         // initialize the collision system
         singleThreadRedrawHack("Beautifying graphics...");
@@ -258,7 +257,7 @@ void DebugModuleLoadingState::loadModuleData()
         {
             singleThreadRedrawHack("Loading players...");
             if(!loadPlayers()) {
-                throw std::runtime_error("Failed to load players!\n");
+                throw Id::RuntimeErrorException(__FILE__, __LINE__, "unable to load players");
             }
         }
 
@@ -266,7 +265,7 @@ void DebugModuleLoadingState::loadModuleData()
         singleThreadRedrawHack("Loading module data...");
         if (!game_begin_module(_loadModule))
         {
-            throw std::runtime_error("Failed to load module!");
+            throw Id::RuntimeErrorException(__FILE__, __LINE__, "unable to load module");
         }
 
         singleThreadRedrawHack("Almost done...");
@@ -285,31 +284,31 @@ void DebugModuleLoadingState::loadModuleData()
     {
         std::string out = std::string("Ego::Exception: ") + std::string(ex);
         singleThreadRedrawHack(out);
-		Log::get().warn("error loading %s... %s\n", _loadModule->getFolderName().c_str(), out.c_str());
+        Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "error loading ", "`", _loadModule->getFolderName(), "`", "... ", "`", out, "`", Log::EndOfEntry);
     }
     catch (std::exception &ex)
     {
         std::string out = std::string("std::exception: ") + ex.what();
         singleThreadRedrawHack(out);
-		Log::get().warn("error loading %s... %s\n", _loadModule->getFolderName().c_str(), out.c_str());
+		Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "error loading ", "`", _loadModule->getFolderName(), "`", "... ", "`", out, "`", Log::EndOfEntry);
     }
     catch (std::string &ex)
     {
         std::string out = std::string("std::string: ") + ex;
         singleThreadRedrawHack(out);
-		Log::get().warn("error loading %s... %s\n", _loadModule->getFolderName().c_str(), out.c_str());
+        Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "error loading ", "`", _loadModule->getFolderName(), "`", "... ", "`", out, "`", Log::EndOfEntry);
     }
     catch (char *ex)
     {
         std::string out = std::string("C string: ") + ex;
         singleThreadRedrawHack(out);
-		Log::get().warn("error loading %s... %s\n", _loadModule->getFolderName().c_str(), out.c_str());
+        Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "error loading ", "`", _loadModule->getFolderName(), "`", "... ", "`", out, "`", Log::EndOfEntry);
     }
     catch (...)
     {
         std::string out = "unknown error";
         singleThreadRedrawHack(out);
-		Log::get().warn("error loading %s... %s\n", _loadModule->getFolderName().c_str(), out.c_str());
+        Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "error loading ", "`", _loadModule->getFolderName(), "`", "... ", "`", out, "`", Log::EndOfEntry);
     }
     _toLoad.pop_front();
 }

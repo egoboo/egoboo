@@ -17,26 +17,18 @@
 //*
 //********************************************************************************************
 
-/// @file   IdLib/DebugAssert.hpp
-/// @brief  Debug assertion functionality.
+/// @file IdLib/DebugAssert.hpp
+/// @brief Debug assertion functionality.
 /// @author Michael Heilmann
 
 #pragma once
 
 #include "IdLib/AssertionFailedException.hpp"
 
-/**
- * @brief
- *  Macro raising an exception if an assertion fails.
- * @param assertion
- *	the assertion
- * @throw Id::AssertionFailedException
- *  if the assertion fails
- * @remark
- *	This macro evaluates to the empty statement if #_DEBUG is not defined.
- * @todo
- *  Add Id::DebugAssertionFailedException and use here.
- */
+/// @brief Macro raising an exception if an assertion fails.
+/// @param assertion the assertion
+/// @throw Id::AssertionFailedException if the assertion fails
+/// @remark This macro evaluates to the empty statement if #_DEBUG is not defined.
 #if defined(_DEBUG)
     #define ID_ASSERT(assertion, ...) \
 	    if(!(assertion)) { \

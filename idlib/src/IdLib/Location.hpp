@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file   IdLib/Location.hpp
-/// @brief  Declaration of a location in an Egoboo DSL file
+/// @file IdLib/Location.hpp
+/// @brief Declaration of a location in an Egoboo DSL file.
 /// @author Michael Heilmann
 
 #pragma once
@@ -30,8 +30,7 @@
 #include "IdLib/CRTP.hpp"
 #include <type_traits>
 
-namespace Id
-{
+namespace Id {
 
 /// @brief A location is identified by a file name and line number within that file.
 class Location : public EqualToExpr<Location>
@@ -59,7 +58,7 @@ public:
     Location& operator=(Location other);
 
 public:
-	// CRTP
+    // CRTP
     bool equalTo(const Location& other) const;
 
 public:

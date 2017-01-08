@@ -38,7 +38,7 @@ bool activate_spawn_file_load_object( spawn_file_info_t& psp_info )
 
     //Is it already loaded?
     ipro = ( PRO_REF )psp_info.slot;
-    if (ProfileSystem::get().isValidProfileID(ipro)) return false;
+    if (ProfileSystem::get().isLoaded(ipro)) return false;
 
     // do the loading
     if ( CSTR_END != psp_info.spawn_comment[0] )
@@ -49,7 +49,7 @@ bool activate_spawn_file_load_object( spawn_file_info_t& psp_info )
 
         if(!vfs_exists(filename)) {
             if(psp_info.slot > MAX_IMPORT_PER_PLAYER * MAX_PLAYER) {
-				Log::get().warn("activate_spawn_file_load_object() - Object does not exist: %s\n", filename.c_str());
+				Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "object ", "`", filename, "`", " does not exist", Log::EndOfEntry);
             }
 
             return false;
@@ -58,7 +58,7 @@ bool activate_spawn_file_load_object( spawn_file_info_t& psp_info )
         psp_info.slot = ProfileSystem::get().loadOneProfile(filename, psp_info.slot);
     }
 
-    return ProfileSystem::get().isValidProfileID((PRO_REF)psp_info.slot);
+    return ProfileSystem::get().isLoaded((PRO_REF)psp_info.slot);
 }
 
 void convert_spawn_file_load_name(spawn_file_info_t& psp_info, const Ego::TreasureTables &treasureTables)

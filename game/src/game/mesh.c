@@ -43,10 +43,10 @@ MeshStats g_meshStats;
 
 static void warnNumberOfVertices(const char *file, int line, size_t numberOfVertices)
 {
-	std::ostringstream os;
-	os << "mesh has too many vertices - " << numberOfVertices << " requested, "
-	   << "but maximum is " << MAP_VERTICES_MAX;
-	Log::get().warn("%s:%d: %s\n", __FILE__, __LINE__, os.str().c_str());
+    Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__,
+                                     "mesh has too many vertices - ", numberOfVertices,
+                                     " number of vertices requested, but maximum number of vertices is ",
+                                     MAP_VERTICES_MAX);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -89,8 +89,8 @@ void tile_mem_t::computeVertexIndices(const tile_dictionary_t& dict)
 	}
 
 	if (vertexIndex != _info.getVertexCount()) {
-		Log::get().warn("%s:%d: unexpected number of vertices %" PRIuZ " of %" PRIuZ "\n", __FILE__, __LINE__, \
-			            vertexIndex, _info.getVertexCount());
+		Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "wrong number of vertices: received ",
+                                         vertexIndex, ", expected ", _info.getVertexCount(), Log::EndOfEntry);
 	}
 }
 
@@ -173,10 +173,10 @@ std::shared_ptr<ego_mesh_t> MeshLoader::operator()(const std::string& moduleName
 	std::shared_ptr<ego_mesh_t> mesh = convert(map);
 	if (!mesh)
 	{
-        Log::Entry entry(Log::Level::Error, __FILE__, __LINE__);
-        entry << "unable to convert mesh of module `" << moduleName << "`" << Log::EndOfEntry;
-        Log::get() << entry;
-		throw Id::RuntimeErrorException(__FILE__, __LINE__, entry.getText());
+        auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "unable to convert mesh of module ", "`",
+                                    moduleName, "`", Log::EndOfEntry);
+        Log::get() << e;
+		throw Id::RuntimeErrorException(__FILE__, __LINE__, e.getText());
 	}
 	mesh->finalize();
 	return mesh;

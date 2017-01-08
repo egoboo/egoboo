@@ -119,7 +119,7 @@ std::shared_ptr<MD2Model> MD2Model::loadFromFile(const std::string &fileName)
     vfs_FILE *f = vfs_openRead(fileName);
     if(!f)
     {
-		Log::get().warn("MD2Model::loadFromFile() - could not open model (%s)\n", fileName.c_str());
+		Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to open model file ", "`", fileName, "`", Log::EndOfEntry);
         return nullptr;
     }
 
@@ -147,7 +147,7 @@ std::shared_ptr<MD2Model> MD2Model::loadFromFile(const std::string &fileName)
     if (md2Header.ident != MD2_MAGIC_NUMBER || md2Header.version != MD2_VERSION)
     {
         vfs_close( f );
-		Log::get().warn( "MD2Model::loadFromFile() - model does not have valid header or identifier (%s)\n", fileName.c_str() );
+		Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "model ", "`", fileName, "`", " does not have valid header or identifier", Log::EndOfEntry);
         return nullptr;
     }
 
@@ -155,7 +155,7 @@ std::shared_ptr<MD2Model> MD2Model::loadFromFile(const std::string &fileName)
     std::shared_ptr<MD2Model> model = std::make_shared<MD2Model>();
     if(!model)
     {
-		Log::get().error( "MD2Model::loadFromFile() - could create MD2Model\n" );
+		Log::get() << Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "unable to create MD2 model object", Log::EndOfEntry);
         return nullptr;
     }
 

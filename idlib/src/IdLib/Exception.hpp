@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file   IdLib/Exception.hpp
-/// @brief  Root of the exception hierarchy.
+/// @file IdLib/Exception.hpp
+/// @brief Root of the exception hierarchy.
 /// @author Michael Heilmann
 
 #pragma once
@@ -33,64 +33,36 @@ namespace Id {
 
 using namespace std;
 
-/**
- * @brief
- *  The base class of all Id exceptions.
- */
-class Exception {
-
+/// @brief The base class of all Id exceptions.
+class Exception
+{
 private:
-
-    /**
-     * @brief
-     *  The C++ source file (as obtained by the __FILE__ macro) associated with this exception.
-     */
+    /// @brief The C++ source file (as obtained by the __FILE__ macro) associated with this exception.
     char *_file;
 
-    /**
-     * @brief
-     *  The line within the C++ source file (as obtained by the __LINE__ macro) associated with this exception.
-     */
+    /// @brief The line within the C++ source file (as obtained by the __LINE__ macro) associated with this exception.
     int _line;
 
 protected:
-
-    /**
-     * @brief
-     *  Construct this exception.
-     * @param file
-     *  the C++ source file (as obtained by the __FILE__ macro) associated with this exception
-     * @param line
-     *  the line within the C++ source file (as obtained by the __LINE__ macro) associated with this exception
-     * @remark
-     *  Intentionally protected.
-     */
+    /// @brief Construct this exception.
+    /// @param file the C++ source file (as obtained by the __FILE__ macro) associated with this exception
+    /// @param line the line within the C++ source file (as obtained by the __LINE__ macro) associated with this exception
+    /// @remark Intentionally protected.
     Exception(const char *file, int line) throw() :
         _file((char *)(file)), _line(line)
     {}
 
-    /**
-     * @brief
-     *  Construct this exception using the values of another exception.
-     * @param other
-     *  the other exception
-     * @remark
-     *  Intentionally protected.
-     */
+    /// @brief Construct this exception using the values of another exception.
+    /// @param other the other exception
+    /// @remark Intentionally protected.
     Exception(const Exception& other) throw() :
         _file(other._file), _line(other._line)
     {}
 
-    /**
-     * @brief
-     *  Assign this exception the values of another exception
-     * @param other
-     *  the other exception
-     * @return
-     *  this exception
-     * @remark
-     *  Intentionally protected
-     */
+    /// @brief Assign this exception the values of another exception
+    /// @param other the other exception
+    /// @return this exception
+    /// @remark Intentionally protected
     Exception& operator=(const Exception& other) throw()
     {
         _file = other._file;
@@ -98,48 +70,34 @@ protected:
         return *this;
     }
 
-    /**
-     * @brief
-     *  Destruct this IdLib exception.
-     * @remark
-     *  Intentionally protected.
-     */
+    /// @brief Destruct this IdLib exception.
+    /// @remark Intentionally protected.
     virtual ~Exception()
     {}
 
 public:
-
-    /**
-     * @brief
-     *  Get the C++ source file associated with this exception.
-     * @return
-     *  the C++ source file associated with this exception
-     */
-    const char *getFile() const throw() {
+    /// @brief Get the C++ source file associated with this exception.
+    /// @return the C++ source file associated with this exception
+    const char *getFile() const throw()
+    {
         return _file;
     }
 
-    /**
-     * @brief
-     *  Get the line within the C++ source file associated with this exception.
-     * @return
-     *  the line within the C++ source file associated with this exception
-     */
-    int getLine() const throw() {
+    /// @brief Get the line within the C++ source file associated with this exception.
+    /// @return the line within the C++ source file associated with this exception
+    int getLine() const throw()
+    {
         return _line;
     }
 
-    /**
-     * @brief
-     *  Overloaded cast operator for casting into std::string.
-     * @return
-     *  a human-readable textual description of the string.
-     */
-	virtual operator string() const {
-		std::ostringstream os;
-		os << getFile() << ":" << getLine() << ": exception";
-		return os.str();
-	}
+    /// @brief Overloaded cast operator for casting into std::string.
+    /// @return a human-readable textual description of the string.
+    virtual operator string() const
+    {
+        std::ostringstream os;
+        os << getFile() << ":" << getLine() << ": exception";
+        return os.str();
+    }
 };
 
 } // namespace Id

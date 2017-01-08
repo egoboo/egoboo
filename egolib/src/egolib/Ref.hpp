@@ -1,5 +1,7 @@
 #pragma once
 
+#include "egolib/platform.h"
+
 enum class RefKind
 {
     Billboard,       ///< @see BillboardRef
@@ -10,185 +12,229 @@ enum class RefKind
     Object,          ///< @see ObjectRef
     ObjectProfile,   ///< @see ObjectProfileRef
     Module,          ///< @see ModuleRef
-    Player,           /// @todo Formerly known as PLA_REF.
+    Player,          ///< @see PlayerRef
     Texture,         ///< @see TextureRef
 };
 
-/**
- * @brief
- *  Type-safe references.
- * @author
- *  Michael Heilmann
- */
-template <typename TYPE, TYPE MIN, TYPE MAX, TYPE INVALID, RefKind KIND>
-struct Ref : public Id::EqualToExpr<Ref<TYPE, MIN, MAX, INVALID, KIND>>,
-             public Id::LowerThanExpr<Ref<TYPE, MIN, MAX, INVALID, KIND>>,
-             public Id::IncrementExpr<Ref<TYPE, MIN, MAX, INVALID, KIND>>,
-             public Id::DecrementExpr<Ref<TYPE, MIN, MAX, INVALID, KIND>>
+namespace Internal {
+
+/// @brief A struct derived from @a std::true_type if @a TypeArg fulfils the
+/// requirements of the <em>reference value</em> concet and derived from
+/// @a std::false_type otherwise.
+template <typename RefValueArg>
+struct IsRefValue : public std::conditional
+    <
+        // bool, char, char16_t, char32_t, wchar_t, short, int, long, long long or any implementation-defined
+        // extended integer types, including any signed, unsigned, and cv-qualified variants.
+        (std::is_integral<RefValueArg>::value &&
+        // Without signed variants.
+        std::is_unsigned<RefValueArg>::value &&
+        // Without cv-qualified variants.
+        !std::is_const<RefValueArg>::value),
+        std::true_type,
+        std::false_type
+    >::type
+{};
+
+} // namespace Internal
+
+/// @brief Type-safe references. Specialization for all types which fulfil the <c>reference value</c> concept are provied.
+template <typename ValueTypeArg, ValueTypeArg MinimumValueArg, ValueTypeArg MaximumValueArg, RefKind KindArg, typename EnabledArg = void>
+struct Ref;
+
+template <typename ValueTypeArg, ValueTypeArg MinimumValueArg, ValueTypeArg MaximumValueArg, RefKind KindArg>
+struct Ref < ValueTypeArg, MinimumValueArg, MaximumValueArg, KindArg,
+             std::enable_if_t<::Internal::IsRefValue<ValueTypeArg>::value> >
+           : public Id::EqualToExpr<Ref<ValueTypeArg, MinimumValueArg, MaximumValueArg, KindArg>>,
+             public Id::LowerThanExpr<Ref<ValueTypeArg, MinimumValueArg, MaximumValueArg, KindArg>>,
+             public Id::IncrementExpr<Ref<ValueTypeArg, MinimumValueArg, MaximumValueArg, KindArg>>,
+             public Id::DecrementExpr<Ref<ValueTypeArg, MinimumValueArg, MaximumValueArg, KindArg>>
 {
+public:
+    using ValueType = ValueTypeArg;
+    using MyType = Ref<ValueTypeArg, MinimumValueArg, MaximumValueArg, KindArg>;
+    static constexpr ValueType MinimumValue = MinimumValueArg;
+    static constexpr ValueType MaximumValue = MaximumValueArg;
+    static constexpr ValueType InvalidValue = MaximumValueArg;
+    static const MyType Invalid;
+    static const MyType Min;
+    static const MyType Max;
 
 private:
-
-    TYPE _ref;
+    ValueType value;
 
 public:
-
-    using Type = TYPE;
-
     // Instantiation time static assertions.
 
     // bool, char, char16_t, char32_t, wchar_t, short, int, long, long long
     // or any implementation-defined extended integer types, including any signed, unsigned, and cv-qualified variants.
-    static_assert(std::is_integral<TYPE>::value,
+    static_assert(std::is_integral<ValueType>::value,
                   "the underlaying type must be an unsigned, arithmetic, integral type");
     // Same as above but without signed variants.
-    static_assert(std::is_unsigned<TYPE>::value,
-                  "the underlaying type must be an unsigned, arithmetic, integral type");
+    static_assert(std::is_unsigned<ValueType>::value,
+                  "the value type must be an unsigned, arithmetic, integral type");
     // Same as above but without cv-qualified variants.
-    static_assert(!std::is_const<TYPE>::value,
-                  "the underlaying type must be an unsigned, arithmetic, integral type");
+    static_assert(!std::is_const<ValueType>::value,
+                  "the value type must be an unsigned, arithmetic, integral type");
 
     // Instantiation time static assertions.
-    static_assert(std::integral_constant<TYPE, MIN>::value <= 
-                  std::integral_constant<TYPE, MAX>::value,
-                  "the minimum ref must be smaller than or equal to the maximum ref");
-    
-
-    // Static variables.
-
-    static const Ref<TYPE, MIN, MAX, INVALID, KIND> Invalid;
-    static const Ref<TYPE, MIN, MAX, INVALID, KIND> Min;
-    static const Ref<TYPE, MIN, MAX, INVALID, KIND> Max;
-
-
-    // Constructs.
-
-    Ref() EGO_NOEXCEPT :
-        _ref(INVALID)
+    static_assert(std::integral_constant<ValueType, MinimumValue>::value <= 
+                  std::integral_constant<ValueType, MaximumValue>::value,
+                  "the minimum value must be smaller than or equal to the maximum value");
+    static_assert(MaximumValue == InvalidValue,
+                  "the invalid value must be equal to the maximum value");
+public:
+    /// @brief Construct an invalid reference.
+    Ref() noexcept :
+        value(InvalidValue)
     {}
 
-    explicit Ref(const TYPE ref) :
-        _ref(ref)
+    /// @brief Construct a reference with the specified reference value.
+    /// @param value the reference value
+    /// @throw std::domain_error the reference value is out of bounds
+    explicit Ref(const ValueType& value) :
+        value(value)
     {
-        if (ref < MIN || ref > MAX)
+        if (value < MinimumValue || value > MaximumValue)
         {
             throw std::domain_error("out of range");
         }
     }
 
-    Ref(const Ref<TYPE, MIN, MAX, INVALID, KIND>& other) EGO_NOEXCEPT :
-        _ref(other._ref)
+    Ref(const MyType& other) noexcept :
+        value(other.value)
     {}
 
+public:
+    template <typename T>
+    explicit Ref(std::enable_if_t<std::is_integral<T>::value &&
+                 std::numeric_limits<T>::max() != std::numeric_limits<ValueTypeArg>::max(), T> value) :
+        Ref()
+    {
+        if (value < MinimumValue || value > MaximumValue)
+        {
+            throw std::domain_error("out of range");
+        }
+        this->value = static_cast<ValueType>(value);
+    }
 
+public:
     // Logical operator overloads.
 
-    bool operator!() const EGO_NOEXCEPT
+    bool operator!() const noexcept
     {
-        return _ref == INVALID;
-    }
-
-	// CRTP
-    bool equalTo(const Ref<TYPE, MIN, MAX, INVALID, KIND>& other) const EGO_NOEXCEPT
-    {
-        return _ref == other._ref;
-    }
-    bool lowerThan(const Ref<TYPE, MIN, MAX, INVALID, KIND>& other) const EGO_NOEXCEPT
-    {
-        return _ref < other._ref;
+        return InvalidValue == value;
     }
 
     // Assignment operator overloads.
-    Ref<TYPE, MIN, MAX, INVALID, KIND>& operator=(const Ref<TYPE, MIN, MAX, INVALID, KIND>& other) EGO_NOEXCEPT
+    MyType& operator=(const MyType& other) noexcept
     {
-        _ref = other._ref;
+        value = other.value;
         return *this;
     }
 
 #define REF_WITH_IMPLICITASSIGNMENT 1
 #if defined(REF_WITH_IMPLICITASSIGNMENT) && 1 == REF_WITH_IMPLICITASSIGNMENT
-    Ref<TYPE, MIN, MAX, INVALID, KIND>& operator=(const unsigned int& other)
+    MyType& operator=(unsigned int value)
     {
-        if (other < MIN || other > MAX)
-        {
-            throw std::domain_error("out of range");
-        }
-        _ref = other;
+        MyType temporary(value);
+        (*this) = temporary;
         return *this;
     }
 
-    Ref<TYPE, MIN, MAX, INVALID, KIND>& operator=(const int& other)
+    MyType& operator=(signed int value)
     {
-        if (other < MIN || other > MAX)
-        {
-            throw std::domain_error("out of range");
-        }
-        _ref = other;
+        MyType temporary(value);
+        (*this) = temporary;
         return *this;
     }
 
-    Ref<TYPE, MIN, MAX, INVALID, KIND>& operator=(const unsigned long& other)
+    MyType& operator=(unsigned long value)
     {
-        if (other < MIN || other > MAX)
-        {
-            throw std::domain_error("out of range");
-        }
-        _ref = other;
+        MyType temporary(value);
+        (*this) = temporary;
         return *this;
     }
 
-    Ref<TYPE, MIN, MAX, INVALID, KIND>& operator=(const long& other)
+    MyType& operator=(signed long value)
     {
-        if (other < MIN || other > MAX)
-        {
-            throw std::domain_error("out of range");
-        }
-        _ref = other;
+        MyType temporary(value);
+        (*this) = temporary;
         return *this;
     }
 #endif
 
     // Cast operator overloads.
-    explicit operator bool() const EGO_NOEXCEPT
+    explicit operator bool() const noexcept
     {
-        return INVALID != _ref;
+        return InvalidValue != value;
     }
 
     // Accessors.
 
-    TYPE get() const EGO_NOEXCEPT
+    ValueType get() const noexcept
     {
-        return _ref;
+        return value;
     }
 
+public:
+    // CRTP
+    bool equalTo(const MyType& other) const noexcept
+    {
+        return value == other.value;
+    }
+
+    // CRTP
+    bool lowerThan(const MyType& other) const noexcept
+    {
+        return value < other.value;
+    }
+
+    // CRTP
     void increment()
     {
-        if (MAX == _ref)
+        if (MaximumValue == value)
         {
             std::ostringstream msg;
             msg << __FILE__ << ":" << __LINE__ << ": " << "reference overflow";
             std::overflow_error(msg.str());
         }
-        ++_ref;
+        ++value;
     }
 
+    // CRTP
     void decrement()
     {
-        if (0 == _ref)
+        if (MinimumValue == value)
         {
             std::ostringstream msg;
             msg << __FILE__ << ":" << __LINE__ << ": " << "reference underflow";
             std::underflow_error(msg.str());
         }
-        --_ref;
+        --value;
     }
 };
 
-template <typename TYPE, TYPE MIN, TYPE MAX, TYPE INVALID, RefKind KIND>
-const Ref<TYPE, MIN, MAX, INVALID, KIND> Ref<TYPE, MIN, MAX, INVALID, KIND>::Invalid(INVALID);
+template <typename ValueTypeArg, ValueTypeArg MinimumValueArg, ValueTypeArg MaximumValueArg, RefKind KindArg>
+constexpr typename Ref<ValueTypeArg, MinimumValueArg, MaximumValueArg, KindArg, std::enable_if_t<::Internal::IsRefValue<ValueTypeArg>::value>>::ValueType
+Ref<ValueTypeArg, MinimumValueArg, MaximumValueArg, KindArg, std::enable_if_t<::Internal::IsRefValue<ValueTypeArg>::value>>::MinimumValue;
 
-template <typename TYPE, TYPE MIN, TYPE MAX, TYPE INVALID, RefKind KIND>
-const Ref<TYPE, MIN, MAX, INVALID, KIND> Ref<TYPE, MIN, MAX, INVALID, KIND>::Min(MIN);
+template <typename ValueTypeArg, ValueTypeArg MinimumValueArg, ValueTypeArg MaximumValueArg, RefKind KindArg>
+constexpr typename Ref<ValueTypeArg, MinimumValueArg, MaximumValueArg, KindArg, std::enable_if_t<::Internal::IsRefValue<ValueTypeArg>::value>>::ValueType
+Ref<ValueTypeArg, MinimumValueArg, MaximumValueArg, KindArg, std::enable_if_t<::Internal::IsRefValue<ValueTypeArg>::value>>::MaximumValue;
 
-template <typename TYPE, TYPE MIN, TYPE MAX, TYPE INVALID, RefKind KIND>
-const Ref<TYPE, MIN, MAX, INVALID, KIND> Ref<TYPE, MIN, MAX, INVALID, KIND>::Max(MAX);
+template <typename ValueTypeArg, ValueTypeArg MinimumValueArg, ValueTypeArg MaximumValueArg, RefKind KindArg>
+constexpr typename Ref<ValueTypeArg, MinimumValueArg, MaximumValueArg, KindArg, std::enable_if_t<::Internal::IsRefValue<ValueTypeArg>::value>>::ValueType
+Ref<ValueTypeArg, MinimumValueArg, MaximumValueArg, KindArg, std::enable_if_t<::Internal::IsRefValue<ValueTypeArg>::value>>::InvalidValue;
+
+template <typename ValueTypeArg, ValueTypeArg MinimumValueArg, ValueTypeArg MaximumValueArg, RefKind KindArg>
+const typename Ref<ValueTypeArg, MinimumValueArg, MaximumValueArg, KindArg, std::enable_if_t<::Internal::IsRefValue<ValueTypeArg>::value>>::MyType
+Ref<ValueTypeArg, MinimumValueArg, MaximumValueArg, KindArg, std::enable_if_t<::Internal::IsRefValue<ValueTypeArg>::value>>::Invalid(MaximumValueArg);
+
+template <typename ValueTypeArg, ValueTypeArg MinimumValueArg, ValueTypeArg MaximumValueArg, RefKind KindArg>
+const typename Ref<ValueTypeArg, MinimumValueArg, MaximumValueArg, KindArg, std::enable_if_t<::Internal::IsRefValue<ValueTypeArg>::value>>::MyType
+Ref<ValueTypeArg, MinimumValueArg, MaximumValueArg, KindArg, std::enable_if_t<::Internal::IsRefValue<ValueTypeArg>::value>>::Min(MinimumValueArg);
+
+template <typename ValueTypeArg, ValueTypeArg MinimumValueArg, ValueTypeArg MaximumValueArg, RefKind KindArg>
+const typename Ref<ValueTypeArg, MinimumValueArg, MaximumValueArg, KindArg, std::enable_if_t<::Internal::IsRefValue<ValueTypeArg>::value>>::MyType
+Ref<ValueTypeArg, MinimumValueArg, MaximumValueArg, KindArg, std::enable_if_t<::Internal::IsRefValue<ValueTypeArg>::value>>::Max(MaximumValueArg);

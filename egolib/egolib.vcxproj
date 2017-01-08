@@ -306,6 +306,9 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\Extensions\ContextProperties.cpp" />
+    <ClCompile Include="src\egolib\Log\EndOfEntry.cpp" />
+    <ClCompile Include="src\egolib\Log\EndOfLine.cpp" />
     <ClCompile Include="src\egolib\Script\OpcodeInfo.cpp" />
     <ClCompile Include="src\egolib\Script\CLogEntry.cpp" />
     <ClCompile Include="src\egolib\Script\DDLTokenDecoder.cpp" />
@@ -521,6 +524,9 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Extensions\ContextProperties.hpp" />
+    <ClInclude Include="src\egolib\Log\EndOfEntry.hpp" />
+    <ClInclude Include="src\egolib\Log\EndOfLine.hpp" />
     <ClInclude Include="src\egolib\Script\OpcodeInfo.hpp" />
     <ClInclude Include="src\egolib\Script\CLogEntry.hpp" />
     <ClInclude Include="src\egolib\Script\DDLTokenDecoder.hpp" />

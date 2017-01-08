@@ -222,7 +222,7 @@ void PerkHandler::initializePerk(const PerkID id, const Ego::Attribute::Attribut
 
     //Check if file actually exists
     if(!ego_texture_exists_vfs(iconPath)) {
-		Log::get().warn("No icon for perk %s: %s\n", name.c_str(), iconPath.c_str());
+		Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "icon ", "`", iconPath, "`", " for perk ", "`", name, "`", Log::EndOfEntry);
     }
 }
 

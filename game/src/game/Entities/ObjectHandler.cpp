@@ -88,14 +88,14 @@ bool ObjectHandler::exists(ObjectRef ref) const {
 std::shared_ptr<Object> ObjectHandler::insert(const PRO_REF profileRef, ObjectRef overrideRef)
 {
 	// Make sure the profile is valid.
-	if (!ProfileSystem::get().isValidProfileID(profileRef)) {
-		Log::get().warn("%s:%d: tried to spawn object with invalid profile reference %d\n", __FILE__, __LINE__, profileRef);
+	if (!ProfileSystem::get().isLoaded(profileRef)) {
+		Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "tried to spawn object with invalid profile reference ", profileRef, Log::EndOfEntry);
 		return nullptr;
 	}
 
 	// Limit total number of characters active at the same time.
 	if (getObjectCount() > OBJECTS_MAX) {
-		Log::get().warn("%s:%d: no free object slots available\n", __FILE__, __LINE__);
+        Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "no free object slots available", Log::EndOfEntry);
 		return nullptr;
 	}
 
@@ -105,8 +105,7 @@ std::shared_ptr<Object> ObjectHandler::insert(const PRO_REF profileRef, ObjectRe
 		if (!exists(overrideRef)) {
 			objRef = overrideRef;
 		} else {
-			Log::get().warn("%s:%d: failed to override a object %" PRIuZ ": - object already spawned\n", __FILE__, __LINE__,\
-				            overrideRef.get());
+			Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "failed to override a object ", overrideRef.get(), ": object already spawned", Log::EndOfEntry);
 			return nullptr;
 		}
 	}
@@ -120,7 +119,7 @@ std::shared_ptr<Object> ObjectHandler::insert(const PRO_REF profileRef, ObjectRe
 	if (ObjectRef::Invalid != objRef) {
 		const std::shared_ptr<Object> objPtr = std::make_shared<Object>(profileRef, objRef);
 		if (!objPtr) {
-			Log::get().warn("unable to create object\n");
+            Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to create object", Log::EndOfEntry);
 			return nullptr;
 		}
 

@@ -247,16 +247,14 @@ bool Setup::begin() {
         // If reverting to default configuration failed:
         if (!file) {
             // Fail.
-            Log::Entry e(Log::Level::Error, __FILE__, __LINE__);
-            e << "unable to revert to default configuration" << Log::EndOfEntry;
-            Log::get() << e;
+            Log::get() << Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "unable to revert to default "
+                                             "configuration", Log::EndOfEntry);
             return false;
         }
         started = true;
     } else {
-        Log::Entry e(Log::Level::Info, __FILE__, __LINE__);
-        e << "setup file `" << file->getFileName() << "` loaded" << Log::EndOfEntry;
-        Log::get() << e;
+        Log::get() << Log::Entry::create(Log::Level::Info, __FILE__, __LINE__, "setup file ", "`", file->getFileName(), "`",
+                                         " loaded", Log::EndOfEntry);
         started = true;
     }
     return started;
@@ -268,9 +266,8 @@ bool Setup::end() {
         file = nullptr;
         return true;
     } else {
-        Log::Entry e(Log::Level::Warning, __FILE__, __LINE__);
-        e << "unable to save setup file `" << file->getFileName() << "`" << Log::EndOfEntry;
-        Log::get() << e;
+        Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to save setup file ", "`",
+                                         file->getFileName(), "`", Log::EndOfEntry);
         file = nullptr;
         return false;
     }

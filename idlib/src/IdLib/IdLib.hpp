@@ -17,11 +17,9 @@
 //*
 //********************************************************************************************
 
-/**
- * @file   IdLib/IdLib.hpp
- * @brief  Master include file for IdLib.
- * @author Michael Heilmann
- */
+/// @file IdLib/IdLib.hpp
+/// @brief Master include file for IdLib.
+/// @author Michael Heilmann
 
 #pragma once
 
@@ -50,10 +48,7 @@
 #include "IdLib/Token.hpp"
 
 // DSL exceptions.
-#include "IdLib/AbstractLexicalErrorException.hpp"
-#include "IdLib/LexicalErrorException.hpp"
-#include "IdLib/AbstractSyntacticalErrorException.hpp"
-#include "IdLib/SyntacticalErrorException.hpp"
+#include "IdLib/CompilationErrorException.hpp"
 
 // Define __ID_CURRENT_FILE__, __ID_CURRENT_LINE__ and __ID_CURRENT_FUNCTION__.
 // Those constants will either be properly defined or not at all.

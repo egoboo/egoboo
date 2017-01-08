@@ -222,7 +222,7 @@ ObjectProfile::~ObjectProfile()
     //Release particle profiles
     for(const auto &element : _particleProfiles)
     {
-        ProfileSystem::get().ParticleProfileSystem.release(element.second);
+        ProfileSystem::get().ParticleProfileSystem.unload(element.second);
     }
 }
 
@@ -263,14 +263,14 @@ void ObjectProfile::loadTextures(const std::string &folderPath)
     if (_texturesLoaded.empty())
     {
         _texturesLoaded[0] = Ego::DeferredTexture("mp_data/waterlow");
-		Log::get().warn("Object is missing a skin (%s)!\n", getPathname().c_str());
+		Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "object is missing a skin ", "`", getPathname(), "`", Log::EndOfEntry);
     }
 
     // If we didn't get a icon, set it to the NULL icon
     if (_iconsLoaded.empty())
     {
         _iconsLoaded[0] = Ego::DeferredTexture("mp_data/nullicon");
-		Log::get().debug("Object is missing an icon (%s)!\n", getPathname().c_str());
+		Log::get() << Log::Entry::create(Log::Level::Debug, __FILE__, __LINE__, "object is missing an icon ", "`", getPathname(), "`", Log::EndOfEntry);
     }
 }
 
@@ -877,7 +877,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
                 }
                 else
                 {
-					Log::get().warn("Unknown [PERK] parsed: %s (%s)\n", perkName.c_str(), filePath.c_str());
+					Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "in file ", "`", filePath ,"`", ": ", "unknown [PERK] perk ", "`", perkName, "`", " parsed", Log::EndOfEntry);
                 }
             }
             break;
@@ -894,7 +894,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
                 }
                 else
                 {
-					Log::get().warn("Unknown [POOL] perk parsed: %s (%s)\n", perkName.c_str(), filePath.c_str());
+					Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "in file ", "`", filePath, "`", ": unknown [POOL] perk ", "`", perkName, "`", " parsed", Log::EndOfEntry);
                 }
             }
             break;
@@ -913,7 +913,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
             case IDSZ2::caseLabel('J', 'O', 'U', 'S'): _startingPerks[Ego::Perks::JOUSTING] = true; break;
 
             default:
-				Log::get().warn("Unknown IDSZ parsed: [%4s] (%s)\n", idsz.toString().c_str(), filePath.c_str());
+				Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "`", filePath, "`: ", "unknown IDSZ ", "`", idsz.toString(), "`", Log::EndOfEntry);
             break;
         }
     }
@@ -971,7 +971,7 @@ std::shared_ptr<ObjectProfile> ObjectProfile::loadFromFile(const std::string &fo
     //Make sure slot number is valid
     if(slotNumber == INVALID_PRO_REF)
     {
-		Log::get().warn("ObjectProfile::loadFromFile() - Invalid PRO_REF (%d)\n", slotNumber);
+		Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "invalid profile reference ", slotNumber, Log::EndOfEntry);
         return nullptr;
     }
 
@@ -990,12 +990,12 @@ std::shared_ptr<ObjectProfile> ObjectProfile::loadFromFile(const std::string &fo
             profile->_model = std::make_shared<Ego::ModelDescriptor>(folderPath.c_str());
         }
         catch (const std::runtime_error &ex) {
-			Log::get().warn("ObjectProfile::loadFromFile() - Unable to load model (%s)\n", folderPath.c_str());
+			Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to load model ", "`", folderPath, "`", Log::EndOfEntry);
             return nullptr;
         }
 
         // Load the enchantment for this profile (optional)
-        profile->_ieve = ProfileSystem::get().EnchantProfileSystem.load_one(folderPath + "/enchant.txt", static_cast<EVE_REF>(slotNumber) );
+        profile->_ieve = ProfileSystem::get().EnchantProfileSystem.load(folderPath + "/enchant.txt", static_cast<EVE_REF>(slotNumber) );
 
         // Load the messages for this profile, do this before loading the AI script
         // to ensure any dynamic loaded messages get loaded last (optional)
@@ -1005,7 +1005,7 @@ std::shared_ptr<ObjectProfile> ObjectProfile::loadFromFile(const std::string &fo
         for (LocalParticleProfileRef cnt(0); cnt.get() < 30; ++cnt) //TODO: find better way of listing files
         {
             const std::string particleName = folderPath + "/part" + std::to_string(cnt.get()) + ".txt";
-            PIP_REF particleProfile = ProfileSystem::get().ParticleProfileSystem.load_one(particleName.c_str(), INVALID_PIP_REF);
+            PIP_REF particleProfile = ProfileSystem::get().ParticleProfileSystem.load(particleName.c_str(), INVALID_PIP_REF);
 
             // Make sure it's referenced properly
             if(particleProfile != INVALID_PIP_REF) {
@@ -1035,12 +1035,12 @@ std::shared_ptr<ObjectProfile> ObjectProfile::loadFromFile(const std::string &fo
     // Do after loading particle and sound profiles
     try {
         if(!profile->loadDataFile(folderPath + "/data.txt")) {
-			Log::get().warn("Unable to load data.txt for profile: %s\n", folderPath.c_str());
+			Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to load data.txt for profile ", "`", folderPath, "`", Log::EndOfEntry);
             return nullptr;
         }
     }
     catch (const std::runtime_error &ex) {
-		Log::get().warn("ProfileSystem::loadFromFile() - Failed to parse (%s/data.txt): (%s)\n", folderPath.c_str(), ex.what());
+		Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "failed to parse ", "`", folderPath, "/data.txt", "`", ": ", ex.what(), Log::EndOfEntry);
         return nullptr;
     }
 

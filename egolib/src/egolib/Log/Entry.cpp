@@ -23,151 +23,194 @@
 #include "egolib/Log/Entry.hpp"
 
 namespace Log {
-const Manipulations::EndOfEntryManipulation EndOfEntry{};
-const Manipulations::EndOfLineManipulation EndOfLine{};
+
+namespace Internal {
+
+struct EntryImpl
+{
+    Level m_level;
+    std::map<std::string, std::string> m_attributes;
+    std::ostringstream m_sink;
+public:
+    EntryImpl(const EntryImpl&) = delete;
+    EntryImpl& operator=(const EntryImpl&) = delete;
+    EntryImpl(Level level) : m_level(level)
+    {}
+
+    /// get level
+    Level getLevel() const { return m_level; }
+    /// get text
+    std::string getText() const { return m_sink.str(); }
+    /// get the attribute value, raise if attribute is not present
+    const std::string& getAttribute(const std::string& key)
+    {
+        auto it = m_attributes.find(key);
+        if (it == m_attributes.cend())throw Id::RuntimeErrorException(__FILE__, __LINE__, "key not found");
+        return (*it).second;
+    }
+    /// get if an attribute is present
+    bool hasAttribute(const std::string& key) const { return m_attributes.find(key) != m_attributes.cend(); }
+    /// set an attribute
+    void setAttribute(const std::string& key, const std::string& value) { m_attributes[key] = value; }
+};
+
+} // namespace Internal
 
 Entry::Entry(Level level)
-    : m_level(level), m_sink()
+    : impl(new Internal::EntryImpl(level))
 {}
 
 Entry::Entry(Level level, const std::string& fileName, int lineNumber)
     : Entry(level)
 {
-    m_attributes["C/C++ file name"] = fileName;
-    m_attributes["C/C++ line number"] = std::to_string(lineNumber);
+    impl->setAttribute("C/C++ file name", fileName);
+    impl->setAttribute("C/C++ line number", std::to_string(lineNumber));
 }
 
 Entry::Entry(Level level, const std::string& fileName, int lineNumber, const std::string& functionName)
     : Entry(level, fileName, lineNumber)
 {
-    m_attributes["C/C++ function name"] = functionName;
+    impl->setAttribute("C/C++ function name", functionName);
 }
 
-bool Entry::hasAttribute(const std::string& name) const
+Entry::~Entry()
 {
-    return m_attributes.cend() != m_attributes.find(name);
+    if (nullptr != impl)
+    {
+        delete impl;
+        impl = nullptr;
+    }
 }
 
-const std::string& Entry::getAttribute(const std::string& name) const
+Entry::Entry(Entry&& other) :
+    impl(other.impl)
 {
-    return m_attributes.find(name)->second;
+    other.impl = nullptr;
 }
 
-std::string Entry::getText() const
+Entry& Entry::operator=(Entry&& other)
 {
-    return m_sink.str();
+    if (this != &other)
+    {
+        impl = other.impl;
+        other.impl = nullptr;
+    }
+    return *this;
 }
 
-Level Entry::getLevel() const
-{
-    return m_level;
-}
+bool Entry::hasAttribute(const std::string& name) const { return impl->hasAttribute(name); }
+
+const std::string& Entry::getAttribute(const std::string& name) const { return impl->getAttribute(name); }
+
+std::string Entry::getText() const { return impl->getText(); }
+
+Level Entry::getLevel() const { return impl->getLevel(); }
 
 Entry& operator<<(Entry& entry, const char *value)
 {
-    entry.m_sink << value;
+    entry.impl->m_sink << value;
     return entry;
 }
 
 Entry& operator<<(Entry& entry, const std::string& value)
 {
-    entry.m_sink << value;
+    entry.impl->m_sink << value;
     return entry;
 }
 
 Entry& operator<<(Entry& entry, char value)
 {
-    entry.m_sink << value;
+    entry.impl->m_sink << value;
     return entry;
 }
 
 Entry& operator<<(Entry& entry, signed char value)
 {
-    entry.m_sink << value;
+    entry.impl->m_sink << value;
     return entry;
 }
 
 Entry& operator<<(Entry& entry, unsigned char value)
 {
-    entry.m_sink << value;
+    entry.impl->m_sink << value;
     return entry;
 }
 
 Entry& operator<<(Entry& entry, signed short value)
 {
-    entry.m_sink << value;
+    entry.impl->m_sink << value;
     return entry;
 }
 
 Entry& operator<<(Entry& entry, unsigned short value)
 {
-    entry.m_sink << value;
+    entry.impl->m_sink << value;
     return entry;
 }
 
 Entry& operator<<(Entry& entry, bool value)
 {
-    entry.m_sink << value;
+    entry.impl->m_sink << value;
     return entry;
 }
 
 Entry& operator<<(Entry& entry, signed int value)
 {
-    entry.m_sink << value;
+    entry.impl->m_sink << value;
     return entry;
 }
 
 Entry& operator<<(Entry& entry, unsigned int value)
 {
-    entry.m_sink << value;
+    entry.impl->m_sink << value;
     return entry;
 }
 
 Entry& operator<<(Entry& entry, signed long value)
 {
-    entry.m_sink << value;
+    entry.impl->m_sink << value;
     return entry;
 }
 
 Entry& operator<<(Entry& entry, unsigned long value)
 {
-    entry.m_sink << value;
+    entry.impl->m_sink << value;
     return entry;
 }
 
 Entry& operator<<(Entry& entry, float value)
 {
-    entry.m_sink << value;
+    entry.impl->m_sink << value;
     return entry;
 }
 
 Entry& operator<<(Entry& entry, double value)
 {
-    entry.m_sink << value;
+    entry.impl->m_sink << value;
     return entry;
 }
 
-Entry& operator<<(Entry& entry, const Manipulations::EndOfLineManipulation& value)
+Entry& operator<<(Entry& entry, const Internal::EndOfLineManipulation& value)
 {
-    entry.m_sink << std::endl;
+    entry.impl->m_sink << std::endl;
     return entry;
 }
 
-Entry& operator<<(Entry& entry, const Manipulations::EndOfEntryManipulation& value)
+Entry& operator<<(Entry& entry, const Internal::EndOfEntryManipulation& value)
 {
-    entry.m_sink << std::endl;
+    entry.impl->m_sink << std::endl;
     return entry;
 }
 
 Entry& operator<<(Entry& entry, signed long long value)
 {
-    entry.m_sink << value;
+    entry.impl->m_sink << value;
     return entry;
 }
 
 Entry& operator<<(Entry& entry, unsigned long long value)
 {
-    entry.m_sink << value;
+    entry.impl->m_sink << value;
     return entry;
 }
 

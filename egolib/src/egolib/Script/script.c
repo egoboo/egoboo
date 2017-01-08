@@ -251,14 +251,14 @@ void scr_run_chr_script(Object *pchr)
         // Was it a function.
         if (script._instructions[script.get_pos()].isInv())
         {
-            if (!script_state_t::run_function_call(my_state, aiState, script))
+            if (!my_state.run_function_call(aiState, script))
             {
                 break;
             }
         }
         else
         {
-            if (!script_state_t::run_operation(my_state, aiState, script))
+            if (!my_state.run_operation(aiState, script))
             {
                 break;
             }
@@ -305,7 +305,7 @@ void scr_run_chr_script(const ObjectRef character)
 }
 
 //--------------------------------------------------------------------------------------------
-bool script_state_t::run_function_call(script_state_t& state, ai_state_t& aiState, script_info_t& script)
+bool script_state_t::run_function_call(ai_state_t& aiState, script_info_t& script)
 {
     Uint8  functionreturn;
 
@@ -313,7 +313,7 @@ bool script_state_t::run_function_call(script_state_t& state, ai_state_t& aiStat
     if (script.get_pos() >= script._instructions.getNumberOfInstructions()) return false;
 
     // Run the function
-    functionreturn = state.run_function(aiState, script);
+    functionreturn = run_function(aiState, script);
 
     // move the execution pointer to the jump code
     script.increment_pos();
@@ -339,7 +339,7 @@ bool script_state_t::run_function_call(script_state_t& state, ai_state_t& aiStat
 
 //--------------------------------------------------------------------------------------------
 /// @todo Merge with caller.
-bool script_state_t::run_operation(script_state_t& state, ai_state_t& aiState, script_info_t& script)
+bool script_state_t::run_operation(ai_state_t& aiState, script_info_t& script)
 {
     // check for valid execution pointer
     if (script.get_pos() >= script._instructions.getNumberOfInstructions()) return false;
@@ -372,19 +372,19 @@ bool script_state_t::run_operation(script_state_t& state, ai_state_t& aiState, s
     auto operand_count = script._instructions[script.get_pos()].getBits();
 
     // Now run the operation
-    state.operationsum = 0;
+    operationsum = 0;
     for (auto i = 0; i < operand_count && script.get_pos() < script._instructions.getNumberOfInstructions(); ++i)
     {
         script.increment_pos();
-        script_state_t::run_operand(state, aiState, script);
+        run_operand(aiState, script);
     }
     if (debug_scripts && debug_script_file)
     {
-        vfs_printf(debug_script_file, " == %d \n", (int)state.operationsum);
+        vfs_printf(debug_script_file, " == %d \n", (int)operationsum);
     }
 
     // Save the results in the register that called the arithmetic
-    state.storeVariable(variableIndex);
+    storeVariable(variableIndex);
 
     // go to the next opcode
     script.increment_pos();
@@ -565,7 +565,7 @@ void script_state_t::onVariableNotDefinedError(uint8_t variableIndex)
     throw RuntimeErrorException(__FILE__, __LINE__, e.getText());
 }
 
-void script_state_t::run_operand(script_state_t& state, ai_state_t& aiState, script_info_t& script)
+void script_state_t::run_operand(ai_state_t& aiState, script_info_t& script)
 {
     /// @author ZZ
     /// @details This function does the scripted arithmetic in OPERATOR, OPERAND pscriptrs
@@ -610,7 +610,7 @@ void script_state_t::run_operand(script_state_t& state, ai_state_t& aiState, scr
         auto variableIndex = constant.getAsInteger();
         varname = getVariableName(variableIndex);
         auto pleader = _currentModule->getTeamList()[pobject->team].getLeader();
-        iTmp = state.loadVariable(variableIndex, aiState, pobject, ptarget, powner, pleader.get());
+        iTmp = loadVariable(variableIndex, aiState, pobject, ptarget, powner, pleader.get());
     }
 
     // Now do the math
@@ -619,44 +619,45 @@ void script_state_t::run_operand(script_state_t& state, ai_state_t& aiState, scr
     {
         case OPADD:
             op = "ADD";
-            state.operationsum = int(state.operationsum) + iTmp;
+            operationsum = int(operationsum) + iTmp;
             break;
 
         case OPSUB:
             op = "SUB";
-            state.operationsum = int(state.operationsum) - iTmp;
+            operationsum = int(operationsum) - iTmp;
             break;
 
         case OPAND:
             op = "AND";
-            state.operationsum = int(state.operationsum) & iTmp;
+            operationsum = int(operationsum) & iTmp;
             break;
 
         case OPSHR:
             op = "SHR";
-            state.operationsum = int(state.operationsum) >> iTmp;
+            operationsum = int(operationsum) >> iTmp;
             break;
 
         case OPSHL:
             op = "SHL";
-            state.operationsum = int(state.operationsum) << iTmp;
+            operationsum = int(operationsum) << iTmp;
             break;
 
         case OPMUL:
             op = "MUL";
-            state.operationsum = int(state.operationsum) * iTmp;
+            operationsum = int(operationsum) * iTmp;
             break;
 
         case OPDIV:
             op = "DIV";
             if (iTmp != 0)
             {
-                state.operationsum = static_cast<float>(state.operationsum) / iTmp;
+                operationsum = static_cast<float>(operationsum) / iTmp;
             }
             else
             {
-                Log::get().message("%s:%d:%s: script error - model == %d, class name == \"%s\" - Cannot divide by zero!\n", \
-                                   __FILE__, __LINE__, __FUNCTION__, REF_TO_INT(script_error_model), script_error_classname);
+                Log::get() << Log::Entry::create(Log::Level::Message, __FILE__, __LINE__, "script error - model = ",
+                                                 REF_TO_INT(script_error_model), " class name == `", script_error_classname,
+                                                 "`: divide by zero", Log::EndOfEntry);
             }
             break;
 
@@ -664,18 +665,20 @@ void script_state_t::run_operand(script_state_t& state, ai_state_t& aiState, scr
             op = "MOD";
             if (iTmp != 0)
             {
-                state.operationsum = int(state.operationsum) % iTmp;
+                operationsum = int(operationsum) % iTmp;
             }
             else
             {
-                Log::get().message("%s:%d:%s: script error - model == %d, class name == \"%s\" - Cannot modulo by zero!\n", \
-                                   __FILE__, __LINE__, __FUNCTION__, REF_TO_INT(script_error_model), script_error_classname);
+                Log::get() << Log::Entry::create(Log::Level::Message, __FILE__, __LINE__, "script error - model = ",
+                                                 REF_TO_INT(script_error_model), " class name == `", script_error_classname,
+                                                 "`: modulo by zero", Log::EndOfEntry);
             }
             break;
 
         default:
-            Log::get().message("%s:%d:%s: script error - model == %d, class name == \"%s\" - unknown op\n", \
-                               __FILE__, __LINE__, __FUNCTION__, REF_TO_INT(script_error_model), script_error_classname);
+            Log::get() << Log::Entry::create(Log::Level::Message, __FILE__, __LINE__, "script error - model = ",
+                                             REF_TO_INT(script_error_model), " class name == `", script_error_classname,
+                                             "`: unknown opcode", Log::EndOfEntry);
             break;
     }
 

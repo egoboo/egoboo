@@ -104,7 +104,8 @@ Border::Border(Size2i size)
 
 void Border::loadTexture(const std::string& textureFileName) {
     if (!texture->load(textureFileName, gfx_loadImage(textureFileName))) {
-        Log::get().warn("unable to load texture \"%s\".\n", textureFileName.c_str());
+        Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to load texture ",
+                                         "`", textureFileName, "`", Log::EndOfEntry);
     }
 }
 

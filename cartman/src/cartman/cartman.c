@@ -1823,9 +1823,7 @@ int SDL_main( int argcnt, char* argtext[] )
     // Load the module
     if (!load_module(modulename, &mesh))
     {
-		std::ostringstream os;
-		os << __FUNCTION__ << ": cannot load module `" << modulename << "`" << std::endl;
-		Log::get().error("%s", os.str().c_str());
+		Log::get() << Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "unable to load module ", "`", modulename, "`", Log::EndOfEntry);
 		return EXIT_FAILURE;
     }
 

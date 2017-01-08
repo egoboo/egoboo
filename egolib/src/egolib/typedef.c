@@ -31,11 +31,13 @@ Ego::Math::Interval<float> pair_to_range(const IPair& source) {
     /// @details convert from a pair to a range
 
     if (source.base < 0) {
-        Log::get().warn("We got a randomization error again! (Base is less than 0)\n");
+        Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "randomization error - base ",
+                                         source.base, " is less than 0", Log::EndOfEntry);
     }
 
     if (source.rand < 0) {
-        Log::get().warn("We got a randomization error again! (rand is less than 0)\n");
+        Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "randomization error - rand ",
+                                         source.rand, " is less than 0", Log::EndOfEntry);
     }
 
     float a = FP8_TO_FLOAT(source.base);
@@ -50,3 +52,29 @@ IPair range_to_pair(const Ego::Math::Interval<float>& source) {
     float b = source.getUpperbound() - source.getLowerbound();
     return IPair(FLOAT_TO_FP8(a), FLOAT_TO_FP8(b));
 }
+
+Log::Entry& operator<<(Log::Entry& entry, const ObjectRef& ref)
+{
+    entry << ref.get();
+    return entry;
+}
+
+Log::Entry& operator<<(Log::Entry& entry, const ObjectProfileRef& ref)
+{
+    entry << ref.get();
+    return entry;
+}
+
+
+Log::Entry& operator<<(Log::Entry& entry, const ParticleProfileRef& ref)
+{
+    entry << ref.get();
+    return entry;
+}
+
+Log::Entry& operator<<(Log::Entry& entry, const ParticleRef& ref)
+{
+    entry << ref.get();
+    return entry;
+}
+

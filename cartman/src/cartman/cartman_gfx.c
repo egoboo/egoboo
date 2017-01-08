@@ -951,7 +951,7 @@ SDL_Surface *cartman_LoadIMG(const std::string& name)
     SDL_Surface *originalImage = IMG_Load_RW(vfs_openRWopsRead(name), 1);
     if (!originalImage)
     {
-		Log::get().error("unable to load image `%s` - reason `%s`\n", name.c_str(), IMG_GetError());
+		Log::get() << Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "unable to load image `", name, "` - reason: ", IMG_GetError(), Log::EndOfEntry);
         return nullptr;
     }
 
@@ -960,7 +960,7 @@ SDL_Surface *cartman_LoadIMG(const std::string& name)
     SDL_FreeSurface(originalImage);
     if (!convertedImage)
     {
-		Log::get().error("unable to convert image `%s`\n", name.c_str());
+		Log::get() << Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "unable to convert image `", name, "`", Log::EndOfEntry);
 		return nullptr;
     }
 
@@ -1069,64 +1069,86 @@ void cartman_end_ortho_camera()
 //--------------------------------------------------------------------------------------------
 void load_img()
 {
+    std::string fileName;
+
+    fileName = "editor/point.png";
     Resources::get().tx_point = std::make_shared<Ego::OpenGL::Texture>();
-    if (!Resources::get().tx_point->load("editor/point.png", gfx_loadImage("editor/point.png")))
+    if (!Resources::get().tx_point->load(fileName, gfx_loadImage(fileName)))
     {
-		Log::get().warn( "Cannot load image \"%s\".\n", "editor/point.png" );
+        Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to load image ",
+                                         "`", fileName, "`", Log::EndOfEntry);
     }
     
+    fileName = "editor/pointon.png";
     Resources::get().tx_pointon = std::make_shared<Ego::OpenGL::Texture>();
-    if (!Resources::get().tx_pointon->load("editor/pointon.png", gfx_loadImage("editor/pointon.png")))
+    if (!Resources::get().tx_pointon->load(fileName, gfx_loadImage(fileName)))
     {
-		Log::get().warn( "Cannot load image \"%s\".\n", "editor/pointon.png" );
+		Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to load image ",
+                                         "`", fileName, "`", Log::EndOfEntry );
     }
     
+    fileName = "editor/ref.png";
     Resources::get().tx_ref = std::make_shared<Ego::OpenGL::Texture>();
-    if (!Resources::get().tx_ref->load("editor/ref.png", gfx_loadImage("editor/ref.png")))
+    if (!Resources::get().tx_ref->load(fileName, gfx_loadImage(fileName)))
     {
-		Log::get().warn( "Cannot load image \"%s\".\n", "editor/ref.png" );
+		Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to load image ",
+                                         "`", fileName, "`", Log::EndOfEntry );
     }
     
+    fileName = "editor/drawref.png";
     Resources::get().tx_drawref = std::make_shared<Ego::OpenGL::Texture>();
-    if (!Resources::get().tx_drawref->load("editor/drawref.png", gfx_loadImage("editor/drawref.png")))
+    if (!Resources::get().tx_drawref->load(fileName, gfx_loadImage(fileName)))
     {
-		Log::get().warn( "Cannot load image \"%s\".\n", "editor/drawref.png" );
+		Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to load image ",
+                                         "`", fileName, "`", Log::EndOfEntry );
     }
     
+    fileName = "editor/anim.png";
     Resources::get().tx_anim = std::make_shared<Ego::OpenGL::Texture>();
-    if (!Resources::get().tx_anim->load("editor/anim.png", gfx_loadImage("editor/anim.png")))
+    if (!Resources::get().tx_anim->load(fileName, gfx_loadImage(fileName)))
     {
-		Log::get().warn( "Cannot load image \"%s\".\n", "editor/anim.png" );
+		Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to load image ",
+                                         "`", fileName, "`", Log::EndOfEntry);
     }
     
+    fileName = "editor/water.png";
     Resources::get().tx_water = std::make_shared<Ego::OpenGL::Texture>();
-    if (!Resources::get().tx_water->load("editor/water.png", gfx_loadImage("editor/water.png")))
+    if (!Resources::get().tx_water->load(fileName, gfx_loadImage(fileName)))
     {
-		Log::get().warn( "Cannot load image \"%s\".\n", "editor/water.png" );
+		Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to load image ",
+                                         "`", fileName, "`", Log::EndOfEntry);
     }
     
+    fileName = "editor/slit.png";
     Resources::get().tx_wall = std::make_shared<Ego::OpenGL::Texture>();
-    if (!Resources::get().tx_wall->load("editor/slit.png", gfx_loadImage("editor/slit.png")))
+    if (!Resources::get().tx_wall->load(fileName, gfx_loadImage(fileName)))
     {
-		Log::get().warn( "Cannot load image \"%s\".\n", "editor/slit.png" );
+        Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to load image ",
+                                         "`", fileName, "`", Log::EndOfEntry);
     }
     
+    fileName = "editor/impass.png";
     Resources::get().tx_impass = std::make_shared<Ego::OpenGL::Texture>();
-    if (!Resources::get().tx_impass->load("editor/impass.png", gfx_loadImage("editor/impass.png")))
+    if (!Resources::get().tx_impass->load(fileName, gfx_loadImage(fileName)))
     {
-		Log::get().warn( "Cannot load image \"%s\".\n", "editor/impass.png" );
+        Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to load image ",
+                                         "`", fileName, "`", Log::EndOfEntry);
     }
     
+    fileName = "editor/damage.png";
     Resources::get().tx_damage = std::make_shared<Ego::OpenGL::Texture>();
-    if (!Resources::get().tx_damage->load("editor/damage.png", gfx_loadImage("editor/damage.png")))
+    if (!Resources::get().tx_damage->load(fileName, gfx_loadImage(fileName)))
     {
-		Log::get().warn( "Cannot load image \"%s\".\n", "editor/damage.png" );
+        Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to load image ",
+                                         "`", fileName, "`", Log::EndOfEntry);
     }
     
+    fileName = "editor/slippy.png";
     Resources::get().tx_slippy = std::make_shared<Ego::OpenGL::Texture>();
-    if (!Resources::get().tx_slippy->load("editor/slippy.png", gfx_loadImage("editor/slippy.png")))
+    if (!Resources::get().tx_slippy->load(fileName, gfx_loadImage(fileName)))
     {
-		Log::get().warn( "Cannot load image \"%s\".\n", "editor/slippy.png" );
+        Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to load image ",
+                                         "`", fileName, "`", Log::EndOfEntry);
     }
 }
 

@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file   IdLib/Target.hpp
-/// @brief  Target platform detection.
+/// @file IdLib/Target.hpp
+/// @brief Target platform detection.
 /// @author Michael Heilmann
 
 /**
@@ -64,119 +64,119 @@
 #error(do not include directly, include `IdLib/IdLib.hpp` instead)
 #endif
 
-/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-// "defining any of those constants to a value not equal to @a 1, will result in a compile-time error"
+ /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+ // "defining any of those constants to a value not equal to @a 1, will result in a compile-time error"
 
 #if defined(ID_LINUX)
-    #if ID_LINUX != 1
-        #error ID_LINUX must be defined to 1 or must not be defined
-    #endif
+#if ID_LINUX != 1
+#error ID_LINUX must be defined to 1 or must not be defined
+#endif
 #endif
 
 #if defined(ID_OSX)
-    #if ID_OSX != 1
-        #error ID_OSX must be defined to 1 or must not be defined
-    #endif
+#if ID_OSX != 1
+#error ID_OSX must be defined to 1 or must not be defined
+#endif
 #endif
 
 #if defined (ID_WINDOWS)
-    #if ID_WINDOWS != 1
-        #error ID_WINDOWS must be defined to 1 or must not be defined
-    #endif
+#if ID_WINDOWS != 1
+#error ID_WINDOWS must be defined to 1 or must not be defined
+#endif
 #endif
 
 #if defined(ID_IOSSIMULATOR)
-    #if ID_IOSSIMULATOR != 1
-        #error ID_IOSSIMULATOR must be defined to 1 or must not be defined
-    #endif
+#if ID_IOSSIMULATOR != 1
+#error ID_IOSSIMULATOR must be defined to 1 or must not be defined
+#endif
 #endif
 
 #if defined(ID_IOS)
-    #if ID_IOS != 1
-        #error ID_IOS must be defined to 1 or must not be defined
-    #endif
+#if ID_IOS != 1
+#error ID_IOS must be defined to 1 or must not be defined
+#endif
 #endif
 
 #if defined (ID_MINGW32)
-    #if ID_MINGW32 != 1
-        #error ID_MINGW32 must be defined to 1 or must not be defined
-    #endif 
+#if ID_MINGW32 != 1
+#error ID_MINGW32 must be defined to 1 or must not be defined
+#endif 
 #endif
 
 #if defined (ID_MINGW64)
-    #if ID_MINGW64 != 1
-        #error ID_MINGW64 must be defined to 1 or must not be defined
-    #endif 
+#if ID_MINGW64 != 1
+#error ID_MINGW64 must be defined to 1 or must not be defined
+#endif 
 #endif
 
 #if defined (ID_MINGW)
-    #if ID_MINGW != 1
-        #error ID_MINGW must be defined to 1 or must not be defined
-    #endif 
+#if ID_MINGW != 1
+#error ID_MINGW must be defined to 1 or must not be defined
+#endif 
 #endif
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 // "defining multiple constants, will result in a compile-time error"
 
 #if defined(ID_LINUX)
-    #if defined (DEFINED)
-        #error more than one platform target specified
-    #else
-        #undef DEFINED
-        #define DEFINED 1
-    #endif
+#if defined (DEFINED)
+#error more than one platform target specified
+#else
+#undef DEFINED
+#define DEFINED 1
+#endif
 #endif
 
 #if defined(ID_OSX)
-    #if defined (DEFINED)
-        #error more than one platform target specified
-    #else
-        #undef DEFINED
-        #define DEFINED 1
-    #endif
+#if defined (DEFINED)
+#error more than one platform target specified
+#else
+#undef DEFINED
+#define DEFINED 1
+#endif
 #endif
 
 #if defined (ID_WINDOWS)
-    #if defined (DEFINED)
-        #error more than one platform target specified
-    #else
-        #undef DEFINED
-        #define DEFINED 1
-    #endif
+#if defined (DEFINED)
+#error more than one platform target specified
+#else
+#undef DEFINED
+#define DEFINED 1
+#endif
 #endif
 
 #if defined(ID_IOSSIMULATOR)
-    #if defined (DEFINED)
-        #error more than one platform target specified
-    #else
-        #undef DEFINED
-        #define DEFINED 1
-    #endif
+#if defined (DEFINED)
+#error more than one platform target specified
+#else
+#undef DEFINED
+#define DEFINED 1
+#endif
 #endif
 
 #if defined(ID_IOS)
-    #if defined (DEFINED)
-        #error more than one platform target specified
-    #else
-        #undef DEFINED
-        #define DEFINED 1
-    #endif
+#if defined (DEFINED)
+#error more than one platform target specified
+#else
+#undef DEFINED
+#define DEFINED 1
+#endif
 #endif
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 #if defined (ID_MINGW64) || defined(ID_MINGW32)
-    #if !defined(ID_WINDOWS)
-        #error ID_MING64 or ID_MINGW32 can not be defined without ID_WINDOWS being defined
-    #endif
-    #if defined (ID_MING64) && defined (ID_MINGW32)
-        #error either ID_MINGW64 or ID_MINGW32 may be defined, not both
-    #endif
+#if !defined(ID_WINDOWS)
+#error ID_MING64 or ID_MINGW32 can not be defined without ID_WINDOWS being defined
+#endif
+#if defined (ID_MING64) && defined (ID_MINGW32)
+#error either ID_MINGW64 or ID_MINGW32 may be defined, not both
+#endif
 #endif
 
 #if defined (ID_MINGW)
-    #if !defined(ID_MINGW32) && !defined(ID_MINGW64)
-        #error if ID_MINGW is defined, then either ID_MINGW64 or ID_MINGW32 must be defined
-    #endif
+#if !defined(ID_MINGW32) && !defined(ID_MINGW64)
+#error if ID_MINGW is defined, then either ID_MINGW64 or ID_MINGW32 must be defined
+#endif
 #endif
 
 
@@ -192,62 +192,62 @@
      *  if the target platform was detected as "windows", otherwise
      *  it is not defined.
      */
-    #define ID_WINDOWS (1)
-    #if defined(__MINGW64__)
-        #define ID_MINGW64 (1)
-    #elif defined (__MINGW32__)
-        #define ID_MINGW32 (1)
-    #endif
+#define ID_WINDOWS (1)
+#if defined(__MINGW64__)
+#define ID_MINGW64 (1)
+#elif defined (__MINGW32__)
+#define ID_MINGW32 (1)
+#endif
 
-     #if defined(ID_MINGW64) || defined(ID_MINGW32)
-        #define ID_MINGW (1)
-     #endif
+#if defined(ID_MINGW64) || defined(ID_MINGW32)
+#define ID_MINGW (1)
+#endif
 #endif
 
 #if defined(__APPLE__) && defined (__MACH__)
-    // Apple ISX and iOS (Darwin)
-    #include <TargetConditionals.h>
-    #if TARGET_IPHONE_SIMULATOR == 1
-        // iOS in Xcode simulator
-        #define ID_IOSSIMULATOR (1)
-        #error iOS in Xcode simulator not yet supported
-    #elif TARGET_OS_IPHONE == 1
-        // iOS on iPhone, iPad, etc.
-        #define ID_IOS (1)
-        #error iOS on iPhone, iPad, etc. not yet supported
-    #elif TARGET_OS_MAC == 1
-        /**
-         * @brief
-         *  This preprocessor constant ID_MACOSX is defined to @a 1
-         *  if the target platform was detected as "Mac OSX", otherwise
-         *  it is not defined.
-         */
-        #define ID_OSX (1)
-    #endif
+     // Apple ISX and iOS (Darwin)
+#include <TargetConditionals.h>
+#if TARGET_IPHONE_SIMULATOR == 1
+    // iOS in Xcode simulator
+#define ID_IOSSIMULATOR (1)
+#error iOS in Xcode simulator not yet supported
+#elif TARGET_OS_IPHONE == 1
+    // iOS on iPhone, iPad, etc.
+#define ID_IOS (1)
+#error iOS on iPhone, iPad, etc. not yet supported
+#elif TARGET_OS_MAC == 1
+    /**
+     * @brief
+     *  This preprocessor constant ID_MACOSX is defined to @a 1
+     *  if the target platform was detected as "Mac OSX", otherwise
+     *  it is not defined.
+     */
+#define ID_OSX (1)
+#endif
 #endif
 
 #if defined(__unix__) || defined(__unix) || defined(unix)
-    #define ID_LINUX (1)
+#define ID_LINUX (1)
 #elif defined(__linux__) || defined(__linux) || defined(linux)
-    #define ID_LINUX (1)
+#define ID_LINUX (1)
 #elif defined(__gnu_linux)
-    #define ID_LINUX (1)
+#define ID_LINUX (1)
 #endif
 
 #if !defined(ID_WINDOWS) && !defined(ID_LINUX) && !defined(ID_OSX) && !defined(ID_IOS) && !defined(ID_IOSSIMULATOR)
-    #error target platform not detected
+#error target platform not detected
 #endif
 
 #if !defined(ID_WINDOWS) && (defined(ID_LINUX) || defined(ID_OSX) || defined(ID_IOS) || defined(ID_IOSSIMULATOR))
-    // We have an UNIX-style OS.
-    #define ID_UNIX 1 
-    // See <a>http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/unistd.h.html</a>.
-    #include <unistd.h>
-    
-    #if defined(_POSIX_VERSION)
-        // And in addition a POSIX-style OS.
-        #define ID_POSIX (1)
-    #endif
+     // We have an UNIX-style OS.
+#define ID_UNIX 1 
+// See <a>http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/unistd.h.html</a>.
+#include <unistd.h>
+
+#if defined(_POSIX_VERSION)
+    // And in addition a POSIX-style OS.
+#define ID_POSIX (1)
+#endif
 #endif
 
 #endif

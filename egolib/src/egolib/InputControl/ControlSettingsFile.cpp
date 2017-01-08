@@ -69,7 +69,7 @@ bool input_settings_save_vfs( const char* szFilename )
     vfs_FILE* filewrite = vfs_openWrite( szFilename );
     if ( NULL == filewrite )
     {
-        Log::get().warn( "Could not save input settings (%s)!\n", szFilename );
+        Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to save input settings to file ", "`", szFilename, "`", Log::EndOfEntry);
         return false;
     }
 

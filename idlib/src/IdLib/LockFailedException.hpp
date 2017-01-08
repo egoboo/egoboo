@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file   idlib/LockFailedException.hpp
-/// @brief  Definition of an exception indicating that locking failed
+/// @file IdLib/LockFailedException.hpp
+/// @brief Definition of an exception indicating that locking failed.
 /// @author Michael Heilmann
 
 #pragma once
@@ -33,12 +33,7 @@ namespace Id {
 
 using namespace std;
 
-/**
- * @brief
- *  An lock failure exception.
- * @author
- *  Michael Heilmann
- */
+/// @brief An lock failure exception.
 class LockFailedException : public Exception {
 
 public:

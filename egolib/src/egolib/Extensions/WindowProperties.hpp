@@ -34,20 +34,16 @@ struct WindowProperties {
     unsigned highdpi : 1;
 
 public:
-    /**
-     * @brief Construct these window properties with "reasonable" default values.
-     */
+    /// @brief Construct these window properties with "reasonable" default values.
     WindowProperties();
-    /**
-     * @brief Copy-construct these window properties.
-     * @param other the other window properties
-     */
+
+    /// @brief Copy-construct these window properties.
+    /// @param other the other window properties
     WindowProperties(const WindowProperties& other);
-    /**
-     * @brief Assign this window flags.
-     * @param other the other window flags
-     * @return this window flags
-     */
+
+    /// @brief Assign this window flags.
+    /// @param other the other window flags
+    /// @return this window flags
     const WindowProperties& operator=(const WindowProperties& other);
    
 public:

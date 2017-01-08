@@ -454,7 +454,7 @@ PDLToken line_scanner_state_t::scanStringOrReference()
     }
     else /* if (isNewline() || isEndOfInput()) */
     {
-        throw LexicalErrorException(__FILE__, __LINE__, getLocation(), "unclosed string literal");
+        throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, getLocation(), "unclosed string literal");
     }
     auto endLocation = getLocation();
     emit(isReference ? PDLTokenKind::ReferenceLiteral : PDLTokenKind::StringLiteral,
@@ -475,13 +475,13 @@ PDLToken line_scanner_state_t::scanIDSZ()
     {
         if (!isDigit() && !isAlphabetic())
         {
-            throw LexicalErrorException(__FILE__, __LINE__, getLocation(), "invalid IDSZ");
+            throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, getLocation(), "invalid IDSZ");
         }
         saveAndNext();
     }
     if (!is(']'))
     {
-        throw LexicalErrorException(__FILE__, __LINE__, getLocation(), "invalid IDSZ");
+        throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, getLocation(), "invalid IDSZ");
     }
     saveAndNext();
     auto endLocation = getLocation();
@@ -625,7 +625,7 @@ PDLToken parser_state_t::parse_token(ObjectProfile *ppro, script_info_t& script,
             }
 
             // Do we need to load the object?
-            if (!ProfileSystem::get().isValidProfileID((PRO_REF)token.getValue()))
+            if (!ProfileSystem::get().isLoaded((PRO_REF)token.getValue()))
             {
                 auto loadName = "mp_objects/" + token.getLexeme();
 
@@ -633,7 +633,7 @@ PDLToken parser_state_t::parse_token(ObjectProfile *ppro, script_info_t& script,
                 for (PRO_REF ipro = MAX_IMPORT_PER_PLAYER * 4; ipro < INVALID_PRO_REF; ipro++)
                 {
                     //skip loaded profiles
-                    if (ProfileSystem::get().isValidProfileID(ipro)) continue;
+                    if (ProfileSystem::get().isLoaded(ipro)) continue;
 
                     //found a free slot
                     token.setValue(ProfileSystem::get().loadOneProfile(loadName, REF_TO_INT(ipro)));
@@ -642,7 +642,7 @@ PDLToken parser_state_t::parse_token(ObjectProfile *ppro, script_info_t& script,
             }
 
             // Failed to load object!
-            if (!ProfileSystem::get().isValidProfileID((PRO_REF)token.getValue()))
+            if (!ProfileSystem::get().isLoaded((PRO_REF)token.getValue()))
             {
                 CLogEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, token.getStartLocation());
                 e << "failed to load object " << token.getLexeme() << " - \n"
@@ -697,13 +697,13 @@ PDLToken parser_state_t::parse_token(ObjectProfile *ppro, script_info_t& script,
         // We couldn't figure out what this is, throw out an error code
         if (it == Opcodes.cend())
         {
-            throw LexicalErrorException(__FILE__, __LINE__, state.getLocation(), "not an opcode");
+            throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, state.getLocation(), "not an opcode");
         }
         token.setValue((*it).iValue);
         token.setKind((*it)._kind);
         return token;
     } else {
-        throw LexicalErrorException(__FILE__, __LINE__, state.getLocation(), "unexpected symbol");
+        throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, state.getLocation(), "unexpected symbol");
     }
 }
 
@@ -733,7 +733,7 @@ void parser_state_t::emit_opcode(const PDLToken& token, const BIT_FIELD highbits
     else
     {
         /** @todo This is not an error of the syntactical analysis. */
-        throw SyntacticalErrorException(__FILE__, __LINE__, token.getStartLocation(), "unsupported token");
+        throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Syntactical, token.getStartLocation(), "unsupported token");
     }
 }
 
@@ -766,7 +766,7 @@ void parser_state_t::raise(bool raiseException, Log::Level level, const PDLToken
     Log::get() << e;
     if (raiseException)
     {
-        throw SyntacticalErrorException(__FILE__, __LINE__, received.getStartLocation(), e.getText());
+        throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Syntactical, received.getStartLocation(), e.getText());
     }
 }
 

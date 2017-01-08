@@ -26,6 +26,7 @@
 // this include must be the absolute last include
 #include "egolib/egolib_config.h"
 #include "egolib/Debug.hpp"
+#include "egolib/Log/_Include.hpp"
 
 //--------------------------------------------------------------------------------------------
 // place the definition of the lambda operator in a macro
@@ -205,74 +206,79 @@ enum DamageModifier : uint8_t
 
 #include "egolib/Ref.hpp"
 
-using ObjectRef = Ref<size_t, std::numeric_limits<size_t>::min(), std::numeric_limits<size_t>::max(), std::numeric_limits<size_t>::max(), RefKind::Object>;
+using ObjectRef = Ref<size_t, std::numeric_limits<size_t>::min(), std::numeric_limits<size_t>::max(), RefKind::Object>;
 namespace std {
     template <>
     struct hash<ObjectRef> {
         size_t operator()(const ObjectRef& x) const {
-            return hash<ObjectRef::Type>()(x.get());
+            return hash<ObjectRef::ValueType>()(x.get());
         }
     };
 }
+Log::Entry& operator<<(Log::Entry& entry, const ObjectRef& ref);
 
 DECLARE_REF(TEAM_REF);
 
-using EnchantProfileRef = Ref<REF_T, 0, ENCHANTPROFILES_MAX, ENCHANTPROFILES_MAX, RefKind::EnchantProfile>;
+using EnchantProfileRef = Ref<REF_T, 0, ENCHANTPROFILES_MAX, RefKind::EnchantProfile>;
 DECLARE_REF(EVE_REF);
-#define INVALID_EVE_REF ((EVE_REF)ENCHANTPROFILES_MAX)
+#define INVALID_EVE_REF (EnchantProfileRef::InvalidValue)
 namespace std {
 template <>
 struct hash<EnchantProfileRef> {
     size_t operator()(const EnchantProfileRef& x) const {
-        return hash<EnchantProfileRef::Type>()(x.get());
+        return hash<EnchantProfileRef::ValueType>()(x.get());
     }
 };
 }
 
 
-using EnchantRef = Ref<REF_T, 0, ENCHANTS_MAX, ENCHANTS_MAX, RefKind::Enchant>;
+using EnchantRef = Ref<REF_T, 0, ENCHANTS_MAX, RefKind::Enchant>;
 DECLARE_REF(ENC_REF);
 
-using PlayerRef = Ref<REF_T, 0, MAX_PLAYER, MAX_PLAYER, RefKind::Player>;
+using PlayerRef = Ref<REF_T, 0, MAX_PLAYER, RefKind::Player>;
 DECLARE_REF(PLA_REF);
-#define INVALID_PLA_REF ((PLA_REF)MAX_PLAYER)
+#define INVALID_PLA_REF (PlayerRef::InvalidValue)
 
-using ParticleProfileRef = Ref<REF_T, 0, MAX_PIP, MAX_PIP, RefKind::ParticleProfile>;
+using ParticleProfileRef = Ref<REF_T, 0, MAX_PIP, RefKind::ParticleProfile>;
 DECLARE_REF(PIP_REF);
-#define INVALID_PIP_REF ((PIP_REF)MAX_PIP)
+#define INVALID_PIP_REF (ParticleProfileRef::InvalidValue)
 namespace std {
 template <>
 struct hash<ParticleProfileRef> {
     size_t operator()(const ParticleProfileRef& x) const {
-        return hash<ParticleProfileRef::Type>()(x.get());
+        return hash<ParticleProfileRef::ValueType>()(x.get());
     }
 };
 }
+Log::Entry& operator<<(Log::Entry& entry, const ParticleProfileRef& ref);
 
-using ParticleRef = Ref<size_t, std::numeric_limits<size_t>::min(), std::numeric_limits<size_t>::max(), std::numeric_limits<size_t>::max(), RefKind::Particle>;
+using ParticleRef = Ref<size_t, std::numeric_limits<size_t>::min(), std::numeric_limits<size_t>::max(), RefKind::Particle>;
 namespace std {
     template <>
     struct hash<ParticleRef> {
         size_t operator()(const ParticleRef& x) const {
-            return hash<ParticleRef::Type>()(x.get());
+            return hash<ParticleRef::ValueType>()(x.get());
         }
     };
 }
+Log::Entry& operator<<(Log::Entry& entry, const ParticleRef& ref);
 
 DECLARE_REF(PASS_REF);
 
-using ObjectProfileRef = Ref<REF_T, 0, OBJECTPROFILES_MAX, OBJECTPROFILES_MAX, RefKind::ObjectProfile>;
+using ObjectProfileRef = Ref<REF_T, 0, OBJECTPROFILES_MAX, RefKind::ObjectProfile>;
 namespace std {
     template <>
     struct hash<ObjectProfileRef> {
         size_t operator()(const ObjectProfileRef& x) const {
-            return hash<ObjectProfileRef::Type>()(x.get());
+            return hash<ObjectProfileRef::ValueType>()(x.get());
         }
     };
 }
-DECLARE_REF(PRO_REF);
-#define INVALID_PRO_REF ((PRO_REF)OBJECTPROFILES_MAX)
+Log::Entry& operator<<(Log::Entry& entry, const ObjectProfileRef& ref);
 
-using TextureRef = Ref<REF_T, 0, TEXTURES_MAX, TEXTURES_MAX, RefKind::Texture>;
+DECLARE_REF(PRO_REF);
+#define INVALID_PRO_REF (ObjectProfileRef::InvalidValue)
+
+using TextureRef = Ref<REF_T, 0, TEXTURES_MAX, RefKind::Texture>;
 DECLARE_REF(TX_REF);
 

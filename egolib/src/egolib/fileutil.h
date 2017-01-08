@@ -91,7 +91,7 @@ public:
         auto it = enumDescriptor.find(name);
         if (it == enumDescriptor.end())
         {
-            throw LexicalErrorException(__FILE__,__LINE__,Location(getFileName(), getLineNumber()), "invalid enum");
+            throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()), "invalid enum");
         }
         return it->second;
     }
@@ -114,8 +114,8 @@ public:
         auto it = enumDescriptor.find(name);
         if (it == enumDescriptor.end())
         {
-			Log::get().warn("%s:%d: in file `%s`: `%s` is not an element of enum `%s`\n", __FILE__, __LINE__,
-                            getFileName().c_str(), name.c_str(), enumDescriptor.getName().c_str());
+            Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "in file ", "`", getFileName(), "`", ":", "`", name, "`",
+                                             " is not an element of enum ", "`", enumDescriptor.getName(), "`", Log::EndOfEntry);
             return defaultValue;
         }
         return it->second;

@@ -158,7 +158,7 @@ void map_generate_fan_type_data( map_t& mesh )
 	try {
 		ary = new Uint8[mesh._mem.tiles.size()];
 	} catch (...) {
-		Log::get().warn("%s - unable to allocate a temporary array.\n", __FUNCTION__);
+		Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to allocate a temporary array", Log::EndOfEntry);
 		throw;
 	}
 
