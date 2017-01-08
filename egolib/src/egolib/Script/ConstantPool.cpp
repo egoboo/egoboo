@@ -16,9 +16,9 @@ ConstantPool::ConstantPool(ConstantPool&& other)
 
 ConstantPool& ConstantPool::operator=(const ConstantPool& other)
 {
-    auto temporary = (*this); // Make a normal copy of the source. If this fails,
-                              // then there the state of neither the source nor
-                              // the target was changed.
+    auto temporary = other; // Make a normal copy of the source. If this fails,
+                            // then there the state of neither the source nor
+                            // the target was changed.
     (*this) = std::move(temporary);
     return *this;
 }
