@@ -85,10 +85,10 @@ struct GraphicsWindow;
 //--------------------------------------------------------------------------------------------
 
 /// Grab the current SDL screen information
-    bool      SDLX_Get_Screen_Info( SDLX_screen_info_t& psi, bool display );
+    bool      SDLX_Get_Screen_Info( SDLX_screen_info_t& psi );
 
 /// Use a SDLX_video_parameters_t structure to create window
-    Ego::GraphicsWindow *SDLX_CreateWindow( SDLX_video_parameters_t& v, bool make_report );
+    Ego::GraphicsWindow *SDLX_CreateWindow( SDLX_video_parameters_t& v );
 
 /// Use a SDLX_video_parameters_t structure to try to set a SDL video mode directly
 /// on success, it returns a pointer to the actual data used to set the mode. On failure,
@@ -96,4 +96,4 @@ struct GraphicsWindow;
     bool SDLX_set_mode( SDLX_video_parameters_t& v_new );
 
 /// Dump the info on the given surface to whatever FILE SDL_extensions is using for stdout
-    void   SDLX_report_mode( Ego::GraphicsWindow * surface, SDLX_video_parameters_t& v );
+    void   SDLX_report_mode( SDLX_video_parameters_t& v );

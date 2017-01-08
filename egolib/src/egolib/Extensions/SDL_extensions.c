@@ -34,12 +34,9 @@
 #endif
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 
 SDLX_screen_info_t sdl_scr;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 Log::Entry& operator<<(Log::Entry& e, const SDLX_screen_info_t& s)
 {
     e << "SDL video driver = " << s.szDriver.c_str() << Log::EndOfLine;
@@ -58,31 +55,26 @@ Log::Entry& operator<<(Log::Entry& e, const SDLX_screen_info_t& s)
     return e;
 }
 
-//--------------------------------------------------------------------------------------------
-bool SDLX_Get_Screen_Info( SDLX_screen_info_t& psi, bool make_report )
+bool SDLX_Get_Screen_Info( SDLX_screen_info_t& psi )
 {
     Uint32 init_flags = 0;
 
     init_flags = SDL_WasInit( SDL_INIT_EVERYTHING );
     if ( 0 == init_flags )
     {
-        if ( make_report ) Log::get() << Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "SDL not initialized", Log::EndOfEntry);
+        Log::get() << Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "SDL not initialized", Log::EndOfEntry);
         return false;
     }
     else if ( HAS_NO_BITS( init_flags, SDL_INIT_VIDEO ) )
     {
-        if ( make_report ) Log::get() << Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "SDL video not initialized", Log::EndOfEntry);
+        Log::get() << Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "SDL video not initialized", Log::EndOfEntry);
         return false;
     }
-
-    // store the screen info for everyone to use
-    auto window = Ego::GraphicsSystem::window;
-
     
     // Grab all the available video modes
     psi.displayModes.clear();
     
-    int displayNum = window->getDisplayIndex();
+    int displayNum = Ego::GraphicsSystem::window->getDisplayIndex();
     int numDisplayModes = SDL_GetNumDisplayModes(displayNum);
     
     for (int i = 0; i < numDisplayModes; i++) {
@@ -97,10 +89,6 @@ bool SDLX_Get_Screen_Info( SDLX_screen_info_t& psi, bool make_report )
     // grab all SDL_GL_* attributes
     psi.contextProperties.download();
 
-    if (make_report)
-    {
-        Log::get() << Log::Entry::create(Log::Level::Info, __FILE__, __LINE__, psi);
-    }
     return true;
 }
 
@@ -122,25 +110,6 @@ Log::Entry& operator<<(Log::Entry& e, const SDLX_video_parameters_t& s)
     return e;
 }
 
-//--------------------------------------------------------------------------------------------
-void SDLX_synch_video_parameters( Ego::GraphicsWindow *window, SDLX_video_parameters_t& v )
-{
-    /// @brief Read from SDL/GL window into the video parameters.
-
-    if ( NULL == window ) return;
-
-    /// @todo Shouldn't this be getDrawableSize?
-    v.resolution = window->getSize();
-
-    // Download the video flags from SDL.
-    v.windowProperties = window->getProperties();
-
-    // Download the OpenGL attributes from SDL.
-    // @todo Call GraphicsContext::getFlags().
-    v.contextProperties.download();
-}
-
-//--------------------------------------------------------------------------------------------
 void SDLX_video_parameters_t::upload() const {
     if (windowProperties.opengl) {
         contextProperties.upload();
@@ -149,7 +118,7 @@ void SDLX_video_parameters_t::upload() const {
 
 //--------------------------------------------------------------------------------------------
 
-Ego::GraphicsWindow *SDLX_CreateWindow( SDLX_video_parameters_t& v, bool make_report )
+Ego::GraphicsWindow *SDLX_CreateWindow( SDLX_video_parameters_t& v )
 {  
     if (Ego::GraphicsSystem::window) return nullptr;
 
@@ -253,8 +222,10 @@ Ego::GraphicsWindow *SDLX_CreateWindow( SDLX_video_parameters_t& v, bool make_re
     // Update the video parameters.
     if (Ego::GraphicsSystem::window)
     {
-        SDLX_Get_Screen_Info( sdl_scr, make_report );
-        SDLX_synch_video_parameters(Ego::GraphicsSystem::window, v);
+        SDLX_Get_Screen_Info( sdl_scr );
+        v.resolution = Ego::GraphicsSystem::window->getSize();
+        v.windowProperties = Ego::GraphicsSystem::window->getProperties();
+        v.contextProperties.download();
     }
     return Ego::GraphicsSystem::window;
 }
@@ -283,7 +254,7 @@ void SDLX_video_parameters_t::download(SDLX_video_parameters_t& self, egoboo_con
 }
 
 //--------------------------------------------------------------------------------------------
-void SDLX_report_mode( Ego::GraphicsWindow *surface, SDLX_video_parameters_t& v)
+void SDLX_report_mode( SDLX_video_parameters_t& v)
 {
     auto e = Log::Entry::create(Log::Level::Message, __FILE__, __LINE__);
     e << "==============================================================" << Log::EndOfLine;
@@ -299,10 +270,10 @@ void SDLX_report_mode( Ego::GraphicsWindow *surface, SDLX_video_parameters_t& v)
     e << "SDL window parameters" << Log::EndOfLine;
     e << v;
 
-    if (surface)
+    if (Ego::GraphicsSystem::window)
     {
         // report the SDL screen info
-        SDLX_Get_Screen_Info( sdl_scr, SDL_FALSE );
+        SDLX_Get_Screen_Info( sdl_scr );
         e << sdl_scr;
     }
     e << "==============================================================" << Log::EndOfLine;
@@ -311,5 +282,5 @@ void SDLX_report_mode( Ego::GraphicsWindow *surface, SDLX_video_parameters_t& v)
 //--------------------------------------------------------------------------------------------
 bool SDLX_set_mode(SDLX_video_parameters_t& v_new)
 {
-    return nullptr != SDLX_CreateWindow(v_new, false);
+    return nullptr != SDLX_CreateWindow(v_new);
 }

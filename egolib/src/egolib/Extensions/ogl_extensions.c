@@ -31,7 +31,7 @@
 #include "egolib/Core/StringUtilities.hpp"
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+
 oglx_caps_t g_ogl_caps;
 
 oglx_caps_t::oglx_caps_t() {
@@ -52,31 +52,6 @@ void oglx_caps_t::report(oglx_caps_t& self) {
         }
         e << Log::EndOfLine;
     }
-#if 0
-    Log::get().message("\tGL_MAX_MODELVIEW_STACK_DEPTH     == %d\n", self.max_modelview_stack_depth);
-    Log::get().message("\tGL_MAX_PROJECTION_STACK_DEPTH    == %d\n", self.max_projection_stack_depth);
-    Log::get().message("\tGL_MAX_TEXTURE_STACK_DEPTH       == %d\n", self.max_texture_stack_depth);
-    Log::get().message("\tGL_MAX_NAME_STACK_DEPTH          == %d\n", self.max_name_stack_depth);
-    Log::get().message("\tGL_MAX_ATTRIB_STACK_DEPTH        == %d\n", self.max_attrib_stack_depth);
-    Log::get().message("\tGL_MAX_CLIENT_ATTRIB_STACK_DEPTH == %d\n\n", self.max_client_attrib_stack_depth);
-#endif
-
-#if 0
-    Log::get().message("\tGL_SUBPIXEL_BITS          == %d\n", self.subpixel_bits);
-    Log::get().message("\tGL_POINT_SIZE_RANGE       == %f - %f\n", self.point_size_range[0], self.point_size_range[1]);
-    Log::get().message("\tGL_POINT_SIZE_GRANULARITY == %f\n", self.point_size_granularity);
-    Log::get().message("\tGL_LINE_WIDTH_RANGE       == %f - %f\n", self.line_width_range[0], self.line_width_range[1]);
-    Log::get().message("\tGL_LINE_WIDTH_GRANULARITY == %f\n\n", self.line_width_granularity);
-#endif
-
-#if 0
-    Log::get().message("\tGL_MAX_VIEWPORT_DIMS == %d, %d\n", self.max_viewport_dims[0], self.max_viewport_dims[1]);
-    Log::get().message("\tGL_AUX_BUFFERS       == %d\n", self.aux_buffers);
-    Log::get().message("\tGL_RGBA_MODE         == %s\n", self.rgba_mode ? "TRUE" : "FALSE");
-    Log::get().message("\tGL_INDEX_MODE        == %s\n", self.index_mode ? "TRUE" : "FALSE");
-    Log::get().message("\tGL_DOUBLEBUFFER      == %s\n", self.doublebuffer ? "TRUE" : "FALSE");
-    Log::get().message("\tGL_STEREO            == %s\n", self.stereo ? "TRUE" : "FALSE");
-#endif
     {
         // Print the colour buffer colour depth.
         const auto colourDepth = renderer.getColourBuffer().getColourDepth();
@@ -100,27 +75,6 @@ void oglx_caps_t::report(oglx_caps_t& self) {
         e << "  Depth Buffer Depth:" << renderer.getDepthBuffer().getDepth() << Log::EndOfLine;
         e << "  Stencil Buffer Depth:" << renderer.getStencilBuffer().getDepth() << Log::EndOfLine;
     }
-#if 0
-	Log::get().message("\tGL_INDEX_BITS        == %d\n", self.index_bits);
-#endif
-
-
-#if 0
-	Log::get().message("\tGL_MAX_LIGHTS        == %d\n", self.max_lights);
-	Log::get().message("\tGL_MAX_CLIP_PLANES   == %d\n", self.max_clip_planes);
-	Log::get().message("\tGL_MAX_TEXTURE_SIZE  == %d\n\n", self.max_texture_size);
-
-	Log::get().message("\tGL_MAX_PIXEL_MAP_TABLE == %d\n", self.max_pixel_map_table);
-	Log::get().message("\tGL_MAX_LIST_NESTING    == %d\n", self.max_list_nesting);
-	Log::get().message("\tGL_MAX_EVAL_ORDER      == %d\n\n", self.max_eval_order);
-
-    if (self.anisotropic_supported)
-    {
-		Log::get().message("\tGL_MAX_TEXTURE_MAX_ANISOTROPY_EXT == %f\n", self.maxAnisotropy);
-    }
-
-	Log::get().message("==============================================================\n");
-#endif
     e << Log::EndOfEntry;
     Log::get() << e;
 }
@@ -159,23 +113,7 @@ void oglx_Get_Screen_Info(oglx_caps_t *self)
     GL_DEBUG(glGetBooleanv)(GL_INDEX_MODE, &self->index_mode);
     GL_DEBUG(glGetBooleanv)(GL_DOUBLEBUFFER, &self->doublebuffer);
     GL_DEBUG(glGetBooleanv)(GL_STEREO, &self->stereo);
-#if 0
-    GL_DEBUG(glGetIntegerv)(GL_RED_BITS, &self->red_bits);
-    GL_DEBUG(glGetIntegerv)(GL_GREEN_BITS, &self->green_bits);
-    GL_DEBUG(glGetIntegerv)(GL_BLUE_BITS, &self->blue_bits);
-    GL_DEBUG(glGetIntegerv)(GL_ALPHA_BITS, &self->alpha_bits);
-#endif
     GL_DEBUG(glGetIntegerv)(GL_INDEX_BITS, &self->index_bits);
-#if 0
-    GL_DEBUG(glGetIntegerv)(GL_DEPTH_BITS, &self->depth_bits);
-    GL_DEBUG(glGetIntegerv)(GL_STENCIL_BITS, &self->stencil_bits);
-#endif
-#if 0
-    GL_DEBUG(glGetIntegerv)(GL_ACCUM_RED_BITS, &self->accum_red_bits);
-    GL_DEBUG(glGetIntegerv)(GL_ACCUM_GREEN_BITS, &self->accum_green_bits);
-    GL_DEBUG(glGetIntegerv)(GL_ACCUM_BLUE_BITS, &self->accum_blue_bits);
-    GL_DEBUG(glGetIntegerv)(GL_ACCUM_ALPHA_BITS, &self->accum_alpha_bits);
-#endif
 
     GL_DEBUG(glGetIntegerv)(GL_MAX_LIGHTS, &self->max_lights);
     GL_DEBUG(glGetIntegerv)(GL_MAX_CLIP_PLANES, &self->max_clip_planes);

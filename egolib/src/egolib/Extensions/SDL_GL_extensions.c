@@ -117,17 +117,6 @@ bool SDL_GL_set_gl_mode(oglx_video_parameters_t * v)
 }
 
 //--------------------------------------------------------------------------------------------
-void SDL_GL_report_mode(SDLX_video_parameters_t& retval)
-{
-    SDLX_report_mode(Ego::GraphicsSystem::window, retval);
-
-    if (retval.windowProperties.opengl)
-    {
-        oglx_report_caps();
-    }
-}
-
-//--------------------------------------------------------------------------------------------
 bool SDL_GL_set_mode(SDLX_video_parameters_t& v_new, oglx_video_parameters_t& gl_new)
 {
     /// @author BB
@@ -138,7 +127,7 @@ bool SDL_GL_set_mode(SDLX_video_parameters_t& v_new, oglx_video_parameters_t& gl
 
     if (result)
     {
-        SDLX_Get_Screen_Info(sdl_scr, false);
+        SDLX_Get_Screen_Info(sdl_scr);
 
         // set the opengl parameters
         gl_new.multisample = GL_FALSE;
