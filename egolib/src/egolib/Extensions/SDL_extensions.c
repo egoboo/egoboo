@@ -118,9 +118,9 @@ void SDLX_video_parameters_t::upload() const {
 
 //--------------------------------------------------------------------------------------------
 
-Ego::GraphicsWindow *SDLX_CreateWindow( SDLX_video_parameters_t& v )
+bool SDLX_CreateWindow( SDLX_video_parameters_t& v )
 {  
-    if (Ego::GraphicsSystem::window) return nullptr;
+    if (Ego::GraphicsSystem::window) return false;
 
     if (!v.windowProperties.opengl) {
         // do our one-and-only video initialization
@@ -227,30 +227,25 @@ Ego::GraphicsWindow *SDLX_CreateWindow( SDLX_video_parameters_t& v )
         v.windowProperties = Ego::GraphicsSystem::window->getProperties();
         v.contextProperties.download();
     }
-    return Ego::GraphicsSystem::window;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
 
-void SDLX_video_parameters_t::defaults(SDLX_video_parameters_t& self)
-{
-    self.resolution = Size2i(640, 480);
-    self.colorBufferDepth = 32;
+SDLX_video_parameters_t::SDLX_video_parameters_t() :
+    resolution(640, 480), colorBufferDepth(32), windowProperties(), contextProperties()
+{}
 
-    self.windowProperties = Ego::WindowProperties();
-    self.contextProperties = Ego::ContextProperties();
-}
-
-void SDLX_video_parameters_t::download(SDLX_video_parameters_t& self, egoboo_config_t& cfg)
+void SDLX_video_parameters_t::download(egoboo_config_t& cfg)
 {
-    self.resolution = Size2i(cfg.graphic_resolution_horizontal.getValue(),
-                             cfg.graphic_resolution_vertical.getValue());
-    self.colorBufferDepth = cfg.graphic_colorBuffer_bitDepth.getValue();
-    self.windowProperties.fullscreen = cfg.graphic_fullscreen.getValue();
-    self.contextProperties.buffer_size = cfg.graphic_colorBuffer_bitDepth.getValue();
-    self.contextProperties.depthBufferDepth = cfg.graphic_depthBuffer_bitDepth.getValue();
-    self.contextProperties.multisampling.buffers = (cfg.graphic_antialiasing.getValue() > 1) ? 1 : 0;
-    self.contextProperties.multisampling.samples = cfg.graphic_antialiasing.getValue();
+    resolution = Size2i(cfg.graphic_resolution_horizontal.getValue(),
+                        cfg.graphic_resolution_vertical.getValue());
+    colorBufferDepth = cfg.graphic_colorBuffer_bitDepth.getValue();
+    windowProperties.fullscreen = cfg.graphic_fullscreen.getValue();
+    contextProperties.buffer_size = cfg.graphic_colorBuffer_bitDepth.getValue();
+    contextProperties.depthBufferDepth = cfg.graphic_depthBuffer_bitDepth.getValue();
+    contextProperties.multisampling.buffers = (cfg.graphic_antialiasing.getValue() > 1) ? 1 : 0;
+    contextProperties.multisampling.samples = cfg.graphic_antialiasing.getValue();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -277,10 +272,4 @@ void SDLX_report_mode( SDLX_video_parameters_t& v)
         e << sdl_scr;
     }
     e << "==============================================================" << Log::EndOfLine;
-}
-
-//--------------------------------------------------------------------------------------------
-bool SDLX_set_mode(SDLX_video_parameters_t& v_new)
-{
-    return nullptr != SDLX_CreateWindow(v_new);
 }

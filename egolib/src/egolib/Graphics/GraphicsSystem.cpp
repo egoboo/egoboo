@@ -44,7 +44,7 @@ void GraphicsSystem::initialize() {
         return;
     }
     // Download the window parameters from the Egoboo configuration.
-    SDLX_video_parameters_t::download(sdl_vparam, egoboo_config_t::get());
+    sdl_vparam.download(egoboo_config_t::get());
 
     // Set immutable parameters.
     sdl_vparam.windowProperties.opengl = true;

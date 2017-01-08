@@ -123,7 +123,7 @@ bool SDL_GL_set_mode(SDLX_video_parameters_t& v_new, oglx_video_parameters_t& gl
     /// @details let SDL_GL try to set a new video mode.
     
     // use the sdl extensions to set the SDL video mode
-    bool result = SDLX_set_mode(v_new);
+    bool result = SDLX_CreateWindow(v_new);
 
     if (result)
     {
