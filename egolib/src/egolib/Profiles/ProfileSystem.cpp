@@ -314,129 +314,38 @@ void ProfileSystem::loadAllSavedCharacters(const std::string &saveGameDirectory)
 
 void ProfileSystem::loadGlobalParticleProfiles()
 {
-    const char *loadpath;
+    static const std::vector<std::pair<std::string, PIP_REF>> profiles =
+    {
+        // Load in the standard global particles ( the coins for example )
+        {"mp_data/1money.txt", PIP_COIN1},
+        {"mp_data/5money.txt", PIP_COIN5},
+        {"mp_data/25money.txt", PIP_COIN25},
+        {"mp_data/100money.txt", PIP_COIN100},
+        {"mp_data/200money.txt", PIP_GEM200},
+        {"mp_data/500money.txt", PIP_GEM500},
+        {"mp_data/1000money.txt", PIP_GEM1000},
+        {"mp_data/2000money.txt", PIP_GEM2000},
+        {"mp_data/disintegrate_start.txt", PIP_DISINTEGRATE_START},
+        {"mp_data/disintegrate_particle.txt", PIP_DISINTEGRATE_PARTICLE},
+    #if 0
+        // Load module specific information
+        {"mp_data/weather4.txt", PIP_WEATHER},
+        {"mp_data/weather5.txt", PIP_WEATHER_FINISH},
+    #endif
+        {"mp_data/splash.txt", PIP_SPLASH},
+        {"mp_data/ripple.txt", PIP_RIPPLE},
+        // This is also global...
+        {"mp_data/defend.txt", PIP_DEFEND},
 
-    // Load in the standard global particles ( the coins for example )
-    loadpath = "mp_data/1money.txt";
-    if ( INVALID_PIP_REF == ParticleProfileSystem.load( loadpath, ( PIP_REF )PIP_COIN1 ) )
-    {
-        auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "data file ", "`", loadpath, "`", " was not found", Log::EndOfEntry);
-        Log::get() << e;
-		throw std::runtime_error(e.getText());
-    }
+    };
 
-    loadpath = "mp_data/5money.txt";
-    if ( INVALID_PIP_REF == ParticleProfileSystem.load( loadpath, ( PIP_REF )PIP_COIN5 ) )
+    for (const auto& profile : profiles)
     {
-        auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "data file ", "`", loadpath, "`", " was not found", Log::EndOfEntry);
-        Log::get() << e;
-        throw std::runtime_error(e.getText());
-    }
-
-    loadpath = "mp_data/25money.txt";
-    if ( INVALID_PIP_REF == ParticleProfileSystem.load( loadpath, ( PIP_REF )PIP_COIN25 ) )
-    {
-        auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "data file ", "`", loadpath, "`", " was not found", Log::EndOfEntry);
-        Log::get() << e;
-        throw std::runtime_error(e.getText());
-    }
-
-    loadpath = "mp_data/100money.txt";
-    if ( INVALID_PIP_REF == ParticleProfileSystem.load( loadpath, ( PIP_REF )PIP_COIN100 ) )
-    {
-        auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "data file ", "`", loadpath, "`", " was not found", Log::EndOfEntry);
-        Log::get() << e;
-        throw std::runtime_error(e.getText());
-    }
-
-    loadpath = "mp_data/200money.txt";
-    if ( INVALID_PIP_REF == ParticleProfileSystem.load( loadpath, ( PIP_REF )PIP_GEM200 ) )
-    {
-        auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "data file ", "`", loadpath, "`", " was not found", Log::EndOfEntry);
-        Log::get() << e;
-        throw std::runtime_error(e.getText());
-    }
-
-    loadpath = "mp_data/500money.txt";
-    if ( INVALID_PIP_REF == ParticleProfileSystem.load( loadpath, ( PIP_REF )PIP_GEM500 ) )
-    {
-        auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "data file ", "`", loadpath, "`", " was not found", Log::EndOfEntry);
-        Log::get() << e;
-        throw std::runtime_error(e.getText());
-    }
-
-    loadpath = "mp_data/1000money.txt";
-    if ( INVALID_PIP_REF == ParticleProfileSystem.load( loadpath, ( PIP_REF )PIP_GEM1000 ) )
-    {
-        auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "data file ", "`", loadpath, "`", " was not found", Log::EndOfEntry);
-        Log::get() << e;
-        throw std::runtime_error(e.getText());
-    }
-
-    loadpath = "mp_data/2000money.txt";
-    if ( INVALID_PIP_REF == ParticleProfileSystem.load( loadpath, ( PIP_REF )PIP_GEM2000 ) )
-    {
-        auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "data file ", "`", loadpath, "`", " was not found", Log::EndOfEntry);
-        Log::get() << e;
-        throw std::runtime_error(e.getText());
-    }
-
-    loadpath = "mp_data/disintegrate_start.txt";
-    if ( INVALID_PIP_REF == ParticleProfileSystem.load( loadpath, ( PIP_REF )PIP_DISINTEGRATE_START ) )
-    {
-        auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "data file ", "`", loadpath, "`", " was not found", Log::EndOfEntry);
-        Log::get() << e;
-        throw std::runtime_error(e.getText());
-    }
-
-    loadpath = "mp_data/disintegrate_particle.txt";
-    if ( INVALID_PIP_REF == ParticleProfileSystem.load( loadpath, ( PIP_REF )PIP_DISINTEGRATE_PARTICLE ) )
-    {
-        auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "data file ", "`", loadpath, "`", " was not found", Log::EndOfEntry);
-        Log::get() << e;
-        throw std::runtime_error(e.getText());
-    }
-#if 0
-    // Load module specific information
-    loadpath = "mp_data/weather4.txt";
-    if (INVALID_PIP_REF == ParticleProfileSystem.load_one(loadpath, (PIP_REF)PIP_WEATHER))
-    {
-        auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "data file ", "`", loadpath, "`", " was not found", Log::EndOfEntry);
-        Log::get() << e;
-        throw std::runtime_error(e.getText());
-    }
-
-    loadpath = "mp_data/weather5.txt";
-    if (INVALID_PIP_REF == ParticleProfileSystem.load_one(loadpath, (PIP_REF)PIP_WEATHER_FINISH))
-    {
-        auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "data file ", "`", loadpath, "`", " was not found", Log::EndOfEntry);
-        Log::get() << e;
-        throw std::runtime_error(e.getText());
-    }
-#endif
-
-    loadpath = "mp_data/splash.txt";
-    if ( INVALID_PIP_REF == ParticleProfileSystem.load( loadpath, ( PIP_REF )PIP_SPLASH ) )
-    {
-        auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "data file ", "`", loadpath, "`", " was not found", Log::EndOfEntry);
-        Log::get() << e;
-        throw std::runtime_error(e.getText());
-    }
-
-    loadpath = "mp_data/ripple.txt";
-    if ( INVALID_PIP_REF == ParticleProfileSystem.load( loadpath, ( PIP_REF )PIP_RIPPLE ) )
-    {
-        auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "data file ", "`", loadpath, "`", " was not found", Log::EndOfEntry);
-        Log::get() << e;
-        throw std::runtime_error(e.getText());
-    }
-
-    // This is also global...
-    loadpath = "mp_data/defend.txt";
-    if ( INVALID_PIP_REF == ParticleProfileSystem.load( loadpath, ( PIP_REF )PIP_DEFEND ) )
-    {
-        auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "data file ", "`", loadpath, "`", " was not found", Log::EndOfEntry);
-        Log::get() << e;
-        throw std::runtime_error(e.getText());
+        if (INVALID_PIP_REF == ParticleProfileSystem.load(profile.first, profile.second))
+        {
+            auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "data file ", "`", profile.first, "`", " was not found", Log::EndOfEntry);
+            Log::get() << e;
+            throw std::runtime_error(e.getText());
+        }
     }
 }
