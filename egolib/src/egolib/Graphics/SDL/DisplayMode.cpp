@@ -3,38 +3,43 @@
 namespace Ego {
 namespace SDL {
 
-DisplayMode::DisplayMode(SDL_DisplayMode& displayMode)
-    : _displayMode(displayMode) {
-    /* Intentionally empty. */
+DisplayMode::DisplayMode(SDL_DisplayMode& displayMode) :
+    displayMode(displayMode)
+{}
+
+bool DisplayMode::compare(const DisplayMode& other) const
+{
+    return displayMode.format == other.displayMode.format
+        && displayMode.w == other.displayMode.w
+        && displayMode.h == other.displayMode.h
+        && displayMode.refresh_rate == other.displayMode.refresh_rate;
 }
 
-bool DisplayMode::compare(const DisplayMode& other) const {
-    return _displayMode.format == other._displayMode.format
-        && _displayMode.w == other._displayMode.w
-        && _displayMode.h == other._displayMode.h
-        && _displayMode.refresh_rate == other._displayMode.refresh_rate;
-}
-
-bool DisplayMode::compare(const Ego::DisplayMode& other) const {
+bool DisplayMode::compare(const Ego::DisplayMode& other) const
+{
     auto pother = dynamic_cast<const DisplayMode *>(&other);
     if (!pother) return false;
     else return compare(*pother);
 }
 
-void *DisplayMode::get() const {
-    return (void *)&_displayMode;
+void *DisplayMode::get() const
+{
+    return (void *)&displayMode;
 }
 
-int DisplayMode::getHorizontalResolution() const {
-    return _displayMode.w;
+int DisplayMode::getHorizontalResolution() const
+{
+    return displayMode.w;
 }
 
-int DisplayMode::getVerticalResolution() const {
-    return _displayMode.h;
+int DisplayMode::getVerticalResolution() const
+{
+    return displayMode.h;
 }
 
-int DisplayMode::getRefreshRate() const {
-    return _displayMode.refresh_rate;
+int DisplayMode::getRefreshRate() const
+{
+    return displayMode.refresh_rate;
 }
 
 } // namespace SDL
