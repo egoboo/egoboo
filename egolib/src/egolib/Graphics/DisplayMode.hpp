@@ -1,6 +1,6 @@
 #pragma once
 
-#include "egolib/platform.h"
+#include "egolib/Log/_Include.hpp"
 
 namespace Ego {
 
@@ -58,3 +58,5 @@ public:
 };
 
 } // namespace Ego
+
+Log::Entry& operator<<(Log::Entry& logEntry, const Ego::DisplayMode& displayMode);

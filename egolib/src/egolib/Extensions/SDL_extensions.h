@@ -27,35 +27,10 @@
 
 #pragma once
 
-#include "egolib/file_common.h"
 #include "egolib/egoboo_setup.h"
 #include "egolib/Math/_Include.hpp"
-#include "egolib/Graphics/ColourDepth.hpp"
 #include "egolib/Extensions/WindowProperties.hpp"
 #include "egolib/Extensions/ContextProperties.hpp"
-
-// Forward declaration.
-namespace Ego {
-struct GraphicsWindow;
-}
-
-//--------------------------------------------------------------------------------------------
-
-#include "egolib/Graphics/SDL/DisplayMode.hpp"
-
-
-/// A representation of a SDL Screen state
-    struct SDLX_screen_info_t
-    {
-        /// A list of shared pointers to display modes.
-        std::vector<std::shared_ptr<Ego::DisplayMode>> displayModes;
-        std::string szDriver;    ///< graphics driver name;
-
-        /// Context properties.
-        Ego::ContextProperties contextProperties;
-    };
-
-    Log::Entry& operator<<(Log::Entry& e, const SDLX_screen_info_t& s);
 
 //--------------------------------------------------------------------------------------------
 
@@ -78,18 +53,6 @@ struct GraphicsWindow;
     Log::Entry& operator<<(Log::Entry& e, const SDLX_video_parameters_t& s);
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-    extern SDLX_screen_info_t sdl_scr;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-/// Grab the current SDL screen information
-    bool      SDLX_Get_Screen_Info( SDLX_screen_info_t& psi );
 
 /// Use a SDLX_video_parameters_t structure to create window
     bool SDLX_CreateWindow( SDLX_video_parameters_t& v );
-
-/// Dump the info on the given surface to whatever FILE SDL_extensions is using for stdout
-    void   SDLX_report_mode( SDLX_video_parameters_t& v );

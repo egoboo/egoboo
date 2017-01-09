@@ -3,9 +3,14 @@
 namespace Ego {
 namespace SDL {
 
-DisplayMode::DisplayMode(SDL_DisplayMode& displayMode) :
-    displayMode(displayMode)
-{}
+DisplayMode::DisplayMode(GraphicsSystemNew *graphicsSystem, SDL_DisplayMode& displayMode) :
+    graphicsSystem(graphicsSystem), displayMode(displayMode)
+{
+    if (!graphicsSystem)
+    {
+        throw Id::RuntimeErrorException(__FILE__, __LINE__, "nullptr == graphicsSystem");
+    }
+}
 
 bool DisplayMode::compare(const DisplayMode& other) const
 {

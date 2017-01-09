@@ -306,6 +306,28 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\Graphics\GraphicsSystemNew.cpp" />
+    <ClCompile Include="src\egolib\Graphics\SDL\GraphicsSystemNew.cpp">
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)\Graphics\SDL\GraphicsSystem.asm</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)\Graphics\SDL\GraphicsSystem.o</ObjectFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)\Graphics\SDL\GraphicsSystem.asm</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)\Graphics\SDL\GraphicsSystem.o</ObjectFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\Graphics\SDL\GraphicsSystem.asm</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\Graphics\SDL\GraphicsSystem.o</ObjectFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\Graphics\SDL\GraphicsSystem.asm</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\Graphics\SDL\GraphicsSystem.o</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Graphics\Display.cpp" />
+    <ClCompile Include="src\egolib\Graphics\SDL\Display.cpp">
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\Graphics\SDL\Display.asm</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\Graphics\SDL\Display.o</ObjectFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\Graphics\SDL\Display.asm</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\Graphics\SDL\Display.o</ObjectFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)\Graphics\SDL\Display.asm</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)\Graphics\SDL\Display.o</ObjectFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)\Graphics\SDL\Display.asm</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)\Graphics\SDL\Display.o</ObjectFileName>
+    </ClCompile>
     <ClCompile Include="src\egolib\Graphics\GraphicsContext.cpp" />
     <ClCompile Include="src\egolib\Extensions\ContextProperties.cpp" />
     <ClCompile Include="src\egolib\Log\EndOfEntry.cpp" />
@@ -504,7 +526,6 @@
     <ClCompile Include="src\egolib\egoboo_setup.c" />
     <ClCompile Include="src\egolib\endian.c" />
     <ClCompile Include="src\egolib\extensions\ogl_extensions.c" />
-    <ClCompile Include="src\egolib\extensions\ogl_include.c" />
     <ClCompile Include="src\egolib\extensions\SDL_extensions.c" />
     <ClCompile Include="src\egolib\extensions\SDL_GL_extensions.c" />
     <ClCompile Include="src\egolib\fileutil.c" />
@@ -525,6 +546,10 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Graphics\GraphicsSystemNew.hpp" />
+    <ClInclude Include="src\egolib\Graphics\SDL\GraphicsSystemNew.hpp" />
+    <ClInclude Include="src\egolib\Graphics\Display.hpp" />
+    <ClInclude Include="src\egolib\Graphics\SDL\Display.hpp" />
     <ClInclude Include="src\egolib\Graphics\GraphicsContext.hpp" />
     <ClInclude Include="src\egolib\Extensions\ContextProperties.hpp" />
     <ClInclude Include="src\egolib\Log\EndOfEntry.hpp" />
@@ -790,7 +815,6 @@
     <ClInclude Include="src\egolib\egolib.h" />
     <ClInclude Include="src\egolib\egolib_config.h" />
     <ClInclude Include="src\egolib\endian.h" />
-    <ClInclude Include="src\egolib\extensions\ogl_debug.h" />
     <ClInclude Include="src\egolib\extensions\ogl_extensions.h" />
     <ClInclude Include="src\egolib\extensions\ogl_include.h" />
     <ClInclude Include="src\egolib\extensions\SDL_extensions.h" />

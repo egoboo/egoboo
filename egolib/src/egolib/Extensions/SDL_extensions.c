@@ -27,70 +27,13 @@
 #include "egolib/Log/_Include.hpp"
 #include "egolib/Graphics/GraphicsSystem.hpp"
 #include "egolib/Graphics/GraphicsWindow.hpp"
+#include "egolib/Graphics/Display.hpp"
+#include "egolib/Graphics/DisplayMode.hpp"
 
 // SDL 2.0.1 adds high DPI support
 #if !SDL_VERSION_ATLEAST(2, 0, 1)
 #define SDL_WINDOW_ALLOW_HIGHDPI 0
 #endif
-
-//--------------------------------------------------------------------------------------------
-
-SDLX_screen_info_t sdl_scr;
-
-Log::Entry& operator<<(Log::Entry& e, const SDLX_screen_info_t& s)
-{
-    e << "SDL video driver = " << s.szDriver.c_str() << Log::EndOfLine;
-    if (!s.displayModes.empty())
-    {
-        e << "\t" << "available fullscreen video modes:" << Log::EndOfLine;
-        for (const auto &displayMode : s.displayModes)
-        {
-            e << "\t" << "\t"
-              << displayMode->getHorizontalResolution() << " pixels x "
-              << displayMode->getVerticalResolution() << " pixels x "
-              << displayMode->getRefreshRate() << " Hz"
-              << Log::EndOfLine;
-        }
-    }
-    return e;
-}
-
-bool SDLX_Get_Screen_Info( SDLX_screen_info_t& psi )
-{
-    Uint32 init_flags = 0;
-
-    init_flags = SDL_WasInit( SDL_INIT_EVERYTHING );
-    if ( 0 == init_flags )
-    {
-        Log::get() << Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "SDL not initialized", Log::EndOfEntry);
-        return false;
-    }
-    else if ( HAS_NO_BITS( init_flags, SDL_INIT_VIDEO ) )
-    {
-        Log::get() << Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "SDL video not initialized", Log::EndOfEntry);
-        return false;
-    }
-    
-    // Grab all the available video modes
-    psi.displayModes.clear();
-    
-    int displayNum = Ego::GraphicsSystem::window->getDisplayIndex();
-    int numDisplayModes = SDL_GetNumDisplayModes(displayNum);
-    
-    for (int i = 0; i < numDisplayModes; i++) {
-        SDL_DisplayMode mode;
-        SDL_GetDisplayMode(displayNum, i, &mode);
-        psi.displayModes.push_back(std::make_shared<Ego::SDL::DisplayMode>(mode));
-    }
-    
-    // log the video driver info
-    psi.szDriver = SDL_GetCurrentVideoDriver();
-
-    // grab all SDL_GL_* attributes
-    psi.contextProperties.download();
-
-    return true;
-}
 
 //--------------------------------------------------------------------------------------------
 
@@ -222,7 +165,7 @@ bool SDLX_CreateWindow( SDLX_video_parameters_t& v )
     // Update the video parameters.
     if (Ego::GraphicsSystem::window)
     {
-        SDLX_Get_Screen_Info( sdl_scr );
+        Ego::GraphicsSystem::sdl_vparam.contextProperties.download();
         v.resolution = Ego::GraphicsSystem::window->getSize();
         v.windowProperties = Ego::GraphicsSystem::window->getProperties();
         v.contextProperties.download();
@@ -246,30 +189,4 @@ void SDLX_video_parameters_t::download(egoboo_config_t& cfg)
     contextProperties.depthBufferDepth = cfg.graphic_depthBuffer_bitDepth.getValue();
     contextProperties.multisampling.buffers = (cfg.graphic_antialiasing.getValue() > 1) ? 1 : 0;
     contextProperties.multisampling.samples = cfg.graphic_antialiasing.getValue();
-}
-
-//--------------------------------------------------------------------------------------------
-void SDLX_report_mode( SDLX_video_parameters_t& v)
-{
-    auto e = Log::Entry::create(Log::Level::Message, __FILE__, __LINE__);
-    e << "==============================================================" << Log::EndOfLine;
-    if (!Ego::GraphicsSystem::window)
-    {
-        e << "SDL video mode not set:" << Log::EndOfLine
-            << SDL_GetError() << Log::EndOfLine;
-    }
-    else
-    {
-        e << "SDL vide mode set" << Log::EndOfLine;
-    }
-    e << "SDL window parameters" << Log::EndOfLine;
-    e << v;
-
-    if (Ego::GraphicsSystem::window)
-    {
-        // report the SDL screen info
-        SDLX_Get_Screen_Info( sdl_scr );
-        e << sdl_scr;
-    }
-    e << "==============================================================" << Log::EndOfLine;
 }

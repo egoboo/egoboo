@@ -5,14 +5,24 @@
 namespace Ego {
 namespace SDL {
 
+// Forward declaration.
+struct GraphicsSystemNew;
+
 /// @brief Display mode implementation for SDL.
 struct DisplayMode : Ego::DisplayMode
 {
 private:
+    /// @brief The SDL display mode.
     SDL_DisplayMode displayMode;
 
+    /// @brief A pointer to the SDL graphics system.
+    GraphicsSystemNew *graphicsSystem;
+
 public:
-    DisplayMode(SDL_DisplayMode& displayMode);
+    /// @brief Construct this SDL display mode.
+    /// @param graphicsSystem a pointer to the SDL graphics system
+    /// @param displayMode the SDL display mode
+    DisplayMode(GraphicsSystemNew *graphicsSystem, SDL_DisplayMode& displayMode);
 
 protected:
     bool compare(const DisplayMode& other) const;

@@ -24,7 +24,7 @@
 
 #include "egolib/Renderer/Texture.hpp"
 #include "egolib/Renderer/Renderer.hpp"
-#include "egolib/Extensions/ogl_debug.h"
+#include "egolib/Extensions/ogl_include.h"
 #include "egolib/Extensions/SDL_GL_extensions.h"
 #include "egolib/Math/_Include.hpp"
 

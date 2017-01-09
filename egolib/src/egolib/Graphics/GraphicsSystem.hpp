@@ -1,6 +1,7 @@
 #pragma once
 
 #include "egolib/platform.h"
+#include "egolib/Graphics/GraphicsSystemNew.hpp"
 #include "egolib/Extensions/SDL_extensions.h"
 #include "egolib/Extensions/SDL_GL_extensions.h"
 
@@ -31,15 +32,6 @@ public:
     /// @brief Uninitialize the graphics system.
     /// @remark This method is a no-op if the graphics system is uninitialized.
     static void uninitialize();
-    
-    /// @brief Set the cursor visibility.
-    /// @param visibility @a true shows the cursor, @a false hides the cursor
-    static void setCursorVisibility(bool show);
-
-    /// @brief Get the cursor visibility.
-    /// @return @a true if the cursor is shown, @a false otherwise
-    static bool getCursorVisibility();
-    
     /// @brief Create a graphics context.
     /// @param window a pointer to a window
     /// @param contextProperties the context properties

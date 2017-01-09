@@ -396,7 +396,6 @@ void GameEngine::subscribe() {
     hidden = window->Hidden.subscribe([](const Ego::Events::WindowEventArgs& e) {
     });
     resized = window->Resized.subscribe([](const Ego::Events::WindowEventArgs& e) {
-        SDLX_Get_Screen_Info(sdl_scr);
     });
 #if 0
     mouseEntered = window->MouseEntered.subscribe([](const Ego::Events::WindowEventArgs& e) {
@@ -497,6 +496,7 @@ void GameEngine::pushGameState(std::shared_ptr<GameState> gameState)
 
 void GameEngine::pollEvents()
 {
+    Ego::GraphicsSystemNew::get().update();
     Ego::GraphicsSystem::window->update();
     // Message processing loop.
     SDL_Event event;

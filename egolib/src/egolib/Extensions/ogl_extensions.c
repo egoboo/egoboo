@@ -24,7 +24,7 @@
 /// @details
 
 #include "egolib/Extensions/ogl_extensions.h"
-#include "egolib/Extensions/ogl_debug.h"
+#include "egolib/Extensions/ogl_include.h"
 #include "egolib/Log/_Include.hpp"
 #include "egolib/Renderer/Renderer.hpp"
 #include "egolib/Graphics/PixelFormat.hpp"

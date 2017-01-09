@@ -136,7 +136,7 @@ void PlayingState::drawContainer(Ego::GUI::DrawingContext& drawingContext)
 void PlayingState::beginState()
 {
     // in-game settings
-    Ego::GraphicsSystem::setCursorVisibility(egoboo_config_t::get().debug_hideMouse.getValue());
+    Ego::GraphicsSystemNew::get().setCursorVisibility(egoboo_config_t::get().debug_hideMouse.getValue());
     Ego::GraphicsSystem::window->setGrabEnabled(egoboo_config_t::get().debug_grabMouse.getValue());
 }
 

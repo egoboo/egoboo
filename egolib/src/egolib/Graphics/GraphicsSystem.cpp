@@ -43,6 +43,8 @@ void GraphicsSystem::initialize() {
     if (initialized) {
         return;
     }
+    // Create the NEW graphics system.
+    GraphicsSystemNew::initialize();
     // Download the window parameters from the Egoboo configuration.
     sdl_vparam.download(egoboo_config_t::get());
 
@@ -114,21 +116,8 @@ void GraphicsSystem::uninitialize() {
     }
     delete window;
     window = nullptr;
-}
-
-void GraphicsSystem::setCursorVisibility(bool show) {
-    int result = SDL_ShowCursor(show ? SDL_ENABLE : SDL_DISABLE);
-    if (result < 0) {
-        throw Id::EnvironmentErrorException(__FILE__, __LINE__, "SDL", std::string("SDL_ShowCursor(")  + (show ? "SDL_ENABLE" : "SDL_DISABLE") + ") failed - reason `" + SDL_GetError() + "`");
-    }
-}
-
-bool GraphicsSystem::getCursorVisibility() {
-    int result = SDL_ShowCursor(SDL_QUERY);
-    if (result < 0) {
-        throw Id::EnvironmentErrorException(__FILE__, __LINE__, "SDL", std::string("SDL_GetShowCursor(SDL_Query) failed - reason `") + SDL_GetError() + "`");
-    }
-    return result == SDL_ENABLE;
+    // Uninitialize the NEW graphics system.
+    Ego::GraphicsSystemNew::uninitialize();
 }
 
 } // namespace Ego

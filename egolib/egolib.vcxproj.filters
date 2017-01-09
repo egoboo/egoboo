@@ -201,9 +201,6 @@
     <ClCompile Include="src\egolib\extensions\ogl_extensions.c">
       <Filter>Extensions</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\extensions\ogl_include.c">
-      <Filter>Extensions</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\extensions\SDL_extensions.c">
       <Filter>Extensions</Filter>
     </ClCompile>
@@ -507,9 +504,6 @@
     <ClCompile Include="src\egolib\Signal\ConnectionBase.cpp">
       <Filter>Source Files\Signal</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\Graphics\DisplayMode.cpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\Graphics\SDL\DisplayMode.cpp">
       <Filter>Source Files\Graphics\SDL</Filter>
     </ClCompile>
@@ -579,6 +573,21 @@
     <ClCompile Include="src\egolib\Graphics\GraphicsContext.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="src\egolib\Graphics\SDL\Display.cpp">
+      <Filter>Source Files\Graphics\SDL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Graphics\Display.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Graphics\GraphicsSystemNew.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Graphics\SDL\GraphicsSystemNew.cpp">
+      <Filter>Source Files\Graphics\SDL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Graphics\DisplayMode.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\egolib\vfs.h">
@@ -628,9 +637,6 @@
     </ClInclude>
     <ClInclude Include="src\egolib\_math.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\extensions\ogl_debug.h">
-      <Filter>Extensions</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\extensions\ogl_extensions.h">
       <Filter>Extensions</Filter>
@@ -1304,9 +1310,6 @@
     <ClInclude Include="src\egolib\Signal\ConnectionBase.hpp">
       <Filter>Header Files\Signal</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Graphics\DisplayMode.hpp">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Graphics\SDL\DisplayMode.hpp">
       <Filter>Header Files\Graphics\SDL</Filter>
     </ClInclude>
@@ -1431,6 +1434,21 @@
       <Filter>Extensions</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Graphics\GraphicsContext.hpp">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Graphics\SDL\Display.hpp">
+      <Filter>Header Files\Graphics\SDL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Graphics\GraphicsSystemNew.hpp">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Graphics\SDL\GraphicsSystemNew.hpp">
+      <Filter>Header Files\Graphics\SDL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Graphics\Display.hpp">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Graphics\DisplayMode.hpp">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
   </ItemGroup>

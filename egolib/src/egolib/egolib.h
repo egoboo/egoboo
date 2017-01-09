@@ -108,6 +108,9 @@
 #include "egolib/Graphics/FontManager.hpp"
 #include "egolib/Graphics/GraphicsWindow.hpp"
 #include "egolib/Graphics/GraphicsSystem.hpp"
+#include "egolib/Graphics/GraphicsSystemNew.hpp"
+#include "egolib/Graphics/Display.hpp"
+#include "egolib/Graphics/DisplayMode.hpp"
 
 #include "egolib/Image/ImageManager.hpp"
 

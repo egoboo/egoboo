@@ -19,3 +19,11 @@ bool DisplayMode::operator!=(const DisplayMode& other) const
 }
 
 } // namespace Ego
+
+Log::Entry& operator<<(Log::Entry& logEntry, const Ego::DisplayMode& displayMode)
+{
+    logEntry << displayMode.getHorizontalResolution() << " pixels x "
+             << displayMode.getVerticalResolution() << " pixels x "
+             << displayMode.getRefreshRate() << " Hz";
+    return logEntry;
+}
