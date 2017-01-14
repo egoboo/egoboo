@@ -11,7 +11,12 @@ namespace Ego {
 struct GraphicsWindow
 {
 private:
+    /// @brief A pointer to the SDL window.
     SDL_Window *window;
+
+    /// @brief The SDL display index of the SDL window.
+    /// @remark The display index is POLLED when updating the window.
+    int displayIndex;
 
 public:
 
@@ -103,7 +108,7 @@ public:
     /// @brief Update this window.
     void update();
 
-    int getDisplayIndex();
+    int getDisplayIndex() const;
 
     WindowProperties getProperties() const;
 

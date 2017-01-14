@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include "egolib/Graphics/DisplayMode.hpp"
@@ -6,20 +5,35 @@
 namespace Ego {
 namespace SDL {
 
-/// Display mode implementation for SDL.
-struct DisplayMode : Ego::DisplayMode {
+// Forward declaration.
+struct GraphicsSystemNew;
+
+/// @brief Display mode implementation for SDL.
+struct DisplayMode : Ego::DisplayMode
+{
 private:
-    SDL_DisplayMode _displayMode;
+    /// @brief The SDL display mode.
+    SDL_DisplayMode displayMode;
+
+    /// @brief A pointer to the SDL graphics system.
+    GraphicsSystemNew *graphicsSystem;
+
 public:
-    DisplayMode(SDL_DisplayMode& displayMode);
+    /// @brief Construct this SDL display mode.
+    /// @param graphicsSystem a pointer to the SDL graphics system
+    /// @param displayMode the SDL display mode
+    DisplayMode(GraphicsSystemNew *graphicsSystem, SDL_DisplayMode& displayMode);
+
 protected:
     bool compare(const DisplayMode& other) const;
     bool compare(const Ego::DisplayMode& other) const override;
     void *get() const override;
+
 public:
     int getHorizontalResolution() const override;
     int getVerticalResolution() const override;
     int getRefreshRate() const override;
 };
+
 } // namespace SDL
 } // namespace Ego

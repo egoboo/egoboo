@@ -51,7 +51,13 @@ VideoOptionsScreen::VideoOptionsScreen() :
 
     //Build list of available resolutions
     std::unordered_set<uint32_t> resolutions;
-    for (const auto &displayMode : sdl_scr.displayModes)
+    const auto& displays = Ego::GraphicsSystemNew::get().getDisplays();
+    auto displayIt = std::find_if(displays.cbegin(), displays.cend(), [](const auto& display) { return display->isPrimaryDisplay(); });
+    if (displayIt == displays.cend())
+    {
+        throw Id::RuntimeErrorException(__FILE__, __LINE__, "unable to get primary display");
+    }
+    for (const auto &displayMode : (*displayIt)->getDisplayModes())
     {
         //Skip duplicate resolutions (32-bit, 24-bit, 16-bit etc.)
         if(resolutions.find(displayMode->getHorizontalResolution() | displayMode->getVerticalResolution() << 16) != resolutions.end()) {

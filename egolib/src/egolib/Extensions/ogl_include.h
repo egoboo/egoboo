@@ -27,7 +27,7 @@
 
 #pragma once
 
-#include "egolib/file_common.h"
+#include "egolib/platform.h"
 
 enum { XX = 0, YY, ZZ, WW };         ///< indices for x, y, z, and w coordinates in a 4-vector
 enum { RR = 0, GG, BB, AA };         ///< indices for r, g, b, and alpha coordinates in a 4-color vector
@@ -36,3 +36,9 @@ enum { SS = 0, TT };                 ///< indices for s and t, 4-vector texture 
 typedef GLfloat GLXvector4f[4];      ///< generic 4-vector
 typedef GLfloat GLXvector3f[3];      ///< generic 3-vector
 typedef GLfloat GLXvector2f[2];      ///< generic 2-vector
+
+/// this macro is set to do nothing if USE_GL_DEBUG is not defined
+#define GL_DEBUG(XX)   XX
+
+/// this macro is set to the normal glEnd() USE_GL_DEBUG is not defined
+#define GL_DEBUG_END() glEnd();

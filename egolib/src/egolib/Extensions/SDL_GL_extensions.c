@@ -26,7 +26,7 @@
 #include "egolib/Extensions/SDL_GL_extensions.h"
 #include "egolib/Renderer/TextureFilter.hpp"
 #include "egolib/Renderer/Texture.hpp"
-#include "egolib/Extensions/ogl_debug.h"
+#include "egolib/Extensions/ogl_include.h"
 #include "egolib/Math/_Include.hpp"
 #include "egolib/Image/ImageManager.hpp"
 #include "egolib/Graphics/PixelFormat.hpp"
@@ -117,28 +117,17 @@ bool SDL_GL_set_gl_mode(oglx_video_parameters_t * v)
 }
 
 //--------------------------------------------------------------------------------------------
-void SDL_GL_report_mode(SDLX_video_parameters_t& retval)
-{
-    SDLX_report_mode(Ego::GraphicsSystem::window, retval);
-
-    if (retval.windowProperties.opengl)
-    {
-        oglx_report_caps();
-    }
-}
-
-//--------------------------------------------------------------------------------------------
 bool SDL_GL_set_mode(SDLX_video_parameters_t& v_new, oglx_video_parameters_t& gl_new)
 {
     /// @author BB
     /// @details let SDL_GL try to set a new video mode.
     
     // use the sdl extensions to set the SDL video mode
-    bool result = SDLX_set_mode(v_new);
+    bool result = SDLX_CreateWindow(v_new);
 
     if (result)
     {
-        SDLX_Get_Screen_Info(sdl_scr, false);
+        Ego::GraphicsSystem::sdl_vparam.contextProperties.download();
 
         // set the opengl parameters
         gl_new.multisample = GL_FALSE;

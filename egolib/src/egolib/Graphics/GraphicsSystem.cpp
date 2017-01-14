@@ -1,6 +1,6 @@
 #include "egolib/Graphics/GraphicsSystem.hpp"
 #include "egolib/Graphics/GraphicsWindow.hpp"
-
+#include "egolib/Graphics/GraphicsContext.hpp"
 
 namespace Ego {
 
@@ -11,8 +11,21 @@ SDLX_video_parameters_t GraphicsSystem::sdl_vparam;
 oglx_video_parameters_t GraphicsSystem::ogl_vparam;
 
 GraphicsWindow *GraphicsSystem::window = nullptr;
+GraphicsContext *GraphicsSystem::context = nullptr;
 
 bool GraphicsSystem::initialized = false;
+
+GraphicsContext *GraphicsSystem::createContext(GraphicsWindow *window, const ContextProperties& contextProperties)
+{
+    try
+    {
+        return new Ego::GraphicsContext(window, contextProperties);
+    }
+    catch (...)
+    {
+        return nullptr;
+    }
+}
 
 GraphicsWindow *GraphicsSystem::createWindow(const WindowProperties& windowProperties)
 {
@@ -30,8 +43,10 @@ void GraphicsSystem::initialize() {
     if (initialized) {
         return;
     }
+    // Create the NEW graphics system.
+    GraphicsSystemNew::initialize();
     // Download the window parameters from the Egoboo configuration.
-    SDLX_video_parameters_t::download(sdl_vparam, egoboo_config_t::get());
+    sdl_vparam.download(egoboo_config_t::get());
 
     // Set immutable parameters.
     sdl_vparam.windowProperties.opengl = true;
@@ -101,21 +116,8 @@ void GraphicsSystem::uninitialize() {
     }
     delete window;
     window = nullptr;
-}
-
-void GraphicsSystem::setCursorVisibility(bool show) {
-    int result = SDL_ShowCursor(show ? SDL_ENABLE : SDL_DISABLE);
-    if (result < 0) {
-        throw Id::EnvironmentErrorException(__FILE__, __LINE__, "SDL", std::string("SDL_ShowCursor(")  + (show ? "SDL_ENABLE" : "SDL_DISABLE") + ") failed - reason `" + SDL_GetError() + "`");
-    }
-}
-
-bool GraphicsSystem::getCursorVisibility() {
-    int result = SDL_ShowCursor(SDL_QUERY);
-    if (result < 0) {
-        throw Id::EnvironmentErrorException(__FILE__, __LINE__, "SDL", std::string("SDL_GetShowCursor(SDL_Query) failed - reason `") + SDL_GetError() + "`");
-    }
-    return result == SDL_ENABLE;
+    // Uninitialize the NEW graphics system.
+    Ego::GraphicsSystemNew::uninitialize();
 }
 
 } // namespace Ego

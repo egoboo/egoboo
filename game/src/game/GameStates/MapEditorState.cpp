@@ -114,7 +114,7 @@ void MapEditorState::drawContainer(Ego::GUI::DrawingContext& drawingContext)
 void MapEditorState::beginState()
 {
     // in-game settings
-    Ego::GraphicsSystem::setCursorVisibility(true);
+    Ego::GraphicsSystemNew::get().setCursorVisibility(true);
     Ego::GraphicsSystem::window->setGrabEnabled(egoboo_config_t::get().debug_grabMouse.getValue());
 }
 

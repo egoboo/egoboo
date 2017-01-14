@@ -15,6 +15,16 @@ GraphicsWindow::GraphicsWindow(const WindowProperties& windowProperties) : windo
                                          SDL_GetError(), Log::EndOfEntry);
         throw Id::RuntimeErrorException(__FILE__, __LINE__, "unable to create SDL window");
     }
+    displayIndex = SDL_GetWindowDisplayIndex(window);
+    if (displayIndex < 0)
+    {
+        SDL_DestroyWindow(window);
+        window = nullptr;
+        Log::get() << Log::Entry::create(Log::Level::Error, __FILE__, __LINE__,
+                                         "unable to create SDL window: ",
+                                         SDL_GetError(), Log::EndOfEntry);
+        throw Id::RuntimeErrorException(__FILE__, __LINE__, "unable to create SDL window");
+    }
 }
 
 GraphicsWindow::~GraphicsWindow()
@@ -92,6 +102,14 @@ Size2i GraphicsWindow::getDrawableSize() const
 
 void GraphicsWindow::update()
 {
+    int newDisplayIndex = SDL_GetWindowDisplayIndex(window);
+    if (newDisplayIndex < 0)
+    {
+        Log::Entry e(Log::Level::Warning, __FILE__, __LINE__);
+        e << "unable to get display index" << Log::EndOfEntry;
+        Log::get() << e;
+    }
+    displayIndex = newDisplayIndex;
     SDL_Event event;
     int result;
     SDL_PumpEvents();
@@ -133,9 +151,9 @@ void GraphicsWindow::update()
     }
 }
 
-int GraphicsWindow::getDisplayIndex()
+int GraphicsWindow::getDisplayIndex() const
 {
-    return SDL_GetWindowDisplayIndex(window);
+    return displayIndex;
 }
 
 void GraphicsWindow::setGrabEnabled(bool enabled)

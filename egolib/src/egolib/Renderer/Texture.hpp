@@ -25,7 +25,6 @@
 #pragma once
 
 #include "egolib/Extensions/ogl_include.h"
-#include "egolib/Extensions/ogl_debug.h"
 #include "egolib/Extensions/ogl_extensions.h"
 #include "egolib/Renderer/TextureFilter.hpp"
 #include "egolib/Renderer/TextureAddressMode.hpp"

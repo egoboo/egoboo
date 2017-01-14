@@ -800,12 +800,12 @@ void draw_mouse_cursor()
     if (nullptr == pcursor)
     {
         // Show the system mouse cursor.
-        Ego::GraphicsSystem::setCursorVisibility(true);
+        Ego::GraphicsSystemNew::get().setCursorVisibility(true);
     }
     else
     {
         // Hide the system mouse cursor.
-        Ego::GraphicsSystem::setCursorVisibility(false);
+        Ego::GraphicsSystemNew::get().setCursorVisibility(false);
 
         //Get current mouse position
         int x, y;

@@ -31,7 +31,7 @@
 #include "egolib/Renderer/OpenGL/StencilBuffer.hpp"
 #include "egolib/Renderer/OpenGL/TextureUnit.hpp"
 #include "egolib/Renderer/OpenGL/Texture.hpp"
-#include "egolib/Extensions/ogl_debug.h"
+#include "egolib/Extensions/ogl_include.h"
 #include "egolib/Extensions/ogl_extensions.h"
 #include "egolib/Extensions/ogl_include.h"
 #include "egolib/Extensions/SDL_extensions.h"
