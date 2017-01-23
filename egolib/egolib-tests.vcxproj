@@ -41,7 +41,6 @@
     <ClCompile Include="tests\egolib\Tests\Math\VectorMath.cpp" />
     <ClCompile Include="tests\egolib\Tests\Singleton.cpp" />
     <ClCompile Include="tests\egolib\Tests\QuadTree.cpp" />
-    <ClCompile Include="tests\egolib\Tests\Signal.cpp" />
     <ClCompile Include="tests\egolib\Tests\StringUtilities.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

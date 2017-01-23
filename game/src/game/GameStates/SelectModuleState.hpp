@@ -69,7 +69,7 @@ private:
     
     std::shared_ptr<Ego::GUI::Image> _background;
 
-    std::vector<Ego::Connection> _connections;
+    std::vector<Id::Connection> _connections;
 
     std::shared_ptr<Ego::GUI::Button> _backButton;
     std::shared_ptr<Ego::GUI::Button> _filterButton;

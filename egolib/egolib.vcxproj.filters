@@ -124,9 +124,6 @@
     <Filter Include="Source Files\Script\Interpreter">
       <UniqueIdentifier>{13a9bb5e-f692-493c-90a0-1ad0c650b776}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Signal">
-      <UniqueIdentifier>{882ff1f1-8551-405a-9975-5ea8dbfdaf46}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Math\Functors">
       <UniqueIdentifier>{0b01a8e7-fe6d-438a-8459-bd880b264074}</UniqueIdentifier>
     </Filter>
@@ -138,9 +135,6 @@
     </Filter>
     <Filter Include="Header Files\Events">
       <UniqueIdentifier>{6a8ec327-4d9c-4158-8d0a-3b457c46b627}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Signal">
-      <UniqueIdentifier>{1645c3ca-cf4b-450b-bbe3-aeb3cb25deb3}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\Graphics\SDL">
       <UniqueIdentifier>{d53e3288-889c-4583-bfc1-951f3aa4d996}</UniqueIdentifier>
@@ -495,15 +489,6 @@
     <ClCompile Include="src\egolib\Extensions\WindowProperties.cpp">
       <Filter>Extensions</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\Signal\NodeBase.cpp">
-      <Filter>Source Files\Signal</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\Signal\SignalBase.cpp">
-      <Filter>Source Files\Signal</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\Signal\ConnectionBase.cpp">
-      <Filter>Source Files\Signal</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\Graphics\SDL\DisplayMode.cpp">
       <Filter>Source Files\Graphics\SDL</Filter>
     </ClCompile>
@@ -515,9 +500,6 @@
     </ClCompile>
     <ClCompile Include="src\egolib\InputControl\InputSystem.cpp">
       <Filter>Source Files\InputControl</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\Signal\Connection.hpp">
-      <Filter>Header Files\Signal</Filter>
     </ClCompile>
     <ClCompile Include="src\egolib\Script\IRuntimeStatistics.cpp">
       <Filter>Source Files\Script</Filter>
@@ -1058,9 +1040,6 @@
     <ClInclude Include="src\egolib\Graphics\GraphicsSystem.hpp">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Signal\Signal.hpp">
-      <Filter>Header Files\Signal</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Graphics\Buffer.hpp">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
@@ -1301,15 +1280,6 @@
     <ClInclude Include="src\egolib\Events\MouseWheelTurnedEventArgs.hpp">
       <Filter>Header Files\Events</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Signal\NodeBase.hpp">
-      <Filter>Header Files\Signal</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Signal\SignalBase.hpp">
-      <Filter>Header Files\Signal</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Signal\ConnectionBase.hpp">
-      <Filter>Header Files\Signal</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Graphics\SDL\DisplayMode.hpp">
       <Filter>Header Files\Graphics\SDL</Filter>
     </ClInclude>
@@ -1336,12 +1306,6 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Configuration\StandardVariable.hpp">
       <Filter>Header Files\Configuration</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Signal\ScopedConnection.hpp">
-      <Filter>Header Files\Signal</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Signal\Node.hpp">
-      <Filter>Header Files\Signal</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Math\Functors\Convert.hpp">
       <Filter>Header Files\Math\Functors</Filter>

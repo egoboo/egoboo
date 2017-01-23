@@ -344,7 +344,6 @@
     <ClCompile Include="src\egolib\FileFormats\MapTileDefinitionsDictionary.cpp" />
     <ClCompile Include="src\egolib\VFS\FsPath.cpp" />
     <ClCompile Include="src\egolib\Script\IRuntimeStatistics.cpp" />
-    <ClCompile Include="src\egolib\Signal\Connection.hpp" />
     <ClCompile Include="src\egolib\InputControl\ControlSettingsFile.cpp" />
     <ClCompile Include="src\egolib\InputControl\InputDevice.cpp" />
     <ClCompile Include="src\egolib\InputControl\InputSystem.cpp" />
@@ -359,9 +358,6 @@
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)\Graphics\SDL\DisplayMode.o</ObjectFileName>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\Graphics\SDL\DisplayMode.o</ObjectFileName>
     </ClCompile>
-    <ClCompile Include="src\egolib\Signal\ConnectionBase.cpp" />
-    <ClCompile Include="src\egolib\Signal\NodeBase.cpp" />
-    <ClCompile Include="src\egolib\Signal\SignalBase.cpp" />
     <ClCompile Include="src\egolib\Extensions\WindowProperties.cpp" />
     <ClCompile Include="src\egolib\App.cpp" />
     <ClCompile Include="src\egolib\Graphics\GraphicsWindow.cpp" />
@@ -578,8 +574,6 @@
     <ClInclude Include="src\egolib\Math\Functors\Convert_RGBAf_RGBf.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\Convert_RGBf_RGBAf.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\Convert_RGBf_RGBf.hpp" />
-    <ClInclude Include="src\egolib\Signal\Node.hpp" />
-    <ClInclude Include="src\egolib\Signal\ScopedConnection.hpp" />
     <ClInclude Include="src\egolib\Configuration\NumericVariable.hpp" />
     <ClInclude Include="src\egolib\Configuration\StandardVariable.hpp" />
     <ClInclude Include="src\egolib\Configuration\Variable.hpp" />
@@ -590,9 +584,6 @@
     <ClInclude Include="src\egolib\Input\JoystickState.hpp" />
     <ClInclude Include="src\egolib\Graphics\DisplayMode.hpp" />
     <ClInclude Include="src\egolib\Graphics\SDL\DisplayMode.hpp" />
-    <ClInclude Include="src\egolib\Signal\ConnectionBase.hpp" />
-    <ClInclude Include="src\egolib\Signal\NodeBase.hpp" />
-    <ClInclude Include="src\egolib\Signal\SignalBase.hpp" />
     <ClInclude Include="src\egolib\Events\MouseWheelTurnedEventArgs.hpp" />
     <ClInclude Include="src\egolib\Events\MouseButtonEventArgs.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\Closure.hpp" />
@@ -667,7 +658,6 @@
     <ClInclude Include="src\egolib\AI\AStar.hpp" />
     <ClInclude Include="src\egolib\Graphics\Buffer.hpp" />
     <ClInclude Include="src\egolib\Graphics\VertexElementDescriptor.hpp" />
-    <ClInclude Include="src\egolib\Signal\Signal.hpp" />
     <ClInclude Include="src\egolib\Graphics\GraphicsSystem.hpp" />
     <ClInclude Include="src\egolib\Renderer\OpenGL\StencilBuffer.hpp" />
     <ClInclude Include="src\egolib\Renderer\RendererInfo.hpp" />

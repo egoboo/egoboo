@@ -2,7 +2,6 @@
 
 #include "egolib/Extensions/SDL_extensions.h"
 #include "egolib/Extensions/WindowProperties.hpp"
-#include "egolib/Signal/Signal.hpp"
 #include "egolib/Events/WindowEventArgs.hpp"
 #include "egolib/Math/_Include.hpp"
 
