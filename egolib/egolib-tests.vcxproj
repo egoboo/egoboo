@@ -86,7 +86,6 @@
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\VisualStudio\libraries.props" />
-    <Import Project="..\VisualStudio\lua.props" />
     <Import Project="..\VisualStudio\opengl.props" />
     <Import Project="..\VisualStudio\physfs.props" />
     <Import Project="..\VisualStudio\sdl2.props" />
@@ -95,7 +94,6 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\VisualStudio\libraries.props" />
-    <Import Project="..\VisualStudio\lua.props" />
     <Import Project="..\VisualStudio\opengl.props" />
     <Import Project="..\VisualStudio\physfs.props" />
     <Import Project="..\VisualStudio\sdl2.props" />
@@ -104,7 +102,6 @@
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\VisualStudio\libraries.props" />
-    <Import Project="..\VisualStudio\lua.props" />
     <Import Project="..\VisualStudio\opengl.props" />
     <Import Project="..\VisualStudio\physfs.props" />
     <Import Project="..\VisualStudio\sdl2.props" />
@@ -113,7 +110,6 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\VisualStudio\libraries.props" />
-    <Import Project="..\VisualStudio\lua.props" />
     <Import Project="..\VisualStudio\opengl.props" />
     <Import Project="..\VisualStudio\physfs.props" />
     <Import Project="..\VisualStudio\sdl2.props" />

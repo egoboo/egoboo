@@ -56,8 +56,6 @@
     <Import Project="..\VisualStudio\multithreaded.props" />
     <Import Project="..\VisualStudio\sdl2.props" />
     <Import Project="..\VisualStudio\physfs.props" />
-    <Import Project="..\VisualStudio\lua.props" />
-    <Import Project="..\VisualStudio\enet.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -65,8 +63,6 @@
     <Import Project="..\VisualStudio\multithreaded.props" />
     <Import Project="..\VisualStudio\sdl2.props" />
     <Import Project="..\VisualStudio\physfs.props" />
-    <Import Project="..\VisualStudio\lua.props" />
-    <Import Project="..\VisualStudio\enet.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -74,8 +70,6 @@
     <Import Project="..\VisualStudio\multithreaded_debug.props" />
     <Import Project="..\VisualStudio\sdl2.props" />
     <Import Project="..\VisualStudio\physfs.props" />
-    <Import Project="..\VisualStudio\lua.props" />
-    <Import Project="..\VisualStudio\enet.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -83,8 +77,6 @@
     <Import Project="..\VisualStudio\multithreaded_debug.props" />
     <Import Project="..\VisualStudio\sdl2.props" />
     <Import Project="..\VisualStudio\physfs.props" />
-    <Import Project="..\VisualStudio\lua.props" />
-    <Import Project="..\VisualStudio\enet.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
@@ -296,7 +288,7 @@
       <FloatingPointExceptions>false</FloatingPointExceptions>
       <ControlFlowGuard>false</ControlFlowGuard>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level4</WarningLevel>
       <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
