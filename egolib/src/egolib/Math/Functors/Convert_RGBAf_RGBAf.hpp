@@ -24,7 +24,6 @@
 #pragma once
 
 #include "egolib/Math/Functors/Convert.hpp"
-#include "egolib/Math/ColourRGBA.hpp"
 
 namespace Ego {
 namespace Math {
@@ -32,8 +31,8 @@ namespace Math {
 /// Convert a colour from RGBAf to RGBAf.
 /// This is an identity conversion.
 template <>
-struct Convert<Colour<RGBAf>, Colour<RGBAf>> {
-    Colour<RGBAf> operator()(const Colour<RGBAf>& source) const {
+struct Convert<Id::Colour<Id::RGBAf>, Id::Colour<Id::RGBAf>> {
+    Id::Colour<Id::RGBAf> operator()(const Id::Colour<Id::RGBAf>& source) const {
         return source;
     }
 };

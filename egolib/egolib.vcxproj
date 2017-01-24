@@ -640,12 +640,8 @@
     <ClInclude Include="src\egolib\Math\Discrete.hpp" />
     <ClInclude Include="src\egolib\App.hpp" />
     <ClInclude Include="src\egolib\Graphics\GraphicsWindow.hpp" />
-    <ClInclude Include="src\egolib\Math\Colour.hpp" />
-    <ClInclude Include="src\egolib\Math\ColourLA.hpp" />
-    <ClInclude Include="src\egolib\Math\ColourComponents.hpp" />
     <ClInclude Include="src\egolib\TrigonometricTable.hpp" />
     <ClInclude Include="src\egolib\Math\Ray.hpp" />
-    <ClInclude Include="src\egolib\Math\ColourSpace.hpp" />
     <ClInclude Include="src\egolib\Graphics\IndexBuffer.hpp" />
     <ClInclude Include="src\egolib\Graphics\IndexDescriptor.hpp" />
     <ClInclude Include="src\egolib\Graphics\VertexDescriptor.hpp" />
@@ -792,8 +788,6 @@
     <ClInclude Include="src\egolib\Renderer\TextureFilter.hpp" />
     <ClInclude Include="src\egolib\Renderer\OpenGL\Renderer.hpp" />
     <ClInclude Include="src\egolib\Renderer\Renderer.hpp" />
-    <ClInclude Include="src\egolib\math\ColourRGB.hpp" />
-    <ClInclude Include="src\egolib\math\ColourRGBA.hpp" />
     <ClInclude Include="src\egolib\math\Vector.hpp" />
     <ClInclude Include="src\egolib\math\AxisAlignedCube.hpp" />
     <ClInclude Include="src\egolib\math\Sphere.hpp" />
@@ -855,7 +849,6 @@
     <None Include="src\egolib\Script\PDLTokenKind.in" />
     <None Include="src\egolib\Script\Constants.in" />
     <None Include="src\egolib\FileFormats\MapTileDefinitionsDictionary.html" />
-    <None Include="src\egolib\Math\ColourL.hpp" />
     <None Include="src\egolib\Script\Functions.in" />
     <None Include="src\egolib\Script\Operators.in" />
     <None Include="src\egolib\Script\Variables.in" />

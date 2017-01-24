@@ -23,6 +23,8 @@
 
 #pragma once
 
+#include "egolib/platform.h"
+
 namespace Ego {
 namespace Math {
 

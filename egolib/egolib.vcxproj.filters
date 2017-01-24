@@ -1082,26 +1082,11 @@
     <ClInclude Include="src\egolib\Graphics\IndexBuffer.hpp">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Math\ColourSpace.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Math\Ray.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\TrigonometricTable.hpp">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Math\ColourComponents.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\math\ColourRGB.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Math\ColourLA.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Math\Colour.hpp">
-      <Filter>Header Files\Math</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\math\Sphere.hpp">
       <Filter>Header Files\Math</Filter>
@@ -1334,9 +1319,6 @@
     <ClInclude Include="src\egolib\Math\Functors\Convert_LAf_LAf.hpp">
       <Filter>Header Files\Math\Functors</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\math\ColourRGBA.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Math\Interval.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
@@ -1437,9 +1419,6 @@
     </None>
     <None Include="src\egolib\Script\Operators.in">
       <Filter>Header Files\Script</Filter>
-    </None>
-    <None Include="src\egolib\Math\ColourL.hpp">
-      <Filter>Header Files\Math</Filter>
     </None>
     <None Include="src\egolib\FileFormats\MapTileDefinitionsDictionary.html">
       <Filter>File Formats</Filter>
