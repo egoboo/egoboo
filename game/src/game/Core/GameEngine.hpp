@@ -19,7 +19,6 @@
 /// @author Zefz aka Johan Jansen
 #pragma once
 
-#include "egolib/Signal/Signal.hpp"
 #include "egolib/egoboo_setup.h"
 
 //Forward declarations
@@ -40,14 +39,14 @@ class PlayingState;
 class GameEngine
 {
 public:
-    Ego::Connection shown;
-    Ego::Connection hidden;
-    Ego::Connection resized;
+    Id::Connection shown;
+    Id::Connection hidden;
+    Id::Connection resized;
 #if 0
-    Ego::Connection mouseEntered;
-    Ego::Connection mouseLeft;
-    Ego::Connection keyboardFocusReceived;
-    Ego::Connection keyboardFocusLost;
+    Id::Connection mouseEntered;
+    Id::Connection mouseLeft;
+    Id::Connection keyboardFocusReceived;
+    Id::Connection keyboardFocusLost;
 #endif
     void subscribe();
     void unsubscribe();

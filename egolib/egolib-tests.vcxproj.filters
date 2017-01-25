@@ -43,9 +43,6 @@
     <ClCompile Include="tests\egolib\Tests\Compilation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="tests\egolib\Tests\Signal.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="tests\egolib\Tests\StringUtilities.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

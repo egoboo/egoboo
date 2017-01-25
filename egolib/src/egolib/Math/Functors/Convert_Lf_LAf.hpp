@@ -24,8 +24,6 @@
 #pragma once
 
 #include "egolib/Math/Functors/Convert.hpp"
-#include "egolib/Math/ColourL.hpp"
-#include "egolib/Math/ColourLA.hpp"
 
 namespace Ego {
 namespace Math {
@@ -33,9 +31,9 @@ namespace Math {
 /// Convert colours from LAf to Lf.
 /// \f$(l,a)\f$ is mapped to \f$(l)\f$.
 template <>
-struct Convert<Colour<Lf>, Colour<LAf>> {
-    Colour<Lf> operator()(const Colour<LAf>& source) const {
-        return Colour<Lf>(source.getLuminance());
+struct Convert<Id::Colour<Id::Lf>, Id::Colour<Id::LAf>> {
+    Id::Colour<Id::Lf> operator()(const Id::Colour<Id::LAf>& source) const {
+        return Id::Colour<Id::Lf>(source.getLuminance());
     }
 };
 

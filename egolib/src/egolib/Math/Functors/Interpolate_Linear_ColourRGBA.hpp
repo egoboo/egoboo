@@ -25,27 +25,19 @@
 
 #include "egolib/Math/Functors/Interpolate.hpp"
 #include "egolib/Math/Functors/Interpolate_Linear_Real.hpp"
-#include "egolib/Math/ColourRGBA.hpp"
 
 namespace Ego {
 namespace Math {
 
-template <typename _ColourSpaceType>
-struct Interpolate<Colour<_ColourSpaceType>, InterpolationMethod::Linear, std::enable_if_t<std::is_same<RGBAf, _ColourSpaceType>::value>> {
-    using A = Colour<_ColourSpaceType>;
-    using ColourSpaceType = _ColourSpaceType;
-    /**
-     * @ingroup math
-     * @brief
-     *  Generic linear interpolation: specialization for Ego::Math::Colour<Ego::Math::RGBAf>.
-     * @param x, y
-     *  the values to interpolate between
-     * @param t
-     *  the parameter.
-     *  Must be within the bounds of @a 0 (inclusive) and @a 1 (inclusive).
-     * @return
-     *  the interpolated value
-     */
+template <typename ColourSpaceTypeArg>
+struct Interpolate<Id::Colour<ColourSpaceTypeArg>, InterpolationMethod::Linear, std::enable_if_t<std::is_same<Id::RGBAf, ColourSpaceTypeArg>::value>> {
+    using A = Id::Colour<ColourSpaceTypeArg>;
+    using ColourSpaceType = ColourSpaceTypeArg;
+    /// @ingroup math
+    /// @brief Generic linear interpolation: specialization for Id::Colour<Id::RGBAf>.
+    /// @param x, y the values to interpolate between
+    /// @param t the parameter. Must be within the bounds of @a 0 (inclusive) and @a 1 (inclusive).
+    /// @return the interpolated value
     A operator()(const A& x, const A& y, float t) const {
         static const Interpolate<float, InterpolationMethod::Linear> f{};
         /// @todo Use a cookie constructor: The values are within bounds.

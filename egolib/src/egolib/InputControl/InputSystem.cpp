@@ -1,97 +1,109 @@
 #include "InputSystem.hpp"
 
-namespace Ego
-{
-namespace Input
-{
-
+namespace Ego {
+namespace Input {
 
 InputSystem::InputSystem() :
-	_mouseMovement(0.0f, 0.0f),
-	_mouseButtonDown(),
-	_modifierKeys()
+    mouseMovement(0.0f, 0.0f),
+    mouseButtonDown(),
+    modifierKeys()
 {
-	_mouseButtonDown.fill(false);
+    mouseButtonDown.fill(false);
 }
 
 InputSystem::~InputSystem()
-{
-
-}
+{}
 
 void InputSystem::update()
 {
-	//Update mouse movement
-	int x, y;
-    uint32_t b = SDL_GetRelativeMouseState(&x, &y);
-    _mouseMovement.x() = -x;
-    _mouseMovement.y() = -y;
+    // Update mouse movement.
+    int xBackend, yBackend;
+    uint32_t mouseButtonDownBackend = SDL_GetRelativeMouseState(&xBackend, &yBackend);
+    mouseMovement.x() = -xBackend;
+    mouseMovement.y() = -yBackend;
 
-    //Update mouse buttons
-    _mouseButtonDown[MouseButton::LEFT] = b & SDL_BUTTON(SDL_BUTTON_LEFT);
-    _mouseButtonDown[MouseButton::MIDDLE] = b & SDL_BUTTON(SDL_BUTTON_MIDDLE);
-    _mouseButtonDown[MouseButton::RIGHT] = b & SDL_BUTTON(SDL_BUTTON_RIGHT); 
-    _mouseButtonDown[MouseButton::X1] = b & SDL_BUTTON(SDL_BUTTON_X1);
-    _mouseButtonDown[MouseButton::X2] = b & SDL_BUTTON(SDL_BUTTON_X2); 
+    // Update mouse buttons.
+    mouseButtonDown[MouseButton::LEFT] = mouseButtonDownBackend & SDL_BUTTON(SDL_BUTTON_LEFT);
+    mouseButtonDown[MouseButton::MIDDLE] = mouseButtonDownBackend & SDL_BUTTON(SDL_BUTTON_MIDDLE);
+    mouseButtonDown[MouseButton::RIGHT] = mouseButtonDownBackend & SDL_BUTTON(SDL_BUTTON_RIGHT);
+    mouseButtonDown[MouseButton::X1] = mouseButtonDownBackend & SDL_BUTTON(SDL_BUTTON_X1);
+    mouseButtonDown[MouseButton::X2] = mouseButtonDownBackend & SDL_BUTTON(SDL_BUTTON_X2);
 
     // (2) Get and translate the modifier keys state.
     auto backendModifierKeys = SDL_GetModState();
-    _modifierKeys = Ego::ModifierKeys();
+    modifierKeys = ModifierKeys();
     // NUMLOCK.
-    if (SDL_Keymod::KMOD_NUM == (backendModifierKeys & SDL_Keymod::KMOD_NUM)) {
-        _modifierKeys |= Ego::ModifierKeys::Num;
+    if (SDL_Keymod::KMOD_NUM == (backendModifierKeys & SDL_Keymod::KMOD_NUM))
+    {
+        modifierKeys |= ModifierKeys::Num;
     }
     // LGUI and RGUI
-    if (SDL_Keymod::KMOD_LGUI == (backendModifierKeys & SDL_Keymod::KMOD_LGUI)) {
-        _modifierKeys |= Ego::ModifierKeys::LeftGui;
+    if (SDL_Keymod::KMOD_LGUI == (backendModifierKeys & SDL_Keymod::KMOD_LGUI))
+    {
+        modifierKeys |= ModifierKeys::LeftGui;
     }
-    if (SDL_Keymod::KMOD_RGUI == (backendModifierKeys & SDL_Keymod::KMOD_RGUI)) {
-        _modifierKeys |= Ego::ModifierKeys::RightGui;
+    if (SDL_Keymod::KMOD_RGUI == (backendModifierKeys & SDL_Keymod::KMOD_RGUI))
+    {
+        modifierKeys |= ModifierKeys::RightGui;
     }
     // LSHIFT and RSHIFT
-    if (SDL_Keymod::KMOD_LSHIFT == (backendModifierKeys & SDL_Keymod::KMOD_LSHIFT)) {
-        _modifierKeys |= Ego::ModifierKeys::LeftShift;
+    if (SDL_Keymod::KMOD_LSHIFT == (backendModifierKeys & SDL_Keymod::KMOD_LSHIFT))
+    {
+        modifierKeys |= ModifierKeys::LeftShift;
     }
-    if (SDL_Keymod::KMOD_RSHIFT == (backendModifierKeys & SDL_Keymod::KMOD_RSHIFT)) {
-        _modifierKeys |= Ego::ModifierKeys::RightShift;
+    if (SDL_Keymod::KMOD_RSHIFT == (backendModifierKeys & SDL_Keymod::KMOD_RSHIFT))
+    {
+        modifierKeys |= ModifierKeys::RightShift;
     }
     // CAPS
-    if (SDL_Keymod::KMOD_CAPS == (backendModifierKeys & SDL_Keymod::KMOD_CAPS)) {
-        _modifierKeys |= Ego::ModifierKeys::Caps;
+    if (SDL_Keymod::KMOD_CAPS == (backendModifierKeys & SDL_Keymod::KMOD_CAPS))
+    {
+        modifierKeys |= ModifierKeys::Caps;
     }
     // LCTRL and RCTRL
-    if (SDL_Keymod::KMOD_LCTRL == (backendModifierKeys & SDL_Keymod::KMOD_LCTRL)) {
-        _modifierKeys |= Ego::ModifierKeys::LeftControl;
+    if (SDL_Keymod::KMOD_LCTRL == (backendModifierKeys & SDL_Keymod::KMOD_LCTRL))
+    {
+        modifierKeys |= ModifierKeys::LeftControl;
     }
-    if (SDL_Keymod::KMOD_RCTRL == (backendModifierKeys & SDL_Keymod::KMOD_RCTRL)) {
-        _modifierKeys |= Ego::ModifierKeys::RightControl;
+    if (SDL_Keymod::KMOD_RCTRL == (backendModifierKeys & SDL_Keymod::KMOD_RCTRL))
+    {
+        modifierKeys |= ModifierKeys::RightControl;
     }
     // LALT and RALT
-    if (SDL_Keymod::KMOD_LALT == (backendModifierKeys & SDL_Keymod::KMOD_LALT)) {
-        _modifierKeys |= Ego::ModifierKeys::LeftAlt;
+    if (SDL_Keymod::KMOD_LALT == (backendModifierKeys & SDL_Keymod::KMOD_LALT))
+    {
+        modifierKeys |= ModifierKeys::LeftAlt;
     }
-    if (SDL_Keymod::KMOD_RALT == (backendModifierKeys & SDL_Keymod::KMOD_RALT)) {
-        _modifierKeys |= Ego::ModifierKeys::RightAlt;
+    if (SDL_Keymod::KMOD_RALT == (backendModifierKeys & SDL_Keymod::KMOD_RALT))
+    {
+        modifierKeys |= ModifierKeys::RightAlt;
     }
 }
 
 const Vector2f& InputSystem::getMouseMovement() const
 {
-	return _mouseMovement;
+    return mouseMovement;
 }
 
 bool InputSystem::isMouseButtonDown(const MouseButton button) const
 {
-	if(button >= _mouseButtonDown.size()) {
-		return false;
-	}
-	return _mouseButtonDown[button];
+    if (button >= mouseButtonDown.size())
+    {
+        return false;
+    }
+    return mouseButtonDown[button];
 }
 
 bool InputSystem::isKeyDown(const SDL_Keycode key) const
 {
-	return SDL_GetKeyboardState(nullptr)[SDL_GetScancodeFromKey(key)];
+    return SDL_GetKeyboardState(nullptr)[SDL_GetScancodeFromKey(key)];
 }
 
-} //Input
-} //Ego
+ModifierKeys InputSystem::getModifierKeys() const
+{
+    return modifierKeys;
+}
+
+} // namespace Input
+} // namespace Ego
+

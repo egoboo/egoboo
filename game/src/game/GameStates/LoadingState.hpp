@@ -79,7 +79,7 @@ protected:
 
 private:
     std::thread _loadingThread;
-    std::vector<Ego::Connection> _connections;
+    std::vector<Id::Connection> _connections;
     std::shared_ptr<Ego::GUI::Label> _loadingLabel;
     const std::shared_ptr<ModuleProfile> _loadModule;
     std::list<std::string> _playersToLoad;

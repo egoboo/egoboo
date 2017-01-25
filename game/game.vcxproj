@@ -57,7 +57,6 @@
     <Import Project="..\VisualStudio\physfs.props" />
     <Import Project="..\VisualStudio\opengl.props" />
     <Import Project="..\VisualStudio\sdl2.props" />
-    <Import Project="..\VisualStudio\lua.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -65,7 +64,6 @@
     <Import Project="..\VisualStudio\physfs.props" />
     <Import Project="..\VisualStudio\opengl.props" />
     <Import Project="..\VisualStudio\sdl2.props" />
-    <Import Project="..\VisualStudio\lua.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -73,7 +71,6 @@
     <Import Project="..\VisualStudio\physfs.props" />
     <Import Project="..\VisualStudio\opengl.props" />
     <Import Project="..\VisualStudio\sdl2.props" />
-    <Import Project="..\VisualStudio\lua.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -81,7 +78,6 @@
     <Import Project="..\VisualStudio\physfs.props" />
     <Import Project="..\VisualStudio\opengl.props" />
     <Import Project="..\VisualStudio\sdl2.props" />
-    <Import Project="..\VisualStudio\lua.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>

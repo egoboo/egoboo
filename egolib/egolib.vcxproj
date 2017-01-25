@@ -56,8 +56,6 @@
     <Import Project="..\VisualStudio\multithreaded.props" />
     <Import Project="..\VisualStudio\sdl2.props" />
     <Import Project="..\VisualStudio\physfs.props" />
-    <Import Project="..\VisualStudio\lua.props" />
-    <Import Project="..\VisualStudio\enet.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -65,8 +63,6 @@
     <Import Project="..\VisualStudio\multithreaded.props" />
     <Import Project="..\VisualStudio\sdl2.props" />
     <Import Project="..\VisualStudio\physfs.props" />
-    <Import Project="..\VisualStudio\lua.props" />
-    <Import Project="..\VisualStudio\enet.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -74,8 +70,6 @@
     <Import Project="..\VisualStudio\multithreaded_debug.props" />
     <Import Project="..\VisualStudio\sdl2.props" />
     <Import Project="..\VisualStudio\physfs.props" />
-    <Import Project="..\VisualStudio\lua.props" />
-    <Import Project="..\VisualStudio\enet.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -83,8 +77,6 @@
     <Import Project="..\VisualStudio\multithreaded_debug.props" />
     <Import Project="..\VisualStudio\sdl2.props" />
     <Import Project="..\VisualStudio\physfs.props" />
-    <Import Project="..\VisualStudio\lua.props" />
-    <Import Project="..\VisualStudio\enet.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
@@ -296,7 +288,7 @@
       <FloatingPointExceptions>false</FloatingPointExceptions>
       <ControlFlowGuard>false</ControlFlowGuard>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level4</WarningLevel>
       <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
@@ -344,7 +336,6 @@
     <ClCompile Include="src\egolib\FileFormats\MapTileDefinitionsDictionary.cpp" />
     <ClCompile Include="src\egolib\VFS\FsPath.cpp" />
     <ClCompile Include="src\egolib\Script\IRuntimeStatistics.cpp" />
-    <ClCompile Include="src\egolib\Signal\Connection.hpp" />
     <ClCompile Include="src\egolib\InputControl\ControlSettingsFile.cpp" />
     <ClCompile Include="src\egolib\InputControl\InputDevice.cpp" />
     <ClCompile Include="src\egolib\InputControl\InputSystem.cpp" />
@@ -359,9 +350,6 @@
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)\Graphics\SDL\DisplayMode.o</ObjectFileName>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\Graphics\SDL\DisplayMode.o</ObjectFileName>
     </ClCompile>
-    <ClCompile Include="src\egolib\Signal\ConnectionBase.cpp" />
-    <ClCompile Include="src\egolib\Signal\NodeBase.cpp" />
-    <ClCompile Include="src\egolib\Signal\SignalBase.cpp" />
     <ClCompile Include="src\egolib\Extensions\WindowProperties.cpp" />
     <ClCompile Include="src\egolib\App.cpp" />
     <ClCompile Include="src\egolib\Graphics\GraphicsWindow.cpp" />
@@ -578,8 +566,6 @@
     <ClInclude Include="src\egolib\Math\Functors\Convert_RGBAf_RGBf.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\Convert_RGBf_RGBAf.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\Convert_RGBf_RGBf.hpp" />
-    <ClInclude Include="src\egolib\Signal\Node.hpp" />
-    <ClInclude Include="src\egolib\Signal\ScopedConnection.hpp" />
     <ClInclude Include="src\egolib\Configuration\NumericVariable.hpp" />
     <ClInclude Include="src\egolib\Configuration\StandardVariable.hpp" />
     <ClInclude Include="src\egolib\Configuration\Variable.hpp" />
@@ -590,9 +576,6 @@
     <ClInclude Include="src\egolib\Input\JoystickState.hpp" />
     <ClInclude Include="src\egolib\Graphics\DisplayMode.hpp" />
     <ClInclude Include="src\egolib\Graphics\SDL\DisplayMode.hpp" />
-    <ClInclude Include="src\egolib\Signal\ConnectionBase.hpp" />
-    <ClInclude Include="src\egolib\Signal\NodeBase.hpp" />
-    <ClInclude Include="src\egolib\Signal\SignalBase.hpp" />
     <ClInclude Include="src\egolib\Events\MouseWheelTurnedEventArgs.hpp" />
     <ClInclude Include="src\egolib\Events\MouseButtonEventArgs.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\Closure.hpp" />
@@ -649,12 +632,8 @@
     <ClInclude Include="src\egolib\Math\Discrete.hpp" />
     <ClInclude Include="src\egolib\App.hpp" />
     <ClInclude Include="src\egolib\Graphics\GraphicsWindow.hpp" />
-    <ClInclude Include="src\egolib\Math\Colour.hpp" />
-    <ClInclude Include="src\egolib\Math\ColourLA.hpp" />
-    <ClInclude Include="src\egolib\Math\ColourComponents.hpp" />
     <ClInclude Include="src\egolib\TrigonometricTable.hpp" />
     <ClInclude Include="src\egolib\Math\Ray.hpp" />
-    <ClInclude Include="src\egolib\Math\ColourSpace.hpp" />
     <ClInclude Include="src\egolib\Graphics\IndexBuffer.hpp" />
     <ClInclude Include="src\egolib\Graphics\IndexDescriptor.hpp" />
     <ClInclude Include="src\egolib\Graphics\VertexDescriptor.hpp" />
@@ -667,7 +646,6 @@
     <ClInclude Include="src\egolib\AI\AStar.hpp" />
     <ClInclude Include="src\egolib\Graphics\Buffer.hpp" />
     <ClInclude Include="src\egolib\Graphics\VertexElementDescriptor.hpp" />
-    <ClInclude Include="src\egolib\Signal\Signal.hpp" />
     <ClInclude Include="src\egolib\Graphics\GraphicsSystem.hpp" />
     <ClInclude Include="src\egolib\Renderer\OpenGL\StencilBuffer.hpp" />
     <ClInclude Include="src\egolib\Renderer\RendererInfo.hpp" />
@@ -802,8 +780,6 @@
     <ClInclude Include="src\egolib\Renderer\TextureFilter.hpp" />
     <ClInclude Include="src\egolib\Renderer\OpenGL\Renderer.hpp" />
     <ClInclude Include="src\egolib\Renderer\Renderer.hpp" />
-    <ClInclude Include="src\egolib\math\ColourRGB.hpp" />
-    <ClInclude Include="src\egolib\math\ColourRGBA.hpp" />
     <ClInclude Include="src\egolib\math\Vector.hpp" />
     <ClInclude Include="src\egolib\math\AxisAlignedCube.hpp" />
     <ClInclude Include="src\egolib\math\Sphere.hpp" />
@@ -865,7 +841,6 @@
     <None Include="src\egolib\Script\PDLTokenKind.in" />
     <None Include="src\egolib\Script\Constants.in" />
     <None Include="src\egolib\FileFormats\MapTileDefinitionsDictionary.html" />
-    <None Include="src\egolib\Math\ColourL.hpp" />
     <None Include="src\egolib\Script\Functions.in" />
     <None Include="src\egolib\Script\Operators.in" />
     <None Include="src\egolib\Script\Variables.in" />

@@ -2,10 +2,6 @@
 
 #include "egolib/Math/AxisAlignedBox.hpp"
 #include "egolib/Math/Cone3.hpp"
-#include "egolib/Math/ColourL.hpp"
-#include "egolib/Math/ColourLA.hpp"
-#include "egolib/Math/ColourRGB.hpp"
-#include "egolib/Math/ColourRGBA.hpp"
 #include "egolib/Math/AxisAlignedCube.hpp"
 #include "egolib/Math/Discrete.hpp"
 #include "egolib/Math/OrderedField.hpp"
@@ -135,19 +131,19 @@ using Intervalf = Interval<float>;
 
 /// A colour in RGB colour space with single-precision floating-point components each within the range from 0 (inclusive) to 1 (inclusive).
 /// A component value of 0 indicates minimal intensity of the component and 1 indicates maximal intensity of the component.
-using Colour3f =  Colour<RGBf>;
+using Colour3f =  Id::Colour<Id::RGBf>;
 
 /// A colour in RGBA colour space with single-precision floating-point components each within the range from 0 (inclusive) to 1 (inclusive).
 /// A component value of 0 indicates minimal intensity of the component and 1 indicates maximal intensity of the component.
-using Colour4f = Colour<RGBAf>;
+using Colour4f = Id::Colour<Id::RGBAf>;
 
 /// A colour in RGB colour space with unsigned integer components each within the range from 0 (inclusive) to 255 (inclusive).
 /// A component value of 0 indicates minimal intensity of the component and 255 indicates maximal intensity of the component.
-using Colour3b = Colour<RGBb>;
+using Colour3b = Id::Colour<Id::RGBb>;
 
 /// A colour in RGBA colour space with unsigned integer components each within the range from 0 (inclusive) to 255 (inclusive).
 /// A component value of 0 indicates minimal intensity of the component and 255 indicates maximal intensity of the component.
-using Colour4b = Colour<RGBAb>;
+using Colour4b = Id::Colour<Id::RGBAb>;
 
 } // namespace Math
 } // namespace Ego

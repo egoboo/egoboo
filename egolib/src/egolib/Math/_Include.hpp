@@ -2,11 +2,6 @@
 
 #define EGOLIB_MATH_PRIVATE 1
 
-#include "egolib/Math/ColourRGB.hpp"
-#include "egolib/Math/ColourRGBA.hpp"
-#include "egolib/Math/ColourL.hpp"
-#include "egolib/Math/ColourLA.hpp"
-
 //
 #include "egolib/Math/Interval.hpp"
 
