@@ -1,0 +1,75 @@
+#pragma once
+
+#include "egolib/Configuration/Variable.hpp"
+
+namespace Ego {
+namespace Configuration {
+
+/// @brief A variable storing a numeric value.
+template <class ValueType>
+class Variable<ValueType, enable_if_t<!is_same<ValueType, bool>::value && is_arithmetic<ValueType>::value>>
+    : public VariableBase<ValueType>
+{
+    // (u)intx_t, x in [8,16,32,64] & float & double
+    static_assert(!is_same<ValueType, bool>::value && is_arithmetic<ValueType>::value, "ValueType must not be an arithmetic non-bool type");
+
+private:
+    /// @brief The minimum value (inclusive).
+    /// @invariant  <tt>min &lt= max</tt>
+    ValueType min;
+
+    /// @brief The maximum value (inclusive).
+    /// @invariant <tt>min &lt= max</tt>
+    ValueType max;
+
+public:
+    /// @brief Construct this variable.
+    /// @param defaultValue the default value the variable
+    /// @param name the partially qualified name of the variable
+    /// @param description the description of the variable
+    /// @param min, max the minimum (incl.) and the maximum value (incl.)
+    /// @throw std::invalid_argument
+    /// <tt>min > max</tt> or <tt>defaultValue < min</tt> or <tt>defaultValue > max</tt>
+    Variable(ValueType defaultValue, const string& name, const string& description,
+             ValueType min = numeric_limits<ValueType>::min(), 
+             ValueType max = numeric_limits<ValueType>::max()) :
+        VariableBase<ValueType>(defaultValue, name, description), min(min), max(max)
+    {
+        if (min > max) throw std::invalid_argument("min > max");
+        else if (defaultValue < min) throw std::invalid_argument("defaultValue < min");
+        else if (defaultValue > max) throw std::invalid_argument("defaultValue > max");
+    }
+
+    const Variable& operator=(const Variable& other)
+    {
+        this->setValue(other.getValue());
+        return *this;
+    }
+
+    virtual bool encodeValue(string& target) const override
+    {
+        return Script::Encoder<ValueType>()(this->getValue(), target);
+    }
+
+    virtual bool decodeValue(const string& source) override
+    {
+        ValueType temporary = {};
+        if (!Script::Decoder<ValueType>()(source, temporary))
+        {
+            return false;
+        }
+        this->setValue(temporary);
+        return true;
+    }
+
+    /// @brief Get the maximum value.
+    /// @return the maximum value
+    ValueType getMaxValue() const { return max; }
+
+    /// @brief Get the minimum value.
+    /// @return the minimum value
+    ValueType getMinValue() const { return min; }
+};
+
+} // namespace Configuration
+} // namespace Ego
