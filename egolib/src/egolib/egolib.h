@@ -125,7 +125,6 @@
 
 //--------------------------------------------------------------------------------------------
 
-#include "egolib/FileFormats/configfile.h"
 #include "egolib/FileFormats/id_md2.h"
 #include "egolib/FileFormats/map_file.h"
 #include "egolib/FileFormats/map_tile_dictionary.h"

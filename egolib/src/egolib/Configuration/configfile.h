@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/FileFormats/configfile.h
-/// @details Configuration files
+/// @file egolib/Configuration/configfile.h
+/// @brief Parsing and unparsing of configuration files
 
 #pragma once
 
@@ -37,107 +37,68 @@ using namespace Ego::Script;
 
 struct AbstractConfigFile
 {
-
 public:
-
-    /**
-     * @brief
-     *  A single comment line.
-     */
+    /// @brief A single comment line.
     struct CommentLine
     {
-        string _text;
+        string text;
         CommentLine(const string& text) :
-            _text(text)
+            text(text)
         {}
         virtual ~CommentLine()
         {}
         const string& getText() const
         {
-            return _text;
+            return text;
         }
     };
 
-    /**
-     * @brief
-     *  A single entry in a configuration file.
-     */
+    /// @brief A single entry in a configuration file.
     struct Entry
     {
-
     protected:
+        /// @brief The comment lines associated with this entry.
+        vector<CommentLine> commentLines;
 
-        /**
-         * @brief
-         *  The comment lines associated with this entry.
-         */
-        vector<CommentLine> _commentLines;
+        /// @brief The qualified name of this entry.
+        QualifiedName qualifiedName;
 
-        /**
-         * @brief
-         *  The qualified name of this entry.
-         */
-        QualifiedName _qualifiedName;
-
-        /**
-         * @brief
-         *  The value of this entry.
-         */
-        string _value;
+        /// @brief The value of this entry.
+        string value;
 
     public:
 
-        /**
-         * @brief
-         *  Construct this entry.
-         * @param qualifiedName
-         *  the qualified name
-         * @param value
-         *  the value
-         */
+        /// @brief Construct this entry.
+        /// @param qualifiedName the qualified name
+        /// @param value the value
         Entry(const QualifiedName& qualifiedName, const string& value) :
-            _qualifiedName(qualifiedName), _value(value),
-            _commentLines()
+            qualifiedName(qualifiedName), value(value),
+            commentLines()
         {}
 
-        /**
-         * @brief
-         *  Destruct this entry.
-         */
+        /// @brief Destruct this entry.
         virtual ~Entry()
         {}
 
-        /**
-         * @brief
-         *  Get the qualified name of this entry.
-         * @return
-         *  the qualified name of this entry
-         */
+        /// @brief Get the qualified name of this entry.
+        /// @return the qualified name of this entry
         const QualifiedName& getQualifiedName() const
         {
-            return _qualifiedName;
+            return qualifiedName;
         }
 
-        /**
-         * @brief
-         *  Get the value of this entry.
-         * @return
-         *  the value of this entry
-         */
+        /// @brief Get the value of this entry.
+        /// @return the value of this entry
         const string& getValue() const
         {
-            return _value;
+            return value;
         }
 
-        /**
-         * @brief
-         *  Get the comment lines of this entry.
-         * @return
-         *  the comment lines of this entry
-         */
+        /// @brief Get the comment lines of this entry.
+        /// @return the comment lines of this entry
         const vector<CommentLine>& getCommentLines() const
         {
-            return _commentLines;
+            return commentLines;
         }
     };
 

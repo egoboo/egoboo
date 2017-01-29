@@ -458,7 +458,7 @@
     <ClCompile Include="src\egolib\Graphics\Font.cpp" />
     <ClCompile Include="src\egolib\Graphics\FontManager.cpp" />
     <ClCompile Include="src\egolib\Image\Image.cpp" />
-    <ClCompile Include="src\egolib\FileFormats\configfile.c" />
+    <ClCompile Include="src\egolib\Configuration\configfile.c" />
     <ClCompile Include="src\egolib\FileFormats\id_md2.c" />
     <ClCompile Include="src\egolib\FileFormats\map_file-v1.c" />
     <ClCompile Include="src\egolib\FileFormats\map_file-v2.c" />
@@ -534,6 +534,10 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Configuration\Configuration.hpp" />
+    <ClInclude Include="src\egolib\Logic\FeedbackType.hpp" />
+    <ClInclude Include="src\egolib\Logic\GameDifficulty.hpp" />
+    <ClInclude Include="src\egolib\Configuration\Enum.hpp" />
     <ClInclude Include="src\egolib\Graphics\GraphicsSystemNew.hpp" />
     <ClInclude Include="src\egolib\Graphics\SDL\GraphicsSystemNew.hpp" />
     <ClInclude Include="src\egolib\Graphics\Display.hpp" />
@@ -566,8 +570,8 @@
     <ClInclude Include="src\egolib\Math\Functors\Convert_RGBAf_RGBf.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\Convert_RGBf_RGBAf.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\Convert_RGBf_RGBf.hpp" />
-    <ClInclude Include="src\egolib\Configuration\NumericVariable.hpp" />
-    <ClInclude Include="src\egolib\Configuration\StandardVariable.hpp" />
+    <ClInclude Include="src\egolib\Configuration\Number.hpp" />
+    <ClInclude Include="src\egolib\Configuration\StringOrBool.hpp" />
     <ClInclude Include="src\egolib\Configuration\Variable.hpp" />
     <ClInclude Include="src\egolib\InputControl\ControlSettingsFile.hpp" />
     <ClInclude Include="src\egolib\InputControl\InputDevice.hpp" />
@@ -746,7 +750,7 @@
     <ClInclude Include="src\egolib\Image\Image.hpp" />
     <ClInclude Include="src\egolib\Renderer\CullingMode.hpp" />
     <ClInclude Include="src\egolib\Renderer\WindingMode.hpp" />
-    <ClInclude Include="src\egolib\FileFormats\configfile.h" />
+    <ClInclude Include="src\egolib\Configuration\configfile.h" />
     <ClInclude Include="src\egolib\FileFormats\id_md2.h" />
     <ClInclude Include="src\egolib\FileFormats\map_file-v1.h" />
     <ClInclude Include="src\egolib\FileFormats\map_file-v2.h" />

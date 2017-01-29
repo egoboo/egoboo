@@ -23,6 +23,7 @@
 #pragma once
 
 #include "egolib/typedef.h"
+#include "egolib/Core/Singleton.hpp"
 
 namespace Ego {
 // Forward declaration.
@@ -55,58 +56,40 @@ struct ConsoleSettings {
 	};
 };
 
-/**
- * @brief
- *  The history of a console.
- *
- *  <p>
- *  A history is a bounded lifo queue:
- *	If an element is added and the history is full, then the oldest element is removed.
- *  </p>
- *
- *	<p>
- *	The other part of a history is a browser.
- *	</p>
- */
+/// @brief The history of a console.
+/// <p>
+/// A history is a bounded lifo queue:
+/// If an element is added and the history is full, then the oldest element is removed.
+/// </p>
+/// 
+/// <p>
+/// The other part of a history is a browser.
+/// </p>
 struct ConsoleHistory {
-	int _index;
-	int _size;
-	char _buffer[ConsoleSettings::HistorySettings::Length][ConsoleSettings::LineSettings::Length];
-	/**
-	 * @brief
-	 *	Construct this history.
-	 */
-	ConsoleHistory();
-	/**
-	 * @brief
-	 *	Get the focused line.
-	 * @return
-	 *	the focused line
-	 *	If the entry index is @a size, the empty string is returned
-	 */
-	const char *get_saved();
-	/**
-	 *
-	 * @post
-	 *	If the string is empty, the history was not observably modified.
-	 *	Otherwise:
-	 *  If the history was full, the oldest element was removed.
-	 *	The new element is the most recent element.
-	 *	The entry index was set to @a size.
-     */
-	void add_saved(char *line);
+    std::deque<std::string> list;
+    size_t index;
 
-	/**
-	 * @brief
-	 *	Scroll up the history.
-	 *	Decrement the entry index if it is not @a 0.
-	 */
+	/// @brief Construct this history.
+	ConsoleHistory();
+
+	/// @brief Get the focused line.
+	/// @return the focused line
+	/// If the entry index is @a size, the empty string is returned
+	const std::string& get_saved();
+
+	/// @post If the string is empty, the history was not observably modified.
+	/// Otherwise:
+	/// If the history was full, the oldest element was removed.
+	/// The new element is the most recent element.
+	/// The entry index was set to @a size.
+	void add_saved(const std::string& line);
+
+	/// @brief Scroll up the history.
+	/// Decrement the entry index if it is not @a 0.
 	void up();
-	/**
-	 * @brief
-	 *	Scroll down the history.
-	 *  Increment the index if it is not @a size.
-	 */
+
+	/// @brief Scroll down the history.
+	/// Increment the index if it is not @a size.
 	void down();
 };
 
@@ -121,26 +104,86 @@ struct Console {
 
     std::shared_ptr<Ego::Font> pfont;
 
-    /**
-     * @brief
-     *  Is the console visible?
-     */
+    /// @brief Is the console visible?
     bool on;
 
     SDL_Rect rect;
 
 	ConsoleHistory history;
 
-    size_t buffer_carat;
-    char buffer[ConsoleSettings::LineSettings::Length];
+    template <size_t CapacityArg>
+    struct Buffer
+    {
+        size_t carat;
+        char buffer[CapacityArg + 1];
 
-    size_t output_carat;
-    char output_buffer[ConsoleSettings::OutputSettings::Length];
+        /// @brief Construct this buffer.
+        Buffer() : carat(0)
+        {
+            buffer[0] = '\0';
+        }
+
+        /// @brief Move the carat left (if possible).
+        void moveLeft()
+        {
+            if (carat > 0)
+            {
+                carat--;
+            }
+        }
+
+        /// @brief Move the carat right (if possible).
+        void moveRight()
+        {
+            if (carat < CapacityArg)
+            {
+                carat++;
+            }
+        }
+
+        void deleteLeft()
+        {
+            while (carat > 0)
+            {
+                carat--;
+                char a = buffer[carat];
+                if ((a & 0x80) == 0x00 || (a & 0xC0) == 0xC0)
+                    break;
+            }
+            buffer[carat] = '\0';
+        }
+
+        /// @brief Set text.
+        /// @param text the text
+        void setText(const std::string& text)
+        {
+            strncpy(buffer, text.c_str(), CapacityArg);
+            buffer[CapacityArg] = '\0';
+            carat = strlen(buffer);
+        }
+
+        /// @brief Cleat the input buffer.
+        void clear()
+        {
+            buffer[0] = '\0';
+            carat = 0;
+        }
+
+        /// @brief Get the capacity of this buffer.
+        /// @return the capacity
+        static constexpr size_t capacity()
+        {
+            return CapacityArg;
+        }
+    };
+
+    Buffer<ConsoleSettings::LineSettings::Length> input;
+    Buffer<ConsoleSettings::OutputSettings::Length> output;
 
 	Console(SDL_Rect rectangle, Callback callback, void *data);
 	virtual ~Console();
 
-    bool draw();
+    void draw();
 
     void show();
     void hide();
@@ -152,7 +195,7 @@ struct Console {
 
 	ConsoleHistory& getHistory();
 
-    void add_output(char *line);
+    void add_output(const char *line);
 	
 };
 
@@ -162,50 +205,35 @@ struct Console {
 namespace Ego {
 namespace Core {
 
-/**
- * @brief
- *	The console handler.
- */
-struct ConsoleHandler {
+/// @brief The console handler.
+struct ConsoleHandler : public Singleton<ConsoleHandler> {
 protected:
+    friend Singleton<ConsoleHandler>::CreateFunctorType;
+    friend Singleton<ConsoleHandler>::DestroyFunctorType;
     void draw_begin();
     void draw_end();
 public:
     void draw_all();
     bool push_front(Console *console);
-    /**
-     * @brief
-     *  Remove the console from the console stack.
-     * @param console
-     *  the console
-     * @return
-     *  @a true if the console was removed, @a false otherwise
-     */
+
+    /// @brief Remove the console from the console stack.
+    /// @param console the console
+    /// @return @a true if the console was removed, @a false otherwise
     bool unlink(Console *console);
 
-    /**
-    * @return
-    *  @a nullptr if
-    *  - @a event is @a nullptr or
-    *  - @a event is not @a nullptr and the event was handled by some console.
-    *  @a event in all other cases.
-    */
+    /// @return
+    /// @a nullptr if
+    /// - @a event is @a nullptr or
+    /// - @a event is not @a nullptr and the event was handled by some console.
+    /// @a event in all other cases.
     SDL_Event *handle_event(SDL_Event *event);
 
-private:
-	static ConsoleHandler *_singleton;
+    Console *top;
+
+protected:
 	ConsoleHandler();
 	~ConsoleHandler();
-public:
-    static void initialize();
-    static void uninitialize();
-	static ConsoleHandler& get();
 };
 
 } // namespace Core
 } // namespace Ego
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-extern Ego::Core::Console *egolib_console_top;

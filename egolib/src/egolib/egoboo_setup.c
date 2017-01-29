@@ -280,7 +280,7 @@ bool Setup::download(egoboo_config_t& cfg) {
         Log::get() << e;
         throw std::logic_error(e.getText());
     }
-    cfg.for_each(egoboo_config_t::Load(file));
+    cfg.load(file);
     return true;
 }
 
@@ -291,7 +291,7 @@ bool Setup::upload(egoboo_config_t& cfg) {
         Log::get() << e;
         throw std::logic_error(e.getText());
     }
-    cfg.for_each(egoboo_config_t::Store(file));
+    cfg.store(file);
     return true;
 }
 

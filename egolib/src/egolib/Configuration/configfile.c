@@ -17,9 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/FileFormats/configfile.c
-/// @brief Configuration file loading implementation
-/// @details Configuration files
+/// @file egolib/Configuration/configfile.c
+/// @brief Parsing and unparsing of configuration files
 
 /**
  * @remark
@@ -58,7 +57,7 @@
  *  Multiple section with the same name will be loaded and saved but only the first
  *  one will be looked for value. Should not load sections with same name.
  */
-#include "egolib/FileFormats/configfile.h"
+#include "egolib/Configuration/configfile.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -226,7 +225,6 @@ ConfigFileParser::~ConfigFileParser()
 
 std::shared_ptr<ConfigFile> ConfigFileParser::parse()
 {
-    assert(is(Traits::startOfInput()));
     try
     {
         auto target = make_shared<ConfigFile>(getFileName());

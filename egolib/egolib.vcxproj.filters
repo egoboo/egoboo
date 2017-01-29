@@ -240,9 +240,6 @@
     <ClCompile Include="src\egolib\IDSZ.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\FileFormats\configfile.c">
-      <Filter>File Formats</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\FileFormats\id_md2.c">
       <Filter>File Formats</Filter>
     </ClCompile>
@@ -567,6 +564,9 @@
     <ClCompile Include="src\egolib\Graphics\DisplayMode.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="src\egolib\Configuration\configfile.c">
+      <Filter>Header Files\Configuration</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\egolib\vfs.h">
@@ -700,9 +700,6 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Core\StringUtilities.hpp">
       <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\FileFormats\configfile.h">
-      <Filter>File Formats</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\FileFormats\id_md2.h">
       <Filter>File Formats</Filter>
@@ -1283,12 +1280,6 @@
     <ClInclude Include="src\egolib\Configuration\Variable.hpp">
       <Filter>Header Files\Configuration</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Configuration\NumericVariable.hpp">
-      <Filter>Header Files\Configuration</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Configuration\StandardVariable.hpp">
-      <Filter>Header Files\Configuration</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Math\Functors\Convert.hpp">
       <Filter>Header Files\Math\Functors</Filter>
     </ClInclude>
@@ -1393,6 +1384,27 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Graphics\DisplayMode.hpp">
       <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Configuration\Enum.hpp">
+      <Filter>Header Files\Configuration</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Configuration\Number.hpp">
+      <Filter>Header Files\Configuration</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Configuration\StringOrBool.hpp">
+      <Filter>Header Files\Configuration</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Logic\GameDifficulty.hpp">
+      <Filter>Header Files\Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Logic\FeedbackType.hpp">
+      <Filter>Header Files\Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Configuration\Configuration.hpp">
+      <Filter>Header Files\Configuration</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Configuration\configfile.h">
+      <Filter>Header Files\Configuration</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
