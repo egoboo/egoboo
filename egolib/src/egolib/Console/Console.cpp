@@ -193,7 +193,11 @@ void ConsoleHandler::draw_begin()
 }
 
 void ConsoleHandler::draw_end()
-{}
+{
+    auto& renderer = Ego::Renderer::get();
+    renderer.setDepthTestEnabled(true);
+    renderer.setScissorTestEnabled(false);
+}
 
 void ConsoleHandler::draw_all()
 {
