@@ -21,20 +21,12 @@
 
 #pragma once
 
-#include "game/egoboo.h"
-
-#include "game/mesh.h"
 #include "game/Graphics/CameraSystem.hpp"
-#include "game/egoboo.h"
-#include "game/Graphics/TileList.hpp"
-#include "game/Graphics/EntityList.hpp"
-#include "game/Graphics/Vertex.hpp"
-#include "game/Graphics/RenderPasses.hpp"
 #include "egolib/Graphics/MD2Model.hpp"
+#include "game/Graphics/RenderPasses.hpp"
 
+void  draw_hud();
 
-
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 /// the default icon size in pixels
@@ -44,38 +36,6 @@
 /// max number of blips on the minimap
 #define MAXBLIP        128                          ///<Max blips on the screen
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#include "game/Graphics/TileList.hpp"
-
-#define GFX_ERROR_MAX 256
-
-struct gfx_error_state_t
-{
-    STRING file;
-    STRING function;
-    int    line;
-
-    int    type;
-    STRING string;
-};
-
-#define GFX_ERROR_STATE_INIT { "UNKNOWN", "UNKNOWN", -1, -1, "NONE" }
-
-struct gfx_error_stack_t
-{
-    size_t count;
-    gfx_error_state_t lst[GFX_ERROR_MAX];
-};
-
-#define GFX_ERROR_STACK_INIT { 0, { GFX_ERROR_STATE_INIT } }
-
-egolib_rv           gfx_error_add( const char * file, const char * function, int line, int id, const char * sz );
-gfx_error_state_t * gfx_error_pop();
-void                gfx_error_clear();
-
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 #define TABX                            32// 16      ///< Size of little name tag on the bar
 #define BARX                            112// 216         ///< Size of bar
@@ -152,7 +112,7 @@ struct gfx_config_t
 //--------------------------------------------------------------------------------------------
 extern gfx_config_t gfx;
 
-extern float           indextoenvirox[EGO_NORMAL_COUNT];                    ///< Environment map
+extern float           indextoenvirox[MD2Model::normalCount];                    ///< Environment map
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -166,22 +126,6 @@ private:
     GFX();
     ~GFX();
 private:
-    /**
-     * @brief
-     *  Initialize the OpenGL graphics system.
-     * @remark
-     *  Virtual finally simply prevents the method from being overriden
-     *  if its visibility is (accidentially) changed to non-private.
-     */
-    virtual void initializeOpenGL() final;
-    /**
-     * @brief
-     *  Uninitialize the OpenGL graphics system.
-     * @remark
-     *  Virtual finally simply prevents the method from being overriden
-     *  if its visibility is (accidentially) changed to non-private.
-     */
-    virtual void uninitializeOpenGL() final;
     /**
      * @brief
      *  Initialize the SDL graphics system.
@@ -201,7 +145,6 @@ private:
     virtual void uninitializeSDLGraphics() final;
 };
 
-void gfx_system_main();
 /// SDL destroys the OpenGL context at various occassions (e.g. when changing the video mode).
 /// In particular this happens when the video mode is changed from and to fullscreen. In that
 /// case, OpenGL texture become invalid and need to be reloaded. Reloading means here: From
@@ -216,10 +159,7 @@ void gfx_system_load_assets();
 // the render engine callback
 void gfx_system_render_world(const std::shared_ptr<Camera> camera, std::shared_ptr<Ego::Graphics::TileList> tl, std::shared_ptr<Ego::Graphics::EntityList> el);
 
-void gfx_request_clear_screen();
 void gfx_do_clear_screen();
-bool gfx_flip_pages_requested();
-void gfx_request_flip_pages();
 void gfx_do_flip_pages();
 
 float draw_icon_texture(const std::shared_ptr<const Ego::Texture>& ptex, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size, bool useAlpha = false);

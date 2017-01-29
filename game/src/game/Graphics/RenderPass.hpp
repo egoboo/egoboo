@@ -29,73 +29,45 @@
 
 namespace Ego {
 namespace Graphics {
-/**
- * @brief
- *	An abstract render pass.
- */
+
+/// @brief An abstract render pass.
 struct RenderPass {
 public:
-	// To shorten expressions.
-	template <typename _ClockPolicy>
-	using Clock = Time::Clock<_ClockPolicy>;
-	// To shorten expressions.
-	template <typename _ClockPolicy>
-	using ClockScope = Time::ClockScope <_ClockPolicy>;
-	// To shorten expressions.
-	using ClockPolicy = Time::ClockPolicy;
-	/**
-	 * @brief
-	 *	The clock for measuring the time spent in this render pass.
-	 */
-	Clock<ClockPolicy::NonRecursive> _clock;
-	/**
-	 * @brief
-	 *	Construct this render pass.
-	 * @param name
-	 *	the name of this render pass. Names of render passes are pairwise different
-	 * @remark
-	 *	Intentionally protected.
-	 */
-	RenderPass(const std::string& name)
-		: _clock(name, 512) {
-	}
-	/**
-	 * @brief
-	 *	Destruct this render pass.
-	 * @remark
-	 *	Intentionally protected.
-	 */
-	virtual ~RenderPass() {
-	}
-	/**
-	 * @brief
-	 *	Perform the rendering.
-	 * @param camera
-	 *	the camera to be used
-	 * @param tileList
-	 *	the tile list to be used
-	 * @param entityList
-	 *	the entity list to be used
-	 */
-	virtual void doRun(::Camera& camera, const TileList& tileList, const EntityList& entityList) = 0;
-public:
-	/**
-	 * @brief
-	 *	Run this pass.
-	 * @param camera
-	 *	the camera to be used
-	 * @param tileList
-	 *	the render list to be used
-	 * @param entityList
-	 *	the entity list to be used
-	 */
-	void run(::Camera& camera, const TileList& tileList, const EntityList& entityList) {
-		ClockScope<ClockPolicy::NonRecursive> clockScope(_clock);
-		OpenGL::Utilities::isError();
-		doRun(camera, tileList, entityList);
-		OpenGL::Utilities::isError();
-	}
+    // To shorten expressions.
+    using ClockPolicy = Time::ClockPolicy;
 
+    // To shorten expressions.
+	template <typename ClockPolicyArg>
+	using Clock = Time::Clock<ClockPolicyArg>;
+
+	// To shorten expressions.
+	template <typename ClockPolicyArg>
+	using ClockScope = Time::ClockScope<ClockPolicyArg>;
+	
+	/// @brief The clock for measuring the time spent in this render pass.
+	Clock<ClockPolicy::NonRecursive> clock;
+
+	/// @brief Construct this render pass.
+	/// @param name the name of this render pass. Names of render passes are pairwise different
+	/// @remark Intentionally protected.
+    RenderPass(const std::string& name);
+	
+    /// @brief Destruct this render pass.
+	/// @remark Intentionally protected.
+    virtual ~RenderPass();
+
+	/// @brief Perform the rendering.
+	/// @param camera the camera to be used
+	/// @param tileList the tile list to be used
+	/// @param entityList the entity list to be used
+	virtual void doRun(::Camera& camera, const TileList& tileList, const EntityList& entityList) = 0;
+
+public:
+	/// @brief Run this pass.
+	/// @param camera the camera to be used
+	/// @param tileList the render list to be used
+	/// @param entityList the entity list to be used
+    void run(::Camera& camera, const TileList& tileList, const EntityList& entityList);
 };
 
 } // namespace Graphics

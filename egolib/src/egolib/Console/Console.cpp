@@ -168,28 +168,6 @@ bool ConsoleHandler::push_front(Console *console)
 
 void ConsoleHandler::draw_begin()
 {
-    auto& renderer = Renderer::get();
-
-    // don't worry about hidden surfaces
-    renderer.setDepthTestEnabled(false);
-
-    // draw draw front and back faces of polygons
-    renderer.setCullingMode(CullingMode::None);
-
-    renderer.setBlendingEnabled(true);
-    renderer.setBlendFunction(BlendFunction::SourceAlpha, BlendFunction::OneMinusSourceAlpha);
-
-    auto drawableSize = GraphicsSystem::window->getDrawableSize();
-    renderer.setViewportRectangle(0, 0, drawableSize.width(), drawableSize.height());
-
-    // Set the projecton matrix.
-    auto windowSize = GraphicsSystem::window->getSize();
-    Matrix4f4f matrix = Transform::ortho(0, windowSize.width(), windowSize.height(), 0, -1, 1);
-    renderer.setProjectionMatrix(matrix);
-
-    // Set the view and the world matrix.
-    renderer.setViewMatrix(Matrix4f4f::identity());
-    renderer.setWorldMatrix(Matrix4f4f::identity());
 }
 
 void ConsoleHandler::draw_end()
@@ -361,6 +339,29 @@ namespace Core {
 
 void Console::draw()
 {
+    auto& renderer = Renderer::get();
+
+    // don't worry about hidden surfaces
+    renderer.setDepthTestEnabled(false);
+
+    // draw draw front and back faces of polygons
+    renderer.setCullingMode(CullingMode::None);
+
+    renderer.setBlendingEnabled(true);
+    renderer.setBlendFunction(BlendFunction::SourceAlpha, BlendFunction::OneMinusSourceAlpha);
+
+    auto drawableSize = GraphicsSystem::window->getDrawableSize();
+    renderer.setViewportRectangle(0, 0, drawableSize.width(), drawableSize.height());
+
+    // Set the projecton matrix.
+    auto windowSize = GraphicsSystem::window->getSize();
+    Matrix4f4f matrix = Transform::ortho(0, windowSize.width(), windowSize.height(), 0, -1, 1);
+    renderer.setProjectionMatrix(matrix);
+
+    // Set the view and the world matrix.
+    renderer.setViewMatrix(Matrix4f4f::identity());
+    renderer.setWorldMatrix(Matrix4f4f::identity());
+
     int windowHeight = GraphicsSystem::window->getSize().height();
 
     if (!windowHeight || !this->on)
@@ -370,7 +371,6 @@ void Console::draw()
 
     SDL_Rect *pwin = &(this->rect);
 
-    auto& renderer = Renderer::get();
     renderer.getTextureUnit().setActivated(nullptr);
 
     // The colour white.

@@ -25,7 +25,7 @@
 #include "egolib/bbox.h"
 #include "egolib/vfs.h"
 
-static const float MD2_NORMALS[EGO_NORMAL_COUNT][3] =
+static const float MD2_NORMALS[MD2Model::normalCount][3] =
 {
 #include "egolib/FileFormats/id_normals.inl"
     , {0, 0, 0}                     ///< the "equal light" normal
@@ -106,7 +106,7 @@ void MD2Model::makeEquallyLit()
 	{
 	    for(MD2_Vertex &vertex : frame.vertexList)
 	    {
-	        vertex.normal = EGO_NORMAL_COUNT-1;
+	        vertex.normal = MD2Model::normalCount -1;
 	    }
 	}
 }

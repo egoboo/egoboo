@@ -151,7 +151,6 @@ void DebugModuleLoadingState::addToQueue(const std::shared_ptr<ModuleGUIContaine
 void DebugModuleLoadingState::singleThreadRedrawHack(const std::string &loadingText)
 {
     // clear the screen
-    gfx_request_clear_screen();
     gfx_do_clear_screen();
     
     _toLoad.front()->_loadingText->setText(loadingText);
@@ -160,7 +159,6 @@ void DebugModuleLoadingState::singleThreadRedrawHack(const std::string &loadingT
     drawAll(drawingContext);
     
     // flip the graphics page
-    gfx_request_flip_pages();
     gfx_do_flip_pages();
     SDL_PumpEvents();
 }

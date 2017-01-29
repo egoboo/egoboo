@@ -21,6 +21,7 @@
 
 #include "cartman/cartman_typedef.h"
 #include "cartman/cartman_math.h"
+#include "egolib/Core/Singleton.hpp"
 
 //--------------------------------------------------------------------------------------------
 
@@ -179,5 +180,26 @@ inline std::shared_ptr<SDL_Surface> gfx_loadImage(const std::string& pathname)
 }
 
 // initialization
-void gfx_system_begin();
-void gfx_system_end();
+struct GFX : Ego::Core::Singleton<GFX>
+{
+    GFX();
+    ~GFX();
+
+    /**
+     * @brief
+     *  Initialize the SDL graphics system.
+     * @remark
+     *  Virtual finally simply prevents the method from being overriden
+     *  if its visibility is (accidentially) changed to non-private.
+     */
+    virtual void initializeSDLGraphics() final;
+
+    /**
+     * @brief
+     *  Uninitialize the SDL graphics system.
+     * @remark
+     *  Virtual finally simply prevents the method from being overriden
+     *  if its visibility is (accidentially) changed to non-private.
+     */
+    virtual void uninitializeSDLGraphics() final;
+};

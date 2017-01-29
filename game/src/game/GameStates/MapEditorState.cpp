@@ -103,7 +103,8 @@ void MapEditorState::update()
 
 void MapEditorState::drawContainer(Ego::GUI::DrawingContext& drawingContext)
 {
-    gfx_system_main();
+    CameraSystem::get().renderAll(gfx_system_render_world);
+    draw_hud();
 
     //Draw passages?
     if(_editMode == EditorMode::MAP_EDIT_PASSAGES) {

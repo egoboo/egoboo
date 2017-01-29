@@ -82,7 +82,9 @@ gfx_rv MadRenderer::render_enviro( Camera& cam, const std::shared_ptr<Object>& p
 {
     if (!pchr->inst.getModelDescriptor())
     {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, pchr->getObjRef().get(), "invalid mad" );
+        Log::Entry e(Log::Level::Error, __FILE__, __LINE__);
+        e << "invalid mad `"<< pchr->getObjRef() << "`" << Log::EndOfEntry;
+        Log::get() << e;
         return gfx_error;
     }
     const std::shared_ptr<MD2Model>& pmd2 = pchr->getProfile()->getModel()->getMD2();
@@ -229,7 +231,9 @@ gfx_rv MadRenderer::render_tex(Camera& camera, const std::shared_ptr<Object>& pc
 {
     if (!pchr->inst.getModelDescriptor())
     {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid mad");
+        Log::Entry e(Log::Level::Error, __FILE__, __LINE__);
+        e << "invalid mad `" << pchr->getObjRef() << "`" << Log::EndOfEntry;
+        Log::get() << e;
         return gfx_error;
     }
 

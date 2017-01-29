@@ -1814,7 +1814,7 @@ int SDL_main( int argcnt, char* argtext[] )
     Cartman::Input::initialize();
     Cartman_MouseData::ctor(&mdata); /// @todo What is this crap?
 
-    gfx_system_begin();
+    GFX::initialize();
     Resources::initialize();
 
     // Initialize the console.
@@ -1850,7 +1850,7 @@ int SDL_main( int argcnt, char* argtext[] )
     Cartman::Gui::Manager::uninitialize();
     Ego::Core::ConsoleHandler::uninitialize();
     Resources::uninitialize();
-    gfx_system_end();
+    GFX::uninitialize();
     Cartman::Input::uninitialize();
     Ego::Core::System::uninitialize();
     return EXIT_SUCCESS;
