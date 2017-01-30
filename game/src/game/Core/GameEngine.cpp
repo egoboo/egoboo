@@ -231,7 +231,6 @@ void GameEngine::updateOneFrame()
 void GameEngine::renderOneFrame()
 {
     // clear the screen
-    gfx_request_clear_screen();
     gfx_do_clear_screen();
 
     Ego::GUI::DrawingContext drawingContext;
@@ -245,7 +244,6 @@ void GameEngine::renderOneFrame()
     }
 
     // flip the graphics page
-    gfx_request_flip_pages();
     gfx_do_flip_pages();
 
     //Save screenshot if it has been requested
@@ -275,14 +273,12 @@ void GameEngine::renderPreloadText(const std::string &text)
 
     preloadText += text + "\n";
     
-    gfx_request_clear_screen();
     gfx_do_clear_screen();
 
     _uiManager->beginRenderUI();
         _uiManager->getDefaultFont()->drawTextBox(preloadText, 20, 20, 800, 600, 25);
     _uiManager->endRenderUI();
 
-    gfx_request_flip_pages();
     gfx_do_flip_pages();
 }
 

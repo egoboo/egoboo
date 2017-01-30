@@ -130,7 +130,8 @@ void PlayingState::update()
 
 void PlayingState::drawContainer(Ego::GUI::DrawingContext& drawingContext)
 {
-    gfx_system_main();
+    CameraSystem::get().renderAll(gfx_system_render_world);
+    draw_hud();
 }
 
 void PlayingState::beginState()

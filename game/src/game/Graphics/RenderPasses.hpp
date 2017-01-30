@@ -51,15 +51,33 @@ public:
 };
 
 struct TileListV2 {
-    static void render(const ego_mesh_t& mesh, const std::vector<ClippingEntry>& rlst);
+public:
+    /// @brief Draw fans.
+    /// @param mesh the mesh
+    /// @param tiles the list of tiles
+    static void render(ego_mesh_t& mesh, const std::vector<ClippingEntry>& tiles);
+
+    /// @brief Draw heightmap fans.
+    /// @param mesh the mesh
+    /// @param tiles the list of tiles
+    static void render_heightmap(ego_mesh_t& mesh, const std::vector<ClippingEntry>& tiles);
+
+    /// @brief Draw water fans.
+    /// @param mesh the mesh
+    /// @param tiles the list of tiles
+    static void render_water(ego_mesh_t& mesh, const std::vector<ClippingEntry>& tiles, const Uint8 layer);
+    
+private:
     /// @brief Draw a fan.
     /// @param mesh the mesh
     /// @param tileIndex the tile index
-    static gfx_rv render_fan(const ego_mesh_t& mesh, const Index1D& tileIndex);
+    static gfx_rv render_fan(ego_mesh_t& mesh, const Index1D& tileIndex);
+
     /// @brief Draw a heightmap fan.
     /// @param mesh the mesh
     /// @param tileIndex the tile index
-    static gfx_rv render_hmap_fan(const ego_mesh_t *mesh, const Index1D& tileIndex);
+    static gfx_rv render_heightmap_fan(ego_mesh_t& mesh, const Index1D& tileIndex);
+
     /// @brief Draw a water fan.
     /// @param mesh the mesh
     /// @param tileIndex the tile index

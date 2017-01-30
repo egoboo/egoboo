@@ -63,27 +63,29 @@ int     numbigtile = 0;     //
 
 static void get_small_tiles( SDL_Surface* bmpload );
 static void get_big_tiles( SDL_Surface* bmpload );
-static void  gfx_init_ogl();
 
 //--------------------------------------------------------------------------------------------
 
-void gfx_system_begin()
+GFX::GFX()
 {
-    Ego::App::initialize();
-
-    // Set the window title.
-    Ego::GraphicsSystem::window->setTitle(NAME " " VERSION_STR);
-
-    gfx_init_ogl();   
+    initializeSDLGraphics();
     gfx_font_ptr = Ego::FontManager::get().loadFont("editor/pc8x8.fon", 12);
 }
 
-//--------------------------------------------------------------------------------------------
-
-void gfx_system_end()
+GFX::~GFX()
 {
     gfx_font_ptr.reset();
+    uninitializeSDLGraphics();
+}
+
+void GFX::uninitializeSDLGraphics()
+{
     Ego::App::uninitialize();
+}
+
+void GFX::initializeSDLGraphics()
+{
+    Ego::App::initialize(NAME, VERSION_STR);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1248,50 +1250,3 @@ void get_tiles( SDL_Surface* bmpload )
 }
 
 //--------------------------------------------------------------------------------------------
-
-//--------------------------------------------------------------------------------------------
-void gfx_init_ogl()
-{
-    using namespace Ego;
-    using namespace Ego::Math;
-
-    auto& renderer = Renderer::get();
-    // Set clear colour.
-    renderer.getColourBuffer().setClearValue(Colour4f(0, 0, 0, 0)); // Set black/transparent background.
-    
-    // Set clear depth.
-    renderer.getDepthBuffer().setClearValue(1.0f);
-
-    // Enable writing to the depth buffer.
-    renderer.setDepthWriteEnabled(true);
-
-    // Enable depth testing: Incoming fragment's depth value must be less.
-    renderer.setDepthTestEnabled(true);
-    renderer.setDepthFunction(CompareFunction::Less);
-
-    // Disable blending.
-    renderer.setBlendingEnabled(false);
-
-    // do not display the completely transparent portion
-    renderer.setAlphaTestEnabled(true);
-	renderer.setAlphaFunction(CompareFunction::Greater, 0.0f);
-
-    /// @todo Including backface culling here prevents the mesh from getting rendered
-    /// backface culling
-    // oglx_begin_culling(Ego::CullingMode::Back, Ego::WindingMode::Clockwise);            // GL_ENABLE_BIT | GL_POLYGON_BIT
-
-    // disable OpenGL lighting
-	renderer.setLightingEnabled(false);
-
-    // fill mode
-	renderer.setRasterizationMode(RasterizationMode::Solid);
-
-    // set up environment mapping
-    /// @todo: this isn't used anywhere
-    GL_DEBUG( glTexGeni )( GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP );  // Set The Texture Generation Mode For S To Sphere Mapping (NEW)
-    GL_DEBUG( glTexGeni )( GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP );  // Set The Texture Generation Mode For T To Sphere Mapping (NEW)
-
-    //Initialize the motion blur buffer
-    renderer.getAccumulationBuffer().setClearValue(Colour4f(0.0f, 0.0f, 0.0f, 1.0f));
-    renderer.getAccumulationBuffer().clear();
-}

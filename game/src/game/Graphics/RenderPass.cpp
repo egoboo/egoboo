@@ -22,3 +22,24 @@
 /// @author Michael Heilmann
 
 #include "game/Graphics/RenderPass.hpp"
+
+namespace Ego {
+namespace Graphics {
+
+RenderPass::RenderPass(const std::string& name) :
+    clock(name, 512)
+{}
+
+RenderPass::~RenderPass()
+{}
+
+void RenderPass::run(::Camera& camera, const TileList& tileList, const EntityList& entityList)
+{
+    ClockScope<ClockPolicy::NonRecursive> clockScope(clock);
+    OpenGL::Utilities::isError();
+    doRun(camera, tileList, entityList);
+    OpenGL::Utilities::isError();
+}
+
+} // namespace Graphics
+} // namespace Ego

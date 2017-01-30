@@ -24,8 +24,6 @@
 #include "egolib/FileFormats/id_md2.h"
 #include "egolib/bbox.h"
 
-static constexpr size_t EGO_NORMAL_COUNT = MD2_MAX_NORMALS + 1;
-
 typedef id_md2_skin_t MD2_SkinName;
 typedef id_md2_triangle_t MD2_Triangle;
 
@@ -100,6 +98,7 @@ public:
 class MD2Model
 {
 public:
+    static constexpr size_t normalCount = MD2_MAX_NORMALS + 1;
 	MD2Model();
 
 	inline const std::vector<MD2_SkinName>&  	   getSkins() const {return _skins;}

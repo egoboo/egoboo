@@ -93,7 +93,9 @@ gfx_rv render_one_prt_solid(const ParticleRef iprt)
     const std::shared_ptr<Ego::Particle> &pprt = ParticleHandler::get()[iprt];
     if (pprt == nullptr || pprt->isTerminated())
     {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, iprt.get(), "invalid particle");
+        Log::Entry e(Log::Level::Error, __FILE__, __LINE__);
+        e << "invalid particle `" << iprt << "`" << Log::EndOfEntry;
+        Log::get() << e;
         return gfx_error;
     }
 
@@ -155,7 +157,9 @@ gfx_rv render_one_prt_trans(const ParticleRef iprt)
 
     if (pprt == nullptr || pprt->isTerminated())
     {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, iprt.get(), "invalid particle");
+        Log::Entry e(Log::Level::Error, __FILE__, __LINE__);
+        e << "invalid particle `" << iprt << "`" << Log::EndOfEntry;
+        Log::get() << e;
         return gfx_error;
     }
 
@@ -266,7 +270,9 @@ gfx_rv render_one_prt_ref(const ParticleRef iprt)
     /// @details render one particle
     const std::shared_ptr<Ego::Particle>& pprt = ParticleHandler::get()[iprt];
     if(!pprt || pprt->isTerminated()) {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, iprt.get(), "invalid particle");
+        Log::Entry e(Log::Level::Error, __FILE__, __LINE__);
+        e << "invalid particle `" << iprt << "`" << Log::EndOfEntry;
+        Log::get() << e;
         return gfx_error;
     }
 
@@ -544,7 +550,9 @@ gfx_rv prt_instance_t::update_vertices(prt_instance_t& inst, Camera& camera, Ego
 
     if (pprt->isTerminated())
     {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, pprt->getParticleID().get(), "invalid particle");
+        Log::Entry e(Log::Level::Error, __FILE__, __LINE__);
+        e << "invalid particle `" << pprt->getParticleID() << "`" << Log::EndOfEntry;
+        Log::get() << e;
         return gfx_error;
     }
 
@@ -839,7 +847,9 @@ gfx_rv prt_instance_t::update_lighting(prt_instance_t& pinst, Ego::Particle *ppr
 {
     if (!pprt)
     {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "NULL particle");
+        Log::Entry e(Log::Level::Error, __FILE__, __LINE__);
+        e << "nullptr == particle" << Log::EndOfEntry;
+        Log::get() << e;
         return gfx_error;
     }
 
@@ -895,7 +905,9 @@ gfx_rv prt_instance_update(Camera& camera, const ParticleRef particle, Uint8 tra
 {
     const std::shared_ptr<Ego::Particle> &pprt = ParticleHandler::get()[particle];
     if(!pprt) {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, particle.get(), "invalid particle");
+        Log::Entry e(Log::Level::Error, __FILE__, __LINE__);
+        e << "invalid particle `" << particle << "`" << Log::EndOfEntry;
+        Log::get() << e;
         return gfx_error;
     }
 

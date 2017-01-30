@@ -21,27 +21,27 @@
 /// @brief Simple Egoboo renderer
 /// @details All sorts of stuff related to drawing the game
 
-#include "game/Core/GameEngine.hpp"
-#include "game/GUI/MiniMap.hpp"
-#include "egolib/egolib.h"
 #include "game/graphic.h"
+
+#include "game/Core/GameEngine.hpp"
 #include "game/graphic_prt.h"
 #include "game/graphic_mad.h"
 #include "game/graphic_fan.h"
 #include "game/graphic_billboard.h"
 #include "game/renderer_3d.h"
-#include "game/Logic/Player.hpp"
 #include "egolib/Script/script.h"
-#include "egolib/Graphics/GraphicsSystem.hpp"
 #include "game/script_compile.h"
+#include "egolib/FileFormats/Globals.hpp"
 #include "game/game.h"
 #include "game/lighting.h"
-#include "game/egoboo.h"
+#include "game/GUI/UIManager.hpp"
+#include "game/Logic/Player.hpp"
+#include "game/Module/Module.hpp"
+#include "game/Graphics/RenderPasses.hpp"
 #include "game/mesh.h"
 #include "game/Graphics/CameraSystem.hpp"
 #include "game/Module/Module.hpp"
 #include "game/Entities/_Include.hpp"
-#include "egolib/FileFormats/Globals.hpp"
 #include "game/Graphics/TextureAtlasManager.hpp"
 #include "game/Module/Passage.hpp"
 #include "game/GUI/Material.hpp"
@@ -77,19 +77,9 @@ Clock<ClockPolicy::NonRecursive>  update_all_prt_instance_timer("update.all.prt.
 
 gfx_config_t     gfx;
 
-float            indextoenvirox[EGO_NORMAL_COUNT];
+float            indextoenvirox[MD2Model::normalCount];
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-static gfx_error_stack_t gfx_error_stack = GFX_ERROR_STACK_INIT;
-
-// Interface stuff
-static Ego::Rectangle<int> tabrect[NUMBAR];            // The tab rectangles
-
-
-static bool  gfx_page_flip_requested = false;
-static bool  gfx_page_clear_requested = true;
 
 static dynalist_t _dynalist;
 
@@ -109,19 +99,17 @@ void reinitClocks() {
 	gfx_update_all_chr_instance_timer.reinit();
 	update_all_prt_instance_timer.reinit();
 
-	Ego::Graphics::RenderPasses::g_entityReflections._clock.reinit();
-	Ego::Graphics::RenderPasses::g_entityShadows._clock.reinit();
-	Ego::Graphics::RenderPasses::g_solidEntities._clock.reinit();
-	Ego::Graphics::RenderPasses::g_transparentEntities._clock.reinit();
-	Ego::Graphics::RenderPasses::g_water._clock.reinit();
-	Ego::Graphics::RenderPasses::g_reflective0._clock.reinit();
-	Ego::Graphics::RenderPasses::g_reflective1._clock.reinit();
-	Ego::Graphics::RenderPasses::g_nonReflective._clock.reinit();
-	Ego::Graphics::RenderPasses::g_foreground._clock.reinit();
-	Ego::Graphics::RenderPasses::g_background._clock.reinit();
+	Ego::Graphics::RenderPasses::g_entityReflections.clock.reinit();
+	Ego::Graphics::RenderPasses::g_entityShadows.clock.reinit();
+	Ego::Graphics::RenderPasses::g_solidEntities.clock.reinit();
+	Ego::Graphics::RenderPasses::g_transparentEntities.clock.reinit();
+	Ego::Graphics::RenderPasses::g_water.clock.reinit();
+	Ego::Graphics::RenderPasses::g_reflective0.clock.reinit();
+	Ego::Graphics::RenderPasses::g_reflective1.clock.reinit();
+	Ego::Graphics::RenderPasses::g_nonReflective.clock.reinit();
+	Ego::Graphics::RenderPasses::g_foreground.clock.reinit();
+	Ego::Graphics::RenderPasses::g_background.clock.reinit();
 }
-
-static void _flip_pages();
 
 static gfx_rv render_scene_init(Ego::Graphics::TileList& tl, Ego::Graphics::EntityList& el, dynalist_t& dyl, Camera& cam);
 static gfx_rv render_scene_mesh(Camera& cam, const Ego::Graphics::TileList& tl, const Ego::Graphics::EntityList& el);
@@ -144,14 +132,12 @@ static float draw_help(float y);
 static float draw_debug(float y);
 static float draw_timer(float y);
 static float draw_game_status(float y);
-static void  draw_hud();
+
 
 static gfx_rv gfx_update_all_chr_instance();
 static gfx_rv gfx_update_flashing(Ego::Graphics::EntityList& el);
 
 static bool sum_global_lighting(std::array<float, LIGHTING_VEC_SIZE> &lighting);
-
-static void   gfx_init_bar_data();
 
 //--------------------------------------------------------------------------------------------
 // GFX implementation
@@ -159,16 +145,9 @@ static void   gfx_init_bar_data();
 GFX::GFX() {
     // Initialize SDL.
     GFX::initializeSDLGraphics();
-    try {
-        // Initialize OpenGL.
-        GFX::initializeOpenGL();
-    } catch (...) {
-        GFX::uninitializeSDLGraphics();
-        std::rethrow_exception(std::current_exception());
-    }
-                                  // initialize the dynalist frame
-                                  // otherwise, it will not update until the frame count reaches whatever
-                                  // left over or random value is in this counter
+    // initialize the dynalist frame
+    // otherwise, it will not update until the frame count reaches whatever
+    // left over or random value is in this counter
     _dynalist.frame = -1;
     _dynalist.size = 0;
 
@@ -176,7 +155,6 @@ GFX::GFX() {
     try {
         BillboardSystem::initialize();
     } catch (...) {
-        GFX::uninitializeOpenGL();
         GFX::uninitializeSDLGraphics();
         std::rethrow_exception(std::current_exception());
     }
@@ -185,7 +163,6 @@ GFX::GFX() {
         Ego::Graphics::TextureAtlasManager::initialize();
     } catch (...) {
         BillboardSystem::uninitialize();
-        GFX::uninitializeOpenGL();
         GFX::uninitializeSDLGraphics();
         std::rethrow_exception(std::current_exception());
     }
@@ -202,59 +179,8 @@ GFX::~GFX()
     // Uninitialize the profiling variables.
 	reinitClocks(); // Important: clear out the sliding windows of the clocks.
 
-    // Uninitialize OpenGL.
-    GFX::uninitializeOpenGL();
-
     // Uninitialize SDL graphics.
     GFX::uninitializeSDLGraphics();
-}
-
-void GFX::uninitializeOpenGL()
-{
-}
-
-void GFX::initializeOpenGL()
-{
-    using namespace Ego;
-
-    auto& renderer = Renderer::get();
-    // Set clear colour and clear depth.
-    renderer.getColourBuffer().setClearValue(Colour4f(0, 0, 0, 0));
-    renderer.getDepthBuffer().setClearValue(1.0f);
-
-    // Enable writing to the depth buffer.
-    renderer.setDepthWriteEnabled(true);
-
-    // Enable depth test. Incoming fragment's depth value must be less.
-    renderer.setDepthTestEnabled(true);
-    renderer.setDepthFunction(CompareFunction::Less);
-
-    // Disable blending.
-    renderer.setBlendingEnabled(false);
-
-    // Enable alpha testing: Hide fully transparent parts.
-    renderer.setAlphaTestEnabled(true);
-	renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
-
-    /// @todo Including backface culling here prevents the mesh from getting rendered
-    /// backface culling
-
-    // oglx_begin_culling(Ego::CullingMode::Back, Ego::WindingMode::Clockwise);            // GL_ENABLE_BIT | GL_POLYGON_BIT
-
-    // disable OpenGL lighting
-	renderer.setLightingEnabled(false);
-
-    // fill mode
-	renderer.setRasterizationMode(Ego::RasterizationMode::Solid);
-
-    // set up environment mapping
-    /// @todo: this isn't used anywhere
-    GL_DEBUG(glTexGeni)(GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);  // Set The Texture Generation Mode For S To Sphere Mapping (NEW)
-    GL_DEBUG(glTexGeni)(GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);  // Set The Texture Generation Mode For T To Sphere Mapping (NEW)
-
-    //Initialize the motion blur buffer
-    renderer.getAccumulationBuffer().setClearValue(Colour4f(0.0f, 0.0f, 0.0f, 1.0f));
-    renderer.getAccumulationBuffer().clear();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -265,18 +191,12 @@ void GFX::uninitializeSDLGraphics()
 
 void GFX::initializeSDLGraphics()
 {
-    Ego::App::initialize();
-    // Set the window title.
-    Ego::GraphicsSystem::window->setTitle(std::string("Egoboo ") + GameEngine::GAME_VERSION);
+    Ego::App::initialize("Egoboo", GameEngine::GAME_VERSION);
 }
 
 //--------------------------------------------------------------------------------------------
 void gfx_system_render_world(std::shared_ptr<Camera> camera, std::shared_ptr<Ego::Graphics::TileList> tileList, std::shared_ptr<Ego::Graphics::EntityList> entityList)
 {
-    gfx_error_state_t * err_tmp;
-
-    gfx_error_clear();
-
     if (!camera)
     {
         throw std::invalid_argument("nullptr == camera");
@@ -314,40 +234,6 @@ void gfx_system_render_world(std::shared_ptr<Camera> camera, std::shared_ptr<Ego
 
     // Render the billboards
     BillboardSystem::get().render_all(*camera);
-
-    err_tmp = gfx_error_pop();
-    if (err_tmp)
-    {
-        printf("**** Encountered graphics errors in frame %d ****\n\n", _gameEngine->getNumberOfFramesRendered());
-        while (err_tmp)
-        {
-            printf("vvvv\n");
-            printf(
-                "\tfile     == %s\n"
-                "\tline     == %d\n"
-                "\tfunction == %s\n"
-                "\tcode     == %d\n"
-                "\tstring   == %s\n",
-                err_tmp->file, err_tmp->line, err_tmp->function, err_tmp->type, err_tmp->string);
-            printf("^^^^\n\n");
-
-            err_tmp = gfx_error_pop();
-        }
-        printf("****\n\n");
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void gfx_system_main()
-{
-    /// @author ZZ
-    /// @details This function does all the drawing stuff
-
-    CameraSystem::get().renderAll(gfx_system_render_world);
-
-    draw_hud();
-
-    gfx_request_flip_pages();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -369,18 +255,13 @@ void gfx_system_load_assets()
 //--------------------------------------------------------------------------------------------
 void gfx_system_init_all_graphics()
 {
-    gfx_init_bar_data();
     font_bmp_init();
-
-
-
 	reinitClocks();
 }
 
 //--------------------------------------------------------------------------------------------
 void gfx_system_release_all_graphics()
 {
-    gfx_init_bar_data();
     BillboardSystem::get().reset();
     Ego::TextureManager::get().release_all();
 }
@@ -392,7 +273,7 @@ void gfx_system_make_enviro()
     /// @details This function sets up the environment mapping table
 
     // Find the environment map positions
-    for (size_t i = 0; i < EGO_NORMAL_COUNT; ++i)
+    for (size_t i = 0; i < MD2Model::normalCount; ++i)
     {
         float x = MD2Model::getMD2Normal(i, 0);
         float y = MD2Model::getMD2Normal(i, 1);
@@ -937,10 +818,7 @@ gfx_rv render_scene_mesh(Camera& cam, const Ego::Graphics::TileList& tl, const E
 		TileRenderer::invalidate();
 
 		// render the heighmap
-		for (size_t i = 0; i < tl._all.size(); ++i)
-		{
-			Ego::Graphics::RenderPasses::Internal::TileListV2::render_hmap_fan(tl.getMesh().get(), tl._all[i].getIndex());
-		}
+        Ego::Graphics::RenderPasses::Internal::TileListV2::render_heightmap(*tl.getMesh().get(), tl._all);
 
 		// let the mesh texture code know that someone else is in control now
 		TileRenderer::invalidate();
@@ -1099,51 +977,6 @@ void gfx_config_t::init(gfx_config_t& self)
     self.draw_water_1 = true;
 
     self.dynalist_max = 8;
-}
-
-//--------------------------------------------------------------------------------------------
-// gfx_error FUNCTIONS
-//--------------------------------------------------------------------------------------------
-egolib_rv gfx_error_add(const char * file, const char * function, int line, int id, const char * sz)
-{
-    gfx_error_state_t * pstate;
-
-    // too many errors?
-    if (gfx_error_stack.count >= GFX_ERROR_MAX) return rv_fail;
-
-    // grab an error state
-    pstate = gfx_error_stack.lst + gfx_error_stack.count;
-    gfx_error_stack.count++;
-
-    // where is the error
-    strncpy(pstate->file, file, SDL_arraysize(pstate->file));
-    strncpy(pstate->function, function, SDL_arraysize(pstate->function));
-    pstate->line = line;
-
-    // what is the error
-    pstate->type = id;
-    strncpy(pstate->string, sz, SDL_arraysize(pstate->string));
-
-    return rv_success;
-}
-
-//--------------------------------------------------------------------------------------------
-gfx_error_state_t * gfx_error_pop()
-{
-    gfx_error_state_t * retval;
-
-    if (0 == gfx_error_stack.count || gfx_error_stack.count >= GFX_ERROR_MAX) return NULL;
-
-    gfx_error_stack.count--;
-    retval = gfx_error_stack.lst + gfx_error_stack.count;
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-void gfx_error_clear()
-{
-    gfx_error_stack.count = 0;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1383,85 +1216,25 @@ bool GridIllumination::light_corner(ego_mesh_t& mesh, const Index1D& fan, float 
 }
 
 //--------------------------------------------------------------------------------------------
-// ASSET INITIALIZATION
-//--------------------------------------------------------------------------------------------
-
-void gfx_init_bar_data()
-{
-    Uint8 cnt;
-
-    // Initialize the life and mana bars
-    for (cnt = 0; cnt < NUMBAR; cnt++)
-    {
-        tabrect[cnt]._left = 0;
-        tabrect[cnt]._right = TABX;
-        tabrect[cnt]._top = cnt * BARY;
-        tabrect[cnt]._bottom = (cnt + 1) * BARY;
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 // MODE CONTROL
 //--------------------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------------------
-void gfx_request_clear_screen()
-{
-    gfx_page_clear_requested = true;
-}
-
-//--------------------------------------------------------------------------------------------
 void gfx_do_clear_screen()
 {
-    if (!gfx_page_clear_requested) return;
-
-	auto& renderer = Ego::Renderer::get();
+    auto& renderer = Ego::Renderer::get();
     // Clear the depth buffer.
     renderer.setDepthWriteEnabled(true);
 	renderer.getDepthBuffer().clear();
-
     // Clear the colour buffer.
 	renderer.getColourBuffer().clear();
-
-    gfx_page_clear_requested = false;
 }
 
 //--------------------------------------------------------------------------------------------
 void gfx_do_flip_pages()
 {
-    if (gfx_page_flip_requested)
-
-    {
-        gfx_page_flip_requested = false;
-        _flip_pages();
-
-        gfx_page_clear_requested = true;
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void gfx_request_flip_pages()
-{
-    gfx_page_flip_requested = true;
-}
-
-//--------------------------------------------------------------------------------------------
-bool gfx_flip_pages_requested()
-{
-    return gfx_page_flip_requested;
-}
-
-//--------------------------------------------------------------------------------------------
-void _flip_pages()
-{
-    //GL_DEBUG( glFlush )();
-
-    // draw the console on top of everything
     Ego::Core::ConsoleHandler::get().draw_all();
-
     SDL_GL_SwapWindow(Ego::GraphicsSystem::window->get());
-
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2313,7 +2086,9 @@ gfx_rv gfx_update_flashing(Ego::Graphics::EntityList& el)
 
     if (el.getSize() >= Ego::Graphics::EntityList::CAPACITY)
     {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid entity list size");
+        Log::Entry e(Log::Level::Error, __FILE__, __LINE__);
+        e << "invalid entity list size" << Log::EndOfEntry;
+        Log::get() << e;
         return gfx_error;
     }
 

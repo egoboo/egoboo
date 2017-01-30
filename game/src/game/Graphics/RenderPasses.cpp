@@ -95,26 +95,26 @@ bool ElementV2::compare(const ElementV2& x, const ElementV2& y) {
 	}
 }
 
-void TileListV2::render(const ego_mesh_t& mesh, const std::vector<ClippingEntry>& rlst)
+void TileListV2::render(ego_mesh_t& mesh, const std::vector<ClippingEntry>& tiles)
 {
 	size_t tcnt = mesh._tmem.getInfo().getTileCount();
 
-	if (0 == rlst.size()) {
+	if (0 == tiles.size()) {
 		return;
 	}
 
 	// insert the rlst values into lst_vals
-	std::vector<ElementV2> lst_vals(rlst.size());
-	for (size_t i = 0; i < rlst.size(); ++i)
+	std::vector<ElementV2> lst_vals(tiles.size());
+	for (size_t i = 0; i < tiles.size(); ++i)
 	{
         uint32_t textureIndex;
-		if (rlst[i].getIndex() >= tcnt)
+		if (tiles[i].getIndex() >= tcnt)
 		{
 			textureIndex = std::numeric_limits<uint32_t>::max();
 		}
 		else
 		{
-			const ego_tile_info_t& tile = mesh._tmem.get(rlst[i].getIndex());
+			const ego_tile_info_t& tile = mesh._tmem.get(tiles[i].getIndex());
 
 			int img = TILE_GET_LOWER_BITS(tile._img);
 			if (tile._type >= tile_dict.offset)
@@ -124,7 +124,7 @@ void TileListV2::render(const ego_mesh_t& mesh, const std::vector<ClippingEntry>
 
 			textureIndex = img;
 		}
-        lst_vals[i] = ElementV2(rlst[i].getDistance(), rlst[i].getIndex(), textureIndex);
+        lst_vals[i] = ElementV2(tiles[i].getDistance(), tiles[i].getIndex(), textureIndex);
 	}
 
 	std::sort(lst_vals.begin(), lst_vals.end(), ElementV2::compare);
@@ -132,7 +132,7 @@ void TileListV2::render(const ego_mesh_t& mesh, const std::vector<ClippingEntry>
 	// restart the mesh texture code
 	TileRenderer::invalidate();
 
-	for (size_t i = 0; i < rlst.size(); ++i)
+	for (size_t i = 0; i < tiles.size(); ++i)
 	{
 		Index1D tmp_itile = lst_vals[i].getTileIndex();
 
@@ -147,11 +147,7 @@ void TileListV2::render(const ego_mesh_t& mesh, const std::vector<ClippingEntry>
 	TileRenderer::invalidate();
 }
 
-gfx_rv TileListV2::render_fan(const ego_mesh_t& mesh, const Index1D& i) {
-    /// @author ZZ
-    /// @details This function draws a mesh itile
-    /// Optimized to use gl*Pointer() and glArrayElement() for vertex presentation
-
+gfx_rv TileListV2::render_fan(ego_mesh_t& mesh, const Index1D& i) {
     // grab a pointer to the tile
     const ego_tile_info_t& ptile = mesh.getTileInfo(i);
 
@@ -222,7 +218,15 @@ gfx_rv TileListV2::render_fan(const ego_mesh_t& mesh, const Index1D& i) {
     return gfx_success;
 }
 
-gfx_rv TileListV2::render_hmap_fan(const ego_mesh_t * mesh, const Index1D& tileIndex) {
+void TileListV2::render_heightmap(ego_mesh_t& mesh, const std::vector<ClippingEntry>& tiles)
+{
+    for (size_t i = 0; i < tiles.size(); ++i)
+    {
+        render_heightmap_fan(mesh, tiles[i].getIndex());
+    }
+}
+
+gfx_rv TileListV2::render_heightmap_fan(ego_mesh_t& mesh, const Index1D& tileIndex) {
     /// @author ZZ
     /// @details This function draws a mesh itile
     GLvertex v[4];
@@ -231,19 +235,14 @@ gfx_rv TileListV2::render_hmap_fan(const ego_mesh_t * mesh, const Index1D& tileI
     size_t badvertex;
     int ix_off[4] = {0, 1, 1, 0}, iy_off[4] = {0, 0, 1, 1};
 
-    if (NULL == mesh) {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "NULL mesh");
-        return gfx_error;
-    }
+    const tile_mem_t& ptmem = mesh._tmem;
 
-    const tile_mem_t& ptmem = mesh->_tmem;
-
-    const ego_tile_info_t& ptile = mesh->getTileInfo(tileIndex);
+    const ego_tile_info_t& ptile = mesh.getTileInfo(tileIndex);
 
     /// @author BB
     /// @details the water info is for TILES, not for vertices, so ignore all vertex info and just draw the water
     ///     tile where it's supposed to go
-    auto i2 = Grid::map<int>(tileIndex, mesh->_info.getTileCountX());
+    auto i2 = Grid::map<int>(tileIndex, mesh._info.getTileCountX());
 
     // vertex is a value from 0-15, for the meshcommandref/u/v variables
     // badvertex is a value that references the actual vertex number
@@ -288,6 +287,14 @@ gfx_rv TileListV2::render_hmap_fan(const ego_mesh_t * mesh, const Index1D& tileI
     return gfx_success;
 }
 
+void TileListV2::render_water(ego_mesh_t& mesh, const std::vector<ClippingEntry>& tiles, const Uint8 layer)
+{
+    for (const auto& tile : tiles)
+    {
+        render_water_fan(mesh, tile.getIndex(), layer);
+    }
+}
+
 gfx_rv TileListV2::render_water_fan(ego_mesh_t& mesh, const Index1D& tileIndex, const Uint8 layer) {
 
     static const int ix_off[4] = {1, 1, 0, 0}, iy_off[4] = {0, 1, 1, 0};
@@ -313,7 +320,9 @@ gfx_rv TileListV2::render_water_fan(ego_mesh_t& mesh, const Index1D& tileIndex, 
     uint16_t type = 0;                                         // Command type ( index to points in tile )
     tile_definition_t *pdef = tile_dict.get(type);
     if (NULL == pdef) {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, type, "unknown tile type");
+        Log::Entry e(Log::Level::Error, __FILE__, __LINE__);
+        e << "unknown tile type `" << type << "`" << Log::EndOfEntry;
+        Log::get() << e;
         return gfx_error;
     }
     float offu = _currentModule->getWater()._layers[layer]._tx[XX];               // Texture offsets
@@ -1096,19 +1105,13 @@ void Water::doRun(::Camera& camera, const TileList& tl, const EntityList& el) {
 	// Bottom layer first.
 	if (gfx.draw_water_1 && _currentModule->getWater()._layer_count > 1)
 	{
-		for (size_t i = 0; i < tl._water.size(); ++i)
-		{
-			Internal::TileListV2::render_water_fan(mesh, tl._water[i].getIndex(), 1);
-		}
+        Internal::TileListV2::render_water(mesh, tl._water, 1);
 	}
 
 	// Top layer second.
 	if (gfx.draw_water_0 && _currentModule->getWater()._layer_count > 0)
 	{
-		for (size_t i = 0; i < tl._water.size(); ++i)
-		{
-			Internal::TileListV2::render_water_fan(mesh, tl._water[i].getIndex(), 0);
-		}
+        Internal::TileListV2::render_water(mesh, tl._water, 0);
 	}
 
 	// let the mesh texture code know that someone else is in control now
