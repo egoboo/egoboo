@@ -25,7 +25,7 @@ before_build:
     
 # Artifacts are produced by the AppVeyor project "Egoboo Nightly".
 after_build:
-    7z a binaries-%CONFIGURATION%-%PLATFORM%.zip product\game\%CONFIGURATION%\%PLATFORM%\*.dll product\game\%CONFIGURATION%\%PLATFORM%\*.exe
+    7z a binaries-%CONFIGURATION%-%PLATFORM%-%APPVEYOR_BUILD_VERSION%.zip product\game\%CONFIGURATION%\%PLATFORM%\*.dll product\game\%CONFIGURATION%\%PLATFORM%\*.exe
  
 build:
     parallel: true                  # enable MSBuild parallel builds
@@ -50,24 +50,31 @@ notifications:
       
 # Artifacts are produced by the AppVeyor project "Egoboo Nightly".
 artifacts:
-    - path: binaries-Debug-Win32.zip
-      name: binaries-Debug-Win32
-    - path: binaries-Debug-x64.zip
-      name: binaries-Debug-x64
-    - path: binaries-Release-Win32.zip
-      name: binaries-Release-Win32
-    - path: binaries-Release-x64.zip
-      name: binaries-Release-x64
+    - path: binaries-Debug-Win32-$(appveyor_build_version).zip
+      name: binaries-Debug-Win32$-(appveyor_build_version)
+    - path: binaries-Debug-x64-$(appveyor_build_version).zip
+      name: binaries-Debug-x64-$(appveyor_build_version)
+    - path: binaries-Release-Win32-$(appveyor_build_version).zip
+      name: binaries-Release-Win32-$(appveyor_build_version)
+    - path: binaries-Release-x64-$(appveyor_build_version).zip
+      name: binaries-Release-x64-$(appveyor_build_version)
 
 deploy:
+    - provider: FTP
+      protocol: ftp
+      host: cdn.primordialmachine.com
+      username: ftp11220059-CdnPrimordialMachine
+      password:
+        secure: O78JuCX9OUvHgwWYdGsDyJhteWurb5Tq8AAWAjjWgOE=
+      artifact: binaries-Debug-Win32-$(appveyor_build_version) binaries-Debug-x64-$(appveyor_build_version) binaries-Release-Win32-$(appveyor_build_version) binaries-Release-x64-$(appveyor_build_version)
     - provider: GitHub
-      tag: Egoboo-Nightly-$(appveyor_build_version)
-      release: Egoboo-Nightly-$(appveyor_build_version)
+      tag: Egoboo-Nightly
+      release: Egoboo-Nightly
       description: 'Egoboo Nightly'
       force_update: true
       auth_token:
         secure: kxr/+rin/StoIdTBFp4+OG+nxeoI1TGjLYiPXgttgjyjcDy/3V+G10AAukyTxDIx
-      artifact: binaries-Debug-Win32 binaries-Debug-x64 binaries-Release-Win32 binaries-Release-x64
+      artifact: binaries-Debug-Win32-$(appveyor_build_version) binaries-Debug-x64-$(appveyor_build_version) binaries-Release-Win32-$(appveyor_build_version) binaries-Release-x64-$(appveyor_build_version)
       draft: false
       prerelease: false
       on:
