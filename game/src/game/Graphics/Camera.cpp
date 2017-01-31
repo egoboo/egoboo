@@ -170,13 +170,13 @@ void Camera::makeMatrix()
     resetView();
 
     // Pre-compute some camera vectors.
-    mat_getCamForward(_viewMatrix, _forward);
+    _forward = mat_getCamForward(_viewMatrix);
     _forward.normalize();
 
-    mat_getCamUp(_viewMatrix, _up);
+    _up = mat_getCamUp(_viewMatrix);
     _up.normalize();
 
-    mat_getCamRight(_viewMatrix, _right);
+    _right = mat_getCamRight(_viewMatrix);
     _right.normalize();
 }
 

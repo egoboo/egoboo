@@ -511,7 +511,7 @@ struct Utilities {
  *  \end{matrix}\right]
  *  This is odd, but remember that Egoboo was a 2D game.
  */
-Vector3f mat_getChrUp(const Matrix4f4f& mat);
+Vector3f mat_getChrUp(const Matrix4f4f& m);
 
 /**
  * @remark
@@ -544,7 +544,7 @@ Vector3f mat_getChrUp(const Matrix4f4f& mat);
  *  \f}
  *  This is odd, but remember that Egoboo was a 2D game.
  */
-Vector3f mat_getChrForward(const Matrix4f4f& mat);
+Vector3f mat_getChrForward(const Matrix4f4f& m);
 
 /**
  * @remark
@@ -577,12 +577,12 @@ Vector3f mat_getChrForward(const Matrix4f4f& mat);
  *  \f}
  *  This is odd, but remember that Egoboo was a 2D game.
  */
-Vector3f mat_getChrRight(const Matrix4f4f& mat);
+Vector3f mat_getChrRight(const Matrix4f4f& m);
 
 
-bool mat_getCamUp(const Matrix4f4f& mat, Vector3f& up);
-bool mat_getCamRight(const Matrix4f4f& mat, Vector3f& right);
-bool mat_getCamForward(const Matrix4f4f& mat, Vector3f& forward);
+Vector3f mat_getCamUp(const Matrix4f4f& m);
+Vector3f mat_getCamRight(const Matrix4f4f& m);
+Vector3f mat_getCamForward(const Matrix4f4f& m);
 
 
 Vector3f mat_getTranslate(const Matrix4f4f& mat);

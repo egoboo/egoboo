@@ -80,8 +80,7 @@ void EntityList::sort(Camera& cam, const bool do_reflect) {
     ///    Order from closest to farthest
     assert(list.size() <= CAPACITY);
 
-    Vector3f vcam;
-    mat_getCamForward(cam.getViewMatrix(), vcam);
+    Vector3f vcam = mat_getCamForward(cam.getViewMatrix());
 
     // Figure the distance of each.
     size_t count = 0;

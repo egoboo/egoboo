@@ -619,8 +619,7 @@ void Foreground::doRun(::Camera& camera, const TileList& tl, const EntityList& e
 	Vector3f vforw_wind(ilayer->_tx_add[XX], ilayer->_tx_add[YY], 0.0f);
 	vforw_wind.normalize();
 
-    Vector3f vforw_cam;
-	mat_getCamForward(camera.getViewMatrix(), vforw_cam);
+    Vector3f vforw_cam = mat_getCamForward(camera.getViewMatrix());
 	vforw_cam.normalize();
 
 	// make the texture begin to disappear if you are not looking straight down
