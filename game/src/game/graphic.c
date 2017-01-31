@@ -99,16 +99,16 @@ void reinitClocks() {
 	gfx_update_all_chr_instance_timer.reinit();
 	update_all_prt_instance_timer.reinit();
 
-	Ego::Graphics::RenderPasses::g_entityReflections.clock.reinit();
-	Ego::Graphics::RenderPasses::g_entityShadows.clock.reinit();
-	Ego::Graphics::RenderPasses::g_solidEntities.clock.reinit();
-	Ego::Graphics::RenderPasses::g_transparentEntities.clock.reinit();
-	Ego::Graphics::RenderPasses::g_water.clock.reinit();
-	Ego::Graphics::RenderPasses::g_reflective0.clock.reinit();
-	Ego::Graphics::RenderPasses::g_reflective1.clock.reinit();
-	Ego::Graphics::RenderPasses::g_nonReflective.clock.reinit();
-	Ego::Graphics::RenderPasses::g_foreground.clock.reinit();
-	Ego::Graphics::RenderPasses::g_background.clock.reinit();
+	Ego::Graphics::g_entityReflections.clock.reinit();
+	Ego::Graphics::g_entityShadows.clock.reinit();
+	Ego::Graphics::g_solidEntities.clock.reinit();
+	Ego::Graphics::g_transparentEntities.clock.reinit();
+	Ego::Graphics::g_water.clock.reinit();
+	Ego::Graphics::g_reflective0.clock.reinit();
+	Ego::Graphics::g_reflective1.clock.reinit();
+	Ego::Graphics::g_nonReflective.clock.reinit();
+	Ego::Graphics::g_foreground.clock.reinit();
+	Ego::Graphics::g_background.clock.reinit();
 }
 
 static gfx_rv render_scene_init(Ego::Graphics::TileList& tl, Ego::Graphics::EntityList& el, dynalist_t& dyl, Camera& cam);
@@ -211,9 +211,9 @@ void gfx_system_render_world(std::shared_ptr<Camera> camera, std::shared_ptr<Ego
 
     Renderer3D::begin3D(*camera);
     {
-		Ego::Graphics::RenderPasses::g_background.run(*camera, *tileList, *entityList);
+		Ego::Graphics::g_background.run(*camera, *tileList, *entityList);
         render_scene(*camera, *tileList, *entityList);
-		Ego::Graphics::RenderPasses::g_foreground.run(*camera, *tileList, *entityList);
+		Ego::Graphics::g_foreground.run(*camera, *tileList, *entityList);
 
         if (camera->getMotionBlur() > 0)
         {
@@ -791,17 +791,17 @@ gfx_rv render_scene_mesh(Camera& cam, const Ego::Graphics::TileList& tl, const E
     animate_all_tiles(*tl.getMesh());
 
 	// Render non-reflective tiles.
-	Ego::Graphics::RenderPasses::g_nonReflective.run(cam, tl, el);
+	Ego::Graphics::g_nonReflective.run(cam, tl, el);
 
     //--------------------------------
     // draw the reflective tiles and reflections of entities
     if (gfx.refon)
     {
 		// Clear background behind reflective tiles.
-		Ego::Graphics::RenderPasses::g_reflective0.run(cam, tl, el);
+		Ego::Graphics::g_reflective0.run(cam, tl, el);
 
 		// Render reflections of entities.
-		Ego::Graphics::RenderPasses::g_entityReflections.run(cam, tl, el);
+		Ego::Graphics::g_entityReflections.run(cam, tl, el);
     }
     else
     {
@@ -810,7 +810,7 @@ gfx_rv render_scene_mesh(Camera& cam, const Ego::Graphics::TileList& tl, const E
     Ego::Renderer::get().setProjectionMatrix(cam.getProjectionMatrix());
     Ego::Renderer::get().setViewMatrix(cam.getViewMatrix());
     Ego::Renderer::get().setWorldMatrix(Matrix4f4f::identity());
-	Ego::Graphics::RenderPasses::g_reflective1.run(cam, tl, el);
+	Ego::Graphics::g_reflective1.run(cam, tl, el);
 
 	if (egoboo_config_t::get().debug_mesh_renderHeightMap.getValue())
 	{
@@ -818,14 +818,14 @@ gfx_rv render_scene_mesh(Camera& cam, const Ego::Graphics::TileList& tl, const E
 		TileRenderer::invalidate();
 
 		// render the heighmap
-        Ego::Graphics::RenderPasses::Internal::TileListV2::render_heightmap(*tl.getMesh().get(), tl._all);
+        Ego::Graphics::Internal::TileListV2::render_heightmap(*tl.getMesh().get(), tl._all);
 
 		// let the mesh texture code know that someone else is in control now
 		TileRenderer::invalidate();
 	}
 
     // Render the shadows of entities.
-	Ego::Graphics::RenderPasses::g_entityShadows.run(cam, tl, el);
+	Ego::Graphics::g_entityShadows.run(cam, tl, el);
 
     return retval;
 }
@@ -863,19 +863,19 @@ gfx_rv render_scene(Camera& cam, Ego::Graphics::TileList& tl, Ego::Graphics::Ent
 	}
 
     // Render solid entities.
-	Ego::Graphics::RenderPasses::g_solidEntities.run(cam, tl, el);
+	Ego::Graphics::g_solidEntities.run(cam, tl, el);
 
 	// Render water.
     Ego::Renderer::get().setProjectionMatrix(cam.getProjectionMatrix());
     Ego::Renderer::get().setViewMatrix(cam.getViewMatrix());
     Ego::Renderer::get().setWorldMatrix(Matrix4f4f::identity());
-	Ego::Graphics::RenderPasses::g_water.run(cam, tl, el);
+	Ego::Graphics::g_water.run(cam, tl, el);
 
 	// Render transparent entities.
     Ego::Renderer::get().setProjectionMatrix(cam.getProjectionMatrix());
     Ego::Renderer::get().setViewMatrix(cam.getViewMatrix());
     Ego::Renderer::get().setWorldMatrix(Matrix4f4f::identity());
-	Ego::Graphics::RenderPasses::g_transparentEntities.run(cam, tl, el);
+	Ego::Graphics::g_transparentEntities.run(cam, tl, el);
 
     //Draw all passages
     if(Ego::Input::InputSystem::get().isKeyDown(SDLK_F8)) {

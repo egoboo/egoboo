@@ -42,7 +42,6 @@
 
 namespace Ego {
 namespace Graphics {
-namespace RenderPasses {
 
 namespace Internal {
 
@@ -1264,6 +1263,5 @@ EntityReflections g_entityReflections;
 Foreground g_foreground;
 Background g_background;
 
-}
 }
 }
