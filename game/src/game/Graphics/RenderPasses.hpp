@@ -120,8 +120,6 @@ private:
 	void doReflectionsEnabled(::Camera& cam, const TileList& tl, const EntityList& el);
 	// Used if reflections are disabled.
 	void doReflectionsDisabled(::Camera& cam, const TileList& tl, const EntityList& el);
-	/// Common renderer configuration regardless of if reflections are enabled or disabled.
-	void doCommon(::Camera& cam, const TileList& tl, const EntityList& el);
 };
 
 /// The render pass for the world background.

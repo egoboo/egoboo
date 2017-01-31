@@ -459,8 +459,13 @@ gfx_rv TileListV2::render_water_fan(ego_mesh_t& mesh, const Index1D& tileIndex, 
 
 }
 
-void Background::doRun(::Camera& cam, const TileList& tl, const EntityList& el) {
-	if (!gfx.draw_background || !_currentModule->getWater()._background_req) {
+void Background::doRun(::Camera& camera, const TileList& tl, const EntityList& el) {
+    auto& renderer = Ego::Renderer::get();
+    renderer.setProjectionMatrix(camera.getProjectionMatrix());
+    renderer.setWorldMatrix(Matrix4f4f::identity());
+    renderer.setViewMatrix(camera.getViewMatrix());
+    
+    if (!gfx.draw_background || !_currentModule->getWater()._background_req) {
 		return;
 	}
 
@@ -481,13 +486,13 @@ void Background::doRun(::Camera& cam, const TileList& tl, const EntityList& el) 
 
 	// determine the constants for the x-coordinate
 	xmag = _currentModule->getWater()._backgroundrepeat / 4 / (1.0f + z0 * ilayer->_dist[XX]) / Info<float>::Grid::Size();
-	Cx_0 = xmag * (1.0f + cam.getPosition()[kZ] * ilayer->_dist[XX]);
-	Cx_1 = -xmag * (1.0f + (cam.getPosition()[kZ] - z0) * ilayer->_dist[XX]);
+	Cx_0 = xmag * (1.0f + camera.getPosition()[kZ] * ilayer->_dist[XX]);
+	Cx_1 = -xmag * (1.0f + (camera.getPosition()[kZ] - z0) * ilayer->_dist[XX]);
 
 	// determine the constants for the y-coordinate
 	ymag = _currentModule->getWater()._backgroundrepeat / 4 / (1.0f + z0 * ilayer->_dist[YY]) / Info<float>::Grid::Size();
-	Cy_0 = ymag * (1.0f + cam.getPosition()[kZ] * ilayer->_dist[YY]);
-	Cy_1 = -ymag * (1.0f + (cam.getPosition()[kZ] - z0) * ilayer->_dist[YY]);
+	Cy_0 = ymag * (1.0f + camera.getPosition()[kZ] * ilayer->_dist[YY]);
+	Cy_1 = -ymag * (1.0f + (camera.getPosition()[kZ] - z0) * ilayer->_dist[YY]);
 
 	float Qx, Qy;
 
@@ -499,33 +504,33 @@ void Background::doRun(::Camera& cam, const TileList& tl, const EntityList& el) 
 		Qy = -tmem._edge_y;
 		vertices[0].x = Qx;
 		vertices[0].y = Qy;
-		vertices[0].z = cam.getPosition()[kZ] - z0;
-		vertices[0].s = Cx_0 * Qx + Cx_1 * cam.getPosition()[kX] + ilayer->_tx[XX];
-		vertices[0].t = Cy_0 * Qy + Cy_1 * cam.getPosition()[kY] + ilayer->_tx[YY];
+		vertices[0].z = camera.getPosition()[kZ] - z0;
+		vertices[0].s = Cx_0 * Qx + Cx_1 * camera.getPosition()[kX] + ilayer->_tx[XX];
+		vertices[0].t = Cy_0 * Qy + Cy_1 * camera.getPosition()[kY] + ilayer->_tx[YY];
 
 		Qx = 2 * tmem._edge_x;
 		Qy = -tmem._edge_y;
 		vertices[1].x = Qx;
 		vertices[1].y = Qy;
-		vertices[1].z = cam.getPosition()[kZ] - z0;
-		vertices[1].s = Cx_0 * Qx + Cx_1 * cam.getPosition()[kX] + ilayer->_tx[XX];
-		vertices[1].t = Cy_0 * Qy + Cy_1 * cam.getPosition()[kY] + ilayer->_tx[YY];
+		vertices[1].z = camera.getPosition()[kZ] - z0;
+		vertices[1].s = Cx_0 * Qx + Cx_1 * camera.getPosition()[kX] + ilayer->_tx[XX];
+		vertices[1].t = Cy_0 * Qy + Cy_1 * camera.getPosition()[kY] + ilayer->_tx[YY];
 
 		Qx = 2 * tmem._edge_x;
 		Qy = 2 * tmem._edge_y;
 		vertices[2].x = Qx;
 		vertices[2].y = Qy;
-		vertices[2].z = cam.getPosition()[kZ] - z0;
-		vertices[2].s = Cx_0 * Qx + Cx_1 * cam.getPosition()[kX] + ilayer->_tx[XX];
-		vertices[2].t = Cy_0 * Qy + Cy_1 * cam.getPosition()[kY] + ilayer->_tx[YY];
+		vertices[2].z = camera.getPosition()[kZ] - z0;
+		vertices[2].s = Cx_0 * Qx + Cx_1 * camera.getPosition()[kX] + ilayer->_tx[XX];
+		vertices[2].t = Cy_0 * Qy + Cy_1 * camera.getPosition()[kY] + ilayer->_tx[YY];
 
 		Qx = -tmem._edge_x;
 		Qy = 2 * tmem._edge_y;
 		vertices[3].x = Qx;
 		vertices[3].y = Qy;
-		vertices[3].z = cam.getPosition()[kZ] - z0;
-		vertices[3].s = Cx_0 * Qx + Cx_1 * cam.getPosition()[kX] + ilayer->_tx[XX];
-		vertices[3].t = Cy_0 * Qy + Cy_1 * cam.getPosition()[kY] + ilayer->_tx[YY];
+		vertices[3].z = camera.getPosition()[kZ] - z0;
+		vertices[3].s = Cx_0 * Qx + Cx_1 * camera.getPosition()[kX] + ilayer->_tx[XX];
+		vertices[3].t = Cy_0 * Qy + Cy_1 * camera.getPosition()[kY] + ilayer->_tx[YY];
 	}
 
 	float light = _currentModule->getWater()._light ? 1.0f : 0.0f;
@@ -545,8 +550,6 @@ void Background::doRun(::Camera& cam, const TileList& tl, const EntityList& el) 
 
 		intens = constrain(intens, 0.0f, 1.0f);
 	}
-
-	auto& renderer = Renderer::get();
 
 	renderer.getTextureUnit().setActivated(_currentModule->getWaterTexture(0).get());
 
@@ -601,18 +604,23 @@ void Background::doRun(::Camera& cam, const TileList& tl, const EntityList& el) 
     }
 }
 
-void Foreground::doRun(::Camera& cam, const TileList& tl, const EntityList& el) {
+void Foreground::doRun(::Camera& camera, const TileList& tl, const EntityList& el) {
 	if (!gfx.draw_overlay || !_currentModule->getWater()._background_req) {
 		return;
 	}
+
+    auto& renderer = Ego::Renderer::get();
+    renderer.setProjectionMatrix(camera.getProjectionMatrix());
+    renderer.setWorldMatrix(Matrix4f4f::identity());
+    renderer.setViewMatrix(camera.getViewMatrix());
 
 	water_instance_layer_t *ilayer = _currentModule->getWater()._layers + 1;
 
 	Vector3f vforw_wind(ilayer->_tx_add[XX], ilayer->_tx_add[YY], 0.0f);
 	vforw_wind.normalize();
 
-	Vector3f vforw_cam;
-	mat_getCamForward(cam.getViewMatrix(), vforw_cam);
+    Vector3f vforw_cam;
+	mat_getCamForward(camera.getViewMatrix(), vforw_cam);
 	vforw_cam.normalize();
 
 	// make the texture begin to disappear if you are not looking straight down
@@ -663,8 +671,6 @@ void Foreground::doRun(::Camera& cam, const TileList& tl, const EntityList& el) 
 			vertices[3].s = ilayer->_tx[SS];
 			vertices[3].t = ilayer->_tx[TT] + loc_foregroundrepeat;
 		}
-
-		auto& renderer = Renderer::get();
 
 		renderer.getTextureUnit().setActivated(_currentModule->getWaterTexture(1).get());
 
@@ -747,28 +753,30 @@ void Reflective0::doReflectionsDisabled(::Camera& camera, const TileList& tl, co
 }
 
 void Reflective1::doRun(::Camera& camera, const TileList& tl, const EntityList& el) {
-	if (gfx.refon) {
+    auto& renderer = Renderer::get();
+    // Set projection matrix.
+    renderer.setProjectionMatrix(camera.getProjectionMatrix());
+    // Set view matrix.
+    renderer.setViewMatrix(camera.getViewMatrix());
+    // Set world matrix.
+    renderer.setWorldMatrix(Matrix4f4f::identity());
+    // Disable culling.
+    renderer.setCullingMode(CullingMode::None);
+    // Perform less-or-equal depth testing.
+    renderer.setDepthTestEnabled(true);
+    renderer.setDepthFunction(CompareFunction::LessOrEqual);
+    // Write to depth buffer.
+    renderer.setDepthWriteEnabled(true);
+    if (gfx.refon) {
 		doReflectionsEnabled(camera, tl, el);
 	} else {
 		doReflectionsDisabled(camera, tl, el);
 	}
 }
 
-void Reflective1::doCommon(::Camera& camera, const TileList& tl, const EntityList& el) {
-	auto& renderer = Renderer::get();
-	// Disable culling.
-	renderer.setCullingMode(CullingMode::None);
-	// Perform less-or-equal depth testing.
-	renderer.setDepthTestEnabled(true);
-	renderer.setDepthFunction(CompareFunction::LessOrEqual);
-	// Write to depth buffer.
-	renderer.setDepthWriteEnabled(true);
-}
-
 void Reflective1::doReflectionsEnabled(::Camera& camera, const TileList& tl, const EntityList& el) {
     OpenGL::PushAttrib pa(GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	{
-		doCommon(camera, tl, el);
 		// Enable blending.
 		auto& renderer = Renderer::get();
 		// Enable blending.
@@ -789,7 +797,6 @@ void Reflective1::doReflectionsEnabled(::Camera& camera, const TileList& tl, con
 void Reflective1::doReflectionsDisabled(::Camera& camera, const TileList& tl, const EntityList& el) {
     OpenGL::PushAttrib pa(GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	{
-		doCommon(camera, tl, el);
 		auto& renderer = Renderer::get();
 		// Disable blending.
 		renderer.setBlendingEnabled(false);
@@ -1097,7 +1104,18 @@ void Water::doRun(::Camera& camera, const TileList& tl, const EntityList& el) {
 	{
 		throw Id::RuntimeErrorException(__FILE__, __LINE__, "tile list not bound to a mesh");
 	}
+    
+    auto& renderer = Renderer::get();
+    // Set projection matrix.
+    renderer.setProjectionMatrix(camera.getProjectionMatrix());
+    // Set view matrix.
+    renderer.setViewMatrix(camera.getViewMatrix());
+    // Set world matrix.
+    renderer.setWorldMatrix(Matrix4f4f::identity());
+
+    // Get the mesh.
 	ego_mesh_t& mesh = *tl.getMesh().get();
+
 	// Restart the mesh texture code.
 	TileRenderer::invalidate();
 
@@ -1222,6 +1240,13 @@ void SolidEntities::doRun(::Camera& camera, const TileList& tl, const EntityList
 
 
 void TransparentEntities::doRun(::Camera& camera, const TileList& tl, const EntityList& el) {
+    auto& renderer = Renderer::get();
+    // Set projection matrix.
+    renderer.setProjectionMatrix(camera.getProjectionMatrix());
+    // Set view matrix.
+    renderer.setViewMatrix(camera.getViewMatrix());
+    // Set world matrix.
+    renderer.setWorldMatrix(Matrix4f4f::identity());
     OpenGL::PushAttrib pa(GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT);
 	{
 		auto& renderer = Renderer::get();
