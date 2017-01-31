@@ -118,7 +118,7 @@ void TileListV2::render(ego_mesh_t& mesh, const std::vector<ClippingEntry>& tile
 			int img = TILE_GET_LOWER_BITS(tile._img);
 			if (tile._type >= tile_dict.offset)
 			{
-				img += Ego::Graphics::MESH_IMG_COUNT;
+				img += Graphics::MESH_IMG_COUNT;
 			}
 
 			textureIndex = img;
@@ -162,10 +162,10 @@ gfx_rv TileListV2::render_fan(ego_mesh_t& mesh, const Index1D& i) {
     TileRenderer::bind(ptile);
 
     {
-        Ego::OpenGL::PushClientAttrib pca(GL_CLIENT_VERTEX_ARRAY_BIT);
+        OpenGL::PushClientAttrib pca(GL_CLIENT_VERTEX_ARRAY_BIT);
         {
             // Per-vertex coloring.
-            Ego::Renderer::get().setGouraudShadingEnabled(gfx.gouraudShading_enable); // GL_LIGHTING_BIT
+            Renderer::get().setGouraudShadingEnabled(gfx.gouraudShading_enable); // GL_LIGHTING_BIT
 
                                                                                       /// @note claforte@> Put this in an initialization function.
             GL_DEBUG(glEnableClientState)(GL_VERTEX_ARRAY);
@@ -195,9 +195,9 @@ gfx_rv TileListV2::render_fan(ego_mesh_t& mesh, const Index1D& i) {
 
     if (egoboo_config_t::get().debug_mesh_renderNormals.getValue()) {
         TileRenderer::invalidate();
-        auto& renderer = Ego::Renderer::get();
+        auto& renderer = Renderer::get();
         renderer.getTextureUnit().setActivated(nullptr);
-        renderer.setColour(Ego::Colour4f::white());
+        renderer.setColour(Colour4f::white());
         for (size_t i = ptile._vrtstart, j = 0; j < 4; ++i, ++j) {
             glBegin(GL_LINES);
             {
@@ -264,14 +264,14 @@ gfx_rv TileListV2::render_heightmap_fan(ego_mesh_t& mesh, const Index1D& tileInd
         v[cnt].col[BB] = tmp;
         v[cnt].col[AA] = 1.0f;
 
-        v[cnt].col[RR] = Ego::Math::constrain(v[cnt].col[RR], 0.0f, 1.0f);
-        v[cnt].col[GG] = Ego::Math::constrain(v[cnt].col[GG], 0.0f, 1.0f);
-        v[cnt].col[BB] = Ego::Math::constrain(v[cnt].col[BB], 0.0f, 1.0f);
+        v[cnt].col[RR] = constrain(v[cnt].col[RR], 0.0f, 1.0f);
+        v[cnt].col[GG] = constrain(v[cnt].col[GG], 0.0f, 1.0f);
+        v[cnt].col[BB] = constrain(v[cnt].col[BB], 0.0f, 1.0f);
 
         badvertex++;
     }
 
-    Ego::Renderer::get().getTextureUnit().setActivated(nullptr);
+    Renderer::get().getTextureUnit().setActivated(nullptr);
 
     // Render each command
     GL_DEBUG(glBegin)(GL_TRIANGLE_FAN);
@@ -303,13 +303,13 @@ gfx_rv TileListV2::render_water_fan(ego_mesh_t& mesh, const Index1D& tileIndex, 
     int  imap[4];
     float fx_off[4], fy_off[4];
 
-    const Ego::MeshInfo& info = mesh._info;
+    const MeshInfo& info = mesh._info;
 
     const ego_tile_info_t& ptile = mesh.getTileInfo(tileIndex);
 
     float falpha;
     falpha = FF_TO_FLOAT(_currentModule->getWater()._layers[layer]._alpha);
-    falpha = Ego::Math::constrain(falpha, 0.0f, 1.0f);
+    falpha = constrain(falpha, 0.0f, 1.0f);
 
     /// @note BB@> the water info is for TILES, not for vertices, so ignore all vertex info and just draw the water
     ///            tile where it's supposed to go
@@ -328,7 +328,7 @@ gfx_rv TileListV2::render_water_fan(ego_mesh_t& mesh, const Index1D& tileIndex, 
     float offv = _currentModule->getWater()._layers[layer]._tx[YY];
     uint16_t frame = _currentModule->getWater()._layers[layer]._frame;                // Frame
 
-    std::shared_ptr<const Ego::Texture> ptex = _currentModule->getWaterTexture(layer);
+    std::shared_ptr<const Texture> ptex = _currentModule->getWaterTexture(layer);
 
     float x1 = (float)ptex->getWidth() / (float)ptex->getSourceWidth();
     float y1 = (float)ptex->getHeight() / (float)ptex->getSourceHeight();
@@ -352,14 +352,14 @@ gfx_rv TileListV2::render_water_fan(ego_mesh_t& mesh, const Index1D& tileIndex, 
     }
 
     // draw draw front and back faces of polygons
-    Ego::Renderer::get().setCullingMode(Ego::CullingMode::None);
+    Renderer::get().setCullingMode(CullingMode::None);
 
     struct Vertex {
         float x, y, z;
         float r, g, b, a;
         float s, t;
     };
-    auto vb = std::make_shared<Ego::VertexBuffer>(4, Ego::VertexFormatFactory::get<Ego::VertexFormat::P3FC4FT2F>());
+    auto vb = std::make_shared<VertexBuffer>(4, VertexFormatFactory::get<VertexFormat::P3FC4FT2F>());
     Vertex *v = static_cast<Vertex *>(vb->lock());
 
     // Original points
@@ -368,7 +368,7 @@ gfx_rv TileListV2::render_water_fan(ego_mesh_t& mesh, const Index1D& tileIndex, 
         GLXvector3f nrm = {0, 0, 1};
 
         float alight = get_ambient_level() + _currentModule->getWater()._layers->_light_add;
-        alight = Ego::Math::constrain(alight / 255.0f, 0.0f, 1.0f);
+        alight = constrain(alight / 255.0f, 0.0f, 1.0f);
 
         for (size_t cnt = 0; cnt < 4; cnt++) {
             Vertex& v0 = v[cnt];
@@ -396,9 +396,9 @@ gfx_rv TileListV2::render_water_fan(ego_mesh_t& mesh, const Index1D& tileIndex, 
             }
 
             // take the v[cnt].color from the tnc vertices so that it is oriented properly
-            v0.r = Ego::Math::constrain(dlight * INV_FF<float>() + alight, 0.0f, 1.0f);
-            v0.g = Ego::Math::constrain(dlight * INV_FF<float>() + alight, 0.0f, 1.0f);
-            v0.b = Ego::Math::constrain(dlight * INV_FF<float>() + alight, 0.0f, 1.0f);
+            v0.r = constrain(dlight * INV_FF<float>() + alight, 0.0f, 1.0f);
+            v0.g = constrain(dlight * INV_FF<float>() + alight, 0.0f, 1.0f);
+            v0.b = constrain(dlight * INV_FF<float>() + alight, 0.0f, 1.0f);
 
             // the application of alpha to the tile depends on the blending mode
             if (_currentModule->getWater()._light) {
@@ -421,37 +421,37 @@ gfx_rv TileListV2::render_water_fan(ego_mesh_t& mesh, const Index1D& tileIndex, 
     // tell the mesh texture code that someone else is controlling the texture
     TileRenderer::invalidate();
 
-    auto& renderer = Ego::Renderer::get();
+    auto& renderer = Renderer::get();
 
     // set the texture
     renderer.getTextureUnit().setActivated(ptex.get());
 
-    Ego::OpenGL::PushAttrib pa(GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_LIGHTING_BIT | GL_CURRENT_BIT | GL_POLYGON_BIT);
+    OpenGL::PushAttrib pa(GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_LIGHTING_BIT | GL_CURRENT_BIT | GL_POLYGON_BIT);
     {
         bool use_depth_mask = (!_currentModule->getWater()._light && (1.0f == falpha));
 
         // do not draw hidden surfaces
         renderer.setDepthTestEnabled(true);
-        renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
+        renderer.setDepthFunction(CompareFunction::LessOrEqual);
 
         // only use the depth mask if the tile is NOT transparent
         renderer.setDepthWriteEnabled(use_depth_mask);
 
         // cull backward facing polygons
         // use clockwise orientation to determine backfaces
-        oglx_begin_culling(Ego::CullingMode::Back, MAP_NRM_CULL);
+        oglx_begin_culling(CullingMode::Back, MAP_NRM_CULL);
 
         // set the blending mode
         renderer.setBlendingEnabled(true);
         if (_currentModule->getWater()._light) {
-            renderer.setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::OneMinusSourceColour);
+            renderer.setBlendFunction(BlendFunction::One, BlendFunction::OneMinusSourceColour);
         } else {
-            renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
+            renderer.setBlendFunction(BlendFunction::SourceAlpha, BlendFunction::OneMinusSourceAlpha);
         }
 
         // per-vertex coloring
         renderer.setGouraudShadingEnabled(true);
-        renderer.render(*vb, Ego::PrimitiveType::TriangleFan, 0, 4);
+        renderer.render(*vb, PrimitiveType::TriangleFan, 0, 4);
     }
 
     return gfx_success;
@@ -460,7 +460,7 @@ gfx_rv TileListV2::render_water_fan(ego_mesh_t& mesh, const Index1D& tileIndex, 
 }
 
 void Background::doRun(::Camera& camera, const TileList& tl, const EntityList& el) {
-    auto& renderer = Ego::Renderer::get();
+    auto& renderer = Renderer::get();
     renderer.setProjectionMatrix(camera.getProjectionMatrix());
     renderer.setWorldMatrix(Matrix4f4f::identity());
     renderer.setViewMatrix(camera.getViewMatrix());
@@ -609,7 +609,7 @@ void Foreground::doRun(::Camera& camera, const TileList& tl, const EntityList& e
 		return;
 	}
 
-    auto& renderer = Ego::Renderer::get();
+    auto& renderer = Renderer::get();
     renderer.setProjectionMatrix(camera.getProjectionMatrix());
     renderer.setWorldMatrix(Matrix4f4f::identity());
     renderer.setViewMatrix(camera.getViewMatrix());
@@ -631,7 +631,7 @@ void Foreground::doRun(::Camera& camera, const TileList& tl, const EntityList& e
 	if (alpha != 0.0f)
 	{
 		// Figure out the screen coordinates of its corners
-        auto windowSize = Ego::GraphicsSystem::window->getSize();
+        auto windowSize = GraphicsSystem::window->getSize();
 		float x = windowSize.width() << 6;
 		float y = windowSize.height() << 6;
 		float z = 0;
@@ -675,7 +675,7 @@ void Foreground::doRun(::Camera& camera, const TileList& tl, const EntityList& e
 		renderer.getTextureUnit().setActivated(_currentModule->getWaterTexture(1).get());
 
         {
-            Ego::OpenGL::PushAttrib pa(GL_ENABLE_BIT | GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_COLOR_BUFFER_BIT | GL_HINT_BIT);
+            OpenGL::PushAttrib pa(GL_ENABLE_BIT | GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_COLOR_BUFFER_BIT | GL_HINT_BIT);
             {
                 // make sure that the texture is as smooth as possible
                 GL_DEBUG(glHint)(GL_POLYGON_SMOOTH_HINT, GL_NICEST);          // GL_HINT_BIT
@@ -789,7 +789,7 @@ void Reflective1::doReflectionsEnabled(::Camera& camera, const TileList& tl, con
 }
 
 /**
- * @todo We could re-use Ego::Graphics::RenderPasses::NonReflective for that.
+ * @todo We could re-use Graphics::RenderPasses::NonReflective for that.
  *       However, things will evolve soon enough ... Egoboo's whole way of
  *       rendering needs to be improved (at least we've improved structure &
  *       terminology for now).
@@ -938,7 +938,7 @@ void EntityShadows::doLowQualityShadow(const ObjectRef character) {
 	}
 
 	// Choose texture and matrix
-	Ego::Renderer::get().getTextureUnit().setActivated(ParticleHandler::get().getLightParticleTexture().get());
+	Renderer::get().getTextureUnit().setActivated(ParticleHandler::get().getLightParticleTexture().get());
 	int itex_style = SPRITE_LIGHT; //ZF> Note: index 1 is for SPRITE_LIGHT
 
 	{
@@ -1014,7 +1014,7 @@ void EntityShadows::doHighQualityShadow(const ObjectRef character) {
 	float y = pchr->inst.getMatrix()(1, 3);
 
 	// Choose texture and matrix
-	Ego::Renderer::get().getTextureUnit().setActivated(ParticleHandler::get().getLightParticleTexture().get());
+	Renderer::get().getTextureUnit().setActivated(ParticleHandler::get().getLightParticleTexture().get());
 	int itex_style = SPRITE_LIGHT; //ZF> Note: index 1 is for SPRITE_LIGHT
 
 	// GOOD SHADOW
@@ -1091,7 +1091,7 @@ void EntityShadows::doShadowSprite(float intensity, VertexBuffer& vertexBuffer)
 	if (intensity*255.0f < 1.0f) return;
 
 	//Limit the intensity to a valid range
-	intensity = Ego::Math::constrain(intensity, 0.0f, 1.0f);
+	intensity = constrain(intensity, 0.0f, 1.0f);
 
 	auto& renderer = Renderer::get();
 	renderer.setColour(Colour4f(intensity, intensity, intensity, 1.0f));
