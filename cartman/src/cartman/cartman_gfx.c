@@ -66,26 +66,14 @@ static void get_big_tiles( SDL_Surface* bmpload );
 
 //--------------------------------------------------------------------------------------------
 
-GFX::GFX()
+GFX::GFX() : Ego::App<GFX>(NAME, VERSION_STR)
 {
-    initializeSDLGraphics();
     gfx_font_ptr = Ego::FontManager::get().loadFont("editor/pc8x8.fon", 12);
 }
 
 GFX::~GFX()
 {
     gfx_font_ptr.reset();
-    uninitializeSDLGraphics();
-}
-
-void GFX::uninitializeSDLGraphics()
-{
-    Ego::App::uninitialize();
-}
-
-void GFX::initializeSDLGraphics()
-{
-    Ego::App::initialize(NAME, VERSION_STR);
 }
 
 //--------------------------------------------------------------------------------------------

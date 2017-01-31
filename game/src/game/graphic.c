@@ -142,9 +142,10 @@ static bool sum_global_lighting(std::array<float, LIGHTING_VEC_SIZE> &lighting);
 //--------------------------------------------------------------------------------------------
 // GFX implementation
 //--------------------------------------------------------------------------------------------
-GFX::GFX() {
-    // Initialize SDL.
-    GFX::initializeSDLGraphics();
+
+GFX::GFX() :
+    App<GFX>("Egoboo", GameEngine::GAME_VERSION)
+{
     // initialize the dynalist frame
     // otherwise, it will not update until the frame count reaches whatever
     // left over or random value is in this counter
@@ -155,7 +156,6 @@ GFX::GFX() {
     try {
         BillboardSystem::initialize();
     } catch (...) {
-        GFX::uninitializeSDLGraphics();
         std::rethrow_exception(std::current_exception());
     }
     // Initialize the texture atlas manager.
@@ -163,7 +163,6 @@ GFX::GFX() {
         Ego::Graphics::TextureAtlasManager::initialize();
     } catch (...) {
         BillboardSystem::uninitialize();
-        GFX::uninitializeSDLGraphics();
         std::rethrow_exception(std::current_exception());
     }
 }
@@ -178,20 +177,6 @@ GFX::~GFX()
 
     // Uninitialize the profiling variables.
 	reinitClocks(); // Important: clear out the sliding windows of the clocks.
-
-    // Uninitialize SDL graphics.
-    GFX::uninitializeSDLGraphics();
-}
-
-//--------------------------------------------------------------------------------------------
-void GFX::uninitializeSDLGraphics()
-{
-    Ego::App::uninitialize();
-}
-
-void GFX::initializeSDLGraphics()
-{
-    Ego::App::initialize("Egoboo", GameEngine::GAME_VERSION);
 }
 
 //--------------------------------------------------------------------------------------------

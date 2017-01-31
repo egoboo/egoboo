@@ -118,31 +118,13 @@ extern float           indextoenvirox[MD2Model::normalCount];                   
 //--------------------------------------------------------------------------------------------
 // Function prototypes
 
-struct GFX : public Ego::Core::Singleton<GFX>
+struct GFX : public Ego::App<GFX>
 {
 private:
     friend Ego::Core::Singleton<GFX>::CreateFunctorType;
     friend Ego::Core::Singleton<GFX>::DestroyFunctorType;
     GFX();
     ~GFX();
-private:
-    /**
-     * @brief
-     *  Initialize the SDL graphics system.
-     * @remark
-     *  Virtual finally simply prevents the method from being overriden
-     *  if its visibility is (accidentially) changed to non-private.
-     */
-    virtual void initializeSDLGraphics() final;
-
-    /**
-     * @brief
-     *  Uninitialize the SDL graphics system.
-     * @remark
-     *  Virtual finally simply prevents the method from being overriden
-     *  if its visibility is (accidentially) changed to non-private.
-     */
-    virtual void uninitializeSDLGraphics() final;
 };
 
 /// SDL destroys the OpenGL context at various occassions (e.g. when changing the video mode).

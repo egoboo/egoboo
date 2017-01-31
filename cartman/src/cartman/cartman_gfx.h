@@ -180,26 +180,8 @@ inline std::shared_ptr<SDL_Surface> gfx_loadImage(const std::string& pathname)
 }
 
 // initialization
-struct GFX : Ego::Core::Singleton<GFX>
+struct GFX : Ego::App<GFX>
 {
     GFX();
     ~GFX();
-
-    /**
-     * @brief
-     *  Initialize the SDL graphics system.
-     * @remark
-     *  Virtual finally simply prevents the method from being overriden
-     *  if its visibility is (accidentially) changed to non-private.
-     */
-    virtual void initializeSDLGraphics() final;
-
-    /**
-     * @brief
-     *  Uninitialize the SDL graphics system.
-     * @remark
-     *  Virtual finally simply prevents the method from being overriden
-     *  if its visibility is (accidentially) changed to non-private.
-     */
-    virtual void uninitializeSDLGraphics() final;
 };
