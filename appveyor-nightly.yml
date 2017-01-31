@@ -4,10 +4,6 @@ clone_depth: 1
 # Build worker image (VM template)
 image: Visual Studio 2015
 
-# fetch repository as zip archive
-# default is "false"
-# shallow_clone: true
-
 platform:
     - Win32
     - x64
@@ -26,9 +22,6 @@ init:
 
 install:
     git submodule update --init --recursive --depth 1
-
-#before_build:
-    #set PATH=C:\Program Files (x86)\MSBuild\14.0\Bin;%PATH%
     
 # Artifacts are produced by the AppVeyor project "Egoboo Nightly".
 after_build:
@@ -57,14 +50,14 @@ notifications:
       
 # Artifacts are produced by the AppVeyor project "Egoboo Nightly".
 artifacts:
-    - path: binaries-Debug-Win32-$(appveyor_build_version).zip
-      name: binaries-Debug-Win32$-(appveyor_build_version)
-    - path: binaries-Debug-x64-$(appveyor_build_version).zip
-      name: binaries-Debug-x64-$(appveyor_build_version)
-    - path: binaries-Release-Win32-$(appveyor_build_version).zip
-      name: binaries-Release-Win32-$(appveyor_build_version)
-    - path: binaries-Release-x64-$(appveyor_build_version).zip
-      name: binaries-Release-x64-$(appveyor_build_version)
+    - path: binaries-Debug-Win32-nightly.zip
+      name: binaries-Debug-Win32-nightly
+    - path: binaries-Debug-x64-nightly.zip
+      name: binaries-Debug-x64-nightly
+    - path: binaries-Release-Win32-nightly.zip
+      name: binaries-Release-Win32-nightly
+    - path: binaries-Release-x64-nightly.zip
+      name: binaries-Release-x64-nightly
 
 deploy:
     - provider: FTP
@@ -73,7 +66,7 @@ deploy:
       username: ftp11220059-CdnPrimordialMachine
       password:
         secure: O78JuCX9OUvHgwWYdGsDyJhteWurb5Tq8AAWAjjWgOE=
-      artifact: binaries-Debug-Win32-$(appveyor_build_version) binaries-Debug-x64-$(appveyor_build_version) binaries-Release-Win32-$(appveyor_build_version) binaries-Release-x64-$(appveyor_build_version)
+      artifact: binaries-Debug-Win32-nightly binaries-Debug-x64-nightly binaries-Release-Win32-nightly binaries-Release-x64-nightly
     - provider: GitHub
       tag: Egoboo-Nightly
       release: Egoboo-Nightly
@@ -81,7 +74,7 @@ deploy:
       force_update: true
       auth_token:
         secure: kxr/+rin/StoIdTBFp4+OG+nxeoI1TGjLYiPXgttgjyjcDy/3V+G10AAukyTxDIx
-      artifact: binaries-Debug-Win32-$(appveyor_build_version) binaries-Debug-x64-$(appveyor_build_version) binaries-Release-Win32-$(appveyor_build_version) binaries-Release-x64-$(appveyor_build_version)
+      artifact: binaries-Debug-Win32-nightly binaries-Debug-x64-nightly binaries-Release-Win32-nightly binaries-Release-x64-nightly
       draft: false
       prerelease: false
       on:

@@ -1,6 +1,9 @@
 # AppVeyor configuration for AppVeyor project "Egoboo".
 clone_depth: 1
 
+# Build worker image (VM template)
+image: Visual Studio 2015
+
 platform:
     - Win32
     - x64
@@ -10,16 +13,9 @@ configuration:
 
 install:
     git submodule update --init --recursive --depth 1
-
-before_build:
-    set PATH=C:\Program Files (x86)\MSBuild\14.0\Bin;%PATH%
-
-# Artifacts are produced by the AppVeyor project "Egoboo Nightly".
-#after_build:
-    #7z a binaries-%CONFIGURATION%-%PLATFORM%.zip product\game\%CONFIGURATION%\%PLATFORM%\*.dll product\game\%CONFIGURATION%\%PLATFORM%\*.exe
  
 build:
-    parallel: true                  # enable MSBuild parallel builds
+    parallel: false                 # enable MSBuild parallel builds
     project: egoboo.sln             # path to Visual Studio solution or project
 
 test_script:
@@ -38,14 +34,3 @@ notifications:
       url: https://webhooks.gitter.im/e/7743b26cbf1767e7b3a3
       on_build_success: true
       on_build_failure: true
-
-# Artifacts are produced by the AppVeyor project "Egoboo Nightly".
-#artifacts:
-#    - path: binaries-Debug-Win32.zip
-#      name: binaries-Debug-Win32
-#    - path: binaries-Debug-x64.zip
-#      name: binaries-Debug-x64
-#    - path: binaries-Release-Win32.zip
-#      name: binaries-Release-Win32
-#    - path: binaries-Release-x64.zip
-#      name: binaries-Release-x64
