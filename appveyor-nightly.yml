@@ -1,6 +1,13 @@
 # AppVeyor configuration for AppVeyor project "Egoboo Nightly".
 clone_depth: 1
 
+# Build worker image (VM template)
+image: Visual Studio 2015
+
+# fetch repository as zip archive
+# default is "false"
+shallow_clone: true                 #
+
 platform:
     - Win32
     - x64
@@ -20,8 +27,8 @@ init:
 install:
     git submodule update --init --recursive --depth 1
 
-before_build:
-    set PATH=C:\Program Files (x86)\MSBuild\14.0\Bin;%PATH%
+#before_build:
+    #set PATH=C:\Program Files (x86)\MSBuild\14.0\Bin;%PATH%
     
 # Artifacts are produced by the AppVeyor project "Egoboo Nightly".
 after_build:
