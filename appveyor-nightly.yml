@@ -35,7 +35,7 @@ after_build:
     7z a binaries-%CONFIGURATION%-%PLATFORM%-%APPVEYOR_BUILD_VERSION%.zip product\game\%CONFIGURATION%\%PLATFORM%\*.dll product\game\%CONFIGURATION%\%PLATFORM%\*.exe
  
 build:
-    parallel: true                  # enable MSBuild parallel builds
+    parallel: false                 # disable MSBuild parallel builds
     project: egoboo.sln             # path to Visual Studio solution or project
 
 test_script:
