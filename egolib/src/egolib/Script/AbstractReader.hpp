@@ -8,7 +8,7 @@ namespace Ego {
 namespace Script {
 
 /// @brief A scanner.
-template <typename Traits = Traits<char>>
+template <typename TraitsArg = Traits<char>>
 struct AbstractReader {
 private:
     /// @brief The line number.
@@ -18,6 +18,10 @@ private:
     std::string _fileName;
 
 public:
+    using Traits = TraitsArg;
+    using SymbolType = typename Traits::Type;
+    using ExtendedSymbolType = typename Traits::ExtendedType;
+
     /// @brief The lexeme accumulation buffer.
     Buffer _buffer;
 
@@ -31,12 +35,11 @@ private:
 protected:
     /// @brief Construct this reader.
     /// @param fileName the filename
-    /// @param initialBufferCapacity the initial capacity of the lexeme accumulation buffer
     /// @throw RuntimeErrorException if the file can not be read
     /// @post The reader is in its initial state w.r.t. the specified input if no exception is raised.
-    AbstractReader(const std::string& fileName, size_t initialBufferCapacity) :
-        _fileName(fileName), _inputBuffer(8), _inputIndex(-1),
-        _buffer(initialBufferCapacity),
+    AbstractReader(const std::string& fileName) :
+        _fileName(fileName), _inputBuffer(), _inputIndex(-1),
+        _buffer(),
         _lineNumber(1) {
         vfs_readEntireFile
             (
@@ -52,7 +55,7 @@ protected:
     /// @post The reader is in its initial state w.r.t. the specified input if no exception is raised.
     /// If an exception is raised, the reader retains its state.
     void SetInput(const std::string& fileName) {
-        Buffer temporaryBuffer(512);
+        Buffer temporaryBuffer;
         std::string temporaryFileName = fileName;
         // If this succeeds, then we're set.
         vfs_readEntireFile(fileName, [&temporaryBuffer](size_t numberOfBytes, const char *bytes) {
@@ -84,7 +87,7 @@ public:
 public:
     /// @brief Get the current extended character.
     /// @return the current extended character
-    typename Traits::ExtendedType current() const {
+    ExtendedSymbolType current() const {
         if (_inputIndex == -1) {
             return Traits::startOfInput();
         } else if (_inputIndex == _inputBuffer.getSize()) {
@@ -104,14 +107,14 @@ public:
 
     /// @brief Write the specified extended character.
     /// @param echr the extended character
-    inline void write(const typename Traits::ExtendedType& echr) {
+    inline void write(const ExtendedSymbolType& echr) {
         assert(Traits::isValid(echr));
-        _buffer.append(static_cast<typename Traits::Type>(echr));
+        _buffer.append(static_cast<SymbolType>(echr));
     }
 
     /// @brief Write the specified extended character and advance to the next extended character.
     /// @param echr the extended character
-    inline void writeAndNext(const typename Traits::ExtendedType& echr) {
+    inline void writeAndNext(const ExtendedSymbolType& echr) {
         write(echr);
         next();
     }
@@ -137,7 +140,7 @@ public:
     /// @brief Get if the current extended character equals another extended character.
     /// @param other the other extended character
     /// @return @a true if the current extended character equals the other extended character, @a false otherwise
-    inline bool is(const typename Traits::ExtendedType& echr) const {
+    inline bool is(const ExtendedSymbolType& echr) const {
         return echr == current();
     }
 
@@ -168,7 +171,7 @@ public:
 public:
     void newLine() {
         if (isNewLine()) {
-            typename Traits::ExtendedType old = current();
+            auto old = current();
             writeAndNext('\n');
             if (isNewLine() && old != current()) {
                 next();
@@ -181,7 +184,7 @@ public:
     /// @remark Proper line counting is performed.
     void skipNewLine() {
         if (isNewLine()) {
-            typename Traits::ExtendedType old = current();
+            auto old = current();
             next();
             if (isNewLine() && old != current()) {
                 next();
@@ -192,7 +195,7 @@ public:
 
     void newLines() {
         while (isNewLine()) {
-            typename Traits::ExtendedType old = current();
+            auto old = current();
             writeAndNext('\n');
             if (isNewLine() && old != current()) {
                 next();
@@ -205,7 +208,7 @@ public:
     /// @remark Proper line counting is performed.
     void skipNewLines() {
         while (isNewLine()) {
-            typename Traits::ExtendedType old = current();
+            auto old = current();
             next();
             if (isNewLine() && old != current()) {
                 next();
