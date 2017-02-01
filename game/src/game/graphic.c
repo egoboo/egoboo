@@ -901,7 +901,7 @@ void gfx_config_t::download(gfx_config_t& self, egoboo_config_t& cfg)
     self.refon = cfg.graphic_reflections_enable.getValue();
 
     self.shadows_enable = cfg.graphic_shadows_enable.getValue();
-    self.shadows_highQuality_enable = !cfg.graphic_shadows_highQuality_enable.getValue();
+    self.shadows_highQuality_enable = cfg.graphic_shadows_highQuality_enable.getValue();
 
     self.gouraudShading_enable = cfg.graphic_gouraudShading_enable.getValue();
     self.dither = cfg.graphic_dithering_enable.getValue();
