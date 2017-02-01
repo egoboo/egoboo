@@ -234,16 +234,6 @@ private:
 	void doShadowSprite(float intensity, VertexBuffer& vertexBuffer);
 };
 
-extern TransparentEntities g_transparentEntities;
-extern SolidEntities g_solidEntities;
-extern Reflective0 g_reflective0;
-extern Reflective1 g_reflective1;
-extern NonReflective g_nonReflective;
-extern EntityShadows g_entityShadows;
-extern Water g_water;
-extern EntityReflections g_entityReflections;
-extern Foreground g_foreground;
-extern Background g_background;
 
 }
 }

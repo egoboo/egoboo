@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "game/graphic.h"
+#include "game/egoboo.h"
 
 // Forward declarations.
 class Camera;

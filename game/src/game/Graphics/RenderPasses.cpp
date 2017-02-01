@@ -1276,16 +1276,6 @@ void TransparentEntities::doRun(::Camera& camera, const TileList& tl, const Enti
 	}
 }
 
-TransparentEntities g_transparentEntities;
-SolidEntities g_solidEntities;
-Reflective0 g_reflective0;
-Reflective1 g_reflective1;
-NonReflective g_nonReflective;
-EntityShadows g_entityShadows;
-Water g_water;
-EntityReflections g_entityReflections;
-Foreground g_foreground;
-Background g_background;
 
 }
 }

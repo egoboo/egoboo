@@ -24,6 +24,8 @@
 #include "game/Graphics/CameraSystem.hpp"
 #include "egolib/Graphics/MD2Model.hpp"
 #include "game/Graphics/RenderPasses.hpp"
+#include "game/graphic_billboard.h"
+#include "game/Graphics/TextureAtlasManager.hpp"
 
 void  draw_hud();
 
@@ -115,16 +117,135 @@ extern gfx_config_t gfx;
 extern float           indextoenvirox[MD2Model::normalCount];                    ///< Environment map
 
 //--------------------------------------------------------------------------------------------
+/// The active dynamic lights
+struct dynalist_t
+{
+    int frame; ///< The last frame in shich the list was updated. @a -1 if there was no update yet.
+    size_t size; ///< The size of the list.
+    dynalight_data_t lst[TOTAL_MAX_DYNA];  ///< The list.
+    static void init(dynalist_t& self);
+    dynalist_t()
+        : frame(-1), size(0), lst{}
+    {}
+};
 //--------------------------------------------------------------------------------------------
 // Function prototypes
 
-struct GFX : public Ego::App<GFX>
+template <typename T>
+struct GameApp : public Ego::App<T>
+{
+public:
+    dynalist_t _dynalist;
+protected:
+    GameApp(const std::string& title, const std::string& version) : Ego::App<T>(title, version),
+        _dynalist()
+    {
+        // Initialize the billboard system.
+        try
+        {
+            BillboardSystem::initialize();
+        }
+        catch (...)
+        {
+            std::rethrow_exception(std::current_exception());
+        }
+        // Initialize the texture atlas manager.
+        try
+        {
+            Ego::Graphics::TextureAtlasManager::initialize();
+        }
+        catch (...)
+        {
+            BillboardSystem::uninitialize();
+            std::rethrow_exception(std::current_exception());
+        }
+    }
+    virtual ~GameApp()
+    {
+        // Uninitialize the billboard system.
+        BillboardSystem::uninitialize();
+
+        // Uninitialize the texture atlas manager.
+        Ego::Graphics::TextureAtlasManager::uninitialize();
+    }
+};
+
+struct GFX : public GameApp<GFX>
 {
 private:
     friend Ego::Core::Singleton<GFX>::CreateFunctorType;
     friend Ego::Core::Singleton<GFX>::DestroyFunctorType;
     GFX();
     ~GFX();
+
+
+    std::unique_ptr<Ego::Graphics::RenderPass> transparentEntities;
+    std::unique_ptr<Ego::Graphics::RenderPass> solidEntities;
+    std::unique_ptr<Ego::Graphics::RenderPass> reflective0;
+    std::unique_ptr<Ego::Graphics::RenderPass> reflective1;
+    std::unique_ptr<Ego::Graphics::RenderPass> nonReflective;
+    std::unique_ptr<Ego::Graphics::RenderPass> entityShadows;
+    std::unique_ptr<Ego::Graphics::RenderPass> water;
+    std::unique_ptr<Ego::Graphics::RenderPass> entityReflections;
+    std::unique_ptr<Ego::Graphics::RenderPass> foreground;
+    std::unique_ptr<Ego::Graphics::RenderPass> background;
+    std::unique_ptr<Ego::Graphics::RenderPass> motionBlur;
+
+public:
+    Ego::Graphics::RenderPass& getTransparentEntities() const
+    {
+        return *transparentEntities;
+    }
+
+    Ego::Graphics::RenderPass& getSolidEntities() const
+    {
+        return *solidEntities;
+    }
+
+    Ego::Graphics::RenderPass& getReflective0() const
+    {
+        return *reflective0;
+    }
+
+    Ego::Graphics::RenderPass& getReflective1() const
+    {
+        return *reflective1;
+    }
+
+    Ego::Graphics::RenderPass& getNonReflective() const
+    {
+        return *nonReflective;
+    }
+
+    Ego::Graphics::RenderPass& getEntityShadows() const
+    {
+        return *entityShadows;
+    }
+
+    Ego::Graphics::RenderPass& getWater() const
+    {
+        return *water;
+    }
+
+    Ego::Graphics::RenderPass& getEntityReflections() const
+    {
+        return *entityReflections;
+    }
+
+    Ego::Graphics::RenderPass& getForeground() const
+    {
+        return *foreground;
+    }
+
+    Ego::Graphics::RenderPass& getBackground() const
+    {
+        return *background;
+    }
+
+    Ego::Graphics::RenderPass& getMotionBlur() const
+    {
+        return *motionBlur;
+    }
 };
 
 /// SDL destroys the OpenGL context at various occassions (e.g. when changing the video mode).
@@ -150,17 +271,6 @@ void draw_blip(float sizeFactor, Uint8 color, float x, float y);
 void draw_mouse_cursor();
 void draw_passages(Camera& cam);
 
-/// The active dynamic lights
-struct dynalist_t
-{
-	int frame; ///< The last frame in shich the list was updated. @a -1 if there was no update yet.
-	size_t size; ///< The size of the list.
-	dynalight_data_t lst[TOTAL_MAX_DYNA];  ///< The list.
-	static void init(dynalist_t& self);
-    dynalist_t()
-        : frame(-1), size(0), lst{}
-    {}
-};
 
 /// Structure for keeping track of which dynalights are visible
 struct dynalight_registry_t {
