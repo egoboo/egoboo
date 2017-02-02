@@ -2,9 +2,11 @@
 # the source files
 C_FILES := ${wildcard ./src/game/*.c}
 C_FILES += ${wildcard ./src/game/*/*.c}
+C_FILES += ${wildcard ./src/game/*/*/*.c}
 
 CPP_FILES += ${wildcard ./src/game/*.cpp}
 CPP_FILES += ${wildcard ./src/game/*/*.cpp}
+CPP_FILES += $(wildcard ./src/game/*/*/*.cpp)
 
 CPP_FILES := $(filter-out ./src/game/PhysicalConstants.cpp, $(CPP_FILES))
 
