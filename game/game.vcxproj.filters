@@ -344,6 +344,9 @@
     <ClCompile Include="src\game\Graphics\RenderPasses\ForegroundRenderPass.cpp">
       <Filter>Game Sources\Graphics\RenderPasses</Filter>
     </ClCompile>
+    <ClCompile Include="src\game\Graphics\RenderPasses\WaterTilesRenderPass.cpp">
+      <Filter>Game Sources\Graphics\RenderPasses</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game\egoboo.h">
@@ -641,6 +644,9 @@
       <Filter>Game Header Files\Graphics\RenderPasses</Filter>
     </ClInclude>
     <ClInclude Include="src\game\Graphics\RenderPasses\ForegroundRenderPass.hpp">
+      <Filter>Game Header Files\Graphics\RenderPasses</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\Graphics\RenderPasses\WaterTilesRenderPass.hpp">
       <Filter>Game Header Files\Graphics\RenderPasses</Filter>
     </ClInclude>
   </ItemGroup>
