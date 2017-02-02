@@ -122,42 +122,6 @@ private:
 	void doReflectionsDisabled(::Camera& cam, const TileList& tl, const EntityList& el);
 };
 
-/// The render pass for the world background.
-struct Background : public RenderPass {
-public:
-	Background()
-		: RenderPass("background"),
-		  _vertexBuffer(4, VertexFormatFactory::get<VertexFormat::P3FT2F>()) {
-	}
-protected:
-	/// A vertex type used by this render pass.
-	struct Vertex {
-		float x, y, z;
-		float s, t;
-	};
-	/// A vertex buffer used by this render pass.
-	VertexBuffer _vertexBuffer;
-	void doRun(::Camera& cam, const TileList& tl, const EntityList& el) override;
-};
-
-/// The render pass for the world foreground.
-struct Foreground : public RenderPass {
-public:
-	Foreground()
-		: RenderPass("foreground"),
-		  _vertexBuffer(4, VertexFormatFactory::get<VertexFormat::P3FT2F>()) {
-	}
-protected:
-	/// A vertex type used by this render pass.
-	struct Vertex {
-		float x, y, z;
-		float s, t;
-	};
-	/// A vertex buffer used by this render pass.
-	VertexBuffer _vertexBuffer;
-	void doRun(::Camera& cam, const TileList& tl, const EntityList& el) override;
-};
-
 /// The render pass for non-reflective tiles
 /// i.e. tiles which do not reflect entities.
 struct NonReflective : public RenderPass {

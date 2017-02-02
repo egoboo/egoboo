@@ -63,6 +63,12 @@
     <Filter Include="Game Sources\Logic">
       <UniqueIdentifier>{c4bc11cd-d5ea-4826-908e-6280d1f109bd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game Header Files\Graphics\RenderPasses">
+      <UniqueIdentifier>{2df50c2b-05ed-435f-a4c5-f012d5a45894}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game Sources\Graphics\RenderPasses">
+      <UniqueIdentifier>{731543d6-3a84-4fdf-a8ee-85c1e4bc2107}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\game\egoboo.c">
@@ -331,6 +337,12 @@
     </ClCompile>
     <ClCompile Include="src\game\script_variables.c">
       <Filter>Game Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Graphics\RenderPasses\BackgroundRenderPass.cpp">
+      <Filter>Game Sources\Graphics\RenderPasses</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Graphics\RenderPasses\ForegroundRenderPass.cpp">
+      <Filter>Game Sources\Graphics\RenderPasses</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -624,6 +636,12 @@
     </ClInclude>
     <ClInclude Include="src\game\script_variables.h">
       <Filter>Game Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\Graphics\RenderPasses\BackgroundRenderPass.hpp">
+      <Filter>Game Header Files\Graphics\RenderPasses</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\Graphics\RenderPasses\ForegroundRenderPass.hpp">
+      <Filter>Game Header Files\Graphics\RenderPasses</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

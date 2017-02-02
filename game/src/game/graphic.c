@@ -38,6 +38,8 @@
 #include "game/Logic/Player.hpp"
 #include "game/Module/Module.hpp"
 #include "game/Graphics/RenderPasses.hpp"
+#include "game/Graphics/RenderPasses/BackgroundRenderPass.hpp"
+#include "game/Graphics/RenderPasses/ForegroundRenderPass.hpp"
 #include "game/mesh.h"
 #include "game/Graphics/CameraSystem.hpp"
 #include "game/Module/Module.hpp"
@@ -149,8 +151,8 @@ GFX::GFX() :
     entityShadows(std::make_unique<Ego::Graphics::EntityShadows>()),
     water(std::make_unique<Ego::Graphics::Water>()),
     entityReflections(std::make_unique<Ego::Graphics::EntityReflections>()),
-    foreground(std::make_unique<Ego::Graphics::Foreground>()),
-    background(std::make_unique<Ego::Graphics::Background>())
+    foreground(std::make_unique<Ego::Graphics::ForegroundRenderPass>()),
+    background(std::make_unique<Ego::Graphics::BackgroundRenderPass>())
 {}
 
 GFX::~GFX()
