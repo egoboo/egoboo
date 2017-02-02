@@ -286,15 +286,16 @@ gfx_rv TileListV2::render_heightmap_fan(ego_mesh_t& mesh, const Index1D& tileInd
     return gfx_success;
 }
 
-void TileListV2::render_water(ego_mesh_t& mesh, const std::vector<ClippingEntry>& tiles, const Uint8 layer)
-{
+}
+
+void Water::render_water(ego_mesh_t& mesh, const std::vector<ClippingEntry>& tiles, const Uint8 layer) {
     for (const auto& tile : tiles)
     {
         render_water_fan(mesh, tile.getIndex(), layer);
     }
 }
 
-gfx_rv TileListV2::render_water_fan(ego_mesh_t& mesh, const Index1D& tileIndex, const Uint8 layer) {
+gfx_rv Water::render_water_fan(ego_mesh_t& mesh, const Index1D& tileIndex, const Uint8 layer) {
 
     static const int ix_off[4] = {1, 1, 0, 0}, iy_off[4] = {0, 1, 1, 0};
 
@@ -455,8 +456,6 @@ gfx_rv TileListV2::render_water_fan(ego_mesh_t& mesh, const Index1D& tileIndex, 
     }
 
     return gfx_success;
-}
-
 }
 
 void Reflective0::doRun(::Camera& camera, const TileList& tl, const EntityList& el) {
@@ -847,6 +846,10 @@ void EntityShadows::doShadowSprite(float intensity, VertexBuffer& vertexBuffer)
 	renderer.render(vertexBuffer, PrimitiveType::TriangleFan, 0, 4);
 }
 
+Water::Water() :
+    RenderPass("water")
+{}
+
 void Water::doRun(::Camera& camera, const TileList& tl, const EntityList& el) {
 	if (!tl.getMesh())
 	{
@@ -870,13 +873,13 @@ void Water::doRun(::Camera& camera, const TileList& tl, const EntityList& el) {
 	// Bottom layer first.
 	if (gfx.draw_water_1 && _currentModule->getWater()._layer_count > 1)
 	{
-        Internal::TileListV2::render_water(mesh, tl._water, 1);
+        render_water(mesh, tl._water, 1);
 	}
 
 	// Top layer second.
 	if (gfx.draw_water_0 && _currentModule->getWater()._layer_count > 0)
 	{
-        Internal::TileListV2::render_water(mesh, tl._water, 0);
+        render_water(mesh, tl._water, 0);
 	}
 
 	// let the mesh texture code know that someone else is in control now

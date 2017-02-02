@@ -61,11 +61,6 @@ public:
     /// @param tiles the list of tiles
     static void render_heightmap(ego_mesh_t& mesh, const std::vector<ClippingEntry>& tiles);
 
-    /// @brief Draw water fans.
-    /// @param mesh the mesh
-    /// @param tiles the list of tiles
-    static void render_water(ego_mesh_t& mesh, const std::vector<ClippingEntry>& tiles, const Uint8 layer);
-    
 private:
     /// @brief Draw a fan.
     /// @param mesh the mesh
@@ -77,11 +72,6 @@ private:
     /// @param tileIndex the tile index
     static gfx_rv render_heightmap_fan(ego_mesh_t& mesh, const Index1D& tileIndex);
 
-    /// @brief Draw a water fan.
-    /// @param mesh the mesh
-    /// @param tileIndex the tile index
-    /// @param the water layer
-    static gfx_rv render_water_fan(ego_mesh_t& mesh, const Index1D& tileIndex, const Uint8 layer);
 };
 
 }
@@ -136,11 +126,20 @@ protected:
 /// The render pass for water tiles.
 struct Water : public RenderPass {
 public:
-	Water()
-		: RenderPass("water") {
-	}
+    Water();
 protected:
 	void doRun(::Camera& cam, const TileList& tl, const EntityList& el) override;
+
+    /// @brief Draw water fans.
+    /// @param mesh the mesh
+    /// @param tiles the list of tiles
+    static void render_water(ego_mesh_t& mesh, const std::vector<ClippingEntry>& tiles, const Uint8 layer);
+
+    /// @brief Draw a water fan.
+    /// @param mesh the mesh
+    /// @param tileIndex the tile index
+    /// @param the water layer
+    static gfx_rv render_water_fan(ego_mesh_t& mesh, const Index1D& tileIndex, const Uint8 layer);
 };
 
 /// The render pass for solid entities.
