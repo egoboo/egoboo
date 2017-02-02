@@ -1530,6 +1530,11 @@ bool sum_global_lighting(std::array<float, LIGHTING_VEC_SIZE> &lighting)
 //--------------------------------------------------------------------------------------------
 // SEMI OBSOLETE FUNCTIONS
 //--------------------------------------------------------------------------------------------
+
+dynalist_t::dynalist_t()
+    : frame(-1), size(0), lst{}
+{}
+
 void dynalist_t::init(dynalist_t& self) {
     self.size = 0;
 }

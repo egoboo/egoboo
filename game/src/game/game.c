@@ -1498,53 +1498,57 @@ void fog_instance_t::upload(const wawalite_fog_t& source)
 }
 
 //--------------------------------------------------------------------------------------------
+
+AnimatedTilesState::Layer::Layer() :
+    update_and(0),
+    frame_and(0),
+    base_and(0),
+    frame_add(0),
+    frame_add_old(0),
+    frame_update_old(0)
+{}
+
 void AnimatedTilesState::upload(const wawalite_animtile_t& source)
 {
     elements.fill(Layer());
 
-    for (size_t i = 0; i < elements.size(); ++i)
+    uint32_t frame_and = source.frame_and;
+    for (auto& element : elements)
     {
-        elements[i].frame_and = (1 << (i + 2)) - 1;
-        elements[i].base_and = ~elements[i].frame_and;
-        elements[i].frame_add = 0;
+        element.update_and = source.update_and;
+        element.frame_and = frame_and;
+        element.base_and = ~element.frame_and;
+        element.frame_add = 0;
+        frame_and = (frame_and << 1) | 1;
+    }
+}
+
+void AnimatedTilesState::Layer::animate()
+{
+    // skip it if there were no updates
+    if (frame_update_old == update_wld) return;
+
+    // save the old frame_add when we update to detect changes
+    frame_add_old = frame_add;
+
+    // cycle through all frames since the last time
+    for (uint32_t tnc = frame_update_old + 1; tnc <= update_wld; tnc++)
+    {
+        if (0 == (tnc & update_and))
+        {
+            frame_add = (frame_add + 1) & frame_and;
+        }
     }
 
-    elements[0].update_and = source.update_and;
-    elements[0].frame_and  = source.frame_and;
-    elements[0].base_and   = ~elements[0].frame_and;
-
-    for (size_t i = 1; i < elements.size(); ++i)
-    {
-        elements[i].update_and = source.update_and;
-        elements[i].frame_and = (elements[i - 1].frame_and << 1) | 1;
-        elements[i].base_and = ~elements[i].frame_and;
-    }
+    // save the frame update
+    frame_update_old = update_wld;
 }
 
 void AnimatedTilesState::animate()
 {
-    for (size_t cnt = 0; cnt < 2; cnt++)
+    for (auto& element : elements)
     {
-        // grab the tile data
-        auto& element = elements[cnt];
-
-        // skip it if there were no updates
-        if (element.frame_update_old == update_wld) continue;
-
-        // save the old frame_add when we update to detect changes
-        element.frame_add_old = element.frame_add;
-
-        // cycle through all frames since the last time
-        for (Uint32 tnc = element.frame_update_old + 1; tnc <= update_wld; tnc++)
-        {
-            if (0 == (tnc & element.update_and))
-            {
-                element.frame_add = (element.frame_add + 1) & element.frame_and;
-            }
-        }
-
-        // save the frame update
-        element.frame_update_old = update_wld;
+        element.animate();
     }
 }
 
