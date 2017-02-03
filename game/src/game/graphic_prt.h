@@ -28,6 +28,7 @@
 
 // Forward declaration
 struct prt_bundle_t;
+namespace Ego { namespace Graphics { struct ObjectGraphics; } }
 
 //--------------------------------------------------------------------------------------------
 
@@ -99,6 +100,11 @@ struct ParticleGraphicsRenderer
     static gfx_rv render_one_prt_trans(const ParticleRef iprt);
     static gfx_rv render_one_prt_ref(const ParticleRef iprt);
     static void render_all_prt_bbox();
+    static void render_prt_bbox(const std::shared_ptr<Ego::Particle> &bdl_prt);
     static void render_all_prt_attachment();
+    static void prt_draw_attached_point(const std::shared_ptr<Ego::Particle> &bdl_prt);
+private:
+    static void draw_one_attachment_point(Ego::Graphics::ObjectGraphics& inst, int vrt_offset);
+    static void calc_billboard_verts(Ego::VertexBuffer& vb, Ego::Graphics::ParticleGraphics& pinst, float size, bool do_reflect);
 };
 

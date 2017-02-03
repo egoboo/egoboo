@@ -77,10 +77,6 @@ void prt_set_texture_params(const std::shared_ptr<const Ego::Texture>& texture, 
 }
 
 //--------------------------------------------------------------------------------------------
-static void calc_billboard_verts(Ego::VertexBuffer& vb, Ego::Graphics::ParticleGraphics& pinst, float size, bool do_reflect);
-static void draw_one_attachment_point(Ego::Graphics::ObjectGraphics& inst, int vrt_offset);
-static void prt_draw_attached_point(const std::shared_ptr<Ego::Particle> &bdl_prt);
-static void render_prt_bbox(const std::shared_ptr<Ego::Particle> &bdl_prt);
 
 //--------------------------------------------------------------------------------------------
 
@@ -370,7 +366,7 @@ gfx_rv ParticleGraphicsRenderer::render_one_prt_ref(const ParticleRef iprt)
     return gfx_success;
 }
 
-void calc_billboard_verts(Ego::VertexBuffer& vb, Ego::Graphics::ParticleGraphics& inst, float size, bool do_reflect)
+void ParticleGraphicsRenderer::calc_billboard_verts(Ego::VertexBuffer& vb, Ego::Graphics::ParticleGraphics& inst, float size, bool do_reflect)
 {
     // Calculate the position and texture coordinates of the four corners of the billboard used to display the particle.
 
@@ -474,7 +470,7 @@ void ParticleGraphicsRenderer::render_all_prt_bbox()
     }
 }
 
-void draw_one_attachment_point(Ego::Graphics::ObjectGraphics& inst, int vrt_offset)
+void ParticleGraphicsRenderer::draw_one_attachment_point(Ego::Graphics::ObjectGraphics& inst, int vrt_offset)
 {
     /// @author BB
     /// @details a function that will draw some of the vertices of the given character.
@@ -496,7 +492,7 @@ void draw_one_attachment_point(Ego::Graphics::ObjectGraphics& inst, int vrt_offs
     GL_DEBUG_END();
 }
 
-void prt_draw_attached_point(const std::shared_ptr<Ego::Particle>& particle)
+void ParticleGraphicsRenderer::prt_draw_attached_point(const std::shared_ptr<Ego::Particle>& particle)
 {
     if (!particle->isAttached()) {
         return;
@@ -941,7 +937,7 @@ gfx_rv ParticleGraphics::update(Camera& camera, const ParticleRef particle, Uint
 } // namespace Graphics
 } // namespace Ego
 
-void render_prt_bbox(const std::shared_ptr<Ego::Particle>& particle)
+void ParticleGraphicsRenderer::render_prt_bbox(const std::shared_ptr<Ego::Particle>& particle)
 {    
     // only draw bullets
     //if ( 50 != loc_ppip->vel_hrz_pair.base ) return;
