@@ -34,10 +34,6 @@ struct prt_bundle_t;
 // dynamically calculate the particle texture coordinates
 // support for computing the particle texture coordinates on the fly.
 // currently, there ate two texture types: TX_PARTICLE_TRANS and TX_PARTICLE_LIGHT
-extern int ptex_w[2];
-extern int ptex_h[2];
-extern float ptex_wscale[2];
-extern float ptex_hscale[2];
 void prt_set_texture_params(const std::shared_ptr<const Ego::Texture>& texture, uint8_t type);
 float CALCULATE_PRT_U0(int IDX, int CNT);
 float CALCULATE_PRT_U1(int IDX, int CNT);
