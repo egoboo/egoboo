@@ -78,7 +78,7 @@ struct Md2VertexBuffer {
     }
 };
 
-gfx_rv MadRenderer::render_enviro( Camera& cam, const std::shared_ptr<Object>& pchr, GLXvector4f tint, const BIT_FIELD bits )
+gfx_rv ObjectGraphicsRenderer::render_enviro( Camera& cam, const std::shared_ptr<Object>& pchr, GLXvector4f tint, const BIT_FIELD bits )
 {
     if (!pchr->inst.getModelDescriptor())
     {
@@ -227,7 +227,7 @@ else
 */
 
 //--------------------------------------------------------------------------------------------
-gfx_rv MadRenderer::render_tex(Camera& camera, const std::shared_ptr<Object>& pchr, GLXvector4f tint, const BIT_FIELD bits)
+gfx_rv ObjectGraphicsRenderer::render_tex(Camera& camera, const std::shared_ptr<Object>& pchr, GLXvector4f tint, const BIT_FIELD bits)
 {
     if (!pchr->inst.getModelDescriptor())
     {
@@ -382,7 +382,7 @@ gfx_rv MadRenderer::render_tex(Camera& camera, const std::shared_ptr<Object>& pc
     }
 */
 
-gfx_rv MadRenderer::render(Camera& cam, const std::shared_ptr<Object> &pchr, GLXvector4f tint, const BIT_FIELD bits)
+gfx_rv ObjectGraphicsRenderer::render(Camera& cam, const std::shared_ptr<Object> &pchr, GLXvector4f tint, const BIT_FIELD bits)
 {
     /// @author ZZ
     /// @details This function picks the actual function to use
@@ -422,7 +422,7 @@ gfx_rv MadRenderer::render(Camera& cam, const std::shared_ptr<Object> &pchr, GLX
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv MadRenderer::render_ref( Camera& cam, const std::shared_ptr<Object>& pchr)
+gfx_rv ObjectGraphicsRenderer::render_ref( Camera& cam, const std::shared_ptr<Object>& pchr)
 {
     //Does this object have a reflection?
     if(!pchr->getProfile()->hasReflection()) {
@@ -464,7 +464,7 @@ gfx_rv MadRenderer::render_ref( Camera& cam, const std::shared_ptr<Object>& pchr
                 GLXvector4f tint;
                 pchr->inst.getTint(tint, true, CHR_LIGHT);
 
-                if (gfx_error == MadRenderer::render(cam, pchr, tint, CHR_LIGHT)) {
+                if (gfx_error == ObjectGraphicsRenderer::render(cam, pchr, tint, CHR_LIGHT)) {
                     retval = gfx_error;
                 }
                 Ego::OpenGL::Utilities::isError();
@@ -478,7 +478,7 @@ gfx_rv MadRenderer::render_ref( Camera& cam, const std::shared_ptr<Object>& pchr
                 GLXvector4f tint;
                 pchr->inst.getTint(tint, true, CHR_PHONG);
 
-                if (gfx_error == MadRenderer::render(cam, pchr, tint, CHR_PHONG)) {
+                if (gfx_error == ObjectGraphicsRenderer::render(cam, pchr, tint, CHR_PHONG)) {
                     retval = gfx_error;
                 }
                 Ego::OpenGL::Utilities::isError();
@@ -489,7 +489,7 @@ gfx_rv MadRenderer::render_ref( Camera& cam, const std::shared_ptr<Object>& pchr
     return retval;
 }
 
-gfx_rv MadRenderer::render_trans(Camera& cam, const std::shared_ptr<Object>& pchr)
+gfx_rv ObjectGraphicsRenderer::render_trans(Camera& cam, const std::shared_ptr<Object>& pchr)
 {
     if ( pchr->isHidden() ) return gfx_fail;
 
@@ -560,7 +560,7 @@ gfx_rv MadRenderer::render_trans(Camera& cam, const std::shared_ptr<Object>& pch
     return rendered ? gfx_success : gfx_fail;
 }
 
-gfx_rv MadRenderer::render_solid( Camera& cam, const std::shared_ptr<Object> &pchr )
+gfx_rv ObjectGraphicsRenderer::render_solid( Camera& cam, const std::shared_ptr<Object> &pchr )
 {
     if ( pchr->isHidden() ) return gfx_fail;
 
@@ -614,7 +614,7 @@ gfx_rv MadRenderer::render_solid( Camera& cam, const std::shared_ptr<Object> &pc
 
 //--------------------------------------------------------------------------------------------
 #if _DEBUG
-void MadRenderer::draw_chr_bbox(const std::shared_ptr<Object>& pchr)
+void ObjectGraphicsRenderer::draw_chr_bbox(const std::shared_ptr<Object>& pchr)
 {
     static constexpr bool drawLeftSlot = false;
     static constexpr bool drawRightSlot = false;
@@ -658,7 +658,7 @@ void MadRenderer::draw_chr_bbox(const std::shared_ptr<Object>& pchr)
 #endif
 
 #if _DEBUG
-void MadRenderer::draw_chr_verts(const std::shared_ptr<Object>& pchr, int vrt_offset, int verts )
+void ObjectGraphicsRenderer::draw_chr_verts(const std::shared_ptr<Object>& pchr, int vrt_offset, int verts )
 {
     /// @author BB
     /// @details a function that will draw some of the vertices of the given character.
@@ -689,7 +689,7 @@ void MadRenderer::draw_chr_verts(const std::shared_ptr<Object>& pchr, int vrt_of
 #endif
 
 #if _DEBUG
-void MadRenderer::draw_one_grip( Ego::Graphics::ObjectGraphics *pinst, int slot )
+void ObjectGraphicsRenderer::draw_one_grip( Ego::Graphics::ObjectGraphics *pinst, int slot )
 {
     // disable the texturing so all the points will be white,
     // not the texture color of the last vertex we drawn
@@ -700,7 +700,7 @@ void MadRenderer::draw_one_grip( Ego::Graphics::ObjectGraphics *pinst, int slot 
     _draw_one_grip_raw( pinst, slot );
 }
 
-void MadRenderer::_draw_one_grip_raw( Ego::Graphics::ObjectGraphics *pinst, int slot )
+void ObjectGraphicsRenderer::_draw_one_grip_raw( Ego::Graphics::ObjectGraphics *pinst, int slot )
 {
     int vmin, vmax, cnt;
 
@@ -750,7 +750,7 @@ void MadRenderer::_draw_one_grip_raw( Ego::Graphics::ObjectGraphics *pinst, int 
 	Ego::Renderer::get().setColour(Ego::Math::Colour4f::white());
 }
 
-void MadRenderer::draw_chr_attached_grip(const std::shared_ptr<Object>& pchr)
+void ObjectGraphicsRenderer::draw_chr_attached_grip(const std::shared_ptr<Object>& pchr)
 {
     const std::shared_ptr<Object> &pholder = pchr->getHolder();
     if (!pholder || pholder->isTerminated()) return;
@@ -760,7 +760,7 @@ void MadRenderer::draw_chr_attached_grip(const std::shared_ptr<Object>& pchr)
 #endif
 
 #if 0
-void MadRenderer::draw_chr_grips( Object * pchr )
+void ObjectGraphicsRenderer::draw_chr_grips( Object * pchr )
 {
     mad_t * pmad;
 

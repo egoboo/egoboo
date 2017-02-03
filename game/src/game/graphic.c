@@ -849,7 +849,7 @@ gfx_rv render_scene(Camera& cam, Ego::Graphics::TileList& tl, Ego::Graphics::Ent
 #endif
 
 #if defined(DRAW_PRT_BBOX)
-    render_all_prt_bbox();
+    ParticleGraphicsRenderer::render_all_prt_bbox();
 #endif
     return retval;
 }

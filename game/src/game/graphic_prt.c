@@ -84,7 +84,7 @@ static void render_prt_bbox(const std::shared_ptr<Ego::Particle> &bdl_prt);
 
 //--------------------------------------------------------------------------------------------
 
-gfx_rv render_one_prt_solid(const ParticleRef iprt)
+gfx_rv ParticleGraphicsRenderer::render_one_prt_solid(const ParticleRef iprt)
 {
     /// @author BB
     /// @details Render the solid version of the particle
@@ -147,7 +147,7 @@ gfx_rv render_one_prt_solid(const ParticleRef iprt)
     return gfx_success;
 }
 
-gfx_rv render_one_prt_trans(const ParticleRef iprt)
+gfx_rv ParticleGraphicsRenderer::render_one_prt_trans(const ParticleRef iprt)
 {
     /// @author BB
     /// @details do all kinds of transparent sprites next
@@ -263,7 +263,7 @@ gfx_rv render_one_prt_trans(const ParticleRef iprt)
     return gfx_success;
 }
 
-gfx_rv render_one_prt_ref(const ParticleRef iprt)
+gfx_rv ParticleGraphicsRenderer::render_one_prt_ref(const ParticleRef iprt)
 {
     /// @author BB
     /// @details render one particle
@@ -454,7 +454,7 @@ void calc_billboard_verts(Ego::VertexBuffer& vb, Ego::Graphics::ParticleGraphics
     vb.unlock();
 }
 
-void render_all_prt_attachment()
+void ParticleGraphicsRenderer::render_all_prt_attachment()
 {
     Ego::Renderer::get().setBlendingEnabled(false);
 
@@ -465,7 +465,7 @@ void render_all_prt_attachment()
     }
 }
 
-void render_all_prt_bbox()
+void ParticleGraphicsRenderer::render_all_prt_bbox()
 {
     for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
     {

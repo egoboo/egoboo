@@ -97,9 +97,12 @@ protected:
 } // namespace Graphics
 } // namespace Ego
 
-gfx_rv render_one_prt_solid(const ParticleRef iprt);
-gfx_rv render_one_prt_trans(const ParticleRef iprt);
-gfx_rv render_one_prt_ref(const ParticleRef iprt);
-void render_all_prt_bbox();
-void render_all_prt_attachment();
+struct ParticleGraphicsRenderer
+{
+    static gfx_rv render_one_prt_solid(const ParticleRef iprt);
+    static gfx_rv render_one_prt_trans(const ParticleRef iprt);
+    static gfx_rv render_one_prt_ref(const ParticleRef iprt);
+    static void render_all_prt_bbox();
+    static void render_all_prt_attachment();
+};
 

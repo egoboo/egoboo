@@ -721,7 +721,7 @@ void EntityReflections::doRun(::Camera& camera, const TileList& tl, const Entity
 				{
 					renderer.setColour(Colour4f::white());
 
-					MadRenderer::render_ref(camera, object);
+					ObjectGraphicsRenderer::render_ref(camera, object);
 				}
 			}
 			else if (ObjectRef::Invalid == el.get(i).iobj && ParticleRef::Invalid != el.get(i).iprt)
@@ -740,7 +740,7 @@ void EntityReflections::doRun(::Camera& camera, const TileList& tl, const Entity
 				if (mesh->grid_is_valid(itile) && (0 != mesh->test_fx(itile, MAPFX_REFLECTIVE)))
 				{
 					renderer.setColour(Colour4f::white());
-					render_one_prt_ref(iprt);
+					ParticleGraphicsRenderer::render_one_prt_ref(iprt);
 				}
 			}
 		}
@@ -766,14 +766,14 @@ void SolidEntities::doRun(::Camera& camera, const TileList& tl, const EntityList
 
 			if (ParticleRef::Invalid == el.get(i).iprt && ObjectRef::Invalid != el.get(i).iobj)
 			{
-				MadRenderer::render_solid(camera, _currentModule->getObjectHandler()[el.get(i).iobj]);
+				ObjectGraphicsRenderer::render_solid(camera, _currentModule->getObjectHandler()[el.get(i).iobj]);
 			}
 			else if (ObjectRef::Invalid == el.get(i).iobj && ParticleHandler::get()[el.get(i).iprt] != nullptr)
 			{
 				// draw draw front and back faces of polygons
 				renderer.setCullingMode(CullingMode::None);
 
-				render_one_prt_solid(el.get(i).iprt);
+				ParticleGraphicsRenderer::render_one_prt_solid(el.get(i).iprt);
 			}
 		}
 	}
@@ -807,12 +807,12 @@ void TransparentEntities::doRun(::Camera& camera, const TileList& tl, const Enti
 			// A character.
 			if (ParticleRef::Invalid == el.get(j).iprt && ObjectRef::Invalid != el.get(j).iobj)
 			{
-				MadRenderer::render_trans(camera, _currentModule->getObjectHandler()[el.get(j).iobj]);
+				ObjectGraphicsRenderer::render_trans(camera, _currentModule->getObjectHandler()[el.get(j).iobj]);
 			}
 			// A particle.
 			else if (ObjectRef::Invalid == el.get(j).iobj && ParticleRef::Invalid != el.get(j).iprt)
 			{
-				render_one_prt_trans(el.get(j).iprt);
+				ParticleGraphicsRenderer::render_one_prt_trans(el.get(j).iprt);
 			}
 		}
 	}
