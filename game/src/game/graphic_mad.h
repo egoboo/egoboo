@@ -22,10 +22,13 @@
 #pragma once
 
 #include "game/egoboo.h"
-#include "game/graphic.h"
-#include "CharacterMatrix.h"
 
-namespace Ego { namespace Graphics { class ObjectGraphics; } }
+class Camera;
+class Object;
+namespace Ego { 
+namespace Graphics {
+class ObjectGraphics; 
+} }
 
 struct ObjectGraphicsRenderer {
 	static gfx_rv render(Camera& cam, const std::shared_ptr<Object>& object, GLXvector4f tint, const BIT_FIELD bits);

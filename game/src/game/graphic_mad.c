@@ -26,7 +26,7 @@
 #include "game/renderer_3d.h"
 #include "game/game.h"
 #include "game/lighting.h"
-#include "game/egoboo.h"
+#include "game/graphic.h"
 #include "game/Graphics/CameraSystem.hpp"
 #include "game/Entities/_Include.hpp"
 
