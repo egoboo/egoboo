@@ -96,5 +96,4 @@ gfx_rv render_one_prt_trans(const ParticleRef iprt);
 gfx_rv render_one_prt_ref(const ParticleRef iprt);
 void render_all_prt_bbox();
 void render_all_prt_attachment();
-gfx_rv update_all_prt_instance(Camera& cam);
 

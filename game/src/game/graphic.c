@@ -72,8 +72,6 @@ Clock<ClockPolicy::NonRecursive>  gfx_make_tileList_timer("gfx.make.tileList", 5
 Clock<ClockPolicy::NonRecursive>  gfx_make_entityList_timer("gfx.make.entityList", 512);
 Clock<ClockPolicy::NonRecursive>  do_grid_lighting_timer("do.grid.lighting", 512);
 Clock<ClockPolicy::NonRecursive>  light_fans_timer("light.fans", 512);
-Clock<ClockPolicy::NonRecursive>  gfx_update_all_chr_instance_timer("gfx.update.all.chr.instance", 512);
-Clock<ClockPolicy::NonRecursive>  update_all_prt_instance_timer("update.all.prt.instance", 512);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -95,8 +93,8 @@ void reinitClocks() {
 	gfx_make_entityList_timer.reinit();
 	do_grid_lighting_timer.reinit();
 	light_fans_timer.reinit();
-	gfx_update_all_chr_instance_timer.reinit();
-	update_all_prt_instance_timer.reinit();
+	GFX::get().update_object_instances_timer.reinit();
+	GFX::get().update_particle_instances_timer.reinit();
 
 	GFX::get().getEntityReflections().clock.reinit();
     GFX::get().getEntityShadows().clock.reinit();
@@ -133,7 +131,6 @@ static float draw_timer(float y);
 static float draw_game_status(float y);
 
 
-static gfx_rv gfx_update_all_chr_instance();
 static gfx_rv gfx_update_flashing(Ego::Graphics::EntityList& el);
 
 static bool sum_global_lighting(std::array<float, LIGHTING_VEC_SIZE> &lighting);
@@ -144,6 +141,8 @@ static bool sum_global_lighting(std::array<float, LIGHTING_VEC_SIZE> &lighting);
 
 GFX::GFX() :
     GameApp<GFX>("Egoboo", GameEngine::GAME_VERSION),
+    update_object_instances_timer("update.object.instances", 512),
+    update_particle_instances_timer("update.particle.instances", 512),
     transparentEntities(std::make_unique<Ego::Graphics::TransparentEntities>()),
     solidEntities(std::make_unique<Ego::Graphics::SolidEntities>()),
     reflective0(std::make_unique<Ego::Graphics::Reflective0>()),
@@ -716,18 +715,18 @@ gfx_rv render_scene_init(Ego::Graphics::TileList& tl, Ego::Graphics::EntityList&
     }
 
     {
-		ClockScope<ClockPolicy::NonRecursive> scope(gfx_update_all_chr_instance_timer);
-        // make sure the characters are ready to draw
-        if (gfx_error == gfx_update_all_chr_instance())
+		ClockScope<ClockPolicy::NonRecursive> scope(GFX::get().update_object_instances_timer);
+        // Update object instances.
+        if (gfx_error == GFX::get().update_object_instances(cam))
         {
             retval = gfx_error;
         }
     }
 
     {
-		ClockScope<ClockPolicy::NonRecursive> scope(update_all_prt_instance_timer);
-        // make sure the particles are ready to draw
-        if (gfx_error == update_all_prt_instance(cam))
+		ClockScope<ClockPolicy::NonRecursive> scope(GFX::get().update_particle_instances_timer);
+        // Update particle instances.
+        if (gfx_error == GFX::get().update_particle_instances(cam))
         {
             retval = gfx_error;
         }
@@ -2090,7 +2089,7 @@ gfx_rv gfx_update_flashing(Ego::Graphics::EntityList& el)
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv gfx_update_all_chr_instance()
+gfx_rv GFX::update_object_instances(Camera& cam)
 {
     gfx_rv retval;
 
@@ -2184,4 +2183,41 @@ void TileRenderer::bind(const ego_tile_info_t& tile)
 			Ego::Renderer::get().setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::OneMinusSourceAlpha);
 		}
 	}
+}
+
+gfx_rv GFX::update_particle_instances(Camera& camera)
+{
+    // only one update per frame
+    static uint32_t instance_update = std::numeric_limits<uint32_t>::max();
+    if (instance_update == update_wld) return gfx_success;
+    instance_update = update_wld;
+
+    // assume the best
+    gfx_rv retval = gfx_success;
+
+    for (const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
+    {
+        if (particle->isTerminated()) continue;
+
+        prt_instance_t *pinst = &(particle->inst);
+
+        // only do frame counting for particles that are fully activated!
+        particle->frame_count++;
+
+        if (!particle->inst.indolist)
+        {
+            pinst->valid = false;
+            pinst->ref_valid = false;
+        }
+        else
+        {
+            // calculate the "billboard" for this particle
+            if (gfx_error == prt_instance_t::update(camera, particle->getParticleID(), 255, true))
+            {
+                retval = gfx_error;
+            }
+        }
+    }
+
+    return retval;
 }

@@ -505,42 +505,6 @@ void prt_draw_attached_point(const std::shared_ptr<Ego::Particle>& particle)
     draw_one_attachment_point(particle->getAttachedObject()->inst, particle->attachedto_vrt_off);
 }
 
-gfx_rv update_all_prt_instance(Camera& camera)
-{
-    // only one update per frame
-    static uint32_t instance_update = std::numeric_limits<uint32_t>::max();
-    if (instance_update == update_wld) return gfx_success;
-    instance_update = update_wld;
-
-    // assume the best
-    gfx_rv retval = gfx_success;
-
-    for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
-    {
-        if(particle->isTerminated()) continue;
-        
-        prt_instance_t *pinst = &(particle->inst);
-
-        // only do frame counting for particles that are fully activated!
-        particle->frame_count++;
-
-        if (!particle->inst.indolist)
-        {
-            pinst->valid = false;
-            pinst->ref_valid = false;
-        }
-        else
-        {
-            // calculate the "billboard" for this particle
-            if (gfx_error == prt_instance_t::update(camera, particle->getParticleID(), 255, true))
-            {
-                retval = gfx_error;
-            }
-        }
-    }
- 
-    return retval;
-}
 
 prt_instance_t::prt_instance_t() :
     valid(false),

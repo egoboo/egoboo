@@ -190,6 +190,12 @@ private:
     std::unique_ptr<Ego::Graphics::RenderPass> motionBlur;
 
 public:
+    Ego::Time::Clock<Ego::Time::ClockPolicy::NonRecursive> update_object_instances_timer;
+    gfx_rv update_object_instances(Camera& cam);
+    Ego::Time::Clock<Ego::Time::ClockPolicy::NonRecursive> update_particle_instances_timer;
+    gfx_rv update_particle_instances(Camera& cam);
+
+public:
     Ego::Graphics::RenderPass& getTransparentEntities() const
     {
         return *transparentEntities;
