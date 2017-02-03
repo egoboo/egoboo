@@ -44,8 +44,11 @@ float CALCULATE_PRT_U1(int IDX, int CNT);
 float CALCULATE_PRT_V0(int IDX, int CNT);
 float CALCULATE_PRT_V1(int IDX, int CNT);
 
+namespace Ego {
+namespace Graphics {
+
 /// All the data necessary to display a particle.
-struct prt_instance_t
+struct ParticleGraphics
 {
     bool valid;                ///< is the infor in this struct valid?
 
@@ -82,14 +85,17 @@ struct prt_instance_t
 	Vector3f ref_right;
 	Vector3f ref_pos;
 
-    prt_instance_t();
+    ParticleGraphics();
     void reset();
     static gfx_rv update(Camera& camera, const ParticleRef particle, Uint8 trans, bool do_lighting);
 protected:
-    static gfx_rv update_vertices(prt_instance_t& inst, Camera& camera, Ego::Particle *pprt);
-    static Matrix4f4f make_matrix(prt_instance_t& inst);
-    static gfx_rv update_lighting(prt_instance_t& inst, Ego::Particle *pprt, Uint8 trans, bool do_lighting);
+    static gfx_rv update_vertices(ParticleGraphics& inst, Camera& camera, Ego::Particle *pprt);
+    static Matrix4f4f make_matrix(ParticleGraphics& inst);
+    static gfx_rv update_lighting(ParticleGraphics& inst, Ego::Particle *pprt, Uint8 trans, bool do_lighting);
 };
+
+} // namespace Graphics
+} // namespace Ego
 
 gfx_rv render_one_prt_solid(const ParticleRef iprt);
 gfx_rv render_one_prt_trans(const ParticleRef iprt);

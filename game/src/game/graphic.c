@@ -2199,7 +2199,7 @@ gfx_rv GFX::update_particle_instances(Camera& camera)
     {
         if (particle->isTerminated()) continue;
 
-        prt_instance_t *pinst = &(particle->inst);
+        Ego::Graphics::ParticleGraphics *pinst = &(particle->inst);
 
         // only do frame counting for particles that are fully activated!
         particle->frame_count++;
@@ -2212,7 +2212,7 @@ gfx_rv GFX::update_particle_instances(Camera& camera)
         else
         {
             // calculate the "billboard" for this particle
-            if (gfx_error == prt_instance_t::update(camera, particle->getParticleID(), 255, true))
+            if (gfx_error == Ego::Graphics::ParticleGraphics::update(camera, particle->getParticleID(), 255, true))
             {
                 retval = gfx_error;
             }

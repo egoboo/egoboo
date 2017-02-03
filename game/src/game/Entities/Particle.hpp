@@ -469,7 +469,7 @@ public:
     int               endspawn_characterstate; ///< if != SPAWNNOCHARACTER, then a character is spawned on end
 
     dynalight_info_t  dynalight;               ///< Dynamic lighting...
-    prt_instance_t    inst;                    ///< Everything needed for rendering
+    Ego::Graphics::ParticleGraphics    inst;                    ///< Everything needed for rendering
     Ego::prt_environment_t enviro;                  ///< the particle's environment
 
 private:

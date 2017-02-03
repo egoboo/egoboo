@@ -77,7 +77,7 @@ void prt_set_texture_params(const std::shared_ptr<const Ego::Texture>& texture, 
 }
 
 //--------------------------------------------------------------------------------------------
-static void calc_billboard_verts(Ego::VertexBuffer& vb, prt_instance_t& pinst, float size, bool do_reflect);
+static void calc_billboard_verts(Ego::VertexBuffer& vb, Ego::Graphics::ParticleGraphics& pinst, float size, bool do_reflect);
 static void draw_one_attachment_point(Ego::Graphics::ObjectGraphics& inst, int vrt_offset);
 static void prt_draw_attached_point(const std::shared_ptr<Ego::Particle> &bdl_prt);
 static void render_prt_bbox(const std::shared_ptr<Ego::Particle> &bdl_prt);
@@ -103,7 +103,7 @@ gfx_rv render_one_prt_solid(const ParticleRef iprt)
 
     // if the particle instance data is not valid, do not continue
     if (!pprt->inst.valid) return gfx_fail;
-    prt_instance_t& pinst = pprt->inst;
+    Ego::Graphics::ParticleGraphics& pinst = pprt->inst;
 
     // only render solid sprites
     if (SPRITE_SOLID != pprt->type) return gfx_fail;
@@ -167,7 +167,7 @@ gfx_rv render_one_prt_trans(const ParticleRef iprt)
 
     // if the particle instance data is not valid, do not continue
     if (!pprt->inst.valid) return gfx_fail;
-    prt_instance_t& inst = pprt->inst;
+    Ego::Graphics::ParticleGraphics& inst = pprt->inst;
 
     {
         Ego::Renderer::get().setWorldMatrix(Matrix4f4f::identity());
@@ -279,7 +279,7 @@ gfx_rv render_one_prt_ref(const ParticleRef iprt)
     if (pprt->isHidden()) return gfx_fail;
 
     if (!pprt->inst.valid || !pprt->inst.ref_valid) return gfx_fail;
-    prt_instance_t& inst = pprt->inst;
+    Ego::Graphics::ParticleGraphics& inst = pprt->inst;
 
     //Calculate the fadeoff factor depending on how high above the floor the particle is 
     float fadeoff = 255.0f - (pprt->enviro.floor_level - inst.ref_pos.z()); //255 - distance over ground
@@ -370,7 +370,7 @@ gfx_rv render_one_prt_ref(const ParticleRef iprt)
     return gfx_success;
 }
 
-void calc_billboard_verts(Ego::VertexBuffer& vb, prt_instance_t& inst, float size, bool do_reflect)
+void calc_billboard_verts(Ego::VertexBuffer& vb, Ego::Graphics::ParticleGraphics& inst, float size, bool do_reflect)
 {
     // Calculate the position and texture coordinates of the four corners of the billboard used to display the particle.
 
@@ -505,8 +505,10 @@ void prt_draw_attached_point(const std::shared_ptr<Ego::Particle>& particle)
     draw_one_attachment_point(particle->getAttachedObject()->inst, particle->attachedto_vrt_off);
 }
 
+namespace Ego {
+namespace Graphics {
 
-prt_instance_t::prt_instance_t() :
+ParticleGraphics::ParticleGraphics() :
     valid(false),
     indolist(false),
 
@@ -543,12 +545,12 @@ prt_instance_t::prt_instance_t() :
     //ctor   
 }
 
-void prt_instance_t::reset()
+void ParticleGraphics::reset()
 {
-    (*this) = prt_instance_t();
+    (*this) = ParticleGraphics();
 }
 
-gfx_rv prt_instance_t::update_vertices(prt_instance_t& inst, Camera& camera, Ego::Particle *pprt)
+gfx_rv ParticleGraphics::update_vertices(ParticleGraphics& inst, Camera& camera, Ego::Particle *pprt)
 {
     inst.valid = false;
     inst.ref_valid = false;
@@ -829,7 +831,7 @@ gfx_rv prt_instance_t::update_vertices(prt_instance_t& inst, Camera& camera, Ego
     return gfx_success;
 }
 
-Matrix4f4f prt_instance_t::make_matrix(prt_instance_t& pinst)
+Matrix4f4f ParticleGraphics::make_matrix(ParticleGraphics& pinst)
 {
 	Matrix4f4f mat = Matrix4f4f::identity();
 
@@ -848,7 +850,7 @@ Matrix4f4f prt_instance_t::make_matrix(prt_instance_t& pinst)
     return mat;
 }
 
-gfx_rv prt_instance_t::update_lighting(prt_instance_t& pinst, Ego::Particle *pprt, Uint8 trans, bool do_lighting)
+gfx_rv ParticleGraphics::update_lighting(ParticleGraphics& pinst, Ego::Particle *pprt, Uint8 trans, bool do_lighting)
 {
     if (!pprt)
     {
@@ -870,7 +872,7 @@ gfx_rv prt_instance_t::update_lighting(prt_instance_t& pinst, Ego::Particle *ppr
 	GridIllumination::grid_lighting_interpolate(*mesh, global_light, Vector2f(pinst.pos[kX], pinst.pos[kY]));
 
     // rotate the lighting data to body_centered coordinates
-	Matrix4f4f mat = prt_instance_t::make_matrix(pinst);
+	Matrix4f4f mat = ParticleGraphics::make_matrix(pinst);
     lighting_cache_t loc_light;
 	lighting_cache_t::lighting_project_cache(loc_light, global_light, mat);
 
@@ -906,7 +908,7 @@ gfx_rv prt_instance_t::update_lighting(prt_instance_t& pinst, Ego::Particle *ppr
     return gfx_success;
 }
 
-gfx_rv prt_instance_t::update(Camera& camera, const ParticleRef particle, Uint8 trans, bool do_lighting)
+gfx_rv ParticleGraphics::update(Camera& camera, const ParticleRef particle, Uint8 trans, bool do_lighting)
 {
     const std::shared_ptr<Ego::Particle> &pprt = ParticleHandler::get()[particle];
     if(!pprt) {
@@ -916,25 +918,28 @@ gfx_rv prt_instance_t::update(Camera& camera, const ParticleRef particle, Uint8 
         return gfx_error;
     }
 
-    prt_instance_t& pinst = pprt->inst;
+    ParticleGraphics& pinst = pprt->inst;
 
     // assume the best
     gfx_rv retval = gfx_success;
 
     // make sure that the vertices are interpolated
-    if (gfx_error == prt_instance_t::update_vertices(pinst, camera, pprt.get()))
+    if (gfx_error == ParticleGraphics::update_vertices(pinst, camera, pprt.get()))
     {
         retval = gfx_error;
     }
 
     // do the lighting
-    if (gfx_error == prt_instance_t::update_lighting(pinst, pprt.get(), trans, do_lighting))
+    if (gfx_error == ParticleGraphics::update_lighting(pinst, pprt.get(), trans, do_lighting))
     {
         retval = gfx_error;
     }
 
     return retval;
 }
+
+} // namespace Graphics
+} // namespace Ego
 
 void render_prt_bbox(const std::shared_ptr<Ego::Particle>& particle)
 {    
