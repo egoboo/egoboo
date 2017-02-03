@@ -82,81 +82,10 @@ struct prt_instance_t
 	Vector3f ref_right;
 	Vector3f ref_pos;
 
-    prt_instance_t() :
-        valid(false),
-        indolist(false),
-
-        // basic info
-        type(0),
-        image_ref(0),
-        alpha(0.0f),
-        light(0),
-
-        // position info
-        pos(Vector3f::zero()),
-        size(0.0f),
-        scale(0.0f),
-
-        // billboard info
-        orientation(prt_ori_t::ORIENTATION_B),
-        up(Vector3f::zero()),
-        right(Vector3f::zero()),
-        nrm(Vector3f::zero()),
-
-        // lighting info
-        famb(0.0f),
-        fdir(0.0f),
-
-        fintens(0.0f),
-        falpha(0.0f),
-
-        // pre-compute some values for the reflected particle posisions
-        ref_valid(false),
-        ref_up(Vector3f::zero()),
-        ref_right(Vector3f::zero()),
-        ref_pos(Vector3f::zero())
-    {
-        //ctor   
-    }
-
-    void reset()
-    {
-        valid = false;
-
-        // graphical optimizations
-        indolist = false;
-
-        // basic info
-        type = 0;
-        image_ref = 0;
-        alpha = 0.0f;
-        light = 0;
-
-        // position info
-        pos = Vector3f::zero();
-        size = 0.0f;
-        scale = 0.0f;
-
-        // billboard info
-        orientation = prt_ori_t::ORIENTATION_B;
-        up = Vector3f::zero();
-        right = Vector3f::zero();
-        nrm = Vector3f::zero();
-
-        // lighting info
-        famb = 0.0f;
-        fdir = 0.0f;
-
-        fintens = 0.0f;
-        falpha = 0.0f;
-
-        // pre-compute some values for the reflected particle posisions
-        ref_valid = false;
-        ref_up = Vector3f::zero();
-        ref_right = Vector3f::zero();
-        ref_pos = Vector3f::zero();
-    }
-
+    prt_instance_t();
+    void reset();
+    static gfx_rv update(Camera& camera, const ParticleRef particle, Uint8 trans, bool do_lighting);
+protected:
     static gfx_rv update_vertices(prt_instance_t& inst, Camera& camera, Ego::Particle *pprt);
     static Matrix4f4f make_matrix(prt_instance_t& inst);
     static gfx_rv update_lighting(prt_instance_t& inst, Ego::Particle *pprt, Uint8 trans, bool do_lighting);

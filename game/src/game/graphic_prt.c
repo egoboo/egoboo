@@ -77,7 +77,6 @@ void prt_set_texture_params(const std::shared_ptr<const Ego::Texture>& texture, 
 }
 
 //--------------------------------------------------------------------------------------------
-static gfx_rv prt_instance_update(Camera& camera, const ParticleRef particle, Uint8 trans, bool do_lighting);
 static void calc_billboard_verts(Ego::VertexBuffer& vb, prt_instance_t& pinst, float size, bool do_reflect);
 static void draw_one_attachment_point(Ego::Graphics::ObjectGraphics& inst, int vrt_offset);
 static void prt_draw_attached_point(const std::shared_ptr<Ego::Particle> &bdl_prt);
@@ -533,7 +532,7 @@ gfx_rv update_all_prt_instance(Camera& camera)
         else
         {
             // calculate the "billboard" for this particle
-            if (gfx_error == prt_instance_update(camera, particle->getParticleID(), 255, true))
+            if (gfx_error == prt_instance_t::update(camera, particle->getParticleID(), 255, true))
             {
                 retval = gfx_error;
             }
@@ -541,6 +540,48 @@ gfx_rv update_all_prt_instance(Camera& camera)
     }
  
     return retval;
+}
+
+prt_instance_t::prt_instance_t() :
+    valid(false),
+    indolist(false),
+
+    // basic info
+    type(0),
+    image_ref(0),
+    alpha(0.0f),
+    light(0),
+
+    // position info
+    pos(Vector3f::zero()),
+    size(0.0f),
+    scale(0.0f),
+
+    // billboard info
+    orientation(prt_ori_t::ORIENTATION_B),
+    up(Vector3f::zero()),
+    right(Vector3f::zero()),
+    nrm(Vector3f::zero()),
+
+    // lighting info
+    famb(0.0f),
+    fdir(0.0f),
+
+    fintens(0.0f),
+    falpha(0.0f),
+
+    // pre-compute some values for the reflected particle posisions
+    ref_valid(false),
+    ref_up(Vector3f::zero()),
+    ref_right(Vector3f::zero()),
+    ref_pos(Vector3f::zero())
+{
+    //ctor   
+}
+
+void prt_instance_t::reset()
+{
+    (*this) = prt_instance_t();
 }
 
 gfx_rv prt_instance_t::update_vertices(prt_instance_t& inst, Camera& camera, Ego::Particle *pprt)
@@ -901,7 +942,7 @@ gfx_rv prt_instance_t::update_lighting(prt_instance_t& pinst, Ego::Particle *ppr
     return gfx_success;
 }
 
-gfx_rv prt_instance_update(Camera& camera, const ParticleRef particle, Uint8 trans, bool do_lighting)
+gfx_rv prt_instance_t::update(Camera& camera, const ParticleRef particle, Uint8 trans, bool do_lighting)
 {
     const std::shared_ptr<Ego::Particle> &pprt = ParticleHandler::get()[particle];
     if(!pprt) {
