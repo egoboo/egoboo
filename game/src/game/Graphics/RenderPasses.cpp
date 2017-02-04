@@ -492,6 +492,8 @@ void EntityShadows::doLowQualityShadow(const ObjectRef character) {
 	float x = pchr->inst.getMatrix()(0, 3); ///< @todo MH: This should be the x/y position of the model.
 	float y = pchr->inst.getMatrix()(1, 3); ///<           Use a more self-descriptive method to describe this.
 
+    std::shared_ptr<const Texture> texture = ParticleHandler::get().getLightParticleTexture();
+
 	float size = pchr->shadow_size * height_factor;
 
 	{
@@ -515,7 +517,7 @@ void EntityShadows::doLowQualityShadow(const ObjectRef character) {
 	}
 
 	// Choose texture and matrix
-	Renderer::get().getTextureUnit().setActivated(ParticleHandler::get().getLightParticleTexture().get());
+	Renderer::get().getTextureUnit().setActivated(texture.get());
 	int itex_style = SPRITE_LIGHT; //ZF> Note: index 1 is for SPRITE_LIGHT
 
 	{
@@ -570,6 +572,8 @@ void EntityShadows::doHighQualityShadow(const ObjectRef character) {
 
 	alpha *= 0.3f;
 
+    std::shared_ptr<const  Texture> texture = ParticleHandler::get().getLightParticleTexture();
+
 	float   alpha_umbra, alpha_penumbra;
 	alpha_umbra = alpha_penumbra = alpha;
 	if (height > 0)
@@ -591,7 +595,7 @@ void EntityShadows::doHighQualityShadow(const ObjectRef character) {
 	float y = pchr->inst.getMatrix()(1, 3);
 
 	// Choose texture and matrix
-	Renderer::get().getTextureUnit().setActivated(ParticleHandler::get().getLightParticleTexture().get());
+	Renderer::get().getTextureUnit().setActivated(texture.get());
 	int itex_style = SPRITE_LIGHT; //ZF> Note: index 1 is for SPRITE_LIGHT
 
 	// GOOD SHADOW

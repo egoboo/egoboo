@@ -85,7 +85,7 @@ gfx_rv ParticleGraphicsRenderer::render_one_prt_solid(const ParticleRef iprt)
     /// @author BB
     /// @details Render the solid version of the particle
 
-    const std::shared_ptr<Ego::Particle> &pprt = ParticleHandler::get()[iprt];
+    const auto& pprt = ParticleHandler::get()[iprt];
     if (pprt == nullptr || pprt->isTerminated())
     {
         Log::Entry e(Log::Level::Error, __FILE__, __LINE__);
@@ -99,16 +99,17 @@ gfx_rv ParticleGraphicsRenderer::render_one_prt_solid(const ParticleRef iprt)
 
     // if the particle instance data is not valid, do not continue
     if (!pprt->inst.valid) return gfx_fail;
-    Ego::Graphics::ParticleGraphics& pinst = pprt->inst;
+    auto& pinst = pprt->inst;
 
     // only render solid sprites
     if (SPRITE_SOLID != pprt->type) return gfx_fail;
 
-    Ego::Renderer::get().setWorldMatrix(Matrix4f4f::identity());
+    auto& renderer = Ego::Renderer::get();
+    renderer.setWorldMatrix(Matrix4f4f::identity());
     {
         Ego::OpenGL::PushAttrib pa(GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT);
         {
-            auto& renderer = Ego::Renderer::get();
+            std::shared_ptr<const Ego::Texture> texture = nullptr;
             // Use the depth test to eliminate hidden portions of the particle
             renderer.setDepthTestEnabled(true);
             renderer.setDepthFunction(Ego::CompareFunction::Less);                                   // GL_DEPTH_BUFFER_BIT
@@ -128,7 +129,8 @@ gfx_rv ParticleGraphicsRenderer::render_one_prt_solid(const ParticleRef iprt)
             renderer.setAlphaTestEnabled(true);
             renderer.setAlphaFunction(Ego::CompareFunction::Equal, 1.0f);
 
-            renderer.getTextureUnit().setActivated(ParticleHandler::get().getTransparentParticleTexture().get());
+            texture = ParticleHandler::get().getTransparentParticleTexture();
+            renderer.getTextureUnit().setActivated(texture.get());
 
             renderer.setColour(Ego::Math::Colour4f(pinst.fintens, pinst.fintens, pinst.fintens, 1.0f));
 
@@ -148,7 +150,7 @@ gfx_rv ParticleGraphicsRenderer::render_one_prt_trans(const ParticleRef iprt)
     /// @author BB
     /// @details do all kinds of transparent sprites next
 
-    const std::shared_ptr<Ego::Particle> &pprt = ParticleHandler::get()[iprt];
+    const auto& pprt = ParticleHandler::get()[iprt];
 
     if (pprt == nullptr || pprt->isTerminated())
     {
@@ -163,13 +165,13 @@ gfx_rv ParticleGraphicsRenderer::render_one_prt_trans(const ParticleRef iprt)
 
     // if the particle instance data is not valid, do not continue
     if (!pprt->inst.valid) return gfx_fail;
-    Ego::Graphics::ParticleGraphics& inst = pprt->inst;
+    auto& renderer = Ego::Renderer::get();
+    auto& inst = pprt->inst;
 
     {
-        Ego::Renderer::get().setWorldMatrix(Matrix4f4f::identity());
+        renderer.setWorldMatrix(Matrix4f4f::identity());
         Ego::OpenGL::PushAttrib pa(GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT);
         {
-            auto& renderer = Ego::Renderer::get();
             // Do not write into the depth buffer.
             renderer.setDepthWriteEnabled(false);
 
@@ -181,6 +183,7 @@ gfx_rv ParticleGraphicsRenderer::render_one_prt_trans(const ParticleRef iprt)
             renderer.setCullingMode(Ego::CullingMode::None);
 
             Ego::Math::Colour4f particleColour;
+            std::shared_ptr<const Ego::Texture> texture = nullptr;
 
             switch(pprt->type)
             {
@@ -197,7 +200,8 @@ gfx_rv ParticleGraphicsRenderer::render_one_prt_trans(const ParticleRef iprt)
 
                     particleColour = Ego::Math::Colour4f(inst.fintens, inst.fintens, inst.fintens, 1.0f);
 
-                    renderer.getTextureUnit().setActivated(ParticleHandler::get().getTransparentParticleTexture().get());
+                    texture = ParticleHandler::get().getTransparentParticleTexture();
+                    renderer.getTextureUnit().setActivated(texture.get());
                 }
                 break;
 
@@ -215,7 +219,8 @@ gfx_rv ParticleGraphicsRenderer::render_one_prt_trans(const ParticleRef iprt)
 
                     particleColour = Ego::Math::Colour4f(1.0f, 1.0f, 1.0f, inst.fintens * inst.falpha);
 
-                    renderer.getTextureUnit().setActivated(ParticleHandler::get().getLightParticleTexture().get());
+                    texture = ParticleHandler::get().getLightParticleTexture();
+                    renderer.getTextureUnit().setActivated(texture.get());
                 }
                 break;
 
@@ -236,7 +241,8 @@ gfx_rv ParticleGraphicsRenderer::render_one_prt_trans(const ParticleRef iprt)
 
                     particleColour = Ego::Math::Colour4f(inst.fintens, inst.fintens, inst.fintens, inst.falpha);
 
-                    renderer.getTextureUnit().setActivated(ParticleHandler::get().getTransparentParticleTexture().get());
+                    texture = ParticleHandler::get().getTransparentParticleTexture();
+                    renderer.getTextureUnit().setActivated(texture.get());
                 }
                 break;
 
@@ -263,7 +269,7 @@ gfx_rv ParticleGraphicsRenderer::render_one_prt_ref(const ParticleRef iprt)
 {
     /// @author BB
     /// @details render one particle
-    const std::shared_ptr<Ego::Particle>& pprt = ParticleHandler::get()[iprt];
+    const auto& pprt = ParticleHandler::get()[iprt];
     if(!pprt || pprt->isTerminated()) {
         Log::Entry e(Log::Level::Error, __FILE__, __LINE__);
         e << "invalid particle `" << iprt << "`" << Log::EndOfEntry;
@@ -275,22 +281,23 @@ gfx_rv ParticleGraphicsRenderer::render_one_prt_ref(const ParticleRef iprt)
     if (pprt->isHidden()) return gfx_fail;
 
     if (!pprt->inst.valid || !pprt->inst.ref_valid) return gfx_fail;
-    Ego::Graphics::ParticleGraphics& inst = pprt->inst;
+    auto& inst = pprt->inst;
 
     //Calculate the fadeoff factor depending on how high above the floor the particle is 
     float fadeoff = 255.0f - (pprt->enviro.floor_level - inst.ref_pos.z()); //255 - distance over ground
     fadeoff *= 0.5f;
     fadeoff = Ego::Math::constrain(fadeoff*INV_FF<float>(), 0.0f, 1.0f);
 
+    auto& renderer = Ego::Renderer::get();
     if (fadeoff > 0.0f)
     {
-        Ego::Renderer::get().setWorldMatrix(Matrix4f4f::identity());
+        renderer.setWorldMatrix(Matrix4f4f::identity());
         {
             Ego::OpenGL::PushAttrib pa(GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_CURRENT_BIT);
             {
                 Ego::Colour4f particle_colour;
+                std::shared_ptr<const Ego::Texture> texture = nullptr;
 
-                auto& renderer = Ego::Renderer::get();
                 // don't write into the depth buffer (disable glDepthMask for transparent objects)
                 renderer.setDepthWriteEnabled(false); // ENABLE_BIT
 
@@ -322,7 +329,8 @@ gfx_rv ParticleGraphicsRenderer::render_one_prt_ref(const ParticleRef iprt)
 
                         particle_colour = Ego::Math::Colour4f(1.0f, 1.0f, 1.0f, alpha);
 
-                        renderer.getTextureUnit().setActivated(ParticleHandler::get().getLightParticleTexture().get());
+                        texture = ParticleHandler::get().getLightParticleTexture();
+                        renderer.getTextureUnit().setActivated(texture.get());
                     }
                     break;
 
@@ -341,7 +349,8 @@ gfx_rv ParticleGraphicsRenderer::render_one_prt_ref(const ParticleRef iprt)
 
                         particle_colour = Ego::Math::Colour4f(inst.fintens, inst.fintens, inst.fintens, alpha);
 
-                        renderer.getTextureUnit().setActivated(ParticleHandler::get().getTransparentParticleTexture().get());
+                        texture = ParticleHandler::get().getTransparentParticleTexture();
+                        renderer.getTextureUnit().setActivated(texture.get());
                     }
                     break;
 
@@ -419,18 +428,26 @@ void ParticleGraphicsRenderer::calc_billboard_verts(Ego::VertexBuffer& vb, Ego::
         v[i].z = prt_pos[kZ];
     }
 
+    // Considered as left bottom.
+    // Hence expand to the left and the bottom.
     v[0].x += (-prt_right[kX] - prt_up[kX]) * size;
     v[0].y += (-prt_right[kY] - prt_up[kY]) * size;
     v[0].z += (-prt_right[kZ] - prt_up[kZ]) * size;
 
+    // Considered as right bottom.
+    // Hence expand to the right and the bottom.
     v[1].x += (prt_right[kX] - prt_up[kX]) * size;
     v[1].y += (prt_right[kY] - prt_up[kY]) * size;
     v[1].z += (prt_right[kZ] - prt_up[kZ]) * size;
 
+    // Considered as right top.
+    // Hence expand to the right and the top.
     v[2].x += (prt_right[kX] + prt_up[kX]) * size;
     v[2].y += (prt_right[kY] + prt_up[kY]) * size;
     v[2].z += (prt_right[kZ] + prt_up[kZ]) * size;
 
+    // Considered as left top.
+    // Hence expand to the left and the top.
     v[3].x += (-prt_right[kX] + prt_up[kX]) * size;
     v[3].y += (-prt_right[kY] + prt_up[kY]) * size;
     v[3].z += (-prt_right[kZ] + prt_up[kZ]) * size;
@@ -454,7 +471,7 @@ void ParticleGraphicsRenderer::render_all_prt_attachment()
 {
     Ego::Renderer::get().setBlendingEnabled(false);
 
-    for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
+    for(const auto& particle : ParticleHandler::get().iterator())
     {
         if(particle->isTerminated()) continue;
         prt_draw_attached_point(particle);
@@ -463,7 +480,7 @@ void ParticleGraphicsRenderer::render_all_prt_attachment()
 
 void ParticleGraphicsRenderer::render_all_prt_bbox()
 {
-    for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
+    for(const auto& particle : ParticleHandler::get().iterator())
     {
         if(particle->isTerminated()) continue;
         render_prt_bbox(particle);
@@ -479,12 +496,13 @@ void ParticleGraphicsRenderer::draw_one_attachment_point(Ego::Graphics::ObjectGr
 
     if (vrt >= inst.getVertexCount()) return;
 
+    auto& renderer = Ego::Renderer::get();
     // disable the texturing so all the points will be white,
     // not the texture color of the last vertex we drawn
-    Ego::Renderer::get().getTextureUnit().setActivated(nullptr);
-    Ego::Renderer::get().setPointSize(5);
-    Ego::Renderer::get().setViewMatrix(Matrix4f4f::identity());
-    Ego::Renderer::get().setWorldMatrix(inst.getMatrix());
+    renderer.getTextureUnit().setActivated(nullptr);
+    renderer.setPointSize(5);
+    renderer.setViewMatrix(Matrix4f4f::identity());
+    renderer.setWorldMatrix(inst.getMatrix());
     GL_DEBUG(glBegin(GL_POINTS));
     {
         GL_DEBUG(glVertex3fv)(inst.getVertex(vrt).pos);
