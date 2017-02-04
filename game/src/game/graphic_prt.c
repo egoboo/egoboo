@@ -34,47 +34,33 @@
 //--------------------------------------------------------------------------------------------
 
 
-int ptex_w[2] = { 256, 256 };
-int ptex_h[2] = { 256, 256 };
-float ptex_wscale[2] = { 1.0f, 1.0f };
-float ptex_hscale[2] = { 1.0f, 1.0f };
 
-float CALCULATE_PRT_U0(int IDX, int CNT)  {
-    return (((.05f + ((CNT)& 15)) / 16.0f)*ptex_wscale[IDX]);
+float CALCULATE_PRT_U0(const Ego::Texture& texture, int IDX, int CNT)  {
+    float w = texture.getSourceWidth();
+    float wscale = w / static_cast<float>(texture.getWidth());
+    return (((.05f + ((CNT)& 15)) / 16.0f)*wscale);
 }
 
-float CALCULATE_PRT_U1(int IDX, int CNT)  {
-    return (((.95f + ((CNT)& 15)) / 16.0f)*ptex_wscale[IDX]);
+float CALCULATE_PRT_U1(const Ego::Texture& texture, int IDX, int CNT)  {
+    float w = texture.getSourceWidth();
+    float wscale = w / static_cast<float>(texture.getWidth());
+    return (((.95f + ((CNT)& 15)) / 16.0f)*wscale);
 }
 
-float CALCULATE_PRT_V0(int IDX, int CNT)  {
-    return (((.05f + ((CNT) >> 4)) / 16.0f) * ((float)ptex_w[IDX] / (float)ptex_h[IDX])*ptex_hscale[IDX]);
+float CALCULATE_PRT_V0(const Ego::Texture& texture, int IDX, int CNT)  {
+    float w = texture.getSourceWidth();
+    float h = texture.getSourceHeight();
+    float hscale = h / static_cast<float>(texture.getHeight());
+    return (((.05f + ((CNT) >> 4)) / 16.0f) * (w / h)*hscale);
 }
 
-float CALCULATE_PRT_V1(int IDX, int CNT) {
-    return (((.95f + ((CNT) >> 4)) / 16.0f) * ((float)ptex_w[IDX] / (float)ptex_h[IDX])*ptex_hscale[IDX]);
+float CALCULATE_PRT_V1(const Ego::Texture& texture, int IDX, int CNT) {
+    float w = texture.getSourceWidth();
+    float h = texture.getSourceHeight();
+    float hscale = h / static_cast<float>(texture.getHeight());
+    return (((.95f + ((CNT) >> 4)) / 16.0f) * (w / h)*hscale);
 }
 
-void prt_set_texture_params(const std::shared_ptr<const Ego::Texture>& texture, uint8_t type)
-{
-    int index;
-
-    switch(type) {
-        case SPRITE_ALPHA:
-            index = 0;
-        break;
-        case SPRITE_LIGHT:
-            index = 1;
-        break;
-        default:
-            throw std::invalid_argument("invalid particle type");
-    }
-
-    ptex_w[index] = texture->getSourceWidth();
-    ptex_h[index] = texture->getSourceHeight();
-    ptex_wscale[index] = static_cast<float>(texture->getSourceWidth()) / static_cast<float>(texture->getWidth());
-    ptex_hscale[index] = static_cast<float>(texture->getSourceHeight()) / static_cast<float>(texture->getHeight());
-}
 
 //--------------------------------------------------------------------------------------------
 
@@ -136,7 +122,7 @@ gfx_rv ParticleGraphicsRenderer::render_one_prt_solid(const ParticleRef iprt)
 
             // billboard for the particle
             auto vb = std::make_shared<Ego::VertexBuffer>(4, Ego::VertexFormatFactory::get<Ego::VertexFormat::P3FT2F>());
-            calc_billboard_verts(*vb, pinst, pinst.size, false);
+            calc_billboard_verts(*texture, *vb, pinst, pinst.size, false);
 
             renderer.render(*vb, Ego::PrimitiveType::TriangleFan, 0, 4);
         }
@@ -253,7 +239,7 @@ gfx_rv ParticleGraphicsRenderer::render_one_prt_trans(const ParticleRef iprt)
             }
 
             auto vb = std::make_shared<Ego::VertexBuffer>(4, Ego::VertexFormatFactory::get<Ego::VertexFormat::P3FT2F>());
-            calc_billboard_verts(*vb, inst, inst.size, false);
+            calc_billboard_verts(*texture, *vb, inst, inst.size, false);
 
             renderer.setColour(particleColour);
 
@@ -363,7 +349,7 @@ gfx_rv ParticleGraphicsRenderer::render_one_prt_ref(const ParticleRef iprt)
                 // Calculate the position of the four corners of the billboard
                 // used to display the particle.
                 auto vb = std::make_shared<Ego::VertexBuffer>(4, Ego::VertexFormatFactory::get<Ego::VertexFormat::P3FT2F>());
-                calc_billboard_verts(*vb, inst, inst.size, true);
+                calc_billboard_verts(*texture, *vb, inst, inst.size, true);
 
                 renderer.setColour(particle_colour); // GL_CURRENT_BIT
 
@@ -375,7 +361,7 @@ gfx_rv ParticleGraphicsRenderer::render_one_prt_ref(const ParticleRef iprt)
     return gfx_success;
 }
 
-void ParticleGraphicsRenderer::calc_billboard_verts(Ego::VertexBuffer& vb, Ego::Graphics::ParticleGraphics& inst, float size, bool do_reflect)
+void ParticleGraphicsRenderer::calc_billboard_verts(const Ego::Texture& texture, Ego::VertexBuffer& vb, Ego::Graphics::ParticleGraphics& inst, float size, bool do_reflect)
 {
     // Calculate the position and texture coordinates of the four corners of the billboard used to display the particle.
 
@@ -452,17 +438,17 @@ void ParticleGraphicsRenderer::calc_billboard_verts(Ego::VertexBuffer& vb, Ego::
     v[3].y += (-prt_right[kY] + prt_up[kY]) * size;
     v[3].z += (-prt_right[kZ] + prt_up[kZ]) * size;
 
-    v[0].s = CALCULATE_PRT_U1(index, inst.image_ref);
-    v[0].t = CALCULATE_PRT_V1(index, inst.image_ref);
+    v[0].s = CALCULATE_PRT_U1(texture, index, inst.image_ref);
+    v[0].t = CALCULATE_PRT_V1(texture, index, inst.image_ref);
 
-    v[1].s = CALCULATE_PRT_U0(index, inst.image_ref);
-    v[1].t = CALCULATE_PRT_V1(index, inst.image_ref);
+    v[1].s = CALCULATE_PRT_U0(texture, index, inst.image_ref);
+    v[1].t = CALCULATE_PRT_V1(texture, index, inst.image_ref);
 
-    v[2].s = CALCULATE_PRT_U0(index, inst.image_ref);
-    v[2].t = CALCULATE_PRT_V0(index, inst.image_ref);
+    v[2].s = CALCULATE_PRT_U0(texture, index, inst.image_ref);
+    v[2].t = CALCULATE_PRT_V0(texture, index, inst.image_ref);
 
-    v[3].s = CALCULATE_PRT_U1(index, inst.image_ref);
-    v[3].t = CALCULATE_PRT_V0(index, inst.image_ref);
+    v[3].s = CALCULATE_PRT_U1(texture, index, inst.image_ref);
+    v[3].t = CALCULATE_PRT_V0(texture, index, inst.image_ref);
 
     vb.unlock();
 }

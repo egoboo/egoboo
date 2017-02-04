@@ -39,11 +39,10 @@ struct ObjectGraphics;
 // dynamically calculate the particle texture coordinates
 // support for computing the particle texture coordinates on the fly.
 // currently, there ate two texture types: TX_PARTICLE_TRANS and TX_PARTICLE_LIGHT
-void prt_set_texture_params(const std::shared_ptr<const Ego::Texture>& texture, uint8_t type);
-float CALCULATE_PRT_U0(int IDX, int CNT);
-float CALCULATE_PRT_U1(int IDX, int CNT);
-float CALCULATE_PRT_V0(int IDX, int CNT);
-float CALCULATE_PRT_V1(int IDX, int CNT);
+float CALCULATE_PRT_U0(const Ego::Texture& texture, int IDX, int CNT);
+float CALCULATE_PRT_U1(const Ego::Texture& texture, int IDX, int CNT);
+float CALCULATE_PRT_V0(const Ego::Texture& texture, int IDX, int CNT);
+float CALCULATE_PRT_V1(const Ego::Texture& texture, int IDX, int CNT);
 
 struct ParticleGraphicsRenderer
 {
@@ -56,6 +55,6 @@ struct ParticleGraphicsRenderer
     static void prt_draw_attached_point(const std::shared_ptr<Ego::Particle> &bdl_prt);
 private:
     static void draw_one_attachment_point(Ego::Graphics::ObjectGraphics& inst, int vrt_offset);
-    static void calc_billboard_verts(Ego::VertexBuffer& vb, Ego::Graphics::ParticleGraphics& pinst, float size, bool do_reflect);
+    static void calc_billboard_verts(const Ego::Texture& texture, Ego::VertexBuffer& vb, Ego::Graphics::ParticleGraphics& pinst, float size, bool do_reflect);
 };
 

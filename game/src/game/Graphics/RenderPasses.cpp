@@ -523,17 +523,17 @@ void EntityShadows::doLowQualityShadow(const ObjectRef character) {
 	{
 		BufferScopedLock lock(_vertexBuffer);
 		Vertex *vertices = lock.get<Vertex>();
-		vertices[0].s = CALCULATE_PRT_U0(itex_style, 236);
-		vertices[0].t = CALCULATE_PRT_V0(itex_style, 236);
+		vertices[0].s = CALCULATE_PRT_U0(*texture, itex_style, 236);
+		vertices[0].t = CALCULATE_PRT_V0(*texture, itex_style, 236);
 
-		vertices[1].s = CALCULATE_PRT_U1(itex_style, 253);
-		vertices[1].t = CALCULATE_PRT_V0(itex_style, 236);
+		vertices[1].s = CALCULATE_PRT_U1(*texture, itex_style, 253);
+		vertices[1].t = CALCULATE_PRT_V0(*texture, itex_style, 236);
 
-		vertices[2].s = CALCULATE_PRT_U1(itex_style, 253);
-		vertices[2].t = CALCULATE_PRT_V1(itex_style, 253);
+		vertices[2].s = CALCULATE_PRT_U1(*texture, itex_style, 253);
+		vertices[2].t = CALCULATE_PRT_V1(*texture, itex_style, 253);
 
-		vertices[3].s = CALCULATE_PRT_U0(itex_style, 236);
-		vertices[3].t = CALCULATE_PRT_V1(itex_style, 253);
+		vertices[3].s = CALCULATE_PRT_U0(*texture, itex_style, 236);
+		vertices[3].t = CALCULATE_PRT_V1(*texture, itex_style, 253);
 	}
 
 	doShadowSprite(alpha, _vertexBuffer);
@@ -603,17 +603,17 @@ void EntityShadows::doHighQualityShadow(const ObjectRef character) {
 		BufferScopedLock lock(_vertexBuffer);
 		Vertex *vertices = lock.get<Vertex>();
 
-		vertices[0].s = CALCULATE_PRT_U0(itex_style, 238);
-		vertices[0].t = CALCULATE_PRT_V0(itex_style, 238);
+		vertices[0].s = CALCULATE_PRT_U0(*texture, itex_style, 238);
+		vertices[0].t = CALCULATE_PRT_V0(*texture, itex_style, 238);
 
-		vertices[1].s = CALCULATE_PRT_U1(itex_style, 255);
-		vertices[1].t = CALCULATE_PRT_V0(itex_style, 238);
+		vertices[1].s = CALCULATE_PRT_U1(*texture, itex_style, 255);
+		vertices[1].t = CALCULATE_PRT_V0(*texture, itex_style, 238);
 
-		vertices[2].s = CALCULATE_PRT_U1(itex_style, 255);
-		vertices[2].t = CALCULATE_PRT_V1(itex_style, 255);
+		vertices[2].s = CALCULATE_PRT_U1(*texture, itex_style, 255);
+		vertices[2].t = CALCULATE_PRT_V1(*texture, itex_style, 255);
 
-		vertices[3].s = CALCULATE_PRT_U0(itex_style, 238);
-		vertices[3].t = CALCULATE_PRT_V1(itex_style, 255);
+		vertices[3].s = CALCULATE_PRT_U0(*texture, itex_style, 238);
+		vertices[3].t = CALCULATE_PRT_V1(*texture, itex_style, 255);
 	}
 	if (size_penumbra > 0)
 	{
