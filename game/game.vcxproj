@@ -401,6 +401,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\game\Graphics\RenderPasses\EntityReflectionsRenderPass.cpp" />
     <ClCompile Include="src\game\Graphics\RenderPasses\EntityShadowsRenderPass.cpp" />
     <ClCompile Include="src\game\Graphics\RenderPasses\NonOpaqueEntitiesRenderPass.cpp" />
     <ClCompile Include="src\game\Graphics\RenderPasses\OpaqueEntitiesRenderPass.cpp" />
@@ -499,6 +500,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClCompile Include="src\game\script_implementation.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\game\Graphics\RenderPasses\EntityReflectionsRenderPass.hpp" />
     <ClInclude Include="src\game\Graphics\RenderPasses\EntityShadowsRenderPass.hpp" />
     <ClInclude Include="src\game\Graphics\RenderPasses\NonOpaqueEntitiesRenderPass.hpp" />
     <ClInclude Include="src\game\Graphics\RenderPasses\OpaqueEntitiesRenderPass.hpp" />

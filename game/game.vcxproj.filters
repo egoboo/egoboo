@@ -359,6 +359,9 @@
     <ClCompile Include="src\game\Graphics\RenderPasses\EntityShadowsRenderPass.cpp">
       <Filter>Game Sources\Graphics\RenderPasses</Filter>
     </ClCompile>
+    <ClCompile Include="src\game\Graphics\RenderPasses\EntityReflectionsRenderPass.cpp">
+      <Filter>Game Sources\Graphics\RenderPasses</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game\egoboo.h">
@@ -671,6 +674,9 @@
       <Filter>Game Header Files\Graphics\RenderPasses</Filter>
     </ClInclude>
     <ClInclude Include="src\game\Graphics\RenderPasses\EntityShadowsRenderPass.hpp">
+      <Filter>Game Header Files\Graphics\RenderPasses</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\Graphics\RenderPasses\EntityReflectionsRenderPass.hpp">
       <Filter>Game Header Files\Graphics\RenderPasses</Filter>
     </ClInclude>
   </ItemGroup>

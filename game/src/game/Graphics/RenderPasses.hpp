@@ -125,15 +125,6 @@ protected:
 
 
 
-/// The render pass for entity reflections.
-struct EntityReflections : public RenderPass {
-public:
-	EntityReflections()
-		: RenderPass("entityReflections") {
-	}
-protected:
-	void doRun(::Camera& cam, const TileList& tl, const EntityList& el) override;
-};
 
 
 
