@@ -41,6 +41,9 @@
 #include "game/Graphics/RenderPasses/BackgroundRenderPass.hpp"
 #include "game/Graphics/RenderPasses/ForegroundRenderPass.hpp"
 #include "game/Graphics/RenderPasses/WaterTilesRenderPass.hpp"
+#include "game/Graphics/RenderPasses/OpaqueEntitiesRenderPass.hpp"
+#include "game/Graphics/RenderPasses/NonOpaqueEntitiesRenderPass.hpp"
+#include "game/Graphics/RenderPasses/EntityShadowsRenderPass.hpp"
 #include "game/mesh.h"
 #include "game/Graphics/CameraSystem.hpp"
 #include "game/Module/Module.hpp"
@@ -98,8 +101,8 @@ void reinitClocks() {
 
 	GFX::get().getEntityReflections().clock.reinit();
     GFX::get().getEntityShadows().clock.reinit();
-	GFX::get().getSolidEntities().clock.reinit();
-    GFX::get().getTransparentEntities().clock.reinit();
+	GFX::get().getOpaqueEntities().clock.reinit();
+    GFX::get().getNonOpaqueEntities().clock.reinit();
     GFX::get().getWater().clock.reinit();
     GFX::get().getReflective0().clock.reinit();
     GFX::get().getReflective1().clock.reinit();
@@ -143,12 +146,12 @@ GFX::GFX() :
     GameApp<GFX>("Egoboo", GameEngine::GAME_VERSION),
     update_object_instances_timer("update.object.instances", 512),
     update_particle_instances_timer("update.particle.instances", 512),
-    transparentEntities(std::make_unique<Ego::Graphics::TransparentEntities>()),
-    solidEntities(std::make_unique<Ego::Graphics::SolidEntities>()),
+    nonOpaqueEntities(std::make_unique<Ego::Graphics::NonOpaqueEntitiesRenderPass>()),
+    opaqueEntities(std::make_unique<Ego::Graphics::OpaqueEntitiesRenderPass>()),
     reflective0(std::make_unique<Ego::Graphics::Reflective0>()),
     reflective1(std::make_unique<Ego::Graphics::Reflective1>()),
     nonReflective(std::make_unique<Ego::Graphics::NonReflective>()),
-    entityShadows(std::make_unique<Ego::Graphics::EntityShadows>()),
+    entityShadows(std::make_unique<Ego::Graphics::EntityShadowsRenderPass>()),
     water(std::make_unique<Ego::Graphics::WaterTilesRenderPass>()),
     entityReflections(std::make_unique<Ego::Graphics::EntityReflections>()),
     foreground(std::make_unique<Ego::Graphics::ForegroundRenderPass>()),
@@ -824,14 +827,14 @@ gfx_rv render_scene(Camera& cam, Ego::Graphics::TileList& tl, Ego::Graphics::Ent
         el.sort(cam, false);
 	}
 
-    // Render solid entities.
-	GFX::get().getSolidEntities().run(cam, tl, el);
+    // Render opaque entities.
+	GFX::get().getOpaqueEntities().run(cam, tl, el);
 
 	// Render water.
 	GFX::get().getWater().run(cam, tl, el);
 
-	// Render transparent entities.
-	GFX::get().getTransparentEntities().run(cam, tl, el);
+	// Render non opaque entities.
+	GFX::get().getNonOpaqueEntities().run(cam, tl, el);
 
     //Draw all passages
     if(Ego::Input::InputSystem::get().isKeyDown(SDLK_F8)) {

@@ -177,8 +177,8 @@ private:
     ~GFX();
 
 
-    std::unique_ptr<Ego::Graphics::RenderPass> transparentEntities;
-    std::unique_ptr<Ego::Graphics::RenderPass> solidEntities;
+    std::unique_ptr<Ego::Graphics::RenderPass> nonOpaqueEntities;
+    std::unique_ptr<Ego::Graphics::RenderPass> opaqueEntities;
     std::unique_ptr<Ego::Graphics::RenderPass> reflective0;
     std::unique_ptr<Ego::Graphics::RenderPass> reflective1;
     std::unique_ptr<Ego::Graphics::RenderPass> nonReflective;
@@ -196,14 +196,14 @@ public:
     gfx_rv update_particle_instances(Camera& cam);
 
 public:
-    Ego::Graphics::RenderPass& getTransparentEntities() const
+    Ego::Graphics::RenderPass& getNonOpaqueEntities() const
     {
-        return *transparentEntities;
+        return *nonOpaqueEntities;
     }
 
-    Ego::Graphics::RenderPass& getSolidEntities() const
+    Ego::Graphics::RenderPass& getOpaqueEntities() const
     {
-        return *solidEntities;
+        return *opaqueEntities;
     }
 
     Ego::Graphics::RenderPass& getReflective0() const

@@ -123,25 +123,7 @@ protected:
 	void doRun(::Camera& cam, const TileList& tl, const EntityList& el) override;
 };
 
-/// The render pass for solid entities.
-struct SolidEntities : public RenderPass {
-public:
-	SolidEntities()
-		: RenderPass("solidEntities") {
-	}
-protected:
-	void doRun(::Camera& cam, const TileList& tl, const EntityList& el) override;
-};
 
-/// The render pass for transparent entities.
-struct TransparentEntities : public RenderPass {
-public:
-	TransparentEntities()
-		: RenderPass("transparentEntities") {
-	}
-protected:
-	void doRun(::Camera& cam, const TileList& tl, const EntityList& el) override;
-};
 
 /// The render pass for entity reflections.
 struct EntityReflections : public RenderPass {
@@ -153,30 +135,6 @@ protected:
 	void doRun(::Camera& cam, const TileList& tl, const EntityList& el) override;
 };
 
-/// The render pass for entity shadows.
-struct EntityShadows : public RenderPass {
-public:
-	EntityShadows()
-		: RenderPass("entityShadows"),
-		  _vertexBuffer(4, VertexFormatFactory::get<VertexFormat::P3FT2F>()) {
-	}
-protected:
-	void doRun(::Camera& cam, const TileList& tl, const EntityList& el) override;
-private:
-	/// A vertex type used by this render pass.
-	struct Vertex {
-		float x, y, z;
-		float s, t;
-	};
-	/// A vertex buffer used by this render pass.
-	VertexBuffer _vertexBuffer;
-	// Used if low-quality shadows are enabled.
-	void doLowQualityShadow(const ObjectRef character);
-	// Used if high-quality shadows are enabled.
-	void doHighQualityShadow(const ObjectRef character);
-	// Used by all shadow qualities.
-	void doShadowSprite(float intensity, VertexBuffer& vertexBuffer);
-};
 
 
 }
