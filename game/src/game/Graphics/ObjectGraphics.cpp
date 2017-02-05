@@ -321,7 +321,7 @@ gfx_rv ObjectGraphics::updateVertices(int vmin, int vmax, bool force)
     }
 
     // make sure the frames are in the valid range
-    const std::vector<MD2_Frame> &frameList = pmd2->getFrames();
+    const auto& frameList = pmd2->getFrames();
     if ( _targetFrameIndex >= frameList.size() || _sourceFrameIndex >= frameList.size() )
     {
 		Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "character instance frame is outside "
@@ -330,8 +330,8 @@ gfx_rv ObjectGraphics::updateVertices(int vmin, int vmax, bool force)
     }
 
     // grab the frame data from the correct model
-    const MD2_Frame &nextFrame = frameList[_targetFrameIndex];
-    const MD2_Frame &lastFrame = frameList[_sourceFrameIndex];
+    const auto& nextFrame = frameList[_targetFrameIndex];
+    const auto& lastFrame = frameList[_sourceFrameIndex];
 
     // fix the flip for objects that are not animating
     loc_flip = _animationProgress;

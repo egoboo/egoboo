@@ -87,7 +87,8 @@ gfx_rv ObjectGraphicsRenderer::render_enviro( Camera& cam, const std::shared_ptr
         Log::get() << e;
         return gfx_error;
     }
-    const std::shared_ptr<MD2Model>& pmd2 = pchr->getProfile()->getModel()->getMD2();
+    const auto& pmd2 = pchr->getProfile()->getModel()->getMD2();
+    auto& renderer = Ego::Renderer::get();
 
     std::shared_ptr<const Ego::Texture> ptex = nullptr;
 	if (HAS_SOME_BITS(bits, CHR_PHONG))
@@ -109,28 +110,28 @@ gfx_rv ObjectGraphicsRenderer::render_enviro( Camera& cam, const std::shared_ptr
 
 	if (HAS_SOME_BITS(bits, CHR_REFLECT))
 	{
-        Ego::Renderer::get().setWorldMatrix(pchr->inst.getReflectionMatrix());
+        renderer.setWorldMatrix(pchr->inst.getReflectionMatrix());
 	}
 	else
 	{
-		Ego::Renderer::get().setWorldMatrix(pchr->inst.getMatrix());
+		renderer.setWorldMatrix(pchr->inst.getMatrix());
 	}
 
     // Choose texture and matrix
-	Ego::Renderer::get().getTextureUnit().setActivated(ptex.get());
+	renderer.getTextureUnit().setActivated(ptex.get());
 
     {
         Ego::OpenGL::PushAttrib pa(GL_CURRENT_BIT);
         {
             // Get the maximum number of vertices per command.
             size_t vertexBufferCapacity = 0;
-            for (const MD2_GLCommand& glcommand : pmd2->getGLCommands()) {
+            for (const auto& glcommand : pmd2->getGLCommands()) {
                 vertexBufferCapacity = std::max(vertexBufferCapacity, glcommand.data.size());
             }
             // Allocate a vertex buffer.
             Md2VertexBuffer vertexBuffer(vertexBufferCapacity);
             // Render each command
-            for (const MD2_GLCommand &glcommand : pmd2->getGLCommands()) {
+            for (const auto& glcommand : pmd2->getGLCommands()) {
                 // Pre-render this command.
                 size_t vertexBufferSize = 0;
                 for (const id_glcmd_packed_t& cmd : glcommand.data) {
@@ -752,7 +753,7 @@ void ObjectGraphicsRenderer::_draw_one_grip_raw( Ego::Graphics::ObjectGraphics *
 
 void ObjectGraphicsRenderer::draw_chr_attached_grip(const std::shared_ptr<Object>& pchr)
 {
-    const std::shared_ptr<Object> &pholder = pchr->getHolder();
+    const auto& pholder = pchr->getHolder();
     if (!pholder || pholder->isTerminated()) return;
 
     draw_one_grip( &( pholder->inst ), pchr->inwhich_slot );

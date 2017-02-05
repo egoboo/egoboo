@@ -62,7 +62,7 @@ gfx_rv ParticleGraphics::update_vertices(ParticleGraphics& inst, ::Camera& camer
         return gfx_error;
     }
 
-    const std::shared_ptr<ParticleProfile> &ppip = pprt->getProfile();
+    const auto& ppip = pprt->getProfile();
 
     inst.type = pprt->type;
 
@@ -168,7 +168,7 @@ gfx_rv ParticleGraphics::update_vertices(ParticleGraphics& inst, ::Camera& camer
     }
     else if (pprt->isAttached())
     {
-        Ego::Graphics::ObjectGraphics *cinst = &(pprt->getAttachedObject()->inst);
+        auto& cinst = pprt->getAttachedObject()->inst;
 
         if (chr_matrix_valid(pprt->getAttachedObject().get()))
         {
@@ -178,10 +178,10 @@ gfx_rv ParticleGraphics::update_vertices(ParticleGraphics& inst, ::Camera& camer
 
             switch (inst.orientation)
             {
-                case prt_ori_t::ORIENTATION_X: vup = mat_getChrForward(cinst->getMatrix()); break;
-                case prt_ori_t::ORIENTATION_Y: vup = mat_getChrRight(cinst->getMatrix());   break;
+                case prt_ori_t::ORIENTATION_X: vup = mat_getChrForward(cinst.getMatrix()); break;
+                case prt_ori_t::ORIENTATION_Y: vup = mat_getChrRight(cinst.getMatrix());   break;
                 default:
-                case prt_ori_t::ORIENTATION_Z: vup = mat_getChrUp(cinst->getMatrix());      break;
+                case prt_ori_t::ORIENTATION_Z: vup = mat_getChrUp(cinst.getMatrix());      break;
             }
 
             vup.normalize();
@@ -410,7 +410,7 @@ gfx_rv ParticleGraphics::update_lighting(ParticleGraphics& pinst, Particle *pprt
 
 gfx_rv ParticleGraphics::update(::Camera& camera, const ParticleRef particle, Uint8 trans, bool do_lighting)
 {
-    const std::shared_ptr<Ego::Particle> &pprt = ParticleHandler::get()[particle];
+    const auto& pprt = ParticleHandler::get()[particle];
     if (!pprt)
     {
         Log::Entry e(Log::Level::Error, __FILE__, __LINE__);
@@ -419,7 +419,7 @@ gfx_rv ParticleGraphics::update(::Camera& camera, const ParticleRef particle, Ui
         return gfx_error;
     }
 
-    ParticleGraphics& pinst = pprt->inst;
+    auto& pinst = pprt->inst;
 
     // assume the best
     gfx_rv retval = gfx_success;
