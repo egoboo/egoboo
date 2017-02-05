@@ -112,16 +112,6 @@ private:
 	void doReflectionsDisabled(::Camera& cam, const TileList& tl, const EntityList& el);
 };
 
-/// The render pass for non-reflective tiles
-/// i.e. tiles which do not reflect entities.
-struct NonReflective : public RenderPass {
-public:
-	NonReflective()
-		: RenderPass("nonReflective") {
-	}
-protected:
-	void doRun(::Camera& cam, const TileList& tl, const EntityList& el) override;
-};
 
 
 
