@@ -47,6 +47,7 @@
 #include "game/Graphics/RenderPasses/EntityReflectionsRenderPass.hpp"
 #include "game/Graphics/RenderPasses/NonReflectiveTilesRenderPass.hpp"
 #include "game/Graphics/RenderPasses/ReflectiveTilesFirstRenderPass.hpp"
+#include "game/Graphics/RenderPasses/ReflectiveTilesSecondRenderPass.hpp"
 #include "game/mesh.h"
 #include "game/Graphics/CameraSystem.hpp"
 #include "game/Module/Module.hpp"
@@ -152,7 +153,7 @@ GFX::GFX() :
     nonOpaqueEntities(std::make_unique<Ego::Graphics::NonOpaqueEntitiesRenderPass>()),
     opaqueEntities(std::make_unique<Ego::Graphics::OpaqueEntitiesRenderPass>()),
     reflective0(std::make_unique<Ego::Graphics::ReflectiveTilesFirstRenderPass>()),
-    reflective1(std::make_unique<Ego::Graphics::Reflective1>()),
+    reflective1(std::make_unique<Ego::Graphics::ReflectiveTilesSecondRenderPass>()),
     nonReflective(std::make_unique<Ego::Graphics::NonReflectiveTilesRenderPass>()),
     entityShadows(std::make_unique<Ego::Graphics::EntityShadowsRenderPass>()),
     water(std::make_unique<Ego::Graphics::WaterTilesRenderPass>()),
