@@ -402,6 +402,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\game\Graphics\RenderPasses\NonReflectiveTilesRenderPass.cpp" />
+    <ClCompile Include="src\game\Graphics\RenderPasses\ReflectiveTilesFirstRenderPass.cpp" />
     <ClCompile Include="src\game\Graphics\RenderPasses\EntityReflectionsRenderPass.cpp" />
     <ClCompile Include="src\game\Graphics\RenderPasses\EntityShadowsRenderPass.cpp" />
     <ClCompile Include="src\game\Graphics\RenderPasses\NonOpaqueEntitiesRenderPass.cpp" />
@@ -502,6 +503,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game\Graphics\RenderPasses\NonReflectiveTilesRenderPass.hpp" />
+    <ClInclude Include="src\game\Graphics\RenderPasses\ReflectiveTilesFirstRenderPass.hpp" />
     <ClInclude Include="src\game\Graphics\RenderPasses\EntityReflectionsRenderPass.hpp" />
     <ClInclude Include="src\game\Graphics\RenderPasses\EntityShadowsRenderPass.hpp" />
     <ClInclude Include="src\game\Graphics\RenderPasses\NonOpaqueEntitiesRenderPass.hpp" />

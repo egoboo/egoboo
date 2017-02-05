@@ -76,24 +76,6 @@ private:
 
 }
 
-/// The first pass for reflective tiles
-/// i.e. tiles which do reflect entities.
-/// Ran before the pass rendering the reflections of entities.
-struct Reflective0 : public RenderPass {
-public:
-	Reflective0()
-		: RenderPass("reflective.0") {
-	}
-protected:
-	void doRun(::Camera& cam, const TileList& tl, const EntityList& el) override;
-private:
-	// Used if reflections are enabled.
-	void doReflectionsEnabled(::Camera& cam, const TileList& tl, const EntityList& el);
-	// Used if reflections are disabled.
-	void doReflectionsDisabled(::Camera& cam, const TileList& tl, const EntityList& el);
-	/// Common renderer configuration regardless of if reflections are enabled or disabled.
-	void doCommon(::Camera& cam, const TileList& til, const EntityList& el);
-};
 
 /// The 2nd pass for reflective tiles
 /// i.e. tiles which do reflect entities.

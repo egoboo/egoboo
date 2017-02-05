@@ -288,46 +288,11 @@ gfx_rv TileListV2::render_heightmap_fan(ego_mesh_t& mesh, const Index1D& tileInd
 
 }
 
-void Reflective0::doRun(::Camera& camera, const TileList& tl, const EntityList& el) {
-	if (gfx.refon) {
-		doReflectionsEnabled(camera, tl, el);
-	}
-	else {
-		doReflectionsDisabled(camera, tl, el);
-	}
-}
 
-void Reflective0::doReflectionsEnabled(::Camera& camera, const TileList& tl, const EntityList& el) {
-	/// @details draw the reflective tiles, but turn off the depth buffer
-	///          this blanks out any background that might've been drawn
 
-    OpenGL::PushAttrib pa(GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-	{
-		auto& renderer = Renderer::get();
-		// DO NOT store the surface depth
-		renderer.setDepthWriteEnabled(false);
 
-		// do not draw hidden surfaces
-		renderer.setDepthTestEnabled(true);
-		renderer.setDepthFunction(CompareFunction::LessOrEqual);
 
-		// black out any backgound, but allow the background to show through any holes in the floor
-		renderer.setBlendingEnabled(true);
-		// use the alpha channel to modulate the transparency
-		renderer.setBlendFunction(BlendFunction::Zero, BlendFunction::OneMinusSourceAlpha);
-		// do not display the completely transparent portion
-		// use alpha test to allow the thatched roof tiles to look like thatch
-		renderer.setAlphaTestEnabled(true);
-		// speed-up drawing of surfaces with alpha == 0.0f sections
-		renderer.setAlphaFunction(CompareFunction::Greater, 0.0f);
-		// reduce texture hashing by loading up each texture only once
-		Internal::TileListV2::render(*tl.getMesh(), tl._reflective);
-	}
-}
 
-void Reflective0::doReflectionsDisabled(::Camera& camera, const TileList& tl, const EntityList& el) {
-	/* Intentionally empty. */
-}
 
 void Reflective1::doRun(::Camera& camera, const TileList& tl, const EntityList& el) {
     auto& renderer = Renderer::get();
