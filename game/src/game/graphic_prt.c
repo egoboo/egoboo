@@ -35,26 +35,26 @@
 
 
 
-float CALCULATE_PRT_U0(const Ego::Texture& texture, int IDX, int CNT)  {
+float ParticleGraphicsRenderer::CALCULATE_PRT_U0(const Ego::Texture& texture, int IDX, int CNT) {
     float w = texture.getSourceWidth();
     float wscale = w / static_cast<float>(texture.getWidth());
     return (((.05f + ((CNT)& 15)) / 16.0f)*wscale);
 }
 
-float CALCULATE_PRT_U1(const Ego::Texture& texture, int IDX, int CNT)  {
+float ParticleGraphicsRenderer::CALCULATE_PRT_U1(const Ego::Texture& texture, int IDX, int CNT)  {
     float w = texture.getSourceWidth();
     float wscale = w / static_cast<float>(texture.getWidth());
     return (((.95f + ((CNT)& 15)) / 16.0f)*wscale);
 }
 
-float CALCULATE_PRT_V0(const Ego::Texture& texture, int IDX, int CNT)  {
+float ParticleGraphicsRenderer::CALCULATE_PRT_V0(const Ego::Texture& texture, int IDX, int CNT)  {
     float w = texture.getSourceWidth();
     float h = texture.getSourceHeight();
     float hscale = h / static_cast<float>(texture.getHeight());
     return (((.05f + ((CNT) >> 4)) / 16.0f) * (w / h)*hscale);
 }
 
-float CALCULATE_PRT_V1(const Ego::Texture& texture, int IDX, int CNT) {
+float ParticleGraphicsRenderer::CALCULATE_PRT_V1(const Ego::Texture& texture, int IDX, int CNT) {
     float w = texture.getSourceWidth();
     float h = texture.getSourceHeight();
     float hscale = h / static_cast<float>(texture.getHeight());
