@@ -288,26 +288,5 @@ gfx_rv TileListV2::render_heightmap_fan(ego_mesh_t& mesh, const Index1D& tileInd
 
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
 }

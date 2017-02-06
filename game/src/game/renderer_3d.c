@@ -26,10 +26,6 @@
 #include "game/Graphics/CameraSystem.hpp"
 #include "game/egoboo.h"
 
-
-//--------------------------------------------------------------------------------------------
-
-
 void LineSegmentList::init()
 {
     for (size_t i = 0; i < capacity; ++i)
@@ -127,8 +123,6 @@ void LineSegmentList::draw_all(Camera& camera)
     Renderer3D::end3D();
 }
 
-//--------------------------------------------------------------------------------------------
-
 void PointList::init()
 {
     for (size_t i = 0; i < capacity; ++i)
@@ -220,9 +214,6 @@ void PointList::draw_all(Camera& camera)
     }
     Renderer3D::end3D();
 }
-
-//--------------------------------------------------------------------------------------------
-
 
 PointList Renderer3D::pointList;
 LineSegmentList Renderer3D::lineSegmentList;

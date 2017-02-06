@@ -322,5 +322,3 @@ public:
     /// Bind the texture of the tile to the texture unit.
     static void bind(const ego_tile_info_t& tile);
 };
-
-

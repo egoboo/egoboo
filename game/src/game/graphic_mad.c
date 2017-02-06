@@ -226,7 +226,6 @@ else
 
 */
 
-//--------------------------------------------------------------------------------------------
 gfx_rv ObjectGraphicsRenderer::render_tex(Camera& camera, const std::shared_ptr<Object>& pchr, GLXvector4f tint, const BIT_FIELD bits)
 {
     if (!pchr->inst.getModelDescriptor())
@@ -421,7 +420,6 @@ gfx_rv ObjectGraphicsRenderer::render(Camera& cam, const std::shared_ptr<Object>
     return retval;
 }
 
-//--------------------------------------------------------------------------------------------
 gfx_rv ObjectGraphicsRenderer::render_ref( Camera& cam, const std::shared_ptr<Object>& pchr)
 {
     //Does this object have a reflection?
@@ -612,7 +610,6 @@ gfx_rv ObjectGraphicsRenderer::render_solid( Camera& cam, const std::shared_ptr<
     return retval;
 }
 
-//--------------------------------------------------------------------------------------------
 #if _DEBUG
 void ObjectGraphicsRenderer::draw_chr_bbox(const std::shared_ptr<Object>& pchr)
 {

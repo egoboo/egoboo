@@ -30,10 +30,6 @@
 #include "game/Entities/_Include.hpp"
 #include "game/CharacterMatrix.h"
 
-//--------------------------------------------------------------------------------------------
-
-
-
 float ParticleGraphicsRenderer::CALCULATE_PRT_U0(const Ego::Texture& texture, int IDX, int CNT) {
     float w = texture.getSourceWidth();
     float wscale = w / static_cast<float>(texture.getWidth());
@@ -59,11 +55,6 @@ float ParticleGraphicsRenderer::CALCULATE_PRT_V1(const Ego::Texture& texture, in
     float hscale = h / static_cast<float>(texture.getHeight());
     return (((.95f + ((CNT) >> 4)) / 16.0f) * (w / h)*hscale);
 }
-
-
-//--------------------------------------------------------------------------------------------
-
-//--------------------------------------------------------------------------------------------
 
 gfx_rv ParticleGraphicsRenderer::render_one_prt_solid(const ParticleRef iprt)
 {

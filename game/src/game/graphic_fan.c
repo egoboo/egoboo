@@ -30,8 +30,6 @@
 #include "game/Module/Module.hpp"
 #include "egolib/FileFormats/Globals.hpp"
 
-//--------------------------------------------------------------------------------------------
-
 void animate_all_tiles( ego_mesh_t& mesh )
 {
     bool small_tile_update = (g_animatedTilesState.elements[0].frame_add_old != g_animatedTilesState.elements[0].frame_add);
@@ -49,13 +47,10 @@ void animate_all_tiles( ego_mesh_t& mesh )
     }
 }
 
-//--------------------------------------------------------------------------------------------
 bool animate_tile( ego_mesh_t& mesh, const Index1D& index )
 {
     /// @author BB
     /// @details animate a given tile
-
-
 
 	// do nothing if the tile is not animated
     if ( 0 == mesh.test_fx( index, MAPFX_ANIM ) )
