@@ -24,8 +24,6 @@
 #include "game/graphic.h"
 
 #include "game/Core/GameEngine.hpp"
-#include "game/graphic_prt.h"
-#include "game/graphic_mad.h"
 #include "game/graphic_fan.h"
 #include "game/graphic_billboard.h"
 #include "game/renderer_3d.h"
@@ -33,7 +31,6 @@
 #include "game/script_compile.h"
 #include "egolib/FileFormats/Globals.hpp"
 #include "game/game.h"
-#include "game/lighting.h"
 #include "game/GUI/UIManager.hpp"
 #include "game/Logic/Player.hpp"
 #include "game/Module/Module.hpp"
@@ -50,7 +47,6 @@
 #include "game/Graphics/RenderPasses/ReflectiveTilesSecondRenderPass.hpp"
 #include "game/mesh.h"
 #include "game/Graphics/CameraSystem.hpp"
-#include "game/Module/Module.hpp"
 #include "game/Entities/_Include.hpp"
 #include "game/Graphics/TextureAtlasManager.hpp"
 #include "game/Module/Passage.hpp"
@@ -807,7 +803,7 @@ gfx_rv render_scene(Camera& cam, Ego::Graphics::TileList& tl, Ego::Graphics::Ent
     gfx_rv retval = gfx_success;
     {
 		ClockScope<ClockPolicy::NonRecursive> clockScope(render_scene_init_timer);
-        if (gfx_error == render_scene_init(tl, el, GFX::get()._dynalist, cam))
+        if (gfx_error == render_scene_init(tl, el, GFX::get().getDynalist(), cam))
         {
             retval = gfx_error;
         }
@@ -2227,4 +2223,42 @@ gfx_rv GFX::update_particle_instances(Camera& camera)
     }
 
     return retval;
+}
+
+GameAppImpl::GameAppImpl() :
+    dynalist()
+{
+    // Initialize the billboard system.
+    try
+    {
+        BillboardSystem::initialize();
+    }
+    catch (...)
+    {
+        std::rethrow_exception(std::current_exception());
+    }
+    // Initialize the texture atlas manager.
+    try
+    {
+        Ego::Graphics::TextureAtlasManager::initialize();
+    }
+    catch (...)
+    {
+        BillboardSystem::uninitialize();
+        std::rethrow_exception(std::current_exception());
+    }
+}
+
+GameAppImpl::~GameAppImpl()
+{
+    // Uninitialize the billboard system.
+    BillboardSystem::uninitialize();
+
+    // Uninitialize the texture atlas manager.
+    Ego::Graphics::TextureAtlasManager::uninitialize();
+}
+
+dynalist_t& GameAppImpl::getDynalist()
+{
+    return dynalist;
 }

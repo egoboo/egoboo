@@ -33,6 +33,7 @@
 #include "game/game.h"
 #include "game/graphic.h"
 #include "game/Logic/Player.hpp"
+#include "game/Graphics/CameraSystem.hpp"
 
 //For cheats
 #include "game/Entities/_Include.hpp"

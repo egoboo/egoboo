@@ -21,11 +21,11 @@
 /// @brief World mesh drawing.
 /// @details
 
-#include "game/graphic.h"
 #include "game/graphic_fan.h"
+
+#include "game/graphic.h"
 #include "game/game.h"
 #include "game/renderer_3d.h"
-#include "game/egoboo.h"
 #include "game/mesh.h"
 #include "game/Module/Module.hpp"
 #include "egolib/FileFormats/Globals.hpp"

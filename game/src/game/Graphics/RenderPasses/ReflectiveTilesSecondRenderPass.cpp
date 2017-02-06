@@ -1,6 +1,6 @@
 #include "game/Graphics/RenderPasses/ReflectiveTilesSecondRenderPass.hpp"
 #include "game/graphic.h"
-#include "game/Graphics/RenderPass.hpp"
+#include "game/Graphics/RenderPasses.hpp"
 
 namespace Ego {
 namespace Graphics {

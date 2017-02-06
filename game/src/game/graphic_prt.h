@@ -31,7 +31,7 @@ namespace Ego {
 class Particle;
 namespace Graphics { 
 struct ParticleGraphics;
-struct ObjectGraphics;
+class ObjectGraphics;
 } }
 
 //--------------------------------------------------------------------------------------------

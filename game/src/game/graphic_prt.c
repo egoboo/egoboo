@@ -21,12 +21,11 @@
 /// @brief Particle system drawing and management code.
 /// @details
 
-#include "egolib/bbox.h"
 #include "game/graphic_prt.h"
+
 #include "game/renderer_3d.h"
 #include "game/game.h"
 #include "game/lighting.h"
-#include "game/egoboo.h"
 #include "game/Graphics/CameraSystem.hpp"
 #include "game/Entities/_Include.hpp"
 #include "game/CharacterMatrix.h"

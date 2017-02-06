@@ -21,11 +21,20 @@
 
 #pragma once
 
-#include "game/Graphics/CameraSystem.hpp"
 #include "egolib/Graphics/MD2Model.hpp"
-#include "game/Graphics/RenderPasses.hpp"
-#include "game/graphic_billboard.h"
-#include "game/Graphics/TextureAtlasManager.hpp"
+#include "game/lighting.h"
+#include "egolib/Extensions/ogl_include.h"
+
+// Forward declaration.
+class Camera;
+class ego_mesh_t;
+class ego_tile_info_t;
+namespace Ego {
+namespace Graphics {
+struct RenderPass;
+struct TileList;
+struct EntityList;
+} }
 
 void  draw_hud();
 
@@ -129,42 +138,31 @@ struct dynalist_t
 //--------------------------------------------------------------------------------------------
 // Function prototypes
 
+struct GameAppImpl
+{
+private:
+    dynalist_t dynalist;
+public:
+    GameAppImpl();
+    ~GameAppImpl();
+    dynalist_t& getDynalist();
+};
+
 template <typename T>
 struct GameApp : public Ego::App<T>
 {
-public:
-    dynalist_t _dynalist;
+private:
+    std::unique_ptr<GameAppImpl> impl;
 protected:
     GameApp(const std::string& title, const std::string& version) : Ego::App<T>(title, version),
-        _dynalist()
-    {
-        // Initialize the billboard system.
-        try
-        {
-            BillboardSystem::initialize();
-        }
-        catch (...)
-        {
-            std::rethrow_exception(std::current_exception());
-        }
-        // Initialize the texture atlas manager.
-        try
-        {
-            Ego::Graphics::TextureAtlasManager::initialize();
-        }
-        catch (...)
-        {
-            BillboardSystem::uninitialize();
-            std::rethrow_exception(std::current_exception());
-        }
-    }
+        impl(std::make_unique<GameAppImpl>())
+    {}
     virtual ~GameApp()
+    {}
+public:
+    dynalist_t& getDynalist()
     {
-        // Uninitialize the billboard system.
-        BillboardSystem::uninitialize();
-
-        // Uninitialize the texture atlas manager.
-        Ego::Graphics::TextureAtlasManager::uninitialize();
+        return impl->getDynalist();
     }
 };
 

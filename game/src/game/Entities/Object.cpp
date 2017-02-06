@@ -33,6 +33,8 @@
 #include "egolib/Graphics/ModelDescriptor.hpp"
 #include "game/script_implementation.h" //for stealth
 #include "game/CharacterMatrix.h"
+#include "game/Graphics/CameraSystem.hpp"
+#include "game/Graphics/TileList.hpp"
 
 //For the minimap
 #include "game/Core/GameEngine.hpp"

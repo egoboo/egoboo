@@ -21,10 +21,9 @@
 /// @brief Character model drawing code.
 /// @details
 
-#include "egolib/bbox.h"
 #include "game/graphic_mad.h"
+
 #include "game/renderer_3d.h"
-#include "game/game.h"
 #include "game/lighting.h"
 #include "game/graphic.h"
 #include "game/Graphics/CameraSystem.hpp"

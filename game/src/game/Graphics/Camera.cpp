@@ -21,6 +21,8 @@
 #include "game/graphic.h"
 #include "game/Logic/Player.hpp"
 #include "egolib/InputControl/InputDevice.hpp"
+#include "game/Graphics/TileList.hpp"
+#include "game/Graphics/EntityList.hpp"
 
 #include "game/game.h" // TODO: remove only needed for mesh
 

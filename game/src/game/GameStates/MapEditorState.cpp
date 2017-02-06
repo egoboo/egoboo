@@ -27,8 +27,9 @@
 #include "game/GUI/MiniMap.hpp"
 #include "game/GUI/Button.hpp"
 #include "game/game.h"
-#include "game/graphic.h"
 #include "game/Graphics/TextureAtlasManager.hpp"
+#include "game/Graphics/TileList.hpp"
+#include "game/Graphics/CameraSystem.hpp"
 
 #include "game/Module/Module.hpp"
 #include "game/Entities/_Include.hpp"
