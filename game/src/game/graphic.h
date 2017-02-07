@@ -186,6 +186,7 @@ private:
     std::unique_ptr<Ego::Graphics::RenderPass> foreground;
     std::unique_ptr<Ego::Graphics::RenderPass> background;
     std::unique_ptr<Ego::Graphics::RenderPass> motionBlur;
+    std::unique_ptr<Ego::Graphics::RenderPass> heightmap;
 
 public:
     Ego::Time::Clock<Ego::Time::ClockPolicy::NonRecursive> update_object_instances_timer;
@@ -247,6 +248,11 @@ public:
     Ego::Graphics::RenderPass& getMotionBlur() const
     {
         return *motionBlur;
+    }
+
+    Ego::Graphics::RenderPass& getHeightmap() const
+    {
+        return *heightmap;
     }
 };
 

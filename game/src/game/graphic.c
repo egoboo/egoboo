@@ -45,6 +45,7 @@
 #include "game/Graphics/RenderPasses/NonReflectiveTilesRenderPass.hpp"
 #include "game/Graphics/RenderPasses/ReflectiveTilesFirstRenderPass.hpp"
 #include "game/Graphics/RenderPasses/ReflectiveTilesSecondRenderPass.hpp"
+#include "game/Graphics/RenderPasses/HeightmapRenderPass.hpp"
 #include "game/mesh.h"
 #include "game/Graphics/CameraSystem.hpp"
 #include "game/Entities/_Include.hpp"
@@ -155,7 +156,8 @@ GFX::GFX() :
     water(std::make_unique<Ego::Graphics::WaterTilesRenderPass>()),
     entityReflections(std::make_unique<Ego::Graphics::EntityReflectionsRenderPass>()),
     foreground(std::make_unique<Ego::Graphics::ForegroundRenderPass>()),
-    background(std::make_unique<Ego::Graphics::BackgroundRenderPass>())
+    background(std::make_unique<Ego::Graphics::BackgroundRenderPass>()),
+    heightmap(std::make_unique<Ego::Graphics::HeightmapRenderPass>())
 {}
 
 GFX::~GFX()
@@ -776,19 +778,8 @@ gfx_rv render_scene_mesh(Camera& cam, const Ego::Graphics::TileList& tl, const E
     }
     // Render water.
 	GFX::get().getReflective1().run(cam, tl, el);
-
-	if (egoboo_config_t::get().debug_mesh_renderHeightMap.getValue())
-	{
-		// restart the mesh texture code
-		TileRenderer::invalidate();
-
-		// render the heighmap
-        Ego::Graphics::Internal::TileListV2::render_heightmap(*tl.getMesh().get(), tl._all);
-
-		// let the mesh texture code know that someone else is in control now
-		TileRenderer::invalidate();
-	}
-
+    // Render heightmap.
+    GFX::get().getHeightmap().run(cam, tl, el);
     // Render the shadows of entities.
 	GFX::get().getEntityShadows().run(cam, tl, el);
 

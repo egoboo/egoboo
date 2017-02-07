@@ -401,6 +401,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\game\Graphics\RenderPasses\HeightmapRenderPass.cpp" />
     <ClCompile Include="src\game\Graphics\RenderPasses\ReflectiveTilesSecondRenderPass.cpp" />
     <ClCompile Include="src\game\Graphics\RenderPasses\NonReflectiveTilesRenderPass.cpp" />
     <ClCompile Include="src\game\Graphics\RenderPasses\ReflectiveTilesFirstRenderPass.cpp" />
@@ -503,6 +504,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClCompile Include="src\game\script_implementation.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\game\Graphics\RenderPasses\HeightmapRenderPass.hpp" />
     <ClInclude Include="src\game\Graphics\RenderPasses\ReflectiveTilesSecondRenderPass.hpp" />
     <ClInclude Include="src\game\Graphics\RenderPasses\NonReflectiveTilesRenderPass.hpp" />
     <ClInclude Include="src\game\Graphics\RenderPasses\ReflectiveTilesFirstRenderPass.hpp" />

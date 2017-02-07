@@ -371,6 +371,9 @@
     <ClCompile Include="src\game\Graphics\RenderPasses\ReflectiveTilesSecondRenderPass.cpp">
       <Filter>Game Sources\Graphics\RenderPasses</Filter>
     </ClCompile>
+    <ClCompile Include="src\game\Graphics\RenderPasses\HeightmapRenderPass.cpp">
+      <Filter>Game Sources\Graphics\RenderPasses</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game\egoboo.h">
@@ -695,6 +698,9 @@
       <Filter>Game Header Files\Graphics\RenderPasses</Filter>
     </ClInclude>
     <ClInclude Include="src\game\Graphics\RenderPasses\ReflectiveTilesSecondRenderPass.hpp">
+      <Filter>Game Header Files\Graphics\RenderPasses</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\Graphics\RenderPasses\HeightmapRenderPass.hpp">
       <Filter>Game Header Files\Graphics\RenderPasses</Filter>
     </ClInclude>
   </ItemGroup>
