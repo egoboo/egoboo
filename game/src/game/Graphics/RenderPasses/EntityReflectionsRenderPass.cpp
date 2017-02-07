@@ -13,6 +13,11 @@ EntityReflectionsRenderPass::EntityReflectionsRenderPass() :
 
 void EntityReflectionsRenderPass::doRun(::Camera& camera, const TileList& tl, const EntityList& el)
 {
+    if (!gfx.refon)
+    {
+        return;
+    }
+
     auto mesh = tl.getMesh();
     if (!mesh)
     {

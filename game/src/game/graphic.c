@@ -113,7 +113,6 @@ void reinitClocks() {
 }
 
 static gfx_rv render_scene_init(Ego::Graphics::TileList& tl, Ego::Graphics::EntityList& el, dynalist_t& dyl, Camera& cam);
-static gfx_rv render_scene_mesh(Camera& cam, const Ego::Graphics::TileList& tl, const Ego::Graphics::EntityList& el);
 static gfx_rv render_scene(Camera& cam, Ego::Graphics::TileList& tl, Ego::Graphics::EntityList& el);
 
 /**
@@ -747,46 +746,6 @@ gfx_rv render_scene_init(Ego::Graphics::TileList& tl, Ego::Graphics::EntityList&
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_mesh(Camera& cam, const Ego::Graphics::TileList& tl, const Ego::Graphics::EntityList& el)
-{
-    /// @author BB
-    /// @details draw the mesh and reflections of entities
-
-    gfx_rv retval;
-
-    // assume the best
-    retval = gfx_success;
-    //--------------------------------
-    // advance the animation of all animated tiles
-    animate_all_tiles(*tl.getMesh());
-
-	// Render non-reflective tiles.
-	GFX::get().getNonReflective().run(cam, tl, el);
-
-    //--------------------------------
-    // draw the reflective tiles and reflections of entities
-    if (gfx.refon)
-    {
-		// Clear background behind reflective tiles.
-		GFX::get().getReflective0().run(cam, tl, el);
-
-		// Render reflections of entities.
-		GFX::get().getEntityReflections().run(cam, tl, el);
-    }
-    else
-    {
-    }
-    // Render water.
-	GFX::get().getReflective1().run(cam, tl, el);
-    // Render heightmap.
-    GFX::get().getHeightmap().run(cam, tl, el);
-    // Render the shadows of entities.
-	GFX::get().getEntityShadows().run(cam, tl, el);
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
 
 gfx_rv render_scene(Camera& cam, Ego::Graphics::TileList& tl, Ego::Graphics::EntityList& el)
 {
@@ -806,11 +765,20 @@ gfx_rv render_scene(Camera& cam, Ego::Graphics::TileList& tl, Ego::Graphics::Ent
 			ClockScope<ClockPolicy::NonRecursive> clockScope2(sortDoListReflected_timer);
 			el.sort(cam, true);
         }
-        // Render the mesh tiles and reflections of entities.
-        if (gfx_error == render_scene_mesh(cam, tl, el))
-        {
-            retval = gfx_error;
-        }
+        // Advance the animation of animated tiles.
+        animate_all_tiles(*tl.getMesh());
+        // Render non-reflective tiles.
+        GFX::get().getNonReflective().run(cam, tl, el);
+        // Reflective tiles first pass.
+        GFX::get().getReflective0().run(cam, tl, el);
+        // Entity reflections.
+        GFX::get().getEntityReflections().run(cam, tl, el);
+        // Reflective tiles second pass.
+        GFX::get().getReflective1().run(cam, tl, el);
+        // Heightmap.
+        GFX::get().getHeightmap().run(cam, tl, el);
+        // Entity shadows.
+        GFX::get().getEntityShadows().run(cam, tl, el);
     }
 	{
 		// Sort dolist for unreflected rendering.

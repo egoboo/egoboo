@@ -11,18 +11,10 @@ ReflectiveTilesFirstRenderPass::ReflectiveTilesFirstRenderPass() :
 
 void ReflectiveTilesFirstRenderPass::doRun(::Camera& camera, const TileList& tl, const EntityList& el)
 {
-    if (gfx.refon)
+    if (!gfx.refon)
     {
-        doReflectionsEnabled(camera, tl, el);
+        return;
     }
-    else
-    {
-        doReflectionsDisabled(camera, tl, el);
-    }
-}
-
-void ReflectiveTilesFirstRenderPass::doReflectionsEnabled(::Camera& camera, const TileList& tl, const EntityList& el)
-{
     /// @details draw the reflective tiles, but turn off the depth buffer
     ///          this blanks out any background that might've been drawn
 
@@ -48,11 +40,6 @@ void ReflectiveTilesFirstRenderPass::doReflectionsEnabled(::Camera& camera, cons
         // reduce texture hashing by loading up each texture only once
         Internal::TileListV2::render(*tl.getMesh(), tl._reflective);
     }
-}
-
-void ReflectiveTilesFirstRenderPass::doReflectionsDisabled(::Camera& camera, const TileList& tl, const EntityList& el)
-{
-    /* Intentionally empty. */
 }
 
 } // namespace Graphics

@@ -30,26 +30,26 @@
 #include "game/Entities/_Include.hpp"
 #include "game/CharacterMatrix.h"
 
-float ParticleGraphicsRenderer::CALCULATE_PRT_U0(const Ego::Texture& texture, int IDX, int CNT) {
+float ParticleGraphicsRenderer::CALCULATE_PRT_U0(const Ego::Texture& texture, int CNT) {
     float w = texture.getSourceWidth();
     float wscale = w / static_cast<float>(texture.getWidth());
     return (((.05f + ((CNT)& 15)) / 16.0f)*wscale);
 }
 
-float ParticleGraphicsRenderer::CALCULATE_PRT_U1(const Ego::Texture& texture, int IDX, int CNT)  {
+float ParticleGraphicsRenderer::CALCULATE_PRT_U1(const Ego::Texture& texture, int CNT)  {
     float w = texture.getSourceWidth();
     float wscale = w / static_cast<float>(texture.getWidth());
     return (((.95f + ((CNT)& 15)) / 16.0f)*wscale);
 }
 
-float ParticleGraphicsRenderer::CALCULATE_PRT_V0(const Ego::Texture& texture, int IDX, int CNT)  {
+float ParticleGraphicsRenderer::CALCULATE_PRT_V0(const Ego::Texture& texture, int CNT)  {
     float w = texture.getSourceWidth();
     float h = texture.getSourceHeight();
     float hscale = h / static_cast<float>(texture.getHeight());
     return (((.05f + ((CNT) >> 4)) / 16.0f) * (w / h)*hscale);
 }
 
-float ParticleGraphicsRenderer::CALCULATE_PRT_V1(const Ego::Texture& texture, int IDX, int CNT) {
+float ParticleGraphicsRenderer::CALCULATE_PRT_V1(const Ego::Texture& texture, int CNT) {
     float w = texture.getSourceWidth();
     float h = texture.getSourceHeight();
     float hscale = h / static_cast<float>(texture.getHeight());
@@ -366,20 +366,8 @@ void ParticleGraphicsRenderer::calc_billboard_verts(const Ego::Texture& texture,
         float s, t;
     };
 
-    int i, index;
+    int i;
 	Vector3f prt_pos, prt_up, prt_right;
-
-    switch (inst.type)
-    {
-        default:
-        case SPRITE_ALPHA:
-            index = 0;
-            break;
-
-        case SPRITE_LIGHT:
-            index = 1;
-            break;
-    }
 
     // use the pre-computed reflection parameters
     if (do_reflect)
@@ -428,17 +416,17 @@ void ParticleGraphicsRenderer::calc_billboard_verts(const Ego::Texture& texture,
     v[3].y += (-prt_right[kY] + prt_up[kY]) * size;
     v[3].z += (-prt_right[kZ] + prt_up[kZ]) * size;
 
-    v[0].s = CALCULATE_PRT_U1(texture, index, inst.image_ref);
-    v[0].t = CALCULATE_PRT_V1(texture, index, inst.image_ref);
+    v[0].s = CALCULATE_PRT_U1(texture, inst.image_ref);
+    v[0].t = CALCULATE_PRT_V1(texture, inst.image_ref);
 
-    v[1].s = CALCULATE_PRT_U0(texture, index, inst.image_ref);
-    v[1].t = CALCULATE_PRT_V1(texture, index, inst.image_ref);
+    v[1].s = CALCULATE_PRT_U0(texture, inst.image_ref);
+    v[1].t = CALCULATE_PRT_V1(texture, inst.image_ref);
 
-    v[2].s = CALCULATE_PRT_U0(texture, index, inst.image_ref);
-    v[2].t = CALCULATE_PRT_V0(texture, index, inst.image_ref);
+    v[2].s = CALCULATE_PRT_U0(texture, inst.image_ref);
+    v[2].t = CALCULATE_PRT_V0(texture, inst.image_ref);
 
-    v[3].s = CALCULATE_PRT_U1(texture, index, inst.image_ref);
-    v[3].t = CALCULATE_PRT_V0(texture, index, inst.image_ref);
+    v[3].s = CALCULATE_PRT_U1(texture, inst.image_ref);
+    v[3].t = CALCULATE_PRT_V0(texture, inst.image_ref);
 
     vb.unlock();
 }

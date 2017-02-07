@@ -42,10 +42,10 @@ struct ParticleGraphicsRenderer
     // dynamically calculate the particle texture coordinates
     // support for computing the particle texture coordinates on the fly.
     // currently, there ate two texture types: TX_PARTICLE_TRANS and TX_PARTICLE_LIGHT
-    static float CALCULATE_PRT_U0(const Ego::Texture& texture, int IDX, int CNT);
-    static float CALCULATE_PRT_U1(const Ego::Texture& texture, int IDX, int CNT);
-    static float CALCULATE_PRT_V0(const Ego::Texture& texture, int IDX, int CNT);
-    static float CALCULATE_PRT_V1(const Ego::Texture& texture, int IDX, int CNT);
+    static float CALCULATE_PRT_U0(const Ego::Texture& texture, int CNT);
+    static float CALCULATE_PRT_U1(const Ego::Texture& texture, int CNT);
+    static float CALCULATE_PRT_V0(const Ego::Texture& texture, int CNT);
+    static float CALCULATE_PRT_V1(const Ego::Texture& texture, int CNT);
     static gfx_rv render_one_prt_solid(const ParticleRef iprt);
     static gfx_rv render_one_prt_trans(const ParticleRef iprt);
     static gfx_rv render_one_prt_ref(const ParticleRef iprt);

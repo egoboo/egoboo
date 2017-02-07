@@ -123,22 +123,20 @@ void EntityShadowsRenderPass::doLowQualityShadow(const ObjectRef character)
 
     // Choose texture and matrix
     Renderer::get().getTextureUnit().setActivated(texture.get());
-    int itex_style = SPRITE_LIGHT; //ZF> Note: index 1 is for SPRITE_LIGHT
-
     {
         BufferScopedLock lock(_vertexBuffer);
         Vertex *vertices = lock.get<Vertex>();
-        vertices[0].s = ParticleGraphicsRenderer::CALCULATE_PRT_U0(*texture, itex_style, 236);
-        vertices[0].t = ParticleGraphicsRenderer::CALCULATE_PRT_V0(*texture, itex_style, 236);
+        vertices[0].s = ParticleGraphicsRenderer::CALCULATE_PRT_U0(*texture, 236);
+        vertices[0].t = ParticleGraphicsRenderer::CALCULATE_PRT_V0(*texture, 236);
 
-        vertices[1].s = ParticleGraphicsRenderer::CALCULATE_PRT_U1(*texture, itex_style, 253);
-        vertices[1].t = ParticleGraphicsRenderer::CALCULATE_PRT_V0(*texture, itex_style, 236);
+        vertices[1].s = ParticleGraphicsRenderer::CALCULATE_PRT_U1(*texture, 253);
+        vertices[1].t = ParticleGraphicsRenderer::CALCULATE_PRT_V0(*texture, 236);
 
-        vertices[2].s = ParticleGraphicsRenderer::CALCULATE_PRT_U1(*texture, itex_style, 253);
-        vertices[2].t = ParticleGraphicsRenderer::CALCULATE_PRT_V1(*texture, itex_style, 253);
+        vertices[2].s = ParticleGraphicsRenderer::CALCULATE_PRT_U1(*texture, 253);
+        vertices[2].t = ParticleGraphicsRenderer::CALCULATE_PRT_V1(*texture, 253);
 
-        vertices[3].s = ParticleGraphicsRenderer::CALCULATE_PRT_U0(*texture, itex_style, 236);
-        vertices[3].t = ParticleGraphicsRenderer::CALCULATE_PRT_V1(*texture, itex_style, 253);
+        vertices[3].s = ParticleGraphicsRenderer::CALCULATE_PRT_U0(*texture, 236);
+        vertices[3].t = ParticleGraphicsRenderer::CALCULATE_PRT_V1(*texture, 253);
     }
 
     doShadowSprite(alpha, _vertexBuffer);
@@ -202,24 +200,23 @@ void EntityShadowsRenderPass::doHighQualityShadow(const ObjectRef character)
 
     // Choose texture and matrix
     Renderer::get().getTextureUnit().setActivated(texture.get());
-    int itex_style = SPRITE_LIGHT; //ZF> Note: index 1 is for SPRITE_LIGHT
 
     // GOOD SHADOW
     {
         BufferScopedLock lock(_vertexBuffer);
         Vertex *vertices = lock.get<Vertex>();
 
-        vertices[0].s = ParticleGraphicsRenderer::CALCULATE_PRT_U0(*texture, itex_style, 238);
-        vertices[0].t = ParticleGraphicsRenderer::CALCULATE_PRT_V0(*texture, itex_style, 238);
+        vertices[0].s = ParticleGraphicsRenderer::CALCULATE_PRT_U0(*texture, 238);
+        vertices[0].t = ParticleGraphicsRenderer::CALCULATE_PRT_V0(*texture, 238);
 
-        vertices[1].s = ParticleGraphicsRenderer::CALCULATE_PRT_U1(*texture, itex_style, 255);
-        vertices[1].t = ParticleGraphicsRenderer::CALCULATE_PRT_V0(*texture, itex_style, 238);
+        vertices[1].s = ParticleGraphicsRenderer::CALCULATE_PRT_U1(*texture, 255);
+        vertices[1].t = ParticleGraphicsRenderer::CALCULATE_PRT_V0(*texture, 238);
 
-        vertices[2].s = ParticleGraphicsRenderer::CALCULATE_PRT_U1(*texture, itex_style, 255);
-        vertices[2].t = ParticleGraphicsRenderer::CALCULATE_PRT_V1(*texture, itex_style, 255);
+        vertices[2].s = ParticleGraphicsRenderer::CALCULATE_PRT_U1(*texture, 255);
+        vertices[2].t = ParticleGraphicsRenderer::CALCULATE_PRT_V1(*texture, 255);
 
-        vertices[3].s = ParticleGraphicsRenderer::CALCULATE_PRT_U0(*texture, itex_style, 238);
-        vertices[3].t = ParticleGraphicsRenderer::CALCULATE_PRT_V1(*texture, itex_style, 255);
+        vertices[3].s = ParticleGraphicsRenderer::CALCULATE_PRT_U0(*texture, 238);
+        vertices[3].t = ParticleGraphicsRenderer::CALCULATE_PRT_V1(*texture, 255);
     }
     if (size_penumbra > 0)
     {
