@@ -271,17 +271,26 @@ gfx_rv TileListV2::render_heightmap_fan(ego_mesh_t& mesh, const Index1D& tileInd
         badvertex++;
     }
 
-    Renderer::get().getTextureUnit().setActivated(nullptr);
+    auto& renderer = Renderer::get();
+
+    renderer.setDepthTestEnabled(false);
+    renderer.setDepthFunction(Ego::CompareFunction::AlwaysPass);
+    renderer.getTextureUnit().setActivated(nullptr);
+    renderer.setCullingMode(Ego::CullingMode::None);
+    renderer.setRasterizationMode(Ego::RasterizationMode::Line);
 
     // Render each command
     GL_DEBUG(glBegin)(GL_TRIANGLE_FAN);
     {
-        for (vertex = 0; vertex < 4; vertex++) {
+        for (vertex = 0; vertex < 4; vertex++)
+        {
             GL_DEBUG(glColor3fv)(v[vertex].col);
             GL_DEBUG(glVertex3fv)(v[vertex].pos);
         }
     }
     GL_DEBUG_END();
+
+    renderer.setRasterizationMode(Ego::RasterizationMode::Solid);
 
     return gfx_success;
 }
