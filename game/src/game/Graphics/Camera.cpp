@@ -23,6 +23,7 @@
 #include "egolib/InputControl/InputDevice.hpp"
 #include "game/Graphics/TileList.hpp"
 #include "game/Graphics/EntityList.hpp"
+#include "egolib/Graphics/Viewport.hpp"
 
 #include "game/game.h" // TODO: remove only needed for mesh
 
@@ -42,8 +43,7 @@ const float Camera::CAM_ZOOM_AVG = (0.5f * (CAM_ZOOM_MIN + CAM_ZOOM_MAX));
 
 Camera::Camera(const CameraOptions &options) :
     _options(options),
-    _viewMatrix(),
-    _projectionMatrix(),
+
     _frustumInvalid(true),
     _frustum(),
     _moveMode(CameraMovementMode::Player),
@@ -51,7 +51,6 @@ Camera::Camera(const CameraOptions &options) :
     _turnMode(_options.turnMode),
     _turnTime(DEFAULT_TURN_TIME),
 
-    _position(),
     _ori(),
 
     _trackPos(),
@@ -67,9 +66,13 @@ Camera::Camera(const CameraOptions &options) :
     _turnZ_turns(_turnZ_radians),
     _turnZAdd(0.0f),
 
-    _forward{0.0f, 0.0f, 0.0f},
-    _up{0.0f, 0.0f, 0.0f},
-    _right{0.0f, 0.0f, 0.0f},
+    m_viewMatrix(),
+    m_projectionMatrix(),
+    m_position(),
+    m_forward{0.0f, 0.0f, 0.0f},
+    m_up{0.0f, 0.0f, 0.0f},
+    m_right{0.0f, 0.0f, 0.0f},
+    m_viewport(std::make_unique<Ego::Graphics::Viewport>()),
 
     // Special effects.
     _motionBlur(0.0f),
@@ -81,14 +84,13 @@ Camera::Camera(const CameraOptions &options) :
 
     // Extended camera data.
     _trackList(),
-    _screen(),
     _lastFrame(-1),
     _tileList(std::make_shared<Ego::Graphics::TileList>()),
     _entityList(std::make_shared<Ego::Graphics::EntityList>())
 {
     // Derived values.
     _trackPos = _center;
-    _position = _center + Vector3f(_zoom * std::sin(_turnZ_radians), _zoom * std::cos(_turnZ_radians), CAM_ZADD_MAX);
+    m_position = _center + Vector3f(_zoom * std::sin(_turnZ_radians), _zoom * std::cos(_turnZ_radians), CAM_ZADD_MAX);
 
     _turnZ_turns = (Ego::Math::Turns)_turnZ_radians;
     _ori.facing_z = TurnToFacing(_turnZ_turns);
@@ -119,7 +121,7 @@ float Camera::multiplyFOV(const float old_fov_deg, const float factor)
 
 void Camera::updateProjection(const Ego::Math::Degrees& fov, const float aspect_ratio, const float frustum_near, const float frustum_far)
 {
-    _projectionMatrix = Ego::Math::Transform::perspective(fov, aspect_ratio, frustum_near, frustum_far);
+    m_projectionMatrix = Ego::Math::Transform::perspective(fov, aspect_ratio, frustum_near, frustum_far);
 
     // Invalidate the frustum.
     _frustumInvalid = true;
@@ -128,11 +130,11 @@ void Camera::updateProjection(const Ego::Math::Degrees& fov, const float aspect_
 void Camera::resetView()
 {
     // Check for stupidity.
-    if (_position != _center)
+    if (m_position != _center)
     {
         static const Vector3f Z = Vector3f(0.0f, 0.0f, 1.0f);
         Matrix4f4f tmp = Ego::Math::Transform::scaling(Vector3f(-1.0f, 1.0f, 1.0f)) *  Ego::Math::Transform::rotation(Z, Ego::Math::Degrees(Ego::Math::radToDeg(_roll)));
-        _viewMatrix = tmp * Ego::Math::Transform::lookAt(_position, _center, Z);
+        m_viewMatrix = tmp * Ego::Math::Transform::lookAt(m_position, _center, Z);
     }
     // Invalidate the frustum.
     _frustumInvalid = true;
@@ -156,13 +158,13 @@ void Camera::updatePosition()
     // Update the camera position.
     Vector3f pos_new = _center + Vector3f(_zoom * std::sin(_ori.facing_z), _zoom * std::cos(_ori.facing_z), _zGoto);
 
-    if((_position-pos_new).length() < Info<float>::Grid::Size()*8.0f) {
+    if((m_position-pos_new).length() < Info<float>::Grid::Size()*8.0f) {
         // Make the camera motion smooth using a low-pass filter
-        _position = _position * 0.9f + pos_new * 0.1f; /// @todo Use Ego::Math::lerp.
+        m_position = m_position * 0.9f + pos_new * 0.1f; /// @todo Use Ego::Math::lerp.
     }
     else {
         //Teleport camera if error becomes too large
-        _position = pos_new;
+        m_position = pos_new;
         _center = _trackPos;
     }
 }
@@ -172,14 +174,14 @@ void Camera::makeMatrix()
     resetView();
 
     // Pre-compute some camera vectors.
-    _forward = mat_getCamForward(_viewMatrix);
-    _forward.normalize();
+    m_forward = mat_getCamForward(m_viewMatrix);
+    m_forward.normalize();
 
-    _up = mat_getCamUp(_viewMatrix);
-    _up.normalize();
+    m_up = mat_getCamUp(m_viewMatrix);
+    m_up.normalize();
 
-    _right = mat_getCamRight(_viewMatrix);
-    _right.normalize();
+    m_right = mat_getCamRight(m_viewMatrix);
+    m_right.normalize();
 }
 
 void Camera::updateZoom()
@@ -221,7 +223,7 @@ void Camera::updateCenter()
     else
     {
         // Determine tracking direction.
-        Vector3f trackError = _trackPos - _position;
+        Vector3f trackError = _trackPos - m_position;
 
         // Determine the size of the dead zone.
         Ego::Math::Degrees track_fov = DEFAULT_FOV * 0.25f;
@@ -235,10 +237,10 @@ void Camera::updateCenter()
         Vector2f diff = Vector2f(_trackPos.x(), _trackPos.y()) - Vector2f(_center.x(), _center.y());
 
         // Get 2d versions of the camera's right and up vectors.
-        Vector2f vrt(_right.x(), _right.y());
+        Vector2f vrt(m_right.x(), m_right.y());
         vrt.normalize();
 
-        Vector2f vup(_up.x(), _up.y());
+        Vector2f vup(m_up.x(), m_up.y());
         vup.normalize();
 
         // project the diff vector into this space
@@ -338,12 +340,12 @@ void Camera::updateFreeControl()
     _center.z() = std::max(_center.z(), _currentModule->getMeshPointer()->getElevation(Vector2f(_center.x(), _center.y())));
 
     //Calculate camera position from desired zoom and rotation
-    _position.x() = _center.x() + _zoom * std::sin(_turnZ_radians);
-    _position.y() = _center.y() + _zoom * std::cos(_turnZ_radians);
-    _position.z() = _center.z() + _zoom * _pitch;
+    m_position.x() = _center.x() + _zoom * std::sin(_turnZ_radians);
+    m_position.y() = _center.y() + _zoom * std::cos(_turnZ_radians);
+    m_position.z() = _center.z() + _zoom * _pitch;
 
     //Prevent the camera from being below the mesh
-    _position.z() = std::max(_position.z(), 180.0f + _currentModule->getMeshPointer()->getElevation(Vector2f(_position.x(), _position.y())));
+    m_position.z() = std::max(m_position.z(), 180.0f + _currentModule->getMeshPointer()->getElevation(Vector2f(m_position.x(), m_position.y())));
 
     updateZoom();
     makeMatrix();
@@ -633,11 +635,11 @@ void Camera::reset(const ego_mesh_t *mesh)
     _center.z()     = 0.0f;
 
     _trackPos = _center;
-    _position = _center;
+    m_position = _center;
 
-    _position.x() += _zoom * std::sin(_turnZ_radians);
-    _position.y() += _zoom * std::cos(_turnZ_radians);
-    _position.z() += CAM_ZADD_MAX;
+    m_position.x() += _zoom * std::sin(_turnZ_radians);
+    m_position.y() += _zoom * std::cos(_turnZ_radians);
+    m_position.z() += CAM_ZADD_MAX;
 
     _turnZ_turns = (Ego::Math::Turns)_turnZ_radians;
     _ori.facing_z = TurnToFacing(_turnZ_turns);
@@ -746,13 +748,14 @@ void Camera::updateEffects()
 void Camera::setScreen( float xmin, float ymin, float xmax, float ymax )
 {
     // Set the screen rectangle.
-    _screen.xmin = xmin;
-    _screen.ymin = ymin;
-    _screen.xmax = xmax;
-    _screen.ymax = ymax;
+    m_viewport->setLeftPixels(xmin);
+    m_viewport->setTopPixels(ymin);
+    m_viewport->setWidthPixels(xmax - xmin);
+    m_viewport->setHeightPixels(ymax - ymin);
 
     // Update projection after setting size.
-    float aspect_ratio = (_screen.xmax - _screen.xmin) / (_screen.ymax - _screen.ymin);
+    float aspect_ratio = m_viewport->getWidthPixels()
+                       / m_viewport->getHeightPixels();
     // The nearest we will have to worry about is 1/2 of a tile.
     float frustum_near = Info<int>::Grid::Size() * 0.25f;
     // Set the maximum depth to be the "largest possible size" of a mesh.
@@ -772,7 +775,7 @@ void Camera::addTrackTarget(ObjectRef targetRef)
     if(_trackList.empty()) {
         _trackPos = object->getPosition();
         _center = _trackPos;
-        _position = _center + Vector3f(_zoom * std::sin(_ori.facing_z), _zoom * std::cos(_ori.facing_z), _zGoto);
+        m_position = _center + Vector3f(_zoom * std::sin(_ori.facing_z), _zoom * std::cos(_ori.facing_z), _zGoto);
     }
 
     _trackList.push_front(targetRef);

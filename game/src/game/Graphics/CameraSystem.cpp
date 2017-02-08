@@ -18,6 +18,7 @@
 //********************************************************************************************
 #include "game/Graphics/CameraSystem.hpp"
 
+#include "egolib/Graphics/Viewport.hpp"
 #include "game/mesh.h"
 #include "game/graphic.h"
 #include "game/game.h"
@@ -194,10 +195,10 @@ void CameraSystem::beginCameraMode( const std::shared_ptr<Camera> &camera)
     auto drawableSize = Ego::GraphicsSystem::window->getDrawableSize();
     // scissor the output to the this area
     renderer.setScissorTestEnabled(true);
-    renderer.setScissorRectangle(camera->getScreen().xmin, drawableSize.height() - camera->getScreen().ymax, camera->getScreen().xmax - camera->getScreen().xmin, camera->getScreen().ymax - camera->getScreen().ymin);
+    renderer.setScissorRectangle(camera->getViewport().getLeftPixels(), drawableSize.height() - (camera->getViewport().getTopPixels() + camera->getViewport().getHeightPixels()), camera->getViewport().getWidthPixels(), camera->getViewport().getHeightPixels());
 
     // set the viewport
-    renderer.setViewportRectangle(camera->getScreen().xmin, drawableSize.height() - camera->getScreen().ymax, camera->getScreen().xmax - camera->getScreen().xmin, camera->getScreen().ymax - camera->getScreen().ymin);
+    renderer.setViewportRectangle(camera->getViewport().getLeftPixels(), drawableSize.height() - (camera->getViewport().getTopPixels() + camera->getViewport().getHeightPixels()), camera->getViewport().getWidthPixels(), camera->getViewport().getHeightPixels());
 }
 
 void CameraSystem::autoFormatTargets()

@@ -34,6 +34,7 @@
 #include "game/graphic.h"
 #include "game/Logic/Player.hpp"
 #include "game/Graphics/CameraSystem.hpp"
+#include "egolib/Graphics/Viewport.hpp"
 
 //For cheats
 #include "game/Entities/_Include.hpp"
@@ -221,7 +222,8 @@ void PlayingState::addStatusMonitor(const std::shared_ptr<Object> &object)
     auto status = std::make_shared<Ego::GUI::CharacterStatus>(object);
 
     status->setSize(Vector2f(BARX, BARY));
-    status->setPosition(Point2f(camera->getScreen().xmax - status->getWidth(), camera->getScreen().ymin));
+    status->setPosition(Point2f(camera->getViewport().getLeftPixels() + camera->getViewport().getWidthPixels() - status->getWidth(),
+                                camera->getViewport().getTopPixels()));
 
     addComponent(status);
     _statusList.push_back(status);

@@ -29,6 +29,7 @@
 class ego_mesh_t;
 namespace Ego {
 namespace Graphics {
+struct Viewport;
 struct TileList;
 struct EntityList;
 }
@@ -96,63 +97,51 @@ public:
 
 private:
 
-	/**
-	 * @brief
-	 *  The forward vector of this camera.
-	 */
-	Vector3f _forward;
+	/// @brief The forward vector of this camera.
+	Vector3f m_forward;
 
-	/**
-	 * @brief
-	 *  The up vector of this camera.
-	 */
-	Vector3f _up;
+	/// @brief The up vector of this camera.
+	Vector3f m_up;
 
-	/**
-	 * @brief
-	 *  The right vector of this camera.
-	 */
-	Vector3f _right;
+	/// @brief The right vector of this camera.
+	Vector3f m_right;
 
-	/**
-	 * @brief
-	 *  The view matrix (derived/cached from other attributes).
-	 */
-	Matrix4f4f _viewMatrix;
+	/// @brief The view matrix (derived/cached from other attributes).
+	Matrix4f4f m_viewMatrix;
 
-	/**
-	 * @brief
-	 *  The projection matrices (derived/cached from other attributes).
-	 */
-	Matrix4f4f _projectionMatrix;
+	/// @brief The projection matrices (derived/cached from other attributes).
+	Matrix4f4f m_projectionMatrix;
 
-	/**
-	 * @brief
-	 *  The position.
-	 * @invariant
-	 *  @a z must be within the interval <tt>[500,1000]</tt>.
-	 */
-	Vector3f _position;
+	/// @brief The position.
+	/// @invariant @a z must be within the interval <tt>[500,1000]</tt>.
+	Vector3f m_position;
+
+    /// @brief The viewport.
+    std::unique_ptr<Ego::Graphics::Viewport> m_viewport;
 
 public:
 
 	/** @copydoc Ego::Graphics::Camera::getProjectionMatrix */
-	inline const Matrix4f4f& getProjectionMatrix() const override { return _projectionMatrix; }
+	inline const Matrix4f4f& getProjectionMatrix() const override { return m_projectionMatrix; }
 
 	/** @copydoc Ego::Graphics::Camera::getViewMatrix */
-	inline const Matrix4f4f& getViewMatrix() const override { return _viewMatrix; }
+	inline const Matrix4f4f& getViewMatrix() const override { return m_viewMatrix; }
 
 	/** @copydoc Ego::Graphics::Camera::getPosition */
-	inline const Vector3f& getPosition() const override { return _position; }
+	inline const Vector3f& getPosition() const override { return m_position; }
 
 	/** @copydoc Ego::Graphics::Camera::getUp */
-	inline const Vector3f& getUp() const override { return _up; }
+	inline const Vector3f& getUp() const override { return m_up; }
 	
 	/** @copydoc Ego::Graphics::Camera::getRight */
-	inline const Vector3f& getRight() const override { return _right; }
+	inline const Vector3f& getRight() const override { return m_right; }
 	
 	/** @copydoc Ego::Graphics::Camera::getForward */
-	inline const Vector3f& getForward() const override { return _forward; }
+	inline const Vector3f& getForward() const override { return m_forward; }
+
+    /** @copydoc Ego::Graphics::Cmaera::getViewport */
+    inline const Ego::Graphics::Viewport& getViewport() const { return *m_viewport; }
+    inline Ego::Graphics::Viewport& getViewport() { return *m_viewport; }
 
 	/**@}*/
 
@@ -194,7 +183,7 @@ public:
     // various getters
     inline const Ego::Graphics::Frustum& getFrustum() const {
         if (_frustumInvalid) {
-            _frustum.calculate(_projectionMatrix, _viewMatrix);
+            _frustum.calculate(m_projectionMatrix, m_viewMatrix);
             _frustumInvalid = false;
         }
         return _frustum;
@@ -223,8 +212,6 @@ public:
     inline std::shared_ptr<Ego::Graphics::EntityList> getEntityList() const {return _entityList;}
 
     inline const std::forward_list<ObjectRef>& getTrackList() const { return _trackList; }
-
-    inline const ego_frect_t& getScreen() const { return _screen; }
     
     /**
      * @brief
@@ -387,7 +374,6 @@ private:
 
     // Extended camera data.
     std::forward_list<ObjectRef> _trackList;  ///< List of objects this camera is tracking.
-    ego_frect_t                  _screen;
 
     int _lastFrame;         ///< Number of last update frame.
     std::shared_ptr<Ego::Graphics::TileList> _tileList;     ///< A pointer to a tile list or a null pointer.
