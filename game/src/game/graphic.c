@@ -197,7 +197,6 @@ void gfx_system_render_world(std::shared_ptr<Camera> camera, std::shared_ptr<Ego
             }
             GL_DEBUG(glAccum)(GL_RETURN, 1.0f);
         }
-		GFX::get().getForeground().run(*camera, *tileList, *entityList);
     }
     Renderer3D::end3D();
 
