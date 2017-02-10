@@ -25,7 +25,6 @@
 
 #include "game/Core/GameEngine.hpp"
 #include "game/graphic_fan.h"
-#include "game/graphic_billboard.h"
 #include "game/renderer_3d.h"
 #include "egolib/Script/script.h"
 #include "game/script_compile.h"
@@ -47,6 +46,7 @@
 #include "game/Graphics/RenderPasses/ReflectiveTilesSecondRenderPass.hpp"
 #include "game/Graphics/RenderPasses/HeightmapRenderPass.hpp"
 #include "game/mesh.h"
+#include "game/Graphics/BillboardSystem.hpp"
 #include "game/Graphics/CameraSystem.hpp"
 #include "game/Entities/_Include.hpp"
 #include "game/Graphics/TextureAtlasManager.hpp"
@@ -202,7 +202,7 @@ void gfx_system_render_world(std::shared_ptr<Camera> camera, std::shared_ptr<Ego
     Renderer3D::end3D();
 
     // Render the billboards
-    BillboardSystem::get().render_all(*camera);
+    GFX::get().getBillboardSystem().render_all(*camera);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -231,7 +231,7 @@ void gfx_system_init_all_graphics()
 //--------------------------------------------------------------------------------------------
 void gfx_system_release_all_graphics()
 {
-    BillboardSystem::get().reset();
+    GFX::get().getBillboardSystem().reset();
     Ego::TextureManager::get().release_all();
 }
 
@@ -2185,17 +2185,9 @@ gfx_rv GFX::update_particle_instances(Camera& camera)
 }
 
 GameAppImpl::GameAppImpl() :
-    dynalist()
+    dynalist(),
+    billboardSystem(std::make_unique<Ego::Graphics::BillboardSystem>())
 {
-    // Initialize the billboard system.
-    try
-    {
-        BillboardSystem::initialize();
-    }
-    catch (...)
-    {
-        std::rethrow_exception(std::current_exception());
-    }
     // Initialize the texture atlas manager.
     try
     {
@@ -2203,16 +2195,12 @@ GameAppImpl::GameAppImpl() :
     }
     catch (...)
     {
-        BillboardSystem::uninitialize();
         std::rethrow_exception(std::current_exception());
     }
 }
 
 GameAppImpl::~GameAppImpl()
 {
-    // Uninitialize the billboard system.
-    BillboardSystem::uninitialize();
-
     // Uninitialize the texture atlas manager.
     Ego::Graphics::TextureAtlasManager::uninitialize();
 }
@@ -2220,4 +2208,9 @@ GameAppImpl::~GameAppImpl()
 dynalist_t& GameAppImpl::getDynalist()
 {
     return dynalist;
+}
+
+Ego::Graphics::BillboardSystem& GameAppImpl::getBillboardSystem() const
+{
+    return *billboardSystem;
 }

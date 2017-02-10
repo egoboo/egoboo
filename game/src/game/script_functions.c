@@ -32,7 +32,7 @@
 #include "game/link.h"
 #include "game/game.h"
 #include "game/Logic/Player.hpp"
-#include "game/graphic_billboard.h"
+#include "game/Graphics/BillboardSystem.hpp"
 #include "game/script_implementation.h"
 #include "game/Inventory.hpp"
 #include "game/Entities/_Include.hpp"
@@ -40,13 +40,12 @@
 #include "game/Core/GameEngine.hpp"
 #include "game/Module/Passage.hpp"
 #include "game/Graphics/CameraSystem.hpp"
+#include "game/Graphics/Billboard.hpp"
 #include "game/Module/Module.hpp"
 #include "game/GameStates/VictoryScreen.hpp"
-#include "game/Entities/_Include.hpp"
 #include "game/Physics/PhysicalConstants.hpp"
 #include "egolib/Script/Interpreter/SafeCast.hpp"
 #include "game/GUI/MiniMap.hpp"
-#include "game/Module/Module.hpp"
 
 /**
  * @brief Convert a value of type \f$Value\f$ value into a bit index.
@@ -7924,7 +7923,7 @@ Uint8 scr_DrawBillboard( script_state_t& state, ai_state_t& self )
         case COLOR_BLUE:    tint = &tint_blue;    break;
     }
 
-    returncode = NULL != BillboardSystem::get().makeBillboard(self.getSelf(), ppro->getMessage(state.argument).c_str(), text_color, *tint, state.distance, Billboard::Flags::Fade);
+    returncode = NULL != GFX::get().getBillboardSystem().makeBillboard(self.getSelf(), ppro->getMessage(state.argument).c_str(), text_color, *tint, state.distance, Ego::Graphics::Billboard::Flags::Fade);
 
     SCRIPT_FUNCTION_END();
 }

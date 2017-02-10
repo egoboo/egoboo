@@ -35,6 +35,7 @@
 #include "game/CharacterMatrix.h"
 #include "game/Graphics/CameraSystem.hpp"
 #include "game/Graphics/TileList.hpp"
+#include "game/Graphics/Billboard.hpp"
 
 //For the minimap
 #include "game/Core/GameEngine.hpp"
@@ -436,7 +437,7 @@ int Object::damage(Facing direction, const IPair  damage, const DamageType damag
 
             //Only draw "Immune!" if we are truly completely immune and it was not simply a weak attack
             if(HAS_SOME_BITS(damageModifier, DAMAGEINVICTUS) || damage.base + damage.rand <= damage_threshold) {
-                BillboardSystem::get().makeBillboard(_objRef, "Immune!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f(0, 0.5, 0, 1), 3, Billboard::Flags::All);
+                GFX::get().getBillboardSystem().makeBillboard(_objRef, "Immune!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f(0, 0.5, 0, 1), 3, Ego::Graphics::Billboard::Flags::All);
             }
         }
     }
@@ -564,7 +565,7 @@ int Object::damage(Facing direction, const IPair  damage, const DamageType damag
                     //Size depends on the amount of damage (more = bigger)
                     float size = Ego::Math::constrain(0.35f + std::abs(FP8_TO_FLOAT(actual_damage)) * 0.075f, 0.35f, 1.5f);
 
-                    BillboardSystem::get().makeBillboard(_objRef, text_buffer, Ego::Math::Colour4f::white(), friendly_fire ? tint_friend : tint_enemy, lifetime, Billboard::Flags::All, size);
+                    GFX::get().getBillboardSystem().makeBillboard(_objRef, text_buffer, Ego::Math::Colour4f::white(), friendly_fire ? tint_friend : tint_enemy, lifetime, Ego::Graphics::Billboard::Flags::All, size);
                 }
             }
         }
@@ -1382,7 +1383,7 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
         {
             //Refill to full Life instead!
             _currentLife = getAttribute(Ego::Attribute::MAX_LIFE);
-            BillboardSystem::get().makeBillboard(getObjRef(), "Too Silly to Die", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::white(), 3, Billboard::Flags::All);
+            GFX::get().getBillboardSystem().makeBillboard(getObjRef(), "Too Silly to Die", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::white(), 3, Ego::Graphics::Billboard::Flags::All);
             DisplayMsg_printf("%s decided not to die after all!", getName(false, true, true).c_str());
             AudioSystem::get().playSound(getPosition(), AudioSystem::get().getGlobalSound(GSND_DRUMS));
             return;
@@ -1397,7 +1398,7 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
         {
             //Refill to full Life instead!
             _currentLife = getAttribute(Ego::Attribute::MAX_LIFE);
-            BillboardSystem::get().makeBillboard(getObjRef(), "Guardian Angel", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::white(), 3, Billboard::Flags::All);
+            GFX::get().getBillboardSystem().makeBillboard(getObjRef(), "Guardian Angel", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::white(), 3, Ego::Graphics::Billboard::Flags::All);
             DisplayMsg_printf("%s was saved by a Guardian Angel!", getName(false, true, true).c_str());
             AudioSystem::get().playSound(getPosition(), AudioSystem::get().getGlobalSound(GSND_ANGEL_CHOIR));
             return;
@@ -1471,7 +1472,7 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
             //Crusader Perk regains 1 mana per Undead kill
             if(actualKiller->hasPerk(Ego::Perks::CRUSADER) && getProfile()->getIDSZ(IDSZ_PARENT).equals('U','N','D','E')) {
                 actualKiller->costMana(-1, actualKiller->getObjRef());
-                BillboardSystem::get().makeBillboard(actualKiller->getObjRef(), "Crusader", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::yellow(), 3, Billboard::Flags::All);
+                GFX::get().getBillboardSystem().makeBillboard(actualKiller->getObjRef(), "Crusader", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::yellow(), 3, Ego::Graphics::Billboard::Flags::All);
             }
         }
     }
@@ -2507,7 +2508,7 @@ void Object::deactivateStealth()
     _stealthTimer = std::max<uint16_t>(_stealthTimer, ONESECOND);
     _stealth = false;
 
-    BillboardSystem::get().makeBillboard(getObjRef(), "Revealed!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::white(), 2, Billboard::Flags::All);
+    GFX::get().getBillboardSystem().makeBillboard(getObjRef(), "Revealed!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::white(), 2, Ego::Graphics::Billboard::Flags::All);
     AudioSystem::get().playSound(getPosition(), AudioSystem::get().getGlobalSound(GSND_STEALTH_END));
     setAlpha(0xFF);
 }
@@ -2576,7 +2577,7 @@ bool Object::activateStealth()
 
         //We can't stealth while an enemy is nearby
         if(isPlayer()) {
-            BillboardSystem::get().makeBillboard(getObjRef(), "Hide Failed!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::white(), 2, Billboard::Flags::All);
+            GFX::get().getBillboardSystem().makeBillboard(getObjRef(), "Hide Failed!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::white(), 2, Ego::Graphics::Billboard::Flags::All);
             AudioSystem::get().playSound(getPosition(), AudioSystem::get().getGlobalSound(GSND_STEALTH_END));
         }
         return false;
@@ -2585,7 +2586,7 @@ bool Object::activateStealth()
     //All good, we are now stealthed!
     _stealth = true;
     setAlpha(0);
-    BillboardSystem::get().makeBillboard(getObjRef(), "Hidden!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::white(), 2, Billboard::Flags::All);
+    GFX::get().getBillboardSystem().makeBillboard(getObjRef(), "Hidden!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::white(), 2, Ego::Graphics::Billboard::Flags::All);
     AudioSystem::get().playSound(getPosition(), AudioSystem::get().getGlobalSound(GSND_STEALTH));
    
     return true;

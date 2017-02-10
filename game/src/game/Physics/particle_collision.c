@@ -18,13 +18,15 @@
 //********************************************************************************************
 #include "game/Physics/particle_collision.h"
 #include "game/game.h"
-#include "game/graphic_billboard.h"
+#include "game/graphic.h"
 #include "game/physics.h"
-#include "egolib/Logic/Action.hpp"
 #include "game/Entities/_Include.hpp"
 #include "game/Module/Module.hpp"
+#include "egolib/Logic/Action.hpp"
 #include "egolib/Profiles/_Include.hpp"
 #include "egolib/Graphics/ModelDescriptor.hpp"
+#include "game/Graphics/Billboard.hpp"
+#include "game/Graphics/BillboardSystem.hpp"
 
 //Private functions
 static int spawn_bump_particles(ObjectRef objectRef, const ParticleRef particle);
@@ -585,10 +587,10 @@ bool do_chr_prt_collision_deflect(chr_prt_collision_data_t& pdata)
         {
             ParticleHandler::get().spawnDefencePing(pdata.pchr->toSharedPointer(), _currentModule->getObjectHandler()[pdata.pprt->owner_ref]);
             if(using_shield) {
-                BillboardSystem::get().makeBillboard(pdata.pchr->getObjRef(), "Blocked!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f(getBlockActionColour(), 1.0f), 3, Billboard::Flags::All);
+                GFX::get().getBillboardSystem().makeBillboard(pdata.pchr->getObjRef(), "Blocked!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f(getBlockActionColour(), 1.0f), 3, Ego::Graphics::Billboard::Flags::All);
             }
             else {
-                BillboardSystem::get().makeBillboard(pdata.pchr->getObjRef(), "Deflected!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f(getBlockActionColour(), 1.0f), 3, Billboard::Flags::All);
+                GFX::get().getBillboardSystem().makeBillboard(pdata.pchr->getObjRef(), "Deflected!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f(getBlockActionColour(), 1.0f), 3, Ego::Graphics::Billboard::Flags::All);
             }
         }
     }
@@ -661,7 +663,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t& pdata )
         SET_BIT( pdata.pchr->ai.alert, ALERTIF_CONFUSED );
         pdata.pchr->grog_timer = std::max(static_cast<unsigned>(pdata.pchr->grog_timer), pdata.ppip->grogTime );
 
-        BillboardSystem::get().makeBillboard(pdata.pchr->getObjRef(), "Groggy!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::green(), 3, Billboard::Flags::All);
+        GFX::get().getBillboardSystem().makeBillboard(pdata.pchr->getObjRef(), "Groggy!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::green(), 3, Ego::Graphics::Billboard::Flags::All);
     }
 
     // Do daze
@@ -670,7 +672,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t& pdata )
         SET_BIT( pdata.pchr->ai.alert, ALERTIF_CONFUSED );
         pdata.pchr->daze_timer = std::max(static_cast<unsigned>(pdata.pchr->daze_timer), pdata.ppip->dazeTime );
 
-        BillboardSystem::get().makeBillboard(pdata.pchr->getObjRef(), "Dazed!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::yellow(), 3, Billboard::Flags::All);
+        GFX::get().getBillboardSystem().makeBillboard(pdata.pchr->getObjRef(), "Dazed!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::yellow(), 3, Ego::Graphics::Billboard::Flags::All);
     }
 
     //---- Damage the character, if necessary
@@ -704,7 +706,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t& pdata )
                             SET_BIT( pdata.pchr->ai.alert, ALERTIF_CONFUSED );
                             pdata.pchr->daze_timer += 3;
 
-                            BillboardSystem::get().makeBillboard(powner->getObjRef(), "Crackshot!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::blue(), 3, Billboard::Flags::All);
+                            GFX::get().getBillboardSystem().makeBillboard(powner->getObjRef(), "Crackshot!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::blue(), 3, Ego::Graphics::Billboard::Flags::All);
                         }
                     }
 
@@ -713,7 +715,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t& pdata )
                         SET_BIT( pdata.pchr->ai.alert, ALERTIF_CONFUSED );
                         pdata.pchr->grog_timer += 2;
 
-                        BillboardSystem::get().makeBillboard(powner->getObjRef(), "Brutal Strike!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::red(), 3, Billboard::Flags::All);
+                        GFX::get().getBillboardSystem().makeBillboard(powner->getObjRef(), "Brutal Strike!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::red(), 3, Ego::Graphics::Billboard::Flags::All);
                         AudioSystem::get().playSound(powner->getPosition(), AudioSystem::get().getGlobalSound(GSND_CRITICAL_HIT));
                     }
                 }
@@ -742,7 +744,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t& pdata )
                     if(pdata.pprt->damagetype == DAMAGE_ZAP && powner->hasPerk(Ego::Perks::DISINTEGRATE)) {
                         if(Random::nextFloat()*100.0f <= powner->getAttribute(Ego::Attribute::INTELLECT) * 0.025f) {
                             modifiedDamage.base += FLOAT_TO_FP8(100.0f);
-                            BillboardSystem::get().makeBillboard(pdata.pchr->getObjRef(), "Disintegrated!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::purple(), 6, Billboard::Flags::All);
+                            GFX::get().getBillboardSystem().makeBillboard(pdata.pchr->getObjRef(), "Disintegrated!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::purple(), 6, Ego::Graphics::Billboard::Flags::All);
 
                             //Disintegrate effect
                             ParticleHandler::get().spawnGlobalParticle(pdata.pchr->getPosition(), Facing::ATK_FRONT, LocalParticleProfileRef(PIP_DISINTEGRATE_START), 0);
@@ -797,7 +799,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t& pdata )
                             grimReaperDamage.base = FLOAT_TO_FP8(50.0f);
                             grimReaperDamage.rand = 0.0f;
                             pdata.pchr->damage(Facing(direction), grimReaperDamage, DAMAGE_EVIL, pdata.pprt->team, _currentModule->getObjectHandler()[pdata.pprt->owner_ref], false, true, false);
-                            BillboardSystem::get().makeBillboard(powner->getObjRef(), "Grim Reaper!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::red(), 3, Billboard::Flags::All);
+                            GFX::get().getBillboardSystem().makeBillboard(powner->getObjRef(), "Grim Reaper!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::red(), 3, Ego::Graphics::Billboard::Flags::All);
                             AudioSystem::get().playSound(powner->getPosition(), AudioSystem::get().getGlobalSound(GSND_CRITICAL_HIT));
                         }
                     }
@@ -809,7 +811,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t& pdata )
                     if(powner->hasPerk(Ego::Perks::DEADLY_STRIKE) && powner->getExperienceLevel() >= Random::getPercent() && DamageType_isPhysical(pdata.pprt->damagetype)){
                         //Gain +0.25 damage per Agility
                         modifiedDamage.base += FLOAT_TO_FP8(powner->getAttribute(Ego::Attribute::AGILITY) * 0.25f);
-                        BillboardSystem::get().makeBillboard(powner->getObjRef(), "Deadly Strike", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::blue(), 3, Billboard::Flags::All);
+                        GFX::get().getBillboardSystem().makeBillboard(powner->getObjRef(), "Deadly Strike", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::blue(), 3, Ego::Graphics::Billboard::Flags::All);
                         AudioSystem::get().playSound(powner->getPosition(), AudioSystem::get().getGlobalSound(GSND_CRITICAL_HIT));
                     }
                 }
@@ -827,7 +829,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t& pdata )
                     SET_BIT( pdata.pchr->ai.alert, ALERTIF_HITVULNERABLE );
 
                     // Initialize for the billboard
-                    BillboardSystem::get().makeBillboard(pdata.pchr->getObjRef(), "Super Effective!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::yellow(), 3, Billboard::Flags::All);
+                    GFX::get().getBillboardSystem().makeBillboard(pdata.pchr->getObjRef(), "Super Effective!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::yellow(), 3, Ego::Graphics::Billboard::Flags::All);
                 }                
             }
 
@@ -844,7 +846,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t& pdata )
                 if(Random::getPercent() <= critChance) {
                     modifiedDamage.base += modifiedDamage.rand;
                     modifiedDamage.rand = 0;
-                    BillboardSystem::get().makeBillboard(powner->getObjRef(), "Critical Hit!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::red(), 3, Billboard::Flags::All);
+                    GFX::get().getBillboardSystem().makeBillboard(powner->getObjRef(), "Critical Hit!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::red(), 3, Ego::Graphics::Billboard::Flags::All);
                     AudioSystem::get().playSound(powner->getPosition(), AudioSystem::get().getGlobalSound(GSND_CRITICAL_HIT));
                 }
             }
@@ -1050,7 +1052,7 @@ void do_chr_prt_collision_knockback(chr_prt_collision_data_t &pdata)
             float chance = attacker->getAttribute(Ego::Attribute::INTELLECT) * 0.03f - pdata.pchr->getAttribute(Ego::Attribute::MIGHT)*0.01f;
             if(Random::nextFloat() <= chance) {
                 knockbackFactor += 5.0f;
-                BillboardSystem::get().makeBillboard(attacker->getObjRef(), "Telekinetic Staff!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::purple(), 2, Billboard::Flags::All);
+                GFX::get().getBillboardSystem().makeBillboard(attacker->getObjRef(), "Telekinetic Staff!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::purple(), 2, Ego::Graphics::Billboard::Flags::All);
             }
         }
     }
@@ -1253,7 +1255,7 @@ bool do_chr_prt_collision(const std::shared_ptr<Object> &object, const std::shar
             AudioSystem::get().playSound(cn_data.pchr->getPosition(), AudioSystem::get().getGlobalSound(GSND_DODGE));
 
             // Initialize for the billboard
-            BillboardSystem::get().makeBillboard( cn_data.pchr->getObjRef(), "Dodged!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f(1.0f, 0.6f, 0.0f, 1.0f), 3, Billboard::Flags::All);
+            GFX::get().getBillboardSystem().makeBillboard( cn_data.pchr->getObjRef(), "Dodged!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f(1.0f, 0.6f, 0.0f, 1.0f), 3, Ego::Graphics::Billboard::Flags::All);
         }
 
 

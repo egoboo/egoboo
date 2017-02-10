@@ -26,25 +26,27 @@
 #include "egolib/egolib.h"
 #include "egolib/FileFormats/Globals.hpp"
 
-#include "game/GUI/MiniMap.hpp"
 #include "game/GameStates/PlayingState.hpp"
 #include "game/Inventory.hpp"
 #include "game/Logic/Player.hpp"
 #include "game/link.h"
-#include "game/graphic.h"
-#include "game/graphic_fan.h"
-#include "game/graphic_billboard.h"
 #include "game/script_implementation.h"
 #include "game/egoboo.h"
 #include "game/Core/GameEngine.hpp"
 #include "game/Module/Passage.hpp"
-#include "game/Graphics/CameraSystem.hpp"
 #include "game/Module/Module.hpp"
 #include "game/Physics/CollisionSystem.hpp"
 #include "game/physics.h"
 #include "game/Physics/PhysicalConstants.hpp"
 #include "game/Entities/_Include.hpp"
+#include "game/GUI/MiniMap.hpp"
 #include "game/GUI/MessageLog.hpp"
+#include "game/graphic.h"
+#include "game/graphic_fan.h"
+#include "game/Graphics/BillboardSystem.hpp"
+#include "game/Graphics/CameraSystem.hpp"
+#include "game/Graphics/Billboard.hpp"
+#include "game/Graphics/BillboardSystem.hpp"
 
 //--------------------------------------------------------------------------------------------
 //Global variables! eww! TODO: remove these
@@ -399,7 +401,7 @@ int update_game()
     //---- begin the code for updating misc. game stuff
     {
         AudioSystem::get().updateLoopingSounds();
-        BillboardSystem::get().update();
+        GFX::get().getBillboardSystem().update();
         g_animatedTilesState.animate();
         _currentModule->getWater().move();
         _currentModule->updateDamageTiles();
@@ -2399,7 +2401,7 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
                     //If Quick Strike perk triggers then we have fastest possible attack (10% chance)
                     if(pchr->hasPerk(Ego::Perks::QUICK_STRIKE) && pweapon->getProfile()->isMeleeWeapon() && Random::getPercent() <= 10) {
                         pchr->inst.setAnimationSpeed(3.0f);
-                        BillboardSystem::get().makeBillboard(pchr->getObjRef(), "Quick Strike!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::blue(), 3, Billboard::Flags::All);
+                        GFX::get().getBillboardSystem().makeBillboard(pchr->getObjRef(), "Quick Strike!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::blue(), 3, Ego::Graphics::Billboard::Flags::All);
                     }
 
                     //Add some reload time as a true limit to attacks per second
@@ -2551,7 +2553,7 @@ void character_swipe( ObjectRef ichr, slot_t slot )
 
                     //1% chance per Intellect
                     if(Random::getPercent() <= pchr->getAttribute(Ego::Attribute::INTELLECT)) {
-                        BillboardSystem::get().makeBillboard(pchr->getObjRef(), "Wand Mastery!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::purple(), 3, Billboard::Flags::All);
+                        GFX::get().getBillboardSystem().makeBillboard(pchr->getObjRef(), "Wand Mastery!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::purple(), 3, Ego::Graphics::Billboard::Flags::All);
                     }
                     else {
                         pweapon->ammo--;  // Ammo usage
@@ -2571,7 +2573,7 @@ void character_swipe( ObjectRef ichr, slot_t slot )
                 //1% chance per Agility
                 if(Random::getPercent() <= pchr->getAttribute(Ego::Attribute::AGILITY) && pweapon->ammo > 0) {
                     NR_OF_ATTACK_PARTICLES = 2;
-                    BillboardSystem::get().makeBillboard(pchr->getObjRef(), "Double Shot!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::green(), 3, Billboard::Flags::All);                    
+                    GFX::get().getBillboardSystem().makeBillboard(pchr->getObjRef(), "Double Shot!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::green(), 3, Ego::Graphics::Billboard::Flags::All);                    
 
                     //Spend one extra ammo
                     pweapon->ammo--;

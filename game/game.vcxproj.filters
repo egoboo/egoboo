@@ -80,9 +80,6 @@
     <ClCompile Include="src\game\graphic.c">
       <Filter>Game Sources</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\graphic_billboard.c">
-      <Filter>Game Sources</Filter>
-    </ClCompile>
     <ClCompile Include="src\game\graphic_fan.c">
       <Filter>Game Sources</Filter>
     </ClCompile>
@@ -374,6 +371,12 @@
     <ClCompile Include="src\game\Graphics\RenderPasses\HeightmapRenderPass.cpp">
       <Filter>Game Sources\Graphics\RenderPasses</Filter>
     </ClCompile>
+    <ClCompile Include="src\game\Graphics\Billboard.cpp">
+      <Filter>Game Sources\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Graphics\BillboardSystem.cpp">
+      <Filter>Game Sources\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game\egoboo.h">
@@ -386,9 +389,6 @@
       <Filter>Game Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\game\graphic.h">
-      <Filter>Game Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\graphic_billboard.h">
       <Filter>Game Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\game\graphic_fan.h">
@@ -702,6 +702,12 @@
     </ClInclude>
     <ClInclude Include="src\game\Graphics\RenderPasses\HeightmapRenderPass.hpp">
       <Filter>Game Header Files\Graphics\RenderPasses</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\Graphics\Billboard.hpp">
+      <Filter>Game Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\Graphics\BillboardSystem.hpp">
+      <Filter>Game Header Files\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

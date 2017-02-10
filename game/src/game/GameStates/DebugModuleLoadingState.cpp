@@ -25,21 +25,17 @@
 #include "game/GameStates/PlayingState.hpp"
 #include "game/GameStates/LoadPlayerElement.hpp"
 #include "game/Core/GameEngine.hpp"
-#include "egolib/egoboo_setup.h"
 #include "game/graphic.h"
 #include "game/GUI/Button.hpp"
 #include "game/GUI/Label.hpp"
 #include "game/GUI/Image.hpp"
 #include "game/GUI/ScrollableList.hpp"
-#include "egolib/Math/Random.hpp"
-#include "egolib/Audio/AudioSystem.hpp"
 
 //For loading stuff
 #include "game/Graphics/CameraSystem.hpp"
+#include "game/Graphics/BillboardSystem.hpp"
 #include "game/game.h"
-#include "game/graphic_billboard.h"
 #include "game/link.h"
-#include "egolib/fileutil.h"
 
 struct DebugModuleLoadingState::ModuleGUIContainer : public Container
 {
@@ -234,7 +230,7 @@ void DebugModuleLoadingState::loadModuleData()
         game_quit_module();
 
         singleThreadRedrawHack("Calculating some math...");
-        BillboardSystem::get().reset();
+        GFX::get().getBillboardSystem().reset();
 
         // Linking system
 		Log::get() << Log::Entry::create(Log::Level::Info, __FILE__, __LINE__, "initializing module linking", Log::EndOfEntry);

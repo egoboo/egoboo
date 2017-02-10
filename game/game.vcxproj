@@ -401,6 +401,8 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\game\Graphics\BillboardSystem.cpp" />
+    <ClCompile Include="src\game\Graphics\Billboard.cpp" />
     <ClCompile Include="src\game\Graphics\RenderPasses\HeightmapRenderPass.cpp" />
     <ClCompile Include="src\game\Graphics\RenderPasses\ReflectiveTilesSecondRenderPass.cpp" />
     <ClCompile Include="src\game\Graphics\RenderPasses\NonReflectiveTilesRenderPass.cpp" />
@@ -490,7 +492,6 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClCompile Include="src\game\egoboo.c" />
     <ClCompile Include="src\game\game.c" />
     <ClCompile Include="src\game\graphic.c" />
-    <ClCompile Include="src\game\graphic_billboard.c" />
     <ClCompile Include="src\game\graphic_fan.c" />
     <ClCompile Include="src\game\graphic_mad.c" />
     <ClCompile Include="src\game\graphic_prt.c" />
@@ -504,6 +505,8 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClCompile Include="src\game\script_implementation.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\game\Graphics\BillboardSystem.hpp" />
+    <ClInclude Include="src\game\Graphics\Billboard.hpp" />
     <ClInclude Include="src\game\Graphics\RenderPasses\HeightmapRenderPass.hpp" />
     <ClInclude Include="src\game\Graphics\RenderPasses\ReflectiveTilesSecondRenderPass.hpp" />
     <ClInclude Include="src\game\Graphics\RenderPasses\NonReflectiveTilesRenderPass.hpp" />
@@ -601,7 +604,6 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClInclude Include="src\game\egoboo_doxygen.h" />
     <ClInclude Include="src\game\game.h" />
     <ClInclude Include="src\game\graphic.h" />
-    <ClInclude Include="src\game\graphic_billboard.h" />
     <ClInclude Include="src\game\graphic_fan.h" />
     <ClInclude Include="src\game\graphic_mad.h" />
     <ClInclude Include="src\game\graphic_prt.h" />

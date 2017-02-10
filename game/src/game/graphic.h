@@ -31,6 +31,7 @@ class ego_mesh_t;
 class ego_tile_info_t;
 namespace Ego {
 namespace Graphics {
+struct BillboardSystem;
 struct RenderPass;
 struct TileList;
 struct EntityList;
@@ -142,10 +143,12 @@ struct GameAppImpl
 {
 private:
     dynalist_t dynalist;
+    std::unique_ptr<Ego::Graphics::BillboardSystem> billboardSystem;
 public:
     GameAppImpl();
     ~GameAppImpl();
     dynalist_t& getDynalist();
+    Ego::Graphics::BillboardSystem& getBillboardSystem() const;
 };
 
 template <typename T>
@@ -164,6 +167,10 @@ public:
     {
         return impl->getDynalist();
     }
+    Ego::Graphics::BillboardSystem& getBillboardSystem() const
+    {
+        return impl->getBillboardSystem();
+    }
 };
 
 struct GFX : public GameApp<GFX>
@@ -174,7 +181,7 @@ private:
     GFX();
     ~GFX();
 
-
+private:
     std::unique_ptr<Ego::Graphics::RenderPass> nonOpaqueEntities;
     std::unique_ptr<Ego::Graphics::RenderPass> opaqueEntities;
     std::unique_ptr<Ego::Graphics::RenderPass> reflective0;

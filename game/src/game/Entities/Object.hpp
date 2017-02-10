@@ -35,7 +35,7 @@
 #include "game/physics.h"
 #include "game/graphic_mad.h"
 #include "game/Entities/Common.hpp"
-#include "game/graphic_billboard.h"
+#include "game/Graphics/BillboardSystem.hpp"
 #include "game/Inventory.hpp"
 #include "game/Physics/Collidable.hpp"
 #include "game/Physics/ObjectPhysics.hpp"
