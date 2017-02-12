@@ -32,9 +32,9 @@
 #include "game/GUI/ProgressBar.hpp"
 
 //For loading stuff
+#include "game/Graphics/BillboardSystem.hpp"
 #include "game/Graphics/CameraSystem.hpp"
 #include "game/game.h"
-#include "game/graphic_billboard.h"
 #include "game/link.h"
 #include "game/Module/Module.hpp"
 #include "game/Graphics/TextureAtlasManager.hpp"
@@ -170,7 +170,7 @@ void LoadingState::loadModuleData()
         game_quit_module();
 
         setProgressText("Calculating some math...", 10);
-        BillboardSystem::get().reset();
+        GFX::get().getBillboardSystem().reset();
 
         // Linking system
         setProgressText("Initializing module linking... ", 20);

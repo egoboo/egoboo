@@ -30,6 +30,7 @@
 
 #include "game/Module/Passage.hpp"
 #include "game/game.h"
+#include "game/graphic.h"
 #include "game/Logic/Player.hpp"
 #include "game/Entities/_Include.hpp"
 #include "game/CharacterMatrix.h"

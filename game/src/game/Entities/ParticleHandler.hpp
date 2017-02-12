@@ -97,8 +97,6 @@ public:
         _lightParticleTexture("mp_data/globalparticles/particle_light")
     {
 		setDisplayLimit(egoboo_config_t::get().graphic_simultaneousParticles_max.getValue());
-		prt_set_texture_params(getTransparentParticleTexture(), SPRITE_ALPHA);
-		prt_set_texture_params(getLightParticleTexture(), SPRITE_LIGHT);
     }
 
     /**

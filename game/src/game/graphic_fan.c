@@ -21,16 +21,14 @@
 /// @brief World mesh drawing.
 /// @details
 
-#include "game/graphic.h"
 #include "game/graphic_fan.h"
+
+#include "game/graphic.h"
 #include "game/game.h"
 #include "game/renderer_3d.h"
-#include "game/egoboo.h"
 #include "game/mesh.h"
 #include "game/Module/Module.hpp"
 #include "egolib/FileFormats/Globals.hpp"
-
-//--------------------------------------------------------------------------------------------
 
 void animate_all_tiles( ego_mesh_t& mesh )
 {
@@ -49,13 +47,10 @@ void animate_all_tiles( ego_mesh_t& mesh )
     }
 }
 
-//--------------------------------------------------------------------------------------------
 bool animate_tile( ego_mesh_t& mesh, const Index1D& index )
 {
     /// @author BB
     /// @details animate a given tile
-
-
 
 	// do nothing if the tile is not animated
     if ( 0 == mesh.test_fx( index, MAPFX_ANIM ) )

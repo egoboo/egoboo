@@ -25,7 +25,7 @@ install:
     
 # Artifacts are produced by the AppVeyor project "Egoboo Nightly".
 after_build:
-    7z a binaries-%CONFIGURATION%-%PLATFORM%-%APPVEYOR_BUILD_VERSION%.zip product\game\%CONFIGURATION%\%PLATFORM%\*.dll product\game\%CONFIGURATION%\%PLATFORM%\*.exe
+    7z a binaries-%CONFIGURATION%-%PLATFORM%-nightly.zip product\game\%CONFIGURATION%\%PLATFORM%\*.dll product\game\%CONFIGURATION%\%PLATFORM%\*.exe
  
 build:
     parallel: false                 # disable MSBuild parallel builds

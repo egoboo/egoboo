@@ -21,12 +21,11 @@
 /// @brief Character model drawing code.
 /// @details
 
-#include "egolib/bbox.h"
 #include "game/graphic_mad.h"
+
 #include "game/renderer_3d.h"
-#include "game/game.h"
 #include "game/lighting.h"
-#include "game/egoboo.h"
+#include "game/graphic.h"
 #include "game/Graphics/CameraSystem.hpp"
 #include "game/Entities/_Include.hpp"
 
@@ -78,7 +77,7 @@ struct Md2VertexBuffer {
     }
 };
 
-gfx_rv MadRenderer::render_enviro( Camera& cam, const std::shared_ptr<Object>& pchr, GLXvector4f tint, const BIT_FIELD bits )
+gfx_rv ObjectGraphicsRenderer::render_enviro( Camera& cam, const std::shared_ptr<Object>& pchr, GLXvector4f tint, const BIT_FIELD bits )
 {
     if (!pchr->inst.getModelDescriptor())
     {
@@ -87,7 +86,8 @@ gfx_rv MadRenderer::render_enviro( Camera& cam, const std::shared_ptr<Object>& p
         Log::get() << e;
         return gfx_error;
     }
-    const std::shared_ptr<MD2Model>& pmd2 = pchr->getProfile()->getModel()->getMD2();
+    const auto& pmd2 = pchr->getProfile()->getModel()->getMD2();
+    auto& renderer = Ego::Renderer::get();
 
     std::shared_ptr<const Ego::Texture> ptex = nullptr;
 	if (HAS_SOME_BITS(bits, CHR_PHONG))
@@ -109,28 +109,28 @@ gfx_rv MadRenderer::render_enviro( Camera& cam, const std::shared_ptr<Object>& p
 
 	if (HAS_SOME_BITS(bits, CHR_REFLECT))
 	{
-        Ego::Renderer::get().setWorldMatrix(pchr->inst.getReflectionMatrix());
+        renderer.setWorldMatrix(pchr->inst.getReflectionMatrix());
 	}
 	else
 	{
-		Ego::Renderer::get().setWorldMatrix(pchr->inst.getMatrix());
+		renderer.setWorldMatrix(pchr->inst.getMatrix());
 	}
 
     // Choose texture and matrix
-	Ego::Renderer::get().getTextureUnit().setActivated(ptex.get());
+	renderer.getTextureUnit().setActivated(ptex.get());
 
     {
         Ego::OpenGL::PushAttrib pa(GL_CURRENT_BIT);
         {
             // Get the maximum number of vertices per command.
             size_t vertexBufferCapacity = 0;
-            for (const MD2_GLCommand& glcommand : pmd2->getGLCommands()) {
+            for (const auto& glcommand : pmd2->getGLCommands()) {
                 vertexBufferCapacity = std::max(vertexBufferCapacity, glcommand.data.size());
             }
             // Allocate a vertex buffer.
             Md2VertexBuffer vertexBuffer(vertexBufferCapacity);
             // Render each command
-            for (const MD2_GLCommand &glcommand : pmd2->getGLCommands()) {
+            for (const auto& glcommand : pmd2->getGLCommands()) {
                 // Pre-render this command.
                 size_t vertexBufferSize = 0;
                 for (const id_glcmd_packed_t& cmd : glcommand.data) {
@@ -226,8 +226,7 @@ else
 
 */
 
-//--------------------------------------------------------------------------------------------
-gfx_rv MadRenderer::render_tex(Camera& camera, const std::shared_ptr<Object>& pchr, GLXvector4f tint, const BIT_FIELD bits)
+gfx_rv ObjectGraphicsRenderer::render_tex(Camera& camera, const std::shared_ptr<Object>& pchr, GLXvector4f tint, const BIT_FIELD bits)
 {
     if (!pchr->inst.getModelDescriptor())
     {
@@ -382,7 +381,7 @@ gfx_rv MadRenderer::render_tex(Camera& camera, const std::shared_ptr<Object>& pc
     }
 */
 
-gfx_rv MadRenderer::render(Camera& cam, const std::shared_ptr<Object> &pchr, GLXvector4f tint, const BIT_FIELD bits)
+gfx_rv ObjectGraphicsRenderer::render(Camera& cam, const std::shared_ptr<Object> &pchr, GLXvector4f tint, const BIT_FIELD bits)
 {
     /// @author ZZ
     /// @details This function picks the actual function to use
@@ -421,8 +420,7 @@ gfx_rv MadRenderer::render(Camera& cam, const std::shared_ptr<Object> &pchr, GLX
     return retval;
 }
 
-//--------------------------------------------------------------------------------------------
-gfx_rv MadRenderer::render_ref( Camera& cam, const std::shared_ptr<Object>& pchr)
+gfx_rv ObjectGraphicsRenderer::render_ref( Camera& cam, const std::shared_ptr<Object>& pchr)
 {
     //Does this object have a reflection?
     if(!pchr->getProfile()->hasReflection()) {
@@ -464,7 +462,7 @@ gfx_rv MadRenderer::render_ref( Camera& cam, const std::shared_ptr<Object>& pchr
                 GLXvector4f tint;
                 pchr->inst.getTint(tint, true, CHR_LIGHT);
 
-                if (gfx_error == MadRenderer::render(cam, pchr, tint, CHR_LIGHT)) {
+                if (gfx_error == ObjectGraphicsRenderer::render(cam, pchr, tint, CHR_LIGHT)) {
                     retval = gfx_error;
                 }
                 Ego::OpenGL::Utilities::isError();
@@ -478,7 +476,7 @@ gfx_rv MadRenderer::render_ref( Camera& cam, const std::shared_ptr<Object>& pchr
                 GLXvector4f tint;
                 pchr->inst.getTint(tint, true, CHR_PHONG);
 
-                if (gfx_error == MadRenderer::render(cam, pchr, tint, CHR_PHONG)) {
+                if (gfx_error == ObjectGraphicsRenderer::render(cam, pchr, tint, CHR_PHONG)) {
                     retval = gfx_error;
                 }
                 Ego::OpenGL::Utilities::isError();
@@ -489,7 +487,7 @@ gfx_rv MadRenderer::render_ref( Camera& cam, const std::shared_ptr<Object>& pchr
     return retval;
 }
 
-gfx_rv MadRenderer::render_trans(Camera& cam, const std::shared_ptr<Object>& pchr)
+gfx_rv ObjectGraphicsRenderer::render_trans(Camera& cam, const std::shared_ptr<Object>& pchr)
 {
     if ( pchr->isHidden() ) return gfx_fail;
 
@@ -560,7 +558,7 @@ gfx_rv MadRenderer::render_trans(Camera& cam, const std::shared_ptr<Object>& pch
     return rendered ? gfx_success : gfx_fail;
 }
 
-gfx_rv MadRenderer::render_solid( Camera& cam, const std::shared_ptr<Object> &pchr )
+gfx_rv ObjectGraphicsRenderer::render_solid( Camera& cam, const std::shared_ptr<Object> &pchr )
 {
     if ( pchr->isHidden() ) return gfx_fail;
 
@@ -612,9 +610,8 @@ gfx_rv MadRenderer::render_solid( Camera& cam, const std::shared_ptr<Object> &pc
     return retval;
 }
 
-//--------------------------------------------------------------------------------------------
 #if _DEBUG
-void MadRenderer::draw_chr_bbox(const std::shared_ptr<Object>& pchr)
+void ObjectGraphicsRenderer::draw_chr_bbox(const std::shared_ptr<Object>& pchr)
 {
     static constexpr bool drawLeftSlot = false;
     static constexpr bool drawRightSlot = false;
@@ -658,7 +655,7 @@ void MadRenderer::draw_chr_bbox(const std::shared_ptr<Object>& pchr)
 #endif
 
 #if _DEBUG
-void MadRenderer::draw_chr_verts(const std::shared_ptr<Object>& pchr, int vrt_offset, int verts )
+void ObjectGraphicsRenderer::draw_chr_verts(const std::shared_ptr<Object>& pchr, int vrt_offset, int verts )
 {
     /// @author BB
     /// @details a function that will draw some of the vertices of the given character.
@@ -689,7 +686,7 @@ void MadRenderer::draw_chr_verts(const std::shared_ptr<Object>& pchr, int vrt_of
 #endif
 
 #if _DEBUG
-void MadRenderer::draw_one_grip( Ego::Graphics::ObjectGraphics *pinst, int slot )
+void ObjectGraphicsRenderer::draw_one_grip( Ego::Graphics::ObjectGraphics *pinst, int slot )
 {
     // disable the texturing so all the points will be white,
     // not the texture color of the last vertex we drawn
@@ -700,7 +697,7 @@ void MadRenderer::draw_one_grip( Ego::Graphics::ObjectGraphics *pinst, int slot 
     _draw_one_grip_raw( pinst, slot );
 }
 
-void MadRenderer::_draw_one_grip_raw( Ego::Graphics::ObjectGraphics *pinst, int slot )
+void ObjectGraphicsRenderer::_draw_one_grip_raw( Ego::Graphics::ObjectGraphics *pinst, int slot )
 {
     int vmin, vmax, cnt;
 
@@ -750,9 +747,9 @@ void MadRenderer::_draw_one_grip_raw( Ego::Graphics::ObjectGraphics *pinst, int 
 	Ego::Renderer::get().setColour(Ego::Math::Colour4f::white());
 }
 
-void MadRenderer::draw_chr_attached_grip(const std::shared_ptr<Object>& pchr)
+void ObjectGraphicsRenderer::draw_chr_attached_grip(const std::shared_ptr<Object>& pchr)
 {
-    const std::shared_ptr<Object> &pholder = pchr->getHolder();
+    const auto& pholder = pchr->getHolder();
     if (!pholder || pholder->isTerminated()) return;
 
     draw_one_grip( &( pholder->inst ), pchr->inwhich_slot );
@@ -760,7 +757,7 @@ void MadRenderer::draw_chr_attached_grip(const std::shared_ptr<Object>& pchr)
 #endif
 
 #if 0
-void MadRenderer::draw_chr_grips( Object * pchr )
+void ObjectGraphicsRenderer::draw_chr_grips( Object * pchr )
 {
     mad_t * pmad;
 

@@ -567,6 +567,9 @@
     <ClCompile Include="src\egolib\Configuration\configfile.c">
       <Filter>Header Files\Configuration</Filter>
     </ClCompile>
+    <ClCompile Include="src\egolib\Graphics\Viewport.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\egolib\vfs.h">
@@ -1405,6 +1408,9 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Configuration\configfile.h">
       <Filter>Header Files\Configuration</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Graphics\Viewport.hpp">
+      <Filter>Header Files\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -21,9 +21,21 @@
 
 #pragma once
 
-#include "game/Graphics/CameraSystem.hpp"
 #include "egolib/Graphics/MD2Model.hpp"
-#include "game/Graphics/RenderPasses.hpp"
+#include "game/lighting.h"
+#include "egolib/Extensions/ogl_include.h"
+
+// Forward declaration.
+class Camera;
+class ego_mesh_t;
+class ego_tile_info_t;
+namespace Ego {
+namespace Graphics {
+struct BillboardSystem;
+struct RenderPass;
+struct TileList;
+struct EntityList;
+} }
 
 void  draw_hud();
 
@@ -115,34 +127,140 @@ extern gfx_config_t gfx;
 extern float           indextoenvirox[MD2Model::normalCount];                    ///< Environment map
 
 //--------------------------------------------------------------------------------------------
+/// The active dynamic lights
+struct dynalist_t
+{
+    int frame; ///< The last frame in shich the list was updated. @a -1 if there was no update yet.
+    size_t size; ///< The size of the list.
+    dynalight_data_t lst[TOTAL_MAX_DYNA];  ///< The list.
+    dynalist_t();
+    static void init(dynalist_t& self);
+};
 //--------------------------------------------------------------------------------------------
 // Function prototypes
 
-struct GFX : public Ego::Core::Singleton<GFX>
+struct GameAppImpl
+{
+private:
+    dynalist_t dynalist;
+    std::unique_ptr<Ego::Graphics::BillboardSystem> billboardSystem;
+public:
+    GameAppImpl();
+    ~GameAppImpl();
+    dynalist_t& getDynalist();
+    Ego::Graphics::BillboardSystem& getBillboardSystem() const;
+};
+
+template <typename T>
+struct GameApp : public Ego::App<T>
+{
+private:
+    std::unique_ptr<GameAppImpl> impl;
+protected:
+    GameApp(const std::string& title, const std::string& version) : Ego::App<T>(title, version),
+        impl(std::make_unique<GameAppImpl>())
+    {}
+    virtual ~GameApp()
+    {}
+public:
+    dynalist_t& getDynalist()
+    {
+        return impl->getDynalist();
+    }
+    Ego::Graphics::BillboardSystem& getBillboardSystem() const
+    {
+        return impl->getBillboardSystem();
+    }
+};
+
+struct GFX : public GameApp<GFX>
 {
 private:
     friend Ego::Core::Singleton<GFX>::CreateFunctorType;
     friend Ego::Core::Singleton<GFX>::DestroyFunctorType;
     GFX();
     ~GFX();
-private:
-    /**
-     * @brief
-     *  Initialize the SDL graphics system.
-     * @remark
-     *  Virtual finally simply prevents the method from being overriden
-     *  if its visibility is (accidentially) changed to non-private.
-     */
-    virtual void initializeSDLGraphics() final;
 
-    /**
-     * @brief
-     *  Uninitialize the SDL graphics system.
-     * @remark
-     *  Virtual finally simply prevents the method from being overriden
-     *  if its visibility is (accidentially) changed to non-private.
-     */
-    virtual void uninitializeSDLGraphics() final;
+private:
+    std::unique_ptr<Ego::Graphics::RenderPass> nonOpaqueEntities;
+    std::unique_ptr<Ego::Graphics::RenderPass> opaqueEntities;
+    std::unique_ptr<Ego::Graphics::RenderPass> reflective0;
+    std::unique_ptr<Ego::Graphics::RenderPass> reflective1;
+    std::unique_ptr<Ego::Graphics::RenderPass> nonReflective;
+    std::unique_ptr<Ego::Graphics::RenderPass> entityShadows;
+    std::unique_ptr<Ego::Graphics::RenderPass> water;
+    std::unique_ptr<Ego::Graphics::RenderPass> entityReflections;
+    std::unique_ptr<Ego::Graphics::RenderPass> foreground;
+    std::unique_ptr<Ego::Graphics::RenderPass> background;
+    std::unique_ptr<Ego::Graphics::RenderPass> motionBlur;
+    std::unique_ptr<Ego::Graphics::RenderPass> heightmap;
+
+public:
+    Ego::Time::Clock<Ego::Time::ClockPolicy::NonRecursive> update_object_instances_timer;
+    gfx_rv update_object_instances(Camera& cam);
+    Ego::Time::Clock<Ego::Time::ClockPolicy::NonRecursive> update_particle_instances_timer;
+    gfx_rv update_particle_instances(Camera& cam);
+
+public:
+    Ego::Graphics::RenderPass& getNonOpaqueEntities() const
+    {
+        return *nonOpaqueEntities;
+    }
+
+    Ego::Graphics::RenderPass& getOpaqueEntities() const
+    {
+        return *opaqueEntities;
+    }
+
+    Ego::Graphics::RenderPass& getReflective0() const
+    {
+        return *reflective0;
+    }
+
+    Ego::Graphics::RenderPass& getReflective1() const
+    {
+        return *reflective1;
+    }
+
+    Ego::Graphics::RenderPass& getNonReflective() const
+    {
+        return *nonReflective;
+    }
+
+    Ego::Graphics::RenderPass& getEntityShadows() const
+    {
+        return *entityShadows;
+    }
+
+    Ego::Graphics::RenderPass& getWater() const
+    {
+        return *water;
+    }
+
+    Ego::Graphics::RenderPass& getEntityReflections() const
+    {
+        return *entityReflections;
+    }
+
+    Ego::Graphics::RenderPass& getForeground() const
+    {
+        return *foreground;
+    }
+
+    Ego::Graphics::RenderPass& getBackground() const
+    {
+        return *background;
+    }
+
+    Ego::Graphics::RenderPass& getMotionBlur() const
+    {
+        return *motionBlur;
+    }
+
+    Ego::Graphics::RenderPass& getHeightmap() const
+    {
+        return *heightmap;
+    }
 };
 
 /// SDL destroys the OpenGL context at various occassions (e.g. when changing the video mode).
@@ -168,17 +286,6 @@ void draw_blip(float sizeFactor, Uint8 color, float x, float y);
 void draw_mouse_cursor();
 void draw_passages(Camera& cam);
 
-/// The active dynamic lights
-struct dynalist_t
-{
-	int frame; ///< The last frame in shich the list was updated. @a -1 if there was no update yet.
-	size_t size; ///< The size of the list.
-	dynalight_data_t lst[TOTAL_MAX_DYNA];  ///< The list.
-	static void init(dynalist_t& self);
-    dynalist_t()
-        : frame(-1), size(0), lst{}
-    {}
-};
 
 /// Structure for keeping track of which dynalights are visible
 struct dynalight_registry_t {
@@ -228,5 +335,3 @@ public:
     /// Bind the texture of the tile to the texture unit.
     static void bind(const ego_tile_info_t& tile);
 };
-
-

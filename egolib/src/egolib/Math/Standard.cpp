@@ -69,19 +69,19 @@ Matrix4f4f mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed(const Vector3f& scale, 
     return DST;
 }
 
-Vector3f mat_getTranslate(const Matrix4f4f& mat)
+Vector3f mat_getTranslate(const Matrix4f4f& m)
 {
-    return Vector3f(mat(0, 3), mat(1, 3), mat(2, 3));
+    return Vector3f(m(0, 3), m(1, 3), m(2, 3));
 }
 
-Vector3f mat_getChrUp(const Matrix4f4f& mat)
+Vector3f mat_getChrUp(const Matrix4f4f& m)
 {
-    return Vector3f(mat(0, 2), mat(1, 2), mat(2, 2));
+    return Vector3f(m(0, 2), m(1, 2), m(2, 2));
 }
 
-Vector3f mat_getChrForward(const Matrix4f4f& mat)
+Vector3f mat_getChrForward(const Matrix4f4f& m)
 {
-    return Vector3f(-mat(0, 0), -mat(1, 0), -mat(2, 0));
+    return Vector3f(-m(0, 0), -m(1, 0), -m(2, 0));
 }
 
 Vector3f mat_getChrRight(const Matrix4f4f& mat)
@@ -89,31 +89,19 @@ Vector3f mat_getChrRight(const Matrix4f4f& mat)
     return Vector3f(mat(0, 1), mat(1, 1), mat(2, 1));
 }
 
-bool mat_getCamUp(const Matrix4f4f& mat, Vector3f& up)
+Vector3f mat_getCamUp(const Matrix4f4f& m)
 {
-    up[kX] = mat(1,0);
-    up[kY] = mat(1,1);
-    up[kZ] = mat(1,2);
-
-    return true;
+    return Vector3f(m(1,0), m(1,1), m(1,2));
 }
 
-bool mat_getCamRight(const Matrix4f4f& mat, Vector3f& right)
+Vector3f mat_getCamRight(const Matrix4f4f& m)
 {
-    right[kX] = -mat(0,0);
-    right[kY] = -mat(0,1);
-    right[kZ] = -mat(0,2);
-
-    return true;
+    return Vector3f(-m(0,0), -m(0,1), -m(0,2));
 }
 
-bool mat_getCamForward(const Matrix4f4f& mat, Vector3f& forward)
+Vector3f mat_getCamForward(const Matrix4f4f& m)
 {
-    forward[kX] = -mat(2,0);
-    forward[kY] = -mat(2,1);
-    forward[kZ] = -mat(2,2);
-
-    return true;
+    return Vector3f(-m(2,0), -m(2,1), -m(2,2));
 }
 
 void dump_matrix(const Matrix4f4f& a)

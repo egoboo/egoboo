@@ -63,6 +63,12 @@
     <Filter Include="Game Sources\Logic">
       <UniqueIdentifier>{c4bc11cd-d5ea-4826-908e-6280d1f109bd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game Header Files\Graphics\RenderPasses">
+      <UniqueIdentifier>{2df50c2b-05ed-435f-a4c5-f012d5a45894}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game Sources\Graphics\RenderPasses">
+      <UniqueIdentifier>{731543d6-3a84-4fdf-a8ee-85c1e4bc2107}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\game\egoboo.c">
@@ -72,9 +78,6 @@
       <Filter>Game Sources</Filter>
     </ClCompile>
     <ClCompile Include="src\game\graphic.c">
-      <Filter>Game Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\graphic_billboard.c">
       <Filter>Game Sources</Filter>
     </ClCompile>
     <ClCompile Include="src\game\graphic_fan.c">
@@ -332,6 +335,48 @@
     <ClCompile Include="src\game\script_variables.c">
       <Filter>Game Sources</Filter>
     </ClCompile>
+    <ClCompile Include="src\game\Graphics\RenderPasses\BackgroundRenderPass.cpp">
+      <Filter>Game Sources\Graphics\RenderPasses</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Graphics\RenderPasses\ForegroundRenderPass.cpp">
+      <Filter>Game Sources\Graphics\RenderPasses</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Graphics\RenderPasses\WaterTilesRenderPass.cpp">
+      <Filter>Game Sources\Graphics\RenderPasses</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Graphics\ParticleGraphics.cpp">
+      <Filter>Game Sources\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Graphics\RenderPasses\NonOpaqueEntitiesRenderPass.cpp">
+      <Filter>Game Sources\Graphics\RenderPasses</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Graphics\RenderPasses\OpaqueEntitiesRenderPass.cpp">
+      <Filter>Game Sources\Graphics\RenderPasses</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Graphics\RenderPasses\EntityShadowsRenderPass.cpp">
+      <Filter>Game Sources\Graphics\RenderPasses</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Graphics\RenderPasses\EntityReflectionsRenderPass.cpp">
+      <Filter>Game Sources\Graphics\RenderPasses</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Graphics\RenderPasses\NonReflectiveTilesRenderPass.cpp">
+      <Filter>Game Sources\Graphics\RenderPasses</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Graphics\RenderPasses\ReflectiveTilesFirstRenderPass.cpp">
+      <Filter>Game Sources\Graphics\RenderPasses</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Graphics\RenderPasses\ReflectiveTilesSecondRenderPass.cpp">
+      <Filter>Game Sources\Graphics\RenderPasses</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Graphics\RenderPasses\HeightmapRenderPass.cpp">
+      <Filter>Game Sources\Graphics\RenderPasses</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Graphics\Billboard.cpp">
+      <Filter>Game Sources\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Graphics\BillboardSystem.cpp">
+      <Filter>Game Sources\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game\egoboo.h">
@@ -344,9 +389,6 @@
       <Filter>Game Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\game\graphic.h">
-      <Filter>Game Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\graphic_billboard.h">
       <Filter>Game Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\game\graphic_fan.h">
@@ -624,6 +666,48 @@
     </ClInclude>
     <ClInclude Include="src\game\script_variables.h">
       <Filter>Game Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\Graphics\RenderPasses\BackgroundRenderPass.hpp">
+      <Filter>Game Header Files\Graphics\RenderPasses</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\Graphics\RenderPasses\ForegroundRenderPass.hpp">
+      <Filter>Game Header Files\Graphics\RenderPasses</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\Graphics\RenderPasses\WaterTilesRenderPass.hpp">
+      <Filter>Game Header Files\Graphics\RenderPasses</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\Graphics\ParticleGraphics.hpp">
+      <Filter>Game Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\Graphics\RenderPasses\NonOpaqueEntitiesRenderPass.hpp">
+      <Filter>Game Header Files\Graphics\RenderPasses</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\Graphics\RenderPasses\OpaqueEntitiesRenderPass.hpp">
+      <Filter>Game Header Files\Graphics\RenderPasses</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\Graphics\RenderPasses\EntityShadowsRenderPass.hpp">
+      <Filter>Game Header Files\Graphics\RenderPasses</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\Graphics\RenderPasses\EntityReflectionsRenderPass.hpp">
+      <Filter>Game Header Files\Graphics\RenderPasses</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\Graphics\RenderPasses\NonReflectiveTilesRenderPass.hpp">
+      <Filter>Game Header Files\Graphics\RenderPasses</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\Graphics\RenderPasses\ReflectiveTilesFirstRenderPass.hpp">
+      <Filter>Game Header Files\Graphics\RenderPasses</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\Graphics\RenderPasses\ReflectiveTilesSecondRenderPass.hpp">
+      <Filter>Game Header Files\Graphics\RenderPasses</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\Graphics\RenderPasses\HeightmapRenderPass.hpp">
+      <Filter>Game Header Files\Graphics\RenderPasses</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\Graphics\Billboard.hpp">
+      <Filter>Game Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\Graphics\BillboardSystem.hpp">
+      <Filter>Game Header Files\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

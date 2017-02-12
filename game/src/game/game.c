@@ -26,25 +26,27 @@
 #include "egolib/egolib.h"
 #include "egolib/FileFormats/Globals.hpp"
 
-#include "game/GUI/MiniMap.hpp"
 #include "game/GameStates/PlayingState.hpp"
 #include "game/Inventory.hpp"
 #include "game/Logic/Player.hpp"
 #include "game/link.h"
-#include "game/graphic.h"
-#include "game/graphic_fan.h"
-#include "game/graphic_billboard.h"
 #include "game/script_implementation.h"
 #include "game/egoboo.h"
 #include "game/Core/GameEngine.hpp"
 #include "game/Module/Passage.hpp"
-#include "game/Graphics/CameraSystem.hpp"
 #include "game/Module/Module.hpp"
 #include "game/Physics/CollisionSystem.hpp"
 #include "game/physics.h"
 #include "game/Physics/PhysicalConstants.hpp"
 #include "game/Entities/_Include.hpp"
+#include "game/GUI/MiniMap.hpp"
 #include "game/GUI/MessageLog.hpp"
+#include "game/graphic.h"
+#include "game/graphic_fan.h"
+#include "game/Graphics/BillboardSystem.hpp"
+#include "game/Graphics/CameraSystem.hpp"
+#include "game/Graphics/Billboard.hpp"
+#include "game/Graphics/BillboardSystem.hpp"
 
 //--------------------------------------------------------------------------------------------
 //Global variables! eww! TODO: remove these
@@ -399,7 +401,7 @@ int update_game()
     //---- begin the code for updating misc. game stuff
     {
         AudioSystem::get().updateLoopingSounds();
-        BillboardSystem::get().update();
+        GFX::get().getBillboardSystem().update();
         g_animatedTilesState.animate();
         _currentModule->getWater().move();
         _currentModule->updateDamageTiles();
@@ -1498,53 +1500,57 @@ void fog_instance_t::upload(const wawalite_fog_t& source)
 }
 
 //--------------------------------------------------------------------------------------------
+
+AnimatedTilesState::Layer::Layer() :
+    update_and(0),
+    frame_and(0),
+    base_and(0),
+    frame_add(0),
+    frame_add_old(0),
+    frame_update_old(0)
+{}
+
 void AnimatedTilesState::upload(const wawalite_animtile_t& source)
 {
     elements.fill(Layer());
 
-    for (size_t i = 0; i < elements.size(); ++i)
+    uint32_t frame_and = source.frame_and;
+    for (auto& element : elements)
     {
-        elements[i].frame_and = (1 << (i + 2)) - 1;
-        elements[i].base_and = ~elements[i].frame_and;
-        elements[i].frame_add = 0;
+        element.update_and = source.update_and;
+        element.frame_and = frame_and;
+        element.base_and = ~element.frame_and;
+        element.frame_add = 0;
+        frame_and = (frame_and << 1) | 1;
+    }
+}
+
+void AnimatedTilesState::Layer::animate()
+{
+    // skip it if there were no updates
+    if (frame_update_old == update_wld) return;
+
+    // save the old frame_add when we update to detect changes
+    frame_add_old = frame_add;
+
+    // cycle through all frames since the last time
+    for (uint32_t tnc = frame_update_old + 1; tnc <= update_wld; tnc++)
+    {
+        if (0 == (tnc & update_and))
+        {
+            frame_add = (frame_add + 1) & frame_and;
+        }
     }
 
-    elements[0].update_and = source.update_and;
-    elements[0].frame_and  = source.frame_and;
-    elements[0].base_and   = ~elements[0].frame_and;
-
-    for (size_t i = 1; i < elements.size(); ++i)
-    {
-        elements[i].update_and = source.update_and;
-        elements[i].frame_and = (elements[i - 1].frame_and << 1) | 1;
-        elements[i].base_and = ~elements[i].frame_and;
-    }
+    // save the frame update
+    frame_update_old = update_wld;
 }
 
 void AnimatedTilesState::animate()
 {
-    for (size_t cnt = 0; cnt < 2; cnt++)
+    for (auto& element : elements)
     {
-        // grab the tile data
-        auto& element = elements[cnt];
-
-        // skip it if there were no updates
-        if (element.frame_update_old == update_wld) continue;
-
-        // save the old frame_add when we update to detect changes
-        element.frame_add_old = element.frame_add;
-
-        // cycle through all frames since the last time
-        for (Uint32 tnc = element.frame_update_old + 1; tnc <= update_wld; tnc++)
-        {
-            if (0 == (tnc & element.update_and))
-            {
-                element.frame_add = (element.frame_add + 1) & element.frame_and;
-            }
-        }
-
-        // save the frame update
-        element.frame_update_old = update_wld;
+        element.animate();
     }
 }
 
@@ -2395,7 +2401,7 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
                     //If Quick Strike perk triggers then we have fastest possible attack (10% chance)
                     if(pchr->hasPerk(Ego::Perks::QUICK_STRIKE) && pweapon->getProfile()->isMeleeWeapon() && Random::getPercent() <= 10) {
                         pchr->inst.setAnimationSpeed(3.0f);
-                        BillboardSystem::get().makeBillboard(pchr->getObjRef(), "Quick Strike!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::blue(), 3, Billboard::Flags::All);
+                        GFX::get().getBillboardSystem().makeBillboard(pchr->getObjRef(), "Quick Strike!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::blue(), 3, Ego::Graphics::Billboard::Flags::All);
                     }
 
                     //Add some reload time as a true limit to attacks per second
@@ -2547,7 +2553,7 @@ void character_swipe( ObjectRef ichr, slot_t slot )
 
                     //1% chance per Intellect
                     if(Random::getPercent() <= pchr->getAttribute(Ego::Attribute::INTELLECT)) {
-                        BillboardSystem::get().makeBillboard(pchr->getObjRef(), "Wand Mastery!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::purple(), 3, Billboard::Flags::All);
+                        GFX::get().getBillboardSystem().makeBillboard(pchr->getObjRef(), "Wand Mastery!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::purple(), 3, Ego::Graphics::Billboard::Flags::All);
                     }
                     else {
                         pweapon->ammo--;  // Ammo usage
@@ -2567,7 +2573,7 @@ void character_swipe( ObjectRef ichr, slot_t slot )
                 //1% chance per Agility
                 if(Random::getPercent() <= pchr->getAttribute(Ego::Attribute::AGILITY) && pweapon->ammo > 0) {
                     NR_OF_ATTACK_PARTICLES = 2;
-                    BillboardSystem::get().makeBillboard(pchr->getObjRef(), "Double Shot!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::green(), 3, Billboard::Flags::All);                    
+                    GFX::get().getBillboardSystem().makeBillboard(pchr->getObjRef(), "Double Shot!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::green(), 3, Ego::Graphics::Billboard::Flags::All);                    
 
                     //Spend one extra ammo
                     pweapon->ammo--;

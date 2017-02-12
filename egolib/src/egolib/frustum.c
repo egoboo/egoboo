@@ -247,7 +247,7 @@ void Frustum::calculate(const Matrix4f4f& projection, const Matrix4f4f& view)
     // Compute the sphere.
     {
         // extract the view direction from the view matrix
-        mat_getCamForward(view, vlook);
+        vlook = mat_getCamForward(view);
 
         // one far corner of the frustum
         three_plane_intersection(pt1, _planes[Planes::TOP],

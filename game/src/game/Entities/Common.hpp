@@ -19,6 +19,7 @@
 #pragma once
 
 #include "game/mesh.h"
+#include "game/physics.h"
 
 /**
  * @brief

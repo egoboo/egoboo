@@ -38,7 +38,7 @@
 //For loading stuff
 #include "game/Graphics/CameraSystem.hpp"
 #include "game/game.h"
-#include "game/graphic_billboard.h"
+#include "game/Graphics/Billboard.hpp"
 #include "game/link.h"
 #include "egolib/fileutil.h"
 

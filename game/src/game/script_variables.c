@@ -3,6 +3,7 @@
 #include "game/Entities/_Include.hpp"
 #include "egolib/Script/script.h"
 #include "game/game.h"
+#include "game/Graphics/CameraSystem.hpp"
 
 int32_t load_VARTMPX(script_state_t& scriptState, ai_state_t& aiState, Object *pobject, Object *ptarget, Object *powner, Object *pleader)
 {

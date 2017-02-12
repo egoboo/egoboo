@@ -124,7 +124,7 @@
       <PreprocessToFile>false</PreprocessToFile>
       <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
       <PreprocessKeepComments>false</PreprocessKeepComments>
-      <MinimalRebuild>true</MinimalRebuild>
+      <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -148,7 +148,7 @@
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <CompileAsManaged>false</CompileAsManaged>
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <UseUnicodeForAssemblerListing>false</UseUnicodeForAssemblerListing>
       <SmallerTypeCheck>false</SmallerTypeCheck>
       <SDLCheck>true</SDLCheck>
@@ -219,10 +219,10 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <CompileAsManaged>false</CompileAsManaged>
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <UseUnicodeForAssemblerListing>false</UseUnicodeForAssemblerListing>
       <SmallerTypeCheck>false</SmallerTypeCheck>
-      <MinimalRebuild>true</MinimalRebuild>
+      <MinimalRebuild>false</MinimalRebuild>
       <SDLCheck>true</SDLCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <OmitFramePointers>false</OmitFramePointers>
@@ -401,6 +401,20 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\game\Graphics\BillboardSystem.cpp" />
+    <ClCompile Include="src\game\Graphics\Billboard.cpp" />
+    <ClCompile Include="src\game\Graphics\RenderPasses\HeightmapRenderPass.cpp" />
+    <ClCompile Include="src\game\Graphics\RenderPasses\ReflectiveTilesSecondRenderPass.cpp" />
+    <ClCompile Include="src\game\Graphics\RenderPasses\NonReflectiveTilesRenderPass.cpp" />
+    <ClCompile Include="src\game\Graphics\RenderPasses\ReflectiveTilesFirstRenderPass.cpp" />
+    <ClCompile Include="src\game\Graphics\RenderPasses\EntityReflectionsRenderPass.cpp" />
+    <ClCompile Include="src\game\Graphics\RenderPasses\EntityShadowsRenderPass.cpp" />
+    <ClCompile Include="src\game\Graphics\RenderPasses\NonOpaqueEntitiesRenderPass.cpp" />
+    <ClCompile Include="src\game\Graphics\RenderPasses\OpaqueEntitiesRenderPass.cpp" />
+    <ClCompile Include="src\game\Graphics\ParticleGraphics.cpp" />
+    <ClCompile Include="src\game\Graphics\RenderPasses\WaterTilesRenderPass.cpp" />
+    <ClCompile Include="src\game\Graphics\RenderPasses\BackgroundRenderPass.cpp" />
+    <ClCompile Include="src\game\Graphics\RenderPasses\ForegroundRenderPass.cpp" />
     <ClCompile Include="src\game\script_variables.c" />
     <ClCompile Include="src\game\Graphics\ObjectGraphics.cpp" />
     <ClCompile Include="src\game\GUI\Panel.cpp" />
@@ -478,7 +492,6 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClCompile Include="src\game\egoboo.c" />
     <ClCompile Include="src\game\game.c" />
     <ClCompile Include="src\game\graphic.c" />
-    <ClCompile Include="src\game\graphic_billboard.c" />
     <ClCompile Include="src\game\graphic_fan.c" />
     <ClCompile Include="src\game\graphic_mad.c" />
     <ClCompile Include="src\game\graphic_prt.c" />
@@ -492,6 +505,20 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClCompile Include="src\game\script_implementation.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\game\Graphics\BillboardSystem.hpp" />
+    <ClInclude Include="src\game\Graphics\Billboard.hpp" />
+    <ClInclude Include="src\game\Graphics\RenderPasses\HeightmapRenderPass.hpp" />
+    <ClInclude Include="src\game\Graphics\RenderPasses\ReflectiveTilesSecondRenderPass.hpp" />
+    <ClInclude Include="src\game\Graphics\RenderPasses\NonReflectiveTilesRenderPass.hpp" />
+    <ClInclude Include="src\game\Graphics\RenderPasses\ReflectiveTilesFirstRenderPass.hpp" />
+    <ClInclude Include="src\game\Graphics\RenderPasses\EntityReflectionsRenderPass.hpp" />
+    <ClInclude Include="src\game\Graphics\RenderPasses\EntityShadowsRenderPass.hpp" />
+    <ClInclude Include="src\game\Graphics\RenderPasses\NonOpaqueEntitiesRenderPass.hpp" />
+    <ClInclude Include="src\game\Graphics\RenderPasses\OpaqueEntitiesRenderPass.hpp" />
+    <ClInclude Include="src\game\Graphics\ParticleGraphics.hpp" />
+    <ClInclude Include="src\game\Graphics\RenderPasses\WaterTilesRenderPass.hpp" />
+    <ClInclude Include="src\game\Graphics\RenderPasses\BackgroundRenderPass.hpp" />
+    <ClInclude Include="src\game\Graphics\RenderPasses\ForegroundRenderPass.hpp" />
     <ClInclude Include="src\game\script_variables.h" />
     <ClInclude Include="src\game\Graphics\ObjectGraphics.hpp" />
     <ClInclude Include="src\game\GUI\Panel.hpp" />
@@ -577,7 +604,6 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClInclude Include="src\game\egoboo_doxygen.h" />
     <ClInclude Include="src\game\game.h" />
     <ClInclude Include="src\game\graphic.h" />
-    <ClInclude Include="src\game\graphic_billboard.h" />
     <ClInclude Include="src\game\graphic_fan.h" />
     <ClInclude Include="src\game\graphic_mad.h" />
     <ClInclude Include="src\game\graphic_prt.h" />

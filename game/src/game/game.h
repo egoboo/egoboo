@@ -86,16 +86,7 @@ enum e_targeting_bits
 struct AnimatedTilesState {
     /// The state of a layer of the animated tiles.
     struct Layer {
-        Layer() :
-            update_and(0),
-            frame_and(0),
-            base_and(0),
-            frame_add(0),
-            frame_add_old(0),
-            frame_update_old(0)
-        {
-            //ctor
-        }
+        Layer();
 
         int    update_and;            ///< how often to update the tile
 
@@ -104,10 +95,12 @@ struct AnimatedTilesState {
         uint16_t frame_add;             ///< which image within the tile set?
         uint16_t frame_add_old;         ///< the frame offset, the last time it was updated
         uint32_t frame_update_old;
+        /// @brief Iterate the state of the layer.
+        void animate();
     };
     std::array<Layer,2> elements;
     void upload(const wawalite_animtile_t& source);
-    /// @brief Iterate the state of the animated tiles.
+    /// @brief Iterate the state of the layers.
     void animate();
 };
 

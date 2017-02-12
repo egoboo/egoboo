@@ -29,7 +29,7 @@
 static bool load_ai_codes_vfs();
 
 parser_state_t::parser_state_t()
-	: _loadBuffer(1024), _token(), _lineBuffer(256)
+	: _loadBuffer(), _token(), _lineBuffer()
 {
 	_line_count = 0;
 
@@ -210,7 +210,7 @@ size_t parser_state_t::load_one_line( size_t read, script_info_t& script )
 
 line_scanner_state_t::line_scanner_state_t(Buffer *inputBuffer, const Location& location)
     : m_token(PDLTokenKind::StartOfLine, location, location), m_inputPosition(0),
-      m_inputBuffer(inputBuffer), m_location(location), m_lexemeBuffer(128)
+      m_inputBuffer(inputBuffer), m_location(location), m_lexemeBuffer()
 {}
 
 Location line_scanner_state_t::getLocation() const

@@ -24,23 +24,30 @@
 #include "game/graphic.h"
 
 #include "game/Core/GameEngine.hpp"
-#include "game/graphic_prt.h"
-#include "game/graphic_mad.h"
 #include "game/graphic_fan.h"
-#include "game/graphic_billboard.h"
 #include "game/renderer_3d.h"
 #include "egolib/Script/script.h"
 #include "game/script_compile.h"
 #include "egolib/FileFormats/Globals.hpp"
 #include "game/game.h"
-#include "game/lighting.h"
 #include "game/GUI/UIManager.hpp"
 #include "game/Logic/Player.hpp"
 #include "game/Module/Module.hpp"
 #include "game/Graphics/RenderPasses.hpp"
+#include "game/Graphics/RenderPasses/BackgroundRenderPass.hpp"
+#include "game/Graphics/RenderPasses/ForegroundRenderPass.hpp"
+#include "game/Graphics/RenderPasses/WaterTilesRenderPass.hpp"
+#include "game/Graphics/RenderPasses/OpaqueEntitiesRenderPass.hpp"
+#include "game/Graphics/RenderPasses/NonOpaqueEntitiesRenderPass.hpp"
+#include "game/Graphics/RenderPasses/EntityShadowsRenderPass.hpp"
+#include "game/Graphics/RenderPasses/EntityReflectionsRenderPass.hpp"
+#include "game/Graphics/RenderPasses/NonReflectiveTilesRenderPass.hpp"
+#include "game/Graphics/RenderPasses/ReflectiveTilesFirstRenderPass.hpp"
+#include "game/Graphics/RenderPasses/ReflectiveTilesSecondRenderPass.hpp"
+#include "game/Graphics/RenderPasses/HeightmapRenderPass.hpp"
 #include "game/mesh.h"
+#include "game/Graphics/BillboardSystem.hpp"
 #include "game/Graphics/CameraSystem.hpp"
-#include "game/Module/Module.hpp"
 #include "game/Entities/_Include.hpp"
 #include "game/Graphics/TextureAtlasManager.hpp"
 #include "game/Module/Passage.hpp"
@@ -69,8 +76,6 @@ Clock<ClockPolicy::NonRecursive>  gfx_make_tileList_timer("gfx.make.tileList", 5
 Clock<ClockPolicy::NonRecursive>  gfx_make_entityList_timer("gfx.make.entityList", 512);
 Clock<ClockPolicy::NonRecursive>  do_grid_lighting_timer("do.grid.lighting", 512);
 Clock<ClockPolicy::NonRecursive>  light_fans_timer("light.fans", 512);
-Clock<ClockPolicy::NonRecursive>  gfx_update_all_chr_instance_timer("gfx.update.all.chr.instance", 512);
-Clock<ClockPolicy::NonRecursive>  update_all_prt_instance_timer("update.all.prt.instance", 512);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -78,10 +83,6 @@ Clock<ClockPolicy::NonRecursive>  update_all_prt_instance_timer("update.all.prt.
 gfx_config_t     gfx;
 
 float            indextoenvirox[MD2Model::normalCount];
-
-//--------------------------------------------------------------------------------------------
-
-static dynalist_t _dynalist;
 
 //--------------------------------------------------------------------------------------------
 
@@ -96,23 +97,22 @@ void reinitClocks() {
 	gfx_make_entityList_timer.reinit();
 	do_grid_lighting_timer.reinit();
 	light_fans_timer.reinit();
-	gfx_update_all_chr_instance_timer.reinit();
-	update_all_prt_instance_timer.reinit();
+	GFX::get().update_object_instances_timer.reinit();
+	GFX::get().update_particle_instances_timer.reinit();
 
-	Ego::Graphics::RenderPasses::g_entityReflections.clock.reinit();
-	Ego::Graphics::RenderPasses::g_entityShadows.clock.reinit();
-	Ego::Graphics::RenderPasses::g_solidEntities.clock.reinit();
-	Ego::Graphics::RenderPasses::g_transparentEntities.clock.reinit();
-	Ego::Graphics::RenderPasses::g_water.clock.reinit();
-	Ego::Graphics::RenderPasses::g_reflective0.clock.reinit();
-	Ego::Graphics::RenderPasses::g_reflective1.clock.reinit();
-	Ego::Graphics::RenderPasses::g_nonReflective.clock.reinit();
-	Ego::Graphics::RenderPasses::g_foreground.clock.reinit();
-	Ego::Graphics::RenderPasses::g_background.clock.reinit();
+	GFX::get().getEntityReflections().clock.reinit();
+    GFX::get().getEntityShadows().clock.reinit();
+	GFX::get().getOpaqueEntities().clock.reinit();
+    GFX::get().getNonOpaqueEntities().clock.reinit();
+    GFX::get().getWater().clock.reinit();
+    GFX::get().getReflective0().clock.reinit();
+    GFX::get().getReflective1().clock.reinit();
+    GFX::get().getNonReflective().clock.reinit();
+    GFX::get().getForeground().clock.reinit();
+    GFX::get().getBackground().clock.reinit();
 }
 
 static gfx_rv render_scene_init(Ego::Graphics::TileList& tl, Ego::Graphics::EntityList& el, dynalist_t& dyl, Camera& cam);
-static gfx_rv render_scene_mesh(Camera& cam, const Ego::Graphics::TileList& tl, const Ego::Graphics::EntityList& el);
 static gfx_rv render_scene(Camera& cam, Ego::Graphics::TileList& tl, Ego::Graphics::EntityList& el);
 
 /**
@@ -134,7 +134,6 @@ static float draw_timer(float y);
 static float draw_game_status(float y);
 
 
-static gfx_rv gfx_update_all_chr_instance();
 static gfx_rv gfx_update_flashing(Ego::Graphics::EntityList& el);
 
 static bool sum_global_lighting(std::array<float, LIGHTING_VEC_SIZE> &lighting);
@@ -142,57 +141,26 @@ static bool sum_global_lighting(std::array<float, LIGHTING_VEC_SIZE> &lighting);
 //--------------------------------------------------------------------------------------------
 // GFX implementation
 //--------------------------------------------------------------------------------------------
-GFX::GFX() {
-    // Initialize SDL.
-    GFX::initializeSDLGraphics();
-    // initialize the dynalist frame
-    // otherwise, it will not update until the frame count reaches whatever
-    // left over or random value is in this counter
-    _dynalist.frame = -1;
-    _dynalist.size = 0;
 
-    // Initialize the billboard system.
-    try {
-        BillboardSystem::initialize();
-    } catch (...) {
-        GFX::uninitializeSDLGraphics();
-        std::rethrow_exception(std::current_exception());
-    }
-    // Initialize the texture atlas manager.
-    try {
-        Ego::Graphics::TextureAtlasManager::initialize();
-    } catch (...) {
-        BillboardSystem::uninitialize();
-        GFX::uninitializeSDLGraphics();
-        std::rethrow_exception(std::current_exception());
-    }
-}
+GFX::GFX() :
+    GameApp<GFX>("Egoboo", GameEngine::GAME_VERSION),
+    update_object_instances_timer("update.object.instances", 512),
+    update_particle_instances_timer("update.particle.instances", 512),
+    nonOpaqueEntities(std::make_unique<Ego::Graphics::NonOpaqueEntitiesRenderPass>()),
+    opaqueEntities(std::make_unique<Ego::Graphics::OpaqueEntitiesRenderPass>()),
+    reflective0(std::make_unique<Ego::Graphics::ReflectiveTilesFirstRenderPass>()),
+    reflective1(std::make_unique<Ego::Graphics::ReflectiveTilesSecondRenderPass>()),
+    nonReflective(std::make_unique<Ego::Graphics::NonReflectiveTilesRenderPass>()),
+    entityShadows(std::make_unique<Ego::Graphics::EntityShadowsRenderPass>()),
+    water(std::make_unique<Ego::Graphics::WaterTilesRenderPass>()),
+    entityReflections(std::make_unique<Ego::Graphics::EntityReflectionsRenderPass>()),
+    foreground(std::make_unique<Ego::Graphics::ForegroundRenderPass>()),
+    background(std::make_unique<Ego::Graphics::BackgroundRenderPass>()),
+    heightmap(std::make_unique<Ego::Graphics::HeightmapRenderPass>())
+{}
 
 GFX::~GFX()
-{
-    // Uninitialize the billboard system.
-    BillboardSystem::uninitialize();
-
-    // Uninitialize the texture atlas manager.
-    Ego::Graphics::TextureAtlasManager::uninitialize();
-
-    // Uninitialize the profiling variables.
-	reinitClocks(); // Important: clear out the sliding windows of the clocks.
-
-    // Uninitialize SDL graphics.
-    GFX::uninitializeSDLGraphics();
-}
-
-//--------------------------------------------------------------------------------------------
-void GFX::uninitializeSDLGraphics()
-{
-    Ego::App::uninitialize();
-}
-
-void GFX::initializeSDLGraphics()
-{
-    Ego::App::initialize("Egoboo", GameEngine::GAME_VERSION);
-}
+{}
 
 //--------------------------------------------------------------------------------------------
 void gfx_system_render_world(std::shared_ptr<Camera> camera, std::shared_ptr<Ego::Graphics::TileList> tileList, std::shared_ptr<Ego::Graphics::EntityList> entityList)
@@ -211,9 +179,9 @@ void gfx_system_render_world(std::shared_ptr<Camera> camera, std::shared_ptr<Ego
 
     Renderer3D::begin3D(*camera);
     {
-		Ego::Graphics::RenderPasses::g_background.run(*camera, *tileList, *entityList);
+		GFX::get().getBackground().run(*camera, *tileList, *entityList);
         render_scene(*camera, *tileList, *entityList);
-		Ego::Graphics::RenderPasses::g_foreground.run(*camera, *tileList, *entityList);
+		GFX::get().getForeground().run(*camera, *tileList, *entityList);
 
         if (camera->getMotionBlur() > 0)
         {
@@ -233,7 +201,7 @@ void gfx_system_render_world(std::shared_ptr<Camera> camera, std::shared_ptr<Ego
     Renderer3D::end3D();
 
     // Render the billboards
-    BillboardSystem::get().render_all(*camera);
+    GFX::get().getBillboardSystem().render_all(*camera);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -262,7 +230,7 @@ void gfx_system_init_all_graphics()
 //--------------------------------------------------------------------------------------------
 void gfx_system_release_all_graphics()
 {
-    BillboardSystem::get().reset();
+    GFX::get().getBillboardSystem().reset();
     Ego::TextureManager::get().release_all();
 }
 
@@ -750,18 +718,18 @@ gfx_rv render_scene_init(Ego::Graphics::TileList& tl, Ego::Graphics::EntityList&
     }
 
     {
-		ClockScope<ClockPolicy::NonRecursive> scope(gfx_update_all_chr_instance_timer);
-        // make sure the characters are ready to draw
-        if (gfx_error == gfx_update_all_chr_instance())
+		ClockScope<ClockPolicy::NonRecursive> scope(GFX::get().update_object_instances_timer);
+        // Update object instances.
+        if (gfx_error == GFX::get().update_object_instances(cam))
         {
             retval = gfx_error;
         }
     }
 
     {
-		ClockScope<ClockPolicy::NonRecursive> scope(update_all_prt_instance_timer);
-        // make sure the particles are ready to draw
-        if (gfx_error == update_all_prt_instance(cam))
+		ClockScope<ClockPolicy::NonRecursive> scope(GFX::get().update_particle_instances_timer);
+        // Update particle instances.
+        if (gfx_error == GFX::get().update_particle_instances(cam))
         {
             retval = gfx_error;
         }
@@ -777,60 +745,6 @@ gfx_rv render_scene_init(Ego::Graphics::TileList& tl, Ego::Graphics::EntityList&
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_mesh(Camera& cam, const Ego::Graphics::TileList& tl, const Ego::Graphics::EntityList& el)
-{
-    /// @author BB
-    /// @details draw the mesh and reflections of entities
-
-    gfx_rv retval;
-
-    // assume the best
-    retval = gfx_success;
-    //--------------------------------
-    // advance the animation of all animated tiles
-    animate_all_tiles(*tl.getMesh());
-
-	// Render non-reflective tiles.
-	Ego::Graphics::RenderPasses::g_nonReflective.run(cam, tl, el);
-
-    //--------------------------------
-    // draw the reflective tiles and reflections of entities
-    if (gfx.refon)
-    {
-		// Clear background behind reflective tiles.
-		Ego::Graphics::RenderPasses::g_reflective0.run(cam, tl, el);
-
-		// Render reflections of entities.
-		Ego::Graphics::RenderPasses::g_entityReflections.run(cam, tl, el);
-    }
-    else
-    {
-    }
-    // Render water.
-    Ego::Renderer::get().setProjectionMatrix(cam.getProjectionMatrix());
-    Ego::Renderer::get().setViewMatrix(cam.getViewMatrix());
-    Ego::Renderer::get().setWorldMatrix(Matrix4f4f::identity());
-	Ego::Graphics::RenderPasses::g_reflective1.run(cam, tl, el);
-
-	if (egoboo_config_t::get().debug_mesh_renderHeightMap.getValue())
-	{
-		// restart the mesh texture code
-		TileRenderer::invalidate();
-
-		// render the heighmap
-        Ego::Graphics::RenderPasses::Internal::TileListV2::render_heightmap(*tl.getMesh().get(), tl._all);
-
-		// let the mesh texture code know that someone else is in control now
-		TileRenderer::invalidate();
-	}
-
-    // Render the shadows of entities.
-	Ego::Graphics::RenderPasses::g_entityShadows.run(cam, tl, el);
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
 
 gfx_rv render_scene(Camera& cam, Ego::Graphics::TileList& tl, Ego::Graphics::EntityList& el)
 {
@@ -838,7 +752,7 @@ gfx_rv render_scene(Camera& cam, Ego::Graphics::TileList& tl, Ego::Graphics::Ent
     gfx_rv retval = gfx_success;
     {
 		ClockScope<ClockPolicy::NonRecursive> clockScope(render_scene_init_timer);
-        if (gfx_error == render_scene_init(tl, el, _dynalist, cam))
+        if (gfx_error == render_scene_init(tl, el, GFX::get().getDynalist(), cam))
         {
             retval = gfx_error;
         }
@@ -850,11 +764,20 @@ gfx_rv render_scene(Camera& cam, Ego::Graphics::TileList& tl, Ego::Graphics::Ent
 			ClockScope<ClockPolicy::NonRecursive> clockScope2(sortDoListReflected_timer);
 			el.sort(cam, true);
         }
-        // Render the mesh tiles and reflections of entities.
-        if (gfx_error == render_scene_mesh(cam, tl, el))
-        {
-            retval = gfx_error;
-        }
+        // Advance the animation of animated tiles.
+        animate_all_tiles(*tl.getMesh());
+        // Render non-reflective tiles.
+        GFX::get().getNonReflective().run(cam, tl, el);
+        // Reflective tiles first pass.
+        GFX::get().getReflective0().run(cam, tl, el);
+        // Entity reflections.
+        GFX::get().getEntityReflections().run(cam, tl, el);
+        // Reflective tiles second pass.
+        GFX::get().getReflective1().run(cam, tl, el);
+        // Heightmap.
+        GFX::get().getHeightmap().run(cam, tl, el);
+        // Entity shadows.
+        GFX::get().getEntityShadows().run(cam, tl, el);
     }
 	{
 		// Sort dolist for unreflected rendering.
@@ -862,20 +785,14 @@ gfx_rv render_scene(Camera& cam, Ego::Graphics::TileList& tl, Ego::Graphics::Ent
         el.sort(cam, false);
 	}
 
-    // Render solid entities.
-	Ego::Graphics::RenderPasses::g_solidEntities.run(cam, tl, el);
+    // Render opaque entities.
+	GFX::get().getOpaqueEntities().run(cam, tl, el);
 
 	// Render water.
-    Ego::Renderer::get().setProjectionMatrix(cam.getProjectionMatrix());
-    Ego::Renderer::get().setViewMatrix(cam.getViewMatrix());
-    Ego::Renderer::get().setWorldMatrix(Matrix4f4f::identity());
-	Ego::Graphics::RenderPasses::g_water.run(cam, tl, el);
+	GFX::get().getWater().run(cam, tl, el);
 
-	// Render transparent entities.
-    Ego::Renderer::get().setProjectionMatrix(cam.getProjectionMatrix());
-    Ego::Renderer::get().setViewMatrix(cam.getViewMatrix());
-    Ego::Renderer::get().setWorldMatrix(Matrix4f4f::identity());
-	Ego::Graphics::RenderPasses::g_transparentEntities.run(cam, tl, el);
+	// Render non opaque entities.
+	GFX::get().getNonOpaqueEntities().run(cam, tl, el);
 
     //Draw all passages
     if(Ego::Input::InputSystem::get().isKeyDown(SDLK_F8)) {
@@ -893,7 +810,7 @@ gfx_rv render_scene(Camera& cam, Ego::Graphics::TileList& tl, Ego::Graphics::Ent
 #endif
 
 #if defined(DRAW_PRT_BBOX)
-    render_all_prt_bbox();
+    ParticleGraphicsRenderer::render_all_prt_bbox();
 #endif
     return retval;
 }
@@ -947,7 +864,7 @@ void gfx_config_t::download(gfx_config_t& self, egoboo_config_t& cfg)
     self.refon = cfg.graphic_reflections_enable.getValue();
 
     self.shadows_enable = cfg.graphic_shadows_enable.getValue();
-    self.shadows_highQuality_enable = !cfg.graphic_shadows_highQuality_enable.getValue();
+    self.shadows_highQuality_enable = cfg.graphic_shadows_highQuality_enable.getValue();
 
     self.gouraudShading_enable = cfg.graphic_gouraudShading_enable.getValue();
     self.dither = cfg.graphic_dithering_enable.getValue();
@@ -1576,6 +1493,11 @@ bool sum_global_lighting(std::array<float, LIGHTING_VEC_SIZE> &lighting)
 //--------------------------------------------------------------------------------------------
 // SEMI OBSOLETE FUNCTIONS
 //--------------------------------------------------------------------------------------------
+
+dynalist_t::dynalist_t()
+    : frame(-1), size(0), lst{}
+{}
+
 void dynalist_t::init(dynalist_t& self) {
     self.size = 0;
 }
@@ -2128,7 +2050,7 @@ gfx_rv gfx_update_flashing(Ego::Graphics::EntityList& el)
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv gfx_update_all_chr_instance()
+gfx_rv GFX::update_object_instances(Camera& cam)
 {
     gfx_rv retval;
 
@@ -2222,4 +2144,72 @@ void TileRenderer::bind(const ego_tile_info_t& tile)
 			Ego::Renderer::get().setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::OneMinusSourceAlpha);
 		}
 	}
+}
+
+gfx_rv GFX::update_particle_instances(Camera& camera)
+{
+    // only one update per frame
+    static uint32_t instance_update = std::numeric_limits<uint32_t>::max();
+    if (instance_update == update_wld) return gfx_success;
+    instance_update = update_wld;
+
+    // assume the best
+    gfx_rv retval = gfx_success;
+
+    for (const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
+    {
+        if (particle->isTerminated()) continue;
+
+        Ego::Graphics::ParticleGraphics *pinst = &(particle->inst);
+
+        // only do frame counting for particles that are fully activated!
+        particle->frame_count++;
+
+        if (!particle->inst.indolist)
+        {
+            pinst->valid = false;
+            pinst->ref_valid = false;
+        }
+        else
+        {
+            // calculate the "billboard" for this particle
+            if (gfx_error == Ego::Graphics::ParticleGraphics::update(camera, particle->getParticleID(), 255, true))
+            {
+                retval = gfx_error;
+            }
+        }
+    }
+
+    return retval;
+}
+
+GameAppImpl::GameAppImpl() :
+    dynalist(),
+    billboardSystem(std::make_unique<Ego::Graphics::BillboardSystem>())
+{
+    // Initialize the texture atlas manager.
+    try
+    {
+        Ego::Graphics::TextureAtlasManager::initialize();
+    }
+    catch (...)
+    {
+        std::rethrow_exception(std::current_exception());
+    }
+}
+
+GameAppImpl::~GameAppImpl()
+{
+    // Uninitialize the texture atlas manager.
+    Ego::Graphics::TextureAtlasManager::uninitialize();
+}
+
+dynalist_t& GameAppImpl::getDynalist()
+{
+    return dynalist;
+}
+
+Ego::Graphics::BillboardSystem& GameAppImpl::getBillboardSystem() const
+{
+    return *billboardSystem;
 }

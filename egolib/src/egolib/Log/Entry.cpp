@@ -26,33 +26,137 @@ namespace Log {
 
 namespace Internal {
 
+/// @brief An attribute.
+class Attribute
+{
+private:
+    /// @brief The name of this attribute.
+    std::string m_name;
+public:
+    /// @brief Construct this attribute.
+    /// @param name the name of this attribute
+    Attribute(const std::string& name);
+
+    /// @brief Destruct this attribute.
+    virtual ~Attribute();
+
+    /// @brief Get the name of this attribute.
+    /// @return the name of this attribute
+    const std::string& getName() const;
+};
+
+Attribute::Attribute(const std::string& name) :
+    m_name(name)
+{}
+
+Attribute::~Attribute()
+{}
+
+const std::string& Attribute::getName() const
+{
+    return m_name;
+}
+
+/// @brief An attribute.
+template <typename T>
+class AttributeImpl : public Attribute
+{
+private:
+    /// @brief The value of this attribute.
+    T m_value;
+public:
+    /// @brief Construct this attribute.
+    /// @param name the name of this attribute
+    /// @param value the value of this attribute
+    AttributeImpl(const std::string& name, const T& value) :
+        Attribute(name), m_value(value)
+    {}
+
+    /// @brief Get the value of this attribute.
+    /// @return the value of this attribute
+    const T& getValue() const
+    {
+        return m_value;
+    }
+};
+
 struct EntryImpl
 {
+private:
     Level m_level;
-    std::map<std::string, std::string> m_attributes;
+    std::map<std::string, std::unique_ptr<Attribute>> m_attributes;
+public:
+    /// @todo Make private, add accessor.
     std::ostringstream m_sink;
 public:
     EntryImpl(const EntryImpl&) = delete;
     EntryImpl& operator=(const EntryImpl&) = delete;
-    EntryImpl(Level level) : m_level(level)
-    {}
+	
+public:
+    /// @brief Construct the entry implementation.
+    /// @param level the log level
+    EntryImpl(Level level);
 
-    /// get level
-    Level getLevel() const { return m_level; }
-    /// get text
-    std::string getText() const { return m_sink.str(); }
-    /// get the attribute value, raise if attribute is not present
-    const std::string& getAttribute(const std::string& key)
-    {
-        auto it = m_attributes.find(key);
-        if (it == m_attributes.cend())throw Id::RuntimeErrorException(__FILE__, __LINE__, "key not found");
-        return (*it).second;
-    }
-    /// get if an attribute is present
-    bool hasAttribute(const std::string& key) const { return m_attributes.find(key) != m_attributes.cend(); }
-    /// set an attribute
-    void setAttribute(const std::string& key, const std::string& value) { m_attributes[key] = value; }
+    /// @brief Get the log level.
+	/// @return the log level
+    Level getLevel() const;
+    
+	/// @brief Get the log text.
+	/// @return the log text
+    std::string getText() const;
+	
+	/// @brief Get the value of a string attribute.
+	/// @param name the name of the string attribute
+	/// @return the value of the string attribute if it is present, a null pointer otherwise
+    /// @todo Make generic.
+    AttributeImpl<std::string> *getAttribute(const std::string& name) const;
+
+	/// @brief Get if a string attribute is present.
+    /// @param name the name of the string attribute
+	/// @return @a true if the string attribute is present, @a false otherwise
+    /// @todo Make generic.
+    bool hasAttribute(const std::string& name) const;
+
+	/// @brief Set the value of a string attribute.
+	/// @param name the name of the string attribute
+	/// @param value the value of the string attribute
+    /// @todo Make generic.
+    void setAttribute(const std::string& name, const std::string& value);
 };
+
+EntryImpl::EntryImpl(Level level) :
+	m_level(level)
+{}
+
+Level EntryImpl::getLevel() const
+{
+	return m_level;
+}
+
+std::string EntryImpl::getText() const
+{
+	return m_sink.str();
+}
+
+AttributeImpl<std::string> *EntryImpl::getAttribute(const std::string& name) const
+{
+	auto it = m_attributes.find(name);
+	if (it == m_attributes.cend())
+	{
+        return nullptr;
+	}
+    return dynamic_cast<AttributeImpl<std::string> *>((*it).second.get());
+}
+
+bool EntryImpl::hasAttribute(const std::string& name) const
+{
+    return nullptr != getAttribute(name);
+}
+
+void EntryImpl::setAttribute(const std::string& name, const std::string& value)
+{
+	m_attributes[name] = std::make_unique<AttributeImpl<std::string>>(name, value);
+}
 
 } // namespace Internal
 
@@ -98,13 +202,30 @@ Entry& Entry::operator=(Entry&& other)
     return *this;
 }
 
-bool Entry::hasAttribute(const std::string& name) const { return impl->hasAttribute(name); }
+bool Entry::hasAttribute(const std::string& name) const
+{
+    return impl->hasAttribute(name);
+}
 
-const std::string& Entry::getAttribute(const std::string& name) const { return impl->getAttribute(name); }
+const std::string& Entry::getAttribute(const std::string& name) const
+{
+    auto *attribute = impl->getAttribute(name);
+    if (nullptr == attribute)
+    {
+        throw Id::RuntimeErrorException(__FILE__, __LINE__, "attribute `" + name + "` does not exist");
+    }
+    return attribute->getValue();
+}
 
-std::string Entry::getText() const { return impl->getText(); }
+std::string Entry::getText() const
+{
+    return impl->getText();
+}
 
-Level Entry::getLevel() const { return impl->getLevel(); }
+Level Entry::getLevel() const
+{
+    return impl->getLevel();
+}
 
 Entry& operator<<(Entry& entry, const char *value)
 {

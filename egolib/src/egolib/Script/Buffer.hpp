@@ -25,36 +25,21 @@
 
 #include "egolib/platform.h"
 
-namespace Ego
-{
-namespace Script
-{
+namespace Ego {
+namespace Script {
 
 /// @brief A dynamically resizing buffer for bytes.
 class Buffer : public Id::NonCopyable
 {
 
 private:
-
-    /// @brief The size of the buffer.
-    size_t _size;
-
-    /// @brief The capacity of the buffer.
-    size_t _capacity;
-
-    /// @brief The elements of this buffer.
-    char *_elements;
-
-    /// @brief Ensure that the free capacity of this buffer is greater than or equal to a required free capacity.
-    /// @param requiredFreeCapacity the required free capacity
-    void ensureFreeCapacity(size_t requiredFreeCapacity);
+    std::deque<char> elements;
 
 public:
 
-    /// @brief Construct this buffer with the specified initial capacity.
-    /// @param initialCapacity the initial capacity of the buffer
+    /// @brief Construct this buffer.
     /// @throw std::bad_alloc if not enough memory is available
-    Buffer(size_t initialCapacity);
+    Buffer();
 
     /// @brief Destruct this buffer.
     virtual ~Buffer();
@@ -62,20 +47,6 @@ public:
     /// @brief Get the size of this buffer.
     /// @return the size
     size_t getSize() const;
-
-    /// @brief Get the capacity of this buffer.
-    /// @return the capacity
-    size_t getCapacity() const;
-
-    /// @brief Get the maximum capacity of this buffer.
-    /// @return the maximum capacity
-    size_t getMaximalCapacity() const;
-
-    /// @brief Increase the capacity by at least the specified additional required capacity.
-    /// @param additionalCapacity the additional capacity
-    /// @throw std::bad_array_new_length the new capacity would exceed the maximum capacity
-    /// @throw std::bad_alloc not enough memory is available
-    void increaseCapacity(size_t requiredAdditionalCapacity);
 
     /// @brief Clear this buffer.
     void clear();
@@ -105,28 +76,28 @@ public:
     /// @throw std::bad_array_new_length not enough memory is available
     void append(char byte);
 
-	/// @brief Append bytes to this buffer growing the buffer if necessary.
-	/// @param bytes a pointer to an array of @a numberOfBytes Bytes
-	/// @param numberOfBytes the length, in Bytes, of the array pointed to by @a bytes
-	/// @throw std::bad_array_new_length not enough memory is available
-	/// @post All bytes have been appended or the buffer was not modified.
-	///       Otherwise no bytes have been appended.
-	/// @throw std::bad_array_new_length if not enough memory is available
-	/// @post
-	/// All bytes have been appended or the buffer was not modified.
-	void append(const char *bytes, size_t numberOfBytes);
+    /// @brief Append bytes to this buffer growing the buffer if necessary.
+    /// @param bytes a pointer to an array of @a numberOfBytes Bytes
+    /// @param numberOfBytes the length, in Bytes, of the array pointed to by @a bytes
+    /// @throw std::bad_array_new_length not enough memory is available
+    /// @post All bytes have been appended or the buffer was not modified.
+    ///       Otherwise no bytes have been appended.
+    /// @throw std::bad_array_new_length if not enough memory is available
+    /// @post
+    /// All bytes have been appended or the buffer was not modified.
+    void append(const char *bytes, size_t numberOfBytes);
 
-	/// @brief Get the Byte at the specified in index in this buffer.
-	/// @param index the index
-	/// @return the Byte
-	/// @throw std::runtime_error the index is greater than or equal to the size of this buffer
-	char get(size_t index) const;
+    /// @brief Get the Byte at the specified in index in this buffer.
+    /// @param index the index
+    /// @return the Byte
+    /// @throw std::runtime_error the index is greater than or equal to the size of this buffer
+    char get(size_t index) const;
 
-	/// @brief Insert a byte into the buffer at the specified index.
-	/// @param byte the byte
-	/// @param index the index
-	/// @throw std::bad_alloc not enough memory is available
-	/// @throw std::out_of_range the index greater than the size of the buffer
+    /// @brief Insert a byte into the buffer at the specified index.
+    /// @param byte the byte
+    /// @param index the index
+    /// @throw std::bad_alloc not enough memory is available
+    /// @throw std::out_of_range the index greater than the size of the buffer
     /// @remark For a buffer @a o and a byte @a x, the expressions
     /// @code
     /// o.insert(x, 0)
@@ -135,7 +106,7 @@ public:
     /// @code
     /// o.prepend(x)
     /// @endcode
-	/// are equivalent.
+    /// are equivalent.
     /// @remark For a buffer @a o and a byte @a x, the expressions
     /// @code
     /// o.insert(x, o.getSize())
@@ -145,15 +116,59 @@ public:
     /// o.append(x)
     /// @endcode
     /// are equivalent.
-	void insert(char byte, size_t index);
+    void insert(char byte, size_t index);
 
-	/// @brief Get if the buffer is empty.
-	/// @return @a true if the buffer is empty, @a false otherwise
-	bool isEmpty() const;
+    /// @brief Get if the buffer is empty.
+    /// @return @a true if the buffer is empty, @a false otherwise
+    bool isEmpty() const;
 
     /// @brief Exchanges the content of this buffer by the content of another buffer.
     /// @noexcept
     void swap(Buffer& other) noexcept;
+
+    /// @brief Random access iterator.
+    using iterator = typename std::deque<char>::iterator;
+    
+    /// @brief Constant random access iterator.
+    using const_iterator = typename std::deque<char>::const_iterator;
+    
+    /// @brief Reverse random access iterator.
+    using reverse_iterator = typename std::deque<char>::reverse_iterator;
+    
+    /// @brief Constant reverse random access iterator.
+    using const_reverse_iterator = typename	std::deque<char>::const_reverse_iterator;
+
+    /// @brief Get a random access iterator to the start of an iteration.
+    /// @return the iterator
+    iterator begin() { return elements.begin(); }
+
+    /// @brief Get a random access iterator pointing to the end of an iteration.
+    /// @return the iterator
+    iterator end() { return elements.end(); }
+    
+    /// @brief Get a constant random access iterator pointing to the start of an iteration.
+    /// @return the iterator
+    const_iterator cbegin() const { return elements.cbegin(); }
+
+    /// @brief Get a constant random access iterator to the end.
+    /// @return the iterator
+    const_iterator cend() const { return elements.cend(); }
+
+    /// @brief Get a reverse random access iterator pointing to the start of a reverse iteration.
+    /// @return the iterator
+    reverse_iterator rbegin() { return elements.rbegin(); }
+
+    /// @brief Get a reverse random access iterator pointing to the end of a reverse iteration.
+    /// @return the iterator
+    reverse_iterator rend() { return elements.rend(); }
+
+    /// @brief Get a constant reverse random access iterator pointing to the start of a reverse iteration.
+    /// @return the iterator
+    const_reverse_iterator crbegin() const { return elements.crbegin(); }
+
+    /// @brief Get a constant reverse randmo access iterator pointing to the end of a reverse iteration.
+    /// @return the iterator
+    const_reverse_iterator crend() const { return elements.crend(); }
 };
 
 } // namespace Script

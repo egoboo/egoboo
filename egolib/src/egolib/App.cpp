@@ -1,21 +1,27 @@
 #include "egolib/App.hpp"
 
-#include "egolib/egolib.h"
+#include "egolib/Graphics/GraphicsSystem.hpp"
+#include "egolib/Graphics/GraphicsWindow.hpp"
+#include "egolib/Graphics/TextureManager.hpp"
+#include "egolib/Image/ImageManager.hpp"
+#include "egolib/Graphics/FontManager.hpp"
+#include "egolib/Renderer/Renderer.hpp"
+#include "egolib/Extensions/ogl_include.h"
 
 namespace Ego {
-void App::initialize(const std::string& name, const std::string& version) {
+
+AppImpl::AppImpl(const std::string& title, const std::string& version)
+{
     // Initialize the graphics system.
-    Ego::GraphicsSystem::initialize();
+    GraphicsSystem::initialize();
     // Initialize the image manager.
-    Ego::ImageManager::initialize();
+    ImageManager::initialize();
     // Initialize the renderer.
-    Ego::Renderer::initialize();
+    Renderer::initialize();
     // Initialize the texture manager.
     TextureManager::initialize();
     // Initialize the font manager.
-    Ego::FontManager::initialize();
-
-    using namespace Ego;
+    FontManager::initialize();
 
     auto& renderer = Renderer::get();
     // Set clear colour and clear depth.
@@ -55,19 +61,21 @@ void App::initialize(const std::string& name, const std::string& version) {
     renderer.getAccumulationBuffer().setClearValue(Colour4f(0.0f, 0.0f, 0.0f, 1.0f));
     renderer.getAccumulationBuffer().clear();
 
-    Ego::GraphicsSystem::window->setTitle(name + " " + version);
+    GraphicsSystem::window->setTitle(title + " " + version);
 }
 
-void App::uninitialize() {
+AppImpl::~AppImpl()
+{
     // Uninitialize the font manager.
-    Ego::FontManager::uninitialize();
+    FontManager::uninitialize();
     // Uninitialize the texture manager.
     TextureManager::uninitialize();
     // Uninitialize the renderer.
-    Ego::Renderer::uninitialize();
+    Renderer::uninitialize();
     // Uninitialize the image manager.
-    Ego::ImageManager::uninitialize();
+    ImageManager::uninitialize();
     // Uninitialize the graphics system.
-    Ego::GraphicsSystem::uninitialize();
+    GraphicsSystem::uninitialize();
 }
+
 }
