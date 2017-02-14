@@ -77,19 +77,13 @@ public:
      */
     void reset();
 
-    /**
-     * @brief
-     *  Get if if the specified profile ID has been loaded.
-     * @param id
-     *  the profile ID
-     * @return
-     *  @a true if the specified profile ID has been loaded,
-     *  @a false otherwise
-     */
-    inline bool isLoaded(PRO_REF id) const
-    {
-        return _profilesLoaded.find(id) != _profilesLoaded.end();
-    }
+    /// @{
+    /// @brief Get if an object profile reference was loaded.
+    /// @param ref the object profile reference
+    /// @return @a true if the specified object profile reference was loaded, @a false otherwise
+    bool isLoaded(PRO_REF ref) const;
+    bool isLoaded(ObjectProfileRef ref) const;
+    /// @}
 
     /**
      *  @details This function loads one object and returns the object slot
@@ -102,10 +96,13 @@ public:
      */
     int getProfileSlotNumber(const std::string &folderPath, int slot_override = -1);
 
-    /**
-     * @return Returns the ObjectProfile loaded into the specified slot number
-     */
-    const std::shared_ptr<ObjectProfile>& getProfile(PRO_REF slotNumber) const;
+    ///@{
+    /// @brief Get the object profile of a profile reference.
+    /// @param ref the object profile reference
+    /// @return a pointer to the profile or a null pointer
+    const std::shared_ptr<ObjectProfile>& getProfile(PRO_REF ref) const;
+    const std::shared_ptr<ObjectProfile>& getProfile(ObjectProfileRef ref) const;
+    ///@}
 
     const std::shared_ptr<ObjectProfile>& getProfile(const std::string& name) const;
 

@@ -575,12 +575,13 @@ public:
     **/
     bool isValidSkin(size_t index) const;
 
-    /**
-    * @brief Loads a new ObjectProfile object by loading all data specified in the folder path
-    * @param slotOverride Which slot number to load this profile in
-    * @param lightWeight If true, then no 3D model, sounds, particle or enchant will be loaded (for menu)
-    **/
-    static std::shared_ptr<ObjectProfile> loadFromFile(const std::string &folderPath, const PRO_REF slotOverride, const bool lightWeight = false);
+    /// @{
+    /// @brief Load a new ObjectProfile object by loading all data specified in the folder path
+    /// @param ref the object profile reference of the profile
+    /// @param lightWeight if @a true, then no 3D model, sounds, particle or enchant will be loaded (for menu)
+    static std::shared_ptr<ObjectProfile> loadFromFile(const std::string& folderPath, ObjectProfileRef ref, bool lightWeight = false);
+    static std::shared_ptr<ObjectProfile> loadFromFile(const std::string& folderPath, PRO_REF ref, bool lightWeight = false);
+    /// @}
 
     /**
     * @brief Writes the contents of this character instance to a profile data.txt file

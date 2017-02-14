@@ -83,9 +83,26 @@ const std::shared_ptr<ObjectProfile>& ProfileSystem::getProfile(const std::strin
     return foundElement->second;    
 }
 
-const std::shared_ptr<ObjectProfile>& ProfileSystem::getProfile(PRO_REF slotNumber) const
+bool ProfileSystem::isLoaded(PRO_REF ref) const
 {
-    auto foundElement = _profilesLoaded.find(slotNumber);
+    return _profilesLoaded.find(ref) != _profilesLoaded.end();
+}
+
+bool ProfileSystem::isLoaded(ObjectProfileRef ref) const
+{
+    return _profilesLoaded.find(ref.get()) != _profilesLoaded.end();
+}
+
+const std::shared_ptr<ObjectProfile>& ProfileSystem::getProfile(PRO_REF ref) const
+{
+    auto foundElement = _profilesLoaded.find(ref);
+    if (foundElement == _profilesLoaded.end()) return NULL_PROFILE;
+    return foundElement->second;
+}
+
+const std::shared_ptr<ObjectProfile>& ProfileSystem::getProfile(ObjectProfileRef ref) const
+{
+    auto foundElement = _profilesLoaded.find(ref.get());
     if (foundElement == _profilesLoaded.end()) return NULL_PROFILE;
     return foundElement->second;
 }
