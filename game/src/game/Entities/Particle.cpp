@@ -33,6 +33,33 @@
 
 namespace Ego
 {
+
+prt_environment_t::prt_environment_t() :
+    twist(0),
+    floor_level(0.0f),
+    level(0.0f),
+    zlerp(0.0f),
+    //
+    adj_level(0.0f),
+    adj_floor(0.0f),
+    //
+    is_slipping(false),
+    is_slippy(false),
+    is_watery(false),
+    air_friction(0.0f),
+    fluid_friction_hrz(0.0f), fluid_friction_vrt(0.0f),
+    friction_hrz(0.0f),
+    traction(0.0f),
+    //
+    inwater(false),
+    acc(Vector3f::zero())
+{}
+
+void prt_environment_t::reset()
+{
+    *this = prt_environment_t();
+}
+
 const std::shared_ptr<Particle> Particle::INVALID_PARTICLE = nullptr;
 
 Particle::Particle() :
