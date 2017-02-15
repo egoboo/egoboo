@@ -45,6 +45,13 @@
 //Declare class static constants
 const std::shared_ptr<Object> Object::INVALID_OBJECT = nullptr;
 
+/// @brief Ouf-of-class definition for GCC & Clang.
+/// @todo Remove this if GCC & Clang are fixed.
+constexpr float Object::DROPZVEL;
+
+/// @brief Out-of-class definition for GCC/Clang.
+/// @todo Remove this if GCC & Clang are fixed.
+constexpr float Object::DISMOUNTZVEL;
 
 Object::Object(const PRO_REF proRef, ObjectRef objRef) : 
     spawn_data(),
