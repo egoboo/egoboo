@@ -53,7 +53,7 @@ constexpr float Object::DROPZVEL;
 /// @todo Remove this if GCC & Clang are fixed.
 constexpr float Object::DISMOUNTZVEL;
 
-Object::Object(const PRO_REF proRef, ObjectRef objRef) : 
+Object::Object(ObjectProfileRef proRef, ObjectRef objRef) : 
     spawn_data(),
     ai(),
     gender(Gender::Male),
@@ -1594,8 +1594,8 @@ int Object::getPrice() const
     float   price;
 
     // Make sure spell books are priced according to their spell and not the book itself
-    PRO_REF slotNumber = INVALID_PRO_REF;
-    if (_profileID == SPELLBOOK)
+    ObjectProfileRef slotNumber = ObjectProfileRef::Invalid;
+    if (_profileID == ObjectProfileRef(SPELLBOOK))
     {
         slotNumber = basemodel_ref;
         iskin = 0;
@@ -2180,7 +2180,7 @@ std::shared_ptr<Ego::Enchantment> Object::addEnchant(ENC_REF enchantProfile, PRO
         return nullptr;
     }
 
-    std::shared_ptr<Ego::Enchantment> enchant = std::make_shared<Ego::Enchantment>(enchantmentProfile, spawnerProfile, owner);
+    std::shared_ptr<Ego::Enchantment> enchant = std::make_shared<Ego::Enchantment>(enchantmentProfile, ObjectProfileRef(spawnerProfile), owner);
     enchant->applyEnchantment(this->toSharedPointer());
 
     //Succeeded to apply the enchantment to the target?
@@ -2272,7 +2272,7 @@ void Object::resetInputCommands()
     _inputLatchesPressed.reset();    
 }
 
-void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
+void Object::polymorphObject(ObjectProfileRef profileID, const SKIN_T newSkin)
 {
     if(!ProfileSystem::get().isLoaded(profileID)) {
 		Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to polymorph object: target profile ", profileID, " does not exist", Log::EndOfEntry);
@@ -2386,7 +2386,7 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
         }
 
         // Spellbooks should stay the same size, even if their spell effect cause changes in size
-        if (getProfileID() == SPELLBOOK) newFat = oldFat = 1.00f;
+        if (getProfileID() == ObjectProfileRef(SPELLBOOK)) newFat = oldFat = 1.00f;
 
         // copy all the cap size info over, as normal
         fat_stt           = _profile->getSize();

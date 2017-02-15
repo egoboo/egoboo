@@ -25,9 +25,20 @@
 #include "game/Entities/_Include.hpp"
 #include "egolib/Logic/Team.hpp"
 
-std::shared_ptr<Ego::Particle> ParticleHandler::spawnLocalParticle(const Vector3f& pos, const Facing& facing, const PRO_REF iprofile, const LocalParticleProfileRef& pip_index,
-                                                                   const ObjectRef chr_attach, Uint16 vrt_offset, const TEAM_REF team,
-                                                                   const ObjectRef chr_origin, const ParticleRef prt_origin, int multispawn, const ObjectRef oldtarget)
+std::shared_ptr<Ego::Particle> ParticleHandler::spawnLocalParticle
+    (
+        const Vector3f& pos,
+        const Facing& facing,
+        ObjectProfileRef iprofile,
+        const LocalParticleProfileRef& pip_index,
+        const ObjectRef chr_attach,
+        Uint16 vrt_offset,
+        const TEAM_REF team,
+        const ObjectRef chr_origin,
+        const ParticleRef prt_origin,
+        int multispawn,
+        const ObjectRef oldtarget
+    )
 {
     if(!ProfileSystem::get().isLoaded(iprofile)) {
 		Log::get() << Log::Entry::create(Log::Level::Debug, __FILE__, __LINE__, "unable to spawn particle with invalid profile reference ", iprofile, Log::EndOfEntry);
@@ -66,11 +77,11 @@ std::shared_ptr<Ego::Particle> ParticleHandler::spawnGlobalParticle(const Vector
     //Get global particle profile
     PIP_REF globalProfile = ((pip_index.get() < 0) || (pip_index.get() > MAX_PIP)) ? MAX_PIP : static_cast<PIP_REF>(pip_index.get());
 
-    return spawnParticle(spawnPos, spawnFacing, INVALID_PRO_REF, globalProfile, ObjectRef::Invalid, GRIP_LAST, Team::TEAM_NULL,
+    return spawnParticle(spawnPos, spawnFacing, ObjectProfileRef::Invalid, globalProfile, ObjectRef::Invalid, GRIP_LAST, Team::TEAM_NULL,
                          ObjectRef::Invalid, ParticleRef::Invalid, multispawn, ObjectRef::Invalid, onlyOverWater);
 }
 
-std::shared_ptr<Ego::Particle> ParticleHandler::spawnParticle(const Vector3f& spawnPos, const Facing& spawnFacing, const PRO_REF spawnProfile,
+std::shared_ptr<Ego::Particle> ParticleHandler::spawnParticle(const Vector3f& spawnPos, const Facing& spawnFacing, const ObjectProfileRef spawnProfile,
                                                               const PIP_REF particleProfile, const ObjectRef spawnAttach, Uint16 vrt_offset, const TEAM_REF spawnTeam,
                                                               const ObjectRef spawnOrigin, const ParticleRef spawnParticleOrigin, const int multispawn, const ObjectRef spawnTarget, const bool onlyOverWater)
 {
@@ -81,7 +92,7 @@ std::shared_ptr<Ego::Particle> ParticleHandler::spawnParticle(const Vector3f& sp
         const std::string spawnOriginName = _currentModule->getObjectHandler().exists(spawnOrigin) ? _currentModule->getObjectHandler()[spawnOrigin]->getName() : "INVALID";
         const std::string spawnProfileName = ProfileSystem::get().isLoaded(spawnProfile) ? ProfileSystem::get().getProfile(spawnProfile)->getPathname() : "INVALID";
         Log::get() << Log::Entry::create(Log::Level::Debug, __FILE__, __LINE__, "unable to spawn particle with invalid particle profile ", REF_TO_INT(particleProfile),
-                                         ", spawn origin == ", spawnOrigin.get(), " (`", spawnOriginName, "`), spawn profile == ", REF_TO_INT(spawnProfile), " (`", spawnProfileName, "`)",
+                                         ", spawn origin == ", spawnOrigin.get(), " (`", spawnOriginName, "`), spawn profile == ", spawnProfile, " (`", spawnProfileName, "`)",
                                          Log::EndOfEntry);
 
         return Ego::Particle::INVALID_PARTICLE;
@@ -112,7 +123,7 @@ std::shared_ptr<Ego::Particle> ParticleHandler::spawnParticle(const Vector3f& sp
         const std::string spawnProfileName = ProfileSystem::get().isLoaded(spawnProfile) ? ProfileSystem::get().getProfile(spawnProfile)->getPathname().c_str() : "INVALID";
         Log::get() << Log::Entry::create(Log::Level::Debug, __FILE__, __LINE__, "unable to allocate particle. ",
                                          "owner == ", spawnOrigin, " (`", spawnOriginName, "`), "
-                                         "spawn profile == ", REF_TO_INT(spawnProfile), " (`", spawnProfileName, "`), ",
+                                         "spawn profile == ", spawnProfile, " (`", spawnProfileName, "`), ",
                                          "particle profile == ", REF_TO_INT(particleProfile), " (`", particleProfileName, "`)",
                                          Log::EndOfEntry);      
     }

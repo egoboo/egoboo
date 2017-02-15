@@ -332,7 +332,7 @@ void DebugObjectLoadingState::loadObjectData()
     {
         singleThreadRedrawHack("Loading...");
         
-        PRO_REF ref = ProfileSystem::get().loadOneProfile(objectPath, 0);
+        ObjectProfileRef ref = ProfileSystem::get().loadOneProfile(objectPath, 0);
         bool isValid = ProfileSystem::get().isLoaded(ref);
         ProfileSystem::get().reset();
         if (!isValid)

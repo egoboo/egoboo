@@ -212,7 +212,7 @@ public:
     **/
     void setTarget(const ObjectRef target);
 
-    PRO_REF getSpawnerProfile() const { return _spawnerProfile; }
+    ObjectProfileRef getSpawnerProfile() const { return _spawnerProfile; }
 
     /**
     * @return
@@ -286,7 +286,7 @@ public:
     * @note
     *   Should only ever be used by the ParticleHandler! *Do not use*
     **/
-    bool initialize(const ParticleRef particleID, const Vector3f& spawnPos, const Facing& spawnFacing, const PRO_REF spawnProfile,
+    bool initialize(const ParticleRef particleID, const Vector3f& spawnPos, const Facing& spawnFacing, ObjectProfileRef spawnProfile,
                     const PIP_REF particleProfile, const ObjectRef spawnAttach, Uint16 vrt_offset, const TEAM_REF spawnTeam,
                     const ObjectRef spawnOrigin, const ParticleRef spawnParticleOrigin, const int multispawn, const ObjectRef spawnTarget,
                     const bool onlyOverWater);
@@ -483,7 +483,7 @@ private:
      * @brief
      *  The profile related to the spawned particle.
      */
-    PRO_REF _spawnerProfile;
+    ObjectProfileRef _spawnerProfile;
 
     // motion effects
     bool _isHoming;             ///< Is the particle in control of its motion?

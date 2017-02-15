@@ -217,10 +217,9 @@ public:
 
     const std::shared_ptr<Ego::ModelDescriptor>& getModel() const { return _model; }
 
-    /**
-    * @return get which slot number this profile is loaded with
-    **/
-    inline int getSlotNumber() const {return _slotNumber;}
+    /// @brief Get which slot number this profile is loaded with.
+    /// @return the slot number or ObjectProfileRef::Invalid
+    inline ObjectProfileRef getSlotNumber() const {return _slotNumber;}
 
     /**
      * @brief
@@ -627,7 +626,7 @@ private:
     // the sub-profiles
     std::shared_ptr<Ego::ModelDescriptor> _model;   ///< the md2 model for this profile
     EVE_REF _ieve;                             ///< the enchant profile for this profile
-    int _slotNumber;
+    ObjectProfileRef _slotNumber;
 
     /// the random naming info
     RandomName _randomName;

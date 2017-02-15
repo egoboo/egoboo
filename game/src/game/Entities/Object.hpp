@@ -59,7 +59,7 @@ struct chr_spawn_data_t
 {
     chr_spawn_data_t() :
         pos(),
-        profile(INVALID_PRO_REF),
+        profile(),
         team(0),
         skin(0),
         facing(0),
@@ -70,7 +70,7 @@ struct chr_spawn_data_t
     }
 
     Vector3f    pos;
-    PRO_REF     profile;
+    ObjectProfileRef     profile;
     TEAM_REF    team;
     int         skin;
     Facing      facing;
@@ -119,7 +119,7 @@ public:
      * @param objRef
      *  the unique object reference of this object
      */
-    Object(const PRO_REF proRef, ObjectRef objRef);
+    Object(ObjectProfileRef proRef, ObjectRef objRef);
 
     /**
      * @brief
@@ -697,9 +697,9 @@ public:
     * @brief
     *   Changes this Object into a different type. This effect is reversible (base profile is not changed)
     **/
-    void polymorphObject(const PRO_REF profileID, const SKIN_T skin);
+    void polymorphObject(ObjectProfileRef profileID, const SKIN_T skin);
 
-    PRO_REF getProfileID() const {return _profileID;}
+    ObjectProfileRef getProfileID() const {return _profileID;}
 
     /**
     * @return
@@ -928,7 +928,7 @@ public:
     // model info
     bool         is_overlay;                    ///< Is this an overlay? Track aitarget...
     SKIN_T         skin;                          ///< Character's skin
-    PRO_REF        basemodel_ref;                     ///< The true form
+    ObjectProfileRef        basemodel_ref;                     ///< The true form
 
     // collision info
 
@@ -977,7 +977,7 @@ private:
 
     bool _terminateRequested;                        ///< True if this character no longer exists in the game and should be destructed
     ObjectRef _objRef;                               ///< The unique object reference of this object
-    PRO_REF _profileID;                              ///< The ID of our profile
+    ObjectProfileRef _profileID;                     ///< The ID of our profile
     std::shared_ptr<ObjectProfile> _profile;         ///< Our Profile
     bool _showStatus;                                ///< Display stats?
     bool _isAlive;                                   ///< Is this Object alive or dead?

@@ -71,7 +71,7 @@ Particle::Particle() :
     _particleProfile(nullptr),
     _isTerminated(true),
     _target(),
-    _spawnerProfile(INVALID_PRO_REF),
+    _spawnerProfile(),
     _isHoming(false)
 {
     reset(ParticleRef::Invalid);
@@ -93,7 +93,7 @@ void Particle::reset(ParticleRef ref)
     owner_ref = ObjectRef::Invalid;
     _target = ObjectRef::Invalid;
     parent_ref = ParticleRef::Invalid;
-    _spawnerProfile = INVALID_PRO_REF,
+    _spawnerProfile = ObjectProfileRef::Invalid;
 
     attachedto_vrt_off = 0;
     type = SPRITE_LIGHT;
@@ -587,11 +587,11 @@ size_t Particle::updateContinuousSpawning()
     for (size_t tnc = 0; tnc < getProfile()->contspawn._amount; tnc++)
     {
         std::shared_ptr<Ego::Particle> prt_child;
-        if(_spawnerProfile == INVALID_PRO_REF) {
+        if(_spawnerProfile == ObjectProfileRef::Invalid) {
             prt_child = ParticleHandler::get().spawnGlobalParticle(getPosition(), facingAdd, getProfile()->contspawn._lpip, tnc);
         }
         else {
-            prt_child = ParticleHandler::get().spawnLocalParticle(getPosition(), facingAdd, _spawnerProfile, getProfile()->contspawn._lpip,
+            prt_child = ParticleHandler::get().spawnLocalParticle(getPosition(), facingAdd, ObjectProfileRef(_spawnerProfile), getProfile()->contspawn._lpip,
                                                                   ObjectRef::Invalid, GRIP_LAST, team, owner_ref, _particleID, tnc, _target);
         }
 
@@ -727,7 +727,7 @@ void Particle::destroy()
         Facing facingAdd = this->facing;
         for (size_t tnc = 0; tnc < getProfile()->endspawn._amount; tnc++)
         {
-            if(_spawnerProfile == INVALID_PRO_REF)
+            if(_spawnerProfile == ObjectProfileRef::Invalid)
             {
                 //Global particle
                 ParticleHandler::get().spawnGlobalParticle(getOldPosition(), facingAdd, getProfile()->endspawn._lpip, tnc);
@@ -735,9 +735,8 @@ void Particle::destroy()
             else
             {
                 //Local particle
-                ParticleHandler::get().spawnLocalParticle(getOldPosition(), facingAdd, _spawnerProfile, getProfile()->endspawn._lpip,
-                                                          ObjectRef::Invalid, GRIP_LAST, team, owner_ref,
-                                                          _particleID, tnc, _target);
+                ParticleHandler::get().spawnLocalParticle(getOldPosition(), facingAdd, ObjectProfileRef(_spawnerProfile), getProfile()->endspawn._lpip,
+                                                          ObjectRef::Invalid, GRIP_LAST, team, owner_ref, _particleID, tnc, _target);
             }
 
             facingAdd += Facing(getProfile()->endspawn._facingAdd);
@@ -780,7 +779,7 @@ void Particle::playSound(int8_t sound)
     }
 }
 
-bool Particle::initialize(const ParticleRef particleID, const Vector3f& spawnPos, const Facing& spawnFacing, const PRO_REF spawnProfile,
+bool Particle::initialize(const ParticleRef particleID, const Vector3f& spawnPos, const Facing& spawnFacing, ObjectProfileRef spawnProfile,
                           const PIP_REF particleProfile, const ObjectRef spawnAttach, uint16_t vrt_offset, const TEAM_REF spawnTeam,
                           const ObjectRef spawnOrigin, const ParticleRef spawnParticleOrigin, const int multispawn, const ObjectRef spawnTarget,
                           const bool onlyOverWater)
@@ -798,7 +797,7 @@ bool Particle::initialize(const ParticleRef particleID, const Vector3f& spawnPos
     reset(ParticleRef(particleID));
 
     //Load particle profile
-    _spawnerProfile = spawnProfile;
+    _spawnerProfile = spawnProfile.get();
     _particleProfileID = particleProfile;
     assert(ProfileSystem::get().ParticleProfileSystem.isLoaded(_particleProfileID));
     _particleProfile = ProfileSystem::get().ParticleProfileSystem.get_ptr(_particleProfileID);

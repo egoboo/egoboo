@@ -143,9 +143,20 @@ public:
      *  Same as spawnParticle() except that it uses LocalParticleProfileRef instead of a PIP_REF
      *  Ideally we would like to remove this function as it is simply a wrapper
      */
-    std::shared_ptr<Ego::Particle> spawnLocalParticle(const Vector3f& position, const Facing& facing, const PRO_REF iprofile, const LocalParticleProfileRef& pip_index,
-                                                      const ObjectRef chr_attach, Uint16 vrt_offset, const TEAM_REF team,
-                                                      const ObjectRef chr_origin, const ParticleRef prt_origin, int multispawn, const ObjectRef oldtarget);
+    std::shared_ptr<Ego::Particle> spawnLocalParticle
+        (
+            const Vector3f& position,
+            const Facing& facing,
+            ObjectProfileRef iprofile,
+            const LocalParticleProfileRef& pip_index,
+            const ObjectRef chr_attach,
+            Uint16 vrt_offset,
+            const TEAM_REF team,
+            const ObjectRef chr_origin,
+            const ParticleRef prt_origin,
+            int multispawn,
+            const ObjectRef oldtarget
+        );
     /**
      * @brief Get a pointer to the particle for a specified particle reference.
      * @return a pointer to the referenced particle if it was found, the null pointer otherwise
@@ -183,7 +194,7 @@ public:
      * @return
      *   The Particle object that was spawned or nullptr if it failed.
      */
-    std::shared_ptr<Ego::Particle> spawnParticle(const Vector3f& spawnPos, const Facing& spawnFacing, const PRO_REF spawnProfile,
+    std::shared_ptr<Ego::Particle> spawnParticle(const Vector3f& spawnPos, const Facing& spawnFacing, const ObjectProfileRef spawnProfile,
                                                  const PIP_REF particleProfile, const ObjectRef spawnAttach, Uint16 vrt_offset, const TEAM_REF spawnTeam,
                                                  const ObjectRef spawnOrigin, const ParticleRef spawnParticleOrigin = ParticleRef::Invalid, const int multispawn = 0,
                                                  const ObjectRef spawnTarget = ObjectRef::Invalid, const bool onlyOverWater = false);

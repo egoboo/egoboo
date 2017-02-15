@@ -121,10 +121,10 @@ public:
 	bool exists(ObjectRef ref) const;
 
 	/**
-	 * @brief Allocates and creates new Object object. A valid PRO_REF is required to spawn a object.
+	 * @brief Allocates and creates new Object object. A valid object profile reference is required to spawn a object.
 	 * @return the std::shared_ptr<Object> for that object or nullptr if it failed
 	 */
-	std::shared_ptr<Object> insert(const PRO_REF profileRef, ObjectRef overrideRef = ObjectRef::Invalid);
+	std::shared_ptr<Object> insert(ObjectProfileRef profileRef, ObjectRef overrideRef = ObjectRef::Invalid);
 
 	/**
 	 * @brief Return a pointer object for the specifiec object reference.

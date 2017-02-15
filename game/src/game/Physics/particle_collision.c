@@ -1336,7 +1336,7 @@ int spawn_bump_particles(ObjectRef character, const ParticleRef particle)
         if (ppip->spawnenchant) 
         {
             const std::shared_ptr<ObjectProfile> &spawnerProfile = ProfileSystem::get().getProfile(pprt->getSpawnerProfile());
-            pchr->addEnchant(spawnerProfile->getEnchantRef(), pprt->getSpawnerProfile(), _currentModule->getObjectHandler()[pprt->owner_ref], Object::INVALID_OBJECT);
+            pchr->addEnchant(spawnerProfile->getEnchantRef(), pprt->getSpawnerProfile().get(), _currentModule->getObjectHandler()[pprt->owner_ref], Object::INVALID_OBJECT);
         }
 
         // Spawn particles - this has been modded to maximize the visual effect
@@ -1429,7 +1429,7 @@ int spawn_bump_particles(ObjectRef character, const ParticleRef particle)
                         }
 
                         std::shared_ptr<Ego::Particle> bs_part = 
-                            ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), Facing(FACING_T(pchr->ori.facing_z)), pprt->getSpawnerProfile(), ppip->bumpspawn._lpip,
+                            ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), Facing(FACING_T(pchr->ori.facing_z)), ObjectProfileRef(pprt->getSpawnerProfile()), ppip->bumpspawn._lpip,
                                                                       character, bestvertex + 1, pprt->team, pprt->owner_ref, particle, cnt, character);
 
                         if (bs_part)

@@ -174,7 +174,7 @@ void GameModule::loadProfiles()
                 import_data.slot = cnt;
 
                 // load it
-                import_data.slot_lst[cnt] = ProfileSystem::get().loadOneProfile(importPath);
+                import_data.slot_lst[cnt] = ProfileSystem::get().loadOneProfile(importPath).get();
                 import_data.max_slot      = std::max(import_data.max_slot, cnt);
             }
         }
@@ -345,13 +345,13 @@ bool GameModule::isInside(const float x, const float y) const
     return x >= 0 && x < _mesh->_tmem._edge_x && y >= 0 && y < _mesh->_tmem._edge_y;
 }
 
-std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_REF profile, const TEAM_REF team, const int skin,
+std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, ObjectProfileRef profile, const TEAM_REF team, const int skin,
                                                 const Facing& facing, const std::string &name, const ObjectRef override)
 {
     const std::shared_ptr<ObjectProfile> &ppro = ProfileSystem::get().getProfile(profile);
     if (!ppro)
     {
-        if ( profile > getImportAmount() * MAX_IMPORT_PER_PLAYER )
+        if ( profile.get() > getImportAmount() * MAX_IMPORT_PER_PLAYER )
         {
 			Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "attempt to spawn object from an invalid object profile ", "`", profile, "`", Log::EndOfEntry);
         }
@@ -498,7 +498,7 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
     pchr->setSpawnPosition(pos);
 
     // AI stuff
-    ai_state_t::spawn( pchr->ai, pchr->getObjRef(), pchr->getProfileID(), getTeamList()[team].getMorale() );
+    ai_state_t::spawn( pchr->ai, pchr->getObjRef(), pchr->getProfileID().get(), getTeamList()[team].getMorale() );
 
     // Team stuff
     pchr->team     = team;
@@ -864,22 +864,22 @@ void GameModule::logSlotUsage(const std::string& savename)
         vfs_printf( hFileWrite, "Slot usage for objects in last module loaded...\n" );
         //vfs_printf( hFileWrite, "%d of %d frames used...\n", Md2FrameList_index, MAXFRAME );
 
-        PRO_REF lastSlotNumber = 0;
+        ObjectProfileRef lastSlotNumber(0);
         for (const auto &element : ProfileSystem::get().getLoadedProfiles())
         {
             const std::shared_ptr<ObjectProfile> &profile = element.second;
 
             //ZF> ugh, import objects are currently handled in a weird special way.
-            for(size_t i = lastSlotNumber; i < profile->getSlotNumber() && i <= 36; ++i)
+            for(ObjectProfileRef i = lastSlotNumber; i < profile->getSlotNumber() && i <= ObjectProfileRef(36); ++i)
             {
                 if (!ProfileSystem::get().isLoaded(i))
                 {
-                    vfs_printf( hFileWrite, "%3" PRIuZ " %32s.\n", i, "Slot reserved for import players" );
+                    vfs_printf( hFileWrite, "%3" PRIuZ " %32s.\n", i.get(), "Slot reserved for import players" );
                 }
             }
             lastSlotNumber = profile->getSlotNumber();
 
-            vfs_printf(hFileWrite, "%3d %32s %s\n", profile->getSlotNumber(), profile->getClassName().c_str(), profile->getModel()->getName().c_str());
+            vfs_printf(hFileWrite, "%3d %32s %s\n", profile->getSlotNumber().get(), profile->getClassName().c_str(), profile->getModel()->getName().c_str());
         }
 
         vfs_close( hFileWrite );
@@ -952,30 +952,30 @@ void GameModule::spawnAllObjects()
         //Next we dynamically find slot numbers for each of the objects in the dynamic list
         for(const std::string &spawnName : dynamicObjectList)
         {
-            PRO_REF profileSlot;
+            ObjectProfileRef profileSlot;
 
             //Find first free slot that is not the spellbook slot
-            for (profileSlot = 1 + MAX_IMPORT_PER_PLAYER * MAX_PLAYER; profileSlot < INVALID_PRO_REF; ++profileSlot)
+            for (profileSlot = ObjectProfileRef(1 + MAX_IMPORT_PER_PLAYER * MAX_PLAYER); profileSlot < ObjectProfileRef::Invalid; ++profileSlot)
             {
                 //don't try to grab loaded profiles
                 if (ProfileSystem::get().isLoaded(profileSlot)) continue;
 
                 //the slot already dynamically loaded by a different spawn object of the same type that we are, no need to reload in a new slot
-                if(reservedSlots[profileSlot] == spawnName) {
+                if(reservedSlots[profileSlot.get()] == spawnName) {
                      break;
                 }
 
                 //found a completely free slot
-                if (reservedSlots[profileSlot].empty())
+                if (reservedSlots[profileSlot.get()].empty())
                 {
                     //Reserve this one for us
-                    reservedSlots[profileSlot] = spawnName;
+                    reservedSlots[profileSlot.get()] = spawnName;
                     break;
                 }
             }
 
             //If all slots are reserved, spit out a warning (very unlikely unless there is a bug somewhere)
-            if ( profileSlot == INVALID_PRO_REF ) {
+            if ( profileSlot == ObjectProfileRef::Invalid ) {
                 Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to acquire free dynamic slot for object ", spawnName, ". All slots in use?", Log::EndOfEntry);
             }
         }
@@ -1037,7 +1037,7 @@ std::shared_ptr<Object> GameModule::spawnObjectFromFileEntry(const spawn_file_in
         return nullptr;  
     }
 
-    PRO_REF iprofile = static_cast<PRO_REF>(psp_info.slot);
+    auto iprofile = ObjectProfileRef(static_cast<PRO_REF>(psp_info.slot));
 
     //Require a valid parent?
     if(psp_info.attach != ATTACH_NONE && !parent) {
@@ -1131,9 +1131,9 @@ std::shared_ptr<Object> GameModule::spawnObjectFromFileEntry(const spawn_file_in
             int local_index = -1;
             for ( size_t tnc = 0; tnc < g_importList.count; tnc++ )
             {
-                if (pobject->getProfileID() <= import_data.max_slot && ProfileSystem::get().isLoaded(pobject->getProfileID()))
+                if (pobject->getProfileID().get() <= import_data.max_slot && ProfileSystem::get().isLoaded(pobject->getProfileID()))
                 {
-                    int islot = REF_TO_INT( pobject->getProfileID() );
+                    int islot = pobject->getProfileID().get();
 
                     if ( import_data.slot_lst[islot] == g_importList.lst[tnc].slot )
                     {

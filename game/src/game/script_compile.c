@@ -619,7 +619,7 @@ PDLToken parser_state_t::parse_token(ObjectProfile *ppro, script_info_t& script,
                 // Is this the object we are looking for?
                 if (Ego::isSuffix(profile->getPathname(), token.getLexeme()))
                 {
-                    token.setValue(profile->getSlotNumber());
+                    token.setValue(profile->getSlotNumber().get());
                     break;
                 }
             }
@@ -636,7 +636,7 @@ PDLToken parser_state_t::parse_token(ObjectProfile *ppro, script_info_t& script,
                     if (ProfileSystem::get().isLoaded(ipro)) continue;
 
                     //found a free slot
-                    token.setValue(ProfileSystem::get().loadOneProfile(loadName, REF_TO_INT(ipro)));
+                    token.setValue(ProfileSystem::get().loadOneProfile(loadName, REF_TO_INT(ipro)).get());
                     if (token.getValue() == ipro) break;
                 }
             }

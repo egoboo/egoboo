@@ -88,7 +88,7 @@ public:
     /**
      *  @details This function loads one object and returns the object slot
      */
-    PRO_REF loadOneProfile(const std::string &folderPath, int slot_override = -1);
+    ObjectProfileRef loadOneProfile(const std::string &folderPath, int slot_override = -1);
 
     /**
      * @brief Loads only the slot number from data.txt

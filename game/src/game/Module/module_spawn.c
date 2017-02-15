@@ -55,7 +55,7 @@ bool activate_spawn_file_load_object( spawn_file_info_t& psp_info )
             return false;
         }
 
-        psp_info.slot = ProfileSystem::get().loadOneProfile(filename, psp_info.slot);
+        psp_info.slot = ProfileSystem::get().loadOneProfile(filename, psp_info.slot).get();
     }
 
     return ProfileSystem::get().isLoaded((PRO_REF)psp_info.slot);

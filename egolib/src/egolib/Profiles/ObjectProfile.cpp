@@ -39,7 +39,7 @@ ObjectProfile::ObjectProfile() :
     _pathname("*NONE*"),
     _model(nullptr),
     _ieve(INVALID_EVE_REF),
-    _slotNumber(-1),
+    _slotNumber(ObjectProfileRef::Invalid),
 
     _randomName(),
     _aiScript(),
@@ -421,14 +421,25 @@ void ObjectProfile::setupXPTable()
     }
 }
 
+ObjectProfileRef vfs_get_next_object_profile_ref(ReadContext& ctxt)
+{
+    int number = vfs_get_next_int(ctxt);
+    ObjectProfileRef reference = ObjectProfileRef::Invalid;
+    if (number < number > ObjectProfileRef::Min.get() || number > ObjectProfileRef::Max.get())
+    {
+        return reference;
+    }
+    return ObjectProfileRef(number);
+}
+
 bool ObjectProfile::loadDataFile(const std::string &filePath)
 {
     // Open the file
     ReadContext ctxt(filePath);
 
     //read slot number (ignored for now)
-    vfs_get_next_int(ctxt);
-    //_slotNumber = vfs_get_next_int(ctxt);
+    vfs_get_next_object_profile_ref(ctxt);
+    //_slotNumber = vfs_get_next_object_profile_ref(ctxt);
 
     // Read in the class name
     std::string buffer;

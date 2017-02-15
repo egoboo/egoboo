@@ -57,7 +57,7 @@ struct EnchantModifier
 class Enchantment : public std::enable_shared_from_this<Enchantment>
 {
 public:
-    Enchantment(const std::shared_ptr<EnchantProfile> &enchantmentProfile, PRO_REF spawnerProfile, const std::shared_ptr<Object> &owner);
+    Enchantment(const std::shared_ptr<EnchantProfile> &enchantmentProfile, ObjectProfileRef spawnerProfile, const std::shared_ptr<Object> &owner);
 
     ~Enchantment();
 
@@ -135,7 +135,7 @@ private:
 
     std::shared_ptr<EnchantProfile> _enchantProfile;
 
-    PRO_REF _spawnerProfileID;        ///< The object  profile index that spawned this enchant
+    ObjectProfileRef _spawnerProfileID;        ///< The object  profile index that spawned this enchant
 
     int _lifeTime;                  ///< Time before end (in game logic frames)
     int _spawnParticlesTimer;       ///< Time before spawning particle effects (in game logic frames)
