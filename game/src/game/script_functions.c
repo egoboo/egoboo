@@ -1127,7 +1127,9 @@ Uint8 scr_DropWeapons( script_state_t& state, ai_state_t& self )
         leftItem->detatchFromHolder(true, true);
         if ( pchr->isMount() )
         {
-            leftItem->vel.z()    = Object::DISMOUNTZVEL;
+            leftItem->setVelocity({leftItem->getVelocity().x(),
+                                leftItem->getVelocity().y(),
+                                Object::DISMOUNTZVEL});
             leftItem->jump_timer = Object::JUMPDELAY;
             leftItem->movePosition(0.0f, 0.0f, Object::DISMOUNTZVEL);
         }
@@ -1139,7 +1141,9 @@ Uint8 scr_DropWeapons( script_state_t& state, ai_state_t& self )
         rightItem->detatchFromHolder(true, true);
         if ( pchr->isMount() )
         {
-            rightItem->vel.z()    = Object::DISMOUNTZVEL;
+            rightItem->setVelocity({rightItem->getVelocity().x(),
+                                 rightItem->getVelocity().y(),
+                                 Object::DISMOUNTZVEL});
             rightItem->jump_timer = Object::JUMPDELAY;
             rightItem->movePosition(0.0f, 0.0f, Object::DISMOUNTZVEL);
         }
@@ -1918,8 +1922,10 @@ Uint8 scr_SpawnCharacter( script_state_t& state, ai_state_t& self )
             self.child = pchild->getObjRef();
 
             Facing turn = pchr->ori.facing_z + Facing::ATK_BEHIND;
-            pchild->vel[kX] += std::cos(turn) * state.distance;
-            pchild->vel[kY] += std::sin(turn) * state.distance;
+            pchild->setVelocity(pchild->getVelocity() +
+                                Vector3f(std::cos(turn) * state.distance,
+                                         std::sin(turn) * state.distance,
+                                         0.0f));
 
             pchild->iskursed = pchr->iskursed;  /// @note BB@> inherit this from your spawner
             pchild->ai.passage = self.passage;
@@ -3934,10 +3940,13 @@ Uint8 scr_StopTargetMovement( script_state_t& state, ai_state_t& self )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    pself_target->vel[kX] = 0;
-    pself_target->vel[kY] = 0;
-    if ( pself_target->vel[kZ] > 0 ) pself_target->vel[kZ] = Ego::Physics::g_environment.gravity;
-
+    pself_target->setVelocity({0.0f, 0.0f, pself_target->getVelocity().z()});
+    if (pself_target->getVelocity().z() > 0)
+    {
+        pself_target->setVelocity({pself_target->getVelocity().x(),
+                                   pself_target->getVelocity().y(),
+                                   Ego::Physics::g_environment.gravity});
+    }
     SCRIPT_FUNCTION_END();
 }
 
@@ -4073,8 +4082,8 @@ Uint8 scr_AccelerateTarget( script_state_t& state, ai_state_t& self )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    pself_target->vel[kX] += state.x;
-    pself_target->vel[kY] += state.y;
+    pself_target->setVelocity(pself_target->getVelocity() +
+                              Vector3f(state.x, state.y, 0.0f));
 
     SCRIPT_FUNCTION_END();
 }
@@ -6227,7 +6236,8 @@ Uint8 scr_AccelerateUp( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->vel[kZ] += state.argument / 100.0f;
+    pchr->setVelocity(pchr->getVelocity() +
+                      Vector3f(0.0f, 0.0f, state.argument / 100.0f));
 
     SCRIPT_FUNCTION_END();
 }
@@ -6716,8 +6726,8 @@ Uint8 scr_SpawnPoofSpeedSpacingDamage( script_state_t& state, ai_state_t& self )
 
                 //Add random horizontal velocity offset
                 Vector2f xyVelOffset = Vector2f(velOffsetBase + Random::next(ppip->getSpawnVelocityOffsetXY().rand), velOffsetBase + Random::next(ppip->getSpawnVelocityOffsetXY().rand));
-                poofParticle->vel.x() += xyVelOffset.x();
-                poofParticle->vel.y() += xyVelOffset.y();
+                poofParticle->setVelocity(poofParticle->getVelocity() +
+                                          Vector3f(xyVelOffset.x(), xyVelOffset.y(), 0.0f));
 
                 //Add random horizontal position offset
                 Vector2f xyPosOffset = Vector2f(posOffsetBase + Random::next(ppip->getSpawnPositionOffsetXY().rand), posOffsetBase + Random::next(ppip->getSpawnPositionOffsetXY().rand));
@@ -7795,7 +7805,8 @@ Uint8 scr_AccelerateTargetUp( script_state_t& state, ai_state_t& self )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    pself_target->vel[kZ] += state.argument / 100.0f;
+    pself_target->setVelocity(pself_target->getVelocity() +
+                              Vector3f(0.0f, 0.0f, state.argument / 100.0f));
 
     SCRIPT_FUNCTION_END();
 }

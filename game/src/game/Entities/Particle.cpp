@@ -684,8 +684,12 @@ void Particle::updateAttachedDamage()
     if (getProfile()->allowpush && 0 == getProfile()->getSpawnVelocityOffsetXY().base)
     {
         // Make character limp
-        attachedObject->vel.x() *= 0.5f;
-        attachedObject->vel.y() *= 0.5f;
+        attachedObject->setVelocity
+        ({
+            attachedObject->getVelocity().x() * 0.5f,
+            attachedObject->getVelocity().y() * 0.5f,
+            attachedObject->getVelocity().z()
+        });
     }
 
     //---- do the damage
@@ -975,7 +979,9 @@ bool Particle::initialize(const ParticleRef particleID, const Vector3f& spawnPos
     vel.x() = -std::cos(loc_facing) * velocity;
     vel.y() = -std::sin(loc_facing) * velocity;
     vel.z() += generate_irand_pair(getProfile()->getSpawnVelocityOffsetZ()) - (getProfile()->getSpawnVelocityOffsetZ().rand / 2);
-    this->vel = vel_old = vel_stt = vel;
+    this->setVelocity(vel);
+    this->setOldVelocity(vel);
+    this->vel_stt = vel;
 
     // Template values
     bump_size_stt = getProfile()->bump_size;

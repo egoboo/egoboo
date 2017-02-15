@@ -122,46 +122,40 @@ public:
 
 struct PhysicsData
 {
-    phys_data_t phys;          ///< The entity's physics data.
+    /// @brief The entity's physics data.
+    phys_data_t phys;
+    /// @brief What is the height of the target platform?
+    float targetplatform_level;  
+    /// @brief Am I trying to attach to a platform?
+    ObjectRef targetplatform_ref;
+    /// @brief Is the particle on a platform?
+    ObjectRef onwhichplatform_ref;
+    /// @brief When was the last platform attachment made?
+    uint32_t onwhichplatform_update;
 
-    float targetplatform_level;    ///< What is the height of the target platform?
-    ObjectRef targetplatform_ref;  ///< Am I trying to attach to a platform?
-    ObjectRef onwhichplatform_ref; ///< Is the particle on a platform?
-    Uint32 onwhichplatform_update; ///< When was the last platform attachment made?
+private:
+    /// @brief The old velocity of the entity.
+    Vector3f m_oldVelocity;
+    /// @brief The current velocity of the entity.
+    Vector3f m_velocity;
+public:
+    PhysicsData();
 
-    /**
-    * @brief
-    *  The current velocity of the entity.
-    */
-	Vector3f vel;
+    static void reset(PhysicsData *self);
 
-    /**
-    * @brief
-    *  The previous velocity of the entity.
-    */
-	Vector3f vel_old;
+    /// @brief Get the old velocity.
+    /// @return the old velocity
+    const Vector3f& getOldVelocity() const;
 
-    PhysicsData() :
-        phys(),
-        targetplatform_level(0.0f),
-        targetplatform_ref(),
-        onwhichplatform_ref(),
-        onwhichplatform_update(0),
-        vel_old(), 
-        vel()
-    {
-    }
-    
-    static void reset(PhysicsData *self)
-    {
-        self->phys = phys_data_t();
+    /// @brief Set the old velocity.
+    /// @param oldVelocity the old velocity
+    void setOldVelocity(const Vector3f& oldVelocity);
+     
+    /// @brief Get the velocity.
+    /// @return the velocity
+    const Vector3f& getVelocity() const;
 
-        self->targetplatform_level = 0.0f;
-        self->targetplatform_ref = ObjectRef::Invalid;
-        self->onwhichplatform_ref = ObjectRef::Invalid;
-        self->onwhichplatform_update = 0;
-
-        self->vel = Vector3f::zero();
-        self->vel_old = Vector3f::zero();
-    }
+    /// @brief Set the velocity.
+    /// @param velocity the velocity
+    void setVelocity(const Vector3f& velocity);
 };

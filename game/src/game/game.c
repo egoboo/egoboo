@@ -2525,9 +2525,9 @@ void character_swipe( ObjectRef ichr, slot_t slot )
             velocity = Ego::Math::constrain( velocity, MINTHROWVELOCITY, MAXTHROWVELOCITY );
 
             Facing turn = pchr->ori.facing_z + Facing::ATK_BEHIND;
-            pthrown->vel.x() += std::cos(turn) * velocity;
-            pthrown->vel.y() += std::sin(turn) * velocity;
-            pthrown->vel.z() = Object::DROPZVEL;
+            pthrown->setVelocity({pthrown->getVelocity().x() + std::cos(turn) * velocity,
+                                  pthrown->getVelocity().y() + std::sin(turn) * velocity,
+                                  Object::DROPZVEL});
 
             //Was that the last one?
             if ( pweapon->ammo <= 1 ) {

@@ -179,7 +179,7 @@ bool get_prt_mass( Ego::Particle * pprt, Object * pchr, float * wt )
             float prt_ke;
             Vector3f vdiff;
 
-            vdiff = pprt->vel - pchr->vel;
+            vdiff = pprt->getVelocity() - pchr->getVelocity();
 
             // the damage is basically like the kinetic energy of the particle
             prt_vel2 = vdiff.dot(vdiff);
@@ -380,8 +380,8 @@ bool do_chr_prt_collision_get_details(chr_prt_collision_data_t& pdata, const flo
         tmp_max = tmin + ( tmax - tmin ) * 0.1f;
 
         // determine the expanded collision volumes for both objects
-        phys_expand_oct_bb(cv_prt_min, pdata.pprt->vel, tmp_min, tmp_max, exp1);
-        phys_expand_oct_bb(cv_chr,     pdata.pchr->vel, tmp_min, tmp_max, exp2);
+        phys_expand_oct_bb(cv_prt_min, pdata.pprt->getVelocity(), tmp_min, tmp_max, exp1);
+        phys_expand_oct_bb(cv_chr,     pdata.pchr->getVelocity(), tmp_min, tmp_max, exp2);
 
         // use "collision" to determine the normal and overlap
         handled = phys_estimate_collision_normal(exp1, exp2, exponent, odepth, pdata.nrm, pdata.depth_min);
@@ -419,8 +419,8 @@ bool do_chr_prt_collision_get_details(chr_prt_collision_data_t& pdata, const flo
             tmp_max = tmin + ( tmax - tmin ) * 0.1f;
 
             // determine the expanded collision volumes for both objects
-            phys_expand_oct_bb(cv_prt_max, pdata.pprt->vel, tmp_min, tmp_max, exp1);
-            phys_expand_oct_bb(cv_chr,     pdata.pchr->vel, tmp_min, tmp_max, exp2);
+            phys_expand_oct_bb(cv_prt_max, pdata.pprt->getVelocity(), tmp_min, tmp_max, exp1);
+            phys_expand_oct_bb(cv_chr,     pdata.pchr->getVelocity(), tmp_min, tmp_max, exp2);
 
             // use "collision" to determine the normal and overlap
             handled = phys_estimate_collision_normal(exp1, exp2, exponent, odepth, pdata.nrm, pdata.depth_max);
@@ -689,7 +689,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t& pdata )
             //Damage adjusted for attributes and weaknesses
             IPair modifiedDamage = pdata.pprt->damage;
 
-            FACING_T direction = FACING_T(vec_to_facing( pdata.pprt->vel.x() , pdata.pprt->vel.y() ));
+            FACING_T direction = FACING_T(vec_to_facing( pdata.pprt->getVelocity().x() , pdata.pprt->getVelocity().y() ));
             direction = FACING_T(pdata.pchr->ori.facing_z - Facing(direction) + Facing::ATK_BEHIND);
 
             // These things only apply if the particle has an owner
@@ -1001,7 +1001,7 @@ void do_chr_prt_collision_knockback(chr_prt_collision_data_t &pdata)
     **/
 
     //No knocback applicable?
-    if(pdata.pprt->vel.length_abs() == 0.0f) {
+    if(pdata.pprt->getVelocity().length_abs() == 0.0f) {
         return;
     }
 
@@ -1087,7 +1087,7 @@ void do_chr_prt_collision_knockback(chr_prt_collision_data_t &pdata)
     }
 
     //Apply knockback to the victim (limit between 0% and 300% knockback)
-    Vector3f knockbackVelocity = pdata.pprt->vel * Ego::Math::constrain(knockbackFactor, 0.0f, 3.0f);
+    Vector3f knockbackVelocity = pdata.pprt->getVelocity() * Ego::Math::constrain(knockbackFactor, 0.0f, 3.0f);
 
     //static constexpr float DEFAULT_KNOCKBACK_VELOCITY = 10.0f;
     //knockbackVelocity[kX] = std::cos(pdata.pprt->vel[kX]) * DEFAULT_KNOCKBACK_VELOCITY;
@@ -1171,7 +1171,7 @@ bool do_chr_prt_collision(const std::shared_ptr<Object> &object, const std::shar
     }
 
     // find the relative velocity
-    cn_data.vdiff = cn_data.pchr->vel - cn_data.pprt->vel;
+    cn_data.vdiff = cn_data.pchr->getVelocity() - cn_data.pprt->getVelocity();
 
     // decompose the relative velocity parallel and perpendicular to the surface normal
     cn_data.dot = fvec3_decompose(cn_data.vdiff, cn_data.nrm, cn_data.vdiff_perp, cn_data.vdiff_para);
@@ -1326,7 +1326,7 @@ int spawn_bump_particles(ObjectRef character, const ParticleRef particle)
     int bs_count = 0;
 
     // Only damage if hitting from proper direction
-    Facing direction = vec_to_facing(pprt->vel[kX], pprt->vel[kY]);
+    Facing direction = vec_to_facing(pprt->getVelocity().x(), pprt->getVelocity().y());
     direction = Facing::ATK_BEHIND + pchr->ori.facing_z - direction;
 
     // Check that direction

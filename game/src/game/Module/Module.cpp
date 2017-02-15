@@ -722,8 +722,7 @@ void GameModule::updatePits()
             {
                 // Got one!
                 pchr->kill(Object::INVALID_OBJECT, false);
-                pchr->vel.x() = 0;
-                pchr->vel.y() = 0;
+                pchr->setVelocity({0.0f, 0.0f, pchr->getVelocity().z()});
 
                 /// @note ZF@> Disabled, the pitfall sound was intended for pits.teleport only
                 // Play sound effect
@@ -737,12 +736,11 @@ void GameModule::updatePits()
                 if (!pchr->teleport(_pitsTeleportPos, Facing(pchr->ori.facing_z))) {
                     // Kill it instead
                     pchr->kill(Object::INVALID_OBJECT, false);
-                    pchr->vel.x() = 0;
-                    pchr->vel.y() = 0;
+                    pchr->setVelocity({0.0f, 0.0f, pchr->getVelocity().z()});
                 }
                 else {
                     // Stop movement
-                    pchr->vel = Vector3f::zero();
+                    pchr->setVelocity(Vector3f::zero());
 
                     // Play sound effect
                     if (pchr->isPlayer()) {

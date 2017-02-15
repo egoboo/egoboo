@@ -745,7 +745,7 @@ void Object::update()
         if (!inwater)
         {
             // Splash
-            ParticleHandler::get().spawnGlobalParticle(Vector3f(getPosX(), getPosY(), _currentModule->getWater().get_level() + 10), Facing::ATK_FRONT, LocalParticleProfileRef(PIP_SPLASH), 0);
+            ParticleHandler::get().spawnGlobalParticle({getPosX(), getPosY(), _currentModule->getWater().get_level() + 10}, Facing::ATK_FRONT, LocalParticleProfileRef(PIP_SPLASH), 0);
 
             if ( _currentModule->getWater()._is_water )
             {
@@ -769,7 +769,7 @@ void Object::update()
                     ripple_suppression = Ego::Math::constrain(ripple_suppression, 0, 4);
 
                     // make more ripples if we are moving
-                    ripple_suppression -= (( int )vel[kX] != 0 ) | (( int )vel[kY] != 0 );
+                    ripple_suppression -= (( int )getVelocity()[kX] != 0 ) | (( int )getVelocity()[kY] != 0 );
 
                     int ripand;
                     if ( ripple_suppression > 0 )
@@ -783,7 +783,7 @@ void Object::update()
 
                     if ( 0 == ( (update_wld + getObjRef().get()) & ripand ))
                     {
-                        ParticleHandler::get().spawnGlobalParticle(Vector3f(getPosX(), getPosY(), _currentModule->getWater().get_level()), Facing::ATK_FRONT, LocalParticleProfileRef(PIP_RIPPLE), 0);
+                        ParticleHandler::get().spawnGlobalParticle({getPosX(), getPosY(), _currentModule->getWater().get_level()}, Facing::ATK_FRONT, LocalParticleProfileRef(PIP_RIPPLE), 0);
                     }
                 }
             }
@@ -1182,24 +1182,25 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
     if ( inshop )
     {
         // Drop straight down to avoid theft
-        vel[kX] = 0;
-        vel[kY] = 0;
+        setVelocity(Vector3f(0.0f, 0.0f, getVelocity().z()));
     }
     else
     {
-        vel[kX] = pholder->vel[kX];
-        vel[kY] = pholder->vel[kY];
+        setVelocity(Vector3f(pholder->getVelocity().x(),
+                             pholder->getVelocity().y(),
+                             getVelocity().z()));
     }
 
     //Throw us forward if we can collide with the holder (for example the Stool)
     //This prevents us from being dropped into the collision box of the holder
     if(bump.size > 0) {
         Ego::Math::Radians angle = FacingToRadian(Facing(ori.facing_z) + Facing::ATK_BEHIND);
-        vel[kX] += std::cos(angle) * DROPXYVEL * 0.5f;
-        vel[kY] += std::sin(angle) * DROPXYVEL * 0.5f;
+        setVelocity(getVelocity() + Vector3f(std::cos(angle) * DROPXYVEL * 0.5f,
+                                             std::sin(angle) * DROPXYVEL * 0.5f,
+                                             0.0f));
     }
 
-    vel[kZ] = DROPZVEL;
+     setVelocity({getVelocity().x(), getVelocity().y(), DROPZVEL});
 
     // Turn looping off
     inst.setActionLooped(false);
@@ -1854,7 +1855,7 @@ void Object::respawn()
     _currentLife = getAttribute(Ego::Attribute::MAX_LIFE);
     _currentMana = getAttribute(Ego::Attribute::MAX_MANA);
     setPosition(getSpawnPosition());
-    vel = Vector3f::zero();
+    setVelocity(Vector3f::zero());
     team = team_base;
     canbecrushed = false;
     ori.map_twist_facing_y = orientation_t::MAP_TURN_OFFSET;  // These two mean on level surface
@@ -2289,7 +2290,9 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
 
         if ( isMount() )
         {
-            leftItem->vel[kZ]    = DISMOUNTZVEL;
+            leftItem->setVelocity({leftItem->getVelocity().x(),
+                                   leftItem->getVelocity().y(),
+                                   DISMOUNTZVEL});
             leftItem->jump_timer = JUMPDELAY;
             leftItem->movePosition(0.0f, 0.0f, DISMOUNTZVEL);
         }
@@ -2303,7 +2306,9 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
 
         if ( isMount() )
         {
-            rightItem->vel[kZ]    = DISMOUNTZVEL;
+            rightItem->setVelocity({rightItem->getVelocity().x(),
+                                    rightItem->getVelocity().y(),
+                                    DISMOUNTZVEL});
             rightItem->jump_timer = JUMPDELAY;
             rightItem->movePosition(0.0f, 0.0f, DISMOUNTZVEL);
         }
@@ -2858,9 +2863,10 @@ void Object::dropKeys()
         pkey->team                   = pkey->team_base;
 
         // fix the current velocity
-        pkey->vel[kX]                  += std::cos(turn) * DROPXYVEL;
-        pkey->vel[kY]                  += std::sin(turn) * DROPXYVEL;
-        pkey->vel[kZ]                  += DROPZVEL;
+        pkey->setVelocity(pkey->getVelocity() + 
+                          Vector3f(std::cos(turn) * DROPXYVEL,
+                           std::sin(turn) * DROPXYVEL,
+                                   DROPZVEL));
 
         // do some more complicated things
         SET_BIT( pkey->ai.alert, ALERTIF_DROPPED );
@@ -2913,9 +2919,10 @@ void Object::dropAllItems()
         pitem->team                   = pitem->team_base;
 
         // fix the current velocity
-        pitem->vel.x() += std::cos(direction) * DROPXYVEL;
-        pitem->vel.y() += std::sin(direction) * DROPXYVEL;
-        pitem->vel.z() += DROPZVEL;
+        pitem->setVelocity(pitem->getVelocity() +
+                           Vector3f(std::cos(direction) * DROPXYVEL,
+                                    std::sin(direction) * DROPXYVEL,
+                                    DROPZVEL));
 
         // do some more complicated things
         SET_BIT(pitem->ai.alert, ALERTIF_DROPPED);
@@ -3017,14 +3024,14 @@ void Object::updateLatchButtons()
             jump_timer = Object::JUMPDELAY;
             if ( isFlying() )
             {
-                vel.z() += Object::DISMOUNTZVEL / 3.0f;
+                setVelocity(getVelocity() + Vector3f(0.0f, 0.0f, Object::DISMOUNTZVEL / 3.0f));
             }
             else
             {
-                vel.z() += Object::DISMOUNTZVEL;
+                setVelocity(getVelocity() + Vector3f(0.0f, 0.0f, Object::DISMOUNTZVEL));
             }
 
-            setPosition(getPosX(), getPosY(), getPosZ() + vel[kZ]);
+            setPosition(getPosX(), getPosY(), getPosZ() + getVelocity().z());
 
             if (getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) != Object::JUMPINFINITE && 0 != jumpnumber) {
                 jumpnumber--;
@@ -3055,7 +3062,7 @@ void Object::updateLatchButtons()
                     jumpPower *= 0.5f;
                 }
 
-                vel.z() += jumpPower;
+                setVelocity(getVelocity() + Vector3f(0.0f, 0.0f, jumpPower));
                 jumpready = false;
 
                 if (getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) != Object::JUMPINFINITE) { 

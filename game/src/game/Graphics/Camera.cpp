@@ -424,7 +424,7 @@ void Camera::updateTrack()
                 {
                     // Weight it by the character's velocity^2, so that
                     // inactive characters don't control the camera.
-                    float weight1 = pchr->vel.dot(pchr->vel);
+                    float weight1 = pchr->getVelocity().dot(pchr->getVelocity());
 
                     // Make another weight based on button-pushing.
                     float weight2 = pchr->isAnyLatchButtonPressed() ? 127 : 0;
