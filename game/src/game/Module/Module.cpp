@@ -902,7 +902,7 @@ void GameModule::spawnAllObjects()
 
         // First load spawn data of every object.
         ctxt.next(); /// @todo Remove this hack.
-        while(!ctxt.is(ReadContext::Traits::endOfInput()))
+        while(!ctxt.isEndOfInput())
         {
             spawn_file_info_t entry;
 

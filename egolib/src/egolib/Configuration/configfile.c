@@ -73,11 +73,11 @@ bool ConfigFileParser::skipWhiteSpaces()
 
 bool ConfigFileParser::parseFile(shared_ptr<ConfigFile> target)
 {
-    assert(is(Traits::startOfInput()));
+    assert(isStartOfInput());
     _currentQualifiedName = nullptr;
     _currentValue = nullptr;
     next();
-    while (Traits::endOfInput() != current())
+    while (!isEndOfInput())
     {
         if (isNewLine())
         {
@@ -143,7 +143,7 @@ bool ConfigFileParser::parseComment(std::string& comment)
     }
     next();
     _buffer.clear();
-    while (!is(Traits::endOfInput()) && !is(Traits::error()) && !isNewLine())
+    while (!isEndOfInput() && !isError() && !isNewLine())
     {
         saveAndNext();
     }

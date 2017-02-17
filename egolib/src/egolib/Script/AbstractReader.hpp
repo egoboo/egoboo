@@ -169,6 +169,24 @@ public:
         return Traits::isDigit(current());
     }
 
+    /// @brief Get if the current extended character is a start of input character.
+    /// @return @a true if the current extended character is a start of input character, @a false otherwise
+    inline bool isStartOfInput() const {
+        return is(Traits::startOfInput());
+    }
+
+    /// @brief Get if the current extended character is an end of input character.
+    /// @return @a true if the current extended character is an end of input character, @a false otherwise
+    inline bool isEndOfInput() const {
+        return is(Traits::endOfInput());
+    }
+
+    /// @brief Get if the current extended character is an error character.
+    /// @return @a true if the current extended character is an error character, @a false otherwise
+    inline bool isError() const {
+        return is(Traits::error());
+    }
+
 public:
     void newLine() {
         if (isNewLine()) {

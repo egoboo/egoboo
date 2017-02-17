@@ -307,7 +307,7 @@ std::shared_ptr<ParticleProfile> ParticleProfile::readFromFile(const std::string
     if (profile->homing) profile->_particleEffectBits.reset();
 
     // Read expansions
-    while (!ctxt->is(ReadContext::Traits::endOfInput()))
+    while (!ctxt->isEndOfInput())
     {
         if (ctxt->isWhiteSpace()) {
             ctxt->skipWhiteSpaces();

@@ -74,14 +74,13 @@ bool spawn_file_read(ReadContext& ctxt, spawn_file_info_t& info)
         do
         {
             ctxt.saveAndNext();
-        } while (!ctxt.is(':') && !ctxt.isNewLine() && !ctxt.is(ReadContext::Traits::endOfInput()) &&
-                 !ctxt.is(ReadContext::Traits::error()));
-        if (ctxt.is(ReadContext::Traits::error()))
+        } while (!ctxt.is(':') && !ctxt.isNewLine() && !ctxt.isEndOfInput() && !ctxt.isError());
+        if (ctxt.isError())
         {
             throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(ctxt.getFileName(), ctxt.getLineNumber()),
                                             "read error");
         }
-        if (ctxt.is(ReadContext::Traits::endOfInput()))
+        if (ctxt.isEndOfInput())
         {
             return false;
         }
@@ -186,7 +185,7 @@ bool spawn_file_read(ReadContext& ctxt, spawn_file_info_t& info)
         info.slot = slot;
         return true;
     }
-    else if (!ctxt.is(ReadContext::Traits::endOfInput()))
+    else if (!ctxt.isEndOfInput())
     {
         throw Id::CompilationErrorException(__FILE__, __LINE__, Id::CompilationErrorKind::Lexical, Id::Location(ctxt.getFileName(), ctxt.getLineNumber()),
                                             "junk after end of spawn file");
