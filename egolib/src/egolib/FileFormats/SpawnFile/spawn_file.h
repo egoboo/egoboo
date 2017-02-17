@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/FileFormats/spawn_file.h
+/// @file egolib/FileFormats/SpawnFile/spawn_file.h
 /// @details loading the environment definitions for a module
 
 #pragma once

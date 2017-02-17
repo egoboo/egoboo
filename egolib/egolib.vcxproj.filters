@@ -148,6 +148,12 @@
     <Filter Include="Header Files\Configuration">
       <UniqueIdentifier>{ae7714a7-d83d-4194-aeca-c072b6474de3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="File Formats\SpawnFile">
+      <UniqueIdentifier>{a2999ab1-7f49-462f-9b64-a4186e851d4d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File Formats\ConfigFile">
+      <UniqueIdentifier>{68fc487e-ebf6-4e64-91a6-22a3827cd2da}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\egolib\_math.c">
@@ -259,9 +265,6 @@
       <Filter>File Formats</Filter>
     </ClCompile>
     <ClCompile Include="src\egolib\FileFormats\map_tile_dictionary.c">
-      <Filter>File Formats</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\FileFormats\spawn_file.c">
       <Filter>File Formats</Filter>
     </ClCompile>
     <ClCompile Include="src\egolib\FileFormats\template.c">
@@ -570,6 +573,21 @@
     <ClCompile Include="src\egolib\Graphics\Viewport.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="src\egolib\FileFormats\SpawnFile\spawn_file.c">
+      <Filter>File Formats\SpawnFile</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\FileFormats\SpawnFile\SpawnFileToken.cpp">
+      <Filter>File Formats\SpawnFile</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\FileFormats\SpawnFile\SpawnFileTokenKind.cpp">
+      <Filter>File Formats\SpawnFile</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\FileFormats\ConfigFile\ConfigFileTokenKind.cpp">
+      <Filter>File Formats\ConfigFile</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\FileFormats\ConfigFile\ConfigFileToken.cpp">
+      <Filter>File Formats\ConfigFile</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\egolib\vfs.h">
@@ -723,9 +741,6 @@
       <Filter>File Formats</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\FileFormats\map_tile_dictionary.h">
-      <Filter>File Formats</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\FileFormats\spawn_file.h">
       <Filter>File Formats</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\FileFormats\template.h">
@@ -1411,6 +1426,24 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Graphics\Viewport.hpp">
       <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\FileFormats\SpawnFile\spawn_file.h">
+      <Filter>File Formats\SpawnFile</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\FileFormats\SpawnFile\SpawnFileToken.hpp">
+      <Filter>File Formats\SpawnFile</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\FileFormats\SpawnFile\SpawnFileTokenKind.hpp">
+      <Filter>File Formats\SpawnFile</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\FileFormats\ConfigFile\ConfigFileTokenKind.hpp">
+      <Filter>File Formats\ConfigFile</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\FileFormats\ConfigFile\ConfigFileToken.hpp">
+      <Filter>File Formats\ConfigFile</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Script\BasicReader.hpp">
+      <Filter>Header Files\Script</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

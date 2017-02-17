@@ -8,6 +8,7 @@ namespace Ego {
 namespace Script {
 
 /// @brief A scanner.
+/// @tparam TraitsArg the type of the traits
 template <typename TraitsArg = Traits<char>>
 struct AbstractReader {
 private:

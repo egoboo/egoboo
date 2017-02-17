@@ -298,6 +298,11 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\FileFormats\ConfigFile\ConfigFileToken.cpp" />
+    <ClCompile Include="src\egolib\FileFormats\ConfigFile\ConfigFileTokenKind.cpp" />
+    <ClCompile Include="src\egolib\FileFormats\SpawnFile\SpawnFileToken.cpp" />
+    <ClCompile Include="src\egolib\FileFormats\SpawnFile\SpawnFileTokenKind.cpp" />
+    <ClCompile Include="src\egolib\FileFormats\SpawnFile\spawn_file.c" />
     <ClCompile Include="src\egolib\Graphics\Viewport.cpp" />
     <ClCompile Include="src\egolib\Graphics\GraphicsSystemNew.cpp" />
     <ClCompile Include="src\egolib\Graphics\SDL\GraphicsSystemNew.cpp">
@@ -467,7 +472,6 @@
     <ClCompile Include="src\egolib\FileFormats\map_file-v4.c" />
     <ClCompile Include="src\egolib\FileFormats\map_file.c" />
     <ClCompile Include="src\egolib\FileFormats\map_tile_dictionary.c" />
-    <ClCompile Include="src\egolib\FileFormats\spawn_file.c" />
     <ClCompile Include="src\egolib\FileFormats\template.c" />
     <ClCompile Include="src\egolib\FileFormats\wawalite_file.c" />
     <ClCompile Include="src\egolib\IDSZ.cpp" />
@@ -535,6 +539,12 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Script\BasicReader.hpp" />
+    <ClInclude Include="src\egolib\FileFormats\ConfigFile\ConfigFileToken.hpp" />
+    <ClInclude Include="src\egolib\FileFormats\ConfigFile\ConfigFileTokenKind.hpp" />
+    <ClInclude Include="src\egolib\FileFormats\SpawnFile\SpawnFileToken.hpp" />
+    <ClInclude Include="src\egolib\FileFormats\SpawnFile\SpawnFileTokenKind.hpp" />
+    <ClInclude Include="src\egolib\FileFormats\SpawnFile\spawn_file.h" />
     <ClInclude Include="src\egolib\Graphics\Viewport.hpp" />
     <ClInclude Include="src\egolib\Configuration\Configuration.hpp" />
     <ClInclude Include="src\egolib\Logic\FeedbackType.hpp" />
@@ -760,7 +770,6 @@
     <ClInclude Include="src\egolib\FileFormats\map_file-v4.h" />
     <ClInclude Include="src\egolib\FileFormats\map_file.h" />
     <ClInclude Include="src\egolib\FileFormats\map_tile_dictionary.h" />
-    <ClInclude Include="src\egolib\FileFormats\spawn_file.h" />
     <ClInclude Include="src\egolib\FileFormats\template.h" />
     <ClInclude Include="src\egolib\FileFormats\wawalite_file.h" />
     <ClInclude Include="src\egolib\Math\Cone3.hpp" />

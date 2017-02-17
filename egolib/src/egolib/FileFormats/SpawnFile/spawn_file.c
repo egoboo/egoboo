@@ -17,11 +17,11 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/FileFormats/spawn_file.c
+/// @file egolib/FileFormats/SpawnFile/spawn_file.c
 /// @brief Implementation of a scanner for Egoboo's spawn.txt file
 /// @details
 
-#include "egolib/FileFormats/spawn_file.h"
+#include "egolib/FileFormats/SpawnFile/spawn_file.h"
 #include "egolib/fileutil.h"
 #include "egolib/strutil.h"
 #include "egolib/Core/StringUtilities.hpp"
