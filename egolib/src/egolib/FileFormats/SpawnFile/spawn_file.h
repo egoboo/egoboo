@@ -63,5 +63,5 @@ public:
     REF_T      attach;
 };
 
-bool spawn_file_read(ReadContext& ctxt, spawn_file_info_t& info);
 
+std::vector<spawn_file_info_t> spawn_file_read(const std::string& pathname);

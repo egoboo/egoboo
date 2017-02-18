@@ -896,27 +896,17 @@ void GameModule::spawnAllObjects()
     Ego::TreasureTables treasureTables("mp_data/randomtreasure.txt");
 
     // Turn some back on
-    ReadContext ctxt("mp_data/spawn.txt");
+    auto entries = spawn_file_read("mp_data/spawn.txt");
     {
         std::shared_ptr<Object> parent = nullptr;
 
-        // First load spawn data of every object.
-        ctxt.next(); /// @todo Remove this hack.
-        while(!ctxt.isEndOfInput())
+        for (auto& entry : entries)
         {
-            spawn_file_info_t entry;
-
-            // Read next entry
-            if(!spawn_file_read(ctxt, entry))
-            {
-                break; //no more entries
-            }
-
             //Spit out a warning if they break the limit
             if ( objectsToSpawn.size() >= OBJECTS_MAX )
             {
                 Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "too many objects in file ", "`",
-                                                 ctxt.getFileName(), "`", ". Maximum number of objects is ", OBJECTS_MAX,
+                                                 "mp_data/spawn,txt", "`", ". Maximum number of objects is ", OBJECTS_MAX,
                                                  Log::EndOfEntry);
                 break;
             }
@@ -925,7 +915,7 @@ void GameModule::spawnAllObjects()
             if ( entry.slot >= INVALID_PRO_REF )
             {
                 Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "invalid slot ", entry.slot,
-                                                 " for ", "`", entry.spawn_comment, "`", " in file ", "`", ctxt.getFileName(), "`",
+                                                 " for ", "`", entry.spawn_comment, "`", " in file ", "`", "mp_data/spawn,txt", "`",
                                                  Log::EndOfEntry);
                 continue;
             }
@@ -1007,7 +997,7 @@ void GameModule::spawnAllObjects()
                     {
                         Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__,
                                                          "the object ", "`", spawnInfo.spawn_comment, "`", " in slot ",
-                                                         spawnInfo.slot, " in file ", "`", ctxt.getFileName(), "`",
+                                                         spawnInfo.slot, " in file ", "`", "mp_data/spawn,txt", "`",
                                                          "does not exist on this machine", Log::EndOfEntry);
                     }
                     continue;
