@@ -29,18 +29,11 @@
 namespace Ego {
 namespace Math {
 
-/**
- * @brief
- *  A vector of a vector space.
- * @tparam _ScalarFieldType
- *	the scalar field type
- * @tparam _Dimensionality
- *  the dimensionality
- * @author
- *  Michael Heilmann
- */
+/// @brief A vector of a vector space.
+/// @tparam _ScalarFieldType the scalar field type
+/// @tparam _Dimensionality the dimensionality
 template <typename _ScalarFieldType, size_t _Dimensionality>
-struct Vector : public Tuple<typename _ScalarFieldType::ScalarType, _Dimensionality>,
+struct Vector : public tuple<typename _ScalarFieldType::ScalarType, _Dimensionality>,
                 public Internal::VectorExpr<Vector<_ScalarFieldType, _Dimensionality>, typename _ScalarFieldType::ScalarType> {
 public:
     /// @brief The scalar field type.
@@ -55,7 +48,7 @@ public:
     }
 public:
     /// @brief The tuple type.
-    using TupleType = Tuple<ScalarType, _Dimensionality>;
+    using TupleType = tuple<ScalarType, _Dimensionality>;
     /// @brief The type of this template/template specialization.
     using MyType = Vector<ScalarFieldType, _Dimensionality>;
 
