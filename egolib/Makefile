@@ -5,6 +5,7 @@
 
 EGOLIB_SOURCE := $(wildcard src/egolib/*.c)
 EGOLIB_SOURCE += $(wildcard src/egolib/*/*.c)
+EGOLIB_SOURCE += $(wildcard src/egolib/*/*/*.c)
 EGOLIB_CPPSRC := $(wildcard src/egolib/*.cpp)
 EGOLIB_CPPSRC += $(wildcard src/egolib/*/*.cpp)
 EGOLIB_CPPSRC += $(wildcard src/egolib/*/*/*.cpp)

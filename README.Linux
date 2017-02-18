@@ -4,7 +4,7 @@ This document describes the process of building and installing Egoboo under
 Linux. 
 
 == Requirements
-Building Egoboo on Linux requires a recent version of GCC (4.7.2 or later) and
+Building Egoboo on Linux requires a recent version of GCC (5.1 or later) and
 GNU Make (3.81 or later). Furthermore the runtime and development version of the
 following libraries need to be installed:
 
