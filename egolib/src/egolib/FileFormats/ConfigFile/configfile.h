@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/Configuration/configfile.h
+/// @file egolib/FileFormats/ConfigFile/configfile.h
 /// @brief Parsing and unparsing of configuration files
 
 #pragma once

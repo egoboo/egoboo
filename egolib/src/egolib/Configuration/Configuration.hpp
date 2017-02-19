@@ -3,7 +3,7 @@
 #include "egolib/Configuration/Enum.hpp"
 #include "egolib/Configuration/Number.hpp"
 #include "egolib/Configuration/StringOrBool.hpp"
-#include "egolib/Configuration/configfile.h"
+#include "egolib/FileFormats/ConfigFile/configfile.h"
 
 namespace Ego {
 namespace Configuration {

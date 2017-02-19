@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/Configuration/configfile.c
+/// @file egolib/FileFormats/ConfigFile/configfile.c
 /// @brief Parsing and unparsing of configuration files
 
 /**
@@ -57,7 +57,7 @@
  *  Multiple section with the same name will be loaded and saved but only the first
  *  one will be looked for value. Should not load sections with same name.
  */
-#include "egolib/Configuration/configfile.h"
+#include "egolib/FileFormats/ConfigFile/configfile.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

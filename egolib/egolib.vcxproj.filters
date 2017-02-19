@@ -567,9 +567,6 @@
     <ClCompile Include="src\egolib\Graphics\DisplayMode.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\Configuration\configfile.c">
-      <Filter>Header Files\Configuration</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\Graphics\Viewport.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
@@ -590,6 +587,9 @@
     </ClCompile>
     <ClCompile Include="src\egolib\FileFormats\SpawnFile\SpawnFileReaderImpl.cpp">
       <Filter>File Formats\SpawnFile</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\FileFormats\ConfigFile\configfile.c">
+      <Filter>File Formats\ConfigFile</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1421,9 +1421,6 @@
     <ClInclude Include="src\egolib\Configuration\Configuration.hpp">
       <Filter>Header Files\Configuration</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Configuration\configfile.h">
-      <Filter>Header Files\Configuration</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Graphics\Viewport.hpp">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
@@ -1447,6 +1444,9 @@
     </ClInclude>
     <ClInclude Include="src\egolib\FileFormats\SpawnFile\SpawnFileReaderImpl.hpp">
       <Filter>File Formats\SpawnFile</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\FileFormats\ConfigFile\configfile.h">
+      <Filter>File Formats\ConfigFile</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
