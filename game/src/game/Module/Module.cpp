@@ -896,7 +896,7 @@ void GameModule::spawnAllObjects()
     Ego::TreasureTables treasureTables("mp_data/randomtreasure.txt");
 
     // Turn some back on
-    auto entries = spawn_file_read("mp_data/spawn.txt");
+    auto entries = (SpawnFileReader()).read("mp_data/spawn.txt");
     {
         std::shared_ptr<Object> parent = nullptr;
 

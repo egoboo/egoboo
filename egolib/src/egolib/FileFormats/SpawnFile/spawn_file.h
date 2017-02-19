@@ -64,4 +64,12 @@ public:
 };
 
 
-std::vector<spawn_file_info_t> spawn_file_read(const std::string& pathname);
+struct SpawnFileReader
+{
+private:
+    bool read(ReadContext& ctxt, spawn_file_info_t& info);
+public:
+    SpawnFileReader();
+    ~SpawnFileReader();
+    std::vector<spawn_file_info_t> read(const std::string& pathname);
+};

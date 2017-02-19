@@ -28,7 +28,6 @@
 #include "egolib/_math.h"
 #include "egolib/Logic/Team.hpp"
 
-static bool spawn_file_read(ReadContext& ctxt, spawn_file_info_t& info);
 
 spawn_file_info_t::spawn_file_info_t() :
     do_spawn(false),
@@ -50,7 +49,7 @@ spawn_file_info_t::spawn_file_info_t() :
     //ctor
 }
 
-static bool spawn_file_read(ReadContext& ctxt, spawn_file_info_t& info)
+bool SpawnFileReader::read(ReadContext& ctxt, spawn_file_info_t& info)
 {
     info = spawn_file_info_t();
 
@@ -196,7 +195,7 @@ static bool spawn_file_read(ReadContext& ctxt, spawn_file_info_t& info)
 }
 
 
-std::vector<spawn_file_info_t> spawn_file_read(const std::string& pathname)
+std::vector<spawn_file_info_t> SpawnFileReader::read(const std::string& pathname)
 {
     ReadContext ctxt(pathname);
     ctxt.next(); /// @todo Remove this hack.
@@ -205,7 +204,7 @@ std::vector<spawn_file_info_t> spawn_file_read(const std::string& pathname)
     {
         spawn_file_info_t entry;
         // Read next entry.
-        if (!spawn_file_read(ctxt, entry))
+        if (!read(ctxt, entry))
         {
             break; // No more entries.
         }
@@ -214,3 +213,9 @@ std::vector<spawn_file_info_t> spawn_file_read(const std::string& pathname)
     }
     return entries;
 }
+
+SpawnFileReader::SpawnFileReader()
+{}
+
+SpawnFileReader::~SpawnFileReader()
+{}
