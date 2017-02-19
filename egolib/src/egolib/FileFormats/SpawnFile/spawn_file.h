@@ -23,8 +23,11 @@
 #pragma once
 
 #include "egolib/typedef.h"
-#include "egolib/fileutil.h"
-#include "egolib/Math/Vector.hpp"
+#include "egolib/_math.h"
+#include "egolib/Math/Standard.hpp"
+
+// Forward declaration.
+class SpawnFileReaderImpl;
 
 /// Where a spawned character can be attached
 enum e_attachment_type
@@ -67,7 +70,7 @@ public:
 struct SpawnFileReader
 {
 private:
-    bool read(ReadContext& ctxt, spawn_file_info_t& info);
+    std::unique_ptr<SpawnFileReaderImpl> impl;
 public:
     SpawnFileReader();
     ~SpawnFileReader();

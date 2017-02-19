@@ -588,6 +588,9 @@
     <ClCompile Include="src\egolib\FileFormats\ConfigFile\ConfigFileToken.cpp">
       <Filter>File Formats\ConfigFile</Filter>
     </ClCompile>
+    <ClCompile Include="src\egolib\FileFormats\SpawnFile\SpawnFileReaderImpl.cpp">
+      <Filter>File Formats\SpawnFile</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\egolib\vfs.h">
@@ -1441,6 +1444,9 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Script\BasicReader.hpp">
       <Filter>Header Files\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\FileFormats\SpawnFile\SpawnFileReaderImpl.hpp">
+      <Filter>File Formats\SpawnFile</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

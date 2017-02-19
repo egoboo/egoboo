@@ -298,6 +298,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\FileFormats\SpawnFile\SpawnFileReaderImpl.cpp" />
     <ClCompile Include="src\egolib\FileFormats\ConfigFile\ConfigFileToken.cpp" />
     <ClCompile Include="src\egolib\FileFormats\ConfigFile\ConfigFileTokenKind.cpp" />
     <ClCompile Include="src\egolib\FileFormats\SpawnFile\SpawnFileToken.cpp" />
@@ -539,6 +540,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\FileFormats\SpawnFile\SpawnFileReaderImpl.hpp" />
     <ClInclude Include="src\egolib\Script\BasicReader.hpp" />
     <ClInclude Include="src\egolib\FileFormats\ConfigFile\ConfigFileToken.hpp" />
     <ClInclude Include="src\egolib\FileFormats\ConfigFile\ConfigFileTokenKind.hpp" />
