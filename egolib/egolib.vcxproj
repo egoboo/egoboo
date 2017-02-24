@@ -298,6 +298,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\Script\QualifiedName.cpp" />
     <ClCompile Include="src\egolib\FileFormats\ConfigFile\configfile.c" />
     <ClCompile Include="src\egolib\FileFormats\SpawnFile\SpawnFileReaderImpl.cpp" />
     <ClCompile Include="src\egolib\FileFormats\ConfigFile\ConfigFileToken.cpp" />
