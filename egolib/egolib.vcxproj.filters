@@ -1439,9 +1439,6 @@
     <ClInclude Include="src\egolib\FileFormats\ConfigFile\ConfigFileToken.hpp">
       <Filter>File Formats\ConfigFile</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Script\BasicReader.hpp">
-      <Filter>Header Files\Script</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\FileFormats\SpawnFile\SpawnFileReaderImpl.hpp">
       <Filter>File Formats\SpawnFile</Filter>
     </ClInclude>

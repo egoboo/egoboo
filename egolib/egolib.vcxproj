@@ -542,7 +542,6 @@
   <ItemGroup>
     <ClInclude Include="src\egolib\FileFormats\ConfigFile\configfile.h" />
     <ClInclude Include="src\egolib\FileFormats\SpawnFile\SpawnFileReaderImpl.hpp" />
-    <ClInclude Include="src\egolib\Script\BasicReader.hpp" />
     <ClInclude Include="src\egolib\FileFormats\ConfigFile\ConfigFileToken.hpp" />
     <ClInclude Include="src\egolib\FileFormats\ConfigFile\ConfigFileTokenKind.hpp" />
     <ClInclude Include="src\egolib\FileFormats\SpawnFile\SpawnFileToken.hpp" />
