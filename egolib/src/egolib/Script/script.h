@@ -129,19 +129,19 @@ public:
     static const uint32_t DATABITS = 0x78000000;
 
 private:
-    uint32_t bits;
+    uint32_t m_bits;
 
 public:
     Instruction()
-        : bits()
+        : m_bits()
     {}
 
     Instruction(const Instruction& other)
-        : bits(other.bits)
+        : m_bits(other.m_bits)
     {}
 
     Instruction(Instruction&& other)
-        : bits(std::move(other.bits))
+        : m_bits(std::move(other.m_bits))
     {}
 
     Instruction& operator=(Instruction other)
@@ -154,24 +154,24 @@ public:
     {
         using std::swap;
 
-        swap(x.bits, y.bits);
+        swap(x.m_bits, y.m_bits);
     }
 
 public:
     Instruction(uint32_t bits)
-        : bits(bits)
+        : m_bits(bits)
     {}
 
     uint32_t operator&(uint32_t bitmask)
     {
-        return bits & bitmask;
+        return m_bits & bitmask;
     }
 
     size_t getIndex() const
     {
         static_assert(std::numeric_limits<size_t>::max() >= std::numeric_limits<uint32_t>::max(),
                       "maximum value of size_t is smaller than maximum value of uint32_t");
-        return (size_t)bits;
+        return (size_t)m_bits;
     }
 
     /// @brief Get if this instruction is an "inv" (~"invoke") instruction.
@@ -196,12 +196,12 @@ public:
 
     uint32_t getBits() const
     {
-        return bits;
+        return m_bits;
     }
 
     void setBits(uint32_t bits)
     {
-        this->bits = bits;
+        m_bits = bits;
     }
 
     /// @brief Get the data bits.

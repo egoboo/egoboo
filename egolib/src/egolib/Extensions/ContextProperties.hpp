@@ -13,10 +13,10 @@ namespace Ego {
 struct MultisamplingProperties : public Id::EqualToExpr<MultisamplingProperties>
 {
     /// @brief See MultisamplingProperties::setBuffers for more information.
-    int buffers;
+    int m_buffers;
 
     /// @brief See MultisamplingProperties::setSamples for more information.
-    int samples;
+    int m_samples;
 
     /// @brief Construct these multisampling properties with default values.
     MultisamplingProperties();

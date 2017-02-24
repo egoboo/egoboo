@@ -61,7 +61,7 @@ public:
     static const MyType Max;
 
 private:
-    ValueType value;
+    ValueType m_value;
 
 public:
     // Instantiation time static assertions.
@@ -86,23 +86,23 @@ public:
 public:
     /// @brief Construct an invalid reference.
     Ref() noexcept :
-        value(InvalidValue)
+        m_value(InvalidValue)
     {}
 
     /// @brief Construct a reference with the specified reference value.
     /// @param value the reference value
     /// @throw std::domain_error the reference value is out of bounds
     explicit Ref(const ValueType& value) :
-        value(value)
+        m_value(value)
     {
-        if (value < MinimumValue || value > MaximumValue)
+        if (m_value < MinimumValue || m_value > MaximumValue)
         {
             throw std::domain_error("out of range");
         }
     }
 
     Ref(const MyType& other) noexcept :
-        value(other.value)
+        m_value(other.m_value)
     {}
 
 public:
@@ -115,7 +115,7 @@ public:
         {
             throw std::domain_error("out of range");
         }
-        this->value = static_cast<ValueType>(value);
+        m_value = static_cast<ValueType>(value);
     }
 
 public:
@@ -123,13 +123,13 @@ public:
 
     bool operator!() const noexcept
     {
-        return InvalidValue == value;
+        return InvalidValue == m_value;
     }
 
     // Assignment operator overloads.
     MyType& operator=(const MyType& other) noexcept
     {
-        value = other.value;
+        m_value = other.m_value;
         return *this;
     }
 
@@ -167,51 +167,51 @@ public:
     // Cast operator overloads.
     explicit operator bool() const noexcept
     {
-        return InvalidValue != value;
+        return InvalidValue != m_value;
     }
 
     // Accessors.
 
     ValueType get() const noexcept
     {
-        return value;
+        return m_value;
     }
 
 public:
     // CRTP
     bool equalTo(const MyType& other) const noexcept
     {
-        return value == other.value;
+        return m_value == other.m_value;
     }
 
     // CRTP
     bool lowerThan(const MyType& other) const noexcept
     {
-        return value < other.value;
+        return m_value < other.m_value;
     }
 
     // CRTP
     void increment()
     {
-        if (MaximumValue == value)
+        if (MaximumValue == m_value)
         {
             std::ostringstream msg;
             msg << __FILE__ << ":" << __LINE__ << ": " << "reference overflow";
             std::overflow_error(msg.str());
         }
-        ++value;
+        ++m_value;
     }
 
     // CRTP
     void decrement()
     {
-        if (MinimumValue == value)
+        if (MinimumValue == m_value)
         {
             std::ostringstream msg;
             msg << __FILE__ << ":" << __LINE__ << ": " << "reference underflow";
             std::underflow_error(msg.str());
         }
-        --value;
+        --m_value;
     }
 };
 

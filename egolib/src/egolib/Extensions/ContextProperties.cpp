@@ -3,63 +3,63 @@
 namespace Ego {
 
 MultisamplingProperties::MultisamplingProperties() :
-    buffers(1), samples(4)
+    m_buffers(1), m_samples(4)
 {}
 
 MultisamplingProperties::MultisamplingProperties(const MultisamplingProperties& other) :
-    buffers(other.buffers), samples(other.samples)
+    m_buffers(other.m_buffers), m_samples(other.m_samples)
 {}
 
 MultisamplingProperties& MultisamplingProperties::operator=(const MultisamplingProperties& other)
 {
-    buffers = other.buffers;
-    samples = other.samples;
+    m_buffers = other.m_buffers;
+    m_samples = other.m_samples;
     return *this;
 }
 
 void MultisamplingProperties::setSamples(int samples)
 {
-    this->samples = samples;
+    m_samples = samples;
 }
 
 int MultisamplingProperties::getSamples() const
 {
-    return samples;
+    return m_samples;
 }
 
 void MultisamplingProperties::setBuffers(int buffers)
 {
-    this->buffers = buffers;
+    m_buffers = buffers;
 }
 
 int MultisamplingProperties::getBuffers() const
 {
-    return buffers;
+    return m_buffers;
 }
 
 bool MultisamplingProperties::equalTo(const MultisamplingProperties& other) const
 {
-    return buffers == other.buffers
-        && samples == other.samples;
+    return m_buffers == other.m_buffers
+        && m_samples == other.m_samples;
 }
 
 void MultisamplingProperties::upload() const
 {
-    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, buffers);
-    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, samples);
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, m_buffers);
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, m_samples);
 }
 
 void MultisamplingProperties::download()
 {
-    SDL_GL_GetAttribute(SDL_GL_MULTISAMPLEBUFFERS, &buffers);
-    SDL_GL_GetAttribute(SDL_GL_MULTISAMPLESAMPLES, &samples);
+    SDL_GL_GetAttribute(SDL_GL_MULTISAMPLEBUFFERS, &m_buffers);
+    SDL_GL_GetAttribute(SDL_GL_MULTISAMPLESAMPLES, &m_samples);
 }
 
 Log::Entry& operator<<(Log::Entry& e, const MultisamplingProperties& s)
 {
     e << "  " << "multisampling" << Log::EndOfLine;
-    e << "  " << "  " << "multisampling buffers = " << s.buffers << Log::EndOfLine;
-    e << "  " << "  " << "multisampling samples = " << s.samples << Log::EndOfLine;
+    e << "  " << "  " << "multisampling buffers = " << s.m_buffers << Log::EndOfLine;
+    e << "  " << "  " << "multisampling samples = " << s.m_samples << Log::EndOfLine;
     return e;
 }
 

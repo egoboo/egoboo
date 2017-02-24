@@ -699,9 +699,9 @@ public:
     virtual SharedPtr<Texture> createTexture() = 0;
 
 private:
-    Matrix4f4f projectionMatrix;
-    Matrix4f4f viewMatrix;
-    Matrix4f4f worldMatrix;
+    Matrix4f4f m_projectionMatrix;
+    Matrix4f4f m_viewMatrix;
+    Matrix4f4f m_worldMatrix;
 
 public:
     /// @brief Set the projection matrix.
