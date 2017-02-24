@@ -1036,7 +1036,7 @@ std::shared_ptr<Object> GameModule::spawnObjectFromFileEntry(const spawn_file_in
     }
 
     // Spawn the character
-    std::shared_ptr<Object> pobject = spawnObject(psp_info.pos, iprofile, psp_info.team, psp_info.skin, psp_info.facing, psp_info.pname == nullptr ? "" : *psp_info.pname, ObjectRef::Invalid);
+    std::shared_ptr<Object> pobject = spawnObject(psp_info.pos, iprofile, psp_info.team, psp_info.skin, psp_info.facing, psp_info.spawn_name == "NONE" ? "" : psp_info.spawn_name, ObjectRef::Invalid);
 
     //Failed to spawn?
     if (!pobject) {
