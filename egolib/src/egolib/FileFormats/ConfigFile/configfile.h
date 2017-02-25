@@ -25,9 +25,7 @@
 #include "egolib/vfs.h"
 #include "egolib/Script/Traits.hpp"
 #include "egolib/Script/QualifiedName.hpp"
-#include "egolib/Script/AbstractReader.hpp"
-#include "egolib/Script/Buffer.hpp"
-#include "egolib/Script/TextInputFile.hpp"
+#include "egolib/Script/Scanner.hpp"
 
 using namespace std;
 using namespace Ego::Script;
@@ -413,7 +411,7 @@ public:
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-struct ConfigFileParser : public AbstractReader<Traits<char>>
+struct ConfigFileParser : public Scanner<Traits<char>>
 {
 public:
 

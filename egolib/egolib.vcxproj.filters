@@ -594,6 +594,9 @@
     <ClCompile Include="src\egolib\Script\QualifiedName.cpp">
       <Filter>Source Files\Script</Filter>
     </ClCompile>
+    <ClCompile Include="src\egolib\Script\Scanner.cpp">
+      <Filter>Source Files\Script</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\egolib\vfs.h">
@@ -786,9 +789,6 @@
       <Filter>Header Files\Script</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Script\TextInputFile.hpp">
-      <Filter>Header Files\Script</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Script\AbstractReader.hpp">
       <Filter>Header Files\Script</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Script\QualifiedName.hpp">
@@ -1447,6 +1447,9 @@
     </ClInclude>
     <ClInclude Include="src\egolib\FileFormats\ConfigFile\configfile.h">
       <Filter>File Formats\ConfigFile</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Script\Scanner.hpp">
+      <Filter>Header Files\Script</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

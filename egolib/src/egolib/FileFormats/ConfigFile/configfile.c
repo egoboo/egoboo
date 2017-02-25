@@ -217,7 +217,7 @@ bool ConfigFileParser::parseValue()
 }
 
 ConfigFileParser::ConfigFileParser(const std::string& fileName) :
-    AbstractReader(fileName), _currentQualifiedName(nullptr), _currentValue(nullptr)
+    Scanner(fileName), _currentQualifiedName(nullptr), _currentValue(nullptr)
 {}
 
 ConfigFileParser::~ConfigFileParser()

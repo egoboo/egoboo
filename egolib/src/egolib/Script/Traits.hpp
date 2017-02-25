@@ -74,7 +74,7 @@ public:
      * @return
      *  the extended character value
      */
-    static ExtendedType startOfInput()
+    static constexpr ExtendedType startOfInput()
     {
         return static_cast<ExtendedType>(std::numeric_limits<Type>::max()) + 1;
     }
@@ -85,7 +85,7 @@ public:
      * @return
      *  the extended character value
      */
-    static ExtendedType endOfInput()
+    static constexpr ExtendedType endOfInput()
     {
         return static_cast<ExtendedType>(std::numeric_limits<Type>::max()) + 2;
     }
@@ -96,7 +96,7 @@ public:
      * @return
      *  the extended character value
      */
-    static ExtendedType error()
+    static constexpr ExtendedType error()
     {
         return static_cast<ExtendedType>(numeric_limits<Type>::max()) + 3;
     }

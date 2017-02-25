@@ -298,6 +298,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\Script\Scanner.cpp" />
     <ClCompile Include="src\egolib\Script\QualifiedName.cpp" />
     <ClCompile Include="src\egolib\FileFormats\ConfigFile\configfile.c" />
     <ClCompile Include="src\egolib\FileFormats\SpawnFile\SpawnFileReaderImpl.cpp" />
@@ -541,6 +542,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Script\Scanner.hpp" />
     <ClInclude Include="src\egolib\FileFormats\ConfigFile\configfile.h" />
     <ClInclude Include="src\egolib\FileFormats\SpawnFile\SpawnFileReaderImpl.hpp" />
     <ClInclude Include="src\egolib\FileFormats\ConfigFile\ConfigFileToken.hpp" />
@@ -751,7 +753,6 @@
     <ClInclude Include="src\egolib\Image\ImageLoader_SDL.hpp" />
     <ClInclude Include="src\egolib\Image\ImageLoader_SDL_image.hpp" />
     <ClInclude Include="src\egolib\Image\ImageManager.hpp" />
-    <ClInclude Include="src\egolib\Script\AbstractReader.hpp" />
     <ClInclude Include="src\egolib\Script\Conversion.hpp" />
     <ClInclude Include="src\egolib\Script\EnumDescriptor.hpp" />
     <ClInclude Include="src\egolib\Script\QualifiedName.hpp" />

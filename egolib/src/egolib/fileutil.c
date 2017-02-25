@@ -34,7 +34,7 @@
 #include "egolib/Graphics/ModelDescriptor.hpp"                    // for ACTION_* constants
 
 ReadContext::ReadContext(const std::string& fileName) :
-    AbstractReader(fileName)
+    Scanner(fileName)
 {
 }
 
