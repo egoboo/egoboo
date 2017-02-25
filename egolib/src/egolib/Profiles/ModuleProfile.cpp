@@ -67,7 +67,7 @@ bool ModuleProfile::isModuleUnlocked() const
         return true;
     }
 
-    if (moduleHasIDSZ(_reference, _unlockQuest))
+    if (moduleHasIDSZ(_folderName, _unlockQuest))
     {
         return true;
     }
