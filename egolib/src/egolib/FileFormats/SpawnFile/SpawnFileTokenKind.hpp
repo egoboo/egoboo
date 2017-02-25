@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IdLib/IdLib.hpp"
+#include "idlib/idlib.hpp"
 
 /// @brief The kinds of tokens in a spawn file.
 enum class SpawnFileTokenKind

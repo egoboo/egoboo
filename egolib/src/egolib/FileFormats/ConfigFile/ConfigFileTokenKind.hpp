@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IdLib/IdLib.hpp"
+#include "idlib/idlib.hpp"
 
 /// @brief The kinds of tokens in a configuration file.
 enum class ConfigFileTokenKind

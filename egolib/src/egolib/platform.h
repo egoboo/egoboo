@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "IdLib/IdLib.hpp"
+#include "idlib/idlib.hpp"
 
 #if defined(ID_IOS) || defined(ID_IOSSIMULATOR)
     #error iOS or iOS simulator are not yet supported

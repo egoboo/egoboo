@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IdLib/IdLib.hpp"
+#include "idlib/idlib.hpp"
 #include "game/CharacterMatrix.h"
 #include "game/Graphics/Vertex.hpp"
 

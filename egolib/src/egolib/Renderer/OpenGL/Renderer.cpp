@@ -23,7 +23,7 @@
 
 #include "egolib/Renderer/OpenGL/Renderer.hpp"
 #include "egolib/Core/StringUtilities.hpp"
-#include "IdLib/IdLib.hpp"
+#include "idlib/idlib.hpp"
 #include "egolib/Extensions/ogl_extensions.h"
 
 // The following code ensures that for each OpenGL function variable static PF...PROC gl... = NULL; is declared/defined.

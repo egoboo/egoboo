@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include "IdLib/IdLib.hpp"
+#include "idlib/idlib.hpp"
 #include "egolib/IDSZ.hpp"
 #include "egolib/InputControl/InputDevice.hpp"
 #include "game/Logic/QuestLog.hpp"
