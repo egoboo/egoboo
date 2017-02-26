@@ -8,7 +8,7 @@ public:
     ConfigFileToken
         (
             ConfigFileTokenKind kind,
-            const Id::Location& startLocation,
+            const id::location& startLocation,
             const std::string& lexeme = std::string()
         );
 };

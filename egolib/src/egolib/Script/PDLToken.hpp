@@ -33,7 +33,7 @@ struct PDLToken : public Id::Token<PDLTokenKind>
 {
 private:
     /// @brief The end location of this token.
-    Id::Location m_endLocation;
+    id::location m_endLocation;
 
     /// @brief The value of this token.
     int m_value;
@@ -48,8 +48,8 @@ public:
     /// @param startLocation the start location of the token
     /// @param endLocation the end location of the token
     /// @param lexeme the lexeme of this token. Default is the empty string.
-    PDLToken(PDLTokenKind kind, const Id::Location& startLocation,
-             const Id::Location& endLocation,
+    PDLToken(PDLTokenKind kind, const id::location& startLocation,
+             const id::location& endLocation,
              const std::string& lexeme = std::string());
 
     /// @brief Copy-construct this token from another token.
@@ -119,7 +119,7 @@ public:
     /// @return the end location of this token
     /// @see setEndLocation
     /// @remark The end location is the location at which the lexeme of this token ends at.
-    const Id::Location& getEndLocation() const
+    const id::location& getEndLocation() const
     {
         return m_endLocation;
     }
@@ -127,7 +127,7 @@ public:
     /// @brief Set the end location of this token.
     /// @param endLocation the end location of this token
     /// @see getEndlocation
-    void setEndLocation(const Id::Location& endLocation)
+    void setEndLocation(const id::location& endLocation)
     {
         m_endLocation = endLocation;
     }

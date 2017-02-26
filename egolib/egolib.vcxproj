@@ -299,7 +299,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\egolib\Script\Scanner.cpp" />
-    <ClCompile Include="src\egolib\Script\QualifiedName.cpp" />
     <ClCompile Include="src\egolib\FileFormats\ConfigFile\configfile.c" />
     <ClCompile Include="src\egolib\FileFormats\SpawnFile\SpawnFileReaderImpl.cpp" />
     <ClCompile Include="src\egolib\FileFormats\ConfigFile\ConfigFileToken.cpp" />
@@ -755,7 +754,6 @@
     <ClInclude Include="src\egolib\Image\ImageManager.hpp" />
     <ClInclude Include="src\egolib\Script\Conversion.hpp" />
     <ClInclude Include="src\egolib\Script\EnumDescriptor.hpp" />
-    <ClInclude Include="src\egolib\Script\QualifiedName.hpp" />
     <ClInclude Include="src\egolib\Script\TextInputFile.hpp" />
     <ClInclude Include="src\egolib\Script\TextFile.hpp" />
     <ClInclude Include="src\egolib\Script\Traits.hpp" />

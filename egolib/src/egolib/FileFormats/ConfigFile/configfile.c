@@ -142,7 +142,7 @@ bool ConfigFileParser::parseComment(std::string& comment)
         return false;
     }
     next();
-    _buffer.clear();
+    clearLexemeText();
     while (!isEndOfInput() && !isError() && !isNewLine())
     {
         saveAndNext();
@@ -153,7 +153,7 @@ bool ConfigFileParser::parseComment(std::string& comment)
         fprintf(stderr, "%s: error while reading file\n", getFileName().c_str());
         return false;
     }
-    comment = toString();
+    comment = getLexemeText();
     return true;
 }
 
@@ -179,7 +179,7 @@ bool ConfigFileParser::parseName()
 bool ConfigFileParser::parseQualifiedName()
 {
     assert(is('_') || isAlpha());
-    _buffer.clear();
+    clearLexemeText();
     if (!parseName())
     {
         return false;
@@ -192,7 +192,7 @@ bool ConfigFileParser::parseQualifiedName()
             return false;
         }
     }
-    _currentQualifiedName.reset(new QualifiedName(toString()));
+    _currentQualifiedName.reset(new id::qualified_name(getLexemeText()));
 
     return true;
 }
@@ -201,8 +201,8 @@ bool ConfigFileParser::parseValue()
 {
     assert(is('"'));
     next();
-    _buffer.clear();
-    while (Traits::isValid(current()) && !is('"') && !isNewLine())
+    clearLexemeText();
+    while (!isEndOfInput() && !is('"') && !isNewLine())
     {
         saveAndNext();
     }
@@ -212,7 +212,7 @@ bool ConfigFileParser::parseValue()
         return false;
     }
     next();
-    _currentValue.reset(new string(toString()));
+    _currentValue.reset(new string(getLexemeText()));
     return true;
 }
 
@@ -245,7 +245,7 @@ std::shared_ptr<ConfigFile> ConfigFileParser::parse()
 
 bool ConfigFileUnParser::unparse(shared_ptr<ConfigFile::Entry> entry)
 {
-    vfs_printf(_target,"%s : \"%s\"\n", entry->getQualifiedName().getString().c_str(),
+    vfs_printf(_target,"%s : \"%s\"\n", entry->getQualifiedName().string().c_str(),
                                         entry->getValue().c_str());
     return true;
 }
@@ -278,7 +278,7 @@ bool ConfigFileUnParser::unparse(shared_ptr<ConfigFile> source)
         sort(entries.begin(), entries.end(),
              [] (const shared_ptr<ConfigFile::Entry>& a, const shared_ptr<ConfigFile::Entry>& b)
                 {
-                    return less<QualifiedName>()(a->getQualifiedName(), b->getQualifiedName());
+                    return less<id::qualified_name>()(a->getQualifiedName(), b->getQualifiedName());
                 }
             );
         for (const auto& entry : entries)

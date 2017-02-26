@@ -27,11 +27,11 @@ namespace Ego {
 namespace Script {
 
 PDLToken::PDLToken()
-    : Id::Token<PDLTokenKind>(PDLTokenKind::Unknown, Id::Location("<unknown>", 1), std::string()), m_endLocation("<unknown>", 1), m_value(0)
+    : Id::Token<PDLTokenKind>(PDLTokenKind::Unknown, id::location("<unknown>", 1), std::string()), m_endLocation("<unknown>", 1), m_value(0)
 {}
 
-PDLToken::PDLToken(PDLTokenKind kind, const Id::Location& startLocation,
-                   const Id::Location& endLocation, const std::string& lexeme)
+PDLToken::PDLToken(PDLTokenKind kind, const id::location& startLocation,
+                   const id::location& endLocation, const std::string& lexeme)
     : Id::Token<PDLTokenKind>(kind, startLocation, lexeme), m_endLocation(endLocation), m_value(0)
 {}
 
@@ -89,8 +89,8 @@ std::ostream& operator<<(std::ostream& os, const PDLToken& token)
     os << "{" << std::endl;
     os << "  " << "kind = " << token.getKind() << "," << std::endl;
     os << "  " << "lexeme = " << token.getLexeme() << "," << std::endl;
-    os << "  " << "start location = " << token.getStartLocation().getFileName() << ":" << token.getStartLocation().getLineNumber() << "," << std::endl;
-    os << "  " << "end location = " << token.getEndLocation().getFileName() << ":" << token.getEndLocation().getLineNumber() << "," << std::endl;
+    os << "  " << "start location = " << token.getStartLocation().file_name() << ":" << token.getStartLocation().line_number() << "," << std::endl;
+    os << "  " << "end location = " << token.getEndLocation().file_name() << ":" << token.getEndLocation().line_number() << "," << std::endl;
     os << "  " << "value = " << token.getValue() << std::endl;
     os << "}" << std::endl;
     return os;

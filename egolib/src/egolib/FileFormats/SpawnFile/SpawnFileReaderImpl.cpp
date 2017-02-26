@@ -31,7 +31,7 @@ bool SpawnFileReaderImpl::read(ReadContext& ctxt, spawn_file_info_t& info)
     }
     if (ctxt.isAlpha() || ctxt.is('%') || ctxt.is('_'))
     {
-        ctxt._buffer.clear();
+        ctxt.clearLexemeText();
         // Read everything into the buffer until a ':', a new line, an error or the end of the input is reached.
         do
         {
@@ -39,7 +39,7 @@ bool SpawnFileReaderImpl::read(ReadContext& ctxt, spawn_file_info_t& info)
         } while (!ctxt.is(':') && !ctxt.isNewLine() && !ctxt.isEndOfInput() && !ctxt.isError());
         if (ctxt.isError())
         {
-            throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(ctxt.getFileName(), ctxt.getLineNumber()),
+            throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, id::location(ctxt.getFileName(), ctxt.getLineNumber()),
                                             "read error");
         }
         if (ctxt.isEndOfInput())
@@ -48,12 +48,12 @@ bool SpawnFileReaderImpl::read(ReadContext& ctxt, spawn_file_info_t& info)
         }
         if (!ctxt.is(':'))
         {
-            throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(ctxt.getFileName(), ctxt.getLineNumber()),
+            throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, id::location(ctxt.getFileName(), ctxt.getLineNumber()),
                                             "expected `:`");
         }
         ctxt.next();
 
-        info.spawn_comment = Ego::trim_ws(ctxt._buffer.toString());
+        info.spawn_comment = Ego::trim_ws(ctxt.getLexemeText());
 
         info.do_spawn = true;
 
@@ -89,7 +89,7 @@ bool SpawnFileReaderImpl::read(ReadContext& ctxt, spawn_file_info_t& info)
             case 'I': info.attach = ATTACH_INVENTORY; break;
             default:
             {
-                throw Id::CompilationErrorException(__FILE__, __LINE__, Id::CompilationErrorKind::Syntactical, Id::Location(ctxt.getFileName(), ctxt.getLineNumber()),
+                throw Id::CompilationErrorException(__FILE__, __LINE__, Id::CompilationErrorKind::Syntactical, id::location(ctxt.getFileName(), ctxt.getLineNumber()),
                                                     "invalid enumeration element");
             }
         };
@@ -127,7 +127,7 @@ bool SpawnFileReaderImpl::read(ReadContext& ctxt, spawn_file_info_t& info)
         std::string what = ctxt.readName();
         if (what != "dependency")
         {
-            throw Id::CompilationErrorException(__FILE__, __LINE__, Id::CompilationErrorKind::Syntactical, Id::Location(ctxt.getFileName(), ctxt.getLineNumber()),
+            throw Id::CompilationErrorException(__FILE__, __LINE__, Id::CompilationErrorKind::Syntactical, id::location(ctxt.getFileName(), ctxt.getLineNumber()),
                                                 "syntax error");
         }
         std::string who;
@@ -142,7 +142,7 @@ bool SpawnFileReaderImpl::read(ReadContext& ctxt, spawn_file_info_t& info)
         }
         if (who.empty()) /// @todo Verify that this is unnecessary based on the definition of readName.
         {
-            throw Id::CompilationErrorException(__FILE__, __LINE__, Id::CompilationErrorKind::Syntactical, Id::Location(ctxt.getFileName(), ctxt.getLineNumber()),
+            throw Id::CompilationErrorException(__FILE__, __LINE__, Id::CompilationErrorKind::Syntactical, id::location(ctxt.getFileName(), ctxt.getLineNumber()),
                                                 "syntax error");
         }
         int slot = ctxt.readIntegerLiteral();
@@ -153,7 +153,7 @@ bool SpawnFileReaderImpl::read(ReadContext& ctxt, spawn_file_info_t& info)
     }
     else if (!ctxt.isEndOfInput())
     {
-        throw Id::CompilationErrorException(__FILE__, __LINE__, Id::CompilationErrorKind::Lexical, Id::Location(ctxt.getFileName(), ctxt.getLineNumber()),
+        throw Id::CompilationErrorException(__FILE__, __LINE__, Id::CompilationErrorKind::Lexical, id::location(ctxt.getFileName(), ctxt.getLineNumber()),
                                             "junk after end of spawn file");
     }
     return false;

@@ -36,7 +36,7 @@ public:
     /// @param kind the kind of this token
     /// @param startLocation the start location of this token
     /// @param lexeme the lexeme of this token. Default is the empty string.
-    DDLToken(DDLTokenKind kind, const Id::Location& startLocation, const std::string& lexeme = std::string());
+    DDLToken(DDLTokenKind kind, const id::location& startLocation, const std::string& lexeme = std::string());
 
     /// @brief Copy-construct this token from another token.
     /// @param other the other token

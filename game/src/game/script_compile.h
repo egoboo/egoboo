@@ -23,6 +23,7 @@
 
 #include "egolib/Script/PDLToken.hpp"
 #include "game/egoboo.h"
+#include "egolib/Script/Buffer.hpp"
 #include "egolib/Script/script.h"
 
 //--------------------------------------------------------------------------------------------
@@ -66,26 +67,26 @@ public:
 
 private:
     void emit(const PDLToken& token);
-    void emit(PDLTokenKind kind, const Id::Location& start, const Id::Location& end);
-    void emit(PDLTokenKind kind, const Id::Location& start, const Id::Location& end,
+    void emit(PDLTokenKind kind, const id::location& start, const id::location& end);
+    void emit(PDLTokenKind kind, const id::location& start, const id::location& end,
               const std::string& lexeme);
-    void emit(PDLTokenKind kind, const Id::Location& start, const Id::Location& end,
+    void emit(PDLTokenKind kind, const id::location& start, const id::location& end,
               int value);
     PDLToken m_token;
-    Location m_location;
+    id::location m_location;
     size_t m_inputPosition;
     Buffer *m_inputBuffer;
     Buffer m_lexemeBuffer;
 
 public:
-    line_scanner_state_t(Buffer *inputBuffer, const Location& location);
+    line_scanner_state_t(Buffer *inputBuffer, const id::location& location);
 
 public:
     line_scanner_state_t(const line_scanner_state_t& other) = delete;
     line_scanner_state_t& operator=(const line_scanner_state_t&) = delete;
 
 public:
-    Location getLocation() const;
+    id::location getLocation() const;
 
     void next();
     void write(int symbol);

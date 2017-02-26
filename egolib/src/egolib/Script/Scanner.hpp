@@ -1,7 +1,7 @@
 #pragma once
 
 #include "egolib/Script/Traits.hpp"
-#include "egolib/Script/Buffer.hpp"
+#include "idlib/parsing_expressions/include.hpp"
 #include "egolib/Script/TextInputFile.hpp"
 
 namespace Ego {
@@ -129,6 +129,19 @@ private:
     }
 
 public:
+    IteratorType get_begin() const
+    {
+        return m_begin;
+    }
+    IteratorType get_current() const
+    {
+        return m_current;
+    }
+    IteratorType get_end() const
+    {
+        return m_end;
+    }
+
     ScannerInputView& operator--() { decrement(); return *this; }
     ScannerInputView operator--(int) { auto it = *this; --(*this); return it; }
 
@@ -151,22 +164,21 @@ private:
     size_t _lineNumber;
 
     //// @brief The file name.
-    std::string _fileName;
+    string _fileName;
 
 public:
     using Traits = TraitsArg;
     using SymbolType = typename Traits::Type;
-    using ExtendedSymbolType = typename Traits::ExtendedType;
-    using BufferType = Buffer;
-    using ScannerInputViewType = ScannerInputView<ExtendedSymbolType, Traits::startOfInput(), Traits::endOfInput(), Traits::error(), Buffer::const_iterator>;
-
-    /// @brief The lexeme accumulation buffer.
-    BufferType _buffer;
+    using ExtendedSymbolType = int;
+    using ScannerInputViewType = ScannerInputView<ExtendedSymbolType, Traits::startOfInput(), Traits::endOfInput(), Traits::error(), vector<char>::const_iterator>;
 
 private:
+    /// @brief The lexeme accumulation buffer.
+    vector<char> _buffer;
     /// @brief The input buffer.
-    BufferType _inputBuffer;
-    ScannerInputViewType _inputBufferView;
+    vector<char> _inputBuffer;
+    /// @brief The input view.
+    ScannerInputViewType _inputView;
 
 protected:
     /// @brief Construct this scanner.
@@ -175,7 +187,7 @@ protected:
     /// @post The scanner is in its initial state w.r.t. the specified input if no exception is raised.
     Scanner(const string& fileName) :
         _fileName(fileName), _inputBuffer(),
-        _buffer(), _inputBufferView(_inputBuffer.cbegin(), _inputBuffer.cend()),
+        _buffer(), _inputView(_inputBuffer.cbegin(), _inputBuffer.cend()),
         _lineNumber(1)
     {
         vfs_readEntireFile
@@ -183,10 +195,10 @@ protected:
             fileName,
             [this](size_t numberOfBytes, const char *bytes)
         {
-            _inputBuffer.append(bytes, numberOfBytes);
+            _inputBuffer.insert(_inputBuffer.end(), bytes, bytes + numberOfBytes);
         }
         );
-        _inputBufferView = ScannerInputViewType(_inputBuffer.cbegin(), _inputBuffer.cend());
+        _inputView = ScannerInputViewType(_inputBuffer.cbegin(), _inputBuffer.cend());
     }
 
     /// @brief Set the input.
@@ -195,17 +207,17 @@ protected:
     /// If an exception is raised, the scanner retains its state.
     void setInput(const string& fileName)
     {
-        BufferType temporaryBuffer;
+        vector<char> temporaryBuffer;
         string temporaryFileName = fileName;
         // If this succeeds, then we're set.
         vfs_readEntireFile(fileName, [&temporaryBuffer](size_t numberOfBytes, const char *bytes)
         {
-            temporaryBuffer.append(bytes, numberOfBytes);
+            temporaryBuffer.insert(temporaryBuffer.end(), bytes, bytes + numberOfBytes);
         });
         _lineNumber = 1;
         _fileName.swap(temporaryFileName);
         _inputBuffer.swap(temporaryBuffer);
-        _inputBufferView = ScannerInputViewType(_inputBuffer.cbegin(), _inputBuffer.cend());
+        _inputView = ScannerInputViewType(_inputBuffer.cbegin(), _inputBuffer.cend());
     }
 
     /// @brief Destruct this scanner.
@@ -215,7 +227,7 @@ protected:
 public:
     /// @brief Get the file name.
     /// @return the file name
-    const std::string& getFileName() const
+    const string& getFileName() const
     {
         return _fileName;
     }
@@ -227,34 +239,47 @@ public:
         return _lineNumber;
     }
 
+    /// @brief Get the lexeme text.
+    /// @return the lexeme text
+    string getLexemeText() const
+    {
+        return string(_buffer.cbegin(), _buffer.cend());
+    }
+
+    /// @brief Clear the lexeme text.
+    void clearLexemeText()
+    {
+        _buffer.clear();
+    }
+
 public:
-    /// @brief Get the current extended character.
-    /// @return the current extended character
+    /// @brief Get the current input symbol.
+    /// @return the current input symbol
     ExtendedSymbolType current() const
     {
-        return *_inputBufferView;
+        return *_inputView;
     }
 
 public:
-    /// @brief Advance to the next extended character.
+    /// @brief Advance to the next input symbol.
     void next()
     {
-        _inputBufferView++;
+        _inputView++;
     }
 
-    /// @brief Write the specified extended character.
-    /// @param echr the extended character
-    inline void write(const ExtendedSymbolType& echr)
+    /// @brief Write the specified symbol.
+    /// @param symbol the symbol
+    inline void write(const ExtendedSymbolType& symbol)
     {
-        assert(Traits::isValid(echr));
-        _buffer.append(static_cast<SymbolType>(echr));
+        assert(Traits::is_pua_bmp(symbol) || Traits::is_zt(symbol));
+        _buffer.push_back(static_cast<SymbolType>(symbol));
     }
 
-    /// @brief Write the specified extended character and advance to the next extended character.
-    /// @param echr the extended character
-    inline void writeAndNext(const ExtendedSymbolType& echr)
+    /// @brief Write the specified symbol and advance to the next symbol.
+    /// @param symbol the symbol
+    inline void writeAndNext(const ExtendedSymbolType& symbol)
     {
-        write(echr);
+        write(symbol);
         next();
     }
 
@@ -264,73 +289,78 @@ public:
         write(current());
     }
 
-    /// @brief Save the current extended character and advance to the next extended character.
+    /// @brief Save the current input symbol and advance to the next input symbol.
     inline void saveAndNext()
     {
         save();
         next();
     }
 
-    /// @brief Convert the contents of the lexeme accumulation buffer to a string value.
-    /// @return the string value
-    std::string toString() const
-    {
-        return _buffer.toString();
-    }
-
 public:
-    /// @brief Get if the current extended character equals another extended character.
-    /// @param other the other extended character
-    /// @return @a true if the current extended character equals the other extended character, @a false otherwise
-    inline bool is(const ExtendedSymbolType& echr) const
+    /// @brief Get if the current symbol equals another symbol.
+    /// @param symbol the other extended character
+    /// @return @a true if the current symbol equals the other symbol, @a false otherwise
+    inline bool is(const ExtendedSymbolType& symbol) const
     {
-        return echr == current();
+        return symbol == current();
     }
 
-    /// @brief Get if the current extended character is a whitespace character.
-    /// @return @a true if the current extended character is a whitespace character, @a false otherwise
+    /// @brief Get if the current symbol is a whitespace symbol.
+    /// @return @a true if the current symbol is a whitespace symbol, @a false otherwise
     inline bool isWhiteSpace() const
     {
-        return Traits::isWhiteSpace(current());
+        static const auto p = id::parsing_expressions::whitespace<ExtendedSymbolType>();
+        auto at = this->_inputView.get_current(),
+            end = this->_inputView.get_end();
+        return p(at, end);
     }
 
-    /// @brief Get if the current extended character is a new line character.
-    /// @return @a true if the current extended character is a new line character, @a false otherwise
+    /// @brief Get if the current symbol is a new line symbol.
+    /// @return @a true if the current symbol is a new line symbol, @a false otherwise
     inline bool isNewLine() const
     {
-        return Traits::isNewLine(current());
+        static const auto p = id::parsing_expressions::newline<ExtendedSymbolType>();
+        auto at = this->_inputView.get_current(),
+            end = this->_inputView.get_end();
+        return p(at, end);
     }
 
-    /// @brief Get if the current extended character is an alphabetic character.
-    /// @return @a true if the current extended character is an alphabetic character, @a false otherwise
+    /// @brief Get if the current symbol is an alphabetic symbol.
+    /// @return @a true if the current symbol is an alphabetic symbol, @a false otherwise
     inline bool isAlpha() const
     {
-        return Traits::isAlphabetic(current());
+        static const auto p = id::parsing_expressions::alpha<ExtendedSymbolType>();
+        auto at = this->_inputView.get_current(),
+            end = this->_inputView.get_end();
+        return p(at, end);
     }
 
-    /// @brief Get if the current extended character is a digit character.
-    /// @return @a true if the current extended character is a digit character, @a false otherwise
+    /// @brief Get if the current symbol is a digit symbol.
+    /// @return @a true if the current symbol is a digit symbol, @a false otherwise
     inline bool isDigit() const
     {
-        return Traits::isDigit(current());
+        static const auto p = id::parsing_expressions::digit<ExtendedSymbolType>();
+        auto at = this->_inputView.get_current(),
+            end = this->_inputView.get_end();
+        return p(at, end);
     }
 
-    /// @brief Get if the current extended character is a start of input character.
-    /// @return @a true if the current extended character is a start of input character, @a false otherwise
+    /// @brief Get if the current symbol is a start of input symbol.
+    /// @return @a true if the current symbol is a start of input symbol, @a false otherwise
     inline bool isStartOfInput() const
     {
         return is(Traits::startOfInput());
     }
 
-    /// @brief Get if the current extended character is an end of input character.
-    /// @return @a true if the current extended character is an end of input character, @a false otherwise
+    /// @brief Get if the current symbol is an end of input symbol.
+    /// @return @a true if the current symbol is an end of input symbol, @a false otherwise
     inline bool isEndOfInput() const
     {
         return is(Traits::endOfInput());
     }
 
-    /// @brief Get if the current extended character is an error character.
-    /// @return @a true if the current extended character is an error character, @a false otherwise
+    /// @brief Get if the current symbol is an error symbol.
+    /// @return @a true if the current symbol is an error symbol, @a false otherwise
     inline bool isError() const
     {
         return is(Traits::error());

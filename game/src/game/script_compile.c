@@ -208,12 +208,12 @@ size_t parser_state_t::load_one_line( size_t read, script_info_t& script )
 
 //--------------------------------------------------------------------------------------------
 
-line_scanner_state_t::line_scanner_state_t(Buffer *inputBuffer, const Location& location)
+line_scanner_state_t::line_scanner_state_t(Buffer *inputBuffer, const id::location& location)
     : m_token(PDLTokenKind::StartOfLine, location, location), m_inputPosition(0),
       m_inputBuffer(inputBuffer), m_location(location), m_lexemeBuffer()
 {}
 
-Location line_scanner_state_t::getLocation() const
+id::location line_scanner_state_t::getLocation() const
 {
     return m_location;
 }
@@ -317,18 +317,18 @@ void line_scanner_state_t::emit(const PDLToken& token)
     m_token = token;
 }
 
-void line_scanner_state_t::emit(PDLTokenKind kind, const Id::Location& start, const Id::Location& end)
+void line_scanner_state_t::emit(PDLTokenKind kind, const id::location& start, const id::location& end)
 {
     m_token = PDLToken(kind, start, end);
 }
 
-void line_scanner_state_t::emit(PDLTokenKind kind, const Id::Location& start, const Id::Location& end,
+void line_scanner_state_t::emit(PDLTokenKind kind, const id::location& start, const id::location& end,
                                 const std::string& lexeme)
 {
     m_token = PDLToken(kind, start, end, lexeme);
 }
 
-void line_scanner_state_t::emit(PDLTokenKind kind, const Id::Location& start, const Id::Location& end,
+void line_scanner_state_t::emit(PDLTokenKind kind, const id::location& start, const id::location& end,
                                 int value)
 {
     m_token = PDLToken(kind, start, end);
@@ -371,7 +371,7 @@ PDLToken line_scanner_state_t::scanNewLines()
         {
             next();
         }
-        m_location = Location(m_location.getFileName(), m_location.getLineNumber() + 1);
+        m_location = id::location(m_location.file_name(), m_location.line_number() + 1);
         numberOfNewLines++;
     }
     auto endLocation = getLocation();
@@ -777,7 +777,7 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
 
     size_t read = 0;
     size_t line = 1;
-    for (_token.setStartLocation({script.getName(), 1}); read < _loadBuffer.getSize(); _token.setStartLocation({script.getName(), _token.getStartLocation().getLineNumber()}))
+    for (_token.setStartLocation({script.getName(), 1}); read < _loadBuffer.getSize(); _token.setStartLocation({script.getName(), _token.getStartLocation().line_number()}))
     {
         read = load_one_line( read, script );
         if ( 0 == _lineBuffer.getSize() ) continue;

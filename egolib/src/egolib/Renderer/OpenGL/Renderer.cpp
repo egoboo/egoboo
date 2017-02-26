@@ -206,7 +206,7 @@ void Renderer::setDepthFunction(CompareFunction function) {
             glDepthFunc(GL_GREATER);
             break;
         default:
-            throw UnhandledSwitchCaseException(__FILE__, __LINE__);
+            throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
     };
     Utilities::isError();
 }
@@ -227,10 +227,10 @@ void Renderer::setDepthWriteEnabled(bool enabled) {
 
 void Renderer::setScissorRectangle(float left, float bottom, float width, float height) {
     if (width < 0) {
-        throw InvalidArgumentException(__FILE__, __LINE__, "width < 0");
+        throw Id::InvalidArgumentException(__FILE__, __LINE__, "width < 0");
     }
     if (height < 0) {
-        throw InvalidArgumentException(__FILE__, __LINE__, "height < 0");
+        throw Id::InvalidArgumentException(__FILE__, __LINE__, "height < 0");
     }
     glScissor(left, bottom, width, height);
     Utilities::isError();
@@ -286,7 +286,7 @@ void Renderer::setWindingMode(WindingMode mode) {
             glFrontFace(GL_CCW);
             break;
         default:
-            throw UnhandledSwitchCaseException(__FILE__, __LINE__);
+            throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
     }
     Utilities::isError();
 }
@@ -579,7 +579,7 @@ GLenum Renderer::toOpenGL(BlendFunction source) {
         case BlendFunction::OneMinusConstantAlpha: return GL_ONE_MINUS_CONSTANT_ALPHA;
         case BlendFunction::SourceAlphaSaturate: return GL_SRC_ALPHA_SATURATE;
         default:
-            throw UnhandledSwitchCaseException(__FILE__, __LINE__);
+            throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
     };
 }
 

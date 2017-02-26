@@ -44,9 +44,7 @@ using namespace std;
  *  Michael Heilmann
  */
 template <typename Type>
-struct Traits
-{
-};
+struct Traits;
 
 template <>
 struct Traits<char>
@@ -60,146 +58,59 @@ public:
      */
     using Type = char;
 
-    /**
-     * @brief
-     *  The extended type.
-     */
+    /// @brief A unicode code point in UTF-8 encoding..
     using ExtendedType = int;
 
 public:
+    /// @brief The first code point of the private use area in the basic multilingual plane in UTF-8 encoding.
+    /// http://www.fileformat.info/info/unicode/char/e000/index.htm
+    static constexpr int first_pua_bmp = 0xee8080;
 
-    /**
-     * @brief
-     *  Get the extended character value indicating the start of the input.
-     * @return
-     *  the extended character value
-     */
-    static constexpr ExtendedType startOfInput()
+    /// @brief The last code point of the private use area in the basic multilingual plane in UTF-8 encoding.
+    /// http://www.fileformat.info/info/unicode/char/f8ff/index.htm
+    static constexpr int last_pua_bmp = 0xefa3bf;
+
+    /// @brief The code point of the zero terminator in UTF-8 encoding.
+    static constexpr int zt = 0x000000;
+
+    /// @brief Get the unicode code point in UTF-8 encoding indicating the start of the input.
+    /// @return the unicode code point
+    static constexpr ExtendedType startOfInput() noexcept
     {
-        return static_cast<ExtendedType>(std::numeric_limits<Type>::max()) + 1;
+        return first_pua_bmp + 1;
     }
 
-    /**
-     * @brief
-     *  Get the extended character value indicating the end of the input.
-     * @return
-     *  the extended character value
-     */
-    static constexpr ExtendedType endOfInput()
+    /// @brief Get the extended character value indicating the end of the input.
+    /// @return the extended character value
+    static constexpr ExtendedType endOfInput() noexcept
     {
-        return static_cast<ExtendedType>(std::numeric_limits<Type>::max()) + 2;
+        return first_pua_bmp + 2;
     }
     
-    /**
-     * @brief
-     *  Get the extended character value indicating an error.
-     * @return
-     *  the extended character value
-     */
-    static constexpr ExtendedType error()
+    /// @brief Get the extended character value indicating an error.
+    /// @return the extended character value
+    static constexpr ExtendedType error() noexcept
     {
-        return static_cast<ExtendedType>(numeric_limits<Type>::max()) + 3;
+        return first_pua_bmp + 3;
     }
 
-    /**
-     * @brief
-     *  Get if a specified extended character is within
-     *  the sub-set of extended character values representing valid characters.
-     * @param echr
-     *  the extended character
-     * @return
-     *  @a true if @a echr is within sub-set of extended character values representing valid characters,
-     *  @a false otherwise
-     */
-    static bool isValid(const ExtendedType& echr)
+    /// @brief Get if a unicode code point in UTF-8 encoding is
+    /// in the private use area in the basic multilingual plane.
+    /// @param x the unicode code point in UTF-8 encoding
+    /// @return  @a true if @a x is in the private use area in the basic multilingual plane, @a false otherwise
+    static constexpr bool is_pua_bmp(ExtendedType x) noexcept
     {
-        return '\0' != echr
-            && echr >= static_cast<ExtendedType>(numeric_limits<Type>::min())
-            && echr <= static_cast<ExtendedType>(numeric_limits<Type>::max())
-            ;
+        return (first_pua_bmp <= x)
+            && (x <= last_pua_bmp);
     }
 
-    /**
-     * @brief
-     *  Get if an extended character is a whitespace character.
-     * @param echr
-     *  the extended character
-     * @return
-     *  @a true if the extended character is a whitespace character,
-     *  @a false otherwise
-     * @remark
-     *  @code
-     *  whitespace = Space | Tabulator
-     *  @endcode
-     */
-    static bool isWhiteSpace(const ExtendedType& echr)
+    /// @brief Get if a unicode code point in UTF-8 encoding is the zero-terminator.
+    /// @param x the unicode code point in UTF-8 encoding
+    /// @return  @a true if @a x is the zero-terminator, @a false otherwise
+    static constexpr bool is_zt(ExtendedType x) noexcept
     {
-        return ' ' == echr
-            || '\t' == echr
-                ;
+        return zt == x;
     }
-
-    /**
-     * @brief
-     *  Get if an extended character is a newline character.
-     * @param echr
-     *  the extended character
-     * @return
-     *  @a true if the extended character is a newline character,
-     *  @a false otherwise
-     * @remark
-     *  @code
-     *  newline = LineFeed | CarriageReturn
-     *  @endcode
-     */
-    static bool isNewLine(const ExtendedType& echr)
-    {
-        return '\n' == echr
-            || '\r' == echr
-                ;
-    }
-
-    /**
-     * @brief
-     *  Get if an extended character is an alphabetic character.
-     * @param echr
-     *  the extended character
-     * @return
-     *  @a true if the extended character is an alphabetic character,
-     *  @a false otherwise
-     * @remark
-     *  @code
-     *  alphabetic := 'a' .. 'z'
-     *              | 'A' .. 'Z'
-     *  @endcode
-     */
-    static bool isAlphabetic(const ExtendedType& echr)
-    {
-        return ('a' <= echr && echr <= 'z')
-            || ('A' <= echr && echr <= 'Z')
-                ;
-    }
-
-    /**
-     * @brief
-     *  Get if an extended character is a digit character.
-     * @param echr
-     *  the extended character
-     * @return
-     *  @a true if the extended character is a digit character,
-     *  @a false otherwise
-     * @remark
-     *  @code
-     *  digit := '0' .. '9'
-     *  @endcode
-     */
-    static bool isDigit(const ExtendedType& echr)
-    {
-        return '0' <= echr
-            && echr <= '9'
-                ;
-    }
-
 };
 
 } // namespace Script

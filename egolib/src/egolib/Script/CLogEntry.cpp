@@ -4,11 +4,11 @@ namespace Ego {
 namespace Script {
 
 CLogEntry::CLogEntry(Log::Level level, const std::string& fileName, int lineNumber,
-                     const std::string& functionName, const Id::Location& location)
+                     const std::string& functionName, const id::location& location)
     : Entry(level, fileName, lineNumber, functionName), m_location(location)
 {}
 
-const Id::Location& CLogEntry::getLocation() const
+const id::location& CLogEntry::getLocation() const
 {
     return m_location;
 }
@@ -28,8 +28,8 @@ Log::Target& operator<<(Log::Target& target, const CLogEntry& entry)
     {
         temporary << entry.getAttribute("C/C++ function name") << ":";
     }
-    temporary << entry.getLocation().getFileName() << ":"
-              << entry.getLocation().getLineNumber() << ":";
+    temporary << entry.getLocation().file_name() << ":"
+              << entry.getLocation().line_number() << ":";
     target.log(entry.getLevel(), "%s%s", temporary.str().c_str(), entry.getText().c_str());
     return target;
 }
