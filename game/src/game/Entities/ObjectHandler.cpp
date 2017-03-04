@@ -85,7 +85,7 @@ bool ObjectHandler::exists(ObjectRef ref) const {
 	return !(*result).second->isTerminated();
 }
 
-std::shared_ptr<Object> ObjectHandler::insert(const PRO_REF profileRef, ObjectRef overrideRef)
+std::shared_ptr<Object> ObjectHandler::insert(ObjectProfileRef profileRef, ObjectRef overrideRef)
 {
 	// Make sure the profile is valid.
 	if (!ProfileSystem::get().isLoaded(profileRef)) {

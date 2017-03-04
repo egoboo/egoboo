@@ -568,25 +568,20 @@ egolib_rv chr_update_matrix( Object * pchr, bool update_size )
 
 
 //--------------------------------------------------------------------------------------------
-bool chr_getMatUp(Object *pchr, Vector3f& up)
+bool chr_getMatUp(Object *object_ptr, Vector3f& up)
 {
-	bool rv;
+	if (!object_ptr) return false;
 
-	if (nullptr == (pchr)) return false;
-
-	if (!chr_matrix_valid(pchr))
+	if (!chr_matrix_valid(object_ptr))
 	{
-		chr_update_matrix(pchr, true);
+		chr_update_matrix(object_ptr, true);
 	}
 
-	rv = false;
-	if (chr_matrix_valid(pchr))
+	if (chr_matrix_valid(object_ptr))
 	{
-        rv = true;
-        up = mat_getChrUp(pchr->inst.getMatrix());
+        up = mat_getChrUp(object_ptr->inst.getMatrix());
 	}
-
-	if (!rv)
+    else
 	{
 		// assume default Up is +z
 		up[kZ] = 1.0f;
@@ -596,26 +591,20 @@ bool chr_getMatUp(Object *pchr, Vector3f& up)
 	return true;
 }
 
-//--------------------------------------------------------------------------------------------
-bool chr_getMatRight(Object *pchr, Vector3f& right)
+bool chr_getMatRight(Object *object_ptr, Vector3f& right)
 {
-	bool rv;
+	if (!object_ptr) return false;
 
-	if (nullptr == (pchr)) return false;
-
-	if (!chr_matrix_valid(pchr))
+	if (!chr_matrix_valid(object_ptr))
 	{
-		chr_update_matrix(pchr, true);
+		chr_update_matrix(object_ptr, true);
 	}
 
-	rv = false;
-	if (chr_matrix_valid(pchr))
+	if (chr_matrix_valid(object_ptr))
 	{
-        rv = true;
-        right = mat_getChrRight(pchr->inst.getMatrix());
+        right = mat_getChrRight(object_ptr->inst.getMatrix());
 	}
-
-	if (!rv)
+    else
 	{
 		// assume default Right is +y
 		right[kY] = 1.0f;
@@ -625,26 +614,20 @@ bool chr_getMatRight(Object *pchr, Vector3f& right)
 	return true;
 }
 
-//--------------------------------------------------------------------------------------------
-bool chr_getMatForward(Object *pchr, Vector3f& forward)
+bool chr_getMatForward(Object *object_ptr, Vector3f& forward)
 {
-	bool rv;
+	if (!object_ptr) return false;
 
-	if (nullptr == (pchr)) return false;
-
-	if (!chr_matrix_valid(pchr))
+	if (!chr_matrix_valid(object_ptr))
 	{
-		chr_update_matrix(pchr, true);
+		chr_update_matrix(object_ptr, true);
 	}
 
-	rv = false;
-	if (chr_matrix_valid(pchr))
+	if (chr_matrix_valid(object_ptr))
 	{
-        rv = true;
-        forward = mat_getChrForward(pchr->inst.getMatrix());
+        forward = mat_getChrForward(object_ptr->inst.getMatrix());
 	}
-
-	if (!rv)
+    else
 	{
 		// assume default Forward is +x
 		forward[kX] = 1.0f;
@@ -654,28 +637,22 @@ bool chr_getMatForward(Object *pchr, Vector3f& forward)
 	return true;
 }
 
-//--------------------------------------------------------------------------------------------
-bool chr_getMatTranslate(Object *pchr, Vector3f& translate)
+bool chr_getMatTranslate(Object *object_ptr, Vector3f& translate)
 {
-	bool rv;
+	if (!object_ptr) return false;
 
-	if (nullptr == (pchr)) return false;
-
-	if (!chr_matrix_valid(pchr))
+	if (!chr_matrix_valid(object_ptr))
 	{
-		chr_update_matrix(pchr, true);
+		chr_update_matrix(object_ptr, true);
 	}
 
-	rv = false;
-	if (chr_matrix_valid(pchr))
+	if (chr_matrix_valid(object_ptr))
 	{
-        rv = true;
-        translate = mat_getTranslate(pchr->inst.getMatrix());
+        translate = mat_getTranslate(object_ptr->inst.getMatrix());
 	}
-
-	if (!rv)
+    else
 	{
-		translate = pchr->getPosition();
+		translate = object_ptr->getPosition();
 	}
 
 	return true;

@@ -39,7 +39,7 @@
 //--------------------------------------------------------------------------------------------
 
 #include "egolib/Script/EnumDescriptor.hpp"
-#include "egolib/Script/AbstractReader.hpp"
+#include "egolib/Script/Scanner.hpp"
 #include "egolib/Script/Errors.hpp"
 
 /**
@@ -53,7 +53,7 @@
  * @author
  *  Michael Heilmann
  */
-struct ReadContext : public AbstractReader<Ego::Script::Traits<char>>
+struct ReadContext : public Scanner<Ego::Script::Traits<char>>
 {
 
 public:   
@@ -91,7 +91,7 @@ public:
         auto it = enumDescriptor.find(name);
         if (it == enumDescriptor.end())
         {
-            throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, Location(getFileName(), getLineNumber()), "invalid enum");
+            throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, id::location(getFileName(), getLineNumber()), "invalid enum");
         }
         return it->second;
     }

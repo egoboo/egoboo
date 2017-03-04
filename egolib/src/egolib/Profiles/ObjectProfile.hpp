@@ -217,10 +217,9 @@ public:
 
     const std::shared_ptr<Ego::ModelDescriptor>& getModel() const { return _model; }
 
-    /**
-    * @return get which slot number this profile is loaded with
-    **/
-    inline int getSlotNumber() const {return _slotNumber;}
+    /// @brief Get which slot number this profile is loaded with.
+    /// @return the slot number or ObjectProfileRef::Invalid
+    inline ObjectProfileRef getSlotNumber() const {return _slotNumber;}
 
     /**
      * @brief
@@ -575,12 +574,13 @@ public:
     **/
     bool isValidSkin(size_t index) const;
 
-    /**
-    * @brief Loads a new ObjectProfile object by loading all data specified in the folder path
-    * @param slotOverride Which slot number to load this profile in
-    * @param lightWeight If true, then no 3D model, sounds, particle or enchant will be loaded (for menu)
-    **/
-    static std::shared_ptr<ObjectProfile> loadFromFile(const std::string &folderPath, const PRO_REF slotOverride, const bool lightWeight = false);
+    /// @{
+    /// @brief Load a new ObjectProfile object by loading all data specified in the folder path
+    /// @param ref the object profile reference of the profile
+    /// @param lightWeight if @a true, then no 3D model, sounds, particle or enchant will be loaded (for menu)
+    static std::shared_ptr<ObjectProfile> loadFromFile(const std::string& folderPath, ObjectProfileRef ref, bool lightWeight = false);
+    static std::shared_ptr<ObjectProfile> loadFromFile(const std::string& folderPath, PRO_REF ref, bool lightWeight = false);
+    /// @}
 
     /**
     * @brief Writes the contents of this character instance to a profile data.txt file
@@ -626,7 +626,7 @@ private:
     // the sub-profiles
     std::shared_ptr<Ego::ModelDescriptor> _model;   ///< the md2 model for this profile
     EVE_REF _ieve;                             ///< the enchant profile for this profile
-    int _slotNumber;
+    ObjectProfileRef _slotNumber;
 
     /// the random naming info
     RandomName _randomName;

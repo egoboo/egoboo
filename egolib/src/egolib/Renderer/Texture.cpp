@@ -184,14 +184,14 @@ struct CErrorTexture
         glGenTextures(1, &id);
         if (OpenGL::Utilities::isError())
         {
-            throw RuntimeErrorException(__FILE__, __LINE__, "unable to create error texture");
+            throw Id::RuntimeErrorException(__FILE__, __LINE__, "unable to create error texture");
         }
         // (2) Bind the OpenGL texture.
         glBindTexture(target_gl, id);
         if (OpenGL::Utilities::isError())
         {
             glDeleteTextures(1, &id);
-            throw RuntimeErrorException(__FILE__, __LINE__, "unable to bind error texture");
+            throw Id::RuntimeErrorException(__FILE__, __LINE__, "unable to bind error texture");
         }
         // (3) Set the texture parameters.
         Ego::TextureSampler sampler(Ego::TextureFilter::Nearest, Ego::TextureFilter::Nearest,
@@ -218,7 +218,7 @@ struct CErrorTexture
         if (OpenGL::Utilities::isError())
         {
             glDeleteTextures(1, &id);
-            throw RuntimeErrorException(__FILE__, __LINE__, "unable to upload error image into error texture");
+            throw Id::RuntimeErrorException(__FILE__, __LINE__, "unable to upload error image into error texture");
         }
     }
     // Destruct this error texture.

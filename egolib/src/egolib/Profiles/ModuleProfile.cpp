@@ -67,7 +67,7 @@ bool ModuleProfile::isModuleUnlocked() const
         return true;
     }
 
-    if (moduleHasIDSZ(_reference, _unlockQuest))
+    if (moduleHasIDSZ(_folderName, _unlockQuest))
     {
         return true;
     }
@@ -115,7 +115,7 @@ std::shared_ptr<ModuleProfile> ModuleProfile::loadFromFile(const std::string &fo
 
     result->_unlockQuest = vfs_get_next_idsz(ctxt);
     ctxt.skipWhiteSpaces();
-    if (!ctxt.isNewLine() && !ctxt.is(ReadContext::Traits::endOfInput()))
+    if (!ctxt.isNewLine() && !ctxt.isEndOfInput())
     {
         result->_unlockQuestLevel = ctxt.readIntegerLiteral();
     }

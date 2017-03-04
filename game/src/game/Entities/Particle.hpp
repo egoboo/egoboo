@@ -62,29 +62,8 @@ struct prt_environment_t
     bool   inwater;
     Vector3f  acc;
 
-    void reset()
-    {
-        // floor stuff
-        twist = 0;
-        floor_level = 0.0f;
-        level = 0.0f;
-        zlerp = 0.0f;
-
-        adj_level = 0.0f;
-        adj_floor = 0.0f;
-
-        // friction stuff
-        is_slipping = false;
-        is_slippy = is_watery = false;
-        air_friction = 0.0f;
-        fluid_friction_hrz = fluid_friction_vrt = 0.0f;
-        friction_hrz = 0.0f;
-        traction = 0.0f;
-        
-        // misc states
-        inwater = false;
-        acc = Vector3f::zero();
-    }
+    prt_environment_t();
+    void reset();
 };
 
 /**
@@ -233,7 +212,7 @@ public:
     **/
     void setTarget(const ObjectRef target);
 
-    PRO_REF getSpawnerProfile() const { return _spawnerProfile; }
+    ObjectProfileRef getSpawnerProfile() const { return _spawnerProfile; }
 
     /**
     * @return
@@ -307,7 +286,7 @@ public:
     * @note
     *   Should only ever be used by the ParticleHandler! *Do not use*
     **/
-    bool initialize(const ParticleRef particleID, const Vector3f& spawnPos, const Facing& spawnFacing, const PRO_REF spawnProfile,
+    bool initialize(const ParticleRef particleID, const Vector3f& spawnPos, const Facing& spawnFacing, ObjectProfileRef spawnProfile,
                     const PIP_REF particleProfile, const ObjectRef spawnAttach, Uint16 vrt_offset, const TEAM_REF spawnTeam,
                     const ObjectRef spawnOrigin, const ParticleRef spawnParticleOrigin, const int multispawn, const ObjectRef spawnTarget,
                     const bool onlyOverWater);
@@ -504,7 +483,7 @@ private:
      * @brief
      *  The profile related to the spawned particle.
      */
-    PRO_REF _spawnerProfile;
+    ObjectProfileRef _spawnerProfile;
 
     // motion effects
     bool _isHoming;             ///< Is the particle in control of its motion?

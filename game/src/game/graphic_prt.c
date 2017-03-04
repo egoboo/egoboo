@@ -496,7 +496,7 @@ void ParticleGraphicsRenderer::render_prt_bbox(const std::shared_ptr<Ego::Partic
 
         // determine the expanded collision volumes for both objects
         oct_bb_t exp_bb;
-        phys_expand_oct_bb(tmp_bb, particle->vel, 0, 1, exp_bb);
+        phys_expand_oct_bb(tmp_bb, particle->getVelocity(), 0, 1, exp_bb);
 
         // shift the source bounding boxes to be centered on the given positions
         oct_bb_t loc_bb;

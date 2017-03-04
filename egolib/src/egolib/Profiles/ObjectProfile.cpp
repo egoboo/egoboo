@@ -39,7 +39,7 @@ ObjectProfile::ObjectProfile() :
     _pathname("*NONE*"),
     _model(nullptr),
     _ieve(INVALID_EVE_REF),
-    _slotNumber(-1),
+    _slotNumber(ObjectProfileRef::Invalid),
 
     _randomName(),
     _aiScript(),
@@ -421,14 +421,25 @@ void ObjectProfile::setupXPTable()
     }
 }
 
+ObjectProfileRef vfs_get_next_object_profile_ref(ReadContext& ctxt)
+{
+    int number = vfs_get_next_int(ctxt);
+    ObjectProfileRef reference = ObjectProfileRef::Invalid;
+    if (number < number > ObjectProfileRef::Min.get() || number > ObjectProfileRef::Max.get())
+    {
+        return reference;
+    }
+    return ObjectProfileRef(number);
+}
+
 bool ObjectProfile::loadDataFile(const std::string &filePath)
 {
     // Open the file
     ReadContext ctxt(filePath);
 
     //read slot number (ignored for now)
-    vfs_get_next_int(ctxt);
-    //_slotNumber = vfs_get_next_int(ctxt);
+    vfs_get_next_object_profile_ref(ctxt);
+    //_slotNumber = vfs_get_next_object_profile_ref(ctxt);
 
     // Read in the class name
     std::string buffer;
@@ -966,36 +977,38 @@ bool ObjectProfile::hasIDSZ(const IDSZ2& idsz) const
     return false;
 }
 
-std::shared_ptr<ObjectProfile> ObjectProfile::loadFromFile(const std::string &folderPath, const PRO_REF slotNumber, const bool lightWeight)
+std::shared_ptr<ObjectProfile> ObjectProfile::loadFromFile(const std::string& folderPath, ObjectProfileRef ref, bool lightWeight)
 {
-    //Make sure slot number is valid
-    if(slotNumber == INVALID_PRO_REF)
+    // Assert the reference is valid.
+    if (!ref)
     {
-		Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "invalid profile reference ", slotNumber, Log::EndOfEntry);
+        Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "invalid profile reference ", ref, Log::EndOfEntry);
         return nullptr;
     }
 
-    //Allocate memory
+    // Allocate the object profile object.
     std::shared_ptr<ObjectProfile> profile = std::make_shared<ObjectProfile>();
 
-    //Set some data
+    // Set some data
     profile->_pathname = folderPath;
-    profile->_slotNumber = slotNumber;
+    profile->_slotNumber = ref.get();
 
     //Don't load 3d model, enchant, messages, sounds or particle effects for lightweight profiles
-    if(!lightWeight)
+    if (!lightWeight)
     {
         // Load the model for this profile
-        try {
+        try
+        {
             profile->_model = std::make_shared<Ego::ModelDescriptor>(folderPath.c_str());
         }
-        catch (const std::runtime_error &ex) {
-			Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to load model ", "`", folderPath, "`", Log::EndOfEntry);
+        catch (const std::runtime_error &ex)
+        {
+            Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to load model ", "`", folderPath, "`", Log::EndOfEntry);
             return nullptr;
         }
 
         // Load the enchantment for this profile (optional)
-        profile->_ieve = ProfileSystem::get().EnchantProfileSystem.load(folderPath + "/enchant.txt", static_cast<EVE_REF>(slotNumber) );
+        profile->_ieve = ProfileSystem::get().EnchantProfileSystem.load(folderPath + "/enchant.txt", static_cast<EVE_REF>(ref.get()));
 
         // Load the messages for this profile, do this before loading the AI script
         // to ensure any dynamic loaded messages get loaded last (optional)
@@ -1008,18 +1021,20 @@ std::shared_ptr<ObjectProfile> ObjectProfile::loadFromFile(const std::string &fo
             PIP_REF particleProfile = ProfileSystem::get().ParticleProfileSystem.load(particleName.c_str(), INVALID_PIP_REF);
 
             // Make sure it's referenced properly
-            if(particleProfile != INVALID_PIP_REF) {
-                profile->_particleProfiles[cnt] = particleProfile; 
+            if (particleProfile != INVALID_PIP_REF)
+            {
+                profile->_particleProfiles[cnt] = particleProfile;
             }
         }
 
         // Load the waves for this iobj
-        for ( size_t cnt = 0; cnt < 30; cnt++ ) //TODO: make better search than just 30 (list files?)
+        for (size_t cnt = 0; cnt < 30; cnt++) //TODO: make better search than just 30 (list files?)
         {
             const std::string soundName = folderPath + "/sound" + std::to_string(cnt);
             SoundID soundID = AudioSystem::get().loadSound(soundName);
 
-            if(soundID != INVALID_SOUND_ID) {
+            if (soundID != INVALID_SOUND_ID)
+            {
                 profile->_soundMap[cnt] = soundID;
             }
         }
@@ -1033,14 +1048,17 @@ std::shared_ptr<ObjectProfile> ObjectProfile::loadFromFile(const std::string &fo
 
     // Finally load the character profile
     // Do after loading particle and sound profiles
-    try {
-        if(!profile->loadDataFile(folderPath + "/data.txt")) {
-			Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to load data.txt for profile ", "`", folderPath, "`", Log::EndOfEntry);
+    try
+    {
+        if (!profile->loadDataFile(folderPath + "/data.txt"))
+        {
+            Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to load data.txt for profile ", "`", folderPath, "`", Log::EndOfEntry);
             return nullptr;
         }
     }
-    catch (const std::runtime_error &ex) {
-		Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "failed to parse ", "`", folderPath, "/data.txt", "`", ": ", ex.what(), Log::EndOfEntry);
+    catch (const std::runtime_error &ex)
+    {
+        Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "failed to parse ", "`", folderPath, "/data.txt", "`", ": ", ex.what(), Log::EndOfEntry);
         return nullptr;
     }
 
@@ -1053,6 +1071,10 @@ std::shared_ptr<ObjectProfile> ObjectProfile::loadFromFile(const std::string &fo
     return profile;
 }
 
+std::shared_ptr<ObjectProfile> ObjectProfile::loadFromFile(const std::string &folderPath, PRO_REF ref, const bool lightWeight)
+{
+    return loadFromFile(folderPath, ObjectProfileRef(ref), lightWeight);
+}
 
 bool ObjectProfile::isSlotValid(slot_t slot) const
 {

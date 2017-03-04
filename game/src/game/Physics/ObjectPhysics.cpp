@@ -160,15 +160,15 @@ void ObjectPhysics::updateMovement()
 
     //Determine acceleration/deceleration
     Vector2f acceleration;
-    acceleration.x() = (velocitySetpoint.x() - _object.vel.x()) * (4.0f / GameEngine::GAME_TARGET_UPS);
-    acceleration.y() = (velocitySetpoint.y() - _object.vel.y()) * (4.0f / GameEngine::GAME_TARGET_UPS);
+    acceleration.x() = (velocitySetpoint.x() - _object.getVelocity().x()) * (4.0f / GameEngine::GAME_TARGET_UPS);
+    acceleration.y() = (velocitySetpoint.y() - _object.getVelocity().y()) * (4.0f / GameEngine::GAME_TARGET_UPS);
 
     //How good grip do we have to add additional momentum?
     acceleration *= _traction;
 
     //Finally apply acceleration to velocity
-    _object.vel.x() += acceleration.x();
-    _object.vel.y() += acceleration.y();
+    _object.setVelocity(_object.getVelocity() +
+                        Vector3f(acceleration.x(), acceleration.y(), 0.0f));
 }
 
 void ObjectPhysics::updateHillslide()
@@ -176,8 +176,10 @@ void ObjectPhysics::updateHillslide()
     const uint8_t floorTwist = _currentModule->getMeshPointer()->get_twist(_object.getTile());
 
     //This makes it hard for characters to jump uphill
-    if(_object.vel.z() > 0.0f && floorIsSlippy() && !g_meshLookupTables.twist_flat[floorTwist]) {
-        _object.vel.z() *= 0.8f;
+    if(_object.getVelocity().z() > 0.0f && floorIsSlippy() && !g_meshLookupTables.twist_flat[floorTwist]) {
+        _object.setVelocity({_object.getVelocity().x(),
+                             _object.getVelocity().y(),
+                             _object.getVelocity().z() * 0.8f});
     }
 
     //Only slide if we are touching the floor
@@ -189,8 +191,10 @@ void ObjectPhysics::updateHillslide()
             //Make characters slide down hills
             if(!g_meshLookupTables.twist_flat[floorTwist]) {
                 const float hillslide = Ego::Physics::g_environment.hillslide * (1.0f - getLerpZ()) * (1.0f - _traction);
-                _object.vel.x() += g_meshLookupTables.twist_nrm[floorTwist].x() * hillslide;
-                _object.vel.y() += g_meshLookupTables.twist_nrm[floorTwist].y() * hillslide;
+                _object.setVelocity(_object.getVelocity() +
+                                    Vector3f(g_meshLookupTables.twist_nrm[floorTwist].x() * hillslide,
+                                             g_meshLookupTables.twist_nrm[floorTwist].y() * hillslide,
+                                             0.0f));
 
                 //Reduce traction while we are sliding downhill
                 _traction *= 0.8f;
@@ -217,19 +221,23 @@ void ObjectPhysics::updateVelocityZ()
     //Flying?
     if(_object.isFlying()) {
         float flyLevel = std::max(0.0f, _groundElevation);
-        _object.vel.z() += (flyLevel + _object.getAttribute(Ego::Attribute::FLY_TO_HEIGHT) - _object.getPosZ()) * FLYDAMPEN;
+        _object.setVelocity(_object.getVelocity() +
+                            Vector3f(0.0f, 0.0f, 
+                                     (flyLevel + _object.getAttribute(Ego::Attribute::FLY_TO_HEIGHT) - _object.getPosZ()) * FLYDAMPEN));
         _object.jumpready = false;
         return;
     }
 
     //Apply gravity
-    _object.vel.z() += getLerpZ() * Ego::Physics::g_environment.gravity;
+    _object.setVelocity(_object.getVelocity() +
+                        Vector3f(0.0f, 0.0f,
+                                getLerpZ() * Ego::Physics::g_environment.gravity));
 
     // Do ground hits
     if(isTouchingGround()) {
         _object.jumpready = true;
 
-        if (_object.vel.z() < -Ego::Physics::STOP_BOUNCING && _object.hitready) {
+        if (_object.getVelocity().z() < -Ego::Physics::STOP_BOUNCING && _object.hitready) {
             SET_BIT(_object.ai.alert, ALERTIF_HITGROUND);
             _object.hitready = false;
         }
@@ -255,7 +263,7 @@ void ObjectPhysics::updatePhysics()
     }
 
     // Character's old location
-    _object.vel_old          = _object.vel;
+    _object.setOldVelocity(_object.getVelocity());
     _object.ori_old.facing_z = _object.ori.facing_z;
 
     //Is this character being held by another character?
@@ -280,8 +288,8 @@ void ObjectPhysics::updatePhysics()
     updateMeshCollision();
 
     //Cutoff for low velocities to make them truly stop
-    if(_object.vel.length_abs() < 0.05f) {
-        _object.vel = Vector3f::zero();
+    if(_object.getVelocity().length_abs() < 0.05f) {
+        _object.setVelocity(Vector3f::zero());
     }
 
     //Recalculate the altitude of the ground beneath our feet
@@ -498,8 +506,9 @@ void ObjectPhysics::updatePlatformPhysics()
     // platform, there is no need to suck you to the level of the platform
     // this was one of the things preventing you from jumping from platforms
     // properly
-    if(std::abs(_object.vel.z() - platform->vel.z()) / 5.0f <= PLATFORM_STICKINESS) {
-        _object.vel.z() += (platform->vel.z()  - _object.vel.z()) * lerp_z;
+    if(std::abs(_object.getVelocity().z() - platform->getVelocity().z()) / 5.0f <= PLATFORM_STICKINESS) {
+        _object.setVelocity(_object.getVelocity() +
+                            Vector3f(0.0f, 0.0f, (platform->getVelocity().z()  - _object.getVelocity().z()) * lerp_z));
     }
 
     // determine the rotation rates
@@ -508,8 +517,8 @@ void ObjectPhysics::updatePlatformPhysics()
     _object.ori.facing_z += Facing(int16_t((rot_a - rot_b) * PLATFORM_STICKINESS));    
 
     //Allows movement on the platform
-    _platformOffset.x() += _object.vel.x();
-    _platformOffset.y() += _object.vel.y();
+    _platformOffset.x() += _object.getVelocity().x();
+    _platformOffset.y() += _object.getVelocity().y();
 
     //Inherit position of platform with given offsets
     float zCorrection = (_groundElevation - _object.getPosZ()) * 0.125f * lerp_z;
@@ -526,7 +535,7 @@ void ObjectPhysics::updateMeshCollision()
         //Make everything "float" a little above the mesh
         const float floorElevation = _groundElevation + 10.0f;
 
-        tmp_pos.z() += _object.vel.z();
+        tmp_pos.z() += _object.getVelocity().z();
 
         //Hit the floor?
         if (tmp_pos.z() <= floorElevation)
@@ -534,15 +543,18 @@ void ObjectPhysics::updateMeshCollision()
             tmp_pos.z() = floorElevation;
 
             //Stop bouncing when below threshold
-            if (std::abs(_object.vel.z()) < Ego::Physics::STOP_BOUNCING)
+            if (std::abs(_object.getVelocity().z()) < Ego::Physics::STOP_BOUNCING)
             {
-                _object.vel.z() = 0.0f;
+                _object.setVelocity({_object.getVelocity().x(),
+                                     _object.getVelocity().y(),
+                                     0.0f});
             }
 
             //Make it bounce!
-            else if (_object.vel.z() < 0.0f)
+            else if (_object.getVelocity().z() < 0.0f)
             {                
-                _object.vel.z() = -_object.vel.z() * _object.getProfile()->getBounciness();
+                _object.setVelocity({_object.getVelocity().x(), _object.getVelocity().y(),
+                                     -_object.getVelocity().z() * _object.getProfile()->getBounciness()});
             }
         }
     }
@@ -557,13 +569,13 @@ void ObjectPhysics::updateMeshCollision()
     }
 
 
-    //if (std::abs(_object.vel.x()) + std::abs(_object.vel.y()) > 0.0f)
+    //if (std::abs(_object.getVelocity().x()) + std::abs(_object.getVelocity().y()) > 0.0f)
     {
         float old_x = tmp_pos.x();
         float old_y = tmp_pos.y();
 
-        float new_x = old_x + _object.vel.x();
-        float new_y = old_y + _object.vel.y();
+        float new_x = old_x + _object.getVelocity().x();
+        float new_y = old_y + _object.getVelocity().y();
 
         tmp_pos.x() = new_x;
         tmp_pos.y() = new_y;
@@ -579,30 +591,33 @@ void ObjectPhysics::updateMeshCollision()
             // how is the character hitting the wall?
             if (pressure > 0.0f)
             {
-                tmp_pos.x() -= _object.vel.x();
-                tmp_pos.y() -= _object.vel.y();
+                tmp_pos.x() -= _object.getVelocity().x();
+                tmp_pos.y() -= _object.getVelocity().y();
 
                 const float bumpdampen = std::max(0.1f, 1.0f-_object.phys.bumpdampen);
 
                 //Bounce velocity of normal
-                Vector2f velocity = Vector2f(_object.vel.x(), _object.vel.y());
+                Vector2f velocity = Vector2f(_object.getVelocity().x(), _object.getVelocity().y());
                 velocity.x() -= 2.0f * (nrm.dot(velocity) * nrm.x());
                 velocity.y() -= 2.0f * (nrm.dot(velocity) * nrm.y());
 
-                _object.vel.x() = _object.vel.x() * bumpdampen + velocity.x()*(1.0f-bumpdampen);
-                _object.vel.y() = _object.vel.y() * bumpdampen + velocity.y()*(1.0f-bumpdampen);
+                _object.setVelocity({_object.getVelocity().x() * bumpdampen + velocity.x()*(1.0f - bumpdampen),
+                                     _object.getVelocity().y() * bumpdampen + velocity.y()*(1.0f - bumpdampen),
+                                     _object.getVelocity().z()});
 
                 //Add additional pressure perpendicular from wall depending on how far inside wall we are
                 float displacement = Vector2f(_object.getSafePosition().x()-tmp_pos.x(), _object.getSafePosition().y()-tmp_pos.y()).length();
                 if(displacement > MAX_DISPLACEMENT_XY) {
                     displacement = MAX_DISPLACEMENT_XY;
                 }
-                _object.vel.x() += displacement * bumpdampen * pressure * nrm.x();
-                _object.vel.y() += displacement * bumpdampen * pressure * nrm.y();
+                _object.setVelocity(_object.getVelocity() +
+                                    Vector3f(displacement * bumpdampen * pressure * nrm.x(),
+                                             displacement * bumpdampen * pressure * nrm.y(),
+                                             0.0f));
 
                 //Apply correction
-                tmp_pos.x() += _object.vel.x();
-                tmp_pos.y() += _object.vel.y();
+                tmp_pos.x() += _object.getVelocity().x();
+                tmp_pos.y() += _object.getVelocity().y();
             }
         }
     }
@@ -784,7 +799,9 @@ bool ObjectPhysics::grabStuff(grip_offset_t grip_off, bool grab_people)
         else
         {
             // Lift the item a little and quit...
-            bestMatch->vel.z() = Object::DROPZVEL;
+            bestMatch->setVelocity({bestMatch->getVelocity().x(),
+                                    bestMatch->getVelocity().y(),
+                                    Object::DROPZVEL});
             bestMatch->hitready = true;
             SET_BIT(bestMatch->ai.alert, ALERTIF_DROPPED);
         }

@@ -1127,7 +1127,9 @@ Uint8 scr_DropWeapons( script_state_t& state, ai_state_t& self )
         leftItem->detatchFromHolder(true, true);
         if ( pchr->isMount() )
         {
-            leftItem->vel.z()    = Object::DISMOUNTZVEL;
+            leftItem->setVelocity({leftItem->getVelocity().x(),
+                                leftItem->getVelocity().y(),
+                                Object::DISMOUNTZVEL});
             leftItem->jump_timer = Object::JUMPDELAY;
             leftItem->movePosition(0.0f, 0.0f, Object::DISMOUNTZVEL);
         }
@@ -1139,7 +1141,9 @@ Uint8 scr_DropWeapons( script_state_t& state, ai_state_t& self )
         rightItem->detatchFromHolder(true, true);
         if ( pchr->isMount() )
         {
-            rightItem->vel.z()    = Object::DISMOUNTZVEL;
+            rightItem->setVelocity({rightItem->getVelocity().x(),
+                                 rightItem->getVelocity().y(),
+                                 Object::DISMOUNTZVEL});
             rightItem->jump_timer = Object::JUMPDELAY;
             rightItem->movePosition(0.0f, 0.0f, Object::DISMOUNTZVEL);
         }
@@ -1372,7 +1376,7 @@ Uint8 scr_SendMessage( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = _display_message( self.getSelf(), pchr->getProfileID(), state.argument, &state );
+    returncode = _display_message( self.getSelf(), pchr->getProfileID().get(), state.argument, &state );
 
     SCRIPT_FUNCTION_END();
 }
@@ -1918,8 +1922,10 @@ Uint8 scr_SpawnCharacter( script_state_t& state, ai_state_t& self )
             self.child = pchild->getObjRef();
 
             Facing turn = pchr->ori.facing_z + Facing::ATK_BEHIND;
-            pchild->vel[kX] += std::cos(turn) * state.distance;
-            pchild->vel[kY] += std::sin(turn) * state.distance;
+            pchild->setVelocity(pchild->getVelocity() +
+                                Vector3f(std::cos(turn) * state.distance,
+                                         std::sin(turn) * state.distance,
+                                         0.0f));
 
             pchild->iskursed = pchr->iskursed;  /// @note BB@> inherit this from your spawner
             pchild->ai.passage = self.passage;
@@ -2185,7 +2191,7 @@ Uint8 scr_SpawnParticle( script_state_t& state, ai_state_t& self )
 
     std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), 
                                                    Facing(uint16_t(pchr->ori.facing_z)), 
-                                                   pchr->getProfileID(),
+                                                   ObjectProfileRef(pchr->getProfileID()),
                                                    LocalParticleProfileRef(state.argument), self.getSelf(),
                                                    state.distance, pchr->team, ichr, ParticleRef::Invalid, 0,
                                                    ObjectRef::Invalid );
@@ -2411,7 +2417,7 @@ Uint8 scr_BecomeSpell( script_state_t& state, ai_state_t& self )
 
     // change the spellbook to a spell effect
     pchr->disenchant();
-    pchr->polymorphObject(self.content, 0);
+    pchr->polymorphObject(ObjectProfileRef(self.content), 0);
 
     // set the spell effect parameters
     self.content = 0;
@@ -2433,13 +2439,13 @@ Uint8 scr_BecomeSpellbook( script_state_t& state, ai_state_t& self )
     SCRIPT_FUNCTION_BEGIN();
 
     // convert the spell effect to a spellbook
-    PRO_REF old_profile = pchr->getProfileID();
+    ObjectProfileRef old_profile = pchr->getProfileID();
     pchr->disenchant();
-    pchr->polymorphObject(SPELLBOOK, ppro->getSpellEffectType());
+    pchr->polymorphObject(ObjectProfileRef(SPELLBOOK), ppro->getSpellEffectType());
 
     // Reset the spellbook state so it doesn't burn up
     self.state = 0;
-    self.content = REF_TO_INT( old_profile );
+    self.content = REF_TO_INT( old_profile.get() );
 
     // set the spellbook animations
     // Do dropped animation
@@ -2809,7 +2815,7 @@ Uint8 scr_EnchantTarget( script_state_t& state, ai_state_t& self )
 
     const std::shared_ptr<Object> target = _currentModule->getObjectHandler()[self.getTarget()];
     if(target) {
-        returncode = target->addEnchant(pchr->getProfile()->getEnchantRef(), pchr->getProfileID(), _currentModule->getObjectHandler()[self.owner], _currentModule->getObjectHandler()[pchr->getObjRef()]) != nullptr;
+        returncode = target->addEnchant(pchr->getProfile()->getEnchantRef(), pchr->getProfileID().get(), _currentModule->getObjectHandler()[self.owner], _currentModule->getObjectHandler()[pchr->getObjRef()]) != nullptr;
     }   
     else {
         returncode = false;
@@ -2831,7 +2837,7 @@ Uint8 scr_EnchantChild( script_state_t& state, ai_state_t& self )
 
     const std::shared_ptr<Object> child = _currentModule->getObjectHandler()[self.child];
     if(child) {
-        returncode = child->addEnchant(pchr->getProfile()->getEnchantRef(), pchr->getProfileID(), _currentModule->getObjectHandler()[self.owner], _currentModule->getObjectHandler()[pchr->getObjRef()]) != nullptr;
+        returncode = child->addEnchant(pchr->getProfile()->getEnchantRef(), pchr->getProfileID().get(), _currentModule->getObjectHandler()[self.owner], _currentModule->getObjectHandler()[pchr->getObjRef()]) != nullptr;
     }   
     else {
         returncode = false;
@@ -3614,7 +3620,7 @@ Uint8 scr_SendMessageNear( script_state_t& state, ai_state_t& self )
 
     if ( min_distance < MSGDISTANCE )
     {
-        returncode = _display_message( self.getSelf(), pchr->getProfileID(), state.argument, &state );
+        returncode = _display_message( self.getSelf(), pchr->getProfileID().get(), state.argument, &state );
     }
 
     SCRIPT_FUNCTION_END();
@@ -3934,10 +3940,13 @@ Uint8 scr_StopTargetMovement( script_state_t& state, ai_state_t& self )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    pself_target->vel[kX] = 0;
-    pself_target->vel[kY] = 0;
-    if ( pself_target->vel[kZ] > 0 ) pself_target->vel[kZ] = Ego::Physics::g_environment.gravity;
-
+    pself_target->setVelocity({0.0f, 0.0f, pself_target->getVelocity().z()});
+    if (pself_target->getVelocity().z() > 0)
+    {
+        pself_target->setVelocity({pself_target->getVelocity().x(),
+                                   pself_target->getVelocity().y(),
+                                   Ego::Physics::g_environment.gravity});
+    }
     SCRIPT_FUNCTION_END();
 }
 
@@ -4020,7 +4029,7 @@ Uint8 scr_SpawnAttachedParticle( script_state_t& state, ai_state_t& self )
 		iself = iholder;
     }
 
-    returncode = nullptr != ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), Facing(uint16_t(pchr->ori.facing_z)), pchr->getProfileID(),
+    returncode = nullptr != ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), Facing(uint16_t(pchr->ori.facing_z)), ObjectProfileRef(pchr->getProfileID()),
                                                                       LocalParticleProfileRef(state.argument), self.getSelf(),
                                                                       state.distance, pchr->team, iself, ParticleRef::Invalid, 0,
                                                                       ObjectRef::Invalid);
@@ -4051,7 +4060,7 @@ Uint8 scr_SpawnExactParticle( script_state_t& state, ai_state_t& self )
 				Interpreter::safeCast<float>(state.distance)
             );
 
-        returncode = nullptr != ParticleHandler::get().spawnLocalParticle(vtmp, Facing(uint16_t(pchr->ori.facing_z)), pchr->getProfileID(),
+        returncode = nullptr != ParticleHandler::get().spawnLocalParticle(vtmp, Facing(uint16_t(pchr->ori.facing_z)), ObjectProfileRef(pchr->getProfileID()),
                                                                           LocalParticleProfileRef(state.argument),
                                                                           ObjectRef::Invalid, 0, pchr->team, ichr,
                                                                           ParticleRef::Invalid, 0, ObjectRef::Invalid);
@@ -4073,8 +4082,8 @@ Uint8 scr_AccelerateTarget( script_state_t& state, ai_state_t& self )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    pself_target->vel[kX] += state.x;
-    pself_target->vel[kY] += state.y;
+    pself_target->setVelocity(pself_target->getVelocity() +
+                              Vector3f(state.x, state.y, 0.0f));
 
     SCRIPT_FUNCTION_END();
 }
@@ -4537,7 +4546,7 @@ Uint8 scr_SpawnAttachedSizedParticle( script_state_t& state, ai_state_t& self )
     }
 
     std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), Facing(uint16_t(pchr->ori.facing_z)), 
-                                                                                        pchr->getProfileID(), LocalParticleProfileRef(state.argument), self.getSelf(),
+                                                                                        ObjectProfileRef(pchr->getProfileID()), LocalParticleProfileRef(state.argument), self.getSelf(),
                                                                                         state.distance, pchr->team, ichr, ParticleRef::Invalid, 0,
                                                                                         ObjectRef::Invalid);
 
@@ -4647,7 +4656,7 @@ Uint8 scr_SpawnAttachedFacedParticle( script_state_t& state, ai_state_t& self )
     }
 
     returncode = nullptr != ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), Facing(Ego::Math::clipBits<16>( state.turn )),
-                                                                      pchr->getProfileID(), LocalParticleProfileRef(state.argument),
+                                                                      ObjectProfileRef(pchr->getProfileID()), LocalParticleProfileRef(state.argument),
                                                                       self.getSelf(), state.distance, pchr->team, ichr, ParticleRef::Invalid,
                                                                       0, ObjectRef::Invalid);
 
@@ -4977,7 +4986,7 @@ Uint8 scr_SpawnAttachedHolderParticle( script_state_t& state, ai_state_t& self )
         ichr = pchr->attachedto;
     }
 
-    returncode = nullptr != ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), Facing(uint16_t(pchr->ori.facing_z)), pchr->getProfileID(),
+    returncode = nullptr != ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), Facing(uint16_t(pchr->ori.facing_z)), ObjectProfileRef(pchr->getProfileID()),
                                                                       LocalParticleProfileRef(state.argument), ichr,
                                                                       state.distance, pchr->team, ichr, ParticleRef::Invalid, 0,
                                                                       ObjectRef::Invalid);
@@ -5312,7 +5321,7 @@ Uint8 scr_IfCharacterWasABook( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( pchr->basemodel_ref == SPELLBOOK ||
+    returncode = ( pchr->basemodel_ref == ObjectProfileRef(SPELLBOOK) ||
                    pchr->basemodel_ref == pchr->getProfileID() );
 
     SCRIPT_FUNCTION_END();
@@ -5394,7 +5403,7 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t& state, ai_state_t& self )
 			Interpreter::safeCast<float>(state.distance)
         );
 
-    const std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, static_cast<PRO_REF>(state.argument), pchr->team, 0, Facing(Ego::Math::clipBits<16>(state.turn)), "", ObjectRef::Invalid);
+    const std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, ObjectProfileRef(static_cast<PRO_REF>(state.argument)), pchr->team, 0, Facing(Ego::Math::clipBits<16>(state.turn)), "", ObjectRef::Invalid);
 
     if ( !pchild )
     {
@@ -5429,14 +5438,14 @@ Uint8 scr_ChangeTargetClass( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    const PRO_REF profileID = static_cast<PRO_REF>(state.argument);
+    const auto profileID = ObjectProfileRef(static_cast<PRO_REF>(state.argument));
 
     /// @details This function polymorphs a character permanently so that it can be exported properly
     /// A character turned into a frog with this function will also export as a frog!
     if(ProfileSystem::get().isLoaded(profileID)) 
     {
         //Change the object
-        pchr->polymorphObject(profileID, 0);
+        pchr->polymorphObject(ObjectProfileRef(profileID), 0);
 
         // set the base model to the new model, too
         pchr->basemodel_ref = profileID;
@@ -5492,7 +5501,7 @@ Uint8 scr_SpawnExactChaseParticle( script_state_t& state, ai_state_t& self )
 				Interpreter::safeCast<float>(state.distance)
             );
 
-        particle = ParticleHandler::get().spawnLocalParticle(vtmp, Facing(uint16_t(pchr->ori.facing_z)), pchr->getProfileID(),
+        particle = ParticleHandler::get().spawnLocalParticle(vtmp, Facing(uint16_t(pchr->ori.facing_z)), ObjectProfileRef(pchr->getProfileID()),
                                                              LocalParticleProfileRef(state.argument),
                                                              ObjectRef::Invalid, 0, pchr->team, ichr, ParticleRef::Invalid,
                                                              0, ObjectRef::Invalid);
@@ -6227,7 +6236,8 @@ Uint8 scr_AccelerateUp( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->vel[kZ] += state.argument / 100.0f;
+    pchr->setVelocity(pchr->getVelocity() +
+                      Vector3f(0.0f, 0.0f, state.argument / 100.0f));
 
     SCRIPT_FUNCTION_END();
 }
@@ -6664,7 +6674,7 @@ Uint8 scr_SpawnExactParticleEndSpawn( script_state_t& state, ai_state_t& self )
 				float(state.distance)
             );
 
-        particle = ParticleHandler::get().spawnLocalParticle(vtmp, Facing(uint16_t(pchr->ori.facing_z)), pchr->getProfileID(),
+        particle = ParticleHandler::get().spawnLocalParticle(vtmp, Facing(uint16_t(pchr->ori.facing_z)), ObjectProfileRef(pchr->getProfileID()),
                                                              LocalParticleProfileRef(state.argument),
                                                              ObjectRef::Invalid, 0, pchr->team, ichr, ParticleRef::Invalid,
                                                              0, ObjectRef::Invalid);
@@ -6716,8 +6726,8 @@ Uint8 scr_SpawnPoofSpeedSpacingDamage( script_state_t& state, ai_state_t& self )
 
                 //Add random horizontal velocity offset
                 Vector2f xyVelOffset = Vector2f(velOffsetBase + Random::next(ppip->getSpawnVelocityOffsetXY().rand), velOffsetBase + Random::next(ppip->getSpawnVelocityOffsetXY().rand));
-                poofParticle->vel.x() += xyVelOffset.x();
-                poofParticle->vel.y() += xyVelOffset.y();
+                poofParticle->setVelocity(poofParticle->getVelocity() +
+                                          Vector3f(xyVelOffset.x(), xyVelOffset.y(), 0.0f));
 
                 //Add random horizontal position offset
                 Vector2f xyPosOffset = Vector2f(posOffsetBase + Random::next(ppip->getSpawnPositionOffsetXY().rand), posOffsetBase + Random::next(ppip->getSpawnPositionOffsetXY().rand));
@@ -7323,7 +7333,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t& state, ai_state_t& self )
 
 	Vector3f pos = Vector3f(float(state.x), float(state.y), float(state.distance));
 
-    std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, (PRO_REF)state.argument, pchr->team, 0, Facing::FACE_NORTH, "", ObjectRef::Invalid);
+    std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, ObjectProfileRef((PRO_REF)state.argument), pchr->team, 0, Facing::FACE_NORTH, "", ObjectRef::Invalid);
     returncode = pchild != nullptr;
 
     if ( !returncode )
@@ -7795,7 +7805,8 @@ Uint8 scr_AccelerateTargetUp( script_state_t& state, ai_state_t& self )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    pself_target->vel[kZ] += state.argument / 100.0f;
+    pself_target->setVelocity(pself_target->getVelocity() +
+                              Vector3f(0.0f, 0.0f, state.argument / 100.0f));
 
     SCRIPT_FUNCTION_END();
 }

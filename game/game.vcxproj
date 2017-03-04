@@ -401,6 +401,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\game\Entities\Common.cpp" />
     <ClCompile Include="src\game\Graphics\BillboardSystem.cpp" />
     <ClCompile Include="src\game\Graphics\Billboard.cpp" />
     <ClCompile Include="src\game\Graphics\RenderPasses\HeightmapRenderPass.cpp" />

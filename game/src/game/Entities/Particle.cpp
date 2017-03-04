@@ -33,6 +33,33 @@
 
 namespace Ego
 {
+
+prt_environment_t::prt_environment_t() :
+    twist(0),
+    floor_level(0.0f),
+    level(0.0f),
+    zlerp(0.0f),
+    //
+    adj_level(0.0f),
+    adj_floor(0.0f),
+    //
+    is_slipping(false),
+    is_slippy(false),
+    is_watery(false),
+    air_friction(0.0f),
+    fluid_friction_hrz(0.0f), fluid_friction_vrt(0.0f),
+    friction_hrz(0.0f),
+    traction(0.0f),
+    //
+    inwater(false),
+    acc(Vector3f::zero())
+{}
+
+void prt_environment_t::reset()
+{
+    *this = prt_environment_t();
+}
+
 const std::shared_ptr<Particle> Particle::INVALID_PARTICLE = nullptr;
 
 Particle::Particle() :
@@ -44,7 +71,7 @@ Particle::Particle() :
     _particleProfile(nullptr),
     _isTerminated(true),
     _target(),
-    _spawnerProfile(INVALID_PRO_REF),
+    _spawnerProfile(),
     _isHoming(false)
 {
     reset(ParticleRef::Invalid);
@@ -66,7 +93,7 @@ void Particle::reset(ParticleRef ref)
     owner_ref = ObjectRef::Invalid;
     _target = ObjectRef::Invalid;
     parent_ref = ParticleRef::Invalid;
-    _spawnerProfile = INVALID_PRO_REF,
+    _spawnerProfile = ObjectProfileRef::Invalid;
 
     attachedto_vrt_off = 0;
     type = SPRITE_LIGHT;
@@ -560,11 +587,11 @@ size_t Particle::updateContinuousSpawning()
     for (size_t tnc = 0; tnc < getProfile()->contspawn._amount; tnc++)
     {
         std::shared_ptr<Ego::Particle> prt_child;
-        if(_spawnerProfile == INVALID_PRO_REF) {
+        if(_spawnerProfile == ObjectProfileRef::Invalid) {
             prt_child = ParticleHandler::get().spawnGlobalParticle(getPosition(), facingAdd, getProfile()->contspawn._lpip, tnc);
         }
         else {
-            prt_child = ParticleHandler::get().spawnLocalParticle(getPosition(), facingAdd, _spawnerProfile, getProfile()->contspawn._lpip,
+            prt_child = ParticleHandler::get().spawnLocalParticle(getPosition(), facingAdd, ObjectProfileRef(_spawnerProfile), getProfile()->contspawn._lpip,
                                                                   ObjectRef::Invalid, GRIP_LAST, team, owner_ref, _particleID, tnc, _target);
         }
 
@@ -657,8 +684,12 @@ void Particle::updateAttachedDamage()
     if (getProfile()->allowpush && 0 == getProfile()->getSpawnVelocityOffsetXY().base)
     {
         // Make character limp
-        attachedObject->vel.x() *= 0.5f;
-        attachedObject->vel.y() *= 0.5f;
+        attachedObject->setVelocity
+        ({
+            attachedObject->getVelocity().x() * 0.5f,
+            attachedObject->getVelocity().y() * 0.5f,
+            attachedObject->getVelocity().z()
+        });
     }
 
     //---- do the damage
@@ -696,7 +727,7 @@ void Particle::destroy()
         Facing facingAdd = this->facing;
         for (size_t tnc = 0; tnc < getProfile()->endspawn._amount; tnc++)
         {
-            if(_spawnerProfile == INVALID_PRO_REF)
+            if(_spawnerProfile == ObjectProfileRef::Invalid)
             {
                 //Global particle
                 ParticleHandler::get().spawnGlobalParticle(getOldPosition(), facingAdd, getProfile()->endspawn._lpip, tnc);
@@ -704,9 +735,8 @@ void Particle::destroy()
             else
             {
                 //Local particle
-                ParticleHandler::get().spawnLocalParticle(getOldPosition(), facingAdd, _spawnerProfile, getProfile()->endspawn._lpip,
-                                                          ObjectRef::Invalid, GRIP_LAST, team, owner_ref,
-                                                          _particleID, tnc, _target);
+                ParticleHandler::get().spawnLocalParticle(getOldPosition(), facingAdd, ObjectProfileRef(_spawnerProfile), getProfile()->endspawn._lpip,
+                                                          ObjectRef::Invalid, GRIP_LAST, team, owner_ref, _particleID, tnc, _target);
             }
 
             facingAdd += Facing(getProfile()->endspawn._facingAdd);
@@ -749,7 +779,7 @@ void Particle::playSound(int8_t sound)
     }
 }
 
-bool Particle::initialize(const ParticleRef particleID, const Vector3f& spawnPos, const Facing& spawnFacing, const PRO_REF spawnProfile,
+bool Particle::initialize(const ParticleRef particleID, const Vector3f& spawnPos, const Facing& spawnFacing, ObjectProfileRef spawnProfile,
                           const PIP_REF particleProfile, const ObjectRef spawnAttach, uint16_t vrt_offset, const TEAM_REF spawnTeam,
                           const ObjectRef spawnOrigin, const ParticleRef spawnParticleOrigin, const int multispawn, const ObjectRef spawnTarget,
                           const bool onlyOverWater)
@@ -767,7 +797,7 @@ bool Particle::initialize(const ParticleRef particleID, const Vector3f& spawnPos
     reset(ParticleRef(particleID));
 
     //Load particle profile
-    _spawnerProfile = spawnProfile;
+    _spawnerProfile = spawnProfile.get();
     _particleProfileID = particleProfile;
     assert(ProfileSystem::get().ParticleProfileSystem.isLoaded(_particleProfileID));
     _particleProfile = ProfileSystem::get().ParticleProfileSystem.get_ptr(_particleProfileID);
@@ -948,7 +978,9 @@ bool Particle::initialize(const ParticleRef particleID, const Vector3f& spawnPos
     vel.x() = -std::cos(loc_facing) * velocity;
     vel.y() = -std::sin(loc_facing) * velocity;
     vel.z() += generate_irand_pair(getProfile()->getSpawnVelocityOffsetZ()) - (getProfile()->getSpawnVelocityOffsetZ().rand / 2);
-    this->vel = vel_old = vel_stt = vel;
+    this->setVelocity(vel);
+    this->setOldVelocity(vel);
+    this->vel_stt = vel;
 
     // Template values
     bump_size_stt = getProfile()->bump_size;

@@ -17,14 +17,17 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/FileFormats/spawn_file.h
+/// @file egolib/FileFormats/SpawnFile/spawn_file.h
 /// @details loading the environment definitions for a module
 
 #pragma once
 
 #include "egolib/typedef.h"
-#include "egolib/fileutil.h"
-#include "egolib/Math/Vector.hpp"
+#include "egolib/_math.h"
+#include "egolib/Math/Standard.hpp"
+
+// Forward declaration.
+class SpawnFileReaderImpl;
 
 /// Where a spawned character can be attached
 enum e_attachment_type
@@ -49,7 +52,9 @@ public:
     std::string spawn_comment;
 
     std::string spawn_name;
+#if 0
     std::string *pname;
+#endif
     int        slot;
 	Vector3f   pos;
     int        passage;
@@ -63,5 +68,13 @@ public:
     REF_T      attach;
 };
 
-bool spawn_file_read(ReadContext& ctxt, spawn_file_info_t& info);
 
+struct SpawnFileReader
+{
+private:
+    std::unique_ptr<SpawnFileReaderImpl> impl;
+public:
+    SpawnFileReader();
+    ~SpawnFileReader();
+    std::vector<spawn_file_info_t> read(const std::string& pathname);
+};

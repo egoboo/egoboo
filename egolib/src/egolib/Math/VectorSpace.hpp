@@ -23,7 +23,6 @@
 
 #pragma once
 
-#include "egolib/Math/Dimensionality.hpp"
 #include "egolib/Math/OrderedField.hpp"
 #include "egolib/Math/Vector.hpp"
 
@@ -42,7 +41,7 @@ namespace Internal {
 template <typename _ScalarFieldType, size_t _Dimensionality>
 struct VectorSpaceEnable
 	: public std::conditional <
-	  (IsDimensionality<_Dimensionality>::value),
+	  id::is_dimensionality_v<_Dimensionality>,
 	  std::true_type,
 	  std::false_type
 	  >::type

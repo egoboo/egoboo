@@ -32,9 +32,9 @@ namespace Ego {
 namespace Math {
 
 /// @brief A point in the \f$n\f$-dimensional Euclidean space.
-/// @tparam _EuclideanSpace the Euclidean space over which the points are defined.
+/// @tparam _VectorSpaceType the Vector space over which the points are defined.
 template <typename _VectorSpaceType>
-struct Point : public Tuple<typename _VectorSpaceType::ScalarType, _VectorSpaceType::dimensionality()>,
+struct Point : public tuple<typename _VectorSpaceType::ScalarType, _VectorSpaceType::dimensionality()>,
                public Internal::PointExpr<Point<_VectorSpaceType>, typename _VectorSpaceType::VectorType> {
 public:
     /// @brief The vector space of this vector.
@@ -55,7 +55,7 @@ public:
     using PointType = Point<VectorSpaceType>;
     using MyType = Point<VectorSpaceType>;
     /// @brief The tuple type.
-    using TupleType = Tuple<ScalarType, MyType::dimensionality()>;
+    using TupleType = tuple<ScalarType, MyType::dimensionality()>;
 
     using IndexSequence = std::make_index_sequence<MyType::dimensionality()>;
 

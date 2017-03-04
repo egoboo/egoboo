@@ -22,7 +22,7 @@
 /// @author Johan Jansen aka Zefz
 #pragma once
 
-#include "IdLib/IdLib.hpp"
+#include "idlib/idlib.hpp"
 #include "egolib/egolib.h"
 
 //Forward declarations

@@ -17,16 +17,16 @@ public:
 
 private:
     /// @brief The default value of the variable.
-    const ValueType defaultValue;
+    const ValueType m_defaultValue;
 
     /// @brief The partially qualified name of this element e.g. <tt>video.fullscreen</tt>.
-    string name;
+    string m_name;
 
     /// @brief The description of the variable e.g. <tt>Enable/disable fullscreen mode.</tt>.
-    string description;
+    string m_description;
 
     /// @brief The value of the variable.
-    ValueType value;
+    ValueType m_value;
 
 protected:
     /// @brief Construct this variable.
@@ -34,7 +34,7 @@ protected:
     /// @param name the qualified name of the variable
     /// @param description the description of the variable
     VariableBase(const ValueType& defaultValue, const string& name, const string& description) :
-        defaultValue(defaultValue), name(name), description(description), value(defaultValue)
+        m_defaultValue(defaultValue), m_name(name), m_description(description), m_value(defaultValue)
     {}
 
     /// @brief Destruct this variable.
@@ -46,35 +46,35 @@ public:
     /// @return the value of the variable
     const ValueType& getValue() const
     {
-        return value;
+        return m_value;
     }
 
     /// @brief Set the value of this variable.
     /// @param value the value
     void setValue(const ValueType& value)
     {
-        this->value = value;
+        m_value = value;
     }
 
     /// @brief Get the default value of the variable.
     /// @return the default value of this variable
     const ValueType& getDefaultValue() const
     {
-        return defaultValue;
+        return m_defaultValue;
     }
 
     /// @brief Get the qualified name of this variable.
     /// @return the qualified name of this variable
     const string getName() const
     {
-        return name;
+        return m_name;
     }
 
     /// @brief Get the description of this variable.
     /// @return the description of this variable
     const string getDescription() const
     {
-        return description;
+        return m_description;
     }
 
     /// @brief Encode and store this element's value into to a string.

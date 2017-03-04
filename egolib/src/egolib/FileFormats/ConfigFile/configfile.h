@@ -17,17 +17,14 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/Configuration/configfile.h
+/// @file egolib/FileFormats/ConfigFile/configfile.h
 /// @brief Parsing and unparsing of configuration files
 
 #pragma once
 
 #include "egolib/vfs.h"
 #include "egolib/Script/Traits.hpp"
-#include "egolib/Script/QualifiedName.hpp"
-#include "egolib/Script/AbstractReader.hpp"
-#include "egolib/Script/Buffer.hpp"
-#include "egolib/Script/TextInputFile.hpp"
+#include "egolib/Script/Scanner.hpp"
 
 using namespace std;
 using namespace Ego::Script;
@@ -61,7 +58,7 @@ public:
         vector<CommentLine> commentLines;
 
         /// @brief The qualified name of this entry.
-        QualifiedName qualifiedName;
+        id::qualified_name qualifiedName;
 
         /// @brief The value of this entry.
         string value;
@@ -71,7 +68,7 @@ public:
         /// @brief Construct this entry.
         /// @param qualifiedName the qualified name
         /// @param value the value
-        Entry(const QualifiedName& qualifiedName, const string& value) :
+        Entry(const id::qualified_name& qualifiedName, const string& value) :
             qualifiedName(qualifiedName), value(value),
             commentLines()
         {}
@@ -82,7 +79,7 @@ public:
 
         /// @brief Get the qualified name of this entry.
         /// @return the qualified name of this entry
-        const QualifiedName& getQualifiedName() const
+        const id::qualified_name& getQualifiedName() const
         {
             return qualifiedName;
         }
@@ -104,7 +101,7 @@ public:
 
 public:
 
-    using MapTy = unordered_map<QualifiedName, shared_ptr<Entry>>;
+    using MapTy = unordered_map<id::qualified_name, shared_ptr<Entry>>;
     using ConstMapIteratorTy = MapTy::const_iterator;
 
     /// @internal Custom iterator.
@@ -204,7 +201,7 @@ public:
      * @brief
      *  A map of qualified names (keys) to shared pointers of entries (values).
      */
-    unordered_map<QualifiedName,shared_ptr<Entry>> _map;
+    unordered_map<id::qualified_name,shared_ptr<Entry>> _map;
 
 public:
 
@@ -288,7 +285,7 @@ public:
      * @return
      *  @a true on success, @a false on failure
      */
-    bool set(const QualifiedName& qn, const string& v)
+    bool set(const id::qualified_name& qn, const string& v)
     {
         try
         {
@@ -313,7 +310,7 @@ public:
      *  If @a true is returned, the value was stored @a v.
      *  the value if it exists, @a nullptr otherwise
      */
-    bool get(const QualifiedName& qn, string& v) const
+    bool get(const id::qualified_name& qn, string& v) const
     {
         auto it = _map.find(qn);
         if (it != _map.end())
@@ -413,7 +410,7 @@ public:
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-struct ConfigFileParser : public AbstractReader<Traits<char>>
+struct ConfigFileParser : public Scanner<Traits<char>>
 {
 public:
 
@@ -424,7 +421,7 @@ protected:
      * @brief
      *  The current qualified name or @a nullptr.
      */
-    unique_ptr<QualifiedName> _currentQualifiedName;
+    unique_ptr<id::qualified_name> _currentQualifiedName;
     /**
      * @brief
      *  The current value or @a nullptr.

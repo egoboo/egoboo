@@ -99,27 +99,27 @@ bool SDLX_CreateWindow( SDLX_video_parameters_t& v )
         
         if (!Ego::GraphicsSystem::window) {
             // if we're using multisamples, try lowering it until we succeed
-            if ( v.contextProperties.multisampling.samples > 0 )
+            if ( v.contextProperties.multisampling.m_samples > 0 )
             {
-                v.contextProperties.multisampling.samples -= 1;
-                while ( v.contextProperties.multisampling.samples > 1 && !Ego::GraphicsSystem::window)
+                v.contextProperties.multisampling.m_samples -= 1;
+                while ( v.contextProperties.multisampling.m_samples > 1 && !Ego::GraphicsSystem::window)
                 {
-                    v.contextProperties.multisampling.buffers = 1;
+                    v.contextProperties.multisampling.m_buffers = 1;
                     Ego::GraphicsSystem::window = Ego::GraphicsSystem::createWindow(v.windowProperties);
                     if (!Ego::GraphicsSystem::window) {
-						Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to create SDL window (", v.contextProperties.multisampling.samples, " multisamples): ", SDL_GetError(), Log::EndOfEntry);
+						Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to create SDL window (", v.contextProperties.multisampling.m_samples, " multisamples): ", SDL_GetError(), Log::EndOfEntry);
                     } else {
                         Ego::GraphicsSystem::window->setSize(v.resolution);
                         Ego::GraphicsSystem::window->center();
                         Ego::GraphicsSystem::context = Ego::GraphicsSystem::createContext(Ego::GraphicsSystem::window, v.contextProperties);
                         if (!Ego::GraphicsSystem::context) {
-							Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to create OpenGL context (", v.contextProperties.multisampling.samples, " multisamples): ", SDL_GetError(), Log::EndOfEntry);
+							Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to create OpenGL context (", v.contextProperties.multisampling.m_samples, " multisamples): ", SDL_GetError(), Log::EndOfEntry);
                             delete Ego::GraphicsSystem::window;
                             Ego::GraphicsSystem::window = nullptr;
                         }
                     }
 
-                    v.contextProperties.multisampling.samples -= 1;
+                    v.contextProperties.multisampling.m_samples -= 1;
                 }
             }
         }
@@ -129,8 +129,8 @@ bool SDLX_CreateWindow( SDLX_video_parameters_t& v )
             // something is interfering with our ability to generate a screen.
             // assume that it is a complete incompatability with multisampling
             Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "disabled antialiasing", Log::EndOfEntry);
-            v.contextProperties.multisampling.buffers = 0;
-            v.contextProperties.multisampling.samples = 0;
+            v.contextProperties.multisampling.m_buffers = 0;
+            v.contextProperties.multisampling.m_samples = 0;
 
             Ego::GraphicsSystem::window = Ego::GraphicsSystem::createWindow(v.windowProperties);
             if (!Ego::GraphicsSystem::window) {
@@ -149,8 +149,8 @@ bool SDLX_CreateWindow( SDLX_video_parameters_t& v )
 
         if (Ego::GraphicsSystem::window) {
             // grab the actual status of the multi_buffers and multi_samples
-            v.contextProperties.multisampling.buffers = 0;
-            v.contextProperties.multisampling.samples = 0;
+            v.contextProperties.multisampling.m_buffers = 0;
+            v.contextProperties.multisampling.m_samples = 0;
             v.contextProperties.accelerated_visual = SDL_FALSE;
             v.contextProperties.multisampling.download();
 #if !defined(ID_LINUX)
@@ -187,6 +187,6 @@ void SDLX_video_parameters_t::download(egoboo_config_t& cfg)
     windowProperties.fullscreen = cfg.graphic_fullscreen.getValue();
     contextProperties.buffer_size = cfg.graphic_colorBuffer_bitDepth.getValue();
     contextProperties.depthBufferDepth = cfg.graphic_depthBuffer_bitDepth.getValue();
-    contextProperties.multisampling.buffers = (cfg.graphic_antialiasing.getValue() > 1) ? 1 : 0;
-    contextProperties.multisampling.samples = cfg.graphic_antialiasing.getValue();
+    contextProperties.multisampling.m_buffers = (cfg.graphic_antialiasing.getValue() > 1) ? 1 : 0;
+    contextProperties.multisampling.m_samples = cfg.graphic_antialiasing.getValue();
 }

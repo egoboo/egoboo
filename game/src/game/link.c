@@ -182,7 +182,7 @@ bool link_pop_module()
                     continue;
                 }
 
-                if ( phero->object_index == object->getProfileID() )
+                if ( phero->object_index == object->getProfileID().get() )
                 {
                     pchr = object;
                     break;

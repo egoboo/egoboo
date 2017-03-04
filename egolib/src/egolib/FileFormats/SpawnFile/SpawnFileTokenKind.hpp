@@ -1,0 +1,21 @@
+#pragma once
+
+#include "idlib/idlib.hpp"
+
+/// @brief The kinds of tokens in a spawn file.
+enum class SpawnFileTokenKind
+{
+    /// @brief Start of input.
+    StartOfInput,
+    /// @brief A commentary.
+    Commentary,
+    /// @brief A dependency.
+    /// @code
+    /// '#dependency'
+    /// @endcode
+    Dependency,
+    /// @brief A name.
+    Name,
+    /// @brief A natural number literal.
+    Natural,
+};

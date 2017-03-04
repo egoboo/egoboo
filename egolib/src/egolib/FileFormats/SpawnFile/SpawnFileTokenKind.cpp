@@ -1,0 +1,1 @@
+#include "egolib/FileFormats/SpawnFile/SpawnFileTokenKind.hpp"

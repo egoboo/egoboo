@@ -2505,7 +2505,7 @@ void character_swipe( ObjectRef ichr, slot_t slot )
     if ( !unarmed_attack && (( weaponProfile->isStackable() && pweapon->ammo > 1 ) || ACTION_IS_TYPE( pweapon->inst.getCurrentAnimation(), F ) ) )
     {
         // Throw the weapon if it's stacked or a hurl animation
-        std::shared_ptr<Object> pthrown = _currentModule->spawnObject(pchr->getPosition(), pweapon->getProfileID(), pholder->getTeam().toRef(), pweapon->skin, pchr->ori.facing_z, pweapon->getName(), ObjectRef::Invalid);
+        std::shared_ptr<Object> pthrown = _currentModule->spawnObject(pchr->getPosition(), ObjectProfileRef(pweapon->getProfileID()), pholder->getTeam().toRef(), pweapon->skin, pchr->ori.facing_z, pweapon->getName(), ObjectRef::Invalid);
         if (pthrown)
         {
             pthrown->iskursed = false;
@@ -2525,9 +2525,9 @@ void character_swipe( ObjectRef ichr, slot_t slot )
             velocity = Ego::Math::constrain( velocity, MINTHROWVELOCITY, MAXTHROWVELOCITY );
 
             Facing turn = pchr->ori.facing_z + Facing::ATK_BEHIND;
-            pthrown->vel.x() += std::cos(turn) * velocity;
-            pthrown->vel.y() += std::sin(turn) * velocity;
-            pthrown->vel.z() = Object::DROPZVEL;
+            pthrown->setVelocity({pthrown->getVelocity().x() + std::cos(turn) * velocity,
+                                  pthrown->getVelocity().y() + std::sin(turn) * velocity,
+                                  Object::DROPZVEL});
 
             //Was that the last one?
             if ( pweapon->ammo <= 1 ) {

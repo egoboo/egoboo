@@ -20,25 +20,25 @@ private:
 public:
 
     /// Raised if the window was resized.
-    Signal<void(const Events::WindowEventArgs&)> Resized;
+    Id::Signal<void(const Events::WindowEventArgs&)> Resized;
 
     /// Raised if the mouse entered the window.
-    Signal<void(const Events::WindowEventArgs&)> MouseEntered;
+    Id::Signal<void(const Events::WindowEventArgs&)> MouseEntered;
 
     /// Raised if the mouse left the window.
-    Signal<void(const Events::WindowEventArgs&)> MouseLeft;
+    Id::Signal<void(const Events::WindowEventArgs&)> MouseLeft;
 
     /// Raised if the the window received the keyboard focus.
-    Signal<void(const Events::WindowEventArgs&)> KeyboardFocusReceived;
+    Id::Signal<void(const Events::WindowEventArgs&)> KeyboardFocusReceived;
 
     /// Raised if the window lost the keyboard focus.
-    Signal<void(const Events::WindowEventArgs&)> KeyboardFocusLost;
+    Id::Signal<void(const Events::WindowEventArgs&)> KeyboardFocusLost;
 
     /// Raised if the window was shown.
-    Signal<void(const Events::WindowEventArgs&)> Shown;
+    Id::Signal<void(const Events::WindowEventArgs&)> Shown;
 
     /// Raised if the window was hidden.
-    Signal<void(const Events::WindowEventArgs&)> Hidden;
+    Id::Signal<void(const Events::WindowEventArgs&)> Hidden;
 
 public:
     /// @brief Construct this graphics window with the specified window properties.

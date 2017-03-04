@@ -425,13 +425,13 @@ void Console::draw()
         return;
     }
     // grab the line offsets
-    std::vector<TextRange> console_lines;
+    std::vector<Id::TextRange> console_lines;
     char *pstr = this->output.buffer;
     while (pstr)
     {
         size_t len = strcspn(pstr, "\n");
 
-        console_lines.push_back(TextRange(pstr - this->output.buffer, len));
+        console_lines.push_back(Id::TextRange(pstr - this->output.buffer, len));
 
         if (0 == len)
         {

@@ -836,7 +836,7 @@ bool phys_expand_chr_bb(Object *pchr, float tmin, float tmax, oct_bb_t& dst)
     tmp_oct2 = oct_bb_t::translate(tmp_oct1, pchr->getPosition());
 
     // streach the bounging volume to cover the path of the object
-    return phys_expand_oct_bb(tmp_oct2, pchr->vel, tmin, tmax, dst);
+    return phys_expand_oct_bb(tmp_oct2, pchr->getVelocity(), tmin, tmax, dst);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -855,7 +855,7 @@ bool phys_expand_prt_bb(Ego::Particle *pprt, float tmin, float tmax, oct_bb_t& d
     tmp_oct2 = oct_bb_t::translate(tmp_oct1, pprt->getPosition());
 
     // streach the bounging volume to cover the path of the object
-    return phys_expand_oct_bb(tmp_oct2, pprt->vel, tmin, tmax, dst);
+    return phys_expand_oct_bb(tmp_oct2, pprt->getVelocity(), tmin, tmax, dst);
 }
 
 //--------------------------------------------------------------------------------------------

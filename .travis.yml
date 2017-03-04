@@ -17,8 +17,8 @@ addons:
       key_url: 'http://apt.llvm.org/llvm-snapshot.gpg.key'
     packages:
     # install toolchains
-    - gcc-4.9
-    - g++-4.9
+    - gcc-5
+    - g++-5
     - clang-3.8
     - libc++-dev
     # install dependencies
@@ -33,7 +33,7 @@ before_install:
 - if [ "$CC" = "clang" ]; then 
       export CC="clang-3.8" CXX="clang++-3.8" CXXFLAGS="-ftemplate-depth=1024";
   else
-      export CC="gcc-4.9" CXX="g++-4.9";
+      export CC="gcc-5" CXX="g++-5";
   fi
 script:
 - make all test -j4 

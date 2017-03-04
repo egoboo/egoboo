@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IdLib/IdLib.hpp"
+#include "idlib/idlib.hpp"
 #include "egolib/platform.h"
 #include "egolib/egolib_config.h"
 #include "egolib/Math/_Include.hpp"

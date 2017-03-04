@@ -17,32 +17,45 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Math/Dimensionality.hpp
-/// @brief  Functionality related to the concept of dimensionality.
-/// @author Michael Heilmann
+/// @file egolib/FileFormats/SpawnFile/spawn_file.c
+/// @brief Implementation of a scanner for Egoboo's spawn.txt file
+/// @details
 
-#pragma once
+#include "egolib/FileFormats/SpawnFile/spawn_file.h"
+#include "egolib/FileFormats/SpawnFile/SpawnFileReaderImpl.hpp"
+#include "egolib/Logic/Team.hpp"
 
-#include "egolib/Math/TemplateUtilities.hpp"
 
-namespace Ego {
-namespace Math {
+spawn_file_info_t::spawn_file_info_t() :
+    do_spawn(false),
+    spawn_comment(),
+    spawn_name(),
+#if 0
+    pname(nullptr),
+#endif
+    slot(-1),
+    pos(0.0f, 0.0f, 0.0f),
+    passage(-1),
+    content(0),
+    money(0),
+    level(0),
+    skin(0),
+    stat(false),
+    team(Team::TEAM_NULL),
+    facing(Facing::FACE_NORTH),
+    attach(ATTACH_NONE)
+{
+    //ctor
+}
 
-/**
- * @brief
- *  A struct derived from @a std::true_type if @a _Dimensionality fulfils the
- *  properties of a <em>dimensionality  concept</em> and derived from
- *  @a std::false_type otherwise.
- * @author
- *  Michael Heilmann
- */
-template <size_t _Dimensionality>
-struct IsDimensionality
-    : public std::conditional<
-    (_Dimensionality > 0),
-    std::true_type,
-    std::false_type
-    >::type {};
+std::vector<spawn_file_info_t> SpawnFileReader::read(const std::string& pathname)
+{
+    return impl->read(pathname);
+}
 
-} // namespace Math
-} // namespace Ego
+SpawnFileReader::SpawnFileReader() :
+    impl(std::make_unique<SpawnFileReaderImpl>())
+{}
+
+SpawnFileReader::~SpawnFileReader()
+{}

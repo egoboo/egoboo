@@ -1135,12 +1135,12 @@ void ObjectGraphics::updateAnimationRate()
     if ( _object.isFlying() )
     {
         // for flying objects, the speed is the actual speed
-        speed = _object.vel.length();
+        speed = _object.getVelocity().length();
     }
     else
     {
         // For non-flying objects, we use the intended speed.
-        speed = std::max(std::sqrt(_object.vel.x()*_object.vel.x() + _object.vel.y()*_object.vel.y()), _object.getObjectPhysics().getDesiredVelocity().length());
+        speed = std::max(std::sqrt(_object.getVelocity().x()*_object.getVelocity().x() + _object.getVelocity().y()*_object.getVelocity().y()), _object.getObjectPhysics().getDesiredVelocity().length());
         if (_object.getObjectPhysics().floorIsSlippy())
         {
             // The character is slipping as on ice.

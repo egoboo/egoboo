@@ -377,6 +377,9 @@
     <ClCompile Include="src\game\Graphics\BillboardSystem.cpp">
       <Filter>Game Sources\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="src\game\Entities\Common.cpp">
+      <Filter>Game Sources\Entities</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game\egoboo.h">

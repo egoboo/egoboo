@@ -111,7 +111,7 @@ Runtime::~Runtime()
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static PRO_REF script_error_model = INVALID_PRO_REF;
+static ObjectProfileRef script_error_model = ObjectProfileRef::Invalid;
 static const char * script_error_classname = "UNKNOWN";
 
 //--------------------------------------------------------------------------------------------
@@ -173,7 +173,7 @@ void scr_run_chr_script(Object *pchr)
     // Make life easier
     script_error_classname = "UNKNOWN";
     script_error_model = pchr->getProfileID();
-    if (script_error_model < INVALID_PRO_REF)
+    if (script_error_model != ObjectProfileRef::Invalid)
     {
         script_error_classname = ProfileSystem::get().getProfile(script_error_model)->getClassName().c_str();
     }
@@ -183,7 +183,7 @@ void scr_run_chr_script(Object *pchr)
         vfs_FILE * scr_file = debug_script_file;
 
         vfs_printf(scr_file, "\n\n--------\n%s\n", script._name.c_str());
-        vfs_printf(scr_file, "%d - %s\n", REF_TO_INT(script_error_model), script_error_classname);
+        vfs_printf(scr_file, "%d - %s\n", REF_TO_INT(script_error_model.get()), script_error_classname);
 
         // who are we related to?
         vfs_printf(scr_file, "\tself   == %" PRIuZ "\n", aiState.getSelf().get());
@@ -656,7 +656,7 @@ void script_state_t::run_operand(ai_state_t& aiState, script_info_t& script)
             else
             {
                 Log::get() << Log::Entry::create(Log::Level::Message, __FILE__, __LINE__, "script error - model = ",
-                                                 REF_TO_INT(script_error_model), " class name == `", script_error_classname,
+                                                 script_error_model, " class name == `", script_error_classname,
                                                  "`: divide by zero", Log::EndOfEntry);
             }
             break;
@@ -670,14 +670,14 @@ void script_state_t::run_operand(ai_state_t& aiState, script_info_t& script)
             else
             {
                 Log::get() << Log::Entry::create(Log::Level::Message, __FILE__, __LINE__, "script error - model = ",
-                                                 REF_TO_INT(script_error_model), " class name == `", script_error_classname,
+                                                 script_error_model, " class name == `", script_error_classname,
                                                  "`: modulo by zero", Log::EndOfEntry);
             }
             break;
 
         default:
             Log::get() << Log::Entry::create(Log::Level::Message, __FILE__, __LINE__, "script error - model = ",
-                                             REF_TO_INT(script_error_model), " class name == `", script_error_classname,
+                                             script_error_model, " class name == `", script_error_classname,
                                              "`: unknown opcode", Log::EndOfEntry);
             break;
     }

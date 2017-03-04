@@ -28,7 +28,7 @@
 namespace Ego
 {
 
-Enchantment::Enchantment(const std::shared_ptr<EnchantProfile> &enchantmentProfile, PRO_REF spawnerProfile, const std::shared_ptr<Object> &owner) :
+Enchantment::Enchantment(const std::shared_ptr<EnchantProfile> &enchantmentProfile, ObjectProfileRef spawnerProfile, const std::shared_ptr<Object> &owner) :
     _isTerminated(false),
     _enchantProfile(enchantmentProfile),
     _spawnerProfileID(spawnerProfile),
@@ -146,7 +146,7 @@ Enchantment::Enchantment(const std::shared_ptr<EnchantProfile> &enchantmentProfi
     _modifiers.push_front(Ego::EnchantModifier(Ego::Attribute::MANA_REGEN, enchantmentProfile->_target._manaDrain));
 
     if(doMorph) {
-        _modifiers.push_front(Ego::EnchantModifier(Ego::Attribute::MORPH, _spawnerProfileID));
+        _modifiers.push_front(Ego::EnchantModifier(Ego::Attribute::MORPH, _spawnerProfileID.get()));
     }
 
 }
@@ -231,7 +231,7 @@ void Enchantment::update()
             Facing facing = target->ori.facing_z;
             for (uint8_t i = 0; i < _enchantProfile->contspawn._amount; ++i)
             {
-                ParticleHandler::get().spawnLocalParticle(target->getPosition(), facing, _spawnerProfileID, _enchantProfile->contspawn._lpip,
+                ParticleHandler::get().spawnLocalParticle(target->getPosition(), facing, ObjectProfileRef(_spawnerProfileID), _enchantProfile->contspawn._lpip,
                                                           ObjectRef::Invalid, GRIP_LAST, 
                                                           owner != nullptr ? owner->getTeam().toRef() : static_cast<TEAM_REF>(Team::TEAM_DAMAGE), 
                                                           owner != nullptr ? owner->getObjRef() : ObjectRef::Invalid,
@@ -439,7 +439,7 @@ void Enchantment::applyEnchantment(std::shared_ptr<Object> target)
             target->getTempAttributes()[Ego::Attribute::MORPH] = target->skin;
 
             //Transform the object
-            target->polymorphObject(_spawnerProfileID, 0);
+            target->polymorphObject(ObjectProfileRef(_spawnerProfileID), 0);
         }
 
         //Is it a set type?

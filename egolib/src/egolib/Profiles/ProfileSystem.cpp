@@ -83,9 +83,26 @@ const std::shared_ptr<ObjectProfile>& ProfileSystem::getProfile(const std::strin
     return foundElement->second;    
 }
 
-const std::shared_ptr<ObjectProfile>& ProfileSystem::getProfile(PRO_REF slotNumber) const
+bool ProfileSystem::isLoaded(PRO_REF ref) const
 {
-    auto foundElement = _profilesLoaded.find(slotNumber);
+    return _profilesLoaded.find(ref) != _profilesLoaded.end();
+}
+
+bool ProfileSystem::isLoaded(ObjectProfileRef ref) const
+{
+    return _profilesLoaded.find(ref.get()) != _profilesLoaded.end();
+}
+
+const std::shared_ptr<ObjectProfile>& ProfileSystem::getProfile(PRO_REF ref) const
+{
+    auto foundElement = _profilesLoaded.find(ref);
+    if (foundElement == _profilesLoaded.end()) return NULL_PROFILE;
+    return foundElement->second;
+}
+
+const std::shared_ptr<ObjectProfile>& ProfileSystem::getProfile(ObjectProfileRef ref) const
+{
+    auto foundElement = _profilesLoaded.find(ref.get());
     if (foundElement == _profilesLoaded.end()) return NULL_PROFILE;
     return foundElement->second;
 }
@@ -125,7 +142,7 @@ int ProfileSystem::getProfileSlotNumber(const std::string &folderPath, int slot_
     return -1;
 }
 
-PRO_REF ProfileSystem::loadOneProfile(const std::string &pathName, int slot_override)
+ObjectProfileRef ProfileSystem::loadOneProfile(const std::string &pathName, int slot_override)
 {
     bool required = !(slot_override < 0 || slot_override >= INVALID_PRO_REF);
 
@@ -145,20 +162,20 @@ PRO_REF ProfileSystem::loadOneProfile(const std::string &pathName, int slot_over
 			Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to open file ", "`", pathName, "`", Log::EndOfEntry);
         }
 
-        return INVALID_PRO_REF;
+        return ObjectProfileRef::Invalid;
     }
 
     // convert the slot to a profile reference
-    PRO_REF iobj = static_cast<PRO_REF>(islot);
+    ObjectProfileRef iobj = ObjectProfileRef(static_cast<PRO_REF>(islot));
 
     // throw an error code if we are trying to load over an existing profile
     // without permission
-    if (_profilesLoaded.find(iobj) != _profilesLoaded.end())
+    if (_profilesLoaded.find(iobj.get()) != _profilesLoaded.end())
     {
         // Make sure global objects don't load over existing models
-        if (required && SPELLBOOK == iobj)
+        if (required && ObjectProfileRef(SPELLBOOK) == iobj)
         {
-            auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "object slot ", SPELLBOOK, " is a special "
+            auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "object slot ", ObjectProfileRef(SPELLBOOK), " is a special "
                                         "reserved slot number and can not be used by ", "`", pathName, "`", Log::EndOfEntry);
             Log::get() << e;
 			throw std::runtime_error(e.getText());
@@ -166,14 +183,14 @@ PRO_REF ProfileSystem::loadOneProfile(const std::string &pathName, int slot_over
         else if (required && overrideslots)
         {
             Log::Entry e(Log::Level::Error, __FILE__, __LINE__);
-            e << "object slot " << SPELLBOOK << " is already used by " << _profilesLoaded[iobj]->getPathname() << " and cannot be used by " << pathName << Log::EndOfEntry;
+            e << "object slot " << SPELLBOOK << " is already used by " << _profilesLoaded[iobj.get()]->getPathname() << " and cannot be used by " << pathName << Log::EndOfEntry;
             Log::get() << e;
 			throw std::runtime_error(e.getText());
         }
         else
         {
             // Stop, we don't want to override it
-            return INVALID_PRO_REF;
+            return ObjectProfileRef::Invalid;
         }
     }
 
@@ -183,11 +200,11 @@ PRO_REF ProfileSystem::loadOneProfile(const std::string &pathName, int slot_over
         Log::Entry e(Log::Level::Warning, __FILE__, __LINE__);
         e << "failed to load " << pathName << " into slot number " << iobj << Log::EndOfEntry;
         Log::get() << e;
-        return INVALID_PRO_REF;
+        return ObjectProfileRef::Invalid;
     }
 
     //Success! Store object into the loaded profile map
-    _profilesLoaded[iobj] = profile;
+    _profilesLoaded[iobj.get()] = profile;
     _profilesLoadedByName[profile->getPathname().substr(profile->getPathname().find_last_of('/') + 1)] = profile;
 
     return iobj;

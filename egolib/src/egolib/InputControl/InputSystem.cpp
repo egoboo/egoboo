@@ -23,11 +23,11 @@ void InputSystem::update()
     mouseMovement.y() = -yBackend;
 
     // Update mouse buttons.
-    mouseButtonDown[MouseButton::LEFT] = mouseButtonDownBackend & SDL_BUTTON(SDL_BUTTON_LEFT);
-    mouseButtonDown[MouseButton::MIDDLE] = mouseButtonDownBackend & SDL_BUTTON(SDL_BUTTON_MIDDLE);
-    mouseButtonDown[MouseButton::RIGHT] = mouseButtonDownBackend & SDL_BUTTON(SDL_BUTTON_RIGHT);
-    mouseButtonDown[MouseButton::X1] = mouseButtonDownBackend & SDL_BUTTON(SDL_BUTTON_X1);
-    mouseButtonDown[MouseButton::X2] = mouseButtonDownBackend & SDL_BUTTON(SDL_BUTTON_X2);
+    mouseButtonDown[MouseButton::LEFT] = SDL_BUTTON(SDL_BUTTON_LEFT) == (mouseButtonDownBackend & SDL_BUTTON(SDL_BUTTON_LEFT));
+    mouseButtonDown[MouseButton::MIDDLE] = SDL_BUTTON(SDL_BUTTON_MIDDLE) == (mouseButtonDownBackend & SDL_BUTTON(SDL_BUTTON_MIDDLE));
+    mouseButtonDown[MouseButton::RIGHT] = SDL_BUTTON(SDL_BUTTON_RIGHT) == (mouseButtonDownBackend & SDL_BUTTON(SDL_BUTTON_RIGHT));
+    mouseButtonDown[MouseButton::X1] = SDL_BUTTON(SDL_BUTTON_X1) == (mouseButtonDownBackend & SDL_BUTTON(SDL_BUTTON_X1));
+    mouseButtonDown[MouseButton::X2] = SDL_BUTTON(SDL_BUTTON_X2) == (mouseButtonDownBackend & SDL_BUTTON(SDL_BUTTON_X2));
 
     // (2) Get and translate the modifier keys state.
     auto backendModifierKeys = SDL_GetModState();
@@ -96,7 +96,7 @@ bool InputSystem::isMouseButtonDown(const MouseButton button) const
 
 bool InputSystem::isKeyDown(const SDL_Keycode key) const
 {
-    return SDL_GetKeyboardState(nullptr)[SDL_GetScancodeFromKey(key)];
+    return 1 == SDL_GetKeyboardState(nullptr)[SDL_GetScancodeFromKey(key)];
 }
 
 ModifierKeys InputSystem::getModifierKeys() const

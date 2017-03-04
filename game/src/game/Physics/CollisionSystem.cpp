@@ -70,7 +70,7 @@ void CollisionSystem::update()
 		Vector3f tmp_pos = pchr->getPosition();
 
         // do the "integration" of the accumulated accelerations
-        pchr->vel += pchr->phys.avel;
+        pchr->setVelocity(pchr->getVelocity() + pchr->phys.avel);
 
         // get a net displacement vector from aplat and acoll
         {
@@ -132,9 +132,11 @@ void CollisionSystem::update()
             {
                 // restore the old values
                 tmp_pos[kZ] = pchr->getObjectPhysics().getGroundElevation();
-                if ( pchr->vel[kZ] < 0 )
+                if ( pchr->getVelocity().z() < 0 )
                 {
-                    pchr->vel[kZ] += -( 1.0f + pchr->getProfile()->getBounciness() ) * pchr->vel[kZ];
+                    pchr->setVelocity(pchr->getVelocity() +
+                                      Vector3f(0.0f, 0.0f,
+                                               -(1.0f + pchr->getProfile()->getBounciness()) * pchr->getVelocity().z()));
                 }
                 position_updated = true;
             }
@@ -165,7 +167,7 @@ void CollisionSystem::update()
         Vector3f tmp_pos = particle->getPosition();
 
         // do the "integration" of the accumulated accelerations
-        particle->vel += particle->phys.avel;
+        particle->setVelocity(particle->getVelocity() + particle->phys.avel);
 
         position_updated = false;
 
@@ -228,9 +230,11 @@ void CollisionSystem::update()
             {
                 // restore the old values
                 tmp_pos[kZ] = particle->enviro.floor_level;
-                if ( particle->vel[kZ] < 0 )
+                if ( particle->getVelocity().z() < 0 )
                 {
-                    particle->vel[kZ] += -( 1.0f + particle->getProfile()->dampen ) * particle->vel[kZ];
+                    particle->setVelocity(particle->getVelocity() +
+                                          Vector3f(0.0f, 0.0f,
+                                                   -(1.0f + particle->getProfile()->dampen) * particle->getVelocity().z()));;
                 }
                 position_updated = true;
             }
@@ -245,7 +249,7 @@ void CollisionSystem::update()
         if ( particle->getProfile()->rotatetoface )
         {
             // Turn to face new direction
-            particle->facing = Facing(vec_to_facing( particle->vel[kX] , particle->vel[kY] ));
+            particle->facing = Facing(vec_to_facing( particle->getVelocity().x() , particle->getVelocity().y() ));
         }
 
         if ( position_updated )
@@ -375,7 +379,7 @@ bool CollisionSystem::detectCollision(const std::shared_ptr<Ego::Particle> &part
     oct_bb_t cv;
 
     // detect a when the possible collision occurred
-    return phys_intersect_oct_bb(object->chr_min_cv, object->getPosition(), object->vel, particle->prt_max_cv, particle->getPosition(), particle->vel, testPlatform, cv, tmin, tmax);
+    return phys_intersect_oct_bb(object->chr_min_cv, object->getPosition(), object->getVelocity(), particle->prt_max_cv, particle->getPosition(), particle->getVelocity(), testPlatform, cv, tmin, tmax);
 }
 
 bool CollisionSystem::detectCollision(const std::shared_ptr<Object> &objectA, const std::shared_ptr<Object> &objectB, float *tmin, float *tmax) const
@@ -408,7 +412,7 @@ bool CollisionSystem::detectCollision(const std::shared_ptr<Object> &objectA, co
     oct_bb_t cv;
 
     // detect a when the possible collision occurred
-    return phys_intersect_oct_bb(objectA->chr_max_cv, objectA->getPosition(), objectA->vel, objectB->chr_max_cv, objectB->getPosition(), objectB->vel, testPlatform, cv, tmin, tmax);
+    return phys_intersect_oct_bb(objectA->chr_max_cv, objectA->getPosition(), objectA->getVelocity(), objectB->chr_max_cv, objectB->getPosition(), objectB->getVelocity(), testPlatform, cv, tmin, tmax);
 }
 
 void CollisionSystem::handleCollision(const std::shared_ptr<Object> &objectA, const std::shared_ptr<Object> &objectB, const float tmin, const float tmax)
@@ -741,8 +745,8 @@ bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::sha
         float tmp_max = tmin + ( tmax - tmin ) * 0.1f;
 
         // determine the expanded collision volumes for both objects
-        phys_expand_oct_bb(map_bb_a, objectA->vel, tmp_min, tmp_max, exp1);
-        phys_expand_oct_bb(map_bb_b, objectB->vel, tmp_min, tmp_max, exp2);
+        phys_expand_oct_bb(map_bb_a, objectA->getVelocity(), tmp_min, tmp_max, exp1);
+        phys_expand_oct_bb(map_bb_b, objectB->getVelocity(), tmp_min, tmp_max, exp2);
 
         valid_normal = phys_estimate_collision_normal(exp1, exp2, exponent, odepth, nrm, depth_min);
     }
@@ -808,7 +812,7 @@ bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::sha
         }
 
         // find the relative velocity
-        vdiff_a = objectB->vel - objectA->vel;
+        vdiff_a = objectB->getVelocity() - objectA->getVelocity();
 
         need_velocity = false;
         if (vdiff_a.length_abs() > 1e-6)
@@ -870,8 +874,8 @@ bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::sha
                     objectB->phys.sum_avel(-nrm * distance * recoil_b * interaction_strength);
 
                     // you could "bump" something if you changed your velocity, even if you were still touching
-                    bump = ((objectA->vel.dot(nrm) * objectA->vel_old.dot(nrm)) < 0) ||
-                           ((objectB->vel.dot(nrm) * objectB->vel_old.dot(nrm)) < 0);   
+                    bump = ((objectA->getVelocity().dot(nrm) * objectA->getOldVelocity().dot(nrm)) < 0) ||
+                           ((objectB->getVelocity().dot(nrm) * objectB->getOldVelocity().dot(nrm)) < 0);   
                 }
             }
 

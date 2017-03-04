@@ -174,7 +174,7 @@ void GameModule::loadProfiles()
                 import_data.slot = cnt;
 
                 // load it
-                import_data.slot_lst[cnt] = ProfileSystem::get().loadOneProfile(importPath);
+                import_data.slot_lst[cnt] = ProfileSystem::get().loadOneProfile(importPath).get();
                 import_data.max_slot      = std::max(import_data.max_slot, cnt);
             }
         }
@@ -345,13 +345,13 @@ bool GameModule::isInside(const float x, const float y) const
     return x >= 0 && x < _mesh->_tmem._edge_x && y >= 0 && y < _mesh->_tmem._edge_y;
 }
 
-std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_REF profile, const TEAM_REF team, const int skin,
+std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, ObjectProfileRef profile, const TEAM_REF team, const int skin,
                                                 const Facing& facing, const std::string &name, const ObjectRef override)
 {
     const std::shared_ptr<ObjectProfile> &ppro = ProfileSystem::get().getProfile(profile);
     if (!ppro)
     {
-        if ( profile > getImportAmount() * MAX_IMPORT_PER_PLAYER )
+        if ( profile.get() > getImportAmount() * MAX_IMPORT_PER_PLAYER )
         {
 			Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "attempt to spawn object from an invalid object profile ", "`", profile, "`", Log::EndOfEntry);
         }
@@ -498,7 +498,7 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
     pchr->setSpawnPosition(pos);
 
     // AI stuff
-    ai_state_t::spawn( pchr->ai, pchr->getObjRef(), pchr->getProfileID(), getTeamList()[team].getMorale() );
+    ai_state_t::spawn( pchr->ai, pchr->getObjRef(), pchr->getProfileID().get(), getTeamList()[team].getMorale() );
 
     // Team stuff
     pchr->team     = team;
@@ -722,8 +722,7 @@ void GameModule::updatePits()
             {
                 // Got one!
                 pchr->kill(Object::INVALID_OBJECT, false);
-                pchr->vel.x() = 0;
-                pchr->vel.y() = 0;
+                pchr->setVelocity({0.0f, 0.0f, pchr->getVelocity().z()});
 
                 /// @note ZF@> Disabled, the pitfall sound was intended for pits.teleport only
                 // Play sound effect
@@ -737,12 +736,11 @@ void GameModule::updatePits()
                 if (!pchr->teleport(_pitsTeleportPos, Facing(pchr->ori.facing_z))) {
                     // Kill it instead
                     pchr->kill(Object::INVALID_OBJECT, false);
-                    pchr->vel.x() = 0;
-                    pchr->vel.y() = 0;
+                    pchr->setVelocity({0.0f, 0.0f, pchr->getVelocity().z()});
                 }
                 else {
                     // Stop movement
-                    pchr->vel = Vector3f::zero();
+                    pchr->setVelocity(Vector3f::zero());
 
                     // Play sound effect
                     if (pchr->isPlayer()) {
@@ -840,14 +838,14 @@ void GameModule::loadTeamAlliances()
         std::string buffer;
         vfs_read_string_lit(*ctxt, buffer);
         if (buffer.length() < 1) {
-            throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Syntactical, Id::Location(ctxt->getFileName(), ctxt->getLineNumber()),
+            throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Syntactical, id::location(ctxt->getFileName(), ctxt->getLineNumber()),
                                             "empty string literal");
         }
         TEAM_REF teama = (buffer[0] - 'A') % Team::TEAM_MAX;
 
         vfs_read_string_lit(*ctxt, buffer);
         if (buffer.length() < 1) {
-            throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Syntactical, Id::Location(ctxt->getFileName(), ctxt->getLineNumber()),
+            throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Syntactical, id::location(ctxt->getFileName(), ctxt->getLineNumber()),
                                             "empty string literal");
         }
         TEAM_REF teamb = (buffer[0] - 'A') % Team::TEAM_MAX;
@@ -866,22 +864,22 @@ void GameModule::logSlotUsage(const std::string& savename)
         vfs_printf( hFileWrite, "Slot usage for objects in last module loaded...\n" );
         //vfs_printf( hFileWrite, "%d of %d frames used...\n", Md2FrameList_index, MAXFRAME );
 
-        PRO_REF lastSlotNumber = 0;
+        ObjectProfileRef lastSlotNumber(0);
         for (const auto &element : ProfileSystem::get().getLoadedProfiles())
         {
             const std::shared_ptr<ObjectProfile> &profile = element.second;
 
             //ZF> ugh, import objects are currently handled in a weird special way.
-            for(size_t i = lastSlotNumber; i < profile->getSlotNumber() && i <= 36; ++i)
+            for(ObjectProfileRef i = lastSlotNumber; i < profile->getSlotNumber() && i <= ObjectProfileRef(36); ++i)
             {
                 if (!ProfileSystem::get().isLoaded(i))
                 {
-                    vfs_printf( hFileWrite, "%3" PRIuZ " %32s.\n", i, "Slot reserved for import players" );
+                    vfs_printf( hFileWrite, "%3" PRIuZ " %32s.\n", i.get(), "Slot reserved for import players" );
                 }
             }
             lastSlotNumber = profile->getSlotNumber();
 
-            vfs_printf(hFileWrite, "%3d %32s %s\n", profile->getSlotNumber(), profile->getClassName().c_str(), profile->getModel()->getName().c_str());
+            vfs_printf(hFileWrite, "%3d %32s %s\n", profile->getSlotNumber().get(), profile->getClassName().c_str(), profile->getModel()->getName().c_str());
         }
 
         vfs_close( hFileWrite );
@@ -898,27 +896,17 @@ void GameModule::spawnAllObjects()
     Ego::TreasureTables treasureTables("mp_data/randomtreasure.txt");
 
     // Turn some back on
-    ReadContext ctxt("mp_data/spawn.txt");
+    auto entries = (SpawnFileReader()).read("mp_data/spawn.txt");
     {
         std::shared_ptr<Object> parent = nullptr;
 
-        // First load spawn data of every object.
-        ctxt.next(); /// @todo Remove this hack.
-        while(!ctxt.is(ReadContext::Traits::endOfInput()))
+        for (auto& entry : entries)
         {
-            spawn_file_info_t entry;
-
-            // Read next entry
-            if(!spawn_file_read(ctxt, entry))
-            {
-                break; //no more entries
-            }
-
             //Spit out a warning if they break the limit
             if ( objectsToSpawn.size() >= OBJECTS_MAX )
             {
                 Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "too many objects in file ", "`",
-                                                 ctxt.getFileName(), "`", ". Maximum number of objects is ", OBJECTS_MAX,
+                                                 "mp_data/spawn,txt", "`", ". Maximum number of objects is ", OBJECTS_MAX,
                                                  Log::EndOfEntry);
                 break;
             }
@@ -927,7 +915,7 @@ void GameModule::spawnAllObjects()
             if ( entry.slot >= INVALID_PRO_REF )
             {
                 Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "invalid slot ", entry.slot,
-                                                 " for ", "`", entry.spawn_comment, "`", " in file ", "`", ctxt.getFileName(), "`",
+                                                 " for ", "`", entry.spawn_comment, "`", " in file ", "`", "mp_data/spawn,txt", "`",
                                                  Log::EndOfEntry);
                 continue;
             }
@@ -954,30 +942,30 @@ void GameModule::spawnAllObjects()
         //Next we dynamically find slot numbers for each of the objects in the dynamic list
         for(const std::string &spawnName : dynamicObjectList)
         {
-            PRO_REF profileSlot;
+            ObjectProfileRef profileSlot;
 
             //Find first free slot that is not the spellbook slot
-            for (profileSlot = 1 + MAX_IMPORT_PER_PLAYER * MAX_PLAYER; profileSlot < INVALID_PRO_REF; ++profileSlot)
+            for (profileSlot = ObjectProfileRef(1 + MAX_IMPORT_PER_PLAYER * MAX_PLAYER); profileSlot < ObjectProfileRef::Invalid; ++profileSlot)
             {
                 //don't try to grab loaded profiles
                 if (ProfileSystem::get().isLoaded(profileSlot)) continue;
 
                 //the slot already dynamically loaded by a different spawn object of the same type that we are, no need to reload in a new slot
-                if(reservedSlots[profileSlot] == spawnName) {
+                if(reservedSlots[profileSlot.get()] == spawnName) {
                      break;
                 }
 
                 //found a completely free slot
-                if (reservedSlots[profileSlot].empty())
+                if (reservedSlots[profileSlot.get()].empty())
                 {
                     //Reserve this one for us
-                    reservedSlots[profileSlot] = spawnName;
+                    reservedSlots[profileSlot.get()] = spawnName;
                     break;
                 }
             }
 
             //If all slots are reserved, spit out a warning (very unlikely unless there is a bug somewhere)
-            if ( profileSlot == INVALID_PRO_REF ) {
+            if ( profileSlot == ObjectProfileRef::Invalid ) {
                 Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to acquire free dynamic slot for object ", spawnName, ". All slots in use?", Log::EndOfEntry);
             }
         }
@@ -1009,7 +997,7 @@ void GameModule::spawnAllObjects()
                     {
                         Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__,
                                                          "the object ", "`", spawnInfo.spawn_comment, "`", " in slot ",
-                                                         spawnInfo.slot, " in file ", "`", ctxt.getFileName(), "`",
+                                                         spawnInfo.slot, " in file ", "`", "mp_data/spawn,txt", "`",
                                                          "does not exist on this machine", Log::EndOfEntry);
                     }
                     continue;
@@ -1039,7 +1027,7 @@ std::shared_ptr<Object> GameModule::spawnObjectFromFileEntry(const spawn_file_in
         return nullptr;  
     }
 
-    PRO_REF iprofile = static_cast<PRO_REF>(psp_info.slot);
+    auto iprofile = ObjectProfileRef(static_cast<PRO_REF>(psp_info.slot));
 
     //Require a valid parent?
     if(psp_info.attach != ATTACH_NONE && !parent) {
@@ -1048,7 +1036,7 @@ std::shared_ptr<Object> GameModule::spawnObjectFromFileEntry(const spawn_file_in
     }
 
     // Spawn the character
-    std::shared_ptr<Object> pobject = spawnObject(psp_info.pos, iprofile, psp_info.team, psp_info.skin, psp_info.facing, psp_info.pname == nullptr ? "" : *psp_info.pname, ObjectRef::Invalid);
+    std::shared_ptr<Object> pobject = spawnObject(psp_info.pos, iprofile, psp_info.team, psp_info.skin, psp_info.facing, psp_info.spawn_name == "NONE" ? "" : psp_info.spawn_name, ObjectRef::Invalid);
 
     //Failed to spawn?
     if (!pobject) {
@@ -1133,9 +1121,9 @@ std::shared_ptr<Object> GameModule::spawnObjectFromFileEntry(const spawn_file_in
             int local_index = -1;
             for ( size_t tnc = 0; tnc < g_importList.count; tnc++ )
             {
-                if (pobject->getProfileID() <= import_data.max_slot && ProfileSystem::get().isLoaded(pobject->getProfileID()))
+                if (pobject->getProfileID().get() <= import_data.max_slot && ProfileSystem::get().isLoaded(pobject->getProfileID()))
                 {
-                    int islot = REF_TO_INT( pobject->getProfileID() );
+                    int islot = pobject->getProfileID().get();
 
                     if ( import_data.slot_lst[islot] == g_importList.lst[tnc].slot )
                     {

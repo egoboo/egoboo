@@ -135,7 +135,7 @@ bool SDL_GL_set_mode(SDLX_video_parameters_t& v_new, oglx_video_parameters_t& gl
         if (NULL != Ego::GraphicsSystem::window && v_new.windowProperties.opengl)
         {
             // correct the multisampling
-            gl_new.multisample_arb = v_new.contextProperties.multisampling.samples > 1;
+            gl_new.multisample_arb = v_new.contextProperties.multisampling.m_samples > 1;
 
             SDL_GL_set_gl_mode(&gl_new);
         }

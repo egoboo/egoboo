@@ -277,17 +277,17 @@ int32_t load_VARTARGETMANA(script_state_t& scriptState, ai_state_t& aiState, Obj
 
 int32_t load_VARTARGETSPEEDX(script_state_t& scriptState, ai_state_t& aiState, Object *pobject, Object *ptarget, Object *powner, Object *pleader)
 {
-    return (nullptr == ptarget) ? 0 : std::abs(ptarget->vel[kX]);
+    return (nullptr == ptarget) ? 0 : std::abs(ptarget->getVelocity().x());
 }
 
 int32_t load_VARTARGETSPEEDY(script_state_t& scriptState, ai_state_t& aiState, Object *pobject, Object *ptarget, Object *powner, Object *pleader)
 {
-    return (nullptr == ptarget) ? 0 : std::abs(ptarget->vel[kY]);
+    return (nullptr == ptarget) ? 0 : std::abs(ptarget->getVelocity().y());
 }
 
 int32_t load_VARTARGETSPEEDZ(script_state_t& scriptState, ai_state_t& aiState, Object *pobject, Object *ptarget, Object *powner, Object *pleader)
 {
-    return (nullptr == ptarget) ? 0 : std::abs(ptarget->vel[kZ]);
+    return (nullptr == ptarget) ? 0 : std::abs(ptarget->getVelocity().z());
 }
 
 int32_t load_VARSELFSPAWNX(script_state_t& scriptState, ai_state_t& aiState, Object *pobject, Object *ptarget, Object *powner, Object *pleader)

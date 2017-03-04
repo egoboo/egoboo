@@ -22,16 +22,16 @@ void ParticlePhysics::updatePhysics()
     }
 
     // save the acceleration from the last time-step
-    _particle.enviro.acc = _particle.vel - _particle.vel_old;
+    _particle.enviro.acc = _particle.getVelocity() - _particle.getOldVelocity();
 
     // determine the actual velocity for attached particles
     if (_particle.isAttached()) {
-        _particle.vel = _particle.getPosition() - _particle.getOldPosition();
+        _particle.setVelocity(_particle.getPosition() - _particle.getOldPosition());
     }
 
     // Store particle's old location
     _particle.setOldPosition(_particle.getPosition());
-    _particle.vel_old = _particle.vel;
+    _particle.setOldVelocity(_particle.getVelocity());
 
     // what is the local environment like?
     updateEnviroment();
@@ -71,7 +71,7 @@ void ParticlePhysics::updateMovement()
 
     // Move the particle
     float ftmp = tmp_pos.z();
-    tmp_pos.z() += _particle.vel.z();
+    tmp_pos.z() += _particle.getVelocity().z();
     LOG_NAN(tmp_pos.z());
 
     //Are we touching the floor?
@@ -88,10 +88,10 @@ void ParticlePhysics::updateMovement()
             floor_nrm = g_meshLookupTables.twist_nrm[penviro->twist];
         }
 
-        float vel_dot = floor_nrm.dot(_particle.vel);
+        float vel_dot = floor_nrm.dot(_particle.getVelocity());
 
         //Handle bouncing
-        if (_particle.vel.z() < -STOPBOUNCINGPART)
+        if (_particle.getVelocity().z() < -STOPBOUNCINGPART)
         {
             // the particle will bounce
             nrm_total += floor_nrm;
@@ -99,7 +99,9 @@ void ParticlePhysics::updateMovement()
             // take reflection in the floor into account when computing the new level
             tmp_pos.z() = penviro->adj_level + (penviro->adj_level - ftmp) * _particle.getProfile()->dampen + 0.1f;
 
-            _particle.vel.z() = -_particle.vel.z();
+            _particle.setVelocity({ _particle.getVelocity().x(),
+                                    _particle.getVelocity().y(),
+                                   -_particle.getVelocity().z()});
 
             hit_a_floor = true;
         }
@@ -112,7 +114,9 @@ void ParticlePhysics::updateMovement()
         {
             // the particle is in the "stop bouncing zone"
             tmp_pos.z() = penviro->adj_level + 0.1f;
-            _particle.vel.z() = 0.0f;
+            _particle.setVelocity({_particle.getVelocity().x(),
+                                   _particle.getVelocity().y(),
+                                   0.0f});
         }
     }
 
@@ -132,10 +136,10 @@ void ParticlePhysics::updateMovement()
 
     // interaction with the mesh walls
     hit_a_wall = false;
-    if (std::abs(_particle.vel.x()) + std::abs(_particle.vel.y()) > 0.0f)
+    if (std::abs(_particle.getVelocity().x()) + std::abs(_particle.getVelocity().y()) > 0.0f)
     {
-        tmp_pos.x() += _particle.vel.x();
-        tmp_pos.y() += _particle.vel.y();
+        tmp_pos.x() += _particle.getVelocity().x();
+        tmp_pos.y() += _particle.getVelocity().y();
 
         //Hitting a wall?
         if (EMPTY_BIT_FIELD != _particle.test_wall(tmp_pos))
@@ -151,7 +155,7 @@ void ParticlePhysics::updateMovement()
                 nrm_total.x() += nrm.x();
                 nrm_total.y() += nrm.y();
 
-                hit_a_wall = (Vector2f(_particle.vel.x(), _particle.vel.y()).dot(nrm) < 0.0f);
+                hit_a_wall = (Vector2f(_particle.getVelocity().x(), _particle.getVelocity().y()).dot(nrm) < 0.0f);
             }
         }
     }
@@ -178,19 +182,19 @@ void ParticlePhysics::updateMovement()
     if (hit_a_wall || hit_a_floor)
     {
 
-        if ((hit_a_wall && (_particle.vel.x() * nrm_total.x() + _particle.vel.y() * nrm_total.y()) < 0.0f) ||
-            (hit_a_floor && (_particle.vel.z() * nrm_total.z()) < 0.0f))
+        if ((hit_a_wall && (_particle.getVelocity().x() * nrm_total.x() + _particle.getVelocity().y() * nrm_total.y()) < 0.0f) ||
+            (hit_a_floor && (_particle.getVelocity().z() * nrm_total.z()) < 0.0f))
         {
             float vdot;
             Vector3f vpara, vperp;
 
             nrm_total.normalize();
 
-            vdot = nrm_total.dot(_particle.vel);
+            vdot = nrm_total.dot(_particle.getVelocity());
 
             vperp = nrm_total * vdot;
 
-            vpara = _particle.vel - vperp;
+            vpara = _particle.getVelocity() - vperp;
 
             // do the reflection
             vperp *= -_particle.getProfile()->dampen;
@@ -212,13 +216,13 @@ void ParticlePhysics::updateMovement()
             }
 
             // add the components back together
-            _particle.vel = vpara + vperp;
+            _particle.setVelocity(vpara + vperp);
         }
 
-        if (nrm_total.z() != 0.0f && _particle.vel.z() < STOPBOUNCINGPART)
+        if (nrm_total.z() != 0.0f && _particle.getVelocity().z() < STOPBOUNCINGPART)
         {
             // this is the very last bounce
-            _particle.vel.z() = 0.0f;
+            _particle.setVelocity({_particle.getVelocity().x(), _particle.getVelocity().y(), 0.0f});
             tmp_pos.z() = penviro->adj_level + 0.0001f;
         }
 
@@ -251,10 +255,10 @@ void ParticlePhysics::updateMovement()
     //Rotate particle to the direction we are moving
     if (_particle.getProfile()->rotatetoface)
     {
-        if (std::abs(_particle.vel.x()) + std::abs(_particle.vel.y()) > FLT_EPSILON)
+        if (std::abs(_particle.getVelocity().x()) + std::abs(_particle.getVelocity().y()) > FLT_EPSILON)
         {
             // use velocity to find the angle
-            _particle.facing = Facing(vec_to_facing(_particle.vel.x(), _particle.vel.y()));
+            _particle.facing = Facing(vec_to_facing(_particle.getVelocity().x(), _particle.getVelocity().y()));
         }
         else if (_particle.hasValidTarget())
         {
@@ -288,7 +292,7 @@ void ParticlePhysics::updateAttached()
     }
 
     // interaction with the mesh walls
-    if (std::abs(_particle.vel.x()) + std::abs(_particle.vel.y()) > 0.0f)
+    if (std::abs(_particle.getVelocity().x()) + std::abs(_particle.getVelocity().y()) > 0.0f)
     {
         if (EMPTY_BIT_FIELD != _particle.test_wall(_particle.getPosition()))
         {
@@ -345,10 +349,10 @@ void ParticlePhysics::updateHoming()
     vdither.z() = (((float)ival / 0x8000) - 1.0f)  * uncertainty;
 
     // take away any dithering along the direction of motion of the particle
-    float vlen = _particle.vel.length_2();
+    float vlen = _particle.getVelocity().length_2();
     if (vlen > 0.0f)
     {
-        float vdot = vdither.dot(_particle.vel) / vlen;
+        float vdot = vdither.dot(_particle.getVelocity()) / vlen;
 
         vdither -= vdiff * (vdot/vlen);
     }
@@ -367,7 +371,7 @@ void ParticlePhysics::updateHoming()
         vdiff *= factor;
     }
 
-    _particle.vel = (_particle.vel + vdiff * _particle.getProfile()->homingaccel) * _particle.getProfile()->homingfriction;
+    _particle.setVelocity((_particle.getVelocity() + vdiff * _particle.getProfile()->homingaccel) * _particle.getProfile()->homingfriction);
 }
 
 void ParticlePhysics::updateFloorFriction()
@@ -391,7 +395,7 @@ void ParticlePhysics::updateFloorFriction()
     {
         temp_friction_xy = 1.0f - PLATFORM_STICKINESS;
 
-        floor_acc = platform->vel - platform->vel_old;
+        floor_acc = platform->getVelocity() - platform->getOldVelocity();
 
         chr_getMatUp(platform.get(), vup);
     }
@@ -409,7 +413,7 @@ void ParticlePhysics::updateFloorFriction()
         }
 
 
-        floor_acc = -_particle.vel;
+        floor_acc = -_particle.getVelocity();
 
         //Is floor flat or sloped?
         if (TWIST_FLAT == penviro->twist)
@@ -456,14 +460,16 @@ void ParticlePhysics::updateFloorFriction()
     }
 
     // Apply the floor friction
-    _particle.vel += fric_floor * 0.25f;
+    _particle.setVelocity(_particle.getVelocity() + fric_floor * 0.25f);
 }
 
 void ParticlePhysics::updateGravity()
 {
     //Only do world gravity for solid particles
     if (!_particle.no_gravity && _particle.type == SPRITE_SOLID && !_particle.isHoming() && !_particle.isAttached()) {
-        _particle.vel.z() += Ego::Physics::g_environment.gravity * Ego::Physics::g_environment.airfriction;
+        _particle.setVelocity({_particle.getVelocity().x(), _particle.getVelocity().y(),
+                               _particle.getVelocity().z() + Ego::Physics::g_environment.gravity *
+                               Ego::Physics::g_environment.airfriction});
     }
 
     //Some particles can have a special gravity field that pulls or pushes
@@ -487,7 +493,7 @@ void ParticlePhysics::updateGravity()
             const Vector3f pull = _particle.getPosition() - object->getPosition();
             const float distance = pull.length_2();
             if(distance > 10.0f) {
-                object->vel += (pull * _particle.getProfile()->getGravityPull()) * (1.0f/distance);
+                object->setVelocity(object->getVelocity() + (pull * _particle.getProfile()->getGravityPull()) * (1.0f/distance));
             }
         }
 
@@ -512,7 +518,7 @@ void ParticlePhysics::updateGravity()
             const Vector3f pull = _particle.getPosition() - particle->getPosition();
             const float distance = pull.length_2();
             if(distance > 10.0f) {
-                particle->vel += (pull * _particle.getProfile()->getGravityPull()) * (1.0f/distance);
+                particle->setVelocity(particle->getVelocity() + (pull * _particle.getProfile()->getGravityPull()) * (1.0f/distance));
             }
         }
     }

@@ -87,11 +87,11 @@ gfx_rv ParticleGraphics::update_vertices(ParticleGraphics& inst, ::Camera& camer
     // Set the up and right vectors.
     Vector3f vup = Vector3f(0.0f, 0.0f, 1.0f), vright;
     Vector3f vup_ref = Vector3f(0.0f, 0.0f, 1.0f), vright_ref;
-    if (ppip->rotatetoface && !pprt->isAttached() && (pprt->vel.length_abs() > 0))
+    if (ppip->rotatetoface && !pprt->isAttached() && (pprt->getVelocity().length_abs() > 0))
     {
         // The particle points along its direction of travel.
 
-        vup = pprt->vel;
+        vup = pprt->getVelocity();
         vup.normalize();
 
         // Get the correct "right" vector.
