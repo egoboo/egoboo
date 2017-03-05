@@ -60,6 +60,43 @@
 #include "egolib/FileFormats/ConfigFile/configfile.h"
 
 //--------------------------------------------------------------------------------------------
+
+ConfigCommentLine::ConfigCommentLine(const string& text) :
+    m_text(text)
+{}
+
+ConfigCommentLine::~ConfigCommentLine()
+{}
+
+const string& ConfigCommentLine::getText() const
+{
+    return m_text;
+}
+
+//--------------------------------------------------------------------------------------------
+
+ConfigEntry::ConfigEntry(const id::qualified_name& qualifiedName, const string& value) :
+    m_qualifiedName(qualifiedName), m_value(value), m_commentLines()
+{}
+
+ConfigEntry::~ConfigEntry()
+{}
+
+const id::qualified_name& ConfigEntry::getQualifiedName() const
+{
+    return m_qualifiedName;
+}
+
+const string& ConfigEntry::getValue() const
+{
+    return m_value;
+}
+
+const vector<ConfigCommentLine>& ConfigEntry::getCommentLines() const
+{
+    return m_commentLines;
+}
+
 //--------------------------------------------------------------------------------------------
 
 bool ConfigFileParser::skipWhiteSpaces()
@@ -70,6 +107,8 @@ bool ConfigFileParser::skipWhiteSpaces()
     }
     return true;
 }
+
+//--------------------------------------------------------------------------------------------
 
 bool ConfigFileParser::parseFile(shared_ptr<ConfigFile> target)
 {
@@ -243,7 +282,7 @@ std::shared_ptr<ConfigFile> ConfigFileParser::parse()
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-bool ConfigFileUnParser::unparse(shared_ptr<ConfigFile::Entry> entry)
+bool ConfigFileUnParser::unparse(shared_ptr<ConfigEntry> entry)
 {
     vfs_printf(_target,"%s : \"%s\"\n", entry->getQualifiedName().string().c_str(),
                                         entry->getValue().c_str());
@@ -270,13 +309,13 @@ bool ConfigFileUnParser::unparse(shared_ptr<ConfigFile> source)
             return false;
         }
         // Sort the entries by their qualified names.
-        vector<shared_ptr<ConfigFile::Entry>> entries;
+        vector<shared_ptr<ConfigEntry>> entries;
         for (const auto& entry : *_source)
         {
             entries.push_back(entry);
         }
         sort(entries.begin(), entries.end(),
-             [] (const shared_ptr<ConfigFile::Entry>& a, const shared_ptr<ConfigFile::Entry>& b)
+             [] (const shared_ptr<ConfigEntry>& a, const shared_ptr<ConfigEntry>& b)
                 {
                     return less<id::qualified_name>()(a->getQualifiedName(), b->getQualifiedName());
                 }

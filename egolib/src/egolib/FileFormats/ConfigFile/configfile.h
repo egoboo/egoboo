@@ -30,82 +30,69 @@ using namespace std;
 using namespace Ego::Script;
 
 //--------------------------------------------------------------------------------------------
+
+/// @brief A single comment line.
+struct ConfigCommentLine
+{
+private:
+    string m_text;
+
+public:
+    ConfigCommentLine(const string& text);
+
+    virtual ~ConfigCommentLine();
+
+    const string& getText() const;
+};
+
+//--------------------------------------------------------------------------------------------
+
+/// @brief A single entry in a configuration file.
+struct ConfigEntry
+{
+protected:
+    /// @brief The comment lines associated with this entry.
+    vector<ConfigCommentLine> m_commentLines;
+
+    /// @brief The qualified name of this entry.
+    id::qualified_name m_qualifiedName;
+
+    /// @brief The value of this entry.
+    string m_value;
+
+public:
+    /// @brief Construct this entry.
+    /// @param qualifiedName the qualified name
+    /// @param value the value
+    ConfigEntry(const id::qualified_name& qualifiedName, const string& value);
+
+    /// @brief Destruct this entry.
+    virtual ~ConfigEntry();
+
+    /// @brief Get the qualified name of this entry.
+    /// @return the qualified name of this entry
+    const id::qualified_name& getQualifiedName() const;
+
+    /// @brief Get the value of this entry.
+    /// @return the value of this entry
+    const string& getValue() const;
+
+    /// @brief Get the comment lines of this entry.
+    /// @return the comment lines of this entry
+    const vector<ConfigCommentLine>& getCommentLines() const;
+};
+
 //--------------------------------------------------------------------------------------------
 
 struct AbstractConfigFile
 {
 public:
-    /// @brief A single comment line.
-    struct CommentLine
-    {
-        string text;
-        CommentLine(const string& text) :
-            text(text)
-        {}
-        virtual ~CommentLine()
-        {}
-        const string& getText() const
-        {
-            return text;
-        }
-    };
 
-    /// @brief A single entry in a configuration file.
-    struct Entry
-    {
-    protected:
-        /// @brief The comment lines associated with this entry.
-        vector<CommentLine> commentLines;
-
-        /// @brief The qualified name of this entry.
-        id::qualified_name qualifiedName;
-
-        /// @brief The value of this entry.
-        string value;
-
-    public:
-
-        /// @brief Construct this entry.
-        /// @param qualifiedName the qualified name
-        /// @param value the value
-        Entry(const id::qualified_name& qualifiedName, const string& value) :
-            qualifiedName(qualifiedName), value(value),
-            commentLines()
-        {}
-
-        /// @brief Destruct this entry.
-        virtual ~Entry()
-        {}
-
-        /// @brief Get the qualified name of this entry.
-        /// @return the qualified name of this entry
-        const id::qualified_name& getQualifiedName() const
-        {
-            return qualifiedName;
-        }
-
-        /// @brief Get the value of this entry.
-        /// @return the value of this entry
-        const string& getValue() const
-        {
-            return value;
-        }
-
-        /// @brief Get the comment lines of this entry.
-        /// @return the comment lines of this entry
-        const vector<CommentLine>& getCommentLines() const
-        {
-            return commentLines;
-        }
-    };
-
-public:
-
-    using MapTy = unordered_map<id::qualified_name, shared_ptr<Entry>>;
+    using MapTy = unordered_map<id::qualified_name, shared_ptr<ConfigEntry>>;
     using ConstMapIteratorTy = MapTy::const_iterator;
 
     /// @internal Custom iterator.
-    struct EntryIterator : iterator<forward_iterator_tag, const shared_ptr<Entry>>
+    struct EntryIterator : iterator<forward_iterator_tag, const shared_ptr<ConfigEntry>>
     {
     public:
         using iterator_category = forward_iterator_tag;
@@ -201,7 +188,7 @@ public:
      * @brief
      *  A map of qualified names (keys) to shared pointers of entries (values).
      */
-    unordered_map<id::qualified_name,shared_ptr<Entry>> _map;
+    unordered_map<id::qualified_name,shared_ptr<ConfigEntry>> _map;
 
 public:
 
@@ -289,7 +276,7 @@ public:
     {
         try
         {
-            _map[qn] = make_shared<Entry>(qn,v);
+            _map[qn] = make_shared<ConfigEntry>(qn,v);
         }
         catch (...)
         {
@@ -360,7 +347,6 @@ public:
 };
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 
 struct ConfigFileUnParser
 {
@@ -385,7 +371,7 @@ protected:
      * @return
      *  @a true on success, @a false on failure
      */
-    bool unparse(shared_ptr<ConfigFile::Entry> entry);
+    bool unparse(shared_ptr<ConfigEntry> entry);
 
 public:
     /**
