@@ -145,14 +145,14 @@ namespace Ego
 namespace OpenGL
 {
 
-const Utilities::String Utilities::anisotropyExtension = "GL_EXT_texture_filter_anisotropic";
+const std::string Utilities::anisotropyExtension = "GL_EXT_texture_filter_anisotropic";
 
 uint8_t Utilities::getDepthBufferDepth() {
     // Get the depth buffer depth.
     GLint depth;
     glGetIntegerv(GL_DEPTH_BITS, &depth);
     if (isError()) {
-        throw RuntimeErrorException(__FILE__, __LINE__, "unable to acquire renderer back-end information");
+        throw Id::RuntimeErrorException(__FILE__, __LINE__, "unable to acquire renderer back-end information");
     }
     return depth;
 }
@@ -162,7 +162,7 @@ uint8_t Utilities::getStencilBufferDepth() {
     GLint depth;
     glGetIntegerv(GL_STENCIL_BITS, &depth);
     if (isError()) {
-        throw RuntimeErrorException(__FILE__, __LINE__, "unable to acquire renderer back-end information");
+        throw Id::RuntimeErrorException(__FILE__, __LINE__, "unable to acquire renderer back-end information");
     }
     return depth;
 }
@@ -175,7 +175,7 @@ ColourDepth Utilities::getColourBufferColourDepth() {
     glGetIntegerv(GL_BLUE_BITS, &blueDepth);
     glGetIntegerv(GL_ALPHA_BITS, &alphaDepth);
     if (isError()) {
-        throw RuntimeErrorException(__FILE__, __LINE__, "unable to acquire renderer back-end information");
+        throw Id::RuntimeErrorException(__FILE__, __LINE__, "unable to acquire renderer back-end information");
     }
     return ColourDepth(redDepth + greenDepth + blueDepth + alphaDepth,
                        redDepth, greenDepth, blueDepth, alphaDepth);
@@ -189,45 +189,45 @@ ColourDepth Utilities::getAccumulationBufferColourDepth() {
     glGetIntegerv(GL_ACCUM_BLUE_BITS, &blueDepth);
     glGetIntegerv(GL_ACCUM_ALPHA_BITS, &alphaDepth);
     if (isError()) {
-        throw RuntimeErrorException(__FILE__, __LINE__, "unable to acquire renderer back-end information");
+        throw Id::RuntimeErrorException(__FILE__, __LINE__, "unable to acquire renderer back-end information");
     }
     return ColourDepth(redDepth + greenDepth + blueDepth + alphaDepth,
                        redDepth, greenDepth, blueDepth, alphaDepth);
 }
 
-UnorderedSet<Utilities::String> Utilities::getExtensions() {
+std::unordered_set<std::string> Utilities::getExtensions() {
     clearError();
     const GLubyte *bytes = glGetString(GL_EXTENSIONS);
     if (isError()) {
-        throw RuntimeErrorException(__FILE__, __LINE__, "unable to acquire renderer back-end information");
+        throw Id::RuntimeErrorException(__FILE__, __LINE__, "unable to acquire renderer back-end information");
     }
     auto tokens = split(string((const char *)bytes), string(" "));
     return unordered_set<string>(tokens.cbegin(), tokens.cend());
 }
 
-Utilities::String Utilities::getRenderer() {
+std::string Utilities::getRenderer() {
     clearError();
     const GLubyte *bytes = glGetString(GL_RENDERER);
     if (isError()) {
-        throw RuntimeErrorException(__FILE__, __LINE__, "unable to acquire renderer back-end information");
+        throw Id::RuntimeErrorException(__FILE__, __LINE__, "unable to acquire renderer back-end information");
     }
     return (const char *)bytes;
 }
 
-Utilities::String Utilities::getVendor() {
+std::string Utilities::getVendor() {
     clearError();
     const GLubyte *bytes = glGetString(GL_VENDOR);
     if (isError()) {
-        throw RuntimeErrorException(__FILE__, __LINE__, "unable to acquire renderer back-end information");
+        throw Id::RuntimeErrorException(__FILE__, __LINE__, "unable to acquire renderer back-end information");
     }
     return (const char *)bytes;
 }
 
-Utilities::String Utilities::getVersion() {
+std::string Utilities::getVersion() {
     clearError();
     const GLubyte *bytes = glGetString(GL_VERSION);
     if (isError()) {
-        throw RuntimeErrorException(__FILE__, __LINE__, "unable to acquire renderer back-end information");
+        throw Id::RuntimeErrorException(__FILE__, __LINE__, "unable to acquire renderer back-end information");
     }
     return (const char *)bytes;
 }
@@ -238,7 +238,7 @@ float Utilities::getMaxAnisotropy() {
         float maxAnisotropyLevel;
         glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAnisotropyLevel);
         if (isError()) {
-            throw RuntimeErrorException(__FILE__, __LINE__, "unable to acquire renderer back-end information");
+            throw Id::RuntimeErrorException(__FILE__, __LINE__, "unable to acquire renderer back-end information");
         }
         return maxAnisotropyLevel;
     } else {
@@ -265,7 +265,7 @@ GLint Utilities::toOpenGL(TextureAddressMode textureAddressMode)
         case TextureAddressMode::RepeatMirrored:
             return GL_MIRRORED_REPEAT;
         default:
-            throw UnhandledSwitchCaseException(__FILE__, __LINE__);
+            throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
     }
 }
 
@@ -292,7 +292,7 @@ GLenum Utilities::toOpenGL(PrimitiveType primitiveType)
         case PrimitiveType::QuadriliteralStrip:
             return GL_QUAD_STRIP;
         default:
-            throw UnhandledSwitchCaseException(__FILE__, __LINE__);
+            throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
     }
 }
 
@@ -360,7 +360,7 @@ void Utilities::toOpenGL(TextureFilter minFilter, TextureFilter magFilter, Textu
                     minFilter_gl = GL_NEAREST_MIPMAP_LINEAR;
                     break;
                 default:
-                    throw UnhandledSwitchCaseException(__FILE__, __LINE__);
+                    throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
             }
             break;
         case TextureFilter::Linear:
@@ -376,11 +376,11 @@ void Utilities::toOpenGL(TextureFilter minFilter, TextureFilter magFilter, Textu
                     minFilter_gl = GL_LINEAR_MIPMAP_LINEAR;
                     break;
                 default:
-                    throw UnhandledSwitchCaseException(__FILE__, __LINE__);
+                    throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
             }
             break;
         default:
-            throw UnhandledSwitchCaseException(__FILE__, __LINE__);
+            throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
     };
     switch (magFilter)
     {
@@ -393,7 +393,7 @@ void Utilities::toOpenGL(TextureFilter minFilter, TextureFilter magFilter, Textu
             magFilter_gl = GL_LINEAR;
             break;
         default:
-            throw UnhandledSwitchCaseException(__FILE__, __LINE__);
+            throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
     };
 }
 
@@ -422,7 +422,7 @@ void Utilities::toOpenGL(const PixelFormatDescriptor& pfd, GLenum& internalForma
             type_gl = GL_UNSIGNED_BYTE;
             break;
         default:
-            throw UnhandledSwitchCaseException(__FILE__, __LINE__, "pixel format not supported");
+            throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__, "pixel format not supported");
     };
 }
 
@@ -499,7 +499,7 @@ void Utilities::setSampler(TextureType target, const TextureSampler& sampler) {
             target_gl = GL_TEXTURE_1D;
             break;
         default:
-            throw UnhandledSwitchCaseException(__FILE__, __LINE__);
+            throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
     }
     if (isError()) {
         return;
@@ -553,7 +553,7 @@ void Utilities::bind(GLuint id, TextureType target, TextureAddressMode addressMo
             target_gl = GL_TEXTURE_1D;
             break;
         default:
-            throw UnhandledSwitchCaseException(__FILE__, __LINE__);
+            throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
     }
     if (isError())
     {

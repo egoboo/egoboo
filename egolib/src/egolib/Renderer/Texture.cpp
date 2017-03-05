@@ -37,7 +37,7 @@
 
 namespace Ego {
 
-Texture::Texture(const String& name,
+Texture::Texture(const std::string& name,
                  TextureType type, TextureAddressMode addressModeS, TextureAddressMode addressModeT,
                  int width, int height, int sourceWidth, int sourceHeight, std::shared_ptr<SDL_Surface> source,
                  bool hasAlpha) :
@@ -115,11 +115,11 @@ bool Texture::hasAlpha() const {
     return _hasAlpha;
 }
 
-void Texture::setName(const String& name) {
+void Texture::setName(const std::string& name) {
     _name = name;
 }
 
-const Texture::String& Texture::getName() const {
+const std::string& Texture::getName() const {
     return _name;
 }
 
@@ -130,20 +130,17 @@ const Texture::String& Texture::getName() const {
 
 struct CErrorTexture
 {
-    template <typename T> using SharedPtr = std::shared_ptr<T>;
-    using String = std::string;
-
-    SharedPtr<SDL_Surface> image;
+    std::shared_ptr<SDL_Surface> image;
     /// The OpenGL texture target of this error texture.
     Ego::TextureType type;
     /// The OpenGL ID of this error texture.
     GLuint id;
-    String name;
+    std::string name;
     GLuint getTextureID() const
     {
         return id;
     }
-    const String& getName() const
+    const std::string& getName() const
     {
         return name;
     }
@@ -164,7 +161,7 @@ struct CErrorTexture
         return getSourceHeight();
     }
     // Construct this error texture.
-    CErrorTexture(const String& name, Ego::TextureType type) :
+    CErrorTexture(const std::string& name, Ego::TextureType type) :
         name(name), type(type), image(Ego::ImageManager::get().getDefaultImage())
     {
         namespace OpenGL = Ego::OpenGL;
@@ -320,7 +317,7 @@ GLuint Texture::getTextureID() const {
     return _id;
 }
 
-void Texture::load(const String& name, const SharedPtr<SDL_Surface>& surface, TextureType type, const TextureSampler& sampler) {
+void Texture::load(const std::string& name, const std::shared_ptr<SDL_Surface>& surface, TextureType type, const TextureSampler& sampler) {
     // Bind this texture to the backing error texture.
     release();
 
@@ -329,7 +326,7 @@ void Texture::load(const String& name, const SharedPtr<SDL_Surface>& surface, Te
         throw Id::InvalidArgumentException(__FILE__, __LINE__, "nullptr == surface");
     }
 
-    SharedPtr<SDL_Surface> newSurface = surface;
+    std::shared_ptr<SDL_Surface> newSurface = surface;
 
     // Convert to RGBA if the image has non-opaque alpha values or alpha modulation and convert to RGB otherwise.
     bool hasAlpha = Graphics::SDL::testAlpha(newSurface);
@@ -412,7 +409,7 @@ void Texture::load(const String& name, const SharedPtr<SDL_Surface>& surface, Te
     _name = name;
 }
 
-bool Texture::load(const String& name, const SharedPtr<SDL_Surface>& source) {
+bool Texture::load(const std::string& name, const std::shared_ptr<SDL_Surface>& source) {
     // Determine the texture sampler.
     TextureSampler sampler(g_ogl_textureParameters.textureFilter.minFilter,
                            g_ogl_textureParameters.textureFilter.magFilter,

@@ -16,7 +16,7 @@ ConvertPaletted::ConvertPaletted()
 
 ConvertPaletted::~ConvertPaletted() {}
 
-void ConvertPaletted::run(const Vector<SharedPtr<Option>>& arguments) {
+void ConvertPaletted::run(const std::vector<std::shared_ptr<Option>>& arguments) {
 	if (arguments.size() == 1) {
 		StringBuffer sb;
 	    sb << "wrong number of arguments" << EndOfLine;
@@ -25,7 +25,7 @@ void ConvertPaletted::run(const Vector<SharedPtr<Option>>& arguments) {
 
 	SDL_Init(0);
 	IMG_Init(IMG_INIT_PNG);
-	Deque<String> queue;
+	std::deque<std::string> queue;
 	RegexFilter filter("^(?:.*" REGEX_DIRSEP ")?(?:tris|tile)[0-9]+\\.bmp$");
 	/// @todo Do *not* assume the path is relative. Ensure that it is absolute by a system function.
 	for (const auto& argument : arguments) {
@@ -38,7 +38,7 @@ void ConvertPaletted::run(const Vector<SharedPtr<Option>>& arguments) {
 		queue.emplace_back(FileSystem::sanitize(pathnameArgument->getValue()));
 	}
 	while (!queue.empty()) {
-		String path = queue[0];
+		std::string path = queue[0];
 		queue.pop_front();
 		switch (FileSystem::stat(path)) {
 		case FileSystem::PathStat::File:
@@ -66,16 +66,16 @@ void ConvertPaletted::run(const Vector<SharedPtr<Option>>& arguments) {
 /// Perform a dry-run, just print the files which would have been converted.
 static bool g_dryrun = false;
 
-void ConvertPaletted::convert(const String& fileName) {
+void ConvertPaletted::convert(const std::string& fileName) {
     if (fileName.rfind(".bmp") == std::string::npos) return;
-    String out = fileName;
+    std::string out = fileName;
     size_t extPos = out.rfind('.');
-    if (extPos != String::npos) out = out.substr(0, extPos);
+    if (extPos != std::string::npos) out = out.substr(0, extPos);
     out += ".png";
     if (!g_dryrun) {
         SDL_Surface *surf = IMG_Load(fileName.c_str());
         if (!surf) {
-            std::cerr << String("Couldn't open ") << fileName << ": " << IMG_GetError() << std::endl;
+            std::cerr << std::string("Couldn't open ") << fileName << ": " << IMG_GetError() << std::endl;
             return;
         }
         uint8_t r, g, b, a;
@@ -108,8 +108,8 @@ void ConvertPaletted::convert(const String& fileName) {
     }
 }
 
-const String& ConvertPaletted::getHelp() const {
-    static const String help = "usage: ego-tools --tool=ConvertPaletted <directories>\n";
+const std::string& ConvertPaletted::getHelp() const {
+    static const std::string help = "usage: ego-tools --tool=ConvertPaletted <directories>\n";
     return help;
 }
 

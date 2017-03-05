@@ -25,7 +25,6 @@ public:
 private:
     Type type;
 protected:
-    using String = std::string;
     /// @brief Construct this option.
     /// @param type the option type
     Option(Type type);
@@ -50,7 +49,7 @@ public:
 
     /// @brief Get the value of this named value argument.
     /// @return the named valuen argument value
-    const String& getValue() const;
+    const std::string& getValue() const;
 };
 
 /// @brief A named value option of the form

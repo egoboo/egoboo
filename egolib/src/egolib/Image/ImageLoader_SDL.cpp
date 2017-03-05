@@ -22,7 +22,7 @@
 namespace Ego {
 namespace Internal {
 
-ImageLoader_SDL::ImageLoader_SDL(const Set<String>& extensions)
+ImageLoader_SDL::ImageLoader_SDL(const std::unordered_set<std::string>& extensions)
     : ImageLoader(extensions) {
 }
 

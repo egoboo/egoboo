@@ -28,54 +28,50 @@
 namespace Ego {
 
 void ImageManager::registerImageLoaders() {
-    using namespace Ego::Internal;
-    using namespace Id;
-    using String = std::string;
-    using Set = std::unordered_set<string>;
     if (egoboo_config_t::get().debug_sdlImage_enable.getValue()) {
         Log::get() << Log::Entry::create(Log::Level::Info, __FILE__, __LINE__, "[image manager]: SDL_image ", SDL_IMAGE_MAJOR_VERSION, ".", SDL_IMAGE_MINOR_VERSION, ".", SDL_IMAGE_PATCHLEVEL, Log::EndOfEntry);
         // JPG support is optional.
         if ((IMG_Init(IMG_INIT_JPG) & IMG_INIT_JPG) == IMG_INIT_JPG) {
-            loaders.push_back(make_unique<ImageLoader_SDL_image>(Set{".jpg", "jpeg"}));
+            loaders.push_back(std::make_unique<Internal::ImageLoader_SDL_image>(std::unordered_set<std::string>{".jpg", "jpeg"}));
         }
         // PNG support is mandatory.
         if ((IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG) == IMG_INIT_PNG) {
-            loaders.push_back(make_unique<ImageLoader_SDL_image>(Set{".png"}));
+            loaders.push_back(std::make_unique<Internal::ImageLoader_SDL_image>(std::unordered_set<std::string>{".png"}));
         } else {
             auto e = Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "[image manager]: SDL_image does not "
                                         "support PNG file format: ", SDL_GetError(), Log::EndOfLine);
             Log::get() << e;
-            throw EnvironmentErrorException(__FILE__, __LINE__, "font manager", e.getText());
+            throw Id::EnvironmentErrorException(__FILE__, __LINE__, "font manager", e.getText());
         }
         // WEBP support is optional and available in SDL_image 1.2.11 or higher.
     #if SDL_VERSIONNUM(SDL_IMAGE_MAJOR_VERSION, SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL) >= SDL_VERSIONNUM(1, 2, 11)
         if ((IMG_Init(IMG_INIT_WEBP) & IMG_INIT_WEBP) == IMG_INIT_WEBP) {
-            loaders.push_back(make_unique<ImageLoader_SDL_image>(Set{".webp"}));
+            loaders.push_back(std::make_unique<Internal::ImageLoader_SDL_image>(std::unordered_set<std::string>{".webp"}));
         }
     #endif
         // TIF support is optional.
         if ((IMG_Init(IMG_INIT_TIF) & IMG_INIT_TIF) == IMG_INIT_TIF) {
-            loaders.push_back(make_unique<ImageLoader_SDL_image>(Set{".tif", "tiff"}));
+            loaders.push_back(std::make_unique<Internal::ImageLoader_SDL_image>(std::unordered_set<std::string>{".tif", "tiff"}));
         }
-        loaders.push_back(make_unique<ImageLoader_SDL_image>(Set{".gif"}));
-        loaders.push_back(make_unique<ImageLoader_SDL_image>(Set{".pcx"}));
-        loaders.push_back(make_unique<ImageLoader_SDL_image>(Set{".ppm"}));
-        loaders.push_back(make_unique<ImageLoader_SDL_image>(Set{".xpm"}));
-        loaders.push_back(make_unique<ImageLoader_SDL_image>(Set{".pnm"}));
-        loaders.push_back(make_unique<ImageLoader_SDL_image>(Set{".lbm"}));
+        loaders.push_back(std::make_unique<Internal::ImageLoader_SDL_image>(std::unordered_set<std::string>{".gif"}));
+        loaders.push_back(std::make_unique<Internal::ImageLoader_SDL_image>(std::unordered_set<std::string>{".pcx"}));
+        loaders.push_back(std::make_unique<Internal::ImageLoader_SDL_image>(std::unordered_set<std::string>{".ppm"}));
+        loaders.push_back(std::make_unique<Internal::ImageLoader_SDL_image>(std::unordered_set<std::string>{".xpm"}));
+        loaders.push_back(std::make_unique<Internal::ImageLoader_SDL_image>(std::unordered_set<std::string>{".pnm"}));
+        loaders.push_back(std::make_unique<Internal::ImageLoader_SDL_image>(std::unordered_set<std::string>{".lbm"}));
         // Loading TGA images using the standard method does not work according to SDL_Image documentation.
         // @todo MH: A solution is to provide a subclass of ImageLoader_SDL_image for this special case.
     #if 0
-        loaders.push_back(make_unique<ImageLoader_SDL_image>(Set{".tga"}));
+        loaders.push_back(std::make_unique<Internal::ImageLoader_SDL_image>(std::unordered_set<std::string>{".tga"}));
     #endif
-        loaders.push_back(make_unique<ImageLoader_SDL_image>(Set{".bmp"}));
+        loaders.push_back(std::make_unique<Internal::ImageLoader_SDL_image>(std::unordered_set<std::string>{".bmp"}));
     } else {
         Log::get() << Log::Entry::create(Log::Level::Info, __FILE__, __LINE__, "[image manager]: SDL_image disable by ", egoboo_config_t::get().debug_sdlImage_enable.getName(), " = false in `setup.txt` "
                                          " - using SDL -  only support for .bmp files", Log::EndOfEntry);
     }
     // These loaders are natively supported with SDL.
     // Place them *after* the SDL_image loaders, such that the SDL_image loader loaders are preferred.
-    loaders.push_back(make_unique<ImageLoader_SDL>(Set{".bmp"}));
+    loaders.push_back(std::make_unique<Internal::ImageLoader_SDL>(std::unordered_set<std::string>{".bmp"}));
 }
 
 ImageManager::ImageManager() :

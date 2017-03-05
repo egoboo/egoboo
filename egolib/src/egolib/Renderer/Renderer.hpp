@@ -284,9 +284,6 @@ struct CreateFunctor<Renderer> {
 
 class Renderer : public Core::Singleton<Renderer> {
 protected:
-    template <typename T> using SharedPtr = std::shared_ptr<T>;
-
-protected:
     friend Core::Singleton<Renderer>::CreateFunctorType;
     friend Core::Singleton<Renderer>::DestroyFunctorType;
 
@@ -696,7 +693,7 @@ public:
      * @post
      *  The texture is the default texture.
      */
-    virtual SharedPtr<Texture> createTexture() = 0;
+    virtual std::shared_ptr<Texture> createTexture() = 0;
 
 private:
     Matrix4f4f m_projectionMatrix;

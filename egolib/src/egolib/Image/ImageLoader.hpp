@@ -24,18 +24,13 @@
 namespace Ego {
 
 class ImageLoader {
-protected:
-    using String = std::string;
-    template <typename T>
-    using Set = std::unordered_set<T>;
-
 private:
     friend struct std::default_delete<ImageLoader>;
     /**
      * @brief
      *  A set of file extensions supported by this image loader e.g. <tt>.bmp</tt>, <tt>.png</tt>, ...
      */
-    Set<String> extensions;
+    std::unordered_set<std::string> extensions;
 
 protected:
 
@@ -45,7 +40,7 @@ protected:
      * @param extensions
      *  the set of file extensions supported by this image loader e.g. <tt>.bmp</tt>, <tt>.png</tt>, ...
      */
-    ImageLoader(const Set<String>& extensions);
+    ImageLoader(const std::unordered_set<std::string>& extensions);
 
     /**
      * @brief
@@ -61,7 +56,7 @@ public:
      * @return
      *  a file extension e.g. <tt>.bmp</tt>, <tt>.png</tt>, ...
      */
-    Set<String> getExtensions() const;
+    std::unordered_set<std::string> getExtensions() const;
 
     /**
      * @brief

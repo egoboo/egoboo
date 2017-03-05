@@ -116,11 +116,11 @@ namespace Editor {
 
 using namespace Standard;
 
-Tool::Tool(const String& name) : name(name) {}
+Tool::Tool(const std::string& name) : name(name) {}
 
 Tool::~Tool() {}
 
-const String& Tool::getName() const {
+const std::string& Tool::getName() const {
 	return name;
 }
 	

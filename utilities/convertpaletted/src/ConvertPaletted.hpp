@@ -23,13 +23,13 @@ public:
     virtual ~ConvertPaletted();
 
     /** @copydoc Tool::run */
-    void run(const Vector<SharedPtr<CommandLine::Option>>& arguments) override;
+    void run(const std::vector<std::shared_ptr<CommandLine::Option>>& arguments) override;
 
     /** @copydoc Tool:getHelp */
-    const String& getHelp() const override;
+    const std::string& getHelp() const override;
 
 private:
-    void convert(const String& fileName);
+    void convert(const std::string& fileName);
 
 }; // struct ConvertPaletted
 

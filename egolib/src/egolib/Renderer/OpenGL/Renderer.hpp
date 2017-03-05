@@ -46,15 +46,6 @@
 namespace Ego {
 namespace OpenGL {
 
-template <typename T> using UnorderedSet = std::unordered_set<T>;
-template <typename T> using SharedPtr = std::shared_ptr<T>;
-template< class T, class... Args >
-inline SharedPtr<T> MakeShared(Args&&... args) {
-    return std::make_shared<T>(std::forward<Args>(args)...);
-}
-using String = std::string;
-using namespace Math;
-
 class Renderer : public Ego::Renderer
 {
 protected:
@@ -77,7 +68,7 @@ protected:
     RendererInfo info;
 
     /// @brief The set of OpenGL extensions supported by this OpenGL implementation.
-    UnorderedSet<String> _extensions;
+    std::unordered_set<std::string> _extensions;
 
 public:
     /// @brief Construct this OpenGL renderer.
@@ -196,7 +187,7 @@ public:
     virtual void render(VertexBuffer& vertexBuffer, PrimitiveType primitiveType, size_t index, size_t length) override;
 
     /** @copydoc Ego::Renderer::createTexture */
-    virtual SharedPtr<Ego::Texture> createTexture() override;
+    virtual std::shared_ptr<Ego::Texture> createTexture() override;
 
 public:
     /** @copydoc Ego::Renderer::setProjectionMatrix */
