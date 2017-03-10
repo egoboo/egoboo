@@ -582,7 +582,7 @@ enum ScriptVariables {
     SCRIPT_VARIABLES_COUNT
 };
 
-extern std::array<std::string, ScriptVariables::SCRIPT_VARIABLES_COUNT> _scriptVariableNames;
+extern std::array<std::string, Ego::Script::ScriptVariables::SCRIPT_VARIABLES_COUNT> _scriptVariableNames;
 
 /// @brief A list of all possible EgoScript operators.
 enum ScriptOperators {

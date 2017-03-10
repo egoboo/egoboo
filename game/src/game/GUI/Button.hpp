@@ -9,7 +9,7 @@ namespace GUI {
 class Button : public Component {
 public:
     /// Signal invoked if the button was clicked.
-    Signal<void()> Clicked;
+    Id::Signal<void()> Clicked;
 public:
     Button(int hotkey = SDLK_UNKNOWN);
     Button(const std::string &buttonText, int hotkey = SDLK_UNKNOWN);

@@ -30,9 +30,6 @@ namespace Ego {
 namespace Script {
 namespace Interpreter {
 
-using namespace std;
-using namespace Id;
-
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 // Identity casts of fundamental types
 
@@ -110,11 +107,11 @@ define(unsigned long long)
 
 #define define(targetType, sourceType) \
 template<> targetType safeCast<targetType, sourceType>(const sourceType& v) { \
-    if (v > numeric_limits<targetType>::max()) { \
-        ostringstream os; \
-        os << "value outside of bounds of " << numeric_limits<targetType>::min() << " and " \
-           << numeric_limits<targetType>::max(); \
-        throw OutOfBoundsException(__FILE__, __LINE__, os.str()); \
+    if (v > std::numeric_limits<targetType>::max()) { \
+        std::ostringstream os; \
+        os << "value outside of bounds of " << std::numeric_limits<targetType>::min() << " and " \
+           << std::numeric_limits<targetType>::max(); \
+        throw Id::OutOfBoundsException(__FILE__, __LINE__, os.str()); \
     } \
     return static_cast<targetType>(v); \
 }
@@ -140,11 +137,11 @@ define(unsigned long, unsigned long long)
 
 #define define(targetType, sourceType) \
 template<> targetType safeCast<targetType, sourceType>(const sourceType& v) { \
-    if (v < std::numeric_limits<targetType>::min() || v > numeric_limits<targetType>::max()) { \
-        ostringstream os; \
-        os << "value outside of bounds of " << numeric_limits<targetType>::min() << " and " \
-           << numeric_limits<targetType>::max(); \
-        throw OutOfBoundsException(__FILE__, __LINE__, os.str()); \
+    if (v < std::numeric_limits<targetType>::min() || v > std::numeric_limits<targetType>::max()) { \
+        std::ostringstream os; \
+        os << "value outside of bounds of " << std::numeric_limits<targetType>::min() << " and " \
+           << std::numeric_limits<targetType>::max(); \
+        throw Id::OutOfBoundsException(__FILE__, __LINE__, os.str()); \
     } \
     return static_cast<targetType>(v); \
 }
@@ -224,10 +221,10 @@ define(float, signed long long)
 #define define(targetType, sourceType) \
     template<> targetType safeCast<targetType, sourceType>(const sourceType& v) { \
         if (v < 0) { \
-            ostringstream os; \
+            std::ostringstream os; \
             os << "value outside of bounds of " << 0 << " and " \
-               << numeric_limits<targetType>::max(); \
-            throw OutOfBoundsException(__FILE__, __LINE__, os.str()); \
+               << std::numeric_limits<targetType>::max(); \
+            throw Id::OutOfBoundsException(__FILE__, __LINE__, os.str()); \
         } \
         return static_cast<targetType>(v); \
     }

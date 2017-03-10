@@ -23,12 +23,9 @@
 namespace Ego {
 namespace Script {
 
-using namespace Id;
-using namespace std;
-
 /// @brief An exception to indicate a missing delimiter lexical error.
 /// @author Michael Heilmann
-class MissingDelimiterError : public CompilationErrorException
+class MissingDelimiterError : public Id::CompilationErrorException
 {
 private:
     /// @brief The expected delimiter.
@@ -39,7 +36,7 @@ public:
     /// @param file, line, location see documentation of Id::CompilationErrorException(const char *,int, Id::CompilationErrorException::Kind, const id::location&)
     /// @param delimiter the expected delimiter
     MissingDelimiterError(const char *file, int line, const id::location& location, char delimiter) :
-        CompilationErrorException(file, line, CompilationErrorKind::Lexical, location, std::string("missing delimiter `") + delimiter + "`"),
+        CompilationErrorException(file, line, Id::CompilationErrorKind::Lexical, location, std::string("missing delimiter `") + delimiter + "`"),
         delimiter(delimiter)
     {}
 };

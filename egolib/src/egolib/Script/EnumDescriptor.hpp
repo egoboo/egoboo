@@ -27,8 +27,6 @@
 namespace Ego {
 namespace Script {
 
-using namespace std;
-
 /**
  * @brief
  *  A descriptor for enumerations.
@@ -47,7 +45,7 @@ using namespace std;
  */
 template <typename EnumType>
 struct EnumDescriptor {
-    static_assert(is_enum<EnumType>::value, "not an enumeration type");
+    static_assert(std::is_enum<EnumType>::value, "not an enumeration type");
 private:
     /**
      * @brief
@@ -57,19 +55,19 @@ private:
      *  just like in C++. However, it is very-well possible the two different names
      *  map to the same value just like in C++.
      */
-    map<string, EnumType> _elements;
+    std::map<std::string, EnumType> _elements;
     /**
      * @brief
      *  The name of the enumeration.
      */
-    string _name;
+    std::string _name;
 public:
 
     // Support for range-based for loops (not required).
-    using iterator = typename map<string, EnumType>::iterator;
+    using iterator = typename std::map<std::string, EnumType>::iterator;
 
     // Support for range-based for loops (not required).
-    using const_iterator = typename map<string, EnumType>::const_iterator;
+    using const_iterator = typename std::map<std::string, EnumType>::const_iterator;
 
     // Support for range-based for loops.
     const_iterator begin() const {
@@ -87,17 +85,17 @@ public:
 
 public:
 
-    EnumDescriptor(const string& name, const initializer_list<pair<const string, EnumType>>& list) :
+    EnumDescriptor(const std::string& name, const std::initializer_list<std::pair<const std::string, EnumType>>& list) :
         _name(name), _elements{list} {}
 
-    EnumDescriptor(const string& name) :
+    EnumDescriptor(const std::string& name) :
         _name(), _elements() {}
 
-    const string& getName() const {
+    const std::string& getName() const {
         return _name;
     }
 
-    void set(const string& name, EnumType value) {
+    void set(const std::string& name, EnumType value) {
         _elements[name] = value;
     }
 
@@ -162,7 +160,7 @@ public:
      * @return
      *  an iterator referring to the first entry with a name equal to @a name or <tt>cend()</tt>
      */
-    const_iterator find(const string& name) const {
+    const_iterator find(const std::string& name) const {
         return _elements.find(name);
     }
 

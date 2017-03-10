@@ -29,8 +29,6 @@ namespace Ego
 namespace Script
 {
 
-using namespace std;
-
 /**
  * @brief
  *  A text file.
@@ -69,7 +67,7 @@ private:
      * @brief
      *  The file name of the file.
      */
-    string _fileName;
+    std::string _fileName;
 
     /**
      * @brief
@@ -87,7 +85,7 @@ protected:
      * @param mode
      *  the mode
      */
-    TextFile(const string& fileName, Mode mode) :
+    TextFile(const std::string& fileName, Mode mode) :
         _fileName(fileName), _mode(mode)
     {
     }
@@ -108,7 +106,7 @@ public:
      * @return
      *  the file name of this text file
      */
-    const string& getFileName() const
+    const std::string& getFileName() const
     {
         return _fileName;
     }

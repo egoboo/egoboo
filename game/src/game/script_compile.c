@@ -69,7 +69,7 @@ vfs_FILE *debug_script_file = NULL;
 //--------------------------------------------------------------------------------------------
 
 /// Emit a token to standard output in debug mode.
-void print_token(const PDLToken& token);
+void print_token(const Ego::Script::PDLToken& token);
 #if (DEBUG_SCRIPT_LEVEL > 2) && defined(_DEBUG)
     static void print_line();
 #else
@@ -208,8 +208,8 @@ size_t parser_state_t::load_one_line( size_t read, script_info_t& script )
 
 //--------------------------------------------------------------------------------------------
 
-line_scanner_state_t::line_scanner_state_t(Buffer *inputBuffer, const id::location& location)
-    : m_token(PDLTokenKind::StartOfLine, location, location), m_inputPosition(0),
+line_scanner_state_t::line_scanner_state_t(Ego::Script::Buffer *inputBuffer, const id::location& location)
+    : m_token(Ego::Script::PDLTokenKind::StartOfLine, location, location), m_inputPosition(0),
       m_inputBuffer(inputBuffer), m_location(location), m_lexemeBuffer()
 {}
 
@@ -312,30 +312,30 @@ bool line_scanner_state_t::isControl() const
     return Ego::iscntrl(getCurrent());
 }
 
-void line_scanner_state_t::emit(const PDLToken& token)
+void line_scanner_state_t::emit(const Ego::Script::PDLToken& token)
 {
     m_token = token;
 }
 
-void line_scanner_state_t::emit(PDLTokenKind kind, const id::location& start, const id::location& end)
+void line_scanner_state_t::emit(Ego::Script::PDLTokenKind kind, const id::location& start, const id::location& end)
 {
-    m_token = PDLToken(kind, start, end);
+    m_token = Ego::Script::PDLToken(kind, start, end);
 }
 
-void line_scanner_state_t::emit(PDLTokenKind kind, const id::location& start, const id::location& end,
+void line_scanner_state_t::emit(Ego::Script::PDLTokenKind kind, const id::location& start, const id::location& end,
                                 const std::string& lexeme)
 {
-    m_token = PDLToken(kind, start, end, lexeme);
+    m_token = Ego::Script::PDLToken(kind, start, end, lexeme);
 }
 
-void line_scanner_state_t::emit(PDLTokenKind kind, const id::location& start, const id::location& end,
+void line_scanner_state_t::emit(Ego::Script::PDLTokenKind kind, const id::location& start, const id::location& end,
                                 int value)
 {
-    m_token = PDLToken(kind, start, end);
+    m_token = Ego::Script::PDLToken(kind, start, end);
     m_token.setValue(value);
 }
 
-PDLToken line_scanner_state_t::scanWhiteSpaces()
+Ego::Script::PDLToken line_scanner_state_t::scanWhiteSpaces()
 {
     auto startLocation = getLocation();
     int numberOfWhiteSpaces = 0;
@@ -354,11 +354,11 @@ PDLToken line_scanner_state_t::scanWhiteSpaces()
         } while (isWhiteSpace());
     }
     auto endLocation = getLocation();
-    emit(PDLTokenKind::Whitespace, startLocation, endLocation, numberOfWhiteSpaces);
+    emit(Ego::Script::PDLTokenKind::Whitespace, startLocation, endLocation, numberOfWhiteSpaces);
     return m_token;
 }
 
-PDLToken line_scanner_state_t::scanNewLines()
+Ego::Script::PDLToken line_scanner_state_t::scanNewLines()
 {
     auto startLocation = getLocation();
     int numberOfNewLines = 0;
@@ -375,53 +375,53 @@ PDLToken line_scanner_state_t::scanNewLines()
         numberOfNewLines++;
     }
     auto endLocation = getLocation();
-    emit(PDLTokenKind::Newline, startLocation, endLocation, numberOfNewLines);
+    emit(Ego::Script::PDLTokenKind::Newline, startLocation, endLocation, numberOfNewLines);
     return m_token;
 }
 
-PDLToken line_scanner_state_t::scanNumericLiteral()
+Ego::Script::PDLToken line_scanner_state_t::scanNumericLiteral()
 {
     m_lexemeBuffer.clear();
     auto startLocation = getLocation();
     if (!isDigit())
     {
-        throw RuntimeErrorException(__FILE__, __LINE__, "<internal error>");
+        throw Id::RuntimeErrorException(__FILE__, __LINE__, "<internal error>");
     }
     do
     {
         saveAndNext();
     } while (isDigit());
     auto endLocation = getLocation();
-    emit(PDLTokenKind::NumberLiteral, startLocation,
+    emit(Ego::Script::PDLTokenKind::NumberLiteral, startLocation,
          endLocation, m_lexemeBuffer.toString());
     return m_token;
 }
 
-PDLToken line_scanner_state_t::scanName()
+Ego::Script::PDLToken line_scanner_state_t::scanName()
 {
     m_lexemeBuffer.clear();
     auto startLocation = getLocation();
     if (!is('_') && !isAlphabetic())
     {
-        throw RuntimeErrorException(__FILE__, __LINE__, "<internal error>");
+        throw Id::RuntimeErrorException(__FILE__, __LINE__, "<internal error>");
     }
     do
     {
         saveAndNext();
     } while (is('_') || isDigit() || isAlphabetic());
     auto endLocation = getLocation();
-    emit(PDLTokenKind::Name, startLocation, endLocation,
+    emit(Ego::Script::PDLTokenKind::Name, startLocation, endLocation,
          m_lexemeBuffer.toString());
     return m_token;
 }
 
-PDLToken line_scanner_state_t::scanStringOrReference()
+Ego::Script::PDLToken line_scanner_state_t::scanStringOrReference()
 {
     m_lexemeBuffer.clear();
     auto startLocation = getLocation();
     if (!isDoubleQuote())
     {
-        throw RuntimeErrorException(__FILE__, __LINE__, "<internal error>");
+        throw Id::RuntimeErrorException(__FILE__, __LINE__, "<internal error>");
     }
 
     next(); // Skip leading quotation mark.
@@ -454,49 +454,49 @@ PDLToken line_scanner_state_t::scanStringOrReference()
     }
     else /* if (isNewline() || isEndOfInput()) */
     {
-        throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, getLocation(), "unclosed string literal");
+        throw Id::CompilationErrorException(__FILE__, __LINE__, Id::CompilationErrorKind::Lexical, getLocation(), "unclosed string literal");
     }
     auto endLocation = getLocation();
-    emit(isReference ? PDLTokenKind::ReferenceLiteral : PDLTokenKind::StringLiteral,
+    emit(isReference ? Ego::Script::PDLTokenKind::ReferenceLiteral : Ego::Script::PDLTokenKind::StringLiteral,
          startLocation, endLocation, m_lexemeBuffer.toString());
     return m_token;
 }
 
-PDLToken line_scanner_state_t::scanIDSZ()
+Ego::Script::PDLToken line_scanner_state_t::scanIDSZ()
 {
     m_lexemeBuffer.clear();
     auto startLocation = getLocation();
     if (!is('['))
     {
-        throw RuntimeErrorException(__FILE__, __LINE__, "<internal error>");
+        throw Id::RuntimeErrorException(__FILE__, __LINE__, "<internal error>");
     }
     saveAndNext();
     for (auto i = 0; i < 4; ++i)
     {
         if (!isDigit() && !isAlphabetic())
         {
-            throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, getLocation(), "invalid IDSZ");
+            throw Id::CompilationErrorException(__FILE__, __LINE__, Id::CompilationErrorKind::Lexical, getLocation(), "invalid IDSZ");
         }
         saveAndNext();
     }
     if (!is(']'))
     {
-        throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, getLocation(), "invalid IDSZ");
+        throw Id::CompilationErrorException(__FILE__, __LINE__, Id::CompilationErrorKind::Lexical, getLocation(), "invalid IDSZ");
     }
     saveAndNext();
     auto endLocation = getLocation();
-    emit(PDLTokenKind::IdszLiteral, startLocation,
+    emit(Ego::Script::PDLTokenKind::IdszLiteral, startLocation,
          endLocation, m_lexemeBuffer.toString());
     return m_token;
 }
 
-PDLToken line_scanner_state_t::scanOperator()
+Ego::Script::PDLToken line_scanner_state_t::scanOperator()
 {
     m_lexemeBuffer.clear();
     auto startLocation = getLocation();
     if (!isOperator())
     {
-        throw RuntimeErrorException(__FILE__, __LINE__, "<internal error>");
+        throw Id::RuntimeErrorException(__FILE__, __LINE__, "<internal error>");
     }
     auto current = getCurrent();
     saveAndNext();
@@ -504,60 +504,60 @@ PDLToken line_scanner_state_t::scanOperator()
     switch (current)
     {
         case '+':
-            emit(PDLTokenKind::Plus, startLocation, endLocation,
+            emit(Ego::Script::PDLTokenKind::Plus, startLocation, endLocation,
                  m_lexemeBuffer.toString());
             break;
         case '-':
-            emit(PDLTokenKind::Minus, startLocation, endLocation,
+            emit(Ego::Script::PDLTokenKind::Minus, startLocation, endLocation,
                  m_lexemeBuffer.toString());
             break;
         case '*':
-            emit(PDLTokenKind::Multiply, startLocation, endLocation,
+            emit(Ego::Script::PDLTokenKind::Multiply, startLocation, endLocation,
                  m_lexemeBuffer.toString());
             break;
         case '/':
-            emit(PDLTokenKind::Divide, startLocation, endLocation,
+            emit(Ego::Script::PDLTokenKind::Divide, startLocation, endLocation,
                  m_lexemeBuffer.toString());
             break;
         case '%':
-            emit(PDLTokenKind::Modulus, startLocation, endLocation,
+            emit(Ego::Script::PDLTokenKind::Modulus, startLocation, endLocation,
                  m_lexemeBuffer.toString());
             break;
         case '>':
-            emit(PDLTokenKind::ShiftRight, startLocation, endLocation,
+            emit(Ego::Script::PDLTokenKind::ShiftRight, startLocation, endLocation,
                  m_lexemeBuffer.toString());
             break;
         case '<':
-            emit(PDLTokenKind::ShiftLeft, startLocation, endLocation,
+            emit(Ego::Script::PDLTokenKind::ShiftLeft, startLocation, endLocation,
                  m_lexemeBuffer.toString());
             break;
         case '&':
-            emit(PDLTokenKind::And, startLocation, endLocation,
+            emit(Ego::Script::PDLTokenKind::And, startLocation, endLocation,
                  m_lexemeBuffer.toString());
             break;
         case '=':
-            emit(PDLTokenKind::Assign, startLocation, endLocation,
+            emit(Ego::Script::PDLTokenKind::Assign, startLocation, endLocation,
                  m_lexemeBuffer.toString());
             break;
         default:
-            throw RuntimeErrorException(__FILE__, __LINE__, "internal error");
+            throw Id::RuntimeErrorException(__FILE__, __LINE__, "internal error");
     }
     return m_token;
 }
 
-PDLToken parser_state_t::parse_indention(script_info_t& script, line_scanner_state_t& state)
+Ego::Script::PDLToken parser_state_t::parse_indention(script_info_t& script, line_scanner_state_t& state)
 {
     auto source = state.scanWhiteSpaces();
-    if (source.getKind() != PDLTokenKind::Whitespace)
+    if (source.getKind() != Ego::Script::PDLTokenKind::Whitespace)
     {
-        throw RuntimeErrorException(__FILE__, __LINE__, "internal error");
+        throw Id::RuntimeErrorException(__FILE__, __LINE__, "internal error");
     }
 
     size_t indent = source.getValue();
     static Ego::IsOdd<int> isOdd;
     if (isOdd(indent))
     {
-        CLogEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getStartLocation());
+        Ego::Script::CLogEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getStartLocation());
         e << "invalid indention - number of spaces must be even - \n"
           << " - \n`" << _lineBuffer.toString() << "`" << Log::EndOfEntry;
         Log::get() << e;
@@ -567,20 +567,20 @@ PDLToken parser_state_t::parse_indention(script_info_t& script, line_scanner_sta
     indent >>= 1;
     if (indent > 15)
     {
-        CLogEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getStartLocation());
+        Ego::Script::CLogEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getStartLocation());
         e << "invalid indention - too many spaces - \n"
           << " - \n`" << _lineBuffer.toString() << "`" << Log::EndOfEntry;
         Log::get() << e;
         _error = true;
         indent = 15;
     }
-    auto token = PDLToken(PDLTokenKind::Indent, source.getStartLocation(), source.getEndLocation());
+    auto token = Ego::Script::PDLToken(Ego::Script::PDLTokenKind::Indent, source.getStartLocation(), source.getEndLocation());
     token.setValue(indent);
     return token;
 }
 
 //--------------------------------------------------------------------------------------------
-PDLToken parser_state_t::parse_token(ObjectProfile *ppro, script_info_t& script, line_scanner_state_t& state)
+Ego::Script::PDLToken parser_state_t::parse_token(ObjectProfile *ppro, script_info_t& script, line_scanner_state_t& state)
 {
     /// @details This function tells what code is being indexed by read, it
     /// will return the next spot to read from and stick the code number in
@@ -589,7 +589,7 @@ PDLToken parser_state_t::parse_token(ObjectProfile *ppro, script_info_t& script,
     // Check bounds
     if (state.isEndOfInput())
     {
-        return PDLToken(PDLTokenKind::EndOfLine, state.getLocation(), state.getLocation());
+        return Ego::Script::PDLToken(Ego::Script::PDLTokenKind::EndOfLine, state.getLocation(), state.getLocation());
     }
 
     // Skip whitespaces.
@@ -598,14 +598,14 @@ PDLToken parser_state_t::parse_token(ObjectProfile *ppro, script_info_t& script,
     // Stop if the line is empty.
     if (state.isEndOfInput())
     {
-        return PDLToken(PDLTokenKind::EndOfLine, state.getLocation(), state.getLocation());
+        return Ego::Script::PDLToken(Ego::Script::PDLTokenKind::EndOfLine, state.getLocation(), state.getLocation());
     }
 
     // initialize the word
     if (state.isDoubleQuote())
     {
         auto token = state.scanStringOrReference();
-        if (token.getKind() == PDLTokenKind::ReferenceLiteral)
+        if (token.getKind() == Ego::Script::PDLTokenKind::ReferenceLiteral)
         {
             // If it is a profile reference.
 
@@ -644,20 +644,20 @@ PDLToken parser_state_t::parse_token(ObjectProfile *ppro, script_info_t& script,
             // Failed to load object!
             if (!ProfileSystem::get().isLoaded((PRO_REF)token.getValue()))
             {
-                CLogEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, token.getStartLocation());
+                Ego::Script::CLogEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, token.getStartLocation());
                 e << "failed to load object " << token.getLexeme() << " - \n"
                     << " - \n`" << _lineBuffer.toString() << "`" << Log::EndOfEntry;
                 Log::get() << e;
             }
-            token.setKind(PDLTokenKind::Constant);
+            token.setKind(Ego::Script::PDLTokenKind::Constant);
         }
         else
         {
             // Add the string as a message message to the available messages of the object.
             token.setValue(ppro->addMessage(token.getLexeme(), true));
-            token.setKind(PDLTokenKind::Constant);
+            token.setKind(Ego::Script::PDLTokenKind::Constant);
             // Emit a warning that the string is empty.
-            CLogEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, token.getStartLocation());
+            Ego::Script::CLogEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, token.getStartLocation());
             e << "empty string literal\n" << Log::EndOfEntry;
             Log::get() << e;
         }
@@ -666,27 +666,27 @@ PDLToken parser_state_t::parse_token(ObjectProfile *ppro, script_info_t& script,
         auto token = state.scanOperator();
         switch (token.getKind())
         {
-            case PDLTokenKind::Plus: token.setValue(ScriptOperators::OPADD); break;
-            case PDLTokenKind::Minus: token.setValue(ScriptOperators::OPSUB); break;
-            case PDLTokenKind::And: token.setValue(ScriptOperators::OPAND); break;
-            case PDLTokenKind::ShiftRight: token.setValue(ScriptOperators::OPSHR); break;
-            case PDLTokenKind::ShiftLeft: token.setValue(ScriptOperators::OPSHL); break;
-            case PDLTokenKind::Multiply: token.setValue(ScriptOperators::OPMUL); break;
-            case PDLTokenKind::Divide: token.setValue(ScriptOperators::OPDIV); break;
-            case PDLTokenKind::Modulus: token.setValue(ScriptOperators::OPMOD); break;
-            case PDLTokenKind::Assign: token.setValue(-1); break;
-            default: throw RuntimeErrorException(__FILE__, __LINE__, "internal error");
+            case Ego::Script::PDLTokenKind::Plus: token.setValue(Ego::Script::ScriptOperators::OPADD); break;
+            case Ego::Script::PDLTokenKind::Minus: token.setValue(Ego::Script::ScriptOperators::OPSUB); break;
+            case Ego::Script::PDLTokenKind::And: token.setValue(Ego::Script::ScriptOperators::OPAND); break;
+            case Ego::Script::PDLTokenKind::ShiftRight: token.setValue(Ego::Script::ScriptOperators::OPSHR); break;
+            case Ego::Script::PDLTokenKind::ShiftLeft: token.setValue(Ego::Script::ScriptOperators::OPSHL); break;
+            case Ego::Script::PDLTokenKind::Multiply: token.setValue(Ego::Script::ScriptOperators::OPMUL); break;
+            case Ego::Script::PDLTokenKind::Divide: token.setValue(Ego::Script::ScriptOperators::OPDIV); break;
+            case Ego::Script::PDLTokenKind::Modulus: token.setValue(Ego::Script::ScriptOperators::OPMOD); break;
+            case Ego::Script::PDLTokenKind::Assign: token.setValue(-1); break;
+            default: throw Id::RuntimeErrorException(__FILE__, __LINE__, "internal error");
         };
         return token;
     } else if (state.is('[')) {
         auto token = state.scanIDSZ();
-        token.setKind(PDLTokenKind::Constant);
+        token.setKind(Ego::Script::PDLTokenKind::Constant);
         IDSZ2 idsz = IDSZ2(token.getLexeme());
         token.setValue(idsz.toUint32());
         return token;
     } else if (state.isDigit()) {
         auto token = state.scanNumericLiteral();
-        token.setKind(PDLTokenKind::Constant);
+        token.setKind(Ego::Script::PDLTokenKind::Constant);
         int temporary;
         sscanf(token.getLexeme().c_str(), "%d", &temporary);
         token.setValue(temporary);
@@ -697,35 +697,35 @@ PDLToken parser_state_t::parse_token(ObjectProfile *ppro, script_info_t& script,
         // We couldn't figure out what this is, throw out an error code
         if (it == Opcodes.cend())
         {
-            throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, state.getLocation(), "not an opcode");
+            throw Id::CompilationErrorException(__FILE__, __LINE__, Id::CompilationErrorKind::Lexical, state.getLocation(), "not an opcode");
         }
         token.setValue((*it).iValue);
         token.setKind((*it)._kind);
         return token;
     } else {
-        throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, state.getLocation(), "unexpected symbol");
+        throw Id::CompilationErrorException(__FILE__, __LINE__, Id::CompilationErrorKind::Lexical, state.getLocation(), "unexpected symbol");
     }
 }
 
 //--------------------------------------------------------------------------------------------
-void parser_state_t::emit_opcode(const PDLToken& token, const BIT_FIELD highbits, script_info_t& script)
+void parser_state_t::emit_opcode(const Ego::Script::PDLToken& token, const BIT_FIELD highbits, script_info_t& script)
 {
     BIT_FIELD loc_highbits = highbits;
 
     // Emit the opcode.
-    if (PDLTokenKind::Constant == token.getKind())
+    if (Ego::Script::PDLTokenKind::Constant == token.getKind())
     {
         loc_highbits |= Instruction::FUNCTIONBITS;
         auto constantIndex = script._instructions.getConstantPool().getOrCreateConstant(token.getValue());
         script._instructions.append(Instruction(loc_highbits | constantIndex));
     }
-    else if (PDLTokenKind::Function == token.getKind())
+    else if (Ego::Script::PDLTokenKind::Function == token.getKind())
     {
         loc_highbits |= Instruction::FUNCTIONBITS;
         auto constantIndex = script._instructions.getConstantPool().getOrCreateConstant(token.getValue());
         script._instructions.append(Instruction(loc_highbits | constantIndex));
     }
-    else if (PDLTokenKind::Variable == token.getKind())
+    else if (Ego::Script::PDLTokenKind::Variable == token.getKind())
     {
         auto constantIndex = script._instructions.getConstantPool().getOrCreateConstant(token.getValue());
         script._instructions.append(Instruction(loc_highbits | constantIndex));
@@ -733,15 +733,15 @@ void parser_state_t::emit_opcode(const PDLToken& token, const BIT_FIELD highbits
     else
     {
         /** @todo This is not an error of the syntactical analysis. */
-        throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Syntactical, token.getStartLocation(), "unsupported token");
+        throw Id::CompilationErrorException(__FILE__, __LINE__, Id::CompilationErrorKind::Syntactical, token.getStartLocation(), "unsupported token");
     }
 }
 
 //--------------------------------------------------------------------------------------------
 
-void parser_state_t::raise(bool raiseException, Log::Level level, const PDLToken& received, const std::vector<PDLTokenKind>& expected)
+void parser_state_t::raise(bool raiseException, Log::Level level, const Ego::Script::PDLToken& received, const std::vector<Ego::Script::PDLTokenKind>& expected)
 {
-    CLogEntry e(level, __FILE__, __LINE__, __FUNCTION__, received.getStartLocation());
+    Ego::Script::CLogEntry e(level, __FILE__, __LINE__, __FUNCTION__, received.getStartLocation());
     if (expected.size() > 0)
     {
         e << "expected ";
@@ -766,7 +766,7 @@ void parser_state_t::raise(bool raiseException, Log::Level level, const PDLToken
     Log::get() << e;
     if (raiseException)
     {
-        throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Syntactical, received.getStartLocation(), e.getText());
+        throw Id::CompilationErrorException(__FILE__, __LINE__, Id::CompilationErrorKind::Syntactical, received.getStartLocation(), e.getText());
     }
 }
 
@@ -791,17 +791,17 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
         // grab the first opcode
 
         _token = parse_indention(script, state);
-        if (!_token.is(PDLTokenKind::Indent))
+        if (!_token.is(Ego::Script::PDLTokenKind::Indent))
         {
-            this->raise(true, Log::Level::Error, _token, {PDLTokenKind::Indent});
+            this->raise(true, Log::Level::Error, _token, {Ego::Script::PDLTokenKind::Indent});
         }
         auto indent = _token.getValue();
         _token = parse_token(ppro, script, state);
 
         /* `function` */
-        if ( _token.is(PDLTokenKind::Function) )
+        if ( _token.is(Ego::Script::PDLTokenKind::Function) )
         {
-            if ( ScriptFunctions::End == _token.getValue() && 0 == indent )
+            if ( Ego::Script::ScriptFunctions::End == _token.getValue() && 0 == indent )
             {
                 // Stop processing.
                 break;
@@ -816,7 +816,7 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
 
         }
         /* `variable assignOperator expression` */
-        else if ( _token.is(PDLTokenKind::Variable) )
+        else if ( _token.is(Ego::Script::PDLTokenKind::Variable) )
         {
             int operand_index;
             int operands = 0;
@@ -831,19 +831,19 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
             // `assignOperator`
 			if ( !_token.isAssignOperator() )
             {
-                this->raise(true, Log::Level::Error, _token, {PDLTokenKind::Assign});
+                this->raise(true, Log::Level::Error, _token, {Ego::Script::PDLTokenKind::Assign});
             }
             _token = parse_token(ppro, script, state);
 
-            auto isOperator = [](const PDLToken& token)
+            auto isOperator = [](const Ego::Script::PDLToken& token)
             {
                 return token.isOperator() && !token.isAssignOperator();
             };
 
-            auto isOperand = [](const PDLToken& token)
+            auto isOperand = [](const Ego::Script::PDLToken& token)
             {
-                return token.is(PDLTokenKind::Variable)
-                    || token.is(PDLTokenKind::Constant);
+                return token.is(Ego::Script::PDLTokenKind::Variable)
+                    || token.is(Ego::Script::PDLTokenKind::Constant);
             };
             
             if (isOperand(_token))
@@ -853,11 +853,11 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
                 _token = parse_token(ppro, script, state);
             }
             // `unaryPlus|unaryMinus`
-            else if (_token.getKind() == PDLTokenKind::Plus || _token.getKind() == PDLTokenKind::Minus)
+            else if (_token.getKind() == Ego::Script::PDLTokenKind::Plus || _token.getKind() == Ego::Script::PDLTokenKind::Minus)
             {
                 // We have some expression of the format `('+'|'-') ...` and transform this into
                 // `0 ('+'|'-') ...`. This is as close as we can currently get to proper code.
-                auto token = PDLToken(PDLTokenKind::Constant, _token.getStartLocation(), _token.getEndLocation(), "0");
+                auto token = Ego::Script::PDLToken(Ego::Script::PDLTokenKind::Constant, _token.getStartLocation(), _token.getEndLocation(), "0");
                 token.setValue(0);
                 emit_opcode(token, 0, script);
                 operands++;
@@ -865,22 +865,22 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
             }
             else
             {
-                this->raise(true, Log::Level::Error, _token, {PDLTokenKind::Plus, PDLTokenKind::Minus,
-                            PDLTokenKind::Variable, PDLTokenKind::Constant});
+                this->raise(true, Log::Level::Error, _token, {Ego::Script::PDLTokenKind::Plus, Ego::Script::PDLTokenKind::Minus,
+                            Ego::Script::PDLTokenKind::Variable, Ego::Script::PDLTokenKind::Constant});
             }
 
             // `((operator - assignOperator) (constant|variable))*`
-            while ( !_token.is(PDLTokenKind::EndOfLine) )
+            while ( !_token.is(Ego::Script::PDLTokenKind::EndOfLine) )
             {
                 // `operator`
                 if (!isOperator(_token))
                 {
                     this->raise(true, Log::Level::Warning, _token,
-                                {PDLTokenKind::Plus, PDLTokenKind::Minus,
-                                 PDLTokenKind::Multiply, PDLTokenKind::Divide,
-                                 PDLTokenKind::Modulus,
-                                 PDLTokenKind::And,
-                                 PDLTokenKind::ShiftLeft, PDLTokenKind::ShiftRight});
+                                {Ego::Script::PDLTokenKind::Plus, Ego::Script::PDLTokenKind::Minus,
+                                 Ego::Script::PDLTokenKind::Multiply, Ego::Script::PDLTokenKind::Divide,
+                                 Ego::Script::PDLTokenKind::Modulus,
+                                 Ego::Script::PDLTokenKind::And,
+                                 Ego::Script::PDLTokenKind::ShiftLeft, Ego::Script::PDLTokenKind::ShiftRight});
                 }
 
 				auto opcode = _token.getValue(); // The opcode.
@@ -889,7 +889,7 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
                 _token = parse_token(ppro, script, state);
                 if (!isOperand(_token))
                 {
-                    this->raise(true, Log::Level::Error, _token, {PDLTokenKind::Constant, PDLTokenKind::Variable});
+                    this->raise(true, Log::Level::Error, _token, {Ego::Script::PDLTokenKind::Constant, Ego::Script::PDLTokenKind::Variable});
                 }
 
                 emit_opcode( _token, SetDataBits(opcode), script );
@@ -901,15 +901,15 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
         }
         else
         {
-            this->raise(true, Log::Level::Error, _token, {PDLTokenKind::Function, PDLTokenKind::Variable});
+            this->raise(true, Log::Level::Error, _token, {Ego::Script::PDLTokenKind::Function, Ego::Script::PDLTokenKind::Variable});
         }
 
         //
         line++;
     }
 
-    _token.setValue(ScriptFunctions::End);
-    _token.setKind(PDLTokenKind::Function);
+    _token.setValue(Ego::Script::ScriptFunctions::End);
+    _token.setKind(Ego::Script::PDLTokenKind::Function);
     emit_opcode( _token, 0, script );
     _token.setValue(script._instructions.getNumberOfInstructions() + 1);
     emit_opcode( _token, 0, script );
@@ -998,7 +998,7 @@ bool load_ai_codes_vfs()
 	struct aicode_t
 	{
 		/// The kind.
-		PDLTokenKind _kind;
+		Ego::Script::PDLTokenKind _kind;
 		/// The value of th constant.
 		uint32_t _value;
 		/// The name.
@@ -1007,18 +1007,18 @@ bool load_ai_codes_vfs()
 
 	static const aicode_t AICODES[] =
 	{
-    #define Define(name) { PDLTokenKind::Function, ScriptFunctions::name, #name }, 
-    #define DefineAlias(alias, name) { PDLTokenKind::Function, ScriptFunctions::alias, #alias },
+    #define Define(name) { Ego::Script::PDLTokenKind::Function, Ego::Script::ScriptFunctions::name, #name }, 
+    #define DefineAlias(alias, name) { Ego::Script::PDLTokenKind::Function, Ego::Script::ScriptFunctions::alias, #alias },
     #include "egolib/Script/Functions.in"
     #undef DefineAlias
     #undef Define
 
-    #define Define(value, name) { PDLTokenKind::Constant, value, name },
+    #define Define(value, name) { Ego::Script::PDLTokenKind::Constant, value, name },
     #include "egolib/Script/Constants.in"
     #undef Define
 
-    #define Define(cName, eName) { PDLTokenKind::Variable, ScriptVariables::cName, eName },
-    #define DefineAlias(cName, eName) { PDLTokenKind::Variable, ScriptVariables::cName, eName },
+    #define Define(cName, eName) { Ego::Script::PDLTokenKind::Variable, Ego::Script::ScriptVariables::cName, eName },
+    #define DefineAlias(cName, eName) { Ego::Script::PDLTokenKind::Variable, Ego::Script::ScriptVariables::cName, eName },
     #include "egolib/Script/Variables.in"
     #undef DefineAlias
     #undef Define
@@ -1093,7 +1093,7 @@ egolib_rv load_ai_script_vfs(parser_state_t& ps, const std::string& loadname, Ob
 
 //--------------------------------------------------------------------------------------------
 
-void print_token(const PDLToken& token) {
+void print_token(const Ego::Script::PDLToken& token) {
 #if (DEBUG_SCRIPT_LEVEL > 2) && defined(_DEBUG)
 	std::cout << token;
 #endif

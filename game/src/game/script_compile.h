@@ -43,7 +43,7 @@ extern vfs_FILE * debug_script_file;
 /// temporary data describing a single egoscript opcode
 struct opcode_data_t
 {
-    PDLTokenKind _kind;
+    Ego::Script::PDLTokenKind _kind;
     uint32_t iValue;
     std::string cName;
 };
@@ -66,20 +66,20 @@ public:
     static int CarriageReturnSymbol() { return C_CARRIAGE_RETURN_CHAR; }
 
 private:
-    void emit(const PDLToken& token);
-    void emit(PDLTokenKind kind, const id::location& start, const id::location& end);
-    void emit(PDLTokenKind kind, const id::location& start, const id::location& end,
+    void emit(const Ego::Script::PDLToken& token);
+    void emit(Ego::Script::PDLTokenKind kind, const id::location& start, const id::location& end);
+    void emit(Ego::Script::PDLTokenKind kind, const id::location& start, const id::location& end,
               const std::string& lexeme);
-    void emit(PDLTokenKind kind, const id::location& start, const id::location& end,
+    void emit(Ego::Script::PDLTokenKind kind, const id::location& start, const id::location& end,
               int value);
-    PDLToken m_token;
+    Ego::Script::PDLToken m_token;
     id::location m_location;
     size_t m_inputPosition;
-    Buffer *m_inputBuffer;
-    Buffer m_lexemeBuffer;
+    Ego::Script::Buffer *m_inputBuffer;
+    Ego::Script::Buffer m_lexemeBuffer;
 
 public:
-    line_scanner_state_t(Buffer *inputBuffer, const id::location& location);
+    line_scanner_state_t(Ego::Script::Buffer *inputBuffer, const id::location& location);
 
 public:
     line_scanner_state_t(const line_scanner_state_t& other) = delete;
@@ -118,27 +118,27 @@ public:
     /// @code
     /// WhiteSpaces := WhiteSpace*
     /// @endcode
-    PDLToken scanWhiteSpaces();
+    Ego::Script::PDLToken scanWhiteSpaces();
 
     /// @code
     /// NewLines := NewLine*
     /// @endcode
-    PDLToken scanNewLines();
+    Ego::Script::PDLToken scanNewLines();
 
     /// @code
     /// NumericLiteral := Digit+
     /// @endcode
-    PDLToken scanNumericLiteral();
+    Ego::Script::PDLToken scanNumericLiteral();
 
     /// @code
     /// Name := ('_'|Alphabetic)('_'|Alphabetic|Digit)
     /// @endcode
-    PDLToken scanName();
+    Ego::Script::PDLToken scanName();
 
     /// @code
     /// IDSZ := '[' (Digit|Alphabetic)^4 ']'
     /// @endcode
-    PDLToken scanIDSZ();
+    Ego::Script::PDLToken scanIDSZ();
 
     /// @code
     /// String := '"' !'#' StringInfix '"'
@@ -148,7 +148,7 @@ public:
     /// @todo
     /// As the grammar already indicates,
     /// escape codes are not supported (yet).
-    PDLToken scanStringOrReference();
+    Ego::Script::PDLToken scanStringOrReference();
 
     /// @code
     /// Operator := '+' | '-'
@@ -158,9 +158,9 @@ public:
     ///           | '&'
     ///           | '='
     /// @endcode
-    PDLToken scanOperator();
+    Ego::Script::PDLToken scanOperator();
 
-    const PDLToken& getToken() const { return m_token; }
+    const Ego::Script::PDLToken& getToken() const { return m_token; }
 };
 
 // the current state of the parser
@@ -177,7 +177,7 @@ protected:
 	virtual ~parser_state_t();
 public:
     bool _error;
-    PDLToken _token;
+    Ego::Script::PDLToken _token;
     int _line_count;
 
 protected:
@@ -186,10 +186,10 @@ protected:
     // @post @a read was incremented by the number of input symbols consumed
     bool skipNewline(size_t& read, script_info_t& script);
 
-    Buffer _lineBuffer;
+    Ego::Script::Buffer _lineBuffer;
 
 public:
-    Buffer _loadBuffer;
+    Ego::Script::Buffer _loadBuffer;
 
     /// @brief Get the error variable value.
     /// @return the error variable value
@@ -199,7 +199,7 @@ public:
     void clear_error();
 
 private:
-	void emit_opcode(const PDLToken& token, const BIT_FIELD highbits, script_info_t& script);
+	void emit_opcode(const Ego::Script::PDLToken& token, const BIT_FIELD highbits, script_info_t& script);
 
 	static Uint32 jump_goto(int index, int index_end, script_info_t& script);
 public:
@@ -212,15 +212,15 @@ private:
     /// @param received the received token
     /// @param expected the expected token types. Can be empty, however, the information
     /// content of the error log entry/error exception decreases.
-    void raise(bool raiseException, Log::Level level, const PDLToken& received, const std::vector<PDLTokenKind>& expected);
-	PDLToken parse_token(ObjectProfile *ppro, script_info_t& script, line_scanner_state_t& state);
+    void raise(bool raiseException, Log::Level level, const Ego::Script::PDLToken& received, const std::vector<Ego::Script::PDLTokenKind>& expected);
+	Ego::Script::PDLToken parse_token(ObjectProfile *ppro, script_info_t& script, line_scanner_state_t& state);
 	size_t load_one_line(size_t read, script_info_t& script);
 	/// @brief Compute the indention level of a line.
 	/// @remark
 	/// A line must begin with a number of spaces \f$2k\f$ where \f$k=0,1,\ldots$, otherwise an error shall be raised.
 	/// The indention level $j$ of a line with \f$2k\f$ leading spaces for some $k=0,1,\ldots$ is given by \f$\frac{2k
 	/// }{2}=k\f$. The indention level \f$j\f$ of a line may not exceed \f$15\f$.
-    PDLToken parse_indention(script_info_t& script, line_scanner_state_t& state);
+    Ego::Script::PDLToken parse_indention(script_info_t& script, line_scanner_state_t& state);
 public:
 	void parse_line_by_line(ObjectProfile *ppro, script_info_t& script);
 

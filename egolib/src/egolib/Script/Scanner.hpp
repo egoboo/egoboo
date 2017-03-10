@@ -164,19 +164,19 @@ private:
     size_t _lineNumber;
 
     //// @brief The file name.
-    string _fileName;
+    std::string _fileName;
 
 public:
     using Traits = TraitsArg;
     using SymbolType = typename Traits::Type;
     using ExtendedSymbolType = int;
-    using ScannerInputViewType = ScannerInputView<ExtendedSymbolType, Traits::startOfInput(), Traits::endOfInput(), Traits::error(), vector<char>::const_iterator>;
+    using ScannerInputViewType = ScannerInputView<ExtendedSymbolType, Traits::startOfInput(), Traits::endOfInput(), Traits::error(), std::vector<char>::const_iterator>;
 
 private:
     /// @brief The lexeme accumulation buffer.
-    vector<char> _buffer;
+    std::vector<char> _buffer;
     /// @brief The input buffer.
-    vector<char> _inputBuffer;
+    std::vector<char> _inputBuffer;
     /// @brief The input view.
     ScannerInputViewType _inputView;
 
@@ -185,7 +185,7 @@ protected:
     /// @param fileName the filename
     /// @throw RuntimeErrorException if the file can not be read
     /// @post The scanner is in its initial state w.r.t. the specified input if no exception is raised.
-    Scanner(const string& fileName) :
+    Scanner(const std::string& fileName) :
         _fileName(fileName), _inputBuffer(),
         _buffer(), _inputView(_inputBuffer.cbegin(), _inputBuffer.cend()),
         _lineNumber(1)
@@ -205,10 +205,10 @@ protected:
     /// @param fileName the filename
     /// @post The scanner is in its initial state w.r.t. the specified input if no exception is raised.
     /// If an exception is raised, the scanner retains its state.
-    void setInput(const string& fileName)
+    void setInput(const std::string& fileName)
     {
-        vector<char> temporaryBuffer;
-        string temporaryFileName = fileName;
+        std::vector<char> temporaryBuffer;
+        std::string temporaryFileName = fileName;
         // If this succeeds, then we're set.
         vfs_readEntireFile(fileName, [&temporaryBuffer](size_t numberOfBytes, const char *bytes)
         {
@@ -227,7 +227,7 @@ protected:
 public:
     /// @brief Get the file name.
     /// @return the file name
-    const string& getFileName() const
+    const std::string& getFileName() const
     {
         return _fileName;
     }
@@ -241,9 +241,9 @@ public:
 
     /// @brief Get the lexeme text.
     /// @return the lexeme text
-    string getLexemeText() const
+    std::string getLexemeText() const
     {
-        return string(_buffer.cbegin(), _buffer.cend());
+        return std::string(_buffer.cbegin(), _buffer.cend());
     }
 
     /// @brief Clear the lexeme text.

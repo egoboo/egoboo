@@ -26,23 +26,20 @@
 #include "egolib/Script/Traits.hpp"
 #include "egolib/Script/Scanner.hpp"
 
-using namespace std;
-using namespace Ego::Script;
-
 //--------------------------------------------------------------------------------------------
 
 /// @brief A single comment line.
 struct ConfigCommentLine
 {
 private:
-    string m_text;
+    std::string m_text;
 
 public:
-    ConfigCommentLine(const string& text);
+    ConfigCommentLine(const std::string& text);
 
     virtual ~ConfigCommentLine();
 
-    const string& getText() const;
+    const std::string& getText() const;
 };
 
 //--------------------------------------------------------------------------------------------
@@ -52,19 +49,19 @@ struct ConfigEntry
 {
 protected:
     /// @brief The comment lines associated with this entry.
-    vector<ConfigCommentLine> m_commentLines;
+    std::vector<ConfigCommentLine> m_commentLines;
 
     /// @brief The qualified name of this entry.
     id::qualified_name m_qualifiedName;
 
     /// @brief The value of this entry.
-    string m_value;
+    std::string m_value;
 
 public:
     /// @brief Construct this entry.
     /// @param qualifiedName the qualified name
     /// @param value the value
-    ConfigEntry(const id::qualified_name& qualifiedName, const string& value);
+    ConfigEntry(const id::qualified_name& qualifiedName, const std::string& value);
 
     /// @brief Destruct this entry.
     virtual ~ConfigEntry();
@@ -75,11 +72,11 @@ public:
 
     /// @brief Get the value of this entry.
     /// @return the value of this entry
-    const string& getValue() const;
+    const std::string& getValue() const;
 
     /// @brief Get the comment lines of this entry.
     /// @return the comment lines of this entry
-    const vector<ConfigCommentLine>& getCommentLines() const;
+    const std::vector<ConfigCommentLine>& getCommentLines() const;
 };
 
 //--------------------------------------------------------------------------------------------
@@ -88,14 +85,14 @@ struct AbstractConfigFile
 {
 public:
 
-    using MapTy = unordered_map<id::qualified_name, shared_ptr<ConfigEntry>>;
+    using MapTy = std::unordered_map<id::qualified_name, std::shared_ptr<ConfigEntry>>;
     using ConstMapIteratorTy = MapTy::const_iterator;
 
     /// @internal Custom iterator.
-    struct EntryIterator : iterator<forward_iterator_tag, const shared_ptr<ConfigEntry>>
+    struct EntryIterator : std::iterator<std::forward_iterator_tag, const std::shared_ptr<ConfigEntry>>
     {
     public:
-        using iterator_category = forward_iterator_tag;
+        using iterator_category = std::forward_iterator_tag;
 
         using OuterIteratorTy = ConstMapIteratorTy;
 
@@ -182,13 +179,13 @@ public:
      * @brief
      *  The file name of the configuration file.
      */
-    string _fileName;
+    std::string _fileName;
 
     /**
      * @brief
      *  A map of qualified names (keys) to shared pointers of entries (values).
      */
-    unordered_map<id::qualified_name,shared_ptr<ConfigEntry>> _map;
+    std::unordered_map<id::qualified_name,std::shared_ptr<ConfigEntry>> _map;
 
 public:
 
@@ -205,7 +202,7 @@ public:
      * @post
      *  The configuration file is empty and has the specified file name.
      */
-    AbstractConfigFile(const string& fileName) :
+    AbstractConfigFile(const std::string& fileName) :
         _fileName(fileName), _map()
     {}
 
@@ -244,7 +241,7 @@ public:
      * @return
      *  the file name
      */
-    const string& getFileName() const
+    const std::string& getFileName() const
     {
         return _fileName;
     }
@@ -255,7 +252,7 @@ public:
      * @param fileName
      *  the file name
      */
-    void setFileName(const string& fileName)
+    void setFileName(const std::string& fileName)
     {
         _fileName = fileName;
     }
@@ -272,11 +269,11 @@ public:
      * @return
      *  @a true on success, @a false on failure
      */
-    bool set(const id::qualified_name& qn, const string& v)
+    bool set(const id::qualified_name& qn, const std::string& v)
     {
         try
         {
-            _map[qn] = make_shared<ConfigEntry>(qn,v);
+            _map[qn] = std::make_shared<ConfigEntry>(qn,v);
         }
         catch (...)
         {
@@ -297,7 +294,7 @@ public:
      *  If @a true is returned, the value was stored @a v.
      *  the value if it exists, @a nullptr otherwise
      */
-    bool get(const id::qualified_name& qn, string& v) const
+    bool get(const id::qualified_name& qn, std::string& v) const
     {
         auto it = _map.find(qn);
         if (it != _map.end())
@@ -333,7 +330,7 @@ public:
      * @post
      *  The configuration file is empty and has the specified file name.
      */
-    ConfigFile(const string& fileName) :
+    ConfigFile(const std::string& fileName) :
         AbstractConfigFile(fileName)
     {}
 
@@ -355,7 +352,7 @@ protected:
      * @brief
      *  The configuration file.
      */
-    shared_ptr<ConfigFile> _source;
+    std::shared_ptr<ConfigFile> _source;
         
     /**
      * @brief
@@ -371,7 +368,7 @@ protected:
      * @return
      *  @a true on success, @a false on failure
      */
-    bool unparse(shared_ptr<ConfigEntry> entry);
+    bool unparse(std::shared_ptr<ConfigEntry> entry);
 
 public:
     /**
@@ -390,13 +387,13 @@ public:
      * @param source
      *  the configuration file
      */
-    bool unparse(shared_ptr<ConfigFile> source);
+    bool unparse(std::shared_ptr<ConfigFile> source);
 };
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-struct ConfigFileParser : public Scanner<Traits<char>>
+struct ConfigFileParser : public Ego::Script::Scanner<Ego::Script::Traits<char>>
 {
 public:
 
@@ -407,21 +404,21 @@ protected:
      * @brief
      *  The current qualified name or @a nullptr.
      */
-    unique_ptr<id::qualified_name> _currentQualifiedName;
+    std::unique_ptr<id::qualified_name> _currentQualifiedName;
     /**
      * @brief
      *  The current value or @a nullptr.
      */
-    unique_ptr<string> _currentValue;
+    std::unique_ptr<std::string> _currentValue;
 
-    vector<string> _commentLines;
+    std::vector<std::string> _commentLines;
 
     /**
      * @brief
      *  Flush the comment buffer:
      *  Concatenate all comments in the buffer to a single string and empty the buffer.
      */
-    string makeComment();
+    std::string makeComment();
 
 public:
 
@@ -430,7 +427,7 @@ public:
     virtual ~ConfigFileParser();
 
 
-    shared_ptr<ConfigFile> parse();
+    std::shared_ptr<ConfigFile> parse();
 
 protected:
 
@@ -440,7 +437,7 @@ protected:
      *  file -> entries*
      *  @endcode
      */
-    bool parseFile(shared_ptr<ConfigFile> target);
+    bool parseFile(std::shared_ptr<ConfigFile> target);
 
     /**
      * @remark
@@ -448,7 +445,7 @@ protected:
      *  entry -> sectionName keyValuePair*
      *  @endcode
      */
-    bool parseEntry(shared_ptr<ConfigFile> target);
+    bool parseEntry(std::shared_ptr<ConfigFile> target);
 
     /**
      * @remark
@@ -493,7 +490,7 @@ protected:
      */
     bool parseValue();
 
-    bool parseComment(string& comment);
+    bool parseComment(std::string& comment);
 
     bool skipWhiteSpaces();
 
