@@ -271,7 +271,7 @@ public:
     /// @param symbol the symbol
     inline void write(const ExtendedSymbolType& symbol)
     {
-        assert(Traits::is_pua_bmp(symbol) || Traits::is_zt(symbol));
+        assert(!Traits::is_pua_bmp(symbol) && !Traits::is_zt(symbol));
         _buffer.push_back(static_cast<SymbolType>(symbol));
     }
 
