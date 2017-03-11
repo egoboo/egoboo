@@ -7,8 +7,8 @@ Integrated Development Environment (IDE). At this point, Microsoft Visual
 Studio 2013 and Code::Blocks/TDM-GCC and MinGW are supported.
 
 
-Visual Studio 2015
-==================
+Visual Studio 2017 Community Edition
+====================================
 Information on compiling Egoboo using Microsoft Visual Studio is provided
 in the file 'README.VisualStudio'.
 

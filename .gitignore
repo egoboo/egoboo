@@ -1,4 +1,5 @@
-# Visual Studio.
+# Visual Studio 2017.
+\.vs
 *.sdf
 *.opensdf
 *.suo

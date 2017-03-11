@@ -1,17 +1,19 @@
-= Compiling Egoboo using Microsoft Visual Studio Community 2015 Update 2
+= Compiling Egoboo using Microsoft Visual Studio 2017 Community Edition
 
 This document describes the process of building Egoboo under and for
-Windows (32- and 64-Bit) using Microsoft Visual Studio Community 2015
-Update 2.
+Windows 10 (32- and 64-Bit) using Microsoft Visual Studio 2017 Community Edition.
 
-For the following process to succeed, the latest version of the Windows SDK
+
+For the following process to succeed, the Windows SDK (shipped with Visual Studio)
 needs to be installed on your system.
+
 
 Open the solution `egoboo.sln`. There are two configurations (`Debug` and
 `Release`) and two platform configurations (`Win32` for 32-Bit and `x64` for
 64-Bit) available. Select the desired combination of configuration and platform
 configuration and compile the whole solution. The resulting binaries can be
 found in the directory `product/<configuration>/<platform configuration>`.
+
 
 If you experience problems, please ask in the Egoboo Forums at
 http://egoboo.sourceforge.net/forum/. Thank you. 
