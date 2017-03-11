@@ -77,7 +77,7 @@ bool SpawnFileReaderImpl::read(ReadContext& ctxt, spawn_file_info_t& info)
         info.facing = Facing::FACE_NORTH;
         info.attach = ATTACH_NONE;
         char chr = ctxt.readPrintable();
-        switch (Ego::toupper(chr))
+        switch (id::to_upper(chr))
         {
             case 'S': info.facing = Facing::FACE_SOUTH;       break;
             case 'E': info.facing = Facing::FACE_EAST;        break;

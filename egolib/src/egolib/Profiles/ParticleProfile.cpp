@@ -181,7 +181,7 @@ std::shared_ptr<ParticleProfile> ParticleProfile::readFromFile(const std::string
     // General data
     profile->force = vfs_get_next_bool(*ctxt);
 
-    switch(Ego::toupper(vfs_get_next_printable(*ctxt)))
+    switch(id::to_upper(vfs_get_next_printable(*ctxt)))
     {
         case 'L': profile->type = SPRITE_LIGHT; break;
         case 'S': profile->type = SPRITE_SOLID; break;
@@ -226,8 +226,8 @@ std::shared_ptr<ParticleProfile> ParticleProfile::readFromFile(const std::string
 
     // Lighting data
     cTmp = vfs_get_next_printable(*ctxt);
-    if ('T' == Ego::toupper(cTmp)) profile->dynalight.mode = DYNA_MODE_ON;
-    else if ('L' == Ego::toupper(cTmp)) profile->dynalight.mode = DYNA_MODE_LOCAL;
+    if ('T' == id::to_upper(cTmp)) profile->dynalight.mode = DYNA_MODE_ON;
+    else if ('L' == id::to_upper(cTmp)) profile->dynalight.mode = DYNA_MODE_LOCAL;
     else profile->dynalight.mode = DYNA_MODE_OFF;
 
     profile->dynalight.level = vfs_get_next_float(*ctxt);
@@ -385,7 +385,7 @@ std::shared_ptr<ParticleProfile> ParticleProfile::readFromFile(const std::string
                 break;
 
                 case IDSZ2::caseLabel('O', 'R', 'N', 'T'):
-                    switch (Ego::toupper(ctxt->readPrintable()))
+                    switch (id::to_upper(ctxt->readPrintable()))
                     {
                         case 'X': profile->orientation = prt_ori_t::ORIENTATION_X; break;  // put particle up along the world or body-fixed x-axis
                         case 'Y': profile->orientation = prt_ori_t::ORIENTATION_Y; break;  // put particle up along the world or body-fixed y-axis

@@ -617,7 +617,7 @@ Ego::Script::PDLToken parser_state_t::parse_token(ObjectProfile *ppro, script_in
                 const auto& profile = element.second;
                 if (profile == nullptr) continue;
                 // Is this the object we are looking for?
-                if (Ego::isSuffix(profile->getPathname(), token.getLexeme()))
+                if (id::is_suffix(profile->getPathname(), token.getLexeme()))
                 {
                     token.setValue(profile->getSlotNumber().get());
                     break;

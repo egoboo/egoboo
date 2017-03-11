@@ -73,8 +73,3 @@
 	/// Append a network slash to a filename
 	/// if there is no slash or backslash.
     std::string str_append_slash_net(const std::string& filename);
-
-#if defined(__GNUC__) && !(defined (__MINGW) || defined(__MINGW32__))
-    char* strupr( char * str );
-    char* strlwr( char * str );
-#endif
