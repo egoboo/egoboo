@@ -62,9 +62,12 @@ Renderer::Renderer() :
     _extensions(Utilities::getExtensions()),
     info(Utilities::getRenderer(), Utilities::getVendor(), Utilities::getVersion()) {
     OpenGL::link();
+    initializeErrorTextures();
 }
 
-Renderer::~Renderer() {}
+Renderer::~Renderer() {
+    uninitializeErrorTextures();
+}
 
 const Ego::RendererInfo& Renderer::getInfo() {
     return info;

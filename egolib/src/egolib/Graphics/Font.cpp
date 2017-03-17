@@ -631,7 +631,7 @@ Font::FontAtlas Font::createFontAtlas(const std::vector<uint16_t> &codepoints) c
     }
 
     std::shared_ptr<SDL_Surface> atlasPtr(atlas, SDL_FreeSurface);
-    retval.texture = std::make_shared<Ego::OpenGL::Texture>();
+    retval.texture = Ego::Renderer::get().createTexture();
     retval.texture->load("font atlas", atlasPtr);
     retval.texture->setAddressModeS(Ego::TextureAddressMode::Clamp);
     retval.texture->setAddressModeT(Ego::TextureAddressMode::Clamp);

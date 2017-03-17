@@ -22,6 +22,7 @@
 /// @author Michael Heilmann
 
 #include "egolib/Renderer/OpenGL/TextureUnit.hpp"
+#include "egolib/Renderer/OpenGL/Texture.hpp"
 
 namespace Ego {
 namespace OpenGL {

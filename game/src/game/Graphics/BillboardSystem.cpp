@@ -239,7 +239,7 @@ std::shared_ptr<Billboard> BillboardSystem::makeBillboard(ObjectRef obj_ref, con
     std::shared_ptr<Texture> tex;
     try
     {
-        tex = std::make_shared<OpenGL::Texture>();
+        tex = Ego::Renderer::get().createTexture();
     }
     catch (...)
     {

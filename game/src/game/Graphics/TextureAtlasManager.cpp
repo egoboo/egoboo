@@ -61,7 +61,7 @@ void TextureAtlasManager::decimate(const std::shared_ptr<const Ego::Texture>& so
             rectangle.x = std::floor(x);
 
             // Create the destination texture.
-            auto targetTexture = std::make_shared<Ego::OpenGL::Texture>();
+            auto targetTexture = Ego::Renderer::get().createTexture();
 
             // Create the destination surface.
             const auto& pfd = Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8A8>();

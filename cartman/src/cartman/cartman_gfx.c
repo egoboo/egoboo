@@ -1062,7 +1062,7 @@ void load_img()
     std::string fileName;
 
     fileName = "editor/point.png";
-    Resources::get().tx_point = std::make_shared<Ego::OpenGL::Texture>();
+    Resources::get().tx_point = Ego::Renderer::get().createTexture();
     if (!Resources::get().tx_point->load(fileName, gfx_loadImage(fileName)))
     {
         Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to load image ",
@@ -1070,7 +1070,7 @@ void load_img()
     }
     
     fileName = "editor/pointon.png";
-    Resources::get().tx_pointon = std::make_shared<Ego::OpenGL::Texture>();
+    Resources::get().tx_pointon = Ego::Renderer::get().createTexture();
     if (!Resources::get().tx_pointon->load(fileName, gfx_loadImage(fileName)))
     {
 		Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to load image ",
@@ -1078,7 +1078,7 @@ void load_img()
     }
     
     fileName = "editor/ref.png";
-    Resources::get().tx_ref = std::make_shared<Ego::OpenGL::Texture>();
+    Resources::get().tx_ref = Ego::Renderer::get().createTexture();;
     if (!Resources::get().tx_ref->load(fileName, gfx_loadImage(fileName)))
     {
 		Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to load image ",
@@ -1086,7 +1086,7 @@ void load_img()
     }
     
     fileName = "editor/drawref.png";
-    Resources::get().tx_drawref = std::make_shared<Ego::OpenGL::Texture>();
+    Resources::get().tx_drawref = Ego::Renderer::get().createTexture();;
     if (!Resources::get().tx_drawref->load(fileName, gfx_loadImage(fileName)))
     {
 		Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to load image ",
@@ -1094,7 +1094,7 @@ void load_img()
     }
     
     fileName = "editor/anim.png";
-    Resources::get().tx_anim = std::make_shared<Ego::OpenGL::Texture>();
+    Resources::get().tx_anim = Ego::Renderer::get().createTexture();;
     if (!Resources::get().tx_anim->load(fileName, gfx_loadImage(fileName)))
     {
 		Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to load image ",
@@ -1102,7 +1102,7 @@ void load_img()
     }
     
     fileName = "editor/water.png";
-    Resources::get().tx_water = std::make_shared<Ego::OpenGL::Texture>();
+    Resources::get().tx_water = Ego::Renderer::get().createTexture();;
     if (!Resources::get().tx_water->load(fileName, gfx_loadImage(fileName)))
     {
 		Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to load image ",
@@ -1110,7 +1110,7 @@ void load_img()
     }
     
     fileName = "editor/slit.png";
-    Resources::get().tx_wall = std::make_shared<Ego::OpenGL::Texture>();
+    Resources::get().tx_wall = Ego::Renderer::get().createTexture();;
     if (!Resources::get().tx_wall->load(fileName, gfx_loadImage(fileName)))
     {
         Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to load image ",
@@ -1118,7 +1118,7 @@ void load_img()
     }
     
     fileName = "editor/impass.png";
-    Resources::get().tx_impass = std::make_shared<Ego::OpenGL::Texture>();
+    Resources::get().tx_impass = Ego::Renderer::get().createTexture();;
     if (!Resources::get().tx_impass->load(fileName, gfx_loadImage(fileName)))
     {
         Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to load image ",
@@ -1126,7 +1126,7 @@ void load_img()
     }
     
     fileName = "editor/damage.png";
-    Resources::get().tx_damage = std::make_shared<Ego::OpenGL::Texture>();
+    Resources::get().tx_damage = Ego::Renderer::get().createTexture();;
     if (!Resources::get().tx_damage->load(fileName, gfx_loadImage(fileName)))
     {
         Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to load image ",
@@ -1134,7 +1134,7 @@ void load_img()
     }
     
     fileName = "editor/slippy.png";
-    Resources::get().tx_slippy = std::make_shared<Ego::OpenGL::Texture>();
+    Resources::get().tx_slippy = Ego::Renderer::get().createTexture();;
     if (!Resources::get().tx_slippy->load(fileName, gfx_loadImage(fileName)))
     {
         Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to load image ",
@@ -1162,7 +1162,7 @@ void get_small_tiles( SDL_Surface* bmpload )
         {
             SDL_Rect src1 = { static_cast<Sint16>(x), static_cast<Sint16>(y), static_cast<Uint16>( step_x - 1 ), static_cast<Uint16>( step_y - 1 ) };
 
-            Resources::get().tx_smalltile[numsmalltile] = std::make_shared<Ego::OpenGL::Texture>();
+            Resources::get().tx_smalltile[numsmalltile] = Ego::Renderer::get().createTexture();
 
             image = Ego::Graphics::SDL::createSurface( SMALLXY, SMALLXY );
             if (!image)
@@ -1212,7 +1212,7 @@ void get_big_tiles( SDL_Surface* bmpload )
             src1.w = wid;
             src1.h = hgt;
 
-            Resources::get().tx_bigtile[numbigtile] = std::make_shared<Ego::OpenGL::Texture>();
+            Resources::get().tx_bigtile[numbigtile] = Ego::Renderer::get().createTexture();
 
             image = Ego::Graphics::SDL::createSurface( SMALLXY, SMALLXY );
             if (!image)

@@ -100,7 +100,7 @@ void Manager::render() {
 namespace Cartman { namespace Gui {
 
 Border::Border(Size2i size)
-    : texture(std::make_shared<Ego::OpenGL::Texture>()), size(size) {}
+    : texture(Ego::Renderer::get().createTexture()), size(size) {}
 
 void Border::loadTexture(const std::string& textureFileName) {
     if (!texture->load(textureFileName, gfx_loadImage(textureFileName))) {

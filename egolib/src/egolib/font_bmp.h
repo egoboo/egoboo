@@ -25,9 +25,7 @@
 #include "egolib/typedef.h"
 
 namespace Ego {
-namespace OpenGL {
-struct Texture;
-} // namespace OpenGL
+class Texture;
 } // namespace Ego
 
 #define NUMFONTX            16          ///< Number of fonts in the bitmap
