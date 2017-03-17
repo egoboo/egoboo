@@ -197,7 +197,7 @@ gfx_rv TileListV2::render_fan(ego_mesh_t& mesh, const Index1D& i) {
         TileRenderer::invalidate();
         auto& renderer = Renderer::get();
         renderer.getTextureUnit().setActivated(nullptr);
-        renderer.setColour(Colour4f::white());
+        renderer.setColour(Math::Colour4f::white());
         for (size_t i = ptile._vrtstart, j = 0; j < 4; ++i, ++j) {
             glBegin(GL_LINES);
             {
@@ -264,9 +264,9 @@ gfx_rv TileListV2::render_heightmap_fan(ego_mesh_t& mesh, const Index1D& tileInd
         v[cnt].col[BB] = tmp;
         v[cnt].col[AA] = 1.0f;
 
-        v[cnt].col[RR] = constrain(v[cnt].col[RR], 0.0f, 1.0f);
-        v[cnt].col[GG] = constrain(v[cnt].col[GG], 0.0f, 1.0f);
-        v[cnt].col[BB] = constrain(v[cnt].col[BB], 0.0f, 1.0f);
+        v[cnt].col[RR] = Math::constrain(v[cnt].col[RR], 0.0f, 1.0f);
+        v[cnt].col[GG] = Math::constrain(v[cnt].col[GG], 0.0f, 1.0f);
+        v[cnt].col[BB] = Math::constrain(v[cnt].col[BB], 0.0f, 1.0f);
 
         badvertex++;
     }
@@ -274,10 +274,10 @@ gfx_rv TileListV2::render_heightmap_fan(ego_mesh_t& mesh, const Index1D& tileInd
     auto& renderer = Renderer::get();
 
     renderer.setDepthTestEnabled(false);
-    renderer.setDepthFunction(Ego::CompareFunction::AlwaysPass);
+    renderer.setDepthFunction(CompareFunction::AlwaysPass);
     renderer.getTextureUnit().setActivated(nullptr);
-    renderer.setCullingMode(Ego::CullingMode::None);
-    renderer.setRasterizationMode(Ego::RasterizationMode::Line);
+    renderer.setCullingMode(CullingMode::None);
+    renderer.setRasterizationMode(RasterizationMode::Line);
 
     // Render each command
     GL_DEBUG(glBegin)(GL_TRIANGLE_FAN);
@@ -290,7 +290,7 @@ gfx_rv TileListV2::render_heightmap_fan(ego_mesh_t& mesh, const Index1D& tileInd
     }
     GL_DEBUG_END();
 
-    renderer.setRasterizationMode(Ego::RasterizationMode::Solid);
+    renderer.setRasterizationMode(RasterizationMode::Solid);
 
     return gfx_success;
 }

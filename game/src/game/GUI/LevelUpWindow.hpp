@@ -65,14 +65,14 @@ private:
 
     //Attribute increase state
     std::vector<std::shared_ptr<Label>> _fadeInLabels;
-    std::array<std::shared_ptr<Label>, Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES> _attributeValues;
-    std::array<std::shared_ptr<Label>, Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES> _attributeIncrease;
+    std::array<std::shared_ptr<Label>, Attribute::NR_OF_PRIMARY_ATTRIBUTES> _attributeValues;
+    std::array<std::shared_ptr<Label>, Attribute::NR_OF_PRIMARY_ATTRIBUTES> _attributeIncrease;
     std::shared_ptr<Image> _selectedPerk;
     Vector2f _animationSpeed;
     Vector2f _animationPos;
     uint32_t _attributeRevealTime;
 
-    friend class Ego::GUI::PerkButton;
+    friend class GUI::PerkButton;
 };
 
 } // namespace GUI

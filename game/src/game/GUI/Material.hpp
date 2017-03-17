@@ -45,8 +45,8 @@ public:
 	/// @param texture a pointer to the texture if any, a null pointer otherwise.
 	/// @param colour the colour
 	/// @param isAlphaBlendingEnabled if alpha blending is enabled
-	Material(const std::shared_ptr<const Texture>& texture, const Colour4f& colour, bool isAlphaBlendingEnabled);
-    Material() : Material(nullptr, Colour4f::white(), true) {}
+	Material(const std::shared_ptr<const Texture>& texture, const Math::Colour4f& colour, bool isAlphaBlendingEnabled);
+    Material() : Material(nullptr, Math::Colour4f::white(), true) {}
 	
 public:
 	/// @brief Apply the material to the renderer state.

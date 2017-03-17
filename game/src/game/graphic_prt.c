@@ -271,7 +271,7 @@ gfx_rv ParticleGraphicsRenderer::render_one_prt_ref(const ParticleRef iprt)
         {
             Ego::OpenGL::PushAttrib pa(GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_CURRENT_BIT);
             {
-                Ego::Colour4f particle_colour;
+                Ego::Math::Colour4f particle_colour;
                 std::shared_ptr<const Ego::Texture> texture = nullptr;
 
                 // don't write into the depth buffer (disable glDepthMask for transparent objects)

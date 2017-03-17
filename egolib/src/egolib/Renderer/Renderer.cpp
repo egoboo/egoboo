@@ -66,7 +66,7 @@ TextureUnit::~TextureUnit()
 {}
 
 Renderer::Renderer()
-    : m_projectionMatrix(Transform::perspective(Degrees(45.0f), 4.0f/3.0f, +0.1f, +1.0f)),
+    : m_projectionMatrix(Math::Transform::perspective(Math::Degrees(45.0f), 4.0f/3.0f, +0.1f, +1.0f)),
       m_viewMatrix(Matrix4f4f::identity()), m_worldMatrix(Matrix4f4f::identity())
 {}
 

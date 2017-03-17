@@ -101,7 +101,7 @@ void BackgroundRenderPass::doRun(::Camera& camera, const TileList& tl, const Ent
             intens += fcos * fcos * light_d * ilayer->_light_dir;
         }
 
-        intens = constrain(intens, 0.0f, 1.0f);
+        intens = Math::constrain(intens, 0.0f, 1.0f);
     }
 
     renderer.getTextureUnit().setActivated(_currentModule->getWaterTexture(0).get());
@@ -128,7 +128,7 @@ void BackgroundRenderPass::doRun(::Camera& camera, const TileList& tl, const Ent
                 {
                     OpenGL::PushAttrib pa(GL_ENABLE_BIT | GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT);
                     {
-                        renderer.setColour(Colour4f(intens, intens, intens, alpha));
+                        renderer.setColour(Math::Colour4f(intens, intens, intens, alpha));
 
                         if (alpha >= 1.0f)
                         {
@@ -152,7 +152,7 @@ void BackgroundRenderPass::doRun(::Camera& camera, const TileList& tl, const Ent
                     {
                         renderer.setBlendingEnabled(false);
 
-                        renderer.setColour(Colour4f(light, light, light, 1.0f));
+                        renderer.setColour(Math::Colour4f(light, light, light, 1.0f));
 
                         renderer.render(_vertexBuffer, PrimitiveType::TriangleFan, 0, 4);
                     }

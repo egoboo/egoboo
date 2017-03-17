@@ -7,26 +7,26 @@ namespace GUI {
 Image::Image() :
     _texture(""),
     _image(nullptr),
-    _tint(Colour4f::white()) {
+    _tint(Math::Colour4f::white()) {
 
 }
 
 Image::Image(const std::string &filePath) :
     _texture(filePath),
     _image(nullptr),
-    _tint(Colour4f::white()) {}
+    _tint(Math::Colour4f::white()) {}
 
 Image::Image(std::shared_ptr<Texture> texture) :
     _texture(""),
     _image(texture),
-    _tint(Colour4f::white()) {
+    _tint(Math::Colour4f::white()) {
 
 }
 
 Image::Image(const DeferredTexture &image) :
     _texture(image),
     _image(nullptr),
-    _tint(Colour4f::white()) {
+    _tint(Math::Colour4f::white()) {
 
 }
 

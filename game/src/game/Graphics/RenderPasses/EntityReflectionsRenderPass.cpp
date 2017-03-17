@@ -62,7 +62,7 @@ void EntityReflectionsRenderPass::doRun(::Camera& camera, const TileList& tl, co
 
                 if (mesh->grid_is_valid(itile) && (0 != mesh->test_fx(itile, MAPFX_REFLECTIVE)))
                 {
-                    renderer.setColour(Colour4f::white());
+                    renderer.setColour(Math::Colour4f::white());
 
                     ObjectGraphicsRenderer::render_ref(camera, object);
                 }
@@ -82,7 +82,7 @@ void EntityReflectionsRenderPass::doRun(::Camera& camera, const TileList& tl, co
 
                 if (mesh->grid_is_valid(itile) && (0 != mesh->test_fx(itile, MAPFX_REFLECTIVE)))
                 {
-                    renderer.setColour(Colour4f::white());
+                    renderer.setColour(Math::Colour4f::white());
                     ParticleGraphicsRenderer::render_one_prt_ref(iprt);
                 }
             }

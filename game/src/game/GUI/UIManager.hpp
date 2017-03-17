@@ -136,7 +136,7 @@ public:
     * @param tint
     *   colour of the rectangle (including alpha channel)
     **/
-    void fillRectangle(const Rectangle2f& rectangle, const bool useAlpha, const Colour4f& tint = Colour4f::white());
+    void fillRectangle(const Rectangle2f& rectangle, const bool useAlpha, const Math::Colour4f& tint = Math::Colour4f::white());
 
     /**
      * @brief Render a 2D quad.

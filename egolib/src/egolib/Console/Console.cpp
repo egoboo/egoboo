@@ -355,7 +355,7 @@ void Console::draw()
 
     // Set the projecton matrix.
     auto windowSize = GraphicsSystem::window->getSize();
-    Matrix4f4f matrix = Transform::ortho(0, windowSize.width(), windowSize.height(), 0, -1, 1);
+    Matrix4f4f matrix = Math::Transform::ortho(0, windowSize.width(), windowSize.height(), 0, -1, 1);
     renderer.setProjectionMatrix(matrix);
 
     // Set the view and the world matrix.
@@ -374,9 +374,9 @@ void Console::draw()
     renderer.getTextureUnit().setActivated(nullptr);
 
     // The colour white.
-    static const auto white = Colour4f::white();
+    static const auto white = Math::Colour4f::white();
     // The colour black.
-    static const auto black = Colour4f::black();
+    static const auto black = Math::Colour4f::black();
     // The vertex data structure and the vertex descriptor.
     struct Vertex { float x, y; };
     static const VertexDescriptor vertexDescriptor({VertexElementDescriptor(0, VertexElementDescriptor::Syntax::F2, VertexElementDescriptor::Semantics::Position)});
