@@ -573,8 +573,6 @@
     <ClInclude Include="src\egolib\Mesh\TileFX.hpp" />
     <ClInclude Include="src\egolib\FileFormats\MapTileDefinitionsDictionary.hpp" />
     <ClInclude Include="src\egolib\VFS\FsPath.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\IsEven.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\IsOdd.hpp" />
     <ClInclude Include="src\egolib\Script\IRuntimeStatistics.hpp" />
     <ClInclude Include="src\egolib\Math\Interval.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\Convert.hpp" />
@@ -647,8 +645,6 @@
     <ClInclude Include="src\egolib\Math\Functors\Translate_Sphere.hpp" />
     <ClInclude Include="src\egolib\Math\Constants.hpp" />
     <ClInclude Include="src\egolib\Extensions\WindowProperties.hpp" />
-    <ClInclude Include="src\egolib\Math\One.hpp" />
-    <ClInclude Include="src\egolib\Math\Zero.hpp" />
     <ClInclude Include="src\egolib\Math\Discrete.hpp" />
     <ClInclude Include="src\egolib\App.hpp" />
     <ClInclude Include="src\egolib\Graphics\GraphicsWindow.hpp" />

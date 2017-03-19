@@ -51,15 +51,13 @@ namespace Math {
 template <typename T>
 struct Interpolate<T, InterpolationMethod::Linear, std::enable_if_t<IsReal<T>::value>> {
     T operator()(T x, T y, T t) const {
-        static const One<T> one{};
-        static const Zero<T> zero{};
-        if (t < zero() || t > one()) {
+        if (t < id::zero<T>() || t > id::one<T>()) {
             auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "parameter t = ", t, " not within the "
                                         "interval of [0,1]", Log::EndOfEntry);
             Log::get() << e;
             throw Id::OutOfBoundsException(__FILE__, __LINE__, e.getText());
         }
-        return x * (one() - t) + y * t;
+        return x * (id::one<T>() - t) + y * t;
     }
 }; // struct Interpolate
 

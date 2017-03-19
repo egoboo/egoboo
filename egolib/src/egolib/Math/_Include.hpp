@@ -37,8 +37,8 @@
 #include "egolib/Math/Functors/Interpolate_Linear_ColourRGBA.hpp"
 
 //
-#include "egolib/Math/Functors/IsEven.hpp"
-#include "egolib/Math/Functors/IsOdd.hpp"
+#include "idlib/math/even_odd.hpp"
+#include "idlib/math/one_zero.hpp"
 
 //
 #include "egolib/Math/Functors/Contains_AxisAlignedBox_AxisAlignedBox.hpp"

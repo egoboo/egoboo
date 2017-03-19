@@ -4672,7 +4672,7 @@ Uint8 scr_IfStateIsOdd( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( self.state & 1 );
+    returncode = id::is_odd(self.state);
 
     SCRIPT_FUNCTION_END();
 }

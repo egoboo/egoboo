@@ -24,6 +24,7 @@
 #pragma once
 
 #include "egolib/Math/EuclideanSpace.hpp"
+#include "idlib/math/one_zero.hpp"
 
 namespace Ego {
 namespace Math {
@@ -57,10 +58,10 @@ public:
     Ray(const PointType& origin, const VectorType& direction)
         : origin(origin), direction(direction) {
         auto length = this->direction.length();
-        if (length == Zero<ScalarType>()()) {
+        if (length == id::zero<ScalarType>()) {
             throw Id::RuntimeErrorException(__FILE__, __LINE__, "direction vector is zero vector");
         }
-        this->direction *= One<ScalarType>()() / length;
+        this->direction *= id::one<ScalarType>() / length;
     }
 
     /** 

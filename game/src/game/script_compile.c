@@ -554,8 +554,7 @@ Ego::Script::PDLToken parser_state_t::parse_indention(script_info_t& script, lin
     }
 
     size_t indent = source.getValue();
-    static Ego::Math::IsOdd<int> isOdd;
-    if (isOdd(indent))
+    if (id::is_odd(indent))
     {
         Ego::Script::CLogEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getStartLocation());
         e << "invalid indention - number of spaces must be even - \n"

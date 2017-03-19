@@ -24,8 +24,7 @@
 #pragma once
 
 #include "egolib/Math/TemplateUtilities.hpp"
-#include "egolib/Math/Zero.hpp"
-#include "egolib/Math/One.hpp"
+#include "idlib/math/one_zero.hpp"
 #include "egolib/Float.hpp"
 
 namespace Ego {
@@ -106,7 +105,7 @@ struct OrderedRing<_ElementType, std::enable_if_t<IsInteger<_ElementType>::value
      *  the zero/neutral element of addition/additive neutral element
      */
     static inline constexpr ElementType additiveNeutral() {
-        return Zero<ElementType>()();
+        return id::zero<ElementType>();
     }
 
     /**
@@ -116,7 +115,7 @@ struct OrderedRing<_ElementType, std::enable_if_t<IsInteger<_ElementType>::value
      *  the multiplicative neutral element
      */
     static inline constexpr ElementType multiplicativeNeutral() {
-        return One<ElementType>()();
+        return id::one<ElementType>();
     }
 
 	/**

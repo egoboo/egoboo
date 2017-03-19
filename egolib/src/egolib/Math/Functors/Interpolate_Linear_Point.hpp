@@ -54,15 +54,13 @@ struct Interpolate<Point<_VectorSpaceType>, InterpolationMethod::Linear, void> {
     using A = Point<_VectorSpaceType>;
     using T = typename _VectorSpaceType::ScalarType;
     A operator()(A x, A y, T t) const {
-        static const One<T> one{};
-        static const Zero<T> zero{};
-        if (t < zero() || t > one()) {
+        if (t < id::zero<T>() || t > id::one<T>()) {
             Log::Entry e(Log::Level::Error, __FILE__, __LINE__);
             e << "parameter t = " << t << " not within the interval of [0,1]" << Log::EndOfEntry;
             Log::get() << e;
             throw Id::OutOfBoundsException(__FILE__, __LINE__, e.getText());
         }
-        return A::toPoint(A::toVector(x) * (one() - t) + A::toVector(y) * t);
+        return A::toPoint(A::toVector(x) * (id::one<T>() - t) + A::toVector(y) * t);
     }
 }; // struct Lerp
 

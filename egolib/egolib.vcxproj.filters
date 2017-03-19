@@ -1109,12 +1109,6 @@
     <ClInclude Include="src\egolib\Math\Discrete.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Math\One.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Math\Zero.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Extensions\WindowProperties.hpp">
       <Filter>Extensions</Filter>
     </ClInclude>
@@ -1327,12 +1321,6 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Script\IRuntimeStatistics.hpp">
       <Filter>Header Files\Script</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Math\Functors\IsEven.hpp">
-      <Filter>Header Files\Math\Functors</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Math\Functors\IsOdd.hpp">
-      <Filter>Header Files\Math\Functors</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\VFS\FsPath.hpp">
       <Filter>Header Files\VFS</Filter>
