@@ -2042,7 +2042,7 @@ std::pair<bool, std::string> vfs_mount_info_strip_path( const std::string& path 
     // Find the first mount point path that is a prefix of the specified path.
     // If such a path is discovered, return the specified path with the prefix removed.
     for (const auto& mount_info : _vfs_mount_infos) {
-        if (Ego::isPrefix(path_2, mount_info.mount)) {
+        if (id::is_prefix(path_2, mount_info.mount)) {
             return std::make_pair(true, path_2.substr(mount_info.mount.length()));
         }
     }

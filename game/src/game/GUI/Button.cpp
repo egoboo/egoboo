@@ -3,9 +3,9 @@
 namespace Ego {
 namespace GUI {
 
-const Colour4f Button::DEFAULT_BUTTON_COLOUR = {0.66f, 0.00f, 0.00f, 0.60f};
-const Colour4f Button::HOVER_BUTTON_COLOUR = {0.54f, 0.00f, 0.00f, 1.00f};
-const Colour4f Button::DISABLED_BUTTON_COLOUR = {0.25f, 0.25f, 0.25f, 0.60f};
+const Math::Colour4f Button::DEFAULT_BUTTON_COLOUR = {0.66f, 0.00f, 0.00f, 0.60f};
+const Math::Colour4f Button::HOVER_BUTTON_COLOUR = {0.54f, 0.00f, 0.00f, 1.00f};
+const Math::Colour4f Button::DISABLED_BUTTON_COLOUR = {0.25f, 0.25f, 0.25f, 0.60f};
 
 Button::Button(int hotkey) :
     _mouseOver(false),

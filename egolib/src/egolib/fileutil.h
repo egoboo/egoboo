@@ -53,7 +53,7 @@
  * @author
  *  Michael Heilmann
  */
-struct ReadContext : public Scanner<Ego::Script::Traits<char>>
+struct ReadContext : public Ego::Script::Scanner<Ego::Script::Traits<char>>
 {
 
 public:   
@@ -84,14 +84,14 @@ public:
      *  Add comment about lexical error.
      */
     template <typename EnumType>
-    EnumType readEnum(const EnumDescriptor<EnumType>& enumDescriptor)
+    EnumType readEnum(const Ego::Script::EnumDescriptor<EnumType>& enumDescriptor)
     {
         using namespace std;
         auto name = readName();
         auto it = enumDescriptor.find(name);
         if (it == enumDescriptor.end())
         {
-            throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, id::location(getFileName(), getLineNumber()), "invalid enum");
+            throw Id::CompilationErrorException(__FILE__, __LINE__, Id::CompilationErrorKind::Lexical, id::location(getFileName(), getLineNumber()), "invalid enum");
         }
         return it->second;
     }
@@ -107,7 +107,7 @@ public:
      *  Add comment about lexical error and default.
      */
     template <typename EnumType>
-    EnumType readEnum(const EnumDescriptor<EnumType>& enumDescriptor, EnumType defaultValue)
+    EnumType readEnum(const Ego::Script::EnumDescriptor<EnumType>& enumDescriptor, EnumType defaultValue)
     {
         using namespace std;
         auto name = readName();
@@ -169,7 +169,7 @@ public:
 	 *  stringLiteral := (character|digit|'~'|'_')*
 	 *  @endcode
 	 */
-    DDLToken parseStringLiteral();
+    Ego::Script::DDLToken parseStringLiteral();
 
 	/**
 	 * @throw LexicalErrorException
@@ -183,7 +183,7 @@ public:
 	 * @todo
 	 *  Use Unicode notation for better readbility.
 	 */
-    DDLToken parseCharacterLiteral();
+    Ego::Script::DDLToken parseCharacterLiteral();
 
     /**
      * @throw LexicalErrorException
@@ -194,7 +194,7 @@ public:
      *  integer := ('+'|'-')? digit+ ('e'|'E' digit+)?
      *  @endcode
      */
-    DDLToken parseIntegerLiteral();
+    Ego::Script::DDLToken parseIntegerLiteral();
 
     /**
      * @throw LexicalErrorException
@@ -205,7 +205,7 @@ public:
      *  integer := '+'? digit+ ('e'|'E' digit+)?
      *  @endcode
      */
-    DDLToken parseNaturalLiteral();
+    Ego::Script::DDLToken parseNaturalLiteral();
 
     /**
      * @throw LexicalErrorException
@@ -218,7 +218,7 @@ public:
      *  realExponent := ('e'|'E' ('+'|'-')? digit+)?
      *  @endcode
      */
-    DDLToken parseRealLiteral();
+    Ego::Script::DDLToken parseRealLiteral();
 
 public:
 

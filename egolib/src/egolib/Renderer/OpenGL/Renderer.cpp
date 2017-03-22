@@ -62,9 +62,12 @@ Renderer::Renderer() :
     _extensions(Utilities::getExtensions()),
     info(Utilities::getRenderer(), Utilities::getVendor(), Utilities::getVersion()) {
     OpenGL::link();
+    initializeErrorTextures();
 }
 
-Renderer::~Renderer() {}
+Renderer::~Renderer() {
+    uninitializeErrorTextures();
+}
 
 const Ego::RendererInfo& Renderer::getInfo() {
     return info;
@@ -583,8 +586,8 @@ GLenum Renderer::toOpenGL(BlendFunction source) {
     };
 }
 
-SharedPtr<Ego::Texture> Renderer::createTexture() {
-    return MakeShared<Texture>();
+std::shared_ptr<Ego::Texture> Renderer::createTexture() {
+    return std::make_shared<Texture>();
 }
 
 void Renderer::setProjectionMatrix(const Matrix4f4f& projectionMatrix) {

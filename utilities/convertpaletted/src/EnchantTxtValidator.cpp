@@ -12,14 +12,14 @@ EnchantTxtValidator::EnchantTxtValidator()
 
 EnchantTxtValidator::~EnchantTxtValidator() {}
 
-void EnchantTxtValidator::run(const Vector<SharedPtr<Option>>& arguments) {
+void EnchantTxtValidator::run(const std::vector<std::shared_ptr<Option>>& arguments) {
     if (arguments.size() < 1) {
         StringBuffer sb;
         sb << "wrong number of arguments" << EndOfLine;
         throw RuntimeError(sb.str());
     }
 
-    Deque<String> queue;
+    std::deque<std::string> queue;
     RegexFilter filter("^(?:.*" REGEX_DIRSEP ")?enchant\\.txt");
     /// @todo Do *not* assume the path is relative. Ensure that it is absolute by a system function.
     for (const auto& argument : arguments) {
@@ -32,7 +32,7 @@ void EnchantTxtValidator::run(const Vector<SharedPtr<Option>>& arguments) {
         queue.emplace_back(FileSystem::sanitize(pathnameArgument->getValue()));
     }
     while (!queue.empty()) {
-        String path = queue[0];
+        std::string path = queue[0];
         queue.pop_front();
         switch (FileSystem::stat(path)) {
             case FileSystem::PathStat::File:
@@ -55,11 +55,11 @@ void EnchantTxtValidator::run(const Vector<SharedPtr<Option>>& arguments) {
     }
 }
 
-const String& EnchantTxtValidator::getHelp() const {
-    static const String help = "usage: ego-tools --tool=EnchantTxtValidator <directories>\n";
+const std::string& EnchantTxtValidator::getHelp() const {
+    static const std::string help = "usage: ego-tools --tool=EnchantTxtValidator <directories>\n";
     return help;
 }
 
-void EnchantTxtValidator::validate(const String& pathname) {}
+void EnchantTxtValidator::validate(const std::string& pathname) {}
 
 } // namespace Tools

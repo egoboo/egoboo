@@ -24,6 +24,10 @@
 #pragma once
 
 #include "egolib/platform.h"
+#include "idlib/to_lower.hpp"
+#include "idlib/to_upper.hpp"
+#include "idlib/prefix.hpp"
+#include "idlib/suffix.hpp"
 
 namespace Ego {
 
@@ -75,44 +79,6 @@ inline bool isspace(CharType chr, const std::locale& lc = std::locale()) {
 } // namespace Ego
 
 namespace Ego {
-
-/// @brief Convert a character to upper case.
-/// @param chr the character
-/// @param lc the locale to use. Default is std::locale().
-/// @return the upper case character
-template <class CharType>
-inline CharType toupper(CharType chr, const std::locale& lc = std::locale()) {
-    return std::toupper(chr, lc);
-}
-
-/// @brief In-place convert a string to upper case.
-/// @param str the string
-/// @param lc the locale to use. Default is std::locale().
-template <typename CharType>
-inline void toupper(std::basic_string<CharType>& str, const std::locale& lc = std::locale()) {
-    // Capture lc by reference, capture nothing else.
-    auto f = [&lc](const CharType chr) -> CharType { return Ego::toupper(chr, lc); };
-    std::transform(str.begin(), str.end(), str.begin(), f);
-}
-
-/// @brief Convert a character to lower case.
-/// @param chr the character
-/// @param lc the locale to use. Default is std::locale().
-/// @return the lower case character
-template <class CharType>
-inline CharType tolower(CharType chr, const std::locale& lc = std::locale()) {
-    return std::tolower(chr, lc);
-}
-
-/// @brief In-place convert a string to lower case.
-/// @param str the string
-/// @param lc the locale to use. Default is std::locale().
-template <class CharType>
-inline void tolower(std::basic_string<CharType>& str, const std::locale& lc = std::locale()) {
-    // Capture lc by reference, capture nothing else.
-    auto f = [&lc] (const CharType chr) -> CharType { return Ego::tolower(chr, lc); };
-    std::transform(str.begin(), str.end(), str.begin(), f);
-}
 
 /// @brief Trim leading and trailing characters matching a predicate.
 /// @param str the string
@@ -211,41 +177,6 @@ std::vector<std::basic_string<CharType>> split(const std::basic_string<CharType>
         v.emplace_back(str, start, str.length() - start);
     }
     return v; // Return value optimization/move semantics hopefully kick-in here.
-}
-
-/**
- * @brief
- *  Get if a string is a prefix of another string.
- * @param string
- *  the string
- * @param pre
- *  the prefix
- * @return
- *  @a true if the string begins with the prefix,
- *  @a false otherwise
- */
-template <typename CharType>
-bool isPrefix(const std::basic_string<CharType>& string, const std::basic_string<CharType>& prefix) {
-    if (prefix.size() > string.size()) return false;
-    auto result = std::mismatch(prefix.begin(), prefix.end(), string.begin());
-    return result.first == prefix.end();
-}
-
-/**
- * @brief
- *  Get if a string is a suffix of another string.
- * @param string
- *  the string
- * @param suffix
- *  the suffix
- * @return
- *  @a true if the string ends with the suffix,
- *  @a false otherwise
- */
-template <typename CharType>
-bool isSuffix(const std::basic_string<CharType>& string, const std::basic_string<CharType>& suffix) {
-    if (suffix.size() > string.size()) return false;
-    return std::equal(suffix.rbegin(), suffix.rend(), string.rbegin());
 }
 
 } // namespace Ego

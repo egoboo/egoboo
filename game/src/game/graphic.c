@@ -662,7 +662,7 @@ void draw_mouse_cursor()
 
         //Draw cursor
         _gameEngine->getUIManager()->beginRenderUI();
-        _gameEngine->getUIManager()->drawImage(Point2f(x, y), Vector2f(pcursor->getWidth(), pcursor->getHeight()), std::make_shared<Ego::GUI::Material>(pcursor, Ego::Colour4f::white(), true));
+        _gameEngine->getUIManager()->drawImage(Point2f(x, y), Vector2f(pcursor->getWidth(), pcursor->getHeight()), std::make_shared<Ego::GUI::Material>(pcursor, Ego::Math::Colour4f::white(), true));
         _gameEngine->getUIManager()->endRenderUI();
     }
 }

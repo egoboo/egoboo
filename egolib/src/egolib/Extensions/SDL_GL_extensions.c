@@ -150,7 +150,7 @@ namespace SDL {
 
 PixelFormatDescriptor getPixelFormat(const SDL_PixelFormat& source) {
     if (source.palette) {
-        throw RuntimeErrorException(__FILE__, __LINE__, "pixel format not supported");
+        throw Id::RuntimeErrorException(__FILE__, __LINE__, "pixel format not supported");
     }
     const PixelFormatDescriptor pfds[] = {
         PixelFormatDescriptor::get<PixelFormat::R8G8B8A8>(),
@@ -172,7 +172,7 @@ PixelFormatDescriptor getPixelFormat(const SDL_PixelFormat& source) {
             return pfds[i];
         }
     }
-    throw RuntimeErrorException(__FILE__, __LINE__, "pixel format not supported");
+    throw Id::RuntimeErrorException(__FILE__, __LINE__, "pixel format not supported");
 }
 
 uint32_t getEnumeratedPixelFormat(const PixelFormatDescriptor& pixelFormatDescriptor) {
@@ -184,46 +184,49 @@ uint32_t getEnumeratedPixelFormat(const PixelFormatDescriptor& pixelFormatDescri
 
     uint32_t pixelFormatEnum_sdl = SDL_MasksToPixelFormatEnum(bitsPerPixel, redMask, greenMask, blueMask, alphaMask);
     if (SDL_PIXELFORMAT_UNKNOWN == pixelFormatEnum_sdl) {
-        throw RuntimeErrorException(__FILE__, __LINE__, "pixel format descriptor has no corresponding SDL pixel format");
+        throw Id::RuntimeErrorException(__FILE__, __LINE__, "pixel format descriptor has no corresponding SDL pixel format");
     }
     return pixelFormatEnum_sdl;
 }
 
-SharedPtr<const SDL_PixelFormat> getPixelFormat(const PixelFormatDescriptor& pixelFormatDescriptor) {
-    SharedPtr<const SDL_PixelFormat> pixelFormat_sdl = SharedPtr<const SDL_PixelFormat>(SDL_AllocFormat(getEnumeratedPixelFormat(pixelFormatDescriptor)),
-                                                                                        [](SDL_PixelFormat *pixelFormat) { if (pixelFormat) { SDL_FreeFormat(pixelFormat); } });
+std::shared_ptr<const SDL_PixelFormat> getPixelFormat(const PixelFormatDescriptor& pixelFormatDescriptor) {
+    std::shared_ptr<const SDL_PixelFormat> pixelFormat_sdl = std::shared_ptr<const SDL_PixelFormat>
+        (
+            SDL_AllocFormat(getEnumeratedPixelFormat(pixelFormatDescriptor)),
+            [](SDL_PixelFormat *pixelFormat) { if (pixelFormat) { SDL_FreeFormat(pixelFormat); } }
+        );
     if (!pixelFormat_sdl) {
-        throw EnvironmentErrorException(__FILE__, __LINE__, "SDL", "internal error");
+        throw Id::EnvironmentErrorException(__FILE__, __LINE__, "SDL", "internal error");
     }
     return pixelFormat_sdl;
 }
 
-SharedPtr<SDL_Surface> createSurface(int width, int height, const PixelFormatDescriptor& pixelFormat) {
+std::shared_ptr<SDL_Surface> createSurface(int width, int height, const PixelFormatDescriptor& pixelFormat) {
     if (width < 0) {
-        throw InvalidArgumentException(__FILE__, __LINE__, "negative width");
+        throw Id::InvalidArgumentException(__FILE__, __LINE__, "negative width");
     }
     if (height < 0) {
-        throw InvalidArgumentException(__FILE__, __LINE__, "negative height");
+        throw Id::InvalidArgumentException(__FILE__, __LINE__, "negative height");
     }
-    SharedPtr<const SDL_PixelFormat> pixelFormat_sdl = getPixelFormat(pixelFormat);
+    std::shared_ptr<const SDL_PixelFormat> pixelFormat_sdl = getPixelFormat(pixelFormat);
     SDL_Surface *surface_sdl = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height,
                                                     pixelFormat_sdl->BitsPerPixel,
                                                     pixelFormat_sdl->Rmask, pixelFormat_sdl->Gmask,
                                                     pixelFormat_sdl->Bmask, pixelFormat_sdl->Amask);
     if (nullptr == surface_sdl) {
-        throw RuntimeErrorException(__FILE__, __LINE__, "SDL_CreateRGBSurface failed");
+        throw Id::RuntimeErrorException(__FILE__, __LINE__, "SDL_CreateRGBSurface failed");
     }
     try {
-        return SharedPtr<SDL_Surface>(surface_sdl, [](SDL_Surface *pSurface) { SDL_FreeSurface(pSurface); });
+        return std::shared_ptr<SDL_Surface>(surface_sdl, [](SDL_Surface *pSurface) { SDL_FreeSurface(pSurface); });
     } catch (...) {
         SDL_FreeSurface(surface_sdl);
         std::rethrow_exception(std::current_exception());
     }
 }
 
-SharedPtr<SDL_Surface> padSurface(const SharedPtr<const SDL_Surface>& surface, const Padding& padding) {
+std::shared_ptr<SDL_Surface> padSurface(const std::shared_ptr<const SDL_Surface>& surface, const Padding& padding) {
 	if (!surface) {
-		throw InvalidArgumentException(__FILE__, __LINE__, "nullptr == surface");
+		throw Id::InvalidArgumentException(__FILE__, __LINE__, "nullptr == surface");
 	}
 	if (!padding.left && !padding.top && !padding.right && !padding.bottom) {
 		return cloneSurface(surface);
@@ -241,11 +244,11 @@ SharedPtr<SDL_Surface> padSurface(const SharedPtr<const SDL_Surface>& surface, c
 		   newHeight = oldHeight + padding.top + padding.bottom;
 	
 	// Create the copy.
-	auto newSurface = SharedPtr<SDL_Surface>(SDL_CreateRGBSurface(SDL_SWSURFACE, newWidth, newHeight, oldSurface->format->BitsPerPixel,
-															      oldSurface->format->Rmask, oldSurface->format->Gmask, oldSurface->format->Bmask,
-																  oldSurface->format->Amask), [](SDL_Surface *pSurface) { SDL_FreeSurface(pSurface); });
+	auto newSurface = std::shared_ptr<SDL_Surface>(SDL_CreateRGBSurface(SDL_SWSURFACE, newWidth, newHeight, oldSurface->format->BitsPerPixel,
+									       						        oldSurface->format->Rmask, oldSurface->format->Gmask, oldSurface->format->Bmask,
+																        oldSurface->format->Amask), [](SDL_Surface *pSurface) { SDL_FreeSurface(pSurface); });
 	if (!newSurface) {
-		throw RuntimeErrorException(__FILE__, __LINE__, "SDL_CreateRGBSurface failed");
+		throw Id::RuntimeErrorException(__FILE__, __LINE__, "SDL_CreateRGBSurface failed");
 	}
 	// Fill the copy with transparent black.
 	SDL_FillRect(newSurface.get(), nullptr, SDL_MapRGBA(newSurface->format, 0, 0, 0, 0));
@@ -262,23 +265,23 @@ SharedPtr<SDL_Surface> padSurface(const SharedPtr<const SDL_Surface>& surface, c
 	return newSurface;
 }
 
-SharedPtr<SDL_Surface> cloneSurface(const SharedPtr<const SDL_Surface>& surface) {
+std::shared_ptr<SDL_Surface> cloneSurface(const std::shared_ptr<const SDL_Surface>& surface) {
 	static_assert(SDL_VERSION_ATLEAST(2, 0, 0), "SDL 2.x required");
 	if (!surface) {
-		throw InvalidArgumentException(__FILE__, __LINE__, "nullptr == surface");
+		throw Id::InvalidArgumentException(__FILE__, __LINE__, "nullptr == surface");
 	}
 	// TODO: The signature SDL_ConvertSurface(SDL_Surface *, const SDL_PixelFormat *, uint32_t) might be considered as a bug.
 	//       It should be SDL_ConvertSurface(const SDL_Surface *, const SDL_PixelFormat *, uint32_t).
-	auto clone = SharedPtr<SDL_Surface>(SDL_ConvertSurface((SDL_Surface *)surface.get(), surface->format, 0), [](SDL_Surface *pSurface) { SDL_FreeSurface(pSurface); });
+	auto clone = std::shared_ptr<SDL_Surface>(SDL_ConvertSurface((SDL_Surface *)surface.get(), surface->format, 0), [](SDL_Surface *pSurface) { SDL_FreeSurface(pSurface); });
 	if (!clone) {
-		throw RuntimeErrorException(__FILE__, __LINE__, "SDL_ConvertSurface failed");
+		throw Id::RuntimeErrorException(__FILE__, __LINE__, "SDL_ConvertSurface failed");
 	}
 	return clone;
 }
 
-uint32_t getPixel(const SharedPtr<const SDL_Surface>& surface, int x, int y) {
+uint32_t getPixel(const std::shared_ptr<const SDL_Surface>& surface, int x, int y) {
 	if (!surface) {
-		throw InvalidArgumentException(__FILE__, __LINE__, "nullptr == surface");
+		throw Id::InvalidArgumentException(__FILE__, __LINE__, "nullptr == surface");
 	}
     int bpp = surface->format->BytesPerPixel;
     /* Here p is the address to the pixel we want to get. */
@@ -303,13 +306,13 @@ uint32_t getPixel(const SharedPtr<const SDL_Surface>& surface, int x, int y) {
             return *reinterpret_cast<uint32_t*>(p);
 
         default:
-            throw UnhandledSwitchCaseException(__FILE__, __LINE__, "unreachable code reached"); /* shouldn't happen, but avoids warnings */
+            throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__, "unreachable code reached"); /* shouldn't happen, but avoids warnings */
     }
 }
 
-void putPixel(const SharedPtr<SDL_Surface>& surface, int x, int y, uint32_t pixel) {
+void putPixel(const std::shared_ptr<SDL_Surface>& surface, int x, int y, uint32_t pixel) {
 	if (!surface) {
-		throw InvalidArgumentException(__FILE__, __LINE__, "nullptr == surface");
+		throw Id::InvalidArgumentException(__FILE__, __LINE__, "nullptr == surface");
 	}
     int bpp = surface->format->BytesPerPixel;
     /* Here p is the address to the pixel we want to set. */
@@ -341,13 +344,13 @@ void putPixel(const SharedPtr<SDL_Surface>& surface, int x, int y, uint32_t pixe
             break;
 
         default:
-            throw UnhandledSwitchCaseException(__FILE__, __LINE__, "unreachable code reached"); /* shouldn't happen, but avoids warnings */
+            throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__, "unreachable code reached"); /* shouldn't happen, but avoids warnings */
     }
 }
 
-SharedPtr<SDL_Surface> convertPixelFormat(const SharedPtr<SDL_Surface>& surface, const PixelFormatDescriptor& pixelFormatDescriptor) {
+std::shared_ptr<SDL_Surface> convertPixelFormat(const std::shared_ptr<SDL_Surface>& surface, const PixelFormatDescriptor& pixelFormatDescriptor) {
     if (!surface) {
-        throw InvalidArgumentException(__FILE__, __LINE__, "nullptr == surface");
+        throw Id::InvalidArgumentException(__FILE__, __LINE__, "nullptr == surface");
     }
 
     uint32_t alphaMask = pixelFormatDescriptor.getAlphaMask(),
@@ -358,17 +361,17 @@ SharedPtr<SDL_Surface> convertPixelFormat(const SharedPtr<SDL_Surface>& surface,
 
     uint32_t newFormat = SDL_MasksToPixelFormatEnum(bpp, redMask, greenMask, blueMask, alphaMask);
     if (newFormat == SDL_PIXELFORMAT_UNKNOWN) {
-        throw InvalidArgumentException(__FILE__, __LINE__, "pixelFormatDescriptor doesn't correspond with a SDL_PixelFormat");
+        throw Id::InvalidArgumentException(__FILE__, __LINE__, "pixelFormatDescriptor doesn't correspond with a SDL_PixelFormat");
     }
     SDL_Surface *newSurface = SDL_ConvertSurfaceFormat(surface.get(), newFormat, 0);
     if (!newSurface) {
-        throw RuntimeErrorException(__FILE__, __LINE__, "unable to convert surface");
+        throw Id::RuntimeErrorException(__FILE__, __LINE__, "unable to convert surface");
     }
 
-    return SharedPtr<SDL_Surface>(newSurface, [](SDL_Surface *pSurface) { SDL_FreeSurface(pSurface); });
+    return std::shared_ptr<SDL_Surface>(newSurface, [](SDL_Surface *pSurface) { SDL_FreeSurface(pSurface); });
 }
 
-SharedPtr<SDL_Surface> convertPowerOfTwo(const SharedPtr<SDL_Surface>& surface) {
+std::shared_ptr<SDL_Surface> convertPowerOfTwo(const std::shared_ptr<SDL_Surface>& surface) {
     // Alias old width and old height.
     int oldWidth = surface->w,
         oldHeight = surface->h;
@@ -377,7 +380,7 @@ SharedPtr<SDL_Surface> convertPowerOfTwo(const SharedPtr<SDL_Surface>& surface) 
     int newWidth = Math::powerOfTwo(oldWidth),
         newHeight = Math::powerOfTwo(oldHeight);
 
-    SharedPtr<SDL_Surface> newSurface = nullptr;
+    std::shared_ptr<SDL_Surface> newSurface = nullptr;
 
     // Only if the new dimension differ from the old dimensions, perform the scaling.
     if (newWidth != oldWidth || newHeight != oldHeight) {
@@ -395,11 +398,11 @@ SharedPtr<SDL_Surface> convertPowerOfTwo(const SharedPtr<SDL_Surface>& surface) 
     return newSurface;
 }
 
-bool testAlpha(const SharedPtr<SDL_Surface>& surface) {
+bool testAlpha(const std::shared_ptr<SDL_Surface>& surface) {
     // test to see whether an image requires alpha blending
 
     if (!surface) {
-        throw InvalidArgumentException(__FILE__, __LINE__, "nullptr == surface");
+        throw Id::InvalidArgumentException(__FILE__, __LINE__, "nullptr == surface");
     }
 
     // Alias.

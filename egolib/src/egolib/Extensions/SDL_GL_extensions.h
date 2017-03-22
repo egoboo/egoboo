@@ -34,12 +34,6 @@ namespace Ego {
 namespace Graphics {
 namespace SDL {
 
-template <typename T> using SharedPtr = std::shared_ptr<T>;
-using RuntimeErrorException = Id::RuntimeErrorException;
-using EnvironmentErrorException = Id::EnvironmentErrorException;
-using InvalidArgumentException = Id::InvalidArgumentException;
-using UnhandledSwitchCaseException = Id::UnhandledSwitchCaseException;
-
 /**
  * @brief Specifies a padding.
  */
@@ -70,7 +64,7 @@ uint32_t getEnumeratedPixelFormat(const PixelFormatDescriptor& pixelFormatDescri
  * @throw RuntimeErrorException if the pixel format descriptor has no corresponding enumerated SDL pixel format
  * @throw EnvironmentErrorException if SDL does not behave according to its specification
  */
-SharedPtr<const SDL_PixelFormat> getPixelFormat(const PixelFormatDescriptor& pixelFormatDescriptor);
+std::shared_ptr<const SDL_PixelFormat> getPixelFormat(const PixelFormatDescriptor& pixelFormatDescriptor);
 
 /**
  * @brief Create an SDL surface of the specified size and pixel format.
@@ -80,7 +74,7 @@ SharedPtr<const SDL_PixelFormat> getPixelFormat(const PixelFormatDescriptor& pix
  * @throw InvalidArgumentException if @a width or @a height is negative
  * @throw RuntimeErrorException if SDL fails
  */
-SharedPtr<SDL_Surface> createSurface(int width, int height, const PixelFormatDescriptor& pixelFormatDescriptor = Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8A8>());
+std::shared_ptr<SDL_Surface> createSurface(int width, int height, const PixelFormatDescriptor& pixelFormatDescriptor = Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8A8>());
 
 /**
  * @brief Create a padded surface.
@@ -89,14 +83,14 @@ SharedPtr<SDL_Surface> createSurface(int width, int height, const PixelFormatDes
  * @return the padded surface
  * @remark The padding is black (if no alpha channel is present) or transparent black (if alpha channel is present).
  */
-SharedPtr<SDL_Surface> padSurface(const SharedPtr<const SDL_Surface>& surface, const Padding& padding);
+std::shared_ptr<SDL_Surface> padSurface(const std::shared_ptr<const SDL_Surface>& surface, const Padding& padding);
 
 /**
  * @brief Clone a surface.
  * @param surface the original surface
  * @return the cloned surface
  */
-SharedPtr<SDL_Surface> cloneSurface(const SharedPtr<const SDL_Surface>& surface);
+std::shared_ptr<SDL_Surface> cloneSurface(const std::shared_ptr<const SDL_Surface>& surface);
 
 /**
  * @brief Get a pixel in a surface.
@@ -104,7 +98,7 @@ SharedPtr<SDL_Surface> cloneSurface(const SharedPtr<const SDL_Surface>& surface)
  * @param x, y the position of the pixel
  * @return the pixel
  */
-uint32_t getPixel(const SharedPtr<const SDL_Surface>& surface, int x, int y);
+uint32_t getPixel(const std::shared_ptr<const SDL_Surface>& surface, int x, int y);
 
 /**
  * @brief Set a pixel in a surface
@@ -112,7 +106,7 @@ uint32_t getPixel(const SharedPtr<const SDL_Surface>& surface, int x, int y);
  * @param x, y the position of the pixel
  * @param pixel the pixel
  */
-void putPixel(const SharedPtr<SDL_Surface>& surface, int x, int y, uint32_t pixel);
+void putPixel(const std::shared_ptr<SDL_Surface>& surface, int x, int y, uint32_t pixel);
 
 /**
  * @brief Create a surface that is identicial to the original surface but is of the specified pixel format.
@@ -122,9 +116,9 @@ void putPixel(const SharedPtr<SDL_Surface>& surface, int x, int y, uint32_t pixe
  * @throw RuntimeErrorException if the convesion fails
  * @throw InvalidArgumentException if @a a surface is @a nullptr
  */
-SharedPtr<SDL_Surface> convertPixelFormat(const SharedPtr<SDL_Surface>& surface, const PixelFormatDescriptor& pixelFormatDescriptor);
+std::shared_ptr<SDL_Surface> convertPixelFormat(const std::shared_ptr<SDL_Surface>& surface, const PixelFormatDescriptor& pixelFormatDescriptor);
 
-SharedPtr<SDL_Surface> convertPowerOfTwo(const SharedPtr<SDL_Surface>& surface);
+std::shared_ptr<SDL_Surface> convertPowerOfTwo(const std::shared_ptr<SDL_Surface>& surface);
 
 /**
  * @brief Test if a surface is non-opaque.
@@ -138,7 +132,7 @@ SharedPtr<SDL_Surface> convertPowerOfTwo(const SharedPtr<SDL_Surface>& surface);
  *   TODO: Test if some pixel has the color of the palette entry
  * - the surface is not palettized, has an alpha channel, and there is a non-opaque pixel
  */
-bool testAlpha(const SharedPtr<SDL_Surface>& surface);
+bool testAlpha(const std::shared_ptr<SDL_Surface>& surface);
 
 } // namespace SDL
 } // namespace Graphics

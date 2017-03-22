@@ -38,8 +38,6 @@
 
 namespace Ego {
 
-using namespace Math;
-
 /**
  * @brief
  *  A facade for internal buffers like the accumulation buffer, the colour buffer or the depth buffer.
@@ -94,7 +92,7 @@ public:
  * @brief
  *  A facade for an accumulation buffer.
  */
-class AccumulationBuffer : public Ego::BufferFacade<Colour4f> {
+class AccumulationBuffer : public BufferFacade<Math::Colour4f> {
 protected:
 
     /**
@@ -128,7 +126,7 @@ public:
  * @brief
  *  A facade for a colour buffer.
  */
-class ColourBuffer : public Ego::BufferFacade<Colour4f> {
+class ColourBuffer : public BufferFacade<Math::Colour4f> {
 protected:
     /**
      * @brief
@@ -161,7 +159,7 @@ public:
  * @brief
  *  A facade for an depth buffer.
  */
-class DepthBuffer : public Ego::BufferFacade<float> {
+class DepthBuffer : public BufferFacade<float> {
 protected:
     /**
      * @brief
@@ -194,7 +192,7 @@ public:
  * @brief
  *  A facade for a stencil buffer.
  */
-class StencilBuffer : public Ego::BufferFacade<float> {
+class StencilBuffer : public BufferFacade<float> {
 protected:
     /**
      * @brief
@@ -283,9 +281,6 @@ struct CreateFunctor<Renderer> {
 } // namespace Core
 
 class Renderer : public Core::Singleton<Renderer> {
-protected:
-    template <typename T> using SharedPtr = std::shared_ptr<T>;
-
 protected:
     friend Core::Singleton<Renderer>::CreateFunctorType;
     friend Core::Singleton<Renderer>::DestroyFunctorType;
@@ -499,7 +494,7 @@ public:
      * @param colour
      *  the current colour
      */
-    virtual void setColour(const Colour4f& colour) = 0;
+    virtual void setColour(const Math::Colour4f& colour) = 0;
 
     /**
      * @brief
@@ -696,7 +691,7 @@ public:
      * @post
      *  The texture is the default texture.
      */
-    virtual SharedPtr<Texture> createTexture() = 0;
+    virtual std::shared_ptr<Texture> createTexture() = 0;
 
 private:
     Matrix4f4f m_projectionMatrix;

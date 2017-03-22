@@ -23,14 +23,14 @@ int SDL_main(int argc, char **argv) {
 
         // (3) Find the option which determines the tool to execute and remove that option.
         auto predicate = 
-            [](const shared_ptr<Option>& x) {
+            [](const std::shared_ptr<Option>& x) {
                 if (x->getType() == Option::Type::NamedValue) {
-                    auto namedValue = static_pointer_cast<NamedValue>(x);
+                    auto namedValue = std::static_pointer_cast<NamedValue>(x);
                     return "tool" == namedValue->getName();
                 } else {
                     return false;
                 }};
-        auto it = find_if(args.cbegin(), args.cend(), predicate);
+        auto it = std::find_if(args.cbegin(), args.cend(), predicate);
         if (it == args.cend()) {
             cout << "no tool selected" << endl;
             return EXIT_FAILURE;
@@ -38,13 +38,13 @@ int SDL_main(int argc, char **argv) {
         auto option = *it;
         args.erase(it);
         // (4) Multiple tools may not be supplied.
-        it = find_if(args.cbegin(), args.cend(), predicate);
+        it = std::find_if(args.cbegin(), args.cend(), predicate);
         if (it != args.cend()) {
             cout << "multiple tools specified" << endl;
             return EXIT_FAILURE;
         }
         // (5) Extract the tool name.
-        auto name = static_pointer_cast<NamedValue>(option)->getValue();
+        auto name = std::static_pointer_cast<NamedValue>(option)->getValue();
         auto factory = factories.find(name);
         if (factory == factories.cend()) {
             cout << "no tool of name `" << name << "` found" << std::endl;

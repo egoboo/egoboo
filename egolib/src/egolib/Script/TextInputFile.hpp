@@ -69,7 +69,7 @@ public:
      *  advance() must be called to advance to the first extend character. See
      *  advance() for more information.
      */
-    TextInputFile(const string& fileName) :
+    TextInputFile(const std::string& fileName) :
         TextFile<_Traits>(fileName, TextFile<_Traits>::Mode::Read),
         _file(nullptr),
         _current(Traits::startOfInput())
@@ -141,10 +141,10 @@ public:
             }
             else
             {
-                ostringstream message;
+                std::ostringstream message;
                 message << __FILE__ << ":" << __LINE__ << ": "
                         << "inconsistent state of file object  of file `" << this->getFileName() << "`";
-                throw runtime_error(message.str());
+                throw std::runtime_error(message.str());
             }
         }
         // (4) Verify that it is a Byte the represents the starting Byte of a UTF-8 character sequence of length 1.

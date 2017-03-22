@@ -190,7 +190,7 @@ Uint8 scr_SetAlert( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SET_BIT( self.alert, Interpreter::safeCast<int>(state.argument));
+    SET_BIT( self.alert, Ego::Script::Interpreter::safeCast<int>(state.argument));
 
     SCRIPT_FUNCTION_END();
 }
@@ -205,7 +205,7 @@ Uint8 scr_ClearAlert( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    UNSET_BIT( self.alert, Interpreter::safeCast<int>(state.argument));
+    UNSET_BIT( self.alert, Ego::Script::Interpreter::safeCast<int>(state.argument));
 
     SCRIPT_FUNCTION_END();
 }
@@ -220,7 +220,7 @@ Uint8 scr_TestAlert( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = HAS_SOME_BITS( self.alert, Interpreter::safeCast<int>(state.argument) );
+    returncode = HAS_SOME_BITS( self.alert, Ego::Script::Interpreter::safeCast<int>(state.argument) );
 
     SCRIPT_FUNCTION_END();
 }
@@ -462,7 +462,7 @@ Uint8 scr_SetContent( script_state_t& state, ai_state_t& self )
     SCRIPT_FUNCTION_BEGIN();
 
     // Set the content
-    self.content = Interpreter::safeCast<int>(state.argument);
+    self.content = Ego::Script::Interpreter::safeCast<int>(state.argument);
 
     SCRIPT_FUNCTION_END();
 }
@@ -527,8 +527,8 @@ Uint8 scr_AddWaypoint( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ::AddWaypoint( self.wp_lst, self.getSelf(), Interpreter::safeCast<float>(state.x),
-                                Interpreter::safeCast<float>(state.y));
+    returncode = ::AddWaypoint( self.wp_lst, self.getSelf(), Ego::Script::Interpreter::safeCast<float>(state.x),
+                                Ego::Script::Interpreter::safeCast<float>(state.y));
 
     if ( returncode )
     {
@@ -554,8 +554,8 @@ Uint8 scr_FindPath( script_state_t& state, ai_state_t& self )
     //Too soon since last try?
     if ( self.astar_timer > update_wld ) return true;
 
-    returncode = ::FindPath( self.wp_lst, pchr, Interpreter::safeCast<float>(state.x),
-                             Interpreter::safeCast<float>(state.y), &used_astar );
+    returncode = ::FindPath( self.wp_lst, pchr, Ego::Script::Interpreter::safeCast<float>(state.x),
+                             Ego::Script::Interpreter::safeCast<float>(state.y), &used_astar );
 
     if ( used_astar )
     {
@@ -580,8 +580,8 @@ Uint8 scr_Compass( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    Vector2f loc_pos = Vector2f(Interpreter::safeCast<float>(state.x),
-                                Interpreter::safeCast<float>(state.y));
+    Vector2f loc_pos = Vector2f(Ego::Script::Interpreter::safeCast<float>(state.x),
+                                Ego::Script::Interpreter::safeCast<float>(state.y));
 
     returncode = ::Compass( loc_pos, state.turn, state.distance );
 
@@ -609,7 +609,7 @@ Uint8 scr_GetTargetArmorPrice( script_state_t& state, ai_state_t& self )
 
     SCRIPT_REQUIRE_TARGET( ptarget );
 
-    int value = ptarget->getProfile()->getSkinInfo(Interpreter::safeCast<size_t>(state.argument)).cost;
+    int value = ptarget->getProfile()->getSkinInfo(Ego::Script::Interpreter::safeCast<size_t>(state.argument)).cost;
 
     if ( value > 0 )
     {
@@ -902,7 +902,7 @@ Uint8 scr_SetBumpHeight( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->setBumpHeight(Interpreter::safeCast<float>(state.argument));
+    pchr->setBumpHeight(Ego::Script::Interpreter::safeCast<float>(state.argument));
 
     SCRIPT_FUNCTION_END();
 }
@@ -919,7 +919,7 @@ Uint8 scr_IfTargetHasID( script_state_t& state, ai_state_t& self )
 
     const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[self.getTarget()];
     if(target) {
-        returncode = target->getProfile()->hasTypeIDSZ(Interpreter::safeCast<IDSZ2>(state.argument));
+        returncode = target->getProfile()->hasTypeIDSZ(Ego::Script::Interpreter::safeCast<IDSZ2>(state.argument));
     }
     else {
         returncode = false;
@@ -946,13 +946,13 @@ Uint8 scr_IfTargetHasItemID( script_state_t& state, ai_state_t& self )
     returncode = false;
 
     //Check hands
-    if (nullptr != pself_target->isWieldingItemIDSZ(Interpreter::safeCast<IDSZ2>(state.argument))) {
+    if (nullptr != pself_target->isWieldingItemIDSZ(Ego::Script::Interpreter::safeCast<IDSZ2>(state.argument))) {
         returncode = true;
     }
 
     //Check inventory
     if (!returncode) {
-        if (ObjectRef::Invalid != Inventory::findItem(pself_target->getObjRef(), Interpreter::safeCast<IDSZ2>(state.argument), false)) {
+        if (ObjectRef::Invalid != Inventory::findItem(pself_target->getObjRef(), Ego::Script::Interpreter::safeCast<IDSZ2>(state.argument), false)) {
             returncode = true;
         }
     }
@@ -975,7 +975,7 @@ Uint8 scr_IfTargetHoldingItemID( script_state_t& state, ai_state_t& self )
 
     SCRIPT_REQUIRE_TARGET(pself_target);
 
-    returncode = (pself_target->isWieldingItemIDSZ(Interpreter::safeCast<IDSZ2>(state.argument)) != nullptr);
+    returncode = (pself_target->isWieldingItemIDSZ(Ego::Script::Interpreter::safeCast<IDSZ2>(state.argument)) != nullptr);
 
     SCRIPT_FUNCTION_END();
 }
@@ -993,7 +993,7 @@ Uint8 scr_IfTargetHasSkillID( script_state_t& state, ai_state_t& self )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = pself_target->hasSkillIDSZ(Interpreter::safeCast<IDSZ2>(state.argument));
+    returncode = pself_target->hasSkillIDSZ(Ego::Script::Interpreter::safeCast<IDSZ2>(state.argument));
 
     SCRIPT_FUNCTION_END();
 }
@@ -1282,7 +1282,7 @@ Uint8 scr_CostTargetItemID( script_state_t& state, ai_state_t& self )
     SCRIPT_REQUIRE_TARGET( ptarget );
 
     //first check both hands
-    const IDSZ2 idsz = Interpreter::safeCast<IDSZ2>(state.argument);
+    const IDSZ2 idsz = Ego::Script::Interpreter::safeCast<IDSZ2>(state.argument);
     std::shared_ptr<Object> pitem = ptarget->isWieldingItemIDSZ(idsz);
 
     //need to search inventory as well?
@@ -1406,7 +1406,7 @@ Uint8 scr_AddIDSZ( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( ModuleProfile::moduleAddIDSZ(_currentModule->getPath(), Interpreter::safeCast<IDSZ2>(state.argument)) )
+    if ( ModuleProfile::moduleAddIDSZ(_currentModule->getPath(), Ego::Script::Interpreter::safeCast<IDSZ2>(state.argument)) )
     {
         // invalidate any module list so that we will reload them
         //module_list_valid = false;
@@ -2054,7 +2054,7 @@ Uint8 scr_IfTargetHasVulnerabilityID( script_state_t& state, ai_state_t& self )
     
     SCRIPT_REQUIRE_TARGET(pself_target);
     
-    returncode = pself_target->getProfile()->getIDSZ(IDSZ_VULNERABILITY) == Interpreter::safeCast<IDSZ2>(state.argument);
+    returncode = pself_target->getProfile()->getIDSZ(IDSZ_VULNERABILITY) == Ego::Script::Interpreter::safeCast<IDSZ2>(state.argument);
 
     SCRIPT_FUNCTION_END();
 }
@@ -2675,7 +2675,7 @@ Uint8 scr_IfTargetHasSpecialID( script_state_t& state, ai_state_t& self )
     
     SCRIPT_REQUIRE_TARGET(pself_target);
 
-    returncode = pself_target->getProfile()->getIDSZ(IDSZ_SPECIAL) == Interpreter::safeCast<IDSZ2>(state.argument);
+    returncode = pself_target->getProfile()->getIDSZ(IDSZ_SPECIAL) == Ego::Script::Interpreter::safeCast<IDSZ2>(state.argument);
 
     SCRIPT_FUNCTION_END();
 }
@@ -2968,14 +2968,14 @@ Uint8 scr_RestockTargetAmmoIDAll( script_state_t& state, ai_state_t& self )
 
 	ObjectRef ichr;
     ichr = pself_target->holdingwhich[SLOT_LEFT];
-    iTmp += RestockAmmo( ichr, Interpreter::safeCast<IDSZ2>(state.argument) );
+    iTmp += RestockAmmo( ichr, Ego::Script::Interpreter::safeCast<IDSZ2>(state.argument) );
 
     ichr = pself_target->holdingwhich[SLOT_RIGHT];
-    iTmp += RestockAmmo( ichr, Interpreter::safeCast<IDSZ2>(state.argument) );
+    iTmp += RestockAmmo( ichr, Ego::Script::Interpreter::safeCast<IDSZ2>(state.argument) );
 
     for(const std::shared_ptr<Object> pitem : pchr->getInventory().iterate())
     {
-        iTmp += RestockAmmo( pitem->getObjRef(), Interpreter::safeCast<IDSZ2>(state.argument) );
+        iTmp += RestockAmmo( pitem->getObjRef(), Ego::Script::Interpreter::safeCast<IDSZ2>(state.argument) );
     }
 
     state.argument = iTmp;
@@ -3001,19 +3001,19 @@ Uint8 scr_RestockTargetAmmoIDFirst( script_state_t& state, ai_state_t& self )
     int iTmp = 0;  // Amount of ammo given
     
     ObjectRef ichr = pself_target->holdingwhich[SLOT_LEFT];
-    iTmp += RestockAmmo(ichr, Interpreter::safeCast<IDSZ2>(state.argument));
+    iTmp += RestockAmmo(ichr, Ego::Script::Interpreter::safeCast<IDSZ2>(state.argument));
     
     if (iTmp == 0)
     {
         ichr = pself_target->holdingwhich[SLOT_RIGHT];
-        iTmp += RestockAmmo(ichr, Interpreter::safeCast<IDSZ2>(state.argument));
+        iTmp += RestockAmmo(ichr, Ego::Script::Interpreter::safeCast<IDSZ2>(state.argument));
     }
 
     if (iTmp == 0)
     {
         for(const std::shared_ptr<Object> pitem : pchr->getInventory().iterate())
         {
-            iTmp += RestockAmmo( pitem->getObjRef(), Interpreter::safeCast<IDSZ2>(state.argument) );
+            iTmp += RestockAmmo( pitem->getObjRef(), Ego::Script::Interpreter::safeCast<IDSZ2>(state.argument) );
             if ( 0 != iTmp ) break;
         }
     }
@@ -3307,7 +3307,7 @@ Uint8 scr_IfTargetHasAnyID( script_state_t& state, ai_state_t& self )
 
     const std::shared_ptr<Object> target = _currentModule->getObjectHandler()[self.getTarget()];
     if(target) {
-        returncode = target->getProfile()->hasIDSZ(Interpreter::safeCast<IDSZ2>(state.argument));
+        returncode = target->getProfile()->hasIDSZ(Ego::Script::Interpreter::safeCast<IDSZ2>(state.argument));
     }
     else {
         returncode = false;
@@ -3325,7 +3325,7 @@ Uint8 scr_SetBumpSize( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->setBumpWidth(Interpreter::safeCast<float>(state.argument));
+    pchr->setBumpWidth(Ego::Script::Interpreter::safeCast<float>(state.argument));
 
     SCRIPT_FUNCTION_END();
 }
@@ -3679,7 +3679,7 @@ Uint8 scr_IfHoldingItemID( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = (pchr->isWieldingItemIDSZ(Interpreter::safeCast<IDSZ2>(state.argument)) != nullptr);
+    returncode = (pchr->isWieldingItemIDSZ(Ego::Script::Interpreter::safeCast<IDSZ2>(state.argument)) != nullptr);
 
     SCRIPT_FUNCTION_END();
 }
@@ -4055,9 +4055,9 @@ Uint8 scr_SpawnExactParticle( script_state_t& state, ai_state_t& self )
 		Vector3f vtmp =
 			Vector3f
             (
-				Interpreter::safeCast<float>(state.x),
-				Interpreter::safeCast<float>(state.y),
-				Interpreter::safeCast<float>(state.distance)
+				Ego::Script::Interpreter::safeCast<float>(state.x),
+				Ego::Script::Interpreter::safeCast<float>(state.y),
+				Ego::Script::Interpreter::safeCast<float>(state.distance)
             );
 
         returncode = nullptr != ParticleHandler::get().spawnLocalParticle(vtmp, Facing(uint16_t(pchr->ori.facing_z)), ObjectProfileRef(pchr->getProfileID()),
@@ -4286,7 +4286,7 @@ Uint8 scr_IfTargetHasItemIDEquipped( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-	auto iitem = Inventory::findItem( self.getTarget(), Interpreter::safeCast<IDSZ2>(state.argument), true );
+	auto iitem = Inventory::findItem( self.getTarget(), Ego::Script::Interpreter::safeCast<IDSZ2>(state.argument), true );
 
     returncode = _currentModule->getObjectHandler().exists(iitem);
 
@@ -4574,7 +4574,7 @@ Uint8 scr_ChangeArmor( script_state_t& state, ai_state_t& self )
 
     state.x = state.argument;
     iTmp = pchr->skin;
-    pchr->setSkin(Interpreter::safeCast<size_t>(state.argument));
+    pchr->setSkin(Ego::Script::Interpreter::safeCast<size_t>(state.argument));
     state.x = pchr->skin;
     state.argument = iTmp;  // The character's old armor
 
@@ -4627,11 +4627,11 @@ Uint8 scr_PlaySoundVolume( script_state_t& state, ai_state_t& self )
 
     if ( state.distance > 0 )
     {
-        int channel = AudioSystem::get().playSound(pchr->getOldPosition(), ppro->getSoundID(Interpreter::safeCast<int>(state.argument)));
+        int channel = AudioSystem::get().playSound(pchr->getOldPosition(), ppro->getSoundID(Ego::Script::Interpreter::safeCast<int>(state.argument)));
 
         if ( channel != INVALID_SOUND_CHANNEL )
         {
-            Mix_Volume( channel, ( 128 * Interpreter::safeCast<int>(state.distance) ) / 100 );
+            Mix_Volume( channel, ( 128 * Ego::Script::Interpreter::safeCast<int>(state.distance) ) / 100 );
         }
     }
 
@@ -4672,7 +4672,7 @@ Uint8 scr_IfStateIsOdd( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( self.state & 1 );
+    returncode = id::is_odd(self.state);
 
     SCRIPT_FUNCTION_END();
 }
@@ -4711,8 +4711,8 @@ Uint8 scr_Teleport( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    auto location = Vector3f(Interpreter::safeCast<float>(state.x),
-                             Interpreter::safeCast<float>(state.y),
+    auto location = Vector3f(Ego::Script::Interpreter::safeCast<float>(state.x),
+                             Ego::Script::Interpreter::safeCast<float>(state.y),
                              pchr->getPosZ());
     returncode = pchr->teleport(location, Facing(pchr->ori.facing_z));
 
@@ -5034,7 +5034,7 @@ Uint8 scr_SetFogLevel( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    fTmp = ( Interpreter::safeCast<float>(state.argument) / 10.0f ) - fog._top;
+    fTmp = ( Ego::Script::Interpreter::safeCast<float>(state.argument) / 10.0f ) - fog._top;
     fog._top += fTmp;
     fog._distance += fTmp;
     fog._on = egoboo_config_t::get().graphic_fog_enable.getValue();
@@ -5398,9 +5398,9 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t& state, ai_state_t& self )
 	auto pos =
 		Vector3f
         (
-			Interpreter::safeCast<float>(state.x),
-			Interpreter::safeCast<float>(state.y),
-			Interpreter::safeCast<float>(state.distance)
+			Ego::Script::Interpreter::safeCast<float>(state.x),
+            Ego::Script::Interpreter::safeCast<float>(state.y),
+            Ego::Script::Interpreter::safeCast<float>(state.distance)
         );
 
     const std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, ObjectProfileRef(static_cast<PRO_REF>(state.argument)), pchr->team, 0, Facing(Ego::Math::clipBits<16>(state.turn)), "", ObjectRef::Invalid);
@@ -5496,9 +5496,9 @@ Uint8 scr_SpawnExactChaseParticle( script_state_t& state, ai_state_t& self )
 		auto vtmp =
 			Vector3f
             (
-				Interpreter::safeCast<float>(state.x),
-				Interpreter::safeCast<float>(state.y),
-				Interpreter::safeCast<float>(state.distance)
+                Ego::Script::Interpreter::safeCast<float>(state.x),
+                Ego::Script::Interpreter::safeCast<float>(state.y),
+                Ego::Script::Interpreter::safeCast<float>(state.distance)
             );
 
         particle = ParticleHandler::get().spawnLocalParticle(vtmp, Facing(uint16_t(pchr->ori.facing_z)), ObjectProfileRef(pchr->getProfileID()),
@@ -7123,7 +7123,7 @@ Uint8 scr_AddQuest( script_state_t& state, ai_state_t& self )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    const IDSZ2 idsz = Interpreter::safeCast<IDSZ2>(state.argument);
+    const IDSZ2 idsz = Ego::Script::Interpreter::safeCast<IDSZ2>(state.argument);
 
     returncode = false;
     if(pself_target->isPlayer()) {
@@ -7147,7 +7147,7 @@ Uint8 scr_BeatQuestAllPlayers( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    const IDSZ2 idsz = Interpreter::safeCast<IDSZ2>(state.argument);
+    const IDSZ2 idsz = Ego::Script::Interpreter::safeCast<IDSZ2>(state.argument);
 
     returncode = false;
     for(const std::shared_ptr<Ego::Player>& player : _currentModule->getPlayerList())
@@ -7177,7 +7177,7 @@ Uint8 scr_IfTargetHasQuest( script_state_t& state, ai_state_t& self )
 
     returncode = false;
 
-    const IDSZ2 idsz = Interpreter::safeCast<IDSZ2>(state.argument);
+    const IDSZ2 idsz = Ego::Script::Interpreter::safeCast<IDSZ2>(state.argument);
     if(pself_target->isPlayer()) {
         const std::shared_ptr<Ego::Player>& player = _currentModule->getPlayer(pself_target->is_which_player);
 
@@ -7205,7 +7205,7 @@ Uint8 scr_SetQuestLevel( script_state_t& state, ai_state_t& self )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    const IDSZ2 idsz = Interpreter::safeCast<IDSZ2>(state.argument);
+    const IDSZ2 idsz = Ego::Script::Interpreter::safeCast<IDSZ2>(state.argument);
 
     returncode = false;
     if ( pself_target->isPlayer() && 0 != state.distance )
@@ -7232,7 +7232,7 @@ Uint8 scr_AddQuestAllPlayers( script_state_t& state, ai_state_t& self )
 
     returncode = false;
     if(state.distance > 0) {
-        const IDSZ2 idsz = Interpreter::safeCast<IDSZ2>(state.argument);
+        const IDSZ2 idsz = Ego::Script::Interpreter::safeCast<IDSZ2>(state.argument);
 
         for(const std::shared_ptr<Ego::Player>& player : _currentModule->getPlayerList()) {
             // Only try to add it or replace it if this one is higher
@@ -7747,7 +7747,7 @@ Uint8 scr_DispelTargetEnchantID( script_state_t& state, ai_state_t& self )
     if ( pself_target->isAlive() )
     {
         // Check all enchants to see if they are removed
-        pself_target->removeEnchantsWithIDSZ(Interpreter::safeCast<IDSZ2>(state.argument));
+        pself_target->removeEnchantsWithIDSZ(Ego::Script::Interpreter::safeCast<IDSZ2>(state.argument));
         returncode = true;
     }
 

@@ -61,7 +61,7 @@ public:
     }
 };
 
-std::array<std::string, ScriptVariables::SCRIPT_VARIABLES_COUNT> _scriptVariableNames = {
+std::array<std::string, Ego::Script::ScriptVariables::SCRIPT_VARIABLES_COUNT> _scriptVariableNames = {
 #define Define(cName, eName) #cName,
 #define DefineAlias(cName, eName)
 #include "egolib/Script/Variables.in"
@@ -118,18 +118,18 @@ static const char * script_error_classname = "UNKNOWN";
 //--------------------------------------------------------------------------------------------
 void scripting_system_begin()
 {
-    if (!Runtime::isInitialized())
+    if (!Ego::Script::Runtime::isInitialized())
     {
-        Runtime::initialize();
+        Ego::Script::Runtime::initialize();
     }
 }
 
 void scripting_system_end()
 {
-    if (Runtime::isInitialized())
+    if (Ego::Script::Runtime::isInitialized())
     {
-        Runtime::get().getStatistics().append("/debug/script_function_timing.txt");
-        Runtime::uninitialize();
+        Ego::Script::Runtime::get().getStatistics().append("/debug/script_function_timing.txt");
+        Ego::Script::Runtime::uninitialize();
     }
 }
 
@@ -357,7 +357,7 @@ bool script_state_t::run_operation(ai_state_t& aiState, script_info_t& script)
 
         for (auto i = 0; i < Opcodes.size(); i++)
         {
-            if (PDLTokenKind::Variable == Opcodes[i]._kind && variableIndex == Opcodes[i].iValue)
+            if (Ego::Script::PDLTokenKind::Variable == Opcodes[i]._kind && variableIndex == Opcodes[i].iValue)
             {
                 variable = Opcodes[i].cName;
                 break;
@@ -401,14 +401,14 @@ Uint8 script_state_t::run_function(ai_state_t& aiState, script_info_t& script)
 
     // Assume that the function will pass, as most do
     uint8_t returnCode = true;
-    auto& runtime = Runtime::get();
+    auto& runtime = Ego::Script::Runtime::get();
     {
 
         Ego::Time::ClockScope<Ego::Time::ClockPolicy::NonRecursive> scope(runtime.getClock());
         const auto& result = runtime._functionValueCodeToFunctionPointer.find(functionIndex);
         if (runtime._functionValueCodeToFunctionPointer.cend() == result)
         {
-            throw RuntimeErrorException(__FILE__, __LINE__, "function not found");
+            throw Id::RuntimeErrorException(__FILE__, __LINE__, "function not found");
         }
         returnCode = result->second(*this, aiState);
     }
@@ -419,7 +419,7 @@ Uint8 script_state_t::run_function(ai_state_t& aiState, script_info_t& script)
 //--------------------------------------------------------------------------------------------
 std::string getVariableName(int variableIndex)
 {
-    return _scriptVariableNames[variableIndex];
+    return Ego::Script::_scriptVariableNames[variableIndex];
 }
 
 int32_t script_state_t::loadVariable(uint8_t variableIndex, ai_state_t& aiState, Object *pobject, Object *ptarget, Object *powner, Object *pleader)
@@ -428,7 +428,7 @@ int32_t script_state_t::loadVariable(uint8_t variableIndex, ai_state_t& aiState,
     {
 
     #define DEFINE(name) \
-        case VAR##name: \
+        case Ego::Script::VAR##name: \
         { \
             return load_##VAR##name(*this, aiState, pobject, ptarget, powner, pleader); \
         }
@@ -528,23 +528,23 @@ void script_state_t::storeVariable(uint8_t variableIndex)
     auto variableName = getVariableName(variableIndex);
     switch (variableIndex)
     {
-        case VARTMPX:
+        case Ego::Script::VARTMPX:
             x = operationsum;
             break;
 
-        case VARTMPY:
+        case Ego::Script::VARTMPY:
             y = operationsum;
             break;
 
-        case VARTMPDISTANCE:
+        case Ego::Script::VARTMPDISTANCE:
             distance = operationsum;
             break;
 
-        case VARTMPTURN:
+        case Ego::Script::VARTMPTURN:
             turn = operationsum;
             break;
 
-        case VARTMPARGUMENT:
+        case Ego::Script::VARTMPARGUMENT:
             argument = operationsum;
             break;
 
@@ -562,7 +562,7 @@ void script_state_t::onVariableNotDefinedError(uint8_t variableIndex)
     Log::Entry e(Log::Level::Warning, __FILE__, __LINE__);
     e << "variable " << variableName << "/" << (uint16_t)variableIndex << " not defined" << Log::EndOfEntry;
     Log::get() << e;
-    throw RuntimeErrorException(__FILE__, __LINE__, e.getText());
+    throw Id::RuntimeErrorException(__FILE__, __LINE__, e.getText());
 }
 
 void script_state_t::run_operand(ai_state_t& aiState, script_info_t& script)
@@ -617,37 +617,37 @@ void script_state_t::run_operand(ai_state_t& aiState, script_info_t& script)
     std::string op = "UNKNOWN";
     switch (operation)
     {
-        case OPADD:
+        case Ego::Script::OPADD:
             op = "ADD";
             operationsum = int(operationsum) + iTmp;
             break;
 
-        case OPSUB:
+        case Ego::Script::OPSUB:
             op = "SUB";
             operationsum = int(operationsum) - iTmp;
             break;
 
-        case OPAND:
+        case Ego::Script::OPAND:
             op = "AND";
             operationsum = int(operationsum) & iTmp;
             break;
 
-        case OPSHR:
+        case Ego::Script::OPSHR:
             op = "SHR";
             operationsum = int(operationsum) >> iTmp;
             break;
 
-        case OPSHL:
+        case Ego::Script::OPSHL:
             op = "SHL";
             operationsum = int(operationsum) << iTmp;
             break;
 
-        case OPMUL:
+        case Ego::Script::OPMUL:
             op = "MUL";
             operationsum = int(operationsum) * iTmp;
             break;
 
-        case OPDIV:
+        case Ego::Script::OPDIV:
             op = "DIV";
             if (iTmp != 0)
             {
@@ -661,7 +661,7 @@ void script_state_t::run_operand(ai_state_t& aiState, script_info_t& script)
             }
             break;
 
-        case OPMOD:
+        case Ego::Script::OPMOD:
             op = "MOD";
             if (iTmp != 0)
             {

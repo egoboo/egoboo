@@ -78,13 +78,13 @@ void convert_spawn_file_load_name(spawn_file_info_t& psp_info, const Ego::Treasu
     }
 
     // make sure it ends with a .obj extension
-    if ( !Ego::isSuffix(psp_info.spawn_comment, std::string(".obj") ) )
+    if ( !id::is_suffix(psp_info.spawn_comment, std::string(".obj") ) )
     {
         psp_info.spawn_comment += ".obj";
     }
 
     // no capital letters
-    Ego::tolower(psp_info.spawn_comment);
+    id::to_lower_in_situ(psp_info.spawn_comment);
 }
 
 //--------------------------------------------------------------------------------------------

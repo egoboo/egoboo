@@ -72,7 +72,7 @@ gfx_rv WaterTilesRenderPass::render_water_fan(ego_mesh_t& mesh, const Index1D& t
 
     float falpha;
     falpha = FF_TO_FLOAT(_currentModule->getWater()._layers[layer]._alpha);
-    falpha = constrain(falpha, 0.0f, 1.0f);
+    falpha = Math::constrain(falpha, 0.0f, 1.0f);
 
     /// @note BB@> the water info is for TILES, not for vertices, so ignore all vertex info and just draw the water
     ///            tile where it's supposed to go
@@ -136,7 +136,7 @@ gfx_rv WaterTilesRenderPass::render_water_fan(ego_mesh_t& mesh, const Index1D& t
         GLXvector3f nrm = {0, 0, 1};
 
         float alight = get_ambient_level() + _currentModule->getWater()._layers->_light_add;
-        alight = constrain(alight / 255.0f, 0.0f, 1.0f);
+        alight = Math::constrain(alight / 255.0f, 0.0f, 1.0f);
 
         for (size_t cnt = 0; cnt < 4; cnt++)
         {
@@ -168,9 +168,9 @@ gfx_rv WaterTilesRenderPass::render_water_fan(ego_mesh_t& mesh, const Index1D& t
             }
 
             // take the v[cnt].color from the tnc vertices so that it is oriented properly
-            v0.r = constrain(dlight * INV_FF<float>() + alight, 0.0f, 1.0f);
-            v0.g = constrain(dlight * INV_FF<float>() + alight, 0.0f, 1.0f);
-            v0.b = constrain(dlight * INV_FF<float>() + alight, 0.0f, 1.0f);
+            v0.r = Math::constrain(dlight * INV_FF<float>() + alight, 0.0f, 1.0f);
+            v0.g = Math::constrain(dlight * INV_FF<float>() + alight, 0.0f, 1.0f);
+            v0.b = Math::constrain(dlight * INV_FF<float>() + alight, 0.0f, 1.0f);
 
             // the application of alpha to the tile depends on the blending mode
             if (_currentModule->getWater()._light)

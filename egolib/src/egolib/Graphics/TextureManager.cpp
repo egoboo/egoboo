@@ -96,14 +96,12 @@ namespace Ego {
 TextureManager::TextureManager() :
     _deferredLoadingMutex(),
     _requestedLoadDeferredTextures(),
-    _notifyDeferredLoadingComplete() {
-    Ego::OpenGL::initializeErrorTextures();
-}
+    _notifyDeferredLoadingComplete()
+{}
 
 TextureManager::~TextureManager() {
     _textureCache.clear();
     _unload.clear();
-    Ego::OpenGL::uninitializeErrorTextures();
 }
 
 void TextureManager::release_all() {
@@ -132,7 +130,7 @@ void TextureManager::updateDeferredLoading() {
     {
         std::lock_guard<std::mutex> lock(_deferredLoadingMutex);
         for (const std::string &filePath : _requestedLoadDeferredTextures) {
-            std::shared_ptr<Ego::Texture> loadTexture = std::make_shared<Ego::OpenGL::Texture>();
+            auto loadTexture = Ego::Renderer::get().createTexture();
             ego_texture_load_vfs(loadTexture, filePath.c_str());
             _textureCache[filePath] = loadTexture;
         }
@@ -150,7 +148,7 @@ const std::shared_ptr<Texture>& TextureManager::getTexture(const std::string &fi
 
         if (SDL_GL_GetCurrentContext() != nullptr) {
             //We are the main OpenGL context thread so we can load textures
-            std::shared_ptr<Texture> loadTexture = std::make_shared<OpenGL::Texture>();
+            auto loadTexture = Ego::Renderer::get().createTexture();
             ego_texture_load_vfs(loadTexture, filePath.c_str());
             _textureCache[filePath] = loadTexture;
         } else {

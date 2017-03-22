@@ -98,7 +98,7 @@ void UIManager::beginRenderUI() {
     // later, but most of them will need this, so it's done by default at the beginning
     // of a frame.
     auto windowSize = GraphicsSystem::window->getSize();
-    Matrix4f4f projection = Transform::ortho(0.0f, windowSize.width(), windowSize.height(), 0.0f, -1.0f, +1.0f);
+    Matrix4f4f projection = Math::Transform::ortho(0.0f, windowSize.width(), windowSize.height(), 0.0f, -1.0f, +1.0f);
     renderer.setProjectionMatrix(projection);
     renderer.setViewMatrix(Matrix4f4f::identity());
     renderer.setWorldMatrix(Matrix4f4f::identity());
@@ -312,7 +312,7 @@ void UIManager::drawBitmapGlyph(int fonttype, const Vector2f& position, const fl
     tx_rect.xmax -= BORDER;
     tx_rect.ymax -= BORDER;
 
-    drawQuad2D(sc_rect, tx_rect, std::make_shared<Material>(_bitmapFontTexture, Colour4f(Colour3f::white(), alpha), true));
+    drawQuad2D(sc_rect, tx_rect, std::make_shared<Material>(_bitmapFontTexture, Math::Colour4f(Math::Colour3f::white(), alpha), true));
 }
 
 void UIManager::drawQuad2D(const Rectangle2f& scr_rect, const Rectangle2f& tx_rect, const std::shared_ptr<const Material>& material) {
@@ -326,7 +326,7 @@ void UIManager::drawQuad2D(const Rectangle2f& scr_rect, const ego_frect_t& tx_re
     drawQuad2D(scr_rect, tx_rect_2, material);
 }
 
-void UIManager::fillRectangle(const Rectangle2f& rectangle, const bool useAlpha, const Colour4f& tint) {
+void UIManager::fillRectangle(const Rectangle2f& rectangle, const bool useAlpha, const Math::Colour4f& tint) {
     auto material = std::make_shared<Material>(nullptr, tint, useAlpha);
     material->apply();
     drawQuad2d(rectangle);

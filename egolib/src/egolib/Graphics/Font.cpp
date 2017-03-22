@@ -70,7 +70,7 @@ struct Font::SizedTextCache : Id::NonCopyable {
 };
 
 struct Font::FontAtlas {
-    std::shared_ptr<Ego::Texture> texture;
+    std::shared_ptr<Texture> texture;
     std::unordered_map<uint16_t, SDL_Rect> glyphs;
 };
 
@@ -92,30 +92,30 @@ struct Font::LayoutOptions {
     int *textHeight = nullptr; ///< Set to the laid text's height
 };
 
-Font::LaidTextRenderer::LaidTextRenderer(const std::shared_ptr<Ego::Texture> &atlas,
+Font::LaidTextRenderer::LaidTextRenderer(const std::shared_ptr<Texture> &atlas,
                                          const std::shared_ptr<VertexBuffer> &vertexBuffer) :
     _atlas(atlas),
     _vertexBuffer(vertexBuffer) {}
 
-void Font::LaidTextRenderer::render(int x, int y, const Ego::Math::Colour4f &colour) {
+void Font::LaidTextRenderer::render(int x, int y, const Math::Colour4f &colour) {
     struct MatrixStack {
-        MatrixStack() :matrix(Ego::Renderer::get().getProjectionMatrix()) {}
-        ~MatrixStack() { Ego::Renderer::get().setProjectionMatrix(matrix); }
+        MatrixStack() :matrix(Renderer::get().getProjectionMatrix()) {}
+        ~MatrixStack() { Renderer::get().setProjectionMatrix(matrix); }
         const Matrix4f4f matrix;
     };
 
-    auto &renderer = Ego::Renderer::get();
+    auto &renderer = Renderer::get();
     MatrixStack stack;
 
     Vector3f pos(static_cast<float>(x), static_cast<float>(y), 0.0f);
-    Matrix4f4f transMat = Transform::translation(pos);
+    Matrix4f4f transMat = Math::Transform::translation(pos);
     Matrix4f4f projMatrix = stack.matrix * transMat;
 
     renderer.setProjectionMatrix(projMatrix);
     renderer.setBlendingEnabled(true);
     renderer.setColour(colour);
     renderer.getTextureUnit().setActivated(_atlas.get());
-    renderer.render(*(_vertexBuffer.get()), Ego::PrimitiveType::Quadriliterals, 0, _vertexBuffer->getNumberOfVertices());
+    renderer.render(*(_vertexBuffer.get()), PrimitiveType::Quadriliterals, 0, _vertexBuffer->getNumberOfVertices());
 }
 
 Font::Font(const std::string &fileName, int pointSize) :
@@ -163,7 +163,7 @@ void Font::getTextSize(const std::string &text, int *width, int *height) {
     if (width) *width = cache->width;
     if (height) *height = cache->height;
 
-    cache->lastUseInTicks = Ego::Core::System::get().getSystemService().getTicks();
+    cache->lastUseInTicks = Core::System::get().getSystemService().getTicks();
 }
 
 void Font::getTextBoxSize(const std::string &text, int spacing, int *width, int *height) {
@@ -189,22 +189,22 @@ void Font::getTextBoxSize(const std::string &text, int spacing, int *width, int 
     if (width) *width = cache->width;
     if (height) *height = cache->height;
 
-    cache->lastUseInTicks = Ego::Core::System::get().getSystemService().getTicks();
+    cache->lastUseInTicks = Core::System::get().getSystemService().getTicks();
 }
 
-void Font::drawTextToTexture(Ego::Texture *tex, const std::string &text, const Ego::Math::Colour3f &colour) {
+void Font::drawTextToTexture(Texture *tex, const std::string &text, const Math::Colour3f &colour) {
     LayoutOptions options;
 
     std::shared_ptr<SDL_Surface> surface = layoutToTexture(text, options, colour);
 
     std::string name = "Font text '" + text + "'";
     tex->load(name, surface);
-    tex->setAddressModeS(Ego::TextureAddressMode::Clamp);
-    tex->setAddressModeT(Ego::TextureAddressMode::Clamp);
+    tex->setAddressModeS(TextureAddressMode::Clamp);
+    tex->setAddressModeT(TextureAddressMode::Clamp);
 }
 
-void Font::drawTextBoxToTexture(Ego::Texture *tex, const std::string &text, int width, int height, int spacing,
-                                const Ego::Math::Colour3f &colour) {
+void Font::drawTextBoxToTexture(Texture *tex, const std::string &text, int width, int height, int spacing,
+                            const Math::Colour3f &colour) {
     LayoutOptions options;
     options.maxWidth = width;
     options.maxHeight = height;
@@ -214,11 +214,11 @@ void Font::drawTextBoxToTexture(Ego::Texture *tex, const std::string &text, int 
 
     std::string name = "Font textbox '" + text + "'";
     tex->load(name, surface);
-    tex->setAddressModeS(Ego::TextureAddressMode::Clamp);
-    tex->setAddressModeT(Ego::TextureAddressMode::Clamp);
+    tex->setAddressModeS(TextureAddressMode::Clamp);
+    tex->setAddressModeT(TextureAddressMode::Clamp);
 }
 
-void Font::drawText(const std::string &text, int x, int y, const Ego::Math::Colour4f &colour) {
+void Font::drawText(const std::string &text, int x, int y, const Math::Colour4f &colour) {
     if (text.empty()) return;
 
     bool updateCache = true;
@@ -234,10 +234,10 @@ void Font::drawText(const std::string &text, int x, int y, const Ego::Math::Colo
 
     cache->cache->render(x, y, colour);
 
-    cache->lastUseInTicks = Ego::Core::System::get().getSystemService().getTicks();
+    cache->lastUseInTicks = Core::System::get().getSystemService().getTicks();
 }
 
-void Font::drawTextBox(const std::string &text, int x, int y, int width, int height, int spacing, const Ego::Math::Colour4f &colour) {
+void Font::drawTextBox(const std::string &text, int x, int y, int width, int height, int spacing, const Math::Colour4f &colour) {
     if (text.empty()) return;
 
     bool updateCache = true;
@@ -253,7 +253,7 @@ void Font::drawTextBox(const std::string &text, int x, int y, int width, int hei
 
     cache->cache->render(x, y, colour);
 
-    cache->lastUseInTicks = Ego::Core::System::get().getSystemService().getTicks();
+    cache->lastUseInTicks = Core::System::get().getSystemService().getTicks();
 }
 
 std::shared_ptr<Font::LaidTextRenderer> Font::layoutText(const std::string &text, int *textWidth, int *textHeight) {
@@ -447,7 +447,7 @@ std::shared_ptr<Font::LaidTextRenderer> Font::layoutToBuffer(const std::string &
 
     LaidOutText laidText = layout(text, options);
 
-    const auto &vertexDesc = Ego::VertexFormatFactory::get(Ego::VertexFormat::P3FT2F);
+    const auto &vertexDesc = VertexFormatFactory::get(VertexFormat::P3FT2F);
     std::shared_ptr<VertexBuffer> buffer = std::make_shared<VertexBuffer>(4 * laidText.codepoints.size(), vertexDesc);
 
     TextVertex *vertices = reinterpret_cast<TextVertex *>(buffer->lock());
@@ -498,7 +498,7 @@ std::shared_ptr<Font::LaidTextRenderer> Font::layoutToBuffer(const std::string &
 }
 
 std::shared_ptr<SDL_Surface> Font::layoutToTexture(const std::string &text, const LayoutOptions &options,
-                                                   const Ego::Math::Colour3f &colour) {
+                                                   const Math::Colour3f &colour) {
     LayoutOptions ourOptions = options;
     int surfWidth, surfHeight;
     ourOptions.textWidth = &surfWidth;
@@ -631,10 +631,10 @@ Font::FontAtlas Font::createFontAtlas(const std::vector<uint16_t> &codepoints) c
     }
 
     std::shared_ptr<SDL_Surface> atlasPtr(atlas, SDL_FreeSurface);
-    retval.texture = std::make_shared<Ego::OpenGL::Texture>();
+    retval.texture = Renderer::get().createTexture();
     retval.texture->load("font atlas", atlasPtr);
-    retval.texture->setAddressModeS(Ego::TextureAddressMode::Clamp);
-    retval.texture->setAddressModeT(Ego::TextureAddressMode::Clamp);
+    retval.texture->setAddressModeS(TextureAddressMode::Clamp);
+    retval.texture->setAddressModeT(TextureAddressMode::Clamp);
     return retval;
 }
 

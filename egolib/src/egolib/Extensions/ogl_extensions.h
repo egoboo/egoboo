@@ -46,16 +46,9 @@ namespace Ego
 namespace OpenGL
 {
 
-template <typename T> using UnorderedSet = std::unordered_set<T>;
-
 struct Utilities {
 protected:
-    using RuntimeErrorException = Id::RuntimeErrorException;
-    using UnhandledSwitchCaseException = Id::UnhandledSwitchCaseException;
-    using String = std::string;
-
-protected:
-    static const String anisotropyExtension;
+    static const std::string anisotropyExtension;
 
 public:
 
@@ -98,7 +91,7 @@ public:
      * @return
      *  the set of extension strings
      */
-    static UnorderedSet<String> getExtensions();
+    static std::unordered_set<std::string> getExtensions();
 
 public:
     /**
@@ -107,7 +100,7 @@ public:
      * @return
      *  the name of the renderer of this OpenGL implementation
      */
-    static String getRenderer();
+    static std::string getRenderer();
 
     /**
      * @brief
@@ -115,7 +108,7 @@ public:
      * @return
      *  the name of the vendor of this OpenGL implementation
      */
-    static String getVendor();
+    static std::string getVendor();
 
     /**
      * @brief
@@ -123,7 +116,7 @@ public:
      * @return
      *  the version of this OpenGL implementation
      */
-    static String getVersion();
+    static std::string getVersion();
 
 public:
     /**

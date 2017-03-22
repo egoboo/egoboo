@@ -17,10 +17,69 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Renderer/OpenGL/Texture.hpp
-/// @brief  Implementation of textures for OpenGL 2.1.
+/// @file egolib/Renderer/OpenGL/Texture.hpp
+/// @brief Implementation of textures for OpenGL 2.1.
 /// @author Michael Heilmann
 
 #pragma once
 
 #include "egolib/Renderer/Texture.hpp"
+#include "egolib/Extensions/ogl_include.h"
+#include "egolib/Extensions/ogl_extensions.h"
+
+namespace Ego {
+namespace OpenGL {
+
+/// An encapsulation of the OpenGL texture state.
+struct Texture : public Ego::Texture
+{
+protected:
+    /// @brief The OpenGL texture ID.
+    /// @remark At any point, a texture has a valid OpenGL texture ID assigned, <em>unless</em> resources were lost.
+    GLuint  _id;
+
+public:
+    void load(const std::string& name, const std::shared_ptr<SDL_Surface>& surface, TextureType type, const TextureSampler& sampler);
+    
+    /** @override Ego::Texture::upload(const String& name, const SharedPtr<SDL_Surface>&) */
+    bool load(const std::string& name, const std::shared_ptr<SDL_Surface>& surface) override;
+
+    /** @override Ego::Texture::upload(const std::shared_ptr<SDL_Surface>&) */
+    bool load(const std::shared_ptr<SDL_Surface>& surface) override;
+
+    /** @override Ego::Texture::release */
+    void release() override;
+
+    /** @override Ego::Texture::isDefault */
+    bool isDefault() const override;
+
+public:
+
+    /// @brief Construct this texture.
+    /// @post This texture is bound to the backing error texture.
+    Texture();
+
+    ///@brief Construct this texture.
+    Texture(GLuint id, const std::string& name,
+            TextureType type, TextureAddressMode addressModeS, TextureAddressMode addressModeT,
+            int width, int height, int sourceWidth, int sourceHeight, std::shared_ptr<SDL_Surface> source,
+            bool hasAlpha);
+
+    /// @brief Destruct this texture.
+    virtual ~Texture();
+
+public:
+    GLuint getTextureID() const;
+
+};
+
+/// @brief Initialize the error textures.
+/// @todo Move into texture manager.
+void initializeErrorTextures();
+
+/// @brief Uninitialize the error textures.
+/// @todo Move into texture manager.
+void uninitializeErrorTextures();
+
+} // namespace OpenGL
+} // namespace Ego

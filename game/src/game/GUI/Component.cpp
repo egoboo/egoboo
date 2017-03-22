@@ -64,7 +64,7 @@ void Component::setY(float y) {
 }
 
 void Component::setPosition(const Point2f& position) {
-    Translate<Rectangle2f> t;
+    Math::Translate<Rectangle2f> t;
     // Translate such that the top/left corner is at (x,y).
     _bounds = t(_bounds, Vector2f(-_bounds.getMin().x() + position.x(), -_bounds.getMin().y() + position.y()));
 }
@@ -79,7 +79,7 @@ const Rectangle2f& Component::getBounds() const {
 }
 
 bool Component::contains(const Point2f& point) const {
-    Contains<Rectangle2f, Point2f> functor;
+    Math::Contains<Rectangle2f, Point2f> functor;
     return functor(_bounds, point);
 }
 
@@ -94,7 +94,7 @@ Container *Component::getParent() const {
 Rectangle2f Component::getDerivedBounds() const {
     auto bounds = getBounds();
     if (nullptr != this->_parent) {
-        Translate<Rectangle2f> t;
+        Math::Translate<Rectangle2f> t;
         return t(bounds, Point2f::toVector(this->_parent->getDerivedPosition()));
     } else {
         return bounds;

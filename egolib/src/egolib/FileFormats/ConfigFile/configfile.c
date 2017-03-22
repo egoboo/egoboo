@@ -60,6 +60,43 @@
 #include "egolib/FileFormats/ConfigFile/configfile.h"
 
 //--------------------------------------------------------------------------------------------
+
+ConfigCommentLine::ConfigCommentLine(const std::string& text) :
+    m_text(text)
+{}
+
+ConfigCommentLine::~ConfigCommentLine()
+{}
+
+const std::string& ConfigCommentLine::getText() const
+{
+    return m_text;
+}
+
+//--------------------------------------------------------------------------------------------
+
+ConfigEntry::ConfigEntry(const id::qualified_name& qualifiedName, const std::string& value) :
+    m_qualifiedName(qualifiedName), m_value(value), m_commentLines()
+{}
+
+ConfigEntry::~ConfigEntry()
+{}
+
+const id::qualified_name& ConfigEntry::getQualifiedName() const
+{
+    return m_qualifiedName;
+}
+
+const std::string& ConfigEntry::getValue() const
+{
+    return m_value;
+}
+
+const std::vector<ConfigCommentLine>& ConfigEntry::getCommentLines() const
+{
+    return m_commentLines;
+}
+
 //--------------------------------------------------------------------------------------------
 
 bool ConfigFileParser::skipWhiteSpaces()
@@ -71,7 +108,9 @@ bool ConfigFileParser::skipWhiteSpaces()
     return true;
 }
 
-bool ConfigFileParser::parseFile(shared_ptr<ConfigFile> target)
+//--------------------------------------------------------------------------------------------
+
+bool ConfigFileParser::parseFile(std::shared_ptr<ConfigFile> target)
 {
     assert(isStartOfInput());
     _currentQualifiedName = nullptr;
@@ -89,7 +128,7 @@ bool ConfigFileParser::parseFile(shared_ptr<ConfigFile> target)
         }
         else if (is('/'))
         {
-            string comment;
+            std::string comment;
             parseComment(comment);
             _commentLines.push_back(comment);
         }
@@ -101,7 +140,7 @@ bool ConfigFileParser::parseFile(shared_ptr<ConfigFile> target)
     return true;
 }
 
-bool ConfigFileParser::parseEntry(shared_ptr<ConfigFile> target)
+bool ConfigFileParser::parseEntry(std::shared_ptr<ConfigFile> target)
 {
     if (!parseQualifiedName())
     {
@@ -212,7 +251,7 @@ bool ConfigFileParser::parseValue()
         return false;
     }
     next();
-    _currentValue.reset(new string(getLexemeText()));
+    _currentValue.reset(new std::string(getLexemeText()));
     return true;
 }
 
@@ -227,7 +266,7 @@ std::shared_ptr<ConfigFile> ConfigFileParser::parse()
 {
     try
     {
-        auto target = make_shared<ConfigFile>(getFileName());
+        auto target = std::make_shared<ConfigFile>(getFileName());
         if (!parseFile(target))
         {
             return nullptr;
@@ -243,7 +282,7 @@ std::shared_ptr<ConfigFile> ConfigFileParser::parse()
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-bool ConfigFileUnParser::unparse(shared_ptr<ConfigFile::Entry> entry)
+bool ConfigFileUnParser::unparse(std::shared_ptr<ConfigEntry> entry)
 {
     vfs_printf(_target,"%s : \"%s\"\n", entry->getQualifiedName().string().c_str(),
                                         entry->getValue().c_str());
@@ -257,7 +296,7 @@ ConfigFileUnParser::ConfigFileUnParser() :
 ConfigFileUnParser::~ConfigFileUnParser()
 {}
 
-bool ConfigFileUnParser::unparse(shared_ptr<ConfigFile> source)
+bool ConfigFileUnParser::unparse(std::shared_ptr<ConfigFile> source)
 {
     try
     {
@@ -270,15 +309,15 @@ bool ConfigFileUnParser::unparse(shared_ptr<ConfigFile> source)
             return false;
         }
         // Sort the entries by their qualified names.
-        vector<shared_ptr<ConfigFile::Entry>> entries;
+        std::vector<std::shared_ptr<ConfigEntry>> entries;
         for (const auto& entry : *_source)
         {
             entries.push_back(entry);
         }
-        sort(entries.begin(), entries.end(),
-             [] (const shared_ptr<ConfigFile::Entry>& a, const shared_ptr<ConfigFile::Entry>& b)
+        std::sort(entries.begin(), entries.end(),
+             [] (const std::shared_ptr<ConfigEntry>& a, const std::shared_ptr<ConfigEntry>& b)
                 {
-                    return less<id::qualified_name>()(a->getQualifiedName(), b->getQualifiedName());
+                    return std::less<id::qualified_name>()(a->getQualifiedName(), b->getQualifiedName());
                 }
             );
         for (const auto& entry : entries)

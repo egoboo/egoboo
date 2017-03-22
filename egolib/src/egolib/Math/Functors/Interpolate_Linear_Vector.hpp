@@ -25,6 +25,7 @@
 
 #include "egolib/Math/Functors/Interpolate.hpp"
 #include "egolib/Math/Vector.hpp"
+#include "idlib/math/one_zero.hpp"
 
 namespace Ego {
 namespace Math {
@@ -54,15 +55,13 @@ struct Interpolate<Vector<_ScalarFieldType, _Dimensionality>, InterpolationMetho
     using A = Vector<_ScalarFieldType, _Dimensionality>;
     using T = typename _ScalarFieldType::ScalarType;
     A operator()(A x, A y, T t) const {
-        static const One<T> one{};
-        static const Zero<T> zero{};
-        if (t < zero() || t > one()) {
+        if (t < id::zero<T>() || t > id::one<T>()) {
             Log::Entry e(Log::Level::Error, __FILE__, __LINE__);
             e << "parameter t = " << t << " not within the interval of [0,1]" << Log::EndOfEntry;
             Log::get() << e;
             throw Id::OutOfBoundsException(__FILE__, __LINE__, e.getText());
         }
-        return x * (one() - t) + y * t;
+        return x * (id::one<T>() - t) + y * t;
     }
 }; // struct Interpolate
 

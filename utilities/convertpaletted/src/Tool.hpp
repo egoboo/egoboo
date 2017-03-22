@@ -20,12 +20,6 @@ namespace Standard {
     }
     using RuntimeError = std::runtime_error;
     using StringBuffer = std::ostringstream;
-    using String = std::string;
-
-    template <typename T> using Deque = std::deque<T>;
-    template <typename T> using Vector = std::vector<T>;
-
-    template <typename T> using SharedPtr = std::shared_ptr<T>;
 }
 
 struct FileSystem {
@@ -73,22 +67,17 @@ using namespace Standard;
  */
 class Tool {
 private:
-#if 0
-    using String = std::string;
-    template <typename T> using Vector = std::vector<T>;
-    template <typename T> using SharedPtr = std::shared_ptr<T>;
-#endif
 	/**
 	 * @brief The name of this tool.
 	 */
-	String name;
+	std::string name;
 
 protected:
 	/** 
 	 * @brief Construct this tool.
 	 * @param name the name of this tool
 	 */
-	Tool(const String& name);
+	Tool(const std::string& name);
 
 public:
 	/** 
@@ -100,19 +89,19 @@ public:
 	 * @brief Get the name of this tool.
 	 * @return the name of this tool
 	 */
-	const String& getName() const;
+	const std::string& getName() const;
 
     /**
      * @brief Run this tool with the specified arguments.
      * @param argument the arguments
      */
-    virtual void run(const Vector<SharedPtr<CommandLine::Option>>& arguments) = 0;
+    virtual void run(const std::vector<std::shared_ptr<CommandLine::Option>>& arguments) = 0;
 
     /**
      * @brief Get the help text for this tool.
      * @return the help text for this tool
      */
-    virtual const String& getHelp() const = 0;
+    virtual const std::string& getHelp() const = 0;
 
 }; // class Tool
 

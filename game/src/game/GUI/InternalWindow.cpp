@@ -53,13 +53,13 @@ void InternalWindow::TitleBar::draw(DrawingContext& drawingContext) {
     // Background of title bar
     position = getDerivedPosition();
     position -= Vector2f(BORDER_PIXELS * 2, 0.0f);
-    material = std::make_shared<const Material>(_titleBarTexture.get(), Ego::Math::Colour4f::white(), true);
+    material = std::make_shared<const Material>(_titleBarTexture.get(), Math::Colour4f::white(), true);
     _gameEngine->getUIManager()->drawImage(position, Vector2f(getWidth() + BORDER_PIXELS * 4, getHeight()), material);
 
     // Title string (centered on title bar)
     position = getDerivedPosition();
     position += Vector2f(getWidth() / 2.0f - _textWidth / 2.0f, 12);
-    _font->drawText(_title, position.x(), position.y(), Colour4f(0.28f, 0.16f, 0.07f, 1.0f));
+    _font->drawText(_title, position.x(), position.y(), Math::Colour4f(0.28f, 0.16f, 0.07f, 1.0f));
 
     //Skull texture (centered above top border of title bar)
     const int skullWidth = _titleSkullTexture.get_ptr()->getWidth() / 2;
@@ -95,7 +95,7 @@ InternalWindow::InternalWindow(const std::string &title) :
 void InternalWindow::drawContainer(DrawingContext& drawingContext) {
     std::shared_ptr<const Material> material;
     //Draw background first
-    material = std::make_shared<const Material>(_background.get(), Colour4f(Colour3f::white(), 0.9f), true);
+    material = std::make_shared<const Material>(_background.get(), Math::Colour4f(Math::Colour3f::white(), 0.9f), true);
     _gameEngine->getUIManager()->drawImage(Point2f(getDerivedPosition().x(), getDerivedPosition().y()),
                                            Vector2f(getWidth(), getHeight()), material);
 

@@ -8,7 +8,7 @@ namespace Tests {
 namespace Math {
 
 template <size_t Dimensionality, typename ScalarFieldType>
-Vector<ScalarFieldType, Dimensionality> normalize(const Vector<ScalarFieldType, Dimensionality>& v) {
+Ego::Math::Vector<ScalarFieldType, Dimensionality> normalize(const Ego::Math::Vector<ScalarFieldType, Dimensionality>& v) {
     float l = v.length();
     if (!ScalarFieldType::isPositive(l)) {
         throw Id::RuntimeErrorException(__FILE__, __LINE__, "negative length");

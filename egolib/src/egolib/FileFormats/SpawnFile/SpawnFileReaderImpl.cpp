@@ -39,8 +39,8 @@ bool SpawnFileReaderImpl::read(ReadContext& ctxt, spawn_file_info_t& info)
         } while (!ctxt.is(':') && !ctxt.isNewLine() && !ctxt.isEndOfInput() && !ctxt.isError());
         if (ctxt.isError())
         {
-            throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, id::location(ctxt.getFileName(), ctxt.getLineNumber()),
-                                            "read error");
+            throw Id::CompilationErrorException(__FILE__, __LINE__, Id::CompilationErrorKind::Lexical, id::location(ctxt.getFileName(), ctxt.getLineNumber()),
+                                                "read error");
         }
         if (ctxt.isEndOfInput())
         {
@@ -48,8 +48,8 @@ bool SpawnFileReaderImpl::read(ReadContext& ctxt, spawn_file_info_t& info)
         }
         if (!ctxt.is(':'))
         {
-            throw CompilationErrorException(__FILE__, __LINE__, CompilationErrorKind::Lexical, id::location(ctxt.getFileName(), ctxt.getLineNumber()),
-                                            "expected `:`");
+            throw Id::CompilationErrorException(__FILE__, __LINE__, Id::CompilationErrorKind::Lexical, id::location(ctxt.getFileName(), ctxt.getLineNumber()),
+                                                "expected `:`");
         }
         ctxt.next();
 
@@ -77,7 +77,7 @@ bool SpawnFileReaderImpl::read(ReadContext& ctxt, spawn_file_info_t& info)
         info.facing = Facing::FACE_NORTH;
         info.attach = ATTACH_NONE;
         char chr = ctxt.readPrintable();
-        switch (Ego::toupper(chr))
+        switch (id::to_upper(chr))
         {
             case 'S': info.facing = Facing::FACE_SOUTH;       break;
             case 'E': info.facing = Facing::FACE_EAST;        break;

@@ -55,13 +55,13 @@ public:
          * @param colour
          *  The colour of the rendered text; default is white
          */
-        void render(int x, int y, const Ego::Math::Colour4f &colour = Ego::Math::Colour4f::white());
+        void render(int x, int y, const Math::Colour4f &colour = Math::Colour4f::white());
 
     protected:
         LaidTextRenderer(const std::shared_ptr<Ego::Texture> &atlas, const std::shared_ptr<VertexBuffer> &vertexBuffer);
         friend class Font;
     private:
-        std::shared_ptr<Ego::Texture> _atlas;
+        std::shared_ptr<Texture> _atlas;
         std::shared_ptr<VertexBuffer> _vertexBuffer;
     };
 
@@ -114,8 +114,8 @@ public:
      * @param colour
      *  the colour of the text (default white)
      */
-    void drawTextToTexture(Ego::Texture *tex, const std::string &text,
-                           const Ego::Math::Colour3f &color = Ego::Math::Colour3f::white());
+    void drawTextToTexture(Texture *tex, const std::string &text,
+                           const Math::Colour3f &color = Math::Colour3f::white());
 
     /**
      * @brief
@@ -133,8 +133,8 @@ public:
      * @param colour
      *  the colour of the text (default white)
      */
-    void drawTextBoxToTexture(Ego::Texture *tex, const std::string &text, int width, int height, int spacing,
-                              const Ego::Math::Colour3f &color = Ego::Math::Colour3f::white());
+    void drawTextBoxToTexture(Texture *tex, const std::string &text, int width, int height, int spacing,
+                              const Math::Colour3f &color = Math::Colour3f::white());
 
 
     /**
@@ -150,7 +150,7 @@ public:
      *  the colour of the text (default white)
      */
     void drawText(const std::string &text, int x, int y,
-                  const Ego::Math::Colour4f &colour = Ego::Math::Colour4f::white());
+                  const Math::Colour4f &colour = Math::Colour4f::white());
 
     /**
      * @brief
@@ -171,7 +171,7 @@ public:
      *  the colour of the text (default white)
      */
     void drawTextBox(const std::string &text, int x, int y, int width, int height, int spacing,
-                     const Ego::Math::Colour4f &colour = Ego::Math::Colour4f::white());
+                     const Math::Colour4f &colour = Math::Colour4f::white());
 
     /**
      * @brief
@@ -270,7 +270,7 @@ private:
      * @see layout
      */
     std::shared_ptr<SDL_Surface> layoutToTexture(const std::string &text, const LayoutOptions &options,
-                                                 const Ego::Math::Colour3f &colour);
+                                                 const Math::Colour3f &colour);
 
     /**
      * @brief

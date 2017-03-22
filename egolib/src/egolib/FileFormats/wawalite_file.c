@@ -166,7 +166,7 @@ void wawalite_weather_t::read(ReadContext& ctxt, wawalite_data_t *enclosing, waw
         //Parse the weather type line
         vfs_get_next_string_lit(ctxt, line);
         profile->weather_name = line;
-        Ego::toupper(profile->weather_name);
+        id::to_upper_in_situ(profile->weather_name);
     }
 
     profile->over_water = vfs_get_next_bool(ctxt);

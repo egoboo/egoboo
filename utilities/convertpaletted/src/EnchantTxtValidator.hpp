@@ -23,13 +23,13 @@ public:
     virtual ~EnchantTxtValidator();
 
     /** @copydoc Tool::run */
-    void run(const Vector<SharedPtr<CommandLine::Option>>& arguments) override;
+    void run(const std::vector<std::shared_ptr<CommandLine::Option>>& arguments) override;
 
     /** @copydoc Tool:getHelp */
-    const String& getHelp() const override;
+    const std::string& getHelp() const override;
 
 private:
-    void validate(const String& pathname);
+    void validate(const std::string& pathname);
 
 }; // struct DataTxtValidator
 

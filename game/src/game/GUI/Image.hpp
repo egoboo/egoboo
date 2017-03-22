@@ -15,11 +15,11 @@ public:
     //TODO: remove
     Image(std::shared_ptr<Texture> texture);
 
-    virtual void draw(Ego::GUI::DrawingContext& drawingContext) override;
+    virtual void draw(DrawingContext& drawingContext) override;
 
     void setImage(const std::string &filePath);
 
-    void setTint(const Colour4f &colour);
+    void setTint(const Math::Colour4f &colour);
 
     int getTextureWidth();
     int getTextureHeight();
@@ -27,7 +27,7 @@ public:
 private:
     DeferredTexture _texture;
     std::shared_ptr<Texture> _image;
-    Colour4f _tint;
+    Math::Colour4f _tint;
 };
 
 } // namespace GUI

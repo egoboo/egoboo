@@ -17,7 +17,7 @@ void HeightmapRenderPass::doRun(::Camera& camera, const TileList& tl, const Enti
         TileRenderer::invalidate();
 
         // render the heighmap
-        Ego::Graphics::Internal::TileListV2::render_heightmap(*tl.getMesh().get(), tl._all);
+        Graphics::Internal::TileListV2::render_heightmap(*tl.getMesh().get(), tl._all);
 
         // let the mesh texture code know that someone else is in control now
         TileRenderer::invalidate();

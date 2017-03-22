@@ -191,8 +191,8 @@ void EntityShadowsRenderPass::doHighQualityShadow(const ObjectRef character)
         alpha_umbra *= 1.0f / factor_umbra / factor_umbra / 1.5f;
         alpha_penumbra *= 1.0f / factor_penumbra / factor_penumbra / 1.5f;
 
-        alpha_umbra = constrain(alpha_umbra, 0.0f, 1.0f);
-        alpha_penumbra = constrain(alpha_penumbra, 0.0f, 1.0f);
+        alpha_umbra = Math::constrain(alpha_umbra, 0.0f, 1.0f);
+        alpha_penumbra = Math::constrain(alpha_penumbra, 0.0f, 1.0f);
     }
 
     float x = pchr->inst.getMatrix()(0, 3);
@@ -275,10 +275,10 @@ void EntityShadowsRenderPass::doShadowSprite(float intensity, VertexBuffer& vert
     if (intensity*255.0f < 1.0f) return;
 
     //Limit the intensity to a valid range
-    intensity = constrain(intensity, 0.0f, 1.0f);
+    intensity = Math::constrain(intensity, 0.0f, 1.0f);
 
     auto& renderer = Renderer::get();
-    renderer.setColour(Colour4f(intensity, intensity, intensity, 1.0f));
+    renderer.setColour(Math::Colour4f(intensity, intensity, intensity, 1.0f));
 
     renderer.render(vertexBuffer, PrimitiveType::TriangleFan, 0, 4);
 }

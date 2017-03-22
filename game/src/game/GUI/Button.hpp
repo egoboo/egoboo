@@ -9,7 +9,7 @@ namespace GUI {
 class Button : public Component {
 public:
     /// Signal invoked if the button was clicked.
-    Signal<void()> Clicked;
+    Id::Signal<void()> Clicked;
 public:
     Button(int hotkey = SDLK_UNKNOWN);
     Button(const std::string &buttonText, int hotkey = SDLK_UNKNOWN);
@@ -45,9 +45,9 @@ protected:
     int _buttonTextWidth;
     int _buttonTextHeight;
 
-    static const Colour4f DEFAULT_BUTTON_COLOUR;
-    static const Colour4f HOVER_BUTTON_COLOUR;
-    static const Colour4f DISABLED_BUTTON_COLOUR;
+    static const Math::Colour4f DEFAULT_BUTTON_COLOUR;
+    static const Math::Colour4f HOVER_BUTTON_COLOUR;
+    static const Math::Colour4f DISABLED_BUTTON_COLOUR;
 
 private:
     std::string _buttonText;

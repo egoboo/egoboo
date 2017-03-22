@@ -12,14 +12,14 @@ DataTxtValidator::DataTxtValidator()
 
 DataTxtValidator::~DataTxtValidator() {}
 
-void DataTxtValidator::run(const Vector<SharedPtr<Option>>& arguments) {
+void DataTxtValidator::run(const std::vector<std::shared_ptr<Option>>& arguments) {
     if (arguments.size() < 1) {
         StringBuffer sb;
         sb << "wrong number of arguments" << EndOfLine;
         throw RuntimeError(sb.str());
     }
 
-    Deque<String> queue;
+    std::deque<std::string> queue;
     RegexFilter filter("^(?:.*" REGEX_DIRSEP ")?data\\.txt");
     /// @todo Do *not* assume the path is relative. Ensure that it is absolute by a system function.
     for (const auto& argument : arguments) {
@@ -55,12 +55,12 @@ void DataTxtValidator::run(const Vector<SharedPtr<Option>>& arguments) {
     }
 }
 
-const String& DataTxtValidator::getHelp() const {
-    static const String help = "usage: ego-tools --tool=DataTxtValidator <directories>\n";
+const std::string& DataTxtValidator::getHelp() const {
+    static const std::string help = "usage: ego-tools --tool=DataTxtValidator <directories>\n";
     return help;
 }
 
-void DataTxtValidator::validate(const String& pathname) {
+void DataTxtValidator::validate(const std::string& pathname) {
 }
 
 } // namespace Tools

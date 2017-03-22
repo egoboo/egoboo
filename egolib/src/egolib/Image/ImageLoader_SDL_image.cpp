@@ -22,7 +22,7 @@
 namespace Ego {
 namespace Internal {
 
-ImageLoader_SDL_image::ImageLoader_SDL_image(const Set<String>& extensions) :
+ImageLoader_SDL_image::ImageLoader_SDL_image(const std::unordered_set<std::string>& extensions) :
     ImageLoader(extensions) {}
 
 std::shared_ptr<SDL_Surface> ImageLoader_SDL_image::load(vfs_FILE *file) const {

@@ -111,7 +111,7 @@ void ForegroundRenderPass::doRun(::Camera& camera, const TileList& tl, const Ent
 
                 renderer.getTextureUnit().setActivated(_currentModule->getWaterTexture(1).get());
 
-                renderer.setColour(Colour4f(1.0f, 1.0f, 1.0f, 1.0f - std::abs(alpha)));
+                renderer.setColour(Math::Colour4f(1.0f, 1.0f, 1.0f, 1.0f - std::abs(alpha)));
                 renderer.render(_vertexBuffer, PrimitiveType::TriangleFan, 0, 4);
             }
         }

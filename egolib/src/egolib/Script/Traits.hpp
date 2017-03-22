@@ -26,8 +26,6 @@ namespace Ego
 namespace Script
 {
 
-using namespace std;
-
 /**
  * @brief
  *  Necessary descriptions of a type for generic textual input/output.

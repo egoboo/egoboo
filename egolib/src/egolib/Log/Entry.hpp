@@ -39,7 +39,7 @@ public:
     Entry(Level level, const std::string& fileName, int lineNumber,
           const std::string& functionName);
 
-    ~Entry();
+    virtual ~Entry();
 
     Entry(Entry&& other);
     Entry& operator=(Entry&& other);

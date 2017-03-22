@@ -1665,7 +1665,7 @@ bool wawalite_finalize(wawalite_data_t *data)
     else
     {
         std::string weather_name = data->weather.weather_name;
-        Ego::tolower(weather_name);
+        id::to_lower_in_situ(weather_name);
 
         // Compute load paths.
         std::string prt_file = "mp_data/weather_" + weather_name + ".txt";

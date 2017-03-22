@@ -25,7 +25,7 @@ AppImpl::AppImpl(const std::string& title, const std::string& version)
 
     auto& renderer = Renderer::get();
     // Set clear colour and clear depth.
-    renderer.getColourBuffer().setClearValue(Colour4f(0, 0, 0, 0)); // Set black/transparent background.
+    renderer.getColourBuffer().setClearValue(Math::Colour4f(0, 0, 0, 0)); // Set black/transparent background.
     renderer.getDepthBuffer().setClearValue(1.0f);
 
     // Enable writing to the depth buffer.
@@ -58,7 +58,7 @@ AppImpl::AppImpl(const std::string& title, const std::string& version)
     GL_DEBUG(glTexGeni)(GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);  // Set The Texture Generation Mode For T To Sphere Mapping (NEW)
 
                                                                     //Initialize the motion blur buffer
-    renderer.getAccumulationBuffer().setClearValue(Colour4f(0.0f, 0.0f, 0.0f, 1.0f));
+    renderer.getAccumulationBuffer().setClearValue(Math::Colour4f(0.0f, 0.0f, 0.0f, 1.0f));
     renderer.getAccumulationBuffer().clear();
 
     GraphicsSystem::window->setTitle(title + " " + version);

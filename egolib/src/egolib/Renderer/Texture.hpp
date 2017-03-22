@@ -37,10 +37,6 @@ namespace Ego {
 
 class Texture {
 protected:
-    using String = std::string;
-    template <typename T> using SharedPtr = std::shared_ptr<T>;
-
-protected:
 
     /**
      * @brief
@@ -86,7 +82,7 @@ protected:
      *  for dynamic textures and special textures a name
      *  that can not be used as a pathname.
      */
-    String _name;
+    std::string _name;
 
     /**
      * @brief
@@ -128,7 +124,7 @@ public:
      * @brief
      *  A pointer to the source of the texture if available, a null pointer otherwise.
      */
-    SharedPtr<SDL_Surface> _source;
+    std::shared_ptr<SDL_Surface> _source;
 
 protected:
 
@@ -138,9 +134,9 @@ protected:
      * @remark
      *  Intentionally protected.
      */
-    Texture(const String& name,
+    Texture(const std::string& name,
             TextureType type, TextureAddressMode addressModeS, TextureAddressMode addressModeT,
-            int width, int height, int sourceWidth, int sourceHeight, SharedPtr<SDL_Surface> source,
+            int width, int height, int sourceWidth, int sourceHeight, std::shared_ptr<SDL_Surface> source,
             bool hasAlpha);
 
 public:
@@ -292,7 +288,7 @@ public:
      * @param name
      *  the name
      */
-    void setName(const String& name);
+    void setName(const std::string& name);
 
     /**
      * @brief
@@ -300,11 +296,11 @@ public:
      * @return
      *  the name of this texture
      */
-    const String& getName() const;
+    const std::string& getName() const;
 
 public:
-	virtual bool load(const String& name, const SharedPtr<SDL_Surface>& surface) = 0;
-	virtual bool load(const SharedPtr<SDL_Surface>& image) = 0;
+	virtual bool load(const std::string& name, const std::shared_ptr<SDL_Surface>& surface) = 0;
+	virtual bool load(const std::shared_ptr<SDL_Surface>& image) = 0;
 
 	/**
 	 * @brief
@@ -324,85 +320,4 @@ public:
 
 }; // struct Texture
 
-} // namespace Ego
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-namespace Ego {
-namespace OpenGL {
-/// An encapsulation of the OpenGL texture state.
-struct Texture : public Ego::Texture
-{
-
-protected:
-
-    /**
-     * @brief
-     *  The OpenGL texture ID.
-     * @remark
-     *  At any point, a texture has a valid OpenGL texture ID assigned, <em>unless</em> resources were lost.
-     */
-    GLuint  _id;
-
-public:
-    void load(const String& name, const SharedPtr<SDL_Surface>& surface, TextureType type, const TextureSampler& sampler);
-	/** @override Ego::Texture::upload(const String& name, const SharedPtr<SDL_Surface>&) */
-    bool load(const String& name, const SharedPtr<SDL_Surface>& surface) override;
-
-    /** @override Ego::Texture::upload(const std::shared_ptr<SDL_Surface>&) */
-    bool load(const SharedPtr<SDL_Surface>& surface) override;
-    
-    /** @override Ego::Texture::release */
-    void release() override;
-    
-    /** @override Ego::Texture::isDefault */
-    bool isDefault() const override;
-
-public:
-
-    /**
-     * @brief
-     *  Construct this texture.
-     * @post
-     *  This texture is bound to the backing error texture.
-     */
-    Texture();
-    /**
-     * @brief
-     *  Construct this texture.
-     */
-    Texture(GLuint id, const String& name,
-            TextureType type, TextureAddressMode addressModeS, TextureAddressMode addressModeT,
-            int width, int height, int sourceWidth, int sourceHeight, SharedPtr<SDL_Surface> source,
-            bool hasAlpha);
-
-    /**
-     * @brief
-     *  Destruct this texture.
-     */
-    virtual ~Texture();
-
-public:
-
-    GLuint getTextureID() const;
-
-};
-
-/**
- * @brief
- *  Initialize the error textures.
- * @todo
- *  Move into texture manager.
- */
-void initializeErrorTextures();
-/**
- * @brief
- *  Uninitialize the error textures.
- * @todo
- *  Move into texture manager.
- */
-void uninitializeErrorTextures();
-
-} // namespace OpenGL
 } // namespace Ego

@@ -21,12 +21,12 @@
 
 namespace Ego {
 
-ImageLoader::ImageLoader(const Set<String>& extensions) :
+ImageLoader::ImageLoader(const std::unordered_set<std::string>& extensions) :
     extensions(extensions) {}
 
 ImageLoader::~ImageLoader() {}
 
-ImageLoader::Set<ImageLoader::String> ImageLoader::getExtensions() const {
+std::unordered_set<std::string> ImageLoader::getExtensions() const {
     return extensions;
 }
 
