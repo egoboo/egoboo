@@ -8,14 +8,14 @@ namespace Configuration {
 
 /// @brief A variable storing an enum class value.
 template <typename ValueType>
-class Variable<ValueType, enable_if_t<is_enum<ValueType>::value>>
+class Variable<ValueType, std::enable_if_t<std::is_enum<ValueType>::value>>
     : public VariableBase<ValueType>
 {
 
 private:
 
     // Static checking template arguments.
-    static_assert(is_enum<ValueType>::value, "value type must be an enumeration");
+    static_assert(std::is_enum<ValueType>::value, "value type must be an enum type");
 
     /// @brief The descriptor of the enumeration.
     Ego::Script::EnumDescriptor<ValueType> enumDescriptor;
@@ -25,7 +25,7 @@ public:
     /// @brief Construct this variable.
     /// @param name the partially qualified name of the variable
     /// @param description the description of the variable
-    Variable(const ValueType& defaultValue, const string& name, const string& description, const initializer_list<pair<const string, ValueType>> list) :
+    Variable(const ValueType& defaultValue, const std::string& name, const std::string& description, const std::initializer_list<std::pair<const std::string, ValueType>> list) :
         VariableBase<ValueType>(defaultValue, name, description), enumDescriptor(name, list) {}
 
     Variable& operator=(const Variable& other)
@@ -34,7 +34,7 @@ public:
         return *this;
     }
 
-    virtual bool encodeValue(string& target) const override
+    virtual bool encodeValue(std::string& target) const override
     {
         auto it = enumDescriptor.find(this->getValue());
         if (it == enumDescriptor.end())
@@ -45,7 +45,7 @@ public:
         return true;
     }
 
-    virtual bool decodeValue(const string& source) override
+    virtual bool decodeValue(const std::string& source) override
     {
         auto it = enumDescriptor.find(source);
         if (it == enumDescriptor.end())

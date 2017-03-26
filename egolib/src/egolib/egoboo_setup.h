@@ -33,8 +33,6 @@ struct egoboo_config_t;
 
 //--------------------------------------------------------------------------------------------
 
-using namespace Ego::Configuration;
-
 /// The internal representation of the data in "settings.txt"
 /**
  * @remark
@@ -136,77 +134,77 @@ public:
 
     /// @brief Enable/disable fullscreen mode.
     /// @remark Default value is @a true.
-    Variable<bool> graphic_fullscreen;
+    Ego::Configuration::Variable<bool> graphic_fullscreen;
 
     /// @brief The horizontal resolution.
     /// @remark Default value is @a 800.
     /// @todo Type should be <tt>uint16_t</tt>.
-    Variable<int> graphic_resolution_horizontal;
+    Ego::Configuration::Variable<int> graphic_resolution_horizontal;
 
     /// @brief The vertical resolution.
     /// @remark Default value is @a 600.
     /// @todo Type should be <tt>uint16_t</tt>.
-    Variable<int> graphic_resolution_vertical;
+    Ego::Configuration::Variable<int> graphic_resolution_vertical;
 
     /// @brief The color buffer depth.
     /// @remark Default value is @a 24.
     /// @todo Type should be <tt>uint8_t</tt>.
-    Variable<int> graphic_colorBuffer_bitDepth;
+    Ego::Configuration::Variable<int> graphic_colorBuffer_bitDepth;
 
     /// @brief The depth buffer depth.
     /// @remark Default value is @a 8.
     /// @todo Type should be <tt>uint8_t</tt>.
-    Variable<int> graphic_depthBuffer_bitDepth;
+    Ego::Configuration::Variable<int> graphic_depthBuffer_bitDepth;
 
     /// @brief Enable perspective correction.
     /// @remark Default value is @a false.
     /// @todo Enable this by default?
-    Variable<bool> graphic_perspectiveCorrection_enable;
+    Ego::Configuration::Variable<bool> graphic_perspectiveCorrection_enable;
 
     /// @brief Enable dithering.
     /// @remark Default value is @a false.
     /// @todo Enable this by default?
-    Variable<bool> graphic_dithering_enable;
+    Ego::Configuration::Variable<bool> graphic_dithering_enable;
 
     /// @brief Enable/disable reflections.
     /// @remark Default value is @a true.
-    Variable<bool> graphic_reflections_enable;
+    Ego::Configuration::Variable<bool> graphic_reflections_enable;
 
     /// @brief Enable/disable particle reflections.
     /// @remark Default value is @a true.
-    Variable<bool> graphic_reflections_particleReflections_enable;
+    Ego::Configuration::Variable<bool> graphic_reflections_particleReflections_enable;
 
     /// @brief Enable/disable shadows.
     /// @remark Default value is @a true.
-    Variable<bool> graphic_shadows_enable;
+    Ego::Configuration::Variable<bool> graphic_shadows_enable;
 
     /// @brief Enable/disable high-quality shadows.
     /// @remark Default value is @a true (high quality).
-    Variable<bool> graphic_shadows_highQuality_enable;
+    Ego::Configuration::Variable<bool> graphic_shadows_highQuality_enable;
 
     /// @brief Enable/disable specular highlights.
     /// @remark Default value is @a true.
-    Variable<bool> graphic_specularHighlights_enable;
+    Ego::Configuration::Variable<bool> graphic_specularHighlights_enable;
 
     /// @brief Enable/disable two layer water.
     /// @remark Default value is @a true.
-    Variable<bool> graphic_twoLayerWater_enable;
+    Ego::Configuration::Variable<bool> graphic_twoLayerWater_enable;
 
     /// @brief Enable/disable overlay.
     /// @remark Default value is @a true.
-    Variable<bool> graphic_overlay_enable;
+    Ego::Configuration::Variable<bool> graphic_overlay_enable;
 
     /// @brief Enable/disable background.
     /// @remark Default value is @a true.
-    Variable<bool> graphic_background_enable;
+    Ego::Configuration::Variable<bool> graphic_background_enable;
 
     /// @brief Enable/disable fog.
     /// @remark Default value is @a false.
-    Variable<bool> graphic_fog_enable;
+    Ego::Configuration::Variable<bool> graphic_fog_enable;
 
     /// @brief Enable/disable Gouraud shading.
     /// @remark Default value is @a true.
-    Variable<bool> graphic_gouraudShading_enable;
+    Ego::Configuration::Variable<bool> graphic_gouraudShading_enable;
 
     /// @brief Anti-aliasing level.
     /// @remark Default is @ 2 i.e.two samples, the default value range is 0 (disabled), 2 (2x), 4 (4x) and 8 (8x) and 16 (16x).
@@ -214,39 +212,39 @@ public:
     ///  "multisampling" is a specific optimization of "super sampling".
     ///  "super sampling anti-aliasing (SSAA)" and "full scene antialising (FSAA)" are synonyms.
     ///  In general SSAA/FSAA is expensive and is replaced by by "multisample antialiasing (MSAA)".
-    Variable<uint8_t> graphic_antialiasing;
+    Ego::Configuration::Variable<uint8_t> graphic_antialiasing;
 
     /// @brief Enable anisotropy.
     /// @remark Default is @a false.
-    Variable<bool> graphic_anisotropy_enable;
+    Ego::Configuration::Variable<bool> graphic_anisotropy_enable;
 
     /// @brief The anisotropy levels.
     /// @remark Default is @a 1 within the range of <tt>[1,16]</tt>
-    Variable<float> graphic_anisotropy_levels;
+    Ego::Configuration::Variable<float> graphic_anisotropy_levels;
 
     /// @brief The texture filter used for minification.
     /// @remark Default value is Ego::TextureFilter::Linear.
-    Variable<Ego::TextureFilter> graphic_textureFilter_minFilter;
+    Ego::Configuration::Variable<Ego::TextureFilter> graphic_textureFilter_minFilter;
 
     /// @brief The texture filter used for magnification.
     /// @remark Default value is Ego::TextureFilter::Linear.
-    Variable<Ego::TextureFilter> graphic_textureFilter_magFilter;
+    Ego::Configuration::Variable<Ego::TextureFilter> graphic_textureFilter_magFilter;
 
     /// @brief The filter applied used for mip map selection.
     /// @remark Default value is Ego::TextureFilter::Linear.
-    Variable<Ego::TextureFilter> graphic_textureFilter_mipMapFilter;
+    Ego::Configuration::Variable<Ego::TextureFilter> graphic_textureFilter_mipMapFilter;
 
     /// @brief Inclusive upper bound of number of simultaneous dynamic lights.
     /// @remark Default value is @a 32.
-    Variable<uint16_t> graphic_simultaneousDynamicLights_max;
+    Ego::Configuration::Variable<uint16_t> graphic_simultaneousDynamicLights_max;
 
     /// @brief Inclusive upper bound of the frames per second.
     /// @remark Default value is @a 30.
-    Variable<uint16_t> graphic_framesPerSecond_max;
+    Ego::Configuration::Variable<uint16_t> graphic_framesPerSecond_max;
 
     /// @brief Inclusive upper bound of the number of simultaneous particles.
     /// @remark Default value is @a 768.
-    Variable<uint16_t> graphic_simultaneousParticles_max;
+    Ego::Configuration::Variable<uint16_t> graphic_simultaneousParticles_max;
 
 
     /// @brief If true, the game will try to load HD versions of textures if
@@ -254,29 +252,29 @@ public:
     /// HD textures are textures with higher resolution and end with
     /// _HD before the file type suffix (e.g myTexture_HD.png).
     /// @remark Default value is @a true.
-    Variable<bool> graphic_hd_textures_enable;
+    Ego::Configuration::Variable<bool> graphic_hd_textures_enable;
 
     // Sound configuration section.
 
     /// @brief Enable/disable effects.
     /// @remark Default value is @a true.
-    Variable<bool> sound_effects_enable;
+    Ego::Configuration::Variable<bool> sound_effects_enable;
 
     /// @brief The effects volume.
     /// @remark The default value is @a 75, range is @a 0 to @a 128.
     /// @todo The unit should be "percent", the default value should be 60 "percent"?
     /// We require a "percent" type?
-    Variable<Uint8> sound_effects_volume;
+    Ego::Configuration::Variable<Uint8> sound_effects_volume;
 
     /// @brief Enable/disable music.
     /// @remark Default value is @a true.
-    Variable<bool> sound_music_enable;
+    Ego::Configuration::Variable<bool> sound_music_enable;
 
     /// @brief The music volume.
     /// @remark The default value is @a 50, range is @a 0 to @a 128.
     /// @todo The unit should be "percent", the default value should be 40 "percent"?
     /// We require a "percent" type?
-    Variable<Uint8> sound_music_volume;
+    Ego::Configuration::Variable<Uint8> sound_music_volume;
 
     /// @brief Number of audio channels.
     /// @remark The number of audio channels limit the number of sounds playing at the same time.
@@ -287,7 +285,7 @@ public:
     /// CLIP<uint16_t>(cfg.sound_channel_count, 8, 128);
     /// CLIP<uint16_t>(cfg.sound_buffer_size, 512, 8196);
     /// @endcode
-    Variable<Uint16> sound_channel_count;
+    Ego::Configuration::Variable<Uint16> sound_channel_count;
 
     /// @brief Size of audio output buffer.
     /// @remark Default value is @a 4096.
@@ -296,45 +294,45 @@ public:
     /// @code
     /// CLIP<uint16_t>(cfg.sound_buffer_size, 512, 8196);
     /// @endcode
-    Variable<Uint16> sound_outputBuffer_size;
+    Ego::Configuration::Variable<Uint16> sound_outputBuffer_size;
 
     /// @brief Enable/disable high quality audio.
     /// @remark Default value is @a false.
-    Variable<bool> sound_highQuality_enable;
+    Ego::Configuration::Variable<bool> sound_highQuality_enable;
 
     /// @brief Enable/disable footfall effects.
-    Variable<bool> sound_footfallEffects_enable;
+    Ego::Configuration::Variable<bool> sound_footfallEffects_enable;
 
     // Network configuration section.
 
     /// @brief Enable/disable network?
     /// @remark Default value is @a false.
-    Variable<bool> network_enable;
+    Ego::Configuration::Variable<bool> network_enable;
 
     /// @brief Tolerance to lag.
     /// @remark Default value is @a 10.
     /// @todo And what does @a 10 mean?
-    Variable<uint16_t> network_lagTolerance;
+    Ego::Configuration::Variable<uint16_t> network_lagTolerance;
 
     /// @brief Name of host to join.
     /// @remark Default value is @a "Egoboo Host".
-    Variable<std::string> network_hostName;
+    Ego::Configuration::Variable<std::string> network_hostName;
 
     /// @brief Player name in network games.
     /// @remark Default value is @a "Egoboo Player".
-    Variable<std::string> network_playerName;
+    Ego::Configuration::Variable<std::string> network_playerName;
 
     // Camera configuration section.
 
     /// @brief Type of camera control.
     /// @remark Default value is @a CameraTurnMode::Auto.
-    Variable<CameraTurnMode> camera_control;
+    Ego::Configuration::Variable<CameraTurnMode> camera_control;
 
     // Game configuration section.
 
     /// @brief Game difficulty.
     /// @remark Default value is Ego::GameDifficulty::Normal.
-    Variable<Ego::GameDifficulty> game_difficulty;
+    Ego::Configuration::Variable<Ego::GameDifficulty> game_difficulty;
 
     // HUD configuration section.
 
@@ -345,65 +343,65 @@ public:
     /// @code
     /// CLIP(cfg->hud_simultaneousMessages_max.getValue(), (uint8_t)EGO_MESSAGE_MIN, (uint8_t)EGO_MESSAGE_MAX);
     /// @endcode
-    Variable<uint8_t> hud_simultaneousMessages_max;
+    Ego::Configuration::Variable<uint8_t> hud_simultaneousMessages_max;
 
     /// @brief Time in seconds to keep a message alive.
     /// @remark Default value is @a 200.
-    Variable<uint16_t> hud_messageDuration;
+    Ego::Configuration::Variable<uint16_t> hud_messageDuration;
 
     /// @brief Show/hide status bar.
     /// @remark Default value is @a true.
-    Variable<bool> hud_displayStatusBars;
+    Ego::Configuration::Variable<bool> hud_displayStatusBars;
 
     /// @brief Show/hide game time.
     /// @remark Default value is @a false.
-    Variable<bool> hud_displayGameTime;
+    Ego::Configuration::Variable<bool> hud_displayGameTime;
 
     /// @brief Feedback given to the player.
     /// @remark Default value is @a Ego::FeedbackType::Text.
-    Variable<Ego::FeedbackType> hud_feedback;
+    Ego::Configuration::Variable<Ego::FeedbackType> hud_feedback;
 
     /// @brief Enable/disable messages.
     /// @remark Default value is @a true.
-    Variable<bool> hud_messages_enable;
+    Ego::Configuration::Variable<bool> hud_messages_enable;
 
     /// @brief Show/hide frames per second.
     /// @remark Default value is @a false.
-    Variable<bool> hud_displayFramesPerSecond;
+    Ego::Configuration::Variable<bool> hud_displayFramesPerSecond;
 
     // Debug configuration section.
 
     /// @brief Hide mouse?
     /// @remark Default value is @a true.
-    Variable<bool> debug_hideMouse;
+    Ego::Configuration::Variable<bool> debug_hideMouse;
 
     /// @brief Render mesh's height map?
     /// @remark Default value is @a false.
-    Variable<bool> debug_mesh_renderHeightMap;
+    Ego::Configuration::Variable<bool> debug_mesh_renderHeightMap;
 
     /// @brief Render mesh's normals?
     /// @remark Default value is @a false.
-    Variable<bool> debug_mesh_renderNormals;
+    Ego::Configuration::Variable<bool> debug_mesh_renderNormals;
 
     /// @brief Render object's bounding boxes?
     /// @remark Default value is @a false.
-    Variable<bool> debug_object_renderBoundingBoxes;
+    Ego::Configuration::Variable<bool> debug_object_renderBoundingBoxes;
 
     /// @brief Render object's grips?
     /// @remark Default value is @a false.
-    Variable<bool> debug_object_renderGrips;
+    Ego::Configuration::Variable<bool> debug_object_renderGrips;
 
     /// @brief Grab mouse?
     /// @remark Default value is @a true.
-    Variable<bool> debug_grabMouse;
+    Ego::Configuration::Variable<bool> debug_grabMouse;
 
     /// @brief Enable/disable developer mode.
     /// @remark Default value is @a false.
-    Variable<bool> debug_developerMode_enable;
+    Ego::Configuration::Variable<bool> debug_developerMode_enable;
 
     /// @brief Enable/disable SDL image.
     /// @remark Default value is @a true.
-    Variable<bool> debug_sdlImage_enable;
+    Ego::Configuration::Variable<bool> debug_sdlImage_enable;
 
 public:
 

@@ -28,7 +28,7 @@ void EnchantTxtValidator::run(const std::vector<std::shared_ptr<Option>>& argume
             sb << "unrecognized argument" << EndOfLine;
             throw RuntimeError(sb.str());
         }
-        auto pathnameArgument = static_pointer_cast<UnnamedValue>(argument);
+        auto pathnameArgument = std::static_pointer_cast<UnnamedValue>(argument);
         queue.emplace_back(FileSystem::sanitize(pathnameArgument->getValue()));
     }
     while (!queue.empty()) {
@@ -49,7 +49,7 @@ void EnchantTxtValidator::run(const std::vector<std::shared_ptr<Option>>& argume
             {
                 StringBuffer sb;
                 sb << "skipping '" << path << "' - not a file or directory" << EndOfLine;
-                cerr << sb.str();
+                std::cerr << sb.str();
             }
         }
     }

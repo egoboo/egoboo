@@ -36,7 +36,7 @@ protected:
     struct Load
     {
     private:
-        shared_ptr<ConfigFile> source;
+        std::shared_ptr<ConfigFile> source;
     public:
         Load(const Load& other) :
             source(other.source)
@@ -46,13 +46,13 @@ protected:
             source = other.source;
             return *this;
         }
-        Load(const shared_ptr<ConfigFile> &source) :
+        Load(const std::shared_ptr<ConfigFile> &source) :
             source(source)
         {}
         template<typename VariableTy>
         void operator()(VariableTy& variable) const
         {
-            string valueString;
+            std::string valueString;
             if (!source->get(variable.getName(), valueString))
             {
                 variable.setValue(variable.getDefaultValue());
@@ -67,12 +67,12 @@ protected:
     struct Store
     {
     private:
-        shared_ptr<ConfigFile> target;
+        std::shared_ptr<ConfigFile> target;
     public:
         Store(const Store& other) :
             target(other.target)
         {}
-        Store(const shared_ptr<ConfigFile> &target) :
+        Store(const std::shared_ptr<ConfigFile> &target) :
             target(target)
         {}
         Store& operator=(const Store& other)
@@ -83,7 +83,7 @@ protected:
         template<typename Variable>
         void operator()(Variable& variable) const
         {
-            string value;
+            std::string value;
             variable.encodeValue(value);
             target->set(variable.getName(), value);
         }

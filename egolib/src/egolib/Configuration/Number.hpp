@@ -7,11 +7,11 @@ namespace Configuration {
 
 /// @brief A variable storing a numeric value.
 template <class ValueType>
-class Variable<ValueType, enable_if_t<!is_same<ValueType, bool>::value && is_arithmetic<ValueType>::value>>
+class Variable<ValueType, std::enable_if_t<!std::is_same<ValueType, bool>::value && std::is_arithmetic<ValueType>::value>>
     : public VariableBase<ValueType>
 {
     // (u)intx_t, x in [8,16,32,64] & float & double
-    static_assert(!is_same<ValueType, bool>::value && is_arithmetic<ValueType>::value, "ValueType must not be an arithmetic non-bool type");
+    static_assert(!std::is_same<ValueType, bool>::value && std::is_arithmetic<ValueType>::value, "ValueType must not be an arithmetic non-bool type");
 
 private:
     /// @brief The minimum value (inclusive).
@@ -30,9 +30,9 @@ public:
     /// @param min, max the minimum (incl.) and the maximum value (incl.)
     /// @throw std::invalid_argument
     /// <tt>min > max</tt> or <tt>defaultValue < min</tt> or <tt>defaultValue > max</tt>
-    Variable(ValueType defaultValue, const string& name, const string& description,
-             ValueType min = numeric_limits<ValueType>::min(), 
-             ValueType max = numeric_limits<ValueType>::max()) :
+    Variable(ValueType defaultValue, const std::string& name, const std::string& description,
+             ValueType min = std::numeric_limits<ValueType>::min(), 
+             ValueType max = std::numeric_limits<ValueType>::max()) :
         VariableBase<ValueType>(defaultValue, name, description), min(min), max(max)
     {
         if (min > max) throw std::invalid_argument("min > max");
@@ -46,12 +46,12 @@ public:
         return *this;
     }
 
-    virtual bool encodeValue(string& target) const override
+    virtual bool encodeValue(std::string& target) const override
     {
         return Script::Encoder<ValueType>()(this->getValue(), target);
     }
 
-    virtual bool decodeValue(const string& source) override
+    virtual bool decodeValue(const std::string& source) override
     {
         ValueType temporary = {};
         if (!Script::Decoder<ValueType>()(source, temporary))

@@ -26,13 +26,13 @@ void DataTxtValidator::run(const std::vector<std::shared_ptr<Option>>& arguments
         if (argument->getType() != Option::Type::UnnamedValue) {
             StringBuffer sb;
             sb << "unrecognized argument" << EndOfLine;
-            throw runtime_error(sb.str());
+            throw std::runtime_error(sb.str());
         }
-        auto pathnameArgument = static_pointer_cast<UnnamedValue>(argument);
+        auto pathnameArgument = std::static_pointer_cast<UnnamedValue>(argument);
         queue.emplace_back(FileSystem::sanitize(pathnameArgument->getValue()));
     }
     while (!queue.empty()) {
-        string path = queue[0];
+        std::string path = queue[0];
         queue.pop_front();
         switch (FileSystem::stat(path)) {
             case FileSystem::PathStat::File:
@@ -49,7 +49,7 @@ void DataTxtValidator::run(const std::vector<std::shared_ptr<Option>>& arguments
             {
                 StringBuffer sb;
                 sb << "skipping '" << path << "' - not a file or directory" << EndOfLine;
-                cerr << sb.str();
+                std::cerr << sb.str();
             }
         }
     }

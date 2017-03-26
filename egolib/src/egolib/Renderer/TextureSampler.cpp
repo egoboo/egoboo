@@ -25,8 +25,8 @@
 
 namespace Ego {
 
-TextureSampler::TextureSampler(Filter minFilter, Filter magFilter, Filter mipMapFilter,
-		                       AddressMode addressModeS, AddressMode addressModeT, float anisotropyLevel)
+TextureSampler::TextureSampler(TextureFilter minFilter, TextureFilter magFilter, TextureFilter mipMapFilter,
+		                       TextureAddressMode addressModeS, TextureAddressMode addressModeT, float anisotropyLevel)
 	: minFilter(minFilter), magFilter(magFilter), mipMapFilter(mipMapFilter),
 	addressModeS(addressModeS), addressModeT(addressModeT), anisotropyLevel(anisotropyLevel) {
 }
@@ -45,23 +45,23 @@ const TextureSampler& TextureSampler::operator=(const TextureSampler& other) {
 	return *this;
 }
 
-Filter TextureSampler::getMinFilter() const {
+TextureFilter TextureSampler::getMinFilter() const {
 	return minFilter;
 }
 
-Filter TextureSampler::getMagFilter() const {
+TextureFilter TextureSampler::getMagFilter() const {
 	return magFilter;
 }
 
-Filter TextureSampler::getMipMapFilter() const {
+TextureFilter TextureSampler::getMipMapFilter() const {
 	return mipMapFilter;
 }
 
-AddressMode TextureSampler::getAddressModeS() const {
+TextureAddressMode TextureSampler::getAddressModeS() const {
 	return addressModeS;
 }
 
-AddressMode TextureSampler::getAddressModeT() const {
+TextureAddressMode TextureSampler::getAddressModeT() const {
 	return addressModeT;
 }
 
