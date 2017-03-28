@@ -21,8 +21,9 @@ init:
     - ps: Update-AppveyorBuild -Version "$(Get-Date -format yyyy-MM-dd)"
 
 install:
-    git submodule update --init --recursive --depth 1
-    
+    # depth 32 should be enough.
+    git submodule update --init --recursive --depth 32
+
 # Artifacts are produced by the AppVeyor project "Egoboo Nightly".
 after_build:
     7z a binaries-%CONFIGURATION%-%PLATFORM%-nightly.zip product\game\%CONFIGURATION%\%PLATFORM%\*.dll product\game\%CONFIGURATION%\%PLATFORM%\*.exe
