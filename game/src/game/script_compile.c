@@ -188,7 +188,7 @@ size_t parser_state_t::load_one_line( size_t read, script_info_t& script )
 
     if ( _lineBuffer.getSize() > 0  && tabs_warning_needed )
     {
-        Ego::Script::CLogEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getStartLocation());
+        Ego::Script::CLogEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.get_start_location());
 		e << "compilation error - tab character used to define spacing will cause an error `"
 		  << " - \n`" << _lineBuffer.toString() << "`" << Log::EndOfEntry;
 		Log::get() << e;
@@ -548,7 +548,7 @@ Ego::Script::PDLToken line_scanner_state_t::scanOperator()
 Ego::Script::PDLToken parser_state_t::parse_indention(script_info_t& script, line_scanner_state_t& state)
 {
     auto source = state.scanWhiteSpaces();
-    if (source.getKind() != Ego::Script::PDLTokenKind::Whitespace)
+    if (source.get_kind() != Ego::Script::PDLTokenKind::Whitespace)
     {
         throw Id::RuntimeErrorException(__FILE__, __LINE__, "internal error");
     }
@@ -556,7 +556,7 @@ Ego::Script::PDLToken parser_state_t::parse_indention(script_info_t& script, lin
     size_t indent = source.getValue();
     if (id::is_odd(indent))
     {
-        Ego::Script::CLogEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getStartLocation());
+        Ego::Script::CLogEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.get_start_location());
         e << "invalid indention - number of spaces must be even - \n"
           << " - \n`" << _lineBuffer.toString() << "`" << Log::EndOfEntry;
         Log::get() << e;
@@ -566,14 +566,14 @@ Ego::Script::PDLToken parser_state_t::parse_indention(script_info_t& script, lin
     indent >>= 1;
     if (indent > 15)
     {
-        Ego::Script::CLogEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.getStartLocation());
+        Ego::Script::CLogEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.get_start_location());
         e << "invalid indention - too many spaces - \n"
           << " - \n`" << _lineBuffer.toString() << "`" << Log::EndOfEntry;
         Log::get() << e;
         _error = true;
         indent = 15;
     }
-    auto token = Ego::Script::PDLToken(Ego::Script::PDLTokenKind::Indent, source.getStartLocation(), source.getEndLocation());
+    auto token = Ego::Script::PDLToken(Ego::Script::PDLTokenKind::Indent, source.get_start_location(), source.getEndLocation());
     token.setValue(indent);
     return token;
 }
@@ -604,7 +604,7 @@ Ego::Script::PDLToken parser_state_t::parse_token(ObjectProfile *ppro, script_in
     if (state.isDoubleQuote())
     {
         auto token = state.scanStringOrReference();
-        if (token.getKind() == Ego::Script::PDLTokenKind::ReferenceLiteral)
+        if (token.get_kind() == Ego::Script::PDLTokenKind::ReferenceLiteral)
         {
             // If it is a profile reference.
 
@@ -616,7 +616,7 @@ Ego::Script::PDLToken parser_state_t::parse_token(ObjectProfile *ppro, script_in
                 const auto& profile = element.second;
                 if (profile == nullptr) continue;
                 // Is this the object we are looking for?
-                if (id::is_suffix(profile->getPathname(), token.getLexeme()))
+                if (id::is_suffix(profile->getPathname(), token.get_lexeme()))
                 {
                     token.setValue(profile->getSlotNumber().get());
                     break;
@@ -626,7 +626,7 @@ Ego::Script::PDLToken parser_state_t::parse_token(ObjectProfile *ppro, script_in
             // Do we need to load the object?
             if (!ProfileSystem::get().isLoaded((PRO_REF)token.getValue()))
             {
-                auto loadName = "mp_objects/" + token.getLexeme();
+                auto loadName = "mp_objects/" + token.get_lexeme();
 
                 // Find first free slot number.
                 for (PRO_REF ipro = MAX_IMPORT_PER_PLAYER * 4; ipro < INVALID_PRO_REF; ipro++)
@@ -643,27 +643,27 @@ Ego::Script::PDLToken parser_state_t::parse_token(ObjectProfile *ppro, script_in
             // Failed to load object!
             if (!ProfileSystem::get().isLoaded((PRO_REF)token.getValue()))
             {
-                Ego::Script::CLogEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, token.getStartLocation());
-                e << "failed to load object " << token.getLexeme() << " - \n"
+                Ego::Script::CLogEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, token.get_start_location());
+                e << "failed to load object " << token.get_lexeme() << " - \n"
                     << " - \n`" << _lineBuffer.toString() << "`" << Log::EndOfEntry;
                 Log::get() << e;
             }
-            token.setKind(Ego::Script::PDLTokenKind::Constant);
+            token.set_kind(Ego::Script::PDLTokenKind::Constant);
         }
         else
         {
             // Add the string as a message message to the available messages of the object.
-            token.setValue(ppro->addMessage(token.getLexeme(), true));
-            token.setKind(Ego::Script::PDLTokenKind::Constant);
+            token.setValue(ppro->addMessage(token.get_lexeme(), true));
+            token.set_kind(Ego::Script::PDLTokenKind::Constant);
             // Emit a warning that the string is empty.
-            Ego::Script::CLogEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, token.getStartLocation());
+            Ego::Script::CLogEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, token.get_start_location());
             e << "empty string literal\n" << Log::EndOfEntry;
             Log::get() << e;
         }
         return token;
     } else if (state.isOperator()) {
         auto token = state.scanOperator();
-        switch (token.getKind())
+        switch (token.get_kind())
         {
             case Ego::Script::PDLTokenKind::Plus: token.setValue(Ego::Script::ScriptOperators::OPADD); break;
             case Ego::Script::PDLTokenKind::Minus: token.setValue(Ego::Script::ScriptOperators::OPSUB); break;
@@ -679,27 +679,27 @@ Ego::Script::PDLToken parser_state_t::parse_token(ObjectProfile *ppro, script_in
         return token;
     } else if (state.is('[')) {
         auto token = state.scanIDSZ();
-        token.setKind(Ego::Script::PDLTokenKind::Constant);
-        IDSZ2 idsz = IDSZ2(token.getLexeme());
+        token.set_kind(Ego::Script::PDLTokenKind::Constant);
+        IDSZ2 idsz = IDSZ2(token.get_lexeme());
         token.setValue(idsz.toUint32());
         return token;
     } else if (state.isDigit()) {
         auto token = state.scanNumericLiteral();
-        token.setKind(Ego::Script::PDLTokenKind::Constant);
+        token.set_kind(Ego::Script::PDLTokenKind::Constant);
         int temporary;
-        sscanf(token.getLexeme().c_str(), "%d", &temporary);
+        sscanf(token.get_lexeme().c_str(), "%d", &temporary);
         token.setValue(temporary);
         return token;
     } else if (state.is('_') || state.isAlphabetic()) {
         auto token = state.scanName();
-        auto it = std::find_if(Opcodes.cbegin(), Opcodes.cend(), [&token](const auto& opcode) { return token.getLexeme() == opcode.cName; });
+        auto it = std::find_if(Opcodes.cbegin(), Opcodes.cend(), [&token](const auto& opcode) { return token.get_lexeme() == opcode.cName; });
         // We couldn't figure out what this is, throw out an error code
         if (it == Opcodes.cend())
         {
             throw Id::CompilationErrorException(__FILE__, __LINE__, Id::CompilationErrorKind::Lexical, state.getLocation(), "not an opcode");
         }
         token.setValue((*it).iValue);
-        token.setKind((*it)._kind);
+        token.set_kind((*it)._kind);
         return token;
     } else {
         throw Id::CompilationErrorException(__FILE__, __LINE__, Id::CompilationErrorKind::Lexical, state.getLocation(), "unexpected symbol");
@@ -712,19 +712,19 @@ void parser_state_t::emit_opcode(const Ego::Script::PDLToken& token, const BIT_F
     BIT_FIELD loc_highbits = highbits;
 
     // Emit the opcode.
-    if (Ego::Script::PDLTokenKind::Constant == token.getKind())
+    if (Ego::Script::PDLTokenKind::Constant == token.get_kind())
     {
         loc_highbits |= Instruction::FUNCTIONBITS;
         auto constantIndex = script._instructions.getConstantPool().getOrCreateConstant(token.getValue());
         script._instructions.append(Instruction(loc_highbits | constantIndex));
     }
-    else if (Ego::Script::PDLTokenKind::Function == token.getKind())
+    else if (Ego::Script::PDLTokenKind::Function == token.get_kind())
     {
         loc_highbits |= Instruction::FUNCTIONBITS;
         auto constantIndex = script._instructions.getConstantPool().getOrCreateConstant(token.getValue());
         script._instructions.append(Instruction(loc_highbits | constantIndex));
     }
-    else if (Ego::Script::PDLTokenKind::Variable == token.getKind())
+    else if (Ego::Script::PDLTokenKind::Variable == token.get_kind())
     {
         auto constantIndex = script._instructions.getConstantPool().getOrCreateConstant(token.getValue());
         script._instructions.append(Instruction(loc_highbits | constantIndex));
@@ -732,7 +732,7 @@ void parser_state_t::emit_opcode(const Ego::Script::PDLToken& token, const BIT_F
     else
     {
         /** @todo This is not an error of the syntactical analysis. */
-        throw Id::CompilationErrorException(__FILE__, __LINE__, Id::CompilationErrorKind::Syntactical, token.getStartLocation(), "unsupported token");
+        throw Id::CompilationErrorException(__FILE__, __LINE__, Id::CompilationErrorKind::Syntactical, token.get_start_location(), "unsupported token");
     }
 }
 
@@ -740,7 +740,7 @@ void parser_state_t::emit_opcode(const Ego::Script::PDLToken& token, const BIT_F
 
 void parser_state_t::raise(bool raiseException, Log::Level level, const Ego::Script::PDLToken& received, const std::vector<Ego::Script::PDLTokenKind>& expected)
 {
-    Ego::Script::CLogEntry e(level, __FILE__, __LINE__, __FUNCTION__, received.getStartLocation());
+    Ego::Script::CLogEntry e(level, __FILE__, __LINE__, __FUNCTION__, received.get_start_location());
     if (expected.size() > 0)
     {
         e << "expected ";
@@ -761,11 +761,11 @@ void parser_state_t::raise(bool raiseException, Log::Level level, const Ego::Scr
         }
         e << ", ";
     }
-    e << "received " << "`" << toString(received.getKind()) << "`" << Log::EndOfEntry;
+    e << "received " << "`" << toString(received.get_kind()) << "`" << Log::EndOfEntry;
     Log::get() << e;
     if (raiseException)
     {
-        throw Id::CompilationErrorException(__FILE__, __LINE__, Id::CompilationErrorKind::Syntactical, received.getStartLocation(), e.getText());
+        throw Id::CompilationErrorException(__FILE__, __LINE__, Id::CompilationErrorKind::Syntactical, received.get_start_location(), e.getText());
     }
 }
 
@@ -776,7 +776,7 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
 
     size_t read = 0;
     size_t line = 1;
-    for (_token.setStartLocation({script.getName(), 1}); read < _loadBuffer.getSize(); _token.setStartLocation({script.getName(), _token.getStartLocation().line_number()}))
+    for (_token.set_start_location({script.getName(), 1}); read < _loadBuffer.getSize(); _token.set_start_location({script.getName(), _token.get_start_location().line_number()}))
     {
         read = load_one_line( read, script );
         if ( 0 == _lineBuffer.getSize() ) continue;
@@ -852,11 +852,11 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
                 _token = parse_token(ppro, script, state);
             }
             // `unaryPlus|unaryMinus`
-            else if (_token.getKind() == Ego::Script::PDLTokenKind::Plus || _token.getKind() == Ego::Script::PDLTokenKind::Minus)
+            else if (_token.get_kind() == Ego::Script::PDLTokenKind::Plus || _token.get_kind() == Ego::Script::PDLTokenKind::Minus)
             {
                 // We have some expression of the format `('+'|'-') ...` and transform this into
                 // `0 ('+'|'-') ...`. This is as close as we can currently get to proper code.
-                auto token = Ego::Script::PDLToken(Ego::Script::PDLTokenKind::Constant, _token.getStartLocation(), _token.getEndLocation(), "0");
+                auto token = Ego::Script::PDLToken(Ego::Script::PDLTokenKind::Constant, _token.get_start_location(), _token.getEndLocation(), "0");
                 token.setValue(0);
                 emit_opcode(token, 0, script);
                 operands++;
@@ -908,7 +908,7 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
     }
 
     _token.setValue(Ego::Script::ScriptFunctions::End);
-    _token.setKind(Ego::Script::PDLTokenKind::Function);
+    _token.set_kind(Ego::Script::PDLTokenKind::Function);
     emit_opcode( _token, 0, script );
     _token.setValue(script._instructions.getNumberOfInstructions() + 1);
     emit_opcode( _token, 0, script );

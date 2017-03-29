@@ -69,7 +69,7 @@ namespace Math {
  *  outside of the cone.
  */
 template <typename _EuclideanSpaceType, typename _EnabledType = std::enable_if_t<_EuclideanSpaceType::dimensionality() == 3>>
-struct Cone3 : public Id::EqualToExpr<Cone3<_EuclideanSpaceType>> {
+struct Cone3 : public id::equal_to_expr<Cone3<_EuclideanSpaceType>> {
 public:
     Ego_Math_EuclideanSpace_CommonDefinitions(Cone3);
 
@@ -217,7 +217,7 @@ public:
 
 public:
 	// CRTP
-    bool equalTo(const MyType& other) const {
+    bool equal_to(const MyType& other) const {
         return origin == other.origin
             && axis == other.axis
             && angle == other.angle;

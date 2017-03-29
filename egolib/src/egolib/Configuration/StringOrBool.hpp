@@ -1,16 +1,17 @@
 #pragma once
 
 #include "egolib/Configuration/Variable.hpp"
+#include "idlib/is_any_of.hpp"
 
 namespace Ego {
 namespace Configuration {
 
 /// @brief A variable storing either a @a bool or and @a std::string value.
 template <class ValueType>
-class Variable<ValueType, std::enable_if_t<std::is_any_of<ValueType, std::string, bool>::value>>
+class Variable<ValueType, std::enable_if_t<id::is_any_of<ValueType, std::string, bool>::value>>
     : public VariableBase<ValueType>
 {
-    static_assert(std::is_any_of<ValueType, std::string, bool>::value, "ValueType must not be an enumeration type");
+    static_assert(id::is_any_of<ValueType, std::string, bool>::value, "ValueType must be std::string or bool type");
 
 public:
 

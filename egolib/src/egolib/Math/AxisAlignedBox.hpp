@@ -40,7 +40,7 @@ namespace Math {
  *  must fulfil the <em>dimensionality</em> concept
  */
 template <typename _EuclideanSpaceType>
-struct AxisAlignedBox : public Id::EqualToExpr<AxisAlignedBox<_EuclideanSpaceType>> {
+struct AxisAlignedBox : public id::equal_to_expr<AxisAlignedBox<_EuclideanSpaceType>> {
 public:
     Ego_Math_EuclideanSpace_CommonDefinitions(AxisAlignedBox);
 
@@ -208,7 +208,7 @@ public:
     }
 
 	// CRTP
-    bool equalTo(const MyType& other) const {
+    bool equal_to(const MyType& other) const {
         return _min == other._min
             && _max == other._max;
     }

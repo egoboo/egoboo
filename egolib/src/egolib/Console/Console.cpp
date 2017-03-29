@@ -425,13 +425,13 @@ void Console::draw()
         return;
     }
     // grab the line offsets
-    std::vector<Id::TextRange> console_lines;
+    std::vector<id::text_range> console_lines;
     char *pstr = this->output.buffer;
     while (pstr)
     {
         size_t len = strcspn(pstr, "\n");
 
-        console_lines.push_back(Id::TextRange(pstr - this->output.buffer, len));
+        console_lines.push_back(id::text_range(pstr - this->output.buffer, len));
 
         if (0 == len)
         {
@@ -445,9 +445,9 @@ void Console::draw()
     for (size_t i = console_lines.size(); i >= 1 && height > 0; --i)
     {
         size_t j = i - 1;
-        size_t len = std::min((size_t)1023, console_lines[j].getLength());
+        size_t len = std::min((size_t)1023, console_lines[j].get_length());
 
-        strncpy(buffer, this->output.buffer + console_lines[j].getStart(), len);
+        strncpy(buffer, this->output.buffer + console_lines[j].get_start(), len);
         buffer[len] = CSTR_END;
 
         this->pfont->getTextSize(buffer, &textWidth, &textHeight);

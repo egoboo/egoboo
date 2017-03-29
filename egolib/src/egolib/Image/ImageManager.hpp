@@ -45,8 +45,8 @@ private:
     Loaders loaders;
 
     struct Iterator : public std::iterator<std::forward_iterator_tag, ImageLoader>,
-                      public Id::IncrementExpr<Iterator>,
-                      public Id::EqualToExpr<Iterator> {
+                      public id::increment_expr<Iterator>,
+                      public id::equal_to_expr<Iterator> {
         ImageManager::Loaders::const_iterator _inner;
     public:
         Iterator(const ImageManager::Loaders::const_iterator& inner) :
@@ -60,7 +60,7 @@ private:
         }
 		
 		// CRTP
-        bool equalTo(const Iterator& other) const
+        bool equal_to(const Iterator& other) const
         {
             return _inner == other._inner;
         }

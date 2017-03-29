@@ -33,7 +33,7 @@ using EnableIndex2 = std::enable_if_t<CoordinateSystem_ == CoordinateSystem::Gri
 /// @brief A "tile grid"/"2D" index.
 template <typename UnderlayingType_, CoordinateSystem CoordinateSystem_>
 struct Index<UnderlayingType_, CoordinateSystem_, Internal::EnableIndex2<UnderlayingType_, CoordinateSystem_>>
-    : public Id::EqualToExpr<Index<UnderlayingType_, CoordinateSystem_>>
+    : public id::equal_to_expr<Index<UnderlayingType_, CoordinateSystem_>>
 {
 public:
     using UnderlayingType = UnderlayingType_;
@@ -57,7 +57,7 @@ public:
 
 public:
 	// CRTP
-    bool equalTo(const MyType& other) const
+    bool equal_to(const MyType& other) const
     {
         return _x == other._x
             && _y == other._y;
@@ -96,9 +96,9 @@ using EnableIndex1 = std::enable_if_t<CoordinateSystem_ == CoordinateSystem::Lis
 /// @brief A "list"/"1D" index.
 template <typename UnderlayingType_, CoordinateSystem CoordinateSystem_>
 struct Index<UnderlayingType_, CoordinateSystem_, Internal::EnableIndex1<UnderlayingType_, CoordinateSystem_>>
-    : public Id::EqualToExpr<Index<UnderlayingType_, CoordinateSystem_>>,
-      public Id::LowerThanExpr<Index<UnderlayingType_, CoordinateSystem_>>,
-      public Id::IncrementExpr<Index<UnderlayingType_, CoordinateSystem_>>
+    : public id::equal_to_expr<Index<UnderlayingType_, CoordinateSystem_>>,
+      public id::lower_than_expr<Index<UnderlayingType_, CoordinateSystem_>>,
+      public id::increment_expr<Index<UnderlayingType_, CoordinateSystem_>>
 {
 public:
     using UnderlayingType = UnderlayingType_;
@@ -135,13 +135,13 @@ public:
 
 public:
 	// CRTP
-    bool equalTo(const MyType& other) const
+    bool equal_to(const MyType& other) const
     {
         return _i == other._i;
     }
 
 	// CRTP
-    bool lowerThan(const MyType& other) const
+    bool lower_than(const MyType& other) const
     {
         return _i < other._i;
     }

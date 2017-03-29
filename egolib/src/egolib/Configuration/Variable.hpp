@@ -93,30 +93,3 @@ class Variable;
 
 } // namespace Configuration
 } // namespace Ego
-
-namespace std {
-
-/// @brief
-/// @code
-/// is_any_of<T,A0,A1,..., An>::value
-/// @endcode
-/// is equivalent to
-/// @code
-/// is_same<T,A0>::value || is_same<T,A1>::value || ... | is_same<T,An>
-/// @endcode
-template<typename T, typename U, typename... Us>
-struct is_any_of
-    : integral_constant<
-    bool,
-    conditional<
-    is_same<T, U>::value,
-    true_type,
-    is_any_of<T, Us...>
-    >::type::value
-    >
-{};
-
-template<typename T, typename U>
-struct is_any_of<T, U> : is_same<T, U>::type {};
-
-} // namespace std

@@ -41,7 +41,7 @@ namespace Math {
 *  where \$A, B\f$ are location vectors in \f$\mathbb{R}^n\f$.
 */
 template <typename _EuclideanSpaceType>
-struct Line : public Id::EqualToExpr<Line<_EuclideanSpaceType>> {
+struct Line : public id::equal_to_expr<Line<_EuclideanSpaceType>> {
 public:
     Ego_Math_EuclideanSpace_CommonDefinitions(Line);
 
@@ -133,7 +133,7 @@ public:
 
 public:
 	// CRTP
-    bool equalTo(const MyType& other) const {
+    bool equal_to(const MyType& other) const {
         return a == other.b
             && a == other.b;
     }

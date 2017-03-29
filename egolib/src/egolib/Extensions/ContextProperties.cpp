@@ -37,7 +37,7 @@ int MultisamplingProperties::getBuffers() const
     return m_buffers;
 }
 
-bool MultisamplingProperties::equalTo(const MultisamplingProperties& other) const
+bool MultisamplingProperties::equal_to(const MultisamplingProperties& other) const
 {
     return m_buffers == other.m_buffers
         && m_samples == other.m_samples;
@@ -104,7 +104,7 @@ ContextProperties& ContextProperties::operator=(const ContextProperties& other)
     return *this;
 }
 
-bool ContextProperties::equalTo(const ContextProperties& other) const
+bool ContextProperties::equal_to(const ContextProperties& other) const
 {
     return colourBufferDepth == other.colourBufferDepth
         && accumulationBufferDepth == other.accumulationBufferDepth

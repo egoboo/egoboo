@@ -7,7 +7,7 @@ namespace Grid {
 /// @todo Shall be renamed to <tt>IndexRange</tt> and shall have specializations
 /// for all coordinate systems as well as support empty ranges and iterators.
 template <typename UnderlayingType_, CoordinateSystem CoordinateSystem_>
-struct IndexRectangle : public Id::EqualToExpr<IndexRectangle<UnderlayingType_, CoordinateSystem_>>
+struct IndexRectangle : public id::equal_to_expr<IndexRectangle<UnderlayingType_, CoordinateSystem_>>
 {
 public:
     using UnderlayingType = UnderlayingType_;
@@ -38,7 +38,7 @@ public:
 
 public:
     // CRTP
-    bool equalTo(const MyType& other) const
+    bool equal_to(const MyType& other) const
     {
         return _min == other._min
             && _max == other._max;

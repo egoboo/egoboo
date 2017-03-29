@@ -83,11 +83,11 @@ struct Matrix;
 template <typename _ElementType, size_t _NumberOfRows, size_t _NumberOfColumns>
 struct Matrix<_ElementType, _NumberOfRows, _NumberOfColumns,
               std::enable_if_t<Internal::MatrixEnable<_ElementType, _NumberOfRows, _NumberOfColumns>::value>>
-    : public Id::EqualToExpr<Matrix<_ElementType, _NumberOfRows, _NumberOfColumns>>,
-      public Id::PlusExpr<Matrix<_ElementType, _NumberOfRows, _NumberOfColumns>>,
-      public Id::MinusExpr<Matrix<_ElementType, _NumberOfRows, _NumberOfColumns>>,
-      public Id::UnaryPlusExpr<Matrix<_ElementType, _NumberOfRows, _NumberOfColumns>>,
-      public Id::UnaryMinusExpr<Matrix<_ElementType, _NumberOfRows, _NumberOfColumns>> {
+    : public id::equal_to_expr<Matrix<_ElementType, _NumberOfRows, _NumberOfColumns>>,
+      public id::plus_expr<Matrix<_ElementType, _NumberOfRows, _NumberOfColumns>>,
+      public id::minus_expr<Matrix<_ElementType, _NumberOfRows, _NumberOfColumns>>,
+      public id::unary_plus_expr<Matrix<_ElementType, _NumberOfRows, _NumberOfColumns>>,
+      public id::unary_minus_expr<Matrix<_ElementType, _NumberOfRows, _NumberOfColumns>> {
     /**
      * @brief
      *  Get if this matrix type is square matrix type.
@@ -355,7 +355,7 @@ protected:
 
 public:
     // CRTP
-    bool equalTo(const MyType& other) const {
+    bool equal_to(const MyType& other) const {
         for (size_t i = 0; i < numberOfElements(); ++i) {
             if (at(i) != other.at(i)) {
                 return false;
@@ -383,7 +383,7 @@ public:
     }
 
     // CRTP
-    MyType unaryPlus() const
+    MyType unary_plus() const
     {
         for (size_t i = 0; i < numberOfElements(); ++i)
         {
@@ -392,7 +392,7 @@ public:
     }
 
     // CRTP
-    MyType unaryMinus() const
+    MyType unary_minus() const
     {
         for (size_t i = 0; i < numberOfElements(); ++i)
         {

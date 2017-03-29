@@ -39,7 +39,7 @@ enum matrix_cache_type_t
 
 
 /// the data necessary to cache the last values required to create the character matrix
-struct matrix_cache_t : public Id::EqualToExpr<matrix_cache_t>
+struct matrix_cache_t : public id::equal_to_expr<matrix_cache_t>
 {
     matrix_cache_t() :
         valid(false),
@@ -92,7 +92,7 @@ struct matrix_cache_t : public Id::EqualToExpr<matrix_cache_t>
     bool isValid() const;
 
 	// CRTP
-    bool equalTo(const matrix_cache_t& other) const;
+    bool equal_to(const matrix_cache_t& other) const;
 };
 
 //Function prototypes

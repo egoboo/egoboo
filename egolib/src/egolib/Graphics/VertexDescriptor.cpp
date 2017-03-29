@@ -43,7 +43,7 @@ const VertexDescriptor& VertexDescriptor::operator=(const VertexDescriptor& othe
     return *this;
 }
 
-bool VertexDescriptor::equalTo(const VertexDescriptor& other) const {
+bool VertexDescriptor::equal_to(const VertexDescriptor& other) const {
     if (this == &other) return true;
     if (vertexSize != other.vertexSize) return false;
     return vertexElementDescriptors == other.vertexElementDescriptors;

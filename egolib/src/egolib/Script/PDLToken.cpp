@@ -27,20 +27,20 @@ namespace Ego {
 namespace Script {
 
 PDLToken::PDLToken()
-    : Id::Token<PDLTokenKind>(PDLTokenKind::Unknown, id::location("<unknown>", 1), std::string()), m_endLocation("<unknown>", 1), m_value(0)
+    : id::token<PDLTokenKind>(PDLTokenKind::Unknown, id::location("<unknown>", 1), std::string()), m_endLocation("<unknown>", 1), m_value(0)
 {}
 
 PDLToken::PDLToken(PDLTokenKind kind, const id::location& startLocation,
                    const id::location& endLocation, const std::string& lexeme)
-    : Id::Token<PDLTokenKind>(kind, startLocation, lexeme), m_endLocation(endLocation), m_value(0)
+    : id::token<PDLTokenKind>(kind, startLocation, lexeme), m_endLocation(endLocation), m_value(0)
 {}
 
 PDLToken::PDLToken(const PDLToken& other)
-    : Id::Token<PDLTokenKind>(other), m_endLocation(other.m_endLocation), m_value(other.m_value)
+    : id::token<PDLTokenKind>(other), m_endLocation(other.m_endLocation), m_value(other.m_value)
 {}
 
 PDLToken::PDLToken(PDLToken&& other)
-    : Id::Token<PDLTokenKind>(std::move(other)), m_endLocation(std::move(other.m_endLocation)), m_value(std::move(other.m_value))
+    : id::token<PDLTokenKind>(std::move(other)), m_endLocation(std::move(other.m_endLocation)), m_value(std::move(other.m_value))
 {}
 
 PDLToken::~PDLToken()
@@ -48,15 +48,15 @@ PDLToken::~PDLToken()
 
 bool PDLToken::isOperator() const
 {
-    return isOneOf(PDLTokenKind::Assign,
-                   PDLTokenKind::Plus,
-                   PDLTokenKind::Minus,
-                   PDLTokenKind::And,
-                   PDLTokenKind::Multiply,
-                   PDLTokenKind::Divide,
-                   PDLTokenKind::Modulus,
-                   PDLTokenKind::ShiftRight,
-                   PDLTokenKind::ShiftLeft);
+    return is_one_of(PDLTokenKind::Assign,
+                     PDLTokenKind::Plus,
+                     PDLTokenKind::Minus,
+                     PDLTokenKind::And,
+                     PDLTokenKind::Multiply,
+                     PDLTokenKind::Divide,
+                     PDLTokenKind::Modulus,
+                     PDLTokenKind::ShiftRight,
+                     PDLTokenKind::ShiftLeft);
 }
 
 bool PDLToken::isAssignOperator() const
@@ -66,10 +66,10 @@ bool PDLToken::isAssignOperator() const
 
 bool PDLToken::isLiteral() const
 {
-    return isOneOf(PDLTokenKind::IdszLiteral,
-                   PDLTokenKind::NumberLiteral,
-                   PDLTokenKind::ReferenceLiteral,
-                   PDLTokenKind::StringLiteral);
+    return is_one_of(PDLTokenKind::IdszLiteral,
+                     PDLTokenKind::NumberLiteral,
+                     PDLTokenKind::ReferenceLiteral,
+                     PDLTokenKind::StringLiteral);
 }
 
 bool PDLToken::isConstant() const
@@ -87,9 +87,9 @@ std::ostream& operator<<(std::ostream& os, const PDLToken& token)
 {
     os << "pdl token" << std::endl;
     os << "{" << std::endl;
-    os << "  " << "kind = " << token.getKind() << "," << std::endl;
-    os << "  " << "lexeme = " << token.getLexeme() << "," << std::endl;
-    os << "  " << "start location = " << token.getStartLocation().file_name() << ":" << token.getStartLocation().line_number() << "," << std::endl;
+    os << "  " << "kind = " << token.get_kind() << "," << std::endl;
+    os << "  " << "lexeme = " << token.get_lexeme() << "," << std::endl;
+    os << "  " << "start location = " << token.get_start_location().file_name() << ":" << token.get_start_location().line_number() << "," << std::endl;
     os << "  " << "end location = " << token.getEndLocation().file_name() << ":" << token.getEndLocation().line_number() << "," << std::endl;
     os << "  " << "value = " << token.getValue() << std::endl;
     os << "}" << std::endl;

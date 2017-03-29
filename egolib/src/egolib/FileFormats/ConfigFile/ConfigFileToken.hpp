@@ -2,7 +2,7 @@
 
 #include "egolib/FileFormats/ConfigFile/ConfigFileTokenKind.hpp"
 
-class ConfigFileToken : public Id::Token<ConfigFileTokenKind>
+class ConfigFileToken : public id::token<ConfigFileTokenKind>
 {
 public:
     ConfigFileToken

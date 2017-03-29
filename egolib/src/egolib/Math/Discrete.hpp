@@ -11,7 +11,7 @@ struct Size2;
 
 template <typename T>
 struct Size2<T, std::enable_if_t<std::is_same<T, int>::value>>
-    : public Id::EqualToExpr<Size2<T>> {
+    : public id::equal_to_expr<Size2<T>> {
 private:
     using MyType = Size2<T>;
     std::array<T, 2> elements;
@@ -23,7 +23,7 @@ public:
 
 public:
     // CRTP
-    bool equalTo(const MyType& other) const
+    bool equal_to(const MyType& other) const
     {
         return elements[0] == other.elements[0]
             && elements[1] == other.elements[1];
@@ -83,19 +83,19 @@ public:
     }
 
     // CRTP
-    bool equalTo(const MyType& other) const {
+    bool equal_to(const MyType& other) const {
         return elements[0] == other.elements[0]
             && elements[1] == other.elements[1];
     }
 
     // CRTP
-    MyType unaryPlus() const
+    MyType unary_plus() const
     {
         return MyType(+elements[0], +elements[1]);
     }
     
     // CRTP
-    MyType unaryMinus() const
+    MyType unary_minus() const
     {
         return MyType(-elements[0], -elements[1]);
     }
@@ -161,7 +161,7 @@ public:
 
 public:
     // CRTP
-    bool equalTo(const MyType& other) const {
+    bool equal_to(const MyType& other) const {
         return elements[0] == other.elements[0]
             && elements[1] == other.elements[1];
     }

@@ -123,7 +123,7 @@ const MeshInfo::Iterator& MeshInfo::Iterator::operator=(const Iterator& rhs)
     return *this;
 }
 
-bool MeshInfo::Iterator::equalTo(const Iterator& rhs) const noexcept
+bool MeshInfo::Iterator::equal_to(const Iterator& rhs) const noexcept
 {
     return x == rhs.x
         && y == rhs.y;

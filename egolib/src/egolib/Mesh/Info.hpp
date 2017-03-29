@@ -25,8 +25,8 @@ protected:
 	size_t _tileCount;
 
 public:
-    struct Iterator : public Id::EqualToExpr<Iterator>,
-                      public Id::IncrementExpr<Iterator>
+    struct Iterator : public id::equal_to_expr<Iterator>,
+                      public id::increment_expr<Iterator>
     {
     private:
         size_t x, y;
@@ -44,7 +44,7 @@ public:
 		// CRTP
         void increment();
 		// CRTP
-        bool equalTo(const Iterator& other) const noexcept;
+        bool equal_to(const Iterator& other) const noexcept;
 
         const Index2D operator*();
         const Index2D operator->();

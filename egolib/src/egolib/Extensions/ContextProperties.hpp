@@ -10,7 +10,7 @@ namespace Ego {
 /// for the number of MSAA samples per pixel to allocate for that system framebuffer. Clean, simple.
 /// Then the GPU vendors added support for supersample antialiasing (SSAA), coverage sample
 /// antialiasing (CSAA), and combinations of the three.
-struct MultisamplingProperties : public Id::EqualToExpr<MultisamplingProperties>
+struct MultisamplingProperties : public id::equal_to_expr<MultisamplingProperties>
 {
     /// @brief See MultisamplingProperties::setBuffers for more information.
     int m_buffers;
@@ -57,13 +57,13 @@ struct MultisamplingProperties : public Id::EqualToExpr<MultisamplingProperties>
     void download();
 
     // CRTP
-    bool equalTo(const MultisamplingProperties& other) const;
+    bool equal_to(const MultisamplingProperties& other) const;
 };
 
 Log::Entry& operator<<(Log::Entry& e, const MultisamplingProperties& s);
 
 /// @brief Used to pass information on a graphics context from and to a backend.
-struct ContextProperties : public Id::EqualToExpr<ContextProperties>
+struct ContextProperties : public id::equal_to_expr<ContextProperties>
 {
     /// The depth of the colour buffer.
     /// SDL_GL_RED_SIZE, SDL_GL_GREEN_SIZE, SDL_GL_BLUE_SIZE, SDL_GL_ALPHA_SIZE
@@ -103,7 +103,7 @@ struct ContextProperties : public Id::EqualToExpr<ContextProperties>
     void download();
 
     // CRTP
-    bool equalTo(const ContextProperties& other) const;
+    bool equal_to(const ContextProperties& other) const;
 };
 
 Log::Entry& operator<<(Log::Entry& e, const ContextProperties& s);

@@ -40,7 +40,7 @@ const VertexElementDescriptor& VertexElementDescriptor::operator=(const VertexEl
     return *this;
 }
 
-bool VertexElementDescriptor::equalTo(const VertexElementDescriptor& other) const EGO_NOEXCEPT {
+bool VertexElementDescriptor::equal_to(const VertexElementDescriptor& other) const EGO_NOEXCEPT {
     return offset == other.offset
         && syntax == other.syntax
         && semantics == other.semantics;

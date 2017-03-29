@@ -34,7 +34,7 @@ namespace Math {
  * The set of points of a ray is given by \f$\left\{ O + t \vec{d} | t \in \subseteq \mathbb{R}_{\geq 0} \right\}$.
  */
 template <typename _EuclideanSpaceType>
-struct Ray : public Id::EqualToExpr<Ray<_EuclideanSpaceType>> {
+struct Ray : public id::equal_to_expr<Ray<_EuclideanSpaceType>> {
 public:
     Ego_Math_EuclideanSpace_CommonDefinitions(Ray);
 
@@ -103,7 +103,7 @@ public:
 
 public:
     // CRTP
-    bool equalTo(const MyType& other) const
+    bool equal_to(const MyType& other) const
     {
         return origin == other.origin
             && direction == other.direction;

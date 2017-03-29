@@ -51,7 +51,7 @@ const IndexDescriptor& IndexDescriptor::operator=(const IndexDescriptor& other) 
     return *this;
 }
 
-bool IndexDescriptor::equalTo(const IndexDescriptor& other) const noexcept {
+bool IndexDescriptor::equal_to(const IndexDescriptor& other) const noexcept {
     return syntax == other.syntax;
 }
 

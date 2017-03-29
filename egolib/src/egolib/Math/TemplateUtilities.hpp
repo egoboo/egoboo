@@ -130,11 +130,11 @@ void unpack(Type(&dst)[Size], Args&& ...args) {
 }
 
 template <typename VectorType, typename ScalarType>
-struct VectorExpr : public Id::EqualToExpr<VectorType>,
-                    public Id::PlusExpr<VectorType>,
-                    public Id::MinusExpr<VectorType>,
-                    public Id::UnaryPlusExpr<VectorType>,
-                    public Id::UnaryMinusExpr<VectorType>
+struct VectorExpr : public id::equal_to_expr<VectorType>,
+                    public id::plus_expr<VectorType>,
+                    public id::minus_expr<VectorType>,
+                    public id::unary_plus_expr<VectorType>,
+                    public id::unary_minus_expr<VectorType>
 {
     VectorType& operator*=(const ScalarType& scalar)
     {
@@ -166,7 +166,7 @@ struct VectorExpr : public Id::EqualToExpr<VectorType>,
 };
 
 template <typename PointType, typename VectorType>
-struct PointExpr : public Id::EqualToExpr<PointType>
+struct PointExpr : public id::equal_to_expr<PointType>
 {
     friend VectorType operator-(const PointType& a, const PointType& b)
     {

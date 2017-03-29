@@ -45,10 +45,10 @@ struct Ref;
 template <typename ValueTypeArg, ValueTypeArg MinimumValueArg, ValueTypeArg MaximumValueArg, RefKind KindArg>
 struct Ref < ValueTypeArg, MinimumValueArg, MaximumValueArg, KindArg,
              std::enable_if_t<::Internal::IsRefValue<ValueTypeArg>::value> >
-           : public Id::EqualToExpr<Ref<ValueTypeArg, MinimumValueArg, MaximumValueArg, KindArg>>,
-             public Id::LowerThanExpr<Ref<ValueTypeArg, MinimumValueArg, MaximumValueArg, KindArg>>,
-             public Id::IncrementExpr<Ref<ValueTypeArg, MinimumValueArg, MaximumValueArg, KindArg>>,
-             public Id::DecrementExpr<Ref<ValueTypeArg, MinimumValueArg, MaximumValueArg, KindArg>>
+           : public id::equal_to_expr<Ref<ValueTypeArg, MinimumValueArg, MaximumValueArg, KindArg>>,
+             public id::lower_than_expr<Ref<ValueTypeArg, MinimumValueArg, MaximumValueArg, KindArg>>,
+             public id::increment_expr<Ref<ValueTypeArg, MinimumValueArg, MaximumValueArg, KindArg>>,
+             public id::decrement_expr<Ref<ValueTypeArg, MinimumValueArg, MaximumValueArg, KindArg>>
 {
 public:
     using ValueType = ValueTypeArg;
@@ -179,13 +179,13 @@ public:
 
 public:
     // CRTP
-    bool equalTo(const MyType& other) const noexcept
+    bool equal_to(const MyType& other) const noexcept
     {
         return m_value == other.m_value;
     }
 
     // CRTP
-    bool lowerThan(const MyType& other) const noexcept
+    bool lower_than(const MyType& other) const noexcept
     {
         return m_value < other.m_value;
     }

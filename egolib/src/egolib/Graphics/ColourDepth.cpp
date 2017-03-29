@@ -44,7 +44,7 @@ const ColourDepth& ColourDepth::operator=(const ColourDepth& other) {
 	return *this;
 }
 
-bool ColourDepth::equalTo(const ColourDepth& other) const EGO_NOEXCEPT {
+bool ColourDepth::equal_to(const ColourDepth& other) const EGO_NOEXCEPT {
 	return depth == other.depth
 		&& redDepth == other.redDepth
 		&& greenDepth == other.greenDepth
