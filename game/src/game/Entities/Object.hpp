@@ -647,7 +647,7 @@ public:
     *   Generates a new random level up seed. Should be called every time a level up is complete
     *   or first time generating a character from scratch (not a save game)
     **/
-    void randomizeLevelUpSeed() { _levelUpSeed = Random::next(Random::next<uint32_t>(numeric_limits<uint32_t>::max())); }
+    void randomizeLevelUpSeed() { _levelUpSeed = Random::next(Random::next<uint32_t>(std::numeric_limits<uint32_t>::max())); }
 
     /**
     * @brief

@@ -12,8 +12,9 @@ configuration:
     - Release
 
 install:
-    git submodule update --init --recursive --depth 1
- 
+    # depth 32 should be enough.
+    git submodule update --init --recursive --depth 32
+
 build:
     parallel: false                 # enable MSBuild parallel builds
     project: egoboo.sln             # path to Visual Studio solution or project

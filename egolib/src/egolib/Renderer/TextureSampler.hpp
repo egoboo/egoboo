@@ -28,9 +28,6 @@
 
 namespace Ego {
 	
-// We know we are dealing with filters and addressing modes for textures :)
-using Filter = TextureFilter;
-using AddressMode = TextureAddressMode;
 
 /**
  * @brief A texture sampler is part of the state of a texture (Ego::Texture).
@@ -39,19 +36,19 @@ struct TextureSampler {
 
 private:
     /// @brief The minification filter
-    Filter minFilter;
+    TextureFilter minFilter;
 
     /// @brief The magnification filter.
-    Filter magFilter;
+    TextureFilter magFilter;
 
     /// @brief The mip map filter
-    Filter mipMapFilter;
+    TextureFilter mipMapFilter;
 
     /// @brief The addressing mode along the s-axis.
-    AddressMode addressModeS;
+    TextureAddressMode addressModeS;
 
     /// @brief The addressing mode along the t-axis.
-    AddressMode addressModeT;
+    TextureAddressMode addressModeT;
 
     /// @brief The level of anistropic filtering.
     float anisotropyLevel;
@@ -69,8 +66,8 @@ public:
      * minimum level and \f$max\f$ is the maximum level of anistropic filtering supported.
      * The minimum level means anisotropic filtering is off i.e. isotropic filtering is performed.
      */
-    TextureSampler(Filter minFilter, Filter magFilter, Filter mipMapFilter,
-                   AddressMode addressModeS, AddressMode addressModeT, float anisotropyLevel);
+    TextureSampler(TextureFilter minFilter, TextureFilter magFilter, TextureFilter mipMapFilter,
+                   TextureAddressMode addressModeS, TextureAddressMode addressModeT, float anisotropyLevel);
 
     /**
      * @brief Copy-construct this texture sampler from another texture sampler.
@@ -91,31 +88,31 @@ public:
      * @brief Get the minification filter.
      * @return the minification filter
      */
-    Filter getMinFilter() const;
+    TextureFilter getMinFilter() const;
 
     /**
      * @brief Get the magnification filter.
      * @return the magnification filter
      */
-    Filter getMagFilter() const;
+    TextureFilter getMagFilter() const;
 
     /**
      * @brief Get the mipmap filter.
      * @return the mipmap filter
      */
-    Filter getMipMapFilter() const;
+    TextureFilter getMipMapFilter() const;
 
     /**
      * @brief Get the address mode for the s-axis.
      * @return the address mode for the s-axis
      */
-    AddressMode getAddressModeS() const;
+    TextureAddressMode getAddressModeS() const;
 
     /**
      * @brief Get the address mode for the t-axis.
      * @return the address mode for the t-axis
      */
-    AddressMode getAddressModeT() const;
+    TextureAddressMode getAddressModeT() const;
 
     /**
      * @brief Get level of anistropic filtering.

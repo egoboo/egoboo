@@ -201,8 +201,8 @@ std::unordered_set<std::string> Utilities::getExtensions() {
     if (isError()) {
         throw Id::RuntimeErrorException(__FILE__, __LINE__, "unable to acquire renderer back-end information");
     }
-    auto tokens = split(string((const char *)bytes), string(" "));
-    return unordered_set<string>(tokens.cbegin(), tokens.cend());
+    auto tokens = split(std::string((const char *)bytes), std::string(" "));
+    return std::unordered_set<std::string>(tokens.cbegin(), tokens.cend());
 }
 
 std::string Utilities::getRenderer() {
