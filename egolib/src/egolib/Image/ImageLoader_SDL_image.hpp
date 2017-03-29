@@ -24,12 +24,11 @@
 namespace Ego {
 namespace Internal {
 
-struct ImageLoader_SDL_image : public ImageLoader {
+struct ImageLoader_SDL_image : public ImageLoader
+{
 public:
     ImageLoader_SDL_image(const std::unordered_set<std::string>& extensions);
-
     virtual std::shared_ptr<SDL_Surface> load(vfs_FILE *file) const override;
-
 };
 
 } // namespace Internal

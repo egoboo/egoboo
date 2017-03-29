@@ -35,251 +35,130 @@
 
 namespace Ego {
 
-class Texture {
+class Texture
+{
 protected:
-
-    /**
-     * @brief
-     *  The type of this texture.
-     */
+    /// @brief The type of this texture.
     TextureType _type;
 
-    /**
-     * @brief
-     *  The minification filter of this texture.
-     */
+    /// @brief The minification filter of this texture.
     TextureFilter _minFilter;
     
-    /**
-     * @brief
-     *  The magnification filter of this texture.
-     */
+    /// @brief The magnification filter of this texture.
     TextureFilter _magFilter;
     
-    /**
-     * @brief
-     *  The mipmap filter of this texture.
-     */
+    /// @brief The mipmap filter of this texture.
     TextureFilter _mipMapFilter;
 
-    /**
-     * @brief
-     *  The address mode along the s-axis.
-     */
+    /// @brief The address mode along the s-axis.
     TextureAddressMode _addressModeS;
 
-    /**
-     * @brief
-     *  The texture address mode along the t-axis.
-     */
+    /// @brief The texture address mode along the t-axis.
     TextureAddressMode _addressModeT;
 
-    /**
-     * @brief
-     *  The name of the texture.
-     * @remark
-     *  Usually the pathname of the texture descriptor file,
-     *  for dynamic textures and special textures a name
-     *  that can not be used as a pathname.
-     */
+    /// @brief The name of the texture.
+    /// @remark
+    /// Usually the pathname of the texture descriptor file,
+    /// for dynamic textures and special textures a name that can not be used as a pathname.
     std::string _name;
 
-    /**
-     * @brief
-     *  The width, in pixels, of the source of this texture.
-     * @remark
-     *  This value might differ for technical reasons from the width of the texture.
-     */
+    /// @brief The width, in pixels, of the source of this texture.
+    /// @remark This value might differ for technical reasons from the width of the texture.
     int _sourceWidth;
 
-    /**
-     * @brief
-     *  The height, in pixels, of the source of this texture.
-     * @remark
-     *  This value might differ for technical reasons from the height of the texture.
-     */
+    /// @brief The height, in pixels, of the source of this texture.
+    /// @remark This value might differ for technical reasons from the height of the texture.
     int _sourceHeight;
 
-    /**
-     * @brief
-     *  The width, in pixels, of the the texture.
-     */
+    /// @brief The width, in pixels, of the the texture.
     int _width;
 
-    /**
-     * @brief
-     *  The height, in pixels, of the texture.
-     */
+    /// @brief The height, in pixels, of the texture.
     int _height;
 
-    /**
-     * @brief
-     *  @a true if this texture has an alpha component, @a false otherwise.
-     */
+    /// @brief @a true if this texture has an alpha component, @a false otherwise.
     bool _hasAlpha;
 
 public:
-
-    /**
-     * @brief
-     *  A pointer to the source of the texture if available, a null pointer otherwise.
-     */
+    /// @brief A pointer to the source of the texture if available, a null pointer otherwise.
     std::shared_ptr<SDL_Surface> _source;
 
 protected:
-
-    /**
-     * @brief
-     *  Construct this texture.
-     * @remark
-     *  Intentionally protected.
-     */
+    /// @brief Construct this texture.
+    /// @remark Intentionally protected.
     Texture(const std::string& name,
             TextureType type, TextureAddressMode addressModeS, TextureAddressMode addressModeT,
             int width, int height, int sourceWidth, int sourceHeight, std::shared_ptr<SDL_Surface> source,
             bool hasAlpha);
 
 public:
-
-    /**
-     * @brief
-     *  Destruct this texture.
-     */
+    /// @brief Destruct this texture.
     virtual ~Texture();
 
-    /**
-     * @brief
-     *  Get the type of this texture.
-     * @return
-     *  the type of this texture
-     */
+    /// @brief Get the type of this texture.
+    /// @return the type of this texture
     TextureType getType() const;
 
-    /**
-     * @brief
-     *  Get the mipmap filter of this texture.
-     * @return
-     *  the mipmap filter
-     */
+    /// @brief Get the mipmap filter of this texture.
+    /// @return the mipmap filter
     TextureFilter getMipMapFilter() const;
 
-    /**
-     * @brief
-     *  Set the mipmap filter of this texture.
-     * @param mipMapFilter
-     *  the mipmap filter
-     */
+    /// @brief Set the mipmap filter of this texture.
+    /// @param mipMapFilter the mipmap filter
     void setMipMapFilter(TextureFilter minFilter);
 
-    /**
-     * @brief
-     *  Get the minification filter of this texture.
-     * @return
-     *  the minification filter
-     */
+    /// @brief Get the minification filter of this texture.
+    /// @return the minification filter
     TextureFilter getMinFilter() const;
 
-    /**
-     * @brief
-     *  Set the minification filter of this texture.
-     * @param minFilter
-     *  the minification filter
-     */
+    /// @brief Set the minification filter of this texture.
+    /// @param minFilter the minification filter
     void setMinFilter(TextureFilter minFilter);
 
-    /**
-     * @brief
-     *  Get the magnification filter of this texture.
-     * @return
-     *  the magnification filter
-     */
+    /// @brief Get the magnification filter of this texture.
+    /// @return the magnification filter
     TextureFilter getMagFilter() const;
 
-    /**
-     * @brief
-     *  Set the magnification filter of this texture.
-     * @param magFilter
-     *  the magnification filter
-     */
+    /// @brief Set the magnification filter of this texture.
+    /// @param magFilter the magnification filter
     void setMagFilter(TextureFilter magFilter);
 
-    /**
-     * @brief
-     *  Get the address mode of this texture along the s-axis.
-     * @return
-     *  the address mode of this texture along the s-axis.
-     */
+    /// @brief Get the address mode of this texture along the s-axis.
+    /// @return the address mode of this texture along the s-axis.
     TextureAddressMode getAddressModeS() const;
 
-    /**
-     * @brief
-     *  Set the address mode of this texture along the s-axis.
-     * @param addressMode
-     *  the address mode of this texture along the s-axis
-     */
+    /// @brief Set the address mode of this texture along the s-axis.
+    /// @param addressMode the address mode of this texture along the s-axis
     void setAddressModeS(TextureAddressMode addressModeS);
 
-    /**
-     * @brief
-     *  Get the address mode of this texture along the t-axis.
-     * @return
-     *  the address mode of this texture along the t-axis.
-     */
+    /// @brief Get the address mode of this texture along the t-axis.
+    /// @return the address mode of this texture along the t-axis.
     TextureAddressMode getAddressModeT() const;
 
-    /**
-     * @brief
-     *  Set the address mode of this texture along the t-axis.
-     * @param addressMode
-     *  the address mode of this texture along the t-axis
-     */
+    /// @brief Set the address mode of this texture along the t-axis.
+    /// @param addressMode the address mode of this texture along the t-axis
     void setAddressModeT(TextureAddressMode addressModeT);
 
-    /**
-     * @brief
-     *  Get the width, in pixels, of this texture.
-     * @param self
-     *  this texture
-     * @return
-     *  the width, in pixels of this texture
-     */
+    /// @brief Get the width, in pixels, of this texture.
+    /// @return the width, in pixels of this texture
     int getWidth() const;
 
-    /**
-     * @brief
-     *  Get the height, in pixels, of this texture.
-     * @return
-     *  the height, in pixels of this texture
-     */
+    /// @brief Get the height, in pixels, of this texture.
+    /// @return the height, in pixels of this texture
     int getHeight() const;
 
-    /**
-     * @brief
-     *  Get the width, in pixels, of the source of this texture.
-     * @return
-     *  the width, in pixels, of the source of this texture
-     * @remark
-     *  This value might differ for technical reasons from the width of the texture.
-     */
+    /// @brief Get the width, in pixels, of the source of this texture.
+    /// @return the width, in pixels, of the source of this texture
+    /// @remark This value might differ for technical reasons from the width of the texture.
     int getSourceWidth() const;
 
-    /**
-     * @brief
-     *  Get the height, in pixels, of the source of this texture.
-     * @return
-     *  the height, in pixels, of the source of this texture
-     * @remark
-     *  This value might differ for technical reasons from the height of the texture.
-     */
+    /// @brief Get the height, in pixels, of the source of this texture.
+    /// @return the height, in pixels, of the source of this texture
+    /// @remark This value might differ for technical reasons from the height of the texture.
     int getSourceHeight() const;
 
-    /**
-     * @brief
-     *  Get if this texture has an alpha component.
-     * @return
-     *  @a true if this texture has an alpha component,
-     *  @a false otherwise
-     */
+    /// @brief Get if this texture has an alpha component.
+    /// @return @a true if this texture has an alpha component, @a false otherwise
     bool hasAlpha() const;
 
     /**

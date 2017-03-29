@@ -17,57 +17,41 @@
 //*
 //********************************************************************************************
 
+/// @file egolib/Image/ImageLoader.hpp
+/// @brief An image loader.
+/// @author Michael Heilmann
+
 #pragma once
 
 #include "egolib/vfs.h"
 
 namespace Ego {
 
-class ImageLoader {
+class ImageLoader
+{
 private:
     friend struct std::default_delete<ImageLoader>;
-    /**
-     * @brief
-     *  A set of file extensions supported by this image loader e.g. <tt>.bmp</tt>, <tt>.png</tt>, ...
-     */
+
+    /// @brief A set of file extensions supported by this image loader e.g. <tt>.bmp</tt>, <tt>.png</tt>, ...
     std::unordered_set<std::string> extensions;
 
 protected:
-
-    /**
-     * @brief
-     *  Construct this image loader.
-     * @param extensions
-     *  the set of file extensions supported by this image loader e.g. <tt>.bmp</tt>, <tt>.png</tt>, ...
-     */
+    /// @brief Construct this image loader.
+    /// @param extensions the set of file extensions supported by this image loader e.g. <tt>.bmp</tt>, <tt>.png</tt>, ...
     ImageLoader(const std::unordered_set<std::string>& extensions);
 
-    /**
-     * @brief
-     *  Destruct this image loader.
-     */
+    /// @brief Destruct this image loader.
     virtual ~ImageLoader();
 
 public:
-
-    /**
-     * @brief
-     *  Get the set of file extensions supported by this image loader.
-     * @return
-     *  a file extension e.g. <tt>.bmp</tt>, <tt>.png</tt>, ...
-     */
+    /// @brief Get the set of file extensions supported by this image loader.
+    /// @return a file extension e.g. <tt>.bmp</tt>, <tt>.png</tt>, ...
     std::unordered_set<std::string> getExtensions() const;
 
-    /**
-     * @brief
-     *  Load an image using this image loader.
-     * @param file
-     *  a file opened for reading
-     * @return
-     *  an SDL surface on success, @a nullptr on failure
-     * @remark
-     *  The file is not closed by this function.
-     */
+    /// @brief Load an image using this image loader.
+    /// @param file a file opened for reading
+    /// @return an SDL surface on success, @a nullptr on failure
+    /// @remark The file is not closed by this function.
     virtual std::shared_ptr<SDL_Surface> load(vfs_FILE *file) const = 0;
 
 };

@@ -37,7 +37,8 @@ namespace SDL {
 /**
  * @brief Specifies a padding.
  */
-struct Padding {
+struct Padding
+{
     size_t left, top, right, bottom;
 };
 

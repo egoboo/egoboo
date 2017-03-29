@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Renderer/OpenGL/TextureUnit.hpp
-/// @brief  Implementation of a texture unit facade for OpenGL 2.1. 
+/// @file egolib/Renderer/OpenGL/TextureUnit.hpp
+/// @brief Implementation of a texture unit facade for OpenGL 2.1. 
 /// @author Michael Heilmann
 #pragma once
 
@@ -27,20 +27,13 @@
 namespace Ego {
 namespace OpenGL {
 
-class TextureUnit : public Ego::TextureUnit {
-
+class TextureUnit : public Ego::TextureUnit
+{
 public:
-
-    /**
-     * @brief
-     *  Construct this texture unit facade.
-     */
+    /// @brief Construct this texture unit facade.
     TextureUnit();
 
-    /**
-     * @brief
-     *  Destruct this texture unit facade.
-     */
+    /// @brief Destruct this texture unit facade.
     virtual ~TextureUnit();
 
     /** @copydoc Ego::TextureUnit::setActivated */

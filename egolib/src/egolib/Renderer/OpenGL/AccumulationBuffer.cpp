@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Renderer/OpenGL/AccumulationBuffer.cpp
-/// @brief  Implementation of an Accumulation buffer facade for OpenGL 2.1.
+/// @file egolib/Renderer/OpenGL/AccumulationBuffer.cpp
+/// @brief Implementation of an Accumulation buffer facade for OpenGL 2.1.
 /// @author Michael Heilmann
 
 #include "egolib/Renderer/OpenGL/AccumulationBuffer.hpp"

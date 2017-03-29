@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Renderer/OpenGL/Texture.cpp
-/// @brief  Implementation of textures for OpenGL 2.1.
+/// @file egolib/Renderer/OpenGL/Texture.cpp
+/// @brief Implementation of textures for OpenGL 2.1.
 /// @author Michael Heilmann
 
 #include "egolib/Renderer/OpenGL/Texture.hpp"

@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Renderer/OpenGL/ColourBuffer.hpp
-/// @brief  Implementation of a colour buffer facade for OpenGL 2.1.
+/// @file egolib/Renderer/OpenGL/ColourBuffer.hpp
+/// @brief Implementation of a colour buffer facade for OpenGL 2.1.
 /// @author Michael Heilmann
 #pragma once
 
@@ -29,22 +29,15 @@ namespace OpenGL {
 
 using namespace Math;
 
-class ColourBuffer : public Ego::ColourBuffer {
+class ColourBuffer : public Ego::ColourBuffer
+{
 private:
     Ego::ColourDepth colourDepth;
 
 public:
-
-    /**
-     * @brief
-     *  Construct this colour buffer facade.
-     */
     ColourBuffer();
 
-    /**
-     * @brief
-     *  Destruct this colour buffer facade.
-     */
+    /// @brief Destruct this colour buffer facade.
     virtual ~ColourBuffer();
 
 public:

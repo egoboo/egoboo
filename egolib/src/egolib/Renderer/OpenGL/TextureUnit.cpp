@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Renderer/OpenGL/TextureUnit.cpp
-/// @brief  Implementation of a texture unit facade for OpenGL 2.1.
+/// @file egolib/Renderer/OpenGL/TextureUnit.cpp
+/// @brief Implementation of a texture unit facade for OpenGL 2.1.
 /// @author Michael Heilmann
 
 #include "egolib/Renderer/OpenGL/TextureUnit.hpp"

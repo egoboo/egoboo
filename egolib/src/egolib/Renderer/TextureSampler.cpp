@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Renderer/TextureSampler.cpp
-/// @brief  A texture sampler.
+/// @file egolib/Renderer/TextureSampler.cpp
+/// @brief A texture sampler.
 /// @author Michael Heilmann
 
 #include "egolib/Renderer/TextureSampler.hpp"

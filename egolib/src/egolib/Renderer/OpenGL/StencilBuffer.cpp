@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Renderer/OpenGL/StencilBuffer.cpp
-/// @brief  Implementation of an Stencil buffer facade for OpenGL 2.1.
+/// @file egolib/Renderer/OpenGL/StencilBuffer.cpp
+/// @brief Implementation of an Stencil buffer facade for OpenGL 2.1.
 /// @author Michael Heilmann
 
 #include "egolib/Renderer/OpenGL/StencilBuffer.hpp"

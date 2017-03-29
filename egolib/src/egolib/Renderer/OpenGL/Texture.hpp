@@ -41,10 +41,10 @@ protected:
 public:
     void load(const std::string& name, const std::shared_ptr<SDL_Surface>& surface, TextureType type, const TextureSampler& sampler);
     
-    /** @override Ego::Texture::upload(const String& name, const SharedPtr<SDL_Surface>&) */
+    /** @override Ego::Texture::load(const String& name, const SharedPtr<SDL_Surface>&) */
     bool load(const std::string& name, const std::shared_ptr<SDL_Surface>& surface) override;
 
-    /** @override Ego::Texture::upload(const std::shared_ptr<SDL_Surface>&) */
+    /** @override Ego::Texture::load(const std::shared_ptr<SDL_Surface>&) */
     bool load(const std::shared_ptr<SDL_Surface>& surface) override;
 
     /** @override Ego::Texture::release */

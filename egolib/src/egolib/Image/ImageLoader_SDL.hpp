@@ -24,7 +24,8 @@
 namespace Ego {
 namespace Internal {
 
-struct ImageLoader_SDL : public ImageLoader {
+struct ImageLoader_SDL : public ImageLoader
+{
 public:
     ImageLoader_SDL(const std::unordered_set<std::string>& extensions);
     virtual std::shared_ptr<SDL_Surface> load(vfs_FILE *file) const override;

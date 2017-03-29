@@ -23,7 +23,8 @@
 #include "egolib/Log/_Include.hpp"
 
 #if !SDL_VERSION_ATLEAST(2, 0, 0)
-int SDL_GetColorKey(SDL_Surface *surface, uint32_t *key) {
+int SDL_GetColorKey(SDL_Surface *surface, uint32_t *key)
+{
     if (!surface || !key)
     {
         return -2;
@@ -41,27 +42,32 @@ namespace Ego {
 
 Image::Image(SDL_Surface *surface) :
     _surface(surface)
-{ }
+{}
 
-Image::~Image() {
+Image::~Image()
+{
     SDL_FreeSurface(_surface);
     _surface = nullptr;
 }
 
-int Image::getBytesPerPixel() const {
+int Image::getBytesPerPixel() const
+{
     return _surface->format->BytesPerPixel;
 }
 
-int Image::getWidth() const {
+int Image::getWidth() const
+{
     return _surface->w;
 }
 
-int Image::getHeight() const {
+int Image::getHeight() const
+{
     return _surface->h;
 }
 
-int Image::getPitch() const {
+int Image::getPitch() const
+{
     return _surface->pitch;
 }
 
-}
+} // namespace Ego

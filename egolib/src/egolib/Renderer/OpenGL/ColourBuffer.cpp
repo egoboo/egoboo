@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Renderer/OpenGL/ColourBuffer.cpp
-/// @brief  Implementation of a colour buffer facade for OpenGL 2.1.
+/// @file egolib/Renderer/OpenGL/ColourBuffer.cpp
+/// @brief Implementation of a colour buffer facade for OpenGL 2.1.
 /// @author Michael Heilmann
 
 #include "egolib/Renderer/OpenGL/ColourBuffer.hpp"

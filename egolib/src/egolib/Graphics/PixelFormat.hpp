@@ -29,8 +29,8 @@
 namespace Ego {
 
 /// @brief Enumeration of canonical identifiers for a pixel formats.
-enum class PixelFormat {
-
+enum class PixelFormat
+{
     /**
      * @brief
      *  A pixel consisting of
@@ -127,7 +127,8 @@ enum class PixelFormat {
 /// as specified by the Ego::PixelFormat enumeration.
 /// @todo
 /// Provide specializations of PixelDescriptor::get() for A8R8G8B8 and A8B8G8R8.
-struct PixelFormatDescriptor {
+struct PixelFormatDescriptor
+{
 private:
     /// @brief The pixel format.
     PixelFormat pixelFormat;
@@ -142,10 +143,7 @@ private:
     /// @brief The mask for the green Bits.
     uint32_t greenMask;
 
-    /**
-     * @brief
-     *  The mask for the red Bits.
-     */
+    /// @brief The mask for the red Bits.
     uint32_t redMask;
 
 private:
@@ -166,19 +164,13 @@ private:
     ColourDepth colourDepth;
 
 protected:
-
-    /**
-     * @brief
-     *  Construct this pixel descriptor.
-     * @param pixelFormat
-     *  the pixel format
-     * @param redShift, greenShift, blueShift, alphaShift
-     *  the shifts for Bits of the the red, green, blue and alpha components
-     * @param redMask, greenMask, blueMask, alphaMask
-     *  the masks for Bits of the red, green, blue and alpha components
-     * @param colourDepth
-     *  the colour depth of this pixel format
-     */
+    /// @brief Construct this pixel descriptor.
+    /// @param pixelFormat the pixel format
+    /// @param redShift, greenShift, blueShift, alphaShift
+    /// the shifts for Bits of the the red, green, blue and alpha components
+    /// @param redMask, greenMask, blueMask, alphaMask
+    /// the masks for Bits of the red, green, blue and alpha components
+    /// @param colourDepth the colour depth of this pixel format
     PixelFormatDescriptor(PixelFormat pixelFormat,
                           uint32_t redShift, uint32_t greenShift,
                           uint32_t blueShift, uint32_t alphaShift,
@@ -233,14 +225,9 @@ public:
     template<PixelFormat _PixelFormat>
     static const PixelFormatDescriptor& get();
 
-    /**
-     * @brief
-     *  Get the pixel format descriptor for a pixel format.
-     * @param pixelFormat
-     *  the pixel format
-     * @return
-     *  the pixel format descriptor for the pixel format
-     */
+    /// @brief Get the pixel format descriptor for a pixel format.
+    /// @param pixelFormat the pixel format
+    /// @return the pixel format descriptor for the pixel format
     static const PixelFormatDescriptor& get(PixelFormat pixelFormat);
 
 };

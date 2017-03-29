@@ -121,7 +121,7 @@ bool SDL_GL_set_mode(SDLX_video_parameters_t& v_new, oglx_video_parameters_t& gl
 {
     /// @author BB
     /// @details let SDL_GL try to set a new video mode.
-    
+
     // use the sdl extensions to set the SDL video mode
     bool result = SDLX_CreateWindow(v_new);
 
@@ -148,8 +148,10 @@ namespace Ego {
 namespace Graphics {
 namespace SDL {
 
-PixelFormatDescriptor getPixelFormat(const SDL_PixelFormat& source) {
-    if (source.palette) {
+PixelFormatDescriptor getPixelFormat(const SDL_PixelFormat& source)
+{
+    if (source.palette)
+    {
         throw Id::RuntimeErrorException(__FILE__, __LINE__, "pixel format not supported");
     }
     const PixelFormatDescriptor pfds[] = {
@@ -158,7 +160,8 @@ PixelFormatDescriptor getPixelFormat(const SDL_PixelFormat& source) {
         PixelFormatDescriptor::get<PixelFormat::B8G8R8>(),
         PixelFormatDescriptor::get<PixelFormat::R8G8B8>()
     };
-    for (size_t i = 0; i < 4; ++i) {
+    for (size_t i = 0; i < 4; ++i)
+    {
         if (source.BytesPerPixel == pfds[i].getColourDepth().getDepth() / 8 &&
             source.Amask == pfds[i].getAlphaMask() &&
             source.Rmask == pfds[i].getRedMask() &&
@@ -168,14 +171,16 @@ PixelFormatDescriptor getPixelFormat(const SDL_PixelFormat& source) {
             source.Rshift == pfds[i].getRedShift() &&
             source.Gshift == pfds[i].getGreenShift() &&
             source.Bshift == pfds[i].getBlueShift() &&
-            source.BitsPerPixel == pfds[i].getColourDepth().getDepth()) {
+            source.BitsPerPixel == pfds[i].getColourDepth().getDepth())
+        {
             return pfds[i];
         }
     }
     throw Id::RuntimeErrorException(__FILE__, __LINE__, "pixel format not supported");
 }
 
-uint32_t getEnumeratedPixelFormat(const PixelFormatDescriptor& pixelFormatDescriptor) {
+uint32_t getEnumeratedPixelFormat(const PixelFormatDescriptor& pixelFormatDescriptor)
+{
     uint32_t alphaMask = pixelFormatDescriptor.getAlphaMask(),
         blueMask = pixelFormatDescriptor.getBlueMask(),
         greenMask = pixelFormatDescriptor.getGreenMask(),
@@ -183,29 +188,35 @@ uint32_t getEnumeratedPixelFormat(const PixelFormatDescriptor& pixelFormatDescri
     int bitsPerPixel = pixelFormatDescriptor.getColourDepth().getDepth();
 
     uint32_t pixelFormatEnum_sdl = SDL_MasksToPixelFormatEnum(bitsPerPixel, redMask, greenMask, blueMask, alphaMask);
-    if (SDL_PIXELFORMAT_UNKNOWN == pixelFormatEnum_sdl) {
+    if (SDL_PIXELFORMAT_UNKNOWN == pixelFormatEnum_sdl)
+    {
         throw Id::RuntimeErrorException(__FILE__, __LINE__, "pixel format descriptor has no corresponding SDL pixel format");
     }
     return pixelFormatEnum_sdl;
 }
 
-std::shared_ptr<const SDL_PixelFormat> getPixelFormat(const PixelFormatDescriptor& pixelFormatDescriptor) {
+std::shared_ptr<const SDL_PixelFormat> getPixelFormat(const PixelFormatDescriptor& pixelFormatDescriptor)
+{
     std::shared_ptr<const SDL_PixelFormat> pixelFormat_sdl = std::shared_ptr<const SDL_PixelFormat>
         (
             SDL_AllocFormat(getEnumeratedPixelFormat(pixelFormatDescriptor)),
             [](SDL_PixelFormat *pixelFormat) { if (pixelFormat) { SDL_FreeFormat(pixelFormat); } }
-        );
-    if (!pixelFormat_sdl) {
+    );
+    if (!pixelFormat_sdl)
+    {
         throw Id::EnvironmentErrorException(__FILE__, __LINE__, "SDL", "internal error");
     }
     return pixelFormat_sdl;
 }
 
-std::shared_ptr<SDL_Surface> createSurface(int width, int height, const PixelFormatDescriptor& pixelFormat) {
-    if (width < 0) {
+std::shared_ptr<SDL_Surface> createSurface(int width, int height, const PixelFormatDescriptor& pixelFormat)
+{
+    if (width < 0)
+    {
         throw Id::InvalidArgumentException(__FILE__, __LINE__, "negative width");
     }
-    if (height < 0) {
+    if (height < 0)
+    {
         throw Id::InvalidArgumentException(__FILE__, __LINE__, "negative height");
     }
     std::shared_ptr<const SDL_PixelFormat> pixelFormat_sdl = getPixelFormat(pixelFormat);
@@ -213,81 +224,97 @@ std::shared_ptr<SDL_Surface> createSurface(int width, int height, const PixelFor
                                                     pixelFormat_sdl->BitsPerPixel,
                                                     pixelFormat_sdl->Rmask, pixelFormat_sdl->Gmask,
                                                     pixelFormat_sdl->Bmask, pixelFormat_sdl->Amask);
-    if (nullptr == surface_sdl) {
+    if (nullptr == surface_sdl)
+    {
         throw Id::RuntimeErrorException(__FILE__, __LINE__, "SDL_CreateRGBSurface failed");
     }
-    try {
+    try
+    {
         return std::shared_ptr<SDL_Surface>(surface_sdl, [](SDL_Surface *pSurface) { SDL_FreeSurface(pSurface); });
-    } catch (...) {
+    }
+    catch (...)
+    {
         SDL_FreeSurface(surface_sdl);
         std::rethrow_exception(std::current_exception());
     }
 }
 
-std::shared_ptr<SDL_Surface> padSurface(const std::shared_ptr<const SDL_Surface>& surface, const Padding& padding) {
-	if (!surface) {
-		throw Id::InvalidArgumentException(__FILE__, __LINE__, "nullptr == surface");
-	}
-	if (!padding.left && !padding.top && !padding.right && !padding.bottom) {
-		return cloneSurface(surface);
-	}
+std::shared_ptr<SDL_Surface> padSurface(const std::shared_ptr<const SDL_Surface>& surface, const Padding& padding)
+{
+    if (!surface)
+    {
+        throw Id::InvalidArgumentException(__FILE__, __LINE__, "nullptr == surface");
+    }
+    if (!padding.left && !padding.top && !padding.right && !padding.bottom)
+    {
+        return cloneSurface(surface);
+    }
 
-	// Alias old surface.
-	const auto& oldSurface = surface;
+    // Alias old surface.
+    const auto& oldSurface = surface;
 
-	// Alias old width and old height.
-	size_t oldWidth = surface->w,
-		   oldHeight = surface->h;
+    // Alias old width and old height.
+    size_t oldWidth = surface->w,
+        oldHeight = surface->h;
 
-	// Compute new width and new height.
-	size_t newWidth = oldWidth + padding.left + padding.right,
-		   newHeight = oldHeight + padding.top + padding.bottom;
-	
-	// Create the copy.
-	auto newSurface = std::shared_ptr<SDL_Surface>(SDL_CreateRGBSurface(SDL_SWSURFACE, newWidth, newHeight, oldSurface->format->BitsPerPixel,
-									       						        oldSurface->format->Rmask, oldSurface->format->Gmask, oldSurface->format->Bmask,
-																        oldSurface->format->Amask), [](SDL_Surface *pSurface) { SDL_FreeSurface(pSurface); });
-	if (!newSurface) {
-		throw Id::RuntimeErrorException(__FILE__, __LINE__, "SDL_CreateRGBSurface failed");
-	}
-	// Fill the copy with transparent black.
-	SDL_FillRect(newSurface.get(), nullptr, SDL_MapRGBA(newSurface->format, 0, 0, 0, 0));
-	// Copy the old surface into the new surface.
-	for (size_t y = 0; y < oldHeight; ++y) {
-		for (size_t x = 0; x < oldWidth; ++x) {
-			uint32_t p = getPixel(oldSurface, x, y);
-			uint8_t r, g, b, a;
-			SDL_GetRGBA(p, surface->format, &r, &g, &b, &a);
-			uint32_t q = SDL_MapRGBA(newSurface->format, r, g, b, a);
-			putPixel(newSurface, padding.left + x, padding.top + y, q);
-		}
-	}
-	return newSurface;
+    // Compute new width and new height.
+    size_t newWidth = oldWidth + padding.left + padding.right,
+        newHeight = oldHeight + padding.top + padding.bottom;
+
+    // Create the copy.
+    auto newSurface = std::shared_ptr<SDL_Surface>(SDL_CreateRGBSurface(SDL_SWSURFACE, newWidth, newHeight, oldSurface->format->BitsPerPixel,
+                                                                        oldSurface->format->Rmask, oldSurface->format->Gmask, oldSurface->format->Bmask,
+                                                                        oldSurface->format->Amask), [](SDL_Surface *pSurface) { SDL_FreeSurface(pSurface); });
+    if (!newSurface)
+    {
+        throw Id::RuntimeErrorException(__FILE__, __LINE__, "SDL_CreateRGBSurface failed");
+    }
+    // Fill the copy with transparent black.
+    SDL_FillRect(newSurface.get(), nullptr, SDL_MapRGBA(newSurface->format, 0, 0, 0, 0));
+    // Copy the old surface into the new surface.
+    for (size_t y = 0; y < oldHeight; ++y)
+    {
+        for (size_t x = 0; x < oldWidth; ++x)
+        {
+            uint32_t p = getPixel(oldSurface, x, y);
+            uint8_t r, g, b, a;
+            SDL_GetRGBA(p, surface->format, &r, &g, &b, &a);
+            uint32_t q = SDL_MapRGBA(newSurface->format, r, g, b, a);
+            putPixel(newSurface, padding.left + x, padding.top + y, q);
+        }
+    }
+    return newSurface;
 }
 
-std::shared_ptr<SDL_Surface> cloneSurface(const std::shared_ptr<const SDL_Surface>& surface) {
-	static_assert(SDL_VERSION_ATLEAST(2, 0, 0), "SDL 2.x required");
-	if (!surface) {
-		throw Id::InvalidArgumentException(__FILE__, __LINE__, "nullptr == surface");
-	}
-	// TODO: The signature SDL_ConvertSurface(SDL_Surface *, const SDL_PixelFormat *, uint32_t) might be considered as a bug.
-	//       It should be SDL_ConvertSurface(const SDL_Surface *, const SDL_PixelFormat *, uint32_t).
-	auto clone = std::shared_ptr<SDL_Surface>(SDL_ConvertSurface((SDL_Surface *)surface.get(), surface->format, 0), [](SDL_Surface *pSurface) { SDL_FreeSurface(pSurface); });
-	if (!clone) {
-		throw Id::RuntimeErrorException(__FILE__, __LINE__, "SDL_ConvertSurface failed");
-	}
-	return clone;
+std::shared_ptr<SDL_Surface> cloneSurface(const std::shared_ptr<const SDL_Surface>& surface)
+{
+    static_assert(SDL_VERSION_ATLEAST(2, 0, 0), "SDL 2.x required");
+    if (!surface)
+    {
+        throw Id::InvalidArgumentException(__FILE__, __LINE__, "nullptr == surface");
+    }
+    // TODO: The signature SDL_ConvertSurface(SDL_Surface *, const SDL_PixelFormat *, uint32_t) might be considered as a bug.
+    //       It should be SDL_ConvertSurface(const SDL_Surface *, const SDL_PixelFormat *, uint32_t).
+    auto clone = std::shared_ptr<SDL_Surface>(SDL_ConvertSurface((SDL_Surface *)surface.get(), surface->format, 0), [](SDL_Surface *pSurface) { SDL_FreeSurface(pSurface); });
+    if (!clone)
+    {
+        throw Id::RuntimeErrorException(__FILE__, __LINE__, "SDL_ConvertSurface failed");
+    }
+    return clone;
 }
 
-uint32_t getPixel(const std::shared_ptr<const SDL_Surface>& surface, int x, int y) {
-	if (!surface) {
-		throw Id::InvalidArgumentException(__FILE__, __LINE__, "nullptr == surface");
-	}
+uint32_t getPixel(const std::shared_ptr<const SDL_Surface>& surface, int x, int y)
+{
+    if (!surface)
+    {
+        throw Id::InvalidArgumentException(__FILE__, __LINE__, "nullptr == surface");
+    }
     int bpp = surface->format->BytesPerPixel;
     /* Here p is the address to the pixel we want to get. */
     uint8_t *p = (uint8_t *)surface->pixels + y * surface->pitch + x * bpp;
 
-    switch (bpp) {
+    switch (bpp)
+    {
         case 1:
             return *p;
 
@@ -295,11 +322,14 @@ uint32_t getPixel(const std::shared_ptr<const SDL_Surface>& surface, int x, int 
             return *reinterpret_cast<uint16_t*>(p);
 
         case 3:
-			if (SDL_BYTEORDER == SDL_BIG_ENDIAN) {
-				return p[0] << 16 | p[1] << 8 | p[2];
-			} else {
-				return p[0] | p[1] << 8 | p[2] << 16;
-			}
+            if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+            {
+                return p[0] << 16 | p[1] << 8 | p[2];
+            }
+            else
+            {
+                return p[0] | p[1] << 8 | p[2] << 16;
+            }
             break;
 
         case 4:
@@ -310,15 +340,18 @@ uint32_t getPixel(const std::shared_ptr<const SDL_Surface>& surface, int x, int 
     }
 }
 
-void putPixel(const std::shared_ptr<SDL_Surface>& surface, int x, int y, uint32_t pixel) {
-	if (!surface) {
-		throw Id::InvalidArgumentException(__FILE__, __LINE__, "nullptr == surface");
-	}
+void putPixel(const std::shared_ptr<SDL_Surface>& surface, int x, int y, uint32_t pixel)
+{
+    if (!surface)
+    {
+        throw Id::InvalidArgumentException(__FILE__, __LINE__, "nullptr == surface");
+    }
     int bpp = surface->format->BytesPerPixel;
     /* Here p is the address to the pixel we want to set. */
     uint8_t *p = (uint8_t *)surface->pixels + y * surface->pitch + x * bpp;
 
-    switch (bpp) {
+    switch (bpp)
+    {
         case 1:
             *p = pixel;
             break;
@@ -328,15 +361,15 @@ void putPixel(const std::shared_ptr<SDL_Surface>& surface, int x, int y, uint32_
             break;
 
         case 3:
-#if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
-                p[0] = (pixel >> 16) & 0xff;
-                p[1] = (pixel >> 8) & 0xff;
-                p[2] = pixel & 0xff;
-#else
-                p[0] = pixel & 0xff;
-                p[1] = (pixel >> 8) & 0xff;
-                p[2] = (pixel >> 16) & 0xff;
-#endif
+        #if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+            p[0] = (pixel >> 16) & 0xff;
+            p[1] = (pixel >> 8) & 0xff;
+            p[2] = pixel & 0xff;
+        #else
+            p[0] = pixel & 0xff;
+            p[1] = (pixel >> 8) & 0xff;
+            p[2] = (pixel >> 16) & 0xff;
+        #endif
             break;
 
         case 4:
@@ -348,8 +381,10 @@ void putPixel(const std::shared_ptr<SDL_Surface>& surface, int x, int y, uint32_
     }
 }
 
-std::shared_ptr<SDL_Surface> convertPixelFormat(const std::shared_ptr<SDL_Surface>& surface, const PixelFormatDescriptor& pixelFormatDescriptor) {
-    if (!surface) {
+std::shared_ptr<SDL_Surface> convertPixelFormat(const std::shared_ptr<SDL_Surface>& surface, const PixelFormatDescriptor& pixelFormatDescriptor)
+{
+    if (!surface)
+    {
         throw Id::InvalidArgumentException(__FILE__, __LINE__, "nullptr == surface");
     }
 
@@ -360,18 +395,21 @@ std::shared_ptr<SDL_Surface> convertPixelFormat(const std::shared_ptr<SDL_Surfac
     int bpp = pixelFormatDescriptor.getColourDepth().getDepth();
 
     uint32_t newFormat = SDL_MasksToPixelFormatEnum(bpp, redMask, greenMask, blueMask, alphaMask);
-    if (newFormat == SDL_PIXELFORMAT_UNKNOWN) {
+    if (newFormat == SDL_PIXELFORMAT_UNKNOWN)
+    {
         throw Id::InvalidArgumentException(__FILE__, __LINE__, "pixelFormatDescriptor doesn't correspond with a SDL_PixelFormat");
     }
     SDL_Surface *newSurface = SDL_ConvertSurfaceFormat(surface.get(), newFormat, 0);
-    if (!newSurface) {
+    if (!newSurface)
+    {
         throw Id::RuntimeErrorException(__FILE__, __LINE__, "unable to convert surface");
     }
 
     return std::shared_ptr<SDL_Surface>(newSurface, [](SDL_Surface *pSurface) { SDL_FreeSurface(pSurface); });
-}
+    }
 
-std::shared_ptr<SDL_Surface> convertPowerOfTwo(const std::shared_ptr<SDL_Surface>& surface) {
+std::shared_ptr<SDL_Surface> convertPowerOfTwo(const std::shared_ptr<SDL_Surface>& surface)
+{
     // Alias old width and old height.
     int oldWidth = surface->w,
         oldHeight = surface->h;
@@ -383,14 +421,17 @@ std::shared_ptr<SDL_Surface> convertPowerOfTwo(const std::shared_ptr<SDL_Surface
     std::shared_ptr<SDL_Surface> newSurface = nullptr;
 
     // Only if the new dimension differ from the old dimensions, perform the scaling.
-    if (newWidth != oldWidth || newHeight != oldHeight) {
+    if (newWidth != oldWidth || newHeight != oldHeight)
+    {
         Padding padding;
         padding.left = 0;
         padding.top = 0;
         padding.right = newWidth - oldWidth;
         padding.bottom = newHeight - oldHeight;
         newSurface = padSurface(surface, padding);
-    } else {
+    }
+    else
+    {
         newSurface = surface;
     }
 
@@ -398,10 +439,12 @@ std::shared_ptr<SDL_Surface> convertPowerOfTwo(const std::shared_ptr<SDL_Surface
     return newSurface;
 }
 
-bool testAlpha(const std::shared_ptr<SDL_Surface>& surface) {
+bool testAlpha(const std::shared_ptr<SDL_Surface>& surface)
+{
     // test to see whether an image requires alpha blending
 
-    if (!surface) {
+    if (!surface)
+    {
         throw Id::InvalidArgumentException(__FILE__, __LINE__, "nullptr == surface");
     }
 
@@ -413,10 +456,13 @@ bool testAlpha(const std::shared_ptr<SDL_Surface>& surface) {
     // it is partially transparent.
     uint32_t colorKey;
     int rslt = SDL_GetColorKey(surface.get(), &colorKey);
-    if (rslt < -1) {
+    if (rslt < -1)
+    {
         // If a value smaller than -1 is returned, an error occured.
         throw std::invalid_argument("SDL_GetColorKey failed");
-    } else if (rslt >= 0) {
+    }
+    else if (rslt >= 0)
+    {
         // If a value greater or equal than 0 is returned, the surface has a color key.
         return true;
     } /*else if (rslt == -1) {
@@ -428,17 +474,21 @@ bool testAlpha(const std::shared_ptr<SDL_Surface>& surface) {
     // it is partially transparent.
     uint8_t alpha;
     SDL_GetSurfaceAlphaMod(surface.get(), &alpha);
-    if (0xff != alpha) {
+    if (0xff != alpha)
+    {
         return true;
     }
 
     // (3)
     // If the image is palettized and has non-opaque colors in the color,
     // it is partially transparent.
-    if (nullptr != format->palette) {
-        for (int i = 0; i < format->palette->ncolors; ++i) {
+    if (nullptr != format->palette)
+    {
+        for (int i = 0; i < format->palette->ncolors; ++i)
+        {
             SDL_Color& color = format->palette->colors[i];
-            if (0xff != color.a) {
+            if (0xff != color.a)
+            {
                 return true;
             }
         }
@@ -449,7 +499,8 @@ bool testAlpha(const std::shared_ptr<SDL_Surface>& surface) {
     // (4)
     // If the image has no alpha channel,
     // then it is NOT partially transparent.
-    if (0x00 == format->Amask) {
+    if (0x00 == format->Amask)
+    {
         return false;
     }
 
@@ -463,15 +514,18 @@ bool testAlpha(const std::shared_ptr<SDL_Surface>& surface) {
     int pitch = surface->pitch;
 
     const char *row_ptr = static_cast<const char *>(surface->pixels);
-    for (int y = 0; y < height; ++y) {
+    for (int y = 0; y < height; ++y)
+    {
         const char *char_ptr = row_ptr;
-        for (int x = 0; x < width; ++x) {
+        for (int x = 0; x < width; ++x)
+        {
             const uint32_t *ui32_ptr = reinterpret_cast<const uint32_t*>(char_ptr);
             uint32_t pixel = (*ui32_ptr) & bitMask;
             uint8_t r, g, b, a;
             SDL_GetRGBA(pixel, format, &r, &g, &b, &a);
 
-            if (0xFF != a) {
+            if (0xFF != a)
+            {
                 return true;
             }
             char_ptr += bytesPerPixel;

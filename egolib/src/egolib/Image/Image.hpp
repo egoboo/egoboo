@@ -28,69 +28,38 @@ int SDL_GetColorKey(SDL_Surface *surface, uint32_t *key);
 
 namespace Ego {
 
-struct Image {
+struct Image
+{
 protected:
-
-    /**
-     * @brief
-     *  The backing SDL surface.
-     */
+    /// @brief The backing SDL surface.
     SDL_Surface *_surface;
 
-    /**
-     * @brief
-     *  Construct this image.
-     * @param surface
-     *  the backing SDL surface. The image takes ownership.
-     */
+    /// @brief Construct this image.
+    /// @param surface the backing SDL surface. The image takes ownership.
     Image(SDL_Surface *surface);
 
 public:
-
-    /**
-     * @brief
-     *  Destruct this image.
-     */
+    /// @brief Destruct this image.
     virtual ~Image();
 
-    /**
-     * @brief
-     *  Get the size, in Bytes, of a pixel.
-     * @return
-     *  the size, in Bytes, of a pixel
-     */
+    /// @brief Get the size, in Bytes, of a pixel.
+    /// @return the size, in Bytes, of a pixel
     int getBytesPerPixel() const;
 
-    /**
-     * @brief
-     *  Get the width, in pixels, of this image.
-     * @return
-     *  the width
-     * @remark
-     *  The width is always non-negative.
-     */
+    /// @brief Get the width, in pixels, of this image.
+    /// @return the width
+    /// @remark The width is always non-negative.
     int getWidth() const;
 
-    /**
-     * @brief
-     *  Get the height, in pixels, of this image.
-     * @return
-     *  the height
-     * @remark
-     *  The height is always non-negative.
-     */
+    /// @brief Get the height, in pixels, of this image.
+    /// @return the height
+    /// @remark The height is always non-negative.
     int getHeight() const;
 
-    /**
-     * @brief
-     *  Get the pitch, in pixels, of this image.
-     * @return
-     *  the pitch
-     * @remark
-     *  The pitch is always non-negative
-     */
+    /// @brief Get the pitch, in pixels, of this image.
+    /// @return the pitch
+    /// @remark The pitch is always non-negative.
     int getPitch() const;
-
 };
 
 } // namespace Ego

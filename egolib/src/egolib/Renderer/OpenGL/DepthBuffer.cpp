@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Renderer/OpenGL/DepthBuffer.cpp
-/// @brief  Implementation of a depth buffer facade for OpenGL 2.1.
+/// @file egolib/Renderer/OpenGL/DepthBuffer.cpp
+/// @brief Implementation of a depth buffer facade for OpenGL 2.1.
 /// @author Michael Heilmann
 
 #include "egolib/Renderer/OpenGL/DepthBuffer.hpp"

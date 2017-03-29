@@ -18,8 +18,8 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Renderer/Texture.hpp
-/// @brief  Common interface of all texture object encapsulations.
+/// @file egolib/Renderer/Texture.hpp
+/// @brief Common interface of all texture object encapsulations.
 /// @author Michael Heilmann
 
 #include "egolib/Renderer/Texture.hpp"
@@ -36,7 +36,7 @@ Texture::Texture(const std::string& name,
                  int width, int height, int sourceWidth, int sourceHeight, std::shared_ptr<SDL_Surface> source,
                  bool hasAlpha) :
     _name(name),
-    _type(type), _addressModeS(addressModeS),  _addressModeT(addressModeT),
+    _type(type), _addressModeS(addressModeS), _addressModeT(addressModeT),
     _width(width), _height(height), _sourceWidth(sourceWidth), _sourceHeight(sourceHeight), _source(source),
     _minFilter(g_ogl_textureParameters.textureFilter.minFilter), _magFilter(g_ogl_textureParameters.textureFilter.magFilter), _mipMapFilter(g_ogl_textureParameters.textureFilter.mipMapFilter),
     _hasAlpha(hasAlpha)
@@ -89,31 +89,38 @@ void Texture::setAddressModeT(TextureAddressMode addressModeT) {
     _addressModeT = addressModeT;
 }
 
-int Texture::getSourceHeight() const {
+int Texture::getSourceHeight() const
+{
     return _sourceHeight;
 }
 
-int Texture::getSourceWidth() const {
+int Texture::getSourceWidth() const
+{
     return _sourceWidth;
 }
 
-int Texture::getWidth() const {
+int Texture::getWidth() const
+{
     return _width;
 }
 
-int Texture::getHeight() const {
+int Texture::getHeight() const
+{
     return _height;
 }
 
-bool Texture::hasAlpha() const {
+bool Texture::hasAlpha() const
+{
     return _hasAlpha;
 }
 
-void Texture::setName(const std::string& name) {
+void Texture::setName(const std::string& name)
+{
     _name = name;
 }
 
-const std::string& Texture::getName() const {
+const std::string& Texture::getName() const
+{
     return _name;
 }
 

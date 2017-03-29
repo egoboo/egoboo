@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Renderer/OpenGL/Renderer.hpp
-/// @brief  Implementation of a renderer for OpenGL 2.1
+/// @file egolib/Renderer/OpenGL/Renderer.hpp
+/// @brief Implementation of a renderer for OpenGL 2.1
 /// @author Michael Heilmann
 
 #pragma once

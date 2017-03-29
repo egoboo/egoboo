@@ -17,44 +17,29 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Renderer/CullingMode.hpp
-/// @brief  Enumeration of culling modes.
+/// @file egolib/Renderer/CullingMode.hpp
+/// @brief Enumeration of culling modes.
 /// @author Michael Heilmann
 
 #pragma once
 
 namespace Ego {
 
-/**
- * @brief
- *  An enumeration of culling modes.
- */
-enum class CullingMode {
-
-    /**
-     * @brief
-     *  Neither front-facing nor back-facing polygons are culled.
-     */
+/// @brief An enumeration of culling modes.
+enum class CullingMode
+{
+    /// @brief Neither front-facing nor back-facing polygons are culled.
     None,
 
-    /**
-     * @brief
-     *  Front-facing polygons are culled.
-     */
+    /// @brief Front-facing polygons are culled.
     Front,
 
-    /**
-     * @brief
-     *  Back-facing polygons are culled.
-     */
+    /// @brief Back-facing polygons are culled.
     Back,
 
-    /**
-     * @brief
-     *  Back-facing and front-facing polygons are culled.
-     */
+    /// @brief Back-facing and front-facing polygons are culled.
     BackAndFront,
-    
+
     _COUNT, ///< @todo Remove this.
 
 }; // enum class CullingMode
