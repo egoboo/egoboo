@@ -6,10 +6,10 @@ namespace Ego {
 namespace SDL {
 
 // Forward declaration.
-struct GraphicsSystemNew;
+class GraphicsSystemNew;
 
 /// @brief Display mode implementation for SDL.
-struct DisplayMode : Ego::DisplayMode
+class DisplayMode : public Ego::DisplayMode
 {
 private:
     /// @brief The SDL display mode.

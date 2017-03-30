@@ -36,7 +36,7 @@ class Material;
 namespace Ego {
 namespace GUI {
 
-class UIManager : public Id::NonCopyable {
+class UIManager : private id::non_copyable {
 public:
     UIManager();
 
@@ -50,11 +50,6 @@ public:
         NR_OF_UI_FONTS
     };
 
-    /**
-     * @brief
-     *  A vertex buffer to render components.
-     */
-    std::shared_ptr<VertexBuffer> _vertexBuffer;
 
     /**
     * @todo: REMOVE these functions
@@ -162,10 +157,18 @@ private:
     **/
     void drawBitmapGlyph(int fonttype, const Vector2f& position, const float alpha);
 
+public:
+    /// @brief Vertex descriptor & vertex buffer to render components.
+    VertexDescriptor _vertexDescriptor;
+    std::shared_ptr<VertexBuffer> _vertexBuffer;
+
 private:
     std::array<std::shared_ptr<Font>, NR_OF_UI_FONTS> _fonts;
     int _renderSemaphore;
     std::shared_ptr<Texture> _bitmapFontTexture;
+
+    /// @brief Vertex descriptor & vertex buffer to render textured quadriliterals.
+    VertexDescriptor _textureQuadVertexDescriptor;
     VertexBuffer _textureQuadVertexBuffer;
 };
 

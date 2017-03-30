@@ -27,8 +27,53 @@
 #include "egolib/Image/ImageLoader_SDL.hpp"
 #include "egolib/Image/ImageLoader_SDL_image.hpp"
 #include "egolib/Graphics/PixelFormat.hpp"
+#include "egolib/platform.h"
+#include "egolib/vfs.h"
+#include "egolib/Image/ImageLoader.hpp"
 
 namespace Ego {
+
+ImageManager::Iterator::Iterator(const ImageManager::Loaders::const_iterator& inner) :
+    m_inner(inner)
+{}
+
+// CRTP
+void ImageManager::Iterator::increment()
+{
+    ++m_inner;
+}
+
+// CRTP
+bool ImageManager::Iterator::equal_to(const Iterator& other) const
+{
+    return m_inner == other.m_inner;
+}
+
+ImageManager::Iterator::Iterator() :
+    m_inner()
+{}
+
+ImageManager::Iterator::Iterator(const Iterator& other) :
+    m_inner(other.m_inner)
+{}
+
+ImageManager::Iterator& ImageManager::Iterator::operator=(const Iterator& other)
+{
+    m_inner = other.m_inner;
+    return *this;
+}
+
+ImageManager::Iterator::reference ImageManager::Iterator::operator*() const
+{
+    auto x = (*m_inner).get();
+    return *x;
+}
+
+ImageManager::Iterator::reference ImageManager::Iterator::operator->() const
+{
+    auto x = (*m_inner).get();
+    return *x;
+}
 
 void ImageManager::registerImageLoaders()
 {
@@ -50,7 +95,7 @@ void ImageManager::registerImageLoaders()
             auto e = Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "[image manager]: SDL_image does not "
                                         "support PNG file format: ", SDL_GetError(), Log::EndOfLine);
             Log::get() << e;
-            throw Id::EnvironmentErrorException(__FILE__, __LINE__, "font manager", e.getText());
+            throw id::environment_error(__FILE__, __LINE__, "font manager", e.getText());
         }
         // WEBP support is optional and available in SDL_image 1.2.11 or higher.
     #if SDL_VERSIONNUM(SDL_IMAGE_MAJOR_VERSION, SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL) >= SDL_VERSIONNUM(1, 2, 11)
@@ -109,6 +154,37 @@ ImageManager::~ImageManager()
     {
         IMG_Quit();
     }
+}
+
+ImageManager::Iterator ImageManager::find(std::unordered_set<std::string> extensions, Iterator start) const
+{
+    auto it = start;
+    while (it != end())
+    {
+        auto supportedExtensions = (*it).getExtensions();
+        auto found = std::find_first_of(extensions.cbegin(), extensions.cend(),
+                                        supportedExtensions.cbegin(), supportedExtensions.cend());
+        if (found != extensions.end())
+        {
+            return it;
+        }
+    }
+    return end();
+}
+
+ImageManager::Iterator ImageManager::find(std::unordered_set<std::string> extensions)
+{
+    return find(extensions, begin());
+}
+
+ImageManager::Iterator ImageManager::begin() const
+{
+    return Iterator(loaders.begin());
+}
+
+ImageManager::Iterator ImageManager::end() const
+{
+    return Iterator(loaders.end());
 }
 
 std::shared_ptr<SDL_Surface> ImageManager::getDefaultImage()

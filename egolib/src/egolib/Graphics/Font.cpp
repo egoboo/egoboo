@@ -28,7 +28,8 @@
 #include "egolib/Graphics/FontManager.hpp"
 #include "egolib/Core/System.hpp"
 #include "egolib/Renderer/Renderer.hpp"
-#include "egolib/Renderer/OpenGL/TextureUnit.hpp"
+#include "egolib/Image/ImageManager.hpp"
+#include "egolib/Image/SDL_Image_Extensions.h"
 #include "egolib/Log/_Include.hpp"
 #include "egolib/vfs.h"
 
@@ -36,7 +37,7 @@
 //--------------------------------------------------------------------------------------------
 namespace Ego {
 
-struct Font::RenderedTextCache : Id::NonCopyable {
+struct Font::RenderedTextCache : private id::non_copyable {
     std::shared_ptr<Font::LaidTextRenderer> cache;
     uint32_t lastUseInTicks;
     std::string text;
@@ -53,7 +54,7 @@ struct Font::RenderedTextCache : Id::NonCopyable {
     }
 };
 
-struct Font::SizedTextCache : Id::NonCopyable {
+struct Font::SizedTextCache : private id::non_copyable {
     uint32_t lastUseInTicks;
     std::string text;
     int width;
@@ -93,8 +94,10 @@ struct Font::LayoutOptions {
 };
 
 Font::LaidTextRenderer::LaidTextRenderer(const std::shared_ptr<Texture> &atlas,
+                                         const VertexDescriptor& vertexDescriptor,
                                          const std::shared_ptr<VertexBuffer> &vertexBuffer) :
     _atlas(atlas),
+    _vertexDescriptor(vertexDescriptor),
     _vertexBuffer(vertexBuffer) {}
 
 void Font::LaidTextRenderer::render(int x, int y, const Math::Colour4f &colour) {
@@ -115,7 +118,7 @@ void Font::LaidTextRenderer::render(int x, int y, const Math::Colour4f &colour) 
     renderer.setBlendingEnabled(true);
     renderer.setColour(colour);
     renderer.getTextureUnit().setActivated(_atlas.get());
-    renderer.render(*(_vertexBuffer.get()), PrimitiveType::Quadriliterals, 0, _vertexBuffer->getNumberOfVertices());
+    renderer.render(*(_vertexBuffer.get()), _vertexDescriptor, PrimitiveType::Quadriliterals, 0, _vertexBuffer->getNumberOfVertices());
 }
 
 Font::Font(const std::string &fileName, int pointSize) :
@@ -125,7 +128,7 @@ Font::Font(const std::string &fileName, int pointSize) :
     _ttfFont = TTF_OpenFontRW(vfs_openRWopsRead(fileName), 1, pointSize);
 
     if (_ttfFont == nullptr) {
-        throw Id::EnvironmentErrorException(__FILE__, __LINE__, "SDL_ttf", TTF_GetError());
+        throw id::environment_error(__FILE__, __LINE__, "SDL_ttf", TTF_GetError());
     }
 
     // Create an texture atlas for ASCII characters
@@ -448,7 +451,7 @@ std::shared_ptr<Font::LaidTextRenderer> Font::layoutToBuffer(const std::string &
     LaidOutText laidText = layout(text, options);
 
     const auto &vertexDesc = VertexFormatFactory::get(VertexFormat::P3FT2F);
-    std::shared_ptr<VertexBuffer> buffer = std::make_shared<VertexBuffer>(4 * laidText.codepoints.size(), vertexDesc);
+    std::shared_ptr<VertexBuffer> buffer = std::make_shared<VertexBuffer>(4 * laidText.codepoints.size(), vertexDesc.getVertexSize());
 
     TextVertex *vertices = reinterpret_cast<TextVertex *>(buffer->lock());
     float texWidth = laidText.atlas.texture->getWidth();
@@ -494,7 +497,7 @@ std::shared_ptr<Font::LaidTextRenderer> Font::layoutToBuffer(const std::string &
         vertices[i * 4 + 3].v = vMax;
     }
     buffer->unlock();
-    return std::shared_ptr<LaidTextRenderer>(new LaidTextRenderer(laidText.atlas.texture, buffer));
+    return std::shared_ptr<LaidTextRenderer>(new LaidTextRenderer(laidText.atlas.texture, vertexDesc, buffer));
 }
 
 std::shared_ptr<SDL_Surface> Font::layoutToTexture(const std::string &text, const LayoutOptions &options,
@@ -509,34 +512,28 @@ std::shared_ptr<SDL_Surface> Font::layoutToTexture(const std::string &text, cons
     if (options.textWidth) *(options.textWidth) = surfWidth;
     if (options.textHeight) *(options.textHeight) = surfHeight;
 
-    int bpp;
-    uint32_t rmask, gmask, bmask, amask;
-    SDL_PixelFormatEnumToMasks(SDL_PIXELFORMAT_ABGR8888, &bpp, &rmask, &gmask, &bmask, &amask);
+    auto pfd = PixelFormatDescriptor::get<PixelFormat::R8G8B8A8>();
 
-    uint8_t colourR = static_cast<uint8_t>(colour.getRed() * 255);
-    uint8_t colourG = static_cast<uint8_t>(colour.getGreen() * 255);
-    uint8_t colourB = static_cast<uint8_t>(colour.getBlue() * 255);
+    auto colorByte = Math::Colour3b(colour);
 
-    uint8_t oldR, oldG, oldB;
+    auto surf = ImageManager::get().createImage(surfWidth, surfHeight, pfd);
+    SDL::fillSurface(*surf, Math::Colour4b(colorByte, 0));
+    SDL::setBlendMode(*surf, SDL::BlendMode::NoBlending);
 
-    SDL_Surface *surf = SDL_CreateRGBSurface(0, surfWidth, surfHeight, bpp, rmask, gmask, bmask, amask);
-    SDL_FillRect(surf, nullptr, SDL_MapRGBA(surf->format, colourR, colourG, colourB, 0));
-    SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_NONE);
-
-    SDL_Surface *atlasSurf = laidText.atlas.texture->_source.get();
-    SDL_GetSurfaceColorMod(atlasSurf, &oldR, &oldG, &oldB);
-    SDL_SetSurfaceColorMod(atlasSurf, colourR, colourG, colourB);
+    auto atlasSurf = laidText.atlas.texture->m_source;
+    auto oldMod = SDL::getColourMod(*atlasSurf);
+    SDL::setColourMod(*atlasSurf, colorByte);
 
     for (size_t i = 0; i < laidText.codepoints.size(); i++) {
         uint16_t chr = laidText.codepoints[i];
         SDL_Rect charPos = laidText.positions[i];
         SDL_Rect glyphPos = laidText.atlas.glyphs.at(chr);
-        SDL_BlitSurface(atlasSurf, &glyphPos, surf, &charPos);
+        SDL_BlitSurface(atlasSurf.get(), &glyphPos, surf.get(), &charPos);
     }
 
-    SDL_SetSurfaceColorMod(atlasSurf, oldR, oldG, oldB);
+    SDL::setColourMod(*atlasSurf, oldMod);
 
-    return std::shared_ptr<SDL_Surface>(surf, SDL_FreeSurface);
+    return surf;
 }
 
 Font::FontAtlas Font::createFontAtlas(const std::vector<std::string> &chars) const {
@@ -559,18 +556,15 @@ Font::FontAtlas Font::createFontAtlas(const std::vector<uint16_t> &codepoints) c
     }
 
     int currentMaxSize = 128;
-    GLint maxTextureSize = 0;
-    GL_DEBUG(glGetIntegerv)(GL_MAX_TEXTURE_SIZE, &maxTextureSize);
-    SDL_Surface *atlas = nullptr;
+    int maxTextureSize = Ego::Renderer::get().getInfo()->getMaximumTextureSize();
+    std::shared_ptr<SDL_Surface> atlas = nullptr;
 
-    int bpp;
-    uint32_t rmask, gmask, bmask, amask;
-    SDL_PixelFormatEnumToMasks(SDL_PIXELFORMAT_ABGR8888, &bpp, &rmask, &gmask, &bmask, &amask);
+    auto pfd = PixelFormatDescriptor::get<PixelFormat::R8G8B8A8>();
 
     while (currentMaxSize <= maxTextureSize) {
-        atlas = SDL_CreateRGBSurface(0, currentMaxSize, currentMaxSize, bpp, rmask, gmask, bmask, amask);
-        SDL_FillRect(atlas, nullptr, SDL_MapRGBA(atlas->format, 255, 255, 255, 0));
-        SDL_SetSurfaceBlendMode(atlas, SDL_BLENDMODE_NONE);
+        atlas = ImageManager::get().createImage(currentMaxSize, currentMaxSize, pfd);
+        SDL::fillSurface(*atlas, Math::Colour4b(Math::Colour3b::white(), 0));
+        SDL::setBlendMode(*atlas, SDL::BlendMode::NoBlending);
 
         int x = 0, y = 0;
         int currentHeight = 0;
@@ -602,7 +596,7 @@ Font::FontAtlas Font::createFontAtlas(const std::vector<uint16_t> &codepoints) c
             }
 
             SDL_Rect dst = {x, y, surf->w, surf->h};
-            SDL_BlitSurface(surf, nullptr, atlas, &dst);
+            SDL_BlitSurface(surf, nullptr, atlas.get(), &dst);
             pos.push_back(dst);
             x += surf->w + 1;
         }
@@ -613,7 +607,6 @@ Font::FontAtlas Font::createFontAtlas(const std::vector<uint16_t> &codepoints) c
         Log::get() << Log::Entry::create(Log::Level::Debug, __FILE__, __LINE__, "unable to fit atlas into a texture of size ", currentMaxSize, ", trying texture of size ", currentMaxSize * 2, " instead", Log::EndOfEntry);
         currentMaxSize <<= 1;
         pos.clear();
-        SDL_FreeSurface(atlas);
         atlas = nullptr;
     }
 
@@ -630,9 +623,8 @@ Font::FontAtlas Font::createFontAtlas(const std::vector<uint16_t> &codepoints) c
         SDL_FreeSurface(images[i]);
     }
 
-    std::shared_ptr<SDL_Surface> atlasPtr(atlas, SDL_FreeSurface);
     retval.texture = Renderer::get().createTexture();
-    retval.texture->load("font atlas", atlasPtr);
+    retval.texture->load("font atlas", atlas);
     retval.texture->setAddressModeS(TextureAddressMode::Clamp);
     retval.texture->setAddressModeT(TextureAddressMode::Clamp);
     return retval;

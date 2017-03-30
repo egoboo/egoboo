@@ -22,24 +22,25 @@
 /// @author Michael Heilmann
 
 #include "egolib/Renderer/OpenGL/ColourBuffer.hpp"
+#include "egolib/Renderer/OpenGL/Utilities.hpp"
 
 namespace Ego {
 namespace OpenGL {
 
 ColourBuffer::ColourBuffer() :
-    Ego::ColourBuffer(), colourDepth(Utilities::getColourBufferColourDepth())
+    Ego::ColourBuffer(), colourDepth(Utilities2::getColourBufferColourDepth())
 {}
 
 ColourBuffer::~ColourBuffer() {}
 
 void ColourBuffer::clear() {
     glClear(GL_COLOR_BUFFER_BIT);
-    Utilities::isError();
+    Utilities2::isError();
 }
 
 void ColourBuffer::setClearValue(const Colour4f& value) {
-    glClearColor(value.getRed(), value.getGreen(), value.getBlue(), value.getAlpha());
-    Utilities::isError();
+    glClearColor(value.get_r(), value.get_g(), value.get_b(), value.get_a());
+    Utilities2::isError();
 }
 
 const ColourDepth& ColourBuffer::getColourDepth() {

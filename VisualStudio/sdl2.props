@@ -17,7 +17,7 @@
       <AdditionalIncludeDirectories>$(ExternalDependenciesDir)\SDL2-2.0.3\include;$(ExternalDependenciesDir)\SDL2_image-2.0.0;$(ExternalDependenciesDir)\SDL2_ttf-2.0.12;$(ExternalDependenciesDir)\SDL2_mixer-2.0.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <link>
-      <AdditionalLibraryDirectories>$(SolutionDir)\product\SDL2\SDL2\$(Configuration)\$(Platform);$(SolutionDir)\product\SDL2\SDL2main\$(Configuration)\$(Platform);$(SolutionDir)\product\SDL2\SDL2_image\$(Configuration)\$(Platform);$(SolutionDir)\product\SDL2\SDL2_ttf\$(Configuration)\$(Platform);$(SolutionDir)\product\SDL2\SDL2_mixer\$(Configuration)\$(Platform);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\product\SDL2\SDL2\$(Configuration)\$(PlatformTarget);$(SolutionDir)\product\SDL2\SDL2main\$(Configuration)\$(PlatformTarget);$(SolutionDir)\product\SDL2\SDL2_image\$(Configuration)\$(PlatformTarget);$(SolutionDir)\product\SDL2\SDL2_ttf\$(Configuration)\$(PlatformTarget);$(SolutionDir)\product\SDL2\SDL2_mixer\$(Configuration)\$(PlatformTarget);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </link>
   </ItemDefinitionGroup>
   <ItemGroup />

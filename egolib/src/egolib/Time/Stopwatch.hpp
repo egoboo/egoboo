@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Time/Stopwatch.hpp
-/// @brief  A stopwatch
+/// @file egolib/Time/Stopwatch.hpp
+/// @brief A stopwatch
 /// @author Michael Heilmann
 #pragma once
 

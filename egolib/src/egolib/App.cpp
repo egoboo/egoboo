@@ -6,7 +6,7 @@
 #include "egolib/Image/ImageManager.hpp"
 #include "egolib/Graphics/FontManager.hpp"
 #include "egolib/Renderer/Renderer.hpp"
-#include "egolib/Extensions/ogl_include.h"
+#include "egolib/Extensions/ogl_extensions.h"
 
 namespace Ego {
 
@@ -42,10 +42,6 @@ AppImpl::AppImpl(const std::string& title, const std::string& version)
     renderer.setAlphaTestEnabled(true);
     renderer.setAlphaFunction(CompareFunction::Greater, 0.0f);
 
-    /// @todo Including backface culling here prevents the mesh from getting rendered
-    /// backface culling
-    // oglx_begin_culling(Ego::CullingMode::Back, Ego::WindingMode::Clockwise); // GL_ENABLE_BIT | GL_POLYGON_BIT
-
     // disable OpenGL lighting
     renderer.setLightingEnabled(false);
 
@@ -61,7 +57,7 @@ AppImpl::AppImpl(const std::string& title, const std::string& version)
     renderer.getAccumulationBuffer().setClearValue(Math::Colour4f(0.0f, 0.0f, 0.0f, 1.0f));
     renderer.getAccumulationBuffer().clear();
 
-    GraphicsSystem::window->setTitle(title + " " + version);
+    GraphicsSystem::get().window->setTitle(title + " " + version);
 }
 
 AppImpl::~AppImpl()

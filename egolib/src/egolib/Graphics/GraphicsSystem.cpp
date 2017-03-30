@@ -1,123 +1,131 @@
 #include "egolib/Graphics/GraphicsSystem.hpp"
-#include "egolib/Graphics/GraphicsWindow.hpp"
+
 #include "egolib/Graphics/GraphicsContext.hpp"
+#include "egolib/Graphics/GraphicsWindow.hpp"
+#include "egolib/Graphics/SDL/Utilities.hpp"
+#include "egolib/egoboo_setup.h"
 
 namespace Ego {
 
-int GraphicsSystem::gfx_width = 800;
-int GraphicsSystem::gfx_height = 600;
-
-SDLX_video_parameters_t GraphicsSystem::sdl_vparam;
-oglx_video_parameters_t GraphicsSystem::ogl_vparam;
-
-GraphicsWindow *GraphicsSystem::window = nullptr;
-GraphicsContext *GraphicsSystem::context = nullptr;
-
-bool GraphicsSystem::initialized = false;
-
-GraphicsContext *GraphicsSystem::createContext(GraphicsWindow *window, const ContextProperties& contextProperties)
+GraphicsContext *GraphicsSystem::createContext(GraphicsWindow *window)
 {
-    try
-    {
-        return new Ego::GraphicsContext(window, contextProperties);
-    }
-    catch (...)
-    {
-        return nullptr;
-    }
+    return GraphicsSystemNew::get().createContext(window);
 }
 
-GraphicsWindow *GraphicsSystem::createWindow(const WindowProperties& windowProperties)
+GraphicsWindow *GraphicsSystem::createWindow()
 {
-    try
-    {
-        return new Ego::GraphicsWindow(windowProperties);
-    }
-    catch (...)
-    {
-        return nullptr;
-    }
+    return GraphicsSystemNew::get().createWindow();
 }
 
-void GraphicsSystem::initialize() {
-    if (initialized) {
-        return;
+// TODO: This leaks like mad if it fails. use std::shared_ptr.
+std::pair<GraphicsWindow *, GraphicsContext *> CreateWindowAndContext()
+{
+    GraphicsWindow *window = nullptr;
+    GraphicsContext *context = nullptr;
+    auto& configuration = egoboo_config_t::get();
+    auto& graphicsSystem = Ego::GraphicsSystemNew::get();
+
+    window = graphicsSystem.createWindow();
+    if (!window)
+    {
+        Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to create SDL window: ", SDL_GetError(), Log::EndOfEntry);
+        return std::make_pair<GraphicsWindow *, GraphicsContext *>(nullptr, nullptr);
     }
-    // Create the NEW graphics system.
-    GraphicsSystemNew::initialize();
-    // Download the window parameters from the Egoboo configuration.
-    sdl_vparam.download(egoboo_config_t::get());
-
-    // Set immutable parameters.
-    sdl_vparam.windowProperties.opengl = true;
-    sdl_vparam.contextProperties.doublebuffer = true;
-    sdl_vparam.contextProperties.accelerated_visual = GL_TRUE;
-    sdl_vparam.contextProperties.accumulationBufferDepth = Ego::ColourDepth(32, 8, 8, 8, 8);
-
-    // Download the context parameters from the Egoboo configuration.
-    oglx_video_parameters_t::download(ogl_vparam, egoboo_config_t::get());
-
-    Log::get() << Log::Entry::create(Log::Level::Info, __FILE__, __LINE__, "setting SDL video mode", Log::EndOfEntry);
-
-    bool setVideoMode = false;
-
-    // Actually set the video mode.
-    if (!SDL_GL_set_mode(sdl_vparam, ogl_vparam)) {
-        Log::get() << Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "unable to set SDL video mode: ", SDL_GetError(), Log::EndOfEntry);
-        if (egoboo_config_t::get().graphic_fullscreen.getValue())
+    else
+    {
+        window->setSize(Size2i(configuration.graphic_resolution_horizontal.getValue(),
+                               configuration.graphic_resolution_vertical.getValue()));
+        window->center();
+        context = graphicsSystem.createContext(window);
+        if (!context)
         {
-            Log::get() << Log::Entry::create(Log::Level::Info, __FILE__, __LINE__, "SDL error with fullscreen mode, retrying with windowed mode", Log::EndOfEntry);
-            sdl_vparam.windowProperties.fullscreen = false;
-            if (SDL_GL_set_mode(sdl_vparam, ogl_vparam)) {
-                Log::get() << Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "unable to set SDL video mode: ", SDL_GetError(), Log::EndOfEntry);
-            } else {
-                egoboo_config_t::get().graphic_fullscreen.setValue(false);
-                setVideoMode = true;
-            }
+            Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to create OpenGLGL context: ", SDL_GetError(), Log::EndOfEntry);
+            delete window;
+            window = nullptr;
+            return std::make_pair<GraphicsWindow *, GraphicsContext *>(nullptr, nullptr);
         }
-    } else {
-        setVideoMode = true;
     }
-
-    if (!setVideoMode) {
-        auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "unable to set any video mode", Log::EndOfEntry);
-        Log::get() << e;
-        throw std::runtime_error(e.getText());
-    } else {
-        gfx_width = (float)gfx_height / (float)sdl_vparam.resolution.height() * (float)sdl_vparam.resolution.width();
-    }
-
-    GraphicsWindow *window = Ego::GraphicsSystem::window;
-
     {
         // Setup the cute windows manager icon.
         const std::string fileName = "icon.bmp";
         auto pathName = "mp_data/" + fileName;
         SDL_Surface *theSurface = IMG_Load_RW(vfs_openRWopsRead(pathName.c_str()), 1);
-        if (!theSurface) {
-            Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to load icon ", "`", pathName, "`: ",  SDL_GetError(), Log::EndOfEntry);
-        } else {
+        if (!theSurface)
+        {
+            Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to load icon ", "`", pathName, "`: ", SDL_GetError(), Log::EndOfEntry);
+        }
+        else
+        {
             window->setIcon(theSurface);
             // ...and the surface containing the icon pixel data is no longer required.
             SDL_FreeSurface(theSurface);
 
         }
     }
-
     // Set the window title.
     window->setTitle("SDL 2.x OpenGL Window");
-
-    initialized = true;
+    // Return the result.
+    return std::make_pair(window, context);
 }
 
-void GraphicsSystem::uninitialize() {
-    if (!initialized) {
-        return;
+
+GraphicsSystem::GraphicsSystem() :
+    gfx_width(800), gfx_height(600),
+    window(nullptr), context(nullptr)
+{
+    // Initialize the NEW graphics system.
+    GraphicsSystemNew::initialize();
+
+    Log::get() << Log::Entry::create(Log::Level::Info, __FILE__, __LINE__, "setting SDL video mode", Log::EndOfEntry);
+
+    // Try create window.
+    Requirements requirements;
+    auto p = CreateWindowAndContext();
+    // Fail: Apply heuristic.
+    if (!p.first)
+    {
+        requirements.reset();
+        requirements.requirements.push_front(std::make_shared<AliasingRequirement>());
+        while (!p.first && requirements.relax())
+        {
+            p = CreateWindowAndContext();
+        }
     }
+    // Fail: Apply heuristic.
+    if (!p.first)
+    {
+        requirements.reset();
+        requirements.requirements.push_front(std::make_shared<FullscreenRequirement>());
+        while (!p.first && requirements.relax())
+        {
+            p = CreateWindowAndContext();
+        }
+    }
+    if (!p.first)
+    {
+        auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "unable to set any video mode", Log::EndOfEntry);
+        Log::get() << e;
+        throw id::runtime_error(__FILE__, __LINE__, e.getText());
+    }
+    else
+    {
+        window = p.first;
+        context = p.second;
+        auto& configuration = egoboo_config_t::get();
+        int horizontal = configuration.graphic_resolution_horizontal.getValue(),
+            vertical = configuration.graphic_resolution_vertical.getValue();
+        gfx_width = (float)gfx_height / (float)vertical * (float)horizontal;
+    }
+}
+
+GraphicsSystem::~GraphicsSystem()
+{
+    delete context;
+    context = nullptr;
     delete window;
     window = nullptr;
     // Uninitialize the NEW graphics system.
-    Ego::GraphicsSystemNew::uninitialize();
+    GraphicsSystemNew::uninitialize();
 }
 
 } // namespace Ego

@@ -6,8 +6,11 @@
 namespace Ego {
 
 // Forward declaration.
-struct GraphicsSystemNew;
-struct Display;
+class GraphicsSystemNew;
+class Display;
+class GraphicsWindow;
+class GraphicsContext;
+class WindowProperties;
 
 namespace Core {
 
@@ -21,7 +24,7 @@ struct CreateFunctor<GraphicsSystemNew>
 } // namespace Core
 
 
-struct GraphicsSystemNew : Ego::Core::Singleton<GraphicsSystemNew>
+class GraphicsSystemNew : public Core::Singleton<GraphicsSystemNew>
 {
 protected:
     friend Core::Singleton<GraphicsSystemNew>::CreateFunctorType;
@@ -44,12 +47,12 @@ protected:
 public:
     /// @brief Set the cursor visibility.
     /// @param visibility @a true shows the cursor, @a false hides the cursor
-    /// @throw Id::EnvironmentErrorException the environment failed
+    /// @throw id::environment_error the environment failed
     virtual void setCursorVisibility(bool visibility) = 0;
 
     /// @brief Get the cursor visibility.
     /// @return @a true if the cursor is shown, @a false otherwise
-    /// @throw Id::EnvironmentErrorException the environment failed
+    /// @throw id::environment_error the environment failed
     virtual bool getCursorVisibility() const = 0;
 
     /// @brief Get the list of displays.
@@ -62,6 +65,15 @@ public:
 
     /// @brief Update this graphics system.
     virtual void update() = 0;
+
+    /// @brief Create a graphics context.
+    /// @param window a pointer to a window
+    /// @return a pointer to the graphics context on success, a null pointer on failure
+    virtual GraphicsContext *createContext(GraphicsWindow *window) = 0;
+
+    /// @hrief Create a graphics window.
+    /// @return a pointer to the graphics window on success, a null pointer on failure
+    virtual GraphicsWindow *createWindow() = 0;
 
 };
 

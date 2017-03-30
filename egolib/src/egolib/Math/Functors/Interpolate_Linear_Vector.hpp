@@ -23,12 +23,9 @@
 
 #pragma once
 
-#include "egolib/Math/Functors/Interpolate.hpp"
 #include "egolib/Math/Vector.hpp"
-#include "idlib/math/one_zero.hpp"
 
-namespace Ego {
-namespace Math {
+namespace id {
 
 /**
  * @ingroup math
@@ -47,23 +44,26 @@ namespace Math {
  *  @a 0 (inclusive) and @a 1 (inclusive). It is required that a
  *  specialization raises an std::domain_error if an argument
  *  value for @a t is outside of those bounds.
- * @throws Id::OutOfBoundsException
+ * @throws id::out_of_bounds_exception
  *  if @a t is smaller than @a 0 and greater than @a 1
  */
-template <typename _ScalarFieldType, size_t _Dimensionality>
-struct Interpolate<Vector<_ScalarFieldType, _Dimensionality>, InterpolationMethod::Linear, void> {
-    using A = Vector<_ScalarFieldType, _Dimensionality>;
-    using T = typename _ScalarFieldType::ScalarType;
-    A operator()(A x, A y, T t) const {
-        if (t < id::zero<T>() || t > id::one<T>()) {
-            Log::Entry e(Log::Level::Error, __FILE__, __LINE__);
-            e << "parameter t = " << t << " not within the interval of [0,1]" << Log::EndOfEntry;
-            Log::get() << e;
-            throw Id::OutOfBoundsException(__FILE__, __LINE__, e.getText());
-        }
-        return x * (id::one<T>() - t) + y * t;
-    }
-}; // struct Interpolate
+template <typename ScalarField, size_t Dimensionality>
+struct interpolation_functor<Ego::Math::Vector<ScalarField, Dimensionality>, interpolation_method::LINEAR, void>
+{
+    using scalar = typename ScalarField::ScalarType;
+    using vector = Ego::Math::Vector<ScalarField, Dimensionality>;
 
-} // namespace Math
-} // namespace Ego
+    vector operator()(const vector& x, const vector& y, scalar t) const
+    {
+        return (*this)(x, y, mu<scalar>(t));
+    }
+
+    vector operator()(const vector& x, const vector& y, const mu<scalar>& mu) const
+    {
+        return x * mu.getOneMinusValue() + y * mu.getValue();
+
+    }
+
+}; // struct interpolate_functor
+
+} // namespace id

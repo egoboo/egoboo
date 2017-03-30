@@ -24,12 +24,12 @@
 #pragma once
 
 #include "egolib/Core/Singleton.hpp"
-#include "egolib/platform.h"
-#include "egolib/vfs.h"
 #include "egolib/Graphics/PixelFormat.hpp"
-#include "egolib/Image/ImageLoader.hpp"
 
 namespace Ego {
+
+// Forward declaration.
+class ImageLoader;
 
 /// @brief An image manager.
 /// @todo
@@ -39,9 +39,7 @@ class ImageManager : public Core::Singleton<ImageManager>
 {
 private:
     using Loaders = std::vector<std::unique_ptr<ImageLoader>>;
-    using String = std::string;
-    template <typename T>
-    using Set = std::unordered_set<T>;
+
     /// Vector of available image loaders, ordered by priority from highest to lowest.
     Loaders loaders;
 
@@ -49,54 +47,27 @@ private:
                       public id::increment_expr<Iterator>,
                       public id::equal_to_expr<Iterator>
     {
-        ImageManager::Loaders::const_iterator _inner;
+        ImageManager::Loaders::const_iterator m_inner;
     public:
-        Iterator(const ImageManager::Loaders::const_iterator& inner) :
-            _inner(inner)
-        {}
+        Iterator(const ImageManager::Loaders::const_iterator& inner);
     
 	public:	
 		// CRTP
-        void increment()
-        {
-            ++_inner;
-        }
+        void increment();
 		
 		// CRTP
-        bool equal_to(const Iterator& other) const
-        {
-            return _inner == other._inner;
-        }
+        bool equal_to(const Iterator& other) const;
 
     public:
+        Iterator();
 
-        // Any iterator.
+        Iterator(const Iterator& other);
 
-        Iterator() :
-            _inner()
-        {}
+        Iterator& operator=(const Iterator& other);
 
-        Iterator(const Iterator& other) :
-            _inner(other._inner)
-        {}
+        reference operator*() const;
 
-        Iterator& operator=(const Iterator& other)
-        {
-            _inner = other._inner;
-            return *this;
-        }
-
-        reference operator*() const
-        {
-            auto x = (*_inner).get();
-            return *x;
-        }
-
-        reference operator->() const
-        {
-            auto x = (*_inner).get();
-            return *x;
-        }
+        reference operator->() const;
     };
 
 private:
@@ -118,43 +89,20 @@ public:
     
     /// @brief Get an iterator pointing to the first loader supporting one of the specified extensions
     /// if such a loader exists, <tt>end()</tt> otherwise. The search range is <tt>[start, end())</tt>.
-    Iterator find(Set<String> extensions, Iterator start) const
-    {
-        auto it = start;
-        while (it != end())
-        {
-            auto supportedExtensions = (*it).getExtensions();
-            auto found = std::find_first_of(extensions.cbegin(), extensions.cend(),
-                                            supportedExtensions.cbegin(), supportedExtensions.cend());
-            if (found != extensions.end())
-            {
-                return it;
-            }
-        }
-        return end();
-    }
+    Iterator find(std::unordered_set<std::string> extensions, Iterator start) const;
 
     /// @brief Get an iterator pointing to the first loader supporting one of the specified extensions
     /// if such a loader exists, <tt>end()</tt> otherwise. The search range is <tt>[start(), end())</tt>.
     /// @remark <tt>o.find(s)</tt> is equivalent to <tt>o.find(s,o.begin())</tt>.
-    Iterator find(Set<String> extensions)
-    {
-        return find(extensions, begin());
-    }
+    Iterator find(std::unordered_set<std::string> extensions);
 
     /// @brief Get an iterator pointing to the beginning of the loader list.
     /// @return an iterator pointing to the beginning of the loader list
-    Iterator begin() const
-    {
-        return Iterator(loaders.begin());
-    }
+    Iterator begin() const;
 
     /// @brief Get an iterator pointing to the end of the loader list.
     /// @return an iterator pointing to the end of the loader list
-    Iterator end() const
-    {
-        return Iterator(loaders.end());
-    }
+    Iterator end() const;
 
     /// @brief Get a cute default software(!) surface.
     /// @return a pointer to the surface on success, a null pointer on failure

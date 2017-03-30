@@ -501,7 +501,7 @@ void Cartman::Gui::Window::render()
     {
         auto& renderer = Ego::Renderer::get();
 		renderer.setScissorTestEnabled(true);
-        auto drawableSize = Ego::GraphicsSystem::window->getDrawableSize();
+        auto drawableSize = Ego::GraphicsSystem::get().window->getDrawableSize();
         renderer.setScissorRectangle(position.x(), drawableSize.height() - ( position.y() + size.height() ),
                                      size.width(), size.height());
 
@@ -565,8 +565,8 @@ void unbound_mouse()
     {
         Input::get()._mouse.tlx = 0;
         Input::get()._mouse.tly = 0;
-        Input::get()._mouse.brx = Ego::GraphicsSystem::window->getSize().width() - 1;
-        Input::get()._mouse.bry = Ego::GraphicsSystem::window->getSize().height() - 1;
+        Input::get()._mouse.brx = Ego::GraphicsSystem::get().window->getSize().width() - 1;
+        Input::get()._mouse.bry = Ego::GraphicsSystem::get().window->getSize().height() - 1;
     }
 }
 
@@ -1608,7 +1608,7 @@ void draw_lotsa_stuff( cartman_mpd_t * pmesh )
 #endif
 
     // Tell user what keys are important
-    int y = Ego::GraphicsSystem::window->getSize().height() - 120, step = 8;
+    int y = Ego::GraphicsSystem::get().window->getSize().height() - 120, step = 8;
     gfx_font_ptr->drawText("O = Overlay (Water)", 0, y); y -= step;
     gfx_font_ptr->drawText("R = Reflective", 0, y); y -= step;
     gfx_font_ptr->drawText("D = Draw Reflection", 0, y); y -= step;
@@ -1758,7 +1758,7 @@ void draw_main( cartman_mpd_t * pmesh )
     dunframe++;
     secframe++;
 
-    SDL_GL_SwapWindow(Ego::GraphicsSystem::window->get());
+    SDL_GL_SwapWindow(Ego::GraphicsSystem::get().window->get());
 }
 
 //--------------------------------------------------------------------------------------------

@@ -18,20 +18,19 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Renderer/Texture.hpp
-/// @brief  Common interface of all texture object encapsulations.
+/// @file egolib/Renderer/Texture.hpp
+/// @brief Common interface of all texture object encapsulations.
 /// @author Michael Heilmann
 
 #pragma once
 
-#include "egolib/Extensions/ogl_include.h"
-#include "egolib/Extensions/ogl_extensions.h"
 #include "egolib/Renderer/TextureFilter.hpp"
 #include "egolib/Renderer/TextureAddressMode.hpp"
 #include "egolib/Renderer/TextureType.hpp"
 #include "egolib/Renderer/TextureSampler.hpp"
-
-#include "egolib/typedef.h"
+#include "egolib/Image/Image.hpp"
+#include <string>
+#include <memory>
 
 namespace Ego {
 
@@ -39,55 +38,48 @@ class Texture
 {
 protected:
     /// @brief The type of this texture.
-    TextureType _type;
+    TextureType m_type;
 
-    /// @brief The minification filter of this texture.
-    TextureFilter _minFilter;
-    
-    /// @brief The magnification filter of this texture.
-    TextureFilter _magFilter;
-    
-    /// @brief The mipmap filter of this texture.
-    TextureFilter _mipMapFilter;
-
-    /// @brief The address mode along the s-axis.
-    TextureAddressMode _addressModeS;
-
-    /// @brief The texture address mode along the t-axis.
-    TextureAddressMode _addressModeT;
+    /// @brief The sampler of this texture.
+    TextureSampler m_sampler;
 
     /// @brief The name of the texture.
     /// @remark
     /// Usually the pathname of the texture descriptor file,
     /// for dynamic textures and special textures a name that can not be used as a pathname.
-    std::string _name;
+    std::string m_name;
 
     /// @brief The width, in pixels, of the source of this texture.
     /// @remark This value might differ for technical reasons from the width of the texture.
-    int _sourceWidth;
+    int m_sourceWidth;
 
     /// @brief The height, in pixels, of the source of this texture.
     /// @remark This value might differ for technical reasons from the height of the texture.
-    int _sourceHeight;
+    int m_sourceHeight;
 
     /// @brief The width, in pixels, of the the texture.
-    int _width;
+    int m_width;
 
     /// @brief The height, in pixels, of the texture.
-    int _height;
+    int m_height;
 
     /// @brief @a true if this texture has an alpha component, @a false otherwise.
-    bool _hasAlpha;
+    bool m_hasAlpha;
 
 public:
     /// @brief A pointer to the source of the texture if available, a null pointer otherwise.
-    std::shared_ptr<SDL_Surface> _source;
+    std::shared_ptr<SDL_Surface> m_source;
+
+    /// @brief If the pixels are dirty.
+    bool m_arePixelsDirty;
+
+    /// @brief If the sampler is dirty.
+    bool m_isSamplerDirty;
 
 protected:
     /// @brief Construct this texture.
     /// @remark Intentionally protected.
-    Texture(const std::string& name,
-            TextureType type, TextureAddressMode addressModeS, TextureAddressMode addressModeT,
+    Texture(const std::string& name, TextureType type, const TextureSampler& sampler,
             int width, int height, int sourceWidth, int sourceHeight, std::shared_ptr<SDL_Surface> source,
             bool hasAlpha);
 
@@ -176,6 +168,14 @@ public:
      *  the name of this texture
      */
     const std::string& getName() const;
+
+    /// @brief Get the texture sampler.
+    /// @return the texture sampler
+    const TextureSampler& getSampler() const;
+
+    /// @brief Get the source.
+    /// @return the source
+    std::shared_ptr<SDL_Surface> getSource() const;
 
 public:
 	virtual bool load(const std::string& name, const std::shared_ptr<SDL_Surface>& surface) = 0;

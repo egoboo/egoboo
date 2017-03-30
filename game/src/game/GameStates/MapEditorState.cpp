@@ -96,7 +96,7 @@ void MapEditorState::update()
     local_stats.seeinvis_mag = std::exp(0.32f * local_stats.seeinvis_level);
 
     //Animate water
-    _currentModule->getWater().move();
+    _currentModule->getWater().update();
 
     //Update camera movement
     CameraSystem::get().getMainCamera()->updateFreeControl();
@@ -117,12 +117,12 @@ void MapEditorState::beginState()
 {
     // in-game settings
     Ego::GraphicsSystemNew::get().setCursorVisibility(true);
-    Ego::GraphicsSystem::window->setGrabEnabled(egoboo_config_t::get().debug_grabMouse.getValue());
+    Ego::GraphicsSystem::get().window->setGrabEnabled(egoboo_config_t::get().debug_grabMouse.getValue());
 }
 
 bool MapEditorState::notifyKeyboardKeyPressed(const Ego::Events::KeyboardKeyPressedEventArgs& e)
 {
-    switch(e.getKey())
+    switch(e.key())
     {
         case SDLK_ESCAPE:
             _gameEngine->pushGameState(std::make_shared<InGameMenuState>(*this));

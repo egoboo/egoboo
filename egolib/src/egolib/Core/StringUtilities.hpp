@@ -23,11 +23,7 @@
 
 #pragma once
 
-#include "egolib/platform.h"
-#include "idlib/to_lower.hpp"
-#include "idlib/to_upper.hpp"
-#include "idlib/prefix.hpp"
-#include "idlib/suffix.hpp"
+#include "idlib/utility.hpp"
 
 namespace Ego {
 

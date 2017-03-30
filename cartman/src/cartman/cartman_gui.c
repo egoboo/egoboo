@@ -21,6 +21,7 @@
 #include "cartman/cartman_input.h"
 #include "cartman/cartman_math.h"
 #include "cartman/cartman_gfx.h"
+#include "egolib/Image/SDL_Image_Extensions.h"
 
 //--------------------------------------------------------------------------------------------
 
@@ -31,7 +32,7 @@ ui_state_t ui;
 namespace Cartman { namespace Gui {
 
 Cursor::Cursor() :
-    _surface(Ego::Graphics::SDL::createSurface(8, 8)) {
+    _surface(Ego::SDL::createSurface(8, 8)) {
     uint32_t col = make_rgb(_surface, Ego::Math::Colour3b::white()); // opaque (255) white (255,255,255)
     uint32_t loc = make_rgb(_surface, Ego::Math::Colour3b(24, 24, 24)); // opaque (255) black-grey (24,24,24)
     uint32_t clr = make_rgba(_surface, Ego::Math::Colour4b(0, 0, 0, 64)); // almost transparent (64) black (0,0,0)
@@ -46,8 +47,8 @@ Cursor::Cursor() :
 
     for (int y = 0; y < 8; y++) {
         for (int x = 0; x < 8; x++) {
-            if (x + y < 8) Ego::Graphics::SDL::putPixel(_surface, x, y, col);
-            else Ego::Graphics::SDL::putPixel(_surface, x, y, clr);
+            if (x + y < 8) Ego::SDL::putPixel(_surface, x, y, col);
+            else Ego::SDL::putPixel(_surface, x, y, clr);
         }
     }
 }
@@ -162,7 +163,7 @@ void Window::renderBackground() const {
 
 void do_cursor() {
     bool left_press;
-    auto windowSize = Ego::GraphicsSystem::window->getSize();
+    auto windowSize = Ego::GraphicsSystem::get().window->getSize();
     // This function implements a mouse cursor
     ui.cursorPosition.x() = Ego::Math::constrain(Cartman::Input::get()._mouse.position.x(), 6, windowSize.width() - 6);
     ui.cursorPosition.y() = Ego::Math::constrain(Cartman::Input::get()._mouse.position.y(), 6, windowSize.height() - 6);
@@ -203,6 +204,6 @@ void draw_slider(int tlx, int tly, int brx, int bry, int* pvalue, int minvalue, 
 }
 
 void show_name(const std::string& newLoadName, const Ego::Math::Colour4f& textColour) {
-    auto windowSize = Ego::GraphicsSystem::window->getSize();
+    auto windowSize = Ego::GraphicsSystem::get().window->getSize();
     gfx_font_ptr->drawText(newLoadName, 0, windowSize.height() - 16, textColour);
 }

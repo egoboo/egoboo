@@ -181,7 +181,7 @@ std::shared_ptr<Camera> CameraSystem::getCamera(ObjectRef targetRef) const
 void CameraSystem::endCameraMode()
 {
     // make the viewport the entire screen
-    auto drawableSize = Ego::GraphicsSystem::window->getDrawableSize();;
+    auto drawableSize = Ego::GraphicsSystem::get().window->getDrawableSize();;
     Ego::Renderer::get().setViewportRectangle(0, 0, drawableSize.width(), drawableSize.height());
 
     // turn off the scissor mode
@@ -192,7 +192,7 @@ void CameraSystem::endCameraMode()
 void CameraSystem::beginCameraMode( const std::shared_ptr<Camera> &camera)
 {
     auto& renderer = Ego::Renderer::get();
-    auto drawableSize = Ego::GraphicsSystem::window->getDrawableSize();
+    auto drawableSize = Ego::GraphicsSystem::get().window->getDrawableSize();
     // scissor the output to the this area
     renderer.setScissorTestEnabled(true);
     renderer.setScissorRectangle(camera->getViewport().getLeftPixels(), drawableSize.height() - (camera->getViewport().getTopPixels() + camera->getViewport().getHeightPixels()), camera->getViewport().getWidthPixels(), camera->getViewport().getHeightPixels());
@@ -210,7 +210,7 @@ void CameraSystem::autoFormatTargets()
 
     // 1/2 of border between panes in pixels
     static const int border = 1;
-    auto windowSize = Ego::GraphicsSystem::window->getSize();
+    auto windowSize = Ego::GraphicsSystem::get().window->getSize();
     float aspect_ratio = static_cast<float>(windowSize.width()) / static_cast<float>(windowSize.height());
     bool widescreen = ( aspect_ratio > ( 4.0f / 3.0f ) );
 

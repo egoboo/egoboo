@@ -398,6 +398,11 @@ void AudioSystem::updateLoopingSounds()
     }
 }
 
+void AudioSystem::update()
+{
+    updateLoopingSounds();
+}
+
 size_t AudioSystem::stopObjectLoopingSounds(ObjectRef ownerRef, const SoundID soundID) {
 	if (!_currentModule->getObjectHandler().exists(ownerRef)) {
 		return 0;

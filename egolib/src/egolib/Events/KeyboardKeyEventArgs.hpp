@@ -27,86 +27,41 @@
 namespace Ego {
 namespace Events {
 
-/**
- * @ingroup ego-events
- * @brief Enumeration of the different kinds of keyboard key events.
- */
-enum class KeyboardKeyEventKind {
-    /**
-     * @brief Kind of a keyboard key pressed event.
-     */
-    Pressed,
-    /**
-     * @brief Kind of a keyboard key released event.
-     */
-    Released,
-    /**
-     * @brief Kind of a keyboard key typed event.
-     */
-    Typed,
-};
-
-
-/**
- * @brief The event arguments for all kinds of keyboard key events.
- * @remark KeyboardKeyEventArgs::getKey returns the key which was pressed/released/typed.
- * In addition, the modifier keys which were active when the key was pressed can be obtained using KeyboardKeyEventArgs::getModifiers().
- */
-template <KeyboardKeyEventKind _KeyboardKeyEventKind>
-struct KeyboardKeyEventArgs {
+/// @brief The event arguments for a keyboard key events.
+/// @remark KeyboardKeyEventArgs::key() returns the key which was pressed/released/typed.
+template <id::event::keyboard_key_event_kind Kind>
+struct KeyboardKeyEventArgs
+{
 private:
-    int key;
+    int m_key;
 
 public:
-    /**
-     * @brief Construct these keyboard key event arguments with the specified values.
-     * @param key the keyboard key
-     */
-    KeyboardKeyEventArgs(int key)
-        : key(key) {}
+    /// @brief Construct these keyboard key event arguments with the specified values.
+    /// @param key the keyboard key
+    explicit KeyboardKeyEventArgs(int key)
+        : m_key(key)
+    {}
 
-    /**
-     * @brief Construct these keyboard key event arguments with the values of other keyboard key event arguments.
-     * @param other the other keyboard key event arguments
-     */
-    KeyboardKeyEventArgs(const KeyboardKeyEventArgs& other)
-        : key(other.key) {}
+    KeyboardKeyEventArgs(const KeyboardKeyEventArgs&) = default;
+    KeyboardKeyEventArgs(KeyboardKeyEventArgs&&) = default;
+    KeyboardKeyEventArgs& operator=(const KeyboardKeyEventArgs&) = default;
+    KeyboardKeyEventArgs& operator=(KeyboardKeyEventArgs&&) = default;
 
-    /**
-     * @brief Construct these keyboard key event arguments with the values of other keyboard key event arguments.
-     * @param other the other keyboard key event arguments
-     */
-    KeyboardKeyEventArgs(KeyboardKeyEventArgs&& other)
-        : key(other.key) {}
-
-    /**
-     * @brief Assign these keybaord key event arguments with the values of other keyboard key event arguments.
-     * @param other the other keyboard key event arguments
-     * @return these keyboard key event arguments
-     */
-    KeyboardKeyEventArgs operator=(const KeyboardKeyEventArgs& other) {
-        KeyboardKeyEventArgs temporary(other);
-        std::swap(*this, temporary);
-        return *this;
+    /// @brief Get the keyboard key.
+    /// @return the keyboard key
+    int key() const
+    {
+        return m_key;
     }
 
-    /**
-     * @brief Get the keyboard key.
-     * @return the keyboard key
-     */
-    int getKey() const {
-        return key;
+    /// @brief Get the kind of the keyboard key event.
+    /// @return the kind of the keyboard key event
+    id::event::keyboard_key_event_kind kind() const
+    {
+        return Kind;
     }
 
-    /**
-     * @brief Get the kind of the keyboard key event.
-     * @return the kind of the keyboard key event
-     */
-    KeyboardKeyEventKind getKind() const {
-        return _KeyboardKeyEventKind;
-    }
-
-};
+}; // class KeyboardKeyEventArgs
 
 } // namespace Events
 } // namespace Ego

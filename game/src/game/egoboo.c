@@ -92,7 +92,7 @@ bool config_download(egoboo_config_t& cfg)
     /// @todo Fix old-style download.
     CameraSystem::get().getCameraOptions().turnMode = cfg.camera_control.getValue();
     gfx_config_t::download(gfx, cfg);
-    oglx_texture_parameters_t::download(g_ogl_textureParameters, cfg);
+    Ego::Renderer::get().download(cfg);
 
     return true;
 }
@@ -105,6 +105,7 @@ bool config_upload(egoboo_config_t& cfg)
     // Upload configuration.
     AudioSystem::get().upload(cfg);
     ParticleHandler::get().upload(cfg);
+    Ego::Renderer::get().upload(cfg);
 
     return true;
 }

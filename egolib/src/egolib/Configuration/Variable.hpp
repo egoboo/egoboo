@@ -8,7 +8,7 @@ namespace Configuration {
 
 /// @brief The base of all variables.
 template <typename ValueTypeArg>
-class VariableBase : public Id::NonCopyable
+class VariableBase : private id::non_copyable
 {
 public:
     using ValueType = ValueTypeArg;
@@ -90,7 +90,7 @@ public:
     virtual bool decodeValue(const std::string& source) = 0;
 
     /// @brief Event raised if the value of this variable has changed.
-    Id::Signal<void()> ValueChanged;
+    id::signal<void()> ValueChanged;
 };
 
 /// @brief The abstract base of all variables.

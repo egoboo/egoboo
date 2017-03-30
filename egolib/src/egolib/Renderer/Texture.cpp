@@ -32,96 +32,140 @@
 namespace Ego {
 
 Texture::Texture(const std::string& name,
-                 TextureType type, TextureAddressMode addressModeS, TextureAddressMode addressModeT,
+                 TextureType type,
+                 const TextureSampler& sampler,
                  int width, int height, int sourceWidth, int sourceHeight, std::shared_ptr<SDL_Surface> source,
                  bool hasAlpha) :
-    _name(name),
-    _type(type), _addressModeS(addressModeS), _addressModeT(addressModeT),
-    _width(width), _height(height), _sourceWidth(sourceWidth), _sourceHeight(sourceHeight), _source(source),
-    _minFilter(g_ogl_textureParameters.textureFilter.minFilter), _magFilter(g_ogl_textureParameters.textureFilter.magFilter), _mipMapFilter(g_ogl_textureParameters.textureFilter.mipMapFilter),
-    _hasAlpha(hasAlpha)
+    m_name(name),
+    m_type(type),
+    m_width(width), m_height(height), m_sourceWidth(sourceWidth), m_sourceHeight(sourceHeight), m_source(source),
+    m_sampler(sampler),
+    m_hasAlpha(hasAlpha),
+    m_arePixelsDirty(true),
+    m_isSamplerDirty(true)
 {}
 
 Texture::~Texture()
 {}
 
-TextureType Texture::getType() const {
-    return _type;
+TextureType Texture::getType() const
+{
+    return m_type;
 }
 
-TextureFilter Texture::getMipMapFilter() const {
-    return _mipMapFilter;
+TextureFilter Texture::getMipMapFilter() const
+{
+    return m_sampler.getMipMapFilter();
 }
 
-void Texture::setMipMapFilter(TextureFilter mipMapFilter) {
-    _mipMapFilter = mipMapFilter;
+void Texture::setMipMapFilter(TextureFilter mipMapFilter)
+{
+    if (mipMapFilter != m_sampler.getMipMapFilter())
+    {
+        m_isSamplerDirty = true;
+    }
+    m_sampler.setMipMapFilter(mipMapFilter);
 }
 
-TextureFilter Texture::getMinFilter() const {
-    return _minFilter;
+TextureFilter Texture::getMinFilter() const
+{
+    return m_sampler.getMinFilter();
 }
 
-void Texture::setMinFilter(TextureFilter minFilter) {
-    _minFilter = minFilter;
+void Texture::setMinFilter(TextureFilter minFilter)
+{
+    if (minFilter != m_sampler.getMinFilter())
+    {
+        m_isSamplerDirty = true;
+    }
+    m_sampler.setMinFilter(minFilter);
 }
 
-TextureFilter Texture::getMagFilter() const {
-    return _magFilter;
+TextureFilter Texture::getMagFilter() const
+{
+    return m_sampler.getMagFilter();
 }
 
-void Texture::setMagFilter(TextureFilter magFilter) {
-    _magFilter = magFilter;
+void Texture::setMagFilter(TextureFilter magFilter)
+{
+    if (magFilter != m_sampler.getMagFilter())
+    {
+        m_isSamplerDirty = true;
+    }
+    m_sampler.setMagFilter(magFilter);
 }
 
-TextureAddressMode Texture::getAddressModeS() const {
-    return _addressModeS;
+TextureAddressMode Texture::getAddressModeS() const
+{
+    return m_sampler.getAddressModeS();
 }
 
-void Texture::setAddressModeS(TextureAddressMode addressModeS) {
-    _addressModeS = addressModeS;
+void Texture::setAddressModeS(TextureAddressMode addressModeS)
+{
+    if (addressModeS != m_sampler.getAddressModeS())
+    {
+        m_isSamplerDirty = true;
+    }
+    m_sampler.setAddressModeS(addressModeS);
 }
 
-TextureAddressMode Texture::getAddressModeT() const {
-    return _addressModeT;
+TextureAddressMode Texture::getAddressModeT() const
+{
+    return m_sampler.getAddressModeT();
 }
 
-void Texture::setAddressModeT(TextureAddressMode addressModeT) {
-    _addressModeT = addressModeT;
+void Texture::setAddressModeT(TextureAddressMode addressModeT)
+{
+    if (addressModeT != m_sampler.getAddressModeT())
+    {
+        m_isSamplerDirty = true;
+    }
+    m_sampler.setAddressModeT(addressModeT);
 }
 
 int Texture::getSourceHeight() const
 {
-    return _sourceHeight;
+    return m_sourceHeight;
 }
 
 int Texture::getSourceWidth() const
 {
-    return _sourceWidth;
+    return m_sourceWidth;
 }
 
 int Texture::getWidth() const
 {
-    return _width;
+    return m_width;
 }
 
 int Texture::getHeight() const
 {
-    return _height;
+    return m_height;
 }
 
 bool Texture::hasAlpha() const
 {
-    return _hasAlpha;
+    return m_hasAlpha;
 }
 
 void Texture::setName(const std::string& name)
 {
-    _name = name;
+    m_name = name;
 }
 
 const std::string& Texture::getName() const
 {
-    return _name;
+    return m_name;
+}
+
+const TextureSampler& Texture::getSampler() const
+{
+    return m_sampler;
+}
+
+std::shared_ptr<SDL_Surface> Texture::getSource() const
+{
+    return m_source;
 }
 
 } // namespace Ego

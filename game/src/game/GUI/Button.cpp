@@ -72,7 +72,7 @@ void Button::draw(DrawingContext& drawingContext) {
 }
 
 bool Button::notifyMouseMoved(const Events::MouseMovedEventArgs& e) {
-    _mouseOver = contains(e.getPosition());
+    _mouseOver = contains(e.position());
 
     return false;
 }
@@ -101,7 +101,7 @@ bool Button::notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEventArgs&
     if (_hotkey == SDLK_UNKNOWN) return false;
 
     //Hotkey pressed?
-    if (e.getKey() == _hotkey) {
+    if (e.key() == _hotkey) {
         doClick();
         return true;
     }

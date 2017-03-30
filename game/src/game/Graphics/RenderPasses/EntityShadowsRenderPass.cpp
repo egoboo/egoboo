@@ -8,7 +8,8 @@ namespace Graphics {
 
 EntityShadowsRenderPass::EntityShadowsRenderPass() :
     RenderPass("entity shadows"),
-    _vertexBuffer(4, VertexFormatFactory::get<VertexFormat::P3FT2F>())
+    _vertexDescriptor(VertexFormatFactory::get<VertexFormat::P3FT2F>()),
+    _vertexBuffer(4, _vertexDescriptor.getVertexSize())
 {}
 
 void EntityShadowsRenderPass::doRun(::Camera& camera, const TileList& tl, const EntityList& el)
@@ -139,7 +140,7 @@ void EntityShadowsRenderPass::doLowQualityShadow(const ObjectRef character)
         vertices[3].t = ParticleGraphicsRenderer::CALCULATE_PRT_V1(*texture, 253);
     }
 
-    doShadowSprite(alpha, _vertexBuffer);
+    doShadowSprite(alpha, _vertexBuffer, _vertexDescriptor);
 }
 
 void EntityShadowsRenderPass::doHighQualityShadow(const ObjectRef character)
@@ -240,7 +241,7 @@ void EntityShadowsRenderPass::doHighQualityShadow(const ObjectRef character)
             vertices[3].y = y - size_penumbra;
             vertices[3].z = level;
         }
-        doShadowSprite(alpha_penumbra, _vertexBuffer);
+        doShadowSprite(alpha_penumbra, _vertexBuffer, _vertexDescriptor);
     };
 
     if (size_umbra > 0)
@@ -266,11 +267,11 @@ void EntityShadowsRenderPass::doHighQualityShadow(const ObjectRef character)
             vertices[3].z = level + 0.1f;
         }
 
-        doShadowSprite(alpha_umbra, _vertexBuffer);
+        doShadowSprite(alpha_umbra, _vertexBuffer, _vertexDescriptor);
     }
 }
 
-void EntityShadowsRenderPass::doShadowSprite(float intensity, VertexBuffer& vertexBuffer)
+void EntityShadowsRenderPass::doShadowSprite(float intensity, VertexBuffer& vertexBuffer, VertexDescriptor& vertexDescriptor)
 {
     if (intensity*255.0f < 1.0f) return;
 
@@ -280,7 +281,7 @@ void EntityShadowsRenderPass::doShadowSprite(float intensity, VertexBuffer& vert
     auto& renderer = Renderer::get();
     renderer.setColour(Math::Colour4f(intensity, intensity, intensity, 1.0f));
 
-    renderer.render(vertexBuffer, PrimitiveType::TriangleFan, 0, 4);
+    renderer.render(vertexBuffer, vertexDescriptor, PrimitiveType::TriangleFan, 0, 4);
 }
 
 } // namespace Graphics	

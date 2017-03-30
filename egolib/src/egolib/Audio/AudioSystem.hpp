@@ -160,6 +160,8 @@ public:
      */
     void updateLoopingSounds();
 
+    void update();
+
     /**
      * @brief
 	 *  Stop looping of sounds of an specified owner.

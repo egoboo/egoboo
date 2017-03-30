@@ -39,6 +39,6 @@ public:
         drawAll(drawingContext);
     }
 protected:
-    std::vector<Id::Connection> _connections;
+    std::vector<id::connection> _connections;
     void drawContainer(Ego::GUI::DrawingContext& drawingContext) override;
 };

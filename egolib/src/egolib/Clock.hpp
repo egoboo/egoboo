@@ -314,7 +314,7 @@ public:
 };
 
 template <typename _ClockPolicy>
-struct ClockScope : public Id::NonCopyable {
+struct ClockScope : private id::non_copyable {
 private:
 	Clock<_ClockPolicy>& _clock;
 public:

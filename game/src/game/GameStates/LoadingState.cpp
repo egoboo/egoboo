@@ -246,13 +246,13 @@ void LoadingState::loadModuleData()
         //Hide the progress bar
         _progressBar->setVisible(false);
     }
-    catch (const Id::Exception& ex)
+    catch (const id::exception& ex)
     {
         //Display a sensible error so that players understand why it failed
-        Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "module loading error (", (std::string)ex, ")", Log::EndOfEntry);        
+        Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "module loading error (", ex.to_string(), ")", Log::EndOfEntry);        
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
                                  "Module Load Error",
-                                 ((std::string)ex).c_str(),
+                                 ex.to_string().c_str(),
                                  nullptr);
 
         //Abort loading module and return to main menu

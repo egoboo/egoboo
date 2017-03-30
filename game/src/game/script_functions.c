@@ -52,7 +52,7 @@
  * @param taggedValue the \f$Value\f$
  * @throw Ego:Script::InvalidCastException
  * if the value of type \f$Value\f$ value can not be cast into a value of type \f$Integer\f$
- * @throw Id::OutOfBoundsException
+ * @throw id::out_of_bounds_exception
  * if the value of type \f$Integer\f$ is not within the specified bounds of <tt>[min, max]</tt>.
  */
 template <int min, int max>
@@ -61,7 +61,7 @@ std::enable_if_t<min <= max, int> getBitIndex(const Ego::Script::Interpreter::Ta
     if (bitIndex < min || bitIndex > max) {
         std::ostringstream os;
         os << "bit index must be within the bounds of " << min << " and " << max;
-        throw Id::OutOfBoundsException(__FILE__, __LINE__, os.str());
+        throw id::out_of_bounds_exception(__FILE__, __LINE__, os.str());
     }
     return bitIndex;
 }
@@ -73,7 +73,7 @@ std::enable_if_t<min <= max, int> getBitIndex(int value) {
     if (bitIndex < min || bitIndex > max) {
         std::ostringstream os;
         os << "bit index must be within the bounds of " << min << " and " << max;
-        throw Id::OutOfBoundsException(__FILE__, __LINE__, os.str());
+        throw id::out_of_bounds_error(__FILE__, __LINE__, os.str());
     }
     return bitIndex;
 }
@@ -1966,7 +1966,7 @@ Uint8 scr_ChangeTile( script_state_t& state, ai_state_t& self )
 
 	auto mesh = _currentModule->getMeshPointer();
 	if (!mesh) {
-		throw Id::RuntimeErrorException(__FILE__, __LINE__, "nullptr == mesh");
+		throw id::runtime_error(__FILE__, __LINE__, "nullptr == mesh");
 	}
     returncode = mesh->set_texture( pchr->getTile(), state.argument );
 
@@ -5233,7 +5233,7 @@ Uint8 scr_SetTileXY( script_state_t& state, ai_state_t& self )
 
 	auto mesh = _currentModule->getMeshPointer();
 	if (!mesh) {
-		throw Id::RuntimeErrorException(__FILE__, __LINE__, "nullptr == mesh");
+		throw id::runtime_error(__FILE__, __LINE__, "nullptr == mesh");
 	}
 
     Index1D index = mesh->getTileIndex(Vector2f(float(state.x), float(state.y)));

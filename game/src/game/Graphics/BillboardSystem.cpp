@@ -86,21 +86,21 @@ std::shared_ptr<Billboard> BillboardSystem::makeBillboard(::Time::Seconds lifeti
     {
         float maxval;
 
-        maxval = std::max({billboard->_tint.getRed(), billboard->_tint.getGreen(), billboard->_tint.getBlue()});
+        maxval = std::max({billboard->_tint.get_r(), billboard->_tint.get_g(), billboard->_tint.get_b()});
 
-        if (billboard->_tint.getRed() != maxval)
+        if (billboard->_tint.get_r() != maxval)
         {
-            billboard->_tint_add[RR] = -billboard->_tint.getRed() / lifetime_secs / GameEngine::GAME_TARGET_UPS;
+            billboard->_tint_add[RR] = -billboard->_tint.get_r() / lifetime_secs / GameEngine::GAME_TARGET_UPS;
         }
 
-        if (billboard->_tint.getGreen() != maxval)
+        if (billboard->_tint.get_g() != maxval)
         {
-            billboard->_tint_add[GG] = -billboard->_tint.getGreen() / lifetime_secs / GameEngine::GAME_TARGET_UPS;
+            billboard->_tint_add[GG] = -billboard->_tint.get_g() / lifetime_secs / GameEngine::GAME_TARGET_UPS;
         }
 
-        if (billboard->_tint.getBlue() != maxval)
+        if (billboard->_tint.get_b() != maxval)
         {
-            billboard->_tint_add[BB] = -billboard->_tint.getBlue() / lifetime_secs / GameEngine::GAME_TARGET_UPS;
+            billboard->_tint_add[BB] = -billboard->_tint.get_b() / lifetime_secs / GameEngine::GAME_TARGET_UPS;
         }
     }
 
@@ -110,7 +110,8 @@ std::shared_ptr<Billboard> BillboardSystem::makeBillboard(::Time::Seconds lifeti
 
 BillboardSystem::BillboardSystem() :
     _billboardList(),
-    vertexBuffer(4, Ego::VertexFormatFactory::get<Ego::VertexFormat::P3FT2F>())
+    vertexDescriptor(Ego::VertexFormatFactory::get<Ego::VertexFormat::P3FT2F>()),
+    vertexBuffer(4, vertexDescriptor.getVertexSize())
 {}
 
 BillboardSystem::~BillboardSystem()
@@ -185,7 +186,7 @@ bool BillboardSystem::render_one(Billboard& billboard, const Vector3f& cameraUp,
         renderer.getTextureUnit().setActivated(texture);
 
         // Go on and draw it
-        renderer.render(vertexBuffer, PrimitiveType::Quadriliterals, 0, 4);
+        renderer.render(vertexBuffer, vertexDescriptor, PrimitiveType::Quadriliterals, 0, 4);
     }
 
     return true;
@@ -210,7 +211,6 @@ void BillboardSystem::render_all(::Camera& camera)
             // Draw only front-facing polygons.
             renderer.setCullingMode(Ego::CullingMode::Back);
 
-            //glDisable(GL_LIGHTING);
             renderer.setBlendingEnabled(true);
             renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
 
@@ -245,7 +245,7 @@ std::shared_ptr<Billboard> BillboardSystem::makeBillboard(ObjectRef obj_ref, con
     {
         return nullptr;
     }
-    _gameEngine->getUIManager()->getFloatingTextFont()->drawTextToTexture(tex.get(), text, Ego::Math::Colour3f(textColor.getRed(), textColor.getGreen(), textColor.getBlue()));
+    _gameEngine->getUIManager()->getFloatingTextFont()->drawTextToTexture(tex.get(), text, Ego::Math::Colour3f(textColor.get_r(), textColor.get_g(), textColor.get_b()));
     tex->setName("billboard text");
 
     // Create a new billboard.

@@ -23,7 +23,7 @@
 
 #include "egolib/Graphics/MD2Model.hpp"
 #include "game/lighting.h"
-#include "egolib/Extensions/ogl_include.h"
+#include "egolib/Extensions/ogl_extensions.h"
 
 // Forward declaration.
 class Camera;
@@ -31,7 +31,8 @@ class ego_mesh_t;
 class ego_tile_info_t;
 namespace Ego {
 namespace Graphics {
-struct BillboardSystem;
+class BillboardSystem;
+class Md2ModelRenderer;
 struct RenderPass;
 struct TileList;
 struct EntityList;
@@ -140,11 +141,13 @@ struct GameAppImpl
 private:
     dynalist_t dynalist;
     std::unique_ptr<Ego::Graphics::BillboardSystem> billboardSystem;
+    std::unique_ptr<Ego::Graphics::Md2ModelRenderer> md2ModelRenderer;
 public:
     GameAppImpl();
     ~GameAppImpl();
     dynalist_t& getDynalist();
     Ego::Graphics::BillboardSystem& getBillboardSystem() const;
+    Ego::Graphics::Md2ModelRenderer& getMd2ModelRenderer() const;
 };
 
 template <typename T>
@@ -166,6 +169,10 @@ public:
     Ego::Graphics::BillboardSystem& getBillboardSystem() const
     {
         return impl->getBillboardSystem();
+    }
+    Ego::Graphics::Md2ModelRenderer& getMd2ModelRenderer() const
+    {
+        return impl->getMd2ModelRenderer();
     }
 };
 

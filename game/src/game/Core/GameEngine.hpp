@@ -39,14 +39,14 @@ class PlayingState;
 class GameEngine
 {
 public:
-    Id::Connection shown;
-    Id::Connection hidden;
-    Id::Connection resized;
+    id::connection shown;
+    id::connection hidden;
+    id::connection resized;
 #if 0
-    Id::Connection mouseEntered;
-    Id::Connection mouseLeft;
-    Id::Connection keyboardFocusReceived;
-    Id::Connection keyboardFocusLost;
+    id::connection mouseEntered;
+    id::connection mouseLeft;
+    id::connection keyboardFocusReceived;
+    id::connection keyboardFocusLost;
 #endif
     void subscribe();
     void unsubscribe();

@@ -74,24 +74,12 @@ int chr_pressure_tests = 0;
 //--------------------------------------------------------------------------------------------
 
 // looping - stuff called every loop - not accessible by scripts
-static void check_stats();
-static void readPlayerInput();
-static void let_all_characters_think();
-
 static void game_reset_players();
 
 // implementing wawalite data
-static void upload_light_data(const wawalite_data_t& data);
-static void upload_phys_data(const wawalite_physics_t& data);
-static void upload_graphics_data(const wawalite_graphics_t& data);
-static void upload_camera_data(const wawalite_camera_t& data);
 
-// implementing water layer data
-bool upload_water_layer_data( water_instance_layer_t inst[], const wawalite_water_layer_t data[], const int layer_count );
 
 // misc
-static void update_all_objects();
-static void move_all_objects();
 
 //--------------------------------------------------------------------------------------------
 // Random Things
@@ -273,7 +261,7 @@ egolib_rv export_all_players( bool require_local )
 }
 
 //--------------------------------------------------------------------------------------------
-void update_all_objects()
+void MainLoop::update_all_objects()
 {
     chr_stoppedby_tests = 0;
     chr_pressure_tests  = 0;
@@ -283,7 +271,7 @@ void update_all_objects()
 }
 
 //--------------------------------------------------------------------------------------------
-void move_all_objects()
+void MainLoop::move_all_objects()
 {
 	g_meshStats.mpdfxTests = 0;
     chr_stoppedby_tests = 0;
@@ -308,7 +296,7 @@ void move_all_objects()
     }
 }
 
-void updateLocalStats()
+void MainLoop::updateLocalStats()
 {
     // Check for all local players being dead
     local_stats.allpladead      = false;
@@ -375,7 +363,7 @@ void updateLocalStats()
 }
 
 //--------------------------------------------------------------------------------------------
-int update_game()
+int MainLoop::update_game()
 {
     /// @author ZZ
     /// @details This function does several iterations of character movements and such
@@ -400,13 +388,13 @@ int update_game()
 
     //---- begin the code for updating misc. game stuff
     {
-        AudioSystem::get().updateLoopingSounds();
+        AudioSystem::get().update();
         GFX::get().getBillboardSystem().update();
-        g_animatedTilesState.animate();
-        _currentModule->getWater().move();
+        g_animatedTilesState.update();
+        _currentModule->getWater().update();
         _currentModule->updateDamageTiles();
         _currentModule->updatePits();
-        g_weatherState.animate();
+        g_weatherState.update();
         _currentModule->checkPassageMusic();
     }
     //---- end the code for updating misc. game stuff
@@ -676,52 +664,7 @@ ObjectRef chr_find_target( Object * psrc, float max_dist, const IDSZ2& idsz, con
 }
 
 //--------------------------------------------------------------------------------------------
-void WeatherState::animate()
-{
-    //Does this module have valid weather?
-    if (time < 0 || part_gpip == LocalParticleProfileRef::Invalid) {
-        return;
-    }
-
-    time--;
-    if (0 == time)
-    {
-        time = timer_reset;
-
-        // Find a valid player
-        std::shared_ptr<Ego::Player> player = nullptr;
-        if(!_currentModule->getPlayerList().empty()) {
-            iplayer = (iplayer + 1) % _currentModule->getPlayerList().size();
-            player = _currentModule->getPlayerList()[iplayer];
-        }
-
-        // Did we find one?
-        if (player)
-        {
-            const std::shared_ptr<Object> pchr = player->getObject();
-            if (pchr)
-            {
-                // Yes, so spawn nearby that character
-                std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnGlobalParticle(pchr->getPosition(), Facing::ATK_FRONT, part_gpip, 0, over_water);
-                if (particle)
-                {
-                    // Weather particles spawned at the edge of the map look ugly, so don't spawn them there
-                    if (particle->getPosX() < EDGE || particle->getPosX() > _currentModule->getMeshPointer()->_tmem._edge_x - EDGE)
-                    {
-                        particle->requestTerminate();
-                    }
-                    else if (particle->getPosY() < EDGE || particle->getPosY() > _currentModule->getMeshPointer()->_tmem._edge_y - EDGE)
-                    {
-                        particle->requestTerminate();
-                    }
-                }
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void readPlayerInput()
+void MainLoop::readPlayerInput()
 {
     for(const std::shared_ptr<Ego::Player>& player : _currentModule->getPlayerList()) {
 
@@ -766,7 +709,7 @@ void readPlayerInput()
 }
 
 //--------------------------------------------------------------------------------------------
-void check_stats()
+void MainLoop::check_stats()
 {
     /// @author ZZ
     /// @details This function lets the players check character stats
@@ -1128,7 +1071,7 @@ bool game_finish_module()
 }
 
 //--------------------------------------------------------------------------------------------
-void let_all_characters_think()
+void MainLoop::let_all_characters_think()
 {
     /// @author ZZ
     /// @details This function funst the ai scripts for all eligible objects
@@ -1427,135 +1370,8 @@ void game_reset_players()
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-bool upload_water_layer_data( water_instance_layer_t inst[], const wawalite_water_layer_t data[], const int layer_count )
-{
-    if ( nullptr == inst || 0 == layer_count ) return false;
 
-    for ( int layer = 0; layer < layer_count; layer++ )
-    {
-        //Reset to default
-        inst[layer] = water_instance_layer_t();
-    }
-
-    // set the frame
-    for ( int layer = 0; layer < layer_count; layer++ )
-    {
-        inst[layer]._frame = Random::next<uint16_t>(WATERFRAMEAND);
-    }
-
-    if ( nullptr != data )
-    {
-        for ( int layer = 0; layer < layer_count; layer++ )
-        {
-            const wawalite_water_layer_t * pwawa  = data + layer;
-            water_instance_layer_t       * player = inst + layer;
-
-            player->_z         = pwawa->z;
-            player->_amp       = pwawa->amp;
-
-            player->_dist      = pwawa->dist;
-
-            player->_light_dir = pwawa->light_dir / 63.0f;
-            player->_light_add = pwawa->light_add / 63.0f;
-
-            player->_tx_add    = pwawa->tx_add;
-
-            player->_alpha     = pwawa->alpha;
-
-            player->_frame_add = pwawa->frame_add;
-        }
-    }
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
-void WeatherState::upload(const wawalite_weather_t& source)
-{
-	this->iplayer = 0;
-
-	this->timer_reset = source.timer_reset;
-	this->over_water = source.over_water;
-	this->part_gpip = source.part_gpip;
-
-    // Ensure an update.
-	this->time = this->timer_reset;
-}
-
-//--------------------------------------------------------------------------------------------
-void fog_instance_t::upload(const wawalite_fog_t& source)
-{
-	_on = source.found && egoboo_config_t::get().graphic_fog_enable.getValue();
-	_top = source.top;
-	_bottom = source.bottom;
-
-	_red = source.red;
-	_grn = source.grn;
-	_blu = source.blu;
-
-	_distance = (source.top - source.bottom);
-
-	_on = (_distance < 1.0f) && _on;
-}
-
-//--------------------------------------------------------------------------------------------
-
-AnimatedTilesState::Layer::Layer() :
-    update_and(0),
-    frame_and(0),
-    base_and(0),
-    frame_add(0),
-    frame_add_old(0),
-    frame_update_old(0)
-{}
-
-void AnimatedTilesState::upload(const wawalite_animtile_t& source)
-{
-    elements.fill(Layer());
-
-    uint32_t frame_and = source.frame_and;
-    for (auto& element : elements)
-    {
-        element.update_and = source.update_and;
-        element.frame_and = frame_and;
-        element.base_and = ~element.frame_and;
-        element.frame_add = 0;
-        frame_and = (frame_and << 1) | 1;
-    }
-}
-
-void AnimatedTilesState::Layer::animate()
-{
-    // skip it if there were no updates
-    if (frame_update_old == update_wld) return;
-
-    // save the old frame_add when we update to detect changes
-    frame_add_old = frame_add;
-
-    // cycle through all frames since the last time
-    for (uint32_t tnc = frame_update_old + 1; tnc <= update_wld; tnc++)
-    {
-        if (0 == (tnc & update_and))
-        {
-            frame_add = (frame_add + 1) & frame_and;
-        }
-    }
-
-    // save the frame update
-    frame_update_old = update_wld;
-}
-
-void AnimatedTilesState::animate()
-{
-    for (auto& element : elements)
-    {
-        element.animate();
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void upload_light_data(const wawalite_data_t& data)
+void Upload::upload_light_data(const wawalite_data_t& data)
 {
     // Upload the lighting data.
     light_nrm = data.light.light_d;
@@ -1592,7 +1408,7 @@ void upload_light_data(const wawalite_data_t& data)
     //make_lighttospek();
 }
 
-void upload_phys_data( const wawalite_physics_t& data )
+void Upload::upload_phys_data( const wawalite_physics_t& data )
 {
     // upload the physics data
     Ego::Physics::g_environment.hillslide = data.hillslide;
@@ -1603,14 +1419,14 @@ void upload_phys_data( const wawalite_physics_t& data )
     Ego::Physics::g_environment.gravity = data.gravity;
 }
 
-void upload_graphics_data( const wawalite_graphics_t& data )
+void Upload::upload_graphics_data( const wawalite_graphics_t& data )
 {
     // Read extra data
     gfx.exploremode = data.exploremode;
     gfx.usefaredge  = data.usefaredge;
 }
 
-void upload_camera_data( const wawalite_camera_t& data )
+void Upload::upload_camera_data( const wawalite_camera_t& data )
 {
     CameraSystem::get().getCameraOptions().swing     = data.swing;
     CameraSystem::get().getCameraOptions().swingRate = data.swing_rate;
@@ -1622,10 +1438,10 @@ void upload_wawalite()
 {
     /// @author ZZ
     /// @details This function sets up water and lighting for the module
-    upload_phys_data( wawalite_data.phys );
-    upload_graphics_data( wawalite_data.graphics );
-    upload_light_data( wawalite_data);                         // this statement depends on data from upload_graphics_data()
-    upload_camera_data( wawalite_data.camera );
+    Upload::upload_phys_data( wawalite_data.phys );
+    Upload::upload_graphics_data( wawalite_data.graphics );
+    Upload::upload_light_data( wawalite_data);                         // this statement depends on data from upload_graphics_data()
+    Upload::upload_camera_data( wawalite_data.camera );
     fog.upload( wawalite_data.fog );
     g_weatherState.upload( wawalite_data.weather );
     g_animatedTilesState.upload(wawalite_data.animtile);
@@ -1801,10 +1617,10 @@ float get_mesh_max_vertex_2( ego_mesh_t *mesh, Object *object)
     /// @details the object does not overlap a single grid corner. Check the 4 corners of the collision volume
 
 	if (nullptr == mesh) {
-		throw Id::RuntimeErrorException(__FILE__, __LINE__, "nullptr == mesh");
+		throw id::runtime_error(__FILE__, __LINE__, "nullptr == mesh");
 	}
 	if (nullptr == object) {
-		throw Id::RuntimeErrorException(__FILE__, __LINE__, "nullptr == object");
+		throw id::runtime_error(__FILE__, __LINE__, "nullptr == object");
 	}
 	
     int corner;
@@ -2056,146 +1872,9 @@ bool CheckTime(Time time) {
 
     // Unhandled check.
     default:
-        throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
+        throw id::unhandled_switch_case_error(__FILE__, __LINE__);
     }
 }
-}
-
-//--------------------------------------------------------------------------------------------
-
-float water_instance_layer_t::get_level() const
-{
-	return _z + _amp;
-}
-
-void water_instance_layer_t::move()
-{
-	_tx[SS] += _tx_add[SS];
-	_tx[TT] += _tx_add[TT];
-
-	if (_tx[SS] >  1.0f) _tx[SS] -= 1.0f;
-	if (_tx[TT] >  1.0f) _tx[TT] -= 1.0f;
-	if (_tx[SS] < -1.0f) _tx[SS] += 1.0f;
-	if (_tx[TT] < -1.0f) _tx[TT] += 1.0f;
-
-	_frame = (_frame + _frame_add) & WATERFRAMEAND;
-}
-
-//--------------------------------------------------------------------------------------------
-void water_instance_t::make(const wawalite_water_t& source)
-{
-    /// @author ZZ
-    /// @details This function sets up water movements
-
-	/// @todo wawalite_water_t.layer_count should be an unsigned type.
-	///       layer should be the same type. 
-	for (int layer = 0; layer < source.layer_count; ++layer)
-    {
-        _layers[layer]._tx[SS] = 0;
-        _layers[layer]._tx[TT] = 0;
-
-        for (size_t frame = 0; frame < (size_t)MAXWATERFRAME; ++frame)
-        {
-            // Do first mode
-            for (size_t point = 0; point < (size_t)WATERPOINTS; ++point)
-            {
-                using namespace Ego::Math;
-                float temp = (frame * twoPi<float>() / MAXWATERFRAME)
-                           + (twoPi<float>() * point / WATERPOINTS) + (piOverTwo<float>() * layer / MAXWATERLAYER);
-                temp = std::sin(temp);
-				_layer_z_add[layer][frame][point] = temp * source.layer[layer].amp;
-            }
-        }
-    }
-
-    // Calculate specular highlights
-	for (size_t i = 0; i < 256; ++i)
-    {
-        Uint8 spek = 0;
-		if (i > source.spek_start)
-        {
-			float temp = i - source.spek_start;
-			temp = temp / (256 - source.spek_start);
-            temp = temp * temp;
-			spek = temp * source.spek_level;
-        }
-
-        /// @note claforte@> Probably need to replace this with a
-        ///           GL_DEBUG(glColor4f)(spek/256.0f, spek/256.0f, spek/256.0f, 1.0f) call:
-        if (!gfx.gouraudShading_enable)
-            _spek[i] = 0;
-        else
-            _spek[i] = spek;
-    }
-}
-
-void water_instance_t::upload(const wawalite_water_t& source)
-{
-	// upload the data
-	_surface_level = source.surface_level;
-    _douse_level = source.douse_level;
-
-    _is_water = source.is_water;
-    _overlay_req = source.overlay_req;
-    _background_req = source.background_req;
-
-    _light = source.light;
-
-    _foregroundrepeat = source.foregroundrepeat;
-    _backgroundrepeat = source.backgroundrepeat;
-
-    // upload the layer data
-    _layer_count = source.layer_count;
-    upload_water_layer_data(_layers, source.layer, source.layer_count);
-
-	make(source);
-
-    // Allow slow machines to ignore the fancy stuff
-    if (!egoboo_config_t::get().graphic_twoLayerWater_enable.getValue() && _layer_count > 1)
-    {
-        int iTmp = source.layer[0].light_add;
-        iTmp = (source.layer[1].light_add * iTmp * INV_FF<float>()) + iTmp;
-        if ( iTmp > 255 ) iTmp = 255;
-
-        _layer_count        = 1;
-        _layers[0]._light_add = iTmp * INV_FF<float>();
-    }
-}
-
-void water_instance_t::move() {
-    for (size_t i = 0; i < (size_t)MAXWATERLAYER; ++i) {
-		_layers[i].move();
-    }
-}
-
-void water_instance_t::set_douse_level(float level)
-{
-    // get the level difference
-    float dlevel = level - _douse_level;
-
-    // update all special values
-    _surface_level += dlevel;
-    _douse_level += dlevel;
-
-    // update the gfx height of the water
-    for (size_t i = 0; i < (size_t)MAXWATERLAYER; ++i) {
-        _layers[i]._z += dlevel;
-    }
-}
-
-float water_instance_t::get_level() const
-{
-    float level = _layers[0].get_level();
-
-    if (egoboo_config_t::get().graphic_twoLayerWater_enable.getValue())
-    {
-        for (size_t i = 1; i < (size_t)MAXWATERLAYER; ++i)
-        {
-			level = std::max(level, _layers[i].get_level());
-        }
-    }
-
-    return level;
 }
 
 //--------------------------------------------------------------------------------------------

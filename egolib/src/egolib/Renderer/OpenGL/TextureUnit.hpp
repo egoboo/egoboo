@@ -27,19 +27,27 @@
 namespace Ego {
 namespace OpenGL {
 
+class Texture;
+class RendererInfo;
+
 class TextureUnit : public Ego::TextureUnit
 {
+private:
+    std::shared_ptr<RendererInfo> m_info;
 public:
     /// @brief Construct this texture unit facade.
-    TextureUnit();
+    /// @param info pointer to the render device information
+    TextureUnit(const std::shared_ptr<RendererInfo>& info);
 
     /// @brief Destruct this texture unit facade.
     virtual ~TextureUnit();
 
     /** @copydoc Ego::TextureUnit::setActivated */
-    virtual void setActivated(const Ego::Texture *texture) override;
+    void setActivated(const Ego::Texture *texture) override;
 
-}; // struct TextureUnit
+    void setActivated(Texture *texture);
+
+}; // class TextureUnit
 
 } // namespace OpenGL
 } // namespace Ego

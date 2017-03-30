@@ -105,7 +105,7 @@ void ScrollableList::draw(DrawingContext& drawingContext) {
 
 bool ScrollableList::notifyMouseWheelTurned(const Events::MouseWheelTurnedEventArgs& e) {
     if (_mouseOver) {
-        if (e.getDelta().y() > 0) {
+        if (e.delta().y() > 0) {
             _upButton->doClick();
         } else {
             _downButton->doClick();
@@ -115,7 +115,7 @@ bool ScrollableList::notifyMouseWheelTurned(const Events::MouseWheelTurnedEventA
 }
 
 bool ScrollableList::notifyMouseMoved(const Events::MouseMovedEventArgs& e) {
-    _mouseOver = contains(e.getPosition());
+    _mouseOver = contains(e.position());
 
     if (_downButton->notifyMouseMoved(e)) return true;
     if (_upButton->notifyMouseMoved(e)) return true;

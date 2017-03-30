@@ -327,7 +327,7 @@ public:
     {
         if (isFull())
         {
-            throw Id::RuntimeErrorException(__FILE__, __LINE__, "instruction list overflow");
+            throw id::runtime_error(__FILE__, __LINE__, "instruction list overflow");
         }
         instructions[numberOfInstructions++] = instruction;
     }
@@ -335,12 +335,12 @@ public:
     /// @brief Get the instruction at the specified index.
     /// @param index the index
     /// @return a constant reference to the instruction
-    /// @throw Id::RuntimeErrorException @a index is out of bounds
+    /// @throw id::runtime_error @a index is out of bounds
 	const Instruction& operator[](Index index) const 
     {
         if (index >= getNumberOfInstructions())
         {
-            throw Id::RuntimeErrorException(__FILE__, __LINE__, "instruction index out of bounds");
+            throw id::runtime_error(__FILE__, __LINE__, "instruction index out of bounds");
         }
 		return instructions[index];
 	}
@@ -348,12 +348,12 @@ public:
     /// @brief Get the instruction at the specified index.
     /// @param index the index
     /// @return a reference to the instruction
-    /// @throw Id::RuntimeErrorException @a index is out of bounds
+    /// @throw id::runtime_error @a index is out of bounds
     Instruction& operator[](Index index)
     {
         if (index >= getNumberOfInstructions())
         {
-            throw Id::RuntimeErrorException(__FILE__, __LINE__, "instruction index out of bounds");
+            throw id::runtime_error(__FILE__, __LINE__, "instruction index out of bounds");
         }
 		return instructions[index];
 	}
@@ -497,7 +497,7 @@ public:
 
 /// The state of the scripting system
 /// @details It is not persistent between one evaluation of a script and another
-struct script_state_t : Id::NonCopyable
+struct script_state_t : private id::non_copyable
 {
     int x;
     int y;
@@ -511,9 +511,9 @@ struct script_state_t : Id::NonCopyable
 	script_state_t();
 
     /// @brief Error handler for the error "variable not defined".
-    /// Writes a warning log messages and raises an Id::RuntimeErrorException.
+    /// Writes a warning log messages and raises an id::runtime_error.
     /// @param variableIndex the variable index
-    /// @throw Id::RuntimeErrorException
+    /// @throw id::runtime_error
     void onVariableNotDefinedError(uint8_t variableIndex);
 	// protected
 	uint8_t run_function(ai_state_t& aiState, script_info_t& script);

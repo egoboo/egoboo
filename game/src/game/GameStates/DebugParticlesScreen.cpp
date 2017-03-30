@@ -120,6 +120,6 @@ void DebugParticlesScreen::update()
 void DebugParticlesScreen::beginState()
 {
     // menu settings
-    Ego::GraphicsSystem::window->setGrabEnabled(false);
+    Ego::GraphicsSystem::get().window->setGrabEnabled(false);
     _gameEngine->enableMouseCursor();
 }

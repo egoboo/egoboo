@@ -385,7 +385,7 @@ Ego::Script::PDLToken line_scanner_state_t::scanNumericLiteral()
     auto startLocation = getLocation();
     if (!isDigit())
     {
-        throw Id::RuntimeErrorException(__FILE__, __LINE__, "<internal error>");
+        throw id::runtime_error(__FILE__, __LINE__, "<internal error>");
     }
     do
     {
@@ -403,7 +403,7 @@ Ego::Script::PDLToken line_scanner_state_t::scanName()
     auto startLocation = getLocation();
     if (!is('_') && !isAlphabetic())
     {
-        throw Id::RuntimeErrorException(__FILE__, __LINE__, "<internal error>");
+        throw id::runtime_error(__FILE__, __LINE__, "<internal error>");
     }
     do
     {
@@ -421,7 +421,7 @@ Ego::Script::PDLToken line_scanner_state_t::scanStringOrReference()
     auto startLocation = getLocation();
     if (!isDoubleQuote())
     {
-        throw Id::RuntimeErrorException(__FILE__, __LINE__, "<internal error>");
+        throw id::runtime_error(__FILE__, __LINE__, "<internal error>");
     }
 
     next(); // Skip leading quotation mark.
@@ -454,7 +454,7 @@ Ego::Script::PDLToken line_scanner_state_t::scanStringOrReference()
     }
     else /* if (isNewline() || isEndOfInput()) */
     {
-        throw Id::CompilationErrorException(__FILE__, __LINE__, Id::CompilationErrorKind::Lexical, getLocation(), "unclosed string literal");
+        throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, getLocation(), "unclosed string literal");
     }
     auto endLocation = getLocation();
     emit(isReference ? Ego::Script::PDLTokenKind::ReferenceLiteral : Ego::Script::PDLTokenKind::StringLiteral,
@@ -468,20 +468,20 @@ Ego::Script::PDLToken line_scanner_state_t::scanIDSZ()
     auto startLocation = getLocation();
     if (!is('['))
     {
-        throw Id::RuntimeErrorException(__FILE__, __LINE__, "<internal error>");
+        throw id::runtime_error(__FILE__, __LINE__, "<internal error>");
     }
     saveAndNext();
     for (auto i = 0; i < 4; ++i)
     {
         if (!isDigit() && !isAlphabetic())
         {
-            throw Id::CompilationErrorException(__FILE__, __LINE__, Id::CompilationErrorKind::Lexical, getLocation(), "invalid IDSZ");
+            throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, getLocation(), "invalid IDSZ");
         }
         saveAndNext();
     }
     if (!is(']'))
     {
-        throw Id::CompilationErrorException(__FILE__, __LINE__, Id::CompilationErrorKind::Lexical, getLocation(), "invalid IDSZ");
+        throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, getLocation(), "invalid IDSZ");
     }
     saveAndNext();
     auto endLocation = getLocation();
@@ -496,7 +496,7 @@ Ego::Script::PDLToken line_scanner_state_t::scanOperator()
     auto startLocation = getLocation();
     if (!isOperator())
     {
-        throw Id::RuntimeErrorException(__FILE__, __LINE__, "<internal error>");
+        throw id::runtime_error(__FILE__, __LINE__, "<internal error>");
     }
     auto current = getCurrent();
     saveAndNext();
@@ -540,7 +540,7 @@ Ego::Script::PDLToken line_scanner_state_t::scanOperator()
                  m_lexemeBuffer.toString());
             break;
         default:
-            throw Id::RuntimeErrorException(__FILE__, __LINE__, "internal error");
+            throw id::runtime_error(__FILE__, __LINE__, "internal error");
     }
     return m_token;
 }
@@ -550,7 +550,7 @@ Ego::Script::PDLToken parser_state_t::parse_indention(script_info_t& script, lin
     auto source = state.scanWhiteSpaces();
     if (source.get_kind() != Ego::Script::PDLTokenKind::Whitespace)
     {
-        throw Id::RuntimeErrorException(__FILE__, __LINE__, "internal error");
+        throw id::runtime_error(__FILE__, __LINE__, "internal error");
     }
 
     size_t indent = source.getValue();
@@ -674,7 +674,7 @@ Ego::Script::PDLToken parser_state_t::parse_token(ObjectProfile *ppro, script_in
             case Ego::Script::PDLTokenKind::Divide: token.setValue(Ego::Script::ScriptOperators::OPDIV); break;
             case Ego::Script::PDLTokenKind::Modulus: token.setValue(Ego::Script::ScriptOperators::OPMOD); break;
             case Ego::Script::PDLTokenKind::Assign: token.setValue(-1); break;
-            default: throw Id::RuntimeErrorException(__FILE__, __LINE__, "internal error");
+            default: throw id::runtime_error(__FILE__, __LINE__, "internal error");
         };
         return token;
     } else if (state.is('[')) {
@@ -696,13 +696,13 @@ Ego::Script::PDLToken parser_state_t::parse_token(ObjectProfile *ppro, script_in
         // We couldn't figure out what this is, throw out an error code
         if (it == Opcodes.cend())
         {
-            throw Id::CompilationErrorException(__FILE__, __LINE__, Id::CompilationErrorKind::Lexical, state.getLocation(), "not an opcode");
+            throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, state.getLocation(), "not an opcode");
         }
         token.setValue((*it).iValue);
         token.set_kind((*it)._kind);
         return token;
     } else {
-        throw Id::CompilationErrorException(__FILE__, __LINE__, Id::CompilationErrorKind::Lexical, state.getLocation(), "unexpected symbol");
+        throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, state.getLocation(), "unexpected symbol");
     }
 }
 
@@ -732,7 +732,7 @@ void parser_state_t::emit_opcode(const Ego::Script::PDLToken& token, const BIT_F
     else
     {
         /** @todo This is not an error of the syntactical analysis. */
-        throw Id::CompilationErrorException(__FILE__, __LINE__, Id::CompilationErrorKind::Syntactical, token.get_start_location(), "unsupported token");
+        throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::syntactical, token.get_start_location(), "unsupported token");
     }
 }
 
@@ -765,7 +765,7 @@ void parser_state_t::raise(bool raiseException, Log::Level level, const Ego::Scr
     Log::get() << e;
     if (raiseException)
     {
-        throw Id::CompilationErrorException(__FILE__, __LINE__, Id::CompilationErrorKind::Syntactical, received.get_start_location(), e.getText());
+        throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::syntactical, received.get_start_location(), e.getText());
     }
 }
 

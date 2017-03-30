@@ -55,7 +55,7 @@ VideoOptionsScreen::VideoOptionsScreen() :
     auto displayIt = std::find_if(displays.cbegin(), displays.cend(), [](const auto& display) { return display->isPrimaryDisplay(); });
     if (displayIt == displays.cend())
     {
-        throw Id::RuntimeErrorException(__FILE__, __LINE__, "unable to get primary display");
+        throw id::runtime_error(__FILE__, __LINE__, "unable to get primary display");
     }
     for (const auto &displayMode : (*displayIt)->getDisplayModes())
     {
@@ -85,7 +85,7 @@ VideoOptionsScreen::VideoOptionsScreen() :
         //Change option effect
         []{
             egoboo_config_t::get().graphic_fullscreen.setValue(!egoboo_config_t::get().graphic_fullscreen.getValue());
-            SDL_SetWindowFullscreen(Ego::GraphicsSystem::window->get(), egoboo_config_t::get().graphic_fullscreen.getValue() ? SDL_WINDOW_FULLSCREEN : 0);
+            SDL_SetWindowFullscreen(Ego::GraphicsSystem::get().window->get(), egoboo_config_t::get().graphic_fullscreen.getValue() ? SDL_WINDOW_FULLSCREEN : 0);
         }
     );
 
@@ -268,7 +268,7 @@ void VideoOptionsScreen::drawContainer(Ego::GUI::DrawingContext& drawingContext)
 void VideoOptionsScreen::beginState()
 {
     // menu settings
-    Ego::GraphicsSystem::window->setGrabEnabled(false);
+    Ego::GraphicsSystem::get().window->setGrabEnabled(false);
     _gameEngine->enableMouseCursor();
 }
 

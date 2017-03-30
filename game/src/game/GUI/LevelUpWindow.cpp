@@ -34,7 +34,7 @@ public:
         } else if (!_mouseOver && _hoverFadeEffect > 0.0f) {
             _hoverFadeEffect -= 4.0f / GameEngine::GAME_TARGET_FPS;
         }
-        auto material = std::make_shared<Material>(nullptr, _perk.getColour().brighter(_hoverFadeEffect), true);
+        auto material = std::make_shared<Material>(nullptr, id::brighten(_perk.getColour(), _hoverFadeEffect), true);
 
         // Draw backdrop
         material->apply();
@@ -49,7 +49,7 @@ public:
     bool notifyMouseMoved(const Events::MouseMovedEventArgs& e) override {
         //Change perk description if mouse moves
         if (_mouseOver) {
-            if (!contains(e.getPosition())) {
+            if (!contains(e.position())) {
                 _mouseOver = false;
 
                 LevelUpWindow *parentWindow = dynamic_cast<LevelUpWindow*>(getParent());
@@ -60,7 +60,7 @@ public:
                 return true;
             }
         } else {
-            if (contains(e.getPosition())) {
+            if (contains(e.position())) {
                 _mouseOver = true;
 
                 LevelUpWindow *parentWindow = dynamic_cast<LevelUpWindow*>(getParent());
@@ -449,8 +449,8 @@ void LevelUpWindow::drawContainer(DrawingContext& drawingContext) {
 
     for (const std::shared_ptr<Label>& label : _fadeInLabels) {
         //about 4 second fade time
-        if (label->getColour().getAlpha() < 1.0f) {
-            label->setAlpha(std::min(1.0f, label->getColour().getAlpha() + (0.25f / GameEngine::GAME_TARGET_FPS)));
+        if (label->getColour().get_a() < 1.0f) {
+            label->setAlpha(std::min(1.0f, label->getColour().get_a() + (0.25f / GameEngine::GAME_TARGET_FPS)));
         }
     }
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "egolib/Configuration/Variable.hpp"
-#include "idlib/is_any_of.hpp"
+#include "idlib/utility/is_any_of.hpp"
 
 namespace Ego {
 namespace Configuration {

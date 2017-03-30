@@ -299,9 +299,6 @@ bool GameEngine::initialize()
     // renderer options
     gfx_config_t::download(gfx, egoboo_config_t::get());
 
-    // texture options
-    oglx_texture_parameters_t::download(g_ogl_textureParameters, egoboo_config_t::get());
-
     // <<<
     /* ********************************************************************************** */
 
@@ -384,26 +381,26 @@ bool GameEngine::initialize()
 }
 
 void GameEngine::subscribe() {
-    auto window = Ego::GraphicsSystem::window;
-    shown = window->Shown.subscribe([](const Ego::Events::WindowEventArgs& e) {
+    auto window = Ego::GraphicsSystem::get().window;
+    shown = window->Shown.subscribe([](const Ego::Events::WindowShownEventArgs& e) {
         /// @todo Is this still needed?
         gfx_system_reload_all_textures();
     });
-    hidden = window->Hidden.subscribe([](const Ego::Events::WindowEventArgs& e) {
+    hidden = window->Hidden.subscribe([](const Ego::Events::WindowHiddenEventArgs& e) {
     });
-    resized = window->Resized.subscribe([](const Ego::Events::WindowEventArgs& e) {
+    resized = window->Resized.subscribe([](const Ego::Events::WindowResizedEventArgs& e) {
     });
 #if 0
-    mouseEntered = window->MouseEntered.subscribe([](const Ego::Events::WindowEventArgs& e) {
+    mouseEntered = window->MouseEntered.subscribe([](const Ego::Events::WindowMouseEnteredEventArgs& e) {
         Ego::Input::InputSystem::get().mouse.enabled = true;
     });
-    mouseLeft = window->MouseLeft.subscribe([](const Ego::Events::WindowEventArgs& e) {
+    mouseLeft = window->MouseLeft.subscribe([](const Ego::Events::WindowMouseLeftEventArgs& e) {
         Ego::Input::InputSystem::get().mouse.enabled = false;
     });
-    keyboardFocusReceived = window->KeyboardFocusReceived.subscribe([](const Ego::Events::WindowEventArgs& e) {
+    keyboardFocusReceived = window->KeyboardFocusReceived.subscribe([](const Ego::Events::WindowReceivedKeyInputFocusEventArgs& e) {
         Ego::Input::InputSystem::get().keyboard.enabled = true;
     });
-    keyboardFocusLost = window->KeyboardFocusLost.subscribe([](const Ego::Events::WindowEventArgs& e) {
+    keyboardFocusLost = window->KeyboardFocusLost.subscribe([](const Ego::Events::WindowLostKeyboardInputFocusEventArgs& e) {
         Ego::Input::InputSystem::get().keyboard.enabled = false;
     });
 #endif
@@ -493,7 +490,7 @@ void GameEngine::pushGameState(std::shared_ptr<GameState> gameState)
 void GameEngine::pollEvents()
 {
     Ego::GraphicsSystemNew::get().update();
-    Ego::GraphicsSystem::window->update();
+    Ego::GraphicsSystem::get().window->update();
     // Message processing loop.
     SDL_Event event;
     while (SDL_PollEvent(&event))
@@ -606,14 +603,14 @@ int SDL_main(int argc, char **argv)
 		}
 		Ego::Core::System::uninitialize();
     }
-    catch (const Id::Exception& ex)
+    catch (const id::exception& ex)
     {
         std::cerr << "unhandled exception: " << std::endl
-                  << (std::string)ex << std::endl;
+                  << ex.to_string() << std::endl;
 
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
                                  "Unhandled Exception",
-                                 ((std::string)ex).c_str(),
+                                 ex.to_string().c_str(),
                                  nullptr);
 
         return EXIT_FAILURE;

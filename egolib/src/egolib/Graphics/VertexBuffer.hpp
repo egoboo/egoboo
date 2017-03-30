@@ -34,8 +34,8 @@ private:
     /// @brief The number of vertices.
     size_t numberOfVertices;
 
-    /// @brief The vertex descriptor.
-    VertexDescriptor vertexDescriptor;
+    /// @brief The size, in Bytes, of a vertex.
+    size_t vertexSize;
 
     /// @brief The vertices.
     char *vertices;
@@ -43,8 +43,8 @@ private:
 public:
     /// @brief Construct this vertex buffer.
     /// @param numberOfVertices the number of vertices
-    /// @param vertexDescriptor the vertex descriptor
-    VertexBuffer(size_t numberOfVertices, const VertexDescriptor& vertexDescriptor);
+    /// @param vertexSize the size, in Bytes, of a vertex
+    VertexBuffer(size_t numberOfVertices, size_t vertexSize);
 
     /// @brief Destruct this vertex buffer.
     virtual ~VertexBuffer();
@@ -52,11 +52,11 @@ public:
     /// @brief Get the number of vertices of this vertex buffer.
     /// @return the number of vertices of this vertex buffer
     size_t getNumberOfVertices() const;
-    
-    /// @brief Get the vertex descriptor of this vertex buffer.
-    /// @return the vertex descriptor of this vertex buffer
-    const VertexDescriptor& getVertexDescriptor() const;
-    
+
+    /// @brief Get the size, in Bytes, of a vertex.
+    /// @return the size, in Bytes, of a vertex
+    size_t getVertexSize() const;
+   
     /** @copydoc Buffer::lock */
     void *lock() override;
      

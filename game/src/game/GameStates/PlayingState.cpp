@@ -124,7 +124,7 @@ void PlayingState::updateStatusBarPosition()
 
 void PlayingState::update()
 {
-    update_game();
+    MainLoop::update_game();
 
     //Calculate position of all status bars
     updateStatusBarPosition();
@@ -140,12 +140,12 @@ void PlayingState::beginState()
 {
     // in-game settings
     Ego::GraphicsSystemNew::get().setCursorVisibility(egoboo_config_t::get().debug_hideMouse.getValue());
-    Ego::GraphicsSystem::window->setGrabEnabled(egoboo_config_t::get().debug_grabMouse.getValue());
+    Ego::GraphicsSystem::get().window->setGrabEnabled(egoboo_config_t::get().debug_grabMouse.getValue());
 }
 
 bool PlayingState::notifyKeyboardKeyPressed(const Ego::Events::KeyboardKeyPressedEventArgs& e)
 {
-    switch(e.getKey())
+    switch(e.key())
     {
         case SDLK_ESCAPE:
 
@@ -190,7 +190,7 @@ bool PlayingState::notifyKeyboardKeyPressed(const Ego::Events::KeyboardKeyPresse
         case SDLK_8:
         {
             //Ensure that the same character cannot open more than 1 character window
-            const size_t statusNumber = e.getKey() - SDLK_1;
+            const size_t statusNumber = e.key() - SDLK_1;
             displayCharacterWindow(statusNumber);
         }
         return true;

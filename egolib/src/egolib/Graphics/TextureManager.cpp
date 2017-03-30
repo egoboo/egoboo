@@ -24,6 +24,7 @@
 #include "egolib/fileutil.h"
 #include "egolib/Graphics/TextureManager.hpp"
 #include "egolib/Image/ImageManager.hpp"
+#include "egolib/Image/ImageLoader.hpp"
 
 /**
  * @brief

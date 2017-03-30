@@ -187,10 +187,10 @@ struct Decoder<TargetType, std::enable_if_t<IsCharacter<TargetType>::value>> {
 			          "TargetType must be an EgoScript character type");
 		try {
 			if (source.length() != 1) {
-				throw Id::InvalidArgumentException(__FILE__, __LINE__, "not a valid EgoScript character integral");
+				throw id::invalid_argument_error(__FILE__, __LINE__, "not a valid EgoScript character integral");
 			}
 			target = source[0];
-		} catch (const Id::InvalidArgumentException&) {
+		} catch (const id::invalid_argument_error&) {
 			return false;
 		}
 		return true;
@@ -209,30 +209,30 @@ struct Decoder<TargetType, std::enable_if_t<IsInteger<TargetType>::value>> {
         try {
             try {
                 if (source.empty() || isspace(source[0])) {
-                    throw Id::InvalidArgumentException(__FILE__, __LINE__, "not a valid EgoScript integer literal");
+                    throw id::invalid_argument_error(__FILE__, __LINE__, "not a valid EgoScript integer literal");
                 }
                 size_t pos;
                 long long x;
                 try {
                     x = stoll(source, &pos);
                 } catch (const std::invalid_argument&) {
-                    throw Id::InvalidArgumentException(__FILE__, __LINE__, "conversion failed");
+                    throw id::invalid_argument_error(__FILE__, __LINE__, "conversion failed");
                 } catch (const std::out_of_range&) {
-                    throw Id::OutOfBoundsException(__FILE__, __LINE__, "conversion failed");
+                    throw id::out_of_bounds_error(__FILE__, __LINE__, "conversion failed");
                 }
                 if (pos != source.length()) {
-                    throw Id::InvalidArgumentException(__FILE__, __LINE__, "not a valid EgoScript integer literal");
+                    throw id::out_of_bounds_error(__FILE__, __LINE__, "not a valid EgoScript integer literal");
                 }
                 if (x > std::numeric_limits<TargetType>::max()) {
-                    throw Id::OutOfBoundsException(__FILE__, __LINE__, std::string("the value of the EgoScript integer literal is greater than the greatest value representable by the EgoScript integer type `") + typeid(TargetType).name() + "`");
+                    throw id::out_of_bounds_error(__FILE__, __LINE__, std::string("the value of the EgoScript integer literal is greater than the greatest value representable by the EgoScript integer type `") + typeid(TargetType).name() + "`");
                 }
                 if (x < std::numeric_limits<TargetType>::min()) {
-                    throw Id::OutOfBoundsException(__FILE__, __LINE__, std::string("the value of the EgoScript integer literal is smaller than the smallest value representable by the EgoScript integer type `") + typeid(TargetType).name() + "`");
+                    throw id::out_of_bounds_error(__FILE__, __LINE__, std::string("the value of the EgoScript integer literal is smaller than the smallest value representable by the EgoScript integer type `") + typeid(TargetType).name() + "`");
                 }
                 target = x;
-            } catch (const Id::InvalidArgumentException&) {
+            } catch (const id::out_of_bounds_error&) {
                 return false;
-            } catch (const Id::OutOfBoundsException&) {
+            } catch (const id::invalid_argument_error&) {
                 return false;
             }
         } catch (...) {
@@ -254,28 +254,28 @@ struct Decoder<TargetType, std::enable_if_t<IsNatural<TargetType>::value>> {
         try {
             try {
                 if (source.empty() || isspace(source[0])) {
-                    throw Id::InvalidArgumentException(__FILE__, __LINE__, "not a valid EgoScript natural literal");
+                    throw id::invalid_argument_error(__FILE__, __LINE__, "not a valid EgoScript natural literal");
                 }
                 size_t pos;
                 unsigned long long x;
                 try {
                     x = stoull(source, &pos);
                 } catch (const std::invalid_argument&) {
-                    throw Id::InvalidArgumentException(__FILE__, __LINE__, "conversion failed");
+                    throw id::invalid_argument_error(__FILE__, __LINE__, "conversion failed");
                 } catch (const std::out_of_range&) {
-                    throw Id::OutOfBoundsException(__FILE__, __LINE__, "conversion failed");
+                    throw id::out_of_bounds_error(__FILE__, __LINE__, "conversion failed");
                 }
                 if (pos != source.length()) {
-                    throw Id::InvalidArgumentException(__FILE__, __LINE__, "not a valid EgoScript natural literal");
+                    throw id::invalid_argument_error(__FILE__, __LINE__, "not a valid EgoScript natural literal");
                 }
                 if (x > std::numeric_limits<TargetType>::max()) {
-                    throw Id::OutOfBoundsException(__FILE__, __LINE__, std::string("the value of the EgoScript natural literal is greater than the greatest value representable by the EgoScript natural type `") + typeid(TargetType).name() + "`");
+                    throw id::out_of_bounds_error(__FILE__, __LINE__, std::string("the value of the EgoScript natural literal is greater than the greatest value representable by the EgoScript natural type `") + typeid(TargetType).name() + "`");
 
                 }
                 target = x;
-            } catch (const Id::InvalidArgumentException&) {
+            } catch (const id::invalid_argument_error&) {
                 return false;
-            } catch (const Id::OutOfBoundsException&) {
+            } catch (const id::out_of_bounds_error&) {
                 return false;
             }
         } catch (...) {
@@ -301,7 +301,7 @@ struct Decoder<TargetType, std::enable_if_t<IsBoolean<TargetType>::value>> {
             target = false;
             return true;
         } else {
-            throw Id::InvalidArgumentException(__FILE__, __LINE__, "not a valid EgoScript boolean literal");
+            throw id::invalid_argument_error(__FILE__, __LINE__, "not a valid EgoScript boolean literal");
         }
     }
 };
@@ -335,26 +335,26 @@ struct Decoder<TargetType, std::enable_if_t<IsReal<TargetType>::value>> {
         try {
             try {
                 if (source.empty() || isspace(source[0])) {
-                    throw Id::InvalidArgumentException(__FILE__, __LINE__, "not a valid EgoScript real literal");
+                    throw id::invalid_argument_error(__FILE__, __LINE__, "not a valid EgoScript real literal");
                 }
                 size_t pos;
                 TargetType x;
                 try {
                     x = Internal::to<TargetType>(source, &pos);
                 } catch (const std::invalid_argument&) {
-                    throw Id::InvalidArgumentException(__FILE__, __LINE__, "conversion failed");
+                    throw id::invalid_argument_error(__FILE__, __LINE__, "conversion failed");
                 } catch (const std::out_of_range&) {
-                    throw Id::OutOfBoundsException(__FILE__, __LINE__, "conversion failed");
+                    throw id::out_of_bounds_error(__FILE__, __LINE__, "conversion failed");
                 }
                 if (pos != source.length()) {
-                    throw Id::InvalidArgumentException(__FILE__, __LINE__, "not a valid EgoScript real literal");
+                    throw id::invalid_argument_error(__FILE__, __LINE__, "not a valid EgoScript real literal");
                 }
                 target = x;
             } catch (const std::invalid_argument&) {
 
-            } catch (const Id::InvalidArgumentException&) {
+            } catch (const id::invalid_argument_error&) {
                 return false;
-            } catch (const Id::OutOfBoundsException&) {
+            } catch (const id::out_of_bounds_error&) {
                 return false;
             }
         } catch (...) {

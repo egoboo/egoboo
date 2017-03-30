@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Time/LocalTime.hpp
-/// @brief  Local (aka Calendar) Time functionality
+/// @file egolib/Time/LocalTime.hpp
+/// @brief Local (aka Calendar) Time functionality
 /// @author Michael Heilmann
 
 #pragma once

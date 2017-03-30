@@ -220,7 +220,7 @@ struct EulerFacing {
             case 2:
                 return z;
             default:
-                throw Id::OutOfBoundsException(__FILE__, __LINE__, "index out of range");
+                throw id::out_of_bounds_error(__FILE__, __LINE__, "index out of range");
         };
     }
     Facing& operator[](size_t index) {
@@ -232,7 +232,7 @@ struct EulerFacing {
             case 2:
                 return z;
             default:
-                throw Id::OutOfBoundsException(__FILE__, __LINE__, "index out of range");
+                throw id::out_of_bounds_error(__FILE__, __LINE__, "index out of range");
         };
     }
 };

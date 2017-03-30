@@ -49,11 +49,11 @@ protected:
     void drawContainer(Ego::GUI::DrawingContext& drawingContext) override;
 
 private:
-    Id::Connection _onExitButtonClicked;
-    Id::Connection _onOptionsButtonClicked;
-    Id::Connection _onNewGameButtonClicked;
-    Id::Connection _onLoadGameButtonClicked;
-    Id::Connection _onDebugButtonClicked;
-    Id::Connection _onMapEditorButtonClicked;
+    id::connection _onExitButtonClicked;
+    id::connection _onOptionsButtonClicked;
+    id::connection _onNewGameButtonClicked;
+    id::connection _onLoadGameButtonClicked;
+    id::connection _onDebugButtonClicked;
+    id::connection _onMapEditorButtonClicked;
     std::forward_list<std::shared_ptr<Ego::GUI::Button>> _slidyButtons;
 };

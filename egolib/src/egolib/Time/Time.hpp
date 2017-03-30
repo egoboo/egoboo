@@ -17,10 +17,9 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/Time.hpp
+/// @file egolib/Time/Time.hpp
 /// @brief Time points, time durations, and time units.
 /// @author Michael Heilmann
-/// @todo Move into <tt>egolib/Time</tt>.
 
 #pragma once
 

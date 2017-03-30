@@ -31,54 +31,6 @@ public:
     using pair = std::pair<T1, T2>;
 
 public:
-    using Colour3f = Ego::Math::Colour3f;
-
-    static void test(const Colour3f& x, const Colour3f& y) {
-        auto f = Math::Interpolate<Colour3f, Math::InterpolationMethod::Linear>();
-        EgoTest_Assert(x == f(x, y, 0.0f));
-        EgoTest_Assert(y == f(x, y, 1.0f));
-    }
- 
-    EgoTest_Test(testColor3f) {
-        test(Colour3f::red(), Colour3f::red());
-        test(Colour3f::red(), Colour3f::green());
-        test(Colour3f::red(), Colour3f::blue());
-
-        test(Colour3f::green(), Colour3f::green());
-        test(Colour3f::green(), Colour3f::blue());
-        test(Colour3f::green(), Colour3f::red());
-        
-        test(Colour3f::blue(), Colour3f::blue());
-        test(Colour3f::blue(), Colour3f::green());
-        test(Colour3f::blue(), Colour3f::red());
-    }
-
-
-public:
-    using Colour4f = Ego::Math::Colour4f;
-
-    static void test(const Colour4f& x, const Colour4f& y) {
-        auto f = Math::Interpolate<Colour4f,Math::InterpolationMethod::Linear>();
-        EgoTest_Assert(x == f(x, y, 0.0f));
-        EgoTest_Assert(y == f(x, y, 1.0f));
-    }
-
-
-    EgoTest_Test(testColor4f) {
-        test(Colour4f::red(), Colour4f::red());
-        test(Colour4f::red(), Colour4f::green());
-        test(Colour4f::red(), Colour4f::blue());
-
-        test(Colour4f::green(), Colour4f::green());
-        test(Colour4f::green(), Colour4f::blue());
-        test(Colour4f::green(), Colour4f::red());
-
-        test(Colour4f::blue(), Colour4f::blue());
-        test(Colour4f::blue(), Colour4f::green());
-        test(Colour4f::blue(), Colour4f::red());
-    }
-
-public:
     using Vector3f = ::Vector3f;
     // Add basis vectors (1,0,0), (0,1,0), (0,0,1).
     list<Vector3f> basis(list<Vector3f> l) {
@@ -117,7 +69,7 @@ public:
     }
 
     static void test(const Vector3f& x, const Vector3f& y) {
-        auto f = Math::Interpolate<Vector3f,Math::InterpolationMethod::Linear>();
+        auto f = id::interpolation_functor<Vector3f,id::interpolation_method::LINEAR>();
         EgoTest_Assert(x == f(x, y, 0.0f));
         EgoTest_Assert(y == f(x, y, 1.0f));
     }

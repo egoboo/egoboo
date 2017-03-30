@@ -57,11 +57,11 @@ void Label::setColour(const Math::Colour4f& colour) {
 }
 
 void Label::setAlpha(float a) {
-    _colour.setAlpha(a);
+    _colour.set_alpha(a);
 }
 
 float Label::getAlpha() const {
-    return _colour.getAlpha();
+    return _colour.get_alpha();
 }
 
 } // namespace GUI

@@ -341,9 +341,9 @@ void DebugObjectLoadingState::loadObjectData()
         //Complete!
         singleThreadRedrawHack("Finished!");
     }
-    catch (Id::Exception &ex)
+    catch (id::exception &ex)
     {
-        std::string out = std::string("Ego::Exception: ") + std::string(ex);
+        std::string out = std::string("Ego::Exception: ") + ex.to_string();
         singleThreadRedrawHack(out);
         Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "error loading ", objectPath,
                                          "... ", out, Log::EndOfEntry);

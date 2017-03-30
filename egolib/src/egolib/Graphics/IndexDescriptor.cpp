@@ -43,7 +43,7 @@ size_t IndexDescriptor::getIndexSize() const {
         case Syntax::U32:
             return sizeof(uint32_t); // 32 / 8
     }
-    throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
+    throw id::unhandled_switch_case_error(__FILE__, __LINE__);
 }
 
 const IndexDescriptor& IndexDescriptor::operator=(const IndexDescriptor& other) noexcept {

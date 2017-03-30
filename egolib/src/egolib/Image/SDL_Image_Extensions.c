@@ -18,141 +18,20 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/Extensions/SDL_GL_extensions.c
-/// @ingroup _sdl_extensions_
-/// @brief Implementation of the OpenGL extensions to SDL
-/// @details
+/// @file egolib/Image/SDL_Image_Extensions.c
+/// @brief Extensions to SDL image.
 
-#include "egolib/Extensions/SDL_GL_extensions.h"
-#include "egolib/Renderer/TextureFilter.hpp"
-#include "egolib/Renderer/Texture.hpp"
-#include "egolib/Extensions/ogl_include.h"
-#include "egolib/Math/_Include.hpp"
+#include "egolib/Image/SDL_Image_Extensions.h"
 #include "egolib/Image/ImageManager.hpp"
-#include "egolib/Graphics/PixelFormat.hpp"
-#include "egolib/Graphics/GraphicsSystem.hpp"
-
-
-//--------------------------------------------------------------------------------------------
-bool SDL_GL_set_gl_mode(oglx_video_parameters_t * v)
-{
-    /// @author BB
-    /// @details this function applies OpenGL settings. Must have a valid SDL_Surface to do any good.
-
-    if (NULL == v || !SDL_WasInit(SDL_INIT_VIDEO)) return false;
-
-    oglx_Get_Screen_Info(&g_ogl_caps);
-
-    if (v->multisample_arb)
-    {
-        GL_DEBUG(glDisable)(GL_MULTISAMPLE);
-        GL_DEBUG(glEnable)(GL_MULTISAMPLE_ARB);
-    }
-    else if (v->multisample)
-    {
-        GL_DEBUG(glEnable)(GL_MULTISAMPLE);
-    }
-    else
-    {
-        GL_DEBUG(glDisable)(GL_MULTISAMPLE);
-        GL_DEBUG(glDisable)(GL_MULTISAMPLE_ARB);
-    }
-
-    // Enable perspective correction?
-    GL_DEBUG(glHint)(GL_PERSPECTIVE_CORRECTION_HINT, v->perspective);
-
-    // Enable dithering?
-    if (v->dither) GL_DEBUG(glEnable)(GL_DITHER);
-    else GL_DEBUG(glDisable)(GL_DITHER);
-
-    // Enable Gouraud shading? (Important!)
-    GL_DEBUG(glShadeModel)(v->shading);
-
-    // Enable antialiasing?
-    if (v->antialiasing)
-    {
-        GL_DEBUG(glEnable)(GL_LINE_SMOOTH);
-        GL_DEBUG(glHint)(GL_LINE_SMOOTH_HINT, GL_NICEST);
-
-        GL_DEBUG(glEnable)(GL_POINT_SMOOTH);
-        GL_DEBUG(glHint)(GL_POINT_SMOOTH_HINT, GL_NICEST);
-
-        GL_DEBUG(glDisable)(GL_POLYGON_SMOOTH);
-        GL_DEBUG(glHint)(GL_POLYGON_SMOOTH_HINT, GL_FASTEST);
-
-        // PLEASE do not turn this on unless you use
-        // @code
-        // Ego::Renderer::get().setBlendingEnabled(true);
-        // Ego::Renderer::get().setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
-        // @endcode
-        // before every single draw command.
-        //
-        // GL_DEBUG(glEnable)(GL_POLYGON_SMOOTH);
-        // GL_DEBUG(glHint)(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
-    }
-    else
-    {
-        GL_DEBUG(glDisable)(GL_POINT_SMOOTH);
-        GL_DEBUG(glDisable)(GL_LINE_SMOOTH);
-        GL_DEBUG(glDisable)(GL_POLYGON_SMOOTH);
-    }
-
-    // Disable anisotropic filtering if it is not supported.
-    v->anisotropy_enable &= g_ogl_caps.anisotropic_supported;
-    // However, always bound the values to valid ranges.
-    v->anisotropy_levels = Ego::Math::constrain(v->anisotropy_levels, 1.0f, g_ogl_caps.maxAnisotropy);
-    if (v->anisotropy_enable && v->anisotropy_levels > 1.0f)
-    {
-        GL_DEBUG(glTexParameterf)(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, v->anisotropy_levels);
-    };
-
-    // fill mode
-    GL_DEBUG(glPolygonMode)(GL_FRONT, GL_FILL);
-    GL_DEBUG(glPolygonMode)(GL_BACK, GL_FILL);
-
-    /* Disable OpenGL lighting */
-    GL_DEBUG(glDisable)(GL_LIGHTING);
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
-bool SDL_GL_set_mode(SDLX_video_parameters_t& v_new, oglx_video_parameters_t& gl_new)
-{
-    /// @author BB
-    /// @details let SDL_GL try to set a new video mode.
-
-    // use the sdl extensions to set the SDL video mode
-    bool result = SDLX_CreateWindow(v_new);
-
-    if (result)
-    {
-        Ego::GraphicsSystem::sdl_vparam.contextProperties.download();
-
-        // set the opengl parameters
-        gl_new.multisample = GL_FALSE;
-        gl_new.multisample_arb = GL_FALSE;
-        if (NULL != Ego::GraphicsSystem::window && v_new.windowProperties.opengl)
-        {
-            // correct the multisampling
-            gl_new.multisample_arb = v_new.contextProperties.multisampling.m_samples > 1;
-
-            SDL_GL_set_gl_mode(&gl_new);
-        }
-    }
-
-    return result;
-}
 
 namespace Ego {
-namespace Graphics {
 namespace SDL {
 
 PixelFormatDescriptor getPixelFormat(const SDL_PixelFormat& source)
 {
     if (source.palette)
     {
-        throw Id::RuntimeErrorException(__FILE__, __LINE__, "pixel format not supported");
+        throw id::runtime_error(__FILE__, __LINE__, "pixel format not supported");
     }
     const PixelFormatDescriptor pfds[] = {
         PixelFormatDescriptor::get<PixelFormat::R8G8B8A8>(),
@@ -176,7 +55,7 @@ PixelFormatDescriptor getPixelFormat(const SDL_PixelFormat& source)
             return pfds[i];
         }
     }
-    throw Id::RuntimeErrorException(__FILE__, __LINE__, "pixel format not supported");
+    throw id::runtime_error(__FILE__, __LINE__, "pixel format not supported");
 }
 
 uint32_t getEnumeratedPixelFormat(const PixelFormatDescriptor& pixelFormatDescriptor)
@@ -190,7 +69,7 @@ uint32_t getEnumeratedPixelFormat(const PixelFormatDescriptor& pixelFormatDescri
     uint32_t pixelFormatEnum_sdl = SDL_MasksToPixelFormatEnum(bitsPerPixel, redMask, greenMask, blueMask, alphaMask);
     if (SDL_PIXELFORMAT_UNKNOWN == pixelFormatEnum_sdl)
     {
-        throw Id::RuntimeErrorException(__FILE__, __LINE__, "pixel format descriptor has no corresponding SDL pixel format");
+        throw id::runtime_error(__FILE__, __LINE__, "pixel format descriptor has no corresponding SDL pixel format");
     }
     return pixelFormatEnum_sdl;
 }
@@ -204,7 +83,7 @@ std::shared_ptr<const SDL_PixelFormat> getPixelFormat(const PixelFormatDescripto
     );
     if (!pixelFormat_sdl)
     {
-        throw Id::EnvironmentErrorException(__FILE__, __LINE__, "SDL", "internal error");
+        throw id::environment_error(__FILE__, __LINE__, "SDL", "internal error");
     }
     return pixelFormat_sdl;
 }
@@ -213,11 +92,11 @@ std::shared_ptr<SDL_Surface> createSurface(int width, int height, const PixelFor
 {
     if (width < 0)
     {
-        throw Id::InvalidArgumentException(__FILE__, __LINE__, "negative width");
+        throw id::invalid_argument_error(__FILE__, __LINE__, "negative width");
     }
     if (height < 0)
     {
-        throw Id::InvalidArgumentException(__FILE__, __LINE__, "negative height");
+        throw id::invalid_argument_error(__FILE__, __LINE__, "negative height");
     }
     std::shared_ptr<const SDL_PixelFormat> pixelFormat_sdl = getPixelFormat(pixelFormat);
     SDL_Surface *surface_sdl = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height,
@@ -226,7 +105,7 @@ std::shared_ptr<SDL_Surface> createSurface(int width, int height, const PixelFor
                                                     pixelFormat_sdl->Bmask, pixelFormat_sdl->Amask);
     if (nullptr == surface_sdl)
     {
-        throw Id::RuntimeErrorException(__FILE__, __LINE__, "SDL_CreateRGBSurface failed");
+        throw id::runtime_error(__FILE__, __LINE__, "SDL_CreateRGBSurface failed");
     }
     try
     {
@@ -243,7 +122,7 @@ std::shared_ptr<SDL_Surface> padSurface(const std::shared_ptr<const SDL_Surface>
 {
     if (!surface)
     {
-        throw Id::InvalidArgumentException(__FILE__, __LINE__, "nullptr == surface");
+        throw id::invalid_argument_error(__FILE__, __LINE__, "nullptr == surface");
     }
     if (!padding.left && !padding.top && !padding.right && !padding.bottom)
     {
@@ -267,7 +146,7 @@ std::shared_ptr<SDL_Surface> padSurface(const std::shared_ptr<const SDL_Surface>
                                                                         oldSurface->format->Amask), [](SDL_Surface *pSurface) { SDL_FreeSurface(pSurface); });
     if (!newSurface)
     {
-        throw Id::RuntimeErrorException(__FILE__, __LINE__, "SDL_CreateRGBSurface failed");
+        throw id::runtime_error(__FILE__, __LINE__, "SDL_CreateRGBSurface failed");
     }
     // Fill the copy with transparent black.
     SDL_FillRect(newSurface.get(), nullptr, SDL_MapRGBA(newSurface->format, 0, 0, 0, 0));
@@ -291,14 +170,14 @@ std::shared_ptr<SDL_Surface> cloneSurface(const std::shared_ptr<const SDL_Surfac
     static_assert(SDL_VERSION_ATLEAST(2, 0, 0), "SDL 2.x required");
     if (!surface)
     {
-        throw Id::InvalidArgumentException(__FILE__, __LINE__, "nullptr == surface");
+        throw id::invalid_argument_error(__FILE__, __LINE__, "nullptr == surface");
     }
     // TODO: The signature SDL_ConvertSurface(SDL_Surface *, const SDL_PixelFormat *, uint32_t) might be considered as a bug.
     //       It should be SDL_ConvertSurface(const SDL_Surface *, const SDL_PixelFormat *, uint32_t).
     auto clone = std::shared_ptr<SDL_Surface>(SDL_ConvertSurface((SDL_Surface *)surface.get(), surface->format, 0), [](SDL_Surface *pSurface) { SDL_FreeSurface(pSurface); });
     if (!clone)
     {
-        throw Id::RuntimeErrorException(__FILE__, __LINE__, "SDL_ConvertSurface failed");
+        throw id::runtime_error(__FILE__, __LINE__, "SDL_ConvertSurface failed");
     }
     return clone;
 }
@@ -307,7 +186,7 @@ uint32_t getPixel(const std::shared_ptr<const SDL_Surface>& surface, int x, int 
 {
     if (!surface)
     {
-        throw Id::InvalidArgumentException(__FILE__, __LINE__, "nullptr == surface");
+        throw id::invalid_argument_error(__FILE__, __LINE__, "nullptr == surface");
     }
     int bpp = surface->format->BytesPerPixel;
     /* Here p is the address to the pixel we want to get. */
@@ -336,7 +215,7 @@ uint32_t getPixel(const std::shared_ptr<const SDL_Surface>& surface, int x, int 
             return *reinterpret_cast<uint32_t*>(p);
 
         default:
-            throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__, "unreachable code reached"); /* shouldn't happen, but avoids warnings */
+            throw id::unhandled_switch_case_error(__FILE__, __LINE__, "unreachable code reached"); /* shouldn't happen, but avoids warnings */
     }
 }
 
@@ -344,7 +223,7 @@ void putPixel(const std::shared_ptr<SDL_Surface>& surface, int x, int y, uint32_
 {
     if (!surface)
     {
-        throw Id::InvalidArgumentException(__FILE__, __LINE__, "nullptr == surface");
+        throw id::invalid_argument_error(__FILE__, __LINE__, "nullptr == surface");
     }
     int bpp = surface->format->BytesPerPixel;
     /* Here p is the address to the pixel we want to set. */
@@ -377,7 +256,7 @@ void putPixel(const std::shared_ptr<SDL_Surface>& surface, int x, int y, uint32_
             break;
 
         default:
-            throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__, "unreachable code reached"); /* shouldn't happen, but avoids warnings */
+            throw id::unhandled_switch_case_error(__FILE__, __LINE__, "unreachable code reached"); /* shouldn't happen, but avoids warnings */
     }
 }
 
@@ -385,7 +264,7 @@ std::shared_ptr<SDL_Surface> convertPixelFormat(const std::shared_ptr<SDL_Surfac
 {
     if (!surface)
     {
-        throw Id::InvalidArgumentException(__FILE__, __LINE__, "nullptr == surface");
+        throw id::invalid_argument_error(__FILE__, __LINE__, "nullptr == surface");
     }
 
     uint32_t alphaMask = pixelFormatDescriptor.getAlphaMask(),
@@ -397,12 +276,12 @@ std::shared_ptr<SDL_Surface> convertPixelFormat(const std::shared_ptr<SDL_Surfac
     uint32_t newFormat = SDL_MasksToPixelFormatEnum(bpp, redMask, greenMask, blueMask, alphaMask);
     if (newFormat == SDL_PIXELFORMAT_UNKNOWN)
     {
-        throw Id::InvalidArgumentException(__FILE__, __LINE__, "pixelFormatDescriptor doesn't correspond with a SDL_PixelFormat");
+        throw id::invalid_argument_error(__FILE__, __LINE__, "pixelFormatDescriptor doesn't correspond with a SDL_PixelFormat");
     }
     SDL_Surface *newSurface = SDL_ConvertSurfaceFormat(surface.get(), newFormat, 0);
     if (!newSurface)
     {
-        throw Id::RuntimeErrorException(__FILE__, __LINE__, "unable to convert surface");
+        throw id::runtime_error(__FILE__, __LINE__, "unable to convert surface");
     }
 
     return std::shared_ptr<SDL_Surface>(newSurface, [](SDL_Surface *pSurface) { SDL_FreeSurface(pSurface); });
@@ -445,7 +324,7 @@ bool testAlpha(const std::shared_ptr<SDL_Surface>& surface)
 
     if (!surface)
     {
-        throw Id::InvalidArgumentException(__FILE__, __LINE__, "nullptr == surface");
+        throw id::invalid_argument_error(__FILE__, __LINE__, "nullptr == surface");
     }
 
     // Alias.
@@ -536,6 +415,91 @@ bool testAlpha(const std::shared_ptr<SDL_Surface>& surface)
     return false;
 }
 
+Math::Colour3b getColourMod(SDL_Surface& surface)
+{
+    Uint8 r, g, b;
+    SDL_GetSurfaceColorMod(&surface, &r, &g, &b);
+    return Math::Colour3b(r, g, b);
+}
+
+void setColourMod(SDL_Surface& surface, const Math::Colour3b& colourMod)
+{
+    SDL_SetSurfaceColorMod(&surface, colourMod.get_r(), colourMod.get_g(), colourMod.get_b());
+}
+
+BlendMode blendModeToInternal(SDL_BlendMode blendMode)
+{
+    switch (blendMode)
+    {
+        case SDL_BLENDMODE_NONE:
+            return BlendMode::NoBlending;
+        case SDL_BLENDMODE_BLEND:
+            return BlendMode::AlphaBlending;
+        case SDL_BLENDMODE_ADD:
+            return BlendMode::AdditiveBlending;
+        case SDL_BLENDMODE_MOD:
+            return BlendMode::ModulativeBlending;
+        default:
+            throw id::unhandled_switch_case_error(__FILE__, __LINE__);
+    };
+}
+
+SDL_BlendMode blendModeToExternal(BlendMode blendMode)
+{
+    switch (blendMode)
+    {
+        case BlendMode::NoBlending:
+            return SDL_BLENDMODE_NONE;
+        case BlendMode::AlphaBlending:
+            return SDL_BLENDMODE_BLEND;
+        case BlendMode::AdditiveBlending:
+            return SDL_BLENDMODE_ADD;
+        case BlendMode::ModulativeBlending:
+            return SDL_BLENDMODE_MOD;
+        default:
+            throw id::unhandled_switch_case_error(__FILE__, __LINE__);
+    };
+}
+
+BlendMode getBlendMode(SDL_Surface& surface)
+{
+    SDL_BlendMode blendMode;
+    SDL_GetSurfaceBlendMode(&surface, &blendMode);
+    return blendModeToInternal(blendMode);
+}
+
+void setBlendMode(SDL_Surface& surface, BlendMode blendMode)
+{
+    SDL_SetSurfaceBlendMode(&surface, blendModeToExternal(blendMode));
+}
+
+void fillSurface(SDL_Surface& surface, const Ego::Math::Colour4b& colour)
+{
+    SDL_FillRect(&surface, nullptr, SDL_MapRGBA(surface.format, colour.get_r(),
+                                                                colour.get_g(),
+                                                                colour.get_b(),
+                                                                colour.get_a()));
+
+}
+
+Ego::PixelFormat getPixelFormat(SDL_Surface& surface)
+{
+    switch (surface.format->format)
+    {
+        case SDL_PIXELFORMAT_RGB888:
+            return PixelFormat::R8G8B8;
+        case SDL_PIXELFORMAT_RGBA8888:
+            return PixelFormat::R8G8B8A8;
+        case SDL_PIXELFORMAT_BGR888:
+            return PixelFormat::B8G8R8;
+        case SDL_PIXELFORMAT_BGRA8888:
+            return PixelFormat::B8G8R8A8;
+        case SDL_PIXELFORMAT_ABGR8888:
+            return PixelFormat::A8B8G8R8;
+        default:
+            throw id::runtime_error(__FILE__, __LINE__, "unsupported/unknown pixel format");
+    };
+}
+
 } // namespace SDL
-} // namespace Graphics
 } // namespace Ego

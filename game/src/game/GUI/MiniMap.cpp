@@ -142,11 +142,11 @@ void MiniMap::addBlip(const float x, const float y, const std::shared_ptr<Object
 
 bool MiniMap::notifyMouseMoved(const Events::MouseMovedEventArgs& e) {
     if (_isDragging) {
-        int x = Math::constrain<int>(e.getPosition().x() + _mouseDragOffset[0], 0, _gameEngine->getUIManager()->getScreenWidth() - getWidth()),
-            y = Math::constrain<int>(e.getPosition().y() + _mouseDragOffset[1], 0, _gameEngine->getUIManager()->getScreenHeight() - getHeight());
+        int x = Math::constrain<int>(e.position().x() + _mouseDragOffset[0], 0, _gameEngine->getUIManager()->getScreenWidth() - getWidth()),
+            y = Math::constrain<int>(e.position().y() + _mouseDragOffset[1], 0, _gameEngine->getUIManager()->getScreenHeight() - getHeight());
         setPosition(Point2f(x, y));
     } else {
-        _mouseOver = contains(e.getPosition());
+        _mouseOver = contains(e.position());
     }
 
     return false;
@@ -158,11 +158,11 @@ bool MiniMap::notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs
         bringToFront();
 
         _isDragging = true;
-        _mouseDragOffset[0] = getX() - e.getPosition().x();
-        _mouseDragOffset[1] = getY() - e.getPosition().y();
+        _mouseDragOffset[0] = getX() - e.position().x();
+        _mouseDragOffset[1] = getY() - e.position().y();
 
         // Move the window immediatly.
-        return notifyMouseMoved(Events::MouseMovedEventArgs(e.getPosition()));
+        return notifyMouseMoved(Events::MouseMovedEventArgs(e.position()));
     } else if (e.getButton() == SDL_BUTTON_RIGHT) {
         _isDragging = false;
         return true;
@@ -173,7 +173,7 @@ bool MiniMap::notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs
 
 bool MiniMap::notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEventArgs& e) {
     // Enlarge minimap
-    if (e.getKey() == SDLK_m) {
+    if (e.key() == SDLK_m) {
         if (isVisible()) {
             const float HALF_SCREEN_WIDTH = _gameEngine->getUIManager()->getScreenWidth() / 2;
             const float HALF_SCREEN_HEIGHT = _gameEngine->getUIManager()->getScreenHeight() / 2;

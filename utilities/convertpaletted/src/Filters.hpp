@@ -8,7 +8,7 @@
  *  regular expression. This means: create once and re-use often for best
  *  performance.
  */
-struct RegexFilter : public std::unary_function<std::string, bool> {
+struct RegexFilter {
 private:
     std::regex _regex;
 public:

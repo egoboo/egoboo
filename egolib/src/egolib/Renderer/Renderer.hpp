@@ -17,13 +17,14 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Renderer/Renderer.hpp
-/// @brief  Common interface of all renderers.
+/// @file egolib/Renderer/Renderer.hpp
+/// @brief Common interface of all renderers.
 /// @author Michael Heilmann
 
 #pragma once
 
 #include "egolib/Math/_Include.hpp"
+#include "egolib/egoboo_setup.h"
 #include "egolib/Core/Singleton.hpp"
 #include "egolib/Renderer/BlendFunction.hpp"
 #include "egolib/Renderer/CompareFunction.hpp"
@@ -40,7 +41,7 @@ namespace Ego {
 
 /// @brief A facade for internal buffers like the accumulation buffer, the colour buffer or the depth buffer.
 template <typename DataType>
-class BufferFacade : public Id::NonCopyable
+class BufferFacade : private id::non_copyable
 {
 protected:
     /// @brief Construct this buffer (facade).
@@ -194,10 +195,12 @@ struct CreateFunctor<Renderer> {
 
 class Renderer : public Core::Singleton<Renderer> {
 protected:
+    // Befriend with the create functor.
     friend Core::Singleton<Renderer>::CreateFunctorType;
+
+    // Befriend with the destroy functor.
     friend Core::Singleton<Renderer>::DestroyFunctorType;
 
-protected:
     /// @brief Construct this renderer.
     /// @remark Intentionally protected.
     Renderer();
@@ -207,9 +210,13 @@ protected:
     virtual ~Renderer();
 
 public:
+    virtual void download(egoboo_config_t& cfg);
+
+    virtual void upload(egoboo_config_t& cfg);
+
     /// @brief Get information about the renderer.
     /// @return information about the renderer
-    virtual const RendererInfo& getInfo() = 0;
+    virtual std::shared_ptr<RendererInfo> getInfo() = 0;
 
 public:
     /// @brief Get the accumulation buffer (facade).
@@ -520,25 +527,21 @@ public:
     /// @param enable @a true enables Gouraud shading, @a false disables it
     virtual void setGouraudShadingEnabled(bool enabled) = 0;
 
-    /**
-     * @brief
-     *  Render a vertex buffer.
-     * @param primitiveType
-     *  the primitive type
-     * @param vertexBuffer
-     *  a pointer to a vertex buffer
-     * @param index
-     *  the index of the first vertex to render
-     * @param length
-     *  the number of vertices to render
-     * @throw std::invalid_argument
-     *  if <tt>index + length</tt> is greater than the number of vertices in the vertex buffer
-     * @throw std::invalid_argument
-     *  if @a length is non-zero and
-     *  - is not disible by 3 for the triangles primitive type or
-     *  - is not divisible by 4 for the quadriliterals primitive type.
-     */
-    virtual void render(VertexBuffer& vertexBuffer, PrimitiveType primitiveType, size_t index, size_t length) = 0;
+    /// @brief Render a vertex buffer.
+    /// @param vertexBuffer the vertex buffer
+    /// @param vertexDescriptor the vertex descriptor
+    /// @param primitiveTyp the primitive type
+    /// @param index the index of the first vertex to render
+    /// @param length the number of vertices to render
+    /// @throw std::invalid_argument
+    /// the vertex size of the vertex buffer and the vertex size of the vertex descriptor are not equal
+    /// @throw std::invalid_argument
+    /// <tt>index + length</tt> is greater than the number of vertices in the vertex buffer
+    /// @throw std::invalid_argument
+    ///  @a length is non-zero and
+    ///  - is not disible by 3 for the triangles primitive type or
+    ///  - is not divisible by 4 for the quadriliterals primitive type.
+    virtual void render(VertexBuffer& vertexBuffer, const VertexDescriptor& vertexDescriptor, PrimitiveType primitiveType, size_t index, size_t length) = 0;
 
     /// @brief Create a texture.
     /// @return the texture

@@ -33,11 +33,11 @@ public:
     /// @param l the lowerbound
     /// @param u the upperbound
     /// @pre <c>l &lt;= u</c>
-    /// @throw Id::InvalidArgumentException <c>!(l &lt;= u)</c>
+    /// @throw id::invalid_argument_error <c>!(l &lt;= u)</c>
     Interval(const Type& l, const Type& u) :
         l(l), u(u) {
         if (!(l <= u)) {
-            throw Id::InvalidArgumentException(__FILE__, __LINE__, "precondition `l <= u` failed");
+            throw id::invalid_argument_error(__FILE__, __LINE__, "precondition `l <= u` failed");
         }
     }
 

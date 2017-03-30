@@ -22,9 +22,11 @@
 /// @author Michael Heilmann
 
 #include "egolib/Renderer/OpenGL/Renderer.hpp"
-#include "egolib/Core/StringUtilities.hpp"
 #include "idlib/idlib.hpp"
-#include "egolib/Extensions/ogl_extensions.h"
+#include "egolib/Renderer/OpenGL/Utilities.hpp"
+#include "egolib/Renderer/OpenGL/Texture.hpp"
+#include "egolib/Renderer/OpenGL/RendererInfo.hpp"
+#include "egolib/Renderer/OpenGL/DefaultTexture.hpp"
 
 // The following code ensures that for each OpenGL function variable static PF...PROC gl... = NULL; is declared/defined.
 #define GLPROC(variable,type,name) \
@@ -58,39 +60,61 @@ static bool link() {
 namespace Ego {
 namespace OpenGL {
 
+Renderer::Renderer(const std::shared_ptr<RendererInfo>& info) :
+    m_info(info), m_textureUnit(info)
+{
+    try
+    {
+        OpenGL::link();
+        m_defaultTexture1d = std::make_unique<DefaultTexture>(m_info, "<default texture 1D>", TextureType::_1D);
+        try
+        {
+            m_defaultTexture2d = std::make_unique<DefaultTexture>(m_info, "<default texture 2D>", TextureType::_2D);
+        }
+        catch (...)
+        {
+            m_defaultTexture1d = nullptr;
+            std::rethrow_exception(std::current_exception());
+        }
+    }
+    catch (...)
+    {
+        std::rethrow_exception(std::current_exception());
+    }
+}
+
 Renderer::Renderer() :
-    _extensions(Utilities::getExtensions()),
-    info(Utilities::getRenderer(), Utilities::getVendor(), Utilities::getVersion()) {
-    OpenGL::link();
-    initializeErrorTextures();
+    Renderer(std::make_shared<RendererInfo>())
+{}
+
+Renderer::~Renderer()
+{
+    m_defaultTexture2d = nullptr;
+    m_defaultTexture1d = nullptr;
 }
 
-Renderer::~Renderer() {
-    uninitializeErrorTextures();
-}
-
-const Ego::RendererInfo& Renderer::getInfo() {
-    return info;
+std::shared_ptr<Ego::RendererInfo> Renderer::getInfo() {
+    return m_info;
 }
 
 Ego::AccumulationBuffer& Renderer::getAccumulationBuffer() {
-    return _accumulationBuffer;
+    return m_accumulationBuffer;
 }
 
 Ego::ColourBuffer& Renderer::getColourBuffer() {
-    return _colourBuffer;
+    return m_colourBuffer;
 }
 
 Ego::DepthBuffer& Renderer::getDepthBuffer() {
-    return _depthBuffer;
+    return m_depthBuffer;
 }
 
 Ego::StencilBuffer& Renderer::getStencilBuffer() {
-    return _stencilBuffer;
+    return m_stencilBuffer;
 }
 
 Ego::TextureUnit& Renderer::getTextureUnit() {
-    return _textureUnit;
+    return m_textureUnit;
 }
 
 void Renderer::setAlphaTestEnabled(bool enabled) {
@@ -132,7 +156,7 @@ void Renderer::setAlphaFunction(CompareFunction function, float value) {
             glAlphaFunc(GL_GEQUAL, value);
             break;
         default:
-            throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
+            throw id::unhandled_switch_case_error(__FILE__, __LINE__);
     };
     Utilities::isError();
 }
@@ -154,8 +178,8 @@ void Renderer::setBlendFunction(BlendFunction sourceColour, BlendFunction source
 }
 
 void Renderer::setColour(const Colour4f& colour) {
-    glColor4f(colour.getRed(), colour.getGreen(),
-              colour.getBlue(), colour.getAlpha());
+    glColor4f(colour.get_r(), colour.get_g(),
+              colour.get_b(), colour.get_a());
     Utilities::isError();
 }
 
@@ -177,7 +201,7 @@ void Renderer::setCullingMode(CullingMode mode) {
             glCullFace(GL_FRONT_AND_BACK);
             break;
         default:
-            throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
+            throw id::unhandled_switch_case_error(__FILE__, __LINE__);
     };
     Utilities::isError();
 }
@@ -209,7 +233,7 @@ void Renderer::setDepthFunction(CompareFunction function) {
             glDepthFunc(GL_GREATER);
             break;
         default:
-            throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
+            throw id::unhandled_switch_case_error(__FILE__, __LINE__);
     };
     Utilities::isError();
 }
@@ -230,10 +254,10 @@ void Renderer::setDepthWriteEnabled(bool enabled) {
 
 void Renderer::setScissorRectangle(float left, float bottom, float width, float height) {
     if (width < 0) {
-        throw Id::InvalidArgumentException(__FILE__, __LINE__, "width < 0");
+        throw id::invalid_argument_error(__FILE__, __LINE__, "width < 0");
     }
     if (height < 0) {
-        throw Id::InvalidArgumentException(__FILE__, __LINE__, "height < 0");
+        throw id::invalid_argument_error(__FILE__, __LINE__, "height < 0");
     }
     glScissor(left, bottom, width, height);
     Utilities::isError();
@@ -289,7 +313,7 @@ void Renderer::setWindingMode(WindingMode mode) {
             glFrontFace(GL_CCW);
             break;
         default:
-            throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
+            throw id::unhandled_switch_case_error(__FILE__, __LINE__);
     }
     Utilities::isError();
 }
@@ -419,13 +443,16 @@ void Renderer::setGouraudShadingEnabled(bool enabled) {
     Utilities::isError();
 }
 
-void Renderer::render(VertexBuffer& vertexBuffer, PrimitiveType primitiveType, size_t index, size_t length) {
+void Renderer::render(VertexBuffer& vertexBuffer, const VertexDescriptor& vertexDescriptor, PrimitiveType primitiveType, size_t index, size_t length) {
+    if (vertexDescriptor.getVertexSize() != vertexBuffer.getVertexSize())
+    {
+        throw std::invalid_argument("vertex size mismatch");
+    }
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_COLOR_ARRAY);
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     glDisableClientState(GL_NORMAL_ARRAY);
     const char *vertices = static_cast<char *>(vertexBuffer.lock());
-    const auto& vertexDescriptor = vertexBuffer.getVertexDescriptor();
     for (auto it = vertexDescriptor.begin(); it != vertexDescriptor.end(); ++it) {
         const auto& vertexElementDescriptor = (*it);
         switch (vertexElementDescriptor.getSemantics()) {
@@ -451,9 +478,9 @@ void Renderer::render(VertexBuffer& vertexBuffer, PrimitiveType primitiveType, s
                         type = GL_FLOAT;
                         break;
                     case VertexElementDescriptor::Syntax::F1:
-                        throw Id::RuntimeErrorException(__FILE__, __LINE__, "vertex format not supported");
+                        throw id::runtime_error(__FILE__, __LINE__, "vertex format not supported");
                     default:
-                        throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
+                        throw id::unhandled_switch_case_error(__FILE__, __LINE__);
                 };
                 glVertexPointer(size, type, vertexDescriptor.getVertexSize(),
                                 vertices + vertexElementDescriptor.getOffset());
@@ -477,9 +504,9 @@ void Renderer::render(VertexBuffer& vertexBuffer, PrimitiveType primitiveType, s
                         break;
                     case VertexElementDescriptor::Syntax::F1:
                     case VertexElementDescriptor::Syntax::F2:
-                        throw Id::RuntimeErrorException(__FILE__, __LINE__, "vertex format not supported");
+                        throw id::runtime_error(__FILE__, __LINE__, "vertex format not supported");
                     default:
-                        throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
+                        throw id::unhandled_switch_case_error(__FILE__, __LINE__);
                 };
                 glColorPointer(size, type, vertexDescriptor.getVertexSize(),
                                vertices + vertexElementDescriptor.getOffset());
@@ -498,9 +525,9 @@ void Renderer::render(VertexBuffer& vertexBuffer, PrimitiveType primitiveType, s
                     case VertexElementDescriptor::Syntax::F1:
                     case VertexElementDescriptor::Syntax::F2:
                     case VertexElementDescriptor::Syntax::F4:
-                        throw Id::RuntimeErrorException(__FILE__, __LINE__, "vertex format not supported");
+                        throw id::runtime_error(__FILE__, __LINE__, "vertex format not supported");
                     default:
-                        throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
+                        throw id::unhandled_switch_case_error(__FILE__, __LINE__);
                 };
                 glNormalPointer(type, vertexDescriptor.getVertexSize(),
                                 vertices + vertexElementDescriptor.getOffset());
@@ -531,17 +558,17 @@ void Renderer::render(VertexBuffer& vertexBuffer, PrimitiveType primitiveType, s
                         type = GL_FLOAT;
                         break;
                     default:
-                        throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
+                        throw id::unhandled_switch_case_error(__FILE__, __LINE__);
                 };
                 glTexCoordPointer(size, type, vertexDescriptor.getVertexSize(),
                                   vertices + vertexElementDescriptor.getOffset());
             }
             break;
             default:
-                throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
+                throw id::unhandled_switch_case_error(__FILE__, __LINE__);
         };
     }
-    const GLenum primitiveType_gl = Utilities::toOpenGL(primitiveType);
+    const GLenum primitiveType_gl = Utilities2::toOpenGL(primitiveType);
     if (index + length > vertexBuffer.getNumberOfVertices()) {
         throw std::invalid_argument("out of bounds");
     }
@@ -582,12 +609,12 @@ GLenum Renderer::toOpenGL(BlendFunction source) {
         case BlendFunction::OneMinusConstantAlpha: return GL_ONE_MINUS_CONSTANT_ALPHA;
         case BlendFunction::SourceAlphaSaturate: return GL_SRC_ALPHA_SATURATE;
         default:
-            throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
+            throw id::unhandled_switch_case_error(__FILE__, __LINE__);
     };
 }
 
 std::shared_ptr<Ego::Texture> Renderer::createTexture() {
-    return std::make_shared<Texture>();
+    return std::make_shared<Texture>(this);
 }
 
 void Renderer::setProjectionMatrix(const Matrix4f4f& projectionMatrix) {

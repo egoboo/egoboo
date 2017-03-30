@@ -28,45 +28,15 @@
 #include "game/graphic.h"
 #include "game/Graphics/CameraSystem.hpp"
 #include "game/Entities/_Include.hpp"
-
-struct Md2Vertex {
-    struct {
-        float x, y, z;
-    } position;
-    struct {
-        float x, y, z;
-    } normal;
-    struct {
-        float r, g, b, a;
-    } colour;
-    struct {
-        float s, t;
-    } texture;
-};
+#include "game/Graphics/DefaultMd2ModelRenderer.hpp"
 
 struct Md2VertexBuffer {
-    std::vector<Md2Vertex> vertices;
-    Md2VertexBuffer(size_t size) : vertices() {
-        vertices.resize(size);
-        // Intentionally empty.
-    }
-    Md2VertexBuffer() : Md2VertexBuffer(0) {
-        // Intentionally empty.
-    }
-    ~Md2VertexBuffer() {
-        //dtor
-    }
-
-    void ensureSize(size_t requiredSize) {
-        if (requiredSize > vertices.size()) {
-            vertices.resize(requiredSize);
-        }
-    }
-
-    void render(GLenum mode, size_t start, size_t length) {
+    static void render(GLenum mode, size_t start, size_t length) {
+        auto& md2ModelRenderer = GFX::get().getMd2ModelRenderer();
         glBegin(mode); {
+            auto *vertex = (Ego::Graphics::DefaultMd2ModelRenderer::Vertex *)md2ModelRenderer.lock();
             for (size_t vertexIndex = start; vertexIndex < start + length; ++vertexIndex) {
-                const auto& v = vertices[vertexIndex];
+                const auto& v = vertex[vertexIndex];
                 glColor4f(v.colour.r, v.colour.g, v.colour.b, v.colour.a);
                 glNormal3f(v.normal.x, v.normal.y, v.normal.z);
                 glTexCoord2f(v.texture.s, v.texture.t);
@@ -88,11 +58,13 @@ gfx_rv ObjectGraphicsRenderer::render_enviro( Camera& cam, const std::shared_ptr
     }
     const auto& pmd2 = pchr->getProfile()->getModel()->getMD2();
     auto& renderer = Ego::Renderer::get();
+    auto& textureManager = Ego::TextureManager::get();
+    auto& md2ModelRenderer = GFX::get().getMd2ModelRenderer();
 
     std::shared_ptr<const Ego::Texture> ptex = nullptr;
 	if (HAS_SOME_BITS(bits, CHR_PHONG))
 	{
-		ptex = Ego::TextureManager::get().getTexture("mp_data/phong");
+		ptex = textureManager.getTexture("mp_data/phong");
 	}
 
 	if (!GL_DEBUG(glIsEnabled)(GL_BLEND))
@@ -123,59 +95,56 @@ gfx_rv ObjectGraphicsRenderer::render_enviro( Camera& cam, const std::shared_ptr
         Ego::OpenGL::PushAttrib pa(GL_CURRENT_BIT);
         {
             // Get the maximum number of vertices per command.
-            size_t vertexBufferCapacity = 0;
-            for (const auto& glcommand : pmd2->getGLCommands()) {
-                vertexBufferCapacity = std::max(vertexBufferCapacity, glcommand.data.size());
-            }
+            size_t vertexBufferCapacity = md2ModelRenderer.getRequiredVertexBufferCapacity(*pmd2);
             // Allocate a vertex buffer.
-            Md2VertexBuffer vertexBuffer(vertexBufferCapacity);
+            md2ModelRenderer.ensureSize(vertexBufferCapacity);
             // Render each command
             for (const auto& glcommand : pmd2->getGLCommands()) {
                 // Pre-render this command.
                 size_t vertexBufferSize = 0;
+                auto *targetVertex = (Ego::Graphics::DefaultMd2ModelRenderer::Vertex *)md2ModelRenderer.lock();
                 for (const id_glcmd_packed_t& cmd : glcommand.data) {
                     uint16_t vertexIndex = cmd.index;
                     if (vertexIndex >= pchr->inst.getVertexCount()) continue;
                     const GLvertex& pvrt = pchr->inst.getVertex(vertexIndex);
-                    auto& v = vertexBuffer.vertices[vertexBufferSize++];
-                    v.position.x = pvrt.pos[XX];
-                    v.position.y = pvrt.pos[YY];
-                    v.position.z = pvrt.pos[ZZ];
-                    v.normal.x = pvrt.nrm[XX];
-                    v.normal.y = pvrt.nrm[YY];
-                    v.normal.z = pvrt.nrm[ZZ];
+                    targetVertex->position.x = pvrt.pos[XX];
+                    targetVertex->position.y = pvrt.pos[YY];
+                    targetVertex->position.z = pvrt.pos[ZZ];
+                    targetVertex->normal.x = pvrt.nrm[XX];
+                    targetVertex->normal.y = pvrt.nrm[YY];
+                    targetVertex->normal.z = pvrt.nrm[ZZ];
 
                     // normalize the color so it can be modulated by the phong/environment map
-                    v.colour.r = pvrt.color_dir * INV_FF<float>();
-                    v.colour.g = pvrt.color_dir * INV_FF<float>();
-                    v.colour.b = pvrt.color_dir * INV_FF<float>();
-                    v.colour.a = 1.0f;
+                    targetVertex->colour.r = pvrt.color_dir * INV_FF<float>();
+                    targetVertex->colour.g = pvrt.color_dir * INV_FF<float>();
+                    targetVertex->colour.b = pvrt.color_dir * INV_FF<float>();
+                    targetVertex->colour.a = 1.0f;
 
-                    float cmax = std::max({v.colour.r, v.colour.g, v.colour.b});
+                    float cmax = std::max({targetVertex->colour.r, targetVertex->colour.g, targetVertex->colour.b});
 
                     if (cmax != 0.0f) {
-                        v.colour.r /= cmax;
-                        v.colour.g /= cmax;
-                        v.colour.b /= cmax;
+                        targetVertex->colour.r /= cmax;
+                        targetVertex->colour.g /= cmax;
+                        targetVertex->colour.b /= cmax;
                     }
 
                     // apply the tint
-                    v.colour.r *= tint[RR];
-                    v.colour.g *= tint[GG];
-                    v.colour.b *= tint[BB];
-                    v.colour.a *= tint[AA];
+                    targetVertex->colour.r *= tint[RR];
+                    targetVertex->colour.g *= tint[GG];
+                    targetVertex->colour.b *= tint[BB];
+                    targetVertex->colour.a *= tint[AA];
 
-                    v.texture.s = pvrt.env[XX] + uoffset;
-                    v.texture.t = Ego::Math::constrain(cmax, 0.0f, 1.0f);
+                    targetVertex->texture.s = pvrt.env[XX] + uoffset;
+                    targetVertex->texture.t = Ego::Math::constrain(cmax, 0.0f, 1.0f);
 
                     if (0 != (bits & CHR_PHONG)) {
                         // determine the phong texture coordinates
                         // the default phong is bright in both the forward and back directions...
-                        v.texture.t = v.texture.t * 0.5f + 0.5f;
+                        targetVertex->texture.t = targetVertex->texture.t * 0.5f + 0.5f;
                     }
                 }
                 // Render this command.
-                vertexBuffer.render(glcommand.glMode, 0, vertexBufferSize);
+                Md2VertexBuffer::render(glcommand.glMode, 0, vertexBufferSize);
             }
         }
     }
@@ -236,6 +205,8 @@ gfx_rv ObjectGraphicsRenderer::render_tex(Camera& camera, const std::shared_ptr<
         return gfx_error;
     }
 
+    auto& renderer = Ego::Renderer::get();
+    auto& md2ModelRenderer = GFX::get().getMd2ModelRenderer();
     const std::shared_ptr<MD2Model> &pmd2 = pchr->getProfile()->getModel()->getMD2();
 
     // To make life easier
@@ -253,25 +224,21 @@ gfx_rv ObjectGraphicsRenderer::render_tex(Camera& camera, const std::shared_ptr<
     }
 
     // Get the maximum number of vertices per command.
-    size_t vertexBufferCapacity = 0;
-    for (const MD2_GLCommand& glcommand : pmd2->getGLCommands())
-    {
-        vertexBufferCapacity = std::max(vertexBufferCapacity, glcommand.data.size());
-    }
+    size_t vertexBufferCapacity = md2ModelRenderer.getRequiredVertexBufferCapacity(*pmd2);
     // Allocate a vertex buffer.
-    Md2VertexBuffer vertexBuffer(vertexBufferCapacity);
+    md2ModelRenderer.ensureSize(vertexBufferCapacity);
 
     if (0 != (bits & CHR_REFLECT))
     {
-        Ego::Renderer::get().setWorldMatrix(pchr->inst.getReflectionMatrix());
+        renderer.setWorldMatrix(pchr->inst.getReflectionMatrix());
     }
     else
     {
-        Ego::Renderer::get().setWorldMatrix(pchr->inst.getMatrix());
+        renderer.setWorldMatrix(pchr->inst.getMatrix());
     }
 
     // Choose texture.
-	Ego::Renderer::get().getTextureUnit().setActivated(ptex.get());
+	renderer.getTextureUnit().setActivated(ptex.get());
 
     {
         Ego::OpenGL::PushAttrib pa(GL_CURRENT_BIT);
@@ -280,33 +247,33 @@ gfx_rv ObjectGraphicsRenderer::render_tex(Camera& camera, const std::shared_ptr<
             for (const MD2_GLCommand& glcommand : pmd2->getGLCommands()) {
                 // Pre-render this command.
                 size_t vertexBufferSize = 0;
+                auto* targetVertex = (Ego::Graphics::DefaultMd2ModelRenderer::Vertex *)md2ModelRenderer.lock();
                 for (const id_glcmd_packed_t &cmd : glcommand.data) {
                     Uint16 vertexIndex = cmd.index;
                     if (vertexIndex >= pchr->inst.getVertexCount()) {
                         continue;
                     }
                     const GLvertex& pvrt = pchr->inst.getVertex(vertexIndex);
-                    auto& v = vertexBuffer.vertices[vertexBufferSize++];
-                    v.position.x = pvrt.pos[XX];
-                    v.position.y = pvrt.pos[YY];
-                    v.position.z = pvrt.pos[ZZ];
-                    v.normal.x = pvrt.nrm[XX];
-                    v.normal.y = pvrt.nrm[YY];
-                    v.normal.z = pvrt.nrm[ZZ];
+                    targetVertex->position.x = pvrt.pos[XX];
+                    targetVertex->position.y = pvrt.pos[YY];
+                    targetVertex->position.z = pvrt.pos[ZZ];
+                    targetVertex->normal.x = pvrt.nrm[XX];
+                    targetVertex->normal.y = pvrt.nrm[YY];
+                    targetVertex->normal.z = pvrt.nrm[ZZ];
 
                     // Determine the texture coordinates.
-                    v.texture.s = cmd.s + uoffset;
-                    v.texture.t = cmd.t + voffset;
+                    targetVertex->texture.s = cmd.s + uoffset;
+                    targetVertex->texture.t = cmd.t + voffset;
 
                     // Perform lighting.
                     if (HAS_NO_BITS(bits, CHR_LIGHT) && HAS_NO_BITS(bits, CHR_ALPHA)) {
                         // The directional lighting.
                         float fcol = pvrt.color_dir * INV_FF<float>();
 
-                        v.colour.r = fcol;
-                        v.colour.g = fcol;
-                        v.colour.b = fcol;
-                        v.colour.a = 1.0f;
+                        targetVertex->colour.r = fcol;
+                        targetVertex->colour.g = fcol;
+                        targetVertex->colour.b = fcol;
+                        targetVertex->colour.a = 1.0f;
 
                         // Ambient lighting.
                         if (HAS_NO_BITS(bits, CHR_PHONG)) {
@@ -315,30 +282,32 @@ gfx_rv ObjectGraphicsRenderer::render_tex(Camera& camera, const std::shared_ptr<
 
                             float acol = base_amb + pchr->inst.getAmbientColour() * INV_FF<float>();
 
-                            v.colour.r += acol;
-                            v.colour.g += acol;
-                            v.colour.b += acol;
+                            targetVertex->colour.r += acol;
+                            targetVertex->colour.g += acol;
+                            targetVertex->colour.b += acol;
                         }
 
                         // clip the colors
-                        v.colour.r = Ego::Math::constrain(v.colour.r, 0.0f, 1.0f);
-                        v.colour.g = Ego::Math::constrain(v.colour.g, 0.0f, 1.0f);
-                        v.colour.b = Ego::Math::constrain(v.colour.b, 0.0f, 1.0f);
+                        targetVertex->colour.r = Ego::Math::constrain(targetVertex->colour.r, 0.0f, 1.0f);
+                        targetVertex->colour.g = Ego::Math::constrain(targetVertex->colour.g, 0.0f, 1.0f);
+                        targetVertex->colour.b = Ego::Math::constrain(targetVertex->colour.b, 0.0f, 1.0f);
 
                         // tint the object
-                        v.colour.r *= tint[RR];
-                        v.colour.g *= tint[GG];
-                        v.colour.b *= tint[BB];
+                        targetVertex->colour.r *= tint[RR];
+                        targetVertex->colour.g *= tint[GG];
+                        targetVertex->colour.b *= tint[BB];
                     } else {
                         // Set the basic tint.
-                        v.colour.r = tint[RR];
-                        v.colour.g = tint[GG];
-                        v.colour.b = tint[BB];
-                        v.colour.a = tint[AA];
+                        targetVertex->colour.r = tint[RR];
+                        targetVertex->colour.g = tint[GG];
+                        targetVertex->colour.b = tint[BB];
+                        targetVertex->colour.a = tint[AA];
                     }
+                    vertexBufferSize++;
+                    targetVertex++;
                 }
                 // Render this command.
-                vertexBuffer.render(glcommand.glMode, 0, vertexBufferSize);
+                Md2VertexBuffer::render(glcommand.glMode, 0, vertexBufferSize);
             }
         }
     }
@@ -438,7 +407,8 @@ gfx_rv ObjectGraphicsRenderer::render_ref( Camera& cam, const std::shared_ptr<Ob
             auto& renderer = Ego::Renderer::get();
             // cull backward facing polygons
             // use couter-clockwise orientation to determine backfaces
-            oglx_begin_culling(Ego::CullingMode::Back, MAD_REF_CULL);
+            renderer.setCullingMode(Ego::CullingMode::Back);
+            renderer.setWindingMode(MAD_REF_CULL);
             Ego::OpenGL::Utilities::isError();
 
             //Transparent
@@ -505,7 +475,8 @@ gfx_rv ObjectGraphicsRenderer::render_trans(Camera& cam, const std::shared_ptr<O
 
                 // cull backward facing polygons
                 // use clockwise orientation to determine backfaces
-                oglx_begin_culling(Ego::CullingMode::Back, MAD_NRM_CULL);
+                renderer.setCullingMode(Ego::CullingMode::Back);
+                renderer.setWindingMode(MAD_NRM_CULL);
 
                 // get a speed-up by not displaying completely transparent portions of the skin
                 renderer.setAlphaTestEnabled(true);
@@ -595,7 +566,8 @@ gfx_rv ObjectGraphicsRenderer::render_solid( Camera& cam, const std::shared_ptr<
             } else {
                 // cull backward facing polygons
                 // use couter-clockwise orientation to determine backfaces
-                oglx_begin_culling(Ego::CullingMode::Back, MAD_NRM_CULL);            // GL_ENABLE_BIT | GL_POLYGON_BIT
+                renderer.setCullingMode(Ego::CullingMode::Back);
+                renderer.setWindingMode(MAD_NRM_CULL);
             }
 
             GLXvector4f tint;

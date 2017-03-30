@@ -29,26 +29,26 @@
 namespace Ego {
 
 /// @brief A texture sampler is part of the state of a texture (Ego::Texture).
-struct TextureSampler
+class TextureSampler
 {
 private:
     /// @brief The minification filter.
-    TextureFilter minFilter;
+    TextureFilter m_minFilter;
 
     /// @brief The magnification filter.
-    TextureFilter magFilter;
+    TextureFilter m_magFilter;
 
     /// @brief The mip map filter.
-    TextureFilter mipMapFilter;
+    TextureFilter m_mipMapFilter;
 
     /// @brief The addressing mode along the s-axis.
-    TextureAddressMode addressModeS;
+    TextureAddressMode m_addressModeS;
 
     /// @brief The addressing mode along the t-axis.
-    TextureAddressMode addressModeT;
+    TextureAddressMode m_addressModeT;
 
     /// @brief The levels of anistropic filtering.
-    float anisotropyLevel;
+    float m_anisotropyLevels;
 
 public:
     /// @brief Construct this texture sampler.
@@ -62,7 +62,8 @@ public:
     /// \f$min\f$ is the minimum level and \f$max\f$ is the maximum level of anistropic filtering supported.
     /// The minimum level means anisotropic filtering is off i.e. isotropic filtering is performed.
     TextureSampler(TextureFilter minFilter, TextureFilter magFilter, TextureFilter mipMapFilter,
-                   TextureAddressMode addressModeS, TextureAddressMode addressModeT, float anisotropyLevel);
+                   TextureAddressMode addressModeS, TextureAddressMode addressModeT,
+                   float anisotropyLevels);
 
     /// @brief Copy-construct this texture sampler from another texture sampler.
     /// @param other the other texture sampler
@@ -79,26 +80,50 @@ public:
     /// @return the minification filter
     TextureFilter getMinFilter() const;
 
+    /// @brief Set the minification filter.
+    /// @param minFilter the minification filter
+    void setMinFilter(TextureFilter minFilter);
+
     /// @brief Get the magnification filter.
     /// @return the magnification filter
     TextureFilter getMagFilter() const;
+
+    /// @brief Set the magnification filter.
+    /// @param magFilter the magnification filter
+    void setMagFilter(TextureFilter magFilter);
 
     /// @brief Get the mipmap filter.
     /// @return the mipmap filter
     TextureFilter getMipMapFilter() const;
 
+    /// @brief Set the mipmap filter.
+    /// @param mipMapFilter the mipmap filter
+    void setMipMapFilter(TextureFilter mipMapFilter);
+
     /// @brief Get the address mode for the s-axis.
     /// @return the address mode for the s-axis
     TextureAddressMode getAddressModeS() const;
+
+    /// @brief Set the address mode for the s-axis.
+    /// @param addressModeS the address mode for the s-axis
+    void setAddressModeS(TextureAddressMode addressModeS);
 
     /// @brief Get the address mode for the t-axis.
     /// @return the address mode for the t-axis
     TextureAddressMode getAddressModeT() const;
 
+    /// @brief Set the address mode for the t-axis.
+    /// @param addressModeT the address mode for the t-axis
+    void setAddressModeT(TextureAddressMode addressModeT);
+
     /// @brief Get the levels of anistropic filtering.
     /// @return the levels of anisotropic filtering
     float getAnisotropyLevels() const;
 
-}; // struct TextureSampler
+    /// @brief Set the levels of anisotropic filtering.
+    /// @param anisotropyLevels the levels of anisotropic filtering
+    void setAnisotropyLevels(float anisotropyLevels);
+
+}; // class TextureSampler
 
 } // namespace Ego

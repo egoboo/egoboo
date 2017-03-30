@@ -46,6 +46,7 @@
 #include "game/Graphics/RenderPasses/ReflectiveTilesSecondRenderPass.hpp"
 #include "game/Graphics/RenderPasses/HeightmapRenderPass.hpp"
 #include "game/mesh.h"
+#include "game/Graphics/DefaultMd2ModelRenderer.hpp"
 #include "game/Graphics/BillboardSystem.hpp"
 #include "game/Graphics/CameraSystem.hpp"
 #include "game/Entities/_Include.hpp"
@@ -687,7 +688,7 @@ gfx_rv render_scene_init(Ego::Graphics::TileList& tl, Ego::Graphics::EntityList&
     auto mesh = tl.getMesh();
     if (!mesh)
     {
-		throw Id::RuntimeErrorException(__FILE__, __LINE__, "tile list is not attached to a mesh");
+		throw id::runtime_error(__FILE__, __LINE__, "tile list is not attached to a mesh");
     }
 
     {
@@ -1151,7 +1152,7 @@ void gfx_do_clear_screen()
 void gfx_do_flip_pages()
 {
     Ego::Core::ConsoleHandler::get().draw_all();
-    SDL_GL_SwapWindow(Ego::GraphicsSystem::window->get());
+    SDL_GL_SwapWindow(Ego::GraphicsSystem::get().window->get());
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1163,7 +1164,7 @@ gfx_rv GridIllumination::light_fans_throttle_update(ego_mesh_t * mesh, ego_tile_
 
     if (!mesh)
     {
-		throw Id::RuntimeErrorException(__FILE__, __LINE__, "nullptr == mesh");
+		throw id::runtime_error(__FILE__, __LINE__, "nullptr == mesh");
     }
 	tile_mem_t& tmem = mesh->_tmem;
 
@@ -1211,7 +1212,7 @@ void GridIllumination::light_fans_update_lcache(Ego::Graphics::TileList& tl)
 	auto mesh = tl.getMesh();
 	if (!mesh)
 	{
-		throw Id::RuntimeErrorException(__FILE__, __LINE__, "tile list not attached to a mesh");
+		throw id::runtime_error(__FILE__, __LINE__, "tile list not attached to a mesh");
 	}
 
 #if defined(CLIP_ALL_LIGHT_FANS)
@@ -1359,7 +1360,7 @@ void GridIllumination::light_fans_update_clst(Ego::Graphics::TileList& tl)
     auto mesh = tl.getMesh();
     if (!mesh)
     {
-		throw Id::RuntimeErrorException(__FILE__, __LINE__, "tile list is not attached to a mesh");
+		throw id::runtime_error(__FILE__, __LINE__, "tile list is not attached to a mesh");
     }
 
     // alias the tile memory
@@ -1624,7 +1625,7 @@ gfx_rv GridIllumination::do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_
 	auto mesh = tl.getMesh();
     if (!mesh)
     {
-		throw Id::RuntimeErrorException(__FILE__, __LINE__, "tile list not attached to a mesh");
+		throw id::runtime_error(__FILE__, __LINE__, "tile list not attached to a mesh");
     }
 
 	Ego::MeshInfo& pinfo = mesh->_info;
@@ -2185,7 +2186,8 @@ gfx_rv GFX::update_particle_instances(Camera& camera)
 
 GameAppImpl::GameAppImpl() :
     dynalist(),
-    billboardSystem(std::make_unique<Ego::Graphics::BillboardSystem>())
+    billboardSystem(std::make_unique<Ego::Graphics::BillboardSystem>()),
+    md2ModelRenderer(std::make_unique<Ego::Graphics::DefaultMd2ModelRenderer>())
 {
     // Initialize the texture atlas manager.
     try
@@ -2212,4 +2214,9 @@ dynalist_t& GameAppImpl::getDynalist()
 Ego::Graphics::BillboardSystem& GameAppImpl::getBillboardSystem() const
 {
     return *billboardSystem;
+}
+
+Ego::Graphics::Md2ModelRenderer& GameAppImpl::getMd2ModelRenderer() const
+{
+    return *md2ModelRenderer;
 }

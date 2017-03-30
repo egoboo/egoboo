@@ -27,6 +27,7 @@
 #include "cartman/cartman_select.h"
 #include "cartman/cartman_math.h"
 #include "egolib/FileFormats/Globals.hpp"
+#include "egolib/Image/SDL_Image_Extensions.h"
 #include "egolib/Graphics/GraphicsSystem.hpp"
 #include "cartman/Clocks.h"
 
@@ -202,7 +203,7 @@ void make_hitemap( cartman_mpd_t * pmesh )
 {
     if ( NULL == pmesh ) pmesh = &mesh;
 
-    Resources::get().bmphitemap = Ego::Graphics::SDL::createSurface( pmesh->info.getTileCountX() << 2, pmesh->info.getTileCountY() << 2 );
+    Resources::get().bmphitemap = Ego::SDL::createSurface( pmesh->info.getTileCountX() << 2, pmesh->info.getTileCountY() << 2 );
     if ( NULL == Resources::get().bmphitemap ) return;
 
     for (int pixy = 0, y = 16; pixy < ( pmesh->info.getTileCountY() << 2 ); pixy++, y += 32 )
@@ -219,7 +220,7 @@ void make_hitemap( cartman_mpd_t * pmesh )
             if ( HAS_BITS( pfan->fx, MAPFX_IMPASS ) ) level = 254;   // Impass
             if ( HAS_BITS( pfan->fx, MAPFX_WALL ) && HAS_BITS( pfan->fx, MAPFX_IMPASS ) ) level = 255;   // Both
 
-            Ego::Graphics::SDL::putPixel(Resources::get().bmphitemap, pixx, pixy, level );
+            Ego::SDL::putPixel(Resources::get().bmphitemap, pixx, pixy, level );
         }
     }
 }
@@ -236,7 +237,7 @@ void make_planmap( cartman_mpd_t * pmesh )
 
     if ( NULL == pmesh ) pmesh = &mesh;
 
-    Resources::get().bmphitemap = Ego::Graphics::SDL::createSurface( pmesh->info.getTileCountX() * TINYXY, pmesh->info.getTileCountY() * TINYXY );
+    Resources::get().bmphitemap = Ego::SDL::createSurface( pmesh->info.getTileCountX() * TINYXY, pmesh->info.getTileCountY() * TINYXY );
 
     SDL_FillRect( Resources::get().bmphitemap.get(), NULL, make_rgb(Resources::get().bmphitemap, Ego::Math::Colour3b::black()) );
 
@@ -252,7 +253,7 @@ void make_planmap( cartman_mpd_t * pmesh )
             if ( NULL != tx_tile )
             {
                 SDL_Rect dst = {static_cast<Sint16>(putx), static_cast<Sint16>(puty), TINYXY, TINYXY};
-                cartman_BlitSurface(tx_tile->_source.get(), nullptr, Resources::get().bmphitemap.get(), &dst);
+                cartman_BlitSurface(tx_tile->m_source.get(), nullptr, Resources::get().bmphitemap.get(), &dst);
             }
             putx += TINYXY;
         }
@@ -893,13 +894,13 @@ void ogl_beginFrame()
     renderer.setBlendingEnabled(true);
     renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
 
-    auto drawableSize = Ego::GraphicsSystem::window->getDrawableSize();
+    auto drawableSize = Ego::GraphicsSystem::get().window->getDrawableSize();
     renderer.setViewportRectangle(0, 0, drawableSize.width(), drawableSize.height());
 
     // Set up an ortho projection for the gui to use.  Controls are free to modify this
     // later, but most of them will need this, so it's done by default at the beginning
     // of a frame
-    auto windowSize = Ego::GraphicsSystem::window->getSize();
+    auto windowSize = Ego::GraphicsSystem::get().window->getSize();
 	Matrix4f4f projection = Ego::Math::Transform::ortho(0, windowSize.width(), windowSize.height(), 0, -1, 1);
     renderer.setProjectionMatrix(projection);
     renderer.setWorldMatrix(Matrix4f4f::identity());
@@ -1049,7 +1050,7 @@ void cartman_begin_ortho_camera_vrt(Cartman::Gui::Window& pwin, camera_t * pcam,
 void cartman_end_ortho_camera()
 {
     auto &renderer = Ego::Renderer::get();
-    auto windowSize = Ego::GraphicsSystem::window->getSize();
+    auto windowSize = Ego::GraphicsSystem::get().window->getSize();
     Matrix4f4f projection = Ego::Math::Transform::ortho(0, windowSize.width(), windowSize.height(), 0, -1, 1);
     renderer.setProjectionMatrix(projection);
     renderer.setWorldMatrix(Matrix4f4f::identity());
@@ -1164,7 +1165,7 @@ void get_small_tiles( SDL_Surface* bmpload )
 
             Resources::get().tx_smalltile[numsmalltile] = Ego::Renderer::get().createTexture();
 
-            image = Ego::Graphics::SDL::createSurface( SMALLXY, SMALLXY );
+            image = Ego::SDL::createSurface( SMALLXY, SMALLXY );
             if (!image)
             {
                 throw std::runtime_error("unable to create surface");
@@ -1214,7 +1215,7 @@ void get_big_tiles( SDL_Surface* bmpload )
 
             Resources::get().tx_bigtile[numbigtile] = Ego::Renderer::get().createTexture();
 
-            image = Ego::Graphics::SDL::createSurface( SMALLXY, SMALLXY );
+            image = Ego::SDL::createSurface( SMALLXY, SMALLXY );
             if (!image)
             {
                 throw std::runtime_error("unable to create surface");

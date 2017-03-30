@@ -731,7 +731,7 @@ void mesh_select_move( select_lst_t& plst, float x, float y, float z )
     // get the proper mesh
 	cartman_mpd_t *pmesh = plst.get_mesh();
     if (nullptr == pmesh) {
-        throw Id::RuntimeErrorException(__FILE__, __LINE__, "selection list has no mesh");
+        throw id::runtime_error(__FILE__, __LINE__, "selection list has no mesh");
     }
 
     // limit the movement by the bounds of the mesh
@@ -775,7 +775,7 @@ void mesh_select_set_z_no_bound( select_lst_t& plst, float z )
     // get the mesh
 	cartman_mpd_t *pmesh = plst.get_mesh();
     if (nullptr == pmesh) {
-        throw Id::RuntimeErrorException(__FILE__, __LINE__, "selection list has no mesh");
+        throw id::runtime_error(__FILE__, __LINE__, "selection list has no mesh");
     }
 
     for ( int cnt = 0; cnt < plst.count(); cnt++ )
@@ -791,7 +791,7 @@ void mesh_select_set_z_no_bound( select_lst_t& plst, float z )
 void mesh_select_jitter(select_lst_t& plst) {
 	cartman_mpd_t *pmesh = plst.get_mesh();
     if (nullptr == pmesh)         {
-        throw Id::RuntimeErrorException(__FILE__, __LINE__, "selection list has no mesh");
+        throw id::runtime_error(__FILE__, __LINE__, "selection list has no mesh");
     }
 	for (int i = 0; i < plst.count(); ++i) {
 		int vertex = select_lst_t::at(plst, i);
@@ -803,7 +803,7 @@ void mesh_select_jitter(select_lst_t& plst) {
 void mesh_select_verts_connected(select_lst_t& plst) {
 	cartman_mpd_t *pmesh = plst.get_mesh();
     if (nullptr == pmesh) {
-        throw Id::RuntimeErrorException(__FILE__, __LINE__, "selection list has no mesh");
+        throw id::runtime_error(__FILE__, __LINE__, "selection list has no mesh");
     }
 
     // get vertex list alias
@@ -851,7 +851,7 @@ void mesh_select_weld(select_lst_t& plst)
 {
 	cartman_mpd_t *pmesh = plst.get_mesh();
     if (nullptr == pmesh) {
-        throw Id::RuntimeErrorException(__FILE__, __LINE__, "selection list has no mesh");
+        throw id::runtime_error(__FILE__, __LINE__, "selection list has no mesh");
     }
 
     if ( plst.count() > 1 )

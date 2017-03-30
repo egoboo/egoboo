@@ -26,47 +26,88 @@
 namespace Ego {
 
 TextureSampler::TextureSampler(TextureFilter minFilter, TextureFilter magFilter, TextureFilter mipMapFilter,
-		                       TextureAddressMode addressModeS, TextureAddressMode addressModeT, float anisotropyLevel)
-	: minFilter(minFilter), magFilter(magFilter), mipMapFilter(mipMapFilter),
-	addressModeS(addressModeS), addressModeT(addressModeT), anisotropyLevel(anisotropyLevel) {
-}
+		                       TextureAddressMode addressModeS, TextureAddressMode addressModeT,
+                               float anisotropyLevels) : 
+    m_minFilter(minFilter), m_magFilter(magFilter), m_mipMapFilter(mipMapFilter),
+	m_addressModeS(addressModeS), m_addressModeT(addressModeT),
+    m_anisotropyLevels(anisotropyLevels)
+{}
 
-TextureSampler::TextureSampler(const TextureSampler& other)
-	: minFilter(other.minFilter), magFilter(other.magFilter), mipMapFilter(other.mipMapFilter),
-	addressModeS(other.addressModeS), addressModeT(other.addressModeT), anisotropyLevel(other.anisotropyLevel) {}
+TextureSampler::TextureSampler(const TextureSampler& other) :
+    m_minFilter(other.m_minFilter), m_magFilter(other.m_magFilter), m_mipMapFilter(other.m_mipMapFilter),
+	m_addressModeS(other.m_addressModeS), m_addressModeT(other.m_addressModeT),
+    m_anisotropyLevels(other.m_anisotropyLevels)
+{}
 
-const TextureSampler& TextureSampler::operator=(const TextureSampler& other) {
-	minFilter = other.minFilter;
-	magFilter = other.magFilter;
-	mipMapFilter = other.mipMapFilter;
-	addressModeS = other.addressModeS;
-	addressModeT = other.addressModeT;
-	anisotropyLevel = other.anisotropyLevel;
+const TextureSampler& TextureSampler::operator=(const TextureSampler& other)
+{
+	m_minFilter = other.m_minFilter;
+	m_magFilter = other.m_magFilter;
+	m_mipMapFilter = other.m_mipMapFilter;
+	m_addressModeS = other.m_addressModeS;
+	m_addressModeT = other.m_addressModeT;
+	m_anisotropyLevels = other.m_anisotropyLevels;
 	return *this;
 }
 
-TextureFilter TextureSampler::getMinFilter() const {
-	return minFilter;
+TextureFilter TextureSampler::getMinFilter() const
+{
+	return m_minFilter;
 }
 
-TextureFilter TextureSampler::getMagFilter() const {
-	return magFilter;
+void TextureSampler::setMinFilter(TextureFilter minFilter)
+{
+    m_minFilter = minFilter;
 }
 
-TextureFilter TextureSampler::getMipMapFilter() const {
-	return mipMapFilter;
+TextureFilter TextureSampler::getMagFilter() const
+{
+	return m_magFilter;
 }
 
-TextureAddressMode TextureSampler::getAddressModeS() const {
-	return addressModeS;
+void TextureSampler::setMagFilter(TextureFilter magFilter)
+{
+    m_magFilter = magFilter;
 }
 
-TextureAddressMode TextureSampler::getAddressModeT() const {
-	return addressModeT;
+TextureFilter TextureSampler::getMipMapFilter() const
+{
+	return m_mipMapFilter;
 }
 
-float TextureSampler::getAnisotropyLevel() const {
-	return anisotropyLevel;
+void TextureSampler::setMipMapFilter(TextureFilter mipMapFilter)
+{
+    m_mipMapFilter = mipMapFilter;
+}
+
+TextureAddressMode TextureSampler::getAddressModeS() const
+{
+	return m_addressModeS;
+}
+
+void TextureSampler::setAddressModeS(TextureAddressMode addressModeS)
+{
+    m_addressModeS = addressModeS;
+}
+
+TextureAddressMode TextureSampler::getAddressModeT() const
+{
+	return m_addressModeT;
+}
+
+void TextureSampler::setAddressModeT(TextureAddressMode addressModeT)
+{
+    m_addressModeT = addressModeT;
+}
+
+float TextureSampler::getAnisotropyLevels() const
+{
+	return m_anisotropyLevels;
+}
+
+void TextureSampler::setAnisotropyLevels(float anisotropyLevels)
+{
+    m_anisotropyLevels = anisotropyLevels;
 }
 
 } // namespace Ego

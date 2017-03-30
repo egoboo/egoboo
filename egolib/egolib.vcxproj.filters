@@ -198,12 +198,6 @@
     <ClCompile Include="src\egolib\extensions\ogl_extensions.c">
       <Filter>Extensions</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\extensions\SDL_extensions.c">
-      <Filter>Extensions</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\extensions\SDL_GL_extensions.c">
-      <Filter>Extensions</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\platform\file_linux.c">
       <Filter>Platforms</Filter>
     </ClCompile>
@@ -417,9 +411,6 @@
     <ClCompile Include="src\egolib\AI\LineOfSight.cpp">
       <Filter>Source Files\AI</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\Time.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\Renderer\DeferredTexture.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
@@ -483,9 +474,6 @@
     <ClCompile Include="src\egolib\App.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\Extensions\WindowProperties.cpp">
-      <Filter>Extensions</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\Graphics\SDL\DisplayMode.cpp">
       <Filter>Source Files\Graphics\SDL</Filter>
     </ClCompile>
@@ -546,9 +534,6 @@
     <ClCompile Include="src\egolib\Log\EndOfLine.cpp">
       <Filter>Source Files\Log</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\Extensions\ContextProperties.cpp">
-      <Filter>Extensions</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\Graphics\GraphicsContext.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
@@ -593,6 +578,30 @@
     </ClCompile>
     <ClCompile Include="src\egolib\Script\Scanner.cpp">
       <Filter>Source Files\Script</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Renderer\OpenGL\Utilities.cpp">
+      <Filter>Source Files\Renderer\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Renderer\OpenGL\RendererInfo.cpp">
+      <Filter>Source Files\Renderer\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Renderer\OpenGL\DefaultTexture.cpp">
+      <Filter>Source Files\Renderer\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Graphics\SDL\GraphicsWindow.cpp">
+      <Filter>Source Files\Graphics\SDL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Graphics\SDL\GraphicsContext.cpp">
+      <Filter>Source Files\Graphics\SDL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Image\SDL_Image_Extensions.c">
+      <Filter>Source Files\Image</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Graphics\SDL\Utilities.cpp">
+      <Filter>Source Files\Graphics\SDL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Time\Time.cpp">
+      <Filter>Source Files\Time</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -645,15 +654,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\extensions\ogl_extensions.h">
-      <Filter>Extensions</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\extensions\ogl_include.h">
-      <Filter>Extensions</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\extensions\SDL_extensions.h">
-      <Filter>Extensions</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\extensions\SDL_GL_extensions.h">
       <Filter>Extensions</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\platform\NSFileManager+DirectoryLocations.h">
@@ -1001,9 +1001,6 @@
     <ClInclude Include="src\egolib\AI\LineOfSight.hpp">
       <Filter>Header Files\AI</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Time.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Math\Angle.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
@@ -1109,9 +1106,6 @@
     <ClInclude Include="src\egolib\Math\Discrete.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Extensions\WindowProperties.hpp">
-      <Filter>Extensions</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Math\Constants.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
@@ -1208,22 +1202,10 @@
     <ClInclude Include="src\egolib\Math\Functors\Translate_Sphere.hpp">
       <Filter>Header Files\Math\Functors</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Math\Functors\Interpolate.hpp">
-      <Filter>Header Files\Math\Functors</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Math\Functors\Interpolate_Linear_Real.hpp">
-      <Filter>Header Files\Math\Functors</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Math\Functors\Interpolate_Linear_Point.hpp">
       <Filter>Header Files\Math\Functors</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Math\Functors\Interpolate_Linear_Vector.hpp">
-      <Filter>Header Files\Math\Functors</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Math\Functors\Interpolate_Linear_ColourRGB.hpp">
-      <Filter>Header Files\Math\Functors</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Math\Functors\Interpolate_Linear_ColourRGBA.hpp">
       <Filter>Header Files\Math\Functors</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Events\MouseMovedEventArgs.hpp">
@@ -1292,30 +1274,6 @@
     <ClInclude Include="src\egolib\Math\Functors\Convert.hpp">
       <Filter>Header Files\Math\Functors</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Math\Functors\Convert_LAf_Lf.hpp">
-      <Filter>Header Files\Math\Functors</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Math\Functors\Convert_Lf_LAf.hpp">
-      <Filter>Header Files\Math\Functors</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Math\Functors\Convert_Lf_Lf.hpp">
-      <Filter>Header Files\Math\Functors</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Math\Functors\Convert_RGBAf_RGBAf.hpp">
-      <Filter>Header Files\Math\Functors</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Math\Functors\Convert_RGBAf_RGBf.hpp">
-      <Filter>Header Files\Math\Functors</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Math\Functors\Convert_RGBf_RGBAf.hpp">
-      <Filter>Header Files\Math\Functors</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Math\Functors\Convert_RGBf_RGBf.hpp">
-      <Filter>Header Files\Math\Functors</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Math\Functors\Convert_LAf_LAf.hpp">
-      <Filter>Header Files\Math\Functors</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Math\Interval.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
@@ -1366,9 +1324,6 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Log\EndOfLine.hpp">
       <Filter>Header Files\Log</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Extensions\ContextProperties.hpp">
-      <Filter>Extensions</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Graphics\GraphicsContext.hpp">
       <Filter>Header Files\Graphics</Filter>
@@ -1432,6 +1387,30 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Script\Scanner.hpp">
       <Filter>Header Files\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Renderer\OpenGL\Utilities.hpp">
+      <Filter>Header Files\Renderer\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Renderer\OpenGL\RendererInfo.hpp">
+      <Filter>Header Files\Renderer\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Renderer\OpenGL\DefaultTexture.hpp">
+      <Filter>Header Files\Renderer\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Graphics\SDL\GraphicsWindow.hpp">
+      <Filter>Header Files\Graphics\SDL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Graphics\SDL\GraphicsContext.hpp">
+      <Filter>Header Files\Graphics\SDL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Image\SDL_Image_Extensions.h">
+      <Filter>Header Files\Image</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Graphics\SDL\Utilities.hpp">
+      <Filter>Header Files\Graphics\SDL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Time\Time.hpp">
+      <Filter>Header Files\Time</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

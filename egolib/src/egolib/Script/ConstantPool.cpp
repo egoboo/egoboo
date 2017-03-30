@@ -33,7 +33,7 @@ const Constant& ConstantPool::getConstant(ConstantPool::Index index)
 {
     if (index >= m_constants.size())
     {
-        throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
+        throw id::runtime_error(__FILE__, __LINE__, "index out of bounds");
     }
     return m_constants[index];
 }
@@ -59,7 +59,7 @@ ConstantPool::Index ConstantPool::getOrCreateConstant(int value)
     {
         if (m_constants.size() == std::numeric_limits<uint32_t>::max())
         {
-            throw Id::RuntimeErrorException(__FILE__, __LINE__, "constant pool overflow");
+            throw id::runtime_error(__FILE__, __LINE__, "constant pool overflow");
         }
         // (2) No constant for the specified value already exists. Create one.
         m_constants.push_back(Constant(value));
@@ -85,7 +85,7 @@ ConstantPool::Index ConstantPool::getOrCreateConstant(const std::string& value)
     {
         if (m_constants.size() == std::numeric_limits<uint32_t>::max())
         {
-            throw Id::RuntimeErrorException(__FILE__, __LINE__, "constant pool overflow");
+            throw id::runtime_error(__FILE__, __LINE__, "constant pool overflow");
         }
         // (2) No constant for the specified value already exists. Create one.
         m_constants.push_back(Constant(value));

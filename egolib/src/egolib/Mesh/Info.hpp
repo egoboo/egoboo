@@ -121,25 +121,25 @@ public:
 
     /// @brief Assert that an index is valid and within bounds.
     /// @param index the index
-    /// @throw Id::RuntimeErrorException if the index is not valid or not within bounds
+    /// @throw id::runtime_error the index is not valid or not within bounds
     void assertValid(const Index1D& index) const {
         if (Index1D::Invalid == index) {
-            throw Id::RuntimeErrorException(__FILE__, __LINE__, "invalid index");
+            throw id::runtime_error(__FILE__, __LINE__, "invalid index");
         }
         if (index >= getTileCount() || index < 0) {
-            throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
+            throw id::runtime_error(__FILE__, __LINE__, "index out of bounds");
         }
     }
 
     /// @brief Assert that an index is valid and within bounds.
     /// @param index the index
-    /// @throw Id::RuntimeErrorException if the index is not valid or not within bounds
+    /// @throw id::runtime_error the index is not valid or not within bounds
     void assertValid(const Index2D& index) const {
         if (index.x() >= getTileCountX() || index.x() < 0) {
-            throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
+            throw id::runtime_error(__FILE__, __LINE__, "index out of bounds");
         }
         if (index.y() >= getTileCountY() || index.y() < 0) {
-            throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
+            throw id::runtime_error(__FILE__, __LINE__, "index out of bounds");
         }
     }
 

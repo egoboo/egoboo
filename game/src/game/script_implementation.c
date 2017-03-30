@@ -320,7 +320,7 @@ Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const
 
 	auto mesh = _currentModule->getMeshPointer();
 	if (!mesh) {
-		throw Id::RuntimeErrorException(__FILE__, __LINE__, "nullptr == mesh");
+		throw id::runtime_error(__FILE__, __LINE__, "nullptr == mesh");
 	}
 
     const std::shared_ptr<Passage> &passage = _currentModule->getPassageByID(passageID);
@@ -488,7 +488,7 @@ ObjectRef FindWeapon( Object * pchr, float max_distance, const IDSZ2& weap_idsz,
     line_of_sight_info_t los;
 
     if (nullptr == pchr) {
-        throw Id::RuntimeErrorException(__FILE__, __LINE__, "nullptr == pchr");
+        throw id::runtime_error(__FILE__, __LINE__, "nullptr == pchr");
     }
 
     // set up the target

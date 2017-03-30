@@ -54,7 +54,7 @@ public:
     /// @brief Get the constant at the specified index.
     /// @param index the index
     /// @return a reference to the constant
-    /// @throw Id::RuntimeErrorException the index was out of bounds
+    /// @throw id::runtime_error the index was out of bounds
     const Constant& getConstant(Index index);
 
     /// @brief Get the number of constants.
@@ -64,13 +64,13 @@ public:
     /// @brief Get or create an <c>integer</c> constant.
     /// @param value the value of the constant
     /// @return the index of the constant
-    /// @throw Id::RuntimeErrorException the constant pool would overflow
+    /// @throw id::runtime_error the constant pool would overflow
     Index getOrCreateConstant(int value);
 
     /// @brief Get or create a <c>string</c> constant.
     /// @param value the value of the constant.
     /// @return the index of the constant
-    /// @throw Id::RuntimeErrorException the constant pool would overflow
+    /// @throw id::runtime_error the constant pool would overflow
     Index getOrCreateConstant(const std::string& value);
 
     /// @brief Clear this constant pool.

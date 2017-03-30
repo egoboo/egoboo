@@ -17,9 +17,10 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Time/SlidingWindow.hpp
-/// @brief  A sliding window
+/// @file egolib/Time/SlidingWindow.hpp
+/// @brief A sliding window
 /// @author Michael Heilmann
+
 #pragma once
 
 #include "egolib/typedef.h"
@@ -42,7 +43,7 @@ namespace Time {
  *	Michael Heilmann
  */
 template <typename _DataPointType>
-struct SlidingWindow : Id::NonCopyable {
+struct SlidingWindow : private id::non_copyable {
 
 	/**
 	 * @brief

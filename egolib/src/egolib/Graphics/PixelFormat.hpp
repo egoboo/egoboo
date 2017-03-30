@@ -31,103 +31,87 @@ namespace Ego {
 /// @brief Enumeration of canonical identifiers for a pixel formats.
 enum class PixelFormat
 {
-    /**
-     * @brief
-     *  A pixel consisting of
-     *      3 Bytes x0, x1, and x2
-     *  at consecutive addresses in memory such that
-     *      x0
-     *  is at the lowest address and
-     *      x2
-     *  is at the highest address.
-     *  The value of x0 denotes the value of the blue component,
-     *  x1 the value of the green component,
-     *  and x2 the value of the red component
-     *  such that components r, g, b, and a, of the corresponding colour in normalized, real-valued RGBA space are computed by
-     *  r = x[2] / 255, g = x[1] / 255, b = x[0] / 255, and a = 1.
-     */
+    /// @brief
+    /// A pixel consists of 3 Bytes \f$x_0\f$, \f$x_1\f$, and \f$x_2\f$
+    /// at consecutive addresses in memory such that if \f$a\f$ is the
+    /// address of the pixel then
+    /// the address of \f$x_0\f$ is \f$a(x_0) = a + 0\f$,
+    /// the address of \f$x_1\f$ is \f$a(x_1) = a + 1\f$, and
+    /// the address of \f$x_2\f$ is \f$a(x_2) = a + 2\f$.
+    /// The value of \f$x_0\f$ denotes the value of the blue component,
+    /// the value of \f$x_1\f$ the value of the green component, and
+    /// the value of \f$x_2\f$ the value of the red component.
+    /// All component values are within the range of \f$[0,255]\f$
+    /// where \f$0\f$ indicates the minimum intensity and \f$255\f$ the maximum intensity.
     B8G8R8,
 
-    /**
-     * @brief
-     *  A pixel consisting of
-     *      4 Bytes x0, x1, x2, and x3
-     *  at consecutive addresses in memory such that
-     *      x0
-     *  is at the lowest address and
-     *      x3
-     *  is at the highest address.
-     *  x0 denotes the value of the blue component,
-     *  x1 the value of the green component,
-     *  x2 the value of the red component,
-     *  and x3 the value of the alpha component
-     *  such that components r, g, b, and a, of the corresponding colour in normalized, real-valued RGBA space are computed by
-     *  r = x[2] / 255, g = x[1] / 255, b = x[0] / 255, and a = x[3] / 255.
-     */
+    /// @brief
+    /// A pixel consists of 4 Bytes \f$x_0\f$, \f$x_1\f$, \f$x_2\f$, and \f$x_3\f$
+    /// at consecutive addresses in memory such that if \f$a\f$ is the
+    /// address of the pixels then
+    /// the address of \f$x_0\f$ is \f$a(x_0) = a + 0\f$,
+    /// the address of \f$x_1\f$ is \f$a(x_1) = a + 1\f$,
+    /// the address of \f$x_2\f$ is \f$a(x_2) = a + 2\f$, and
+    /// the address of \f$x_3\f$ is \f$a(x_3) = a + 3\f$.
+    /// The value of \f$x_0\f$ denotes the value of the blue component,
+    /// the value of \f$x_1\f$ the value of the green component,
+    /// the value of \f$x_2\f$ the value of the red component, and
+    /// the value of \f$x_3\f$ the value of the alpha component.
+    /// All component values are within the range of \f$[0,255]\f$
+    /// where \f$0\f$ indicates the minimum intensity and \f$255\f$ the maximum intensity.
     B8G8R8A8,
 
-    /**
-     * @brief
-     *  A pixel consisting of
-     *      3 Bytes x0, x1, and x2
-     *  at consecutive addresses in memory such that
-     *      x0
-     *  is at the lowest address and
-     *      x2
-     *  is at the highest address.
-     *  x0 denotes the value of the red component,
-     *  x1 the value of the green component,
-     *  and x2 the value of the blue component
-     *  such that components r, g, b, and a, of the corresponding colour in normalized, real-valued RGBA space are computed by
-     *  r = x[0] / 255, g = x[1] / 255, b = x[2] / 255, and a = 1.
-     */
+    /// @brief
+    /// A pixel consists of 3 Bytes \f$x_0\f$, \f$x_1\f$, and \f$x_2\f$
+    /// at consecutive addresses in memory such that if \f$a\f$ is the
+    /// address of the pixel then
+    /// the address of \f$x_0\f$ is \f$a(x_0) = a + 0\f$,
+    /// the address of \f$x_1\f$ is \f$a(x_1) = a + 1\f$, and
+    /// the address of \f$x_2\f$ is \f$a(x_2) = a + 2\f$.
+    /// The value of \f$x_0\f$ denotes the value of the red component,
+    /// the value of \f$x_1\f$ the value of the green component, and
+    /// the value of \f$x_2\f$ the value of the blue component.
+    /// All component values are within the range of \f$[0,255]\f$
+    /// where \f$0\f$ indicates the minimum intensity and \f$255\f$ the maximum intensity.
     R8G8B8,
 
-    /**
-     * @brief
-     *  A pixel consisting of
-     *      4 Bytes x0, x1, x2, and x3
-     *  at consecutive addresses in memory such that
-     *      x0
-     *  is at the lowest address and
-     *      x3
-     *  is at the highest address.
-     *  x0 denotes the value of the red component,
-     *  x1 the value of the green component,
-     *  and x2 the value of the blue component
-     *  such that components r, g, b, and a, of the corresponding colour in normalized, real-valued RGBA space are computed by
-     *  r = x[0] / 255, g = x[1] / 255, b = x[2] / 255, and a = x[3] / 255.
-     * @remark
-     *  This means, regardless of the Endianess of the system,
-     *  provided a pointer <tt>char *p</tt> to the address of
-     *  the pixel, then p[0] is the Byte of the red component,
-     *  p[1] is the Byte of the green component, p[2] is the
-     *  Bte of the blue component and p[3] is the Byte of the
-     *  alpha component of this pixel format.
-     *  <br/>
-     *  To achieve this
-     *  the bitmask for the red component is 0xff << 0,
-     *  the bitmask for the green component is 0xff << 8,
-     *  the bitmask for the blue component is 0xff << 16, and
-     *  the bitmask for the alpha component is 0xff << 24
-     *  on little-endian systems.
-     *  <br/>
-     *  On big-endian systems however,
-     *  the bitmask for the red component is 0xff << 24,
-     *  the bitmask for the green component is 0xff << 16
-     *  the bitmask for the blue component is 0xff << 8, and
-     *  the bitmask for the alpha component is 0xff << 0.
-     */
+    /// @brief
+    /// A pixel consists of 4 Bytes \f$x_0\f$, \f$x_1\f$, \f$x_2\f$, and \f$x_3\f$
+    /// at consecutive addresses in memory such that if \f$a\f$ is the
+    /// address of the pixels then
+    /// the address of \f$x_0\f$ is \f$a(x_0) = a + 0\f$,
+    /// the address of \f$x_1\f$ is \f$a(x_1) = a + 1\f$,
+    /// the address of \f$x_2\f$ is \f$a(x_2) = a + 2\f$, and
+    /// the address of \f$x_3\f$ is \f$a(x_3) = a + 3\f$.
+    /// The value of \f$x_0\f$ denotes the value of the red component,
+    /// the value of \f$x_1\f$ the value of the green component,
+    /// the value of \f$x_2\f$ the value of the blue component, and
+    /// the value of \f$x_3\f$ the value of the alpha component.
+    /// All component values are within the range of \f$[0,255]\f$
+    /// where \f$0\f$ indicates the minimum intensity and \f$255\f$ the maximum intensity.
     R8G8B8A8,
 
+    /// @brief
+    /// A pixel consists of 4 Bytes \f$x_0\f$, \f$x_1\f$, \f$x_2\f$, and \f$x_3\f$
+    /// at consecutive addresses in memory such that if \f$a\f$ is the
+    /// address of the pixels then
+    /// the address of \f$x_0\f$ is \f$a(x_0) = a + 0\f$,
+    /// the address of \f$x_1\f$ is \f$a(x_1) = a + 1\f$,
+    /// the address of \f$x_2\f$ is \f$a(x_2) = a + 2\f$, and
+    /// the address of \f$x_3\f$ is \f$a(x_3) = a + 3\f$.
+    /// The value of \f$x_0\f$ denotes the value of alpha red component,
+    /// the value of \f$x_1\f$ the value of the blue component,
+    /// the value of \f$x_2\f$ the value of the green component, and
+    /// the value of \f$x_3\f$ the value of the red component.
+    /// All component values are within the range of \f$[0,255]\f$
+    /// where \f$0\f$ indicates the minimum intensity and \f$255\f$ the maximum intensity.
+    A8B8G8R8,
 };
 
-/// @brief
-/// A pixel format descriptor suitable to describe the pixel formats
-/// as specified by the Ego::PixelFormat enumeration.
-/// @todo
-/// Provide specializations of PixelDescriptor::get() for A8R8G8B8 and A8B8G8R8.
-struct PixelFormatDescriptor
+/// @brief A pixel format descriptor suitable to describe the pixel
+/// formats as specified by the Ego::PixelFormat enumeration.
+/// @remark The bitmasks are given w.r.t. the host byte order.
+class PixelFormatDescriptor
 {
 private:
     /// @brief The pixel format.
@@ -167,9 +151,9 @@ protected:
     /// @brief Construct this pixel descriptor.
     /// @param pixelFormat the pixel format
     /// @param redShift, greenShift, blueShift, alphaShift
-    /// the shifts for Bits of the the red, green, blue and alpha components
+    /// the shifts for Bits of the the red, green, blue and alpha components (w.r.t. the host Byte order)
     /// @param redMask, greenMask, blueMask, alphaMask
-    /// the masks for Bits of the red, green, blue and alpha components
+    /// the masks for Bits of the red, green, blue and alpha components (w.r.t. the host Byte order)
     /// @param colourDepth the colour depth of this pixel format
     PixelFormatDescriptor(PixelFormat pixelFormat,
                           uint32_t redShift, uint32_t greenShift,
@@ -179,37 +163,37 @@ protected:
                           const ColourDepth& colourDepth);
 
 public:
-    /// @brief Get the shift of the alpha Bits.
-    /// @return the shift of the alpha Bits
+    /// @brief Get the shift of the alpha Bits (w.r.t. host Byte order).
+    /// @return the shift of the alpha Bits (w.r.t. the host Byte order)
     uint32_t getAlphaShift() const;
 
-    /// @brief Get the shift of the blue Bits.
-    /// @return the shift of the blue Bits
+    /// @brief Get the shift of the blue Bits (w.r.t. host Byte order).
+    /// @return the shift of the blue Bits (w.r.t. host Byte order)
     uint32_t getBlueShift() const;
 
-    /// @brief Get the shift of the green Bits.
-    /// @return the shift of the green Bits
+    /// @brief Get the shift of the green Bits (w.r.t. host Byte order).
+    /// @return the shift of the green Bits (w.r.t. host Byte order)
     uint32_t getGreenShift() const;
 
-    /// @brief Get the shift of the red Bits.
-    /// @return the shift of the red Bits
+    /// @brief Get the shift of the red Bits (w.r.t. host Byte order).
+    /// @return the shift of the red Bits (w.w.r.t. host Byte order)
     uint32_t getRedShift() const;
 
 public:
-    /// @brief The mask for the alpha Bits.
-    /// @return the mask of the alpha Bits
+    /// @brief The mask for the alpha Bits (w.r.t. the host Byte order).
+    /// @return the mask of the alpha Bits (w.r.t. the host Byte order)
     uint32_t getAlphaMask() const;
 
-    /// @brief Get the mask for the blue Bits.
-    /// @return the mask of the blue Bits
+    /// @brief Get the mask for the blue Bits (w.r.t. the host Byte order).
+    /// @return the mask of the blue Bits (w.r.t. the host Byte order)
     uint32_t getBlueMask() const;
 
-    /// @brief The mask for the green Bits.
-    /// @return the mask of the green Bits
+    /// @brief The mask for the green Bits (w.r.t. the host Byte order).
+    /// @return the mask of the green Bits (w.r.t. the host Byte order)
     uint32_t getGreenMask() const;
 
-    /// @brief Get the mask for the red Bits.
-    /// @return the mask of the red Bits
+    /// @brief Get the mask for the red Bits (w.r.t. the host Byte order).
+    /// @return the mask of the red Bits (w.r.t. the host Byte order)
     uint32_t getRedMask() const;
 
 public:
@@ -243,5 +227,8 @@ const PixelFormatDescriptor& PixelFormatDescriptor::get<PixelFormat::R8G8B8>();
 
 template <>
 const PixelFormatDescriptor& PixelFormatDescriptor::get<PixelFormat::R8G8B8A8>();
+
+template <>
+const PixelFormatDescriptor& PixelFormatDescriptor::get<PixelFormat::A8B8G8R8>();
 
 } // namespace Ego

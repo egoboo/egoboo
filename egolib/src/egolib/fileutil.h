@@ -91,7 +91,7 @@ public:
         auto it = enumDescriptor.find(name);
         if (it == enumDescriptor.end())
         {
-            throw Id::CompilationErrorException(__FILE__, __LINE__, Id::CompilationErrorKind::Lexical, id::location(getFileName(), getLineNumber()), "invalid enum");
+            throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, id::location(getFileName(), getLineNumber()), "invalid enum");
         }
         return it->second;
     }

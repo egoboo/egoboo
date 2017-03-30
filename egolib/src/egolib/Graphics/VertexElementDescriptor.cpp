@@ -69,7 +69,7 @@ size_t VertexElementDescriptor::getSize() const {
         case Syntax::F4:
             return sizeof(float) * 4;
         default:
-            throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
+            throw id::unhandled_switch_case_error(__FILE__, __LINE__);
     }
 }
 

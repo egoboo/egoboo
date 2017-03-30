@@ -99,14 +99,14 @@ public:
      * @param origin the origin point \f$O\f$ of this cone
      * @param axis the axis vector \f$\vec{a},\vec{a} \neq \vec{0}\f$ of this cone
      * @param angle the acute angle \f$\theta\f$, in degrees
-     * @throw Id::RuntimeErrorException \f$\vec{a} = \vec{0}\f$
-     * @throw Id::RuntimeErrorException \f$\theta\f$ is not an acute angle 
+     * @throw id::runtime_error \f$\vec{a} = \vec{0}\f$
+     * @throw id::runtime_error \f$\theta\f$ is not an acute angle 
      */
     Cone3(const PointType& origin, const VectorType& axis, const Angle<AngleUnit::Degrees>& angle)
         : origin(origin), axis(axis), angle(angle) {
         this->axis.normalized();
         if (!angle.isAcute()) {
-            throw Id::RuntimeErrorException(__FILE__, __LINE__, "the angle is not an acute angle");
+            throw id::runtime_error(__FILE__, __LINE__, "the angle is not an acute angle");
         }
     }
 
@@ -176,7 +176,7 @@ public:
      *   the height \f$h \in \left[0,+\infty\right)\f$.
      * @return
      *  the radius at the specified height
-     * @throw Id::RuntimeErrorException
+     * @throw id::runtime_error
      *  if the height is negative
      * @remark
      *  Given a right triangle, it is known that \f$\tan\alpha=
@@ -197,7 +197,7 @@ public:
      *   the height \f$h \in \left[0,+\infty\right)\f$.
      * @return
      *  the slant height at the specified height
-     * @throw Id::RuntimeErrorException
+     * @throw id::runtime_error
      *  if the height is negative
      * @remark
      *  Given a right triangle, it is known that \f$\cos\alpha=

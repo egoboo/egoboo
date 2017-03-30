@@ -17,14 +17,12 @@
 //*
 //********************************************************************************************
 
-/// @file  egolib/Time.cpp
+/// @file  egolib/Time/Time.cpp
 /// @brief Time points, time durations, and time units.
 /// @author Michael Heilmann
-/// @todo Move into <tt>egolib/Time</tt>.
 
-#include "egolib/Time.hpp"
+#include "egolib/Time/Time.hpp"
 #include "egolib/Core/System.hpp"
-
 
 
 namespace Time {
