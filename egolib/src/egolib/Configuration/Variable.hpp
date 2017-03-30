@@ -51,7 +51,11 @@ public:
     /// @param value the value
     void setValue(const ValueType& value)
     {
-        m_value = value;
+        if (m_value != value)
+        {
+            m_value = value;
+            ValueChanged();
+        }
     }
 
     /// @brief Get the default value of the variable.
@@ -84,6 +88,9 @@ public:
     /// @param source the source string
     /// @return @a true on success, @a false on failure
     virtual bool decodeValue(const std::string& source) = 0;
+
+    /// @brief Event raised if the value of this variable has changed.
+    Id::Signal<void()> ValueChanged;
 };
 
 /// @brief The abstract base of all variables.
