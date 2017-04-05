@@ -425,7 +425,7 @@ ObjectProfileRef vfs_get_next_object_profile_ref(ReadContext& ctxt)
 {
     int number = vfs_get_next_int(ctxt);
     ObjectProfileRef reference = ObjectProfileRef::Invalid;
-    if (number < number > ObjectProfileRef::Min.get() || number > ObjectProfileRef::Max.get())
+    if (number < ObjectProfileRef::Min.get() || number > ObjectProfileRef::Max.get())
     {
         return reference;
     }
