@@ -104,14 +104,10 @@ std::shared_ptr<ModuleProfile> ModuleProfile::loadFromFile(const std::string &fo
     //Allocate memory
     std::shared_ptr<ModuleProfile> result = std::make_shared<ModuleProfile>();
 
-    std::string buffer;
-
     // Read basic data
-    vfs_get_next_string_lit(ctxt, buffer);
-    result->_name = buffer;
+    result->_name = vfs_get_next_string_lit(ctxt);
 
-    vfs_get_next_name(ctxt, buffer);
-    result->_reference = buffer;
+    result->_reference = vfs_get_next_name(ctxt);
 
     result->_unlockQuest = vfs_get_next_idsz(ctxt);
     ctxt.skipWhiteSpaces();
@@ -142,8 +138,7 @@ std::shared_ptr<ModuleProfile> ModuleProfile::loadFromFile(const std::string &fo
     // Skip RTS option.
     vfs_get_next_printable(ctxt);
 
-    vfs_get_next_string_lit(ctxt, buffer);
-    buffer = Ego::trim_ws(buffer);
+    std::string buffer = Ego::trim_ws(vfs_get_next_string_lit(ctxt));
     result->_rank = buffer.length();
 
     // convert the special ranks of "unranked" or "-" ("rank 0")
@@ -156,9 +151,7 @@ std::shared_ptr<ModuleProfile> ModuleProfile::loadFromFile(const std::string &fo
     for (size_t cnt = 0; cnt < SUMMARYLINES; cnt++)
     {
         // load the string
-        vfs_get_next_string_lit(ctxt, buffer);
-
-        result->_summary.push_back(buffer);
+        result->_summary.push_back(vfs_get_next_string_lit(ctxt));
     }
 
     // Assume default module type as a sidequest

@@ -318,13 +318,11 @@ void ObjectProfile::loadAllMessages(const std::string &filePath)
     } catch (...) {
         return;
     }
-    std::string line;
 
     while (ctxt->skipToColon(true))
     {
         //Load one line
-        vfs_read_string_lit(*ctxt, line);
-        addMessage(line);
+        addMessage(vfs_read_string_lit(*ctxt));
     }
 }
 
@@ -442,8 +440,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     //_slotNumber = vfs_get_next_object_profile_ref(ctxt);
 
     // Read in the class name
-    std::string buffer;
-    vfs_get_next_string_lit(ctxt, buffer);
+    std::string buffer = vfs_get_next_string_lit(ctxt);
 
     // fix class name capitalization
     buffer[0] = id::to_upper(buffer[0]);
@@ -669,9 +666,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
 
     for (size_t cnt = 0; cnt < SKINS_PEROBJECT_MAX; cnt++)
     {
-        std::string skinName;
-        vfs_get_next_string_lit(ctxt, skinName);
-        _skinInfo[cnt].name = skinName;
+        _skinInfo[cnt].name = vfs_get_next_string_lit(ctxt);
     }
 
     for (size_t cnt = 0; cnt < SKINS_PEROBJECT_MAX; cnt++)
@@ -833,8 +828,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
 
             case IDSZ2::caseLabel( 'M', 'O', 'D', 'L' ):
             {
-                std::string tmp_buffer;
-                vfs_read_string_lit(ctxt, tmp_buffer);
+                std::string tmp_buffer = vfs_read_string_lit(ctxt);
                 if (tmp_buffer.length() > 0)
                 {
                     size_t position = tmp_buffer.find_first_of("SBHCT");

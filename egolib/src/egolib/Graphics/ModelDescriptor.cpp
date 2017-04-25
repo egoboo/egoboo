@@ -704,10 +704,10 @@ void ModelDescriptor::healActions(const std::string &filePath)
         {
             std::string szOne, szTwo;
 
-            vfs_read_string_lit( *ctxt, szOne );
+            szOne = vfs_read_string_lit( *ctxt );
             ModelAction actiona = ModelDescriptor::charToAction(szOne[0]);
 
-            vfs_read_string_lit( *ctxt, szTwo );
+            szTwo = vfs_read_string_lit( *ctxt );
             ModelAction actionb = ModelDescriptor::charToAction(szTwo[0]);
 
             actionCopyCorrect(static_cast<ModelAction>(actiona + 0), static_cast<ModelAction>(actionb + 0));

@@ -57,16 +57,7 @@ bool SpawnFileReaderImpl::read(ReadContext& ctxt, spawn_file_info_t& info)
 
         info.do_spawn = true;
 
-        vfs_read_string_lit(ctxt, info.spawn_name);
-
-    #if 0
-        info.pname = &(info.spawn_name);
-        if (info.spawn_name == "NONE")
-        {
-            // A random name is selected.
-            info.pname = nullptr;
-        }
-    #endif
+        info.spawn_name = vfs_read_string_lit(ctxt);
 
         info.slot = ctxt.readIntegerLiteral();
 

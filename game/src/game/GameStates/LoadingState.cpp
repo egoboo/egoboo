@@ -265,12 +265,10 @@ static void loadGameTips(std::shared_ptr<ReadContext>& ctxt, std::vector<std::st
     // Load the data
     while (ctxt->skipToColon(true))
     {
-        std::string buffer;
+        // Read the line.
+        std::string buffer = vfs_read_string_lit(*ctxt);
 
-        //Read the line
-        vfs_read_string_lit(*ctxt, buffer);
-
-        //Make it look nice
+        // Make it look nice.
         buffer = add_linebreak_cpp(buffer, 50);
 
         tips.push_back(buffer);

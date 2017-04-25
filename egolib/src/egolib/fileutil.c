@@ -212,16 +212,15 @@ bool ReadContext::skipToColon(bool optional)
 }
 
 //--------------------------------------------------------------------------------------------
-void vfs_read_string_lit(ReadContext& ctxt, std::string& literal)
+std::string vfs_read_string_lit(ReadContext& ctxt)
 {
     std::string temporary = ctxt.readStringLiteral();
-    temporary = str_decode(temporary);
-    literal = temporary;
+    return str_decode(temporary);
 }
 //--------------------------------------------------------------------------------------------
-void vfs_read_name(ReadContext& ctxt, std::string& buffer)
+std::string vfs_read_name(ReadContext& ctxt)
 {
-    buffer = ctxt.readName();
+    return ctxt.readName();
 }
 //--------------------------------------------------------------------------------------------
 void vfs_put_int( vfs_FILE* filewrite, const char* text, int ival )
@@ -1130,10 +1129,10 @@ void vfs_read_string(ReadContext& ctxt, char *str, size_t max)
     }
 }
 
-void vfs_get_next_string_lit(ReadContext& ctxt, std::string& str)
+std::string vfs_get_next_string_lit(ReadContext& ctxt)
 {
     ctxt.skipToColon(false);
-    vfs_read_string_lit(ctxt, str);
+    return vfs_read_string_lit(ctxt);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1145,10 +1144,10 @@ float vfs_get_next_float(ReadContext& ctxt)
 
 //--------------------------------------------------------------------------------------------
 
-void vfs_get_next_name(ReadContext& ctxt, std::string& buffer)
+std::string vfs_get_next_name(ReadContext& ctxt)
 {
     ctxt.skipToColon(false);
-    vfs_read_name(ctxt, buffer);
+    return vfs_read_name(ctxt);
 }
 
 //--------------------------------------------------------------------------------------------
