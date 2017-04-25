@@ -7,10 +7,12 @@
 namespace CommandLine {
 
 /// @brief An option.
-struct Option {
+struct Option
+{
 public:
     /// An enumeration of types of options.
-    enum class Type {
+    enum class Type
+    {
         /// An argument error.
         Error,
         /// A switch argument.
@@ -36,7 +38,8 @@ public:
 /// @code
 /// !`--` value
 /// @endcoe
-struct UnnamedValue : public Option {
+struct UnnamedValue : public Option
+{
 private:
     std::string value;
 
@@ -54,7 +57,8 @@ public:
 /// @code
 /// `--`name`=`value`
 /// @endcode
-struct NamedValue : Option {
+struct NamedValue : Option
+{
 private:
     std::string name;
     std::string value;
@@ -71,14 +75,14 @@ public:
     /// @brief Get the value of this named value argument.
     /// @return the named valuen argument value
     const std::string& getValue() const;
-
 };
 
 /// @brief A switch option of the form
 /// @code
 /// `--`name
 /// @endcode
-struct Switch : public Option {
+struct Switch : public Option
+{
 public:
 private:
     std::string name;
@@ -99,7 +103,8 @@ public:
 };
 
 /// @brief An option error.
-struct Error : public Option {
+struct Error : public Option
+{
 private:
     std::string message;
 public:

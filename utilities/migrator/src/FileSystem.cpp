@@ -1,30 +1,55 @@
-#include "Tool.hpp"
+#include "FileSystem.hpp"
 
 #if defined(_WIN32)
-FileSystem::PathStat FileSystem::stat(const std::string &pathname) {
+#include <Windows.h>
+#define REGEX_DIRSEP "[/\\\\]"
+#else
+#include <dirent.h>
+#include <sys/stat.h>
+#include <string.h>
+#define REGEX_DIRSEP "/"
+#endif
+
+#include <iostream>
+#include <memory>
+
+namespace Editor {
+
+#if defined(_WIN32)
+FileSystem::PathStat FileSystem::stat(const std::string &pathname)
+{
     DWORD attributes = GetFileAttributes(pathname.c_str());
-    if (0xFFFFFFFF == attributes) {
+    if (0xFFFFFFFF == attributes)
+    {
         std::cerr << pathname << ": " << "GetFileAttributes failed" << std::endl;
         return FileSystem::PathStat::Failure;
     }
     DWORD rejectedMask = (FILE_ATTRIBUTE_TEMPORARY | FILE_ATTRIBUTE_READONLY | FILE_ATTRIBUTE_OFFLINE | FILE_ATTRIBUTE_REPARSE_POINT | FILE_ATTRIBUTE_SYSTEM | FILE_ATTRIBUTE_VIRTUAL);
-    if (attributes & rejectedMask) {
+    if (attributes & rejectedMask)
+    {
         return PathStat::Other;
-    } else if (attributes & FILE_ATTRIBUTE_DIRECTORY) {
+    }
+    else if (attributes & FILE_ATTRIBUTE_DIRECTORY)
+    {
         return PathStat::Directory;
     }
     // It is not rejected and it is not a directory.
-    if (attributes == FILE_ATTRIBUTE_NORMAL || attributes & FILE_ATTRIBUTE_ARCHIVE) {
+    if (attributes == FILE_ATTRIBUTE_NORMAL || attributes & FILE_ATTRIBUTE_ARCHIVE)
+    {
         return PathStat::File;
-    } else {
+    }
+    else
+    {
         return PathStat::Other;
     }
 }
 #else
-FileSystem::PathStat FileSystem::stat(const std::string &pathname) {
+FileSystem::PathStat FileSystem::stat(const std::string &pathname)
+{
     struct stat out;
     int success = lstat(pathname.c_str(), &out);
-    if (success == -1) {
+    if (success == -1)
+    {
         std::cerr << pathname << ": " << strerror(errno) << std::endl;
         return FileSystem::PathStat::Failure;
     }
@@ -34,7 +59,8 @@ FileSystem::PathStat FileSystem::stat(const std::string &pathname) {
 }
 #endif
 
-static std::string getDirectorySeparator() {
+std::string FileSystem::getDirectorySeparator()
+{
 #if defined(_WIN32)
     return "\\";
 #else
@@ -42,15 +68,18 @@ static std::string getDirectorySeparator() {
 #endif
 }
 
-std::string FileSystem::getWorkingDirectory() {
+std::string FileSystem::getWorkingDirectory()
+{
 #if _WIN32
     auto length = GetCurrentDirectory(0, NULL);
-    if (!length) {
+    if (!length)
+    {
         throw std::runtime_error("unable to obtain working directory");
     }
     auto buffer = std::make_unique<char[]>(length + 1);
     length = GetCurrentDirectory(length + 1, buffer.get());
-    if (!length) {
+    if (!length)
+    {
         throw std::runtime_error("unable to obtain working directory");
     }
     return std::string(buffer.get());
@@ -60,14 +89,16 @@ std::string FileSystem::getWorkingDirectory() {
 #endif
 }
 
-std::string FileSystem::sanitize(const std::string& pathName) {
+std::string FileSystem::sanitize(const std::string& pathName)
+{
 #ifdef _WIN32
     char buffer[MAX_PATH + 1];
     auto result = GetFullPathName(pathName.c_str(),
                                   MAX_PATH + 1,
                                   buffer,
                                   NULL);
-    if (!result) {
+    if (!result)
+    {
         throw std::runtime_error("unable to sanitize path name");
     }
     return std::string(buffer);
@@ -78,16 +109,21 @@ std::string FileSystem::sanitize(const std::string& pathName) {
 }
 
 #if defined(_WIN32)
-void FileSystem::recurDir(const std::string &pathName, std::deque<std::string> &queue) {
+void FileSystem::recurDir(const std::string &pathName, std::deque<std::string> &queue)
+{
     WIN32_FIND_DATA ffd;
     HANDLE hFind = FindFirstFile((pathName + "\\*").c_str(), &ffd);
-    if (INVALID_HANDLE_VALUE == hFind) {
+    if (INVALID_HANDLE_VALUE == hFind)
+    {
         std::cerr << pathName << ": " << "FindFirstFile failed" << std::endl;
         return;
     }
-    do {
-        if (ffd.cFileName[0] == '.') {
-            if ((ffd.cFileName[1] == '.' && ffd.cFileName[2] == '\0') || ffd.cFileName[1] == '\0') {
+    do
+    {
+        if (ffd.cFileName[0] == '.')
+        {
+            if ((ffd.cFileName[1] == '.' && ffd.cFileName[2] == '\0') || ffd.cFileName[1] == '\0')
+            {
                 continue;
             }
         }
@@ -97,13 +133,16 @@ void FileSystem::recurDir(const std::string &pathName, std::deque<std::string> &
     FindClose(hFind);
 }
 #else
-void FileSystem::recurDir(const std::string &pathName, std::deque<std::string> &queue) {
+void FileSystem::recurDir(const std::string &pathName, std::deque<std::string> &queue)
+{
     DIR *dir = opendir(pathName.c_str());
-    if (!dir) {
+    if (!dir)
+    {
         std::cerr << pathName << ": " << strerror(errno) << std::endl;
         return;
     }
-    while (dirent *aFile = readdir(dir)) {
+    while (dirent *aFile = readdir(dir))
+    {
         if (aFile->d_name[0] == '.') continue;
         std::string path = pathName + "/" + aFile->d_name;
         queue.push_back(path);
@@ -112,16 +151,4 @@ void FileSystem::recurDir(const std::string &pathName, std::deque<std::string> &
 }
 #endif
 
-namespace Editor {
-
-using namespace Standard;
-
-Tool::Tool(const std::string& name) : name(name) {}
-
-Tool::~Tool() {}
-
-const std::string& Tool::getName() const {
-	return name;
-}
-	
 } // namespace Editor

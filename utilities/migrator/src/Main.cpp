@@ -2,6 +2,7 @@
 #include <SDL.h>
 
 #include "CommandLine.hpp"
+#include "FileSystem.hpp"
 
 #include "ConvertPaletted.hpp"
 #include "DataTxtValidator.hpp"
@@ -14,9 +15,9 @@ int SDL_main(int argc, char **argv) {
 
         // (1) Register the known tools.
         unordered_map<string, shared_ptr<Editor::ToolFactory>> factories;
-        factories.emplace("DataTxtValidator", make_shared<Tools::DataTxtValidatorFactory>());
-        factories.emplace("ConvertPaletted", make_shared<Tools::ConvertPalettedFactory>());
-        factories.emplace("EnchantTxtValidator", make_shared <Tools::EnchantTxtValidatorFactory>());
+        factories.emplace("DataTxtValidator", make_shared<Editor::Tools::DataTxtValidatorFactory>());
+        factories.emplace("ConvertPaletted", make_shared<Editor::Tools::ConvertPalettedFactory>());
+        factories.emplace("EnchantTxtValidator", make_shared<Editor::Tools::EnchantTxtValidatorFactory>());
 
         // (2) Parse the argument list.
         auto args = CommandLine::parse(argc, argv);
@@ -51,19 +52,22 @@ int SDL_main(int argc, char **argv) {
             return EXIT_FAILURE;
         }
 
-        // (6) Create the tool.
-        auto tool = factory->second->create();
-        if (!tool) {
-            return EXIT_FAILURE;
-        }
-        // (7) Execute it.
+        // (6) Create the file system.
+        auto fileSystem = std::make_shared<Editor::FileSystem>();
+
+        // (7) Create the tool.
+        auto tool = factory->second->create(fileSystem);
+
+        // (8) Execute it.
         try {
             tool->run(args);
         } catch (...) {
-            delete tool;
+            fileSystem = nullptr;
+            tool = nullptr;
             rethrow_exception(current_exception());
         }
-        delete tool;
+        fileSystem = nullptr;
+        tool = nullptr;
 	} catch (...) {
 		return EXIT_FAILURE;
 	}

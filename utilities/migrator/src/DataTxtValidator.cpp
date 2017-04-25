@@ -1,19 +1,25 @@
 #include "DataTxtValidator.hpp"
 
 #include "Filters.hpp"
+#include "FileSystem.hpp"
 
+namespace Editor {
 namespace Tools {
 
 using namespace Standard;
 using namespace CommandLine;
 
-DataTxtValidator::DataTxtValidator()
-    : Editor::Tool("DataTxtValidator") {}
+DataTxtValidator::DataTxtValidator(std::shared_ptr<FileSystem> fileSystem)
+    : Tool("DataTxtValidator", fileSystem) 
+{}
 
-DataTxtValidator::~DataTxtValidator() {}
+DataTxtValidator::~DataTxtValidator()
+{}
 
-void DataTxtValidator::run(const std::vector<std::shared_ptr<Option>>& arguments) {
-    if (arguments.size() < 1) {
+void DataTxtValidator::run(const std::vector<std::shared_ptr<Option>>& arguments)
+{
+    if (arguments.size() < 1)
+    {
         StringBuffer sb;
         sb << "wrong number of arguments" << EndOfLine;
         throw RuntimeError(sb.str());
@@ -22,26 +28,31 @@ void DataTxtValidator::run(const std::vector<std::shared_ptr<Option>>& arguments
     std::deque<std::string> queue;
     RegexFilter filter("^(?:.*" REGEX_DIRSEP ")?data\\.txt");
     /// @todo Do *not* assume the path is relative. Ensure that it is absolute by a system function.
-    for (const auto& argument : arguments) {
-        if (argument->getType() != Option::Type::UnnamedValue) {
+    for (const auto& argument : arguments)
+    {
+        if (argument->getType() != Option::Type::UnnamedValue)
+        {
             StringBuffer sb;
             sb << "unrecognized argument" << EndOfLine;
             throw std::runtime_error(sb.str());
         }
         auto pathnameArgument = std::static_pointer_cast<UnnamedValue>(argument);
-        queue.emplace_back(FileSystem::sanitize(pathnameArgument->getValue()));
+        queue.emplace_back(getFileSystem()->sanitize(pathnameArgument->getValue()));
     }
-    while (!queue.empty()) {
+    while (!queue.empty())
+    {
         std::string path = queue[0];
         queue.pop_front();
-        switch (FileSystem::stat(path)) {
+        switch (getFileSystem()->stat(path))
+        {
             case FileSystem::PathStat::File:
-                if (filter(path)) {
+                if (filter(path))
+                {
                     validate(path);
                 }
                 break;
             case FileSystem::PathStat::Directory:
-                FileSystem::recurDir(path, queue);
+                getFileSystem()->recurDir(path, queue);
                 break;
             case FileSystem::PathStat::Failure:
                 break; // stat complains
@@ -55,12 +66,20 @@ void DataTxtValidator::run(const std::vector<std::shared_ptr<Option>>& arguments
     }
 }
 
-const std::string& DataTxtValidator::getHelp() const {
+const std::string& DataTxtValidator::getHelp() const
+{
     static const std::string help = "usage: ego-tools --tool=DataTxtValidator <directories>\n";
     return help;
 }
 
-void DataTxtValidator::validate(const std::string& pathname) {
+void DataTxtValidator::validate(const std::string& pathname)
+{}
+
+std::shared_ptr<Tool> DataTxtValidatorFactory::create(std::shared_ptr<FileSystem> fileSystem) const
+{
+    return std::make_shared<DataTxtValidator>(fileSystem);
 }
 
 } // namespace Tools
+} // namspace Editor
+

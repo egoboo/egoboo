@@ -22,7 +22,7 @@
     <ProjectGuid>{1F8F692B-C307-4AB9-A48A-9B1F55FF02E6}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>ConvertPaletted</RootNamespace>
-    <ProjectName>convertpaletted</ProjectName>
+    <ProjectName>migrator</ProjectName>
     <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -331,6 +331,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\FileSystem.cpp" />
     <ClCompile Include="src\EnchantTxtValidator.cpp" />
     <ClCompile Include="src\CommandLine.cpp" />
     <ClCompile Include="src\DataTxtValidator.cpp" />
@@ -356,6 +357,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\FileSystem.hpp" />
     <ClInclude Include="src\EnchantTxtValidator.hpp" />
     <ClInclude Include="src\CommandLine.hpp" />
     <ClInclude Include="src\DataTxtValidator.hpp" />

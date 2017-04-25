@@ -25,7 +25,7 @@ IDLIB_TARGET      := libidlib.a
 CARTMAN_DIR       := cartman
 CARTMAN_TARGET    := cartman
 
-EGOTOOL_DIR       := utilities/convertpaletted
+EGOTOOL_DIR       := utilities/migrator
 EGOTOOL_TARGET    := egotool
 
 INSTALL_DIR       := data
