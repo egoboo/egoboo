@@ -52,7 +52,7 @@
  * @param taggedValue the \f$Value\f$
  * @throw Ego:Script::InvalidCastException
  * if the value of type \f$Value\f$ value can not be cast into a value of type \f$Integer\f$
- * @throw id::out_of_bounds_exception
+ * @throw id::out_of_bounds_error
  * if the value of type \f$Integer\f$ is not within the specified bounds of <tt>[min, max]</tt>.
  */
 template <int min, int max>
@@ -61,7 +61,7 @@ std::enable_if_t<min <= max, int> getBitIndex(const Ego::Script::Interpreter::Ta
     if (bitIndex < min || bitIndex > max) {
         std::ostringstream os;
         os << "bit index must be within the bounds of " << min << " and " << max;
-        throw id::out_of_bounds_exception(__FILE__, __LINE__, os.str());
+        throw id::out_of_bounds_error(__FILE__, __LINE__, os.str());
     }
     return bitIndex;
 }

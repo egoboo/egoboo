@@ -44,7 +44,7 @@ namespace id {
  *  @a 0 (inclusive) and @a 1 (inclusive). It is required that a
  *  specialization raises an std::domain_error if an argument
  *  value for @a t is outside of those bounds.
- * @throws id::out_of_bounds_exception
+ * @throws id::out_of_bounds_error
  *  if @a t is smaller than @a 0 and greater than @a 1
  */
 template <typename ScalarField, size_t Dimensionality>

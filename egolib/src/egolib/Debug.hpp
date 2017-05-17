@@ -59,4 +59,4 @@ using MakeValidate = Validate<typename std::remove_const<typename std::remove_re
 
 
 /// @todo Remove this. Use ID_ASSERT.
-#define EGOBOO_ASSERT(assertion, ...) ID_ASSERT(assertion, __VA_ARGS__)
+#define EGOBOO_ASSERT(assertion) ID_ASSERT(assertion)

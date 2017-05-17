@@ -44,7 +44,7 @@ namespace id {
  *  @a 0 (inclusive) and @a 1 (inclusive). It is required that a
  *  specialization raises an std::domain_error if an argument
  *  value for @a t is outside of those bounds.
- * @throws id::out_of_bounds_exception
+ * @throws id::out_of_bounds_error
  *  if @a t is smaller than @a 0 and greater than @a 1
  */
 template <typename VectorSpace>
@@ -56,12 +56,12 @@ struct interpolation_functor<Ego::Math::Point<VectorSpace>, interpolation_method
 
     point operator()(const point& x, const point& y, scalar t) const
     {
-        return (*this)(x, y, mu<T>(t));
+        return (*this)(x, y, mu<scalar>(t));
     }
 
     point operator()(const point& x, const point& y, const mu<scalar>& mu) const
     {
-        id::interpolate<Ego::Math::Vector<VectorSpace>, interpolation_method::LINEAR> f;
+        id::interpolation_functor<vector, interpolation_method::LINEAR> f;
         return point::toPoint(f(point::toVector(x), point::toVector(y), mu));
     }
 

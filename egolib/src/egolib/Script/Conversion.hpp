@@ -273,9 +273,9 @@ struct Decoder<TargetType, std::enable_if_t<IsNatural<TargetType>::value>> {
 
                 }
                 target = x;
-            } catch (const id::invalid_argument_error&) {
-                return false;
             } catch (const id::out_of_bounds_error&) {
+                return false;
+            } catch (const id::invalid_argument_error&) {
                 return false;
             }
         } catch (...) {
@@ -350,11 +350,9 @@ struct Decoder<TargetType, std::enable_if_t<IsReal<TargetType>::value>> {
                     throw id::invalid_argument_error(__FILE__, __LINE__, "not a valid EgoScript real literal");
                 }
                 target = x;
-            } catch (const std::invalid_argument&) {
-
-            } catch (const id::invalid_argument_error&) {
-                return false;
             } catch (const id::out_of_bounds_error&) {
+                return false;
+            } catch (const id::invalid_argument_error&) {
                 return false;
             }
         } catch (...) {
