@@ -246,13 +246,13 @@ void LoadingState::loadModuleData()
         //Hide the progress bar
         _progressBar->setVisible(false);
     }
-    catch (const Id::Exception& ex)
+    catch (const id::exception& ex)
     {
         //Display a sensible error so that players understand why it failed
-        Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "module loading error (", (std::string)ex, ")", Log::EndOfEntry);        
+        Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "module loading error (", ex.to_string(), ")", Log::EndOfEntry);        
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
                                  "Module Load Error",
-                                 ((std::string)ex).c_str(),
+                                 ex.to_string().c_str(),
                                  nullptr);
 
         //Abort loading module and return to main menu
@@ -265,12 +265,10 @@ static void loadGameTips(std::shared_ptr<ReadContext>& ctxt, std::vector<std::st
     // Load the data
     while (ctxt->skipToColon(true))
     {
-        std::string buffer;
+        // Read the line.
+        std::string buffer = vfs_read_string_lit(*ctxt);
 
-        //Read the line
-        vfs_read_string_lit(*ctxt, buffer);
-
-        //Make it look nice
+        // Make it look nice.
         buffer = add_linebreak_cpp(buffer, 50);
 
         tips.push_back(buffer);

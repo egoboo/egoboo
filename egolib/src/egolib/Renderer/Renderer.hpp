@@ -17,13 +17,14 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Renderer/Renderer.hpp
-/// @brief  Common interface of all renderers.
+/// @file egolib/Renderer/Renderer.hpp
+/// @brief Common interface of all renderers.
 /// @author Michael Heilmann
 
 #pragma once
 
 #include "egolib/Math/_Include.hpp"
+#include "egolib/egoboo_setup.h"
 #include "egolib/Core/Singleton.hpp"
 #include "egolib/Renderer/BlendFunction.hpp"
 #include "egolib/Renderer/CompareFunction.hpp"
@@ -38,42 +39,25 @@
 
 namespace Ego {
 
-/**
- * @brief
- *  A facade for internal buffers like the accumulation buffer, the colour buffer or the depth buffer.
- */
+/// @brief A facade for internal buffers like the accumulation buffer, the colour buffer or the depth buffer.
 template <typename DataType>
-class BufferFacade : public Id::NonCopyable {
+class BufferFacade : private id::non_copyable
+{
 protected:
-    /**
-     * @brief
-     *  Construct this buffer (facade).
-     * @remark
-     *  Intentionally protected.
-     */
+    /// @brief Construct this buffer (facade).
+    /// @remark Intentionally protected.
     BufferFacade() {}
 
-    /**
-     * @brief
-     *  Destruct this buffer (facade).
-     * @remark
-     *  Intentionally protected.
-     */
+    /// @brief Destruct this buffer (facade).
+    /// @remark Intentionally protected.
     virtual ~BufferFacade() {}
 
 public:
-    /**
-     * @brief
-     *  Clear this buffer using its clear value.
-     */
+    /// @brief Clear this buffer using its clear value.
     virtual void clear() = 0;
 
-    /**
-     * @brief
-     *  Set the clear value of this buffer.
-     * @param value
-     *  the clear value of this buffer
-     */
+    /// @brief Set the clear value of this buffer.
+    /// @param value the clear value of this buffer
     virtual void setClearValue(const DataType& value) = 0;
 
 #if 0
@@ -88,161 +72,92 @@ public:
 
 };
 
-/**
- * @brief
- *  A facade for an accumulation buffer.
- */
-class AccumulationBuffer : public BufferFacade<Math::Colour4f> {
+/// @brief A facade for an accumulation buffer.
+class AccumulationBuffer : public BufferFacade<Math::Colour4f>
+{
 protected:
-
-    /**
-     * @brief
-     *  Construct this accumulation buffer (facade).
-     * @remark
-     *  Intentionally protected.
-     */
+    /// @brief Construct this accumulation buffer (facade).
+    /// @remark Intentionally protected.
     AccumulationBuffer();
 
-    /**
-     * @brief
-     *  Destruct this accumulation buffer (facade).
-     * @remark
-     *  Intentionally protected.
-     */
+    /// @brief Destruct this accumulation buffer (facade).
+    /// @remark Intentionally protected.
     virtual ~AccumulationBuffer();
 
 public:
-    /**
-     * @brief
-     *  Get the colour depth of this accumulation buffer.
-     * @return
-     *  the colour depth of this accumulation buffer
-     */
+    /// @brief Get the colour depth of this accumulation buffer.
+    /// @return the colour depth of this accumulation buffer
     virtual const ColourDepth& getColourDepth() = 0;
 
 };
 
-/**
- * @brief
- *  A facade for a colour buffer.
- */
-class ColourBuffer : public BufferFacade<Math::Colour4f> {
+/// @brief A facade for a colour buffer.
+class ColourBuffer : public BufferFacade<Math::Colour4f>
+{
 protected:
-    /**
-     * @brief
-     *  Construct this colour buffer (facade).
-     * @remark
-     *  Intentionally protected.
-     */
+    /// @brief Construct this colour buffer (facade).
+    /// @remark Intentionally protected.
     ColourBuffer();
 
-    /**
-     * @brief
-     *  Destruct this colour buffer (facade).
-     * @remark
-     *  Intentionally protected.
-     */
+    /// @brief Destruct this colour buffer (facade).
+    /// @remark Intentionally protected.
     virtual ~ColourBuffer();
 
 public:
-    /**
-     * @brief
-     *  Get the colour depth of this colour buffer.
-     * @return
-     *  the colour depth of this colour buffer
-     */
+    /// @brief Get the colour depth of this colour buffer.
+    /// @return the colour depth of this colour buffer
     virtual const ColourDepth& getColourDepth() = 0;
 
 };
 
-/**
- * @brief
- *  A facade for an depth buffer.
- */
-class DepthBuffer : public BufferFacade<float> {
+/// @brief A facade for an depth buffer.
+class DepthBuffer : public BufferFacade<float>
+{
 protected:
-    /**
-     * @brief
-     *  Construct this depth buffer (facade).
-     * @remark
-     *  Intentionally protected.
-     */
+    /// @brief Construct this depth buffer (facade).
+    /// @remark Intentionally protected.
     DepthBuffer();
 
-    /**
-     * @brief
-     *  Destruct this depth buffer (facade).
-     * @remark
-     *  Intentionally protected.
-     */
+    /// @brief Destruct this depth buffer (facade).
+    /// @remark Intentionally protected.
     virtual ~DepthBuffer();
 
 public:
-    /**
-     * @brief
-     *  Get the depth of this depth buffer.
-     * @return
-     *  the depth of this depth buffer
-     */
+    /// @brief Get the depth of this depth buffer.
+    /// @return the depth of this depth buffer
     virtual uint8_t getDepth() = 0;
 
 };
 
-/**
- * @brief
- *  A facade for a stencil buffer.
- */
-class StencilBuffer : public BufferFacade<float> {
+/// @brief A facade for a stencil buffer.
+class StencilBuffer : public BufferFacade<float>
+{
 protected:
-    /**
-     * @brief
-     *  Construct this stencil buffer (facade).
-     * @remark
-     *  Intentionally protected.
-     */
+    /// @brief Construct this stencil buffer (facade).
+    /// @remark Intentionally protected.
     StencilBuffer();
 
-    /**
-     * @brief
-     *  Destruct this stencil buffer (facade).
-     * @remark
-     *  Intentionally protected.
-     */
+    /// @brief Destruct this stencil buffer (facade).
+    /// @remark Intentionally protected.
     virtual ~StencilBuffer();
 
 public:
-    /**
-     * @brief
-     *  Get the depth of this stencil buffer.
-     * @return
-     *  the depth of this stencil buffer
-     */
+    /// @brief Get the depth of this stencil buffer.
+    /// @return the depth of this stencil buffer
     virtual uint8_t getDepth() = 0;
 
 };
 
-/**
- * @brief
- *  A facade for a texture unit.
- */
-class TextureUnit {
-
+/// @brief A facade for a texture unit.
+class TextureUnit
+{
 protected:
-
-    /**
-     * @brief
-     *  Construct this texture unit (facade).
-     * @remark
-     *  Intentionally protected.
-     */
+    /// @brief Construct this texture unit (facade).
+    /// @remark Intentionally protected.
     TextureUnit();
 
-    /**
-     * @brief
-     *  Destruct this texture unit (facade).
-     * @remark
-     *  Intentionally protected.
-     */
+    /// @brief Destruct this texture unit (facade).
+    /// @remark Intentionally protected.
     virtual ~TextureUnit();
 
 public:
@@ -270,9 +185,7 @@ class Renderer;
 
 namespace Core {
 
-/**
- * @brief Creator functor creating the back-end.
- */
+/// @brief Creator functor creating the back-end.
 template <>
 struct CreateFunctor<Renderer> {
     Renderer *operator()() const;
@@ -282,83 +195,52 @@ struct CreateFunctor<Renderer> {
 
 class Renderer : public Core::Singleton<Renderer> {
 protected:
+    // Befriend with the create functor.
     friend Core::Singleton<Renderer>::CreateFunctorType;
+
+    // Befriend with the destroy functor.
     friend Core::Singleton<Renderer>::DestroyFunctorType;
 
-protected:
-    /**
-     * @brief
-     *  Construct this renderer.
-     * @remark
-     *  Intentionally protected.
-     */
+    /// @brief Construct this renderer.
+    /// @remark Intentionally protected.
     Renderer();
 
-    /**
-     * @brief
-     *  Destruct this renderer.
-     * @remark
-     *  Intentionally protected
-     */
+    /// @brief Destruct this renderer.
+    /// @remark Intentionally protected
     virtual ~Renderer();
 
 public:
-    /**
-     * @brief
-     *  Get information about the renderer.
-     * @return
-     *  information about the renderer
-     */
-    virtual const RendererInfo& getInfo() = 0;
+    virtual void download(egoboo_config_t& cfg);
+
+    virtual void upload(egoboo_config_t& cfg);
+
+    /// @brief Get information about the renderer.
+    /// @return information about the renderer
+    virtual std::shared_ptr<RendererInfo> getInfo() = 0;
 
 public:
-    /**
-     * @brief
-     *  Get the accumulation buffer (facade).
-     * @return
-     *  the accumulation buffer (facade)
-     */
+    /// @brief Get the accumulation buffer (facade).
+    /// @return the accumulation buffer (facade)
     virtual AccumulationBuffer& getAccumulationBuffer() = 0;
 
-    /**
-     * @brief
-     *  Get the colour buffer (facade).
-     * @return
-     *  the colour buffer (facade)
-     */
+    /// @brief Get the colour buffer (facade).
+    /// @return the colour buffer (facade)
     virtual ColourBuffer& getColourBuffer() = 0;
 
-    /**
-     * @brief
-     *  Get the depth buffer (facade).
-     * @return
-     *  the depth buffer (facade)
-     */
+    /// @brief Get the depth buffer (facade).
+    /// @return the depth buffer (facade)
     virtual DepthBuffer& getDepthBuffer() = 0;
 
-    /**
-     * @brief
-     *  Get the stencil buffer (facade).
-     * @return
-     *  the stencil buffer (facade)
-     */
+    /// @brief Get the stencil buffer (facade).
+    /// @return the stencil buffer (facade)
     virtual StencilBuffer& getStencilBuffer() = 0;
 
-    /**
-     * @brief
-     *  Get the texture unit (facade).
-     * @return
-     *  the texture unit (facade)
-     */
+    /// @brief Get the texture unit (facade).
+    /// @return the texture unit (facade)
     virtual TextureUnit& getTextureUnit() = 0;
 
-    /**
-     * @brief
-     *  Enable/disable alpha tests.
-     * @param enabled
-     *  @a true enables alpha tests,
-     *  @a false disables them
-     */
+    /// @brief Enable/disable alpha tests.
+    /// @param enabled @a true enables alpha tests, @a false disables them
     virtual void setAlphaTestEnabled(bool enabled) = 0;
 
     /**
@@ -406,13 +288,8 @@ public:
      */
     virtual void setAlphaFunction(CompareFunction function, float value) = 0;
 
-    /**
-     * @brief
-     *  Enable/disable blending.
-     * @param enabled
-     *  @a true enables blending,
-     *  @a false disables it
-     */
+    /// @brief Enable/disable blending.
+    /// @param enabled @a true enables blending, @a false disables it
     virtual void setBlendingEnabled(bool enabled) = 0;
 
     /**
@@ -488,20 +365,12 @@ public:
         setBlendFunction(source, source, destination, destination);
     }
 
-    /**
-     * @brief
-     *  Set the current colour.
-     * @param colour
-     *  the current colour
-     */
+    /// @brief Set the current colour.
+    /// @param colour the current colour
     virtual void setColour(const Math::Colour4f& colour) = 0;
 
-    /**
-     * @brief
-     *  Set the culling mode.
-     * @param mode
-     *  the culling mode
-     */
+    /// @brief Set the culling mode.
+    /// @param mode the culling mode
     virtual void setCullingMode(CullingMode mode) = 0;
 
     /**
@@ -601,13 +470,8 @@ public:
     /// @param mode the winding mode
     virtual void setWindingMode(WindingMode mode) = 0;
 
-
-    /**
-     * @brief
-     *  Multiply the current matrix with the given matrix.
-     * @param matrix
-     *  the matrix
-     */
+    /// @brief Multiply the current matrix with the given matrix.
+    /// @param matrix the matrix
     virtual void multiplyMatrix(const Matrix4f4f& matrix) = 0;
 
     /// @brief Enable/disable perspective correction.
@@ -663,34 +527,25 @@ public:
     /// @param enable @a true enables Gouraud shading, @a false disables it
     virtual void setGouraudShadingEnabled(bool enabled) = 0;
 
-    /**
-     * @brief
-     *  Render a vertex buffer.
-     * @param primitiveType
-     *  the primitive type
-     * @param vertexBuffer
-     *  a pointer to a vertex buffer
-     * @param index
-     *  the index of the first vertex to render
-     * @param length
-     *  the number of vertices to render
-     * @throw std::invalid_argument
-     *  if <tt>index + length</tt> is greater than the number of vertices in the vertex buffer
-     * @throw std::invalid_argument
-     *  if @a length is non-zero and
-     *  - is not disible by 3 for the triangles primitive type or
-     *  - is not divisible by 4 for the quadriliterals primitive type.
-     */
-    virtual void render(VertexBuffer& vertexBuffer, PrimitiveType primitiveType, size_t index, size_t length) = 0;
+    /// @brief Render a vertex buffer.
+    /// @param vertexBuffer the vertex buffer
+    /// @param vertexDescriptor the vertex descriptor
+    /// @param primitiveTyp the primitive type
+    /// @param index the index of the first vertex to render
+    /// @param length the number of vertices to render
+    /// @throw std::invalid_argument
+    /// the vertex size of the vertex buffer and the vertex size of the vertex descriptor are not equal
+    /// @throw std::invalid_argument
+    /// <tt>index + length</tt> is greater than the number of vertices in the vertex buffer
+    /// @throw std::invalid_argument
+    ///  @a length is non-zero and
+    ///  - is not disible by 3 for the triangles primitive type or
+    ///  - is not divisible by 4 for the quadriliterals primitive type.
+    virtual void render(VertexBuffer& vertexBuffer, const VertexDescriptor& vertexDescriptor, PrimitiveType primitiveType, size_t index, size_t length) = 0;
 
-    /**
-     * @brief
-     *  Create a texture.
-     * @return
-     *  the texture
-     * @post
-     *  The texture is the default texture.
-     */
+    /// @brief Create a texture.
+    /// @return the texture
+    /// @post The texture is the default texture.
     virtual std::shared_ptr<Texture> createTexture() = 0;
 
 private:
@@ -702,6 +557,7 @@ public:
     /// @brief Set the projection matrix.
     /// @param projectionMatrix the projection matrix
     virtual void setProjectionMatrix(const Matrix4f4f& projectionMatrix);
+
     /// @brief Get the projection matrix.
     /// @return the projection matrix
     /// @remark
@@ -714,6 +570,7 @@ public:
     /// @brief Set the view matrix.
     /// @param viewMatrix the view matrix
     virtual void setViewMatrix(const Matrix4f4f& viewMatrix);
+
     /// @brief Get the view matrix.
     /// @return the view matrix
     /// @remark
@@ -723,6 +580,7 @@ public:
     /// @brief Set the world matrix.
     /// @param worldMatrix the world matrix
     virtual void setWorldMatrix(const Matrix4f4f& worldMatrix);
+
     /// @brief Get the world matrix.
     /// @return the world matrix
     /// @remark The default world matrix is the identity matrix.

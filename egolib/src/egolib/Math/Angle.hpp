@@ -121,8 +121,8 @@ inline float convert<AngleUnit::Radians, AngleUnit::Turns>(float x) {
 }
 
 template <AngleUnit _AngleUnitType>
-struct Angle : public Id::EqualToExpr<Angle<_AngleUnitType>>,
-               public Id::LowerThanExpr<Angle<_AngleUnitType>> {
+struct Angle : public id::equal_to_expr<Angle<_AngleUnitType>>,
+               public id::lower_than_expr<Angle<_AngleUnitType>> {
 private:
     float _angle;
 
@@ -151,12 +151,12 @@ public:
 
 public:
 	// CRTP
-    bool equalTo(const Angle<_AngleUnitType>& other) const
+    bool equal_to(const Angle<_AngleUnitType>& other) const
     {
         return _angle == other._angle;
     }
 	// CRTP
-    bool lowerThan(const Angle<_AngleUnitType>& other) const
+    bool lower_than(const Angle<_AngleUnitType>& other) const
     {
         return _angle < other._angle;
     }

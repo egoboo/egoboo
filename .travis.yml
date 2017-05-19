@@ -5,36 +5,39 @@ language: cpp
 
 # Compiler selection
 compiler:
-  - clang
-  - gcc
+    - clang
+    - gcc
 
 addons:
-  apt:
-    sources:
-    # add PPAs with more up-to-date toolchains
-    - ubuntu-toolchain-r-test
-    - sourceline: 'deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-3.8 main'
-      key_url: 'http://apt.llvm.org/llvm-snapshot.gpg.key'
-    packages:
-    # install toolchains
-    - gcc-5
-    - g++-5
-    - clang-3.8
-    - libc++-dev
-    # install dependencies
-    - libphysfs-dev
-    - libsdl2-dev
-    - libsdl2-image-dev
-    - libsdl2-mixer-dev
-    - libsdl2-ttf-dev
+    apt:
+        sources:
+            # add PPAs with more up-to-date toolchains
+            - ubuntu-toolchain-r-test
+            - sourceline: 'deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-3.8 main'
+              key_url: 'http://apt.llvm.org/llvm-snapshot.gpg.key'
+        packages:
+            # GCC 6
+            - gcc-6
+            - g++-6
+            # CLANG 3.8
+            - clang-3.8
+            - libc++-dev
+            # PhysFS
+            - libphysfs-dev
+            # SDL 2
+            - libsdl2-dev
+            - libsdl2-image-dev
+            - libsdl2-mixer-dev
+            - libsdl2-ttf-dev
 
 before_install:
 - sudo apt-get install -y --no-install-recommends doxygen valgrind graphviz
 - if [ "$CC" = "clang" ]; then 
       export CC="clang-3.8" CXX="clang++-3.8" CXXFLAGS="-ftemplate-depth=1024";
   else
-      export CC="gcc-5" CXX="g++-5";
+      export CC="gcc-6" CXX="g++-6";
   fi
+
 script:
 - make all test -j4 
 

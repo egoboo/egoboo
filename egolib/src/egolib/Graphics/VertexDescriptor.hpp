@@ -28,7 +28,7 @@
 namespace Ego {
 
 /// @brief The descriptor of a vertex.
-class VertexDescriptor : public Id::EqualToExpr<VertexDescriptor> {
+class VertexDescriptor : public id::equal_to_expr<VertexDescriptor> {
 private:
     /// @brief The list of vertex element descriptors.
     std::vector<VertexElementDescriptor> vertexElementDescriptors;
@@ -88,7 +88,7 @@ public:
 
 public:
 	// CRTP
-    bool equalTo(const VertexDescriptor& other) const;
+    bool equal_to(const VertexDescriptor& other) const;
 
 }; // class VertexDescriptor
 

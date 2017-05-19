@@ -34,7 +34,7 @@ namespace Math {
  * The set of points of a ray is given by \f$\left\{ O + t \vec{d} | t \in \subseteq \mathbb{R}_{\geq 0} \right\}$.
  */
 template <typename _EuclideanSpaceType>
-struct Ray : public Id::EqualToExpr<Ray<_EuclideanSpaceType>> {
+struct Ray : public id::equal_to_expr<Ray<_EuclideanSpaceType>> {
 public:
     Ego_Math_EuclideanSpace_CommonDefinitions(Ray);
 
@@ -53,13 +53,13 @@ public:
      * @brief Construct this ray with the specified origin point \f$O\f$ and axis vector \f$\vec{a}\f$.
      * @param origin the origin point \f$O\f$
      * @param direction the direction vector \f$\vec{d}\f$
-     * @throw Id::RuntimeErrorException if the direction vector \f$\vec{d}\f$ is the zero vector 
+     * @throw id::runtime_error if the direction vector \f$\vec{d}\f$ is the zero vector 
      */
     Ray(const PointType& origin, const VectorType& direction)
         : origin(origin), direction(direction) {
         auto length = this->direction.length();
         if (length == id::zero<ScalarType>()) {
-            throw Id::RuntimeErrorException(__FILE__, __LINE__, "direction vector is zero vector");
+            throw id::runtime_error(__FILE__, __LINE__, "direction vector is zero vector");
         }
         this->direction *= id::one<ScalarType>() / length;
     }
@@ -103,7 +103,7 @@ public:
 
 public:
     // CRTP
-    bool equalTo(const MyType& other) const
+    bool equal_to(const MyType& other) const
     {
         return origin == other.origin
             && direction == other.direction;

@@ -23,11 +23,9 @@
 
 #pragma once
 
-#include "egolib/Math/Functors/Interpolate.hpp"
 #include "egolib/Math/Point.hpp"
 
-namespace Ego {
-namespace Math {
+namespace id {
 
 /**
  * @ingroup math
@@ -46,23 +44,27 @@ namespace Math {
  *  @a 0 (inclusive) and @a 1 (inclusive). It is required that a
  *  specialization raises an std::domain_error if an argument
  *  value for @a t is outside of those bounds.
- * @throws Id::OutOfBoundsException
+ * @throws id::out_of_bounds_error
  *  if @a t is smaller than @a 0 and greater than @a 1
  */
-template <typename _VectorSpaceType>
-struct Interpolate<Point<_VectorSpaceType>, InterpolationMethod::Linear, void> {
-    using A = Point<_VectorSpaceType>;
-    using T = typename _VectorSpaceType::ScalarType;
-    A operator()(A x, A y, T t) const {
-        if (t < id::zero<T>() || t > id::one<T>()) {
-            Log::Entry e(Log::Level::Error, __FILE__, __LINE__);
-            e << "parameter t = " << t << " not within the interval of [0,1]" << Log::EndOfEntry;
-            Log::get() << e;
-            throw Id::OutOfBoundsException(__FILE__, __LINE__, e.getText());
-        }
-        return A::toPoint(A::toVector(x) * (id::one<T>() - t) + A::toVector(y) * t);
-    }
-}; // struct Lerp
+template <typename VectorSpace>
+struct interpolation_functor<Ego::Math::Point<VectorSpace>, interpolation_method::LINEAR, void>
+{
+    using point = Ego::Math::Point<VectorSpace>;
+    using vector = Ego::Math::Vector<typename VectorSpace::ScalarField, VectorSpace::dimensionality()>;
+    using scalar = typename VectorSpace::ScalarType;
 
-} // namespace Math
-} // namespace Ego
+    point operator()(const point& x, const point& y, scalar t) const
+    {
+        return (*this)(x, y, mu<scalar>(t));
+    }
+
+    point operator()(const point& x, const point& y, const mu<scalar>& mu) const
+    {
+        id::interpolation_functor<vector, interpolation_method::LINEAR> f;
+        return point::toPoint(f(point::toVector(x), point::toVector(y), mu));
+    }
+
+}; // struct interpolate_functor
+
+} // namespace id

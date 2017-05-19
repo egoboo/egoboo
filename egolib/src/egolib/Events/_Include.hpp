@@ -31,13 +31,27 @@
 namespace Ego {
 namespace Events {
 
-using MouseButtonClickedEventArgs = MouseButtonEventArgs<MouseButtonEventKind::Clicked>;
-using MouseButtonPressedEventArgs = MouseButtonEventArgs<MouseButtonEventKind::Pressed>;
-using MouseButtonReleasedEventArgs = MouseButtonEventArgs<MouseButtonEventKind::Released>;
 
-using KeyboardKeyTypedEventArgs = KeyboardKeyEventArgs<KeyboardKeyEventKind::Typed>;
-using KeyboardKeyPressedEventArgs = KeyboardKeyEventArgs<KeyboardKeyEventKind::Pressed>;
-using KeyboardKeyReleasedEventArgs = KeyboardKeyEventArgs<KeyboardKeyEventKind::Released>;
+using MouseButtonClickedEventArgs = MouseButtonEventArgs<id::event::mouse_button_event_kind::clicked>;
+using MouseButtonPressedEventArgs = MouseButtonEventArgs<id::event::mouse_button_event_kind::pressed>;
+using MouseButtonReleasedEventArgs = MouseButtonEventArgs<id::event::mouse_button_event_kind::released>;
+
+
+using KeyboardKeyTypedEventArgs = KeyboardKeyEventArgs<id::event::keyboard_key_event_kind::typed>;
+using KeyboardKeyPressedEventArgs = KeyboardKeyEventArgs<id::event::keyboard_key_event_kind::pressed>;
+using KeyboardKeyReleasedEventArgs = KeyboardKeyEventArgs<id::event::keyboard_key_event_kind::released>;
+
+
+using WindowMousePointerEnteredEventArgs = WindowEventArgs<id::event::window_event_kind::mouse_pointer_entered>;
+using WindowMousePointerLeftEventArgs = WindowEventArgs<id::event::window_event_kind::mouse_pointer_left>;
+
+using WindowResizedEventArgs = WindowEventArgs<id::event::window_event_kind::resized>;
+
+using WindowShownEventArgs = WindowEventArgs<id::event::window_event_kind::shown>;
+using WindowHiddenEventArgs = WindowEventArgs<id::event::window_event_kind::hidden>;
+
+using WindowReceivedKeyboardInputFocusEventArgs = WindowEventArgs<id::event::window_event_kind::keyboard_input_focus_received>;
+using WindowLostKeyboardInputFocusEventArgs = WindowEventArgs<id::event::window_event_kind::keyboard_input_focus_lost>;
 
 } // namespace Events
 } // namespace Ego

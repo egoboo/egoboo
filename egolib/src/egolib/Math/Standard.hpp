@@ -131,19 +131,19 @@ using Intervalf = Interval<float>;
 
 /// A colour in RGB colour space with single-precision floating-point components each within the range from 0 (inclusive) to 1 (inclusive).
 /// A component value of 0 indicates minimal intensity of the component and 1 indicates maximal intensity of the component.
-using Colour3f =  Id::Colour<Id::RGBf>;
+using Colour3f =  id::color<id::RGBf>;
 
 /// A colour in RGBA colour space with single-precision floating-point components each within the range from 0 (inclusive) to 1 (inclusive).
 /// A component value of 0 indicates minimal intensity of the component and 1 indicates maximal intensity of the component.
-using Colour4f = Id::Colour<Id::RGBAf>;
+using Colour4f = id::color<id::RGBAf>;
 
 /// A colour in RGB colour space with unsigned integer components each within the range from 0 (inclusive) to 255 (inclusive).
 /// A component value of 0 indicates minimal intensity of the component and 255 indicates maximal intensity of the component.
-using Colour3b = Id::Colour<Id::RGBb>;
+using Colour3b = id::color<id::RGBb>;
 
 /// A colour in RGBA colour space with unsigned integer components each within the range from 0 (inclusive) to 255 (inclusive).
 /// A component value of 0 indicates minimal intensity of the component and 255 indicates maximal intensity of the component.
-using Colour4b = Id::Colour<Id::RGBAb>;
+using Colour4b = id::color<id::RGBAb>;
 
 } // namespace Math
 } // namespace Ego

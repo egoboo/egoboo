@@ -91,7 +91,7 @@ public:
         auto it = enumDescriptor.find(name);
         if (it == enumDescriptor.end())
         {
-            throw Id::CompilationErrorException(__FILE__, __LINE__, Id::CompilationErrorKind::Lexical, id::location(getFileName(), getLineNumber()), "invalid enum");
+            throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, id::location(getFileName(), getLineNumber()), "invalid enum");
         }
         return it->second;
     }
@@ -316,12 +316,12 @@ public:
 };
 
 // Utility functions.
-void vfs_get_next_name(ReadContext& ctxt, std::string& name);
+std::string vfs_get_next_name(ReadContext& ctxt);
 Ego::Math::Interval<float> vfs_get_next_range(ReadContext& ctxt);
 IDSZ2 vfs_get_next_idsz(ReadContext& ctxt);
 bool vfs_get_next_bool(ReadContext& ctxt);
 int32_t vfs_get_next_int32(ReadContext& ctxt);
-void vfs_get_next_string_lit(ReadContext& ctxt, std::string& stringLiteral);
+std::string vfs_get_next_string_lit(ReadContext& ctxt);
 UFP8_T vfs_get_ufp8(ReadContext& ctxt);
 SFP8_T vfs_get_sfp8(ReadContext& ctxt);
 char vfs_get_next_printable(ReadContext& ctxt);
@@ -351,7 +351,7 @@ float  vfs_get_damage_resist(ReadContext& ctxt);
  * @todo
  *  Transitional C form, remove this.
  */
-void vfs_read_name(ReadContext& ctxt, std::string& buffer);
+std::string vfs_read_name(ReadContext& ctxt);
 /**
  * @brief Read a string.
  * @param ctxt the context
@@ -359,7 +359,7 @@ void vfs_read_name(ReadContext& ctxt, std::string& buffer);
  * @see ReadContext::readString
  * @remark A consecutive sequence of characters <tt>'_'</tt> is mapped to <tt>' '</tt> and <tt>'~'</tt> is mapped to <tt>'\\t'</tt>.
  */
-void vfs_read_string_lit(ReadContext& ctxt, std::string& literal);
+std::string vfs_read_string_lit(ReadContext& ctxt);
 /**
  * @brief
  *  Read a range.

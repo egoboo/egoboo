@@ -27,86 +27,27 @@
 namespace Ego {
 namespace Events {
 
-struct WindowEventArgs {
+template <id::event::window_event_kind Kind>
+class WindowEventArgs
+{
 public:
-	/**
-	 * @brief The kinds of window events.
-	 */
-	enum class Kind {
-		/**
-		 * @brief A window was moved.
-		 */
-		Moved,
-		/**
-		 * @brief A window was resized.
-		 */
-		Resized,
-		/**
-		 * @brief A window received keyboard input focus.
-		 */
-		KeyboardFocusReceived,
-		/**
-		 * @brief A window lost keyboard input focus.
-		 */
-		KeyboardFocusLost,
-        /**
-         * @brief A mouse entered a window.
-         */
-        MouseEntered,
-        /**
-         * @brief A mouse left a window.
-         */
-        MouseLeft,
-        /**
-         * @brief A window was shown.
-         */
-        Shown,
-        /**
-         * @brief A window was hidden.
-         */
-        Hidden,
-	};
+    /// @brief Construct these window event arguments.
+    WindowEventArgs()
+    {}
 
-private:
-    Kind kind;
+    WindowEventArgs(const WindowEventArgs&) = default;
+    WindowEventArgs(WindowEventArgs&&) = default;
+    WindowEventArgs& operator=(const WindowEventArgs&) = default;
+    WindowEventArgs& operator=(WindowEventArgs&&) = default;
 
-public:
-    /**
-     * @brief Construct these window event arguments with the specified values.
-     * @param kind the kind of the window event
-     */
-    WindowEventArgs(Kind kind)
-        : kind(kind) {}
-    /**
-     * @brief Construct these window event arguments with the values of other window event arguments.
-     * @param other the other window event arguments
-     */
-    WindowEventArgs(const WindowEventArgs& other)
-        : kind(other.kind) {}
-    /**
-     * @brief Construct these window event arguments with the values of other window event arguments.
-     * @param other the other window event arguments
-     */
-    WindowEventArgs(WindowEventArgs&& other)
-        : kind(other.kind) {}
-    /**
-     * @brief Assign these window event arguments with the values of other window event arguments.
-     * @param other the other window event arguments
-     * @return these window event arguments
-     */
-    WindowEventArgs operator=(const WindowEventArgs& other) {
-        WindowEventArgs temporary(other);
-        std::swap(*this, temporary);
-        return *this;
+    /// @brief Get the kind of the window event.
+    /// @return the kind of the window event
+    id::event::window_event_kind kind() const
+    {
+        return Kind;
     }
-    /**
-     * @brief Get the kind of the window event.
-     * @return the kind of the window event
-     */
-    Kind getKind() const {
-        return kind;
-    }
-};
+
+}; // class WindowEventArgs
 
 } // namespace Events
 } // namespace Ego

@@ -813,7 +813,7 @@ void ObjectGraphics::assertFrameIndex(int frameIndex) const {
         auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "invalid frame ", frameIndex, "/", 
                                     getModelDescriptor()->getMD2()->getFrames().size(), Log::EndOfEntry);
         Log::get() << e;
-        throw Id::RuntimeErrorException(__FILE__, __LINE__, e.getText());
+        throw id::runtime_error(__FILE__, __LINE__, e.getText());
     }
 }
 

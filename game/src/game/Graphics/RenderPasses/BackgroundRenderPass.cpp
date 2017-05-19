@@ -7,7 +7,8 @@ namespace Graphics {
 
 BackgroundRenderPass::BackgroundRenderPass() :
     RenderPass("background"),
-    _vertexBuffer(4, VertexFormatFactory::get<VertexFormat::P3FT2F>())
+    _vertexDescriptor(VertexFormatFactory::get<VertexFormat::P3FT2F>()),
+    _vertexBuffer(4, _vertexDescriptor.getVertexSize())
 {}
 
 void BackgroundRenderPass::doRun(::Camera& camera, const TileList& tl, const EntityList& el)
@@ -140,7 +141,7 @@ void BackgroundRenderPass::doRun(::Camera& camera, const TileList& tl, const Ent
                             renderer.setBlendFunction(BlendFunction::SourceAlpha, BlendFunction::OneMinusSourceAlpha);
                         }
 
-                        renderer.render(_vertexBuffer, PrimitiveType::TriangleFan, 0, 4);
+                        renderer.render(_vertexBuffer, _vertexDescriptor, PrimitiveType::TriangleFan, 0, 4);
                     }
                 }
             }
@@ -154,7 +155,7 @@ void BackgroundRenderPass::doRun(::Camera& camera, const TileList& tl, const Ent
 
                         renderer.setColour(Math::Colour4f(light, light, light, 1.0f));
 
-                        renderer.render(_vertexBuffer, PrimitiveType::TriangleFan, 0, 4);
+                        renderer.render(_vertexBuffer, _vertexDescriptor, PrimitiveType::TriangleFan, 0, 4);
                     }
                 }
             }

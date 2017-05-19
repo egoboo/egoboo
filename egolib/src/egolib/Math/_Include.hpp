@@ -29,16 +29,8 @@
 #include "egolib/Math/VectorRejection.hpp"
 
 //
-#include "egolib/Math/Functors/Interpolate.hpp"
 #include "egolib/Math/Functors/Interpolate_Linear_Point.hpp"
-#include "egolib/Math/Functors/Interpolate_Linear_Real.hpp"
 #include "egolib/Math/Functors/Interpolate_Linear_Vector.hpp"
-#include "egolib/Math/Functors/Interpolate_Linear_ColourRGB.hpp"
-#include "egolib/Math/Functors/Interpolate_Linear_ColourRGBA.hpp"
-
-//
-#include "idlib/math/even_odd.hpp"
-#include "idlib/math/one_zero.hpp"
 
 //
 #include "egolib/Math/Functors/Contains_AxisAlignedBox_AxisAlignedBox.hpp"
@@ -71,17 +63,6 @@
 #include "egolib/Math/Functors/Translate_Point.hpp"
 #include "egolib/Math/Functors/Translate_Ray.hpp"
 #include "egolib/Math/Functors/Translate_Sphere.hpp"
-
-//
-#include "egolib/Math/Functors/Convert_Lf_Lf.hpp"
-#include "egolib/Math/Functors/Convert_LAf_LAf.hpp"
-#include "egolib/Math/Functors/Convert_Lf_LAf.hpp"
-#include "egolib/Math/Functors/Convert_LAf_Lf.hpp"
-
-#include "egolib/Math/Functors/Convert_RGBf_RGBf.hpp"
-#include "egolib/Math/Functors/Convert_RGBAf_RGBAf.hpp"
-#include "egolib/Math/Functors/Convert_RGBf_RGBAf.hpp"
-#include "egolib/Math/Functors/Convert_RGBAf_RGBf.hpp"
 
 //
 #include "egolib/Math/Functors/Closure_AxisAlignedBox_AxisAlignedBox.hpp"

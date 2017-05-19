@@ -27,43 +27,32 @@
 namespace Ego {
 namespace Events {
 
-/**
- * @brief Event arguments of a mouse wheel turned event.
- */
-struct MouseWheelTurnedEventArgs {
+/// @brief Event arguments of a mouse wheel turned event.
+class MouseWheelTurnedEventArgs
+{
 private:
-    Vector2f delta;
+    Vector2f m_delta;
+
 public:
-    /**
-     * @brief Construct these mouse wheel turned event arguments with the specified values.
-     * @param delta turn direction and amount
-     */
+    /// @brief Construct these mouse wheel turned event arguments with the specified values.
+    /// @param delta turn direction and amount
     MouseWheelTurnedEventArgs(const Vector2f& delta)
-        : delta(delta) {}
-    /**
-     * @brief Construct these mouse wheel turned event arguments with the values of other mouse wheel turned event arguments.
-     * @param other the other mouse wheel turned event arguments
-     */
-    MouseWheelTurnedEventArgs(const MouseWheelTurnedEventArgs& other)
-        : delta(other.delta) {}
-    /**
-     * @brief Assign these mouse wheel turned event arguments with the values of other mouse wheel turned event arguments.
-     * @param other the other mouse wheel turned event arguments
-     * @return these mouse wheel turned event arguments
-     */
-    MouseWheelTurnedEventArgs operator=(const MouseWheelTurnedEventArgs& other) {
-        MouseWheelTurnedEventArgs temporary(other);
-        std::swap(*this, temporary);
-        return *this;
+        : m_delta(delta)
+    {}
+
+    MouseWheelTurnedEventArgs(const MouseWheelTurnedEventArgs&) = default;
+    MouseWheelTurnedEventArgs(MouseWheelTurnedEventArgs&&) = default;
+    MouseWheelTurnedEventArgs& operator=(const MouseWheelTurnedEventArgs&) = default;
+    MouseWheelTurnedEventArgs& operator=(MouseWheelTurnedEventArgs&&) = default;
+
+    /// @brief Get the delta.
+    /// @return the delta
+    const Vector2f& delta() const
+    {
+        return m_delta;
     }
-    /**
-     * @brief Get the delta.
-     * @return the delta
-     */
-    const Vector2f& getDelta() const {
-        return delta;
-    }
-};
+
+}; // class MouseWheelTurnedEventArgs
 
 } // namespace Events
 } // namespace Ego

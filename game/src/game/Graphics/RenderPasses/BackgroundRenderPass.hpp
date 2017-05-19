@@ -17,7 +17,8 @@ protected:
         float x, y, z;
         float s, t;
     };
-    /// A vertex buffer used by this render pass.
+    /// A vertex descriptor & a vertex buffer used by this render pass.
+    VertexDescriptor _vertexDescriptor;
     VertexBuffer _vertexBuffer;
     void doRun(::Camera& cam, const TileList& tl, const EntityList& el) override;
 };

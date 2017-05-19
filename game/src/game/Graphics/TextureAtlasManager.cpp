@@ -33,12 +33,12 @@ std::shared_ptr<Ego::Texture> TextureAtlasManager::getBig(int index) const {
 void TextureAtlasManager::decimate(const std::shared_ptr<const Ego::Texture>& sourceTexture, std::vector<std::shared_ptr<Ego::Texture>>& targetTextureList, int minification) {
     static constexpr size_t SUB_TEXTURES = 8;
 
-    if (!sourceTexture || !sourceTexture->_source) {
+    if (!sourceTexture || !sourceTexture->m_source) {
         return;
     }
 
     // make an alias for the texture's SDL_Surface
-    auto sourceImage = sourceTexture->_source;
+    auto sourceImage = sourceTexture->m_source;
 
     // how large a step every time through the mesh?
     float stepX = static_cast<float>(sourceImage->w) / static_cast<float>(SUB_TEXTURES),
@@ -98,12 +98,12 @@ void TextureAtlasManager::loadTileSet() {
 
 void TextureAtlasManager::reupload() {
     for (std::shared_ptr<Ego::Texture>& texture : _smallTiles) {
-        auto surface = texture->_source;
+        auto surface = texture->m_source;
         texture->load(surface);
     }
 
     for (std::shared_ptr<Ego::Texture>& texture : _bigTiles) {
-        auto surface = texture->_source;
+        auto surface = texture->m_source;
         texture->load(surface);
     }
 }

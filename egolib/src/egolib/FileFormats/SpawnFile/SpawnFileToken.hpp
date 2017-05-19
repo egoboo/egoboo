@@ -2,7 +2,7 @@
 
 #include "egolib/FileFormats/SpawnFile/SpawnFileTokenKind.hpp"
 
-class SpawnFileToken : public Id::Token<SpawnFileTokenKind>
+class SpawnFileToken : public id::token<SpawnFileTokenKind>
 {
 public:
     SpawnFileToken

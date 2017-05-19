@@ -47,93 +47,111 @@ struct egoboo_config_t : public Ego::Configuration::Configuration
 protected:
     static egoboo_config_t _singleton;
 
-    template <typename Functor>
-    void for_each(Functor f)
+    /// Utility function to create a tuple with references to variables of a configuration.
+    /// @param config the configuration
+    /// @return the tuple
+    template <typename T>
+    static decltype(auto) make_variable_tuple(T& config)
     {
         auto variables =
             std::tie
             (
-                graphic_fullscreen,
-                graphic_colorBuffer_bitDepth,
-                graphic_depthBuffer_bitDepth,
-                graphic_resolution_horizontal,
-                graphic_resolution_vertical,
-                graphic_perspectiveCorrection_enable,
-                graphic_dithering_enable,
-                graphic_reflections_enable,
-                graphic_reflections_particleReflections_enable,
-                graphic_shadows_enable,
-                graphic_shadows_highQuality_enable,
-                graphic_overlay_enable,
-                graphic_specularHighlights_enable,
-                graphic_twoLayerWater_enable,
-                graphic_background_enable,
-                graphic_fog_enable,
-                graphic_gouraudShading_enable,
-                graphic_antialiasing,
-                graphic_anisotropy_enable,
-                graphic_anisotropy_levels,
-                graphic_textureFilter_minFilter,
-                graphic_textureFilter_magFilter,
-                graphic_textureFilter_mipMapFilter,
-                graphic_simultaneousDynamicLights_max,
-                graphic_framesPerSecond_max,
-                graphic_simultaneousParticles_max,
-                graphic_hd_textures_enable,
+                config.graphic_fullscreen,
+                config.graphic_colorBuffer_bitDepth,
+                config.graphic_depthBuffer_bitDepth,
+                config.graphic_stencilBuffer_bitDepth,
+                config.graphic_accumulationBuffer_bitDepth,
+                config.graphic_resolution_horizontal,
+                config.graphic_resolution_vertical,
+                config.graphic_perspectiveCorrection_enable,
+                config.graphic_dithering_enable,
+                config.graphic_reflections_enable,
+                config.graphic_reflections_particleReflections_enable,
+                config.graphic_shadows_enable,
+                config.graphic_shadows_highQuality_enable,
+                config.graphic_overlay_enable,
+                config.graphic_specularHighlights_enable,
+                config.graphic_twoLayerWater_enable,
+                config.graphic_background_enable,
+                config.graphic_fog_enable,
+                config.graphic_gouraudShading_enable,
+                config.graphic_antialiasing,
+                config.graphic_anisotropy_enable,
+                config.graphic_anisotropy_levels,
+                config.graphic_doubleBuffering_enable,
+                config.graphic_textureFilter_minFilter,
+                config.graphic_textureFilter_magFilter,
+                config.graphic_textureFilter_mipMapFilter,
+                config.graphic_simultaneousDynamicLights_max,
+                config.graphic_framesPerSecond_max,
+                config.graphic_simultaneousParticles_max,
+                config.graphic_hd_textures_enable,
                 //
-                sound_effects_enable,
-                sound_effects_volume,
-                sound_music_enable,
-                sound_music_volume,
-                sound_channel_count,
-                sound_outputBuffer_size,
-                sound_highQuality_enable,
-                sound_footfallEffects_enable,
+                config.graphic_window_borderless,
+                config.graphic_window_resizable,
+                config.graphic_window_allowHighDpi,
+                config.graphic_window_fullscreenDesktop,
                 //
-                network_enable,
-                network_lagTolerance,
-                network_hostName,
-                network_playerName,
+                config.sound_effects_enable,
+                config.sound_effects_volume,
+                config.sound_music_enable,
+                config.sound_music_volume,
+                config.sound_channel_count,
+                config.sound_outputBuffer_size,
+                config.sound_highQuality_enable,
+                config.sound_footfallEffects_enable,
                 //
-                game_difficulty,
+                config.network_enable,
+                config.network_lagTolerance,
+                config.network_hostName,
+                config.network_playerName,
                 //
-                camera_control,
+                config.game_difficulty,
                 //
-                hud_feedback,
-                hud_simultaneousMessages_max,
-                hud_messageDuration,
-                hud_messages_enable,
-                hud_displayStatusBars,
-                hud_displayGameTime,
-                hud_displayFramesPerSecond,
+                config.camera_control,
                 //
-                debug_mesh_renderHeightMap,
-                debug_mesh_renderNormals,
-                debug_object_renderBoundingBoxes,
-                debug_object_renderGrips,
-                debug_hideMouse,
-                debug_grabMouse,
-                debug_developerMode_enable,
-                debug_sdlImage_enable
+                config.hud_feedback,
+                config.hud_simultaneousMessages_max,
+                config.hud_messageDuration,
+                config.hud_messages_enable,
+                config.hud_displayStatusBars,
+                config.hud_displayGameTime,
+                config.hud_displayFramesPerSecond,
+                //
+                config.debug_mesh_renderHeightMap,
+                config.debug_mesh_renderNormals,
+                config.debug_object_renderBoundingBoxes,
+                config.debug_object_renderGrips,
+                config.debug_hideMouse,
+                config.debug_grabMouse,
+                config.debug_developerMode_enable,
+                config.debug_sdlImage_enable
             );
-        Configuration::for_each(variables, f);
+        return variables;
+    }
+
+    template <typename Functor>
+    void for_each(Functor f)
+    {
+        Configuration::for_each(make_variable_tuple(*this), f);
     }
 
 public:
     void load(std::shared_ptr<ConfigFile> file)
     {
-        for_each(Load(file));
+        Configuration::for_each(make_variable_tuple(*this), Load(file));
     }
 
     void store(std::shared_ptr<ConfigFile> file)
     {
-        for_each(Store(file));
+        Configuration::for_each(make_variable_tuple(*this), Store(file));
     }
 
     // Graphic configuration section.
 
     /// @brief Enable/disable fullscreen mode.
-    /// @remark Default value is @a true.
+    /// @remark Default value is @a false.
+    /// @warning graphic_fullscreen and graphic_window_fullscreenDesktopp are mutually exclusive.
     Ego::Configuration::Variable<bool> graphic_fullscreen;
 
     /// @brief The horizontal resolution.
@@ -147,14 +165,22 @@ public:
     Ego::Configuration::Variable<int> graphic_resolution_vertical;
 
     /// @brief The color buffer depth.
-    /// @remark Default value is @a 24.
+    /// @remark Default value is @a 32.
     /// @todo Type should be <tt>uint8_t</tt>.
     Ego::Configuration::Variable<int> graphic_colorBuffer_bitDepth;
 
     /// @brief The depth buffer depth.
-    /// @remark Default value is @a 8.
+    /// @remark Default value is @a 24.
     /// @todo Type should be <tt>uint8_t</tt>.
     Ego::Configuration::Variable<int> graphic_depthBuffer_bitDepth;
+
+    /// @brief The stencil buffer depth.
+    /// @remark Default value is @a 8.
+    Ego::Configuration::Variable<int> graphic_stencilBuffer_bitDepth;
+
+    /// @brief The accumulation buffer depth.
+    /// @remark Default value is @a 32.
+    Ego::Configuration::Variable<int> graphic_accumulationBuffer_bitDepth;
 
     /// @brief Enable perspective correction.
     /// @remark Default value is @a false.
@@ -222,6 +248,10 @@ public:
     /// @remark Default is @a 1 within the range of <tt>[1,16]</tt>
     Ego::Configuration::Variable<float> graphic_anisotropy_levels;
 
+    /// @brief Enable double buffering.
+    /// @remark Default is @a true.
+    Ego::Configuration::Variable<bool> graphic_doubleBuffering_enable;
+
     /// @brief The texture filter used for minification.
     /// @remark Default value is Ego::TextureFilter::Linear.
     Ego::Configuration::Variable<Ego::TextureFilter> graphic_textureFilter_minFilter;
@@ -246,13 +276,28 @@ public:
     /// @remark Default value is @a 768.
     Ego::Configuration::Variable<uint16_t> graphic_simultaneousParticles_max;
 
-
-    /// @brief If true, the game will try to load HD versions of textures if
+    /// @brief If @a true, the game will try to load HD versions of textures if
     /// they are available and default back to normal version if not.
     /// HD textures are textures with higher resolution and end with
     /// _HD before the file type suffix (e.g myTexture_HD.png).
     /// @remark Default value is @a true.
     Ego::Configuration::Variable<bool> graphic_hd_textures_enable;
+
+    /// @brief If @a true, the window is borderless, otherwise it is not.
+    /// @remark A borderless window displays neither a caption nor an edge frame.
+    /// @default Default is @a false.
+    Ego::Configuration::Variable<bool> graphic_window_borderless;
+    /// @brief If @a true the window is resizable, otherwise it is not.
+    /// @default Default is @a false.
+    Ego::Configuration::Variable<bool> graphic_window_resizable;
+    /// @brief If @a true the window supports high-DPI modes (in Apple terminology 'Retina').
+    /// @default Default is @a false.
+    Ego::Configuration::Variable<bool> graphic_window_allowHighDpi;
+    /// @brief If @a true, the window
+    /// @remark A fulldesktop window always covers the entire display or is minimized.
+    /// @default Default is @a false.
+    /// @warning graphic_fullscreen and graphic_window_fullscreenDesktop mutually exclusive.
+    Ego::Configuration::Variable<bool> graphic_window_fullscreenDesktop;
 
     // Sound configuration section.
 

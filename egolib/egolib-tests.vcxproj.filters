@@ -22,9 +22,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="tests\egolib\Tests\Math\ColourMath.cpp">
-      <Filter>Source Files\Math</Filter>
-    </ClCompile>
     <ClCompile Include="tests\egolib\Tests\Math\Contains.cpp">
       <Filter>Source Files\Math</Filter>
     </ClCompile>

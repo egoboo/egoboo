@@ -38,9 +38,12 @@ egoboo_config_t& egoboo_config_t::get()
 
 egoboo_config_t::egoboo_config_t() :
     // Graphic configuration section.
-    graphic_fullscreen(true,"graphic.fullscreen","enable/disable fullscreen mode"),
-    graphic_colorBuffer_bitDepth(24,"graphic.colourBuffer.bitDepth","bit depth of the colour buffer"),
-    graphic_depthBuffer_bitDepth(8,"graphic.depthBuffer.bitDepth","bit depth of the depth buffer"),
+    graphic_fullscreen(false,"graphic.fullscreen","enable/disable fullscreen mode."
+                       "graphic.fullscreen and graphic.window.fullscreenDesktop are mutually exclusive"),
+    graphic_colorBuffer_bitDepth(32,"graphic.colourBuffer.bitDepth","bit depth of the colour buffer"),
+    graphic_depthBuffer_bitDepth(24,"graphic.depthBuffer.bitDepth","bit depth of the depth buffer"),
+    graphic_stencilBuffer_bitDepth(8, "graphic.stencilBuffer.bitDepth","bit depth of the stencil buffer"),
+    graphic_accumulationBuffer_bitDepth(32, "graphic.accumulationBuffer.bitDepth", "bit depth of the accumulation buffer"),
     graphic_resolution_horizontal(800,"graphic.resolution.horizontal", "horizontal resolution"),
     graphic_resolution_vertical(600,"graphic.resolution.vertical", "vertical resolution"),
     graphic_perspectiveCorrection_enable(false,"graphic.perspectiveCorrection.enable","enable/displable perspective correction"),
@@ -58,6 +61,7 @@ egoboo_config_t::egoboo_config_t() :
     graphic_antialiasing(2, "graphic.antialiasing", "set antialiasing level 0 (off), 1 (2x), 2 (4x), 3 (8x), 4 (16x)"),
     graphic_anisotropy_enable(false, "graphic.anisotropy.enable", "enable anisotropic texture filtering"),
     graphic_anisotropy_levels(1.0f, "graphic.anisotropy.levels", "anisotropy levels", 1.0f, 16.0f),
+    graphic_doubleBuffering_enable(true, "graphic.doubleBuffering.enable", "enable/disable double buffering"),
     graphic_textureFilter_minFilter(Ego::TextureFilter::Linear, "graphic.textureFilter.minFilter", "texture filter used for minification",
     {
         { "none", Ego::TextureFilter::None },
@@ -80,7 +84,17 @@ egoboo_config_t::egoboo_config_t() :
     graphic_framesPerSecond_max(30, "graphic.framesPerSecond.max", "inclusive upper bound of frames per second"),
     graphic_simultaneousParticles_max(768, "graphic.simultaneousParticles.max", "inclusive upper bound of simultaneous particles"),
     graphic_hd_textures_enable(true, "graphic.graphic_hd_textures_enable", "enable/disable HD textures"),
-
+    //
+    graphic_window_borderless(false, "graphic.window.bordless",
+                              "if the window is borderless. A bordless window neither has a caption nor an edge frame"),
+    graphic_window_resizable(false, "graphic.window.resizable",
+                             "if the window is resizable"),
+    graphic_window_allowHighDpi(false, "graphic.window.allowHighDpi",
+                                "if the window supports high-DPI modes (in Apple terminology 'Retina')"),
+    graphic_window_fullscreenDesktop(false, "graphic.window.fullscreenDesktop",
+                                     "if the window is a fullscreen desktop window."
+                                     "A fullscreen desktop window always covers the entire display or is minimized"
+                                     "graphic.fullscreen and graphic.window.fullscreenDesktop are mutually exclusive"),
     // Sound configuration section.
     sound_effects_enable(true, "sound.effects.enable", "enable/disable effects"),
     sound_effects_volume(90, "sound.effects.volume", "effects volume"),
@@ -141,77 +155,7 @@ egoboo_config_t::~egoboo_config_t()
 
 egoboo_config_t& egoboo_config_t::operator=(const egoboo_config_t& other)
 {
-    // Graphic configuration section.
-    graphic_fullscreen = other.graphic_fullscreen;
-    graphic_resolution_horizontal = other.graphic_resolution_horizontal;
-    graphic_resolution_vertical = other.graphic_resolution_vertical;
-    graphic_colorBuffer_bitDepth = other.graphic_colorBuffer_bitDepth;
-    graphic_depthBuffer_bitDepth = other.graphic_depthBuffer_bitDepth;
-    graphic_perspectiveCorrection_enable = other.graphic_perspectiveCorrection_enable;
-    graphic_dithering_enable = other.graphic_dithering_enable;
-    graphic_reflections_enable = other.graphic_reflections_enable;
-    graphic_reflections_particleReflections_enable = other.graphic_reflections_particleReflections_enable;
-    graphic_shadows_enable = other.graphic_shadows_enable;
-    graphic_shadows_highQuality_enable = other.graphic_shadows_highQuality_enable;
-    graphic_specularHighlights_enable = other.graphic_specularHighlights_enable;
-    graphic_twoLayerWater_enable = other.graphic_twoLayerWater_enable;
-    graphic_overlay_enable = other.graphic_overlay_enable;
-    graphic_background_enable = other.graphic_background_enable;
-    graphic_fog_enable = other.graphic_fog_enable;
-    graphic_gouraudShading_enable = other.graphic_gouraudShading_enable;
-    graphic_antialiasing = other.graphic_antialiasing;
-    graphic_anisotropy_enable = other.graphic_anisotropy_enable;
-    graphic_anisotropy_levels = other.graphic_anisotropy_levels;
-    graphic_textureFilter_minFilter = other.graphic_textureFilter_minFilter;
-    graphic_textureFilter_magFilter = other.graphic_textureFilter_magFilter;
-    graphic_textureFilter_mipMapFilter = other.graphic_textureFilter_mipMapFilter;
-    graphic_simultaneousDynamicLights_max = other.graphic_simultaneousDynamicLights_max;
-    graphic_framesPerSecond_max = other.graphic_framesPerSecond_max;
-    graphic_simultaneousParticles_max = other.graphic_simultaneousParticles_max;
-    graphic_hd_textures_enable = other.graphic_hd_textures_enable;
-
-    // Sound configuration section.
-    sound_effects_enable = other.sound_effects_enable;
-    sound_effects_volume = other.sound_effects_volume;
-    sound_music_enable = other.sound_music_enable;
-    sound_music_volume = other.sound_music_volume;
-
-    sound_channel_count = other.sound_channel_count;
-    sound_outputBuffer_size = other.sound_outputBuffer_size;
-    sound_highQuality_enable = other.sound_highQuality_enable;
-    sound_footfallEffects_enable = other.sound_footfallEffects_enable;
-
-    // Network configuration section.
-    network_enable = other.network_enable;
-    network_lagTolerance = other.network_lagTolerance;
-    network_hostName = other.network_hostName;
-    network_playerName = other.network_playerName;
-
-    // Camera configuration section.
-    camera_control = other.camera_control;
-
-    // Game configuration section.
-    game_difficulty = other.game_difficulty;
-    
-    // HUD configuration section.
-    hud_displayGameTime = other.hud_displayGameTime;
-    hud_messages_enable = other.hud_messages_enable;
-    hud_simultaneousMessages_max = other.hud_simultaneousMessages_max;
-    hud_messageDuration = other.hud_messageDuration;
-    hud_displayStatusBars = other.hud_displayStatusBars;
-    hud_feedback = other.hud_feedback;
-    hud_displayFramesPerSecond = other.hud_displayFramesPerSecond;
-
-    // Debug configuration section.
-	debug_mesh_renderHeightMap = other.debug_mesh_renderHeightMap;
-	debug_mesh_renderNormals = other.debug_mesh_renderNormals;
-    debug_object_renderBoundingBoxes = other.debug_object_renderBoundingBoxes;
-    debug_object_renderGrips = other.debug_object_renderGrips;
-    debug_hideMouse = other.debug_hideMouse;
-    debug_grabMouse = other.debug_grabMouse;
-    debug_developerMode_enable = other.debug_developerMode_enable;
-    debug_sdlImage_enable = other.debug_sdlImage_enable;
-
+    make_variable_tuple(*this) = make_variable_tuple(other);
     return *this;
 }
 

@@ -153,6 +153,6 @@ void AudioOptionsScreen::drawContainer(Ego::GUI::DrawingContext& drawingContext)
 void AudioOptionsScreen::beginState()
 {
     // menu settings
-    Ego::GraphicsSystem::window->setGrabEnabled(false);
+    Ego::GraphicsSystem::get().window->setGrabEnabled(false);
     _gameEngine->enableMouseCursor();
 }

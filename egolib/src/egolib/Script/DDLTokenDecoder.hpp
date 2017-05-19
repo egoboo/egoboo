@@ -46,11 +46,11 @@ struct DDLTokenDecoder<TargetType, std::enable_if_t<IsBoolean<TargetType>::value
     TargetType operator()(const DDLToken& token) const
     {
         TargetType temporary;
-        if (!Decoder<TargetType>()(token.getLexeme(), temporary))
+        if (!Decoder<TargetType>()(token.get_lexeme(), temporary))
         {
-            throw Id::CompilationErrorException(__FILE__, __LINE__, Id::CompilationErrorKind::Lexical, token.getStartLocation(),
-                                                "unable to convert literal `" + token.getLexeme() +
-                                                "` into a value of EgoScript boolean type `" + typeid(TargetType).name() + "`");
+            throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, token.get_start_location(),
+                                        "unable to convert literal `" + token.get_lexeme() +
+                                        "` into a value of EgoScript boolean type `" + typeid(TargetType).name() + "`");
         }
         return temporary;
     }
@@ -63,11 +63,11 @@ struct DDLTokenDecoder<TargetType, std::enable_if_t<IsCharacter<TargetType>::val
     TargetType operator()(const DDLToken& token) const
     {
         TargetType temporary;
-        if (!Decoder<TargetType>()(token.getLexeme(), temporary))
+        if (!Decoder<TargetType>()(token.get_lexeme(), temporary))
         {
-            throw Id::CompilationErrorException(__FILE__, __LINE__, Id::CompilationErrorKind::Lexical, token.getStartLocation(),
-                                                "unable to convert literal `" + token.getLexeme() +
-                                                "` into a value of EgoScript character type `" + typeid(TargetType).name() + "`");
+            throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, token.get_start_location(),
+                                        "unable to convert literal `" + token.get_lexeme() +
+                                        "` into a value of EgoScript character type `" + typeid(TargetType).name() + "`");
         }
         return temporary;
     }
@@ -80,11 +80,11 @@ struct DDLTokenDecoder<TargetType, std::enable_if_t<IsReal<TargetType>::value>>
     TargetType operator()(const DDLToken& token) const
     {
         TargetType temporary;
-        if (!Decoder<TargetType>()(token.getLexeme(), temporary))
+        if (!Decoder<TargetType>()(token.get_lexeme(), temporary))
         {
-            throw Id::CompilationErrorException(__FILE__, __LINE__, Id::CompilationErrorKind::Lexical, token.getStartLocation(),
-                                                "unable to convert literal `" + token.getLexeme() +
-                                                "` into a value of EgoScript real type " + "`" + typeid(TargetType).name() + "`");
+            throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, token.get_start_location(),
+                                        "unable to convert literal `" + token.get_lexeme() +
+                                        "` into a value of EgoScript real type " + "`" + typeid(TargetType).name() + "`");
         }
         return temporary;
     }
@@ -97,11 +97,11 @@ struct DDLTokenDecoder<TargetType, std::enable_if_t<IsInteger<TargetType>::value
     TargetType operator()(const DDLToken& token) const
     {
         TargetType temporary;
-        if (!Decoder<TargetType>()(token.getLexeme(), temporary))
+        if (!Decoder<TargetType>()(token.get_lexeme(), temporary))
         {
-            throw Id::CompilationErrorException(__FILE__, __LINE__, Id::CompilationErrorKind::Lexical, token.getStartLocation(),
-                                                "unable to convert literal `" + token.getLexeme() +
-                                                "` into a value of EgoScript integer type " + "`" + typeid(TargetType).name() + "`");
+            throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, token.get_start_location(),
+                                        "unable to convert literal `" + token.get_lexeme() +
+                                        "` into a value of EgoScript integer type " + "`" + typeid(TargetType).name() + "`");
         }
         return temporary;
     }
@@ -114,11 +114,11 @@ struct DDLTokenDecoder<TargetType, std::enable_if_t<IsNatural<TargetType>::value
     TargetType operator()(const DDLToken& token) const
     {
         TargetType temporary;
-        if (!Decoder<TargetType>()(token.getLexeme(), temporary))
+        if (!Decoder<TargetType>()(token.get_lexeme(), temporary))
         {
-            throw Id::CompilationErrorException(__FILE__, __LINE__, Id::CompilationErrorKind::Lexical, token.getStartLocation(),
-                                                "unable to convert literal `" + token.getLexeme() +
-                                                "` into a value of EgoScript natural type " + "`" + typeid(int).name() + "`");
+            throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, token.get_start_location(),
+                                        "unable to convert literal `" + token.get_lexeme() +
+                                        "` into a value of EgoScript natural type " + "`" + typeid(int).name() + "`");
         }
         return temporary;
     }
@@ -131,11 +131,11 @@ struct DDLTokenDecoder<TargetType, std::enable_if_t<IsString<TargetType>::value>
     TargetType operator()(const DDLToken& token) const
     {
         TargetType temporary;
-        if (!Decoder<TargetType>()(token.getLexeme(), temporary))
+        if (!Decoder<TargetType>()(token.get_lexeme(), temporary))
         {
-            throw Id::CompilationErrorException(__FILE__, __LINE__, Id::CompilationErrorKind::Lexical, token.getStartLocation(),
-                                                "unable to convert literal `" + token.getLexeme() +
-                                                "` into a value of EgoScript string type " + "`" + typeid(TargetType).name() + "`");
+            throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, token.get_start_location(),
+                                        "unable to convert literal `" + token.get_lexeme() +
+                                        "` into a value of EgoScript string type " + "`" + typeid(TargetType).name() + "`");
         }
         return temporary;
     }

@@ -17,16 +17,22 @@
 //*
 //********************************************************************************************
 
+/// @file egolib/Image/ImageLoader.cpp
+/// @brief An image loader.
+/// @author Michael Heilmann
+
 #include "egolib/Image/ImageLoader.hpp"
 
 namespace Ego {
 
 ImageLoader::ImageLoader(const std::unordered_set<std::string>& extensions) :
-    extensions(extensions) {}
+    extensions(extensions)
+{}
 
 ImageLoader::~ImageLoader() {}
 
-std::unordered_set<std::string> ImageLoader::getExtensions() const {
+std::unordered_set<std::string> ImageLoader::getExtensions() const
+{
     return extensions;
 }
 

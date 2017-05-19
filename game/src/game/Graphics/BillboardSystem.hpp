@@ -35,7 +35,7 @@ struct Billboard;
 namespace Ego {
 namespace Graphics {
 
-struct BillboardSystem
+class BillboardSystem
 {
 public:
     BillboardSystem();
@@ -56,7 +56,8 @@ private:
         float x, y, z;
         float s, t;
     };
-    // A vertex buffer used by the billboard system.
+    // A vertex desscriptor & a vertex buffer used by the billboard system.
+    VertexDescriptor vertexDescriptor;
     VertexBuffer vertexBuffer;
 
 private:

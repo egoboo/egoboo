@@ -7,7 +7,8 @@ namespace Graphics {
 
 ForegroundRenderPass::ForegroundRenderPass() :
     RenderPass("foreground"),
-    _vertexBuffer(4, VertexFormatFactory::get<VertexFormat::P3FT2F>())
+    _vertexDescriptor(VertexFormatFactory::get<VertexFormat::P3FT2F>()),
+    _vertexBuffer(4, _vertexDescriptor.getVertexSize())
 {}
 
 void ForegroundRenderPass::doRun(::Camera& camera, const TileList& tl, const EntityList& el)
@@ -38,7 +39,7 @@ void ForegroundRenderPass::doRun(::Camera& camera, const TileList& tl, const Ent
     if (alpha != 0.0f)
     {
         // Figure out the screen coordinates of its corners
-        auto windowSize = GraphicsSystem::window->getSize();
+        auto windowSize = GraphicsSystem::get().window->getSize();
         float x = windowSize.width() << 6;
         float y = windowSize.height() << 6;
         float z = 0;
@@ -112,7 +113,7 @@ void ForegroundRenderPass::doRun(::Camera& camera, const TileList& tl, const Ent
                 renderer.getTextureUnit().setActivated(_currentModule->getWaterTexture(1).get());
 
                 renderer.setColour(Math::Colour4f(1.0f, 1.0f, 1.0f, 1.0f - std::abs(alpha)));
-                renderer.render(_vertexBuffer, PrimitiveType::TriangleFan, 0, 4);
+                renderer.render(_vertexBuffer, _vertexDescriptor, PrimitiveType::TriangleFan, 0, 4);
             }
         }
     }

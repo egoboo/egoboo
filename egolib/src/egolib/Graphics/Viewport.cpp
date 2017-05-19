@@ -5,7 +5,7 @@ namespace Graphics {
 
 /// Utility function to set a value.
 template <typename T>
-void SetProperty(T& storage, T value, Id::Signal<void(T, T)>& signal)
+void SetProperty(T& storage, T value, id::signal<void(T, T)>& signal)
 {
     if (storage != value)
     {

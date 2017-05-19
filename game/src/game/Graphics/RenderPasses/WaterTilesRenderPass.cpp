@@ -15,7 +15,7 @@ void WaterTilesRenderPass::doRun(::Camera& camera, const TileList& tl, const Ent
 {
     if (!tl.getMesh())
     {
-        throw Id::RuntimeErrorException(__FILE__, __LINE__, "tile list not bound to a mesh");
+        throw id::runtime_error(__FILE__, __LINE__, "tile list not bound to a mesh");
     }
 
     auto& renderer = Renderer::get();
@@ -127,7 +127,8 @@ gfx_rv WaterTilesRenderPass::render_water_fan(ego_mesh_t& mesh, const Index1D& t
         float r, g, b, a;
         float s, t;
     };
-    auto vb = std::make_shared<VertexBuffer>(4, VertexFormatFactory::get<VertexFormat::P3FC4FT2F>());
+    auto vd = VertexFormatFactory::get<VertexFormat::P3FC4FT2F>();
+    auto vb = std::make_shared<VertexBuffer>(4, vd.getVertexSize());
     Vertex *v = static_cast<Vertex *>(vb->lock());
 
     // Original points
@@ -214,7 +215,8 @@ gfx_rv WaterTilesRenderPass::render_water_fan(ego_mesh_t& mesh, const Index1D& t
 
         // cull backward facing polygons
         // use clockwise orientation to determine backfaces
-        oglx_begin_culling(CullingMode::Back, MAP_NRM_CULL);
+        renderer.setCullingMode(CullingMode::Back);
+        renderer.setWindingMode(MAP_NRM_CULL);
 
         // set the blending mode
         renderer.setBlendingEnabled(true);
@@ -229,7 +231,7 @@ gfx_rv WaterTilesRenderPass::render_water_fan(ego_mesh_t& mesh, const Index1D& t
 
         // per-vertex coloring
         renderer.setGouraudShadingEnabled(true);
-        renderer.render(*vb, PrimitiveType::TriangleFan, 0, 4);
+        renderer.render(*vb, vd, PrimitiveType::TriangleFan, 0, 4);
     }
 
     return gfx_success;

@@ -28,7 +28,7 @@
 #include "game/egoboo.h"
 
 /// The description of a single team
-class Team : public Id::EqualToExpr<Team>
+class Team : public id::equal_to_expr<Team>
 {
 public:
     enum TeamTypes : uint8_t
@@ -126,7 +126,7 @@ public:
     void decreaseMorale();
 
 	// CRTP
-	bool equalTo(const Team& other) const EGO_NOEXCEPT { return _teamID == other._teamID; }
+	bool equal_to(const Team& other) const EGO_NOEXCEPT { return _teamID == other._teamID; }
 
     inline TEAM_REF toRef() const {return _teamID;}
 

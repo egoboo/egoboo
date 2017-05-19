@@ -32,7 +32,7 @@ namespace Ego {
 namespace Core {
 
 /// @brief A virtual file system, timer, an event threading service.
-class SystemService : public Id::NonCopyable {
+class SystemService : private id::non_copyable {
 protected:
     friend class System;
     explicit SystemService(const std::string& binaryPath);
@@ -48,7 +48,7 @@ public:
 };
 
 /// @brief A video service.
-class VideoService : public Id::NonCopyable {
+class VideoService : private id::non_copyable {
 protected:
 	friend class System;
 	explicit VideoService();
@@ -56,7 +56,7 @@ protected:
 };
 
 /// @brief An audio service.
-class AudioService : public Id::NonCopyable {
+class AudioService : private id::non_copyable {
 protected:
 	friend class System;
     explicit AudioService();
@@ -64,7 +64,7 @@ protected:
 };
 
 /// @brief An input service.
-class InputService : public Id::NonCopyable {
+class InputService : private id::non_copyable {
 protected:
 	friend class System;
     explicit InputService();

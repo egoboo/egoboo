@@ -2,9 +2,9 @@
 
 #include "egolib/platform.h"
 
-struct LocalParticleProfileRef : public Id::EqualToExpr<LocalParticleProfileRef>,
-                                 public Id::LowerThanExpr<LocalParticleProfileRef>,
-                                 public Id::IncrementExpr<LocalParticleProfileRef> {
+struct LocalParticleProfileRef : public id::equal_to_expr<LocalParticleProfileRef>,
+                                 public id::lower_than_expr<LocalParticleProfileRef>,
+                                 public id::increment_expr<LocalParticleProfileRef> {
 private:
     int _value;
 public:
@@ -30,12 +30,12 @@ public:
     }
 
 	// CRTP
-    bool lowerThan(const LocalParticleProfileRef& other) const {
+    bool lower_than(const LocalParticleProfileRef& other) const {
         return _value < other._value;
     }
 
 	// CRTP
-    bool equalTo(const LocalParticleProfileRef& other) const
+    bool equal_to(const LocalParticleProfileRef& other) const
     {
         return _value == other._value;
     }

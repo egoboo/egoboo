@@ -366,7 +366,7 @@ gfx_rv ParticleGraphics::update_lighting(ParticleGraphics& pinst, Particle *pprt
     auto mesh = _currentModule->getMeshPointer();
     if (!mesh)
     {
-        throw Id::RuntimeErrorException(__FILE__, __LINE__, "nullptr == mesh");
+        throw id::runtime_error(__FILE__, __LINE__, "nullptr == mesh");
     }
     lighting_cache_t global_light;
     GridIllumination::grid_lighting_interpolate(*mesh, global_light, Vector2f(pinst.pos[kX], pinst.pos[kY]));

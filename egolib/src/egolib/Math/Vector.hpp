@@ -423,7 +423,7 @@ public:
 
 public:
     // CRTP
-    bool equalTo(const MyType& other) const
+    bool equal_to(const MyType& other) const
     {
         return TupleUtilities::foldTT(typename ScalarFieldType::EqualsFunctor(), true, *this, other);
     }
@@ -457,14 +457,14 @@ public:
     }
 
     // CRTP
-    MyType unaryPlus() const
+    MyType unary_plus() const
     {
         static const typename ScalarFieldType::UnaryPlusFunctor functor{};
         return TupleUtilities::mapT<MyType>(functor, *this, IndexSequence{});
     }
 
     // CRTP
-    MyType unaryMinus() const
+    MyType unary_minus() const
     {
         static const typename ScalarFieldType::UnaryMinusFunctor functor{};
         return TupleUtilities::mapT<MyType>(functor, *this, IndexSequence{});

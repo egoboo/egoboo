@@ -37,7 +37,7 @@ public:
 public:
 	/// @brief Signal raised if the left side of the viewport in pixels changed.
     /// The first argument is the old left, the second argument is the new left.
-	Id::Signal<void(float, float)> LeftPixelsChanged;
+	id::signal<void(float, float)> LeftPixelsChanged;
 
 	/// @brief Get the left side of the viewport in pixels.
 	/// @return the left side of the viewport in pixels
@@ -51,7 +51,7 @@ public:
 public:
 	/// @brief Signal raised if the top side of the viewport in pixels changed.
     /// The first argument is the old top, the second argument is the new top.
-	Id::Signal<void(float, float)> TopPixelsChanged;
+	id::signal<void(float, float)> TopPixelsChanged;
 
 	/// @brief Get the top side of the viewport in pixels.
 	/// @return the top side of the viewport in pixels
@@ -65,7 +65,7 @@ public:
 public:
 	/// @brief Signal raised if the width of the viewport in pixels changed.
     /// The first argument is the old width, the second argument is the new width.
-	Id::Signal<void(float, float)> WidthPixelsChanged;
+	id::signal<void(float, float)> WidthPixelsChanged;
 
 	/// @brief Get the width of the viewport in pixels.
 	/// @return the width of the viewport in pixels
@@ -79,7 +79,7 @@ public:
 public:
 	/// @brief Signal raised if the height of the viewport in pixels changed.
     /// The first argument is the old height, the second argument is the new height.
-	Id::Signal<void(float, float)> HeightPixelsChanged;
+	id::signal<void(float, float)> HeightPixelsChanged;
 
 	/// @brief Get the height of the viewport in pixels.
 	/// @return the height of the viewport in pixels
@@ -93,7 +93,7 @@ public:
 public:
     /// @brief Signal raised if the clear colour of the viewport changed.
     /// The first argument is the old clear colour, the second argument is the new clear colour.
-    Id::Signal<void(Ego::Math::Colour4f, Ego::Math::Colour4f)> ClearColourChanged;
+    id::signal<void(Ego::Math::Colour4f, Ego::Math::Colour4f)> ClearColourChanged;
 
     /// @brief Get the clear colour of the viewport.
     /// @return the clear colour of the viewport
@@ -107,7 +107,7 @@ public:
 public:
     /// @brief Signal raised if the clear depth of the viewport changed.
     /// The first argument is the old clear depth, the second argument is the new clear depth.
-    Id::Signal<void(float, float)> ClearDepthChanged;
+    id::signal<void(float, float)> ClearDepthChanged;
 
     /// @brief Get the clear depth of the viewport.
     /// @return the clear depth of the viewport

@@ -17,82 +17,53 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Renderer/PrimitiveType.hpp
-/// @brief  Primitive types.
+/// @file egolib/Renderer/PrimitiveType.hpp
+/// @brief Primitive types.
 /// @author Michael Heilmann
 
 #pragma once
 
 namespace Ego {
 
-/**
- * @brief
- *  An enumeration of primitive types.
- */
-enum class PrimitiveType {
-    /**
-     * @brief
-     *  Vertex \f$i\f$ defines point \f$i\f$.
-     *  Given \f$n\f$ vertices, \f$n\f$ points are drawn.
-     */
+/// @brief An enumeration of primitive types.
+enum class PrimitiveType
+{
+    /// @brief A vertex \f$i\f$ defines point \f$i\f$.
+    /// Given \f$n\f$ vertices, \f$n\f$ points are drawn.
     Points,
 
-    /**
-     * @brief
-     *  Vertices \f$2i - 1\f$ and \f$2i\f$ define line \f$i\f$.
-     *  Given \f$n\f$ vertices, \f$\frac{n}{2}\f$ lines are drawn.
-     */
+    /// @brief Vertices \f$2i - 1\f$ and \f$2i\f$ define line \f$i\f$.
+    /// Given \f$n\f$ vertices, \f$\frac{n}{2}\f$ lines are drawn.
     Lines,
 
-    /**
-     * @brief
-     *  The vertices \f$i-1\f$ and \f$i\f$ define a line.
-     *  Given \f$n\f$ vertices, \f$n-1\f$ lines are drawn.
-     */
+    /// @brief Vertices \f$i-1\f$ and \f$i\f$ define a line.
+    /// Given \f$n\f$ vertices, \f$n-1\f$ lines are drawn.
     LineStrip,
 
-    /**
-     * @brief
-     *  The vertices \f$i-1\f$ and \f4i\f$ define a line.
-     *  Given \f$n\f$ vertices, \f$n-1\f$ lines are drawn
-     *  plus one line between from the last vertex \f$n\f$ to the first vertex \f$1\f$.
-     */
+    /// @brief Vertices \f$i-1\f$ and \f$i\f$ define a line.
+    /// Given \f$n\f$ vertices, \f$n-1\f$ lines are drawn
+    /// plus one line between from the last vertex \f$n\f$ to the first vertex \f$1\f$.
     LineLoop,
 
-    /**
-     * @brief
-     *  Vertices \f$3i-2\f$, \f$3i-1\f$, and \f$3i\f$ define triangle \f$i\f$.
-     *  Given \f$n\f$ vertices, \f$\frac{n}{3}\f$ triangles are drawn.
-     */
+    /// @brief Vertices \f$3i-2\f$, \f$3i-1\f$, and \f$3i\f$ define triangle \f$i\f$.
+    ///  Given \f$n\f$ vertices, \f$\frac{n}{3}\f$ triangles are drawn.
     Triangles,
 
-    /**
-     * @brief
-     *  Vertices \f$4i-3\f$, \f$4i-2\f$, \f$4i-1\f$, and \f$4i\f$ define quadriliteral \f$i\f$.
-     *  Given \f$n\f$ vertices, \f$\frac{n}{4}\f$ quadriliterals are drawn.
-     */
+    /// @brief Vertices \f$4i-3\f$, \f$4i-2\f$, \f$4i-1\f$, and \f$4i\f$ define quadriliteral \f$i\f$.
+    /// Given \f$n\f$ vertices, \f$\frac{n}{4}\f$ quadriliterals are drawn.
     Quadriliterals,
 
-    /**
-     * @brief
-     *  Vertices \f$1\f$, \$i+1\f$ and \f$i+2\f$ define triangle \f$i\f$.
-     *  Given \f$n\f$ vertices, \f$n-2\f$ triangles are drawn.
-     */
+    /// @brief Vertices \f$1\f$, \$i+1\f$ and \f$i+2\f$ define triangle \f$i\f$.
+    /// Given \f$n\f$ vertices, \f$n-2\f$ triangles are drawn.
     TriangleFan,
 
-    /**
-     * @brief
-     *  Vertices \f$i\f$,\f$i+1\f$, and \f$i+2\f$ define triangle \f$i\f$ if \f$i\f$ is odd.
-     *  For even \f$i\f$, vertices \f$i+1\f$, \f$i\f$ , and \f$i+2\f$ define triangle \f$i\f$.
-     *  Given \f$n\f$ vertices, \f$n-2\f$ triangles are drawn.
-     */
+    /// @brief Vertices \f$i\f$,\f$i+1\f$, and \f$i+2\f$ define triangle \f$i\f$ if \f$i\f$ is odd.
+    /// For even \f$i\f$, vertices \f$i+1\f$, \f$i\f$ , and \f$i+2\f$ define triangle \f$i\f$.
+    /// Given \f$n\f$ vertices, \f$n-2\f$ triangles are drawn.
     TriangleStrip,
-    
-    /**
-     * @brief
-     *  Vertices \f$2i - 1\f$, \f$2i\f$, \f$2i + 2\f$, and \f$2i + 1\f$ define quadriliteral
-     *  \f$i\f$. Given \f$n\f$ vertices, \f$\frac{n}{2}-1\f$ quadriliterals are drawn.
-     */
+
+    /// @brief Vertices \f$2i - 1\f$, \f$2i\f$, \f$2i + 2\f$, and \f$2i + 1\f$ define quadriliteral \f$i\f$.
+    /// Given \f$n\f$ vertices, \f$\frac{n}{2}-1\f$ quadriliterals are drawn.
     QuadriliteralStrip,
 
 }; // enum class PrimitiveType

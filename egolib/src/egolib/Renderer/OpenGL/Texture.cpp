@@ -17,192 +17,52 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Renderer/OpenGL/Texture.cpp
-/// @brief  Implementation of textures for OpenGL 2.1.
+/// @file egolib/Renderer/OpenGL/Texture.cpp
+/// @brief Implementation of textures for OpenGL 2.1.
 /// @author Michael Heilmann
 
 #include "egolib/Renderer/OpenGL/Texture.hpp"
+
+#include "egolib/Renderer/OpenGL/Renderer.hpp"
+#include "egolib/Renderer/OpenGL/Utilities.hpp"
+#include "egolib/Renderer/OpenGL/RendererInfo.hpp"
+#include "egolib/Renderer/OpenGL/DefaultTexture.hpp"
 #include "egolib/Image/ImageManager.hpp"
-#include "egolib/Renderer/Renderer.hpp"
-#include "egolib/Extensions/ogl_include.h"
-#include "egolib/Extensions/SDL_GL_extensions.h"
 
 namespace Ego {
 namespace OpenGL {
 
-struct CErrorTexture
-{
-    std::shared_ptr<SDL_Surface> image;
-    /// The OpenGL texture target of this error texture.
-    TextureType type;
-    /// The OpenGL ID of this error texture.
-    GLuint id;
-    std::string name;
-    GLuint getTextureID() const
-    {
-        return id;
-    }
-    const std::string& getName() const
-    {
-        return name;
-    }
-    int getSourceWidth() const
-    {
-        return image->w;
-    }
-    int getSourceHeight() const
-    {
-        return image->h;
-    }
-    int getWidth() const
-    {
-        return getSourceWidth();
-    }
-    int getHeight() const
-    {
-        return getSourceHeight();
-    }
-    // Construct this error texture.
-    CErrorTexture(const std::string& name, TextureType type) :
-        name(name), type(type), image(ImageManager::get().getDefaultImage())
-    {
-        GLenum target_gl;
-        switch (type)
-        {
-            case TextureType::_1D:
-                target_gl = GL_TEXTURE_1D;
-                break;
-            case TextureType::_2D:
-                target_gl = GL_TEXTURE_2D;
-                break;
-            default:
-                throw Id::InvalidArgumentException(__FILE__, __LINE__, "invalid texture target");
-        };
-        Utilities::clearError();
-        // (1) Create the OpenGL texture.
-        glGenTextures(1, &id);
-        if (Utilities::isError())
-        {
-            throw Id::RuntimeErrorException(__FILE__, __LINE__, "unable to create error texture");
-        }
-        // (2) Bind the OpenGL texture.
-        glBindTexture(target_gl, id);
-        if (Utilities::isError())
-        {
-            glDeleteTextures(1, &id);
-            throw Id::RuntimeErrorException(__FILE__, __LINE__, "unable to bind error texture");
-        }
-        // (3) Set the texture parameters.
-        TextureSampler sampler(TextureFilter::Nearest, TextureFilter::Nearest,
-                               TextureFilter::None, TextureAddressMode::Repeat,
-                               TextureAddressMode::Repeat, 1.0f);
-        try
-        {
-            Utilities::setSampler(type, sampler);
-        }
-        catch (...)
-        {
-            glDeleteTextures(1, &id);
-            std::rethrow_exception(std::current_exception());
-        }
-
-        // (4) Upload the image data.
-        if (type == TextureType::_1D)
-        {
-            static const auto pfd = PixelFormatDescriptor::get<PixelFormat::R8G8B8A8>();
-            Utilities::upload_1d(pfd, image->w, image->pixels);
-        }
-        else
-        {
-            static const auto pfd = PixelFormatDescriptor::get<PixelFormat::R8G8B8A8>();
-            Utilities::upload_2d(pfd, image->w, image->h, image->pixels);
-        }
-        if (Utilities::isError())
-        {
-            glDeleteTextures(1, &id);
-            throw Id::RuntimeErrorException(__FILE__, __LINE__, "unable to upload error image into error texture");
-        }
-    }
-    // Destruct this error texture.
-    ~CErrorTexture()
-    {
-        glDeleteTextures(1, &id);
-    }
-};
-
-static std::unique_ptr<CErrorTexture> _errorTexture1D = nullptr;
-static std::unique_ptr<CErrorTexture> _errorTexture2D = nullptr;
-
-void initializeErrorTextures()
-{
-    if (!_errorTexture1D)
-    {
-        _errorTexture1D = std::make_unique<CErrorTexture>("<error texture 1D>", TextureType::_1D);
-    }
-    if (!_errorTexture2D)
-    {
-        try
-        {
-            _errorTexture2D = std::make_unique<CErrorTexture>("<error texture 2D>", TextureType::_2D);
-        }
-        catch (...)
-        {
-            _errorTexture1D = nullptr;
-            std::rethrow_exception(std::current_exception());
-        }
-    }
-}
-
-void uninitializeErrorTextures()
-{
-    _errorTexture2D = nullptr;
-    _errorTexture1D = nullptr;
-}
-
-Texture::Texture() :
+Texture::Texture(Renderer *renderer) :
     Texture
     (
-        // The OpenGL texture ID is the error texture's.
-        _errorTexture2D->getTextureID(),
-        // The name of the texture is the error texture's.
-        _errorTexture2D->getName(),
-        // The texture is the 2D error texture.
-        TextureType::_2D,
-        // The texture coordinates of this texture are repeated along the s and t axes.
-        TextureAddressMode::Repeat, TextureAddressMode::Repeat,
-        // The size (width and height) of this texture is the size of the error image.
-        _errorTexture2D->getWidth(), _errorTexture2D->getHeight(),
-        // The size (width and height) the source of this texture is the size of the error image as well.
-        _errorTexture2D->getSourceWidth(), _errorTexture2D->getSourceHeight(),
-        // The error texture has no source.
+        renderer,
+        renderer->m_defaultTexture2d->getId(),
+        renderer->m_defaultTexture2d->getName(),
+        renderer->m_defaultTexture2d->getType(),
+        renderer->m_defaultTexture2d->getSampler(),
+        renderer->m_defaultTexture2d->getWidth(), renderer->m_defaultTexture2d->getHeight(),
+        renderer->m_defaultTexture2d->getSourceWidth(), renderer->m_defaultTexture2d->getSourceHeight(),
         nullptr,
-        // (The error texture has no alpha component).
-        false
+        renderer->m_defaultTexture2d->hasAlpha()
     )
 {}
 
-Texture::Texture(GLuint id, const std::string& name,
-                 TextureType type, TextureAddressMode addressModeS, TextureAddressMode addressModeT,
+Texture::Texture(Renderer *renderer, GLuint id, const std::string& name,
+                 TextureType type, const TextureSampler& sampler,
                  int width, int height, int sourceWidth, int sourceHeight, std::shared_ptr<SDL_Surface> source,
                  bool hasAlpha) :
     Ego::Texture
     (
-        // The name of the texture is the error texture's.
         name,
-        // The texture is the 2D error texture.
         type,
-        // The texture coordinates of this texture are repeated along the s and t axes.
-        addressModeS, addressModeT,
-        // The size (width and height) of this texture is the size of the error image.
+        sampler,
         width, height,
-        // The size (width and height) the source of this texture is the size of the error image as well.
         sourceWidth, sourceHeight,
-        // The error texture has no source.
         source,
-        // (The error texture has no alpha component).
         hasAlpha
     ),
-    _id(id)
+    m_id(id),
+    m_renderer(renderer)
 {}
 
 Texture::~Texture()
@@ -210,9 +70,14 @@ Texture::~Texture()
     release();
 }
 
-GLuint Texture::getTextureID() const
+GLuint Texture::getId() const
 {
-    return _id;
+    return m_id;
+}
+
+void Texture::setId(GLuint id)
+{
+    m_id = id;
 }
 
 void Texture::load(const std::string& name, const std::shared_ptr<SDL_Surface>& surface, TextureType type, const TextureSampler& sampler)
@@ -223,19 +88,19 @@ void Texture::load(const std::string& name, const std::shared_ptr<SDL_Surface>& 
     // If no surface is provided, keep this texture bound to the backing error texture.
     if (!surface)
     {
-        throw Id::InvalidArgumentException(__FILE__, __LINE__, "nullptr == surface");
+        throw id::invalid_argument_error(__FILE__, __LINE__, "nullptr == surface");
     }
 
     std::shared_ptr<SDL_Surface> newSurface = surface;
 
     // Convert to RGBA if the image has non-opaque alpha values or alpha modulation and convert to RGB otherwise.
-    bool hasAlpha = Graphics::SDL::testAlpha(newSurface);
+    bool hasAlpha = SDL::testAlpha(newSurface);
     const auto& pixelFormatDescriptor = hasAlpha ? PixelFormatDescriptor::get<PixelFormat::R8G8B8A8>()
         : PixelFormatDescriptor::get<PixelFormat::R8G8B8>();
-    newSurface = Graphics::SDL::convertPixelFormat(newSurface, pixelFormatDescriptor);
+    newSurface = SDL::convertPixelFormat(newSurface, pixelFormatDescriptor);
 
     // Convert to power of two.
-    newSurface = Graphics::SDL::convertPowerOfTwo(newSurface);
+    newSurface = SDL::convertPowerOfTwo(newSurface);
 
     // (1)Generate a new OpenGL texture ID.
     Utilities::clearError();
@@ -243,7 +108,7 @@ void Texture::load(const std::string& name, const std::shared_ptr<SDL_Surface>& 
     glGenTextures(1, &id);
     if (Utilities::isError())
     {
-        throw Id::RuntimeErrorException(__FILE__, __LINE__, "glGenTextures failed");
+        throw id::runtime_error(__FILE__, __LINE__, "glGenTextures failed");
     }
     // (2) Bind the new OpenGL texture ID.
     GLenum target_gl;
@@ -258,19 +123,19 @@ void Texture::load(const std::string& name, const std::shared_ptr<SDL_Surface>& 
         default:
         {
             glDeleteTextures(1, &id);
-            throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
+            throw id::unhandled_switch_case_error(__FILE__, __LINE__);
         }
     };
     glBindTexture(target_gl, id);
     if (Utilities::isError())
     {
         glDeleteTextures(1, &id);
-        throw Id::RuntimeErrorException(__FILE__, __LINE__, "glBindTexture failed");
+        throw id::runtime_error(__FILE__, __LINE__, "glBindTexture failed");
     }
     // (3) Set the texture sampler.
     try
     {
-        Utilities::setSampler(type, sampler);
+        Utilities2::setSampler(std::static_pointer_cast<RendererInfo>(m_renderer->getInfo()), type, sampler);
     }
     catch (...)
     {
@@ -284,49 +149,49 @@ void Texture::load(const std::string& name, const std::shared_ptr<SDL_Surface>& 
         {
             if (TextureFilter::None != sampler.getMipMapFilter())
             {
-                Utilities::upload_2d_mipmap(pixelFormatDescriptor, newSurface->w, newSurface->h, newSurface->pixels);
+                Utilities2::upload_2d_mipmap(pixelFormatDescriptor, newSurface->w, newSurface->h, newSurface->pixels);
             }
             else
             {
-                Utilities::upload_2d(pixelFormatDescriptor, newSurface->w, newSurface->h, newSurface->pixels);
+                Utilities2::upload_2d(pixelFormatDescriptor, newSurface->w, newSurface->h, newSurface->pixels);
             }
         }
         break;
         case TextureType::_1D:
         {
-            Utilities::upload_1d(pixelFormatDescriptor, newSurface->w, newSurface->pixels);
+            Utilities2::upload_1d(pixelFormatDescriptor, newSurface->w, newSurface->pixels);
         }
         break;
         default:
         {
             glDeleteTextures(1, &id);
-            throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
+            throw id::unhandled_switch_case_error(__FILE__, __LINE__);
         }
         break;
     };
 
     // Store the appropriate data.
-    _addressModeS = sampler.getAddressModeS();
-    _addressModeT = sampler.getAddressModeT();
-    _type = type;
-    _id = id;
-    _width = newSurface->w;
-    _height = newSurface->h;
-    _source = surface;
-    _sourceWidth = surface->w;
-    _sourceHeight = surface->h;
-    _hasAlpha = hasAlpha;
-    _name = name;
+    m_sampler = sampler;
+    m_type = type;
+    m_id = id;
+    m_width = newSurface->w;
+    m_height = newSurface->h;
+    m_source = surface;
+    m_sourceWidth = surface->w;
+    m_sourceHeight = surface->h;
+    m_hasAlpha = hasAlpha;
+    m_name = name;
 }
 
 bool Texture::load(const std::string& name, const std::shared_ptr<SDL_Surface>& source)
 {
+    auto info = Ego::Renderer::get().getInfo();
     // Determine the texture sampler.
-    TextureSampler sampler(g_ogl_textureParameters.textureFilter.minFilter,
-                           g_ogl_textureParameters.textureFilter.magFilter,
-                           g_ogl_textureParameters.textureFilter.mipMapFilter,
+    TextureSampler sampler(info->getDesiredMinimizationFilter(),
+                           info->getDesiredMaximizationFilter(),
+                           info->getDesiredMipMapFilter(),
                            TextureAddressMode::Repeat, TextureAddressMode::Repeat,
-                           g_ogl_textureParameters.anisotropy_level);
+                           info->getDesiredAnisotropy());
     // Determine the texture type.
     auto type = ((1 == source->h) && (source->w > 1)) ? TextureType::_1D : TextureType::_2D;
     load(name, source, type, sampler);
@@ -348,48 +213,41 @@ void  Texture::release()
     }
 
     // Delete the OpenGL texture and assign the error texture.
-    glDeleteTextures(1, &(_id));
+    glDeleteTextures(1, &(m_id));
     Utilities::isError();
 
     // Delete the source if it exists
-    if (_source)
+    if (m_source)
     {
-        _source = nullptr;
-    }
-
-    if (!_errorTexture2D)
-    {
-        return;
+       m_source = nullptr;
     }
 
     // The texture is the 2D error texture.
-    _type = TextureType::_2D;
-    _id = _errorTexture2D->getTextureID();
+    m_type = m_renderer->m_defaultTexture2d->getType();
+    m_id = m_renderer->m_defaultTexture2d->getId();
 
     // The texture coordinates of this texture are repeated along the s and t axes.
-    _addressModeS = TextureAddressMode::Repeat;
-    _addressModeT = TextureAddressMode::Repeat;
+    m_sampler = m_renderer->m_defaultTexture2d->getSampler();
 
     // The size (width and height) of this texture is the size of the error image.
-    _width = _errorTexture2D->getWidth();
-    _height = _errorTexture2D->getHeight();
+    m_width = m_renderer->m_defaultTexture2d->getWidth();
+    m_height = m_renderer->m_defaultTexture2d->getHeight();
 
     // The size (width and height) the source of this texture is the size of the error image as well.
-    _sourceWidth = _errorTexture2D->getSourceWidth();
-    _sourceHeight = _errorTexture2D->getSourceHeight();
+    m_sourceWidth = m_renderer->m_defaultTexture2d->getSourceWidth();
+    m_sourceHeight = m_renderer->m_defaultTexture2d->getSourceHeight();
 
     // The texture has the empty string as its name and the source is not available.
-    _name = _errorTexture2D->getName();
+    m_name = m_renderer->m_defaultTexture2d->getName();
 
     // (The error texture has no alpha component).
-    _hasAlpha = false;
+    m_hasAlpha = m_renderer->m_defaultTexture2d->hasAlpha();
 }
 
 bool Texture::isDefault() const
 {
-    if (!_errorTexture1D || !_errorTexture2D) return false;
-    return getTextureID() == _errorTexture1D->getTextureID()
-        || getTextureID() == _errorTexture2D->getTextureID();
+    return getId() == m_renderer->m_defaultTexture2d->getId()
+        || getId() == m_renderer->m_defaultTexture2d->getId();
 }
 
 } // namespace OpenGL

@@ -55,7 +55,7 @@ void select_lst_t::clear()
 bool select_lst_t::add(int vertex)
 {
 	if (!CART_VALID_VERTEX_RANGE(vertex)) {
-		throw Id::RuntimeErrorException(__FILE__, __LINE__, "vertex index out of bounds");
+		throw id::runtime_error(__FILE__, __LINE__, "vertex index out of bounds");
 	}
 
     // Is the vertex index in the list?
@@ -110,7 +110,7 @@ bool select_lst_t::remove(int vertex)
 int select_lst_t::find(int vertex) const
 {
 	if (!CART_VALID_VERTEX_RANGE(vertex)) {
-		throw Id::RuntimeErrorException(__FILE__, __LINE__, "vertex index out of bounds");
+		throw id::runtime_error(__FILE__, __LINE__, "vertex index out of bounds");
 	}
 
     for (int i = 0; i < _count; ++i)

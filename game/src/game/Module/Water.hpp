@@ -1,5 +1,7 @@
 #pragma once
 
+#include "egolib/egolib.h"
+
 // water constants
 #define MAXWATERLAYER 2                                    ///< Maximum water layers
 #define MAXWATERFRAME (1 << 10)                            ///< Maximum number of wave frames
@@ -9,20 +11,7 @@
 /// The data descibing the state of a water layer
 struct water_instance_layer_t
 {
-    water_instance_layer_t() :
-        _frame(0),
-        _frame_add(0),
-        _z(0.0f),
-        _amp(0.0f),
-        _dist(),
-        _tx(),
-        _light_dir(0.0f),
-        _light_add(0.0f),
-        _alpha(0),
-        _tx_add()
-    {
-
-    }
+    water_instance_layer_t();
 
     uint16_t _frame;        ///< Frame
     uint32_t _frame_add;    ///< Speed
@@ -53,7 +42,7 @@ struct water_instance_layer_t
      * @brief
      *  Animate this water instance layer.
      */
-    void move();
+    void update();
 
     /**
      * @brief
@@ -82,7 +71,7 @@ struct water_instance_t
     float _foregroundrepeat;
     float _backgroundrepeat;
 
-    Uint32 _spek[256];              ///< Specular highlights
+    uint32_t _spek[256];              ///< Specular highlights
 
     int _layer_count;
     water_instance_layer_t _layers[MAXWATERLAYER];
@@ -103,9 +92,13 @@ struct water_instance_t
      * @brief
      *  Animate this water instance.
      */
-    void move();
+    void update();
     void upload(const wawalite_water_t& source);
     void make(const wawalite_water_t& source);
 
     void set_douse_level(float level);
 };
+
+// implementing water layer data
+bool upload_water_layer_data(water_instance_layer_t inst[], const wawalite_water_layer_t data[], const int layer_count);
+

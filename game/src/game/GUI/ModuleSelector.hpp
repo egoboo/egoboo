@@ -70,12 +70,12 @@ protected:
 private:
     size_t _startIndex;
     const std::vector<std::shared_ptr<ModuleProfile>> &_modules;
-    std::vector<Id::Connection> _onModuleSelected;
+    std::vector<id::connection> _onModuleSelected;
 
-    Id::Connection _onNextModuleButtonClicked;
+    id::connection _onNextModuleButtonClicked;
     std::shared_ptr<Button> _nextModuleButton;
     
-    Id::Connection _onPreviousModuleButtonClicked;
+    id::connection _onPreviousModuleButtonClicked;
     std::shared_ptr<Button> _previousModuleButton;
 
     std::shared_ptr<ModuleProfile> _selectedModule;

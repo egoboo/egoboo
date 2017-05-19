@@ -66,10 +66,7 @@ bool RandomName::loadFromFile(const std::string &filePath)
 	std::vector<std::string> *currentBlock = nullptr;
 	while(ctxt->skipToColon(true))
 	{
-		std::string buffer;
-        vfs_read_string_lit(*ctxt, buffer);
-
-        const std::string line = buffer;
+        const std::string line = vfs_read_string_lit(*ctxt);
 
         //End of random name block is marked with STOP
         if(line == "STOP") 

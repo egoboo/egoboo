@@ -97,7 +97,7 @@ enum LatchButton
 
 
 /// The definition of the character object.
-class Object : public PhysicsData, public Id::NonCopyable, public Ego::Physics::Collidable,
+class Object : public PhysicsData, private id::non_copyable, public Ego::Physics::Collidable,
                public std::enable_shared_from_this<Object>
 {
 public:

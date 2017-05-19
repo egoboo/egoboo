@@ -27,13 +27,31 @@
 #include "egolib/Log/_Include.hpp"
 #include "egolib/fileutil.h"
 #include "egolib/strutil.h"
-#include "egolib/_math.h"
 
 //--------------------------------------------------------------------------------------------
 
 static const int WAWALITE_FILE_VERSION = 2;
 
 //--------------------------------------------------------------------------------------------
+
+static Vector2f readVector2f(ReadContext& ctxt);
+static Vector3f readVector3f(ReadContext& ctxt);
+
+static Vector2f readVector2f(ReadContext& ctxt)
+{
+    float x = vfs_get_next_float(ctxt);
+    float y = vfs_get_next_float(ctxt);
+    return {x, y};
+}
+
+static Vector3f readVector3f(ReadContext& ctxt)
+{
+    float x = vfs_get_next_float(ctxt);
+    float y = vfs_get_next_float(ctxt);
+    float z = vfs_get_next_float(ctxt);
+    return {x, y, z};
+}
+
 void wawalite_water_t::read(ReadContext& ctxt, wawalite_water_t *profile)
 {
     if (!profile)
@@ -56,10 +74,8 @@ void wawalite_water_t::read(ReadContext& ctxt, wawalite_water_t *profile)
     profile->background_req = vfs_get_next_bool(ctxt);
 
     // General data info
-    profile->layer[0].dist[XX] = vfs_get_next_float(ctxt);
-    profile->layer[0].dist[YY] = vfs_get_next_float(ctxt);
-    profile->layer[1].dist[XX] = vfs_get_next_float(ctxt);
-    profile->layer[1].dist[YY] = vfs_get_next_float(ctxt);
+    profile->layer[0].dist = readVector2f(ctxt);
+    profile->layer[1].dist = readVector2f(ctxt);
     profile->foregroundrepeat = vfs_get_next_float(ctxt);
     profile->backgroundrepeat = vfs_get_next_float(ctxt);
 
@@ -70,8 +86,7 @@ void wawalite_water_t::read(ReadContext& ctxt, wawalite_water_t *profile)
     profile->layer[0].light_dir = vfs_get_next_int(ctxt);
     profile->layer[0].light_add = vfs_get_next_int(ctxt);
     profile->layer[0].amp = vfs_get_next_float(ctxt);
-    profile->layer[0].tx_add[SS] = vfs_get_next_float(ctxt);
-    profile->layer[0].tx_add[TT] = vfs_get_next_float(ctxt);
+    profile->layer[0].tx_add = readVector2f(ctxt);
 
     // Read the second water layer.
     profile->layer[1].z = vfs_get_next_int(ctxt);
@@ -80,8 +95,7 @@ void wawalite_water_t::read(ReadContext& ctxt, wawalite_water_t *profile)
     profile->layer[1].light_dir = vfs_get_next_int(ctxt);
     profile->layer[1].light_add = vfs_get_next_int(ctxt);
     profile->layer[1].amp = vfs_get_next_float(ctxt);
-    profile->layer[1].tx_add[SS] = vfs_get_next_float(ctxt);
-    profile->layer[1].tx_add[TT] = vfs_get_next_float(ctxt);
+    profile->layer[1].tx_add = readVector2f(ctxt);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -93,9 +107,7 @@ void wawalite_light_t::read(ReadContext& ctxt, wawalite_light_t *profile)
     }
     *profile = wawalite_light_t::getDefaults();
 
-    profile->light_d[kX] = vfs_get_next_float(ctxt);
-    profile->light_d[kY] = vfs_get_next_float(ctxt);
-    profile->light_d[kZ] = vfs_get_next_float(ctxt);
+    profile->light_d = readVector3f(ctxt);
     profile->light_a = vfs_get_next_float(ctxt);
 }
 
@@ -161,11 +173,8 @@ void wawalite_weather_t::read(ReadContext& ctxt, wawalite_data_t *enclosing, waw
     profile->part_gpip = LocalParticleProfileRef(PIP_WEATHER);
     if (enclosing->version >= WAWALITE_FILE_VERSION)
     {
-        std::string line;
-
         //Parse the weather type line
-        vfs_get_next_string_lit(ctxt, line);
-        profile->weather_name = line;
+        profile->weather_name = vfs_get_next_string_lit(ctxt);
         id::to_upper_in_situ(profile->weather_name);
     }
 
@@ -301,10 +310,10 @@ bool wawalite_water_t::write(vfs_FILE * filewrite, const wawalite_water_t *profi
     vfs_put_bool(filewrite,  "Use waterlow.bmp as a background? ( TRUE or FALSE ) :", profile->background_req);
 
     // General data info
-    vfs_put_float(filewrite, "Foreground distance effect X ( 0.0 to 1.0 )    :", profile->layer[0].dist[XX]);
-    vfs_put_float(filewrite, "Foreground distance effect Y ( 0.0 to 1.0 )    :", profile->layer[0].dist[YY]);
-    vfs_put_float(filewrite, "Background distance effect X ( 0.0 to 1.0 )    :", profile->layer[1].dist[XX]);
-    vfs_put_float(filewrite, "Background distance effect Y ( 0.0 to 1.0 )    :", profile->layer[1].dist[YY]);
+    vfs_put_float(filewrite, "Foreground distance effect X ( 0.0 to 1.0 )    :", profile->layer[0].dist.x());
+    vfs_put_float(filewrite, "Foreground distance effect Y ( 0.0 to 1.0 )    :", profile->layer[0].dist.y());
+    vfs_put_float(filewrite, "Background distance effect X ( 0.0 to 1.0 )    :", profile->layer[1].dist.x());
+    vfs_put_float(filewrite, "Background distance effect Y ( 0.0 to 1.0 )    :", profile->layer[1].dist.y());
     vfs_put_float(filewrite, "Number of foreground repeats ( 1 to 5 )        :", profile->foregroundrepeat);
     vfs_put_float(filewrite, "Number of background repeats ( 1 to 5 )        :", profile->backgroundrepeat);
 
@@ -315,8 +324,8 @@ bool wawalite_water_t::write(vfs_FILE * filewrite, const wawalite_water_t *profi
     vfs_put_int(filewrite,   "Level 0... Brightness ( 15 )        :", profile->layer[0].light_dir);
     vfs_put_int(filewrite,   "Level 0... Ambient light ( 15 )     :", profile->layer[0].light_add);
     vfs_put_float(filewrite, "Level 0... Wave amplitude ( 7.0 )   :", profile->layer[0].amp);
-    vfs_put_float(filewrite, "Level 0... U speed ( .0002 )        :", profile->layer[0].tx_add[SS]);
-    vfs_put_float(filewrite, "Level 0... V speed ( .0002 )        :", profile->layer[0].tx_add[TT]);
+    vfs_put_float(filewrite, "Level 0... U speed ( .0002 )        :", profile->layer[0].tx_add.x());
+    vfs_put_float(filewrite, "Level 0... V speed ( .0002 )        :", profile->layer[0].tx_add.y());
 
     // Read data on second water layer
     vfs_put_int(filewrite,   "Level 1... Base water level ( 85 )  :", profile->layer[1].z);
@@ -325,8 +334,8 @@ bool wawalite_water_t::write(vfs_FILE * filewrite, const wawalite_water_t *profi
     vfs_put_int(filewrite,   "Level 1... Brightness ( 15 )        :", profile->layer[1].light_dir);
     vfs_put_int(filewrite,   "Level 1... Ambient light ( 15 )     :", profile->layer[1].light_add);
     vfs_put_float(filewrite, "Level 1... Wave amplitude ( 7.0 )   :", profile->layer[1].amp);
-    vfs_put_float(filewrite, "Level 1... U speed ( .0002 )        :", profile->layer[1].tx_add[SS]);
-    vfs_put_float(filewrite, "Level 1... V speed ( .0002 )        :", profile->layer[1].tx_add[TT]);
+    vfs_put_float(filewrite, "Level 1... U speed ( .0002 )        :", profile->layer[1].tx_add.x());
+    vfs_put_float(filewrite, "Level 1... V speed ( .0002 )        :", profile->layer[1].tx_add.y());
 
     return true;
 }
@@ -337,9 +346,9 @@ bool wawalite_light_t::write(vfs_FILE *filewrite, const wawalite_light_t *profil
     if (!filewrite || !profile) return false;
 
     // Read light data second
-    vfs_put_float(filewrite, "Light X direction ( 1.00 )        :", profile->light_d[kX]);
-    vfs_put_float(filewrite, "Light Y direction ( 1.00 )        :", profile->light_d[kY]);
-    vfs_put_float(filewrite, "Light Z direction ( 0.50 )        :", profile->light_d[kZ]);
+    vfs_put_float(filewrite, "Light X direction ( 1.00 )        :", profile->light_d.x());
+    vfs_put_float(filewrite, "Light Y direction ( 1.00 )        :", profile->light_d.y());
+    vfs_put_float(filewrite, "Light Z direction ( 0.50 )        :", profile->light_d.z());
     vfs_put_float(filewrite, "Ambient light ( 0.20 )            :", profile->light_a);
 
     return true;

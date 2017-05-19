@@ -22,7 +22,7 @@
     <ProjectName>egolib</ProjectName>
     <ProjectGuid>{0F32DD35-A264-4906-8FC9-2D0FE0613230}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -81,35 +81,35 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)\product\$(ProjectName)\$(Configuration)\$(Platform)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)\intermediate\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)\product\$(ProjectName)\$(Configuration)\$(Platform)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)\intermediate\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)product\$(ProjectName)\$(Configuration)\$(PlatformTarget)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)intermediate\$(ProjectName)\$(Configuration)\$(PlatformTarget)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)product\$(ProjectName)\$(Configuration)\$(PlatformTarget)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)intermediate\$(ProjectName)\$(Configuration)\$(PlatformTarget)\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(SolutionDir)\product\$(ProjectName)\$(Configuration)\$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)\intermediate\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
+    <OutDir>$(SolutionDir)product\$(ProjectName)\$(Configuration)\$(PlatformTarget)\</OutDir>
+    <IntDir>$(SolutionDir)intermediate\$(ProjectName)\$(Configuration)\$(PlatformTarget)\</IntDir>
     <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(SolutionDir)\product\$(ProjectName)\$(Configuration)\$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)\intermediate\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
+    <OutDir>$(SolutionDir)product\$(ProjectName)\$(Configuration)\$(PlatformTarget)\</OutDir>
+    <IntDir>$(SolutionDir)intermediate\$(ProjectName)\$(Configuration)\$(PlatformTarget)\</IntDir>
     <TargetName>$(ProjectName)</TargetName>
-    <EnableManagedIncrementalBuild>true</EnableManagedIncrementalBuild>
+    <EnableManagedIncrementalBuild>false</EnableManagedIncrementalBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <EnableManagedIncrementalBuild>true</EnableManagedIncrementalBuild>
+    <EnableManagedIncrementalBuild>false</EnableManagedIncrementalBuild>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
-      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
@@ -118,7 +118,7 @@
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
       <BrowseInformation>false</BrowseInformation>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
       <FloatingPointExceptions>false</FloatingPointExceptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
@@ -129,15 +129,17 @@
       </DisableSpecificWarnings>
       <AdditionalIncludeDirectories>$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <SDLCheck>true</SDLCheck>
-      <StringPooling>false</StringPooling>
+      <SDLCheck>false</SDLCheck>
+      <StringPooling>true</StringPooling>
       <SmallerTypeCheck>false</SmallerTypeCheck>
       <CompileAsManaged>false</CompileAsManaged>
       <CompileAsWinRT>false</CompileAsWinRT>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <ControlFlowGuard>false</ControlFlowGuard>
-      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <FloatingPointModel>Fast</FloatingPointModel>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(TargetFileName)</OutputFile>
@@ -178,11 +180,14 @@
       <MinimalRebuild>false</MinimalRebuild>
       <SDLCheck>false</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <UseFullPaths>true</UseFullPaths>
+      <UseFullPaths>false</UseFullPaths>
       <CompileAsWinRT>false</CompileAsWinRT>
       <FloatingPointModel>Fast</FloatingPointModel>
       <WarningLevel>Level4</WarningLevel>
       <FloatingPointExceptions>false</FloatingPointExceptions>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
     </ClCompile>
     <Lib>
       <TargetMachine>MachineX86</TargetMachine>
@@ -243,11 +248,14 @@
       <SDLCheck>false</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalIncludeDirectories>$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <UseFullPaths>true</UseFullPaths>
+      <UseFullPaths>false</UseFullPaths>
       <CompileAsWinRT>false</CompileAsWinRT>
       <FloatingPointModel>Fast</FloatingPointModel>
       <WarningLevel>Level4</WarningLevel>
       <FloatingPointExceptions>false</FloatingPointExceptions>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
     </ClCompile>
     <Lib />
     <Lib>
@@ -272,14 +280,14 @@
       <AdditionalIncludeDirectories>$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MinimalRebuild>false</MinimalRebuild>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>false</SDLCheck>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CompileAsManaged>false</CompileAsManaged>
       <CompileAsWinRT>false</CompileAsWinRT>
-      <StringPooling>false</StringPooling>
+      <StringPooling>true</StringPooling>
       <SmallerTypeCheck>false</SmallerTypeCheck>
-      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <BrowseInformation>false</BrowseInformation>
@@ -287,10 +295,12 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <FloatingPointExceptions>false</FloatingPointExceptions>
       <ControlFlowGuard>false</ControlFlowGuard>
-      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level4</WarningLevel>
       <FloatingPointModel>Fast</FloatingPointModel>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Lib>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -298,6 +308,59 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\Time\Time.cpp" />
+    <ClCompile Include="src\egolib\Graphics\SDL\Utilities.cpp">
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)\Graphics\SDL\Utilities.asm</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)\Graphics\SDL\Utilities.o</ObjectFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)\Graphics\SDL\Utilities.asm</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)\Graphics\SDL\Utilities.o</ObjectFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\Graphics\SDL\Utilities.asm</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\Graphics\SDL\Utilities.o</ObjectFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\Graphics\SDL\Utilities.asm</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\Graphics\SDL\Utilities.o</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Image\SDL_Image_Extensions.c" />
+    <ClCompile Include="src\egolib\Graphics\SDL\GraphicsContext.cpp">
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)\Graphics\SDL\GraphicsContext.asm</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)\Graphics\SDL\GraphicsContext.o</ObjectFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\Graphics\SDL\GraphicsContext.asm</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\Graphics\SDL\GraphicsContext.o</ObjectFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)\Graphics\SDL\GraphicsContext.asm</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)\Graphics\SDL\GraphicsContext.o</ObjectFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\Graphics\SDL\GraphicsContext.asm</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\Graphics\SDL\GraphicsContext.o</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Graphics\SDL\GraphicsWindow.cpp">
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\Graphics\SDL\GraphicsWindow.asm</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\Graphics\SDL\GraphicsWindow.o</ObjectFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)\Graphics\SDL\GraphicsWindow.asm</AssemblerListingLocation>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)\Graphics\SDL\GraphicsWindow.asm</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)\Graphics\SDL\GraphicsWindow.o</ObjectFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\Graphics\SDL\GraphicsWindow.asm</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\Graphics\SDL\GraphicsWindow.o</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)\Graphics\SDL\GraphicsWindow.o</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Renderer\OpenGL\DefaultTexture.cpp" />
+    <ClCompile Include="src\egolib\Renderer\OpenGL\RendererInfo.cpp">
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)Renderer\OpenGL\RendererInfo.asm</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)Renderer\OpenGL\RendererInfo.o</ObjectFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)Renderer\OpenGL\RendererInfo.asm</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)Renderer\OpenGL\RendererInfo.o</ObjectFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)Renderer\OpenGL\RendererInfo.asm</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)Renderer\OpenGL\RendererInfo.o</ObjectFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)Renderer\OpenGL\RendererInfo.asm</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)Renderer\OpenGL\RendererInfo.o</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Renderer\OpenGL\Utilities.cpp">
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)Renderer\OpenGL\Utilities.asm</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)Renderer\OpenGL\Utilities.asm</ObjectFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)Renderer\OpenGL\Utilities.asm</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)Renderer\OpenGL\Utilities.asm</ObjectFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)Renderer\OpenGL\Utilities.asm</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)Renderer\OpenGL\Utilities.asm</ObjectFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)Renderer\OpenGL\Utilities.asm</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)Renderer\OpenGL\Utilities.asm</ObjectFileName>
+    </ClCompile>
     <ClCompile Include="src\egolib\Script\Scanner.cpp" />
     <ClCompile Include="src\egolib\FileFormats\ConfigFile\configfile.c" />
     <ClCompile Include="src\egolib\FileFormats\SpawnFile\SpawnFileReaderImpl.cpp" />
@@ -309,14 +372,14 @@
     <ClCompile Include="src\egolib\Graphics\Viewport.cpp" />
     <ClCompile Include="src\egolib\Graphics\GraphicsSystemNew.cpp" />
     <ClCompile Include="src\egolib\Graphics\SDL\GraphicsSystemNew.cpp">
-      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)\Graphics\SDL\GraphicsSystem.asm</AssemblerListingLocation>
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)\Graphics\SDL\GraphicsSystem.o</ObjectFileName>
-      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)\Graphics\SDL\GraphicsSystem.asm</AssemblerListingLocation>
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)\Graphics\SDL\GraphicsSystem.o</ObjectFileName>
-      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\Graphics\SDL\GraphicsSystem.asm</AssemblerListingLocation>
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\Graphics\SDL\GraphicsSystem.o</ObjectFileName>
-      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\Graphics\SDL\GraphicsSystem.asm</AssemblerListingLocation>
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\Graphics\SDL\GraphicsSystem.o</ObjectFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)\Graphics\SDL\GraphicsSystemNew.asm</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)\Graphics\SDL\GraphicsSystemNew.o</ObjectFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)\Graphics\SDL\GraphicsSystemNew.asm</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)\Graphics\SDL\GraphicsSystemNew.o</ObjectFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\Graphics\SDL\GraphicsSystemNew.asm</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\Graphics\SDL\GraphicsSystemNew.o</ObjectFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\Graphics\SDL\GraphicsSystemNew.asm</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\Graphics\SDL\GraphicsSystemNew.o</ObjectFileName>
     </ClCompile>
     <ClCompile Include="src\egolib\Graphics\Display.cpp" />
     <ClCompile Include="src\egolib\Graphics\SDL\Display.cpp">
@@ -330,7 +393,6 @@
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)\Graphics\SDL\Display.o</ObjectFileName>
     </ClCompile>
     <ClCompile Include="src\egolib\Graphics\GraphicsContext.cpp" />
-    <ClCompile Include="src\egolib\Extensions\ContextProperties.cpp" />
     <ClCompile Include="src\egolib\Log\EndOfEntry.cpp" />
     <ClCompile Include="src\egolib\Log\EndOfLine.cpp" />
     <ClCompile Include="src\egolib\Script\OpcodeInfo.cpp" />
@@ -359,7 +421,6 @@
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)\Graphics\SDL\DisplayMode.o</ObjectFileName>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\Graphics\SDL\DisplayMode.o</ObjectFileName>
     </ClCompile>
-    <ClCompile Include="src\egolib\Extensions\WindowProperties.cpp" />
     <ClCompile Include="src\egolib\App.cpp" />
     <ClCompile Include="src\egolib\Graphics\GraphicsWindow.cpp" />
     <ClCompile Include="src\egolib\Graphics\IndexBuffer.cpp" />
@@ -389,7 +450,6 @@
     <ClCompile Include="src\egolib\Script\Interpreter\InvalidCastException.cpp" />
     <ClCompile Include="src\egolib\Script\Interpreter\Tag.cpp" />
     <ClCompile Include="src\egolib\Script\Interpreter\TaggedValue.cpp" />
-    <ClCompile Include="src\egolib\Time.cpp" />
     <ClCompile Include="src\egolib\AI\LineOfSight.cpp" />
     <ClCompile Include="src\egolib\Log\ConsoleColor.cpp" />
     <ClCompile Include="src\egolib\Log\DefaultTarget.cpp" />
@@ -521,8 +581,6 @@
     <ClCompile Include="src\egolib\egoboo_setup.c" />
     <ClCompile Include="src\egolib\endian.c" />
     <ClCompile Include="src\egolib\extensions\ogl_extensions.c" />
-    <ClCompile Include="src\egolib\extensions\SDL_extensions.c" />
-    <ClCompile Include="src\egolib\extensions\SDL_GL_extensions.c" />
     <ClCompile Include="src\egolib\fileutil.c" />
     <ClCompile Include="src\egolib\file_common.c" />
     <ClCompile Include="src\egolib\font_bmp.c" />
@@ -541,6 +599,14 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Time\Time.hpp" />
+    <ClInclude Include="src\egolib\Graphics\SDL\Utilities.hpp" />
+    <ClInclude Include="src\egolib\Image\SDL_Image_Extensions.h" />
+    <ClInclude Include="src\egolib\Graphics\SDL\GraphicsContext.hpp" />
+    <ClInclude Include="src\egolib\Graphics\SDL\GraphicsWindow.hpp" />
+    <ClInclude Include="src\egolib\Renderer\OpenGL\DefaultTexture.hpp" />
+    <ClInclude Include="src\egolib\Renderer\OpenGL\RendererInfo.hpp" />
+    <ClInclude Include="src\egolib\Renderer\OpenGL\Utilities.hpp" />
     <ClInclude Include="src\egolib\Script\Scanner.hpp" />
     <ClInclude Include="src\egolib\FileFormats\ConfigFile\configfile.h" />
     <ClInclude Include="src\egolib\FileFormats\SpawnFile\SpawnFileReaderImpl.hpp" />
@@ -559,7 +625,6 @@
     <ClInclude Include="src\egolib\Graphics\Display.hpp" />
     <ClInclude Include="src\egolib\Graphics\SDL\Display.hpp" />
     <ClInclude Include="src\egolib\Graphics\GraphicsContext.hpp" />
-    <ClInclude Include="src\egolib\Extensions\ContextProperties.hpp" />
     <ClInclude Include="src\egolib\Log\EndOfEntry.hpp" />
     <ClInclude Include="src\egolib\Log\EndOfLine.hpp" />
     <ClInclude Include="src\egolib\Script\OpcodeInfo.hpp" />
@@ -576,14 +641,6 @@
     <ClInclude Include="src\egolib\Script\IRuntimeStatistics.hpp" />
     <ClInclude Include="src\egolib\Math\Interval.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\Convert.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Convert_LAf_LAf.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Convert_LAf_Lf.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Convert_Lf_LAf.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Convert_Lf_Lf.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Convert_RGBAf_RGBAf.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Convert_RGBAf_RGBf.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Convert_RGBf_RGBAf.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Convert_RGBf_RGBf.hpp" />
     <ClInclude Include="src\egolib\Configuration\Number.hpp" />
     <ClInclude Include="src\egolib\Configuration\StringOrBool.hpp" />
     <ClInclude Include="src\egolib\Configuration\Variable.hpp" />
@@ -628,12 +685,8 @@
     <ClInclude Include="src\egolib\Math\Functors\Intersects_Point_Sphere.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\Intersects_Sphere_Point.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\Intersects_Sphere_Sphere.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Interpolate.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\Interpolate_Linear_Point.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Interpolate_Linear_Real.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\Interpolate_Linear_Vector.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Interpolate_Linear_ColourRGB.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Interpolate_Linear_ColourRGBA.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\Translate.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\Translate_AxisAlignedBox.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\Translate_AxisAlignedCube.hpp" />
@@ -644,7 +697,6 @@
     <ClInclude Include="src\egolib\Math\Functors\Translate_Ray.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\Translate_Sphere.hpp" />
     <ClInclude Include="src\egolib\Math\Constants.hpp" />
-    <ClInclude Include="src\egolib\Extensions\WindowProperties.hpp" />
     <ClInclude Include="src\egolib\Math\Discrete.hpp" />
     <ClInclude Include="src\egolib\App.hpp" />
     <ClInclude Include="src\egolib\Graphics\GraphicsWindow.hpp" />
@@ -803,9 +855,6 @@
     <ClInclude Include="src\egolib\egolib_config.h" />
     <ClInclude Include="src\egolib\endian.h" />
     <ClInclude Include="src\egolib\extensions\ogl_extensions.h" />
-    <ClInclude Include="src\egolib\extensions\ogl_include.h" />
-    <ClInclude Include="src\egolib\extensions\SDL_extensions.h" />
-    <ClInclude Include="src\egolib\extensions\SDL_GL_extensions.h" />
     <ClInclude Include="src\egolib\fileutil.h" />
     <ClInclude Include="src\egolib\file_common.h" />
     <ClInclude Include="src\egolib\font_bmp.h" />
@@ -820,7 +869,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="src\egolib\strutil.h" />
-    <ClInclude Include="src\egolib\Time.hpp" />
     <ClInclude Include="src\egolib\typedef.h" />
     <ClInclude Include="src\egolib\vfs.h" />
     <ClInclude Include="src\egolib\_math.h" />

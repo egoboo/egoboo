@@ -145,7 +145,7 @@ namespace Attribute
             case SENSE_KURSES: return "Sense Kurses";
 
             default:
-            case NR_OF_ATTRIBUTES: throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
+            case NR_OF_ATTRIBUTES: throw id::unhandled_switch_case_error(__FILE__, __LINE__);
         }
     }
 

@@ -34,7 +34,7 @@ std::string toString(DDLTokenKind kind)
     #include "egolib/Script/DDLTokenKind.in"
     #undef Define
         default:
-            throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__, "unknown token type");
+            throw id::unhandled_switch_case_error(__FILE__, __LINE__, "unknown token type");
     };
 }
 

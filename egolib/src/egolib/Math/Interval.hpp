@@ -11,7 +11,7 @@ struct Interval;
 /// @brief A single-precision floating-point interval specified by its lowerbound \f$l\f$ and its upperbound \f$l\f$ such that \f$l \leq u\f$.
 template <typename Type>
 struct Interval<Type, std::enable_if_t<std::is_floating_point<Type>::value>>
-    : Id::EqualToExpr<Interval<Type>> {
+    : id::equal_to_expr<Interval<Type>> {
 private:
     /// @brief The lowerbound (inclusive).
     Type l;
@@ -33,11 +33,11 @@ public:
     /// @param l the lowerbound
     /// @param u the upperbound
     /// @pre <c>l &lt;= u</c>
-    /// @throw Id::InvalidArgumentException <c>!(l &lt;= u)</c>
+    /// @throw id::invalid_argument_error <c>!(l &lt;= u)</c>
     Interval(const Type& l, const Type& u) :
         l(l), u(u) {
         if (!(l <= u)) {
-            throw Id::InvalidArgumentException(__FILE__, __LINE__, "precondition `l <= u` failed");
+            throw id::invalid_argument_error(__FILE__, __LINE__, "precondition `l <= u` failed");
         }
     }
 
@@ -54,7 +54,7 @@ public:
 
 public:
     // CRTP
-    bool equal(const Interval<Type>& other) const {
+    bool equal_to(const Interval<Type>& other) const {
         return l == other.l
             && u == other.u;
     }

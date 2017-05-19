@@ -17,69 +17,50 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Renderer/TextureFilter.hpp
-/// @brief  An enumeration of texture filtering methods.
+/// @file egolib/Renderer/TextureFilter.hpp
+/// @brief An enumeration of texture filtering methods.
 /// @author Michael Heilmann
 
 #pragma once
 
 namespace Ego {
 
-/**
- * @brief
- *  An enumeration of texture filter types.
- */
-enum class TextureFilterType {
-
-    /**
-     * @brief
-     *  The minification filter type.
-     */
+/// @brief An enumeration of texture filter types.
+enum class TextureFilterType
+{
+    /// @brief The minification filter type.
     Minification,
-    /**
-     * @brief
-     *  The MipMap filter type.
-     */
+
+    /// @brief The MipMap filter type.
     MipMap,
-    /**
-     * @brief
-     *  The magnification filter type.
-     */
+
+    /// @brief The magnification filter type.
     Magnification,
 
 }; // enum class TextureFilterType
 
-/**
- * @brief
- *  An enumeration of texture filtering methods.
- */
-enum class TextureFilter {
-    /**
-     * @brief
-     *  None means, use the cheapest method available and is usually identical to "nearest"
-     *  for minification and magnification filters. For mip mapping "none" means, do not use
-     *  mip maps.
-     */
+/// @brief An enumeration of texture filtering methods.
+enum class TextureFilter
+{
+    /// @brief None means, use the cheapest method available and is usually identical to "nearest"
+    /// for minification and magnification filters. For mip mapping "none" means, do not use
+    ///  mip maps.
     None,
 
-    /**
-     * @brief
-     *  - magnification: use the colour of the nearest texel t to the texture coordinate
-     *  - minification: dito
-     *  - mip maps: choose the mip map m that most closely matches the size of the pixel
-     */
+    /// @brief
+    /// - magnification: use the colour of the nearest texel t to the texture coordinate
+    /// - minification: dito
+    /// - mip maps: choose the mip map m that most closely matches the size of the pixel
     Nearest,
 
-    /**
-     * @brief
-     *  - magnification: use the weighted average of the four texels t0, t1, t2, t3 that
-     *                   are closest to the specified texture coordinate
-     *  - minification:  dito
-     *  - mip maps:      select the two mip maps m0 and m1 that most closely match the size of the pixel
-     *                   If the minification filter is "nearest"/"linear" then one texel t0 from m0 and
-     *                   one texel t1 from mip map m1 is selected each by the "nearest"/"linear" criterion.
-     *                   The weighted average of t0 and t1 is used to produce the pixel.
-     */
+    /// @brief
+    ///  - magnification: use the weighted average of the four texels t0, t1, t2, t3 that
+    ///                   are closest to the specified texture coordinate
+    ///  - minification:  dito
+    ///  - mip maps:      select the two mip maps m0 and m1 that most closely match the size of the pixel
+    ///                   If the minification filter is "nearest"/"linear" then one texel t0 from m0 and
+    ///                   one texel t1 from mip map m1 is selected each by the "nearest"/"linear" criterion.
+    ///                   The weighted average of t0 and t1 is used to produce the pixel.
     Linear,
 
 }; // enum class TextureFilter

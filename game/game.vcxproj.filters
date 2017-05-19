@@ -380,6 +380,24 @@
     <ClCompile Include="src\game\Entities\Common.cpp">
       <Filter>Game Sources\Entities</Filter>
     </ClCompile>
+    <ClCompile Include="src\game\Graphics\DefaultMd2ModelRenderer.cpp">
+      <Filter>Game Sources\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Graphics\Md2ModelRenderer.cpp">
+      <Filter>Game Sources\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Module\Water.cpp">
+      <Filter>Game Sources\Module</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Module\AnimatedTiles.cpp">
+      <Filter>Game Sources\Module</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Module\Fog.cpp">
+      <Filter>Game Sources\Module</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Module\Weather.cpp">
+      <Filter>Game Sources\Module</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game\egoboo.h">
@@ -711,6 +729,24 @@
     </ClInclude>
     <ClInclude Include="src\game\Graphics\BillboardSystem.hpp">
       <Filter>Game Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\Graphics\DefaultMd2ModelRenderer.hpp">
+      <Filter>Game Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\Graphics\Md2ModelRenderer.hpp">
+      <Filter>Game Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\Module\Water.hpp">
+      <Filter>Game Header Files\Module</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\Module\AnimatedTiles.hpp">
+      <Filter>Game Header Files\Module</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\Module\Weather.hpp">
+      <Filter>Game Header Files\Module</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\Module\Fog.hpp">
+      <Filter>Game Header Files\Module</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

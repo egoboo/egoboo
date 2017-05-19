@@ -117,7 +117,7 @@ struct DestroyFunctor {
 template < typename InstanceType, typename Type = InstanceType>
 class Singleton
 #if defined(EGO_CORE_SINGLETON_NONCOPYABLE) && 1 == EGO_CORE_SINGLETON_NONCOPYABLE
-    : Id::NonCopyable
+    : private id::non_copyable
 #endif
 {
 public:

@@ -25,6 +25,10 @@
 #include "game/mesh.h"
 #include "game/Inventory.hpp"
 #include "game/Shop.hpp"
+#include "game/Module/AnimatedTiles.hpp"
+#include "game/Module/Water.hpp"
+#include "game/Module/Weather.hpp"
+#include "game/Module/Fog.hpp"
 
 //--------------------------------------------------------------------------------------------
 // forward declaration of external structs
@@ -82,65 +86,25 @@ enum e_targeting_bits
 
 //--------------------------------------------------------------------------------------------
 
-/// The state of the animated tiles.
-struct AnimatedTilesState {
-    /// The state of a layer of the animated tiles.
-    struct Layer {
-        Layer();
-
-        int    update_and;            ///< how often to update the tile
-
-        uint16_t frame_and;             ///< how many images within the "tile set"?
-        uint16_t base_and;              ///< animated "tile set"
-        uint16_t frame_add;             ///< which image within the tile set?
-        uint16_t frame_add_old;         ///< the frame offset, the last time it was updated
-        uint32_t frame_update_old;
-        /// @brief Iterate the state of the layer.
-        void animate();
-    };
-    std::array<Layer,2> elements;
-    void upload(const wawalite_animtile_t& source);
-    /// @brief Iterate the state of the layers.
-    void animate();
+struct MainLoop
+{
+private:
+    static void updateLocalStats();
+    static void move_all_objects();
+    static void update_all_objects();
+    static void let_all_characters_think();
+    static void readPlayerInput();
+    static void check_stats();
+public:
+    static int update_game();
 };
 
-
-//--------------------------------------------------------------------------------------------
-
-int update_game();
-
-//--------------------------------------------------------------------------------------------
-
-/// The state of the weather.
-struct WeatherState
+struct Upload
 {
-    int timer_reset;                    ///< How long between each spawn?
-    bool  over_water;                   ///< Only spawn over water?
-    LocalParticleProfileRef part_gpip;  ///< Which particle to spawn?
-
-    PLA_REF iplayer;
-    int     time;                       ///< 0 is no weather
-
-	void upload(const wawalite_weather_t& source);
-    /// @brief Iterate the state of the weather.
-    /// @remarks Drops snowflakes or rain or whatever.
-    void animate();
-};
-
-
-//--------------------------------------------------------------------------------------------
-
-/// The in-game fog state
-/// @warn Fog is currently not used
-struct fog_instance_t
-{
-    bool _on;            ///< Do ground fog?
-    float _top,
-		  _bottom;
-    Uint8 _red, _grn, _blu;
-    float _distance;
-
-	void upload(const wawalite_fog_t& source);
+    static void upload_camera_data(const wawalite_camera_t& data);
+    static void upload_graphics_data(const wawalite_graphics_t& data);
+    static void upload_light_data(const wawalite_data_t& data);
+    static void upload_phys_data(const wawalite_physics_t& data);
 };
 
 //--------------------------------------------------------------------------------------------
@@ -162,8 +126,6 @@ struct import_element_t
 		slot = -1;
 	}
 };
-
-
 
 //--------------------------------------------------------------------------------------------
 

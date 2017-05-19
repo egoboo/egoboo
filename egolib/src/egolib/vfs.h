@@ -393,7 +393,7 @@ void vfs_listSearchPaths();
 /// @brief Read the contents of a file.
 /// @param pathname the pathname of the file
 /// @param receive function invoked if bytes are received
-/// @throw Id::RuntimeErrorException the file can not be opened for reading or an error occurs while reading.
+/// @throw id::runtime_error the file can not be opened for reading or an error occurs while reading.
 /// @throw any exception raised by @a receive
 void vfs_readEntireFile(const std::string& pathname, std::function<void(size_t, const char *)> receive);
 bool vfs_readEntireFile(const std::string& pathname, char **data, size_t *length);

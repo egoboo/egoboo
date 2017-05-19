@@ -17,34 +17,23 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Renderer/TextureType.hpp
-/// @brief  An enumeration of texture types.
+/// @file egolib/Renderer/TextureType.hpp
+/// @brief An enumeration of texture types.
 /// @author Michael Heilmann
 
 #pragma once
 
 namespace Ego {
 
-/**
- * @brief
- *  An enumeration of texture types.
- * @author
- *  Michael Heilmann
- */
-enum class TextureType {
-
-    /**
-     * @brief
-     *  A one-dimensional texture.
-     */
+/// @brief An enumeration of texture types.
+enum class TextureType
+{
+    /// @brief A one-dimensional texture.
     _1D,
 
-    /**
-     * @brief
-     *  A two-dimensional texture.
-     */
+    /// @brief A two-dimensional texture.
     _2D,
-    
+
     _COUNT,  ///< @todo Remove this.
 
 }; // enum class TextureType

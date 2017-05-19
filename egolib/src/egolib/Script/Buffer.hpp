@@ -29,7 +29,7 @@ namespace Ego {
 namespace Script {
 
 /// @brief A dynamically resizing buffer for bytes.
-class Buffer : public Id::NonCopyable
+class Buffer : private id::non_copyable
 {
 
 private:

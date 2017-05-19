@@ -25,7 +25,7 @@ namespace Script {
 
 /// @brief An exception to indicate a missing delimiter lexical error.
 /// @author Michael Heilmann
-class MissingDelimiterError : public Id::CompilationErrorException
+class MissingDelimiterError : public id::compilation_error
 {
 private:
     /// @brief The expected delimiter.
@@ -36,7 +36,7 @@ public:
     /// @param file, line, location see documentation of Id::CompilationErrorException(const char *,int, Id::CompilationErrorException::Kind, const id::location&)
     /// @param delimiter the expected delimiter
     MissingDelimiterError(const char *file, int line, const id::location& location, char delimiter) :
-        CompilationErrorException(file, line, Id::CompilationErrorKind::Lexical, location, std::string("missing delimiter `") + delimiter + "`"),
+        id::compilation_error(file, line, id::compilation_error_kind::lexical, location, std::string("missing delimiter `") + delimiter + "`"),
         delimiter(delimiter)
     {}
 };

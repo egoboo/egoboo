@@ -17,58 +17,61 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Renderer/OpenGL/Renderer.hpp
-/// @brief  Implementation of a renderer for OpenGL 2.1
+/// @file egolib/Renderer/OpenGL/Renderer.hpp
+/// @brief Implementation of a renderer for OpenGL 2.1
 /// @author Michael Heilmann
 
 #pragma once
 
 #include "egolib/Renderer/Renderer.hpp"
-#include "egolib/typedef.h"
+//#include "egolib/typedef.h"
 #include "egolib/Renderer/OpenGL/AccumulationBuffer.hpp"
 #include "egolib/Renderer/OpenGL/ColourBuffer.hpp"
 #include "egolib/Renderer/OpenGL/DepthBuffer.hpp"
 #include "egolib/Renderer/OpenGL/StencilBuffer.hpp"
 #include "egolib/Renderer/OpenGL/TextureUnit.hpp"
-#include "egolib/Renderer/OpenGL/Texture.hpp"
-#include "egolib/Extensions/ogl_include.h"
-#include "egolib/Extensions/ogl_extensions.h"
-#include "egolib/Extensions/ogl_include.h"
-#include "egolib/Extensions/SDL_extensions.h"
-#include "egolib/Extensions/SDL_GL_extensions.h"
-#include "egolib/_math.h"
+#include "egolib/platform.h"
+#include "egolib/Math/_Include.hpp"
 
-/**
- * @ingroup egoboo-opengl
- * @brief
- *  The Egoboo OpenGL back-end.
- */
 namespace Ego {
 namespace OpenGL {
 
+// Forward declaration.
+class DefaultTexture;
+class RendererInfo;
+
 class Renderer : public Ego::Renderer
 {
-protected:
+public:
+    /// @brief Unique pointer to the 1D default texture.
+    std::unique_ptr<DefaultTexture> m_defaultTexture1d;
+
+    /// @brief Unique pointer to the 2D default texture.
+    std::unique_ptr<DefaultTexture> m_defaultTexture2d;
+
+protected:  
     /// @brief The accumulation buffer facade.
-    AccumulationBuffer _accumulationBuffer;
+    AccumulationBuffer m_accumulationBuffer;
     
     /// @brief The colour buffer facade.
-    ColourBuffer _colourBuffer;
+    ColourBuffer m_colourBuffer;
 
     /// @brief The depth buffer facade.
-    DepthBuffer _depthBuffer;
+    DepthBuffer m_depthBuffer;
     
     /// @brief The stencil buffer facade.
-    StencilBuffer _stencilBuffer;
+    StencilBuffer m_stencilBuffer;
     
     /// @brief The texture unit facade
-    TextureUnit _textureUnit;
+    TextureUnit m_textureUnit;
 
-    /// @brief Information about the backend.
-    RendererInfo info;
+    /// @brief Information on the renderer.
+    std::shared_ptr<RendererInfo> m_info;
 
     /// @brief The set of OpenGL extensions supported by this OpenGL implementation.
-    std::unordered_set<std::string> _extensions;
+    std::unordered_set<std::string> m_extensions;
+
+    Renderer(const std::shared_ptr<RendererInfo>& info);
 
 public:
     /// @brief Construct this OpenGL renderer.
@@ -79,7 +82,7 @@ public:
 
 public:
     /** @copydoc Ego::Renderer::getInfo() */
-    virtual const Ego::RendererInfo& getInfo() override;
+    virtual std::shared_ptr<Ego::RendererInfo> getInfo() override;
 
 public:
 
@@ -184,7 +187,7 @@ public:
     virtual void setGouraudShadingEnabled(bool enabled) override;
 
     /** @copydoc Ego::Renderer::render */
-    virtual void render(VertexBuffer& vertexBuffer, PrimitiveType primitiveType, size_t index, size_t length) override;
+    virtual void render(VertexBuffer& vertexBuffer, const VertexDescriptor& vertexDescriptor, PrimitiveType primitiveType, size_t index, size_t length) override;
 
     /** @copydoc Ego::Renderer::createTexture */
     virtual std::shared_ptr<Ego::Texture> createTexture() override;

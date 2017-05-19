@@ -25,7 +25,7 @@ IDLIB_TARGET      := libidlib.a
 CARTMAN_DIR       := cartman
 CARTMAN_TARGET    := cartman
 
-EGOTOOL_DIR       := utilities/convertpaletted
+EGOTOOL_DIR       := utilities/migrator
 EGOTOOL_TARGET    := egotool
 
 INSTALL_DIR       := data
@@ -48,7 +48,7 @@ endif
 
 #---------------------
 # the compiler options
-TMPFLAGS += -std=c++14 $(LUA_CFLAGS)
+TMPFLAGS += -std=c++1z $(LUA_CFLAGS)
 
 # for now, find a better way to do this?
 ifeq ($(PREFIX),)

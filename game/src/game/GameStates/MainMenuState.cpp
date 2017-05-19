@@ -178,7 +178,7 @@ void MainMenuState::drawContainer(Ego::GUI::DrawingContext& drawingContext)
 void MainMenuState::beginState()
 {
     // menu settings
-    Ego::GraphicsSystem::window->setGrabEnabled(false);
+    Ego::GraphicsSystem::get().window->setGrabEnabled(false);
     _gameEngine->enableMouseCursor();
 
     //Play the Egoboo theme music

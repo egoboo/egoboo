@@ -35,7 +35,7 @@ namespace Math {
  *  The terms the/a "sphere object" and the/a "sphere" are synonyms.
  */
 template <typename _EuclideanSpaceType>
-struct Sphere : public Id::EqualToExpr<Sphere<_EuclideanSpaceType>> {
+struct Sphere : public id::equal_to_expr<Sphere<_EuclideanSpaceType>> {
 public:
     Ego_Math_EuclideanSpace_CommonDefinitions(Sphere);
 
@@ -204,7 +204,7 @@ public:
 
 public:
 	// CRTP
-    bool equalTo(const MyType& other) const {
+    bool equal_to(const MyType& other) const {
         return _center == other._center
             && _radius == other._radius;
     }

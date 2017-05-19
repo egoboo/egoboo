@@ -17,111 +17,61 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Renderer/BlendFunction.hpp
-/// @brief  Enumeration of blend functions used for depth/stencil buffer operations and others.
+/// @file egolib/Renderer/BlendFunction.hpp
+/// @brief Enumeration of blend functions used for depth/stencil buffer operations and others.
 /// @author Michael Heilmann
 
 #pragma once
 
 namespace Ego {
 
-/**
- * @brief
- *  Blend functions used for the depth/stencil buffer operations and others.
- * @author
- *  Michael Heilmann
- * @see
- *  Ego::Renderer::setBlendFunction
- */
-enum class BlendFunction {
-    /**
-     * @see
-     *  Ego::Renderer::setBlendFunction
-     */
+/// @brief Blend functions used for the depth/stencil buffer operations and others.
+/// @see Ego::Renderer::setBlendFunction
+enum class BlendFunction
+{
+    /// @see Ego::Renderer::setBlendFunction
     Zero,
 
-    /**
-     * @see
-     *  Ego::Renderer::setBlendFunction
-     */
+    /// @see Ego::Renderer::setBlendFunction
     One,
 
-    /**
-     * @see
-     *  Ego::Renderer::setBlendFunction
-     */
+    /// @see Ego::Renderer::setBlendFunction
     SourceColour,
 
-    /**
-     * @see
-     *  Ego::Renderer::setBlendFunction
-     */
+    /// @see Ego::Renderer::setBlendFunction
     OneMinusSourceColour,
 
-    /**
-     * @see
-     *  Ego::Renderer::setBlendFunction
-     */
+    /// @see Ego::Renderer::setBlendFunction
     DestinationColour,
 
-    /**
-     * @see
-     *  Ego::Renderer::setBlendFunction
-     */
+    /// @see Ego::Renderer::setBlendFunction
     OneMinusDestinationColour,
 
-    /**
-     * @see
-     *  Ego::Renderer::setBlendFunction
-     */
+    /// @see Ego::Renderer::setBlendFunction
     SourceAlpha,
 
-    /**
-     * @see
-     *  Ego::Renderer::setBlendFunction
-     */
+    /// @see Ego::Renderer::setBlendFunction
     OneMinusSourceAlpha,
 
-    /**
-     * @see
-     *  Ego::Renderer::setBlendFunction
-     */
+    /// @see Ego::Renderer::setBlendFunction
     DestinationAlpha,
 
-    /**
-     * @see
-     *  Ego::Renderer::setBlendFunction
-     */
+    /// @see Ego::Renderer::setBlendFunction
     OneMinusDestinationAlpha,
 
-    /**
-    * @see
-    *  Ego::Renderer::setBlendFunction
-    */
+    /// @see Ego::Renderer::setBlendFunction
     ConstantColour,
 
-    /**
-     * @see
-     *  Ego::Renderer::setBlendFunction
-     */
+    /// @see Ego::Renderer::setBlendFunction
     OneMinusConstantColour,
 
-    /**
-     * @see
-     *  Ego::Renderer::setBlendFunction
-     */
+    /// @see Ego::Renderer::setBlendFunction
     ConstantAlpha,
 
-    /**
-     * @see
-     *  Ego::Renderer::setBlendFunction
-     */
+    /// @see Ego::Renderer::setBlendFunction
     OneMinusConstantAlpha,
 
-    /**
-     * @see
-     *  Ego::Renderer::setBlendFunction
-     */
+    /// @see Ego::Renderer::setBlendFunction
     SourceAlphaSaturate,
 
 }; // enum class BlendFunction

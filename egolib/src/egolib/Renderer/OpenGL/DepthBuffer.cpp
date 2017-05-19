@@ -17,17 +17,18 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Renderer/OpenGL/DepthBuffer.cpp
-/// @brief  Implementation of a depth buffer facade for OpenGL 2.1.
+/// @file egolib/Renderer/OpenGL/DepthBuffer.cpp
+/// @brief Implementation of a depth buffer facade for OpenGL 2.1.
 /// @author Michael Heilmann
 
 #include "egolib/Renderer/OpenGL/DepthBuffer.hpp"
+#include "egolib/Renderer/OpenGL/Utilities.hpp"
 
 namespace Ego {
 namespace OpenGL {
 
 DepthBuffer::DepthBuffer() :
-    Ego::DepthBuffer(), depth(Utilities::getDepthBufferDepth())
+    Ego::DepthBuffer(), depth(Utilities2::getDepthBufferDepth())
 {}
 
 DepthBuffer::~DepthBuffer()
@@ -35,12 +36,12 @@ DepthBuffer::~DepthBuffer()
 
 void DepthBuffer::clear() {
     glClear(GL_DEPTH_BUFFER_BIT);
-    Utilities::isError();
+    Utilities2::isError();
 }
 
 void DepthBuffer::setClearValue(const float& value) {
     glClearDepth(value);
-    Utilities::isError();
+    Utilities2::isError();
 }
 
 uint8_t DepthBuffer::getDepth() {

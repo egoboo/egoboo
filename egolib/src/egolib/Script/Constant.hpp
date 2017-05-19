@@ -70,7 +70,7 @@ public:
     {
         if (Constant::Kind::Integer != m_kind)
         {
-            throw Id::RuntimeErrorException(__FILE__, __LINE__, "invalid conversion");
+            throw id::runtime_error(__FILE__, __LINE__, "invalid conversion");
         }
         return m_integer;
     }
@@ -79,7 +79,7 @@ public:
     {
         if (Kind::String != m_kind)
         {
-            throw Id::RuntimeErrorException(__FILE__, __LINE__, "invalid conversion");
+            throw id::runtime_error(__FILE__, __LINE__, "invalid conversion");
         }
         return m_string;
     }

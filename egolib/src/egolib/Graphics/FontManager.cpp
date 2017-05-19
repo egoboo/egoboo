@@ -34,7 +34,7 @@ FontManager::FontManager() {
         auto e = Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "[font manager]: unable to initialized SDL_ttf v", SDL_TTF_MAJOR_VERSION, ".", SDL_TTF_MINOR_VERSION, ".", SDL_TTF_PATCHLEVEL, ": ",
                                     SDL_GetError(), Log::EndOfLine);
         Log::get() << e;
-        throw Id::EnvironmentErrorException(__FILE__, __LINE__, "font manager", e.getText());
+        throw id::environment_error(__FILE__, __LINE__, "font manager", e.getText());
     }
 }
 

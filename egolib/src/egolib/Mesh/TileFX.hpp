@@ -15,7 +15,7 @@ namespace Ego
 /// @code{=},
 /// @code{==},
 /// @code{!=}.
-struct TileFX : public Id::EqualToExpr<TileFX>
+struct TileFX : public id::equal_to_expr<TileFX>
 {
 private:
     uint8_t fx;
@@ -38,7 +38,7 @@ public:
 
 public:
 	// CRTP
-    bool equalTo(const TileFX& other) const noexcept;
+    bool equal_to(const TileFX& other) const noexcept;
 	
 public:
     /// @warning do not return by reference to no-const.

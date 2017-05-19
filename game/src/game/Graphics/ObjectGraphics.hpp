@@ -102,7 +102,7 @@ namespace Graphics
 {
 
 /// All the data that the renderer needs to draw the character
-class ObjectGraphics : public Id::NonCopyable
+class ObjectGraphics : private id::non_copyable
 {
 public:
     // position info

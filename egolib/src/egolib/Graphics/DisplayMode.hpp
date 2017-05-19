@@ -5,7 +5,7 @@
 namespace Ego {
 
 /// @brief A display mode.
-struct DisplayMode
+class DisplayMode
 {
 protected:
     /// @brief Construct this display mode.

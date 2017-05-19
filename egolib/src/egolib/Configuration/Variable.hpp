@@ -8,7 +8,7 @@ namespace Configuration {
 
 /// @brief The base of all variables.
 template <typename ValueTypeArg>
-class VariableBase : public Id::NonCopyable
+class VariableBase : private id::non_copyable
 {
 public:
     using ValueType = ValueTypeArg;
@@ -51,7 +51,11 @@ public:
     /// @param value the value
     void setValue(const ValueType& value)
     {
-        m_value = value;
+        if (m_value != value)
+        {
+            m_value = value;
+            ValueChanged();
+        }
     }
 
     /// @brief Get the default value of the variable.
@@ -84,6 +88,9 @@ public:
     /// @param source the source string
     /// @return @a true on success, @a false on failure
     virtual bool decodeValue(const std::string& source) = 0;
+
+    /// @brief Event raised if the value of this variable has changed.
+    id::signal<void()> ValueChanged;
 };
 
 /// @brief The abstract base of all variables.
@@ -93,30 +100,3 @@ class Variable;
 
 } // namespace Configuration
 } // namespace Ego
-
-namespace std {
-
-/// @brief
-/// @code
-/// is_any_of<T,A0,A1,..., An>::value
-/// @endcode
-/// is equivalent to
-/// @code
-/// is_same<T,A0>::value || is_same<T,A1>::value || ... | is_same<T,An>
-/// @endcode
-template<typename T, typename U, typename... Us>
-struct is_any_of
-    : integral_constant<
-    bool,
-    conditional<
-    is_same<T, U>::value,
-    true_type,
-    is_any_of<T, Us...>
-    >::type::value
-    >
-{};
-
-template<typename T, typename U>
-struct is_any_of<T, U> : is_same<T, U>::type {};
-
-} // namespace std

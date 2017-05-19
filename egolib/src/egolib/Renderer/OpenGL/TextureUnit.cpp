@@ -17,81 +17,72 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Renderer/OpenGL/TextureUnit.cpp
-/// @brief  Implementation of a texture unit facade for OpenGL 2.1.
+/// @file egolib/Renderer/OpenGL/TextureUnit.cpp
+/// @brief Implementation of a texture unit facade for OpenGL 2.1.
 /// @author Michael Heilmann
 
 #include "egolib/Renderer/OpenGL/TextureUnit.hpp"
 #include "egolib/Renderer/OpenGL/Texture.hpp"
+#include "egolib/Renderer/OpenGL/Utilities.hpp"
+#include "egolib/Renderer/OpenGL/RendererInfo.hpp"
 
 namespace Ego {
 namespace OpenGL {
 
-TextureUnit::TextureUnit()
+TextureUnit::TextureUnit(const std::shared_ptr<RendererInfo>& info) :
+    m_info(info)
 {}
 
 TextureUnit::~TextureUnit()
 {}
 
-void TextureUnit::setActivated(const Ego::Texture *texture) {
-    if (!texture)     {
+void TextureUnit::setActivated(Texture *texture)
+{
+    if (!texture)
+    {
         glDisable(GL_TEXTURE_1D);
         glDisable(GL_TEXTURE_2D);
-    } else {
-        auto anisotropy_enable = g_ogl_textureParameters.anisotropy_enable;
-        auto anisotropy_level = g_ogl_textureParameters.anisotropy_level;
+    }
+    else
+    {
         Utilities::clearError();
         GLenum target_gl;
         switch (texture->getType())
         {
-        case TextureType::_2D:
-            glEnable(GL_TEXTURE_2D);
-            glDisable(GL_TEXTURE_1D);
-            target_gl = GL_TEXTURE_2D;
-            break;
-        case TextureType::_1D:
-            glEnable(GL_TEXTURE_1D);
-            glDisable(GL_TEXTURE_2D);
-            target_gl = GL_TEXTURE_1D;
-            break;
-        default:
-            throw std::runtime_error("unreachable code reached");
+            case TextureType::_2D:
+                glEnable(GL_TEXTURE_2D);
+                glDisable(GL_TEXTURE_1D);
+                target_gl = GL_TEXTURE_2D;
+                break;
+            case TextureType::_1D:
+                glEnable(GL_TEXTURE_1D);
+                glDisable(GL_TEXTURE_2D);
+                target_gl = GL_TEXTURE_1D;
+                break;
+            default:
+                throw std::runtime_error("unreachable code reached");
         }
         if (Utilities::isError())
         {
             return;
         }
-        glBindTexture(target_gl, static_cast<const OpenGL::Texture *>(texture)->getTextureID());
-        if (Utilities::isError()) {
+        glBindTexture(target_gl, texture->getId());
+        if (Utilities::isError())
+        {
             return;
         }
-
-        glTexParameteri(target_gl, GL_TEXTURE_WRAP_S, Utilities::toOpenGL(texture->getAddressModeS()));
-        glTexParameteri(target_gl, GL_TEXTURE_WRAP_T, Utilities::toOpenGL(texture->getAddressModeT()));
-
-
-        if (Utilities::isError()) {
-            return;
-        }
-
-        GLint minFilter_gl, magFilter_gl;
-        Utilities::toOpenGL(texture->getMinFilter(), texture->getMagFilter(), texture->getMipMapFilter(), minFilter_gl, magFilter_gl);
-        glTexParameteri(target_gl, GL_TEXTURE_MIN_FILTER, minFilter_gl);
-        glTexParameteri(target_gl, GL_TEXTURE_MAG_FILTER, magFilter_gl);
-        if (Ego::OpenGL::Utilities::isError()) {
-            return;
-        }
-
-
-        if (GL_TEXTURE_2D == target_gl && g_ogl_caps.anisotropic_supported && anisotropy_enable && anisotropy_level >= 1.0f) {
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy_level);
-        }
-
-        if (Ego::OpenGL::Utilities::isError()) {
+        Utilities2::setSampler(m_info, texture->getType(), texture->getSampler());
+        if (Utilities::isError())
+        {
             return;
         }
     }
-    Ego::OpenGL::Utilities::isError();
+    Utilities::isError();
+}
+
+void TextureUnit::setActivated(const Ego::Texture *texture)
+{
+    setActivated(const_cast<Texture *>(static_cast<const Texture *>(texture)));
 }
 
 } // namespace OpenGL

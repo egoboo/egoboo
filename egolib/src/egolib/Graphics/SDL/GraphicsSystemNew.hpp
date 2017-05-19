@@ -5,7 +5,10 @@
 namespace Ego {
 namespace SDL {
 
-struct GraphicsSystemNew : public Ego::GraphicsSystemNew
+// Forward declaration.
+class GraphicsWindow;
+
+class GraphicsSystemNew : public Ego::GraphicsSystemNew
 {
 public:
     /// @brief Construct this SDL graphics system.
@@ -22,6 +25,12 @@ public:
 
     /** @copydoc Ego::GraphicsSystemNew::update */
     void update() override;
+
+    /** @copydoc Ego::GraphicsSystemNew::createContext */
+    Ego::GraphicsContext *createContext(Ego::GraphicsWindow *window) override;
+
+    /** @copydoc Ego::GraphicsSystemNew::createWindow */
+    Ego::GraphicsWindow *createWindow() override;
 
 };
 

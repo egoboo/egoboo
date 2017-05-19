@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Renderer/Renderer.cpp
-/// @brief  Common interface of all renderers
+/// @file egolib/Renderer/Renderer.cpp
+/// @brief Common interface of all renderers
 /// @author Michael Heilmann
 
 #include "egolib/Renderer/Renderer.hpp"
@@ -72,6 +72,16 @@ Renderer::Renderer()
 
 Renderer::~Renderer()
 {}
+
+void Renderer::upload(egoboo_config_t& cfg)
+{
+    /* Nothing to do. */
+}
+
+void Renderer::download(egoboo_config_t& cfg)
+{
+    /* Nothing to do. */
+}
 
 void Renderer::setProjectionMatrix(const Matrix4f4f& projectionMatrix) {
     m_projectionMatrix = projectionMatrix;

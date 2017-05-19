@@ -68,7 +68,7 @@ GameModule::GameModule(const std::shared_ptr<ModuleProfile> &profile, const uint
 
     // set up the virtual file system for the module (Do before loading the module)
     if (!setup_init_module_vfs_paths(getPath().c_str())) {
-        throw Id::RuntimeErrorException(__FILE__, __LINE__, "Failed to setup module vfs"); 
+        throw id::runtime_error(__FILE__, __LINE__, "Failed to setup module vfs");
     }
 
     //Initialize random seeds
@@ -835,18 +835,17 @@ void GameModule::loadTeamAlliances()
     //Found the file, parse the contents
     while (ctxt->skipToColon(true))
     {
-        std::string buffer;
-        vfs_read_string_lit(*ctxt, buffer);
+        std::string buffer = vfs_read_string_lit(*ctxt);
         if (buffer.length() < 1) {
-            throw Id::CompilationErrorException(__FILE__, __LINE__, Id::CompilationErrorKind::Syntactical, id::location(ctxt->getFileName(), ctxt->getLineNumber()),
-                                                "empty string literal");
+            throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::syntactical, id::location(ctxt->getFileName(), ctxt->getLineNumber()),
+                                        "empty string literal");
         }
         TEAM_REF teama = (buffer[0] - 'A') % Team::TEAM_MAX;
 
-        vfs_read_string_lit(*ctxt, buffer);
+        buffer = vfs_read_string_lit(*ctxt);
         if (buffer.length() < 1) {
-            throw Id::CompilationErrorException(__FILE__, __LINE__, Id::CompilationErrorKind::Syntactical, id::location(ctxt->getFileName(), ctxt->getLineNumber()),
-                                                "empty string literal");
+            throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::syntactical, id::location(ctxt->getFileName(), ctxt->getLineNumber()),
+                                        "empty string literal");
         }
         TEAM_REF teamb = (buffer[0] - 'A') % Team::TEAM_MAX;
         _teamList[teama].makeAlliance(_teamList[teamb]);

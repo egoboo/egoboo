@@ -251,7 +251,7 @@ void DebugModuleLoadingState::loadModuleData()
         {
             singleThreadRedrawHack("Loading players...");
             if(!loadPlayers()) {
-                throw Id::RuntimeErrorException(__FILE__, __LINE__, "unable to load players");
+                throw id::runtime_error(__FILE__, __LINE__, "unable to load players");
             }
         }
 
@@ -259,7 +259,7 @@ void DebugModuleLoadingState::loadModuleData()
         singleThreadRedrawHack("Loading module data...");
         if (!game_begin_module(_loadModule))
         {
-            throw Id::RuntimeErrorException(__FILE__, __LINE__, "unable to load module");
+            throw id::runtime_error(__FILE__, __LINE__, "unable to load module");
         }
 
         singleThreadRedrawHack("Almost done...");
@@ -274,9 +274,9 @@ void DebugModuleLoadingState::loadModuleData()
         //Complete!
         singleThreadRedrawHack("Finished!");
     }
-    catch (Id::Exception &ex)
+    catch (id::exception &ex)
     {
-        std::string out = std::string("Ego::Exception: ") + std::string(ex);
+        std::string out = std::string("Ego::Exception: ") + ex.to_string();
         singleThreadRedrawHack(out);
         Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "error loading ", "`", _loadModule->getFolderName(), "`", "... ", "`", out, "`", Log::EndOfEntry);
     }

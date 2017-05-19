@@ -166,7 +166,7 @@ const IndexDescriptor& IndexFormatFactory::get(IndexFormat indexFormat) {
         case IndexFormat::IU8:
         { static const Generator<IndexFormat, IndexFormat::IU8> g; return g(); }
         default:
-            throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
+            throw id::unhandled_switch_case_error(__FILE__, __LINE__);
     };
 }
 
@@ -209,7 +209,7 @@ const VertexDescriptor& VertexFormatFactory::get(VertexFormat vertexFormat) {
         case VertexFormat::P3FC3FT2F:
         { static const Generator<VertexFormat, VertexFormat::P3FC3FT2F> g{}; return g(); }
         default:
-			throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
+			throw id::unhandled_switch_case_error(__FILE__, __LINE__);
     };
 }
 

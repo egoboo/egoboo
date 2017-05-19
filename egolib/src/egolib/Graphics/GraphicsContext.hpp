@@ -1,26 +1,26 @@
 #pragma once
 
-#include "egolib/Extensions/ContextProperties.hpp"
+#include "egolib/platform.h"
 
 namespace Ego {
 
-struct GraphicsWindow;
+// Forward declaration.
+class GraphicsWindow;
 
-struct GraphicsContext
+/// @brief An graphics context.
+class GraphicsContext
 {
-private:
-    GraphicsWindow *window;
-    SDL_GLContext context;
-public:
+protected:
     /// @brief Construct this graphics context with the specified window and the specified graphics context properties.
     /// @param window a pointer to the window
-    /// @param contextProperties the context properties
-    /// @throw Id::RuntimeErrorException @a window is a null pointer
-    /// @throw Id::RuntimeErrorException context creation failed
-    GraphicsContext(GraphicsWindow *window, const ContextProperties& contextProperties);
+    /// @throw id::runtime_error @a window is a null pointer
+    /// @throw id::runtime_error context creation failed
+    GraphicsContext(GraphicsWindow *window);
 
+public:
     /// @brief Destruct this graphics context.
     virtual ~GraphicsContext();
-};
+
+}; // class GraphicsContext
 
 } // namespace Ego

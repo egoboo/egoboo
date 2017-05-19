@@ -17,17 +17,18 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Renderer/OpenGL/AccumulationBuffer.cpp
-/// @brief  Implementation of an Accumulation buffer facade for OpenGL 2.1.
+/// @file egolib/Renderer/OpenGL/AccumulationBuffer.cpp
+/// @brief Implementation of an Accumulation buffer facade for OpenGL 2.1.
 /// @author Michael Heilmann
 
 #include "egolib/Renderer/OpenGL/AccumulationBuffer.hpp"
+#include "egolib/Renderer/OpenGL/Utilities.hpp"
 
 namespace Ego {
 namespace OpenGL {
 
 AccumulationBuffer::AccumulationBuffer() :
-    Ego::AccumulationBuffer(), colourDepth(Utilities::getAccumulationBufferColourDepth())
+    Ego::AccumulationBuffer(), colourDepth(Utilities2::getAccumulationBufferColourDepth())
 {}
 
 AccumulationBuffer::~AccumulationBuffer()
@@ -35,12 +36,12 @@ AccumulationBuffer::~AccumulationBuffer()
 
 void AccumulationBuffer::clear() {
     glClear(GL_ACCUM_BUFFER_BIT);
-    Utilities::isError();
+    Utilities2::isError();
 }
 
 void AccumulationBuffer::setClearValue(const Colour4f& value) {
-    glClearAccum(value.getRed(), value.getGreen(), value.getBlue(), value.getAlpha());
-    Utilities::isError();
+    glClearAccum(value.get_r(), value.get_g(), value.get_b(), value.get_a());
+    Utilities2::isError();
 }
 
 const ColourDepth& AccumulationBuffer::getColourDepth() {

@@ -47,7 +47,7 @@ void InventorySlot::draw(DrawingContext& drawingContext) {
 }
 
 bool InventorySlot::notifyMouseMoved(const Events::MouseMovedEventArgs& e) {
-    bool mouseOver = contains(e.getPosition());
+    bool mouseOver = contains(e.position());
 
     if (mouseOver) {
         if (_player) {
@@ -61,7 +61,7 @@ bool InventorySlot::notifyMouseMoved(const Events::MouseMovedEventArgs& e) {
 
 
 bool InventorySlot::notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs& e) {
-    if (!_player || !contains(e.getPosition())) {
+    if (!_player || !contains(e.position())) {
         return false;
     }
 

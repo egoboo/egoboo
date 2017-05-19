@@ -17,11 +17,11 @@
 //*
 //********************************************************************************************
 
-#include "egolib/Time/LocalTime.hpp"
-
-/// @file   egolib/Time/LocalTime.hpp
-/// @brief  Local (aka Calendar) Time functionality
+/// @file egolib/Time/LocalTime.hpp
+/// @brief Local (aka Calendar) Time functionality
 /// @author Michael Heilmann
+
+#include "egolib/Time/LocalTime.hpp"
 
 namespace Ego {
 namespace Time {
@@ -34,11 +34,11 @@ LocalTime::LocalTimeType LocalTime::convert(const std::time_t& source) {
 	LocalTimeType target;
 #if defined(ID_WINDOWS)
 	if (0 != localtime_s(&target, &source)) {
-		throw Id::EnvironmentErrorException(__FILE__, __LINE__, "Ego::Time", "localtime_s failed");
+		throw id::environment_error(__FILE__, __LINE__, "Ego::Time", "localtime_s failed");
 	}
 #else
 	if (NULL == localtime_r(&source, &target)) {
-		throw Id::EnvironmentErrorException(__FILE__, __LINE__, "Ego::Time", "localtime_r failed");
+		throw id::environment_error(__FILE__, __LINE__, "Ego::Time", "localtime_r failed");
 	}
 #endif
 	return target;

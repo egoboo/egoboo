@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Renderer/OpenGL/StencilBuffer.hpp
-/// @brief  Implementation of an Accumulation buffer facade for OpenGL 2.1.
+/// @file egolib/Renderer/OpenGL/StencilBuffer.hpp
+/// @brief Implementation of an Accumulation buffer facade for OpenGL 2.1.
 /// @author Michael Heilmann
 
 #include "egolib/Renderer/Renderer.hpp"
@@ -26,22 +26,16 @@
 namespace Ego {
 namespace OpenGL {
 
-class StencilBuffer : public Ego::StencilBuffer {
+class StencilBuffer : public Ego::StencilBuffer
+{
 private:
     uint8_t depth;
 
 public:
-
-    /**
-     * @brief
-     *  Construct this stencil buffer facade.
-     */
+    /// @brief Construct this stencil buffer facade.
     StencilBuffer();
 
-    /**
-     * @brief
-     *  Destruct this stencil buffer facade.
-     */
+    /// @brief Destruct this stencil buffer facade.
     virtual ~StencilBuffer();
 
 public:
@@ -54,7 +48,6 @@ public:
 
     /** @copydoc Ego::StencilBuffer::getDepth */
     virtual uint8_t getDepth() override;
-
 };
 
 } // namespace OpenGL

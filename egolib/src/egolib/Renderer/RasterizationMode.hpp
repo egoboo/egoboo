@@ -17,37 +17,24 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Renderer/RasterizationMode.hpp
-/// @brief  Enumeration of polygon rasterization modes.
+/// @file egolib/Renderer/RasterizationMode.hpp
+/// @brief Enumeration of polygon rasterization modes.
 /// @author Michael Heilmann
 
 #pragma once
 
 namespace Ego {
 
-/**
- * @brief
- *  The rasterization mode controls the interpretation of polygons for rasterization.
- */
-enum class RasterizationMode {
-
-    /**
-     * @brief
-     *  The interior of the polygon is filled.
-     */
+/// @brief The rasterization mode controls the interpretation of polygons for rasterization.
+enum class RasterizationMode
+{
+    /// @brief The interior of the polygon is filled.
     Solid,
 
-    /**
-     * @brief
-     *  The bundary edges of the polygon are drawn as line segments.
-     */
+    //// @brief The boundary edges of the polygon are drawn as line segments.
     Line,
 
-    /**
-     * @brief
-     *  Polygon vertices that are marked as the start of a boundary edge
-     *  are drawn as points.
-     */
+    /// @brief Polygon vertices that are marked as the start of a boundary edge are drawn as points.
     Point,
 
 }; // enum class RasterizationMode

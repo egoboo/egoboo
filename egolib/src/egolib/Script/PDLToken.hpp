@@ -29,7 +29,7 @@ namespace Ego {
 namespace Script {
 
 /// @brief A token of the PDL (Program Definition Language) of EgoScript.
-struct PDLToken : public Id::Token<PDLTokenKind>
+struct PDLToken : public id::token<PDLTokenKind>
 {
 private:
     /// @brief The end location of this token.
@@ -71,7 +71,7 @@ public:
     friend void swap(PDLToken& x, PDLToken& y)
     {
         using std::swap;
-        swap(static_cast<Id::Token<PDLTokenKind>&>(x), static_cast<Id::Token<PDLTokenKind>&>(y));
+        swap(static_cast<id::token<PDLTokenKind>&>(x), static_cast<id::token<PDLTokenKind>&>(y));
         swap(x.m_endLocation, y.m_endLocation);
         swap(x.m_value, y.m_value);
     }

@@ -27,49 +27,33 @@
 namespace Ego {
 namespace Events {
 
-struct MouseMovedEventArgs {
+/// @brief The event arguments of a mouse pointer moved event.
+class MouseMovedEventArgs
+{
 private:
-    Point2f position;
+    /// @brief The position of the mouse pointer.
+    Point2f m_position;
+
 public:
-    /**
-     * @brief Construct these mouse moved event arguments with the specified values.
-     * @param position the position of the mouse
-     */
+    /// @brief Construct these mouse pointer moved event arguments with the specified values.
+    /// @param position the position of the mouse pointer
     MouseMovedEventArgs(const Point2f& position)
-        : position(position) {
+        : m_position(position)
+    {}
+
+    MouseMovedEventArgs(const MouseMovedEventArgs&) = default;
+    MouseMovedEventArgs(MouseMovedEventArgs&&) = default;
+    MouseMovedEventArgs& operator=(const MouseMovedEventArgs&) = default;
+    MouseMovedEventArgs& operator=(MouseMovedEventArgs&&) = default;
+
+    /// @brief Get the mouse pointer position.
+    /// @return the mouse pointer position
+    const Point2f& position() const
+    {
+        return m_position;
     }
-    /**
-     * @brief Construct these mouse moved event arguments with the values of other mouse moved event arguments.
-     * @param other the other mouse moved event arguments
-     */
-    MouseMovedEventArgs(const MouseMovedEventArgs& other) 
-        : position(other.position) {
-    }
-    /**
-     * @brief Construct these mouse moved event arguments with the values of other mouse moved event arguments.
-     * @param other the other mouse moved event arguments
-     */
-    MouseMovedEventArgs(MouseMovedEventArgs&& other)
-        : position(other.position) {
-    }
-    /**
-     * @brief Assign these mouse moved event arguments with the values of other mouse moved event arguments.
-     * @param other the other mouse moved event arguments
-     * @return these mouse moved event arguments
-     */
-    MouseMovedEventArgs operator=(const MouseMovedEventArgs& other) {
-        MouseMovedEventArgs temporary(other);
-        std::swap(*this, temporary);
-        return *this;
-    }
-    /**
-     * @brief Get the mouse position.
-     * @return the mouse position
-     */
-    const Point2f& getPosition() const {
-        return position;
-    }
-};
+
+}; // class MouseMovedEventArgs
 
 } // namespace Events
 } // namespace Ego

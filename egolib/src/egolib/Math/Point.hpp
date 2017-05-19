@@ -197,7 +197,7 @@ public:
 
 public:
     // CRTP
-    bool equalTo(const MyType& other) const
+    bool equal_to(const MyType& other) const
     {
         return TupleUtilities::foldTT(typename ScalarFieldType::EqualsFunctor(), true, *this, other);
     }

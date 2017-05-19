@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Renderer/OpenGL/TextureUnit.hpp
-/// @brief  Implementation of a texture unit facade for OpenGL 2.1. 
+/// @file egolib/Renderer/OpenGL/TextureUnit.hpp
+/// @brief Implementation of a texture unit facade for OpenGL 2.1. 
 /// @author Michael Heilmann
 #pragma once
 
@@ -27,26 +27,27 @@
 namespace Ego {
 namespace OpenGL {
 
-class TextureUnit : public Ego::TextureUnit {
+class Texture;
+class RendererInfo;
 
+class TextureUnit : public Ego::TextureUnit
+{
+private:
+    std::shared_ptr<RendererInfo> m_info;
 public:
+    /// @brief Construct this texture unit facade.
+    /// @param info pointer to the render device information
+    TextureUnit(const std::shared_ptr<RendererInfo>& info);
 
-    /**
-     * @brief
-     *  Construct this texture unit facade.
-     */
-    TextureUnit();
-
-    /**
-     * @brief
-     *  Destruct this texture unit facade.
-     */
+    /// @brief Destruct this texture unit facade.
     virtual ~TextureUnit();
 
     /** @copydoc Ego::TextureUnit::setActivated */
-    virtual void setActivated(const Ego::Texture *texture) override;
+    void setActivated(const Ego::Texture *texture) override;
 
-}; // struct TextureUnit
+    void setActivated(Texture *texture);
+
+}; // class TextureUnit
 
 } // namespace OpenGL
 } // namespace Ego

@@ -32,10 +32,7 @@
 #include "egolib/Graphics/GraphicsWindow.hpp"
 #include "egolib/Renderer/Renderer.hpp"
 #include "egolib/InputControl/InputSystem.hpp"
-#include "egolib/Extensions/ogl_include.h"
 #include "egolib/Extensions/ogl_extensions.h"
-#include "egolib/Extensions/SDL_extensions.h"
-
 #include "egolib/_math.h"
 
 namespace Ego {
@@ -104,7 +101,7 @@ ConsoleHandler::ConsoleHandler() :
 
     SDL_Rect blah;
 
-    auto windowSize = GraphicsSystem::window->getSize();
+    auto windowSize = GraphicsSystem::get().window->getSize();
     blah.x = 0;
     blah.y = 0;
     blah.w = windowSize.width();
@@ -350,11 +347,11 @@ void Console::draw()
     renderer.setBlendingEnabled(true);
     renderer.setBlendFunction(BlendFunction::SourceAlpha, BlendFunction::OneMinusSourceAlpha);
 
-    auto drawableSize = GraphicsSystem::window->getDrawableSize();
+    auto drawableSize = GraphicsSystem::get().window->getDrawableSize();
     renderer.setViewportRectangle(0, 0, drawableSize.width(), drawableSize.height());
 
     // Set the projecton matrix.
-    auto windowSize = GraphicsSystem::window->getSize();
+    auto windowSize = GraphicsSystem::get().window->getSize();
     Matrix4f4f matrix = Math::Transform::ortho(0, windowSize.width(), windowSize.height(), 0, -1, 1);
     renderer.setProjectionMatrix(matrix);
 
@@ -362,7 +359,7 @@ void Console::draw()
     renderer.setViewMatrix(Matrix4f4f::identity());
     renderer.setWorldMatrix(Matrix4f4f::identity());
 
-    int windowHeight = GraphicsSystem::window->getSize().height();
+    int windowHeight = GraphicsSystem::get().window->getSize().height();
 
     if (!windowHeight || !this->on)
     {
@@ -384,7 +381,7 @@ void Console::draw()
 
     renderer.setColour(white);
     renderer.setLineWidth(5);
-    VertexBuffer vertexBuffer(4, vertexDescriptor);
+    VertexBuffer vertexBuffer(4, vertexDescriptor.getVertexSize());
     {
         BufferScopedLock lock(vertexBuffer);
         Vertex *vertex = lock.get<Vertex>();
@@ -393,11 +390,11 @@ void Console::draw()
         vertex->x = pwin->x + pwin->w; vertex->y = pwin->y + pwin->h; ++vertex;
         vertex->x = pwin->x;           vertex->y = pwin->y + pwin->h;
     }
-    renderer.render(vertexBuffer, PrimitiveType::LineLoop, 0, 4);
+    renderer.render(vertexBuffer, vertexDescriptor, PrimitiveType::LineLoop, 0, 4);
     renderer.setLineWidth(1);
 
     renderer.setColour(black);
-    renderer.render(vertexBuffer, PrimitiveType::Quadriliterals, 0, 4);
+    renderer.render(vertexBuffer, vertexDescriptor, PrimitiveType::Quadriliterals, 0, 4);
 
 
     int textWidth, textHeight, height;
@@ -425,13 +422,13 @@ void Console::draw()
         return;
     }
     // grab the line offsets
-    std::vector<Id::TextRange> console_lines;
+    std::vector<id::text_range> console_lines;
     char *pstr = this->output.buffer;
     while (pstr)
     {
         size_t len = strcspn(pstr, "\n");
 
-        console_lines.push_back(Id::TextRange(pstr - this->output.buffer, len));
+        console_lines.push_back(id::text_range(pstr - this->output.buffer, len));
 
         if (0 == len)
         {
@@ -445,9 +442,9 @@ void Console::draw()
     for (size_t i = console_lines.size(); i >= 1 && height > 0; --i)
     {
         size_t j = i - 1;
-        size_t len = std::min((size_t)1023, console_lines[j].getLength());
+        size_t len = std::min((size_t)1023, console_lines[j].get_length());
 
-        strncpy(buffer, this->output.buffer + console_lines[j].getStart(), len);
+        strncpy(buffer, this->output.buffer + console_lines[j].get_start(), len);
         buffer[len] = CSTR_END;
 
         this->pfont->getTextSize(buffer, &textWidth, &textHeight);

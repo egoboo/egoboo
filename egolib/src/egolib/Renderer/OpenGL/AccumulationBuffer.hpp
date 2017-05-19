@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Renderer/OpenGL/AccumulationBuffer.hpp
-/// @brief  Implementation of an accumulation buffer facade for OpenGL 2.1.
+/// @file egolib/Renderer/OpenGL/AccumulationBuffer.hpp
+/// @brief Implementation of an accumulation buffer facade for OpenGL 2.1.
 /// @author Michael Heilmann
 
 #pragma once
@@ -30,27 +30,20 @@ namespace OpenGL {
 
 using namespace Math;
 
-class AccumulationBuffer : public Ego::AccumulationBuffer {
+class AccumulationBuffer : public Ego::AccumulationBuffer
+{
 private:
     ColourDepth colourDepth;
 
 public:
-
-    /**
-     * @brief
-     *  Construct this accumulation buffer facade.
-     */
+    /// @brief Construct this accumulation buffer facade.
     AccumulationBuffer();
 
-    /**
-     * @brief
-     *  Destruct this accumulation buffer facade.
-     */
+    /// @brief Destruct this accumulation buffer facade.
     virtual ~AccumulationBuffer();
 
 public:
-
-    /** @copydoc Ego::Buffer<Colour4f>::clear */
+    /** @copydoc Ego::Buffer<Ego::Math::Colour4f>::clear */
     virtual void clear() override;
 
     /** @copydoc Ego::Buffer<Colour4f>::setClearValue */

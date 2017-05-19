@@ -39,13 +39,13 @@ class FontManager;
  * @brief
  *  A representation of a TrueType font.
  */
-class Font final : public Id::NonCopyable {
+class Font final : private id::non_copyable {
 public:
 
     /**
      * @brief A container and renderer for laid out text.
      */
-    class LaidTextRenderer final : public Id::NonCopyable {
+    class LaidTextRenderer final : private id::non_copyable {
     public:
         /**
          * @brief
@@ -58,10 +58,13 @@ public:
         void render(int x, int y, const Math::Colour4f &colour = Math::Colour4f::white());
 
     protected:
-        LaidTextRenderer(const std::shared_ptr<Ego::Texture> &atlas, const std::shared_ptr<VertexBuffer> &vertexBuffer);
+        LaidTextRenderer(const std::shared_ptr<Texture> &atlas, 
+                         const VertexDescriptor& vertexDescriptor,
+                         const std::shared_ptr<VertexBuffer> &vertexBuffer);
         friend class Font;
     private:
         std::shared_ptr<Texture> _atlas;
+        VertexDescriptor _vertexDescriptor;
         std::shared_ptr<VertexBuffer> _vertexBuffer;
     };
 

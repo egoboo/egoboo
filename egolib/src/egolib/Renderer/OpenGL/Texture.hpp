@@ -24,27 +24,30 @@
 #pragma once
 
 #include "egolib/Renderer/Texture.hpp"
-#include "egolib/Extensions/ogl_include.h"
 #include "egolib/Extensions/ogl_extensions.h"
 
 namespace Ego {
 namespace OpenGL {
 
+class Renderer;
+class RendererInfo;
+
 /// An encapsulation of the OpenGL texture state.
-struct Texture : public Ego::Texture
+class Texture : public Ego::Texture
 {
 protected:
+    Renderer *m_renderer;
     /// @brief The OpenGL texture ID.
     /// @remark At any point, a texture has a valid OpenGL texture ID assigned, <em>unless</em> resources were lost.
-    GLuint  _id;
+    GLuint m_id;
 
 public:
     void load(const std::string& name, const std::shared_ptr<SDL_Surface>& surface, TextureType type, const TextureSampler& sampler);
     
-    /** @override Ego::Texture::upload(const String& name, const SharedPtr<SDL_Surface>&) */
+    /** @override Ego::Texture::load(const String& name, const SharedPtr<SDL_Surface>&) */
     bool load(const std::string& name, const std::shared_ptr<SDL_Surface>& surface) override;
 
-    /** @override Ego::Texture::upload(const std::shared_ptr<SDL_Surface>&) */
+    /** @override Ego::Texture::load(const std::shared_ptr<SDL_Surface>&) */
     bool load(const std::shared_ptr<SDL_Surface>& surface) override;
 
     /** @override Ego::Texture::release */
@@ -54,14 +57,13 @@ public:
     bool isDefault() const override;
 
 public:
-
     /// @brief Construct this texture.
     /// @post This texture is bound to the backing error texture.
-    Texture();
+    Texture(Renderer *renderer);
 
-    ///@brief Construct this texture.
-    Texture(GLuint id, const std::string& name,
-            TextureType type, TextureAddressMode addressModeS, TextureAddressMode addressModeT,
+    /// @brief Construct this texture.
+    Texture(Renderer *renderer, GLuint id, const std::string& name,
+            TextureType type, const TextureSampler& sampler,
             int width, int height, int sourceWidth, int sourceHeight, std::shared_ptr<SDL_Surface> source,
             bool hasAlpha);
 
@@ -69,17 +71,9 @@ public:
     virtual ~Texture();
 
 public:
-    GLuint getTextureID() const;
-
+    GLuint getId() const;
+    void setId(GLuint id);
 };
-
-/// @brief Initialize the error textures.
-/// @todo Move into texture manager.
-void initializeErrorTextures();
-
-/// @brief Uninitialize the error textures.
-/// @todo Move into texture manager.
-void uninitializeErrorTextures();
 
 } // namespace OpenGL
 } // namespace Ego

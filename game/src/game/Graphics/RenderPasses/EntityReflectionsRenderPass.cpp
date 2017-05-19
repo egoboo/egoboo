@@ -51,7 +51,8 @@ void EntityReflectionsRenderPass::doRun(::Camera& camera, const TileList& tl, co
 
                 // cull backward facing polygons
                 // use couter-clockwise orientation to determine backfaces
-                oglx_begin_culling(CullingMode::Back, MAP_REF_CULL);
+                renderer.setCullingMode(CullingMode::Back);
+                renderer.setWindingMode(MAP_REF_CULL);
 
                 // allow transparent objects
                 renderer.setBlendingEnabled(true);

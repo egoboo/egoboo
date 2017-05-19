@@ -3,7 +3,7 @@
 /// @file egolib/FileFormats/id_md2.h
 /// @details Md2 model file loading structures & constants.
 
-#include "egolib/Extensions/ogl_include.h"
+#include "egolib/Extensions/ogl_extensions.h"
 
 //--------------------------------------------------------------------------------------------
 // gcc does not properly recognize #pragma pack statements

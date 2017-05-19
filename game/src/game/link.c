@@ -144,7 +144,7 @@ bool link_build_vfs( const std::string& fname, std::array<Link_t, LINK_COUNT>& l
     size_t i = 0;
     while (ctxt.skipToColon(true) && i < LINK_COUNT)
     {
-        vfs_read_string_lit( ctxt, list[i].modname );
+        list[i].modname = vfs_read_string_lit( ctxt );
         list[i].valid = true;
         i++;
     }

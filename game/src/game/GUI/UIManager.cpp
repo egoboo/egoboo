@@ -34,7 +34,9 @@ UIManager::UIManager() :
     _fonts(),
     _renderSemaphore(0),
     _bitmapFontTexture(TextureManager::get().getTexture("mp_data/font_new_shadow")),
-    _textureQuadVertexBuffer(4, VertexFormatFactory::get<VertexFormat::P2FT2F>()) {
+    _vertexDescriptor(VertexFormatFactory::get<VertexFormat::P2F>()),
+    _textureQuadVertexDescriptor(VertexFormatFactory::get<VertexFormat::P2FT2F>()),
+    _textureQuadVertexBuffer(4, _textureQuadVertexDescriptor.getVertexSize()) {
     //Load fonts from true-type files
     _fonts[FONT_DEFAULT] = FontManager::get().loadFont("mp_data/Bo_Chen.ttf", 24);
     _fonts[FONT_FLOATING_TEXT] = FontManager::get().loadFont("mp_data/FrostysWinterland.ttf", 24);
@@ -51,9 +53,7 @@ UIManager::UIManager() :
         }
     }
 #endif
-
-    const auto& vertexFormat = VertexFormatFactory::get<VertexFormat::P2F>();
-    _vertexBuffer = std::make_shared<VertexBuffer>(4, vertexFormat);
+    _vertexBuffer = std::make_shared<VertexBuffer>(4, _vertexDescriptor.getVertexSize());
 }
 
 UIManager::~UIManager() {
@@ -91,13 +91,13 @@ void UIManager::beginRenderUI() {
     renderer.setAlphaFunction(CompareFunction::Greater, 0.0f);
 
     /// Set the viewport rectangle.
-    auto drawableSize = GraphicsSystem::window->getDrawableSize();
+    auto drawableSize = GraphicsSystem::get().window->getDrawableSize();
     renderer.setViewportRectangle(0, 0, drawableSize.width(), drawableSize.height());
 
     // Set up an ortho projection for the gui to use.  Controls are free to modify this
     // later, but most of them will need this, so it's done by default at the beginning
     // of a frame.
-    auto windowSize = GraphicsSystem::window->getSize();
+    auto windowSize = GraphicsSystem::get().window->getSize();
     Matrix4f4f projection = Math::Transform::ortho(0.0f, windowSize.width(), windowSize.height(), 0.0f, -1.0f, +1.0f);
     renderer.setProjectionMatrix(projection);
     renderer.setViewMatrix(Matrix4f4f::identity());
@@ -117,11 +117,11 @@ void UIManager::endRenderUI() {
 }
 
 int UIManager::getScreenWidth() const {
-    return GraphicsSystem::window->getSize().width();
+    return GraphicsSystem::get().window->getSize().width();
 }
 
 int UIManager::getScreenHeight() const {
-    return GraphicsSystem::window->getSize().height();
+    return GraphicsSystem::get().window->getSize().height();
 }
 
 void UIManager::drawImage(const Point2f& position, const Vector2f& size, const std::shared_ptr<const Material>& material) {
@@ -165,8 +165,8 @@ bool UIManager::dumpScreenshot() {
     szResolvedFilename = szFilename;
 
     // if we are not using OpenGL, use SDL to dump the screen
-    if (HAS_NO_BITS(SDL_GetWindowFlags(Ego::GraphicsSystem::window->get()), SDL_WINDOW_OPENGL)) {
-        return IMG_SavePNG_RW(SDL_GetWindowSurface(Ego::GraphicsSystem::window->get()), vfs_openRWopsWrite(szResolvedFilename), 1);
+    if (HAS_NO_BITS(SDL_GetWindowFlags(Ego::GraphicsSystem::get().window->get()), SDL_WINDOW_OPENGL)) {
+        return IMG_SavePNG_RW(SDL_GetWindowSurface(Ego::GraphicsSystem::get().window->get()), vfs_openRWopsWrite(szResolvedFilename), 1);
     }
 
     // we ARE using OpenGL
@@ -177,7 +177,7 @@ bool UIManager::dumpScreenshot() {
 
             // create a SDL surface
             const auto& pixelFormatDescriptor = PixelFormatDescriptor::get<PixelFormat::R8G8B8>();
-            auto drawableSize = GraphicsSystem::window->getDrawableSize();
+            auto drawableSize = GraphicsSystem::get().window->getDrawableSize();
             temp = SDL_CreateRGBSurface(0, drawableSize.width(), drawableSize.height(),
                                         pixelFormatDescriptor.getColourDepth().getDepth(),
                                         pixelFormatDescriptor.getRedMask(),
@@ -361,7 +361,7 @@ void UIManager::drawQuad2d(const Rectangle2f& target, const Rectangle2f& source)
         v->s = source.getMin().x(); v->t = source.getMin().y();
         v++;
     }
-    renderer.render(_textureQuadVertexBuffer, PrimitiveType::Quadriliterals, 0, 4);
+    renderer.render(_textureQuadVertexBuffer, _textureQuadVertexDescriptor, PrimitiveType::Quadriliterals, 0, 4);
 }
 
 void UIManager::drawQuad2d(const Rectangle2f& target) {

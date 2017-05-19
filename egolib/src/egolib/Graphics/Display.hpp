@@ -5,10 +5,10 @@
 namespace Ego {
 
 // Forward declaration.
-struct DisplayMode;
+class DisplayMode;
 
 /// @brief A display.
-struct Display
+class Display
 {
 protected:
     /// @brief List of display modes of this display.

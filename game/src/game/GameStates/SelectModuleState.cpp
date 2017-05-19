@@ -205,5 +205,5 @@ void SelectModuleState::drawContainer(Ego::GUI::DrawingContext& drawingContext)
 void SelectModuleState::beginState()
 {
     // menu settings
-    Ego::GraphicsSystem::window->setGrabEnabled(false);
+    Ego::GraphicsSystem::get().window->setGrabEnabled(false);
 }
