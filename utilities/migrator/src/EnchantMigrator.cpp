@@ -1,22 +1,21 @@
-#include "EnchantTxtValidator.hpp"
+#include "EnchantMigrator.hpp"
 
 #include "Filters.hpp"
 #include "FileSystem.hpp"
 
-namespace Editor {
-namespace Tools {
+namespace Editor { namespace Tools {
 
 using namespace Standard;
 using namespace CommandLine;
 
-EnchantTxtValidator::EnchantTxtValidator(std::shared_ptr<FileSystem> fileSystem)
-    : Tool("EnchantTxtValidator", fileSystem)
+EnchantMigrator::EnchantMigrator(std::shared_ptr<FileSystem> fileSystem)
+    : Tool("EnchantMigrator", fileSystem)
 {}
 
-EnchantTxtValidator::~EnchantTxtValidator()
+EnchantMigrator::~EnchantMigrator()
 {}
 
-void EnchantTxtValidator::run(const std::vector<std::shared_ptr<Option>>& arguments)
+void EnchantMigrator::run(const std::vector<std::shared_ptr<Option>>& arguments)
 {
     if (arguments.size() < 1)
     {
@@ -48,7 +47,7 @@ void EnchantTxtValidator::run(const std::vector<std::shared_ptr<Option>>& argume
             case FileSystem::PathStat::File:
                 if (filter(path))
                 {
-                    validate(path);
+                    run(path);
                 }
                 break;
             case FileSystem::PathStat::Directory:
@@ -66,19 +65,18 @@ void EnchantTxtValidator::run(const std::vector<std::shared_ptr<Option>>& argume
     }
 }
 
-const std::string& EnchantTxtValidator::getHelp() const
+const std::string& EnchantMigrator::getHelp() const
 {
-    static const std::string help = "usage: ego-tools --tool=EnchantTxtValidator <directories>\n";
+    static const std::string help = "usage: ego-tools --tool=EnchantMigrator <directories>\n";
     return help;
 }
 
-void EnchantTxtValidator::validate(const std::string& pathname)
+void EnchantMigrator::run(const std::string& pathname)
 {}
 
-std::shared_ptr<Tool> EnchantTxtValidatorFactory::create(std::shared_ptr<FileSystem> fileSystem) const
+std::shared_ptr<Tool> EnchantMigratorFactory::create(std::shared_ptr<FileSystem> fileSystem) const
 {
-    return std::make_shared<EnchantTxtValidator>(fileSystem);
+    return std::make_shared<EnchantMigrator>(fileSystem);
 }
 
-} // namespace Tools
-} // namespace Editor
+} } // namespace Tools::Editor

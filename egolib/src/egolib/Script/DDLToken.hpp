@@ -29,7 +29,8 @@ namespace Ego {
 namespace Script {
 
 /// @brief A token of the DDL (Data Definition Language) of EgoScript.
-struct DDLToken : public id::token<DDLTokenKind>
+/// @todo Default token kind should be DDLTokenKind::Error.
+struct DDLToken : public id::token<DDLTokenKind, DDLTokenKind::Unknown>
 {
 public:
     /// @brief Construct this token with the specified values.
@@ -54,7 +55,8 @@ public:
     friend void swap(DDLToken& x, DDLToken& y)
     {
         using std::swap;
-        swap(static_cast<id::token<DDLTokenKind>&>(x), static_cast<id::token<DDLTokenKind>&>(y));
+        swap(static_cast<id::token<DDLTokenKind, DDLTokenKind::Unknown>&>(x),
+             static_cast<id::token<DDLTokenKind, DDLTokenKind::Unknown>&>(y));
     }
 
     /// @brief Overloaded &lt;&lt; operator for a token.

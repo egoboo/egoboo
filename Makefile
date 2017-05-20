@@ -74,10 +74,10 @@ export PREFIX EGO_CXXFLAGS EGO_LDFLAGS IDLIB_TARGET EGOLIB_TARGET EGO_TARGET CAR
 
 all: idlib egolib egoboo cartman egotool
 
-idlib: external_lua
+idlib:
 	${MAKE} -C $(IDLIB_DIR)
 
-egolib: idlib
+egolib: idlib external_lua
 	${MAKE} -C $(EGOLIB_DIR)
 
 egoboo: egolib

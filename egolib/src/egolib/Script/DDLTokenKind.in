@@ -1,3 +1,6 @@
+/// @brief Unknown.
+Define(Unknown, "<unknown>")
+
 /// @brief An integer number literal.
 Define(Integer, "<integer literal>")
 

@@ -1,0 +1,90 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="src\Main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CommandLine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ConvertPaletted.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\EnchantMigrator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\DataMigator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\EnvironmentMigrator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FileSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ScriptMigrator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Tool.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ScriptMigrator\scanner.cpp">
+      <Filter>Source Files\ScriptMigrator</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ScriptMigrator\parser.cpp">
+      <Filter>Source Files\ScriptMigrator</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\CommandLine.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ConvertPaletted.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\DataMigrator.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\EnvironmentMigrator.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FileSystem.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Filters.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\EnchantMigrator.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ScriptMigrator.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Tool.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ScriptMigrator\scanner.hpp">
+      <Filter>Header Files\ScriptMigrator</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ScriptMigrator\parser.hpp">
+      <Filter>Header Files\ScriptMigrator</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ScriptMigrator\token.hpp">
+      <Filter>Header Files\ScriptMigrator</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{d1389216-b95f-4a7a-89a4-a267543fe366}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{165cf95c-293d-4162-babf-163d7c69749b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ScriptMigrator">
+      <UniqueIdentifier>{381fff0b-3cbd-4b38-9177-be618578c7c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ScriptMigrator">
+      <UniqueIdentifier>{597d25ea-c0cc-4df2-a2c6-d6efc4cb75e2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

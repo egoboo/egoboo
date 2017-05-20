@@ -28,15 +28,15 @@ namespace Ego {
 namespace Script {
 
 DDLToken::DDLToken(DDLTokenKind kind, const id::location& startLocation, const std::string& lexeme)
-    : id::token<DDLTokenKind>(kind, startLocation, lexeme)
+    : id::token<DDLTokenKind, DDLTokenKind::Unknown>(kind, startLocation, lexeme)
 {}
 
 DDLToken::DDLToken(const DDLToken& other)
-    : id::token<DDLTokenKind>(other)
+    : id::token<DDLTokenKind, DDLTokenKind::Unknown>(other)
 {}
 
 DDLToken::DDLToken(DDLToken&& other)
-    : id::token<DDLTokenKind>(std::move(other))
+    : id::token<DDLTokenKind, DDLTokenKind::Unknown>(std::move(other))
 {}
 
 DDLToken& DDLToken::operator=(DDLToken other)
@@ -49,7 +49,7 @@ std::ostream& operator<<(std::ostream& os, const DDLToken& token)
 {
     os << "ddl token" << std::endl;
     os << "{" << std::endl;
-    os << "  " << "kind = " << token.get_kind() << "," << std::endl;
+    os << "  " << "category = " << token.category() << "," << std::endl;
     os << "  " << "lexeme = " << token.get_lexeme() << "," << std::endl;
     os << "  " << "start location = " << token.get_start_location().file_name() << ":" << token.get_start_location().line_number() << "," << std::endl;
     os << "}" << std::endl;

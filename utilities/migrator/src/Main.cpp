@@ -5,8 +5,10 @@
 #include "FileSystem.hpp"
 
 #include "ConvertPaletted.hpp"
-#include "DataTxtValidator.hpp"
-#include "EnchantTxtValidator.hpp"
+#include "DataMigrator.hpp"
+#include "EnchantMigrator.hpp"
+#include "EnvironmentMigrator.hpp"
+#include "ScriptMigrator.hpp"
 
 int SDL_main(int argc, char **argv) {
 	try {
@@ -15,9 +17,11 @@ int SDL_main(int argc, char **argv) {
 
         // (1) Register the known tools.
         unordered_map<string, shared_ptr<Editor::ToolFactory>> factories;
-        factories.emplace("DataTxtValidator", make_shared<Editor::Tools::DataTxtValidatorFactory>());
         factories.emplace("ConvertPaletted", make_shared<Editor::Tools::ConvertPalettedFactory>());
-        factories.emplace("EnchantTxtValidator", make_shared<Editor::Tools::EnchantTxtValidatorFactory>());
+        factories.emplace("DataMigrator", make_shared<Editor::Tools::DataMigratorFactory>());
+        factories.emplace("EnchantMigrator", make_shared<Editor::Tools::EnchantMigratorFactory>());
+        factories.emplace("EnvironmentMigrator", make_shared<Editor::Tools::EnvironmentMigratorFactory>());
+        factories.emplace("ScriptMigrator", make_shared<Editor::Tools::ScriptMigratorFactory>());
 
         // (2) Parse the argument list.
         auto args = CommandLine::parse(argc, argv);

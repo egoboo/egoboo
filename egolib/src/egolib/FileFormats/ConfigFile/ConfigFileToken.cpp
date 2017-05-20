@@ -6,5 +6,5 @@ ConfigFileToken::ConfigFileToken
         const id::location& startLocation,
         const std::string& lexeme
     ) :
-    id::token<ConfigFileTokenKind>(kind, startLocation, lexeme)
+    id::token<ConfigFileTokenKind, ConfigFileTokenKind::Unknown>(kind, startLocation, lexeme)
 {}

@@ -1,4 +1,4 @@
-#include "DataTxtValidator.hpp"
+#include "DataMigrator.hpp"
 
 #include "Filters.hpp"
 #include "FileSystem.hpp"
@@ -9,14 +9,14 @@ namespace Tools {
 using namespace Standard;
 using namespace CommandLine;
 
-DataTxtValidator::DataTxtValidator(std::shared_ptr<FileSystem> fileSystem)
-    : Tool("DataTxtValidator", fileSystem) 
+DataMigrator::DataMigrator(std::shared_ptr<FileSystem> fileSystem)
+    : Tool("DataMigrator", fileSystem) 
 {}
 
-DataTxtValidator::~DataTxtValidator()
+DataMigrator::~DataMigrator()
 {}
 
-void DataTxtValidator::run(const std::vector<std::shared_ptr<Option>>& arguments)
+void DataMigrator::run(const std::vector<std::shared_ptr<Option>>& arguments)
 {
     if (arguments.size() < 1)
     {
@@ -48,7 +48,7 @@ void DataTxtValidator::run(const std::vector<std::shared_ptr<Option>>& arguments
             case FileSystem::PathStat::File:
                 if (filter(path))
                 {
-                    validate(path);
+                    run(path);
                 }
                 break;
             case FileSystem::PathStat::Directory:
@@ -66,18 +66,18 @@ void DataTxtValidator::run(const std::vector<std::shared_ptr<Option>>& arguments
     }
 }
 
-const std::string& DataTxtValidator::getHelp() const
+const std::string& DataMigrator::getHelp() const
 {
-    static const std::string help = "usage: ego-tools --tool=DataTxtValidator <directories>\n";
+    static const std::string help = "usage: ego-tools --tool=DataMigrator <directories>\n";
     return help;
 }
 
-void DataTxtValidator::validate(const std::string& pathname)
+void DataMigrator::run(const std::string& pathname)
 {}
 
-std::shared_ptr<Tool> DataTxtValidatorFactory::create(std::shared_ptr<FileSystem> fileSystem) const
+std::shared_ptr<Tool> DataMigratorFactory::create(std::shared_ptr<FileSystem> fileSystem) const
 {
-    return std::make_shared<DataTxtValidator>(fileSystem);
+    return std::make_shared<DataMigrator>(fileSystem);
 }
 
 } // namespace Tools
