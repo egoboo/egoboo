@@ -1214,13 +1214,11 @@ void GameModule::update()
     chr_pressure_tests  = 0;
 
     //---- begin the code for updating in-game objects
-     static ProfileTimer movement("MoveObjects");
-     static ProfileTimer collisions("Collisions");
     {
         updateAllObjects();
         ParticleHandler::get().updateAllParticles();
-        movement.begin(); move_all_objects(); movement.end();                            //movement
-        collisions.begin(); Ego::Physics::CollisionSystem::get().update(); collisions.end(); //collisions
+        move_all_objects();                            //movement
+        Ego::Physics::CollisionSystem::get().update();  //collisions
     }
     //---- end the code for updating in-game objects
 
