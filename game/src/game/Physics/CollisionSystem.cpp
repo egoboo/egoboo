@@ -297,7 +297,7 @@ void CollisionSystem::updateObjectCollisions()
 
         // Check collisions to nearby Objects
         std::vector<std::shared_ptr<Object>> possibleCollisions;
-        _currentModule->getObjectHandler().findObjects(aabb2d, possibleCollisions, canCollideWithScenery);
+        _currentModule->getObjectHandler().findObjects(object->getAxisAlignedBox2D(), possibleCollisions, canCollideWithScenery);
         for (const std::shared_ptr<Object> &other : possibleCollisions)
         {
             //Skip possible interactions that have already been handled earlier this iteration
