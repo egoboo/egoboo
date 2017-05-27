@@ -826,16 +826,10 @@ bool phys_expand_oct_bb(const oct_bb_t& src, const Vector3f& vel, const float tm
 //--------------------------------------------------------------------------------------------
 bool phys_expand_chr_bb(Object *pchr, float tmin, float tmax, oct_bb_t& dst)
 {
-    if (!pchr || pchr->isTerminated()) return false;
-
-    // copy the volume
-    oct_bb_t tmp_oct1 = pchr->chr_max_cv;
-
     // add in the current position to the bounding volume
-    oct_bb_t tmp_oct2;
-    tmp_oct2 = oct_bb_t::translate(tmp_oct1, pchr->getPosition());
+    oct_bb_t tmp_oct2 = oct_bb_t::translate(pchr->chr_max_cv, pchr->getPosition());
 
-    // streach the bounging volume to cover the path of the object
+    // streach the bounding volume to cover the path of the object
     return phys_expand_oct_bb(tmp_oct2, pchr->getVelocity(), tmin, tmax, dst);
 }
 
