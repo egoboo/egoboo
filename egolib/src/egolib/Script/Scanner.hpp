@@ -109,7 +109,7 @@ private:
 
     bool equal(ScannerInputView other) const
     {
-        m_state == other.m_state && m_current == other.m_current;;
+        return m_state == other.m_state && m_current == other.m_current;
     }
 
     /// @brief Get the current symbol.
