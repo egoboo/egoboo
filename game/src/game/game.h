@@ -95,15 +95,13 @@ enum e_targeting_bits
 
 struct MainLoop
 {
-private:
+public:
     static void updateLocalStats();
     static void move_all_objects();
     static void update_all_objects();
     static void let_all_characters_think();
     static void readPlayerInput();
     static void check_stats();
-public:
-    static int update_game();
 };
 
 struct Upload
