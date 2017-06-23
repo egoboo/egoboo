@@ -34,7 +34,7 @@ bool map_read_v1(vfs_FILE& file, map_t& map)
     // Load tile data.
     for (auto& tile : mem.tiles)
     {
-        Uint32 ui32_tmp;
+        uint32_t ui32_tmp;
         vfs_read_Uint32(file, &ui32_tmp);
 
         tile.type = Ego::Math::clipBits<8>( ui32_tmp >> 24 );
@@ -53,12 +53,12 @@ bool map_write_v1(vfs_FILE& file, const map_t& map)
     // Save tile data.
     for (const auto& tile : mem.tiles)
     {
-        Uint32 ui32_tmp;
+        uint32_t ui32_tmp;
         ui32_tmp  = Ego::Math::clipBits<16>( tile.img ) <<  0;
         ui32_tmp |= Ego::Math::clipBits<8>( tile.fx ) << 16;
         ui32_tmp |= Ego::Math::clipBits<8>( tile.type ) << 24;
 
-        vfs_write<Uint32>(file, ui32_tmp);
+        vfs_write<uint32_t>(file, ui32_tmp);
     }
 
     return true;

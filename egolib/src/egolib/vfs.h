@@ -302,14 +302,14 @@ bool vfs_isDirectory(const std::string& pathname);
 
 // binary reading and writing
 size_t vfs_read(void *buffer, size_t size, size_t count, vfs_FILE *file);
-int vfs_read_Sint8(vfs_FILE& file, Sint8 *val);
-int vfs_read_Uint8(vfs_FILE& file, Uint8 *val);
-int vfs_read_Sint16(vfs_FILE& file, Sint16 *val);
-int vfs_read_Uint16(vfs_FILE& file, Uint16 *val);
-int vfs_read_Sint32(vfs_FILE& file, Sint32 *val);
-int vfs_read_Uint32(vfs_FILE& file, Uint32 *val);
-int vfs_read_Sint64(vfs_FILE& file, Sint64 *val);
-int vfs_read_Uint64(vfs_FILE& file, Uint64 *val);
+int vfs_read_Sint8(vfs_FILE& file, int8_t *val);
+int vfs_read_Uint8(vfs_FILE& file, uint8_t *val);
+int vfs_read_Sint16(vfs_FILE& file, int16_t *val);
+int vfs_read_Uint16(vfs_FILE& file, uint16_t *val);
+int vfs_read_Sint32(vfs_FILE& file, int32_t *val);
+int vfs_read_Uint32(vfs_FILE& file, uint32_t *val);
+int vfs_read_Sint64(vfs_FILE& file, int64_t *val);
+int vfs_read_Uint64(vfs_FILE& file, uint64_t *val);
 int vfs_read_float(vfs_FILE& file, float *val);
 
 size_t vfs_write(const void *buffer, size_t size, size_t count, vfs_FILE *file);
@@ -318,21 +318,21 @@ template <typename Type>
 int vfs_write(vfs_FILE& file, const Type& value);
 
 template <>
-int vfs_write<Sint8>(vfs_FILE& file, const Sint8& val);
+int vfs_write<int8_t>(vfs_FILE& file, const int8_t& val);
 template <>
-int vfs_write<Uint8>(vfs_FILE& file, const Uint8& val);
+int vfs_write<uint8_t>(vfs_FILE& file, const uint8_t& val);
 template <>
-int vfs_write<Sint16>(vfs_FILE& file, const Sint16& val);
+int vfs_write<int16_t>(vfs_FILE& file, const int16_t& val);
 template <>
-int vfs_write<Uint16>(vfs_FILE& file, const Uint16& val);
+int vfs_write<uint16_t>(vfs_FILE& file, const uint16_t& val);
 template <>
-int vfs_write<Sint32>(vfs_FILE& file, const Sint32& val);
+int vfs_write<int32_t>(vfs_FILE& file, const int32_t& val);
 template <>
-int vfs_write<Uint32>(vfs_FILE& file, const Uint32& val);
+int vfs_write<uint32_t>(vfs_FILE& file, const uint32_t& val);
 template <>
-int vfs_write<Sint64>(vfs_FILE& file, const Sint64& val);
+int vfs_write<int64_t>(vfs_FILE& file, const int64_t& val);
 template <>
-int vfs_write<Uint64>(vfs_FILE& file, const Uint64& val);
+int vfs_write<uint64_t>(vfs_FILE& file, const uint64_t& val);
 template <>
 int vfs_write<float>(vfs_FILE& file, const float& val);
 

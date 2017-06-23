@@ -207,7 +207,7 @@ std::shared_ptr<SDL_Surface> ImageManager::getDefaultImage()
             rect.y = y * 16;
             rect.w = 16;
             rect.h = 16;
-            Uint32 color;
+            uint32_t color;
             if (z % 2 != 0)
             {
                 color = SDL_MapRGBA(surface->format, 0, 0, 0, 255);      // black

@@ -276,7 +276,7 @@ void vfs_put_bool(vfs_FILE* filewrite, const char* text, bool truth)
 }
 
 //--------------------------------------------------------------------------------------------
-void vfs_put_damage_type( vfs_FILE* filewrite, const char* text, Uint8 damagetype )
+void vfs_put_damage_type( vfs_FILE* filewrite, const char* text, uint8_t damagetype )
 {
     /// @author ZZ
     /// @details This function kinda mimics vfs_printf for the output of
@@ -303,7 +303,7 @@ void vfs_put_damage_type( vfs_FILE* filewrite, const char* text, Uint8 damagetyp
 }
 
 //--------------------------------------------------------------------------------------------
-void vfs_put_action( vfs_FILE* filewrite, const char* text, Uint8 action )
+void vfs_put_action( vfs_FILE* filewrite, const char* text, uint8_t action )
 {
     /// @author ZZ
     /// @details This function kinda mimics vfs_printf for the output of

@@ -638,7 +638,7 @@ struct wawalite_data_t;
     struct wawalite_data_t
     {
         uint32_t seed;
-        Sint8 version;
+        int8_t version;
 
         wawalite_water_t      water;
         wawalite_physics_t    phys;

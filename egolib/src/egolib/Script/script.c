@@ -150,7 +150,7 @@ void scr_run_chr_script(Object *pchr)
     script_info_t& script = pchr->getProfile()->getAIScript();
 
     // Has the time for this character to die come and gone?
-    if (aiState.poof_time >= 0 && aiState.poof_time <= (Sint32)update_wld)
+    if (aiState.poof_time >= 0 && aiState.poof_time <= (int32_t)update_wld)
     {
         return;
     }
@@ -307,7 +307,7 @@ void scr_run_chr_script(const ObjectRef character)
 //--------------------------------------------------------------------------------------------
 bool script_state_t::run_function_call(ai_state_t& aiState, script_info_t& script)
 {
-    Uint8  functionreturn;
+    uint8_t  functionreturn;
 
     // check for valid execution pointer
     if (script.get_pos() >= script._instructions.getNumberOfInstructions()) return false;
@@ -393,7 +393,7 @@ bool script_state_t::run_operation(ai_state_t& aiState, script_info_t& script)
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 script_state_t::run_function(ai_state_t& aiState, script_info_t& script)
+uint8_t script_state_t::run_function(ai_state_t& aiState, script_info_t& script)
 {
     auto constantIndex = script._instructions[script.get_pos()].getValueBits();
     const auto& constant = script._instructions.getConstantPool().getConstant(constantIndex);
@@ -811,7 +811,7 @@ void set_alerts(const ObjectRef character)
 }
 
 //--------------------------------------------------------------------------------------------
-void issue_order(const ObjectRef character, Uint32 value)
+void issue_order(const ObjectRef character, uint32_t value)
 {
     /// @author ZZ
     /// @details This function issues an value for help to all teammates
@@ -950,7 +950,7 @@ void ai_state_t::reset(ai_state_t& self)
     self.astar_timer = 0;
 }
 
-bool ai_state_t::add_order(ai_state_t& self, Uint32 value, Uint16 counter)
+bool ai_state_t::add_order(ai_state_t& self, uint32_t value, uint16_t counter)
 {
     // this function is only truely valid if there is no other order
     bool retval = HAS_NO_BITS(self.alert, ALERTIF_ORDERED);

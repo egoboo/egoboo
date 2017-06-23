@@ -133,7 +133,7 @@ int font_bmp_length_of_word( const std::string& szText )
     // Count all preceeding spaces
     int x = 0;
     int cnt = 0;
-    Uint8 cTmp = szText[cnt];
+    uint8_t cTmp = szText[cnt];
 
     while ( ' ' == cTmp || '~' == cTmp || C_LINEFEED_CHAR == cTmp )
     {

@@ -19,7 +19,7 @@
 #include "egolib/Float.hpp"
 
 uint32_t float_toBits(float x) {
-	union { Uint32 i; float f; } val;
+	union { uint32_t i; float f; } val;
 	val.f = x;
 	return val.i;
 }

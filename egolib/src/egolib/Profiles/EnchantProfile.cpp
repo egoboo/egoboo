@@ -270,7 +270,7 @@ std::shared_ptr<EnchantProfile> EnchantProfile::readFromFile(const std::string& 
     profile->_name = pathname;
 
     // Limit the endsound_index.
-    profile->endsound_index = Ego::Math::constrain<Sint16>(profile->endsound_index, INVALID_SOUND_ID, MAX_WAVE);
+    profile->endsound_index = Ego::Math::constrain<int16_t>(profile->endsound_index, INVALID_SOUND_ID, MAX_WAVE);
 
     return profile;
 }
