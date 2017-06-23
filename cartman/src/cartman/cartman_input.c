@@ -38,7 +38,7 @@ Cartman::Input::~Input()
 }
 
 //--------------------------------------------------------------------------------------------
-bool check_keys( Uint32 resolution )
+bool check_keys( uint32_t resolution )
 {
     static int last_tick = -1;
     int tick;

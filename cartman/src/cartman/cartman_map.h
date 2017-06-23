@@ -55,9 +55,9 @@ struct cartman_mpd_create_info_t
 //--------------------------------------------------------------------------------------------
 struct tile_line_data_t
 {
-    Uint32    count;
-    Uint8     start[MAP_FAN_TYPE_MAX];
-    Uint8     end[MAP_FAN_TYPE_MAX];
+    uint32_t  count;
+    uint8_t   start[MAP_FAN_TYPE_MAX];
+    uint8_t   end[MAP_FAN_TYPE_MAX];
 };
 
 //--------------------------------------------------------------------------------------------
@@ -197,8 +197,8 @@ struct cartman_mpd_t
      * @default
      *  <tt>MAP_VERTICES_MAX</tt>
      */
-    Uint32 vrt_free;
-    Uint32 vrt_at;                          // Current vertex check for new
+    uint32_t vrt_free;
+    uint32_t vrt_at;                          // Current vertex check for new
     std::array<Cartman::mpd_vertex_t, MAP_VERTICES_MAX> vrt2;
 
     cartman_mpd_info_t   info;
@@ -210,7 +210,7 @@ struct cartman_mpd_t
      * @default
      *  All y-coordinates are mapped to fan index @a 0.
      */
-    std::array<Uint32,MAP_TILE_MAX_Y> fanstart2;
+    std::array<uint32_t,MAP_TILE_MAX_Y> fanstart2;
 
     /**
      * @brief
@@ -487,7 +487,7 @@ void cartman_mpd_make_fanstart(cartman_mpd_t *self);
 void cartman_mpd_free_vertices(cartman_mpd_t *self);
 
 bool cartman_mpd_link_vertex(cartman_mpd_t *self, int iparent, int child);
-Uint8 cartman_mpd_get_fan_twist(cartman_mpd_t *self, Uint32 fan);
+uint8_t cartman_mpd_get_fan_twist(cartman_mpd_t *self, uint32_t fan);
 
 //--------------------------------------------------------------------------------------------
 

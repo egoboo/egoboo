@@ -565,7 +565,7 @@ void select_lst_add_rect( select_lst_t& plst, const Vector3f& a, const Vector3f&
 {
     // ZZ> This function checks the rectangular selection
 
-    Uint32 ivrt;
+    uint32_t ivrt;
 
     float xmin, ymin, zmin;
     float xmax, ymax, zmax;
@@ -639,7 +639,7 @@ void select_lst_remove_rect( select_lst_t& plst, const Vector3f& a, const Vector
 
     if ( mode == WINMODE_VERTEX )
     {
-		Uint32 ivrt;
+		uint32_t ivrt;
         for ( ivrt = 0; ivrt < MAP_VERTICES_MAX; ivrt++)
         {
             Cartman::mpd_vertex_t& pvrt = pmesh->vrt2[ivrt];
@@ -655,7 +655,7 @@ void select_lst_remove_rect( select_lst_t& plst, const Vector3f& a, const Vector
     }
     else if ( mode == WINMODE_SIDE )
     {
-		Uint32 ivrt;
+		uint32_t ivrt;
         for ( ivrt = 0; ivrt < MAP_VERTICES_MAX; ivrt++)
         {
             Cartman::mpd_vertex_t& pvrt = pmesh->vrt2[ivrt];
@@ -692,7 +692,7 @@ int nearest_edge_vertex( cartman_mpd_t& mesh, Index2D index2d, float nearx, floa
     int num = pdef->numvertices;
     if ( num > 4 )
     {
-        Uint32 ivrt = pfan->vrtstart;
+        uint32_t ivrt = pfan->vrtstart;
 
         // skip over the 4 corner vertices
         for ( int cnt = 0; cnt < 4 && CHAINEND != ivrt; cnt++ )
@@ -780,7 +780,7 @@ void mesh_select_set_z_no_bound( select_lst_t& plst, float z )
 
     for ( int cnt = 0; cnt < plst.count(); cnt++ )
     {
-        Uint32 vert = select_lst_t::at(plst, cnt);
+        uint32_t vert = select_lst_t::at(plst, cnt);
         if ( vert > pmesh->info.getVertexCount() ) continue;
 
         pmesh->vrt2[vert].z = z;
@@ -818,7 +818,7 @@ void mesh_select_verts_connected(select_lst_t& plst) {
 
 			bool select_vertsfan = false;
 
-			Uint32 vert;
+			uint32_t vert;
 			int cnt;
             for ( cnt = 0, vert = pfan->vrtstart;
                   cnt < pdef->numvertices;
@@ -864,7 +864,7 @@ void mesh_select_weld(select_lst_t& plst)
 
         for ( int cnt = 0; cnt < plst.count(); cnt++ )
         {
-            Uint32 vert = select_lst_t::at(plst,cnt);
+            uint32_t vert = select_lst_t::at(plst,cnt);
             if ( CHAINEND == vert ) break;
 
             sum_x += pmesh->vrt2[vert].x;
@@ -903,7 +903,7 @@ void mesh_select_weld(select_lst_t& plst)
 }
 
 //--------------------------------------------------------------------------------------------
-void MeshEditor::mesh_set_tile( cartman_mpd_t& mesh, Uint16 tiletoset, Uint8 upper, Uint16 presser, Uint8 tx )
+void MeshEditor::mesh_set_tile( cartman_mpd_t& mesh, uint16_t tiletoset, uint8_t upper, uint16_t presser, uint8_t tx )
 {
     // ZZ> This function sets one tile type to another
     for (auto it = mesh.info.begin(); it != mesh.info.end(); ++it) {
@@ -944,7 +944,7 @@ void MeshEditor::mesh_set_tile( cartman_mpd_t& mesh, Uint16 tiletoset, Uint8 upp
 }
 
 //--------------------------------------------------------------------------------------------
-void MeshEditor::move_mesh_z( cartman_mpd_t& mesh, int z, Uint16 tiletype, Uint16 tileand )
+void MeshEditor::move_mesh_z( cartman_mpd_t& mesh, int z, uint16_t tiletype, uint16_t tileand )
 {
     tiletype = tiletype & tileand;
 
@@ -987,13 +987,13 @@ void MeshEditor::move_vert( cartman_mpd_t& mesh, int vert, float x, float y, flo
 }
 
 //--------------------------------------------------------------------------------------------
-void MeshEditor::raise_mesh( cartman_mpd_t& mesh, Uint32 point_lst[], size_t point_cnt, float x, float y, int amount, int size )
+void MeshEditor::raise_mesh( cartman_mpd_t& mesh, uint32_t point_lst[], size_t point_cnt, float x, float y, int amount, int size )
 {
     if ( NULL == point_lst || 0 == point_cnt ) return;
 
     for ( size_t cnt = 0; cnt < point_cnt; cnt++ )
     {
-        Uint32 vert = point_lst[cnt];
+        uint32_t vert = point_lst[cnt];
         if ( !CART_VALID_VERTEX_RANGE( vert ) ) break;
 
         float disx = mesh.vrt2[vert].x - x;
@@ -1018,7 +1018,7 @@ void MeshEditor::level_vrtz( cartman_mpd_t& mesh )
 			tile_definition_t *pdef = tile_dict.get(pfan->type);
             if ( NULL == pdef ) continue;
 
-            Uint32 vert = pfan->vrtstart;
+            uint32_t vert = pfan->vrtstart;
             for ( int cnt = 0; cnt < pdef->numvertices; cnt++ )
             {
                 mesh.vrt2[vert].z = 0;
@@ -1049,7 +1049,7 @@ void MeshEditor::jitter_mesh( cartman_mpd_t& mesh )
 
             // add all the tile vertices
 			int cnt;
-			Uint32 vert;
+			uint32_t vert;
             for ( cnt = 0, vert = pfan->vrtstart;
                   cnt < num;
                   cnt++, vert = mesh.vrt2[vert].next)
@@ -1077,7 +1077,7 @@ void MeshEditor::flatten_mesh( cartman_mpd_t& mesh, int y0 )
 
             int num = pdef->numvertices;
 
-            Uint32 vert = pfan->vrtstart;
+            uint32_t vert = pfan->vrtstart;
             for ( int cnt = 0; cnt < num; cnt++ )
             {
                 float ftmp = mesh.vrt2[vert].z - height;
@@ -1094,7 +1094,7 @@ void MeshEditor::flatten_mesh( cartman_mpd_t& mesh, int y0 )
 }
 
 //--------------------------------------------------------------------------------------------
-void MeshEditor::clear_mesh( cartman_mpd_t& mesh, Uint8 upper, Uint16 presser, Uint8 tx, Uint8 type )
+void MeshEditor::clear_mesh( cartman_mpd_t& mesh, uint8_t upper, uint16_t presser, uint8_t tx, uint8_t type )
 {
     int loc_type = type;
 
@@ -1139,7 +1139,7 @@ void MeshEditor::clear_mesh( cartman_mpd_t& mesh, Uint8 upper, Uint16 presser, U
 }
 
 //--------------------------------------------------------------------------------------------
-void MeshEditor::three_e_mesh( cartman_mpd_t& mesh, Uint8 upper, Uint8 tx )
+void MeshEditor::three_e_mesh( cartman_mpd_t& mesh, uint8_t upper, uint8_t tx )
 {
     // ZZ> Replace all 3F tiles with 3E tiles...
     if ( TILE_IS_FANOFF( TILE_SET_BITS( upper, tx ) ) )
@@ -1187,7 +1187,7 @@ void MeshEditor::set_barrier_height( cartman_mpd_t& mesh, const Index2D& index2d
     // fan is defined?
 	tile_definition_t *pdef = tile_dict.get(pfan->type);
     if ( NULL == pdef || 0 == pdef->numvertices ) return;
-    Uint32 vert_count = pdef->numvertices;
+    uint32_t vert_count = pdef->numvertices;
 
     // must not be a passable floor
     if ( fan_isPassableFloor( mesh,  index2d ) ) return;
@@ -1209,14 +1209,14 @@ void MeshEditor::set_barrier_height( cartman_mpd_t& mesh, const Index2D& index2d
     if ( noedges && nocorners ) return;
 
     // initialize the min/max values
-    Uint32 vert   = pfan->vrtstart;
+    uint32_t vert = pfan->vrtstart;
     corner_hgt[0] = mesh.vrt2[vert].z;
     float min_hgt = corner_hgt[0];
     float max_hgt = corner_hgt[0];
     vert = mesh.vrt2[vert].next;
 
     // iterate through the corners
-    for (Uint32 cnt = 1; cnt < 4 && CHAINEND != vert; vert = mesh.vrt2[vert].next, cnt++)
+    for (uint32_t cnt = 1; cnt < 4 && CHAINEND != vert; vert = mesh.vrt2[vert].next, cnt++)
     {
         corner_hgt[cnt] = mesh.vrt2[vert].z;
 		min_hgt = std::min(min_hgt, corner_hgt[cnt]);
@@ -1224,7 +1224,7 @@ void MeshEditor::set_barrier_height( cartman_mpd_t& mesh, const Index2D& index2d
     }
 
     // correct all vertices
-    for (Uint32 cnt = 0, vert = pfan->vrtstart; cnt < vert_count && CHAINEND != vert; cnt++, vert = mesh.vrt2[vert].next)
+    for (uint32_t cnt = 0, vert = pfan->vrtstart; cnt < vert_count && CHAINEND != vert; cnt++, vert = mesh.vrt2[vert].next)
     {
         float ftmp, weight;
 
@@ -1385,7 +1385,7 @@ void MeshEditor::impass_edges( cartman_mpd_t& mesh, int amount )
 }
 
 //--------------------------------------------------------------------------------------------
-void MeshEditor::mesh_replace_fx( cartman_mpd_t& mesh, Uint16 fx_bits, Uint16 fx_mask, Uint8 fx_new )
+void MeshEditor::mesh_replace_fx( cartman_mpd_t& mesh, uint16_t fx_bits, uint16_t fx_mask, uint8_t fx_new )
 {
     // ZZ> This function sets the fx for a group of tiles
 
@@ -1405,7 +1405,7 @@ void MeshEditor::mesh_replace_fx( cartman_mpd_t& mesh, Uint16 fx_bits, Uint16 fx
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-Uint8 tile_is_different( cartman_mpd_t& mesh, Index2D index2d, Uint16 fx_bits, Uint16 fx_mask )
+uint8_t tile_is_different( cartman_mpd_t& mesh, Index2D index2d, uint16_t fx_bits, uint16_t fx_mask )
 {
     // ZZ> false if of same set, true if different
     cartman_mpd_tile_t *pfan = mesh.get_pfan(index2d);
@@ -1428,12 +1428,12 @@ Uint8 tile_is_different( cartman_mpd_t& mesh, Index2D index2d, Uint16 fx_bits, U
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 trim_code( cartman_mpd_t& mesh, const Index2D& index2d, Uint16 fx_bits )
+uint16_t trim_code( cartman_mpd_t& mesh, const Index2D& index2d, uint16_t fx_bits )
 {
     // ZZ> This function returns the standard tile set value thing...  For
     //     Trimming tops of walls and floors
 
-    Uint16 code;
+    uint16_t code;
 
     if (tile_is_different(mesh, {index2d.x(), index2d.y() - 1}, fx_bits, 0xF0))
     {
@@ -1514,12 +1514,12 @@ Uint16 trim_code( cartman_mpd_t& mesh, const Index2D& index2d, Uint16 fx_bits )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 wall_code( cartman_mpd_t& mesh, const Index2D& index2d, Uint16 fx_bits )
+uint16_t wall_code( cartman_mpd_t& mesh, const Index2D& index2d, uint16_t fx_bits )
 {
     // ZZ> This function returns the standard tile set value thing...  For
     //     Trimming tops of walls and floors
 
-    Uint16 code;
+    uint16_t code;
 
     if (tile_is_different(mesh, {index2d.x(), index2d.y() - 1}, fx_bits, 0xC0))
     {
@@ -1602,7 +1602,7 @@ Uint16 wall_code( cartman_mpd_t& mesh, const Index2D& index2d, Uint16 fx_bits )
 }
 
 //--------------------------------------------------------------------------------------------
-void trim_mesh_tile( cartman_mpd_t& mesh, Uint16 fx_bits, Uint16 fx_mask )
+void trim_mesh_tile( cartman_mpd_t& mesh, uint16_t fx_bits, uint16_t fx_mask )
 {
     // ZZ> This function trims walls and floors and tops automagically
     fx_bits = fx_bits & fx_mask;
@@ -1632,7 +1632,7 @@ void trim_mesh_tile( cartman_mpd_t& mesh, Uint16 fx_bits, Uint16 fx_mask )
 }
 
 //--------------------------------------------------------------------------------------------
-void MeshEditor::mesh_replace_tile(cartman_mpd_t& mesh, int _xfan, int _yfan, int _onfan, Uint8 _tx, Uint8 _upper, Uint8 _fx, Uint8 _type, Uint16 _presser, bool tx_only, bool at_floor_level)
+void MeshEditor::mesh_replace_tile(cartman_mpd_t& mesh, int _xfan, int _yfan, int _onfan, uint8_t _tx, uint8_t _upper, uint8_t _fx, uint8_t _type, uint16_t _presser, bool tx_only, bool at_floor_level)
 {
     cart_vec_t pos[CORNER_COUNT];
     int tx_bits;
@@ -1735,7 +1735,7 @@ void MeshEditor::setFX( cartman_mpd_t& mesh, int ifan, uint8_t fx )
 //--------------------------------------------------------------------------------------------
 void MeshEditor::mesh_move( cartman_mpd_t& mesh, float dx, float dy, float dz )
 {
-    Uint32 vert;
+    uint32_t vert;
     int cnt;
 
     cartman_mpd_tile_t * pfan   = NULL;

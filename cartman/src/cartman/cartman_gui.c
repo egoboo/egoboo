@@ -118,7 +118,7 @@ namespace Cartman { namespace Gui {
 
 Window::Window() : on(false), border() {}
 
-void Window::load_window(int id, const std::string& loadname, Point2i position, Size2i borderSize, Size2i size, Uint16 mode, cartman_mpd_t * pmesh) {
+void Window::load_window(int id, const std::string& loadname, Point2i position, Size2i borderSize, Size2i size, uint16_t mode, cartman_mpd_t * pmesh) {
     if (NULL == pmesh) pmesh = &mesh;
 
     this->border.loadTexture(loadname);
