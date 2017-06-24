@@ -39,16 +39,16 @@
 // wrap generic bitwise conversion macros
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-Uint8  BIT_FIELD_clip_to_08_bits( BIT_FIELD val )  { return val & 0xFF;      }
+uint8_t  BIT_FIELD_clip_to_08_bits( BIT_FIELD val )  { return val & 0xFF;      }
 
 //--------------------------------------------------------------------------------------------
-Uint16 BIT_FIELD_clip_to_16_bits( BIT_FIELD val )  { return val & 0xFFFF;     }
+uint16_t BIT_FIELD_clip_to_16_bits( BIT_FIELD val )  { return val & 0xFFFF;     }
 
 //--------------------------------------------------------------------------------------------
-Uint32 BIT_FIELD_clip_to_24_bits( BIT_FIELD val )  { return val & 0xFFFFFF;   }
+uint32_t BIT_FIELD_clip_to_24_bits( BIT_FIELD val )  { return val & 0xFFFFFF;   }
 
 //--------------------------------------------------------------------------------------------
-Uint32 BIT_FIELD_clip_to_32_bits( BIT_FIELD val )  { return val & 0xFFFFFFFF; }
+uint32_t BIT_FIELD_clip_to_32_bits( BIT_FIELD val )  { return val & 0xFFFFFFFF; }
 
 //--------------------------------------------------------------------------------------------
 // wrap the BIT_FIELD macros, since lua doesn't recognize bitwise functions
@@ -289,14 +289,14 @@ bool Compass( Vector2f& pos, int facing, float distance )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint32 UpdateTime( Uint32 time_val, int delay )
+uint32_t UpdateTime( uint32_t time_val, int delay )
 {
     // UpdateTime( tmpargument = "time" )
     /// @author ZZ
     /// @details This function sets the character's ai timer.  50 clicks per second.
     /// Used in conjunction with IfTimeOut
 
-    Uint32 new_time_val;
+    uint32_t new_time_val;
 
     if ( delay <= 0 )
     {
@@ -312,7 +312,7 @@ Uint32 UpdateTime( Uint32 time_val, int delay )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const int starttile, const int passageID, int *ptilex, int *ptiley )
+uint8_t BreakPassage( int mesh_fx_or, const uint16_t become, const int frames, const int starttile, const int passageID, int *ptilex, int *ptiley )
 {
     /// @author ZZ
     /// @details This function breaks the tiles of a passage if there is a character standing
@@ -331,7 +331,7 @@ Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const
 	int loc_starttile = Ego::Math::clipBits<8>( starttile );
 
     // same with the end tile
-	Uint32 endtile = Ego::Math::constrain(loc_starttile + frames - 1, 0, 255);
+	uint32_t endtile = Ego::Math::constrain(loc_starttile + frames - 1, 0, 255);
 
 	bool useful = false;
     for(const std::shared_ptr<Object> &pchr : _currentModule->getObjectHandler().iterator())
@@ -352,8 +352,8 @@ Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const
 
 		ego_tile_info_t& ptile = mesh->getTileInfo(fan);
         {
-            Uint16 img      = ptile._img & TILE_LOWER_MASK;
-            Uint16 highbits = ptile._img & TILE_UPPER_MASK;
+            uint16_t img      = ptile._img & TILE_LOWER_MASK;
+            uint16_t highbits = ptile._img & TILE_UPPER_MASK;
 
             if ( img >= loc_starttile && img < endtile )
             {
@@ -391,7 +391,7 @@ Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 AddEndMessage( Object * pchr, const int message_index, script_state_t * pstate )
+uint8_t AddEndMessage( Object * pchr, const int message_index, script_state_t * pstate )
 {
     /// @author ZZ
     /// @details This function appends a message to the end-module text
@@ -406,7 +406,7 @@ Uint8 AddEndMessage( Object * pchr, const int message_index, script_state_t * ps
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 FindTileInPassage( const int x0, const int y0, const int tiletype, const int passageID, int *px1, int *py1 )
+uint8_t FindTileInPassage( const int x0, const int y0, const int tiletype, const int passageID, int *px1, int *py1 )
 {
     /// @author ZZ
     /// @details This function finds the next tile in the passage, x0 and y0
@@ -460,7 +460,7 @@ Uint8 FindTileInPassage( const int x0, const int y0, const int tiletype, const i
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 _display_message( const ObjectRef ichr, const PRO_REF iprofile, const int message, script_state_t * pstate )
+uint8_t _display_message( const ObjectRef ichr, const PRO_REF iprofile, const int message, script_state_t * pstate )
 {
     /// @author ZZ
     /// @details This function sticks a message_offset in the display queue and sets its timer
@@ -552,7 +552,7 @@ ObjectRef FindWeapon( Object * pchr, float max_distance, const IDSZ2& weap_idsz,
 }
 
 //--------------------------------------------------------------------------------------------
-bool FlashObject( Object * pchr, Uint8 value )
+bool FlashObject( Object * pchr, uint8_t value )
 {
     /// @author ZZ
     /// @details This function sets a character's lighting

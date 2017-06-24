@@ -55,19 +55,19 @@ struct line_of_sight_info_t;
 
 /// @ingroup _bitwise_functions_
 /// @details wrapper for CLIP_TO_08BITS() macro
-Uint8 BIT_FIELD_clip_to_08_bits( BIT_FIELD val );
+uint8_t BIT_FIELD_clip_to_08_bits( BIT_FIELD val );
 
 /// @ingroup _bitwise_functions_
 /// @details wrapper for Ego::Math::clipBits<16>() macro
-Uint16 BIT_FIELD_clip_to_16_bits( BIT_FIELD val );
+uint16_t BIT_FIELD_clip_to_16_bits( BIT_FIELD val );
 
 /// @ingroup _bitwise_functions_
 /// @details wrapper for CLIP_TO_24BITS() macro
-Uint32 BIT_FIELD_clip_to_24_bits( BIT_FIELD val );
+uint32_t BIT_FIELD_clip_to_24_bits( BIT_FIELD val );
 
 /// @ingroup _bitwise_functions_
 /// @details wrapper for CLIP_TO_32BITS() macro
-Uint32 BIT_FIELD_clip_to_32_bits( BIT_FIELD val );
+uint32_t BIT_FIELD_clip_to_32_bits( BIT_FIELD val );
 
 /// @ingroup _bitwise_functions_
 /// @details wrapper for FILL_BIT_FIELD() macro
@@ -141,16 +141,16 @@ bool Compass( Vector2f& pos, int facing, float distance );
 /// Used in conjunction with IfTimeOut
 ///
 /// @lua selftimer = UpdateTime( selftimer = "time", tmpargument = "delay" )
-Uint32 UpdateTime( Uint32 time_val, int delay );
+uint32_t UpdateTime( uint32_t time_val, int delay );
 
 /// @author ZZ
 /// @details This function breaks the tiles of a passage if there is a character standing
 ///               on 'em.  Turns the tiles into damage terrain if it reaches last frame.
-Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const int starttile, const int passageID, int *ptilex, int *ptiley );
+uint8_t BreakPassage( int mesh_fx_or, const uint16_t become, const int frames, const int starttile, const int passageID, int *ptilex, int *ptiley );
 
 /// @author ZZ
 /// @details This function appends a message to the end-module text
-Uint8 AddEndMessage( Object * pchr, const int message_index, script_state_t * pstate );
+uint8_t AddEndMessage( Object * pchr, const int message_index, script_state_t * pstate );
 
 /// @author ZZ
 /// @details This function finds the next tile in the passage, x0 and y0

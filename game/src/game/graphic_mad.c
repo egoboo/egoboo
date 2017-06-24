@@ -249,7 +249,7 @@ gfx_rv ObjectGraphicsRenderer::render_tex(Camera& camera, const std::shared_ptr<
                 size_t vertexBufferSize = 0;
                 auto* targetVertex = (Ego::Graphics::DefaultMd2ModelRenderer::Vertex *)md2ModelRenderer.lock();
                 for (const id_glcmd_packed_t &cmd : glcommand.data) {
-                    Uint16 vertexIndex = cmd.index;
+                    uint16_t vertexIndex = cmd.index;
                     if (vertexIndex >= pchr->inst.getVertexCount()) {
                         continue;
                     }

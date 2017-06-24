@@ -424,11 +424,11 @@ public:
 	ego_tile_info_t& getTileInfo(const Index1D& i);
 	const ego_tile_info_t& getTileInfo(const Index1D& i) const;
 
-    Uint32 test_fx(const Index1D& i, const BIT_FIELD flags) const;
+    uint32_t test_fx(const Index1D& i, const BIT_FIELD flags) const;
 
 	bool clear_fx(const Index1D& i, const BIT_FIELD flags);
 	bool add_fx(const Index1D& i, const BIT_FIELD flags);
-	Uint8 get_twist(const Index1D& i) const;
+	uint8_t get_twist(const Index1D& i) const;
 
 	/// @todo @a pos and @a radius should be passed as a sphere.
 	BIT_FIELD hit_wall(const Vector3f& pos, float radius, const BIT_FIELD bits, Vector2f& nrm, float *pressure, const mesh_wall_data_t& data) const;
@@ -463,7 +463,7 @@ public:
 	bool tile_has_bits(const Index2D& i, const BIT_FIELD bits) const;
 
 	void make_texture();
-	bool set_texture(const Index1D& i, Uint16 image);
+	bool set_texture(const Index1D& i, uint16_t image);
 	bool update_texture(const Index1D& i);
 
 	uint8_t get_fan_twist(const Index1D& i) const;

@@ -613,7 +613,7 @@ void Particle::updateAttachedDamage()
     int max_damage = std::abs(damage.base) + std::abs(damage.rand);
 
     // wait until the right time
-    Uint32 update_count = update_wld + _particleID.get();
+    uint32_t update_count = update_wld + _particleID.get();
     if (0 != (update_count & 31)) return;
 
     // we must be attached to something

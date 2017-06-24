@@ -143,7 +143,7 @@ std::shared_ptr<ego_mesh_t> MeshLoader::convert(const map_t& source) const
     }
 
     // copy some of the pre-calculated grid lighting
-    for (Uint32 cnt = 0; cnt < info_dst.getTileCount(); cnt++ )
+    for (uint32_t cnt = 0; cnt < info_dst.getTileCount(); cnt++ )
     {
         size_t vertex = tmem_dst.get(cnt)._vrtstart;
         ego_tile_info_t& ptile_dst = tmem_dst.get(cnt);
@@ -951,7 +951,7 @@ bool ego_mesh_t::add_fx(const Index1D& i, const BIT_FIELD flags)
     return retval;
 }
 
-Uint32 ego_mesh_t::test_fx(const Index1D& i, const BIT_FIELD flags) const
+uint32_t ego_mesh_t::test_fx(const Index1D& i, const BIT_FIELD flags) const
 {
     // test for a trivial value of flags
     if (EMPTY_BIT_FIELD == flags) return 0;
@@ -1297,7 +1297,7 @@ void ego_mesh_t::recalc_twist() {
 	}
 }
 
-bool ego_mesh_t::set_texture(const Index1D& index1D, Uint16 image)
+bool ego_mesh_t::set_texture(const Index1D& index1D, uint16_t image)
 {
 	if (!grid_is_valid(index1D)) {
 		return false;

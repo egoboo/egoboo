@@ -41,8 +41,8 @@ public:
 private:
     float draw_one_xp_bar(float x, float y, Uint8 ticks);
     float draw_character_xp_bar(const ObjectRef character, float x, float y);
-    float draw_one_bar(Uint8 bartype, float x, float y, int ticks, int maxticks);
-    void  draw_one_character_icon(const ObjectRef item, float x, float y, bool draw_ammo, Uint8 sparkle_override);
+    float draw_one_bar(uint8_t bartype, float x, float y, int ticks, int maxticks);
+    void  draw_one_character_icon(const ObjectRef item, float x, float y, bool draw_ammo, uint8_t sparkle_override);
     std::weak_ptr<Object> _object;
     std::shared_ptr<GUI::ProgressBar> _chargeBar;
 };

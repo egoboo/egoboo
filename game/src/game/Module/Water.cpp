@@ -63,7 +63,7 @@ void water_instance_t::make(const wawalite_water_t& source)
     // Calculate specular highlights
     for (size_t i = 0; i < 256; ++i)
     {
-        Uint8 spek = 0;
+        uint8_t spek = 0;
         if (i > source.spek_start)
         {
             float temp = i - source.spek_start;

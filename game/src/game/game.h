@@ -172,9 +172,9 @@ extern bool    overrideslots;          ///< Override existing slots?
 extern import_list_t g_importList;
 
 // various clocks and timers
-extern Uint32          clock_enc_stat;        ///< For character stat regeneration
-extern Uint32          clock_chr_stat;        ///< For enchant stat regeneration
-extern Uint32          update_wld;            ///< The number of times the game has been updated
+extern uint32_t        clock_enc_stat;        ///< For character stat regeneration
+extern uint32_t        clock_chr_stat;        ///< For enchant stat regeneration
+extern uint32_t        update_wld;            ///< The number of times the game has been updated
 
 // counters for debugging wall collisions
 extern int chr_stoppedby_tests;
@@ -228,7 +228,7 @@ ObjectRef prt_find_target( const Vector3f& pos, Facing facing, const PIP_REF ipi
 
 std::string expandEscapeCodes(const std::shared_ptr<Object> &object, const script_state_t &scriptState, const std::string &text);
 
-Uint8 get_light( int alpha, float seedark_mag );
+uint8_t get_light( int alpha, float seedark_mag );
 
 ObjectRef chr_get_lowest_attachment(ObjectRef object_ref, bool non_item );
 

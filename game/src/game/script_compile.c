@@ -915,7 +915,7 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
 }
 
 //--------------------------------------------------------------------------------------------
-Uint32 parser_state_t::jump_goto( int index, int index_end, script_info_t& script )
+uint32_t parser_state_t::jump_goto( int index, int index_end, script_info_t& script )
 {
     /// @author ZZ
     /// @details This function figures out where to jump to on a fail based on the

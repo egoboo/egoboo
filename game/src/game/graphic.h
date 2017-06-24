@@ -283,9 +283,9 @@ void gfx_system_render_world(const std::shared_ptr<Camera> camera, std::shared_p
 void gfx_do_clear_screen();
 void gfx_do_flip_pages();
 
-float draw_icon_texture(const std::shared_ptr<const Ego::Texture>& ptex, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size, bool useAlpha = false);
-float draw_game_icon(const std::shared_ptr<const Ego::Texture>& icontype, float x, float y, Uint8 sparkle, Uint32 delta_update, float size);
-void draw_blip(float sizeFactor, Uint8 color, float x, float y);
+float draw_icon_texture(const std::shared_ptr<const Ego::Texture>& ptex, float x, float y, uint8_t sparkle_color, uint32_t sparkle_timer, float size, bool useAlpha = false);
+float draw_game_icon(const std::shared_ptr<const Ego::Texture>& icontype, float x, float y, uint8_t sparkle, uint32_t delta_update, float size);
+void draw_blip(float sizeFactor, uint8_t color, float x, float y);
 void draw_mouse_cursor();
 void draw_passages(Camera& cam);
 

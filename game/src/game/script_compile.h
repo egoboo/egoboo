@@ -201,7 +201,7 @@ public:
 private:
 	void emit_opcode(const Ego::Script::PDLToken& token, const BIT_FIELD highbits, script_info_t& script);
 
-	static Uint32 jump_goto(int index, int index_end, script_info_t& script);
+	static uint32_t jump_goto(int index, int index_end, script_info_t& script);
 public:
 	static void parse_jumps(script_info_t& script);
 

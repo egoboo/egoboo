@@ -24,7 +24,7 @@
 #include "game/renderer_3d.h"
 #include "game/Entities/_Include.hpp"
 
-static int get_grip_verts( Uint16 grip_verts[], const ObjectRef imount, int vrt_offset );
+static int get_grip_verts( uint16_t grip_verts[], const ObjectRef imount, int vrt_offset );
 
 static egolib_rv matrix_cache_needs_update( Object * pchr, matrix_cache_t& pmc );
 static bool apply_matrix_cache( Object * pchr, matrix_cache_t& mc_tmp );
@@ -33,8 +33,8 @@ static bool chr_get_matrix_cache( Object * pchr, matrix_cache_t& mc_tmp );
 static bool apply_one_character_matrix( Object * pchr, matrix_cache_t& mcache );
 static bool apply_one_weapon_matrix( Object * pweap, matrix_cache_t& mcache );
 
-static int convert_grip_to_local_points( Object * pholder, Uint16 grip_verts[], Vector4f   dst_point[] );
-static int convert_grip_to_global_points( const ObjectRef iholder, Uint16 grip_verts[], Vector4f   dst_point[] );
+static int convert_grip_to_local_points( Object * pholder, uint16_t grip_verts[], Vector4f   dst_point[] );
+static int convert_grip_to_global_points( const ObjectRef iholder, uint16_t grip_verts[], Vector4f   dst_point[] );
 
 
 bool matrix_cache_t::isValid() const {
@@ -119,7 +119,7 @@ bool chr_matrix_valid(const Object *pobj) {
 }
 
 
-int get_grip_verts( Uint16 grip_verts[], const ObjectRef imount, int vrt_offset )
+int get_grip_verts( uint16_t grip_verts[], const ObjectRef imount, int vrt_offset )
 {
     /// @author BB
     /// @details Fill the grip_verts[] array from the mount's data.
@@ -251,7 +251,7 @@ bool chr_get_matrix_cache( Object * pchr, matrix_cache_t& mc_tmp )
 }
 
 //--------------------------------------------------------------------------------------------
-int convert_grip_to_local_points( Object * pholder, Uint16 grip_verts[], Vector4f dst_point[] )
+int convert_grip_to_local_points( Object * pholder, uint16_t grip_verts[], Vector4f dst_point[] )
 {
     /// @author ZZ
     /// @details a helper function for apply_one_weapon_matrix()
@@ -306,7 +306,7 @@ int convert_grip_to_local_points( Object * pholder, Uint16 grip_verts[], Vector4
 }
 
 //--------------------------------------------------------------------------------------------
-int convert_grip_to_global_points( const ObjectRef iholder, Uint16 grip_verts[], Vector4f   dst_point[] )
+int convert_grip_to_global_points( const ObjectRef iholder, uint16_t grip_verts[], Vector4f   dst_point[] )
 {
     /// @author ZZ
     /// @details a helper function for apply_one_weapon_matrix()
@@ -673,7 +673,7 @@ bool chr_calc_grip_cv( Object * pmount, int grip_offset, oct_bb_t * grip_cv_ptr,
     oct_bb_t         tmp_cv;
 
     int      grip_count;
-    Uint16   grip_verts[GRIP_VERTS];
+    uint16_t grip_verts[GRIP_VERTS];
 	Vector4f grip_points[GRIP_VERTS];
 	Vector4f grip_nupoints[GRIP_VERTS];
     bumper_t bmp;
@@ -781,7 +781,7 @@ bool chr_calc_grip_cv( Object * pmount, int grip_offset, oct_bb_t * grip_cv_ptr,
 }
 
 //--------------------------------------------------------------------------------------------
-bool set_weapongrip( const ObjectRef iitem, const ObjectRef iholder, Uint16 vrt_off )
+bool set_weapongrip( const ObjectRef iitem, const ObjectRef iholder, uint16_t vrt_off )
 {
     uint16_t grip_verts[GRIP_VERTS];
 

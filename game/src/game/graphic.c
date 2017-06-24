@@ -264,7 +264,7 @@ void gfx_system_reload_all_textures()
 //--------------------------------------------------------------------------------------------
 // 2D RENDERER FUNCTIONS
 //--------------------------------------------------------------------------------------------
-void draw_blip(float sizeFactor, Uint8 color, float x, float y)
+void draw_blip(float sizeFactor, uint8_t color, float x, float y)
 {
     /// @author ZZ
     /// @details This function draws a single blip
@@ -302,7 +302,7 @@ void draw_blip(float sizeFactor, Uint8 color, float x, float y)
 }
 
 //--------------------------------------------------------------------------------------------
-float draw_icon_texture(const std::shared_ptr<const Ego::Texture>& ptex, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size, bool useAlpha)
+float draw_icon_texture(const std::shared_ptr<const Ego::Texture>& ptex, float x, float y, uint8_t sparkle_color, uint32_t sparkle_timer, float size, bool useAlpha)
 {
     float       width, height;
     ego_frect_t tx_rect;
@@ -369,7 +369,7 @@ float draw_icon_texture(const std::shared_ptr<const Ego::Texture>& ptex, float x
 }
 
 //--------------------------------------------------------------------------------------------
-float draw_game_icon(const std::shared_ptr<const Ego::Texture>& icontype, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size)
+float draw_game_icon(const std::shared_ptr<const Ego::Texture>& icontype, float x, float y, uint8_t sparkle_color, uint32_t sparkle_timer, float size)
 {
     /// @author ZZ
     /// @details This function draws an icon
@@ -1520,11 +1520,11 @@ gfx_rv gfx_make_dynalist(dynalist_t& dyl, Camera& cam)
     dynalight_data_t * plight_max = NULL;
 
     // HACK: if dynalist is ahead of the game by 30 frames or more, reset and force an update
-    if ((Uint32)(dyl.frame + 30) >= _gameEngine->getNumberOfFramesRendered())
+    if ((uint32_t)(dyl.frame + 30) >= _gameEngine->getNumberOfFramesRendered())
         dyl.frame = -1;
 
     // do not update the dynalist more than once a frame
-    if (dyl.frame >= 0 && (Uint32)dyl.frame >= _gameEngine->getNumberOfFramesRendered())
+    if (dyl.frame >= 0 && (uint32_t)dyl.frame >= _gameEngine->getNumberOfFramesRendered())
     {
         return gfx_success;
     }
