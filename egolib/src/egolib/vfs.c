@@ -1172,7 +1172,7 @@ int vfs_write<uint8_t>( vfs_FILE& file, const uint8_t& val )
     }
     else if ( VFS_FILE_TYPE_PHYSFS == file.type )
     {
-        retval = PHYSFS_write(file.ptr.p, &val, 1, sizeof(int8_t));
+        retval = PHYSFS_write(file.ptr.p, &val, 1, sizeof(uint8_t));
         
         error = ( 1 != retval );
         
@@ -1383,7 +1383,7 @@ int vfs_write<float>( vfs_FILE& file, const float& val )
     if ( VFS_FILE_TYPE_CSTDIO == file.type )
     {
         float ftmp = ENDIAN_TO_FILE_IEEE32(val);
-        retval = fread( &ftmp, 1, sizeof( float ), file.ptr.c );
+        retval = fwrite( &ftmp, 1, sizeof( float ), file.ptr.c );
         
         error = ( 1 != retval );
     }
