@@ -24,7 +24,7 @@
 #include "egolib/FileFormats/map_file.h"
 #include "egolib/Mesh/Info.hpp"
 
-bool twist_to_normal( Uint8 twist, Vector3f& v, float slide )
+bool twist_to_normal( uint8_t twist, Vector3f& v, float slide )
 {
     float diff_xy = 128.0f / slide;
 
@@ -122,7 +122,7 @@ void map_generate_tile_twist_data( map_t& mesh )
         }
     }
 }
-bool map_has_some_fx_itile( map_t * pmesh, int itile, Uint8 test_fx ) {
+bool map_has_some_fx_itile( map_t * pmesh, int itile, uint8_t test_fx ) {
 	if (!pmesh) {
 		throw std::runtime_error("nullptr == pmesh");
 	}
@@ -130,7 +130,7 @@ bool map_has_some_fx_itile( map_t * pmesh, int itile, Uint8 test_fx ) {
     return HAS_SOME_BITS( tile_fx, test_fx );
 }
 
-bool map_has_some_fx_pos( map_t * pmesh, Index2D index2d, Uint8 test_fx ) {
+bool map_has_some_fx_pos( map_t * pmesh, Index2D index2d, uint8_t test_fx ) {
 	if (!pmesh) {
 		throw std::runtime_error("nullptr == pmesh");
 	}
@@ -146,8 +146,8 @@ void map_generate_fan_type_data( map_t& mesh )
     size_t   tile_x, tile_y;
     int      step_x, step_y;
     int      tile_type;
-    Uint32   WALL_BITS = MAPFX_WALL | MAPFX_IMPASS;
-    Uint8 *  ary = NULL;
+    uint32_t WALL_BITS = MAPFX_WALL | MAPFX_IMPASS;
+    uint8_t *ary = NULL;
 
     enum { FLOOR = 'F', WALL = 'W', ROCK = 'R' };
 
@@ -156,7 +156,7 @@ void map_generate_fan_type_data( map_t& mesh )
 
     // allocate a temp array
 	try {
-		ary = new Uint8[mesh._mem.tiles.size()];
+		ary = new uint8_t[mesh._mem.tiles.size()];
 	} catch (...) {
 		Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to allocate a temporary array", Log::EndOfEntry);
 		throw;
@@ -648,9 +648,9 @@ void map_generate_fan_type_data( map_t& mesh )
     
 	delete[] ary;
 }
-Uint8 cartman_calc_twist( int x, int y )
+uint8_t cartman_calc_twist( int x, int y )
 {
-    Uint8 twist;
+    uint8_t twist;
 
     // x and y should be from -7 to 8
     if ( x < -7 ) x = -7;

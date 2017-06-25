@@ -56,7 +56,7 @@ typedef egolib_rv gfx_rv;
 // Timers
 // HUD
 extern bool timeron;  ///< Game timer displayed?
-extern Uint32 timervalue; ///< Timer time ( 50ths of a second )
+extern uint32_t timervalue; ///< Timer time ( 50ths of a second )
 
 //--------------------------------------------------------------------------------------------
 

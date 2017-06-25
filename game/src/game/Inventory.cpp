@@ -263,7 +263,7 @@ ObjectRef Inventory::hasStack( const ObjectRef item, const ObjectRef character )
         // but they have to have all the same IDSZ properties
         if ( found && ( pstack->getProfile()->getSlotNumber() != pitem->getProfileID() ) )
         {
-            for ( Uint16 id = 0; id < IDSZ_COUNT && found; id++ )
+            for ( uint16_t id = 0; id < IDSZ_COUNT && found; id++ )
             {
                 if ( pstack->getProfile()->getIDSZ(id) != pitem->getProfile()->getIDSZ(id) )
                 {

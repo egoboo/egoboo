@@ -68,7 +68,7 @@ struct Window {
     static constexpr int defaultHeight = 200;
     /// @brief Is the window enabled?
     /// @todo Should be <tt>bool enabled</tt>.
-    Uint8 on;
+    uint8_t on;
 
     /// @brief The window position.
     Point2i position;
@@ -83,7 +83,7 @@ struct Window {
     /// @brief Unique ID of this window.
     int id;
     /// @brief The display mode of this window.
-    Uint16 mode;
+    uint16_t mode;
     /// @brief The mesh,
     cartman_mpd_t *pmesh;  // which mesh
 
@@ -105,7 +105,7 @@ struct Window {
      */
     bool isOver(Point2i p) const;
 
-    void load_window(int id, const std::string& loadname, Point2i position, Size2i borderSize, Size2i size, Uint16 mode, cartman_mpd_t * pmesh);
+    void load_window(int id, const std::string& loadname, Point2i position, Size2i borderSize, Size2i size, uint16_t mode, cartman_mpd_t * pmesh);
     /**
      * @brief
      *  Render the window.

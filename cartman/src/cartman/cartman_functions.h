@@ -70,29 +70,29 @@ void select_lst_remove_rect( select_lst_t& plst, const Vector3f& a, const Vector
 struct MeshEditor {
 
 	// mesh functions
-	static void mesh_set_tile(cartman_mpd_t& mesh, Uint16 tiletoset, Uint8 upper, Uint16 presser, Uint8 tx);
-	static void move_mesh_z(cartman_mpd_t& mesh, int z, Uint16 tiletype, Uint16 tileand);
+	static void mesh_set_tile(cartman_mpd_t& mesh, uint16_t tiletoset, uint8_t upper, uint16_t presser, uint8_t tx);
+	static void move_mesh_z(cartman_mpd_t& mesh, int z, uint16_t tiletype, uint16_t tileand);
 	static void move_vert(cartman_mpd_t& mesh, int vert, float x, float y, float z);
-	static void raise_mesh(cartman_mpd_t& mesh, Uint32 point_lst[], size_t point_count, float x, float y, int amount, int size);
+	static void raise_mesh(cartman_mpd_t& mesh, uint32_t point_lst[], size_t point_count, float x, float y, int amount, int size);
 	static void level_vrtz(cartman_mpd_t& mesh);
 	static void jitter_mesh(cartman_mpd_t& mesh);
 	static void flatten_mesh(cartman_mpd_t& mesh, int y0);
-	static void clear_mesh(cartman_mpd_t& mesh, Uint8 upper, Uint16 presser, Uint8 tx, Uint8 type);
-	static void three_e_mesh(cartman_mpd_t& mesh, Uint8 upper, Uint8 tx);
+	static void clear_mesh(cartman_mpd_t& mesh, uint8_t upper, uint16_t presser, uint8_t tx, uint8_t type);
+	static void three_e_mesh(cartman_mpd_t& mesh, uint8_t upper, uint8_t tx);
 	static bool fan_isPassableFloor(cartman_mpd_t& mesh, const Index2D& index2d);
 	static bool isImpassableWall(cartman_mpd_t& mesh, const Index2D& index2d);
 	static void set_barrier_height(cartman_mpd_t& mesh, const Index2D& index2d);
 	static void fix_walls(cartman_mpd_t& mesh);
 	static void impass_edges(cartman_mpd_t& mesh, int amount);
 
-	static void mesh_replace_fx(cartman_mpd_t& mesh, Uint16 fx_bits, Uint16 fx_mask, Uint8 fx_new);
-	static void mesh_replace_tile(cartman_mpd_t& mesh, int xfan, int yfan, int onfan, Uint8 tx, Uint8 upper, Uint8 fx, Uint8 type, Uint16 presser, bool tx_only, bool at_floor_level);
+	static void mesh_replace_fx(cartman_mpd_t& mesh, uint16_t fx_bits, uint16_t fx_mask, uint8_t fx_new);
+	static void mesh_replace_tile(cartman_mpd_t& mesh, int xfan, int yfan, int onfan, uint8_t tx, uint8_t upper, uint8_t fx, uint8_t type, uint16_t presser, bool tx_only, bool at_floor_level);
 	static void setFX(cartman_mpd_t& mesh, int fan, uint8_t fx);
 	static void mesh_move(cartman_mpd_t& mesh, float dx, float dy, float dz);
 };
 
 // indecipherable legacy code
-Uint8  tile_is_different( cartman_mpd_t& mesh, Index2D index2d, Uint16 fx_bits, Uint16 fx_mask );
-Uint16 trim_code( cartman_mpd_t& mesh, const Index2D& index2d, Uint16 fx_bits );
-Uint16 wall_code( cartman_mpd_t& mesh, const Index2D& index2d, Uint16 fx_bits );
-void   trim_mesh_tile( cartman_mpd_t& mesh, Uint16 fx_bits, Uint16 fx_mask );
+uint8_t  tile_is_different( cartman_mpd_t& mesh, Index2D index2d, uint16_t fx_bits, uint16_t fx_mask );
+uint16_t trim_code( cartman_mpd_t& mesh, const Index2D& index2d, uint16_t fx_bits );
+uint16_t wall_code( cartman_mpd_t& mesh, const Index2D& index2d, uint16_t fx_bits );
+void   trim_mesh_tile( cartman_mpd_t& mesh, uint16_t fx_bits, uint16_t fx_mask );

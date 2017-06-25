@@ -23,7 +23,7 @@
 
 bool SDL_RectIntersect( SDL_Rect * src, SDL_Rect * dst, SDL_Rect * isect )
 {
-    Sint16 xmin, xmax, ymin, ymax;
+    int16_t xmin, xmax, ymin, ymax;
 
     // should not happen
     if ( NULL == src && NULL == dst ) return false;

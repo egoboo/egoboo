@@ -53,7 +53,7 @@ static bool link_push_module();
 //--------------------------------------------------------------------------------------------
 struct s_hero_spawn_data
 {
-    Uint32 object_index;
+    uint32_t object_index;
 	Vector3f pos;
 	Vector3f pos_stt;
 

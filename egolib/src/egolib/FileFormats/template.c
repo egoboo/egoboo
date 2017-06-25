@@ -257,7 +257,7 @@ void template_put_bool( vfs_FILE* filetemp, vfs_FILE* filewrite, bool truth )
 }
 
 //--------------------------------------------------------------------------------------------
-void template_put_damage_type( vfs_FILE* filetemp, vfs_FILE* filewrite, Uint8 damagetype )
+void template_put_damage_type( vfs_FILE* filetemp, vfs_FILE* filewrite, uint8_t damagetype )
 {
     if ( template_copy_to_marker( filetemp, filewrite, "#%" ) )
     {
@@ -288,7 +288,7 @@ void template_put_local_particle_profile_ref(vfs_FILE* filetemp, vfs_FILE* filew
 }
 
 //--------------------------------------------------------------------------------------------
-void template_put_action( vfs_FILE* filetemp, vfs_FILE* filewrite, Uint8 action )
+void template_put_action( vfs_FILE* filetemp, vfs_FILE* filewrite, uint8_t action )
 {
     if ( template_copy_to_marker( filetemp, filewrite, "#%" ) )
     {
@@ -376,7 +376,7 @@ void template_put_idsz( vfs_FILE* filetemp, vfs_FILE* filewrite, const IDSZ2& id
 }
 
 //--------------------------------------------------------------------------------------------
-void template_put_damage_modifier( vfs_FILE* filetemp, vfs_FILE* filewrite, Uint8 mod )
+void template_put_damage_modifier( vfs_FILE* filetemp, vfs_FILE* filewrite, uint8_t mod )
 {
     // this eats two '#'s in the template file
 

@@ -44,14 +44,14 @@ bool Shop::drop(const std::shared_ptr<Object>& dropper, const std::shared_ptr<Ob
             // Are they are trying to sell junk or quest items?
             if (0 == price)
             {
-                ai_state_t::add_order(owner->ai, (Uint32)price, Passage::SHOP_BUY);
+                ai_state_t::add_order(owner->ai, (uint32_t)price, Passage::SHOP_BUY);
             }
             else
             {
                 dropper->giveMoney(price);
                 owner->giveMoney(-price);
 
-                ai_state_t::add_order(owner->ai, (Uint32)price, Passage::SHOP_BUY);
+                ai_state_t::add_order(owner->ai, (uint32_t)price, Passage::SHOP_BUY);
             }
         }
     }
@@ -77,7 +77,7 @@ bool Shop::buy(const std::shared_ptr<Object>& buyer, const std::shared_ptr<Objec
             if (buyer->getMoney() >= price)
             {
                 // Okay to sell
-                ai_state_t::add_order(owner->ai, (Uint32)price, Passage::SHOP_SELL);
+                ai_state_t::add_order(owner->ai, (uint32_t)price, Passage::SHOP_SELL);
 
                 buyer->giveMoney(-price);
                 owner->giveMoney(price);

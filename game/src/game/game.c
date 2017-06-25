@@ -1573,7 +1573,7 @@ bool write_wawalite_vfs(const wawalite_data_t *data)
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 get_light( int light, float seedark_mag )
+uint8_t get_light( int light, float seedark_mag )
 {
     // ZF> Why should Darkvision reveal invisible?
     // BB> This modification makes the character's light (i.e how much it glows)

@@ -51,8 +51,8 @@
 //--------------------------------------------------------------------------------------------
 // 24.8 fixed point types
 
-    typedef Uint32 UFP8_T;
-    typedef Sint32 SFP8_T;
+    typedef uint32_t UFP8_T;
+    typedef int32_t SFP8_T;
 
     /// fast version of V1 / 256
 #   define UFP8_TO_UINT(V1)   ( ((unsigned)(V1)) >> 8 )
@@ -64,12 +64,12 @@
     /// version of V1 / 256.0f
 #   define FP8_TO_FLOAT(V1)   ( (float)(V1) * INV_0100<float>() )
     /// version of V1 * 256.0f
-#   define FLOAT_TO_FP8(V1)   ( (Uint32)((V1) * (float)(0x0100) ) )
+#   define FLOAT_TO_FP8(V1)   ( (uint32_t)((V1) * (float)(0x0100) ) )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // BIT FIELDS
-    typedef Uint32 BIT_FIELD;                              ///< A big string supporting 32 bits
+    typedef uint32_t BIT_FIELD;                            ///< A big string supporting 32 bits
 
 #   define FULL_BIT_FIELD      0x7FFFFFFF                  ///< A bit string where all bits are flagged as 1
 #   define EMPTY_BIT_FIELD     0                           ///< A bit string where all bits are flagged as 0

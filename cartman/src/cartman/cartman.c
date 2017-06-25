@@ -36,7 +36,7 @@ struct light_t
 {
     int           x;
     int           y;
-    Uint8 level;
+    uint8_t level;
     int           radius;
 };
 
@@ -46,7 +46,7 @@ struct light_t
 static void cart_mouse_data_toggle_fx( int fxmask );
 
 // helper functions
-static void cart_mouse_data_mesh_set_tile( Uint16 tiletoset );
+static void cart_mouse_data_mesh_set_tile( uint16_t tiletoset );
 static void cart_mouse_data_flatten_mesh();
 static void cart_mouse_data_clear_mesh();
 static void cart_mouse_data_three_e_mesh();
@@ -60,8 +60,8 @@ static void cart_mouse_data_mesh_replace_fx();
 
 std::string egoboo_path = "";
 
-int     onscreen_count = 0;
-Uint32  onscreen_vert[MAXPOINTS];
+int      onscreen_count = 0;
+uint32_t onscreen_vert[MAXPOINTS];
 
 //--------------------------------------------------------------------------------------------
 
@@ -137,9 +137,9 @@ static void bound_camera( cartman_mpd_info_t * pinfo );
 // misc
 static void mesh_calc_vrta( cartman_mpd_t * pmesh );
 static void fan_calc_vrta( cartman_mpd_t * pmesh, int fan );
-static int  vertex_calc_vrta( cartman_mpd_t * pmesh, Uint32 vert );
+static int  vertex_calc_vrta( cartman_mpd_t * pmesh, uint32_t vert );
 static void make_onscreen();
-static void onscreen_add_fan( cartman_mpd_t * pmesh, Uint32 fan );
+static void onscreen_add_fan( cartman_mpd_t * pmesh, uint32_t fan );
 static void ease_up_mesh( cartman_mpd_t& mesh, float zoom_vrt );
 
 // cartman versions of these functions
@@ -161,11 +161,11 @@ static void main_end();
 
 int          dunframe = 0;
 int          secframe = 0;
-Uint8        lastsecframe = 0;
+uint8_t      lastsecframe = 0;
 volatile int minsecframe = 10000;
 int          worldclock = 0;
 int          seed;
-Uint16       entry;
+uint16_t     entry;
 char         charread;
 FILE        *fileread;
 char         nameread[80];
@@ -312,7 +312,7 @@ struct LightModel {
         int xdraw = (light_lst[number].x / FOURNUM * zoom_hrz) - cam.x + (pwin->size.width() / 2) - SMALLXY;
         int ydraw = (light_lst[number].y / FOURNUM * zoom_hrz) - cam.y + (pwin->size.height() / 2) - SMALLXY;
         int radius = std::abs(light_lst[number].radius) / FOURNUM * zoom_hrz;
-        Uint8 color = light_lst[number].level;
+        uint8_t color = light_lst[number].level;
 
         //color = make_rgb(pwin->bmp, color, color, color);
         //circle(pwin->bmp, xdraw, ydraw, radius, color);
@@ -359,11 +359,11 @@ int cartman_get_vertex( cartman_mpd_t * pmesh, Index2D index2d, int num )
 
 //--------------------------------------------------------------------------------------------
 
-void onscreen_add_fan( cartman_mpd_t * pmesh, Uint32 fan )
+void onscreen_add_fan( cartman_mpd_t * pmesh, uint32_t fan )
 {
     // ZZ> This function flags a fan's points as being "onscreen"
     int cnt;
-    Uint32 vert, fan_type, vert_count;
+    uint32_t vert, fan_type, vert_count;
     cartman_mpd_tile_t * pfan;
 
     if ( NULL == pmesh ) pmesh = &mesh;
@@ -587,7 +587,7 @@ void bound_mouse()
 
 //--------------------------------------------------------------------------------------------
 
-int vertex_calc_vrta( cartman_mpd_t * pmesh, Uint32 vert )
+int vertex_calc_vrta( cartman_mpd_t * pmesh, uint32_t vert )
 {
     int newa, cnt;
     float x, y, z;
@@ -652,7 +652,7 @@ int vertex_calc_vrta( cartman_mpd_t * pmesh, Uint32 vert )
 void fan_calc_vrta( cartman_mpd_t * pmesh, int fan )
 {
     int num, cnt;
-    Uint32 vert;
+    uint32_t vert;
 
     tile_definition_t * pdef;
     cartman_mpd_tile_t * pfan;
@@ -1350,7 +1350,7 @@ bool cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
     {
         if ( VALID_MPD_TILE_RANGE( mdata.win_fan ) )
         {
-            Uint16 tx_bits = pmesh->fan2[mdata.win_fan].tx_bits;
+            uint16_t tx_bits = pmesh->fan2[mdata.win_fan].tx_bits;
             cart_mouse_data_mesh_set_tile( tx_bits );
         }
         Input::get()._keyboard.delay = KEYDELAY;
@@ -1360,8 +1360,8 @@ bool cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
     {
         if ( VALID_MPD_TILE_RANGE( mdata.win_fan ) )
         {
-            Uint8  type    = pmesh->fan2[mdata.win_fan].type;
-            Uint16 tx_bits = pmesh->fan2[mdata.win_fan].tx_bits;
+            uint8_t  type    = pmesh->fan2[mdata.win_fan].type;
+            uint16_t tx_bits = pmesh->fan2[mdata.win_fan].tx_bits;
 
             if ( type >= tile_dict.offset )
             {
@@ -1964,7 +1964,7 @@ Cartman_MouseData *Cartman_MouseData::ctor(Cartman_MouseData *self)
     memset(self, 0, sizeof(*self));
 
     self->win_id = -1;
-    self->win_mode = (Uint16)(~0);
+    self->win_mode = (uint16_t)(~0);
     self->win_fan = -1;
     self->win_fan_x = -1;
     self->win_fan_y = -1;
@@ -1977,7 +1977,7 @@ Cartman_MouseData *Cartman_MouseData::ctor(Cartman_MouseData *self)
     return self;
 }
 
-void cart_mouse_data_mesh_set_tile( Uint16 tiletoset )
+void cart_mouse_data_mesh_set_tile( uint16_t tiletoset )
 {
     MeshEditor::mesh_set_tile(mdata.win_mesh != nullptr ? *mdata.win_mesh : mesh, tiletoset, mdata.upper, mdata.presser, mdata.tx );
 }
@@ -2029,12 +2029,12 @@ void cart_mouse_data_rect_unselect()
 void cart_mouse_data_mesh_replace_fx()
 {
     if ( !VALID_MPD_TILE_RANGE( mdata.win_fan ) ) return;
-    Uint8 type = mdata.win_mesh->fan2[mdata.win_fan].type;
+    uint8_t type = mdata.win_mesh->fan2[mdata.win_fan].type;
 
     tile_definition_t *pdef = tile_dict.get(type);
     if ( NULL == pdef ) return;
 
-    Uint16 tx_bits = mdata.win_mesh->fan2[mdata.win_fan].tx_bits;
+    uint16_t tx_bits = mdata.win_mesh->fan2[mdata.win_fan].tx_bits;
     if ( TILE_IS_FANOFF( tx_bits ) ) return;
 
     if ( type >= tile_dict.offset )

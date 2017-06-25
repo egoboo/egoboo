@@ -40,9 +40,9 @@ map_t *cartman_mpd_revert( map_t *, cartman_mpd_t * );
 
 //--------------------------------------------------------------------------------------------
 
-Uint8 cartman_mpd_calc_twist( int dx, int dy )
+uint8_t cartman_mpd_calc_twist( int dx, int dy )
 {
-    Uint8 twist;
+    uint8_t twist;
 
     // dx and dy should be from -7 to 8
     if ( dx < -7 ) dx = -7;
@@ -258,7 +258,7 @@ int cartman_mpd_t::count_used_vertices()
             int num = tile_dict.def_lst[fan2[ifan].type].numvertices;
 
             int cnt;
-            Uint32 vert;
+            uint32_t vert;
             for (cnt = 0, vert = fan2[ifan].vrtstart;
                  cnt < num && CHAINEND != vert;
                  cnt++, vert = vrt2[vert].next)
@@ -354,7 +354,7 @@ int cartman_mpd_t::find_free_vertex()
     return found ? vrt_at : -1;
 }
 
-Uint8 cartman_mpd_get_fan_twist( cartman_mpd_t * pmesh, Uint32 fan )
+uint8_t cartman_mpd_get_fan_twist( cartman_mpd_t * pmesh, uint32_t fan )
 {
     int vt0 = pmesh->fan2[fan].vrtstart;
     int vt1 = pmesh->vrt2[vt0].next;
@@ -366,7 +366,7 @@ Uint8 cartman_mpd_get_fan_twist( cartman_mpd_t * pmesh, Uint32 fan )
     int zy = ( pmesh->vrt2[vt2].z + pmesh->vrt2[vt3].z - pmesh->vrt2[vt0].z - pmesh->vrt2[vt1].z )
            / CARTMAN_SLOPE;
 
-    Uint8 twist = cartman_mpd_calc_twist( zx, zy );
+    uint8_t twist = cartman_mpd_calc_twist( zx, zy );
 
     return twist;
 }
@@ -459,7 +459,7 @@ int cartman_mpd_allocate_vertex_list(cartman_mpd_t * pmesh, int list[], size_t s
 {
 	size_t cnt, valid_verts;
 	int allocated = 0;
-    Uint32 vrt_at_old = 0, vrt_free_old = MAP_VERTICES_MAX;
+    uint32_t vrt_at_old = 0, vrt_free_old = MAP_VERTICES_MAX;
 
     bool alloc_error = false;
 
@@ -557,7 +557,7 @@ int cartman_mpd_add_fan_verts(cartman_mpd_t *self, cartman_mpd_tile_t *pfan)
 
     int vert_count;
 
-    Uint8 fan_type;
+    uint8_t fan_type;
 
     tile_definition_t    * pdef;
     //Cartman::mpd_vertex_t * vrt_list;
@@ -635,7 +635,7 @@ int cartman_mpd_t::add_pfan(cartman_mpd_tile_t *pfan, float x, float y)
     // Initialize the vertices.
     Cartman::mpd_vertex_t *pvrt = nullptr;
     int cnt;
-    Uint32 vertex;
+    uint32_t vertex;
     for ( cnt = 0, vertex = pfan->vrtstart;
           cnt < vert_count && CHAINEND != vertex;
           cnt++, vertex = pvrt->next )
@@ -826,7 +826,7 @@ cartman_mpd_t * cartman_mpd_convert(cartman_mpd_t *dst, map_t *src)
             pvrt_dst->x = pvrt_src.pos[kX];
             pvrt_dst->y = pvrt_src.pos[kY];
             pvrt_dst->z = pvrt_src.pos[kZ];
-            pvrt_dst->a = std::max(pvrt_src.a, (Uint8)(VERTEXUNUSED+1));  // force a != VERTEXUNUSED
+            pvrt_dst->a = std::max(pvrt_src.a, (uint8_t)(VERTEXUNUSED+1));  // force a != VERTEXUNUSED
         };
     }
 

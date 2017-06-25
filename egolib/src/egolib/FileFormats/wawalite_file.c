@@ -519,8 +519,8 @@ wawalite_data_t *wawalite_limit(wawalite_data_t *profile)
 
     for (size_t i = 0; i < MAXWATERLAYER; ++i)
     {
-        profile->water.layer[i].light_dir = Ego::Math::constrain(profile->water.layer[i].light_dir, (Uint32)0, (Uint32)63);
-        profile->water.layer[i].light_add = Ego::Math::constrain(profile->water.layer[i].light_add, (Uint32)0, (Uint32)63);
+        profile->water.layer[i].light_dir = Ego::Math::constrain(profile->water.layer[i].light_dir, (uint32_t)0, (uint32_t)63);
+        profile->water.layer[i].light_add = Ego::Math::constrain(profile->water.layer[i].light_add, (uint32_t)0, (uint32_t)63);
     }
 
     return profile;

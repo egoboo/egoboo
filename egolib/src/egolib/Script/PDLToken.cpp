@@ -27,20 +27,20 @@ namespace Ego {
 namespace Script {
 
 PDLToken::PDLToken()
-    : id::token<PDLTokenKind>(PDLTokenKind::Unknown, id::location("<unknown>", 1), std::string()), m_endLocation("<unknown>", 1), m_value(0)
+    : id::token<PDLTokenKind,PDLTokenKind::Unknown>(PDLTokenKind::Unknown, id::location("<unknown>", 1), std::string()), m_endLocation("<unknown>", 1), m_value(0)
 {}
 
 PDLToken::PDLToken(PDLTokenKind kind, const id::location& startLocation,
                    const id::location& endLocation, const std::string& lexeme)
-    : id::token<PDLTokenKind>(kind, startLocation, lexeme), m_endLocation(endLocation), m_value(0)
+    : id::token<PDLTokenKind, PDLTokenKind::Unknown>(kind, startLocation, lexeme), m_endLocation(endLocation), m_value(0)
 {}
 
 PDLToken::PDLToken(const PDLToken& other)
-    : id::token<PDLTokenKind>(other), m_endLocation(other.m_endLocation), m_value(other.m_value)
+    : id::token<PDLTokenKind, PDLTokenKind::Unknown>(other), m_endLocation(other.m_endLocation), m_value(other.m_value)
 {}
 
 PDLToken::PDLToken(PDLToken&& other)
-    : id::token<PDLTokenKind>(std::move(other)), m_endLocation(std::move(other.m_endLocation)), m_value(std::move(other.m_value))
+    : id::token<PDLTokenKind, PDLTokenKind::Unknown>(std::move(other)), m_endLocation(std::move(other.m_endLocation)), m_value(std::move(other.m_value))
 {}
 
 PDLToken::~PDLToken()
@@ -61,7 +61,7 @@ bool PDLToken::isOperator() const
 
 bool PDLToken::isAssignOperator() const
 {
-    return is(PDLTokenKind::Assign);
+    return is_one_of(PDLTokenKind::Assign);
 }
 
 bool PDLToken::isLiteral() const
@@ -74,7 +74,7 @@ bool PDLToken::isLiteral() const
 
 bool PDLToken::isConstant() const
 {
-    return is(PDLTokenKind::Constant);
+    return is_one_of(PDLTokenKind::Constant);
 }
 
 PDLToken& PDLToken::operator=(PDLToken other)
@@ -87,7 +87,7 @@ std::ostream& operator<<(std::ostream& os, const PDLToken& token)
 {
     os << "pdl token" << std::endl;
     os << "{" << std::endl;
-    os << "  " << "kind = " << token.get_kind() << "," << std::endl;
+    os << "  " << "category = " << token.category() << "," << std::endl;
     os << "  " << "lexeme = " << token.get_lexeme() << "," << std::endl;
     os << "  " << "start location = " << token.get_start_location().file_name() << ":" << token.get_start_location().line_number() << "," << std::endl;
     os << "  " << "end location = " << token.getEndLocation().file_name() << ":" << token.getEndLocation().line_number() << "," << std::endl;

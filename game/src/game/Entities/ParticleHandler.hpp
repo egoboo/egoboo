@@ -150,7 +150,7 @@ public:
             ObjectProfileRef iprofile,
             const LocalParticleProfileRef& pip_index,
             const ObjectRef chr_attach,
-            Uint16 vrt_offset,
+            uint16_t vrt_offset,
             const TEAM_REF team,
             const ObjectRef chr_origin,
             const ParticleRef prt_origin,
@@ -195,7 +195,7 @@ public:
      *   The Particle object that was spawned or nullptr if it failed.
      */
     std::shared_ptr<Ego::Particle> spawnParticle(const Vector3f& spawnPos, const Facing& spawnFacing, const ObjectProfileRef spawnProfile,
-                                                 const PIP_REF particleProfile, const ObjectRef spawnAttach, Uint16 vrt_offset, const TEAM_REF spawnTeam,
+                                                 const PIP_REF particleProfile, const ObjectRef spawnAttach, uint16_t vrt_offset, const TEAM_REF spawnTeam,
                                                  const ObjectRef spawnOrigin, const ParticleRef spawnParticleOrigin = ParticleRef::Invalid, const int multispawn = 0,
                                                  const ObjectRef spawnTarget = ObjectRef::Invalid, const bool onlyOverWater = false);
 

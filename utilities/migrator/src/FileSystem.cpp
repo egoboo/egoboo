@@ -61,32 +61,12 @@ FileSystem::PathStat FileSystem::stat(const std::string &pathname)
 
 std::string FileSystem::getDirectorySeparator()
 {
-#if defined(_WIN32)
-    return "\\";
-#else
-    return "/";
-#endif
+    return id::get_directory_separator();
 }
 
 std::string FileSystem::getWorkingDirectory()
 {
-#if _WIN32
-    auto length = GetCurrentDirectory(0, NULL);
-    if (!length)
-    {
-        throw std::runtime_error("unable to obtain working directory");
-    }
-    auto buffer = std::make_unique<char[]>(length + 1);
-    length = GetCurrentDirectory(length + 1, buffer.get());
-    if (!length)
-    {
-        throw std::runtime_error("unable to obtain working directory");
-    }
-    return std::string(buffer.get());
-#else
-    // not really needed
-    return ".";
-#endif
+    return id::get_working_directory();
 }
 
 std::string FileSystem::sanitize(const std::string& pathName)

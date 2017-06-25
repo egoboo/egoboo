@@ -32,7 +32,7 @@
 
 local_stats_t local_stats;
 bool timeron = false;  ///< Game timer displayed?
-Uint32 timervalue = 0; ///< Timer time ( 50ths of a second )
+uint32_t timervalue = 0; ///< Timer time ( 50ths of a second )
 
 //--------------------------------------------------------------------------------------------
 

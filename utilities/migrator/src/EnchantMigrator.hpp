@@ -5,16 +5,16 @@
 namespace Editor {
 namespace Tools {
 
-/// @brief Validate <c>enchant.txt</c> files.
-class EnchantTxtValidator : public Tool
+/// @brief Convert <c>enchant.txt</c> to <c>enchant2.txt</c> files.
+class EnchantMigrator : public Tool
 {
 public:
     /// @brief Construct this tool.
     /// @param fileSystem a pointer to the files system
-    EnchantTxtValidator(std::shared_ptr<FileSystem> fileSystem);
+    EnchantMigrator(std::shared_ptr<FileSystem> fileSystem);
 
     /// @brief Destruct this tool.
-    virtual ~EnchantTxtValidator();
+    virtual ~EnchantMigrator();
 
     /** @copydoc Tool::run */
     void run(const std::vector<std::shared_ptr<CommandLine::Option>>& arguments) override;
@@ -23,17 +23,16 @@ public:
     const std::string& getHelp() const override;
 
 private:
-    void validate(const std::string& pathname);
+    void run(const std::string& pathname);
 
-}; // class DataTxtValidator
+}; // class EnchantMigrator
 
-class EnchantTxtValidatorFactory : public ToolFactory
+class EnchantMigratorFactory : public ToolFactory
 {
 public:
     /** @copydoc Editor::ToolFactory::create */
     std::shared_ptr<Tool> create(std::shared_ptr<FileSystem> fileSystem) const override;
 
-}; // class DataTxtValidatorFactory
+}; // class EnchantMigratorFactory
 
-} // namespace Tools
-} // namespace Editor
+} } // namespace Tools::Editor

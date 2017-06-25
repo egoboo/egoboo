@@ -48,7 +48,7 @@ bool map_write_v2(vfs_FILE& file, const map_t& map)
     // Write twist data.
     for (const auto& tile : mem.tiles)
     {
-        vfs_write<Uint8>(file, tile.twist);
+        vfs_write<uint8_t>(file, tile.twist);
     }
 
     return true;

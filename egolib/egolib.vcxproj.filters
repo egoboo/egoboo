@@ -165,9 +165,6 @@
     <ClCompile Include="src\egolib\egoboo_setup.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\endian.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\file_common.c">
       <Filter>Source Files</Filter>
     </ClCompile>

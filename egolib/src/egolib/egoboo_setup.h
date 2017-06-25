@@ -309,7 +309,7 @@ public:
     /// @remark The default value is @a 75, range is @a 0 to @a 128.
     /// @todo The unit should be "percent", the default value should be 60 "percent"?
     /// We require a "percent" type?
-    Ego::Configuration::Variable<Uint8> sound_effects_volume;
+    Ego::Configuration::Variable<uint8_t> sound_effects_volume;
 
     /// @brief Enable/disable music.
     /// @remark Default value is @a true.
@@ -319,7 +319,7 @@ public:
     /// @remark The default value is @a 50, range is @a 0 to @a 128.
     /// @todo The unit should be "percent", the default value should be 40 "percent"?
     /// We require a "percent" type?
-    Ego::Configuration::Variable<Uint8> sound_music_volume;
+    Ego::Configuration::Variable<uint8_t> sound_music_volume;
 
     /// @brief Number of audio channels.
     /// @remark The number of audio channels limit the number of sounds playing at the same time.
@@ -330,7 +330,7 @@ public:
     /// CLIP<uint16_t>(cfg.sound_channel_count, 8, 128);
     /// CLIP<uint16_t>(cfg.sound_buffer_size, 512, 8196);
     /// @endcode
-    Ego::Configuration::Variable<Uint16> sound_channel_count;
+    Ego::Configuration::Variable<uint16_t> sound_channel_count;
 
     /// @brief Size of audio output buffer.
     /// @remark Default value is @a 4096.
@@ -339,7 +339,7 @@ public:
     /// @code
     /// CLIP<uint16_t>(cfg.sound_buffer_size, 512, 8196);
     /// @endcode
-    Ego::Configuration::Variable<Uint16> sound_outputBuffer_size;
+    Ego::Configuration::Variable<uint16_t> sound_outputBuffer_size;
 
     /// @brief Enable/disable high quality audio.
     /// @remark Default value is @a false.

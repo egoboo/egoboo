@@ -123,7 +123,7 @@
       <ControlFlowGuard>false</ControlFlowGuard>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <FloatingPointModel>Fast</FloatingPointModel>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)/utilities/migrator/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MinimalRebuild>false</MinimalRebuild>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
@@ -182,7 +182,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
       <ControlFlowGuard>false</ControlFlowGuard>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <FloatingPointModel>Fast</FloatingPointModel>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)/utilities/migrator/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <BufferSecurityCheck>false</BufferSecurityCheck>
@@ -241,7 +241,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
       <DebugInformationFormat>None</DebugInformationFormat>
       <FloatingPointModel>Fast</FloatingPointModel>
       <FloatingPointExceptions>false</FloatingPointExceptions>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)/utilities/migrator/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ControlFlowGuard>false</ControlFlowGuard>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
@@ -299,7 +299,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
       <DebugInformationFormat>None</DebugInformationFormat>
       <FloatingPointModel>Fast</FloatingPointModel>
       <FloatingPointExceptions>false</FloatingPointExceptions>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)/utilities/migrator/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ControlFlowGuard>false</ControlFlowGuard>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
@@ -331,10 +331,14 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\ScriptMigrator\parser.cpp" />
+    <ClCompile Include="src\ScriptMigrator\scanner.cpp" />
+    <ClCompile Include="src\EnvironmentMigrator.cpp" />
+    <ClCompile Include="src\ScriptMigrator.cpp" />
     <ClCompile Include="src\FileSystem.cpp" />
-    <ClCompile Include="src\EnchantTxtValidator.cpp" />
+    <ClCompile Include="src\EnchantMigrator.cpp" />
     <ClCompile Include="src\CommandLine.cpp" />
-    <ClCompile Include="src\DataTxtValidator.cpp" />
+    <ClCompile Include="src\DataMigator.cpp" />
     <ClCompile Include="src\Tool.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\ConvertPaletted.cpp" />
@@ -355,12 +359,23 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ProjectReference Include="..\..\external\SDL2_ttf-2.0.12\VisualC\SDL_ttf.vcxproj">
       <Project>{d114a863-1bdc-4979-a61e-cb6b7ca5f1bb}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\..\idlib\idlib-tests.vcxproj">
+      <Project>{53aa7468-e768-4cc9-a5ed-21a70c5fc36c}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\idlib\idlib.vcxproj">
+      <Project>{f59e5a93-844c-4c7f-bffa-c0e59785b9a2}</Project>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\ScriptMigrator\parser.hpp" />
+    <ClInclude Include="src\ScriptMigrator\scanner.hpp" />
+    <ClInclude Include="src\ScriptMigrator\token.hpp" />
+    <ClInclude Include="src\EnvironmentMigrator.hpp" />
+    <ClInclude Include="src\ScriptMigrator.hpp" />
     <ClInclude Include="src\FileSystem.hpp" />
-    <ClInclude Include="src\EnchantTxtValidator.hpp" />
+    <ClInclude Include="src\EnchantMigrator.hpp" />
     <ClInclude Include="src\CommandLine.hpp" />
-    <ClInclude Include="src\DataTxtValidator.hpp" />
+    <ClInclude Include="src\DataMigrator.hpp" />
     <ClInclude Include="src\Tool.hpp" />
     <ClInclude Include="src\ConvertPaletted.hpp" />
     <ClInclude Include="src\Filters.hpp" />

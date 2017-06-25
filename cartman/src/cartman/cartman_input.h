@@ -62,7 +62,7 @@ namespace Cartman
 struct Cartman_MouseData {
     // click/drag window
     int             win_id;
-    Uint16          win_mode;
+    uint16_t        win_mode;
     cartman_mpd_t * win_mesh;
     float           win_mpos_x;
     float           win_mpos_y;
@@ -71,11 +71,11 @@ struct Cartman_MouseData {
     select_lst_t    win_select;
 
     // click data
-    Uint8   type;       // Tile fantype
-    Uint8   fx;         // Tile effects
-    Uint8   tx;         // Tile texture
-    Uint8   upper;      // Tile upper bits
-    Uint16  presser;    // Random add for tiles
+    uint8_t   type;       // Tile fantype
+    uint8_t   fx;         // Tile effects
+    uint8_t   tx;         // Tile texture
+    uint8_t   upper;      // Tile upper bits
+    uint16_t  presser;    // Random add for tiles
 
                         // Rectangle drawing
     int     rect_draw;   // draw it
@@ -105,9 +105,9 @@ namespace Cartman
         int delay;
 
         bool needs_update;
-        const Uint8 *sdlbuffer;
-        Uint8 state;
-        Uint16 mod;
+        const uint8_t *sdlbuffer;
+        uint8_t state;
+        uint16_t mod;
         Keyboard();
         virtual ~Keyboard();
         bool isKeyDown(int key);
@@ -155,7 +155,7 @@ namespace Cartman
 }
 
 
-bool check_keys(Uint32 resolution);
+bool check_keys(uint32_t resolution);
 
 
 #define CART_BUTTONDOWN(button) \

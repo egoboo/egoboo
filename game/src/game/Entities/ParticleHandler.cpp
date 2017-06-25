@@ -32,7 +32,7 @@ std::shared_ptr<Ego::Particle> ParticleHandler::spawnLocalParticle
         ObjectProfileRef iprofile,
         const LocalParticleProfileRef& pip_index,
         const ObjectRef chr_attach,
-        Uint16 vrt_offset,
+        uint16_t vrt_offset,
         const TEAM_REF team,
         const ObjectRef chr_origin,
         const ParticleRef prt_origin,
@@ -82,7 +82,7 @@ std::shared_ptr<Ego::Particle> ParticleHandler::spawnGlobalParticle(const Vector
 }
 
 std::shared_ptr<Ego::Particle> ParticleHandler::spawnParticle(const Vector3f& spawnPos, const Facing& spawnFacing, const ObjectProfileRef spawnProfile,
-                                                              const PIP_REF particleProfile, const ObjectRef spawnAttach, Uint16 vrt_offset, const TEAM_REF spawnTeam,
+                                                              const PIP_REF particleProfile, const ObjectRef spawnAttach, uint16_t vrt_offset, const TEAM_REF spawnTeam,
                                                               const ObjectRef spawnOrigin, const ParticleRef spawnParticleOrigin, const int multispawn, const ObjectRef spawnTarget, const bool onlyOverWater)
 {
     const std::shared_ptr<ParticleProfile> &ppip = ProfileSystem::get().ParticleProfileSystem.get_ptr(particleProfile);

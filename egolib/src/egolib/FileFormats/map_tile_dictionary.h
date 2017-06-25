@@ -40,12 +40,12 @@
             float u;            ///< "horizontal" texture position
             float v;            ///< "vertical" texture position
         };
-        Uint8           numvertices;                    ///< The number of vertices
+        uint8_t         numvertices;                    ///< The number of vertices
         vertex_t        vertices[MAP_FAN_VERTICES_MAX]; ///< The vertices.
 
-        Uint8           command_count;                      ///< Number of commands
-        Uint8           command_entries[MAP_FAN_MAX];       ///< Entries in each command
-        Uint16          command_verts[MAP_FAN_ENTRIES_MAX]; ///< Fansquare vertex list
+        uint8_t         command_count;                      ///< Number of commands
+        uint8_t         command_entries[MAP_FAN_MAX];       ///< Entries in each command
+        uint16_t        command_verts[MAP_FAN_ENTRIES_MAX]; ///< Fansquare vertex list
     };
 
 //--------------------------------------------------------------------------------------------

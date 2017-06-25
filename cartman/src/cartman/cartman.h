@@ -54,7 +54,7 @@
 
 extern std::string egoboo_path;
 
-extern int     onscreen_count;
-extern Uint32  onscreen_vert[MAXPOINTS];
+extern int      onscreen_count;
+extern uint32_t onscreen_vert[MAXPOINTS];
 
 //--------------------------------------------------------------------------------------------

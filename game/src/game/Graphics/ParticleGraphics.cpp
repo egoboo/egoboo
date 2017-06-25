@@ -360,7 +360,7 @@ gfx_rv ParticleGraphics::update_lighting(ParticleGraphics& pinst, Particle *pprt
     }
 
     // To make life easier
-    Uint32 alpha = trans;
+    uint32_t alpha = trans;
 
     // interpolate the lighting for the origin of the object
     auto mesh = _currentModule->getMeshPointer();
@@ -383,7 +383,7 @@ gfx_rv ParticleGraphics::update_lighting(ParticleGraphics& pinst, Particle *pprt
     // LIGHT-blended sprites automatically glow. ALPHA-blended and SOLID
     // sprites need to convert the light channel into additional alpha
     // lighting to make them "glow"
-    Sint16 self_light = 0;
+    int16_t self_light = 0;
     if (SPRITE_LIGHT != pinst.type)
     {
         self_light = (255 == pinst.light) ? 0 : pinst.light;
@@ -408,7 +408,7 @@ gfx_rv ParticleGraphics::update_lighting(ParticleGraphics& pinst, Particle *pprt
     return gfx_success;
 }
 
-gfx_rv ParticleGraphics::update(::Camera& camera, const ParticleRef particle, Uint8 trans, bool do_lighting)
+gfx_rv ParticleGraphics::update(::Camera& camera, const ParticleRef particle, uint8_t trans, bool do_lighting)
 {
     const auto& pprt = ParticleHandler::get()[particle];
     if (!pprt)

@@ -32,11 +32,11 @@
  * @param x
  *	the @a float value
  * @return
- *	the @a Uint32 value
+ *	the @a uint32_t value
  */
-Uint32 float_toBits(float x);
+uint32_t float_toBits(float x);
 
-float float_fromBits(Uint32 x);
+float float_fromBits(uint32_t x);
 bool float_infinite(float x);
 bool float_nan(float x);
 bool float_bad(float x);

@@ -39,7 +39,7 @@ CharacterStatus::CharacterStatus(const std::shared_ptr<Object> &object) :
 
 
 
-void CharacterStatus::draw_one_character_icon(const ObjectRef item, float x, float y, bool draw_ammo, Uint8 draw_sparkle)
+void CharacterStatus::draw_one_character_icon(const ObjectRef item, float x, float y, bool draw_ammo, uint8_t draw_sparkle)
 {
 	/// @author BB
 	/// @details Draw an icon for the given item at the position <x,y>.

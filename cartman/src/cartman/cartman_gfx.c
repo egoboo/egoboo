@@ -42,20 +42,20 @@ std::shared_ptr<Ego::Font> gfx_font_ptr = NULL;
 
 camera_t cam;
 
-Sint16          damagetileparttype;
+int16_t         damagetileparttype;
 short           damagetilepartand;
 short           damagetilesound;
 short           damagetilesoundtime;
-Uint16          damagetilemindistance;
+uint16_t        damagetilemindistance;
 int             damagetileamount = 256;                           // Amount of damage
-Uint8           damagetiletype  = DAMAGE_FIRE;                      // Type of damage
+uint8_t         damagetiletype  = DAMAGE_FIRE;                    // Type of damage
 
-int    animtileupdateand   = 7;
-Uint16 animtileframeand    = 3;
-Uint16 animtilebaseand     = ( Uint16 )( ~3 );
-Uint16 biganimtileframeand = 7;
-Uint16 biganimtilebaseand  = ( Uint16 )( ~7 );
-Uint16 animtileframeadd    = 0;
+int      animtileupdateand   = 7;
+uint16_t animtileframeand    = 3;
+uint16_t animtilebaseand     = ( uint16_t )( ~3 );
+uint16_t biganimtileframeand = 7;
+uint16_t biganimtilebaseand  = ( uint16_t )( ~7 );
+uint16_t animtileframeadd    = 0;
 
 int     numsmalltile = 0;   //
 int     numbigtile = 0;     //
@@ -81,8 +81,8 @@ GFX::~GFX()
 
 std::shared_ptr<Ego::Texture> tiny_tile_at( cartman_mpd_t * pmesh, Index2D index2d )
 {
-    Uint16 tx_bits, basetile;
-    Uint8 fantype, fx;
+    uint16_t tx_bits, basetile;
+    uint8_t fantype, fx;
 
     cartman_mpd_tile_t * pfan;
 
@@ -146,8 +146,8 @@ std::shared_ptr<Ego::Texture> tiny_tile_at( cartman_mpd_t * pmesh, Index2D index
 std::shared_ptr<Ego::Texture> tile_at( cartman_mpd_t * pmesh, int fan )
 {
     int    img;
-    Uint16 img_base;
-    Uint8  type, fx;
+    uint16_t img_base;
+    uint8_t  type, fx;
 
     cartman_mpd_tile_t   * pfan   = NULL;
 
@@ -252,7 +252,7 @@ void make_planmap( cartman_mpd_t * pmesh )
 
             if ( NULL != tx_tile )
             {
-                SDL_Rect dst = {static_cast<Sint16>(putx), static_cast<Sint16>(puty), TINYXY, TINYXY};
+                SDL_Rect dst = {static_cast<int16_t>(putx), static_cast<int16_t>(puty), TINYXY, TINYXY};
                 cartman_BlitSurface(tx_tile->m_source.get(), nullptr, Resources::get().bmphitemap.get(), &dst);
             }
             putx += TINYXY;
@@ -273,7 +273,7 @@ void draw_top_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt )
     // ZZ> This function draws the line drawing preview of the tile type...
     //     A wireframe tile from a vertex connection window
 
-    static Uint32 faketoreal[MAP_FAN_VERTICES_MAX];
+    static uint32_t faketoreal[MAP_FAN_VERTICES_MAX];
 
     int cnt, stt, end, vert;
     Ego::Math::Colour4f color;
@@ -375,7 +375,7 @@ void draw_side_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt 
     // ZZ> This function draws the line drawing preview of the tile type...
     //     A wireframe tile from a vertex connection window ( Side view )
 
-    static Uint32 faketoreal[MAP_FAN_VERTICES_MAX];
+    static uint32_t faketoreal[MAP_FAN_VERTICES_MAX];
 
     cart_vec_t vup    = { 0, 0, 1};
     cart_vec_t vright = { 1, 0, 0};
@@ -517,7 +517,7 @@ void draw_top_tile( float x0, float y0, int fan, std::shared_ptr<Ego::Texture> t
     const float dst = 1.0f / 64.0f;
 
     int cnt;
-    Uint32 ivrt;
+    uint32_t ivrt;
     float min_s, min_t, max_s, max_t;
 
     // aliases
@@ -622,7 +622,7 @@ void draw_top_tile( float x0, float y0, int fan, std::shared_ptr<Ego::Texture> t
 
 //--------------------------------------------------------------------------------------------
 
-void draw_tile_fx( float x, float y, Uint8 fx, float scale )
+void draw_tile_fx( float x, float y, uint8_t fx, float scale )
 {
     const int ioff_0 = Info<int>::Grid::Size() >> 3;
     const int ioff_1 = Info<int>::Grid::Size() >> 4;
@@ -1161,7 +1161,7 @@ void get_small_tiles( SDL_Surface* bmpload )
     {
         for ( x = 0, x1 = 0; x < sz_x && x1 < 256; x += step_x, x1 += SMALLXY )
         {
-            SDL_Rect src1 = { static_cast<Sint16>(x), static_cast<Sint16>(y), static_cast<Uint16>( step_x - 1 ), static_cast<Uint16>( step_y - 1 ) };
+            SDL_Rect src1 = { static_cast<int16_t>(x), static_cast<int16_t>(y), static_cast<uint16_t>( step_x - 1 ), static_cast<uint16_t>( step_y - 1 ) };
 
             Resources::get().tx_smalltile[numsmalltile] = Ego::Renderer::get().createTexture();
 

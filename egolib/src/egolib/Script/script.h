@@ -439,7 +439,7 @@ struct ai_state_t : public AI::State<ObjectRef>
 public:
 
     // some script states
-    Sint32         poof_time;
+    int32_t        poof_time;
     bool           changed;
     bool           terminate;
 
@@ -452,7 +452,7 @@ public:
     int            state;         ///< Short term memory for AI
     int            content;       ///< More short term memory
     int            passage;       ///< The passage associated with this character
-    Uint32         timer;         ///< AI Timer
+    uint32_t       timer;         ///< AI Timer
     int            x[STOR_COUNT]; ///< Temporary values...  SetXY
     int            y[STOR_COUNT];
     float          maxSpeed;      ///< Artificial movement speed limit for AI
@@ -466,14 +466,14 @@ public:
     ObjectRef      lastitemused;    ///< The last item the character used
 
     // message handling
-    Uint32         order_value;           ///< The last order given the character
-    Uint16         order_counter;         ///< The rank of the character on the order chain
+    uint32_t       order_value;           ///< The last order given the character
+    uint16_t       order_counter;         ///< The rank of the character on the order chain
 
     // waypoints
     bool            wp_valid;            ///< is the current waypoint valid?
     waypoint_t      wp;                  ///< current waypoint
     waypoint_list_t wp_lst;              ///< Stored waypoints
-    Uint32          astar_timer;         ///< Throttle on astar pathfinding
+    uint32_t        astar_timer;         ///< Throttle on astar pathfinding
 
     // performance monitoring
 	std::shared_ptr<Ego::Time::Clock<Ego::Time::ClockPolicy::NonRecursive>> _clock;
@@ -485,9 +485,9 @@ public:
 	static bool set_bumplast(ai_state_t& self, const ObjectRef  ichr);
 	static bool get_wp(ai_state_t& self);
 	static bool ensure_wp(ai_state_t& self);
-	static bool add_order(ai_state_t& self, Uint32 value, Uint16 counter);
+	static bool add_order(ai_state_t& self, uint32_t value, uint16_t counter);
 	static bool set_changed(ai_state_t& self);
-	static void spawn(ai_state_t& self, const ObjectRef index, const PRO_REF iobj, Uint16 rank);
+	static void spawn(ai_state_t& self, const ObjectRef index, const PRO_REF iobj, uint16_t rank);
 
 };
 
@@ -531,7 +531,7 @@ struct script_state_t : private id::non_copyable
 void scr_run_chr_script(Object *pchr);
 void scr_run_chr_script(const ObjectRef character);
 
-void issue_order( const ObjectRef character, Uint32 order );
+void issue_order( const ObjectRef character, uint32_t order );
 void issue_special_order( uint32_t order, const IDSZ2& idsz );
 void set_alerts( const ObjectRef character );
 

@@ -99,20 +99,20 @@ struct Resources : Ego::Core::Singleton<Resources> {
 extern int     numsmalltile;   //
 extern int     numbigtile;     //
 
-extern int    animtileupdateand;                      // New tile every ( (1 << n) - 1 ) frames
-extern Uint16 animtileframeand;                       // 1 << n frames
-extern Uint16 animtilebaseand;
-extern Uint16 biganimtileframeand;                    // 1 << n frames
-extern Uint16 biganimtilebaseand;
-extern Uint16 animtileframeadd;
+extern int      animtileupdateand;                      // New tile every ( (1 << n) - 1 ) frames
+extern uint16_t animtileframeand;                       // 1 << n frames
+extern uint16_t animtilebaseand;
+extern uint16_t biganimtileframeand;                    // 1 << n frames
+extern uint16_t biganimtilebaseand;
+extern uint16_t animtileframeadd;
 
-extern Sint16 damagetileparttype;
-extern short  damagetilepartand;
-extern short  damagetilesound;
-extern short  damagetilesoundtime;
-extern Uint16 damagetilemindistance;
-extern int    damagetileamount;                           // Amount of damage
-extern Uint8  damagetiletype;                      // Type of damage
+extern int16_t  damagetileparttype;
+extern short    damagetilepartand;
+extern short    damagetilesound;
+extern short    damagetilesoundtime;
+extern uint16_t damagetilemindistance;
+extern int      damagetileamount;                       // Amount of damage
+extern uint8_t  damagetiletype;                         // Type of damage
 
 extern const Ego::Math::Colour4f WHITE;
 extern const Ego::Math::Colour4f BLACK;
@@ -135,7 +135,7 @@ void draw_side_fan(select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt);
 
 void draw_schematic(std::shared_ptr<Cartman::Gui::Window> pwin, int fantype, int x, int y);
 void draw_top_tile( float x0, float y0, int fan, std::shared_ptr<Ego::Texture> tx_tile, bool draw_tile, cartman_mpd_t * pmesh );
-void draw_tile_fx( float x, float y, Uint8 fx, float scale );
+void draw_tile_fx( float x, float y, uint8_t fx, float scale );
 
 // ogl routines
 void ogl_draw_sprite_2d( std::shared_ptr<Ego::Texture> img, float x, float y, float width, float height );

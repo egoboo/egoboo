@@ -29,5 +29,5 @@ struct map_t;
 
     void map_generate_tile_twist_data(map_t& map);
     void map_generate_fan_type_data(map_t& map);
-bool twist_to_normal(Uint8 twist, Vector3f& v, float slide);
-Uint8  cartman_calc_twist( int dx, int dy );
+bool twist_to_normal(uint8_t twist, Vector3f& v, float slide);
+uint8_t  cartman_calc_twist( int dx, int dy );

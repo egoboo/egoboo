@@ -417,7 +417,7 @@ bool testAlpha(const std::shared_ptr<SDL_Surface>& surface)
 
 Math::Colour3b getColourMod(SDL_Surface& surface)
 {
-    Uint8 r, g, b;
+    uint8_t r, g, b;
     SDL_GetSurfaceColorMod(&surface, &r, &g, &b);
     return Math::Colour3b(r, g, b);
 }
