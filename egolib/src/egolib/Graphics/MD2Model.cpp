@@ -313,7 +313,7 @@ std::shared_ptr<MD2Model> MD2Model::loadFromFile(const std::string &fileName)
             //translate the data, if necessary
             for(id_glcmd_packed_t &cmdData : cmd.data)
             {
-                cmdData.index = Endian_FileToHost( cmdData.s );
+                cmdData.index = Endian_FileToHost( cmdData.index );
                 cmdData.s     = Endian_FileToHost( cmdData.s );
                 cmdData.t     = Endian_FileToHost( cmdData.t );
             }
