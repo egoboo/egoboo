@@ -4722,7 +4722,7 @@ uint8_t scr_Teleport( script_state_t& state, ai_state_t& self )
 //--------------------------------------------------------------------------------------------
 uint8_t scr_GiveStrengthToTarget( script_state_t& state, ai_state_t& self )
 {
-    // GiveStrengthToTarget()
+    // GiveStrengthToTarget(argument = "amount")
     // Permanently boost the target's strength
 
     Object * pself_target;
@@ -4742,7 +4742,7 @@ uint8_t scr_GiveStrengthToTarget( script_state_t& state, ai_state_t& self )
 //--------------------------------------------------------------------------------------------
 uint8_t scr_GiveIntelligenceToTarget( script_state_t& state, ai_state_t& self )
 {
-    // GiveIntelligenceToTarget()
+    // GiveIntelligenceToTarget(tmpargument = "amount")
     // Permanently boost the target's intelligence
 
     Object * pself_target;
@@ -4762,7 +4762,7 @@ uint8_t scr_GiveIntelligenceToTarget( script_state_t& state, ai_state_t& self )
 //--------------------------------------------------------------------------------------------
 uint8_t scr_GiveDexterityToTarget( script_state_t& state, ai_state_t& self )
 {
-    // GiveDexterityToTarget()
+    // GiveDexterityToTarget(tmpargument = "amount")
     // Permanently boost the target's dexterity
 
     Object * pself_target;
@@ -4782,7 +4782,7 @@ uint8_t scr_GiveDexterityToTarget( script_state_t& state, ai_state_t& self )
 //--------------------------------------------------------------------------------------------
 uint8_t scr_GiveLifeToTarget( script_state_t& state, ai_state_t& self )
 {
-    // GiveLifeToTarget()
+    // GiveLifeToTarget(tmpargument = "amount")
     /// @author ZZ
     /// @details Permanently boost the target's life
 
@@ -4804,7 +4804,7 @@ uint8_t scr_GiveLifeToTarget( script_state_t& state, ai_state_t& self )
 //--------------------------------------------------------------------------------------------
 uint8_t scr_GiveManaToTarget( script_state_t& state, ai_state_t& self )
 {
-    // GiveManaToTarget()
+    // GiveManaToTarget(tmpargument = "amount")
     /// @author ZZ
     /// @details Permanently boost the target's mana
 

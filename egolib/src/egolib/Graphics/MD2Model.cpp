@@ -126,23 +126,23 @@ std::shared_ptr<MD2Model> MD2Model::loadFromFile(const std::string &fileName)
     vfs_read(&md2Header, sizeof(md2Header), 1, f);
 
     // Convert the byte ordering in the md2Header, if we need to
-    md2Header.ident            = ENDIAN_TO_SYS_INT32( md2Header.ident );
-    md2Header.version          = ENDIAN_TO_SYS_INT32( md2Header.version );
-    md2Header.skinwidth        = ENDIAN_TO_SYS_INT32( md2Header.skinwidth );
-    md2Header.skinheight       = ENDIAN_TO_SYS_INT32( md2Header.skinheight );
-    md2Header.framesize        = ENDIAN_TO_SYS_INT32( md2Header.framesize );
-    md2Header.num_skins        = ENDIAN_TO_SYS_INT32( md2Header.num_skins );
-    md2Header.num_vertices     = ENDIAN_TO_SYS_INT32( md2Header.num_vertices );
-    md2Header.num_st           = ENDIAN_TO_SYS_INT32( md2Header.num_st );
-    md2Header.num_tris         = ENDIAN_TO_SYS_INT32( md2Header.num_tris );
-    md2Header.size_glcmds      = ENDIAN_TO_SYS_INT32( md2Header.size_glcmds );
-    md2Header.num_frames       = ENDIAN_TO_SYS_INT32( md2Header.num_frames );
-    md2Header.offset_skins     = ENDIAN_TO_SYS_INT32( md2Header.offset_skins );
-    md2Header.offset_st        = ENDIAN_TO_SYS_INT32( md2Header.offset_st );
-    md2Header.offset_tris      = ENDIAN_TO_SYS_INT32( md2Header.offset_tris );
-    md2Header.offset_frames    = ENDIAN_TO_SYS_INT32( md2Header.offset_frames );
-    md2Header.offset_glcmds    = ENDIAN_TO_SYS_INT32( md2Header.offset_glcmds );
-    md2Header.offset_end       = ENDIAN_TO_SYS_INT32( md2Header.offset_end );
+    md2Header.ident            = Endian_FileToHost( md2Header.ident );
+    md2Header.version          = Endian_FileToHost( md2Header.version );
+    md2Header.skinwidth        = Endian_FileToHost( md2Header.skinwidth );
+    md2Header.skinheight       = Endian_FileToHost( md2Header.skinheight );
+    md2Header.framesize        = Endian_FileToHost( md2Header.framesize );
+    md2Header.num_skins        = Endian_FileToHost( md2Header.num_skins );
+    md2Header.num_vertices     = Endian_FileToHost( md2Header.num_vertices );
+    md2Header.num_st           = Endian_FileToHost( md2Header.num_st );
+    md2Header.num_tris         = Endian_FileToHost( md2Header.num_tris );
+    md2Header.size_glcmds      = Endian_FileToHost( md2Header.size_glcmds );
+    md2Header.num_frames       = Endian_FileToHost( md2Header.num_frames );
+    md2Header.offset_skins     = Endian_FileToHost( md2Header.offset_skins );
+    md2Header.offset_st        = Endian_FileToHost( md2Header.offset_st );
+    md2Header.offset_tris      = Endian_FileToHost( md2Header.offset_tris );
+    md2Header.offset_frames    = Endian_FileToHost( md2Header.offset_frames );
+    md2Header.offset_glcmds    = Endian_FileToHost( md2Header.offset_glcmds );
+    md2Header.offset_end       = Endian_FileToHost( md2Header.offset_end );
 
     if (md2Header.ident != MD2_MAGIC_NUMBER || md2Header.version != MD2_VERSION)
     {
@@ -179,8 +179,8 @@ std::shared_ptr<MD2Model> MD2Model::loadFromFile(const std::string &fileName)
         vfs_read(&tc, sizeof(tc), 1, f);
 
         // auto-convert the byte ordering of the texture coordinates
-        tc.s = ENDIAN_TO_SYS_INT16( tc.s );
-        tc.t = ENDIAN_TO_SYS_INT16( tc.t );
+        tc.s = Endian_FileToHost( tc.s );
+        tc.t = Endian_FileToHost( tc.t );
 
         texCoord.tex[SS] = tc.s / static_cast<float>(md2Header.skinwidth);
         texCoord.tex[TT] = tc.t / static_cast<float>(md2Header.skinheight);
@@ -196,8 +196,8 @@ std::shared_ptr<MD2Model> MD2Model::loadFromFile(const std::string &fileName)
     {
         for (size_t v = 0; v < 3; ++v)
         {
-            tris.vertex[v] = ENDIAN_TO_SYS_INT16(tris.vertex[v]);
-            tris.st[v]     = ENDIAN_TO_SYS_INT16(tris.st[v]);
+            tris.vertex[v] = Endian_FileToHost(tris.vertex[v]);
+            tris.st[v]     = Endian_FileToHost(tris.st[v]);
         }
     }
 
@@ -215,15 +215,13 @@ std::shared_ptr<MD2Model> MD2Model::loadFromFile(const std::string &fileName)
         vfs_read(&frame_header, sizeof(frame_header), 1, f);
 
         // Convert the byte ordering on the scale & translate vectors, if necessary
-#if SDL_BYTEORDER != SDL_LIL_ENDIAN
-        frame_header.scale[0]     = ENDIAN_TO_SYS_IEEE32( frame_header.scale[0] );
-        frame_header.scale[1]     = ENDIAN_TO_SYS_IEEE32( frame_header.scale[1] );
-        frame_header.scale[2]     = ENDIAN_TO_SYS_IEEE32( frame_header.scale[2] );
+        frame_header.scale[0]     = Endian_FileToHost( frame_header.scale[0] );
+        frame_header.scale[1]     = Endian_FileToHost( frame_header.scale[1] );
+        frame_header.scale[2]     = Endian_FileToHost( frame_header.scale[2] );
 
-        frame_header.translate[0] = ENDIAN_TO_SYS_IEEE32( frame_header.translate[0] );
-        frame_header.translate[1] = ENDIAN_TO_SYS_IEEE32( frame_header.translate[1] );
-        frame_header.translate[2] = ENDIAN_TO_SYS_IEEE32( frame_header.translate[2] );
-#endif
+        frame_header.translate[0] = Endian_FileToHost( frame_header.translate[0] );
+        frame_header.translate[1] = Endian_FileToHost( frame_header.translate[1] );
+        frame_header.translate[2] = Endian_FileToHost( frame_header.translate[2] );
 
         // unpack the md2 vertex_lst from this frame
         bool boundingBoxFound = false;
@@ -287,9 +285,7 @@ std::shared_ptr<MD2Model> MD2Model::loadFromFile(const std::string &fileName)
             cmd_size += sizeof(int32_t) / sizeof(int32_t);
 
             // auto-convert the byte ordering
-#if SDL_BYTEORDER != SDL_LIL_ENDIAN
-            commands = ENDIAN_TO_SYS_INT32( commands );
-#endif
+            commands = Endian_FileToHost( commands );
 
             if ( 0 == commands || cmd_size == md2Header.size_glcmds ) break;
 
@@ -315,14 +311,12 @@ std::shared_ptr<MD2Model> MD2Model::loadFromFile(const std::string &fileName)
             cmd_size += (sizeof(id_glcmd_packed_t) * cmd.commandCount) / sizeof(uint32_t);
 
             //translate the data, if necessary
-#if SDL_BYTEORDER != SDL_LIL_ENDIAN
             for(id_glcmd_packed_t &cmdData : cmd.data)
             {
-                cmdData.index = SDL_Swap32( cmdData.s );
-                cmdData.s     = ENDIAN_TO_SYS_IEEE32( cmdData.s );
-                cmdData.t     = ENDIAN_TO_SYS_IEEE32( cmdData.t );
+                cmdData.index = Endian_FileToHost( cmdData.s );
+                cmdData.s     = Endian_FileToHost( cmdData.s );
+                cmdData.t     = Endian_FileToHost( cmdData.t );
             }
-#endif
 
             // attach it to the command list
             model->_commands.push_front(cmd);

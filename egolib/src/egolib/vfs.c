@@ -904,7 +904,7 @@ int vfs_read_Sint16( vfs_FILE& file, int16_t * val )
 
         error = ( 1 != retval );
 
-        *val = ENDIAN_TO_SYS_INT16( itmp );
+        *val = Endian_FileToHost( itmp );
     }
     else if ( VFS_FILE_TYPE_PHYSFS == file.type )
     {
@@ -937,7 +937,7 @@ int vfs_read_Uint16( vfs_FILE& file, uint16_t * val )
 
         error = ( 1 != retval );
 
-        *val = ENDIAN_TO_SYS_INT16( itmp );
+        *val = Endian_FileToHost( itmp );
     }
     else if ( VFS_FILE_TYPE_PHYSFS == file.type )
     {
@@ -970,7 +970,7 @@ int vfs_read_Sint32( vfs_FILE& file, int32_t * val )
 
         error = ( 1 != retval );
 
-        *val = ENDIAN_TO_SYS_INT32( itmp );
+        *val = Endian_FileToHost( itmp );
     }
     else if ( VFS_FILE_TYPE_PHYSFS == file.type )
     {
@@ -1003,7 +1003,7 @@ int vfs_read_Uint32( vfs_FILE& file, uint32_t * val )
 
         error = ( 1 != retval );
 
-        *val = ENDIAN_TO_SYS_INT32( itmp );
+        *val = Endian_FileToHost( itmp );
     }
     else if ( VFS_FILE_TYPE_PHYSFS == file.type )
     {
@@ -1036,7 +1036,7 @@ int vfs_read_Sint64( vfs_FILE& file, int64_t * val )
 
         error = ( 1 != retval );
 
-        *val = ENDIAN_TO_SYS_INT64( itmp );
+        *val = Endian_FileToHost( itmp );
     }
     else if ( VFS_FILE_TYPE_PHYSFS == file.type )
     {
@@ -1069,7 +1069,7 @@ int vfs_read_Uint64( vfs_FILE& file, uint64_t * val )
 
         error = ( 1 != retval );
 
-        *val = ENDIAN_TO_SYS_INT64( itmp );
+        *val = Endian_FileToHost( itmp );
     }
     else if ( VFS_FILE_TYPE_PHYSFS == file.type )
     {
@@ -1102,7 +1102,7 @@ int vfs_read_float( vfs_FILE& file, float * val )
 
         error = ( 1 != retval );
 
-        *val = ENDIAN_TO_SYS_IEEE32( ftmp );
+        *val = Endian_FileToHost( ftmp );
     }
     else if ( VFS_FILE_TYPE_PHYSFS == file.type )
     {
@@ -1196,7 +1196,7 @@ int vfs_write<int16_t>( vfs_FILE& file, const int16_t& val )
     retval = 0;
     if ( VFS_FILE_TYPE_CSTDIO == file.type )
     {
-        int16_t itmp = ENDIAN_TO_FILE_INT16(val);
+        int16_t itmp = Endian_HostToFile(val);
         retval = fwrite( &itmp, 1, sizeof( int16_t ), file.ptr.c );
         
         error = ( 1 != retval );
@@ -1227,7 +1227,7 @@ int vfs_write<uint16_t>( vfs_FILE& file, const uint16_t& val )
     retval = 0;
     if ( VFS_FILE_TYPE_CSTDIO == file.type )
     {
-        uint16_t itmp = ENDIAN_TO_FILE_INT16(val);
+        uint16_t itmp = Endian_HostToFile(val);
         retval = fwrite( &itmp, 1, sizeof( uint16_t ), file.ptr.c );
         
         error = ( 1 != retval );
@@ -1258,7 +1258,7 @@ int vfs_write<int32_t>( vfs_FILE& file, const int32_t& val )
     retval = 0;
     if ( VFS_FILE_TYPE_CSTDIO == file.type )
     {
-        int32_t itmp = ENDIAN_TO_FILE_INT32(val);
+        int32_t itmp = Endian_HostToFile(val);
         retval = fwrite( &itmp, 1, sizeof( int32_t ), file.ptr.c );
         
         error = ( 1 != retval );
@@ -1289,7 +1289,7 @@ int vfs_write<uint32_t>( vfs_FILE& file, const uint32_t& val )
     retval = 0;
     if ( VFS_FILE_TYPE_CSTDIO == file.type )
     {
-        uint32_t itmp = ENDIAN_TO_FILE_INT32(val);
+        uint32_t itmp = Endian_HostToFile(val);
         retval = fwrite( &itmp, 1, sizeof( uint32_t ), file.ptr.c );
         
         error = ( 1 != retval );
@@ -1320,7 +1320,7 @@ int vfs_write<int64_t>( vfs_FILE& file, const int64_t& val )
     retval = 0;
     if ( VFS_FILE_TYPE_CSTDIO == file.type )
     {
-        int64_t itmp = ENDIAN_TO_FILE_INT64(val);
+        int64_t itmp = Endian_HostToFile(val);
         retval = fwrite( &itmp, 1, sizeof( int64_t ), file.ptr.c );
         
         error = ( 1 != retval );
@@ -1351,7 +1351,7 @@ int vfs_write<uint64_t>( vfs_FILE& file, const uint64_t& val )
     retval = 0;
     if ( VFS_FILE_TYPE_CSTDIO == file.type )
     {
-        uint64_t itmp = ENDIAN_TO_FILE_INT64(val);
+        uint64_t itmp = Endian_HostToFile(val);
         retval = fwrite( &itmp, 1, sizeof( uint64_t ), file.ptr.c );
         
         error = ( 1 != retval );
@@ -1382,7 +1382,7 @@ int vfs_write<float>( vfs_FILE& file, const float& val )
     retval = 0;
     if ( VFS_FILE_TYPE_CSTDIO == file.type )
     {
-        float ftmp = ENDIAN_TO_FILE_IEEE32(val);
+        float ftmp = Endian_HostToFile(val);
         retval = fwrite( &ftmp, 1, sizeof( float ), file.ptr.c );
         
         error = ( 1 != retval );

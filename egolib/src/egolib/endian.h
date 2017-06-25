@@ -23,29 +23,10 @@
 
 #include "egolib/typedef.h"
 
-//--------------------------------------------------------------------------------------------
-// REMAPPING OF SDL MACROS
-//--------------------------------------------------------------------------------------------
+/// Conversion from the "Ego File" Byte order to the "host" Byte order.
+#define Endian_FileToHost(x) \
+    id::convert_byte_order(x, id::get_byte_order(), id::byte_order::little_endian)
 
-//---- conversion from the byteorder in ego files to the byteorder for this system
-
-// define a ENDIAN_TO_SYS_IEEE32() "function" to work on both big and little endian systems
-#if SDL_BYTEORDER != SDL_LIL_ENDIAN
-    extern float ENDIAN_TO_SYS_IEEE32( float X );
-#else
-#    define ENDIAN_TO_SYS_IEEE32( X ) ( X )
-#endif
-
-#define ENDIAN_TO_SYS_INT08(X) (X)
-#define ENDIAN_TO_SYS_INT16(X) SDL_SwapLE16(X)
-#define ENDIAN_TO_SYS_INT32(X) SDL_SwapLE32(X)
-#define ENDIAN_TO_SYS_INT64(X) SDL_SwapLE64(X)
-
-//---- conversion from the byteorder for this system to the byteorder in ego files
-//---- ( just repeat the process )
-
-#define ENDIAN_TO_FILE_IEEE32(X) ENDIAN_TO_SYS_IEEE32(X)
-#define ENDIAN_TO_FILE_INT08(X) ENDIAN_TO_SYS_INT08(X)
-#define ENDIAN_TO_FILE_INT16(X) ENDIAN_TO_SYS_INT16(X)
-#define ENDIAN_TO_FILE_INT32(X) ENDIAN_TO_SYS_INT32(X)
-#define ENDIAN_TO_FILE_INT64(X) ENDIAN_TO_SYS_INT64(X)
+/// Conversion from the "host" Byte order to the "Ego file" Byte order.
+#define Endian_HostToFile(x) \
+    id::convert_byte_order(x, id::byte_order::little_endian, id::get_byte_order())
