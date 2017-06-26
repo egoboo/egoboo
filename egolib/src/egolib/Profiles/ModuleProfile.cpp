@@ -111,7 +111,7 @@ std::shared_ptr<ModuleProfile> ModuleProfile::loadFromFile(const std::string &fo
 
     result->_unlockQuest = vfs_get_next_idsz(ctxt);
     ctxt.skipWhiteSpaces();
-    if (!ctxt.isNewLine() && !ctxt.isEndOfInput())
+    if (!ctxt.is_new_line() && !ctxt.is_end_of_input())
     {
         result->_unlockQuestLevel = ctxt.readIntegerLiteral();
     }
