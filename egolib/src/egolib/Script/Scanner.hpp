@@ -161,10 +161,10 @@ struct Scanner
 {
 private:
     /// @brief The line number.
-    size_t _lineNumber;
+    size_t m_line_number;
 
     //// @brief The file name.
-    std::string _fileName;
+    std::string m_file_name;
 
 public:
     using Traits = TraitsArg;
@@ -174,50 +174,49 @@ public:
 
 private:
     /// @brief The lexeme accumulation buffer.
-    std::vector<char> _buffer;
+    std::vector<char> m_buffer;
     /// @brief The input buffer.
-    std::vector<char> _inputBuffer;
+    std::vector<char> m_input_buffer;
     /// @brief The input view.
-    ScannerInputViewType _inputView;
+    ScannerInputViewType m_input_view;
 
 protected:
     /// @brief Construct this scanner.
-    /// @param fileName the filename
-    /// @throw RuntimeErrorException if the file can not be read
+    /// @param file_name the filename
+    /// @throw id::runtime_error the file can not be read
     /// @post The scanner is in its initial state w.r.t. the specified input if no exception is raised.
-    Scanner(const std::string& fileName) :
-        _fileName(fileName), _inputBuffer(),
-        _buffer(), _inputView(_inputBuffer.cbegin(), _inputBuffer.cend()),
-        _lineNumber(1)
+    Scanner(const std::string& file_name) :
+        m_file_name(file_name), m_line_number(1), m_input_buffer(),
+        m_buffer(), m_input_view(m_input_buffer.cbegin(), m_input_buffer.cend())
     {
         vfs_readEntireFile
         (
             fileName,
-            [this](size_t numberOfBytes, const char *bytes)
+            [this](size_t number_of_bytes, const char *bytes)
         {
-            _inputBuffer.insert(_inputBuffer.end(), bytes, bytes + numberOfBytes);
+            m_input_buffer.insert(m_input_buffer.end(), bytes, bytes + number_of_bytes);
         }
         );
-        _inputView = ScannerInputViewType(_inputBuffer.cbegin(), _inputBuffer.cend());
+        m_input_view = ScannerInputViewType(m_input_buffer.cbegin(), m_input_buffer.cend());
     }
 
     /// @brief Set the input.
-    /// @param fileName the filename
+    /// @param file_name the filename
     /// @post The scanner is in its initial state w.r.t. the specified input if no exception is raised.
     /// If an exception is raised, the scanner retains its state.
-    void setInput(const std::string& fileName)
+    void set_input(const std::string& file_name)
     {
-        std::vector<char> temporaryBuffer;
-        std::string temporaryFileName = fileName;
+        std::vector<char> temporary_input_buffer;
+        std::string temporary_file_name = file_name;
         // If this succeeds, then we're set.
-        vfs_readEntireFile(fileName, [&temporaryBuffer](size_t numberOfBytes, const char *bytes)
+        vfs_readEntireFile(file_name, [&temporary_input_buffer](size_t number_of_bytes, const char *bytes)
         {
-            temporaryBuffer.insert(temporaryBuffer.end(), bytes, bytes + numberOfBytes);
+            temporary_input_buffer.insert(temporary_input_buffer.end(), bytes, bytes + number_of_bytes);
         });
-        _lineNumber = 1;
-        _fileName.swap(temporaryFileName);
-        _inputBuffer.swap(temporaryBuffer);
-        _inputView = ScannerInputViewType(_inputBuffer.cbegin(), _inputBuffer.cend());
+        m_line_number = 1;
+        m_file_name.swap(temporary_file_name);
+        m_input_buffer.swap(temporary_input_buffer);
+        m_input_view = ScannerInputViewType(m_input_buffer.cbegin(), m_input_buffer.cend());
     }
 
     /// @brief Destruct this scanner.
@@ -227,32 +226,36 @@ protected:
 public:
     /// @brief Get the file name.
     /// @return the file name
-    const std::string& getFileName() const
+    const std::string& get_file_name() const
     {
-        return _fileName;
+        return m_file_name;
     }
 
     /// @brief Get the line number.
     /// @return the line number
-    size_t getLineNumber() const
+    size_t get_line_number() const
+    {
+        return m_line_number;
+    }
+
     /// @brief Get the location.
     /// @return the location
     id::location get_location() const
     {
-        return id::location(getFileName(), getLineNumber());
+        return id::location(get_file_name(), get_line_number());
     }
 
     /// @brief Get the lexeme text.
     /// @return the lexeme text
-    std::string getLexemeText() const
+    std::string get_lexeme_text() const
     {
-        return std::string(_buffer.cbegin(), _buffer.cend());
+        return std::string(m_buffer.cbegin(), m_buffer.cend());
     }
 
     /// @brief Clear the lexeme text.
-    void clearLexemeText()
+    void clear_lexeme_text()
     {
-        _buffer.clear();
+        m_buffer.clear();
     }
 
 public:
@@ -260,14 +263,14 @@ public:
     /// @return the current input symbol
     ExtendedSymbolType current() const
     {
-        return *_inputView;
+        return *m_input_view;
     }
 
 public:
     /// @brief Advance to the next input symbol.
     void next()
     {
-        _inputView++;
+        m_input_view++;
     }
 
     /// @brief Write the specified symbol.
@@ -275,12 +278,12 @@ public:
     inline void write(const ExtendedSymbolType& symbol)
     {
         assert(!Traits::is_pua_bmp(symbol) && !Traits::is_zt(symbol));
-        _buffer.push_back(static_cast<SymbolType>(symbol));
+        m_buffer.push_back(static_cast<SymbolType>(symbol));
     }
 
     /// @brief Write the specified symbol and advance to the next symbol.
     /// @param symbol the symbol
-    inline void writeAndNext(const ExtendedSymbolType& symbol)
+    inline void write_and_next(const ExtendedSymbolType& symbol)
     {
         write(symbol);
         next();
@@ -293,7 +296,7 @@ public:
     }
 
     /// @brief Save the current input symbol and advance to the next input symbol.
-    inline void saveAndNext()
+    inline void save_and_next()
     {
         save();
         next();
@@ -310,123 +313,123 @@ public:
 
     /// @brief Get if the current symbol is a whitespace symbol.
     /// @return @a true if the current symbol is a whitespace symbol, @a false otherwise
-    inline bool isWhiteSpace() const
+    inline bool is_white_space() const
     {
         static const auto p = id::parsing_expressions::whitespace<ExtendedSymbolType>();
-        auto at = this->_inputView.get_current(),
-            end = this->_inputView.get_end();
+        auto at = this->m_input_view.get_current(),
+            end = this->m_input_view.get_end();
         return p(at, end);
     }
 
     /// @brief Get if the current symbol is a new line symbol.
     /// @return @a true if the current symbol is a new line symbol, @a false otherwise
-    inline bool isNewLine() const
+    inline bool is_new_line() const
     {
         static const auto p = id::parsing_expressions::newline<ExtendedSymbolType>();
-        auto at = this->_inputView.get_current(),
-            end = this->_inputView.get_end();
+        auto at = this->m_input_view.get_current(),
+            end = this->m_input_view.get_end();
         return p(at, end);
     }
 
     /// @brief Get if the current symbol is an alphabetic symbol.
     /// @return @a true if the current symbol is an alphabetic symbol, @a false otherwise
-    inline bool isAlpha() const
+    inline bool is_alpha() const
     {
         static const auto p = id::parsing_expressions::alpha<ExtendedSymbolType>();
-        auto at = this->_inputView.get_current(),
-            end = this->_inputView.get_end();
+        auto at = this->m_input_view.get_current(),
+            end = this->m_input_view.get_end();
         return p(at, end);
     }
 
     /// @brief Get if the current symbol is a digit symbol.
     /// @return @a true if the current symbol is a digit symbol, @a false otherwise
-    inline bool isDigit() const
+    inline bool is_digit() const
     {
         static const auto p = id::parsing_expressions::digit<ExtendedSymbolType>();
-        auto at = this->_inputView.get_current(),
-            end = this->_inputView.get_end();
+        auto at = this->m_input_view.get_current(),
+            end = this->m_input_view.get_end();
         return p(at, end);
     }
 
     /// @brief Get if the current symbol is a start of input symbol.
     /// @return @a true if the current symbol is a start of input symbol, @a false otherwise
-    inline bool isStartOfInput() const
+    inline bool is_start_of_input() const
     {
         return is(Traits::startOfInput());
     }
 
     /// @brief Get if the current symbol is an end of input symbol.
     /// @return @a true if the current symbol is an end of input symbol, @a false otherwise
-    inline bool isEndOfInput() const
+    inline bool is_end_of_input() const
     {
         return is(Traits::endOfInput());
     }
 
     /// @brief Get if the current symbol is an error symbol.
     /// @return @a true if the current symbol is an error symbol, @a false otherwise
-    inline bool isError() const
+    inline bool is_error() const
     {
         return is(Traits::error());
     }
 
 public:
-    void newLine()
+    void new_line()
     {
-        if (isNewLine())
+        if (is_new_line())
         {
             auto old = current();
-            writeAndNext('\n');
-            if (isNewLine() && old != current())
+            write_and_next('\n');
+            if (is_new_line() && old != current())
             {
                 next();
             }
-            _lineNumber++;
+            m_line_number++;
         }
     }
 
     /// @brief Skip zero or one newline sequences.
     /// @remark Proper line counting is performed.
-    void skipNewLine()
+    void skip_new_line()
     {
-        if (isNewLine())
+        if (is_new_line())
         {
             auto old = current();
             next();
-            if (isNewLine() && old != current())
+            if (is_new_line() && old != current())
             {
                 next();
             }
-            _lineNumber++;
+            m_line_number++;
         }
     }
 
-    void newLines()
+    void new_lines()
     {
-        while (isNewLine())
+        while (is_new_line())
         {
             auto old = current();
-            writeAndNext('\n');
-            if (isNewLine() && old != current())
+            write_and_next('\n');
+            if (is_new_line() && old != current())
             {
                 next();
             }
-            _lineNumber++;
+            m_line_number++;
         }
     }
 
     /// @brief Skip zero or more newline sequences.
     /// @remark Proper line counting is performed.
-    void skipNewLines()
+    void skip_new_lines()
     {
-        while (isNewLine())
+        while (is_new_line())
         {
             auto old = current();
             next();
-            if (isNewLine() && old != current())
+            if (is_new_line() && old != current())
             {
                 next();
             }
-            _lineNumber++;
+            m_line_number++;
         }
     }
 
