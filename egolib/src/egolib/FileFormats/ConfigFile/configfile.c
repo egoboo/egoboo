@@ -101,7 +101,7 @@ const std::vector<ConfigCommentLine>& ConfigEntry::getCommentLines() const
 
 bool ConfigFileParser::skipWhiteSpaces()
 {
-    while (isWhiteSpace())
+    while (is_white_space())
     {
         next();
     }
@@ -112,17 +112,17 @@ bool ConfigFileParser::skipWhiteSpaces()
 
 bool ConfigFileParser::parseFile(std::shared_ptr<ConfigFile> target)
 {
-    assert(isStartOfInput());
+    assert(is_start_of_input());
     _currentQualifiedName = nullptr;
     _currentValue = nullptr;
     next();
-    while (!isEndOfInput())
+    while (!is_end_of_input())
     {
-        if (isNewLine())
+        if (is_new_line())
         {
-            skipNewLines();
+            skip_new_lines();
         }
-        else if (isWhiteSpace())
+        else if (is_white_space())
         {
             skipWhiteSpaces();
         }
@@ -152,7 +152,7 @@ bool ConfigFileParser::parseEntry(std::shared_ptr<ConfigFile> target)
     }
     if (!is(':'))
     {
-        fprintf(stderr, "%s: invalid key-value pair\n", getFileName().c_str());
+        fprintf(stderr, "%s: invalid key-value pair\n", get_file_name().c_str());
         return false;
     }
     next();
@@ -177,61 +177,61 @@ bool ConfigFileParser::parseComment(std::string& comment)
     next();
     if (!is('/'))
     {
-        fprintf(stderr, "%s: invalid comment\n", getFileName().c_str());
+        fprintf(stderr, "%s: invalid comment\n", get_file_name().c_str());
         return false;
     }
     next();
-    clearLexemeText();
-    while (!isEndOfInput() && !isError() && !isNewLine())
+    clear_lexeme_text();
+    while (!is_end_of_input() && !is_error() && !is_new_line())
     {
-        saveAndNext();
+        save_and_next();
     }
-    skipNewLines();
+    skip_new_lines();
     if (Traits::error() == current())
     {
-        fprintf(stderr, "%s: error while reading file\n", getFileName().c_str());
+        fprintf(stderr, "%s: error while reading file\n", get_file_name().c_str());
         return false;
     }
-    comment = getLexemeText();
+    comment = get_lexeme_text();
     return true;
 }
 
 bool ConfigFileParser::parseName()
 {
-    assert(is('_') || isAlpha());
+    assert(is('_') || is_alpha());
     while (is('_'))
     {
-        saveAndNext();
+        save_and_next();
     }
-    if (!isAlpha())
+    if (!is_alpha())
     {
-        fprintf(stderr, "%s: invalid name\n", getFileName().c_str());
+        fprintf(stderr, "%s: invalid name\n", get_file_name().c_str());
         return false;
     }
     do
     {
-        saveAndNext();
-    } while (isAlpha() || isDigit() || is('_'));
+        save_and_next();
+    } while (is_alpha() || is_digit() || is('_'));
     return true;
 }
 
 bool ConfigFileParser::parseQualifiedName()
 {
-    assert(is('_') || isAlpha());
-    clearLexemeText();
+    assert(is('_') || is_alpha());
+    clear_lexeme_text();
     if (!parseName())
     {
         return false;
     }
     while (is('.'))
     {
-        saveAndNext();
+        save_and_next();
         if (!parseName())
         {
             return false;
         }
     }
-    _currentQualifiedName.reset(new id::qualified_name(getLexemeText()));
+    _currentQualifiedName.reset(new id::qualified_name(get_lexeme_text()));
 
     return true;
 }
@@ -240,18 +240,18 @@ bool ConfigFileParser::parseValue()
 {
     assert(is('"'));
     next();
-    clearLexemeText();
-    while (!isEndOfInput() && !is('"') && !isNewLine())
+    clear_lexeme_text();
+    while (!is_end_of_input() && !is('"') && !is_new_line())
     {
-        saveAndNext();
+        save_and_next();
     }
     if (!is('"'))
     {
-        fprintf(stderr, "%s: invalid value\n", getFileName().c_str());
+        fprintf(stderr, "%s: invalid value\n", get_file_name().c_str());
         return false;
     }
     next();
-    _currentValue.reset(new std::string(getLexemeText()));
+    _currentValue.reset(new std::string(get_lexeme_text()));
     return true;
 }
 
@@ -266,7 +266,7 @@ std::shared_ptr<ConfigFile> ConfigFileParser::parse()
 {
     try
     {
-        auto target = std::make_shared<ConfigFile>(getFileName());
+        auto target = std::make_shared<ConfigFile>(get_file_name());
         if (!parseFile(target))
         {
             return nullptr;

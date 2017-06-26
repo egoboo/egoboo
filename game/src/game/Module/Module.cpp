@@ -837,14 +837,14 @@ void GameModule::loadTeamAlliances()
     {
         std::string buffer = vfs_read_string_lit(*ctxt);
         if (buffer.length() < 1) {
-            throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::syntactical, id::location(ctxt->getFileName(), ctxt->getLineNumber()),
+            throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::syntactical, ctxt->get_location(),
                                         "empty string literal");
         }
         TEAM_REF teama = (buffer[0] - 'A') % Team::TEAM_MAX;
 
         buffer = vfs_read_string_lit(*ctxt);
         if (buffer.length() < 1) {
-            throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::syntactical, id::location(ctxt->getFileName(), ctxt->getLineNumber()),
+            throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::syntactical, ctxt->get_location(),
                                         "empty string literal");
         }
         TEAM_REF teamb = (buffer[0] - 'A') % Team::TEAM_MAX;

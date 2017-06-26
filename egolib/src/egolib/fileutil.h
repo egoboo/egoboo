@@ -91,7 +91,7 @@ public:
         auto it = enumDescriptor.find(name);
         if (it == enumDescriptor.end())
         {
-            throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, id::location(getFileName(), getLineNumber()), "invalid enum");
+            throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, get_location(), "invalid enum");
         }
         return it->second;
     }
@@ -114,7 +114,7 @@ public:
         auto it = enumDescriptor.find(name);
         if (it == enumDescriptor.end())
         {
-            Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "in file ", "`", getFileName(), "`", ":", "`", name, "`",
+            Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "in file ", "`", get_file_name(), "`", ":", "`", name, "`",
                                              " is not an element of enum ", "`", enumDescriptor.getName(), "`", Log::EndOfEntry);
             return defaultValue;
         }
