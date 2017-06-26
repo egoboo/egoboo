@@ -95,19 +95,22 @@ public:
     }
 
 public:
+
     /// @brief Get the profile for a profile reference.
     /// @param ref the profile reference
     /// @return a pointer to the profile the profile loaded into the references to if any, a null pointer otherwise
     const std::shared_ptr<Type>& get_ptr(const RefType& ref) const
     {
+        static const std::shared_ptr<Type> NULL_OBJECT = nullptr;
+
         if (InvalidRef == ref)
         {
-            return nullptr;
+            return NULL_OBJECT;
         }
         auto it = map.find(ref);
         if (it == map.cend())
         {
-            return nullptr;
+            return NULL_OBJECT;
         }
         return it->second;
     }

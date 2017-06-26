@@ -108,11 +108,6 @@ public:
 
     void setRespawnValid(bool valid) {_isRespawnValid = valid;}
 
-    /// @author ZF
-    /// @details This function checks all passages if there is a player in it, if it is, it plays a specified
-    /// song set in by the AI script functions
-    void checkPassageMusic();
-
     /// @author ZZ
     /// @details This function returns the owner of a item in a shop
     ObjectRef getShopOwner(const float x, const float y);
@@ -187,12 +182,6 @@ public:
      std::shared_ptr<const Ego::Texture> getTileTexture(const size_t index);
      std::shared_ptr<const Ego::Texture> getWaterTexture(const uint8_t layer);
 
-    /**
-    * @brief
-    *   Update all active objects in the module
-    **/
-    void updateAllObjects();
-
     water_instance_t& getWater();
 
     std::shared_ptr<Ego::Player>& getPlayer(size_t index);
@@ -200,12 +189,6 @@ public:
     const std::vector<std::shared_ptr<Ego::Player>>& getPlayerList() const;
 
     bool addPlayer(const std::shared_ptr<Object>& object, const Ego::Input::InputDevice &device);
-
-    /**
-    * @brief
-    *   This function kills any character in a deep pit...
-    **/
-    void updatePits();
 
     /**
     * @brief
@@ -225,16 +208,13 @@ public:
 
     /**
     * @brief
-    *   This makes tiles flagged as damage tiles hurt any characters standing on 
-    *   top of them
-    **/
-    void updateDamageTiles();
-
-    /**
-    * @brief
     *   This function sets up character data, loaded from "SPAWN.TXT"
     **/
     void spawnAllObjects();
+
+    /// @details This function does several iterations of character movements and such
+    ///    to keep the game in sync.
+    void update();
 
 private:
     /**
@@ -242,6 +222,31 @@ private:
     *   Load all passages from file
     **/
     void loadAllPassages();
+
+
+    /// @author ZF
+    /// @details This function checks all passages if there is a player in it, if it is, it plays a specified
+    /// song set in by the AI script functions
+    void checkPassageMusic();
+
+    /**
+    * @brief
+    *   Update all active objects in the module
+    **/
+    void updateAllObjects();
+
+    /**
+    * @brief
+    *   This function kills any character in a deep pit...
+    **/
+    void updatePits();
+
+    /**
+    * @brief
+    *   This makes tiles flagged as damage tiles hurt any characters standing on 
+    *   top of them
+    **/
+    void updateDamageTiles();
 
     /**
     * @brief
