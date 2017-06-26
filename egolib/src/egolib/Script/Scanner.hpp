@@ -169,7 +169,7 @@ private:
 public:
     using Traits = TraitsArg;
     using SymbolType = typename Traits::Type;
-    using ExtendedSymbolType = int;
+    using ExtendedSymbolType = typename Traits::ExtendedType;
     using ScannerInputViewType = ScannerInputView<ExtendedSymbolType, Traits::startOfInput(), Traits::endOfInput(), Traits::error(), std::vector<char>::const_iterator>;
 
 private:
