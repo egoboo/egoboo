@@ -235,8 +235,11 @@ public:
     /// @brief Get the line number.
     /// @return the line number
     size_t getLineNumber() const
+    /// @brief Get the location.
+    /// @return the location
+    id::location get_location() const
     {
-        return _lineNumber;
+        return id::location(getFileName(), getLineNumber());
     }
 
     /// @brief Get the lexeme text.
