@@ -59,6 +59,9 @@
  */
 #include "egolib/FileFormats/ConfigFile/configfile.h"
 
+#pragma push_macro("ERROR")
+#undef ERROR
+
 //--------------------------------------------------------------------------------------------
 
 ConfigCommentLine::ConfigCommentLine(const std::string& text) :
@@ -101,7 +104,7 @@ const std::vector<ConfigCommentLine>& ConfigEntry::getCommentLines() const
 
 bool ConfigFileParser::skipWhiteSpaces()
 {
-    while (is_white_space())
+    while (ise(WHITE_SPACE()))
     {
         next();
     }
@@ -112,17 +115,17 @@ bool ConfigFileParser::skipWhiteSpaces()
 
 bool ConfigFileParser::parseFile(std::shared_ptr<ConfigFile> target)
 {
-    assert(is_start_of_input());
+    assert(ise(START_OF_INPUT()));
     _currentQualifiedName = nullptr;
     _currentValue = nullptr;
     next();
-    while (!is_end_of_input())
+    while (!ise(END_OF_INPUT()))
     {
-        if (is_new_line())
+        if (ise(NEW_LINE()))
         {
-            skip_new_lines();
+            new_lines(nullptr);
         }
-        else if (is_white_space())
+        else if (ise(WHITE_SPACE()))
         {
             skipWhiteSpaces();
         }
@@ -182,12 +185,12 @@ bool ConfigFileParser::parseComment(std::string& comment)
     }
     next();
     clear_lexeme_text();
-    while (!is_end_of_input() && !is_error() && !is_new_line())
+    while (!ise(END_OF_INPUT()) && !ise(ERROR()) && !ise(NEW_LINE()))
     {
         save_and_next();
     }
-    skip_new_lines();
-    if (Traits::error() == current())
+    new_lines(nullptr);
+    if (ise(ERROR()))
     {
         fprintf(stderr, "%s: error while reading file\n", get_file_name().c_str());
         return false;
@@ -198,12 +201,12 @@ bool ConfigFileParser::parseComment(std::string& comment)
 
 bool ConfigFileParser::parseName()
 {
-    assert(is('_') || is_alpha());
+    assert(is('_') || ise(ALPHA()));
     while (is('_'))
     {
         save_and_next();
     }
-    if (!is_alpha())
+    if (!ise(ALPHA()))
     {
         fprintf(stderr, "%s: invalid name\n", get_file_name().c_str());
         return false;
@@ -211,13 +214,13 @@ bool ConfigFileParser::parseName()
     do
     {
         save_and_next();
-    } while (is_alpha() || is_digit() || is('_'));
+    } while (ise(ALPHA()) || ise(DIGIT()) || is('_'));
     return true;
 }
 
 bool ConfigFileParser::parseQualifiedName()
 {
-    assert(is('_') || is_alpha());
+    assert(is('_') || ise(ALPHA()));
     clear_lexeme_text();
     if (!parseName())
     {
@@ -241,7 +244,7 @@ bool ConfigFileParser::parseValue()
     assert(is('"'));
     next();
     clear_lexeme_text();
-    while (!is_end_of_input() && !is('"') && !is_new_line())
+    while (!ise(END_OF_INPUT()) && !is('"') && !ise(NEW_LINE()))
     {
         save_and_next();
     }
@@ -340,3 +343,5 @@ bool ConfigFileUnParser::unparse(std::shared_ptr<ConfigFile> source)
     }
     return true;
 }
+
+#pragma pop_macro("ERROR")

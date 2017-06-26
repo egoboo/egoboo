@@ -4,6 +4,9 @@
 #include "idlib/parsing_expressions/include.hpp"
 #include "egolib/Script/TextInputFile.hpp"
 
+#pragma push_macro("ERROR")
+#undef ERROR
+
 namespace Ego {
 namespace Script {
 
@@ -311,91 +314,71 @@ public:
         return symbol == current();
     }
 
-    /// @brief Get if the current symbol is a whitespace symbol.
-    /// @return @a true if the current symbol is a whitespace symbol, @a false otherwise
-    inline bool is_white_space() const
+    static decltype(auto) WHITE_SPACE()
     {
         static const auto p = id::parsing_expressions::whitespace<ExtendedSymbolType>();
-        auto at = this->m_input_view.get_current(),
-            end = this->m_input_view.get_end();
-        return p(at, end);
+        return p;
     }
 
-    /// @brief Get if the current symbol is a new line symbol.
-    /// @return @a true if the current symbol is a new line symbol, @a false otherwise
-    inline bool is_new_line() const
+    static decltype(auto) NEW_LINE()
     {
         static const auto p = id::parsing_expressions::newline<ExtendedSymbolType>();
-        auto at = this->m_input_view.get_current(),
-            end = this->m_input_view.get_end();
-        return p(at, end);
+        return p;
     }
 
-    /// @brief Get if the current symbol is an alphabetic symbol.
-    /// @return @a true if the current symbol is an alphabetic symbol, @a false otherwise
-    inline bool is_alpha() const
+    static decltype(auto) ALPHA()
     {
         static const auto p = id::parsing_expressions::alpha<ExtendedSymbolType>();
-        auto at = this->m_input_view.get_current(),
-            end = this->m_input_view.get_end();
-        return p(at, end);
+        return p;
     }
 
-    /// @brief Get if the current symbol is a digit symbol.
-    /// @return @a true if the current symbol is a digit symbol, @a false otherwise
-    inline bool is_digit() const
+    static decltype(auto) DIGIT()
     {
         static const auto p = id::parsing_expressions::digit<ExtendedSymbolType>();
-        auto at = this->m_input_view.get_current(),
-            end = this->m_input_view.get_end();
-        return p(at, end);
+        return p;
     }
 
-    /// @brief Get if the current symbol is a start of input symbol.
-    /// @return @a true if the current symbol is a start of input symbol, @a false otherwise
-    inline bool is_start_of_input() const
+    static decltype(auto) START_OF_INPUT()
     {
-        return is(Traits::startOfInput());
+        static const auto p = id::parsing_expressions::sym<ExtendedSymbolType>(Traits::startOfInput());
+        return p;
     }
 
-    /// @brief Get if the current symbol is an end of input symbol.
-    /// @return @a true if the current symbol is an end of input symbol, @a false otherwise
-    inline bool is_end_of_input() const
+    static decltype(auto) END_OF_INPUT()
     {
-        return is(Traits::endOfInput());
+        static const auto p = id::parsing_expressions::sym<ExtendedSymbolType>(Traits::endOfInput());
+        return p;
     }
 
-    /// @brief Get if the current symbol is an error symbol.
-    /// @return @a true if the current symbol is an error symbol, @a false otherwise
-    inline bool is_error() const
+    static decltype(auto) ERROR()
     {
-        return is(Traits::error());
+        static const auto p = id::parsing_expressions::sym<ExtendedSymbolType>(Traits::error());
+        return p;
+    }
+
+    template <typename T>
+    bool ise(const T& e) const
+    {
+        auto at = m_input_view.get_current(),
+             end = m_input_view.get_end();
+        return e(at, end);
     }
 
 public:
-    void new_line()
+    /// @code
+    /// new_line := NEW_LINE?
+    /// @endcode
+    void new_line(std::function<void(char)> action)
     {
-        if (is_new_line())
+        if (ise(NEW_LINE()))
         {
             auto old = current();
-            write_and_next('\n');
-            if (is_new_line() && old != current())
-            {
-                next();
+            if (action)
+            { 
+                action('\n');
             }
-            m_line_number++;
-        }
-    }
-
-    /// @brief Skip zero or one newline sequences.
-    /// @remark Proper line counting is performed.
-    void skip_new_line()
-    {
-        if (is_new_line())
-        {
-            auto old = current();
             next();
-            if (is_new_line() && old != current())
+            if (ise(NEW_LINE()) && old != current())
             {
                 next();
             }
@@ -403,29 +386,20 @@ public:
         }
     }
 
-    void new_lines()
+    /// @code
+    /// new_lines = NEW_LINE*
+    /// @endcode
+    void new_lines(std::function<void(char)> action)
     {
-        while (is_new_line())
+        while (ise(NEW_LINE()))
         {
             auto old = current();
-            write_and_next('\n');
-            if (is_new_line() && old != current())
+            if (action)
             {
-                next();
+                action('\n');
             }
-            m_line_number++;
-        }
-    }
-
-    /// @brief Skip zero or more newline sequences.
-    /// @remark Proper line counting is performed.
-    void skip_new_lines()
-    {
-        while (is_new_line())
-        {
-            auto old = current();
             next();
-            if (is_new_line() && old != current())
+            if (ise(NEW_LINE()) && old != current())
             {
                 next();
             }
@@ -437,3 +411,5 @@ public:
 
 } // namespace Script
 } // namespace Ego
+
+#pragma pop_macro("ERROR")

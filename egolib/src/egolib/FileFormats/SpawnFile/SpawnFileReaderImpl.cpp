@@ -4,6 +4,9 @@
 #include "egolib/strutil.h"
 #include "egolib/Logic/Team.hpp"
 
+#pragma push_macro("ERROR")
+#undef ERROR
+
 SpawnFileReaderImpl::SpawnFileReaderImpl()
 {}
 
@@ -18,31 +21,31 @@ bool SpawnFileReaderImpl::read(ReadContext& ctxt, spawn_file_info_t& info)
     while (true)
     {
         ctxt.skipWhiteSpaces();
-        ctxt.skip_new_lines();
+        ctxt.new_lines(nullptr);
         if (ctxt.is('/'))
         {
             ctxt.readSingleLineComment(); /// @todo Add and use ReadContext::skipSingleLineComment().
             continue;
         }
-        if (!ctxt.is_white_space() && !ctxt.is_new_line() && !ctxt.is('/'))
+        if (!ctxt.ise(ctxt.WHITE_SPACE()) && !ctxt.ise(ctxt.NEW_LINE()) && !ctxt.is('/'))
         {
             break;
         }
     }
-    if (ctxt.is_alpha() || ctxt.is('%') || ctxt.is('_'))
+    if (ctxt.ise(ctxt.ALPHA()) || ctxt.is('%') || ctxt.is('_'))
     {
         ctxt.clear_lexeme_text();
         // Read everything into the buffer until a ':', a new line, an error or the end of the input is reached.
         do
         {
             ctxt.save_and_next();
-        } while (!ctxt.is(':') && !ctxt.is_new_line() && !ctxt.is_end_of_input() && !ctxt.is_error());
-        if (ctxt.is_error())
+        } while (!ctxt.is(':') && !ctxt.ise(ctxt.NEW_LINE()) && !ctxt.ise(ctxt.END_OF_INPUT()) && !ctxt.ise(ctxt.ERROR()));
+        if (ctxt.ise(ctxt.ERROR()))
         {
             throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, ctxt.get_location(),
                                         "read error");
         }
-        if (ctxt.is_end_of_input())
+        if (ctxt.ise(ctxt.END_OF_INPUT()))
         {
             return false;
         }
@@ -142,7 +145,7 @@ bool SpawnFileReaderImpl::read(ReadContext& ctxt, spawn_file_info_t& info)
         info.slot = slot;
         return true;
     }
-    else if (!ctxt.is_end_of_input())
+    else if (!ctxt.ise(ctxt.END_OF_INPUT()))
     {
         throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, ctxt.get_location(),
                                     "junk after end of spawn file");
@@ -155,7 +158,7 @@ std::vector<spawn_file_info_t> SpawnFileReaderImpl::read(const std::string& path
     ReadContext ctxt(pathname);
     ctxt.next(); /// @todo Remove this hack.
     std::vector<spawn_file_info_t> entries;
-    while (!ctxt.is_end_of_input())
+    while (!ctxt.ise(ctxt.END_OF_INPUT()))
     {
         spawn_file_info_t entry;
         // Read next entry.
@@ -168,3 +171,5 @@ std::vector<spawn_file_info_t> SpawnFileReaderImpl::read(const std::string& path
     }
     return entries;
 }
+
+#pragma pop_macro("ERROR")

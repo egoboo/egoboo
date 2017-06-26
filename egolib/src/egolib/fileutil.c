@@ -34,6 +34,9 @@
 // includes for egoboo constants
 #include "egolib/Graphics/ModelDescriptor.hpp"                    // for ACTION_* constants
 
+#pragma push_macro("ERROR")
+#undef ERROR
+
 ReadContext::ReadContext(const std::string& fileName) :
     Scanner(fileName)
 {
@@ -58,28 +61,28 @@ float ReadContext::toReal() const
 
 void ReadContext::skipWhiteSpaces()
 {
-    if (is_start_of_input())
+    if (ise(START_OF_INPUT()))
     {
         next();
     }
-    if (is_error())
+    if (ise(ERROR()))
     {
         throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, get_location(),
                                     "read error");
     }
-    if (is_end_of_input())
+    if (ise(END_OF_INPUT()))
     {
         return;
     }
-    while (is_white_space())
+    while (ise(WHITE_SPACE()))
     {
         next();
-        if (is_error())
+        if (ise(ERROR()))
         {
             throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, get_location(),
                                         "read error");
         }
-        if (is_end_of_input())
+        if (ise(END_OF_INPUT()))
         {
             return;
         }
@@ -91,7 +94,7 @@ void ReadContext::skipWhiteSpaces()
 
 IDSZ2 ReadContext::readIDSZ() {
 	char c[4];
-	if (is_start_of_input())
+	if (ise(START_OF_INPUT()))
 	{
 		next();
 	}
@@ -99,12 +102,12 @@ IDSZ2 ReadContext::readIDSZ() {
 	// `'['`
 	if (!is('['))
 	{
-		if (is_error())
+		if (ise(ERROR()))
 		{
 			throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, get_location(),
 				                        "read error while scanning IDSZ");
 		}
-		else if (is_end_of_input())
+		else if (ise(END_OF_INPUT()))
 		{
 			throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, get_location(),
 				                        "premature end of input while scanning IDSZ");
@@ -119,14 +122,14 @@ IDSZ2 ReadContext::readIDSZ() {
 	// `(<alphabetic>|<digit>|'_')^4`
 	for (size_t i = 0; i < 4; ++i)
 	{
-		if (!is_alpha() && !is_digit() && !is('_'))
+		if (!ise(ALPHA()) && !ise(DIGIT()) && !is('_'))
 		{
-			if (is_error())
+			if (ise(ERROR()))
 			{
 				throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, get_location(),
 					                        "read error while scanning IDSZ");
 			}
-			else if (is_end_of_input())
+			else if (ise(END_OF_INPUT()))
 			{
 				throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, get_location(),
 					                        "premature end of input while scanning IDSZ");
@@ -143,12 +146,12 @@ IDSZ2 ReadContext::readIDSZ() {
 	// `']'`
 	if (!is(']'))
 	{
-		if (is_error())
+		if (ise(ERROR()))
 		{
 			throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, get_location(),
 				                        "read error while scanning IDSZ");
 		}
-		else if (is_end_of_input())
+		else if (ise(END_OF_INPUT()))
 		{
 			throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, get_location(),
 				                        "premature end of input while scanning IDSZ");
@@ -166,18 +169,18 @@ IDSZ2 ReadContext::readIDSZ() {
 //--------------------------------------------------------------------------------------------
 bool ReadContext::skipToDelimiter(char delimiter, bool optional)
 {
-    if (is_start_of_input())
+    if (ise(START_OF_INPUT()))
     {
         next();
     }
     while (true)
     {
-        if (is_error())
+        if (ise(ERROR()))
         {
             throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, get_location(),
                                         "read error");
         }
-        if (is_end_of_input())
+        if (ise(END_OF_INPUT()))
         {
             if (optional)
             {
@@ -189,9 +192,9 @@ bool ReadContext::skipToDelimiter(char delimiter, bool optional)
             }
         }
         bool isDelimiter = is(delimiter);
-        if (is_new_line())
+        if (ise(NEW_LINE()))
         {
-            skip_new_line();
+            new_line(nullptr);
         }
         else
         {
@@ -517,7 +520,7 @@ Ego::Math::Interval<float> vfs_get_next_range(ReadContext& ctxt)
 /// @endcode
 int vfs_get_version(ReadContext& ctxt)
 {
-    if (ctxt.is_start_of_input())
+    if (ctxt.ise(ctxt.START_OF_INPUT()))
     {
         ctxt.next();
     }
@@ -557,17 +560,17 @@ char vfs_get_next_printable(ReadContext& ctxt)
 
 std::string ReadContext::readToEndOfLine()
 {
-    if (is_start_of_input())
+    if (ise(START_OF_INPUT()))
     {
         next();
     }
     skipWhiteSpaces();
     clear_lexeme_text();
-    while (!is_end_of_input())
+    while (!ise(END_OF_INPUT()))
     {
-        if (is_new_line())
+        if (ise(NEW_LINE()))
         {
-            skip_new_line();
+            new_line(nullptr);
             break;
         }
         save_and_next();
@@ -577,7 +580,7 @@ std::string ReadContext::readToEndOfLine()
 
 std::string ReadContext::readSingleLineComment()
 {
-    if (is_start_of_input())
+    if (ise(START_OF_INPUT()))
     {
         next();
     }
@@ -596,16 +599,16 @@ std::string ReadContext::readSingleLineComment()
     }
     next();
     skipWhiteSpaces();
-    while (!is_end_of_input())
+    while (!ise(END_OF_INPUT()))
     {
-        if (is_error())
+        if (ise(ERROR()))
         {
             throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, get_location(),
                                         "read error while scanning single line comment");
         }
-        if (is_new_line())
+        if (ise(NEW_LINE()))
         {
-            skip_new_line();
+            new_line(nullptr);
             break;
         }
         save_and_next();
@@ -615,14 +618,14 @@ std::string ReadContext::readSingleLineComment()
 
 char ReadContext::readPrintable()
 {
-    if (is_start_of_input())
+    if (ise(START_OF_INPUT()))
     {
         next();
     }
     skipWhiteSpaces();
-    if (is_end_of_input() || is_error())
+    if (ise(END_OF_INPUT()) || ise(ERROR()))
     {
-        if (is_error())
+        if (ise(ERROR()))
         {
             throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, get_location(),
                                         "read error while scanning printable character");
@@ -633,14 +636,14 @@ char ReadContext::readPrintable()
                                         "premature end of input while scanning printable character");
         }
     }
-    if (!is_alpha() && !is_digit() && !is('!') && !is('?') && !is('='))
+    if (!ise(ALPHA()) && !ise(DIGIT()) && !is('!') && !is('?') && !is('='))
     {
-        if (is_error())
+        if (ise(ERROR()))
         {
             throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, get_location(),
                                         "read error while scanning printable character");
         }
-        else if (is_end_of_input())
+        else if (ise(END_OF_INPUT()))
         {
             throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, get_location(),
                                         "premature end of input while scanning a printable character");
@@ -660,13 +663,13 @@ Ego::Script::DDLToken ReadContext::parseStringLiteral()
 {
 	id::location startLocation = get_location();
 	clear_lexeme_text();
-	if (is_start_of_input())
+	if (ise(START_OF_INPUT()))
 	{
 		next();
 	}
 	while (true)
 	{
-		if (is_error())
+		if (ise(ERROR()))
 		{
 			throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, get_location(),
 				                        "read error");
@@ -679,7 +682,7 @@ Ego::Script::DDLToken ReadContext::parseStringLiteral()
 		{
 			write_and_next(' ');
 		}
-		else if (is_new_line() || is_white_space() || is_end_of_input())
+		else if (ise(NEW_LINE()) || ise(WHITE_SPACE()) || ise(END_OF_INPUT()))
 		{
 			break;
 		}
@@ -694,18 +697,18 @@ Ego::Script::DDLToken ReadContext::parseStringLiteral()
 Ego::Script::DDLToken ReadContext::parseCharacterLiteral() {
 	id::location startLocation = get_location();
 	clear_lexeme_text();
-	if (is_start_of_input())
+	if (ise(START_OF_INPUT()))
 	{
 		next();
 	}
-	if (is_end_of_input() || is_error())
+	if (ise(END_OF_INPUT()) || ise(ERROR()))
 	{
-		if (is_error())
+		if (ise(ERROR()))
 		{
 			throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, get_location(),
 				                        "read error while scanning character literal");
 		}
-		else if (is_end_of_input())
+		else if (ise(END_OF_INPUT()))
 		{
 			throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, get_location(),
 				                        "premature end of input while scanning character literal");
@@ -713,12 +716,12 @@ Ego::Script::DDLToken ReadContext::parseCharacterLiteral() {
 	}
 	if (!is('\''))
 	{
-		if (is_error())
+		if (ise(ERROR()))
 		{
 			throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, get_location(),
 				                        "read error while scanning character literal");
 		}
-		else if (is_end_of_input())
+		else if (ise(END_OF_INPUT()))
 		{
 			throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, get_location(),
 				                        "premature end of input while scanning character literal");
@@ -751,12 +754,12 @@ Ego::Script::DDLToken ReadContext::parseCharacterLiteral() {
 		}
 		else
 		{
-			if (is_error())
+			if (ise(ERROR()))
 			{
 				throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, get_location(),
 					                        "read error while scanning character literal");
 			}
-			else if (is_end_of_input())
+			else if (ise(END_OF_INPUT()))
 			{
 				throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, get_location(),
 					                        "premature end of input while scanning character literal");
@@ -770,14 +773,14 @@ Ego::Script::DDLToken ReadContext::parseCharacterLiteral() {
 	}
 	else
 	{
-		if (is_end_of_input() || is_error())
+		if (ise(END_OF_INPUT()) || ise(ERROR()))
 		{
-			if (is_error())
+			if (ise(ERROR()))
 			{
 				throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, get_location(),
 					                        "read error while scanning character literal");
 			}
-			else if (is_end_of_input())
+			else if (ise(END_OF_INPUT()))
 			{
 				throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, get_location(),
 					                        "empty character literal");
@@ -796,7 +799,7 @@ Ego::Script::DDLToken ReadContext::parseIntegerLiteral()
 {
 	id::location startLocation = get_location();
 	clear_lexeme_text();
-	if (is_start_of_input())
+	if (ise(START_OF_INPUT()))
 	{
 		next();
 	}
@@ -804,14 +807,14 @@ Ego::Script::DDLToken ReadContext::parseIntegerLiteral()
 	{
 		save_and_next();
 	}
-	if (!is_digit())
+	if (!ise(DIGIT()))
 	{
-		if (is_error())
+		if (ise(ERROR()))
 		{
 			throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, get_location(),
 				                        "read error while scanning integer literal");
 		}
-		else if (is_end_of_input())
+		else if (ise(END_OF_INPUT()))
 		{
 			throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, get_location(),
 				                        "premature end of input while scanning integer literal");
@@ -825,7 +828,7 @@ Ego::Script::DDLToken ReadContext::parseIntegerLiteral()
 	do
 	{
 		save_and_next();
-	} while (is_digit());
+	} while (ise(DIGIT()));
 	if (is('e') || is('E'))
 	{
 		save_and_next();
@@ -833,14 +836,14 @@ Ego::Script::DDLToken ReadContext::parseIntegerLiteral()
 		{
 			save_and_next();
 		}
-		if (!is_digit())
+		if (!ise(DIGIT()))
 		{
-			if (is_error())
+			if (ise(ERROR()))
 			{
 				throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, get_location(),
 					                        "read error while scanning integer literal");
 			}
-			else if (is_end_of_input())
+			else if (ise(END_OF_INPUT()))
 			{
 				throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, get_location(),
 					                        "premature end of input while scanning integer literal");
@@ -854,7 +857,7 @@ Ego::Script::DDLToken ReadContext::parseIntegerLiteral()
 		do
 		{
 			save_and_next();
-		} while (is_digit());
+		} while (ise(DIGIT()));
 	}
     return Ego::Script::DDLToken(Ego::Script::DDLTokenKind::Integer, startLocation, get_lexeme_text());
 }
@@ -863,7 +866,7 @@ Ego::Script::DDLToken ReadContext::parseNaturalLiteral()
 {
 	clear_lexeme_text();
     id::location startLocation = get_location();
-	if (is_start_of_input())
+	if (ise(START_OF_INPUT()))
 	{
 		next();
 	}
@@ -871,14 +874,14 @@ Ego::Script::DDLToken ReadContext::parseNaturalLiteral()
 	{
 		save_and_next();
 	}
-	if (!is_digit())
+	if (!ise(DIGIT()))
 	{
-		if (is_error())
+		if (ise(ERROR()))
 		{
 			throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, get_location(),
 				                        "read error while scanning natural literal");
 		}
-		else if (is_end_of_input())
+		else if (ise(END_OF_INPUT()))
 		{
 			throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, get_location(),
 				                        "premature end of input while scanning natural literal");
@@ -892,7 +895,7 @@ Ego::Script::DDLToken ReadContext::parseNaturalLiteral()
 	do
 	{
 		save_and_next();
-	} while (is_digit());
+	} while (ise(DIGIT()));
 	if (is('e') || is('E'))
 	{
 		save_and_next();
@@ -900,14 +903,14 @@ Ego::Script::DDLToken ReadContext::parseNaturalLiteral()
 		{
 			save_and_next();
 		}
-		if (!is_digit())
+		if (!ise(DIGIT()))
 		{
-			if (is_error())
+			if (ise(ERROR()))
 			{
 				throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, get_location(),
 					                        "read error while scanning natural literal");
 			}
-			else if (is_end_of_input())
+			else if (ise(END_OF_INPUT()))
 			{
 				throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, get_location(),
 					                        "premature end of input while scanning natural literal");
@@ -921,7 +924,7 @@ Ego::Script::DDLToken ReadContext::parseNaturalLiteral()
 		do
 		{
 			save_and_next();
-		} while (is_digit());
+		} while (ise(DIGIT()));
 	}
 	return Ego::Script::DDLToken(Ego::Script::DDLTokenKind::Integer, startLocation, get_lexeme_text());
 }
@@ -930,7 +933,7 @@ Ego::Script::DDLToken ReadContext::parseRealLiteral()
 {
 	clear_lexeme_text();
 	id::location startLocation = get_location();
-	if (is_start_of_input())
+	if (ise(START_OF_INPUT()))
 	{
 		next();
 	}
@@ -941,14 +944,14 @@ Ego::Script::DDLToken ReadContext::parseRealLiteral()
 	if (is('.'))
 	{
 		save_and_next();
-		if (!is_digit())
+		if (!ise(DIGIT()))
 		{
-			if (is_error())
+			if (ise(ERROR()))
 			{
 				throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, get_location(),
 					                        "read error while scanning real literal");
 			}
-			else if (is_end_of_input())
+			else if (ise(END_OF_INPUT()))
 			{
 				throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, get_location(),
 					                        "premature end of input while scanning real literal");
@@ -962,18 +965,18 @@ Ego::Script::DDLToken ReadContext::parseRealLiteral()
 		do
 		{
 			save_and_next();
-		} while (is_digit());
+		} while (ise(DIGIT()));
 	}
-	else if (is_digit())
+	else if (ise(DIGIT()))
 	{
 		do
 		{
 			save_and_next();
-		} while (is_digit());
+		} while (ise(DIGIT()));
 		if (is('.'))
 		{
 			save_and_next();
-			while (is_digit())
+			while (ise(DIGIT()))
 			{
 				save_and_next();
 			}
@@ -986,14 +989,14 @@ Ego::Script::DDLToken ReadContext::parseRealLiteral()
 		{
 			save_and_next();
 		}
-		if (!is_digit())
+		if (!ise(DIGIT()))
 		{
-			if (is_error())
+			if (ise(ERROR()))
 			{
 				throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, get_location(),
 					                        "read error while scanning real literal exponent");
 			}
-			else if (is_end_of_input())
+			else if (ise(END_OF_INPUT()))
 			{
 				throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, get_location(),
 					                        "premature end of input while scanning real literal exponent");
@@ -1007,7 +1010,7 @@ Ego::Script::DDLToken ReadContext::parseRealLiteral()
 		do
 		{
 			save_and_next();
-		} while (is_digit());
+		} while (ise(DIGIT()));
 	}
 	return Ego::Script::DDLToken(Ego::Script::DDLTokenKind::Real, startLocation, get_lexeme_text());
 }
@@ -1112,13 +1115,13 @@ void vfs_read_string(ReadContext& ctxt, char *str, size_t max)
     else
     {
         size_t cur = 0;
-        while (cur < max && !ctxt.is_new_line() && !ctxt.is_white_space() &&
-               !ctxt.is_end_of_input() && !ctxt.is_error())
+        while (cur < max && !ctxt.ise(ctxt.NEW_LINE()) && !ctxt.ise(ctxt.WHITE_SPACE()) &&
+               !ctxt.ise(ctxt.END_OF_INPUT()) && !ctxt.ise(ctxt.ERROR()))
         {
             ctxt.save_and_next();
             cur++;
         }
-        if (ctxt.is_error())
+        if (ctxt.ise(ctxt.ERROR()))
         {
             throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, ctxt.get_location(),
                                         "read error while reading string literal");
@@ -1225,7 +1228,7 @@ DamageType vfs_get_next_damage_type(ReadContext& ctxt)
 //--------------------------------------------------------------------------------------------
 void ReadContext::readName0()
 {
-    if (!is_alpha() && !is('_'))
+    if (!ise(ALPHA()) && !is('_'))
     {
         throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, get_location(),
                                     "invalid name");
@@ -1233,12 +1236,12 @@ void ReadContext::readName0()
     do
     {
         save_and_next();
-    } while (is_alpha() || is_digit() || is('_'));
+    } while (ise(ALPHA()) || ise(DIGIT()) || is('_'));
 }
 
 std::string ReadContext::readName()
 {
-    if (is_start_of_input())
+    if (ise(START_OF_INPUT()))
     {
         next();
     }
@@ -1252,12 +1255,12 @@ void ReadContext::readReference0()
 {
     if (!is('%'))
     {
-        if (is_error())
+        if (ise(ERROR()))
         {
             throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, get_location(),
                                         "read error while scanning reference literal");
         }
-        else if (is_end_of_input())
+        else if (ise(END_OF_INPUT()))
         {
             throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, get_location(),
                                         "premature end of input while scanning reference literal");
@@ -1274,7 +1277,7 @@ void ReadContext::readReference0()
 
 std::string ReadContext::readReference()
 {
-    if (is_start_of_input())
+    if (ise(START_OF_INPUT()))
     {
         next();
     }
@@ -1366,3 +1369,5 @@ float vfs_get_damage_resist(ReadContext& ctxt)
 
     return resistance;
 }
+
+#pragma pop_macro("ERROR")
