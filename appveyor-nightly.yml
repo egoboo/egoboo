@@ -41,7 +41,7 @@ after_build:
           $env:deploymentTarget="egoboo-${$env:deploymentTargetPlatform}-debug-nightly.zip"
           $env:deploymentConfiguration = "Debug"
         }
-        $env:deploymentSources=Get-ChildItem -Path "./product/*/$(env:deploymentConfiguration)/$(env:deploymentTargetPlatform)"  -Recurse -Include "*.exe", "*.lib", "*.dll"
+        $env:deploymentSources=Get-ChildItem -Path "./product/*/${env:deploymentConfiguration}/${env:deploymentTargetPlatform}"  -Recurse -Include "*.exe", "*.lib", "*.dll"
         Write-Host "Deploying $env:deploymentSources to $env:deploymentTarget "
     - 7z a %deploymentTarget% %deploymentSources%
  
