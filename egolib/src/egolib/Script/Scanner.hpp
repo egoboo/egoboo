@@ -10,151 +10,140 @@
 namespace Ego {
 namespace Script {
 
-/// @brief A view of a scanner on some input.
-/// @detail A bidirectional iterator wrapping a bidirectional iterator pair. Maps input symbols to
-/// output symbols while iterating. It can neither be decremented past the beginning nor past the
-/// ending of the input. Instead a scanner input view will remain before the first input symbol /
-/// behind the last input symbol, returning the special symbols @a StartOfInput/@a EndOfInput.
-/// @tparam SymbolType the type of a symbol returned by this view
-/// @tparam StartOfInput the start of input symbol
-/// @tparam EndOfInput the end of input symbol
-/// @tparam Error the error symbol
-/// @tparam IteratorType the iterator type
-/// @todo Assert this is truly
-template <typename SymbolType, SymbolType StartOfInput, SymbolType EndOfInput, SymbolType Error,
-          typename IteratorType>
-struct ScannerInputView
+/// @brief An iterator decorating an input with start of input and end of input symbols.
+template <typename Symbol, Symbol StartOfInput, Symbol EndOfInput, typename UI>
+struct input_iterator
 {
-private:
-    enum class State
-    {
-        StartOfInputState,
-        EndOfInputState,
-        InputState,
-    };
-
-private:
-    State m_state;
-    IteratorType m_begin, m_current, m_end;
-
 public:
-    /// @brief Construct this scanner input view.
-    /// @param begin bidirectional iterator denoting the beginning of the input
-    /// @param end bidirectional iterator denoting the ending of the input
-    ScannerInputView(IteratorType begin, IteratorType end) :
-        m_state(State::StartOfInputState),
-        m_begin(begin), m_current(begin), m_end(end)
+    // -1 invalid, 0 before start, 1 after end
+    int m_counter;
+    UI m_current, m_start, m_end;
+
+    input_iterator() :
+        m_counter(-1), m_current(), m_start(), m_end()
     {}
 
-private:
-    void decrement()
+    input_iterator(const input_iterator& other) :
+        m_counter(other.m_counter),
+        m_current(other.m_current), m_start(other.m_start), m_end(other.m_end)
+    {}
+
+    static input_iterator make_begin(UI start, UI end)
     {
-        switch (m_state)
-        {
-            case State::StartOfInputState:
-                return; // Ignore.
-            case State::EndOfInputState:
-                assert(m_current == m_end);
-                // If the input is empty ...
-                if (m_current == m_begin)
-                {
-                    // ... where at the start of the input.
-                    m_state = State::StartOfInputState;
-                }
-                else
-                {
-                    --m_current;
-                    m_state = State::InputState;
-                }
-            case State::Input:
-            default:
-                if (m_current == m_begin)
-                {
-                    m_state = State::StartOfInputState;
-                }
-                else
-                {
-                    --m_current;
-                }
-                break;
-        }
-    }
-    void increment()
-    {
-        switch (m_state)
-        {
-            case State::StartOfInputState:
-                m_state = State::InputState;
-                if (m_current == m_end)
-                {
-                    m_state = State::EndOfInputState;
-                }
-                break;
-            case State::EndOfInputState:
-                return; // Ignore.
-            case State::InputState:
-            default:
-                if (m_current == m_end)
-                {
-                    m_state = State::EndOfInputState;
-                }
-                else
-                {
-                    m_current++;
-                    if (m_current == m_end)
-                    {
-                        m_state = State::EndOfInputState;
-                    }
-                }
-                break;
-        }
+        return input_iterator(0, start, start, end);
     }
 
-    bool equal(ScannerInputView other) const
+    static input_iterator make_end(UI start, UI end)
     {
-        m_state == other.m_state && m_current == other.m_current;;
+        return input_iterator(-1, end, start, end);
     }
 
-    /// @brief Get the current symbol.
-    /// @return the current symbol
-    SymbolType current() const
-    {
-        switch (m_state)
-        {
-            case State::StartOfInputState:
-                return StartOfInput;
-            case State::EndOfInputState:
-                return EndOfInput;
-            case State::InputState:
-            default:
-                return SymbolType(*m_current);
-        }
-    }
+protected:
+    input_iterator(int counter, UI current, UI start, UI end) :
+        m_counter(counter),
+        m_current(current), m_start(start), m_end(end)
+    {}
 
 public:
-    IteratorType get_begin() const
+    bool operator==(const input_iterator& other) const
     {
-        return m_begin;
-    }
-    IteratorType get_current() const
-    {
-        return m_current;
-    }
-    IteratorType get_end() const
-    {
-        return m_end;
+        return m_counter == other.m_counter
+            && m_current == other.m_current;
     }
 
-    ScannerInputView& operator--() { decrement(); return *this; }
-    ScannerInputView operator--(int) { auto it = *this; --(*this); return it; }
+    bool operator!=(const input_iterator& other) const
+    {
+        return !(*this == other);
+    }
 
-    ScannerInputView& operator++() { increment(); return *this; }
-    ScannerInputView operator++(int) { auto it = *this; ++(*this); return it; }
+    input_iterator& operator++() { increment(); return *this; }
+    input_iterator operator++(int) { auto it = *this; ++(*this); return it; }
 
-    bool operator==(ScannerInputView other) const { return equal(other); }
-    bool operator!=(ScannerInputView other) const { return !(*this == other); }
+    void increment()
+    {
+        assert(m_counter != -1);
+        if (m_counter == 0)
+        {
+            m_counter++;
+        }
+        else if (m_counter == 2)
+        {
+            m_counter = -1;
+        }
+        else if (m_counter == 1)
+        {
+            if (m_current == m_end)
+            {
+                m_counter++;
+            }
+            else
+            {
+                m_current++;
+                if (m_current == m_end)
+                {
+                    m_counter = 2;
+                }
+            }
+        }
+        else
+        {
+            throw std::runtime_error("invalid iterator");
+        }
+    }
 
-    SymbolType operator*() const { return current(); }
+    Symbol current() const
+    {
+        if (m_counter == -1)
+        {
+            throw std::runtime_error("invalid iterator");
+        }
+        if (m_counter == 0)
+        {
+            return StartOfInput;
+        }
+        else if (m_counter == 2)
+        {
+            return EndOfInput;
+        }
+        else if (m_counter == 1)
+        {
+            return *m_current;
+        }
+        else
+        {
+            throw std::runtime_error("internal error");
+        }
+    }
+
+    Symbol operator*() const { return current(); }
+}; // InputIterator
+
+/// @brief An adapter for a "begin" and "end" iterator pair.
+template <typename Target, typename Source>
+struct input_adapter
+{
+public:
+    using source = Source;
+    using target = Target;
+private:
+    source m_source_begin, m_source_end;
+public:
+    input_adapter() : 
+        m_source_begin(), m_source_end()
+    {}
+    input_adapter(source source_begin, source source_end) :
+        m_source_begin(source_begin), m_source_end(source_end)
+    {}
+
+    target cbegin() const
+    {
+        return target::make_begin(m_source_begin, m_source_end);
+    }
+
+    target cend() const
+    {
+        return target::make_end(m_source_begin, m_source_end);
+    }
 };
 
 /// @brief A scanner.
@@ -173,15 +162,19 @@ public:
     using Traits = TraitsArg;
     using SymbolType = typename Traits::Type;
     using ExtendedSymbolType = typename Traits::ExtendedType;
-    using ScannerInputViewType = ScannerInputView<ExtendedSymbolType, Traits::startOfInput(), Traits::endOfInput(), Traits::error(), std::vector<char>::const_iterator>;
 
+    using source_iterator_type = typename std::vector<char>::const_iterator;
+    using target_iterator_type = input_iterator<ExtendedSymbolType, Traits::startOfInput(), Traits::endOfInput(), source_iterator_type>; 
+    using input_adapter_type = input_adapter<target_iterator_type, source_iterator_type>;
+    
 private:
     /// @brief The lexeme accumulation buffer.
     std::vector<char> m_buffer;
     /// @brief The input buffer.
     std::vector<char> m_input_buffer;
     /// @brief The input view.
-    ScannerInputViewType m_input_view;
+    input_adapter_type m_input_adapter;
+    target_iterator_type m_begin, m_end, m_current;
 
 protected:
     /// @brief Construct this scanner.
@@ -190,17 +183,21 @@ protected:
     /// @post The scanner is in its initial state w.r.t. the specified input if no exception is raised.
     Scanner(const std::string& file_name) :
         m_file_name(file_name), m_line_number(1), m_input_buffer(),
-        m_buffer(), m_input_view(m_input_buffer.cbegin(), m_input_buffer.cend())
+        m_buffer(), m_input_adapter()
     {
         vfs_readEntireFile
         (
             file_name,
             [this](size_t number_of_bytes, const char *bytes)
-        {
-            m_input_buffer.insert(m_input_buffer.end(), bytes, bytes + number_of_bytes);
-        }
+            {
+                m_input_buffer.insert(m_input_buffer.end(), bytes, bytes + number_of_bytes);
+            }
         );
-        m_input_view = ScannerInputViewType(m_input_buffer.cbegin(), m_input_buffer.cend());
+        //
+        m_input_adapter = input_adapter_type(m_input_buffer.cbegin(), m_input_buffer.cend());
+        m_begin = m_input_adapter.cbegin();
+        m_end = m_input_adapter.cend();
+        m_current = m_input_adapter.cbegin();
     }
 
     /// @brief Set the input.
@@ -219,7 +216,11 @@ protected:
         m_line_number = 1;
         m_file_name.swap(temporary_file_name);
         m_input_buffer.swap(temporary_input_buffer);
-        m_input_view = ScannerInputViewType(m_input_buffer.cbegin(), m_input_buffer.cend());
+        //
+        m_input_adapter = input_adapter_type(m_input_buffer.cbegin(), m_input_buffer.cend());
+        m_begin = m_input_adapter.cbegin();
+        m_end = m_input_adapter.cend();
+        m_current = m_input_adapter.cbegin();
     }
 
     /// @brief Destruct this scanner.
@@ -266,14 +267,14 @@ public:
     /// @return the current input symbol
     ExtendedSymbolType current() const
     {
-        return *m_input_view;
+        return *m_current;
     }
 
 public:
     /// @brief Advance to the next input symbol.
     void next()
     {
-        m_input_view++;
+        m_current++;
     }
 
     /// @brief Write the specified symbol.
@@ -359,9 +360,7 @@ public:
     template <typename T>
     bool ise(const T& e) const
     {
-        auto at = m_input_view.get_current(),
-             end = m_input_view.get_end();
-        return e(at, end);
+        return e(m_current, m_end).first;
     }
 
 public:
