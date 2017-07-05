@@ -4,154 +4,146 @@
 #include "idlib/parsing_expressions/include.hpp"
 #include "egolib/Script/TextInputFile.hpp"
 
+#pragma push_macro("ERROR")
+#undef ERROR
+
 namespace Ego {
 namespace Script {
 
-/// @brief A view of a scanner on some input.
-/// @detail A bidirectional iterator wrapping a bidirectional iterator pair. Maps input symbols to
-/// output symbols while iterating. It can neither be decremented past the beginning nor past the
-/// ending of the input. Instead a scanner input view will remain before the first input symbol /
-/// behind the last input symbol, returning the special symbols @a StartOfInput/@a EndOfInput.
-/// @tparam SymbolType the type of a symbol returned by this view
-/// @tparam StartOfInput the start of input symbol
-/// @tparam EndOfInput the end of input symbol
-/// @tparam Error the error symbol
-/// @tparam IteratorType the iterator type
-/// @todo Assert this is truly
-template <typename SymbolType, SymbolType StartOfInput, SymbolType EndOfInput, SymbolType Error,
-          typename IteratorType>
-struct ScannerInputView
+/// @brief An iterator decorating an input with start of input and end of input symbols.
+template <typename Symbol, Symbol StartOfInput, Symbol EndOfInput, typename UI>
+struct input_iterator
 {
-private:
-    enum class State
-    {
-        StartOfInputState,
-        EndOfInputState,
-        InputState,
-    };
-
-private:
-    State m_state;
-    IteratorType m_begin, m_current, m_end;
-
 public:
-    /// @brief Construct this scanner input view.
-    /// @param begin bidirectional iterator denoting the beginning of the input
-    /// @param end bidirectional iterator denoting the ending of the input
-    ScannerInputView(IteratorType begin, IteratorType end) :
-        m_state(State::StartOfInputState),
-        m_begin(begin), m_current(begin), m_end(end)
+    // -1 invalid, 0 before start, 1 after end
+    int m_counter;
+    UI m_current, m_start, m_end;
+
+    input_iterator() :
+        m_counter(-1), m_current(), m_start(), m_end()
     {}
 
-private:
-    void decrement()
+    input_iterator(const input_iterator& other) :
+        m_counter(other.m_counter),
+        m_current(other.m_current), m_start(other.m_start), m_end(other.m_end)
+    {}
+
+    static input_iterator make_begin(UI start, UI end)
     {
-        switch (m_state)
-        {
-            case State::StartOfInputState:
-                return; // Ignore.
-            case State::EndOfInputState:
-                assert(m_current == m_end);
-                // If the input is empty ...
-                if (m_current == m_begin)
-                {
-                    // ... where at the start of the input.
-                    m_state = State::StartOfInputState;
-                }
-                else
-                {
-                    --m_current;
-                    m_state = State::InputState;
-                }
-            case State::Input:
-            default:
-                if (m_current == m_begin)
-                {
-                    m_state = State::StartOfInputState;
-                }
-                else
-                {
-                    --m_current;
-                }
-                break;
-        }
-    }
-    void increment()
-    {
-        switch (m_state)
-        {
-            case State::StartOfInputState:
-                m_state = State::InputState;
-                if (m_current == m_end)
-                {
-                    m_state = State::EndOfInputState;
-                }
-                break;
-            case State::EndOfInputState:
-                return; // Ignore.
-            case State::InputState:
-            default:
-                if (m_current == m_end)
-                {
-                    m_state = State::EndOfInputState;
-                }
-                else
-                {
-                    m_current++;
-                    if (m_current == m_end)
-                    {
-                        m_state = State::EndOfInputState;
-                    }
-                }
-                break;
-        }
+        return input_iterator(0, start, start, end);
     }
 
-    bool equal(ScannerInputView other) const
+    static input_iterator make_end(UI start, UI end)
     {
-        m_state == other.m_state && m_current == other.m_current;;
+        return input_iterator(-1, end, start, end);
     }
 
-    /// @brief Get the current symbol.
-    /// @return the current symbol
-    SymbolType current() const
-    {
-        switch (m_state)
-        {
-            case State::StartOfInputState:
-                return StartOfInput;
-            case State::EndOfInputState:
-                return EndOfInput;
-            case State::InputState:
-            default:
-                return SymbolType(*m_current);
-        }
-    }
+protected:
+    input_iterator(int counter, UI current, UI start, UI end) :
+        m_counter(counter),
+        m_current(current), m_start(start), m_end(end)
+    {}
 
 public:
-    IteratorType get_begin() const
+    bool operator==(const input_iterator& other) const
     {
-        return m_begin;
-    }
-    IteratorType get_current() const
-    {
-        return m_current;
-    }
-    IteratorType get_end() const
-    {
-        return m_end;
+        return m_counter == other.m_counter
+            && m_current == other.m_current;
     }
 
-    ScannerInputView& operator--() { decrement(); return *this; }
-    ScannerInputView operator--(int) { auto it = *this; --(*this); return it; }
+    bool operator!=(const input_iterator& other) const
+    {
+        return !(*this == other);
+    }
 
-    ScannerInputView& operator++() { increment(); return *this; }
-    ScannerInputView operator++(int) { auto it = *this; ++(*this); return it; }
+    input_iterator& operator++() { increment(); return *this; }
+    input_iterator operator++(int) { auto it = *this; ++(*this); return it; }
 
-    bool operator==(ScannerInputView other) const { return equal(other); }
-    bool operator!=(ScannerInputView other) const { return !(*this == other); }
+    void increment()
+    {
+        assert(m_counter != -1);
+        if (m_counter == 0)
+        {
+            m_counter++;
+        }
+        else if (m_counter == 2)
+        {
+            m_counter = -1;
+        }
+        else if (m_counter == 1)
+        {
+            if (m_current == m_end)
+            {
+                m_counter++;
+            }
+            else
+            {
+                m_current++;
+                if (m_current == m_end)
+                {
+                    m_counter = 2;
+                }
+            }
+        }
+        else
+        {
+            throw std::runtime_error("invalid iterator");
+        }
+    }
 
-    SymbolType operator*() const { return current(); }
+    Symbol current() const
+    {
+        if (m_counter == -1)
+        {
+            throw std::runtime_error("invalid iterator");
+        }
+        if (m_counter == 0)
+        {
+            return StartOfInput;
+        }
+        else if (m_counter == 2)
+        {
+            return EndOfInput;
+        }
+        else if (m_counter == 1)
+        {
+            return *m_current;
+        }
+        else
+        {
+            throw std::runtime_error("internal error");
+        }
+    }
+
+    Symbol operator*() const { return current(); }
+}; // InputIterator
+
+/// @brief An adapter for a "begin" and "end" iterator pair.
+template <typename Target, typename Source>
+struct input_adapter
+{
+public:
+    using source = Source;
+    using target = Target;
+private:
+    source m_source_begin, m_source_end;
+public:
+    input_adapter() : 
+        m_source_begin(), m_source_end()
+    {}
+    input_adapter(source source_begin, source source_end) :
+        m_source_begin(source_begin), m_source_end(source_end)
+    {}
+
+    target cbegin() const
+    {
+        return target::make_begin(m_source_begin, m_source_end);
+    }
+
+    target cend() const
+    {
+        return target::make_end(m_source_begin, m_source_end);
+    }
 };
 
 /// @brief A scanner.
@@ -161,63 +153,74 @@ struct Scanner
 {
 private:
     /// @brief The line number.
-    size_t _lineNumber;
+    size_t m_line_number;
 
     //// @brief The file name.
-    std::string _fileName;
+    std::string m_file_name;
 
 public:
     using Traits = TraitsArg;
     using SymbolType = typename Traits::Type;
-    using ExtendedSymbolType = int;
-    using ScannerInputViewType = ScannerInputView<ExtendedSymbolType, Traits::startOfInput(), Traits::endOfInput(), Traits::error(), std::vector<char>::const_iterator>;
+    using ExtendedSymbolType = typename Traits::ExtendedType;
 
+    using source_iterator_type = typename std::vector<char>::const_iterator;
+    using target_iterator_type = input_iterator<ExtendedSymbolType, Traits::startOfInput(), Traits::endOfInput(), source_iterator_type>; 
+    using input_adapter_type = input_adapter<target_iterator_type, source_iterator_type>;
+    
 private:
     /// @brief The lexeme accumulation buffer.
-    std::vector<char> _buffer;
+    std::vector<char> m_buffer;
     /// @brief The input buffer.
-    std::vector<char> _inputBuffer;
+    std::vector<char> m_input_buffer;
     /// @brief The input view.
-    ScannerInputViewType _inputView;
+    input_adapter_type m_input_adapter;
+    target_iterator_type m_begin, m_end, m_current;
 
 protected:
     /// @brief Construct this scanner.
-    /// @param fileName the filename
-    /// @throw RuntimeErrorException if the file can not be read
+    /// @param file_name the filename
+    /// @throw id::runtime_error the file can not be read
     /// @post The scanner is in its initial state w.r.t. the specified input if no exception is raised.
-    Scanner(const std::string& fileName) :
-        _fileName(fileName), _inputBuffer(),
-        _buffer(), _inputView(_inputBuffer.cbegin(), _inputBuffer.cend()),
-        _lineNumber(1)
+    Scanner(const std::string& file_name) :
+        m_file_name(file_name), m_line_number(1), m_input_buffer(),
+        m_buffer(), m_input_adapter()
     {
         vfs_readEntireFile
         (
-            fileName,
-            [this](size_t numberOfBytes, const char *bytes)
-        {
-            _inputBuffer.insert(_inputBuffer.end(), bytes, bytes + numberOfBytes);
-        }
+            file_name,
+            [this](size_t number_of_bytes, const char *bytes)
+            {
+                m_input_buffer.insert(m_input_buffer.end(), bytes, bytes + number_of_bytes);
+            }
         );
-        _inputView = ScannerInputViewType(_inputBuffer.cbegin(), _inputBuffer.cend());
+        //
+        m_input_adapter = input_adapter_type(m_input_buffer.cbegin(), m_input_buffer.cend());
+        m_begin = m_input_adapter.cbegin();
+        m_end = m_input_adapter.cend();
+        m_current = m_input_adapter.cbegin();
     }
 
     /// @brief Set the input.
-    /// @param fileName the filename
+    /// @param file_name the filename
     /// @post The scanner is in its initial state w.r.t. the specified input if no exception is raised.
     /// If an exception is raised, the scanner retains its state.
-    void setInput(const std::string& fileName)
+    void set_input(const std::string& file_name)
     {
-        std::vector<char> temporaryBuffer;
-        std::string temporaryFileName = fileName;
+        std::vector<char> temporary_input_buffer;
+        std::string temporary_file_name = file_name;
         // If this succeeds, then we're set.
-        vfs_readEntireFile(fileName, [&temporaryBuffer](size_t numberOfBytes, const char *bytes)
+        vfs_readEntireFile(file_name, [&temporary_input_buffer](size_t number_of_bytes, const char *bytes)
         {
-            temporaryBuffer.insert(temporaryBuffer.end(), bytes, bytes + numberOfBytes);
+            temporary_input_buffer.insert(temporary_input_buffer.end(), bytes, bytes + number_of_bytes);
         });
-        _lineNumber = 1;
-        _fileName.swap(temporaryFileName);
-        _inputBuffer.swap(temporaryBuffer);
-        _inputView = ScannerInputViewType(_inputBuffer.cbegin(), _inputBuffer.cend());
+        m_line_number = 1;
+        m_file_name.swap(temporary_file_name);
+        m_input_buffer.swap(temporary_input_buffer);
+        //
+        m_input_adapter = input_adapter_type(m_input_buffer.cbegin(), m_input_buffer.cend());
+        m_begin = m_input_adapter.cbegin();
+        m_end = m_input_adapter.cend();
+        m_current = m_input_adapter.cbegin();
     }
 
     /// @brief Destruct this scanner.
@@ -227,29 +230,36 @@ protected:
 public:
     /// @brief Get the file name.
     /// @return the file name
-    const std::string& getFileName() const
+    const std::string& get_file_name() const
     {
-        return _fileName;
+        return m_file_name;
     }
 
     /// @brief Get the line number.
     /// @return the line number
-    size_t getLineNumber() const
+    size_t get_line_number() const
     {
-        return _lineNumber;
+        return m_line_number;
+    }
+
+    /// @brief Get the location.
+    /// @return the location
+    id::location get_location() const
+    {
+        return id::location(get_file_name(), get_line_number());
     }
 
     /// @brief Get the lexeme text.
     /// @return the lexeme text
-    std::string getLexemeText() const
+    std::string get_lexeme_text() const
     {
-        return std::string(_buffer.cbegin(), _buffer.cend());
+        return std::string(m_buffer.cbegin(), m_buffer.cend());
     }
 
     /// @brief Clear the lexeme text.
-    void clearLexemeText()
+    void clear_lexeme_text()
     {
-        _buffer.clear();
+        m_buffer.clear();
     }
 
 public:
@@ -257,14 +267,14 @@ public:
     /// @return the current input symbol
     ExtendedSymbolType current() const
     {
-        return *_inputView;
+        return *m_current;
     }
 
 public:
     /// @brief Advance to the next input symbol.
     void next()
     {
-        _inputView++;
+        m_current++;
     }
 
     /// @brief Write the specified symbol.
@@ -272,12 +282,12 @@ public:
     inline void write(const ExtendedSymbolType& symbol)
     {
         assert(!Traits::is_pua_bmp(symbol) && !Traits::is_zt(symbol));
-        _buffer.push_back(static_cast<SymbolType>(symbol));
+        m_buffer.push_back(static_cast<SymbolType>(symbol));
     }
 
     /// @brief Write the specified symbol and advance to the next symbol.
     /// @param symbol the symbol
-    inline void writeAndNext(const ExtendedSymbolType& symbol)
+    inline void write_and_next(const ExtendedSymbolType& symbol)
     {
         write(symbol);
         next();
@@ -290,7 +300,7 @@ public:
     }
 
     /// @brief Save the current input symbol and advance to the next input symbol.
-    inline void saveAndNext()
+    inline void save_and_next()
     {
         save();
         next();
@@ -305,125 +315,94 @@ public:
         return symbol == current();
     }
 
-    /// @brief Get if the current symbol is a whitespace symbol.
-    /// @return @a true if the current symbol is a whitespace symbol, @a false otherwise
-    inline bool isWhiteSpace() const
+    static decltype(auto) WHITE_SPACE()
     {
         static const auto p = id::parsing_expressions::whitespace<ExtendedSymbolType>();
-        auto at = this->_inputView.get_current(),
-            end = this->_inputView.get_end();
-        return p(at, end);
+        return p;
     }
 
-    /// @brief Get if the current symbol is a new line symbol.
-    /// @return @a true if the current symbol is a new line symbol, @a false otherwise
-    inline bool isNewLine() const
+    static decltype(auto) NEW_LINE()
     {
         static const auto p = id::parsing_expressions::newline<ExtendedSymbolType>();
-        auto at = this->_inputView.get_current(),
-            end = this->_inputView.get_end();
-        return p(at, end);
+        return p;
     }
 
-    /// @brief Get if the current symbol is an alphabetic symbol.
-    /// @return @a true if the current symbol is an alphabetic symbol, @a false otherwise
-    inline bool isAlpha() const
+    static decltype(auto) ALPHA()
     {
         static const auto p = id::parsing_expressions::alpha<ExtendedSymbolType>();
-        auto at = this->_inputView.get_current(),
-            end = this->_inputView.get_end();
-        return p(at, end);
+        return p;
     }
 
-    /// @brief Get if the current symbol is a digit symbol.
-    /// @return @a true if the current symbol is a digit symbol, @a false otherwise
-    inline bool isDigit() const
+    static decltype(auto) DIGIT()
     {
         static const auto p = id::parsing_expressions::digit<ExtendedSymbolType>();
-        auto at = this->_inputView.get_current(),
-            end = this->_inputView.get_end();
-        return p(at, end);
+        return p;
     }
 
-    /// @brief Get if the current symbol is a start of input symbol.
-    /// @return @a true if the current symbol is a start of input symbol, @a false otherwise
-    inline bool isStartOfInput() const
+    static decltype(auto) START_OF_INPUT()
     {
-        return is(Traits::startOfInput());
+        static const auto p = id::parsing_expressions::sym<ExtendedSymbolType>(Traits::startOfInput());
+        return p;
     }
 
-    /// @brief Get if the current symbol is an end of input symbol.
-    /// @return @a true if the current symbol is an end of input symbol, @a false otherwise
-    inline bool isEndOfInput() const
+    static decltype(auto) END_OF_INPUT()
     {
-        return is(Traits::endOfInput());
+        static const auto p = id::parsing_expressions::sym<ExtendedSymbolType>(Traits::endOfInput());
+        return p;
     }
 
-    /// @brief Get if the current symbol is an error symbol.
-    /// @return @a true if the current symbol is an error symbol, @a false otherwise
-    inline bool isError() const
+    static decltype(auto) ERROR()
     {
-        return is(Traits::error());
+        static const auto p = id::parsing_expressions::sym<ExtendedSymbolType>(Traits::error());
+        return p;
+    }
+
+    template <typename T>
+    bool ise(const T& e) const
+    {
+        return e(m_current, m_end).first;
     }
 
 public:
-    void newLine()
+    /// @code
+    /// new_line := NEW_LINE?
+    /// @endcode
+    void new_line(std::function<void(char)> action)
     {
-        if (isNewLine())
+        if (ise(NEW_LINE()))
         {
             auto old = current();
-            writeAndNext('\n');
-            if (isNewLine() && old != current())
-            {
-                next();
+            if (action)
+            { 
+                action('\n');
             }
-            _lineNumber++;
-        }
-    }
-
-    /// @brief Skip zero or one newline sequences.
-    /// @remark Proper line counting is performed.
-    void skipNewLine()
-    {
-        if (isNewLine())
-        {
-            auto old = current();
             next();
-            if (isNewLine() && old != current())
+            if (ise(NEW_LINE()) && old != current())
             {
                 next();
             }
-            _lineNumber++;
+            m_line_number++;
         }
     }
 
-    void newLines()
+    /// @code
+    /// new_lines = NEW_LINE*
+    /// @endcode
+    void new_lines(std::function<void(char)> action)
     {
-        while (isNewLine())
+        while (ise(NEW_LINE()))
         {
             auto old = current();
-            writeAndNext('\n');
-            if (isNewLine() && old != current())
+            if (action)
             {
-                next();
+                action('\n');
             }
-            _lineNumber++;
-        }
-    }
-
-    /// @brief Skip zero or more newline sequences.
-    /// @remark Proper line counting is performed.
-    void skipNewLines()
-    {
-        while (isNewLine())
-        {
-            auto old = current();
             next();
-            if (isNewLine() && old != current())
+            if (ise(NEW_LINE()) && old != current())
             {
                 next();
             }
-            _lineNumber++;
+            m_line_number++;
         }
     }
 
@@ -431,3 +410,5 @@ public:
 
 } // namespace Script
 } // namespace Ego
+
+#pragma pop_macro("ERROR")

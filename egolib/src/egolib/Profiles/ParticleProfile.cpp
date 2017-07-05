@@ -307,13 +307,13 @@ std::shared_ptr<ParticleProfile> ParticleProfile::readFromFile(const std::string
     if (profile->homing) profile->_particleEffectBits.reset();
 
     // Read expansions
-    while (!ctxt->isEndOfInput())
+    while (!ctxt->ise(ctxt->END_OF_INPUT()))
     {
-        if (ctxt->isWhiteSpace()) {
+        if (ctxt->ise(ctxt->WHITE_SPACE())) {
             ctxt->skipWhiteSpaces();
             continue;
-        } else if (ctxt->isNewLine()) {
-            ctxt->skipNewLines();
+        } else if (ctxt->ise(ctxt->NEW_LINE())) {
+            ctxt->new_lines(nullptr);
             continue;
         } else if (ctxt->is('/')) {
             ctxt->readSingleLineComment(); /// @todo Add and use ReadContext::skipSingleLineComment().
@@ -394,7 +394,7 @@ std::shared_ptr<ParticleProfile> ParticleProfile::readFromFile(const std::string
                         case 'H': profile->orientation = prt_ori_t::ORIENTATION_H; break;  // horizontal, like a plate
                         case 'B': profile->orientation = prt_ori_t::ORIENTATION_B; break;  // billboard
                     }
-                    while (ctxt->isAlpha()) {
+                    while (ctxt->ise(ctxt->ALPHA())) {
                         ctxt->next();
                     }
                 break;
@@ -404,12 +404,12 @@ std::shared_ptr<ParticleProfile> ParticleProfile::readFromFile(const std::string
                 break;
 
                 default:
-                    throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, id::location(ctxt->getFileName(), ctxt->getLineNumber()),
+                    throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, ctxt->get_location(),
                                                 std::string("Unknown IDSZ type parsed: ") + idsz.toString());
                 break;
             }
         } else {
-            throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, id::location(ctxt->getFileName(), ctxt->getLineNumber()),
+            throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, ctxt->get_location(),
                                         "expected `:`, comment, whitespace, newline or end of input");
         }
     }
