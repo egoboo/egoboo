@@ -27,22 +27,27 @@ install:
 # Artifacts are produced by the AppVeyor project "Egoboo Nightly".
 after_build:
     - ps: >-
-        If ($env:platform -Match "x86") {
+        if ($env:platform -Match "x86") {
           $env:deploymentTargetPlatform = "x86"
         }
-        If ($env:platform -Match "x64") {
+
+        if ($env:platform -Match "x64") {
           $env:deploymentTargetPlatform = "x64"
         }
-        If ($env:configuration -Match "Release") {
+
+        if ($env:configuration -Match "Release") {
           $env:deploymentTarget="egoboo-${$env:deploymentTargetPlatform}-nightly.zip"     
           $env:deploymentConfiguration = "Release"
         }
+
         if ($env:configuration -Match "Debug") {
           $env:deploymentTarget="egoboo-${$env:deploymentTargetPlatform}-debug-nightly.zip"
           $env:deploymentConfiguration = "Debug"
         }
+        
         $env:deploymentSources=Get-ChildItem -Path "./product/*/${env:deploymentConfiguration}/${env:deploymentTargetPlatform}"  -Recurse -Include "*.exe", "*.lib", "*.dll"
-        Write-Host "Deploying $env:deploymentSources to $env:deploymentTarget "
+        
+        Write-Host "Deploying ${env:deploymentSources} to ${env:deploymentTarget}"
     - 7z a %deploymentTarget% %deploymentSources%
  
 build:
