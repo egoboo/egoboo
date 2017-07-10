@@ -26,7 +26,7 @@
 #include "egolib/FileFormats/map_fx.hpp"
 
 // Forward declarations.
-typedef struct ReadContext ReadContext;
+struct ReadContext;
 
 
 namespace Ego {
