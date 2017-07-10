@@ -242,6 +242,15 @@ public:
     /// @remark 
     /// A reference in this revision are the strings
     /// @code
+    /// old_string := (. - (white_space|new_line|end_of_input))+
+    /// @endcode
+    void readOldString0();
+    std::string readOldString();
+
+    /// @throw LexicalErrorException a lexical error occurs
+    /// @remark 
+    /// A reference in this revision are the strings
+    /// @code
     /// reference := '%' name
     /// @endcode
     void readReference0();
