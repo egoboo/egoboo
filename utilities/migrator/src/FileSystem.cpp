@@ -61,12 +61,12 @@ FileSystem::PathStat FileSystem::stat(const std::string &pathname)
 
 std::string FileSystem::getDirectorySeparator()
 {
-    return id::get_directory_separator();
+    return id::file_system::get_directory_separator();
 }
 
 std::string FileSystem::getWorkingDirectory()
 {
-    return id::get_working_directory();
+    return id::file_system::get_working_directory();
 }
 
 std::string FileSystem::sanitize(const std::string& pathName)
