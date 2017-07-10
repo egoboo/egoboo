@@ -221,51 +221,38 @@ public:
     Ego::Script::DDLToken parseRealLiteral();
 
 public:
-
-    /**
-     * @throw LexicalErrorException
-     *  if a lexical error occurs
-     * @remark
-     *   A boolean literal in this revision are the strings
-     *   @code
-     *   boolean := 'T' | 'F' | 'true' | 'false'
-     *   @endcode
-     */
+    /// @throw LexicalErrorException a lexical error occurs
+    /// @remark
+    /// A boolean literal in this revision are the strings
+    /// @code
+    /// boolean := 'T' | 'F' | 'true' | 'false'
+    /// @endcode
     bool readBool();
 
-    /**
-     * @throw LexicalErrorException
-     *  if a lexical error occurs
-     * @remark
-     *   A name in this revision are the strings
-     *   @code
-     *   name := (alphabetic|underscore) (digit|alphabetic|underscore)*
-     *   @endcode
-     */
+    /// @throw LexicalErrorException a lexical error occurs
+    /// @remark
+    /// A name in this revision are the strings
+    /// @code
+    /// name := (alphabetic|underscore) (digit|alphabetic|underscore)*
+    /// @endcode
     void readName0();
     std::string readName();
 
-    /**
-     * @throw LexicalErrorException
-     *  if a lexical error occurs
-     * @remark
-     *  A reference in this revision are the strings
-     *  @code
-     *  reference := '%' name
-     *  @endcode
-     */
+    /// @throw LexicalErrorException a lexical error occurs
+    /// @remark 
+    /// A reference in this revision are the strings
+    /// @code
+    /// reference := '%' name
+    /// @endcode
     void readReference0();
     std::string readReference();
 
-    /**
-     * @throw LexicalErrorException
-     *  if a lexical error occurs
-     * @remark
-     *  An IDSZ literal in this revision is a string
-     *  @code
-     *  idsz := '[' (alphabetic|digit|'_')^4 ']'
-     *  @endcode
-     */
+    /// @throw LexicalErrorException a lexical error occurs
+    /// @remark
+    /// An IDSZ literal in this revision is a string
+    /// @code
+    /// idsz := '[' (alphabetic|digit|'_')^4 ']'
+    /// @endcode
     IDSZ2 readIDSZ();
 
     /**
