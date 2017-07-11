@@ -1239,6 +1239,32 @@ void ReadContext::readName0()
     } while (ise(ALPHA()) || ise(DIGIT()) || is('_'));
 }
 
+void ReadContext::readOldString0()
+{
+    static const auto p = id::parsing_expressions::ordered_choice(WHITE_SPACE(), NEW_LINE(), END_OF_INPUT());
+    if (ise(p))
+    {
+        throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, get_location(),
+                                    "invalid old string");
+    }
+    do
+    {
+        save_and_next();
+    } while (!ise(p));
+}
+
+std::string ReadContext::readOldString()
+{
+    if (ise(START_OF_INPUT()))
+    {
+        next();
+    }
+    skipWhiteSpaces();
+    clear_lexeme_text();
+    readOldString0();
+    return get_lexeme_text();
+}
+
 std::string ReadContext::readName()
 {
     if (ise(START_OF_INPUT()))

@@ -890,7 +890,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
             //Perk Pool (perks that we can learn in the future)
             case IDSZ2::caseLabel( 'P', 'O', 'O', 'L' ):
             {
-                std::string perkName = ctxt.readName();
+                std::string perkName = ctxt.readOldString();
                 std::replace(perkName.begin(), perkName.end(), '_', ' '); //replace underscore with spaces
                 Ego::Perks::PerkID id = Ego::Perks::PerkHandler::get().fromString(perkName);
                 if(id != Ego::Perks::NR_OF_PERKS)
