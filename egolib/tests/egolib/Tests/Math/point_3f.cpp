@@ -19,15 +19,11 @@
 
 #include "egolib/Tests/Math/MathTestUtilities.hpp"
 
-namespace Ego {
-namespace Math {
-namespace Test {
-
-EgoTest_TestCase(PointMath) {
+namespace ego { namespace math { namespace test {
 
 #define TOLERANCE Point3f::ScalarType(0.0001)
 
-EgoTest_Test(add) {
+TEST(point_3f, addition) {
     for (size_t i = 0; i < 1000; ++i) {
         // b = a + t0
         // t1 = a - b = a - (a + t0) = -t0
@@ -35,11 +31,11 @@ EgoTest_Test(add) {
         Vector3f t0 = Vector3f(Random::nextFloat(), Random::nextFloat(), Random::nextFloat());
         Point3f b = a + t0;
         Vector3f t1 = a - b;
-        EgoTest_Assert((-t0).equalsTolerance(t1, TOLERANCE));
+        ASSERT_TRUE((-t0).equalsTolerance(t1, TOLERANCE));
     }
 }
 
-EgoTest_Test(sub) {
+TEST(point_3f, subtraction) {
     for (size_t i = 0; i < 1000; ++i) {
         // b = a - t0
         // t1 = b - a = (a - t0) - a = -t0
@@ -47,12 +43,8 @@ EgoTest_Test(sub) {
         Vector3f t0 = Vector3f(Random::nextFloat(), Random::nextFloat(), Random::nextFloat());
         Point3f b = a - t0;
         Vector3f t1 = b - a;
-        EgoTest_Assert((-t0).equalsTolerance(t1, TOLERANCE));
+        ASSERT_TRUE((-t0).equalsTolerance(t1, TOLERANCE));
     }
 }
 
-};
-
-} // namespace Test
-} // namespace Math
-} // namespace Ego
+} } } // namespace ego::math::test

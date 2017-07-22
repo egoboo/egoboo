@@ -17,42 +17,39 @@
 //*
 //********************************************************************************************
 
-#include "EgoTest/EgoTest.hpp"
+#include "gtest/gtest.h"
 #include "egolib/Mesh/Info.hpp"
 
-namespace Ego {
-namespace Test {
+namespace Ego { namespace Test {
 
-EgoTest_TestCase(MeshInfoIterator)
+TEST(mesh_info_iterator_test, test_zero_elements_1)
 {
-    EgoTest_Test(zeroElements0)
-    {
-        auto info = Ego::MeshInfo(8, 8, 0);
-        for (auto it = info.begin(); it != info.end(); ++it)
-        {
-            EgoTest_Assert(false);
-        }
-    }
-    EgoTest_Test(zeroElements1)
-    {
-        auto info = Ego::MeshInfo(8, 0, 8);
-        for (auto it = info.begin(); it != info.end(); ++it)
-        {
-            EgoTest_Assert(false);
-        }
-    }
-    EgoTest_Test(oneElement0)
-    {
-        std::vector<Index2D> v{{0,0}};
-        auto info = Ego::MeshInfo(8, 1, 1);
-        int i = 0;
-        for (auto it = info.begin(); it != info.end(); ++it)
-        {
-            EgoTest_Assert(*it == v[i]);
-            i++;
-        }
-    }
-};
+	auto info = Ego::MeshInfo(8, 8, 0);
+	for (auto it = info.begin(); it != info.end(); ++it)
+	{
+		ASSERT_FALSE(false);
+	}
+}
 
-} // namespace Test
-} // namespace Ego
+TEST(mesh_info_iterator_test, test_zero_elements_2)
+{
+    auto info = Ego::MeshInfo(8, 0, 8);
+    for (auto it = info.begin(); it != info.end(); ++it)
+    {
+        ASSERT_FALSE(false);
+    }
+}
+
+TEST(mesh_info_iterator_test, test_one_element_1)
+{
+    std::vector<Index2D> v{{0,0}};
+    auto info = Ego::MeshInfo(8, 1, 1);
+    int i = 0;
+    for (auto it = info.begin(); it != info.end(); ++it)
+    {
+        ASSERT_EQ(*it, v[i]);
+        i++;
+    }
+}
+
+} } // namespace Ego::Test

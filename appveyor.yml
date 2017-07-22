@@ -14,6 +14,10 @@ configuration:
 install:
     # depth 32 should be enough.
     git submodule update --init --recursive --depth 32
+    
+before_build:
+    - nuget restore
+    - ps: .\install-vsix-appveyor.ps1
 
 build:
     parallel: true                  # enable MSBuild parallel builds
@@ -23,8 +27,10 @@ test_script:
     - ps: |
         $platform = $env:platform
         if ($platform -eq "Win32") { $platform = "x86" }
-        vstest.console /Logger:Appveyor /Platform:$platform /inIsolation "product\egolib-tests\$env:configuration\$env:platform\egolib-tests.dll"
-
+        vstest.console /Logger:Appveyor /ListDiscoverers /UseVsixExtensions:true
+        vstest.console /Logger:Appveyor /ListExecutors /UseVsixExtensions:true
+        vstest.console /Logger:Appveyor /Platform:$platform /inIsolation /UseVsixExtensions:true "product\idlib-tests\$env:configuration\$env:platform\idlib-tests.exe"
+        vstest.console /Logger:Appveyor /Platform:$platform /inIsolation /UseVsixExtensions:true "product\egolib-tests\$env:configuration\$env:platform\egolib-tests.exe"
 # if one matrix entry fails, all entries fails
 # https://www.appveyor.com/docs/build-configuration#failing-strategy
 matrix:

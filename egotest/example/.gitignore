@@ -1,4 +1,0 @@
-# Ignore Visual Studio things
-product
-intermediate
-*.vcxproj.user

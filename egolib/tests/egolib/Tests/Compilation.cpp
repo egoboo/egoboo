@@ -17,10 +17,8 @@
 //*
 //********************************************************************************************
 
-#include "EgoTest/EgoTest.hpp"
+#include "gtest/gtest.h"
 
-EgoTest_TestCase(Compilation) {
-EgoTest_Test(compile) {
-    EgoTest_Assert(1 == 1);
+TEST(Compilation, compile) {
+    ASSERT_EQ(1, 1);
 }
-};
