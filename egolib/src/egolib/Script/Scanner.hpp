@@ -1,150 +1,13 @@
 #pragma once
 
 #include "egolib/Script/Traits.hpp"
-#include "idlib/parsing_expressions/include.hpp"
+#include "idlib/parsing_expressions.hpp"
 #include "egolib/Script/TextInputFile.hpp"
 
 #pragma push_macro("ERROR")
 #undef ERROR
 
-namespace Ego {
-namespace Script {
-
-/// @brief An iterator decorating an input with start of input and end of input symbols.
-template <typename Symbol, Symbol StartOfInput, Symbol EndOfInput, typename UI>
-struct input_iterator
-{
-public:
-    // -1 invalid, 0 before start, 1 after end
-    int m_counter;
-    UI m_current, m_start, m_end;
-
-    input_iterator() :
-        m_counter(-1), m_current(), m_start(), m_end()
-    {}
-
-    input_iterator(const input_iterator& other) :
-        m_counter(other.m_counter),
-        m_current(other.m_current), m_start(other.m_start), m_end(other.m_end)
-    {}
-
-    static input_iterator make_begin(UI start, UI end)
-    {
-        return input_iterator(0, start, start, end);
-    }
-
-    static input_iterator make_end(UI start, UI end)
-    {
-        return input_iterator(-1, end, start, end);
-    }
-
-protected:
-    input_iterator(int counter, UI current, UI start, UI end) :
-        m_counter(counter),
-        m_current(current), m_start(start), m_end(end)
-    {}
-
-public:
-    bool operator==(const input_iterator& other) const
-    {
-        return m_counter == other.m_counter
-            && m_current == other.m_current;
-    }
-
-    bool operator!=(const input_iterator& other) const
-    {
-        return !(*this == other);
-    }
-
-    input_iterator& operator++() { increment(); return *this; }
-    input_iterator operator++(int) { auto it = *this; ++(*this); return it; }
-
-    void increment()
-    {
-        assert(m_counter != -1);
-        if (m_counter == 0)
-        {
-            m_counter++;
-        }
-        else if (m_counter == 2)
-        {
-            m_counter = -1;
-        }
-        else if (m_counter == 1)
-        {
-            if (m_current == m_end)
-            {
-                m_counter++;
-            }
-            else
-            {
-                m_current++;
-                if (m_current == m_end)
-                {
-                    m_counter = 2;
-                }
-            }
-        }
-        else
-        {
-            throw std::runtime_error("invalid iterator");
-        }
-    }
-
-    Symbol current() const
-    {
-        if (m_counter == -1)
-        {
-            throw std::runtime_error("invalid iterator");
-        }
-        if (m_counter == 0)
-        {
-            return StartOfInput;
-        }
-        else if (m_counter == 2)
-        {
-            return EndOfInput;
-        }
-        else if (m_counter == 1)
-        {
-            return *m_current;
-        }
-        else
-        {
-            throw std::runtime_error("internal error");
-        }
-    }
-
-    Symbol operator*() const { return current(); }
-}; // InputIterator
-
-/// @brief An adapter for a "begin" and "end" iterator pair.
-template <typename Target, typename Source>
-struct input_adapter
-{
-public:
-    using source = Source;
-    using target = Target;
-private:
-    source m_source_begin, m_source_end;
-public:
-    input_adapter() : 
-        m_source_begin(), m_source_end()
-    {}
-    input_adapter(source source_begin, source source_end) :
-        m_source_begin(source_begin), m_source_end(source_end)
-    {}
-
-    target cbegin() const
-    {
-        return target::make_begin(m_source_begin, m_source_end);
-    }
-
-    target cend() const
-    {
-        return target::make_end(m_source_begin, m_source_end);
-    }
-};
+namespace Ego { namespace Script {
 
 /// @brief A scanner.
 /// @tparam TraitsArg the type of the traits
@@ -159,22 +22,30 @@ private:
     std::string m_file_name;
 
 public:
+	struct transform_functor;
     using Traits = TraitsArg;
     using SymbolType = typename Traits::Type;
     using ExtendedSymbolType = typename Traits::ExtendedType;
-
-    using source_iterator_type = typename std::vector<char>::const_iterator;
-    using target_iterator_type = input_iterator<ExtendedSymbolType, Traits::startOfInput(), Traits::endOfInput(), source_iterator_type>; 
-    using input_adapter_type = input_adapter<target_iterator_type, source_iterator_type>;
+	using iterator_type = id::transform_iterator<transform_functor, typename std::vector<char>::const_iterator>;
     
 private:
-    /// @brief The lexeme accumulation buffer.
+	struct transform_functor
+	{
+		using source_type = typename std::iterator_traits<typename std::vector<char>::const_iterator>::reference;
+		using target_type = ExtendedSymbolType;
+		target_type operator()(source_type x) const
+		{
+			return x;
+		}
+	};
+	/// @brief The lexeme accumulation buffer.
     std::vector<char> m_buffer;
     /// @brief The input buffer.
     std::vector<char> m_input_buffer;
-    /// @brief The input view.
-    input_adapter_type m_input_adapter;
-    target_iterator_type m_begin, m_end, m_current;
+    /// @brief Range wrapping the iterators pointing to the beginning and the end of the list of input symbols.
+	id::iterator_range<iterator_type> m_range;
+	/// @brief Iterator pointing to the current input symbols in the list of input symbols.
+	iterator_type m_current;
 
 protected:
     /// @brief Construct this scanner.
@@ -183,7 +54,7 @@ protected:
     /// @post The scanner is in its initial state w.r.t. the specified input if no exception is raised.
     Scanner(const std::string& file_name) :
         m_file_name(file_name), m_line_number(1), m_input_buffer(),
-        m_buffer(), m_input_adapter()
+        m_buffer(), m_current(), m_range()
     {
         vfs_readEntireFile
         (
@@ -194,10 +65,11 @@ protected:
             }
         );
         //
-        m_input_adapter = input_adapter_type(m_input_buffer.cbegin(), m_input_buffer.cend());
-        m_begin = m_input_adapter.cbegin();
-        m_end = m_input_adapter.cend();
-        m_current = m_input_adapter.cbegin();
+		auto begin = iterator_type(m_input_buffer.cbegin(), transform_functor{});
+		auto end = iterator_type(m_input_buffer.cend(), transform_functor{});
+		auto current = iterator_type(m_input_buffer.cbegin(), transform_functor{});
+		m_range = id::make_iterator_range(begin, end);
+		m_current = current;
     }
 
     /// @brief Set the input.
@@ -217,10 +89,11 @@ protected:
         m_file_name.swap(temporary_file_name);
         m_input_buffer.swap(temporary_input_buffer);
         //
-        m_input_adapter = input_adapter_type(m_input_buffer.cbegin(), m_input_buffer.cend());
-        m_begin = m_input_adapter.cbegin();
-        m_end = m_input_adapter.cend();
-        m_current = m_input_adapter.cbegin();
+		auto begin = iterator_type(m_input_buffer.cbegin(), transform_functor{});
+		auto end = iterator_type(m_input_buffer.cend(), transform_functor{});
+		auto current = iterator_type(m_input_buffer.cbegin(), transform_functor{});
+		m_range = id::make_iterator_range(begin, end);
+		m_current = current;
     }
 
     /// @brief Destruct this scanner.
@@ -312,8 +185,58 @@ public:
     /// @return @a true if the current symbol equals the other symbol, @a false otherwise
     inline bool is(const ExtendedSymbolType& symbol) const
     {
-        return symbol == current();
+		if (m_current == m_range.end())
+		{
+			return false;
+		}
+        return symbol == *m_current;
     }
+
+private:
+	static decltype(auto) make_sym(char c)
+	{
+		return id::parsing_expressions::sym<ExtendedSymbolType>(c);
+	}
+
+public:
+	static decltype(auto) TILDE()
+	{ return make_sym('~'); }
+
+	static decltype(auto) PLUS()
+	{ return make_sym('+'); }
+
+	static decltype(auto) MINUS()
+	{ return make_sym('-'); }
+
+	static decltype(auto) LEFT_SQUARE_BRACKET()
+	{ return make_sym('['); }
+
+	static decltype(auto) RIGHT_SQUARE_BRACKET()
+	{ return make_sym(']'); }
+
+	static decltype(auto) UNDERSCORE()
+	{ return make_sym('_'); }
+
+	static decltype(auto) EXCLAMATION_MARK()
+	{ return make_sym('!'); }
+
+	static decltype(auto) QUESTION_MARK()
+	{ return make_sym('?'); }
+
+	static decltype(auto) EQUAL()
+	{ return make_sym('='); }
+
+	static decltype(auto) SINGLE_QUOTE()
+	{ return make_sym('\''); }
+
+	static decltype(auto) BACKSLASH()
+	{ return make_sym('\\'); }
+
+	static decltype(auto) DOLLAR()
+	{ return make_sym('$'); }
+
+	static decltype(auto) SLASH()
+	{ return make_sym('/'); }
 
     static decltype(auto) WHITE_SPACE()
     {
@@ -339,28 +262,19 @@ public:
         return p;
     }
 
-    static decltype(auto) START_OF_INPUT()
-    {
-        static const auto p = id::parsing_expressions::sym<ExtendedSymbolType>(Traits::startOfInput());
-        return p;
-    }
-
     static decltype(auto) END_OF_INPUT()
     {
-        static const auto p = id::parsing_expressions::sym<ExtendedSymbolType>(Traits::endOfInput());
+        static const auto p = id::parsing_expressions::end_of_input<ExtendedSymbolType>();
         return p;
     }
 
     static decltype(auto) ERROR()
-    {
-        static const auto p = id::parsing_expressions::sym<ExtendedSymbolType>(Traits::error());
-        return p;
-    }
+    { return make_sym(Traits::error()); }
 
     template <typename T>
     bool ise(const T& e) const
     {
-        return e(m_current, m_end).first;
+        return (bool)e(m_current, m_range.end());
     }
 
 public:
@@ -408,7 +322,6 @@ public:
 
 };
 
-} // namespace Script
-} // namespace Ego
+} } // namespace Ego::Script
 
 #pragma pop_macro("ERROR")

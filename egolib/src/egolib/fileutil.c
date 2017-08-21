@@ -61,10 +61,6 @@ float ReadContext::toReal() const
 
 void ReadContext::skipWhiteSpaces()
 {
-    if (ise(START_OF_INPUT()))
-    {
-        next();
-    }
     if (ise(ERROR()))
     {
         throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, get_location(),
@@ -94,13 +90,9 @@ void ReadContext::skipWhiteSpaces()
 
 IDSZ2 ReadContext::readIDSZ() {
 	char c[4];
-	if (ise(START_OF_INPUT()))
-	{
-		next();
-	}
 	skipWhiteSpaces();
 	// `'['`
-	if (!is('['))
+	if (!ise(LEFT_SQUARE_BRACKET()))
 	{
 		if (ise(ERROR()))
 		{
@@ -122,7 +114,7 @@ IDSZ2 ReadContext::readIDSZ() {
 	// `(<alphabetic>|<digit>|'_')^4`
 	for (size_t i = 0; i < 4; ++i)
 	{
-		if (!ise(ALPHA()) && !ise(DIGIT()) && !is('_'))
+		if (!ise(ALPHA()) && !ise(DIGIT()) && !ise(UNDERSCORE()))
 		{
 			if (ise(ERROR()))
 			{
@@ -144,7 +136,7 @@ IDSZ2 ReadContext::readIDSZ() {
 		next();
 	}
 	// `']'`
-	if (!is(']'))
+	if (!ise(RIGHT_SQUARE_BRACKET()))
 	{
 		if (ise(ERROR()))
 		{
@@ -169,10 +161,6 @@ IDSZ2 ReadContext::readIDSZ() {
 //--------------------------------------------------------------------------------------------
 bool ReadContext::skipToDelimiter(char delimiter, bool optional)
 {
-    if (ise(START_OF_INPUT()))
-    {
-        next();
-    }
     while (true)
     {
         if (ise(ERROR()))
@@ -490,7 +478,7 @@ Ego::Math::Interval<float> vfs_get_range(ReadContext& ctxt)
     float to = from;
     // Read hyphen and maximum if present.
     ctxt.skipWhiteSpaces();
-    if (ctxt.is('-'))
+    if (ctxt.ise(ctxt.MINUS()))
     {
         ctxt.next();
 
@@ -520,12 +508,8 @@ Ego::Math::Interval<float> vfs_get_next_range(ReadContext& ctxt)
 /// @endcode
 int vfs_get_version(ReadContext& ctxt)
 {
-    if (ctxt.ise(ctxt.START_OF_INPUT()))
-    {
-        ctxt.next();
-    }
     ctxt.skipWhiteSpaces();
-    if (!ctxt.is('$'))
+    if (!ctxt.ise(ctxt.DOLLAR()))
     {
         return -1;
     }
@@ -560,10 +544,6 @@ char vfs_get_next_printable(ReadContext& ctxt)
 
 std::string ReadContext::readToEndOfLine()
 {
-    if (ise(START_OF_INPUT()))
-    {
-        next();
-    }
     skipWhiteSpaces();
     clear_lexeme_text();
     while (!ise(END_OF_INPUT()))
@@ -580,19 +560,15 @@ std::string ReadContext::readToEndOfLine()
 
 std::string ReadContext::readSingleLineComment()
 {
-    if (ise(START_OF_INPUT()))
-    {
-        next();
-    }
     skipWhiteSpaces();
     clear_lexeme_text();
-    if (!is('/'))
+    if (!ise(SLASH()))
     {
         throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, get_location(),
                                     "unexpected character while scanning single line comment");
     }
     next();
-    if (!is('/'))
+    if (!ise(SLASH()))
     {
         throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, get_location(),
                                     "unexpected character while scanning single line comment");
@@ -618,10 +594,6 @@ std::string ReadContext::readSingleLineComment()
 
 char ReadContext::readPrintable()
 {
-    if (ise(START_OF_INPUT()))
-    {
-        next();
-    }
     skipWhiteSpaces();
     if (ise(END_OF_INPUT()) || ise(ERROR()))
     {
@@ -636,7 +608,7 @@ char ReadContext::readPrintable()
                                         "premature end of input while scanning printable character");
         }
     }
-    if (!ise(ALPHA()) && !ise(DIGIT()) && !is('!') && !is('?') && !is('='))
+    if (!ise(ALPHA()) && !ise(DIGIT()) && !ise(EXCLAMATION_MARK()) && !ise(QUESTION_MARK()) && !ise(EQUAL()))
     {
         if (ise(ERROR()))
         {
@@ -663,10 +635,6 @@ Ego::Script::DDLToken ReadContext::parseStringLiteral()
 {
 	id::location startLocation = get_location();
 	clear_lexeme_text();
-	if (ise(START_OF_INPUT()))
-	{
-		next();
-	}
 	while (true)
 	{
 		if (ise(ERROR()))
@@ -674,11 +642,11 @@ Ego::Script::DDLToken ReadContext::parseStringLiteral()
 			throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, get_location(),
 				                        "read error");
 		}
-		else if (is('~'))
+		else if (ise(TILDE()))
 		{
 			write_and_next('\t');
 		}
-		else if (is('_'))
+		else if (ise(UNDERSCORE()))
 		{
 			write_and_next(' ');
 		}
@@ -697,10 +665,6 @@ Ego::Script::DDLToken ReadContext::parseStringLiteral()
 Ego::Script::DDLToken ReadContext::parseCharacterLiteral() {
 	id::location startLocation = get_location();
 	clear_lexeme_text();
-	if (ise(START_OF_INPUT()))
-	{
-		next();
-	}
 	if (ise(END_OF_INPUT()) || ise(ERROR()))
 	{
 		if (ise(ERROR()))
@@ -714,7 +678,7 @@ Ego::Script::DDLToken ReadContext::parseCharacterLiteral() {
 				                        "premature end of input while scanning character literal");
 		}
 	}
-	if (!is('\''))
+	if (!ise(SINGLE_QUOTE()))
 	{
 		if (ise(ERROR()))
 		{
@@ -733,10 +697,10 @@ Ego::Script::DDLToken ReadContext::parseCharacterLiteral() {
 		}
 	}
 	next();
-	if (is('\\'))
+	if (ise(BACKSLASH()))
 	{
 		next();
-		if (is('\''))
+		if (ise(SINGLE_QUOTE()))
 		{
 			write_and_next('\'');
 		}
@@ -748,7 +712,7 @@ Ego::Script::DDLToken ReadContext::parseCharacterLiteral() {
 		{
 			write_and_next('\t');
 		}
-		else if (is('\\'))
+		else if (ise(BACKSLASH()))
 		{
 			write_and_next('\\');
 		}
@@ -788,7 +752,7 @@ Ego::Script::DDLToken ReadContext::parseCharacterLiteral() {
 		}
 		save_and_next();
 	}
-	if (!is('\'')) {
+	if (!ise(SINGLE_QUOTE())) {
 		throw Ego::Script::MissingDelimiterError(__FILE__, __LINE__, get_location(), '\'');
 	}
 	next();
@@ -799,11 +763,7 @@ Ego::Script::DDLToken ReadContext::parseIntegerLiteral()
 {
 	id::location startLocation = get_location();
 	clear_lexeme_text();
-	if (ise(START_OF_INPUT()))
-	{
-		next();
-	}
-	if (is('+') || is('-'))
+	if (ise(PLUS()) || ise(MINUS()))
 	{
 		save_and_next();
 	}
@@ -832,7 +792,7 @@ Ego::Script::DDLToken ReadContext::parseIntegerLiteral()
 	if (is('e') || is('E'))
 	{
 		save_and_next();
-		if (is('+'))
+		if (ise(PLUS()))
 		{
 			save_and_next();
 		}
@@ -866,11 +826,7 @@ Ego::Script::DDLToken ReadContext::parseNaturalLiteral()
 {
 	clear_lexeme_text();
     id::location startLocation = get_location();
-	if (ise(START_OF_INPUT()))
-	{
-		next();
-	}
-	if (is('+'))
+	if (ise(PLUS()))
 	{
 		save_and_next();
 	}
@@ -899,7 +855,7 @@ Ego::Script::DDLToken ReadContext::parseNaturalLiteral()
 	if (is('e') || is('E'))
 	{
 		save_and_next();
-		if (is('+'))
+		if (ise(PLUS()))
 		{
 			save_and_next();
 		}
@@ -933,10 +889,6 @@ Ego::Script::DDLToken ReadContext::parseRealLiteral()
 {
 	clear_lexeme_text();
 	id::location startLocation = get_location();
-	if (ise(START_OF_INPUT()))
-	{
-		next();
-	}
 	if (is('+') || is('-'))
 	{
 		save_and_next();
@@ -1228,7 +1180,7 @@ DamageType vfs_get_next_damage_type(ReadContext& ctxt)
 //--------------------------------------------------------------------------------------------
 void ReadContext::readName0()
 {
-    if (!ise(ALPHA()) && !is('_'))
+    if (!ise(ALPHA()) && !ise(UNDERSCORE()))
     {
         throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, get_location(),
                                     "invalid name");
@@ -1236,7 +1188,7 @@ void ReadContext::readName0()
     do
     {
         save_and_next();
-    } while (ise(ALPHA()) || ise(DIGIT()) || is('_'));
+    } while (ise(ALPHA()) || ise(DIGIT()) || ise(UNDERSCORE()));
 }
 
 void ReadContext::readOldString0()
@@ -1255,10 +1207,6 @@ void ReadContext::readOldString0()
 
 std::string ReadContext::readOldString()
 {
-    if (ise(START_OF_INPUT()))
-    {
-        next();
-    }
     skipWhiteSpaces();
     clear_lexeme_text();
     readOldString0();
@@ -1267,10 +1215,6 @@ std::string ReadContext::readOldString()
 
 std::string ReadContext::readName()
 {
-    if (ise(START_OF_INPUT()))
-    {
-        next();
-    }
     skipWhiteSpaces();
     clear_lexeme_text();
     readName0();
@@ -1303,10 +1247,6 @@ void ReadContext::readReference0()
 
 std::string ReadContext::readReference()
 {
-    if (ise(START_OF_INPUT()))
-    {
-        next();
-    }
     skipWhiteSpaces();
     clear_lexeme_text();
     readReference0();
