@@ -10,7 +10,7 @@ endif(CCACHE_FOUND)
 
 #Set compile flags
 set(CMAKE_CXX_STANDARD 17)
-add_definitions("-std=c++17 -Wall -Wextra -ftemplate-depth=1024")
+add_definitions("-std=c++17 -Wall -Wextra")
 #add_definitions("-O3 -flto -fuse-ld=gold")
 add_definitions(-ggdb3 -Og)
 

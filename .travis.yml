@@ -39,7 +39,10 @@ before_install:
   fi
 
 script:
-- make all test -j4 
+- mkdir build
+- cd build
+- cmake ..
+- make -j4
 
 notifications:
   webhooks:
