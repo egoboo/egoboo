@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.2)
 project(egoboo CXX)
 
 #Enable ccache if it is available
@@ -23,7 +23,7 @@ INCLUDE_DIRECTORIES(
         egolib/src
         idlib/src)
 
-#Source files
+#TODO: Tests
 set(EGOLIB_SOURCE_FILES
         #egolib/tests/egolib/Tests/Math/Closure.cpp
         #egolib/tests/egolib/Tests/Math/Constants.cpp
@@ -62,6 +62,9 @@ endif (UNIX)
 if (APPLE)
     set(EGOBOO_SOURCE_FILES ${EGOBOO_SOURCE_FILES} egolib/src/egolib/Platform/file_mac.m)
 endif (APPLE)
+if (WINDOWS)
+    set(EGOBOO_SOURCE_FILES ${EGOBOO_SOURCE_FILES} egolib/src/egolib/Platform/file_win.c)
+endif (WINDOWS)
 
 #Compile everything as C++
 SET_SOURCE_FILES_PROPERTIES(${IDLIB_SOURCE_FILES} PROPERTIES LANGUAGE CXX )
