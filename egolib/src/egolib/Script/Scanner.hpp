@@ -21,8 +21,9 @@ private:
     //// @brief The file name.
     std::string m_file_name;
 
+    struct transform_functor;
+
 public:
-	struct transform_functor;
     using Traits = TraitsArg;
     using SymbolType = typename Traits::Type;
     using ExtendedSymbolType = typename Traits::ExtendedType;

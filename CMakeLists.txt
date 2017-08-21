@@ -41,11 +41,13 @@ set(EGOLIB_SOURCE_FILES
         #egolib/tests/egolib/Tests/StringUtilities.cpp
         )
 
-file(GLOB IDLIB_SOURCE_FILES idlib/src/idlib/*.cpp)
-file(GLOB EGOLIB_SOURCE_FILES egolib/src/egolib/*.cpp egolib/src/egolib/*.c)
+file(GLOB_RECURSE IDLIB_SOURCE_FILES idlib/src/idlib/*.cpp)
+file(GLOB_RECURSE EGOLIB_SOURCE_FILES egolib/src/egolib/*.cpp egolib/src/egolib/*.c)
+file(GLOB_RECURSE GAME_SOURCE_FILES game/src/game/*.cpp game/src/game/*.c)
 
-file(GLOB GAME_SOURCE_FILES game/src/game/*/*.cpp game/src/game/*/*.c)
-
+#Exclude OS specific files, they are added later
+list(REMOVE_ITEM EGOLIB_SOURCE_FILES "${PROJECT_SOURCE_DIR}/egolib/src/egolib/Platform/file_win.c")
+list(REMOVE_ITEM EGOLIB_SOURCE_FILES "${PROJECT_SOURCE_DIR}/egolib/src/egolib/Platform/file_linux.c")
 
 set(EGOBOO_SOURCE_FILES
         ${IDLIB_SOURCE_FILES}
@@ -55,8 +57,11 @@ set(EGOBOO_SOURCE_FILES
 
 #OS specific files
 if (UNIX)
-    set(EGOBOO_SOURCE_FILES ${EGOBOO_SOURCE_FILES} unix/main.cpp)
+    set(EGOBOO_SOURCE_FILES ${EGOBOO_SOURCE_FILES} unix/main.cpp egolib/src/egolib/Platform/file_linux.c)
 endif (UNIX)
+if (APPLE)
+    set(EGOBOO_SOURCE_FILES ${EGOBOO_SOURCE_FILES} egolib/src/egolib/Platform/file_mac.m)
+endif (APPLE)
 
 #Compile everything as C++
 SET_SOURCE_FILES_PROPERTIES(${IDLIB_SOURCE_FILES} PROPERTIES LANGUAGE CXX )
