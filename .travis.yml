@@ -37,8 +37,10 @@ before_install:
   else
       export CC="gcc-6" CXX="g++-6";
   fi
+- sudo unlink /usr/bin/gcc && sudo ln -s /usr/bin/gcc-6 /usr/bin/gcc
+- sudo unlink /usr/bin/g++ && sudo ln -s /usr/bin/g++-6 /usr/bin/g++
 
-script:
+script:  
 - mkdir build
 - cd build
 - ../external/cmake-3.9.1-Linux-x86_64/bin/cmake ..
