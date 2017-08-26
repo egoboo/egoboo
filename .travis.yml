@@ -31,21 +31,17 @@ addons:
             - libsdl2-ttf-dev
 
 before_install:
-- sudo apt-get install -y --no-install-recommends doxygen valgrind graphviz
 - if [ "$CC" = "clang" ]; then 
       export CC="clang-3.8" CXX="clang++-3.8" CXXFLAGS="-ftemplate-depth=1024";
   else
       export CC="gcc-6" CXX="g++-6";
   fi
-- sudo unlink /usr/bin/gcc && sudo ln -s /usr/bin/gcc-6 /usr/bin/gcc
-- sudo unlink /usr/bin/g++ && sudo ln -s /usr/bin/g++-6 /usr/bin/g++
 
 script:  
-- export CC="gcc-6" CXX="g++-6";
+- export CC=gcc-6
+- export CXX=g++-6
 - mkdir build
-- cd build
-- ../external/cmake-3.9.1-Linux-x86_64/bin/cmake ..
-- make -j4
+- cd build && ../external/cmake-3.9.1-Linux-x86_64/bin/cmake .. && make -j4 CC=gcc-6 CXX=g++-6
 
 notifications:
   webhooks:
