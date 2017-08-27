@@ -15,10 +15,23 @@ install:
     # depth 32 should be enough.
     git submodule update --init --recursive --depth 32
     
+# Package artifacts and push packaged artifacts.
+after_build:
+    - ps: |
+        ./distribute -configuration ${env:configuration} -platform ${env:platform} -suffix ${env:suffix}
+        Push-AppveyorArtifact "${env:APPVEYOR_BUILD_FOLDER}/${env:artifactFileName}" -FileName "${env:artifactFileName}"
+
+# Restore nuget packages and install dependencies.        
+# Furthermore, the artifact name and the artifact file name are computed.
 before_build:
     - nuget restore
     - ps: .\install-vsix-appveyor.ps1
-
+    - ps: |
+        $env:suffix = "nightly"
+        $env:artifactName = "egoboo-$(${env:configuration}.ToLower())-$env:platform-$env:suffix"
+        Write-Host "artifact name = $env:artifactName"
+        $env:artifactFileName = "${env:artifactName}.zip"
+        Write-Host "artifact file name = $env:artifactFileName"
 build:
     parallel: true                  # enable MSBuild parallel builds
     project: egoboo.sln             # path to Visual Studio solution or project
@@ -31,13 +44,19 @@ test_script:
         vstest.console /Logger:Appveyor /ListExecutors /UseVsixExtensions:true
         vstest.console /Logger:Appveyor /Platform:$platform /inIsolation /UseVsixExtensions:true "product\idlib-tests\$env:configuration\$env:platform\idlib-tests.exe"
         vstest.console /Logger:Appveyor /Platform:$platform /inIsolation /UseVsixExtensions:true "product\egolib-tests\$env:configuration\$env:platform\egolib-tests.exe"
+
 # if one matrix entry fails, all entries fails
 # https://www.appveyor.com/docs/build-configuration#failing-strategy
 matrix:
     fast_finish: true
-        
+     
 notifications:
     - provider: Webhook
       url: https://webhooks.gitter.im/e/7743b26cbf1767e7b3a3
       on_build_success: true
       on_build_failure: true
+
+# Enumerate the artifacts.
+#artifacts:
+#    - path: ${env:artifactFileName}
+#      name: ${env:artifactName}
