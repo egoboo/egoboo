@@ -19,59 +19,51 @@
 
 #include "egolib/Tests/Math/MathTestUtilities.hpp"
 
-namespace Ego {
-namespace Math {
-namespace Test {
+namespace ego { namespace math { namespace test {
 
-EgoTest_TestCase(Contains) {
-public:
-    EgoTest_Test(AxisAlignedBox3f_AxisAlignedBox3f) {
-        Ego::Math::Contains<AxisAlignedBox3f, AxisAlignedBox3f> functor;
-        AxisAlignedBox3f x(Point3f(-1.0f, -1.0f, -1.0f), Point3f(+1.0f, +1.0f, +1.0f));
-        AxisAlignedBox3f y = Ego::Tests::Math::Utilities::getContainedAxisAlignedBox3f(x);
-        EgoTest_Assert(functor(x, y));
-        y = Ego::Tests::Math::Utilities::getNonContainedAxisAlignedBox3f(x);
-        EgoTest_Assert(!functor(x, y));
-    }
+TEST(containment, axis_aligned_box_3f_axis_aligned_box_3f) {
+    Ego::Math::Contains<AxisAlignedBox3f, AxisAlignedBox3f> functor;
+    auto x = AxisAlignedBox3f(Point3f(-1.0f, -1.0f, -1.0f), Point3f(+1.0f, +1.0f, +1.0f));
+    auto y = Utilities::getContainedAxisAlignedBox3f(x);
+    ASSERT_TRUE(functor(x, y));
+    y = Utilities::getNonContainedAxisAlignedBox3f(x);
+    ASSERT_TRUE(!functor(x, y));
+}
 
-    EgoTest_Test(AxisAlignedBox3f_Point3f) {
-        Ego::Math::Contains<AxisAlignedBox3f, Point3f> functor;
-        AxisAlignedBox3f x(Point3f(-1.0f, -1.0f, -1.0f), Point3f(+1.0f, +1.0f, +1.0f));
-        Point3f y = Ego::Tests::Math::Utilities::getContainedPoint3f(x);
-        EgoTest_Assert(functor(x, y));
-        y = Ego::Tests::Math::Utilities::getNonContainedPoint3f(x);
-        EgoTest_Assert(!functor(x, y));
-    }
+TEST(containment, axis_aligned_box_3f_point_3f) {
+    Ego::Math::Contains<AxisAlignedBox3f, Point3f> functor;
+    auto x = AxisAlignedBox3f(Point3f(-1.0f, -1.0f, -1.0f), Point3f(+1.0f, +1.0f, +1.0f));
+    auto y = Utilities::getContainedPoint3f(x);
+    ASSERT_TRUE(functor(x, y));
+    y = Utilities::getNonContainedPoint3f(x);
+    ASSERT_TRUE(!functor(x, y));
+}
 
-    EgoTest_Test(Sphere3f_Point3f) {
-        Ego::Math::Contains<Sphere3f, Point3f> functor;
-        Sphere3f x(Point3f(0.0f, 0.0f, 0.0f), 1.0f);
-        Point3f y = Ego::Tests::Math::Utilities::getContainedPoint3f(x);
-        EgoTest_Assert(functor(x, y));
-        y = Ego::Tests::Math::Utilities::getNonContainedPoint3f(x);
-        EgoTest_Assert(!functor(x, y));
-    }
+TEST(containment, sphere_3f_point_3f) {
+    Ego::Math::Contains<Sphere3f, Point3f> functor;
+    auto x = Sphere3f(Point3f(0.0f, 0.0f, 0.0f), 1.0f);
+    auto y = Utilities::getContainedPoint3f(x);
+    ASSERT_TRUE(functor(x, y));
+    y = Utilities::getNonContainedPoint3f(x);
+    ASSERT_TRUE(!functor(x, y));
+}
 
-    EgoTest_Test(Sphere3f_Sphere3f) {
-        Ego::Math::Contains<Sphere3f, Sphere3f> functor;
-        Sphere3f x(Point3f(0.0f, 0.0f, 0.0f), 1.0f);
-        Sphere3f y = Ego::Tests::Math::Utilities::getContainedSphere3f(x);
-        EgoTest_Assert(functor(x, y));
-        y = Ego::Tests::Math::Utilities::getNonContainedSphere3f(x);
-        EgoTest_Assert(!functor(x, y));
-    }
+TEST(containment, sphere_3f_sphere_3f) {
+    Ego::Math::Contains<Sphere3f, Sphere3f> functor;
+    auto x = Sphere3f(Point3f(0.0f, 0.0f, 0.0f), 1.0f);
+    auto y = Utilities::getContainedSphere3f(x);
+    ASSERT_TRUE(functor(x, y));
+    y = Utilities::getNonContainedSphere3f(x);
+    ASSERT_TRUE(!functor(x, y));
+}
 
-    EgoTest_Test(Point3f_Point3f) {
-        Ego::Math::Contains<Point3f, Point3f> functor;
-        Point3f x(0.0f, 0.0f, 0.0f);
-        Point3f y = Ego::Tests::Math::Utilities::getContainedPoint3f(x);
-        EgoTest_Assert(functor(x, y));
-        y = Ego::Tests::Math::Utilities::getNonContainedPoint3f(x);
-        EgoTest_Assert(!functor(x, y));
-    }
+TEST(containment, point_3f_point_3f) {
+    Ego::Math::Contains<Point3f, Point3f> functor;
+    auto x = Point3f(0.0f, 0.0f, 0.0f);
+    auto y = Utilities::getContainedPoint3f(x);
+    ASSERT_TRUE(functor(x, y));
+    y = Utilities::getNonContainedPoint3f(x);
+    ASSERT_TRUE(!functor(x, y));
+}
 
-};
-
-} // namespace Test
-} // namespace Math
-} // namespace Ego
+} } } // namespace ego::math::test

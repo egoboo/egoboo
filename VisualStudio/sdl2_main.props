@@ -10,14 +10,14 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Link>
-      <AdditionalDependencies>SDL2.lib;SDL2_image.lib;SDL2_ttf.lib;SDL2_mixer.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ClCompile>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <AdditionalIncludeDirectories>$(ExternalDependenciesDir)\SDL2-2.0.3\include;$(ExternalDependenciesDir)\SDL2_image-2.0.0;$(ExternalDependenciesDir)\SDL2_ttf-2.0.12;$(ExternalDependenciesDir)\SDL2_mixer-2.0.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <link>
-      <AdditionalLibraryDirectories>$(SolutionDir)\product\SDL2\SDL2\$(Configuration)\$(PlatformTarget);$(SolutionDir)\product\SDL2\SDL2_image\$(Configuration)\$(PlatformTarget);$(SolutionDir)\product\SDL2\SDL2_ttf\$(Configuration)\$(PlatformTarget);$(SolutionDir)\product\SDL2\SDL2_mixer\$(Configuration)\$(PlatformTarget);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\product\SDL2\SDL2main\$(Configuration)\$(PlatformTarget);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </link>
   </ItemDefinitionGroup>
   <ItemGroup />

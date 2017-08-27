@@ -88,6 +88,8 @@ std::string VfsPath::string(Kind kind) const {
             return temporary;
         } break;
     }
+
+    return m_string;
 }
 
 std::string VfsPath::getExtension() const {

@@ -19,73 +19,20 @@
 
 #include "egolib/Tests/Math/MathTestUtilities.hpp"
 
-namespace Ego {
-namespace Math {
-namespace Test {
+namespace ego { namespace math { namespace test {
 
-EgoTest_TestCase(Interpolate_Linear) {
-public:
-    template <typename T>
-    using list = std::vector<T>;
-    template <typename T1, typename T2>
-    using pair = std::pair<T1, T2>;
-
-public:
-    using Vector3f = ::Vector3f;
-    // Add basis vectors (1,0,0), (0,1,0), (0,0,1).
-    list<Vector3f> basis(list<Vector3f> l) {
-        list<Vector3f> l1{l};
-        l1.emplace_back(1.0f, 0.0f, 0.0f);
-        l1.emplace_back(0.0f, 1.0f, 0.0f);
-        l1.emplace_back(0.0f, 0.0f, 1.0f);
-        return l1;
-    }
-    // Add the zero vector to a list.
-    list<Vector3f> zero(list<Vector3f> l) {
-        list<Vector3f> l1{l};
-        l1.emplace_back(0.0f, 0.0f, 0.0f);
-        return l1;
-    }
-    // Add negation of all list elements to a list.
-    template <typename T>
-    list<T> negation(list<T> l) {
-        list<T> l1{l};
-        for (auto e : l) {
-            auto e1 = -e;
-            l1.emplace_back(-e1);
-        }
-        return l1;
-    }
-    // Cartesian product list of two list.
-    template <typename T>
-    list<pair<T, T>> cartesian(const list<T>& a, const list<T>& b) {
-        list<pair<T, T>> c;
-        for (auto x : a) {
-            for (auto y : b) {
-                c.emplace_back(x,y);
-            }
-        }
-        return c;
-    }
-
-    static void test(const Vector3f& x, const Vector3f& y) {
-        auto f = id::interpolation_functor<Vector3f,id::interpolation_method::LINEAR>();
-        EgoTest_Assert(x == f(x, y, 0.0f));
-        EgoTest_Assert(y == f(x, y, 1.0f));
-    }
-
-    EgoTest_Test(testVector3f) {
-        list<Vector3f> l = zero(negation(basis(list<Vector3f>())));
-        list<pair<Vector3f, Vector3f>> cl = cartesian(l,l);
-        for (auto c : cl) {
-            test(c.first, c.second);
-        }
-    }
-
-    EgoTest_Test(testPoint3f) {
-    }
-};
-
+static void test(const Vector3f& x, const Vector3f& y) {
+	auto f = id::interpolation_functor<Vector3f, id::interpolation_method::LINEAR>();
+	ASSERT_EQ(x, f(x, y, 0.0f));
+	ASSERT_EQ(y, f(x, y, 1.0f));
 }
+
+TEST(linear_interpolation, vector_3f) {
+	auto l = Utilities::zero(Utilities::negation(Utilities::basis(std::vector<Vector3f>())));
+	auto cl = Utilities::cartesian(l, l);
+	for (auto c : cl) {
+		test(c.first, c.second);
+	}
 }
-} // end namespaces Ego::Math::Test
+
+} } } // namespace ego::math::test

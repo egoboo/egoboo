@@ -156,7 +156,6 @@ bool SpawnFileReaderImpl::read(ReadContext& ctxt, spawn_file_info_t& info)
 std::vector<spawn_file_info_t> SpawnFileReaderImpl::read(const std::string& pathname)
 {
     ReadContext ctxt(pathname);
-    ctxt.next(); /// @todo Remove this hack.
     std::vector<spawn_file_info_t> entries;
     while (!ctxt.ise(ctxt.END_OF_INPUT()))
     {

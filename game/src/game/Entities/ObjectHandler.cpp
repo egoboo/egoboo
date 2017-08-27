@@ -340,6 +340,8 @@ std::vector<std::shared_ptr<Object>> ObjectHandler::findObjects(const float x, c
 
 void ObjectHandler::findObjects(const AxisAlignedBox2f &searchArea, std::vector<std::shared_ptr<Object>> &result, bool includeSceneryObjects) const
 {
-    if(includeSceneryObjects) _staticObjects.find(searchArea, result);
+    if(includeSceneryObjects) { 
+    	_staticObjects.find(searchArea, result);
+    }
     return _dynamicObjects.find(searchArea, result);
 }

@@ -19,50 +19,42 @@
 
 #include "egolib/Tests/Math/MathTestUtilities.hpp"
 
-namespace Ego {
-namespace Math {
-namespace Test {
+namespace ego { namespace math { namespace test {
 
-EgoTest_TestCase(Closure) {
-
-    EgoTest_Test(Sphere3f_Sphere3f) {
-        auto source = Sphere3f(Point3f(3.0f, 5.0f, 7.0f), 3.0f);
-        Ego::Math::Closure<Sphere3f, Sphere3f> closure;
-        auto target = closure(source);
-    }
-
-    EgoTest_Test(AABB3f_AABB3f) {
-        auto source = AxisAlignedBox3f(Point3f(-1.0f, -2.0f, -3.0f), Point3f(+1.0f, +2.0f, +3.0f));
-        Ego::Math::Closure<AxisAlignedBox3f, AxisAlignedBox3f> closure;
-        auto target = closure(source);
-    }
-
-    EgoTest_Test(Sphere3f_AABB3f) {
-        auto source = Sphere3f(Point3f(3.0f, 5.0f, 7.0f), 3.0f);
-        Ego::Math::Closure<AxisAlignedBox3f, Sphere3f> closure;
-        auto target = closure(source);
-    }
-
-    EgoTest_Test(AxisAlignedBox3f_Sphere3f) {
-        auto source = AxisAlignedBox3f(Point3f(-1.0f, -2.0f, -3.0f), Point3f(+1.0f, +2.0f, 3.0f));
-        Ego::Math::Closure<Sphere3f, AxisAlignedBox3f> closure;
-        auto target = closure(source);
-    }
-
-    EgoTest_Test(AxisAlignedCube3f_AxisAlignedBox3f) {
-        auto source = AxisAlignedCube3f(Point3f(-1.0f, -2.0f, -3.0f), 3.0f);
-        Ego::Math::Closure<AxisAlignedBox3f, AxisAlignedCube3f> closure;
-        auto target = closure(source);
-    }
-
-    EgoTest_Test(AxisAlignedBox3f_AxisAlignedCube3f) {
-        auto source = AxisAlignedBox3f(Point3f(-1.0f, -2.0f, -3.0f), Point3f(+1.0f, +2.0f, 3.0f));
-        Ego::Math::Closure<AxisAlignedCube3f, AxisAlignedBox3f> closure;
-        auto target = closure(source);
-    }
-
-};
-
+TEST(closure, sphere_3f_sphere_3f) {
+	auto source = Sphere3f(Point3f(3.0f, 5.0f, 7.0f), 3.0f);
+	Ego::Math::Closure<Sphere3f, Sphere3f> closure;
+	auto target = closure(source);
 }
+
+TEST(closure, aabb_3f_aabb_3f) {
+    auto source = AxisAlignedBox3f(Point3f(-1.0f, -2.0f, -3.0f), Point3f(+1.0f, +2.0f, +3.0f));
+    Ego::Math::Closure<AxisAlignedBox3f, AxisAlignedBox3f> closure;
+    auto target = closure(source);
 }
-} // end namespaces Ego::Math::Test
+
+TEST(closure, sphere_3f_aabb_3f) {
+    auto source = Sphere3f(Point3f(3.0f, 5.0f, 7.0f), 3.0f);
+    Ego::Math::Closure<AxisAlignedBox3f, Sphere3f> closure;
+    auto target = closure(source);
+}
+
+TEST(closure, axis_aligned_box_3f_sphere_3f) {
+    auto source = AxisAlignedBox3f(Point3f(-1.0f, -2.0f, -3.0f), Point3f(+1.0f, +2.0f, 3.0f));
+    Ego::Math::Closure<Sphere3f, AxisAlignedBox3f> closure;
+    auto target = closure(source);
+}
+
+TEST(closure, axis_aligned_cube_3f_axis_aligned_box_3f) {
+    auto source = AxisAlignedCube3f(Point3f(-1.0f, -2.0f, -3.0f), 3.0f);
+    Ego::Math::Closure<AxisAlignedBox3f, AxisAlignedCube3f> closure;
+    auto target = closure(source);
+}
+
+TEST(closure, axis_aligned_box_3f_axis_aligned_cube_3f) {
+    auto source = AxisAlignedBox3f(Point3f(-1.0f, -2.0f, -3.0f), Point3f(+1.0f, +2.0f, 3.0f));
+    Ego::Math::Closure<AxisAlignedCube3f, AxisAlignedBox3f> closure;
+    auto target = closure(source);
+}
+
+} } } // namespace ego::math::test

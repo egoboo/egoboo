@@ -124,7 +124,10 @@ void PlayingState::updateStatusBarPosition()
 
 void PlayingState::update()
 {
-    MainLoop::update_game();
+    // Get immediate mode state for the rest of the game
+    Ego::Input::InputSystem::get().update();
+
+    _currentModule->update();
 
     //Calculate position of all status bars
     updateStatusBarPosition();

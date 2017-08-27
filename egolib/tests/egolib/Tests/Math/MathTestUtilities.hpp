@@ -1,11 +1,9 @@
 #pragma once
 
-#include "EgoTest/EgoTest.hpp"
+#include "gtest/gtest.h"
 #include "egolib/egolib.h"
 
-namespace Ego {
-namespace Tests {
-namespace Math {
+namespace ego { namespace math { namespace test {
 
 template <size_t Dimensionality, typename ScalarFieldType>
 Ego::Math::Vector<ScalarFieldType, Dimensionality> normalize(const Ego::Math::Vector<ScalarFieldType, Dimensionality>& v) {
@@ -291,8 +289,45 @@ public:
         return a.getMax() + unit() * pdelta(0.0f);
     }
 
+	// Add basis vectors (1,0,0), (0,1,0), (0,0,1).
+	static std::vector<Vector3f> basis(std::vector<Vector3f> l) {
+		std::vector<Vector3f> l1{ l };
+		l1.emplace_back(1.0f, 0.0f, 0.0f);
+		l1.emplace_back(0.0f, 1.0f, 0.0f);
+		l1.emplace_back(0.0f, 0.0f, 1.0f);
+		return l1;
+	}
+
+	// Add the zero vector to a list.
+	static std::vector<Vector3f> zero(std::vector<Vector3f> l) {
+		std::vector<Vector3f> l1{ l };
+		l1.emplace_back(0.0f, 0.0f, 0.0f);
+		return l1;
+	}
+
+	// Add negation of all list elements to a list.
+	template <typename T>
+	static std::vector<T> negation(std::vector<T> l) {
+		std::vector<T> l1{ l };
+		for (auto e : l) {
+			auto e1 = -e;
+			l1.emplace_back(-e1);
+		}
+		return l1;
+	}
+
+	// Cartesian product list of two list.
+	template <typename T>
+	static std::vector<std::pair<T, T>> cartesian(const std::vector<T>& a, const std::vector<T>& b) {
+		std::vector<std::pair<T, T>> c;
+		for (auto x : a) {
+			for (auto y : b) {
+				c.emplace_back(x, y);
+			}
+		}
+		return c;
+	}
+
 };
 
-} // namespace Math
-} // namespace Tests
-} // namespace Ego
+} } } // namespace ego::math::test

@@ -115,10 +115,8 @@ bool ConfigFileParser::skipWhiteSpaces()
 
 bool ConfigFileParser::parseFile(std::shared_ptr<ConfigFile> target)
 {
-    assert(ise(START_OF_INPUT()));
     _currentQualifiedName = nullptr;
     _currentValue = nullptr;
-    next();
     while (!ise(END_OF_INPUT()))
     {
         if (ise(NEW_LINE()))

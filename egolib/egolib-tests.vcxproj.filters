@@ -25,18 +25,6 @@
     <ClCompile Include="tests\egolib\Tests\Math\Contains.cpp">
       <Filter>Source Files\Math</Filter>
     </ClCompile>
-    <ClCompile Include="tests\egolib\Tests\Math\Intersects.cpp">
-      <Filter>Source Files\Math</Filter>
-    </ClCompile>
-    <ClCompile Include="tests\egolib\Tests\Math\MatrixMath.cpp">
-      <Filter>Source Files\Math</Filter>
-    </ClCompile>
-    <ClCompile Include="tests\egolib\Tests\Math\PointMath.cpp">
-      <Filter>Source Files\Math</Filter>
-    </ClCompile>
-    <ClCompile Include="tests\egolib\Tests\Math\VectorMath.cpp">
-      <Filter>Source Files\Math</Filter>
-    </ClCompile>
     <ClCompile Include="tests\egolib\Tests\Compilation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -49,20 +37,32 @@
     <ClCompile Include="tests\egolib\Tests\QuadTree.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="tests\egolib\Tests\Math\Translate.cpp">
-      <Filter>Source Files\Math</Filter>
-    </ClCompile>
     <ClCompile Include="tests\egolib\Tests\Math\Interpolate_Linear.cpp">
       <Filter>Source Files\Math</Filter>
     </ClCompile>
     <ClCompile Include="tests\egolib\Tests\Math\Closure.cpp">
       <Filter>Source Files\Math</Filter>
     </ClCompile>
-    <ClCompile Include="tests\egolib\Tests\Math\Constants.cpp">
-      <Filter>Source Files\Math</Filter>
-    </ClCompile>
     <ClCompile Include="tests\egolib\Tests\MeshInfoIterator.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\egolib\Tests\Math\vector_3f.cpp">
+      <Filter>Source Files\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\egolib\Tests\Math\translation.cpp">
+      <Filter>Source Files\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\egolib\Tests\Math\point_3f.cpp">
+      <Filter>Source Files\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\egolib\Tests\Math\matrix_4f_4f.cpp">
+      <Filter>Source Files\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\egolib\Tests\Math\intersection.cpp">
+      <Filter>Source Files\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\egolib\Tests\Math\constants.cpp">
+      <Filter>Source Files\Math</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

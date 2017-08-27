@@ -17,12 +17,10 @@
 //*
 //********************************************************************************************
 
-#include "EgoTest/EgoTest.hpp"
+#include "gtest/gtest.h"
 #include "egolib/egolib.h"
 
-namespace Ego {
-namespace Core {
-namespace Test {
+namespace Ego { namespace Core { namespace Test {
 
 struct Bar : public Ego::Core::Singleton<Bar> {
 protected:
@@ -48,16 +46,12 @@ protected:
     }
 };
 
-EgoTest_TestCase(Singleton) {
-
-EgoTest_Test(run) {
+TEST(singleton, run) {
     Bar::initialize();
     Bar::uninitialize();
     Foo::initialize(std::string("Hello, World!"));
     Foo::uninitialize();
 }
-
-}; // Singleton
 
 } // namespace Test
 

@@ -17,70 +17,65 @@
 //*
 //********************************************************************************************
 
-#include "EgoTest/EgoTest.hpp"
+#include "gtest/gtest.h"
 #include "egolib/egolib.h"
 
-EgoTest_TestCase(StringUtilities)
-{
-
-EgoTest_Test(textFormatter)
+TEST(string_utilities, text_formatting)
 {
     std::string input, output;
 
     input = "How many G'nomes does it take to change a Light Bulb? None, they can't figure out how to change one with gonnepowder or grog.";
     output = add_linebreak_cpp(input, 50);
-    EgoTest_Assert(output == "How many G'nomes does it take to change a Light\nBulb? None, they can't figure out how to change\none with gonnepowder or grog.");
+	ASSERT_EQ(output, "How many G'nomes does it take to change a Light\nBulb? None, they can't figure out how to change\none with gonnepowder or grog.");
 
     input = "1234567 cf qos a";
     output = add_linebreak_cpp(input, 6);
-    EgoTest_Assert(output == "1234567\ncf qos\na");
+	ASSERT_EQ(output, "1234567\ncf qos\na");
 }
 
-EgoTest_Test(left_trim_ws)
+TEST(string_utilities, left_trim_ws)
 {
     std::string input = " \tfo \to \t";
     std::string output = Ego::left_trim_ws(input);
-    EgoTest_Assert(output == "fo \to \t");
+	ASSERT_EQ(output, "fo \to \t");
 }
 
-EgoTest_Test(right_trim_ws)
+TEST(string_utilities, right_trim_ws)
 {
     std::string input = " \tfo \to \t";
     std::string output = Ego::right_trim_ws(input);
-    EgoTest_Assert(output == " \tfo \to");
+	ASSERT_EQ(output, " \tfo \to");
 }
 
-EgoTest_Test(trim_ws)
+TEST(string_utilities, trim_ws)
 {
     std::string input = " \tfo \to \t";
     std::string output = Ego::trim_ws(input);
-    EgoTest_Assert(output == "fo \to");
+	ASSERT_EQ(output, "fo \to");
 }
 
-EgoTest_Test(split)
+TEST(string_utilities, split)
 {
     std::vector<std::string> v;
 
     v = Ego::split(std::string(""), std::string("\n"));
-    EgoTest_Assert(0 == v.size());
+	ASSERT_EQ(0, v.size());
     v.clear();
 
     v = Ego::split(std::string("\n"), std::string("\n"));
-    EgoTest_Assert(1 == v.size());
-    EgoTest_Assert("\n" == v[0]);
+	ASSERT_EQ(1, v.size());
+	ASSERT_EQ("\n", v[0]);
     v.clear();
 
     v = Ego::split(std::string("x\ny"), std::string("\n"));
-    EgoTest_Assert(3 == v.size());
-    EgoTest_Assert("x" == v[0]);
-    EgoTest_Assert("\n" == v[1]);
-    EgoTest_Assert("y" == v[2]);
+	ASSERT_EQ(3, v.size());
+	ASSERT_EQ("x", v[0]);
+	ASSERT_EQ("\n", v[1]);
+	ASSERT_EQ("y", v[2]);
     v.clear();
 
     v = Ego::split(std::string("x\n"), std::string("\n"));
-    EgoTest_Assert(2 == v.size());
-    EgoTest_Assert("x" == v[0] && "\n" == v[1]);
+    ASSERT_EQ(2, v.size());
+    ASSERT_TRUE("x" == v[0] && "\n" == v[1]);
     v.clear();
 }
-
-};

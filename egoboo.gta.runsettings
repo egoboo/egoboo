@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <GoogleTestAdapterSettings>
+    <SolutionSettings>
+      <Settings>
+        <AdditionalTestExecutionParam/>
+        <BatchForTestSetup/>
+        <BatchForTestTeardown/>
+        <BreakOnFailure>false</BreakOnFailure>
+        <CatchExceptions>true</CatchExceptions>
+        <DebugMode>false</DebugMode>
+        <TimestampOutput>false</TimestampOutput>
+        <ShowReleaseNotes>true</ShowReleaseNotes>
+        <MaxNrOfThreads>4</MaxNrOfThreads>
+        <NrOfTestRepetitions>1</NrOfTestRepetitions>
+        <ParallelTestExecution>false</ParallelTestExecution>
+        <PrintTestOutput>true</PrintTestOutput>
+        <RunDisabledTests>false</RunDisabledTests>
+        <ShuffleTests>false</ShuffleTests>
+        <ShuffleTestsSeed>0</ShuffleTestsSeed>
+        <TestDiscoveryRegex>.*[Tt]est(s)?.*.exe</TestDiscoveryRegex>
+        <TestDiscoveryTimeoutInSeconds>30</TestDiscoveryTimeoutInSeconds>
+        <WorkingDir>$(SolutionDir)</WorkingDir>
+        <PathExtension/>
+        <TraitsRegexesAfter />
+        <TraitsRegexesBefore />
+        <TestNameSeparator />
+        <ParseSymbolInformation>true</ParseSymbolInformation>
+        <UseNewTestExecutionFramework>true</UseNewTestExecutionFramework>
+        <KillProcessesOnCancel>false</KillProcessesOnCancel>
+      </Settings>
+    </SolutionSettings>
+    <ProjectSettings/>
+  </GoogleTestAdapterSettings>
+</RunSettings>

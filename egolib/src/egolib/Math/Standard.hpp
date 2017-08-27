@@ -316,6 +316,9 @@ struct Validate<Ego::Math::AxisAlignedCube<EuclidianSpaceType>> {
 } // namespace Ego
 #endif
 
+/// A \f$3\f$-order floating point matrix.
+using Matrix3f3f = Ego::Math::Matrix<float, 3, 3>;
+
 /// A \f$4\f$-order floating point matrix.
 using Matrix4f4f = Ego::Math::Matrix<float, 4, 4>;
 
