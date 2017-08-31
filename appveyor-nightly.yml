@@ -24,31 +24,23 @@ install:
     # depth 32 should be enough.
     git submodule update --init --recursive --depth 32
 
-# Artifacts are produced by the AppVeyor project "Egoboo Nightly".
+# Package artifacts and push packaged artifacts.
 after_build:
-    - ps: >-
-        if ($env:platform -Match "x86") {
-          $env:deploymentTargetPlatform = "x86"
-        }
-
-        if ($env:platform -Match "x64") {
-          $env:deploymentTargetPlatform = "x64"
-        }
-
-        if ($env:configuration -Match "Release") {
-          $env:deploymentTarget="egoboo-${$env:deploymentTargetPlatform}-nightly.zip"     
-          $env:deploymentConfiguration = "Release"
-        }
-
-        if ($env:configuration -Match "Debug") {
-          $env:deploymentTarget="egoboo-${$env:deploymentTargetPlatform}-debug-nightly.zip"
-          $env:deploymentConfiguration = "Debug"
-        }
+    - ps: |
+        ./distribute -configuration ${env:configuration} -platform ${env:platform} -suffix ${env:suffix}
+        Push-AppveyorArtifact "${env:APPVEYOR_BUILD_FOLDER}/${env:artifactFileName}" -FileName "${env:artifactFileName}"
         
-        $env:deploymentSources=Get-ChildItem -Path "./product/*/${env:deploymentConfiguration}/${env:deploymentTargetPlatform}"  -Recurse -Include "*.exe", "*.lib", "*.dll"
-        
-        Write-Host "Deploying ${env:deploymentSources} to ${env:deploymentTarget}"
-    - 7z a %deploymentTarget% %deploymentSources%
+# Restore nuget packages and install dependencies.
+# Furthermore, the artifact name and the artifact file name are computed.
+before_build:
+    - nuget restore
+    - ps: .\install-vsix-appveyor.ps1
+    - ps: |
+        $env:suffix = "nightly"
+        $env:artifactName = "egoboo-$(${env:configuration}.ToLower())-$env:platform-$env:suffix"
+        Write-Host "artifact name = $env:artifactName"
+        $env:artifactFileName = "${env:artifactName}.zip"
+        Write-Host "artifact file name = $env:artifactFileName"
  
 build:
     parallel: true                  # enable MSBuild parallel builds
@@ -58,7 +50,10 @@ test_script:
     - ps: |
         $platform = $env:platform
         if ($platform -eq "Win32") { $platform = "x86" }
-        vstest.console /Logger:Appveyor /Platform:$platform /inIsolation "product\egolib-tests\$env:configuration\$env:platform\egolib-tests.dll"
+        vstest.console /Logger:Appveyor /ListDiscoverers /UseVsixExtensions:true
+        vstest.console /Logger:Appveyor /ListExecutors /UseVsixExtensions:true
+        vstest.console /Logger:Appveyor /Platform:$platform /inIsolation /UseVsixExtensions:true "product\idlib-tests\$env:configuration\$env:platform\idlib-tests.exe"
+        vstest.console /Logger:Appveyor /Platform:$platform /inIsolation /UseVsixExtensions:true "product\egolib-tests\$env:configuration\$env:platform\egolib-tests.exe"
 
 # if one matrix entry fails, all entries fails
 # https://www.appveyor.com/docs/build-configuration#failing-strategy
@@ -71,25 +66,18 @@ notifications:
       on_build_success: true
       on_build_failure: true
       
-# Artifacts are produced by the AppVeyor project "Egoboo Nightly".
+# List the artifacts.
 artifacts:
-    - path: egoboo-x86-debug-nightly.zip
-      name: egoboo-x86-debug-nightly
-    - path: egoboo-x64-debug-nightly.zip
-      name: egoboo-x64-debug-nightly
-    - path: egoboo-x86-nightly.zip
-      name: egoboo-x86-nightly
-    - path: egoboo-x64-nightly.zip
-      name: egoboo-x64-nightly
+    - path: egoboo-debug-x86-nightly.zip
+      name: egoboo-debug-x86-nightly
+    - path: egoboo-debug-x64-nightly.zip
+      name: egoboo-debug-x64-nightly
+    - path: egoboo-release-x86-nightly.zip
+      name: egoboo-release-x86-nightly
+    - path: egoboo-release-x64-nightly.zip
+      name: egoboo-release-x64-nightly
 
 deploy:
-    - provider: FTP
-      protocol: ftp
-      host: cdn.primordialmachine.com
-      username: ftp11220059-CdnPrimordialMachine
-      password:
-        secure: O78JuCX9OUvHgwWYdGsDyJhteWurb5Tq8AAWAjjWgOE=
-      artifact: egoboo-x86-debug-nightly egoboo-x64-debug-nightly egoboo-x86-nightly egoboo-x64-nightly
     - provider: GitHub
       tag: Egoboo-Nightly
       release: Egoboo-Nightly
@@ -97,7 +85,7 @@ deploy:
       force_update: true
       auth_token:
         secure: kxr/+rin/StoIdTBFp4+OG+nxeoI1TGjLYiPXgttgjyjcDy/3V+G10AAukyTxDIx
-      artifact: egoboo-x86-debug-nightly egoboo-x64-debug-nightly egoboo-x86-nightly egoboo-x64-nightly
+      artifact: egoboo-debug-x86-nightly egoboo-debug-x64-nightly egoboo-release-x86-nightly egoboo-release-x64-nightly
       draft: false
       prerelease: false
       on:
