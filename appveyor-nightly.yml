@@ -65,21 +65,10 @@ notifications:
       url: https://webhooks.gitter.im/e/7743b26cbf1767e7b3a3
       on_build_success: true
       on_build_failure: true
-      
-# List the artifacts.
-artifacts:
-    - path: egoboo-debug-x86-nightly.zip
-      name: egoboo-debug-x86-nightly
-    - path: egoboo-debug-x64-nightly.zip
-      name: egoboo-debug-x64-nightly
-    - path: egoboo-release-x86-nightly.zip
-      name: egoboo-release-x86-nightly
-    - path: egoboo-release-x64-nightly.zip
-      name: egoboo-release-x64-nightly
 
 deploy:
     - provider: GitHub
-      tag: Egoboo-Nightly
+      tag: Egoboo-Nightly-$(appveyor_build_version)
       release: Egoboo-Nightly
       description: 'Egoboo Nightly'
       force_update: true
