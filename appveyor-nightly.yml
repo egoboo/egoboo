@@ -28,7 +28,7 @@ install:
 after_build:
     - ps: |
         ./distribute -configuration ${env:configuration} -platform ${env:platform} -suffix ${env:suffix}
-        Push-AppveyorArtifact "${env:APPVEYOR_BUILD_FOLDER}/${env:artifactFileName}" -FileName "${env:artifactFileName}"
+        Push-AppveyorArtifact "${env:APPVEYOR_BUILD_FOLDER}/${env:artifactFileName}" -FileName "${env:artifactFileName}" -DeploymentName "${env:artifactName}"
         
 # Restore nuget packages and install dependencies.
 # Furthermore, the artifact name and the artifact file name are computed.
