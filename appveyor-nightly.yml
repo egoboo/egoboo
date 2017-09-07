@@ -74,7 +74,7 @@ deploy:
       force_update: true
       auth_token:
         secure: kxr/+rin/StoIdTBFp4+OG+nxeoI1TGjLYiPXgttgjyjcDy/3V+G10AAukyTxDIx
-      artifact: egoboo-debug-x86-nightly egoboo-debug-x64-nightly egoboo-release-x86-nightly egoboo-release-x64-nightly
+      #artifact: egoboo-debug-x86-nightly egoboo-debug-x64-nightly egoboo-release-x86-nightly egoboo-release-x64-nightly
       draft: false
       prerelease: false
       on:
