@@ -18,7 +18,7 @@ branches:
     - master
     
 init:
-    - ps: Update-AppveyorBuild -Version "$(Get-Date -format yyyy-MM-dd)"
+    - ps: Update-AppveyorBuild -Version "$(Get-Date -format yyyy-MM-dd-HH-mm)"
 
 install:
     # depth 32 should be enough.
