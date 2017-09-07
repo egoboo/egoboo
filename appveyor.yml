@@ -55,8 +55,3 @@ notifications:
       url: https://webhooks.gitter.im/e/7743b26cbf1767e7b3a3
       on_build_success: true
       on_build_failure: true
-
-# Enumerate the artifacts.
-#artifacts:
-#    - path: ${env:artifactFileName}
-#      name: ${env:artifactName}
