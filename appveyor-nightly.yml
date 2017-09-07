@@ -36,11 +36,19 @@ before_build:
     - nuget restore
     - ps: .\install-vsix-appveyor.ps1
     - ps: |
-        $env:suffix = "nightly"
-        $env:artifactName = "egoboo-$(${env:configuration}.ToLower())-$env:platform-$env:suffix"
-        Write-Host "artifact name = $env:artifactName"
+        # Compute the suffix, the platform name, and the configuration name.
+        $env:suffix = "nightly-${env:APPVEYOR_BUILD_VERSION}"
+        $env:platformName = "$env:platform"
+        if ($env:platformName -eq "Win32") { $env:platformName = "x86" }
+        $env:configurationName = "$(${env:configuration}.ToLower())"
+        # Compute the artifact name.
+        $env:artifactName = "egoboo-$env:configurationName-$env:platformName-$env:suffix"
+        # Compute the artifact file name.
         $env:artifactFileName = "${env:artifactName}.zip"
-        Write-Host "artifact file name = $env:artifactFileName"
+        # Compute the deployment name, the deployment tag, and the deployment description.
+        $env:deploymentName = "egoboo-$env:configurationName-$env:platformName-$env:suffix"
+        $env:deploymentTag = "egoboo-$env:configurationName-$env:platformName-$env:suffix"
+        $env:deploymentDescription = 'Nightly ' . $env:configurationName . ' build of Egoboo for platform ' . $env:platformName . ' as of ' . $(Get-Date -format F) . '.'
  
 build:
     parallel: true                  # enable MSBuild parallel builds
@@ -68,13 +76,12 @@ notifications:
 
 deploy:
     - provider: GitHub
-      tag: Egoboo-Nightly-$(appveyor_build_version)
-      release: Egoboo-Nightly
-      description: 'Egoboo Nightly'
+      tag: ${env:deploymentTag}
+      release: ${env:deploymentName}
+      description: ${env:deploymentDescription}
       force_update: true
       auth_token:
         secure: kxr/+rin/StoIdTBFp4+OG+nxeoI1TGjLYiPXgttgjyjcDy/3V+G10AAukyTxDIx
-      #artifact: egoboo-debug-x86-nightly egoboo-debug-x64-nightly egoboo-release-x86-nightly egoboo-release-x64-nightly
       draft: false
       prerelease: false
       on:
