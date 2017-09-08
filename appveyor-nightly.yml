@@ -48,7 +48,7 @@ before_build:
         # Compute the deployment name, the deployment tag, and the deployment description.
         $env:deploymentName = "egoboo-$env:configurationName-$env:platformName-$env:suffix"
         $env:deploymentTag = "egoboo-$env:configurationName-$env:platformName-$env:suffix"
-        $env:deploymentDescription = 'Nightly ' . $env:configurationName . ' build of Egoboo for platform ' . $env:platformName . ' as of ' . $(Get-Date -format F) . '.'
+        $env:deploymentDescription = "Nightly $env:configurationName build of Egoboo for platform $env:platformName as of $(Get-Date -format F) ."
  
 build:
     parallel: true                  # enable MSBuild parallel builds
