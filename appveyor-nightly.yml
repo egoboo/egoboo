@@ -76,9 +76,9 @@ notifications:
 
 deploy:
     - provider: GitHub
-      tag: ${env:deploymentTag}
-      release: ${env:deploymentName}
-      description: ${env:deploymentDescription}
+      tag: $(deploymentTag)
+      release: $(deploymentName)
+      description: $(deploymentDescription)
       force_update: true
       auth_token:
         secure: kxr/+rin/StoIdTBFp4+OG+nxeoI1TGjLYiPXgttgjyjcDy/3V+G10AAukyTxDIx
