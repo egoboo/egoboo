@@ -179,7 +179,7 @@ egolib_rv export_one_character( ObjectRef character, ObjectRef owner, int chr_ob
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv export_all_players( bool require_local )
+egolib_rv export_all_players()
 {
     /// @author ZZ
     /// @details This function saves all the local players in the
@@ -984,7 +984,7 @@ bool game_finish_module()
     if ( _currentModule->isExportValid() )
     {
         // export the players
-        export_all_players( false );
+        export_all_players();
 
         // update the import list
         import_list_t::from_players(g_importList);

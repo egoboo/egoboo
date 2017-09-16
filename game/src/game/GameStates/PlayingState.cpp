@@ -81,7 +81,7 @@ PlayingState::~PlayingState()
     if ( _currentModule && _currentModule->isExportValid() )
     {
         // export the players
-        export_all_players(false);
+        export_all_players();
 
         //Reload list of loadable characters
         ProfileSystem::get().loadAllSavedCharacters("mp_players");
