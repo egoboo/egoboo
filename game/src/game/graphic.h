@@ -46,11 +46,7 @@ void  draw_hud();
 #define ICON_SIZE 32
 
 
-/// max number of blips on the minimap
-#define MAXBLIP        128                          ///<Max blips on the screen
-
 //--------------------------------------------------------------------------------------------
-#define TABX                            32// 16      ///< Size of little name tag on the bar
 #define BARX                            112// 216         ///< Size of bar
 #define BARY                            16// 8
 #define NUMTICK                         10// 50          ///< Number of ticks per row
@@ -58,10 +54,6 @@ void  draw_hud();
 #define XPTICK                          6.00f
 
 #define NUMBAR                          6               ///< Number of status bars
-
-#define MAXLIGHTLEVEL                   16          ///< Number of premade light intensities
-#define MAXSPEKLEVEL                    16          ///< Number of premade specularities
-#define MAXLIGHTROTATION                256         ///< Number of premade light maps
 
 #define DONTFLASH                       255
 #define SEEKURSEAND                     31          ///< Blacking flash
@@ -159,8 +151,9 @@ protected:
     GameApp(const std::string& title, const std::string& version) : Ego::App<T>(title, version),
         impl(std::make_unique<GameAppImpl>())
     {}
-    virtual ~GameApp()
-    {}
+
+    ~GameApp() override = default;
+
 public:
     dynalist_t& getDynalist()
     {
@@ -182,7 +175,7 @@ private:
     friend Ego::Core::Singleton<GFX>::CreateFunctorType;
     friend Ego::Core::Singleton<GFX>::DestroyFunctorType;
     GFX();
-    ~GFX();
+    ~GFX() override;
 
 private:
     std::unique_ptr<Ego::Graphics::RenderPass> nonOpaqueEntities;
