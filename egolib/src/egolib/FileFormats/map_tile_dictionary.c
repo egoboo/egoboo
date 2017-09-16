@@ -46,8 +46,6 @@ bool tile_dictionary_load_vfs( const std::string& filename, tile_dictionary_t& d
     auto definitionList = Ego::FileFormats::MapTileDefinitionsDictionary::DefinitionList::read(ctxt);
 
     // handle default parameters
-    int max_dict_size = MAP_FAN_TYPE_MAX;
-
     int fantype_count = definitionList.definitions.size();
     int fantype_offset = 2 * std::pow( 2.0f, std::floor( std::log( fantype_count ) / std::log( 2.0f ) ) );
     int definition_count = 2 * fantype_offset;
