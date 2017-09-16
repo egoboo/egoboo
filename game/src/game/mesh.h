@@ -35,14 +35,6 @@ struct Texture;
 } // namespace OpenGL
 } // namespace Ego
 
-//--------------------------------------------------------------------------------------------
-
-constexpr uint32_t GRIDS_X_MAX =
-	MAP_TILE_MAX_X;
-constexpr uint32_t GRIDS_Y_MAX =
-	MAP_TILE_MAX_Y;
-constexpr uint32_t GRIDS_MAX =
-	GRIDS_X_MAX * GRIDS_Y_MAX;
 
 //--------------------------------------------------------------------------------------------
 
@@ -55,8 +47,6 @@ typedef BIT_FIELD GRID_FX_BITS;
 class ego_tile_info_t
 {
 public:
-    static const std::shared_ptr<ego_tile_info_t> NULL_TILE;
-
     ego_tile_info_t();
 	~ego_tile_info_t() { _cache.init(); }
 
@@ -248,10 +238,6 @@ public:
 
 };
 
-inline bool TILE_HAS_INVALID_IMAGE(const ego_tile_info_t& tileInfo) {
-	return HAS_SOME_BITS(TILE_UPPER_MASK, tileInfo._img);
-}
-
 //--------------------------------------------------------------------------------------------
 
 /// A wrapper for the dynamically allocated mesh memory
@@ -294,6 +280,7 @@ public:
         _info.assertValid(i);
 		return _tileList[_info.map(i).i()];
 	}
+
 	const ego_tile_info_t& get(const Index2D& i) const {
         _info.assertValid(i);
 		return _tileList[_info.map(i).i()];
@@ -389,7 +376,6 @@ public:
     tile_mem_t _tmem;
     mpdfx_lists_t _fxlists;
 
-    Vector3f get_diff(const Vector3f& pos, float radius, float center_pressure, const BIT_FIELD bits);
     float get_pressure(const Vector3f& pos, float radius, const BIT_FIELD bits) const;
 	/// @brief Remove extra ambient light in the lightmap.
     void remove_ambient();
@@ -467,8 +453,6 @@ public:
 	bool update_texture(const Index1D& i);
 
 	uint8_t get_fan_twist(const Index1D& i) const;
-	float get_max_vertex_0(const Index2D& i) const;
-	float get_max_vertex_1(const Index2D& i, float xmin, float ymin, float xmax, float ymax) const;
 
 private:
 	// mesh initialization - not accessible by scripts
