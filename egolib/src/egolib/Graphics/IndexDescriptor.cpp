@@ -42,6 +42,8 @@ size_t IndexDescriptor::getIndexSize() const {
             return sizeof(uint16_t); // 16 / 8
         case Syntax::U32:
             return sizeof(uint32_t); // 32 / 8
+        case Syntax::U8:
+            return sizeof(uint8_t);
     }
     throw id::unhandled_switch_case_error(__FILE__, __LINE__);
 }
