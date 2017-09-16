@@ -239,7 +239,7 @@ egolib_rv export_all_players()
 
         // Export the inventory
         number = 0;
-        for(const std::shared_ptr<Object> pitem : pchr->getInventory().iterate())
+        for(const std::shared_ptr<Object> &pitem : pchr->getInventory().iterate())
         {
             if ( number >= pchr->getInventory().getMaxItems() ) break;
 
@@ -1699,7 +1699,7 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
         // Unarmed means object itself is the weapon
         iweapon = iobj;
     }
-    Object *pweapon = _currentModule->getObjectHandler().get(iweapon);
+    const std::shared_ptr<Object> pweapon = _currentModule->getObjectHandler()[iweapon];
     const std::shared_ptr<ObjectProfile> &weaponProfile = pweapon->getProfile();
 
     // No need to continue if we have an attack cooldown
