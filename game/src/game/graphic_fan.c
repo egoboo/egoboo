@@ -23,11 +23,7 @@
 
 #include "game/graphic_fan.h"
 
-#include "game/graphic.h"
 #include "game/game.h"
-#include "game/renderer_3d.h"
-#include "game/mesh.h"
-#include "game/Module/Module.hpp"
 #include "egolib/FileFormats/Globals.hpp"
 
 void animate_all_tiles( ego_mesh_t& mesh )
