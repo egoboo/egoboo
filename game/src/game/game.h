@@ -33,16 +33,7 @@
 //--------------------------------------------------------------------------------------------
 // forward declaration of external structs
 //--------------------------------------------------------------------------------------------
-
 struct prt_bundle_t;
-
-//--------------------------------------------------------------------------------------------
-//Public Functions
-void check_stats();
-void readPlayerInput();
-void let_all_characters_think();
-void move_all_objects();
-void updateLocalStats();
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -50,29 +41,13 @@ void updateLocalStats();
 #define EXPKEEP 0.85f                                ///< Experience to keep when respawning
 
 // tile
-// #defne TILESOUNDTIME 16
 #define TILE_REAFFIRM_AND  3
-
-// status list
-#define MAX_STATUS          10                             ///< Maximum status displays
 
 // imports
 #define MAX_IMPORTS 16
 #define MAX_IMPORT_OBJECTS     ( Inventory::MAXNUMINPACK + 2 )        ///< left hand + right hand + MAXINVENTORY
 #define MAX_IMPORT_PER_PLAYER  ( 1 + MAX_IMPORT_OBJECTS )  ///< player + MAX_IMPORT_OBJECTS
 
-//--------------------------------------------------------------------------------------------
-
-/// The possible pre-defined orders
-enum e_order
-{
-    ORDER_NONE  = 0,
-    ORDER_ATTACK,
-    ORDER_ASSIST,
-    ORDER_STAND,
-    ORDER_TERRAIN,
-    ORDER_COUNT
-};
 
 //--------------------------------------------------------------------------------------------
 
@@ -98,7 +73,6 @@ struct MainLoop
 public:
     static void updateLocalStats();
     static void move_all_objects();
-    static void update_all_objects();
     static void let_all_characters_think();
     static void readPlayerInput();
     static void check_stats();
@@ -176,8 +150,7 @@ extern EndText g_endText;
 extern bool    overrideslots;          ///< Override existing slots?
 extern import_list_t g_importList;
 
-// various clocks and timers
-extern uint32_t        clock_enc_stat;        ///< For character stat regeneration
+//Various clocks and timers
 extern uint32_t        clock_chr_stat;        ///< For enchant stat regeneration
 extern uint32_t        update_wld;            ///< The number of times the game has been updated
 
@@ -261,16 +234,8 @@ bool CheckTime(Time time);
 
 // wawalite functions
 struct wawalite_data_t * read_wawalite_vfs();
-bool write_wawalite_vfs( const wawalite_data_t * pdata );
 bool wawalite_finalize( wawalite_data_t * pdata );
 void upload_wawalite();
-
-// Mesh query.
-float get_chr_level(ego_mesh_t *mesh, Object *object);
-// Mesh query.
-float get_mesh_max_vertex_1(ego_mesh_t *mesh, const Index2D& index2D, oct_bb_t& bump, bool waterwalk);
-// Mesh query.
-float get_mesh_max_vertex_2(ego_mesh_t *mesh, Object *object);
 
 void playMainMenuSong();
 
