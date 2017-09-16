@@ -289,7 +289,7 @@ void CollisionSystem::updateObjectCollisions()
         // convert the oct_bb_t to a correct BSP_aabb_t
         oct_bb_t tmp_oct;
         phys_expand_chr_bb(object.get(), 0.0f, 1.0f, tmp_oct);
-        const AxisAlignedBox2f aabb2d = AxisAlignedBox2f(Point2f(tmp_oct._mins[OCT_X], tmp_oct._mins[OCT_Y]), Point2f(tmp_oct._maxs[OCT_X], tmp_oct._maxs[OCT_Y]));
+        //const AxisAlignedBox2f aabb2d = AxisAlignedBox2f(Point2f(tmp_oct._mins[OCT_X], tmp_oct._mins[OCT_Y]), Point2f(tmp_oct._maxs[OCT_X], tmp_oct._maxs[OCT_Y]));
 
         //Do not collide scenery with other scenery objects - unless they can use platforms,
         //for example boxes stacked on top of other boxes

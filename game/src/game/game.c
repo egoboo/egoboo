@@ -340,7 +340,6 @@ void MainLoop::updateLocalStats()
     }
 
     // this allows for kurses, which might make negative values to do something reasonable
-    local_stats.seeinvis_mag = exp( 0.32f * local_stats.seeinvis_level );
     local_stats.seedark_mag  = exp( 0.32f * local_stats.seedark_level );
 
     // Did everyone die?
@@ -1285,7 +1284,6 @@ void game_reset_players()
     // Reset the local data stuff
     local_stats.allpladead = false;
     local_stats.player_count = 0;
-    local_stats.noplayers = true;
 
     local_stats.seeinvis_level = 0.0f;
     local_stats.seeinvis_level = 0.0f;
