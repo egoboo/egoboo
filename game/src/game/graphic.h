@@ -268,7 +268,6 @@ void gfx_system_reload_all_textures();
 void gfx_system_make_enviro();
 void gfx_system_init_all_graphics();
 void gfx_system_release_all_graphics();
-void gfx_system_load_assets();
 
 // the render engine callback
 void gfx_system_render_world(const std::shared_ptr<Camera> camera, std::shared_ptr<Ego::Graphics::TileList> tl, std::shared_ptr<Ego::Graphics::EntityList> el);

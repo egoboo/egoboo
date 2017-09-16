@@ -206,22 +206,6 @@ void gfx_system_render_world(std::shared_ptr<Camera> camera, std::shared_ptr<Ego
 }
 
 //--------------------------------------------------------------------------------------------
-
-void gfx_system_load_assets()
-{
-    /// @author ZF
-    /// @details This function loads all the graphics based on the game settings
-    // Enable prespective correction?
-    Ego::Renderer::get().setPerspectiveCorrectionEnabled(gfx.perspective);
-    // Enable dithering?
-    Ego::Renderer::get().setDitheringEnabled(gfx.dither);
-    // Enable Gouraud shading?
-    Ego::Renderer::get().setGouraudShadingEnabled(gfx.gouraudShading_enable);
-    // Enable antialiasing (via multisamples)?
-    Ego::Renderer::get().setMultisamplesEnabled(gfx.antialiasing);
-}
-
-//--------------------------------------------------------------------------------------------
 void gfx_system_init_all_graphics()
 {
     font_bmp_init();
