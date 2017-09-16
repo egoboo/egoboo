@@ -520,6 +520,8 @@ int32_t script_state_t::loadVariable(uint8_t variableIndex, ai_state_t& aiState,
         default:
             onVariableNotDefinedError(variableIndex);
     }
+
+    return 0;
 }
 
 
