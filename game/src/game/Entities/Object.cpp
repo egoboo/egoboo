@@ -23,16 +23,11 @@
 
 #define GAME_ENTITIES_PRIVATE 1
 #include "game/Entities/Object.hpp"
-#include "egolib/Profiles/_Include.hpp"
-#include "game/Entities/Object.hpp"
-#include "game/Entities/ObjectHandler.hpp"
 #include "game/Entities/ParticleHandler.hpp"
 #include "game/Entities/Enchant.hpp"
 #include "game/Logic/Player.hpp"
 #include "game/game.h"
-#include "egolib/Graphics/ModelDescriptor.hpp"
 #include "game/script_implementation.h" //for stealth
-#include "game/CharacterMatrix.h"
 #include "game/Graphics/CameraSystem.hpp"
 #include "game/Graphics/TileList.hpp"
 #include "game/Graphics/Billboard.hpp"
@@ -44,14 +39,6 @@
 
 //Declare class static constants
 const std::shared_ptr<Object> Object::INVALID_OBJECT = nullptr;
-
-/// @brief Ouf-of-class definition for GCC & Clang.
-/// @todo Remove this if GCC & Clang are fixed.
-constexpr float Object::DROPZVEL;
-
-/// @brief Out-of-class definition for GCC/Clang.
-/// @todo Remove this if GCC & Clang are fixed.
-constexpr float Object::DISMOUNTZVEL;
 
 Object::Object(ObjectProfileRef proRef, ObjectRef objRef) : 
     spawn_data(),
