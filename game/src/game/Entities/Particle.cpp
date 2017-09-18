@@ -25,11 +25,8 @@
 
 #include "Particle.hpp"
 #include "game/Core/GameEngine.hpp"
-#include "game/Module/Module.hpp"
 #include "game/Entities/_Include.hpp"
 #include "game/game.h"
-#include "game/Physics/PhysicalConstants.hpp"
-#include "game/CharacterMatrix.h"
 
 namespace Ego
 {
