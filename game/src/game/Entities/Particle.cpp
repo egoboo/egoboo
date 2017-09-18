@@ -1294,7 +1294,7 @@ void Particle::setHoming(bool homing)
 
 bool Particle::hasCollided(const std::shared_ptr<Object> &object) const
 {
-    for(const ObjectRef ref : _collidedObjects)
+    for(const ObjectRef &ref : _collidedObjects)
     {
         if(ref == object->getObjRef())
         {
