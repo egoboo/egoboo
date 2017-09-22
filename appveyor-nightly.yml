@@ -75,17 +75,6 @@ notifications:
       on_build_failure: true
 
 deploy:
-    - provider: GitHub
-      tag: $(deploymentTag)
-      release: $(deploymentName)
-      description: $(deploymentDescription)
-      force_update: true
-      auth_token:
-        secure: kxr/+rin/StoIdTBFp4+OG+nxeoI1TGjLYiPXgttgjyjcDy/3V+G10AAukyTxDIx
-      draft: false
-      prerelease: false
-      on:
-        appveyor_repo_tag: false
     - provider: ftps
       host: downloads.egoboo.org
       username: qgsahyfevqy5g8j7
