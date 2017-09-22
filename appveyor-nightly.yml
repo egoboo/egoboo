@@ -86,3 +86,9 @@ deploy:
       prerelease: false
       on:
         appveyor_repo_tag: false
+    - provider: ftps
+      host: downloads.egoboo.org
+      username: qgsahyfevqy5g8j7
+      password:
+        secure: pHPbMEbnzJMogki9K+TayA==
+      folder: /
