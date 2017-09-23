@@ -75,7 +75,8 @@ notifications:
       on_build_failure: true
 
 deploy:
-    - provider: ftps
+    - provider: FTP
+      protocol: ftps
       host: downloads.egoboo.org
       username: qgsahyfevqy5g8j7
       password:
