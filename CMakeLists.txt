@@ -24,23 +24,6 @@ INCLUDE_DIRECTORIES(
         idlib/src)
 
 #TODO: Tests
-set(EGOLIB_SOURCE_FILES
-        #egolib/tests/egolib/Tests/Math/Closure.cpp
-        #egolib/tests/egolib/Tests/Math/Constants.cpp
-        #egolib/tests/egolib/Tests/Math/Contains.cpp
-        #egolib/tests/egolib/Tests/Math/Interpolate_Linear.cpp
-        #egolib/tests/egolib/Tests/Math/Intersects.cpp
-        #egolib/tests/egolib/Tests/Math/MatrixMath.cpp
-        #egolib/tests/egolib/Tests/Math/PointMath.cpp
-        #egolib/tests/egolib/Tests/Math/Translate.cpp
-        #egolib/tests/egolib/Tests/Math/VectorMath.cpp
-        #egolib/tests/egolib/Tests/Compilation.cpp
-        #egolib/tests/egolib/Tests/MeshInfoIterator.cpp
-        #egolib/tests/egolib/Tests/QuadTree.cpp
-        #egolib/tests/egolib/Tests/Singleton.cpp
-        #egolib/tests/egolib/Tests/StringUtilities.cpp
-        )
-
 file(GLOB_RECURSE IDLIB_SOURCE_FILES idlib/src/idlib/*.cpp)
 file(GLOB_RECURSE EGOLIB_SOURCE_FILES egolib/src/egolib/*.cpp egolib/src/egolib/*.c)
 file(GLOB_RECURSE GAME_SOURCE_FILES game/src/game/*.cpp game/src/game/*.c)
@@ -49,11 +32,7 @@ file(GLOB_RECURSE GAME_SOURCE_FILES game/src/game/*.cpp game/src/game/*.c)
 list(REMOVE_ITEM EGOLIB_SOURCE_FILES "${PROJECT_SOURCE_DIR}/egolib/src/egolib/Platform/file_win.c")
 list(REMOVE_ITEM EGOLIB_SOURCE_FILES "${PROJECT_SOURCE_DIR}/egolib/src/egolib/Platform/file_linux.c")
 
-set(EGOBOO_SOURCE_FILES
-        ${IDLIB_SOURCE_FILES}
-        ${EGOLIB_SOURCE_FILES}
-        ${GAME_SOURCE_FILES}
-        )
+set(EGOBOO_SOURCE_FILES ${GAME_SOURCE_FILES})
 
 #OS specific files
 if (UNIX)
