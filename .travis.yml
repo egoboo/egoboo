@@ -38,6 +38,14 @@ before_install:
       export CC="gcc-6" CXX="g++-6";
   fi
   
+install:
+- DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
+- mkdir -p "${DEPS_DIR}" && cd "${DEPS_DIR}"
+- |
+  CMAKE_URL="https://cmake.org/files/v3.9/cmake-3.9.3.tar.gz"
+  mkdir -p cmake && travis_retry wget --no-check-certificate --quiet -O - "${CMAKE_URL}" | tar --strip-components=1 -xz -C c
+  export PATH="${DEPS_DIR}/cmake/bin:${PATH}"
+  
 before_script:  
 - export CC=gcc-6
 - export CXX=g++-6
