@@ -45,7 +45,7 @@ install:
   CMAKE_URL="https://cmake.org/files/v3.9/cmake-3.9.3.tar.gz"
   mkdir -p cmake
   cd cmake
-  wget --no-check-certificate -O - -q "https://cmake.org/files/v3.9/cmake-3.9.3.tar.gz" | tar xvz --strip-components=1 -f -
+  wget --no-check-certificate -O - -q "https://cmake.org/files/v3.9/cmake-3.9.3.tar.gz" | tar xsz --strip-components=1 -f -
   cd ..
   export PATH="${DEPS_DIR}/cmake/bin:${PATH}"
   
