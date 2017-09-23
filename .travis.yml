@@ -53,8 +53,8 @@ before_script:
 - export CC=gcc-6
 - export CXX=g++-6
 - gcc -v && g++ -v && cmake --version
-- mkdir build
-- cd build
+- mkdir "${TRAVIS_BUILD_DIR}"
+- cd "${TRAVIS_BUILD_DIR}"
 - cmake ..
 
 
