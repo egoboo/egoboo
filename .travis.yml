@@ -53,12 +53,12 @@ before_script:
 - export CC=gcc-6
 - export CXX=g++-6
 - gcc -v && g++ -v && cmake --version
-- mkdir "${TRAVIS_BUILD_DIR}"
 - cd "${TRAVIS_BUILD_DIR}"
-- cmake ..
+- cmake CMakeLists.txt
 
 
-script:  
+script:
+- cd "{TRAVIS_BUILD_DIR}"
 - ./configure && make && make test
 
 notifications:
