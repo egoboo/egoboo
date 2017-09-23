@@ -34,7 +34,7 @@
 #include "game/Module/Module.hpp"
 #include "game/physics.h"
 #include "game/graphic_mad.h"
-#include "game/Entities/Common.hpp"
+#include "egolib/Entities/Common.hpp"
 #include "game/Graphics/BillboardSystem.hpp"
 #include "game/Inventory.hpp"
 #include "game/Physics/Collidable.hpp"

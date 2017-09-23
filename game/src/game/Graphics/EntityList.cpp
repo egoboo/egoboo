@@ -1,7 +1,7 @@
 #include "game/Graphics/EntityList.hpp"
 #include "game/graphic.h"
 #include "game/graphic_prt.h"
-#include "game/Entities/_Include.hpp"
+#include "egolib/Entities/_Include.hpp"
 
 namespace Ego {
 namespace Graphics {

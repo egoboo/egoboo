@@ -28,7 +28,7 @@
 
 #include "game/egoboo.h"
 #include "game/graphic_prt.h"
-#include "game/Entities/Common.hpp"
+#include "egolib/Entities/Common.hpp"
 #include "game/Graphics/ParticleGraphics.hpp"
 #include "egolib/Graphics/Animation2D.hpp"
 #include "game/Physics/Collidable.hpp"

@@ -29,7 +29,7 @@
 #include "egolib/Logic/Attribute.hpp"
 #include "egolib/Logic/MissileTreatment.hpp"
 #include "egolib/Profiles/_Include.hpp"
-#include "game/Entities/_Include.hpp"
+#include "egolib/Entities/_Include.hpp"
 
 //Forward declarations
 class Object;

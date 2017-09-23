@@ -2,7 +2,7 @@
 #include "game/Module/Module.hpp"
 #include "game/graphic_mad.h"
 #include "game/graphic_prt.h"
-#include "game/Entities/_Include.hpp"
+#include "egolib/Entities/_Include.hpp"
 
 namespace Ego {
 namespace Graphics {

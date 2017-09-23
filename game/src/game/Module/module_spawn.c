@@ -21,7 +21,7 @@
 #include "game/game.h"
 #include "game/script_compile.h"
 #include "game/Module/Module.hpp"
-#include "game/Entities/_Include.hpp"
+#include "egolib/Entities/_Include.hpp"
 #include "egolib/InputControl/InputDevice.hpp"
 #include "game/CharacterMatrix.h"
 

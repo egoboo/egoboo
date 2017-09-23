@@ -45,12 +45,6 @@
     <Filter Include="Game Header Files\GUI">
       <UniqueIdentifier>{bdfe767a-7792-4735-8c93-1af280454d2a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Game Sources\Entities">
-      <UniqueIdentifier>{a9f63cb1-1c0e-481b-b7cc-ab1173106d85}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Game Header Files\Entities">
-      <UniqueIdentifier>{1c38aee5-f243-43d6-ad79-52a8428b883b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Game Header Files\Physics">
       <UniqueIdentifier>{09895a2a-eb20-4b52-a9c7-64bf72d7192d}</UniqueIdentifier>
     </Filter>
@@ -178,21 +172,6 @@
     </ClCompile>
     <ClCompile Include="src\game\gui\Button.cpp">
       <Filter>Game Sources\GUI</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\entities\Enchant.cpp">
-      <Filter>Game Sources\Entities</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\entities\ObjectHandler.cpp">
-      <Filter>Game Sources\Entities</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\entities\Particle.cpp">
-      <Filter>Game Sources\Entities</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\entities\ParticleHandler.cpp">
-      <Filter>Game Sources\Entities</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\entities\Object.cpp">
-      <Filter>Game Sources\Entities</Filter>
     </ClCompile>
     <ClCompile Include="src\game\gui\InternalDebugWindow.cpp">
       <Filter>Game Sources\GUI</Filter>
@@ -377,9 +356,6 @@
     <ClCompile Include="src\game\Graphics\BillboardSystem.cpp">
       <Filter>Game Sources\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\Entities\Common.cpp">
-      <Filter>Game Sources\Entities</Filter>
-    </ClCompile>
     <ClCompile Include="src\game\Graphics\DefaultMd2ModelRenderer.cpp">
       <Filter>Game Sources\Graphics</Filter>
     </ClCompile>
@@ -514,24 +490,6 @@
     <ClInclude Include="src\game\gui\UIManager.hpp">
       <Filter>Game Header Files\GUI</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\entities\Enchant.hpp">
-      <Filter>Game Header Files\Entities</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\entities\ObjectHandler.hpp">
-      <Filter>Game Header Files\Entities</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\entities\Particle.hpp">
-      <Filter>Game Header Files\Entities</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\entities\ParticleHandler.hpp">
-      <Filter>Game Header Files\Entities</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\entities\_Include.hpp">
-      <Filter>Game Header Files\Entities</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\entities\Object.hpp">
-      <Filter>Game Header Files\Entities</Filter>
-    </ClInclude>
     <ClInclude Include="src\game\gui\InternalDebugWindow.hpp">
       <Filter>Game Header Files\GUI</Filter>
     </ClInclude>
@@ -546,9 +504,6 @@
     </ClInclude>
     <ClInclude Include="src\game\GameStates\DebugModuleLoadingState.hpp">
       <Filter>Game Header Files\GameStates</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\Entities\Common.hpp">
-      <Filter>Game Header Files\Entities</Filter>
     </ClInclude>
     <ClInclude Include="src\game\Inventory.hpp">
       <Filter>Game Header Files</Filter>

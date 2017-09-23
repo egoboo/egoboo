@@ -21,8 +21,8 @@
 /// @brief Handler of particle entities.
 
 #define GAME_ENTITIES_PRIVATE 1
-#include "game/Entities/ParticleHandler.hpp"
-#include "game/Entities/_Include.hpp"
+#include "egolib/Entities/ParticleHandler.hpp"
+#include "egolib/Entities/_Include.hpp"
 #include "egolib/Logic/Team.hpp"
 
 std::shared_ptr<Ego::Particle> ParticleHandler::spawnLocalParticle

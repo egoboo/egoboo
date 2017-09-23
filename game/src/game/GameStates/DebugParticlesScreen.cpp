@@ -23,7 +23,7 @@
 
 #include "game/GameStates/DebugParticlesScreen.hpp"
 #include "game/Core/GameEngine.hpp"
-#include "game/Entities/_Include.hpp"
+#include "egolib/Entities/_Include.hpp"
 #include "game/GUI/Button.hpp"
 #include "game/GUI/Label.hpp"
 #include "game/GUI/ScrollableList.hpp"

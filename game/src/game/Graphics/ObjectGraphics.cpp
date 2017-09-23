@@ -1,5 +1,5 @@
 #include "ObjectGraphics.hpp"
-#include "game/Entities/_Include.hpp"
+#include "egolib/Entities/_Include.hpp"
 #include "game/graphic.h"
 #include "game/game.h" //only for character_swipe()
 

@@ -1,7 +1,7 @@
 #include "game/Graphics/RenderPasses/EntityReflectionsRenderPass.hpp"
 #include "game/Module/Module.hpp"
 #include "game/graphic.h"
-#include "game/Entities/_Include.hpp"
+#include "egolib/Entities/_Include.hpp"
 #include "game/graphic_fan.h"
 
 namespace Ego {

@@ -2,7 +2,7 @@
 #include "game/GUI/Label.hpp"
 #include "game/GUI/Image.hpp"
 #include "game/GUI/Material.hpp"
-#include "game/Entities/_Include.hpp"
+#include "egolib/Entities/_Include.hpp"
 #include "game/Logic/Player.hpp"
 
 namespace Ego {

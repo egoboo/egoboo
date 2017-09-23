@@ -23,7 +23,7 @@
 
 #include "game/egoboo.h"
 #include "game/game.h"
-#include "game/Entities/_Include.hpp"
+#include "egolib/Entities/_Include.hpp"
 #include "game/Module/Module.hpp"
 #include "game/Graphics/CameraSystem.hpp"
 #include "game/graphic.h"

@@ -38,7 +38,7 @@
 #include "game/Physics/CollisionSystem.hpp"
 #include "game/physics.h"
 #include "game/Physics/PhysicalConstants.hpp"
-#include "game/Entities/_Include.hpp"
+#include "egolib/Entities/_Include.hpp"
 #include "game/GUI/MiniMap.hpp"
 #include "game/GUI/MessageLog.hpp"
 #include "game/graphic.h"

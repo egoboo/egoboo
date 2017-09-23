@@ -22,12 +22,12 @@
 /// @author Johan Jansen
 
 #define GAME_ENTITIES_PRIVATE 1
-#include "game/Entities/Object.hpp"
+#include "egolib/Entities/Object.hpp"
 #include "egolib/Profiles/_Include.hpp"
-#include "game/Entities/Object.hpp"
-#include "game/Entities/ObjectHandler.hpp"
-#include "game/Entities/ParticleHandler.hpp"
-#include "game/Entities/Enchant.hpp"
+#include "egolib/Entities/Object.hpp"
+#include "egolib/Entities/ObjectHandler.hpp"
+#include "egolib/Entities/ParticleHandler.hpp"
+#include "egolib/Entities/Enchant.hpp"
 #include "game/Logic/Player.hpp"
 #include "game/game.h"
 #include "egolib/Graphics/ModelDescriptor.hpp"

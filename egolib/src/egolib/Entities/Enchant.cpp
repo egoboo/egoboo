@@ -21,7 +21,7 @@
 /// @brief Enchantment entities.
 
 #define GAME_ENTITIES_PRIVATE 1
-#include "Enchant.hpp"
+#include "egolib/Entities/Enchant.hpp"
 #include "egolib/Graphics/ModelDescriptor.hpp"
 #include "game/Core/GameEngine.hpp"
 

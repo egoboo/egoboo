@@ -31,10 +31,10 @@
 //@todo This is an ugly hack to work around cyclic dependency and private header guards
 #ifndef GAME_ENTITIES_PRIVATE
     #define GAME_ENTITIES_PRIVATE 1
-    #include "game/Entities/ObjectHandler.hpp"
+    #include "egolib/Entities/ObjectHandler.hpp"
     #undef GAME_ENTITIES_PRIVATE
 #else
-    #include "game/Entities/ObjectHandler.hpp"
+    #include "egolib/Entities/ObjectHandler.hpp"
 #endif
 
 // Forward declarations.

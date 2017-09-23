@@ -22,7 +22,7 @@
 
 #include "game/Logic/Player.hpp"
 #include "game/Graphics/CameraSystem.hpp"
-#include "game/Entities/_Include.hpp"
+#include "egolib/Entities/_Include.hpp"
 #include "game/game.h"
 #include "game/Core/GameEngine.hpp"
 #include "game/GameStates/PlayingState.hpp"

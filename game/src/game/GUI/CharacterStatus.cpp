@@ -21,7 +21,7 @@
 /// @author Johan Jansen
 
 #include "game/GUI/CharacterStatus.hpp"
-#include "game/Entities/_Include.hpp"
+#include "egolib/Entities/_Include.hpp"
 #include "game/Logic/Player.hpp"
 #include "game/GUI/ProgressBar.hpp"
 #include "game/GUI/Material.hpp"

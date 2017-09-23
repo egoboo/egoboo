@@ -1,5 +1,5 @@
 #include "game/Graphics/Billboard.hpp"
-#include "game/Entities/_Include.hpp"
+#include "egolib/Entities/_Include.hpp"
 
 namespace Ego {
 namespace Graphics {

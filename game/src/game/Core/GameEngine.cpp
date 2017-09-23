@@ -30,7 +30,7 @@
 #include "game/GUI/UIManager.hpp"
 #include "game/graphic.h"
 #include "game/game.h"
-#include "game/Entities/_Include.hpp"
+#include "egolib/Entities/_Include.hpp"
 #include "game/Physics/CollisionSystem.hpp"
 
 //Global singelton

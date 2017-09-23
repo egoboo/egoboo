@@ -308,6 +308,12 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\Entities\Common.cpp" />
+    <ClCompile Include="src\egolib\Entities\Enchant.cpp" />
+    <ClCompile Include="src\egolib\Entities\Object.cpp" />
+    <ClCompile Include="src\egolib\Entities\ObjectHandler.cpp" />
+    <ClCompile Include="src\egolib\Entities\Particle.cpp" />
+    <ClCompile Include="src\egolib\Entities\ParticleHandler.cpp" />
     <ClCompile Include="src\egolib\Time\Time.cpp" />
     <ClCompile Include="src\egolib\Graphics\SDL\Utilities.cpp">
       <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)\Graphics\SDL\Utilities.asm</AssemblerListingLocation>
@@ -598,6 +604,13 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Entities\Common.hpp" />
+    <ClInclude Include="src\egolib\Entities\Enchant.hpp" />
+    <ClInclude Include="src\egolib\Entities\Object.hpp" />
+    <ClInclude Include="src\egolib\Entities\ObjectHandler.hpp" />
+    <ClInclude Include="src\egolib\Entities\Particle.hpp" />
+    <ClInclude Include="src\egolib\Entities\ParticleHandler.hpp" />
+    <ClInclude Include="src\egolib\Entities\_Include.hpp" />
     <ClInclude Include="src\egolib\Time\Time.hpp" />
     <ClInclude Include="src\egolib\Graphics\SDL\Utilities.hpp" />
     <ClInclude Include="src\egolib\Image\SDL_Image_Extensions.h" />

@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 #include "CollisionSystem.hpp"
-#include "game/Entities/_Include.hpp"
+#include "egolib/Entities/_Include.hpp"
 #include "game/game.h" //for update_wld
 
 #include "particle_collision.h"

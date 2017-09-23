@@ -1,4 +1,4 @@
-#include "game/Entities/Common.hpp"
+#include "egolib/Entities/Common.hpp"
 
 PhysicsData::PhysicsData() :
     phys(),

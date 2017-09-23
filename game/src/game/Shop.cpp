@@ -22,7 +22,7 @@
 #include "game/Shop.hpp"
 #include "game/Module/Module.hpp"
 #include "game/Module/Passage.hpp"
-#include "game/Entities/_Include.hpp"
+#include "egolib/Entities/_Include.hpp"
 #include "game/game.h"
 
 bool Shop::drop(const std::shared_ptr<Object>& dropper, const std::shared_ptr<Object>& item)

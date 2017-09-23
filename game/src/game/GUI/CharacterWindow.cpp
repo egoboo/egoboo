@@ -6,7 +6,7 @@
 #include "game/GUI/LevelUpWindow.hpp"
 #include "game/GUI/ScrollableList.hpp"
 #include "game/GUI/IconButton.hpp"
-#include "game/Entities/_Include.hpp"
+#include "egolib/Entities/_Include.hpp"
 #include "game/Logic/Player.hpp"
 #include "game/GUI/Layout.hpp"
 #include "game/GUI/JoinBounds.hpp"

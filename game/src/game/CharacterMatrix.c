@@ -22,7 +22,7 @@
 #include "game/CharacterMatrix.h"
 #include "game/graphic_mad.h"
 #include "game/renderer_3d.h"
-#include "game/Entities/_Include.hpp"
+#include "egolib/Entities/_Include.hpp"
 
 static int get_grip_verts( uint16_t grip_verts[], const ObjectRef imount, int vrt_offset );
 

@@ -27,7 +27,7 @@
 #include "egolib/Events/MouseMovedEventArgs.hpp"
 #include "game/Module/Module.hpp"
 #include "game/GUI/Material.hpp"
-#include "game/Entities/_Include.hpp"
+#include "egolib/Entities/_Include.hpp"
 #include "game/Logic/Player.hpp"
 
 static const uint32_t MINIMAP_BLINK_RATE = 500; //milliseconds between each minimap blink

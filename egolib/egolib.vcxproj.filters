@@ -154,6 +154,12 @@
     <Filter Include="File Formats\ConfigFile">
       <UniqueIdentifier>{68fc487e-ebf6-4e64-91a6-22a3827cd2da}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Entities">
+      <UniqueIdentifier>{30aa4f0b-addf-4c77-896c-ae75b9faed1e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Entities">
+      <UniqueIdentifier>{d93bcd60-4bd4-496c-b9b0-9dd94803b656}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\egolib\_math.c">
@@ -599,6 +605,24 @@
     </ClCompile>
     <ClCompile Include="src\egolib\Time\Time.cpp">
       <Filter>Source Files\Time</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Entities\ParticleHandler.cpp">
+      <Filter>Source Files\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Entities\Particle.cpp">
+      <Filter>Source Files\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Entities\ObjectHandler.cpp">
+      <Filter>Source Files\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Entities\Object.cpp">
+      <Filter>Source Files\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Entities\Enchant.cpp">
+      <Filter>Source Files\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Entities\Common.cpp">
+      <Filter>Source Files\Entities</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1408,6 +1432,27 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Time\Time.hpp">
       <Filter>Header Files\Time</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Entities\_Include.hpp">
+      <Filter>Header Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Entities\Common.hpp">
+      <Filter>Header Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Entities\Enchant.hpp">
+      <Filter>Header Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Entities\Object.hpp">
+      <Filter>Header Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Entities\ObjectHandler.hpp">
+      <Filter>Header Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Entities\Particle.hpp">
+      <Filter>Header Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Entities\ParticleHandler.hpp">
+      <Filter>Header Files\Entities</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

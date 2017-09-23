@@ -31,7 +31,7 @@
 #include "game/script_functions.h"
 #include "game/script_variables.h"
 #include "game/game.h"
-#include "game/Entities/_Include.hpp"
+#include "egolib/Entities/_Include.hpp"
 #include "game/Core/GameEngine.hpp"
 #include "game/Graphics/CameraSystem.hpp"
 #include "game/Module/Module.hpp"

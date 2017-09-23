@@ -26,7 +26,7 @@
 #endif
 
 #include "game/egoboo.h"
-#include "game/Entities/Particle.hpp"
+#include "egolib/Entities/Particle.hpp"
 
 class ParticleHandler : public Ego::Core::Singleton<ParticleHandler>
 {
