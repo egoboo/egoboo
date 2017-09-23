@@ -25,7 +25,7 @@
 #include "game/Logic/Player.hpp"
 #include "game/Core/GameEngine.hpp"
 
-#include "game/Entities/_Include.hpp"
+#include "egolib/Entities/_Include.hpp"
 
 CameraSystem::CameraSystem() :
 	_initialized(false),

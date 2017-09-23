@@ -27,7 +27,7 @@
 #include "game/lighting.h"
 #include "game/graphic.h"
 #include "game/Graphics/CameraSystem.hpp"
-#include "game/Entities/_Include.hpp"
+#include "egolib/Entities/_Include.hpp"
 #include "game/Graphics/DefaultMd2ModelRenderer.hpp"
 
 struct Md2VertexBuffer {

@@ -28,7 +28,7 @@
 #include "game/game.h" // TODO: remove only needed for mesh
 
 #include "game/mesh.h"
-#include "game/Entities/_Include.hpp"
+#include "egolib/Entities/_Include.hpp"
 
 const Ego::Math::Degrees Camera::DEFAULT_FOV = Ego::Math::Degrees(60.0f);
 

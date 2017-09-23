@@ -49,7 +49,7 @@
 #include "game/Graphics/DefaultMd2ModelRenderer.hpp"
 #include "game/Graphics/BillboardSystem.hpp"
 #include "game/Graphics/CameraSystem.hpp"
-#include "game/Entities/_Include.hpp"
+#include "egolib/Entities/_Include.hpp"
 #include "game/Graphics/TextureAtlasManager.hpp"
 #include "game/Module/Passage.hpp"
 #include "game/GUI/Material.hpp"

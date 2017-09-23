@@ -27,7 +27,7 @@
 #include "game/game.h"
 #include "game/lighting.h"
 #include "game/Graphics/CameraSystem.hpp"
-#include "game/Entities/_Include.hpp"
+#include "egolib/Entities/_Include.hpp"
 #include "game/CharacterMatrix.h"
 
 float ParticleGraphicsRenderer::CALCULATE_PRT_U0(const Ego::Texture& texture, int CNT) {

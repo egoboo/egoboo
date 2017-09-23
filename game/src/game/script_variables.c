@@ -1,6 +1,6 @@
 #include "game/script_variables.h"
 
-#include "game/Entities/_Include.hpp"
+#include "egolib/Entities/_Include.hpp"
 #include "egolib/Script/script.h"
 #include "game/game.h"
 #include "game/Graphics/CameraSystem.hpp"

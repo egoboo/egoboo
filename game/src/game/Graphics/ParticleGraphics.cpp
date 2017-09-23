@@ -2,7 +2,7 @@
 #include "game/Graphics/Camera.hpp"
 #include "game/lighting.h"
 #include "game/graphic.h"
-#include "game/Entities/_Include.hpp"
+#include "egolib/Entities/_Include.hpp"
 
 namespace Ego {
 namespace Graphics {

@@ -37,7 +37,7 @@
 #include "egolib/Graphics/Viewport.hpp"
 
 //For cheats
-#include "game/Entities/_Include.hpp"
+#include "egolib/Entities/_Include.hpp"
 #include "game/Module/Module.hpp"
 
 PlayingState::PlayingState() :

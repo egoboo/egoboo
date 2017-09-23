@@ -30,7 +30,7 @@
 #include "egolib/egolib.h"
 
 #include "game/game.h"
-#include "game/Entities/_Include.hpp"
+#include "egolib/Entities/_Include.hpp"
 #include "game/mesh.h"
 #include "game/Module/Module.hpp"
 #include "game/Module/Passage.hpp"

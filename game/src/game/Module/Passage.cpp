@@ -24,7 +24,7 @@
 #include "game/Module/Passage.hpp"
 #include "game/game.h"
 #include "game/mesh.h"
-#include "game/Entities/_Include.hpp"
+#include "egolib/Entities/_Include.hpp"
 
 const ObjectRef Passage::SHOP_NOOWNER = ObjectRef::Invalid;
 

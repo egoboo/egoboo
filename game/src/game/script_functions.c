@@ -35,7 +35,7 @@
 #include "game/Graphics/BillboardSystem.hpp"
 #include "game/script_implementation.h"
 #include "game/Inventory.hpp"
-#include "game/Entities/_Include.hpp"
+#include "egolib/Entities/_Include.hpp"
 #include "game/mesh.h"
 #include "game/Core/GameEngine.hpp"
 #include "game/Module/Passage.hpp"

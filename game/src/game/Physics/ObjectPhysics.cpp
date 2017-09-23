@@ -21,7 +21,7 @@
 /// @brief Code for handling object physics
 /// @author Johan Jansen aka Zefz
 #include "ObjectPhysics.hpp"
-#include "game/Entities/_Include.hpp"
+#include "egolib/Entities/_Include.hpp"
 #include "game/Core/GameEngine.hpp"
 #include "game/Shop.hpp"
 #include "game/CharacterMatrix.h"
