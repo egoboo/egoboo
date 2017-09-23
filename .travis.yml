@@ -37,13 +37,19 @@ before_install:
   else
       export CC="gcc-6" CXX="g++-6";
   fi
-
-script:  
+  
+before_script:  
 - export CC=gcc-6
 - export CXX=g++-6
 - gcc -v && g++ -v && cmake --version
 - mkdir build
-- cd build && ../external/cmake-3.9.1-Linux-x86_64/bin/cmake .. && make -j4 CC=gcc-6 CXX=g++-6
+- cd build
+- cmake ..
+
+
+script:  
+- make all
+- make test
 
 notifications:
   webhooks:
