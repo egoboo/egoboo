@@ -29,6 +29,7 @@ addons:
             - libsdl2-image-dev
             - libsdl2-mixer-dev
             - libsdl2-ttf-dev
+            - cmake
 
 before_install:
 - if [ "$CC" = "clang" ]; then 
@@ -40,6 +41,7 @@ before_install:
 script:  
 - export CC=gcc-6
 - export CXX=g++-6
+- gcc -v && g++ -v && cmake --version
 - mkdir build
 - cd build && ../external/cmake-3.9.1-Linux-x86_64/bin/cmake .. && make -j4 CC=gcc-6 CXX=g++-6
 
