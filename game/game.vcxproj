@@ -413,6 +413,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\game\Main.cpp" />
     <ClCompile Include="src\game\Module\AnimatedTiles.cpp" />
     <ClCompile Include="src\game\Module\Fog.cpp" />
     <ClCompile Include="src\game\Module\Water.cpp" />
