@@ -31,3 +31,7 @@ xcuserdata
 
 # Generated files.
 gen
+
+# CMake.
+CMakeFiles
+CMakeCache.txt
