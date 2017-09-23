@@ -50,16 +50,6 @@ install:
   wget --no-check-certificate -O - -q "${CMAKE_BIN_URL}" | tar xsz --strip-components=1 -f -
   cd ..
   export PATH="${DEPS_DIR}/cmake-bin/bin:${PATH}"
-# Download CMake 3.9.3 source.
-- |
-  #CMAKE_URL="https://cmake.org/files/v3.9/cmake-3.9.3.tar.gz"
-  #mkdir -p cmake
-  #cd cmake
-  #wget --no-check-certificate -O - -q "${CMAKE_BIN_URL}" | tar xsz --strip-components=1 -f -
-  #./configure
-  #make
-  #cd ..
-  #export PATH="${DEPS_DIR}/cmake/bin:${PATH}"
   
 before_script:  
 - export CC=gcc-6
@@ -71,7 +61,8 @@ before_script:
 
 script:
 - cd "${TRAVIS_BUILD_DIR}"
-- make && make test
+- make
+- make test
 
 notifications:
   webhooks:
