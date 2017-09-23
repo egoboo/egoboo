@@ -71,7 +71,7 @@ before_script:
 
 script:
 - cd "${TRAVIS_BUILD_DIR}"
-- ./configure && make && make test
+- make && make test
 
 notifications:
   webhooks:
