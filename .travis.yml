@@ -29,6 +29,7 @@ addons:
             - libsdl2-image-dev
             - libsdl2-mixer-dev
             - libsdl2-ttf-dev
+            # CMake (outdated)
             - cmake
 
 before_install:
@@ -41,11 +42,22 @@ before_install:
 install:
 - DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
 - mkdir -p "${DEPS_DIR}" && cd "${DEPS_DIR}"
+# Download CMake 3.9.3 binary.
+- |
+  CMAKE_BIN_URL="https://cmake.org/files/v3.9/cmake-3.9.3-Linux-x86_64.tar.gz"
+  mkdir -p cmake-bin
+  cd cmake-bin
+  wget --no-check-certificate -O - -q "${CMAKE_BIN_URL} | tar xsz --strip-components=1 -f -
+  cd ..
+  export PATH="${DEPS_DIR}/cmake-bin/bin:${PATH}"
+# Download CMake 3.9.3 source.
 - |
   CMAKE_URL="https://cmake.org/files/v3.9/cmake-3.9.3.tar.gz"
   mkdir -p cmake
   cd cmake
-  wget --no-check-certificate -O - -q "https://cmake.org/files/v3.9/cmake-3.9.3.tar.gz" | tar xsz --strip-components=1 -f -
+  wget --no-check-certificate -O - -q "${CMAKE_BIN_URL}" | tar xsz --strip-components=1 -f -
+  ./configure
+  make
   cd ..
   export PATH="${DEPS_DIR}/cmake/bin:${PATH}"
   
