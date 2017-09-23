@@ -179,7 +179,7 @@ egolib_rv export_one_character( ObjectRef character, ObjectRef owner, int chr_ob
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv export_all_players( bool require_local )
+egolib_rv export_all_players()
 {
     /// @author ZZ
     /// @details This function saves all the local players in the
@@ -239,7 +239,7 @@ egolib_rv export_all_players( bool require_local )
 
         // Export the inventory
         number = 0;
-        for(const std::shared_ptr<Object> pitem : pchr->getInventory().iterate())
+        for(const std::shared_ptr<Object> &pitem : pchr->getInventory().iterate())
         {
             if ( number >= pchr->getInventory().getMaxItems() ) break;
 
@@ -340,7 +340,6 @@ void MainLoop::updateLocalStats()
     }
 
     // this allows for kurses, which might make negative values to do something reasonable
-    local_stats.seeinvis_mag = exp( 0.32f * local_stats.seeinvis_level );
     local_stats.seedark_mag  = exp( 0.32f * local_stats.seedark_level );
 
     // Did everyone die?
@@ -985,7 +984,7 @@ bool game_finish_module()
     if ( _currentModule->isExportValid() )
     {
         // export the players
-        export_all_players( false );
+        export_all_players();
 
         // update the import list
         import_list_t::from_players(g_importList);
@@ -1285,7 +1284,6 @@ void game_reset_players()
     // Reset the local data stuff
     local_stats.allpladead = false;
     local_stats.player_count = 0;
-    local_stats.noplayers = true;
 
     local_stats.seeinvis_level = 0.0f;
     local_stats.seeinvis_level = 0.0f;
@@ -1492,17 +1490,6 @@ bool wawalite_finalize(wawalite_data_t *data)
 }
 
 //--------------------------------------------------------------------------------------------
-bool write_wawalite_vfs(const wawalite_data_t *data)
-{
-    /// @author BB
-    /// @details Prepare and write the wawalite file
-
-    if (!data) return false;
-
-    return wawalite_data_write("mp_data/wawalite.txt",data);
-}
-
-//--------------------------------------------------------------------------------------------
 uint8_t get_light( int light, float seedark_mag )
 {
     // ZF> Why should Darkvision reveal invisible?
@@ -1520,151 +1507,6 @@ uint8_t get_light( int light, float seedark_mag )
     }
 
     return Ego::Math::constrain( light, 0, 0xFE );
-}
-
-
-//--------------------------------------------------------------------------------------------
-float get_mesh_max_vertex_1( ego_mesh_t *mesh, const Index2D& point, oct_bb_t& bump, bool waterwalk )
-{
-    float zdone = mesh->get_max_vertex_1( point, bump._mins[OCT_X], bump._mins[OCT_Y], bump._maxs[OCT_X], bump._maxs[OCT_Y] );
-
-    if ( waterwalk && _currentModule->getWater()._surface_level > zdone && _currentModule->getWater()._is_water )
-    {
-        Index1D tile = mesh->getTileIndex( point );
-
-        if ( 0 != mesh->test_fx( tile, MAPFX_WATER ) )
-        {
-            zdone = _currentModule->getWater()._surface_level;
-        }
-    }
-
-    return zdone;
-}
-
-float get_mesh_max_vertex_2( ego_mesh_t *mesh, Object *object)
-{
-    /// @author BB
-    /// @details the object does not overlap a single grid corner. Check the 4 corners of the collision volume
-
-	if (nullptr == mesh) {
-		throw id::runtime_error(__FILE__, __LINE__, "nullptr == mesh");
-	}
-	if (nullptr == object) {
-		throw id::runtime_error(__FILE__, __LINE__, "nullptr == object");
-	}
-	
-    int corner;
-    int ix_off[4] = {1, 1, 0, 0};
-    int iy_off[4] = {0, 1, 1, 0};
-
-    float pos_x[4];
-    float pos_y[4];
-    float zmax;
-
-    for ( corner = 0; corner < 4; corner++ )
-    {
-        pos_x[corner] = object->getPosX() + (( 0 == ix_off[corner] ) ? object->chr_min_cv._mins[OCT_X] : object->chr_min_cv._maxs[OCT_X] );
-        pos_y[corner] = object->getPosY() + (( 0 == iy_off[corner] ) ? object->chr_min_cv._mins[OCT_Y] : object->chr_min_cv._maxs[OCT_Y] );
-    }
-
-    zmax = mesh->getElevation(Vector2f(pos_x[0], pos_y[0]), object->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
-    for ( corner = 1; corner < 4; corner++ )
-    {
-        float fval = mesh->getElevation(Vector2f(pos_x[corner], pos_y[corner]), object->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
-        zmax = std::max( zmax, fval );
-    }
-
-    return zmax;
-}
-//--------------------------------------------------------------------------------------------
-float get_chr_level( ego_mesh_t *mesh, Object *object )
-{
-    float zmax;
-    int ix, ixmax, ixmin;
-    int iy, iymax, iymin;
-
-    int grid_vert_count = 0;
-    int grid_vert_x[1024];
-    int grid_vert_y[1024];
-
-    oct_bb_t bump;
-
-    if (!mesh || !object || object->isTerminated()) return 0;
-
-    // certain scenery items like doors and such just need to be able to
-    // collide with the mesh. They all have 0 == pchr->bump.size
-    if ( 0.0f == object->bump_stt.size )
-    {
-        return mesh->getElevation(Vector2f(object->getPosX(), object->getPosY()),
-			                      object->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0);
-    }
-
-    // otherwise, use the small collision volume to determine which tiles the object overlaps
-    // move the collision volume so that it surrounds the object
-    bump = oct_bb_t::translate(object->chr_min_cv, object->getPosition());
-
-    // determine the size of this object in tiles
-    ixmin = bump._mins[OCT_X] / Info<float>::Grid::Size(); ixmin = Ego::Math::constrain( ixmin, 0, int(mesh->_info.getTileCountX()) - 1 );
-    ixmax = bump._maxs[OCT_X] / Info<float>::Grid::Size(); ixmax = Ego::Math::constrain( ixmax, 0, int(mesh->_info.getTileCountX()) - 1 );
-
-    iymin = bump._mins[OCT_Y] / Info<float>::Grid::Size(); iymin = Ego::Math::constrain( iymin, 0, int(mesh->_info.getTileCountY()) - 1 );
-    iymax = bump._maxs[OCT_Y] / Info<float>::Grid::Size(); iymax = Ego::Math::constrain( iymax, 0, int(mesh->_info.getTileCountY()) - 1 );
-
-    // do the simplest thing if the object is just on one tile
-    if ( ixmax == ixmin && iymax == iymin )
-    {
-        return get_mesh_max_vertex_2( mesh, object);
-    }
-
-    // otherwise, make up a list of tiles that the object might overlap
-    for ( iy = iymin; iy <= iymax; iy++ )
-    {
-        float grid_y = iy * Info<int>::Grid::Size();
-
-        for ( ix = ixmin; ix <= ixmax; ix++ )
-        {
-            float ftmp;
-            float grid_x = ix * Info<int>::Grid::Size();
-
-            ftmp = grid_x + grid_y;
-            if ( ftmp < bump._mins[OCT_XY] || ftmp > bump._maxs[OCT_XY] ) continue;
-
-            ftmp = -grid_x + grid_y;
-            if ( ftmp < bump._mins[OCT_YX] || ftmp > bump._maxs[OCT_YX] ) continue;
-
-            Index1D itile = mesh->getTileIndex(Index2D(ix, iy));
-            if (Index1D::Invalid == itile ) continue;
-
-            grid_vert_x[grid_vert_count] = ix;
-            grid_vert_y[grid_vert_count] = iy;
-            grid_vert_count++;
-        }
-    }
-
-    // we did not intersect a single tile corner
-    // this could happen for, say, a very long, but thin shape that fits between the tiles.
-    // the current system would not work for that shape
-    if ( 0 == grid_vert_count )
-    {
-        return get_mesh_max_vertex_2( mesh, object);
-    }
-    else
-    {
-        int cnt;
-        float fval;
-
-        // scan through the vertices that we know will interact with the object
-        zmax = get_mesh_max_vertex_1( mesh, Index2D(grid_vert_x[0], grid_vert_y[0]), bump, object->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
-        for ( cnt = 1; cnt < grid_vert_count; cnt ++ )
-        {
-            fval = get_mesh_max_vertex_1( mesh, Index2D(grid_vert_x[cnt], grid_vert_y[cnt]), bump, object->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
-            zmax = std::max( zmax, fval );
-        }
-    }
-
-    if ( zmax == -1e6 ) zmax = 0.0f;
-
-    return zmax;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1857,7 +1699,7 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
         // Unarmed means object itself is the weapon
         iweapon = iobj;
     }
-    Object *pweapon = _currentModule->getObjectHandler().get(iweapon);
+    const std::shared_ptr<Object> pweapon = _currentModule->getObjectHandler()[iweapon];
     const std::shared_ptr<ObjectProfile> &weaponProfile = pweapon->getProfile();
 
     // No need to continue if we have an attack cooldown

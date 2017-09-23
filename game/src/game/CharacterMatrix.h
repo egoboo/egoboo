@@ -100,8 +100,5 @@ bool    chr_matrix_valid( const Object * pchr );
 egolib_rv chr_update_matrix( Object * pchr, bool update_size );
 bool set_weapongrip( const ObjectRef iitem, const ObjectRef iholder, uint16_t vrt_off );
 bool chr_getMatUp(Object *object_ptr, Vector3f& up);
-bool chr_getMatForward(Object *object_ptr, Vector3f& forward);
-bool chr_getMatRight(Object *object_ptr, Vector3f& right);
-bool chr_getMatTranslate(Object *object_ptr, Vector3f& translate);
 void make_one_character_matrix( const ObjectRef object_ref );
 bool chr_calc_grip_cv( Object * pmount, int grip_offset, oct_bb_t * grip_cv_ptr, const bool shift_origin );

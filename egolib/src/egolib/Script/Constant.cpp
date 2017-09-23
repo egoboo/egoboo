@@ -110,6 +110,8 @@ bool Constant::operator==(const Constant& other) const
         case Kind::Void:
             return true;
     };
+
+    return false;
 }
 	
 } // namespace Script

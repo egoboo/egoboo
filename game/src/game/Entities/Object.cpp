@@ -23,16 +23,11 @@
 
 #define GAME_ENTITIES_PRIVATE 1
 #include "game/Entities/Object.hpp"
-#include "egolib/Profiles/_Include.hpp"
-#include "game/Entities/Object.hpp"
-#include "game/Entities/ObjectHandler.hpp"
 #include "game/Entities/ParticleHandler.hpp"
 #include "game/Entities/Enchant.hpp"
 #include "game/Logic/Player.hpp"
 #include "game/game.h"
-#include "egolib/Graphics/ModelDescriptor.hpp"
 #include "game/script_implementation.h" //for stealth
-#include "game/CharacterMatrix.h"
 #include "game/Graphics/CameraSystem.hpp"
 #include "game/Graphics/TileList.hpp"
 #include "game/Graphics/Billboard.hpp"
@@ -44,14 +39,6 @@
 
 //Declare class static constants
 const std::shared_ptr<Object> Object::INVALID_OBJECT = nullptr;
-
-/// @brief Ouf-of-class definition for GCC & Clang.
-/// @todo Remove this if GCC & Clang are fixed.
-constexpr float Object::DROPZVEL;
-
-/// @brief Out-of-class definition for GCC/Clang.
-/// @todo Remove this if GCC & Clang are fixed.
-constexpr float Object::DISMOUNTZVEL;
 
 Object::Object(ObjectProfileRef proRef, ObjectRef objRef) : 
     spawn_data(),
@@ -203,7 +190,7 @@ Object::~Object()
         removeFromGame(this);
 
         // free the character's inventory
-        for(const std::shared_ptr<Object> pitem : _inventory.iterate())
+        for(const std::shared_ptr<Object> &pitem : _inventory.iterate())
         {
             pitem->requestTerminate();
         }
@@ -686,11 +673,9 @@ bool Object::teleport(const Vector3f& position, Facing facing_z)
     //Cannot teleport outside the level
     if(!_currentModule->isInside(position[kX], position[kY])) return false;
 
-    Vector3f newPosition = position;
-
     //Cannot teleport inside a wall
 	Vector2f nrm;
-    if ( !hit_wall(newPosition, nrm, NULL) )
+    if ( !hit_wall(position, nrm, nullptr) )
     {
         // Yeah!  It worked!
 
@@ -698,7 +683,7 @@ bool Object::teleport(const Vector3f& position, Facing facing_z)
         ori_old.facing_z = Facing(uint16_t(facing_z));
 
         // update the new position
-        setPosition(newPosition);
+        setPosition(position);
         ori.facing_z = Facing(uint16_t(facing_z));
 
         if (!detatchFromHolder(true, false))
@@ -1000,7 +985,7 @@ void Object::updateResize()
 
     if (fat_goto != fat)
     {
-        int bump_increase = ( fat_goto - fat ) * 0.10f * bump.size;
+        float bump_increase = ( fat_goto - fat ) * 0.10f * bump.size;
 
         // Make sure it won't get caught in a wall
         bool willgetcaught = false;
@@ -1902,7 +1887,7 @@ void Object::respawn()
     daze_timer = 0;
 
     // Let worn items come back
-    for(const std::shared_ptr<Object> pitem : _inventory.iterate())
+    for(const std::shared_ptr<Object> &pitem : _inventory.iterate())
     {
         if ( pitem->isequipped )
         {
@@ -2852,7 +2837,6 @@ void Object::dropKeys()
             ( idsz_type.toUint32() < testa.toUint32() && idsz_type.toUint32() > testz.toUint32() ) ) continue;
 
         Facing direction = Facing::random();
-        Facing turn = direction;
 
         //remove it from inventory
         getInventory().removeItem(pkey, true);
@@ -2871,8 +2855,8 @@ void Object::dropKeys()
 
         // fix the current velocity
         pkey->setVelocity(pkey->getVelocity() + 
-                          Vector3f(std::cos(turn) * DROPXYVEL,
-                           std::sin(turn) * DROPXYVEL,
+                          Vector3f(std::cos(direction) * DROPXYVEL,
+                           std::sin(direction) * DROPXYVEL,
                                    DROPZVEL));
 
         // do some more complicated things
@@ -2894,7 +2878,7 @@ void Object::dropAllItems()
     }
 
     //simply count the number of items in inventory
-    uint8_t pack_count = getInventory().iterate().size();
+    size_t pack_count = getInventory().iterate().size();
 
     //Don't continue if we have nothing to drop
     if(pack_count == 0) {

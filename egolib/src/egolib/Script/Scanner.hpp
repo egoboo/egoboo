@@ -270,7 +270,7 @@ public:
     }
 
     static decltype(auto) ERROR()
-    { return make_sym(Traits::error()); }
+    { return make_sym(static_cast<char>(Traits::error())); }
 
     template <typename T>
     bool ise(const T& e) const

@@ -206,22 +206,6 @@ void gfx_system_render_world(std::shared_ptr<Camera> camera, std::shared_ptr<Ego
 }
 
 //--------------------------------------------------------------------------------------------
-
-void gfx_system_load_assets()
-{
-    /// @author ZF
-    /// @details This function loads all the graphics based on the game settings
-    // Enable prespective correction?
-    Ego::Renderer::get().setPerspectiveCorrectionEnabled(gfx.perspective);
-    // Enable dithering?
-    Ego::Renderer::get().setDitheringEnabled(gfx.dither);
-    // Enable Gouraud shading?
-    Ego::Renderer::get().setGouraudShadingEnabled(gfx.gouraudShading_enable);
-    // Enable antialiasing (via multisamples)?
-    Ego::Renderer::get().setMultisamplesEnabled(gfx.antialiasing);
-}
-
-//--------------------------------------------------------------------------------------------
 void gfx_system_init_all_graphics()
 {
     font_bmp_init();
@@ -307,7 +291,7 @@ float draw_icon_texture(const std::shared_ptr<const Ego::Texture>& ptex, float x
     float       width, height;
     ego_frect_t tx_rect;
 
-    if (NULL == ptex)
+    if (nullptr == ptex)
     {
         // defaults
         tx_rect.xmin = 0.0f;
@@ -465,7 +449,7 @@ float draw_debug(float y)
            << " " << CameraSystem::get().getMainCamera()->getPosition()[kY]
            << " " << CameraSystem::get().getMainCamera()->getPosition()[kZ];
         y = _gameEngine->getUIManager()->drawBitmapFontString(Vector2f(0, y), os.str(), 0, 1.0f);
-        if (_currentModule->getPlayerList().size() > 0)
+        if (!_currentModule->getPlayerList().empty())
         {
             std::shared_ptr<Object> pchr = _currentModule->getPlayer(0)->getObject();
             os << "~~PLA0DEF"
@@ -626,7 +610,7 @@ void draw_hud()
 
     _gameEngine->getUIManager()->beginRenderUI();
     {
-        int y = draw_fps(0);
+        float y = draw_fps(0);
         y = draw_help(y);
         y = draw_debug(y);
         y = draw_timer(y);
@@ -1124,7 +1108,7 @@ bool GridIllumination::light_corner(ego_mesh_t& mesh, const Index1D& fan, float 
 		// make ambient light only illuminate 1/2
 		plight = light_amb + 0.5f * light_dir;
 	} else {
-		plight = lighting_cache_t::lighting_evaluate_cache(lighting, Vector3f(nrm[0], nrm[1], nrm[2]), height, mesh._tmem._bbox, NULL, NULL);
+		plight = lighting_cache_t::lighting_evaluate_cache(lighting, Vector3f(nrm[0], nrm[1], nrm[2]), height, mesh._tmem._bbox, nullptr, nullptr);
 	}
 
 	// clip the light to a reasonable value
@@ -1231,10 +1215,9 @@ void GridIllumination::light_fans_update_lcache(Ego::Graphics::TileList& tl)
 #endif
 
     // cache the grid lighting
-    for (size_t entry = 0; entry < tl._all.size(); entry++)
-    {
+    for (auto &entry : tl._all) {
         // which tile?
-        Index1D fan = tl._all[entry].getIndex();
+        Index1D fan = entry.getIndex();
 
         // grab a pointer to the tile
 		ego_tile_info_t& ptile = mesh->getTileInfo(fan);
@@ -1367,9 +1350,8 @@ void GridIllumination::light_fans_update_clst(Ego::Graphics::TileList& tl)
 	tile_mem_t& ptmem = mesh->_tmem;
 
     // use the grid to light the tiles
-    for (size_t entry = 0; entry < tl._all.size(); entry++)
-    {
-        Index1D fan = tl._all[entry].getIndex();
+    for (auto &entry : tl._all) {
+        Index1D fan = entry.getIndex();
         if (Index1D::Invalid == fan) continue;
 
         // valid tile?
@@ -1514,10 +1496,10 @@ gfx_rv gfx_make_dynalist(dynalist_t& dyl, Camera& cam)
 	Vector3f  vdist;
 
     float         distance = 0.0f;
-    dynalight_data_t * plight = NULL;
+    dynalight_data_t * plight = nullptr;
 
     float         distance_max = 0.0f;
-    dynalight_data_t * plight_max = NULL;
+    dynalight_data_t * plight_max = nullptr;
 
     // HACK: if dynalist is ahead of the game by 30 frames or more, reset and force an update
     if ((uint32_t)(dyl.frame + 30) >= _gameEngine->getNumberOfFramesRendered())
@@ -1542,7 +1524,7 @@ gfx_rv gfx_make_dynalist(dynalist_t& dyl, Camera& cam)
         if (!pprt_dyna.on || 0.0f == pprt_dyna.level) continue;
 
         // reset the dynalight pointer
-        plight = NULL;
+        plight = nullptr;
 
         // find the distance to the camera
         vdist = particle->getPosition() - cam.getTrackPosition();
@@ -1586,7 +1568,7 @@ gfx_rv gfx_make_dynalist(dynalist_t& dyl, Camera& cam)
             }
         }
 
-        if (NULL != plight)
+        if (nullptr != plight)
         {
             plight->distance = distance;
             plight->pos = particle->getPosition();
@@ -1636,9 +1618,8 @@ gfx_rv GridIllumination::do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_
     mesh_bound.xmax = 0;
     mesh_bound.ymin = tmem._edge_y;
     mesh_bound.ymax = 0;
-    for (size_t entry = 0; entry < tl._all.size(); entry++)
-    {
-        Index1D fan = tl._all[entry].getIndex();
+    for (auto &entry : tl._all) {
+        Index1D fan = entry.getIndex();
         if (fan.i() >= pinfo.getTileCount()) continue;
 
 		const oct_bb_t& poct = tmem.get(fan)._oct;
@@ -1773,12 +1754,11 @@ gfx_rv GridIllumination::do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_
     local_keep = 0.0f; //std::pow(DYNALIGHT_KEEP, 4); //const static float DYNALIGHT_KEEP = 0.9f;
 
     // Add to base light level in normal mode
-    for (size_t entry = 0; entry < tl._all.size(); entry++)
-    {
+    for (auto &entry : tl._all) {
         bool resist_lighting_calculation = true;
 
         // grab each grid box in the "frustum"
-        Index1D fan = tl._all[entry].getIndex();
+        Index1D fan = entry.getIndex();
 
         // a valid tile?
         ego_tile_info_t& ptile = mesh->getTileInfo(fan);
@@ -1880,7 +1860,7 @@ gfx_rv GridIllumination::do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_
 gfx_rv gfx_make_tileList(Ego::Graphics::TileList& tl, Camera& cam)
 {
 	// @a true if clipping is enabled, @a false otherwise.
-	static const bool clippingEnabled = true;
+	static constexpr bool clippingEnabled = true;
 
     // Because the main loop of the program will always flip the
     // page before rendering the 1st frame of the actual game,
@@ -1925,7 +1905,7 @@ gfx_rv gfx_make_tileList(Ego::Graphics::TileList& tl, Camera& cam)
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv gfx_make_entityList(Ego::Graphics::EntityList& el, Camera& cam)
+gfx_rv gfx_make_entityList(Ego::Graphics::EntityList& el, Camera& camera)
 {
     // Remove all entities from the entity list.
     el.clear();
@@ -1933,17 +1913,17 @@ gfx_rv gfx_make_entityList(Ego::Graphics::EntityList& el, Camera& cam)
     // collide the characters with the frustum
     std::vector<std::shared_ptr<Object>> visibleObjects = 
         _currentModule->getObjectHandler().findObjects(
-            cam.getCenter()[kX], 
-            cam.getCenter()[kY], 
+                camera.getCenter()[kX],
+                camera.getCenter()[kY],
 			Info<float>::Grid::Size() * 10,  //@todo: use camera view size here instead
             true);
 
-    for(const std::shared_ptr<Object> object : visibleObjects) {
-        el.add(cam, *object.get());
+    for(const std::shared_ptr<Object> &object : visibleObjects) {
+        el.add(camera, *object.get());
     }
 
-    for(const std::shared_ptr<Ego::Particle> particle : ParticleHandler::get().iterator()) {
-        el.add(cam, *particle.get());
+    for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator()) {
+        el.add(camera, *particle.get());
     }
 
     return gfx_success;

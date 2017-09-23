@@ -33,21 +33,7 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-//Static class variables
-const std::shared_ptr<ego_tile_info_t> ego_tile_info_t::NULL_TILE = nullptr;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
 MeshStats g_meshStats;
-
-static void warnNumberOfVertices(const char *file, int line, size_t numberOfVertices)
-{
-    Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__,
-                                     "mesh has too many vertices - ", numberOfVertices,
-                                     " number of vertices requested, but maximum number of vertices is ",
-                                     MAP_VERTICES_MAX);
-}
 
 //--------------------------------------------------------------------------------------------
 
@@ -56,7 +42,10 @@ tile_mem_t::tile_mem_t(const Ego::MeshInfo& info)
 	// If the number of vertices exceeds the limits ...
 	if (info.getVertexCount() > MAP_VERTICES_MAX) {
 		// ... emit a warning.
-		warnNumberOfVertices(__FILE__, __LINE__, info.getVertexCount());
+        Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__,
+                                         "mesh has too many vertices - ", info.getVertexCount(),
+                                         " number of vertices requested, but maximum number of vertices is ",
+                                         MAP_VERTICES_MAX);
 	}
 	// Set the mesh edge info.
 	_edge_x = (info.getTileCountX() + 1) * Info<int>::Grid::Size();
@@ -150,7 +139,7 @@ std::shared_ptr<ego_mesh_t> MeshLoader::convert(const map_t& source) const
         const map_vertex_t& pvrt_src = source._mem.vertices[vertex];
 
 		ptile_dst._a = pvrt_src.a;
-		ptile_dst._l = 0.0f;
+		ptile_dst._l = 0x00;
     }
 
 	return target;
@@ -861,10 +850,6 @@ bool ego_mesh_t::grid_is_valid(const Index1D& i) const
     return _info.isValid(i);
 }
 
-Vector2f toWorldLT(const Index2D i) {
-    return Vector2f((float)i.x(), (float)i.y()) * Info<float>::Grid::Size();
-}
-
 float ego_mesh_t::getElevation(const Vector2f& p) const
 {
     Index1D i1 = getTileIndex(p);
@@ -1011,138 +996,7 @@ uint8_t ego_mesh_t::get_fan_twist(const Index1D& i) const
     float zx = CARTMAN_FIXNUM * (z0 + z3 - z1 - z2) / CARTMAN_SLOPE;
     float zy = CARTMAN_FIXNUM * (z2 + z3 - z0 - z1) / CARTMAN_SLOPE;
 
-    return cartman_calc_twist(zx, zy);
-}
-
-float ego_mesh_t::get_max_vertex_0(const Index2D& i) const
-{
-	Index1D j = getTileIndex(i);
-    if (!_info.isValid(j)) {
-        return 0.0f;
-    }
-
-    const ego_tile_info_t& tile = _tmem.get(j);
-
-	size_t vstart = tile._vrtstart;
-	size_t vcount = std::min(static_cast<size_t>(4), _tmem.getInfo().getVertexCount());
-
-	size_t cnt;
-	size_t ivrt = vstart;
-	float zmax = _tmem._plst[ivrt][ZZ];
-	for (ivrt++, cnt = 1; cnt < vcount; ivrt++, cnt++)
-	{
-		zmax = std::max(zmax, _tmem._plst[ivrt][ZZ]);
-	}
-
-	return zmax;
-}
-
-float ego_mesh_t::get_max_vertex_1(const Index2D& i, float xmin, float ymin, float xmax, float ymax) const
-{
-	static const int ix_off[4] = { 1, 1, 0, 0 };
-	static const int iy_off[4] = { 0, 1, 1, 0 };
-
-	Index1D j = getTileIndex(i);
-
-    if (!_info.isValid(j)) {
-        return 0.0f;
-    }
-
-	size_t vstart = _tmem.get(j)._vrtstart;
-	size_t vcount = std::min((size_t)4, _tmem.getInfo().getVertexCount());
-
-	float zmax = -1e6;
-	for (size_t ivrt = vstart, cnt = 0; cnt < vcount; ivrt++, cnt++)
-	{
-		GLXvector3f& vert = _tmem._plst[ivrt];
-
-		// we are evaluating the height based on the grid, not the actual vertex positions
-		float fx = (i.x() + ix_off[cnt]) * Info<float>::Grid::Size();
-		float fy = (i.y() + iy_off[cnt]) * Info<float>::Grid::Size();
-
-		if (fx >= xmin && fx <= xmax && fy >= ymin && fy <= ymax)
-		{
-			zmax = std::max(zmax, vert[ZZ]);
-		}
-	}
-
-	if (-1e6 == zmax) zmax = 0.0f;
-
-	return zmax;
-}
-
-Vector3f ego_mesh_t::get_diff(const Vector3f& pos, float radius, float center_pressure, const BIT_FIELD bits)
-{
-	/// @author BB
-	/// @details determine the shortest "way out", but creating an array of "pressures"
-	/// with each element representing the pressure when the object is moved in different directions
-	/// by 1/2 a tile.
-
-	const float jitter_size = Info<float>::Grid::Size() * 0.5f;
-	std::array<float, 9> pressure_ary = {};
-	float fx, fy;
-	Vector3f diff = Vector3f::zero();
-	float   sum_diff = 0.0f;
-	float   dpressure;
-
-	int cnt;
-
-	// Find the pressure for the 9 points of jittering around the current position.
-	pressure_ary[4] = center_pressure;
-	for (cnt = 0, fy = pos[kY] - jitter_size; fy <= pos[kY] + jitter_size; fy += jitter_size)
-	{
-		for (fx = pos[kX] - jitter_size; fx <= pos[kX] + jitter_size; fx += jitter_size, cnt++)
-		{
-			Vector3f jitter_pos(fx, fy, 0.0f);
-			if (4 == cnt) continue;
-			pressure_ary[cnt] = get_pressure(jitter_pos, radius, bits);
-		}
-	}
-
-	// Determine the "minimum number of tiles to move" to get into a clear area.
-	diff[kX] = diff[kY] = 0.0f;
-	sum_diff = 0.0f;
-	for (cnt = 0, fy = -0.5f; fy <= 0.5f; fy += 0.5f)
-	{
-		for (fx = -0.5f; fx <= 0.5f; fx += 0.5f, cnt++)
-		{
-			if (4 == cnt) continue;
-
-			dpressure = (pressure_ary[cnt] - center_pressure);
-
-			// Find the maximal pressure gradient == the minimal distance to move.
-			if (0.0f != dpressure)
-			{
-				float   dist = pressure_ary[4] / dpressure;
-
-				Vector2f tmp(dist * fx, dist * fy);
-
-				float weight = 1.0f / dist;
-
-				diff[XX] += tmp[YY] * weight;
-				diff[YY] += tmp[XX] * weight;
-				sum_diff += std::abs(weight);
-			}
-		}
-	}
-	// normalize the displacement by dividing by the weight...
-	// unnecessary if the following normalization is kept in
-	//if( sum_diff > 0.0f )
-	//{
-	//    diff[kX] /= sum_diff;
-	//    diff[kY] /= sum_diff;
-	//}
-
-	// Limit the maximum displacement to less than one tile.
-	if (std::abs(diff[kX]) + std::abs(diff[kY]) > 0.0f)
-	{
-		float fmax = std::max(std::abs(diff[kX]), std::abs(diff[kY]));
-
-		diff[kX] /= fmax;
-		diff[kY] /= fmax;
-	}
-
-	return diff;
+    return cartman_calc_twist(static_cast<int>(zx), static_cast<int>(zy));
 }
 
 BIT_FIELD ego_mesh_t::hit_wall(const Vector3f& pos, float radius, const BIT_FIELD bits, Vector2f& nrm, float *pressure, const mesh_wall_data_t& data) const {

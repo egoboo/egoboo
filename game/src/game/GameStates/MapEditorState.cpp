@@ -93,7 +93,6 @@ void MapEditorState::update()
 
     //Always reveal all invisible monsters and objects in Map Editor mode
     local_stats.seeinvis_level = 100;
-    local_stats.seeinvis_mag = std::exp(0.32f * local_stats.seeinvis_level);
 
     //Animate water
     _currentModule->getWater().update();

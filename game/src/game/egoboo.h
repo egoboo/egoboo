@@ -62,13 +62,11 @@ extern uint32_t timervalue; ///< Timer time ( 50ths of a second )
 
 struct local_stats_t
 {
-    bool noplayers;          ///< Are there any local players?
     int player_count;
 
     float grog_level;
     float daze_level;
     float seeinvis_level;
-    float seeinvis_mag;
     float seedark_level;
     float seedark_mag;
     float seekurse_level;

@@ -682,7 +682,6 @@ bool GameModule::addPlayer(const std::shared_ptr<Object>& object, const Ego::Inp
     player->getQuestLog().loadFromFile(object->getProfile()->getPathname());
 
     //Local player added
-    local_stats.noplayers = false;
     object->islocalplayer = true;
     local_stats.player_count++;
 
@@ -876,7 +875,7 @@ void GameModule::logSlotUsage(const std::string& savename)
             {
                 if (!ProfileSystem::get().isLoaded(i))
                 {
-                    vfs_printf( hFileWrite, "%3" PRIuZ " %32s.\n", i.get(), "Slot reserved for import players" );
+                    vfs_printf( hFileWrite, "%3d %32s.\n", i.get(), "Slot reserved for import players" );
                 }
             }
             lastSlotNumber = profile->getSlotNumber();

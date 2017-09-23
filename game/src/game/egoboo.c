@@ -94,6 +94,18 @@ bool config_download(egoboo_config_t& cfg)
     gfx_config_t::download(gfx, cfg);
     Ego::Renderer::get().download(cfg);
 
+    //TODO: BEGIN
+    /// ZF> I've imported these lines from old C code, not sure if they do anything sensible
+    // Enable prespective correction?
+    Ego::Renderer::get().setPerspectiveCorrectionEnabled(gfx.perspective);
+    // Enable dithering?
+    Ego::Renderer::get().setDitheringEnabled(gfx.dither);
+    // Enable Gouraud shading?
+    Ego::Renderer::get().setGouraudShadingEnabled(gfx.gouraudShading_enable);
+    // Enable antialiasing (via multisamples)?
+    Ego::Renderer::get().setMultisamplesEnabled(gfx.antialiasing);
+    //TODO: END
+
     return true;
 }
 
