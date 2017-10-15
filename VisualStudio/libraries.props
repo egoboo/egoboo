@@ -10,7 +10,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)/idlib/src;$(SolutionDir)/game/src;$(SolutionDir)/egolib/src;$(SolutionDir)/cartman/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/idlib/library/src;$(SolutionDir)/game/src;$(SolutionDir)/egolib/src;$(SolutionDir)/cartman/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>

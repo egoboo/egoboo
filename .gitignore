@@ -8,6 +8,9 @@
 /intermediate
 /product
 
+# CMake.
+*\.dir/
+
 # Code::Blocks.
 *.layout
 

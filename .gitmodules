@@ -6,4 +6,4 @@
 	url = https://github.com/egoboo/egoboo-external
 [submodule "idlib"]
 	path = idlib
-	url = https://github.com/egoboo/idlib
+    url = https://github.com/primordialmachine/idlib

@@ -30,23 +30,25 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="tests\egolib\Tests\Math\MathTestUtilities.hpp" />
+    <ClInclude Include="tests\egolib\Tests\Math\utilities.hpp" />
+    <ClInclude Include="tests\egolib\Tests\text\utilities.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="tests\egolib\Tests\MeshInfoIterator.cpp" />
-    <ClCompile Include="tests\egolib\Tests\Math\Interpolate_Linear.cpp" />
-    <ClCompile Include="tests\egolib\Tests\Math\translation.cpp" />
+    <ClCompile Include="tests\egolib\Tests\math\translate.cpp" />
     <ClCompile Include="tests\egolib\Tests\Compilation.cpp" />
-    <ClCompile Include="tests\egolib\Tests\Math\Contains.cpp" />
-    <ClCompile Include="tests\egolib\Tests\Math\Closure.cpp" />
-    <ClCompile Include="tests\egolib\Tests\Math\intersection.cpp" />
-    <ClCompile Include="tests\egolib\Tests\Math\constants.cpp" />
-    <ClCompile Include="tests\egolib\Tests\Math\matrix_4f_4f.cpp" />
-    <ClCompile Include="tests\egolib\Tests\Math\point_3f.cpp" />
-    <ClCompile Include="tests\egolib\Tests\Math\vector_3f.cpp" />
+    <ClCompile Include="tests\egolib\Tests\math\is_enclosing.cpp" />
+    <ClCompile Include="tests\egolib\Tests\math\enclose.cpp" />
+    <ClCompile Include="tests\egolib\Tests\math\is_intersecting.cpp" />
+    <ClCompile Include="tests\egolib\Tests\math\matrix_4f_4f.cpp" />
     <ClCompile Include="tests\egolib\Tests\Singleton.cpp" />
     <ClCompile Include="tests\egolib\Tests\QuadTree.cpp" />
     <ClCompile Include="tests\egolib\Tests\StringUtilities.cpp" />
+    <ClCompile Include="tests\egolib\Tests\text\document-erase.cpp" />
+    <ClCompile Include="tests\egolib\Tests\text\document-insert.cpp" />
+    <ClCompile Include="tests\egolib\Tests\text\document-prepend-max-length.cpp" />
+    <ClCompile Include="tests\egolib\Tests\text\document-set-max-length.cpp" />
+    <ClCompile Include="tests\egolib\Tests\text\utilities.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{72193166-DDB9-4393-8413-59E8D843DD9D}</ProjectGuid>
@@ -163,7 +165,7 @@
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <BrowseInformation>false</BrowseInformation>
-      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <FloatingPointExceptions>false</FloatingPointExceptions>
@@ -194,7 +196,7 @@
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <SDLCheck>false</SDLCheck>
-      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CompileAsManaged>false</CompileAsManaged>
       <CompileAsWinRT>false</CompileAsWinRT>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>

@@ -9,22 +9,20 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
-    <Filter Include="Source Files\Math">
+    <Filter Include="Source Files\math">
       <UniqueIdentifier>{3ad1c5fb-1a22-40b7-abac-1f3437fa0fde}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Math">
+    <Filter Include="Source Files\text">
+      <UniqueIdentifier>{e42e22f5-86b1-4582-a508-de08964a384d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\math">
       <UniqueIdentifier>{f585b7ba-f1e3-4007-8e06-492b940d6902}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\text">
+      <UniqueIdentifier>{9db2823b-3e5b-4a18-a099-fd6fbe3b72d2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="tests\egolib\Tests\Math\MathTestUtilities.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="tests\egolib\Tests\Math\Contains.cpp">
-      <Filter>Source Files\Math</Filter>
-    </ClCompile>
     <ClCompile Include="tests\egolib\Tests\Compilation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -37,32 +35,46 @@
     <ClCompile Include="tests\egolib\Tests\QuadTree.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="tests\egolib\Tests\Math\Interpolate_Linear.cpp">
-      <Filter>Source Files\Math</Filter>
-    </ClCompile>
-    <ClCompile Include="tests\egolib\Tests\Math\Closure.cpp">
-      <Filter>Source Files\Math</Filter>
-    </ClCompile>
     <ClCompile Include="tests\egolib\Tests\MeshInfoIterator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="tests\egolib\Tests\Math\vector_3f.cpp">
-      <Filter>Source Files\Math</Filter>
+    <ClCompile Include="tests\egolib\Tests\math\enclose.cpp">
+      <Filter>Source Files\math</Filter>
     </ClCompile>
-    <ClCompile Include="tests\egolib\Tests\Math\translation.cpp">
-      <Filter>Source Files\Math</Filter>
+    <ClCompile Include="tests\egolib\Tests\math\is_intersecting.cpp">
+      <Filter>Source Files\math</Filter>
     </ClCompile>
-    <ClCompile Include="tests\egolib\Tests\Math\point_3f.cpp">
-      <Filter>Source Files\Math</Filter>
+    <ClCompile Include="tests\egolib\Tests\math\is_enclosing.cpp">
+      <Filter>Source Files\math</Filter>
     </ClCompile>
-    <ClCompile Include="tests\egolib\Tests\Math\matrix_4f_4f.cpp">
-      <Filter>Source Files\Math</Filter>
+    <ClCompile Include="tests\egolib\Tests\math\matrix_4f_4f.cpp">
+      <Filter>Source Files\math</Filter>
     </ClCompile>
-    <ClCompile Include="tests\egolib\Tests\Math\intersection.cpp">
-      <Filter>Source Files\Math</Filter>
+    <ClCompile Include="tests\egolib\Tests\math\translate.cpp">
+      <Filter>Source Files\math</Filter>
     </ClCompile>
-    <ClCompile Include="tests\egolib\Tests\Math\constants.cpp">
-      <Filter>Source Files\Math</Filter>
+    <ClCompile Include="tests\egolib\Tests\text\document-erase.cpp">
+      <Filter>Source Files\text</Filter>
     </ClCompile>
+    <ClCompile Include="tests\egolib\Tests\text\utilities.cpp">
+      <Filter>Source Files\text</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\egolib\Tests\text\document-insert.cpp">
+      <Filter>Source Files\text</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\egolib\Tests\text\document-set-max-length.cpp">
+      <Filter>Source Files\text</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\egolib\Tests\text\document-prepend-max-length.cpp">
+      <Filter>Source Files\text</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="tests\egolib\Tests\Math\utilities.hpp">
+      <Filter>Header Files\math</Filter>
+    </ClInclude>
+    <ClInclude Include="tests\egolib\Tests\text\utilities.hpp">
+      <Filter>Header Files\text</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

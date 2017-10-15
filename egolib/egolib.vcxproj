@@ -314,6 +314,11 @@
     <ClCompile Include="src\egolib\Entities\ObjectHandler.cpp" />
     <ClCompile Include="src\egolib\Entities\Particle.cpp" />
     <ClCompile Include="src\egolib\Entities\ParticleHandler.cpp" />
+    <ClCompile Include="src\egolib\text\document.cpp" />
+    <ClCompile Include="src\egolib\text\text_erased_event.cpp" />
+    <ClCompile Include="src\egolib\text\text_inserted_event.cpp" />
+    <ClCompile Include="src\egolib\text\text_replaced_event.cpp" />
+    <ClCompile Include="src\egolib\text\text_set_event.cpp" />
     <ClCompile Include="src\egolib\Time\Time.cpp" />
     <ClCompile Include="src\egolib\Graphics\SDL\Utilities.cpp">
       <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)\Graphics\SDL\Utilities.asm</AssemblerListingLocation>
@@ -476,7 +481,6 @@
     <ClCompile Include="src\egolib\Mesh\Info.cpp" />
     <ClCompile Include="src\egolib\FileFormats\Globals.cpp" />
     <ClCompile Include="src\egolib\Console\Console.cpp" />
-    <ClCompile Include="src\egolib\Console\DefaultConsole.cpp" />
     <ClCompile Include="src\egolib\Logic\Perk.cpp" />
     <ClCompile Include="src\egolib\Logic\PerkHandler.cpp" />
     <ClCompile Include="src\egolib\Renderer\DeferredTexture.cpp" />
@@ -604,6 +608,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Math\euler_angle.hpp" />
     <ClInclude Include="src\egolib\Entities\Common.hpp" />
     <ClInclude Include="src\egolib\Entities\Enchant.hpp" />
     <ClInclude Include="src\egolib\Entities\Object.hpp" />
@@ -611,6 +616,11 @@
     <ClInclude Include="src\egolib\Entities\Particle.hpp" />
     <ClInclude Include="src\egolib\Entities\ParticleHandler.hpp" />
     <ClInclude Include="src\egolib\Entities\_Include.hpp" />
+    <ClInclude Include="src\egolib\text\document.hpp" />
+    <ClInclude Include="src\egolib\text\text_erased_event.hpp" />
+    <ClInclude Include="src\egolib\text\text_inserted_event.hpp" />
+    <ClInclude Include="src\egolib\text\text_replaced_event.hpp" />
+    <ClInclude Include="src\egolib\text\text_set_event.hpp" />
     <ClInclude Include="src\egolib\Time\Time.hpp" />
     <ClInclude Include="src\egolib\Graphics\SDL\Utilities.hpp" />
     <ClInclude Include="src\egolib\Image\SDL_Image_Extensions.h" />
@@ -651,8 +661,6 @@
     <ClInclude Include="src\egolib\FileFormats\MapTileDefinitionsDictionary.hpp" />
     <ClInclude Include="src\egolib\VFS\FsPath.hpp" />
     <ClInclude Include="src\egolib\Script\IRuntimeStatistics.hpp" />
-    <ClInclude Include="src\egolib\Math\Interval.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Convert.hpp" />
     <ClInclude Include="src\egolib\Configuration\Number.hpp" />
     <ClInclude Include="src\egolib\Configuration\StringOrBool.hpp" />
     <ClInclude Include="src\egolib\Configuration\Variable.hpp" />
@@ -660,55 +668,19 @@
     <ClInclude Include="src\egolib\InputControl\InputDevice.hpp" />
     <ClInclude Include="src\egolib\InputControl\InputSystem.hpp" />
     <ClInclude Include="src\egolib\InputControl\ModifierKeys.hpp" />
-    <ClInclude Include="src\egolib\Input\JoystickState.hpp" />
     <ClInclude Include="src\egolib\Graphics\DisplayMode.hpp" />
     <ClInclude Include="src\egolib\Graphics\SDL\DisplayMode.hpp" />
     <ClInclude Include="src\egolib\Events\MouseWheelTurnedEventArgs.hpp" />
     <ClInclude Include="src\egolib\Events\MouseButtonEventArgs.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Closure.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Closure_AxisAlignedBox_AxisAlignedBox.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Closure_AxisAlignedBox_AxisAlignedCube.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Closure_AxisAlignedBox_Sphere.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Closure_AxisAlignedCube_AxisAlignedBox.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Closure_AxisAlignedCube_AxisAlignedCube.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Closure_Sphere_AxisAlignedBox.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Closure_Sphere_Sphere.hpp" />
+    <ClInclude Include="src\egolib\Math\Functors\enclose_axis_aligned_cube_in_axis_aligned_box.hpp" />
+    <ClInclude Include="src\egolib\Math\Functors\enclose_sphere_in_axis_aligned_box.hpp" />
+    <ClInclude Include="src\egolib\Math\Functors\enclose_axis_aligned_box_in_axis_aligned_cube.hpp" />
+    <ClInclude Include="src\egolib\Math\Functors\enclose_axis_aligned_box_in_sphere.hpp" />
     <ClInclude Include="src\egolib\Events\WindowEventArgs.hpp" />
     <ClInclude Include="src\egolib\Events\KeyboardKeyEventArgs.hpp" />
     <ClInclude Include="src\egolib\Events\_Include.hpp" />
     <ClInclude Include="src\egolib\Events\MouseMovedEventArgs.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Contains.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Contains_AxisAlignedBox_AxisAlignedBox.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Contains_AxisAlignedBox_Point.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Contains_AxisAlignedCube_AxisAlignedCube.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Contains_Point_Point.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Contains_Sphere_Point.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Contains_Sphere_Sphere.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Intersects.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Intersects_AxisAlignedBox_AxisAlignedBox.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Intersects_AxisAlignedBox_AxisAlignedCube.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Intersects_AxisAlignedBox_Point.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Intersects_AxisAlignedCube_AxisAlignedBox.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Intersects_AxisAlignedCube_AxisAlignedCube.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Intersects_AxisAlignedCube_Point.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Intersects_Point_AxisAlignedBox.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Intersects_Point_AxisAlignedCube.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Intersects_Point_Point.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Intersects_Point_Sphere.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Intersects_Sphere_Point.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Intersects_Sphere_Sphere.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Interpolate_Linear_Point.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Interpolate_Linear_Vector.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Translate.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Translate_AxisAlignedBox.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Translate_AxisAlignedCube.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Translate_Cone3.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Translate_Line.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Translate_Plane.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Translate_Point.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Translate_Ray.hpp" />
-    <ClInclude Include="src\egolib\Math\Functors\Translate_Sphere.hpp" />
-    <ClInclude Include="src\egolib\Math\Constants.hpp" />
+    <ClInclude Include="src\egolib\Math\Functors\is_intersecting_axis_aligned_box_axis_aligned_cube.hpp" />
     <ClInclude Include="src\egolib\Math\Discrete.hpp" />
     <ClInclude Include="src\egolib\App.hpp" />
     <ClInclude Include="src\egolib\Graphics\GraphicsWindow.hpp" />
@@ -720,9 +692,7 @@
     <ClInclude Include="src\egolib\Math\VectorProjection.hpp" />
     <ClInclude Include="src\egolib\Math\VectorRejection.hpp" />
     <ClInclude Include="src\egolib\Profiles\GenderProfile.hpp" />
-    <ClInclude Include="src\egolib\Math\Point.hpp" />
     <ClInclude Include="src\egolib\Math\Line.hpp" />
-    <ClInclude Include="src\egolib\Math\_Generator.hpp" />
     <ClInclude Include="src\egolib\AI\AStar.hpp" />
     <ClInclude Include="src\egolib\Graphics\Buffer.hpp" />
     <ClInclude Include="src\egolib\Graphics\VertexElementDescriptor.hpp" />
@@ -740,7 +710,6 @@
     <ClInclude Include="src\egolib\Script\Interpreter\Tag.hpp" />
     <ClInclude Include="src\egolib\Script\Interpreter\TaggedValue.hpp" />
     <ClInclude Include="src\egolib\Time\Unit.hpp" />
-    <ClInclude Include="src\egolib\Math\Angle.hpp" />
     <ClInclude Include="src\egolib\AI\LineOfSight.hpp" />
     <ClInclude Include="src\egolib\AI\State.hpp" />
     <ClInclude Include="src\egolib\Grid\Index.hpp" />
@@ -757,7 +726,6 @@
     <ClInclude Include="src\egolib\Mesh\Info.hpp" />
     <ClInclude Include="src\egolib\FileFormats\Globals.hpp" />
     <ClInclude Include="src\egolib\Console\Console.hpp" />
-    <ClInclude Include="src\egolib\Console\DefaultConsole.hpp" />
     <ClInclude Include="src\egolib\Renderer\BlendFunction.hpp" />
     <ClInclude Include="src\egolib\Graphics\Camera.hpp" />
     <ClInclude Include="src\egolib\Math\Transform.hpp" />
@@ -775,7 +743,6 @@
     <ClInclude Include="src\egolib\Time\SlidingWindow.hpp" />
     <ClInclude Include="src\egolib\Time\Stopwatch.hpp" />
     <ClInclude Include="src\egolib\Math\VectorSpace.hpp" />
-    <ClInclude Include="src\egolib\Math\_Tuple.hpp" />
     <ClInclude Include="src\egolib\Logic\Team.hpp" />
     <ClInclude Include="src\egolib\Math\EuclideanSpace.hpp" />
     <ClInclude Include="src\egolib\Math\Scalar.hpp" />
@@ -812,7 +779,6 @@
     <ClInclude Include="src\egolib\Image\ImageLoader_SDL.hpp" />
     <ClInclude Include="src\egolib\Image\ImageLoader_SDL_image.hpp" />
     <ClInclude Include="src\egolib\Image\ImageManager.hpp" />
-    <ClInclude Include="src\egolib\Script\Conversion.hpp" />
     <ClInclude Include="src\egolib\Script\EnumDescriptor.hpp" />
     <ClInclude Include="src\egolib\Script\TextInputFile.hpp" />
     <ClInclude Include="src\egolib\Script\TextFile.hpp" />
@@ -855,7 +821,6 @@
     <ClInclude Include="src\egolib\Renderer\TextureFilter.hpp" />
     <ClInclude Include="src\egolib\Renderer\OpenGL\Renderer.hpp" />
     <ClInclude Include="src\egolib\Renderer\Renderer.hpp" />
-    <ClInclude Include="src\egolib\math\Vector.hpp" />
     <ClInclude Include="src\egolib\math\AxisAlignedCube.hpp" />
     <ClInclude Include="src\egolib\math\Sphere.hpp" />
     <ClInclude Include="src\egolib\math\Plane.hpp" />
@@ -945,6 +910,12 @@
     </ProjectReference>
     <ProjectReference Include="..\idlib\idlib.vcxproj">
       <Project>{f59e5a93-844c-4c7f-bffa-c0e59785b9a2}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\idlib\legacy\idlib.vcxproj">
+      <Project>{1af1ead3-b754-426e-96df-6c9075782b5e}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\legacy\idlib.vcxproj">
+      <Project>{1af1ead3-b754-426e-96df-6c9075782b5e}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

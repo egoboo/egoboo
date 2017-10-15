@@ -87,7 +87,7 @@
     <EnableManagedIncrementalBuild>false</EnableManagedIncrementalBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LinkIncremental>true</LinkIncremental>
+    <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)product\$(ProjectName)\$(Configuration)\$(PlatformTarget)\</OutDir>
     <IntDir>$(SolutionDir)intermediate\$(ProjectName)\$(Configuration)\$(PlatformTarget)\</IntDir>
     <EnableManagedIncrementalBuild>false</EnableManagedIncrementalBuild>
@@ -368,6 +368,12 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     </ProjectReference>
     <ProjectReference Include="..\..\idlib\idlib.vcxproj">
       <Project>{f59e5a93-844c-4c7f-bffa-c0e59785b9a2}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\idlib\legacy\idlib.vcxproj">
+      <Project>{1af1ead3-b754-426e-96df-6c9075782b5e}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\legacy\idlib.vcxproj">
+      <Project>{1af1ead3-b754-426e-96df-6c9075782b5e}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

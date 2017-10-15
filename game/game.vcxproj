@@ -246,6 +246,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
       <ProgramDatabaseFile>$(OutDir)$(ProjectName).pdb</ProgramDatabaseFile>
       <SubSystem>Console</SubSystem>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <ProjectReference>
       <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
@@ -644,6 +645,9 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     </ProjectReference>
     <ProjectReference Include="..\external\SDL2-2.0.3\VisualC\SDLmain\SDLmain.vcxproj">
       <Project>{dd761575-1f8d-4a59-aa3b-10c61629aa64}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\legacy\idlib.vcxproj">
+      <Project>{1af1ead3-b754-426e-96df-6c9075782b5e}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

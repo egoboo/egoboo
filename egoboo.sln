@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.15
+VisualStudioVersion = 15.0.27004.2005
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "game", "game\game.vcxproj", "{E9988340-E474-4C0A-8496-EFF3296DE056}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -18,8 +18,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cartman", "cartman\cartman.
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "physfs-static", "external\physfs-2.1.1\physfs-static.vcxproj", "{0D701492-DB47-4E2A-A73D-8F2049103145}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "idlib", "idlib\idlib.vcxproj", "{F59E5A93-844C-4C7F-BFFA-C0E59785B9A2}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "egolib-tests", "egolib\egolib-tests.vcxproj", "{72193166-DDB9-4393-8413-59E8D843DD9D}"
 EndProject
@@ -41,16 +39,13 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SDL2_mixer", "external\SDL2
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SDL2main", "external\SDL2-2.0.3\VisualC\SDLmain\SDLmain.vcxproj", "{DD761575-1F8D-4A59-AA3B-10C61629AA64}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "idlib-tests", "idlib\idlib-tests.vcxproj", "{53AA7468-E768-4CC9-A5ED-21A70C5FC36C}"
-	ProjectSection(ProjectDependencies) = postProject
-		{F59E5A93-844C-4C7F-BFFA-C0E59785B9A2} = {F59E5A93-844C-4C7F-BFFA-C0E59785B9A2}
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "migrator", "utilities\migrator\migrator.vcxproj", "{1F8F692B-C307-4AB9-A48A-9B1F55FF02E6}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gtest", "external\googletest\googletest\msvc\gtest.vcxproj", "{C8F6C172-56F2-4E76-B5FA-C3B423B31BE7}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gtest_main", "external\googletest\googletest\msvc\gtest_main.vcxproj", "{3AF54C8A-10BF-4332-9147-F68ED9862032}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "idlib", "legacy\idlib.vcxproj", "{1AF1EAD3-B754-426E-96DF-6C9075782B5E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -92,14 +87,6 @@ Global
 		{0D701492-DB47-4E2A-A73D-8F2049103145}.Release|x64.Build.0 = Release|x64
 		{0D701492-DB47-4E2A-A73D-8F2049103145}.Release|x86.ActiveCfg = Release|Win32
 		{0D701492-DB47-4E2A-A73D-8F2049103145}.Release|x86.Build.0 = Release|Win32
-		{F59E5A93-844C-4C7F-BFFA-C0E59785B9A2}.Debug|x64.ActiveCfg = Debug|x64
-		{F59E5A93-844C-4C7F-BFFA-C0E59785B9A2}.Debug|x64.Build.0 = Debug|x64
-		{F59E5A93-844C-4C7F-BFFA-C0E59785B9A2}.Debug|x86.ActiveCfg = Debug|Win32
-		{F59E5A93-844C-4C7F-BFFA-C0E59785B9A2}.Debug|x86.Build.0 = Debug|Win32
-		{F59E5A93-844C-4C7F-BFFA-C0E59785B9A2}.Release|x64.ActiveCfg = Release|x64
-		{F59E5A93-844C-4C7F-BFFA-C0E59785B9A2}.Release|x64.Build.0 = Release|x64
-		{F59E5A93-844C-4C7F-BFFA-C0E59785B9A2}.Release|x86.ActiveCfg = Release|Win32
-		{F59E5A93-844C-4C7F-BFFA-C0E59785B9A2}.Release|x86.Build.0 = Release|Win32
 		{72193166-DDB9-4393-8413-59E8D843DD9D}.Debug|x64.ActiveCfg = Debug|x64
 		{72193166-DDB9-4393-8413-59E8D843DD9D}.Debug|x64.Build.0 = Debug|x64
 		{72193166-DDB9-4393-8413-59E8D843DD9D}.Debug|x86.ActiveCfg = Debug|Win32
@@ -164,14 +151,6 @@ Global
 		{DD761575-1F8D-4A59-AA3B-10C61629AA64}.Release|x64.Build.0 = Release|x64
 		{DD761575-1F8D-4A59-AA3B-10C61629AA64}.Release|x86.ActiveCfg = Release|Win32
 		{DD761575-1F8D-4A59-AA3B-10C61629AA64}.Release|x86.Build.0 = Release|Win32
-		{53AA7468-E768-4CC9-A5ED-21A70C5FC36C}.Debug|x64.ActiveCfg = Debug|x64
-		{53AA7468-E768-4CC9-A5ED-21A70C5FC36C}.Debug|x64.Build.0 = Debug|x64
-		{53AA7468-E768-4CC9-A5ED-21A70C5FC36C}.Debug|x86.ActiveCfg = Debug|Win32
-		{53AA7468-E768-4CC9-A5ED-21A70C5FC36C}.Debug|x86.Build.0 = Debug|Win32
-		{53AA7468-E768-4CC9-A5ED-21A70C5FC36C}.Release|x64.ActiveCfg = Release|x64
-		{53AA7468-E768-4CC9-A5ED-21A70C5FC36C}.Release|x64.Build.0 = Release|x64
-		{53AA7468-E768-4CC9-A5ED-21A70C5FC36C}.Release|x86.ActiveCfg = Release|Win32
-		{53AA7468-E768-4CC9-A5ED-21A70C5FC36C}.Release|x86.Build.0 = Release|Win32
 		{1F8F692B-C307-4AB9-A48A-9B1F55FF02E6}.Debug|x64.ActiveCfg = Debug|x64
 		{1F8F692B-C307-4AB9-A48A-9B1F55FF02E6}.Debug|x64.Build.0 = Debug|x64
 		{1F8F692B-C307-4AB9-A48A-9B1F55FF02E6}.Debug|x86.ActiveCfg = Debug|Win32
@@ -196,6 +175,14 @@ Global
 		{3AF54C8A-10BF-4332-9147-F68ED9862032}.Release|x64.Build.0 = Release|x64
 		{3AF54C8A-10BF-4332-9147-F68ED9862032}.Release|x86.ActiveCfg = Release|Win32
 		{3AF54C8A-10BF-4332-9147-F68ED9862032}.Release|x86.Build.0 = Release|Win32
+		{1AF1EAD3-B754-426E-96DF-6C9075782B5E}.Debug|x64.ActiveCfg = Debug|x64
+		{1AF1EAD3-B754-426E-96DF-6C9075782B5E}.Debug|x64.Build.0 = Debug|x64
+		{1AF1EAD3-B754-426E-96DF-6C9075782B5E}.Debug|x86.ActiveCfg = Debug|Win32
+		{1AF1EAD3-B754-426E-96DF-6C9075782B5E}.Debug|x86.Build.0 = Debug|Win32
+		{1AF1EAD3-B754-426E-96DF-6C9075782B5E}.Release|x64.ActiveCfg = Release|x64
+		{1AF1EAD3-B754-426E-96DF-6C9075782B5E}.Release|x64.Build.0 = Release|x64
+		{1AF1EAD3-B754-426E-96DF-6C9075782B5E}.Release|x86.ActiveCfg = Release|Win32
+		{1AF1EAD3-B754-426E-96DF-6C9075782B5E}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -212,5 +199,8 @@ Global
 		{DD761575-1F8D-4A59-AA3B-10C61629AA64} = {5598C859-A436-4224-9039-0C7FDC3DF2DD}
 		{C8F6C172-56F2-4E76-B5FA-C3B423B31BE7} = {9BD0B7C7-47BB-4389-A7C6-4D5427D293C0}
 		{3AF54C8A-10BF-4332-9147-F68ED9862032} = {9BD0B7C7-47BB-4389-A7C6-4D5427D293C0}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3B7AA3E7-8BDF-4FA9-9ABA-DCB3C7438464}
 	EndGlobalSection
 EndGlobal
