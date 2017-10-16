@@ -29,7 +29,7 @@
 
 float light_a = 0.0f,
       light_d = 0.0f;
-Vector3f light_nrm = Vector3f::zero();
+Vector3f light_nrm = id::zero<Vector3f>();
 
 
 //--------------------------------------------------------------------------------------------
@@ -206,9 +206,9 @@ void lighting_cache_t::lighting_project_cache( lighting_cache_t& dst, const ligh
     Vector3f right = mat_getChrRight(mat);
     Vector3f up = mat_getChrUp(mat);
 
-    fwd.normalize();
-    right.normalize();
-    up.normalize();
+    fwd = normalize(fwd).first;
+    right = normalize(right).first;
+    up = normalize(up).first;
 
     // split the lighting cache up
     lighting_sum_project( dst, src, right, 0 );
@@ -510,7 +510,7 @@ bool sum_dyna_lighting( const dynalight_data_t * pdyna, LightingVector& lighting
     if ( 0.0f == level ) return true;
 
     // allow negative lighting, or blind spots will not work properly
-	float rad_sqr = nrm.length_2();
+	float rad_sqr = id::squared_euclidean_norm(nrm);
 
     // make a local copy of the normal so we do not normalize the data in the calling function
 	Vector3f local_nrm = nrm;
@@ -537,5 +537,5 @@ void dynalight_data_t::init(dynalight_data_t& self)
 	self.distance = 1000.0f;
 	self.falloff = 255.0f;
 	self.level = 0.0f;
-	self.pos = Vector3f::zero();
+	self.pos = id::zero<Vector3f>();
 }

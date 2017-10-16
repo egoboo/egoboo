@@ -22,9 +22,8 @@
 
 #pragma once
 
-#include "egolib/Math/Angle.hpp"
+#include "egolib/Math/euler_angle.hpp"
 #include "egolib/Math/Random.hpp"
-#include "egolib/Math/Interval.hpp"
 #include "egolib/Log/_Include.hpp"
 
 //--------------------------------------------------------------------------------------------
@@ -44,12 +43,13 @@ int sgn(const Type& x) {
 
 typedef uint16_t FACING_T;
 
-#define FACE_RANDOM  Random::next<FACING_T>(std::numeric_limits<FACING_T>::max())
+namespace id {
 
-struct Facing {
+template <>
+struct angle<uint16_t, facings> {
 private:
     // The canonical range of unit facing is 0 = UINT16_MIN, 360 = 2^16-1 = UINT16_MAX.
-    int32_t angle;
+    int32_t m_angle;
 
     static void constrain(int32_t& angle) {
         while (angle < -static_cast<int32_t>(std::numeric_limits<uint16_t>::max())) {
@@ -61,37 +61,37 @@ private:
     }
 
 public:
-    explicit Facing(const Ego::Math::Turns& other) : angle(0) {
+    explicit angle(const angle<float, turns>& other) : angle(0) {
         static const float s = static_cast<float>(static_cast<int32_t>(std::numeric_limits<uint16_t>::max()) + 1);
-        this->angle = int32_t(float(other) * s);
-        constrain(this->angle);
+        this->m_angle = int32_t(float(other) * s);
+        constrain(this->m_angle);
     }
-    explicit Facing(const Ego::Math::Degrees& x) : Facing(Ego::Math::Turns(x)) {
+    explicit angle(const angle<float, id::degrees>& x) : angle(semantic_cast<angle<float, id::turns>>(x)) {
         /* Intentionally left empty. */
     }
-    explicit Facing(const Ego::Math::Radians& x) : Facing(Ego::Math::Turns(x)) {
+    explicit angle(const angle<float, id::radians>& x) : angle(semantic_cast<angle<float, id::turns>>(x)) {
         /* Intentionally left empty. */
     }
     // int32_t always fits into int32_t.
-    explicit Facing(int32_t angle) : angle(0) {
+    explicit angle(int32_t angle) : m_angle(0) {
         // Do *not* normalize the angle.
-        this->angle = angle;
+        this->m_angle = angle;
         //constrain(this->angle);
     }
     // uint16_t always fits into int32_t.
     // uint16_t is always in the correct range of 0 and 2^16-1.
-    explicit Facing(uint16_t angle) : angle(static_cast<int32_t>(angle)) {
+    explicit angle(uint16_t angle) : angle(static_cast<int32_t>(angle)) {
         /* Intentionally left empty. */
     }
-    Facing() : angle(0) {
+    angle() : angle(0) {
         /* Intentionally left empty. */
     }
-    Facing(const Facing& other) : angle(other.angle) {
+    angle(const angle& other) : angle(other.m_angle) {
         /* Intentionally left empty. */
     }
     // Explicit cast. Canonicalizes angles. 
     explicit operator uint16_t() const {
-        int32_t x = angle;
+        int32_t x = m_angle;
         while (x < 0) {
             x = x + static_cast<int32_t>(std::numeric_limits<uint16_t>::max());
         }
@@ -102,140 +102,107 @@ public:
     }
     // Explicit cast.
     explicit operator int32_t() const {
-        return angle;
+        return m_angle;
     }
-    explicit operator Ego::Math::Turns() const {
+    explicit operator angle<float, turns>() const {
         static const int32_t s = static_cast<float>(static_cast<int32_t>(std::numeric_limits<uint16_t>::max())) + 1;
-        return Ego::Math::Turns(float(angle) * s);
+        return angle<float, turns>(float(m_angle) * s);
     }
-    explicit operator Ego::Math::Radians() const {
-        return Ego::Math::Radians((Ego::Math::Turns)(*this));
+    explicit operator angle<float, radians>() const {
+        return semantic_cast<angle<float, radians>>((angle<float, turns>)(*this));
     }
-    explicit operator Ego::Math::Degrees() const {
-        return Ego::Math::Degrees((Ego::Math::Turns)(*this));
+    explicit operator angle<float, degrees>() const {
+        return semantic_cast<angle<float, degrees>>((angle<float, turns>)(*this));
     }
 
 public:
-    Facing operator+() const {
+	angle operator+() const {
         return *this;
     }
-    Facing operator-() const {
-        return Facing(-angle);
+	angle operator-() const {
+        return angle(-m_angle);
     }
 
 public:
-    Facing operator*(float other) const {
-        return Facing(int32_t(float(angle) * other));
+	angle operator*(float other) const {
+        return angle(int32_t(float(m_angle) * other));
     }
 
-    Facing operator+(const Facing& other) const {
+	angle operator+(const angle& other) const {
         // this.angle and other.angle are in the canonical range of 0 and 2^16-1.
         // (2^16 - 1) + (2^16-1) is always smaller than the maximum value of int32_t.
-        return Facing(angle + other.angle);
+        return angle(m_angle + other.m_angle);
     }
 
-    Facing operator-(const Facing& other) const {
+	angle operator-(const angle& other) const {
         // this angle and other.angle are in the canonical range of 0 and 2^16-1.
         // 0         -    2^16-1 is always greater than the minimum value of int32_t.
-        return Facing(angle - other.angle);
+        return angle(m_angle - other.m_angle);
     }
 
-    const Facing& operator+=(const Facing& other) {
+    const angle& operator+=(const angle& other) {
         (*this) = (*this) + other;
         return *this;
     }
 
-    const Facing& operator-=(const Facing& other) {
+    const angle& operator-=(const angle& other) {
         (*this) = (*this) - other;
         return *this;
     }
 
-public:
-    bool operator<(const Facing& other) const {
-        return angle < other.angle;
-    }
+    bool operator<(const angle& other) const
+	{ return m_angle < other.m_angle; }
 
-    bool operator<=(const Facing& other) const {
-        return angle <= other.angle;
-    }
+    bool operator<=(const angle& other) const
+	{ return m_angle <= other.m_angle; }
 
-    bool operator>(const Facing& other) const {
-        return angle > other.angle;
-    }
+    bool operator>(const angle& other) const
+	{ return m_angle > other.m_angle; }
 
-    bool operator>=(const Facing& other) const {
-        return angle >= other.angle;
-    }
+    bool operator>=(const angle& other) const
+	{ return m_angle >= other.m_angle; }
 
-    bool operator==(const Facing& other) const {
-        return angle == other.angle;
-    }
+    bool operator==(const angle& other) const
+	{ return m_angle == other.m_angle; }
 
-    bool operator!=(const Facing& other) const {
-        return angle != other.angle;
-    }
+    bool operator!=(const angle& other) const
+	{ return m_angle != other.m_angle; }
 
 public:
-    static Facing random(bool negative = false) {
+    static angle random(bool negative = false)
+	{
         int32_t x = static_cast<int32_t>(Random::next<uint16_t>(std::numeric_limits<uint16_t>::max()));
-        if (negative) {
+        if (negative)
+		{
             x = Random::nextBool() ? x : -x;
         }
-        return Facing(x);
-    }
-
-public:
-    /// Directional alias for "an attack from front".
-    static const Facing ATK_FRONT;
-    /// Directional alias for "an attack from right".
-    static const Facing ATK_RIGHT;
-    /// Directional alias for "an attack from behind".
-    static const Facing ATK_BEHIND;
-    /// Directional alias for "an attack from left".
-    static const Facing ATK_LEFT;
-
-public:
-    /// Facing alias for "west".
-    static const Facing FACE_WEST;
-    /// Facing alias for "north".
-    static const Facing FACE_NORTH;
-    /// Facing alias for "east".
-    static const Facing FACE_EAST;
-    /// Facing alias for "south".
-    static const Facing FACE_SOUTH;
-
-};
-
-struct EulerFacing {
-    Facing x, y, z;
-    EulerFacing() : x(), y(), z() {}
-    EulerFacing(const Facing& x, const Facing& y, const Facing& z) : x(x), y(y), z(z) {}
-    EulerFacing(const EulerFacing& other) : x(other.x), y(other.y), z(other.z) {}
-    const Facing& operator[](size_t index) const {
-        switch (index) {
-            case 0:
-                return x;
-            case 1:
-                return y;
-            case 2:
-                return z;
-            default:
-                throw id::out_of_bounds_error(__FILE__, __LINE__, "index out of range");
-        };
-    }
-    Facing& operator[](size_t index) {
-        switch (index) {
-            case 0:
-                return x;
-            case 1:
-                return y;
-            case 2:
-                return z;
-            default:
-                throw id::out_of_bounds_error(__FILE__, __LINE__, "index out of range");
-        };
+        return angle(x);
     }
 };
+
+} // namespace id
+
+using Facing = id::angle<uint16_t, id::facings>;
+
+/// Directional alias for "an attack from front".
+extern const Facing ATK_FRONT;
+/// Directional alias for "an attack from right".
+extern const Facing ATK_RIGHT;
+/// Directional alias for "an attack from behind".
+extern const Facing ATK_BEHIND;
+/// Directional alias for "an attack from left".
+extern const Facing ATK_LEFT;
+
+/// Facing alias for "west".
+extern const Facing FACE_WEST;
+/// Facing alias for "north".
+extern const Facing FACE_NORTH;
+/// Facing alias for "east".
+extern const Facing FACE_EAST;
+/// Facing alias for "south".
+extern const Facing FACE_SOUTH;
+
+using EulerFacing = id::euler_angle<id::angle<uint16_t, id::facings>>;
 
 template <>
 inline int sgn<Facing>(const Facing& x) {
@@ -246,9 +213,6 @@ inline int sgn<Facing>(const Facing& x) {
 //--------------------------------------------------------------------------------------------
 // basic constants
 
-#include "egolib/Math/Constants.hpp"
-
-
 /**
  * @brief
  *  Convert an angle from turns to "facing" (some custom Egoboo unit in the interval \f$[0,2^16-1]\f$).
@@ -257,7 +221,7 @@ inline int sgn<Facing>(const Facing& x) {
  * @return
  *  the angle in "facing"
  */
-inline Facing TurnToFacing(const Ego::Math::Turns& x) {
+inline Facing TurnToFacing(const id::angle<float, id::turns>& x) {
     return Facing(x);
 }
 
@@ -269,8 +233,8 @@ inline Facing TurnToFacing(const Ego::Math::Turns& x) {
  * @return
  *  the angle in turns
  */
-inline Ego::Math::Turns FacingToTurn(const Facing& x) {
-    return static_cast<Ego::Math::Turns>(x);
+inline id::angle<float, id::turns> FacingToTurn(const Facing& x) {
+    return static_cast<id::angle<float, id::turns>>(x);
 }
 
 
@@ -282,8 +246,8 @@ inline Ego::Math::Turns FacingToTurn(const Facing& x) {
  * @return
  *  the angle in radians
  */
-inline Ego::Math::Radians FacingToRadian(const Facing& x) {
-    return static_cast<Ego::Math::Radians>(x);
+inline id::angle<float, id::radians> FacingToRadian(const Facing& x) {
+    return static_cast<id::angle<float, id::radians>>(x);
 }
 
 /**
@@ -294,8 +258,8 @@ inline Ego::Math::Radians FacingToRadian(const Facing& x) {
  * @return
  *  the angle in "facing"
  */
-inline Facing RadianToFacing(const Ego::Math::Radians& x) {
-    return TurnToFacing(Ego::Math::Turns(x));
+inline Facing RadianToFacing(const id::angle<float, id::radians>& x) {
+    return TurnToFacing(id::semantic_cast<id::angle<float, id::turns>>(x));
 }
 
 // conversion functions
@@ -322,18 +286,11 @@ extern "C"
 #endif
 
 //--------------------------------------------------------------------------------------------
-
-
-#if !defined(SQR)
-#    define SQR(A) ((A)*(A))
-#endif
-
-//--------------------------------------------------------------------------------------------
 // FAST CONVERSIONS
 
-#define FF_TO_FLOAT( V1 )  ( (float)(V1) * INV_FF<float>() )
+#define FF_TO_FLOAT( V1 )  ( (float)(V1) * id::fraction<float,1,255>() )
 
-#define FFFF_TO_FLOAT( V1 )  ( (float)(V1) * INV_FFFF<float>() )
+#define FFFF_TO_FLOAT( V1 )  ( (float)(V1) * id::fraction<float, 1, 65535>() )
 #define FLOAT_TO_FFFF( V1 )  ( (int)((V1) * 0xFFFF) )
 
 //--------------------------------------------------------------------------------------------
@@ -344,7 +301,7 @@ extern "C"
 
 // random functions
     int generate_irand_pair( const IPair num );
-    int generate_irand_range( const Ego::Math::Interval<float> num );
+    int generate_irand_range( const id::interval<float> num );
 
 //--------------------------------------------------------------------------------------------
 

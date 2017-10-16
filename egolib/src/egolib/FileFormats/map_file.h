@@ -24,7 +24,6 @@
 #include "egolib/_math.h"
 #include "egolib/Math/_Include.hpp"
 #include "egolib/FileFormats/map_tile_dictionary.h"
-#include "egolib/Math/Vector.hpp"
 #include "egolib/Mesh/Info.hpp"
 
 //--------------------------------------------------------------------------------------------

@@ -86,7 +86,7 @@ ObjectProfile::ObjectProfile() :
     // physics
     _weight(1),
     _bounciness(0.0f),
-    _bumpDampen(INV_FF<float>()),
+    _bumpDampen(id::fraction<float, 1, 255>()),
 
     _size(1.0f),
     _sizeGainPerLevel(0.0f),
@@ -494,13 +494,13 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     _attributeGain[Ego::Attribute::INTELLECT] = vfs_get_next_range(ctxt);
 
     //Wisdom used to be an attribute in Egoboo, but now its deprecated. To figure out intellect use average of WIS and INT
-    if(!wisdom.isZero()) {
-        _baseAttribute[Ego::Attribute::INTELLECT] = Ego::Math::Interval<float>(_baseAttribute[Ego::Attribute::INTELLECT].getLowerbound() + wisdom.getLowerbound(),
-                                                           _baseAttribute[Ego::Attribute::INTELLECT].getUpperbound() + wisdom.getUpperbound()) * 0.5f;        
+    if(!wisdom.is_zero()) {
+        _baseAttribute[Ego::Attribute::INTELLECT] = id::interval<float>(_baseAttribute[Ego::Attribute::INTELLECT].lower() + wisdom.lower(),
+                                                           _baseAttribute[Ego::Attribute::INTELLECT].upper() + wisdom.upper()) * 0.5f;        
     }
-    if(!wisdomGain.isZero()) {
-        _attributeGain[Ego::Attribute::INTELLECT] = Ego::Math::Interval<float>(_attributeGain[Ego::Attribute::INTELLECT].getLowerbound() + wisdomGain.getLowerbound(),
-                                                           _attributeGain[Ego::Attribute::INTELLECT].getUpperbound() + wisdomGain.getUpperbound()) * 0.5f;     
+    if(!wisdomGain.is_zero()) {
+        _attributeGain[Ego::Attribute::INTELLECT] = id::interval<float>(_attributeGain[Ego::Attribute::INTELLECT].lower() + wisdomGain.lower(),
+                                                           _attributeGain[Ego::Attribute::INTELLECT].upper() + wisdomGain.upper()) * 0.5f;     
     }
 
     _baseAttribute[Ego::Attribute::AGILITY] = vfs_get_next_range(ctxt);
@@ -512,7 +512,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     _shadowSize = vfs_get_next_int(ctxt);
     _bumpSize = vfs_get_next_int(ctxt);
     _bumpHeight = vfs_get_next_int(ctxt);
-    _bumpDampen = std::max(INV_FF<float>(), vfs_get_next_float(ctxt));    //0 == bumpdampenmeans infinite mass, and causes some problems
+    _bumpDampen = std::max(id::fraction<float, 1, 255>(), vfs_get_next_float(ctxt));    //0 == bumpdampenmeans infinite mass, and causes some problems
     _weight = vfs_get_next_int(ctxt);
     _jumpPower = vfs_get_next_float(ctxt);
     _jumpNumber = vfs_get_next_int(ctxt);
@@ -660,7 +660,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     vfs_get_next_float(ctxt);  //ZF> deprecated value LifeReturn (no longer used)
     _useManaCost = vfs_get_next_float(ctxt);
     _baseAttribute[Ego::Attribute::LIFE_REGEN] = vfs_get_next_range(ctxt);
-    _attributeGain[Ego::Attribute::LIFE_REGEN] = Ego::Math::Interval<float>();    //ZF> TODO: regen gain per level not implemented
+    _attributeGain[Ego::Attribute::LIFE_REGEN] = id::interval<float>();    //ZF> TODO: regen gain per level not implemented
     _baseAttribute[Ego::Attribute::LIFE_REGEN] /= 256.0f;
     _stoppedBy |= vfs_get_next_int(ctxt);
 
@@ -695,7 +695,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     _causesRipples = !_isItem;
 
     // assume a round object
-    _bumpSizeBig = _bumpSize * Ego::Math::sqrtTwo<float>();
+    _bumpSizeBig = _bumpSize * id::sqrt_two<float>();
 
     // assume the normal icon usage
     _drawIcon = _usageIsKnown;
@@ -1443,13 +1443,13 @@ size_t ObjectProfile::getRandomSkinID() const
     return element->first;
 }
 
-const Ego::Math::Interval<float>& ObjectProfile::getAttributeGain(Ego::Attribute::AttributeType type) const
+const id::interval<float>& ObjectProfile::getAttributeGain(Ego::Attribute::AttributeType type) const
 {
     EGOBOO_ASSERT(type < _attributeGain.size()); 
     return _attributeGain[type];
 }
 
-const Ego::Math::Interval<float>& ObjectProfile::getAttributeBase(Ego::Attribute::AttributeType type) const
+const id::interval<float>& ObjectProfile::getAttributeBase(Ego::Attribute::AttributeType type) const
 {
     EGOBOO_ASSERT(type < _baseAttribute.size()); 
     return _baseAttribute[type];    

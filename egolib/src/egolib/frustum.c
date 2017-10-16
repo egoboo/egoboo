@@ -264,7 +264,7 @@ void Frustum::calculate(const Matrix4f4f& projection, const Matrix4f4f& view)
 		Vector3f vDiff = _sphere.getCenter() - pt1;
 
         // the radius becomes the length of this vector
-		_sphere.setRadius(vDiff.length());
+		_sphere.setRadius(id::euclidean_norm(vDiff));
     }
 }
 

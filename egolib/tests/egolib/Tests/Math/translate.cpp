@@ -21,7 +21,7 @@
 
 namespace ego { namespace math { namespace test {
 
-TEST(point_3f, translate) {
+TEST(translate, point_3f) {
     auto t = Vector3f(+1.0f, +1.0f, +1.0f);
     auto x = Point3f(-1.0f, -1.0f, -1.0f);
     auto y = translate(x, t);
@@ -29,7 +29,7 @@ TEST(point_3f, translate) {
     ASSERT_EQ(x, y);
 }
 
-TEST(axis_aligned_box_3f, translate) {
+TEST(translate, axis_aligned_box_3f) {
     auto t = Vector3f(+1.0f, +1.0f, +1.0f);
     auto x = AxisAlignedBox3f(Point3f(-1.0f, -1.0f, -1.0f), ::Point3f(+1.0f, +1.0f, +1.0f));
     auto y = translate(x, t);
@@ -37,23 +37,23 @@ TEST(axis_aligned_box_3f, translate) {
     ASSERT_EQ(x, y);
 }
 
-TEST(axis_aligned_cube_3f, translate) {
+TEST(translate, axis_aligned_cube_3f) {
     auto t = Vector3f(+1.0f, +1.0f, +1.0f);
     auto x = AxisAlignedCube3f(Point3f(0.0f, 0.0f, 0.0f), 1.0f);
-    auto y = translate(x, t);
-    y = translate(y, -t);
+    auto y = id::translate(x, t);
+    y = id::translate(y, -t);
     ASSERT_EQ(x, y);
 }
 
-TEST(sphere_3f, translate) {
+TEST(translate, sphere_3f) {
     auto t = Vector3f(+1.0f, +1.0f, +1.0f);
     auto x = Sphere3f(Point3f(0.0f, 0.0f, 0.0f), +1.0f);
-    auto y = translate(x, t);
-    y = translate(y, -t);
+    auto y = id::translate(x, t);
+    y = id::translate(y, -t);
     ASSERT_EQ(x, y);
 }
 
-TEST(line_3f, translate) {
+TEST(translate, line_3f) {
     auto t = Vector3f(+1.0f, +1.0f, +1.0f);
     auto x = Line3f(Point3f(-1.0f, -1.0f, -1.0f), Point3f(-1.0f, -1.0f, -1.0f));
     auto y = translate(x, t);
@@ -61,15 +61,15 @@ TEST(line_3f, translate) {
     ASSERT_EQ(x, y);
 }
 
-TEST(ray_3f, translate) {
+TEST(translate, ray_3f) {
     auto t = Vector3f(+1.0f, +1.0f, +1.0f);
     auto x = Ray3f(Point3f(0.0f, 0.0f, 0.0f), Vector3f(+1.0f,+1.0f,+1.0f));
-    auto y = translate(x, t);
-    y = translate(y, -t);
+    auto y = id::translate(x, t);
+    y = id::translate(y, -t);
     ASSERT_EQ(x, y);
 }
 
-TEST(cone_3f, translate) {
+TEST(translate, cone_3f) {
     auto t = Vector3f(+1.0f, +1.0f, +1.0f);
     auto x = Cone3f();
     auto y = translate(x, t);
@@ -77,11 +77,11 @@ TEST(cone_3f, translate) {
     ASSERT_EQ(x, y);
 }
 
-TEST(plane_3f, translate) {
+TEST(translate, plane_3f) {
     auto t = Vector3f(+1.0f, +1.0f, +1.0f);
     auto x = Plane3f();
-    auto y = translate(x, t);
-    y = translate(y, -t);
+    auto y = id::translate(x, t);
+    y = id::translate(y, -t);
     ASSERT_EQ(x, y);
 }
 

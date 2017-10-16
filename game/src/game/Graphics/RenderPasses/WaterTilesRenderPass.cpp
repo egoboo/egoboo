@@ -169,9 +169,9 @@ gfx_rv WaterTilesRenderPass::render_water_fan(ego_mesh_t& mesh, const Index1D& t
             }
 
             // take the v[cnt].color from the tnc vertices so that it is oriented properly
-            v0.r = Math::constrain(dlight * INV_FF<float>() + alight, 0.0f, 1.0f);
-            v0.g = Math::constrain(dlight * INV_FF<float>() + alight, 0.0f, 1.0f);
-            v0.b = Math::constrain(dlight * INV_FF<float>() + alight, 0.0f, 1.0f);
+            v0.r = Math::constrain(dlight * id::fraction<float, 1, 255>() + alight, 0.0f, 1.0f);
+            v0.g = Math::constrain(dlight * id::fraction<float, 1, 255>() + alight, 0.0f, 1.0f);
+            v0.b = Math::constrain(dlight * id::fraction<float, 1, 255>() + alight, 0.0f, 1.0f);
 
             // the application of alpha to the tile depends on the blending mode
             if (_currentModule->getWater()._light)

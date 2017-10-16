@@ -24,7 +24,6 @@
 #pragma once
 
 #include "egolib/Math/OrderedField.hpp"
-#include "egolib/Math/Vector.hpp"
 
 namespace Ego {
 namespace Math {
@@ -99,7 +98,7 @@ public:
      * @brief
      *  The vector type.
      */
-    using VectorType = Vector<ScalarFieldType, MyType::dimensionality()>;
+    using VectorType = id::vector<typename ScalarFieldType::ScalarType, MyType::dimensionality()>;
 
 }; // struct VectorSpace
 

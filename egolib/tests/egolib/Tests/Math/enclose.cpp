@@ -21,40 +21,34 @@
 
 namespace ego { namespace math { namespace test {
 
-TEST(closure, sphere_3f_sphere_3f) {
+TEST(enclose, sphere_3f_sphere_3f) {
 	auto source = Sphere3f(Point3f(3.0f, 5.0f, 7.0f), 3.0f);
-	Ego::Math::Closure<Sphere3f, Sphere3f> closure;
-	auto target = closure(source);
+	auto target = id::enclose<Sphere3f>(source);
 }
 
-TEST(closure, aabb_3f_aabb_3f) {
+TEST(enclose, aabb_3f_aabb_3f) {
     auto source = AxisAlignedBox3f(Point3f(-1.0f, -2.0f, -3.0f), Point3f(+1.0f, +2.0f, +3.0f));
-    Ego::Math::Closure<AxisAlignedBox3f, AxisAlignedBox3f> closure;
-    auto target = closure(source);
+    auto target = id::enclose<AxisAlignedBox3f>(source);
 }
 
-TEST(closure, sphere_3f_aabb_3f) {
+TEST(enclose, sphere_3f_aabb_3f) {
     auto source = Sphere3f(Point3f(3.0f, 5.0f, 7.0f), 3.0f);
-    Ego::Math::Closure<AxisAlignedBox3f, Sphere3f> closure;
-    auto target = closure(source);
+    auto target = id::enclose<AxisAlignedBox3f>(source);
 }
 
-TEST(closure, axis_aligned_box_3f_sphere_3f) {
+TEST(enclose, axis_aligned_box_3f_sphere_3f) {
     auto source = AxisAlignedBox3f(Point3f(-1.0f, -2.0f, -3.0f), Point3f(+1.0f, +2.0f, 3.0f));
-    Ego::Math::Closure<Sphere3f, AxisAlignedBox3f> closure;
-    auto target = closure(source);
+    auto target = id::enclose<Sphere3f>(source);
 }
 
-TEST(closure, axis_aligned_cube_3f_axis_aligned_box_3f) {
+TEST(enclose, axis_aligned_cube_3f_axis_aligned_box_3f) {
     auto source = AxisAlignedCube3f(Point3f(-1.0f, -2.0f, -3.0f), 3.0f);
-    Ego::Math::Closure<AxisAlignedBox3f, AxisAlignedCube3f> closure;
-    auto target = closure(source);
+    auto target = id::enclose<AxisAlignedBox3f>(source);
 }
 
-TEST(closure, axis_aligned_box_3f_axis_aligned_cube_3f) {
+TEST(enclose, axis_aligned_box_3f_axis_aligned_cube_3f) {
     auto source = AxisAlignedBox3f(Point3f(-1.0f, -2.0f, -3.0f), Point3f(+1.0f, +2.0f, 3.0f));
-    Ego::Math::Closure<AxisAlignedCube3f, AxisAlignedBox3f> closure;
-    auto target = closure(source);
+    auto target = id::enclose<AxisAlignedCube3f>(source);
 }
 
 } } } // namespace ego::math::test

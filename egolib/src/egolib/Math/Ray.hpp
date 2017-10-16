@@ -24,7 +24,6 @@
 #pragma once
 
 #include "egolib/Math/EuclideanSpace.hpp"
-#include "idlib/math/one_zero.hpp"
 
 namespace Ego {
 namespace Math {
@@ -57,7 +56,7 @@ public:
      */
     Ray(const PointType& origin, const VectorType& direction)
         : origin(origin), direction(direction) {
-        auto length = this->direction.length();
+        auto length = id::euclidean_norm(this->direction);
         if (length == id::zero<ScalarType>()) {
             throw id::runtime_error(__FILE__, __LINE__, "direction vector is zero vector");
         }
@@ -113,3 +112,33 @@ public:
 
 } // namespace Math
 } // namespace Ego
+
+namespace id {
+
+/// @brief Specialization of id::enclose_functor.
+/// Encloses a ray in a ray.
+/// @detail The ray \f$b\f$ enclosing a ray \f$a\f$ is \f$a\f$ itself i.e. \f$b = a\f$.
+/// @tparam E the Euclidean space type of the geometries
+template <typename E>
+struct enclose_functor<Ego::Math::Ray<E>,
+	                   Ego::Math::Ray<E>>
+{
+	auto operator()(const Ego::Math::Ray<E>& source) const
+	{ return source; }
+}; // struct enclose_functor
+
+/// @brief Specialization of id::translate_functor.
+/// Translates a ray.
+/// @tparam E the Euclidean space type of the geometry
+template <typename E>
+struct translate_functor<Ego::Math::Ray<E>,
+                         typename E::VectorType>
+{
+	auto operator()(const Ego::Math::Ray<E>& x,
+		            const typename E::VectorType& t) const
+	{
+		return Ego::Math::Ray<E>(x.getOrigin() + t, x.getDirection());
+	}
+}; // struct translate_functor
+
+} // namespace id

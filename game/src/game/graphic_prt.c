@@ -264,7 +264,7 @@ gfx_rv ParticleGraphicsRenderer::render_one_prt_ref(const ParticleRef iprt)
     //Calculate the fadeoff factor depending on how high above the floor the particle is 
     float fadeoff = 255.0f - (pprt->enviro.floor_level - inst.ref_pos.z()); //255 - distance over ground
     fadeoff *= 0.5f;
-    fadeoff = Ego::Math::constrain(fadeoff*INV_FF<float>(), 0.0f, 1.0f);
+    fadeoff = Ego::Math::constrain(fadeoff*id::fraction<float, 1, 255>(), 0.0f, 1.0f);
 
     auto& renderer = Ego::Renderer::get();
     if (fadeoff > 0.0f)
@@ -502,8 +502,7 @@ void ParticleGraphicsRenderer::render_prt_bbox(const std::shared_ptr<Ego::Partic
         phys_expand_oct_bb(tmp_bb, particle->getVelocity(), 0, 1, exp_bb);
 
         // shift the source bounding boxes to be centered on the given positions
-        oct_bb_t loc_bb;
-        loc_bb = oct_bb_t::translate(exp_bb, particle->getPosition());
+        auto loc_bb = id::translate(exp_bb, particle->getPosition());
 
         Ego::Renderer::get().getTextureUnit().setActivated(nullptr);
         Ego::Renderer::get().setColour(Ego::Math::Colour4f::white());

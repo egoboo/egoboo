@@ -125,8 +125,7 @@ bool Passage::close()
 
 bool Passage::objectIsInPassage(const std::shared_ptr<Object> &object) const
 {
-    Ego::Math::Intersects<AxisAlignedBox2f, AxisAlignedBox2f> intersects;
-    return intersects(_area, object->getAxisAlignedBox2D());
+    return id::is_intersecting(_area, object->getAxisAlignedBox2D());
 }
 
 ObjectRef Passage::whoIsBlockingPassage( ObjectRef objRef, const IDSZ2& idsz, const BIT_FIELD targeting_bits, const IDSZ2& require_item ) const

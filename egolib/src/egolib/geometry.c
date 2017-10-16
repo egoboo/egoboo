@@ -109,13 +109,13 @@ bool two_plane_intersection(Vector3f& p, Vector3f& d, const Plane3f& p0, const P
     // Compute \f$\vec{d} = \hat{n}_0 \times \hat{n}_1\f$
     const Vector3f &n0 = p0.getNormal();
     const Vector3f &n1 = p1.getNormal();
-    d = n0.cross(n1);
+    d = cross(n0, n1);
     
     // If \f$\vec{v}\f$ is the zero vector, then the planes do not intersect.
-    if (d.isZero()) {
+    if (id::zero<Vector3f>() == d) {
         return false;
     }
-    d.normalize();
+    d = normalize(d).first;
     if (0.0f != d[kZ])
     {
         p[kX] = (n0[kY] * n1[kW] - n0[kW] * n1[kY]) / d[kZ];
@@ -183,7 +183,7 @@ Ego::Math::Relation sphere_intersects_sphere(const Sphere3f& lhs, const Sphere3f
     Vector3f vdiff = lhs.getCenter() - rhs.getCenter();
 
     // Get the distance squared.
-    float dist2 = vdiff.length_2();
+    float dist2 = id::squared_euclidean_norm(vdiff);
 
     if (rhs.getRadius() < lhs.getRadius())
     {
@@ -216,9 +216,9 @@ Ego::Math::Relation cone_intersects_point(const Cone3f& K, const Point3f& P)
     // Compute \$t = P - O\f$.
 	const auto t = P - K.getOrigin();
     // Compute \$\left|t\right|\cos\theta\f$.
-    const auto rhs = t.length() * std::cos(K.getAngle());
+    const auto rhs = id::euclidean_norm(t) * std::cos(K.getAngle());
     // Compute \f$\hat{d} \cdot \left(t\right)\f$.
-    const auto lhs = K.getAxis().dot(t);
+    const auto lhs = dot(K.getAxis(), t);
     if (lhs > rhs) {
         return Ego::Math::Relation::inside;
     } else if (lhs < rhs) {
@@ -244,8 +244,8 @@ bool sphere_intersects_cone(const Sphere3f& S, const Cone3f& K) {
 
     // Determine the relation of the center to the forward cone.
     t = S.getCenter() - origin_p;
-    rhs = t.length() * c;
-    lhs = direction_p.dot(t);
+    rhs = id::euclidean_norm(t) * c;
+    lhs = dot(direction_p, t);
     if (lhs < rhs) {
         // The center is outside the forward cone, the sphere is outside the cone.
         return false;
@@ -256,14 +256,14 @@ bool sphere_intersects_cone(const Sphere3f& S, const Cone3f& K) {
     auto direction_m = -K.getAxis();
     // Determine the relation of the center to the backward cone.
     t = S.getCenter() - origin_m;
-    rhs = t.length() * s; // \f$\cos\left(90-\theta\right) = \sin(\theta)\f$
-    lhs = direction_m.dot(t);
+    rhs = id::euclidean_norm(t) * s; // \f$\cos\left(90-\theta\right) = \sin(\theta)\f$
+    lhs = dot(direction_m, t);
     if (lhs < rhs) {
         // The sphere does not intersect the backward cone is inside (on) the cone
         // if and only if \f$\left|C - V\right| < r\f$ (\f$\left|C - V\right | = r\f$).
         t = S.getCenter() - K.getOrigin();
         // We use the squared length and the squared radius.
-        float l2 = t.length_2(), r2 = S.getRadius() * S.getRadius();
+        float l2 = id::squared_euclidean_norm(t), r2 = S.getRadius() * S.getRadius();
         return l2 <= r2;
     } else {
         // The sphere and the forward cone and the sphere and the backward cone intersect.

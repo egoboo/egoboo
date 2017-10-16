@@ -182,7 +182,7 @@ bool get_prt_mass( Ego::Particle * pprt, Object * pchr, float * wt )
             vdiff = pprt->getVelocity() - pchr->getVelocity();
 
             // the damage is basically like the kinetic energy of the particle
-            prt_vel2 = vdiff.dot(vdiff);
+            prt_vel2 = dot(vdiff, vdiff);
 
             // It can happen that a damage particle can hit something
             // at almost zero velocity, which would make for a huge "effective mass".
@@ -346,13 +346,13 @@ bool do_chr_prt_collision_get_details(chr_prt_collision_data_t& pdata, const flo
     bool handled = false;
 
     // shift the source bounding boxes to be centered on the given positions
-    cv_chr = oct_bb_t::translate(pdata.pchr->chr_min_cv, pdata.pchr->getPosition());
+    cv_chr = id::translate(pdata.pchr->chr_min_cv, pdata.pchr->getPosition());
 
     // the smallest particle collision volume
-    cv_prt_min = oct_bb_t::translate(pdata.pprt->prt_min_cv, pdata.pprt->getPosition());
+    cv_prt_min = id::translate(pdata.pprt->prt_min_cv, pdata.pprt->getPosition());
 
     // the largest particle collision volume (the hit-box)
-    cv_prt_max = oct_bb_t::translate(pdata.pprt->prt_max_cv, pdata.pprt->getPosition());
+    cv_prt_max = id::translate(pdata.pprt->prt_max_cv, pdata.pprt->getPosition());
 
     if ( tmin <= 0.0f || std::abs( tmin ) > 1e6 || std::abs( tmax ) > 1e6 )
     {
@@ -450,7 +450,7 @@ bool do_chr_prt_collision_deflect(chr_prt_collision_data_t& pdata)
 
     // find the "attack direction" of the particle
     Facing direction = Facing(FACING_T(vec_to_facing(pdata.pchr->getPosX() - pdata.pprt->getPosX(), pdata.pchr->getPosY() - pdata.pprt->getPosY())));
-    direction = pdata.pchr->ori.facing_z - Facing(direction) + Facing::ATK_BEHIND;
+    direction = pdata.pchr->ori.facing_z - Facing(direction) + ATK_BEHIND;
 
     // shield block?
     // if the effect is shield piercing, ignore shielding
@@ -690,7 +690,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t& pdata )
             IPair modifiedDamage = pdata.pprt->damage;
 
             FACING_T direction = FACING_T(vec_to_facing( pdata.pprt->getVelocity().x() , pdata.pprt->getVelocity().y() ));
-            direction = FACING_T(pdata.pchr->ori.facing_z - Facing(direction) + Facing::ATK_BEHIND);
+            direction = FACING_T(pdata.pchr->ori.facing_z - Facing(direction) + ATK_BEHIND);
 
             // These things only apply if the particle has an owner
             if ( nullptr != powner )
@@ -747,7 +747,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t& pdata )
                             GFX::get().getBillboardSystem().makeBillboard(pdata.pchr->getObjRef(), "Disintegrated!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::purple(), 6, Ego::Graphics::Billboard::Flags::All);
 
                             //Disintegrate effect
-                            ParticleHandler::get().spawnGlobalParticle(pdata.pchr->getPosition(), Facing::ATK_FRONT, LocalParticleProfileRef(PIP_DISINTEGRATE_START), 0);
+                            ParticleHandler::get().spawnGlobalParticle(pdata.pchr->getPosition(), ATK_FRONT, LocalParticleProfileRef(PIP_DISINTEGRATE_START), 0);
                         }
                     }
                 }
@@ -1001,7 +1001,7 @@ void do_chr_prt_collision_knockback(chr_prt_collision_data_t &pdata)
     **/
 
     //No knocback applicable?
-    if(pdata.pprt->getVelocity().length_abs() == 0.0f) {
+    if(id::manhattan_norm(pdata.pprt->getVelocity()) == 0.0f) {
         return;
     }
 
@@ -1082,7 +1082,7 @@ void do_chr_prt_collision_knockback(chr_prt_collision_data_t &pdata)
 
         // all other damage types are in the middle
         default:
-            knockbackFactor *= Ego::Math::invSqrtTwo<float>();
+            knockbackFactor *= id::inv_sqrt_two<float>();
         break;
     }
 
@@ -1096,7 +1096,7 @@ void do_chr_prt_collision_knockback(chr_prt_collision_data_t &pdata)
     //knockbackVelocity *= Ego::Math::constrain(knockbackFactor, 0.0f, 3.0f);
 
     //Limit total knockback velocity to MAX_KNOCKBACK_VELOCITY
-    const float magnitudeVelocity = knockbackVelocity.length();
+    const float magnitudeVelocity = id::euclidean_norm(knockbackVelocity);
     if(magnitudeVelocity > MAX_KNOCKBACK_VELOCITY) {
         knockbackVelocity *= MAX_KNOCKBACK_VELOCITY / magnitudeVelocity;
     }
@@ -1327,7 +1327,7 @@ int spawn_bump_particles(ObjectRef character, const ParticleRef particle)
 
     // Only damage if hitting from proper direction
     Facing direction = vec_to_facing(pprt->getVelocity().x(), pprt->getVelocity().y());
-    direction = Facing::ATK_BEHIND + pchr->ori.facing_z - direction;
+    direction = ATK_BEHIND + pchr->ori.facing_z - direction;
 
     // Check that direction
     if (ppip->hasBit(DAMFX_NBLOC) || !pchr->isInvictusDirection(direction))
@@ -1375,7 +1375,7 @@ int spawn_bump_particles(ObjectRef character, const ParticleRef particle)
 
                 // this could be done more easily with a quicksort....
                 // but I guess it doesn't happen all the time
-                float dist = (pprt->getPosition() - pchr->getPosition()).length_abs();
+                float dist = id::manhattan_norm(pprt->getPosition() - pchr->getPosition());
 
                 // clear the occupied list
                 float z = pprt->getPosZ() - pchr->getPosZ();

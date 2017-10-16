@@ -25,7 +25,6 @@
 
 
 #include "egolib/Math/EuclideanSpace.hpp"
-#include "egolib/Math/Functors/Translate.hpp"
 
 
 namespace Ego {
@@ -89,8 +88,8 @@ public:
      */
     Plane3(const ScalarType& a, const ScalarType& b, const ScalarType& c, const ScalarType& d)
         : _n(a, b, c), _d(d) {
-        auto l = _n.length();
-        if (ScalarFieldType::additiveNeutral() == l) {
+        auto l = id::euclidean_norm(_n);
+        if (id::zero<ScalarType>() == l) {
             throw std::domain_error("normal vector is zero vector");
         }
         auto il = 1.0f / l;
@@ -188,10 +187,12 @@ public:
      *  \f}
      */
     Plane3(const VectorType& p, const VectorType& n)
-        : _n(n), _d(0.0f) {
-        if (_n.normalize() == 0.0f) {
+        : _n(n), _d(id::zero<ScalarType>()) {
+		auto x = id::normalize(_n);
+        if (x.second == id::zero<ScalarType>()) {
             throw std::domain_error("normal vector is zero vector");
         }
+		_n = x.first;
         _d = -_n.dot(p);
     }
 
@@ -213,9 +214,11 @@ public:
      */
     Plane3(const VectorType& t, const ScalarType& d)
         : _n(t), _d(d) {
-        if (_n.normalize() == 0.0f) {
+		auto x = id::normalize(t, id::euclidean_norm_functor<VectorType>{});
+        if (x.second == id::zero<ScalarType>()) {
             throw std::domain_error("axis vector is zero vector");
         }
+		_n = x.first;
     }
 
 
@@ -297,7 +300,7 @@ public:
      *  \f}
      */
     ScalarType distance(const PointType& point) const {
-        return _n.dot(PointType::toVector(point)) + _d;
+        return dot(_n, id::semantic_cast<VectorType>(point)) + _d;
     }
 
 	/**
@@ -325,7 +328,7 @@ public:
 
 protected:
     struct Cookie {};
-    friend struct Translate<MyType>;
+    friend struct id::translate_functor<MyType, VectorType>;
     Plane3(Cookie cookie, const VectorType& n, const ScalarType& d)
         : _n(n), _d(d) {}
 
@@ -333,3 +336,62 @@ protected:
 
 } // namespace Math
 } // namespace Ego
+
+namespace id {
+
+/// @brief Specialization of id::enclose_functor enclosing a plane in a plane.
+/// @detail The plane \f$b\f$ enclosing a plane \f$a\f$ is \f$a\f$ itself i.e. \f$b = a\f$.
+/// @tparam E the Euclidean space type of the geometries
+template <typename E>
+struct enclose_functor<Ego::Math::Plane3<E, void>,
+	                   Ego::Math::Plane3<E, void>>
+{
+	auto operator()(const Ego::Math::Plane3<E, void>& source) const
+	{ return source; }
+}; // struct enclose_functor
+
+/// @brief Specialization of id::translate_functor.
+/// Translates a plane.
+/// @remark
+/// The first (slow) method to compute the translation of a plane \f$\hat{n} \cdot P + d = 0\f$
+/// is to compute a point on the plane, translate the point, and compute from the new point and
+/// and the old plane normal the new plane:
+/// To translate a plane \f$\hat{n} \cdot P + d = 0\f$, compute a point on the plane
+/// \f$X\f$ (i.e. a point \f$\hat{n} \cdot X + d = 0\f$) by
+/// \f{align*}{
+/// X = (-d) \cdot \hat{n}
+/// \f}
+/// Translate the point \f$X\f$ by \f$\vec{t}\f$ into a new point \f$X'\f$:
+/// \f{align*}{
+/// X' = X + \vec{t}
+/// \f}
+/// and compute the new plane
+/// \f{align*}{
+/// \hat{n} \cdot P + d' = 0, d' = -\left(\hat{n} \cdot X'\right)
+/// \f}
+/// @remark
+/// The above method is not the fastest method. Observing that the old and the new plane equation only
+/// differ by \f$d\f$ and \f$d'\f$, a faster method of translating a plane can be devised by computing
+/// \f$d'\f$ directly. Expanding \f$d'\f$ gives
+/// \f{align*}{
+/// d' =& -\left(\hat{n} \cdot X'\right)\\
+///    =& -\left[\hat{n} \cdot \left((-d) \cdot \hat{n} + \vec{t}\right)\right]\\
+///    =& -\left[(-d) \cdot \hat{n} \cdot \hat{n} + \hat{n} \cdot \vec{t}\right]\\
+///    =& -\left[-d + \hat{n} \cdot \vec{t}\right]\\
+///    =& d - \hat{n} \cdot \vec{t}
+/// \f}
+/// The new plane can then be computed by
+/// \f{align*}{
+/// \hat{n} \cdot P + d' = 0, d' = d - \hat{n} \cdot \vec{t}
+/// \f}
+/// @tparam E the Euclidean space of the geometry
+template <typename E>
+struct translate_functor<Ego::Math::Plane3<E, void>,
+	                     typename E::VectorType>
+{
+	auto operator()(const Ego::Math::Plane3<E, void>& x,
+		            const typename E::VectorType& t) const
+	{ return Ego::Math::Plane3<E, void>(x._n, x._d - dot_product(x._n, t)); }
+}; // struct translate_functor
+
+} // namespace id

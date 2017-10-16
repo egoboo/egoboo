@@ -5,10 +5,10 @@
 
 namespace ego { namespace math { namespace test {
 
-template <size_t Dimensionality, typename ScalarFieldType>
-Ego::Math::Vector<ScalarFieldType, Dimensionality> normalize(const Ego::Math::Vector<ScalarFieldType, Dimensionality>& v) {
-    float l = v.length();
-    if (!ScalarFieldType::isPositive(l)) {
+template <typename Scalar, size_t Dimensionality>
+id::vector<Scalar, Dimensionality> normalize(const id::vector<Scalar, Dimensionality>& v) {
+    auto l = id::euclidean_norm(v);
+    if (l < id::zero<Scalar>()) {
         throw id::runtime_error(__FILE__, __LINE__, "negative length");
     } else {
         return v * (1.0f / l);

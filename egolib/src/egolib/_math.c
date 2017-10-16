@@ -30,16 +30,16 @@
 
 // conversion functions
 
-const Facing Facing::ATK_FRONT = Facing(0x0000);
-const Facing Facing::ATK_RIGHT = Facing(0x4000);
-const Facing Facing::ATK_BEHIND = Facing(0x8000);
-const Facing Facing::ATK_LEFT = Facing(0xC000);
+const Facing ATK_FRONT = Facing(0x0000);
+const Facing ATK_RIGHT = Facing(0x4000);
+const Facing ATK_BEHIND = Facing(0x8000);
+const Facing ATK_LEFT = Facing(0xC000);
 
 /// pre defined directions
-const Facing Facing::FACE_WEST = Facing(0x0000); ///< Character facings
-const Facing Facing::FACE_NORTH = Facing(0x4000);
-const Facing Facing::FACE_EAST = Facing(0x8000);
-const Facing Facing::FACE_SOUTH = Facing(0xC000);
+const Facing FACE_WEST = Facing(0x0000); ///< Character facings
+const Facing FACE_NORTH = Facing(0x4000);
+const Facing FACE_EAST = Facing(0x8000);
+const Facing FACE_SOUTH = Facing(0xC000);
 
 
 // limiting functions
@@ -47,7 +47,7 @@ const Facing Facing::FACE_SOUTH = Facing(0xC000);
 
 // random functions
     int generate_irand_pair( const IPair num );
-    int generate_irand_range( const Ego::Math::Interval<float> num );
+    int generate_irand_range( const id::interval<float> num );
 
 // matrix functions
 
@@ -58,7 +58,7 @@ const Facing Facing::FACE_SOUTH = Facing(0xC000);
 
 Facing vec_to_facing( const float dx, const float dy )
 {
-    return Facing(FACING_T(RadianToFacing(Ego::Math::Radians(std::atan2(dy, dx) + Ego::Math::pi<float>()))));
+    return Facing(FACING_T(RadianToFacing(id::angle<float, id::radians>(std::atan2(dy, dx) + id::pi<float>()))));
 }
 
 //--------------------------------------------------------------------------------------------
@@ -142,7 +142,7 @@ int generate_irand_pair( const IPair num )
 }
 
 //--------------------------------------------------------------------------------------------
-int generate_irand_range( const Ego::Math::Interval<float> num )
+int generate_irand_range( const id::interval<float> num )
 {
     /// @author ZZ
     /// @details This function generates a random number

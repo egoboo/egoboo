@@ -68,9 +68,8 @@ public:
     **/
     bool insert(const std::shared_ptr<T> &element)
     {
-        Ego::Math::Intersects<AxisAlignedBox2f,AxisAlignedBox2f> intersects;
         //Element does not belong in this tree
-        if(!intersects(_bounds, element->getAxisAlignedBox2D())) {
+        if(!id::is_intersecting(_bounds, element->getAxisAlignedBox2D())) {
             return false;
         }
 
@@ -105,9 +104,8 @@ public:
     **/
     void find(const AxisAlignedBox2f &searchArea, std::vector<std::shared_ptr<T>> &result) const
     {
-        Ego::Math::Intersects<AxisAlignedBox2f, AxisAlignedBox2f> intersects;
         //Search grid is not part of our bounds
-        if(!intersects(_bounds, searchArea)) {
+        if(!id::is_intersecting(_bounds, searchArea)) {
             return;
         }
 
@@ -124,7 +122,7 @@ public:
                 }
 
                 //Check if element is within search area
-                if(intersects(element->getAxisAlignedBox2D(), searchArea)) {
+                if(id::is_intersecting(element->getAxisAlignedBox2D(), searchArea)) {
                     result.push_back(element);
                 }
             }

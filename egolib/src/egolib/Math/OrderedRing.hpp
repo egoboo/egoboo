@@ -98,111 +98,6 @@ struct OrderedRing<_ElementType, std::enable_if_t<IsInteger<_ElementType>::value
 	 */
     using IsCommutative = std::integral_constant<bool, true>;
 
-    /**
-     * @brief
-     *  The zero/neutral element of addition/additive neutral element.
-     * @return
-     *  the zero/neutral element of addition/additive neutral element
-     */
-    static inline constexpr ElementType additiveNeutral() {
-        return id::zero<ElementType>();
-    }
-
-    /**
-     * @brief
-     *  The multiplicative neutral element.
-     * @return
-     *  the multiplicative neutral element
-     */
-    static inline constexpr ElementType multiplicativeNeutral() {
-        return id::one<ElementType>();
-    }
-
-	/**
-	 * @brief Functor computing the sum of two elements.
-	 */
-    struct SumFunctor {
-        /**
-         * @brief The result type.
-         */
-        using ResultType = ElementType;
-        /**
-         * @brief Compute the sum of two elements.
-         * @param a the augend
-         * @param b the addend
-         * @return the sum <tt>a + b</tt>
-         */
-        ElementType operator()(const ElementType& a, const ElementType& b) const {
-            return a + b;
-        }
-    };
-
-	/**
-	 * @brief Functor computing the product of two elements.
-	 */
-    struct ProductFunctor {
-        /**
-         * @brief The result type.
-         */
-        using ResultType = ElementType;
-        /**
-         * @brief Compute the product of two elements.
-         * @param a the multiplier
-         * @param b the multiplicand
-         * @return the product <tt>a * b</tt>
-         */
-        ElementType operator()(const ElementType& a, const ElementType& b) const {
-            return a * b;
-        }
-    };
-
-	/**
-	 * @brief Functor computing the difference of two elements.
-	 */
-    struct DifferenceFunctor {
-        /**
-         * @brief The result type.
-         */
-        using ResultType = ElementType;
-        /**
-         * @brief Compute the difference of two elements.
-         * @param a the minuend
-         * @param b the subtrahend
-         * @return the difference <tt>a - b</tt>
-         */
-        ElementType operator()(const ElementType& a, const ElementType& b) const {
-            return a - b;
-        }
-    };
-
-    /// @brief Functor computing the unary minus of an element.
-    struct UnaryMinusFunctor
-    {
-        /// @brief The result type.
-        using ResultType = ElementType;
-        /// @brief Compute the additive inverse of an element.
-        /// @param a the element
-        /// @return the unary minus <tt>-a</tt> of the element
-        ElementType operator()(const ElementType& a) const
-        {
-            return -a;
-        }
-    };
-
-    /// @brief Functor computing the unary plus of an element.
-    struct UnaryPlusFunctor
-    {
-        /// @brief The result type.
-        using ResultType = ElementType;
-        /// @brief Compute the identity of an element.
-        /// @param a the element
-        /// @return the unary plus <tt>+a</tt> of the element
-        ElementType operator()(const ElementType& a) const
-        {
-            return +a;
-        }
-    };
-
 	/**
 	 * @brief
 	 *  "not equal to".
@@ -233,79 +128,6 @@ struct OrderedRing<_ElementType, std::enable_if_t<IsInteger<_ElementType>::value
             return acc && (a == b);
         }
     };
-
-
-	/**
-	 * @brief
-	 *  "lower than".
-	 * @param x, y
-	 *  the elements
-	 * @return
-	 *  @a true if <tt>x &lt; y</tt>, @a false otherwise
-	 */
-	static inline bool lowerThan(const ElementType& x, const ElementType& y) {
-		return x < y;
-	}
-
-	/**
-	 * @brief
-	 *  "lower than or equal to".
-	 * @param x, y
-	 *  the elements
-	 * @return
-	 *  @a true if <tt>x &le; y</tt>, @a false otherwise
-	 */
-	static inline bool lowerThanOrEqualTo(const ElementType& x, const ElementType& y) {
-		return x <= y;
-	}
-
-	/**
-	 * @brief
-	 *  "greater than".
-	 * @param x, y
-	 *  the elements
-	 * @return
-	 *  @a true if <tt>x &gt; y</tt>, @a false otherwise
-	 */
-	static inline bool greaterThan(const ElementType& x, const ElementType& y) {
-		return x > y;
-	}
-
-	/**
-	 * @brief
-	 *  "greater than or equal to".
-	 * @param x, y
-	 *  the elements
-	 * @return
-	 *  @a true if <tt>x &ge; y</tt>, @a false otherwise
-	 */
-	static inline bool greaterThanOrEqualTo(const ElementType& x, const ElementType& y) {
-		return x >= y;
-	}
-
-    /**
-     * @brief
-     *  "is negative"
-     * @param x
-     *  the scalar
-     * @return @a true if <tt>x &lt; 0</tt>,
-     *  @a false otherwise
-     */
-    static inline bool isNegative(const ElementType& x) {
-        return x < additiveNeutral();
-    }
-
-    /**
-     * @brief
-     *  "is positive"
-     * @param x
-     *  the scalar
-     * @return
-     *  @a true if <tt>x &gt; 0</tt>, @a false otherwise
-     */
-    static inline bool isPositive(const ElementType& x) {
-        return x > additiveNeutral();
-    }
 
 public:
     /**
@@ -339,7 +161,7 @@ public:
     */
     static inline std::enable_if_t<std::is_floating_point<ElementType>::value, bool>
         equalToTolerance(const ElementType& x, const ElementType& y, const ElementType& tolerance) {
-        return float_equalToTolerance(x, y, tolerance);
+        return float_equal_to_tolerance(x, y, tolerance);
     }
 
     /**

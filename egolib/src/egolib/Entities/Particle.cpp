@@ -52,7 +52,7 @@ prt_environment_t::prt_environment_t() :
     traction(0.0f),
     //
     inwater(false),
-    acc(Vector3f::zero())
+    acc(id::zero<Vector3f>())
 {}
 
 void prt_environment_t::reset()
@@ -100,8 +100,8 @@ void Particle::reset(ParticleRef ref)
     facing = Facing(0);
     team = 0;
 
-    vel_stt = Vector3f::zero();
-    offset = Vector3f::zero();
+    vel_stt = id::zero<Vector3f>();
+    offset = id::zero<Vector3f>();
 
     PhysicsData::reset(this);
 
@@ -239,7 +239,7 @@ void Particle::setSize(int setSize)
         {
             // just set the size, assuming a spherical particle
             bump_real.size = realSize;
-            bump_real.size_big = realSize * Ego::Math::sqrtTwo<float>();
+            bump_real.size_big = realSize * id::sqrt_two<float>();
             bump_real.height = realSize;
         }
         else
@@ -254,7 +254,7 @@ void Particle::setSize(int setSize)
 
         // make sure that the virtual bumper size is at least as big as what is in the pip file
         bump_padded.size     = std::max<float>(bump_real.size, getProfile()->bump_size);
-        bump_padded.size_big = std::max<float>(bump_real.size_big, getProfile()->bump_size * Ego::Math::sqrtTwo<float>());
+        bump_padded.size_big = std::max<float>(bump_real.size_big, getProfile()->bump_size * id::sqrt_two<float>());
         bump_padded.height   = std::max<float>(bump_real.height, getProfile()->bump_height);
     }
 
@@ -693,7 +693,7 @@ void Particle::updateAttachedDamage()
     }
 
     //---- do the damage
-    int actual_damage = attachedObject->damage(Facing::ATK_BEHIND, local_damage, static_cast<DamageType>(damagetype), team,
+    int actual_damage = attachedObject->damage(ATK_BEHIND, local_damage, static_cast<DamageType>(damagetype), team,
                                                _currentModule->getObjectHandler()[owner_ref], getProfile()->hasBit(DAMFX_ARMO),
                                                !getProfile()->hasBit(DAMFX_TIME), false);
 
@@ -704,7 +704,9 @@ void Particle::updateAttachedDamage()
         damage.base = std::max(0, damage.base);
 
         // properly scale the random amount
-        damage.rand = std::abs(getProfile()->damage.getUpperbound() - getProfile()->damage.getLowerbound()) * damage.base / getProfile()->damage.getLowerbound();
+		// @todo The interval class ensures o.length() is non-negative.
+		// However, what if o.lower() is zero?
+        damage.rand = getProfile()->damage.length() * damage.base / getProfile()->damage.lower();
     }
 }
 

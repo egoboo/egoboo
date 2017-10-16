@@ -22,70 +22,60 @@
 namespace ego { namespace math { namespace test {
 
 TEST(intersection, axis_aligned_box_3f_axis_aligned_box_3f) {
-    Ego::Math::Intersects<AxisAlignedBox3f, AxisAlignedBox3f> functor;
     auto x = AxisAlignedBox3f(Point3f(-1.0f, -1.0f, -1.0f), Point3f(+1.0f, +1.0f, +1.0f));
     auto y = Utilities::getOverlappingAxisAlignedBox3f(x);
-    ASSERT_TRUE(functor(x, y));
+    ASSERT_TRUE(id::is_intersecting(x, y));
     y = Utilities::getNonOverlappingAxisAlignedBox3f(x);
-    ASSERT_FALSE(functor(x, y));
+    ASSERT_FALSE(id::is_intersecting(x, y));
 }
 	
 TEST(intersection, axis_aligned_cube_3f_axis_aligned_cube_3f) {
-    Ego::Math::Intersects<AxisAlignedCube3f, AxisAlignedCube3f> functor;
     auto x = AxisAlignedCube3f(Point3f(0.0f, 0.0f, 0.0f), 2.0);
     auto y = Utilities::getOverlappingAxisAlignedCube3f(x);
-    ASSERT_TRUE(functor(x, y));
+    ASSERT_TRUE(id::is_intersecting(x, y));
     y = Utilities::getNonOverlappingAxisAlignedCube3f(x);
-    ASSERT_FALSE(functor(x, y));
+    ASSERT_FALSE(id::is_intersecting(x, y));
 }
 	
 TEST(intersection, sphere_3f_sphere_3f) {
-    Ego::Math::Intersects<Sphere3f, Sphere3f> functor;
     auto x = Sphere3f(Point3f(0.0f, 0.0f, 0.0f), 1.0f);
     auto y = Utilities::getOverlappingSphere3f(x);
-    ASSERT_TRUE(functor(x, y));
+    ASSERT_TRUE(id::is_intersecting(x, y));
     y = Utilities::getNonOverlappingSphere3f(x);
-    ASSERT_FALSE(functor(x, y));
+    ASSERT_FALSE(id::is_intersecting(x, y));
 }
 
 TEST(intersection, point_3f_point_3f) {
-    Ego::Math::Intersects<Point3f, Point3f> functor;
     auto x = Point3f(0.0f, 0.0f, 0.0f);
     auto y = Utilities::getOverlappingPoint3f(x);
-    ASSERT_TRUE(functor(x, y));
+    ASSERT_TRUE(id::is_intersecting(x, y));
     y = Utilities::getNonOverlappingPoint3f(x);
-    ASSERT_FALSE(functor(x, y));
+    ASSERT_FALSE(id::is_intersecting(x, y));
 }
 
 TEST(intersection, axis_aligned_box_3f_point_3f) {
-    Ego::Math::Intersects<AxisAlignedBox3f, Point3f> functor;
-    Ego::Math::Intersects<Point3f, AxisAlignedBox3f> functor0;
     auto x = AxisAlignedBox3f(Point3f(-1.0f, -1.0f, -1.0f), 
-                             Point3f(+1.0f, +1.0f, +1.0f));
+                              Point3f(+1.0f, +1.0f, +1.0f));
     auto y = Utilities::getOverlappingPoint3f(x);
-    ASSERT_TRUE(functor(x, y) && functor0(y, x));
+    ASSERT_TRUE(id::is_intersecting(x, y) && id::is_intersecting(y, x));
     y = Utilities::getNonOverlappingPoint3f(x);
-    ASSERT_TRUE(!functor(x, y) && !functor0(y, x));
+    ASSERT_TRUE(!id::is_intersecting(x, y) && !id::is_intersecting(y, x));
 }
 
 TEST(intersection, sphere_3f_point_3f) {
-    Ego::Math::Intersects<Sphere3f, Point3f> functor;
-    Ego::Math::Intersects<Point3f, Sphere3f> functor0;
     auto x = Sphere3f(Point3f(0.0f, 0.0f, 0.0f), 1.0f);
     auto y = Utilities::getOverlappingPoint3f(x);
-    ASSERT_TRUE(functor(x, y) && functor0(y, x));
+    ASSERT_TRUE(id::is_intersecting(x, y) && id::is_intersecting(y, x));
     y = Utilities::getNonOverlappingPoint3f(x);
-    ASSERT_TRUE(!functor(x, y) && !functor0(y, x));
+    ASSERT_TRUE(!id::is_intersecting(x, y) && !id::is_intersecting(y, x));
 }
 	
 TEST(intersection, axis_aligned_cube_3f_point_3f) {
-	Ego::Math::Intersects<AxisAlignedCube3f, Point3f> functor;
-	Ego::Math::Intersects<Point3f, AxisAlignedCube3f> functor0;
     auto x = AxisAlignedCube3f(Point3f(0.0f, 0.0f, 0.0f), 2.0);
     auto y = Utilities::getOverlappingPoint3f(x);
-    ASSERT_TRUE(functor(x, y) && functor0(y, x));
+    ASSERT_TRUE(id::is_intersecting(x, y) && id::is_intersecting(y, x));
     y = Utilities::getNonOverlappingPoint3f(x);
-    ASSERT_TRUE(!functor(x, y) && !functor0(y, x));	
+    ASSERT_TRUE(!id::is_intersecting(x, y) && !id::is_intersecting(y, x));
 }
 
 } } } // namespace ego::math::test

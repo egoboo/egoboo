@@ -341,9 +341,9 @@ void vfs_put_gender_profile( vfs_FILE* filewrite, const char* text, GenderProfil
 }
 
 //--------------------------------------------------------------------------------------------
-void vfs_put_range_raw(vfs_FILE* filewrite, Ego::Math::Interval<float> range) {
-    float lowerbound = range.getLowerbound(),
-        upperbound = range.getUpperbound();
+void vfs_put_range_raw(vfs_FILE* filewrite, id::interval<float> range) {
+    float lowerbound = range.lower(),
+        upperbound = range.upper();
     if (lowerbound == upperbound) {
         if (lowerbound == std::floor(lowerbound)) {
             vfs_printf(filewrite, "%d", (int)lowerbound);
@@ -365,7 +365,7 @@ void vfs_put_local_particle_profile_ref(vfs_FILE *filewrite, const char *text, c
 }
 
 //--------------------------------------------------------------------------------------------
-void vfs_put_range( vfs_FILE* filewrite, const char* text, Ego::Math::Interval<float> val )
+void vfs_put_range( vfs_FILE* filewrite, const char* text, id::interval<float> val )
 {
     /// @author ZZ
     /// @details This function mimics vfs_printf in spitting out
@@ -385,9 +385,9 @@ void vfs_put_pair( vfs_FILE* filewrite, const char* text, IPair val )
     /// @details This function mimics vfs_printf in spitting out
     ///    damage/stat pairs
 
-    Ego::Math::Interval<float> loc_range = pair_to_range(val);
+    id::interval<float> loc_range = pair_to_range(val);
     vfs_printf( filewrite, "%s", text );
-    vfs_printf( filewrite, "%4.2f-%4.2f\n", loc_range.getLowerbound(), loc_range.getUpperbound() );
+    vfs_printf( filewrite, "%4.2f-%4.2f\n", loc_range.lower(), loc_range.upper() );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -470,7 +470,7 @@ void vfs_put_expansion_string( vfs_FILE* filewrite, const char* text, const IDSZ
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-Ego::Math::Interval<float> vfs_get_range(ReadContext& ctxt)
+id::interval<float> vfs_get_range(ReadContext& ctxt)
 {
     // Read minimum.
     ctxt.skipWhiteSpaces();
@@ -487,11 +487,11 @@ Ego::Math::Interval<float> vfs_get_range(ReadContext& ctxt)
         to = ctxt.readRealLiteral();
     }
 
-    return Ego::Math::Interval<float>(std::min(from, to), std::max(from, to));
+    return id::interval<float>(std::min(from, to), std::max(from, to));
 }
 
 //--------------------------------------------------------------------------------------------
-Ego::Math::Interval<float> vfs_get_next_range(ReadContext& ctxt)
+id::interval<float> vfs_get_next_range(ReadContext& ctxt)
 {
     /// @author ZZ
     /// @details This function reads a damage/stat range ( eg. 5-9 )

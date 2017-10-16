@@ -111,8 +111,8 @@ void ObjectPhysics::setDesiredVelocity(const Vector2f &velocity)
     _desiredVelocity = velocity;
 
     //Constrain desired velocity between -1.0f and 1.0f
-    if (_desiredVelocity.length() > 1.0f) {
-        _desiredVelocity *= (1.0f / _desiredVelocity.length());
+    if (id::euclidean_norm(_desiredVelocity) > 1.0f) {
+        _desiredVelocity *= (1.0f / id::euclidean_norm(_desiredVelocity));
     }
 }
 
@@ -137,25 +137,25 @@ void ObjectPhysics::updateMovement()
     }
     else {
         //Immobile object
-        _desiredVelocity.setZero();
+        _desiredVelocity = id::zero<Vector2f>();
     }
 
     //Is there any movement going on?
     Vector2f velocitySetpoint;
-    if(_desiredVelocity.length_abs() > 0.05f) {
+    if(id::manhattan_norm(_desiredVelocity) > 0.05f) {
         const float maxSpeed = getMaxSpeed();
 
         //Scale [-1 , 1] to velocity of the object
         velocitySetpoint = _desiredVelocity * maxSpeed;
 
         //Limit to max velocity
-        if(velocitySetpoint.length() > maxSpeed) {
-            velocitySetpoint *= maxSpeed / velocitySetpoint.length();
+        if(id::euclidean_norm(velocitySetpoint) > maxSpeed) {
+            velocitySetpoint *= maxSpeed / id::euclidean_norm(velocitySetpoint);
         }
     }
     else {
         //Try to stand still
-        velocitySetpoint.setZero();
+		velocitySetpoint = id::zero<Vector2f>();
     }
 
     //Determine acceleration/deceleration
@@ -288,8 +288,8 @@ void ObjectPhysics::updatePhysics()
     updateMeshCollision();
 
     //Cutoff for low velocities to make them truly stop
-    if(_object.getVelocity().length_abs() < 0.05f) {
-        _object.setVelocity(Vector3f::zero());
+    if(id::manhattan_norm(_object.getVelocity()) < 0.05f) {
+        _object.setVelocity(id::zero<Vector3f>());
     }
 
     //Recalculate the altitude of the ground beneath our feet
@@ -402,7 +402,7 @@ void ObjectPhysics::updateFacing()
         default:
         case TURNMODE_VELOCITY:
             {
-                if (_desiredVelocity.length_abs() > TURNSPD)
+                if (id::manhattan_norm(_desiredVelocity) > TURNSPD)
                 {
                     //Every Agility increases turn speed by 2%
                     const float turnSpeed = std::max(2.0f, 8.0f * (1.0f - _object.getAttribute(Ego::Attribute::AGILITY) / 50.0f)); //turn delay is 8.0f -2% per Agility
@@ -414,7 +414,7 @@ void ObjectPhysics::updateFacing()
         // Get direction from the DESIRED change in velocity
         case TURNMODE_WATCH:
             {
-                if (_desiredVelocity.length_abs() > WATCHMIN )
+                if (id::manhattan_norm(_desiredVelocity) > WATCHMIN )
                 {
                     _object.ori.facing_z = Facing(FACING_T(rotate(_object.ori.facing_z, vec_to_facing(_desiredVelocity.x(), _desiredVelocity.y()), 8.0f)));
                 }
@@ -454,7 +454,7 @@ void ObjectPhysics::detachFromPlatform()
     _object.onwhichplatform_update = 0;
     _object.targetplatform_ref     = ObjectRef::Invalid;
     _object.targetplatform_level   = -1e32;
-    _platformOffset = Vector2f::zero();
+    _platformOffset = id::zero<Vector2f>();
 }
 
 bool ObjectPhysics::attachToPlatform(const std::shared_ptr<Object> &platform)
@@ -598,15 +598,15 @@ void ObjectPhysics::updateMeshCollision()
 
                 //Bounce velocity of normal
                 Vector2f velocity = Vector2f(_object.getVelocity().x(), _object.getVelocity().y());
-                velocity.x() -= 2.0f * (nrm.dot(velocity) * nrm.x());
-                velocity.y() -= 2.0f * (nrm.dot(velocity) * nrm.y());
+                velocity.x() -= 2.0f * (dot(nrm, velocity) * nrm.x());
+                velocity.y() -= 2.0f * (dot(nrm, velocity) * nrm.y());
 
                 _object.setVelocity({_object.getVelocity().x() * bumpdampen + velocity.x()*(1.0f - bumpdampen),
                                      _object.getVelocity().y() * bumpdampen + velocity.y()*(1.0f - bumpdampen),
                                      _object.getVelocity().z()});
 
                 //Add additional pressure perpendicular from wall depending on how far inside wall we are
-                float displacement = Vector2f(_object.getSafePosition().x()-tmp_pos.x(), _object.getSafePosition().y()-tmp_pos.y()).length();
+                float displacement = id::euclidean_norm(xy(_object.getSafePosition()) - xy(tmp_pos));
                 if(displacement > MAX_DISPLACEMENT_XY) {
                     displacement = MAX_DISPLACEMENT_XY;
                 }
@@ -710,7 +710,7 @@ bool ObjectPhysics::grabStuff(grip_offset_t grip_off, bool grab_people)
         if (pchr_c->isItem() && !pchr_c->isAlive()) continue;
 
         // reasonable carrying capacity
-        if (pchr_c->phys.weight > _object.phys.weight + FLOAT_TO_FP8(_object.getAttribute(Ego::Attribute::MIGHT)) * INV_FF<float>()) {
+        if (pchr_c->phys.weight > _object.phys.weight + FLOAT_TO_FP8(_object.getAttribute(Ego::Attribute::MIGHT)) * id::fraction<float, 1, 255>()) {
             continue;
         }
 
@@ -721,8 +721,8 @@ bool ObjectPhysics::grabStuff(grip_offset_t grip_off, bool grab_people)
         }
 
         // calculate the distance
-        const float horizontalDistance = (pchr_c->getPosition() - slot_pos).length();
-        const float verticalDistance = std::sqrt(Ego::Math::sq(_object.getPosZ() - pchr_c->getPosZ()));
+        const float horizontalDistance = id::euclidean_norm(pchr_c->getPosition() - slot_pos);
+        const float verticalDistance = std::sqrt(id::sq(_object.getPosZ() - pchr_c->getPosZ()));
  
         //Figure out if the character is looking towards the object
         const bool isFacingObject = _object.isFacingLocation(pchr_c->getPosX(), pchr_c->getPosY());

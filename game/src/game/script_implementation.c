@@ -183,7 +183,7 @@ bool AddWaypoint( waypoint_list_t& wplst, ObjectRef ichr, float pos_x, float pos
                          plst->head,
                          loc_pos.x / GRID_FSIZE, loc_pos.y / GRID_FSIZE,
                          nrm.x, nrm.y,
-                         SQRT( pressure ) / GRID_FSIZE );
+                         id::sqrt(pressure) / GRID_FSIZE );
         }
     }
 #else
@@ -493,7 +493,7 @@ ObjectRef FindWeapon( Object * pchr, float max_distance, const IDSZ2& weap_idsz,
 
     // set up the target
     best_target = ObjectRef::Invalid;
-    best_dist   = SQR( max_distance );
+    best_dist   = id::sq(max_distance);
 
     //setup line of sight data
     los.x0 = pchr->getPosX();
@@ -524,7 +524,7 @@ ObjectRef FindWeapon( Object * pchr, float max_distance, const IDSZ2& weap_idsz,
 
         //check distance
 		Vector3f diff = pchr->getPosition() - pweapon->getPosition();
-        float dist = diff.length_2();
+        float dist = id::squared_euclidean_norm(diff);
         if ( dist < best_dist )
         {
             //finally, check line of sight. we only care for weapons we can see

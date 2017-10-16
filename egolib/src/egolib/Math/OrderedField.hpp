@@ -41,29 +41,6 @@ struct OrderedField<_ScalarType, std::enable_if_t<IsScalar<_ScalarType>::value>>
 	 *  The scalar type must be a floating point type.
 	 */
 	static_assert(IsScalar<_ScalarType>::value, "_ScalarType must fulfil the scalar concept");
-    
-public:
-   
-    /** 
-     * @brief
-     *  "division"
-     * @param x
-     *  the divident
-     * @param y
-     *  the divisor
-     * @return
-     *  the quotient <tt>x / y</tt>
-     */
-    static inline ScalarType quotient(const ScalarType& x, const ScalarType& y) {
-        return x / y;
-    }
-    struct QuotientFunctor {
-        using ResultType = ScalarType;
-        ScalarType operator()(const ScalarType& a, const ScalarType& b) const {
-            return quotient(a, b);
-        }
-    };
- 
 };
 
 } // namespace Math

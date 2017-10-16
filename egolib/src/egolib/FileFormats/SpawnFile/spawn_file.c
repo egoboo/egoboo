@@ -42,7 +42,7 @@ spawn_file_info_t::spawn_file_info_t() :
     skin(0),
     stat(false),
     team(Team::TEAM_NULL),
-    facing(Facing::FACE_NORTH),
+    facing(FACE_NORTH),
     attach(ATTACH_NONE)
 {
     //ctor

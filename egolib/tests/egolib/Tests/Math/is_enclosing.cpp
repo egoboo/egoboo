@@ -21,49 +21,44 @@
 
 namespace ego { namespace math { namespace test {
 
-TEST(containment, axis_aligned_box_3f_axis_aligned_box_3f) {
-    Ego::Math::Contains<AxisAlignedBox3f, AxisAlignedBox3f> functor;
+TEST(is_enclosing, axis_aligned_box_3f_axis_aligned_box_3f) {
     auto x = AxisAlignedBox3f(Point3f(-1.0f, -1.0f, -1.0f), Point3f(+1.0f, +1.0f, +1.0f));
     auto y = Utilities::getContainedAxisAlignedBox3f(x);
-    ASSERT_TRUE(functor(x, y));
+    ASSERT_TRUE(id::is_enclosing(x, y));
     y = Utilities::getNonContainedAxisAlignedBox3f(x);
-    ASSERT_TRUE(!functor(x, y));
+    ASSERT_TRUE(!id::is_enclosing(x, y));
 }
 
-TEST(containment, axis_aligned_box_3f_point_3f) {
-    Ego::Math::Contains<AxisAlignedBox3f, Point3f> functor;
+TEST(is_enclosing, axis_aligned_box_3f_point_3f) {
     auto x = AxisAlignedBox3f(Point3f(-1.0f, -1.0f, -1.0f), Point3f(+1.0f, +1.0f, +1.0f));
     auto y = Utilities::getContainedPoint3f(x);
-    ASSERT_TRUE(functor(x, y));
+    ASSERT_TRUE(id::is_enclosing(x, y));
     y = Utilities::getNonContainedPoint3f(x);
-    ASSERT_TRUE(!functor(x, y));
+    ASSERT_TRUE(!id::is_enclosing(x, y));
 }
 
-TEST(containment, sphere_3f_point_3f) {
-    Ego::Math::Contains<Sphere3f, Point3f> functor;
+TEST(is_enclosing, sphere_3f_point_3f) {
     auto x = Sphere3f(Point3f(0.0f, 0.0f, 0.0f), 1.0f);
     auto y = Utilities::getContainedPoint3f(x);
-    ASSERT_TRUE(functor(x, y));
+    ASSERT_TRUE(id::is_enclosing(x, y));
     y = Utilities::getNonContainedPoint3f(x);
-    ASSERT_TRUE(!functor(x, y));
+    ASSERT_TRUE(!id::is_enclosing(x, y));
 }
 
-TEST(containment, sphere_3f_sphere_3f) {
-    Ego::Math::Contains<Sphere3f, Sphere3f> functor;
+TEST(is_enclosing, sphere_3f_sphere_3f) {
     auto x = Sphere3f(Point3f(0.0f, 0.0f, 0.0f), 1.0f);
     auto y = Utilities::getContainedSphere3f(x);
-    ASSERT_TRUE(functor(x, y));
+    ASSERT_TRUE(id::is_enclosing(x, y));
     y = Utilities::getNonContainedSphere3f(x);
-    ASSERT_TRUE(!functor(x, y));
+    ASSERT_TRUE(!id::is_enclosing(x, y));
 }
 
-TEST(containment, point_3f_point_3f) {
-    Ego::Math::Contains<Point3f, Point3f> functor;
+TEST(is_enclosing, point_3f_point_3f) {
     auto x = Point3f(0.0f, 0.0f, 0.0f);
     auto y = Utilities::getContainedPoint3f(x);
-    ASSERT_TRUE(functor(x, y));
+    ASSERT_TRUE(id::is_enclosing(x, y));
     y = Utilities::getNonContainedPoint3f(x);
-    ASSERT_TRUE(!functor(x, y));
+    ASSERT_TRUE(!id::is_enclosing(x, y));
 }
 
 } } } // namespace ego::math::test

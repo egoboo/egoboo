@@ -743,7 +743,7 @@ void GameModule::updatePits()
                 }
                 else {
                     // Stop movement
-                    pchr->setVelocity(Vector3f::zero());
+                    pchr->setVelocity(id::zero<Vector3f>());
 
                     // Play sound effect
                     if (pchr->isPlayer()) {
@@ -754,7 +754,7 @@ void GameModule::updatePits()
                     }
 
                     // Do some damage (same as damage tile)
-                    pchr->damage(Facing::ATK_BEHIND, _damageTile.amount, static_cast<DamageType>(_damageTile.damagetype), Team::TEAM_DAMAGE, 
+                    pchr->damage(ATK_BEHIND, _damageTile.amount, static_cast<DamageType>(_damageTile.damagetype), Team::TEAM_DAMAGE, 
                                  _gameObjects[pchr->ai.getBumped()], true, false, false);
                 }
             }
@@ -813,14 +813,14 @@ void GameModule::updateDamageTiles()
 
         if (0 == pchr->damage_timer)
         {
-            int actual_damage = pchr->damage(Facing::ATK_BEHIND, _damageTile.amount,
+            int actual_damage = pchr->damage(ATK_BEHIND, _damageTile.amount,
                                              static_cast<DamageType>(_damageTile.damagetype), 
                                              Team::TEAM_DAMAGE, nullptr, true, false, false);
 
             pchr->damage_timer = DAMAGETILETIME;
 
             if ((actual_damage > 0) && (LocalParticleProfileRef::Invalid != _damageTile.part_gpip) && 0 == (update_wld & _damageTile.partand)) {
-                ParticleHandler::get().spawnGlobalParticle( pchr->getPosition(), Facing::ATK_FRONT, _damageTile.part_gpip, 0 );
+                ParticleHandler::get().spawnGlobalParticle( pchr->getPosition(), ATK_FRONT, _damageTile.part_gpip, 0 );
             }
         }
     }

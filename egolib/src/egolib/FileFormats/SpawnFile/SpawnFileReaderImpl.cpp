@@ -68,16 +68,16 @@ bool SpawnFileReaderImpl::read(ReadContext& ctxt, spawn_file_info_t& info)
         info.pos[kY] = ctxt.readRealLiteral() * Info<float>::Grid::Size();
         info.pos[kZ] = ctxt.readRealLiteral() * Info<float>::Grid::Size();
 
-        info.facing = Facing::FACE_NORTH;
+        info.facing = FACE_NORTH;
         info.attach = ATTACH_NONE;
         char chr = ctxt.readPrintable();
         switch (id::to_upper(chr))
         {
-            case 'S': info.facing = Facing::FACE_SOUTH;       break;
-            case 'E': info.facing = Facing::FACE_EAST;        break;
-            case 'W': info.facing = Facing::FACE_WEST;        break;
-            case 'N': info.facing = Facing::FACE_NORTH;       break;
-            case '?': info.facing = Facing(FACE_RANDOM);      break;
+            case 'S': info.facing = FACE_SOUTH;       break;
+            case 'E': info.facing = FACE_EAST;        break;
+            case 'W': info.facing = FACE_WEST;        break;
+            case 'N': info.facing = FACE_NORTH;       break;
+			case '?': info.facing = Facing::random(); break;
             case 'L': info.attach = ATTACH_LEFT;      break;
             case 'R': info.attach = ATTACH_RIGHT;     break;
             case 'I': info.attach = ATTACH_INVENTORY; break;

@@ -23,8 +23,6 @@
 
 #pragma once
 
-#include "egolib/Math/Point.hpp"
-#include "egolib/Math/Vector.hpp"
 #include "egolib/Math/OrderedField.hpp"
 #include "egolib/Math/VectorSpace.hpp"
 
@@ -89,7 +87,7 @@ public:
      * @brief
      *  The type of a point.
      */
-    using PointType = Point<VectorSpaceType>;
+    using PointType = id::point<typename VectorSpaceType::VectorType>;
 
 }; // struct EuclideanSpace
 

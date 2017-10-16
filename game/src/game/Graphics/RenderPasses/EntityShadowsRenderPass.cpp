@@ -71,7 +71,7 @@ void EntityShadowsRenderPass::doLowQualityShadow(const ObjectRef character)
     }
 
     // No shadow if completely transparent or completely glowing.
-    float alpha = (255 == pchr->inst.light) ? pchr->inst.alpha  * INV_FF<float>() : (pchr->inst.alpha - pchr->inst.light) * INV_FF<float>();
+    float alpha = (255 == pchr->inst.light) ? pchr->inst.alpha  * id::fraction<float, 1, 255>() : (pchr->inst.alpha - pchr->inst.light) * id::fraction<float, 1, 255>();
 
     /// @test ZF@> previous test didn't work, but this one does
     //if ( alpha * 255 < 1 ) return;
@@ -83,7 +83,7 @@ void EntityShadowsRenderPass::doLowQualityShadow(const ObjectRef character)
     {
         alpha *= 0.1f;
     }
-    if (alpha < INV_FF<float>()) return;
+    if (alpha < id::fraction<float, 1, 255>()) return;
 
     // Original points
     float level = pchr->getObjectPhysics().getGroundElevation() + SHADOWRAISE;
@@ -93,7 +93,7 @@ void EntityShadowsRenderPass::doLowQualityShadow(const ObjectRef character)
 
     // how much transparency from height
     alpha *= height_factor * 0.5f + 0.25f;
-    if (alpha < INV_FF<float>()) return;
+    if (alpha < id::fraction<float, 1, 255>()) return;
 
     float x = pchr->inst.getMatrix()(0, 3); ///< @todo MH: This should be the x/y position of the model.
     float y = pchr->inst.getMatrix()(1, 3); ///<           Use a more self-descriptive method to describe this.
@@ -153,7 +153,7 @@ void EntityShadowsRenderPass::doHighQualityShadow(const ObjectRef character)
     if (pchr->isHidden() || 0 == pchr->shadow_size) return;
 
     // no shadow if completely transparent
-    float alpha = (255 == pchr->inst.light) ? pchr->inst.alpha  * INV_FF<float>() : (pchr->inst.alpha - pchr->inst.light) * INV_FF<float>();
+    float alpha = (255 == pchr->inst.light) ? pchr->inst.alpha  * id::fraction<float, 1, 255>() : (pchr->inst.alpha - pchr->inst.light) * id::fraction<float, 1, 255>();
 
     /// @test ZF@> The previous test didn't work, but this one does
     //if ( alpha * 255 < 1 ) return;
@@ -165,7 +165,7 @@ void EntityShadowsRenderPass::doHighQualityShadow(const ObjectRef character)
     {
         alpha *= 0.1f;
     }
-    if (alpha < INV_FF<float>()) return;
+    if (alpha < id::fraction<float, 1, 255>()) return;
 
     // Original points
     float level = pchr->getObjectPhysics().getGroundElevation() + SHADOWRAISE;

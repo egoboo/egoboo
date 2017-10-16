@@ -64,7 +64,7 @@ void Container::drawAll(DrawingContext& drawingContext) {
 bool Container::notifyMouseMoved(const Events::MouseMovedEventArgs& e) {
     // Iterate over GUI components in reverse order so GUI components added last (i.e on top) consume events first.
     auto it = iterator();
-    auto newEventArgs = Events::MouseMovedEventArgs(e.position() - Point2f::toVector(getPosition()));
+    auto newEventArgs = Events::MouseMovedEventArgs(e.position() - id::semantic_cast<Vector2f>(getPosition()));
     for (auto i = it.rbegin(); i != it.rend(); ++i) {
         std::shared_ptr<Component> component = *i;
         if (!component->isEnabled()) continue;
@@ -87,7 +87,7 @@ bool Container::notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEventAr
 
 bool Container::notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs& e) {
     // Iterate over GUI components in reverse order so GUI components added last (i.e on top) consume events first
-    auto newEventArgs = Events::MouseButtonPressedEventArgs(e.position() - Point2f::toVector(getPosition()), e.getButton());
+    auto newEventArgs = Events::MouseButtonPressedEventArgs(e.position() - id::semantic_cast<Vector2f>(getPosition()), e.getButton());
     auto it = iterator();
     for (auto i = it.rbegin(); i != it.rend(); ++i) {
         std::shared_ptr<Component> component = *i;
@@ -100,7 +100,7 @@ bool Container::notifyMouseButtonPressed(const Events::MouseButtonPressedEventAr
 bool Container::notifyMouseButtonReleased(const Events::MouseButtonReleasedEventArgs& e) {
     // Iterate over GUI components in reverse order so GUI components added last (i.e on top) consume events first.
     auto it = iterator();
-    auto newEventArgs = Events::MouseButtonReleasedEventArgs(e.position() - Point2f::toVector(getPosition()), e.getButton());
+    auto newEventArgs = Events::MouseButtonReleasedEventArgs(e.position() - id::semantic_cast<Vector2f>(getPosition()), e.getButton());
     for (auto i = it.rbegin(); i != it.rend(); ++i) {
         std::shared_ptr<Component> component = *i;
         if (!component->isEnabled()) continue;

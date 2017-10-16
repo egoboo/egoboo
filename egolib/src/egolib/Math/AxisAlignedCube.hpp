@@ -25,7 +25,6 @@
 
 
 #include "egolib/Math/EuclideanSpace.hpp"
-#include "egolib/Math/Functors/Translate.hpp"
 
 
 namespace Ego {
@@ -130,8 +129,8 @@ public:
     *  the minimum of this axis aligned cube
     */
     PointType getMin() const {
-        using MyGenerator = ConstantGenerator<ScalarType>;
-        return _center - VectorType(MyGenerator(_size/2.0f), std::make_index_sequence<VectorSpaceType::dimensionality()>{});
+        /// @todo Remove hard-coded constant.
+        return _center - id::one<VectorType>() * (_size / 2.0f);
     }
 
     /**
@@ -141,8 +140,8 @@ public:
      *  the maximum of this axis aligned cube
      */
     PointType getMax() const {
-        using MyGenerator = ConstantGenerator<ScalarType>;
-        return _center + VectorType(MyGenerator(_size/2.0f), std::make_index_sequence<VectorSpaceType::dimensionality()>{});
+		/// @todo Remove hard-coded constant.
+		return _center + id::one<VectorType>() * (_size / 2.0f);
     }
 
     /**
@@ -186,3 +185,157 @@ public:
 
 } // namespace Math
 } // namespace Ego
+
+namespace id {
+
+/// @brief Specialization of id::enclose_functor enclosing an axis aligned cube in an axis aligned cube.
+/// @detail The axis aligned cube \f$b\f$ enclosing an axis aligned cube \f$a\f$ is \f$a\f$ itself i.e. \f$b = a\f$.
+/// @tparam E the Euclidean space type of the geometries
+template <typename E>
+struct enclose_functor<Ego::Math::AxisAlignedCube<E>,
+	                   Ego::Math::AxisAlignedCube<E>>
+{
+	auto operator()(const Ego::Math::AxisAlignedCube<E>& source) const
+	{ return source; }
+}; // struct enclose_functor
+
+/// @brief Specialization of id::is_enclosing_functor.
+/// Determines if an axis aligned cube encloses a point.
+/// @remark An axis aligned cube \$A\f$ does <em>not</em> enclose a point \f$P\f$
+/// if for at least one axis \$k\f$ at least one of the following conditions is true:
+/// - \f$P_k > A_{max_k}\f$
+/// - \f$P_k < A_{min_k}\f$
+/// Otherwise \f$A\f$ contains \f$P\f$.
+/// This is a variant of the Separating Axis Theorem (aka SAT).
+/// @tparam E the Euclidean space type of the geometries
+template <typename E>
+struct is_enclosing_functor<Ego::Math::AxisAlignedCube<E>,
+	                        typename E::PointType>
+{
+	bool operator()(const Ego::Math::AxisAlignedCube<E>& a,
+		            const typename E::PointType& b) const
+	{
+		for (size_t i = 0; i < E::Dimensionality; ++i)
+		{
+			if (a.getMax()[i] < b[i]) return false;
+			// - the minimum of a is greater than the minimum of b.
+			if (a.getMin()[i] > b[i]) return false;
+		}
+		return true;
+	}
+}; // struct is_enclosing_functor
+
+/// @brief Specialization of id::is_enclosing_functor.
+/// Determines if an axis aligned cube encloses another axis aligned cube.
+/// @remark An axis aligned cube \f$A\f$ does <em>not</em> enclose an axis aligned cube \f$B\f$
+/// if for at least one axis \$k\f$ at least one of the following conditions is true:
+/// - \f$A_{min_k} > B_{min_k}\f$
+/// - \f$A_{max_k} < B_{max_k}\f$
+/// Otherwise \f$x\f$ contains \f$y\f$.
+/// This is a variant of the Separating Axis Theorem (aka SAT).
+/// @tparam E the Euclidean space type of the geometries
+template <typename E>
+struct is_enclosing_functor<Ego::Math::AxisAlignedCube<E>,
+	                        Ego::Math::AxisAlignedCube<E>>
+{
+	bool operator()(const Ego::Math::AxisAlignedCube<E>& a,
+		            const Ego::Math::AxisAlignedCube<E>& b) const
+	{
+		for (size_t i = 0; i < E::Dimensionality; ++i)
+		{
+			// If a is the cube that is supposed to contain the
+			// cube b, then a does not contain b if along some axis
+			// - the maximum of a is smaller than the maximum of b, or
+			if (a.getMax()[i] < b.getMax()[i]) return false;
+			// - the minimum of a is greater than the minimum of b.
+			if (a.getMin()[i] > b.getMin()[i]) return false;
+		}
+		return true;
+	}
+}; // struct is_enclosing_functor
+
+/// @brief Specialization of id::translate_functor.
+/// Translates an axis aligned cube.
+/// @tparam E the Euclidean space type of the geometry
+template <typename E>
+struct translate_functor<Ego::Math::AxisAlignedCube<E>,
+	                     typename E::VectorType>
+{
+	auto operator()(const Ego::Math::AxisAlignedCube<E>& x,
+		            const typename E::VectorType& t) const
+	{
+		return Ego::Math::AxisAlignedCube<E>(x.getCenter() + t, x.getSize());
+	}
+}; // struct translate_functor
+
+/// @brief Specialization of id::is_intersecting_functor.
+/// Determines if two axis aligned cubes intersect.
+/// @remark Two axis aligned cubes \f$A\f$ and \f$B\f$ do <em>not</em> intersect
+/// if for at least one axis \f$k\f$ at least one of the following conditions is true:
+/// - \f$A_{min_k} > B_{max_k}\f$
+/// - \f$A_{max_k} < B_{min_k}\f$
+/// Otherwise \f$A\f$ and \f$B\f$ intersect.
+/// This is a variant of the Separating Axis Theorem (aka SAT).
+template <typename E>
+struct is_intersecting_functor<Ego::Math::AxisAlignedCube<E>,
+	                           Ego::Math::AxisAlignedCube<E>>
+{
+	bool operator()(const Ego::Math::AxisAlignedCube<E>& a,
+		            const Ego::Math::AxisAlignedCube<E>& b) const
+	{
+		for (size_t i = 0; i < E::dimensionality(); ++i)
+		{
+			// If the minimum of a is greater than the maximum of b along one axis,
+			// then they can not intersect.
+			if (a.getMin()[i] > b.getMax()[i])
+			{
+				return false;
+			}
+			// If the maximum of a is smaller than the minimum of b along one axis,
+			// then they can not intersect.
+			if (a.getMax()[i] < b.getMin()[i])
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+}; // struct is_intersecting_functor
+
+/// @brief Specialization of id::is_intersecting_functor.
+/// Determines if an axis aligned cube and a point intersect.
+/// @remark A point \f$P\f$ and an axis aligned cube \f$A\f$ do <em>not</em> intersect
+/// if for at least one axis \f$k\f$ at least one of the following conditions is true:
+/// - \f$P_k > A_{max_k}\f$
+/// - \f$P_k < A_{min_k}\f$
+/// Otherwise \f$P\f$ and \f$A\f$ intersect.
+template <typename E>
+struct is_intersecting_functor<Ego::Math::AxisAlignedCube<E>,
+	                           typename E::PointType>
+{
+	bool operator()(const Ego::Math::AxisAlignedCube<E>& a,
+		            const typename E::PointType& b) const
+	{
+		for (size_t i = 0; i < E::dimensionality(); ++i)
+		{
+			if (a.getMax()[i] < b[i]) return false;
+			if (a.getMin()[i] > b[i]) return false;
+		}
+		return true;
+	}
+}; // struct is_intersecting_functor
+
+/// @brief Specialization of id::is_intersecting_functor.
+/// Determines if a point and an axis aligned cube intersect.
+/// @remark The method for determinating if an axis aligned cube and a point intersect is
+/// commutative. By swapping the arguments that method can be reused to determine if a
+/// point and an axis aligned box intersect.
+template <typename E>
+struct is_intersecting_functor<typename E::PointType,
+	                           Ego::Math::AxisAlignedCube<E>>
+{
+	bool operator()(const typename E::PointType& a, const Ego::Math::AxisAlignedCube<E>& b) const
+	{ return is_intersecting(b, a); }
+}; // struct is_intersecting_functor
+
+} // namespace id

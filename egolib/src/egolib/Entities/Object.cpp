@@ -185,7 +185,7 @@ Object::Object(ObjectProfileRef proRef, ObjectRef objRef) :
 
     //Initialize primary attributes
     for(size_t i = 0; i < Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES; ++i) {
-        const Ego::Math::Interval<float>& baseRange = _profile->getAttributeBase(static_cast<Ego::Attribute::AttributeType>(i));
+        const id::interval<float>& baseRange = _profile->getAttributeBase(static_cast<Ego::Attribute::AttributeType>(i));
         _baseAttribute[i] = Random::next(baseRange);
     }
 
@@ -963,7 +963,7 @@ void Object::update()
                 chance -= target->getAttribute(Ego::Attribute::AGILITY)*0.5f;
 
                 //-5% per tile distance
-                chance -= 5 * ((getPosition()-target->getPosition()).length() / Info<float>::Grid::Size());
+                chance -= 5 * (id::euclidean_norm(getPosition()-target->getPosition()) / Info<float>::Grid::Size());
 
                 //Perceptive Perk doubles chance
                 if(target->hasPerk(Ego::Perks::PERCEPTIVE)) {
@@ -1274,7 +1274,7 @@ bool Object::canSeeObject(const std::shared_ptr<Object> &target) const
     }
 
     //Too Dark?
-    int enviro_light = ( target->inst.alpha * target->inst.getMaxLight() ) * INV_FF<float>();
+    int enviro_light = ( target->inst.alpha * target->inst.getMaxLight() ) * id::fraction<float, 1, 255>();
     int self_light   = ( target->inst.light == 255 ) ? 0 : target->inst.light;
     int light        = std::max(enviro_light, self_light);
     light *= expf(0.32f * getAttribute(Ego::Attribute::DARKVISION));
@@ -1862,7 +1862,7 @@ void Object::respawn()
     _currentLife = getAttribute(Ego::Attribute::MAX_LIFE);
     _currentMana = getAttribute(Ego::Attribute::MAX_MANA);
     setPosition(getSpawnPosition());
-    setVelocity(Vector3f::zero());
+    setVelocity(id::zero<Vector3f>());
     team = team_base;
     canbecrushed = false;
     ori.map_twist_facing_y = orientation_t::MAP_TURN_OFFSET;  // These two mean on level surface
@@ -2268,7 +2268,7 @@ const std::shared_ptr<ObjectProfile>& Object::getProfile() const
 
 void Object::resetInputCommands()
 {
-    _objectPhysics.setDesiredVelocity(Vector2f::zero());
+    _objectPhysics.setDesiredVelocity(id::zero<Vector2f>());
     _inputLatchesPressed.reset();    
 }
 

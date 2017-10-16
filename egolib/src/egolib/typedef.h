@@ -27,6 +27,7 @@
 #include "egolib/egolib_config.h"
 #include "egolib/Debug.hpp"
 #include "egolib/Log/_Include.hpp"
+#include "egolib/Ref.hpp"
 
 //--------------------------------------------------------------------------------------------
 // place the definition of the lambda operator in a macro
@@ -62,7 +63,7 @@
 #   define UINT_TO_UFP8(V1)   ( ((unsigned)(V1)) << 8 )
 
     /// version of V1 / 256.0f
-#   define FP8_TO_FLOAT(V1)   ( (float)(V1) * INV_0100<float>() )
+#   define FP8_TO_FLOAT(V1)   ( (float)(V1) * id::fraction<float, 1, 256>() )
     /// version of V1 * 256.0f
 #   define FLOAT_TO_FP8(V1)   ( (uint32_t)((V1) * (float)(0x0100) ) )
 
@@ -144,10 +145,8 @@
     /// Specifies a value between "base" and "base + rand"
     using IPair = Pair<int>;
 
-#include "egolib/Math/Interval.hpp"
-
-    Ego::Math::Interval<float> pair_to_range(const IPair& source);
-    IPair range_to_pair(const Ego::Math::Interval<float>& source);
+    id::interval<float> pair_to_range(const IPair& source);
+    IPair range_to_pair(const id::interval<float>& source);
 
 //--------------------------------------------------------------------------------------------
 // STRING

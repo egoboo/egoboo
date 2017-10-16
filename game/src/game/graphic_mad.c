@@ -115,9 +115,9 @@ gfx_rv ObjectGraphicsRenderer::render_enviro( Camera& cam, const std::shared_ptr
                     targetVertex->normal.z = pvrt.nrm[ZZ];
 
                     // normalize the color so it can be modulated by the phong/environment map
-                    targetVertex->colour.r = pvrt.color_dir * INV_FF<float>();
-                    targetVertex->colour.g = pvrt.color_dir * INV_FF<float>();
-                    targetVertex->colour.b = pvrt.color_dir * INV_FF<float>();
+                    targetVertex->colour.r = pvrt.color_dir * id::fraction<float, 1, 255>();
+                    targetVertex->colour.g = pvrt.color_dir * id::fraction<float, 1, 255>();
+                    targetVertex->colour.b = pvrt.color_dir * id::fraction<float, 1, 255>();
                     targetVertex->colour.a = 1.0f;
 
                     float cmax = std::max({targetVertex->colour.r, targetVertex->colour.g, targetVertex->colour.b});
@@ -212,15 +212,15 @@ gfx_rv ObjectGraphicsRenderer::render_tex(Camera& camera, const std::shared_ptr<
     // To make life easier
     std::shared_ptr<const Ego::Texture> ptex = pchr->getSkinTexture();
 
-    float uoffset = pchr->inst.uoffset * INV_FFFF<float>();
-    float voffset = pchr->inst.voffset * INV_FFFF<float>();
+    float uoffset = pchr->inst.uoffset * id::fraction<float, 1, 65535>();
+    float voffset = pchr->inst.voffset * id::fraction<float, 1, 65535>();
 
     float base_amb = 0.0f;
     if (0 == (bits & CHR_LIGHT))
     {
         // Convert the "light" parameter to self-lighting for
         // every object that is not being rendered using CHR_LIGHT.
-        base_amb = (0xFF == pchr->inst.light) ? 0 : (pchr->inst.light * INV_FF<float>());
+        base_amb = (0xFF == pchr->inst.light) ? 0 : (pchr->inst.light * id::fraction<float, 1, 255>());
     }
 
     // Get the maximum number of vertices per command.
@@ -268,7 +268,7 @@ gfx_rv ObjectGraphicsRenderer::render_tex(Camera& camera, const std::shared_ptr<
                     // Perform lighting.
                     if (HAS_NO_BITS(bits, CHR_LIGHT) && HAS_NO_BITS(bits, CHR_ALPHA)) {
                         // The directional lighting.
-                        float fcol = pvrt.color_dir * INV_FF<float>();
+                        float fcol = pvrt.color_dir * id::fraction<float, 1, 255>();
 
                         targetVertex->colour.r = fcol;
                         targetVertex->colour.g = fcol;
@@ -280,7 +280,7 @@ gfx_rv ObjectGraphicsRenderer::render_tex(Camera& camera, const std::shared_ptr<
                             // Convert the "light" parameter to self-lighting for
                             // every object that is not being rendered using CHR_LIGHT.
 
-                            float acol = base_amb + pchr->inst.getAmbientColour() * INV_FF<float>();
+                            float acol = base_amb + pchr->inst.getAmbientColour() * id::fraction<float, 1, 255>();
 
                             targetVertex->colour.r += acol;
                             targetVertex->colour.g += acol;
@@ -596,20 +596,17 @@ void ObjectGraphicsRenderer::draw_chr_bbox(const std::shared_ptr<Object>& pchr)
 
         if (drawLeftSlot)
         {
-            oct_bb_t bb;
-            bb = oct_bb_t::translate(pchr->slot_cv[SLOT_LEFT], pchr->getPosition());
+            auto bb = id::translate(pchr->slot_cv[SLOT_LEFT], pchr->getPosition());
             Renderer3D::renderOctBB(bb, true, true);
         }
         if (drawRightSlot)
         {
-            oct_bb_t bb;
-            bb = oct_bb_t::translate(pchr->slot_cv[SLOT_RIGHT], pchr->getPosition());
+            auto bb = id::translate(pchr->slot_cv[SLOT_RIGHT], pchr->getPosition());
             Renderer3D::renderOctBB(bb, true, true);
         }
         if (drawCharacter)
         {
-            oct_bb_t bb;
-            bb = oct_bb_t::translate(pchr->chr_min_cv, pchr->getPosition());
+            auto bb = id::translate(pchr->chr_min_cv, pchr->getPosition());
             Renderer3D::renderOctBB(bb, true, true);
         }
     }

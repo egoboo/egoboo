@@ -410,7 +410,7 @@ ObjectRef prt_find_target( const Vector3f& pos, Facing facing,
             // Only proceed if we are facing the target
             if ( angle < Facing(ppip->targetangle) || angle > Facing( 0xFFFF - ppip->targetangle ))
             {
-                float dist2 = (pchr->getPosition() - pos).length_2();
+                float dist2 = id::squared_euclidean_norm(pchr->getPosition() - pos);
 
                 if ( dist2 < longdist2 && dist2 <= max_dist2 )
                 {
@@ -531,7 +531,7 @@ ObjectRef chr_find_target( Object * psrc, float max_dist, const IDSZ2& idsz, con
             if(player) {
 
                 //Within range?
-                float distance = (object->getPosition() - psrc->getPosition()).length();
+                float distance = id::euclidean_norm(object->getPosition() - psrc->getPosition());
                 if(max_dist == NEAREST || distance < max_dist) {
                     searchList.push_back(object);
                 }
@@ -570,7 +570,7 @@ ObjectRef chr_find_target( Object * psrc, float max_dist, const IDSZ2& idsz, con
 
         if (!chr_check_target(psrc, ptst, idsz, targeting_bits)) continue;
 
-		float dist2 = (psrc->getPosition() - ptst->getPosition()).length_2();
+		float dist2 = id::squared_euclidean_norm(psrc->getPosition() - ptst->getPosition());
         if (dist2 < best_dist2)
         {
             //Invictus chars do not need a line of sight
@@ -1307,9 +1307,9 @@ void Upload::upload_light_data(const wawalite_data_t& data)
     light_nrm = data.light.light_d;
     light_a = data.light.light_a;
 
-    if (light_nrm.length() > 0.0f)
+    if (id::euclidean_norm(light_nrm) > 0.0f)
     {
-        float length = light_nrm.length();
+        float length = id::euclidean_norm(light_nrm);
 
         // Get the extra magnitude of the direct light.
         if (gfx.usefaredge)
@@ -1434,10 +1434,10 @@ bool wawalite_finalize(wawalite_data_t *data)
     }
 
     int windspeed_count = 0;
-    Ego::Physics::g_environment.windspeed = Vector3f::zero();
+    Ego::Physics::g_environment.windspeed = id::zero<Vector3f>();
 
     int waterspeed_count = 0;
-    Ego::Physics::g_environment.waterspeed = Vector3f::zero();
+    Ego::Physics::g_environment.waterspeed = id::zero<Vector3f>();
 
     wawalite_water_layer_t *ilayer = wawalite_data.water.layer + 0;
     if (wawalite_data.water.background_req)
@@ -1601,7 +1601,7 @@ float get_chr_level( ego_mesh_t *mesh, Object *object )
 
     // otherwise, use the small collision volume to determine which tiles the object overlaps
     // move the collision volume so that it surrounds the object
-    bump = oct_bb_t::translate(object->chr_min_cv, object->getPosition());
+    bump = id::translate(object->chr_min_cv, object->getPosition());
 
     // determine the size of this object in tiles
     ixmin = bump._mins[OCT_X] / Info<float>::Grid::Size(); ixmin = Ego::Math::constrain( ixmin, 0, int(mesh->_info.getTileCountX()) - 1 );
@@ -2133,7 +2133,7 @@ void character_swipe( ObjectRef ichr, slot_t slot )
             }
             velocity = Ego::Math::constrain( velocity, MINTHROWVELOCITY, MAXTHROWVELOCITY );
 
-            Facing turn = pchr->ori.facing_z + Facing::ATK_BEHIND;
+            Facing turn = pchr->ori.facing_z + ATK_BEHIND;
             pthrown->setVelocity({pthrown->getVelocity().x() + std::cos(turn) * velocity,
                                   pthrown->getVelocity().y() + std::sin(turn) * velocity,
                                   Object::DROPZVEL});

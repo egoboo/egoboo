@@ -134,11 +134,38 @@ public:
 public:
 	// CRTP
     bool equal_to(const MyType& other) const {
-        return a == other.b
-            && a == other.b;
+        return a == other.a
+            && b == other.b;
     }
 
 }; // struct Line
 
 } // namespace Math
 } // namespace Ego
+
+namespace id {
+
+/// @brief Specialization of id::enclose_functor enclosing a line in a line.
+/// @detail The line \f$b\f$ enclosing a line \f$a\f$ is \f$a\f$ itself i.e. \f$b = a\f$.
+/// @tparam E the Euclidean space type of the geometries
+template <typename E>
+struct enclose_functor<Ego::Math::Line<E>,
+	                   Ego::Math::Line<E>>
+{
+	auto operator()(const Ego::Math::Line<E>& source) const
+	{ return source; }
+}; // struct enclose_functor
+
+/// @brief Specialization of id::translate_functor.
+/// Translates a line.
+/// @tparam E the Euclidean space type of the geometry
+template <typename E>
+struct translate_functor<Ego::Math::Line<E>,
+	                     typename E::VectorType>
+{
+	auto operator()(const Ego::Math::Line<E>& x,
+		            const typename E::VectorType& t) const
+	{ return Ego::Math::Line<E>(x.getA() + t, x.getB() + t); }
+}; // struct translate_functor
+
+} // namespace id

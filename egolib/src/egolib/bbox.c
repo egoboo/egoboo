@@ -610,19 +610,7 @@ egolib_rv oct_bb_t::cut(const oct_bb_t& other)
 }
 
 //--------------------------------------------------------------------------------------------
-oct_bb_t oct_bb_t::translate(const oct_bb_t& src, const Vector3f& t) {
-    auto dst = src;
-    dst.translate(t);
-    return dst;
-}
 
-oct_bb_t oct_bb_t::translate(const oct_bb_t& src, const oct_vec_v2_t& t) {
-    auto dst = src;
-    dst.translate(t);
-    return dst;
-}
-
-//--------------------------------------------------------------------------------------------
 void oct_bb_t::self_grow(oct_bb_t& self, const oct_vec_v2_t& v)
 {
     for (size_t i = 0; i < OCT_COUNT; ++i) 

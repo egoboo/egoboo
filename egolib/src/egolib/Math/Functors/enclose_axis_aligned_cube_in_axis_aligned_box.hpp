@@ -17,29 +17,28 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/Math/Functors/Closure_AxisAlignedBox_AxisAlignedBox.hpp
-/// @brief Enclose an axis aligned boxes in an axis aligned boxes.
+/// @file egolib/Math/Functors/Closure_AxisAlignedCube_AxisAlignedCube.hpp
+/// @brief Enclose a axis aligned cube in an axis aligned cube.
 /// @author Michael Heilmann
 
 #pragma once
 
-#include "egolib/Math/Functors/Closure.hpp"
+#include "egolib/Math/AxisAlignedBox.hpp"
+#include "egolib/Math/AxisAlignedCube.hpp"
 
-namespace Ego {
-namespace Math {
+namespace id {
 
-/// Enclose an axis aligned box into an axis aligned box.
-/// The axis aligned box closure \f$C(A)\f$ of an axis aligned box \f$A\f$ is \f$A\f$ itself i.e. \f$C(A) = A\f$.
-template <typename _EuclideanSpaceType>
-struct Closure<AxisAlignedBox<_EuclideanSpaceType>, AxisAlignedBox<_EuclideanSpaceType>> {
-    using EuclideanSpaceType = _EuclideanSpaceType;
-    using SourceType = AxisAlignedBox<_EuclideanSpaceType>;
-    using TargetType = AxisAlignedBox<_EuclideanSpaceType>;
-public:
-    inline TargetType operator()(const SourceType& source) const {
-        return source;
-    }
-}; // struct Closure
+/// @brief Specialization of id::enclose_functor.
+/// Encloses an axis aligned cube in an axis aligned box.
+/// @detail Let \$a\f$ be an axis aligned cube and \f$min\f$ its minimal point and \f$max\f$ its maximal point.
+/// The axis aligned box \f$b\f$ enclosing \f$a\f$ has the same minimal and maximal and maximal point.
+/// @tparam E the Euclidean space type of the geometries
+template <typename E>
+struct enclose_functor<Ego::Math::AxisAlignedBox<E>,
+	                   Ego::Math::AxisAlignedCube<E>>
+{
+    auto operator()(const Ego::Math::AxisAlignedCube<E>& source) const
+	{ return Ego::Math::AxisAlignedBox<E>(source.getMin(), source.getMax()); }
+}; // struct enclose_functor
 
-} // namespace Math
-} // namespace Ego
+} // namespace id

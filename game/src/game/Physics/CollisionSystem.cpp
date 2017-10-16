@@ -276,9 +276,8 @@ void CollisionSystem::updateObjectCollisions()
         const std::shared_ptr<Object> &platform = _currentModule->getObjectHandler()[object->onwhichplatform_ref];
         if(platform)
         {
-            Ego::Math::Intersects<AxisAlignedBox2f, AxisAlignedBox2f> intersects;
             //If we are no longer colliding in the horizontal plane, then we are disconnected
-            if(!intersects(object->getAxisAlignedBox2D(), platform->getAxisAlignedBox2D()))
+            if(!id::is_intersecting(object->getAxisAlignedBox2D(), platform->getAxisAlignedBox2D()))
             {
                 object->getObjectPhysics().detachFromPlatform();
             }
@@ -442,7 +441,7 @@ void CollisionSystem::handleCollision(const std::shared_ptr<Object> &objectA, co
 bool CollisionSystem::handleMountingCollision(const std::shared_ptr<Object> &character, const std::shared_ptr<Object> &mount)
 {
     //Do some collision checks
-	bool collideXY = (Vector2f(character->getPosX(), character->getPosY()) - Vector2f(mount->getPosX(), mount->getPosY())).length() < MOUNTTOLERANCE;
+	bool collideXY = id::euclidean_norm(xy(character->getPosition()) - xy(mount->getPosition())) < MOUNTTOLERANCE;
 
 	bool collideZ = (mount->getPosZ() + mount->chr_min_cv._maxs[OCT_Z]) < character->getPosZ();
 
@@ -650,8 +649,8 @@ bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::sha
     float interaction_strength = 0.1f + (0.9f-objectA->phys.bumpdampen) * (0.9f-objectB->phys.bumpdampen);
     
     //ZF> This was supposed to make ghosts more insubstantial, but it also affects invisible characters
-    //interaction_strength *= objectA->inst.alpha * INV_FF;
-    //interaction_strength *= objectB->inst.alpha * INV_FF;
+    //interaction_strength *= objectA->inst.alpha * id::fraction<float,1,255>();
+    //interaction_strength *= objectB->inst.alpha * id::fraction<float,1,255>();
 
     // reduce your interaction strength if you have just detached from an object
     if ( objectA->dismount_object == ichr_b )
@@ -714,8 +713,8 @@ bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::sha
 	oct_bb_t map_bb_a, map_bb_b;
 
     // shift the character bounding boxes to be centered on their positions
-    map_bb_a = oct_bb_t::translate(objectA->chr_min_cv, objectA->getPosition());
-    map_bb_b = oct_bb_t::translate(objectB->chr_min_cv, objectB->getPosition());
+    map_bb_a = id::translate(objectA->chr_min_cv, objectA->getPosition());
+    map_bb_b = id::translate(objectB->chr_min_cv, objectB->getPosition());
 
     // make the object more like a table if there is a platform-like interaction
     float exponent = 1.0f;
@@ -800,7 +799,7 @@ bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::sha
         if ( depth_min <= 0.0f || collision )
         {
             need_displacement = false;
-            pdiff_a = Vector3f::zero();
+            pdiff_a = id::zero<Vector3f>();
         }
         else
         {
@@ -815,7 +814,7 @@ bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::sha
         vdiff_a = objectB->getVelocity() - objectA->getVelocity();
 
         need_velocity = false;
-        if (vdiff_a.length_abs() > 1e-6)
+        if (id::manhattan_norm(vdiff_a) > 1e-6)
         {
             need_velocity = (recoil_a > 0.0f) || (recoil_b > 0.0f);
         }
@@ -866,7 +865,7 @@ bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::sha
 
                 // use pressure to push them appart. reduce their relative velocities.
 
-                float distance = (objectA->getPosition() - objectB->getPosition()).length();
+                float distance = id::euclidean_norm(objectA->getPosition() - objectB->getPosition());
                 distance /= std::max(objectA->bump.size, objectB->bump.size);
                 if(distance > 0.0f)
                 {
@@ -874,8 +873,8 @@ bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::sha
                     objectB->phys.sum_avel(-nrm * distance * recoil_b * interaction_strength);
 
                     // you could "bump" something if you changed your velocity, even if you were still touching
-                    bump = ((objectA->getVelocity().dot(nrm) * objectA->getOldVelocity().dot(nrm)) < 0) ||
-                           ((objectB->getVelocity().dot(nrm) * objectB->getOldVelocity().dot(nrm)) < 0);   
+                    bump = ((dot(objectA->getVelocity(), nrm) * dot(objectA->getOldVelocity(), nrm)) < 0) ||
+                           ((dot(objectB->getVelocity(), nrm) * dot(objectB->getOldVelocity(), nrm)) < 0);   
                 }
             }
 

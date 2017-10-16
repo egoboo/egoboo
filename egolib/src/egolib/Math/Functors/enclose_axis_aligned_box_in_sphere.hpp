@@ -23,25 +23,27 @@
 
 #pragma once
 
-#include "egolib/Math/Functors/Closure.hpp"
+#include "egolib/Math/AxisAlignedBox.hpp"
+#include "egolib/Math/Sphere.hpp"
 
-namespace Ego {
-namespace Math {
+namespace id {
 
-/// Enclose an axis aligned box in a sphere.
-template <typename _EuclideanSpaceType>
-struct Closure<Sphere<_EuclideanSpaceType>, AxisAlignedBox<_EuclideanSpaceType>> {
-public:
-    using EuclideanSpaceType = _EuclideanSpaceType;
-    using SourceType = AxisAlignedBox<_EuclideanSpaceType>;
-    using TargetType = Sphere<_EuclideanSpaceType>;
-public:
-    inline TargetType operator()(const SourceType& source) const {
-        const auto center = source.getCenter();
-        const auto radius = (source.getMin() - center).length();
-        return TargetType(center, radius);
+/// @brief Specialization of id::enclose_functor.
+/// Encloses an axis aligned box in a sphere.
+/// @detail A sphere \f$b\f$ enclosing an axis aligned box \f$a\f$ has the center \f$c\f$
+/// of the axis aligned box. Its radius is given by \f$r:=|x - c|\f$ where \x\f$ is the
+/// minimum point of the axis aligned box and \f$|.|\f$ is the Euclidean length of a vector.
+/// @tparam E the Euclidean space type of the geometries
+template <typename E>
+struct enclose_functor<Ego::Math::Sphere<E>,
+	                   Ego::Math::AxisAlignedBox<E>>
+{
+    auto operator()(const Ego::Math::AxisAlignedBox<E>& source) const
+	{
+		const auto center = source.getCenter();
+		const auto radius = id::euclidean_norm(source.getMin() - center);
+        return Ego::Math::Sphere<E>(center, radius);
     }
-}; // struct Closure
+}; // struct enclose_functor
 
-} // namespace Math
-} // namespace Ego
+} // namespace id

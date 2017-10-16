@@ -23,9 +23,7 @@
 
 #pragma once
 
-#include "egolib/Math/Angle.hpp"
 #include "egolib/Math/EuclideanSpace.hpp"
-#include "egolib/Math/Functors/Translate.hpp"
 
 namespace Ego {
 namespace Math {
@@ -79,7 +77,7 @@ public:
     /** @brief The unit axis vector \f$\hat{a}\f$ of the cone. */
     VectorType axis;
     /** @brief The angle, in degrees, \f$\theta \in \left(0,90\right)\f$. */
-    Angle<AngleUnit::Degrees> angle;
+    id::angle<float, id::degrees> angle;
 
 public:
     /**
@@ -102,9 +100,9 @@ public:
      * @throw id::runtime_error \f$\vec{a} = \vec{0}\f$
      * @throw id::runtime_error \f$\theta\f$ is not an acute angle 
      */
-    Cone3(const PointType& origin, const VectorType& axis, const Angle<AngleUnit::Degrees>& angle)
+    Cone3(const PointType& origin, const VectorType& axis, const id::angle<float, id::degrees>& angle)
         : origin(origin), axis(axis), angle(angle) {
-        this->axis.normalized();
+        this->axis = normalize(axis).first;
         if (!angle.isAcute()) {
             throw id::runtime_error(__FILE__, __LINE__, "the angle is not an acute angle");
         }
@@ -165,7 +163,7 @@ public:
      * @return
      *  the angle, in degrees, \f$\theta \in \left(0,90\right)\f$ of this cone
      */
-    const Angle<AngleUnit::Degrees>& getAngle() const {
+    const id::angle<float, id::degrees>& getAngle() const {
         return angle;
     }
 
@@ -225,8 +223,8 @@ public:
 
 protected:
     struct Cookie {};
-    friend struct Translate<MyType>;
-    Cone3(Cookie cookie, const PointType& origin, const VectorType& axis, const Angle<AngleUnit::Degrees>& angle)
+    friend struct id::translate_functor<MyType, VectorType>;
+    Cone3(Cookie cookie, const PointType& origin, const VectorType& axis, const id::angle<float, id::degrees>& angle)
         : origin(origin), axis(axis), angle(angle) {
     }
 
@@ -234,3 +232,32 @@ protected:
 
 } // namespace Math
 } // namespace Ego
+
+namespace id {
+
+ /// @brief Specialization of id::enclose_functor enclosing a cone into a cone.
+ /// @details The cone \f$b\f$ enclosing a cone \f$a\f$ is \f$a\f$ itself i.e. \f$a = b\f$.
+ /// @tparam E the Euclidean space type of the geometries
+template <typename E>
+struct enclose_functor<Ego::Math::Cone3<E, void>,
+	                   Ego::Math::Cone3<E, void>>
+{
+	auto operator()(const Ego::Math::Cone3<E, void>& source) const
+	{ return source; }
+}; // struct enclose_functor
+
+/// @brief Specialization of id::translate_functor.
+/// Translates a cone.
+/// @tparam E the Euclidean space type of the geometry
+template <typename E>
+struct translate_functor<Ego::Math::Cone3<E, void>,
+                         typename E::VectorType>
+{
+	auto operator()(const Ego::Math::Cone3<E, void>& x,
+		            const typename E::VectorType& t) const
+	{
+		return Ego::Math::Cone3<E, void>(typename Ego::Math::Cone3<E, void>::Cookie(), x.getOrigin() + t, x.getAxis(), x.getAngle());
+	}
+}; // struct translate_functor
+
+} // namespace id

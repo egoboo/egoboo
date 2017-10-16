@@ -187,7 +187,7 @@ std::shared_ptr<ego_mesh_t> MeshLoader::operator()(const std::string& moduleName
 MeshLookupTables g_meshLookupTables;
 
 MeshLookupTables::MeshLookupTables() {
-	Vector3f grav = Vector3f::zero();
+	Vector3f grav = id::zero<Vector3f>();
 
 	grav[kZ] = Ego::Physics::g_environment.gravity;
 
@@ -263,7 +263,7 @@ void ego_mesh_t::make_bbox()
                             std::abs(poct._maxs[OCT_Z] - poct._mins[OCT_Z])) < std::numeric_limits<float>::epsilon())
         {
             ovec[OCT_X] = ovec[OCT_Y] = ovec[OCT_Z] = 0.1;
-            ovec[OCT_XY] = ovec[OCT_YX] = Ego::Math::sqrtTwo<float>() * ovec[OCT_X];
+            ovec[OCT_XY] = ovec[OCT_YX] = id::sqrt_two<float>() * ovec[OCT_X];
             oct_bb_t::self_grow(poct, ovec);
         }
 
@@ -367,11 +367,11 @@ void ego_mesh_t::make_normals()
                     float vdot;
                     int m = ( j + 1 ) % 4;
 
-                    vdot = nrm_lst[j].dot(nrm_lst[m]);
+                    vdot = dot(nrm_lst[j], nrm_lst[m]);
 
-                    edge_is_crease[j] = (vdot < Ego::Math::invSqrtTwo<float>());
+                    edge_is_crease[j] = (vdot < id::inv_sqrt_two<float>());
 
-                    weight_lst[j] = nrm_lst[j].dot(nrm_lst[0]);
+                    weight_lst[j] = dot(nrm_lst[j], nrm_lst[0]);
                 }
 
                 weight_lst[0] = 1.0f;
@@ -405,7 +405,7 @@ void ego_mesh_t::make_normals()
                     }
                 }
 
-				vec_sum.normalize();
+				vec_sum = normalize(vec_sum).first;
 
                 _tmem.get(fan0)._ncache[i][XX] = vec_sum[kX];
                 _tmem.get(fan0)._ncache[i][YY] = vec_sum[kY];
@@ -1081,7 +1081,7 @@ Vector3f ego_mesh_t::get_diff(const Vector3f& pos, float radius, float center_pr
 	const float jitter_size = Info<float>::Grid::Size() * 0.5f;
 	std::array<float, 9> pressure_ary = {};
 	float fx, fy;
-	Vector3f diff = Vector3f::zero();
+	Vector3f diff = id::zero<Vector3f>();
 	float   sum_diff = 0.0f;
 	float   dpressure;
 
@@ -1157,7 +1157,7 @@ BIT_FIELD ego_mesh_t::hit_wall(const Vector3f& pos, float radius, const BIT_FIEL
 	if (NULL == pressure) pressure = &loc_pressure;
 	*pressure = 0.0f;
 
-	nrm = Vector2f::zero();
+	nrm = id::zero<Vector2f>();
 
 
 	// ego_mesh_test_wall() clamps pdata->ix_* and pdata->iy_* to valid values
@@ -1230,7 +1230,7 @@ BIT_FIELD ego_mesh_t::hit_wall(const Vector3f& pos, float radius, const BIT_FIEL
 	if (0 == pass)
 	{
 		// if there is no impact at all, there is no normal and no pressure
-		nrm = Vector2f::zero();
+		nrm = id::zero<Vector2f>();
 		*pressure = 0.0f;
 	}
 	else
@@ -1253,7 +1253,7 @@ BIT_FIELD ego_mesh_t::hit_wall(const Vector3f& pos, float radius, const BIT_FIEL
 			}
 			else
 			{
-				nrm.normalize();
+				nrm = normalize(nrm).first;
 			}
 		}
 

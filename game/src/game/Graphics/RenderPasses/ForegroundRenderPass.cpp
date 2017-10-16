@@ -26,15 +26,15 @@ void ForegroundRenderPass::doRun(::Camera& camera, const TileList& tl, const Ent
     water_instance_layer_t *ilayer = _currentModule->getWater()._layers + 1;
 
     Vector3f vforw_wind(ilayer->_tx_add[XX], ilayer->_tx_add[YY], 0.0f);
-    vforw_wind.normalize();
+    vforw_wind = normalize(vforw_wind).first;
 
     Vector3f vforw_cam = mat_getCamForward(camera.getViewMatrix());
-    vforw_cam.normalize();
+    vforw_cam = normalize(vforw_cam).first;
 
     // make the texture begin to disappear if you are not looking straight down
-    float ftmp = vforw_wind.dot(vforw_cam);
+    float ftmp = dot(vforw_wind, vforw_cam);
 
-    float alpha = (1.0f - ftmp * ftmp) * (ilayer->_alpha * INV_FF<float>());
+    float alpha = (1.0f - ftmp * ftmp) * (ilayer->_alpha * id::fraction<float, 1, 255>());
 
     if (alpha != 0.0f)
     {

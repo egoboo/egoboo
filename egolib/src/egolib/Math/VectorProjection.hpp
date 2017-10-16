@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "egolib/Math/Vector.hpp"
+#include "egolib/platform.h"
 
 namespace Ego {
 namespace Math {

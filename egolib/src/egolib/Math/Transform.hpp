@@ -26,13 +26,13 @@ struct Transform {
         Vector3f f = center - eye;
         Vector3f u = up;
 
-        f.normalize();
-        u.normalize();
+        f = id::normalize(f, id::euclidean_norm_functor<Vector3f>()).first;
+        u = id::normalize(u, id::euclidean_norm_functor<Vector3f>()).first;
 
-        Vector3f s = f.cross(u);
-        s.normalize();
+        Vector3f s = id::cross_product(f, u);
+        s = id::normalize(s, id::euclidean_norm_functor<Vector3f>()).first;
 
-        u = s.cross(f);
+        u = id::cross_product(s, f);
 
         return
             Matrix4f4f
@@ -119,15 +119,15 @@ struct Transform {
      *  \f]
      *  where \f$f = cot(0.5 fovy)\f$.
      */
-    static Matrix4f4f perspective(const Ego::Math::Degrees& fovy, const float aspect, const float zNear, const float zFar) {
-        return perspective(Ego::Math::Radians(fovy), aspect, zNear, zFar);
+    static Matrix4f4f perspective(const id::angle<float, id::degrees>& fovy, const float aspect, const float zNear, const float zFar) {
+        return perspective(id::semantic_cast<id::angle<float, id::radians>>(fovy), aspect, zNear, zFar);
     }
 
-    static Matrix4f4f perspestive(const Ego::Math::Turns& fovy, const float aspect, const float zNear, const float zFar) {
-        return perspective(Ego::Math::Radians(fovy), aspect, zNear, zFar);
+    static Matrix4f4f perspestive(const id::angle<float, id::turns>& fovy, const float aspect, const float zNear, const float zFar) {
+        return perspective(id::semantic_cast<id::angle<float, id::radians>>(fovy), aspect, zNear, zFar);
     }
 
-    static Matrix4f4f perspective(const Ego::Math::Radians& fovy, const float aspect, const float zNear, const float zFar) {
+    static Matrix4f4f perspective(const id::angle<float, id::radians>& fovy, const float aspect, const float zNear, const float zFar) {
         EGOBOO_ASSERT(aspect != 0.0f);
         EGOBOO_ASSERT(zFar > 0.0f && zNear > 0.0f);
         EGOBOO_ASSERT((zNear - zFar) != 0.0f);
@@ -195,15 +195,15 @@ struct Transform {
      *  \f]
      *  where \f$c=\cos(a)\f$ and \f$s=\sin(a)\f$.
      */
-    static Matrix4f4f rotationX(const Ego::Math::Degrees& a) {
-        return rotationX(Ego::Math::Radians(a));
+    static Matrix4f4f rotationX(const id::angle<float, id::degrees>& a) {
+        return rotationX(id::semantic_cast<id::angle<float, id::radians>>(a));
     }
 
-    static Matrix4f4f rotationX(const Ego::Math::Turns& a) {
-        return rotationX(Ego::Math::Radians(a));
+    static Matrix4f4f rotationX(const id::angle<float, id::turns>& a) {
+        return rotationX(id::semantic_cast<id::angle<float, id::radians>>(a));
     }
 
-    static Matrix4f4f rotationX(const Ego::Math::Radians& a) {
+    static Matrix4f4f rotationX(const id::angle<float, id::radians>& a) {
         float c = std::cos(a), s = std::sin(a);
         return
             Matrix4f4f
@@ -237,15 +237,15 @@ struct Transform {
      *  \f]
      *  where \f$c=\cos(a)\f$ and \f$s=\sin(a)\f$.
      */
-    static Matrix4f4f rotationY(const Ego::Math::Degrees& a) {
-        return rotationY(Ego::Math::Radians(a));
+    static Matrix4f4f rotationY(const id::angle<float, id::degrees>& a) {
+        return rotationY(id::semantic_cast<id::angle<float, id::radians>>(a));
     }
 
-    static Matrix4f4f rotationY(const Ego::Math::Turns& a) {
-        return rotationY(Ego::Math::Radians(a));
+    static Matrix4f4f rotationY(const id::angle<float, id::turns>& a) {
+        return rotationY(id::semantic_cast<id::angle<float, id::radians>>(a));
     }
 
-    static Matrix4f4f rotationY(const Ego::Math::Radians& a) {
+    static Matrix4f4f rotationY(const id::angle<float, id::radians>& a) {
         float c = std::cos(a), s = std::sin(a);
         return
             Matrix4f4f
@@ -279,16 +279,16 @@ struct Transform {
      *  \f]
      *  where \f$c=\cos(a)\f$ and \f$s=\sin(a)\f$.
      */
-    static Matrix4f4f rotationZ(const Ego::Math::Degrees& a) {
-        return rotationZ(Ego::Math::Radians(a));
+    static Matrix4f4f rotationZ(const id::angle<float, id::degrees>& a) {
+        return rotationZ(id::semantic_cast<id::angle<float, id::radians>>(a));
 
     }
 
-    static Matrix4f4f rotationZ(const Ego::Math::Turns& a) {
-        return rotationZ(Ego::Math::Radians(a));
+    static Matrix4f4f rotationZ(const id::angle<float, id::turns>& a) {
+        return rotationZ(id::semantic_cast<id::angle<float, id::radians>>(a));
     }
 
-    static Matrix4f4f rotationZ(const Ego::Math::Radians& a) {
+    static Matrix4f4f rotationZ(const id::angle<float, id::radians>& a) {
         float c = std::cos(a), s = std::sin(a);
         return
             Matrix4f4f
@@ -509,15 +509,15 @@ struct Transform {
      *  \f}
      *  This implementation performs this form of elimination of common subexpressions.
      */
-    static Matrix4f4f rotation(const Vector3f& axis, const Ego::Math::Degrees& angle) {
-        return rotation(axis, Ego::Math::Radians(angle));
+    static Matrix4f4f rotation(const Vector3f& axis, const id::angle<float, id::degrees>& angle) {
+        return rotation(axis, id::semantic_cast<id::angle<float, id::radians>>(angle));
     }
 
-    static Matrix4f4f rotation(const Vector3f& axis, const Ego::Math::Turns& angle) {
-        return rotation(axis, Ego::Math::Radians(angle));
+    static Matrix4f4f rotation(const Vector3f& axis, const id::angle<float, id::turns>& angle) {
+        return rotation(axis, id::semantic_cast<id::angle<float, id::radians>>(angle));
     }
 
-    static Matrix4f4f rotation(const Vector3f& axis, const Ego::Math::Radians& angle) {
+    static Matrix4f4f rotation(const Vector3f& axis, const id::angle<float, id::radians>& angle) {
         float c = std::cos(angle), s = std::sin(angle);
         float t = 1.0f - c;
         float x = axis[kX], y = axis[kY], z = axis[kZ];

@@ -66,7 +66,7 @@ public:
      *  The default values of a sphere are the center of @a (0,0,0) and the radius of @a 0.
      */
     Sphere()
-        : _center(PointType::zero()), _radius(0) {
+        : _center(id::zero<PointType>()), _radius(0) {
         /* Intentionally empty. */
     }
 
@@ -86,7 +86,7 @@ public:
     */
     Sphere(const PointType& center, const ScalarType& radius)
         : _center(center), _radius(radius) {
-        if (_radius < 0) {
+        if (_radius < id::zero<ScalarType>()) {
             throw std::domain_error("sphere radius is negative");
         }
     }
@@ -215,3 +215,155 @@ public:
 
 } // namespace Math
 } // namespace Ego
+
+namespace id {
+
+/// @brief Specialization of id::enclose_functor enclosing a sphere into a sphere.
+/// @detail The sphere \f$b\f$ enclosing a sphere \f$a\f$ is \f$a\f$ itself i.e. \f$b = a\f$.
+/// @tparam E the Euclidean space type of the geometries
+template <typename E>
+struct enclose_functor<Ego::Math::Sphere<E>,
+	                   Ego::Math::Sphere<E>>
+{
+	auto operator()(const Ego::Math::Sphere<E>& source) const
+	{ return source; }
+}; // struct enclose_functor
+
+/// @brief Specialization of id::is_enclosing_functor.
+/// Determines wether a sphere contains a point.
+/// @remark A sphere \f$(c,r)\f$ with the center $c$ and the radius $r$
+/// contains a point \f$p\f$ if \f$|p - c| \leq r\f$ holds.
+/// That condition is equivalent to the condition \f$|p - c|^2
+/// \leq r^2\f$ but the latter is more efficient to test (two
+/// multiplications vs. one square root).
+template <typename E>
+struct is_enclosing_functor<Ego::Math::Sphere<E>,
+	                        typename E::PointType>
+{
+	bool operator()(const Ego::Math::Sphere<E>& a,
+		            const typename E::PointType& b) const
+	{
+		// Get the squared distance from the point to the center of the sphere.
+		auto distanceSquared = id::squared_euclidean_norm(a.getCenter() - b);
+		// Get the squared radius of the sphere.
+		auto radiusSquared = a.getRadiusSquared();
+		// If the squared distance beween the point and the center of the sphere
+		// is smaller than or equal to the squared radius of the sphere ...
+		if (distanceSquared <= radiusSquared)
+		{
+			// ... the sphere contains the point.
+			return true;
+		}
+		// Otherwise the sphere does not contain the point.
+		return false;
+	}
+}; // struct is_enclosing_functor
+
+/// @brief Specialization of id::is_enclosing_functor.
+/// Determine if a sphere contains another sphere.
+/// @remark
+/// A sphere \f$S\f$ with center \f$c\f$ and radius \f$r\f$ contains
+/// another sphere \f$S'\$ with center \f$c'\f$ and radius \f$r'\f$
+/// if \f$|c-c'|+r' \leq r\f$ holds.
+template <typename E>
+struct is_enclosing_functor<Ego::Math::Sphere<E>,
+                            Ego::Math::Sphere<E>>
+{
+	bool operator()(const Ego::Math::Sphere<E>& a,
+		            const Ego::Math::Sphere<E>& b) const
+	{
+		return id::euclidean_norm(a.getCenter() - b.getCenter()) + b.getRadius()
+			<= a.getRadius();
+	}
+}; // struct is_enclosing_functor
+
+/// @brief Specialization of id::translate_functor.
+/// Translates an sphere.
+/// @tparam E the Euclidean space type of the geometry
+template <typename E>
+struct translate_functor<Ego::Math::Sphere<E>,
+	                     typename E::VectorType>
+{
+	auto operator()(const Ego::Math::Sphere<E>& x,
+		            const typename E::VectorType& t) const
+	{ return Ego::Math::Sphere<E>(x.getCenter() + t, x.getRadius()); }
+}; // struct translate_functor
+
+/// @brief Specialization of id::is_intersecting_functor.
+/// Determines if two spheres intersect.
+/// @remark Two spheres \f$X\f$ and \f$Yf$ with the
+/// centers \f$X_C\f$ and \f$Y_Y\f$ and the radii \f$X_r\f$
+/// and \f$Y_r\f$ intersect if \f$|X_c - Y_c| \leq X_r + Y_r\f$
+/// holds. That condition is equivalent to the condition
+/// \f$|X_C - Y_C|^2 \leq (X_ + Y_r)^2\f$. In terms of
+/// an implementation the former is usually less efficient
+/// than the latter.
+template <typename E>
+struct is_intersecting_functor<Ego::Math::Sphere<E>,
+	                           Ego::Math::Sphere<E>>
+{
+	bool operator()(const Ego::Math::Sphere<E>& a,
+		            const Ego::Math::Sphere<E>& b) const
+	{
+		// Get the squared distance between the centers of the two spheres.
+		auto distanceSquared = id::squared_euclidean_norm(a.getCenter() - b.getCenter());
+		// Get the squared sum of the radiis of the two spheres.
+		auto sumOfRadii = a.getRadius() + b.getRadius();
+		auto sumOfRadiiSquared = sumOfRadii * sumOfRadii;
+		// If the squared distance beween the centers of the spheres
+		// is smaller than or equal to the squared sum of the radii of the spheres ...
+		if (distanceSquared <= sumOfRadiiSquared)
+		{
+			// ... the spheres intersect.
+			return true;
+		}
+		// Otherwise they don't intersect.
+		return false;
+	}
+}; // struct is_intersecting_functor
+
+/// @brief Specialization of id::is_intersecting_functor.
+/// Determines if a sphere and a point intersect.
+/// @remark A sphere \f$A\f$ with the center $C$ and the radius $r$
+/// and a point \f$P\f$ intersect if \f$|P - C| \leq r\f$ holds.
+/// That condition is equivalent to the condition \f$|p - c|^2
+/// \leq r^2\f$ but the latter is more efficient to test (two
+/// multiplications vs. one square root).
+template <typename E>
+struct is_intersecting_functor<Ego::Math::Sphere<E>,
+	                           typename E::PointType>
+{
+	bool operator()(const Ego::Math::Sphere<E>& a,
+		            const typename E::PointType& b) const
+	{
+		// Get the squared distance from the point to the center of the sphere.
+		float distanceSquared = id::squared_euclidean_norm(a.getCenter() - b);
+		// Get the squared radius of the sphere.
+		float radiusSquared = a.getRadiusSquared();
+		// If the squared distance beween the point and the center of the sphere
+		// is smaller than or equal to the squared radius of the sphere ...
+		if (distanceSquared <= radiusSquared)
+		{
+			// ... the sphere and the point intersect.
+			return true;
+		}
+		// Otherwise the sphere and the point do not intersect.
+		return false;
+	}
+}; // struct is_intersecting_functor
+
+/// @brief Specialization of id::is_intersecting_functor.
+/// Determines if a point and a sphere intersect.
+/// @remark The method for determinating if a sphere and a point intersect is
+/// commutative. By swapping the arguments that method can be reused to determine if a
+/// point and a sphere intersect.
+template <typename E>
+struct is_intersecting_functor<typename E::PointType,
+	                           Ego::Math::Sphere<E>>
+{
+	bool operator()(const typename E::PointType& a, const Ego::Math::Sphere<E>& b) const
+	{ return is_intersecting(b, a); }
+}; // struct is_intersecting_functor
+
+} // namespace id
+

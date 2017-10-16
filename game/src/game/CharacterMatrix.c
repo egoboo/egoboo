@@ -685,7 +685,7 @@ bool chr_calc_grip_cv( Object * pmount, int grip_offset, oct_bb_t * grip_cv_ptr,
     // tune the grip radius
     bmp.size     = default_chr_radius * pmount->fat * 0.75f;
     bmp.height   = default_chr_height * pmount->fat * 2.00f;
-    bmp.size_big = bmp.size * Ego::Math::sqrtTwo<float>();
+    bmp.size_big = bmp.size * id::sqrt_two<float>();
 
     tmp_cv.assign(bmp);
 
@@ -733,13 +733,13 @@ bool chr_calc_grip_cv( Object * pmount, int grip_offset, oct_bb_t * grip_cv_ptr,
 
             if ( grip_count < 2 )
             {
-                grip_points[2] = Vector4f::zero();
+                grip_points[2] = id::zero<Vector4f>();
                 grip_points[2][kY] = 1.0f;
             }
 
             if ( grip_count < 3 )
             {
-                grip_points[3] = Vector4f::zero();
+                grip_points[3] = id::zero<Vector4f>();
                 grip_points[3][kZ] = 1.0f;
             }
         }
@@ -749,7 +749,7 @@ bool chr_calc_grip_cv( Object * pmount, int grip_offset, oct_bb_t * grip_cv_ptr,
 
             for ( cnt = 0; cnt < 4; cnt++ )
             {
-                grip_points[cnt] = Vector4f::zero();
+                grip_points[cnt] = id::zero<Vector4f>();
             }
 
             grip_points[1][kX] = 1.0f;
@@ -774,7 +774,7 @@ bool chr_calc_grip_cv( Object * pmount, int grip_offset, oct_bb_t * grip_cv_ptr,
     // add in the "origin" of the grip, if necessary
     if ( NULL != grip_cv_ptr )
     {
-        *grip_cv_ptr = oct_bb_t::translate(tmp_cv, Vector3f(grip_nupoints[0][kX], grip_nupoints[0][kY], grip_nupoints[0][kZ]));
+        *grip_cv_ptr = id::translate(tmp_cv, Vector3f(grip_nupoints[0][kX], grip_nupoints[0][kY], grip_nupoints[0][kZ]));
     }
 
     return true;

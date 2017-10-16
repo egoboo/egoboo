@@ -3,13 +3,7 @@
 #define EGOLIB_MATH_PRIVATE 1
 
 //
-#include "egolib/Math/Interval.hpp"
-
-//
-#include "egolib/Math/Angle.hpp"
-#include "egolib/Math/Point.hpp"
 #include "egolib/Math/Matrix.hpp"
-#include "egolib/Math/Vector.hpp"
 
 //
 #include "egolib/Math/AxisAlignedBox.hpp"
@@ -29,49 +23,13 @@
 #include "egolib/Math/VectorRejection.hpp"
 
 //
-#include "egolib/Math/Functors/Interpolate_Linear_Point.hpp"
-#include "egolib/Math/Functors/Interpolate_Linear_Vector.hpp"
+#include "egolib/Math/Functors/is_intersecting_axis_aligned_box_axis_aligned_cube.hpp"
 
 //
-#include "egolib/Math/Functors/Contains_AxisAlignedBox_AxisAlignedBox.hpp"
-#include "egolib/Math/Functors/Contains_AxisAlignedCube_AxisAlignedCube.hpp"
-#include "egolib/Math/Functors/Contains_Point_Point.hpp"
-#include "egolib/Math/Functors/Contains_Sphere_Sphere.hpp"
-#include "egolib/Math/Functors/Contains_Sphere_Point.hpp"
-#include "egolib/Math/Functors/Contains_AxisAlignedBox_Point.hpp"
-
-//
-#include "egolib/Math/Functors/Intersects_AxisAlignedBox_AxisAlignedBox.hpp"
-#include "egolib/Math/Functors/Intersects_AxisAlignedCube_AxisAlignedCube.hpp"
-#include "egolib/Math/Functors/Intersects_Point_Point.hpp"
-#include "egolib/Math/Functors/Intersects_Sphere_Sphere.hpp"
-#include "egolib/Math/Functors/Intersects_Sphere_Point.hpp"
-#include "egolib/Math/Functors/Intersects_Point_Sphere.hpp"
-#include "egolib/Math/Functors/Intersects_AxisAlignedBox_Point.hpp"
-#include "egolib/Math/Functors/Intersects_Point_AxisAlignedBox.hpp"
-#include "egolib/Math/Functors/Intersects_AxisAlignedBox_AxisAlignedCube.hpp"
-#include "egolib/Math/Functors/Intersects_AxisAlignedCube_AxisAlignedBox.hpp"
-#include "egolib/Math/Functors/Intersects_AxisAlignedCube_Point.hpp"
-#include "egolib/Math/Functors/Intersects_Point_AxisAlignedCube.hpp"
-
-//
-#include "egolib/Math/Functors/Translate_AxisAlignedBox.hpp"
-#include "egolib/Math/Functors/Translate_Cone3.hpp"
-#include "egolib/Math/Functors/Translate_AxisAlignedCube.hpp"
-#include "egolib/Math/Functors/Translate_Line.hpp"
-#include "egolib/Math/Functors/Translate_Plane.hpp"
-#include "egolib/Math/Functors/Translate_Point.hpp"
-#include "egolib/Math/Functors/Translate_Ray.hpp"
-#include "egolib/Math/Functors/Translate_Sphere.hpp"
-
-//
-#include "egolib/Math/Functors/Closure_AxisAlignedBox_AxisAlignedBox.hpp"
-#include "egolib/Math/Functors/Closure_AxisAlignedBox_AxisAlignedCube.hpp"
-#include "egolib/Math/Functors/Closure_AxisAlignedBox_Sphere.hpp"
-#include "egolib/Math/Functors/Closure_AxisAlignedCube_AxisAlignedBox.hpp"
-#include "egolib/Math/Functors/Closure_AxisAlignedCube_AxisAlignedCube.hpp"
-#include "egolib/Math/Functors/Closure_Sphere_AxisAlignedBox.hpp"
-#include "egolib/Math/Functors/Closure_Sphere_Sphere.hpp"
+#include "egolib/Math/Functors/enclose_axis_aligned_cube_in_axis_aligned_box.hpp"
+#include "egolib/Math/Functors/enclose_sphere_in_axis_aligned_box.hpp"
+#include "egolib/Math/Functors/enclose_axis_aligned_box_in_axis_aligned_cube.hpp"
+#include "egolib/Math/Functors/enclose_axis_aligned_box_in_sphere.hpp"
 
 //
 #include "egolib/Math/Discrete.hpp"

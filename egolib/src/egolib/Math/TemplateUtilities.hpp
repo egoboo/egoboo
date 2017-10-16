@@ -94,9 +94,6 @@ namespace Ego {
 namespace Math {
 namespace Internal {
 
-template <size_t I, typename Type, size_t Size>
-void unpack(Type(&dst)[Size]);
-
 template <size_t I, typename  Type, size_t Size, typename Arg>
 void _unpack(Type(&dst)[Size], Arg&& arg) {
 	dst[I] = arg;

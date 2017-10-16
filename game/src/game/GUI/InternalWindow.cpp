@@ -107,7 +107,7 @@ void InternalWindow::drawContainer(DrawingContext& drawingContext) {
 }
 
 bool InternalWindow::notifyMouseMoved(const Events::MouseMovedEventArgs& e) {
-    auto newe = Events::MouseMovedEventArgs(e.position() - Point2f::toVector(getPosition()));
+    auto newe = Events::MouseMovedEventArgs(e.position() - id::semantic_cast<Vector2f>(getPosition()));
     if (_isDragging) {
         setPosition(Point2f(Math::constrain<int>(e.position().x() + _mouseDragOffset[0], 0,
                                                  _gameEngine->getUIManager()->getScreenWidth() - getWidth()),
@@ -129,7 +129,7 @@ bool InternalWindow::notifyMouseMoved(const Events::MouseMovedEventArgs& e) {
 }
 
 bool InternalWindow::notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs& e) {
-    auto newe = Events::MouseButtonPressedEventArgs(e.position() - Point2f::toVector(getPosition()), e.getButton());
+    auto newe = Events::MouseButtonPressedEventArgs(e.position() - id::semantic_cast<Vector2f>(getPosition()), e.getButton());
     if (_mouseOver && e.getButton() == SDL_BUTTON_LEFT) {
         if (!_isDragging && _closeButton->contains(newe.position())) {
             AudioSystem::get().playSoundFull(AudioSystem::get().getGlobalSound(GSND_BUTTON_CLICK));

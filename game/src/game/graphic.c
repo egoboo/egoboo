@@ -246,7 +246,7 @@ void gfx_system_make_enviro()
     {
         float x = MD2Model::getMD2Normal(i, 0);
         float y = MD2Model::getMD2Normal(i, 1);
-        indextoenvirox[i] = std::atan2(y, x) * Ego::Math::invTwoPi<float>();
+        indextoenvirox[i] = std::atan2(y, x) * id::inv_two_pi<float>();
     }
 }
 
@@ -1400,7 +1400,7 @@ void GridIllumination::light_fans_update_clst(Ego::Graphics::TileList& tl)
             GLXvector3f& color = ptmem._clst[vertex];
             float light = ptile._lightingCache._contents[index];
 			color[RR] = color[GG] = color[BB] 
-				= INV_FF<float>() * Ego::Math::constrain(light, 0.0f, 255.0f);
+				= id::fraction<float, 1, 255>() * Ego::Math::constrain(light, 0.0f, 255.0f);
         }
 
         for ( /* Intentionall left empty. */; index < numberOfVertices; index++, vertex++)
@@ -1409,7 +1409,7 @@ void GridIllumination::light_fans_update_clst(Ego::Graphics::TileList& tl)
 			const GLXvector3f& position = ptmem._plst[vertex];
 			float light = ego_mesh_interpolate_vertex(ptile, position);
 			color[RR] = color[GG] = color[BB] 
-				= INV_FF<float>() * Ego::Math::constrain(light, 0.0f, 255.0f);
+				= id::fraction<float, 1, 255>() * Ego::Math::constrain(light, 0.0f, 255.0f);
         }
 
         // clear out the deltas
@@ -1546,7 +1546,7 @@ gfx_rv gfx_make_dynalist(dynalist_t& dyl, Camera& cam)
 
         // find the distance to the camera
         vdist = particle->getPosition() - cam.getTrackPosition();
-        distance = vdist.length_2();
+        distance = id::squared_euclidean_norm(vdist);
 
         // insert the dynalight
         if (dyl.size < gfx.dynalist_max && dyl.size < TOTAL_MAX_DYNA)

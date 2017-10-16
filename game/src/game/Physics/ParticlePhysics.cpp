@@ -67,7 +67,7 @@ void ParticlePhysics::updateMovement()
     bool touch_a_floor = false;
     bool touch_a_wall = false;
 
-    Vector3f nrm_total = Vector3f::zero();
+    Vector3f nrm_total = id::zero<Vector3f>();
 
     // Move the particle
     float ftmp = tmp_pos.z();
@@ -88,7 +88,7 @@ void ParticlePhysics::updateMovement()
             floor_nrm = g_meshLookupTables.twist_nrm[penviro->twist];
         }
 
-        float vel_dot = floor_nrm.dot(_particle.getVelocity());
+        float vel_dot = dot(floor_nrm, _particle.getVelocity());
 
         //Handle bouncing
         if (_particle.getVelocity().z() < -STOPBOUNCINGPART)
@@ -155,7 +155,7 @@ void ParticlePhysics::updateMovement()
                 nrm_total.x() += nrm.x();
                 nrm_total.y() += nrm.y();
 
-                hit_a_wall = (Vector2f(_particle.getVelocity().x(), _particle.getVelocity().y()).dot(nrm) < 0.0f);
+                hit_a_wall = (dot(xy(_particle.getVelocity()), nrm) < 0.0f);
             }
         }
     }
@@ -188,9 +188,9 @@ void ParticlePhysics::updateMovement()
             float vdot;
             Vector3f vpara, vperp;
 
-            nrm_total.normalize();
+            nrm_total = normalize(nrm_total).first;
 
-            vdot = nrm_total.dot(_particle.getVelocity());
+            vdot = dot(nrm_total, _particle.getVelocity());
 
             vperp = nrm_total * vdot;
 
@@ -349,10 +349,10 @@ void ParticlePhysics::updateHoming()
     vdither.z() = (((float)ival / 0x8000) - 1.0f)  * uncertainty;
 
     // take away any dithering along the direction of motion of the particle
-    float vlen = _particle.getVelocity().length_2();
+    float vlen = id::squared_euclidean_norm(_particle.getVelocity());
     if (vlen > 0.0f)
     {
-        float vdot = vdither.dot(_particle.getVelocity()) / vlen;
+        float vdot = dot(vdither, _particle.getVelocity()) / vlen;
 
         vdither -= vdiff * (vdot/vlen);
     }
@@ -363,7 +363,7 @@ void ParticlePhysics::updateHoming()
     // Make sure that vdiff doesn't ever get too small.
     // That just makes the particle slooooowww down when it approaches the target.
     // Do a real kludge here. this should be a lot faster than a square root, but ...
-    vlen = vdiff.length_abs();
+    vlen = id::manhattan_norm(vdiff);
     if (vlen > FLT_EPSILON)
     {
         float factor = min_length / vlen;
@@ -387,7 +387,7 @@ void ParticlePhysics::updateFloorFriction()
     if (SPRITE_SOLID != _particle.type) return;
 
     // figure out the acceleration due to the current "floor"
-    Vector3f floor_acc = Vector3f::zero();
+    Vector3f floor_acc = id::zero<Vector3f>();
     float temp_friction_xy = 1.0f;
 
     const std::shared_ptr<Object> &platform = _currentModule->getObjectHandler()[_particle.onwhichplatform_ref];
@@ -440,22 +440,22 @@ void ParticlePhysics::updateFloorFriction()
     }
     else
     {
-        float ftmp = floor_acc.dot(vup);
+        float ftmp = dot(floor_acc, vup);
         floor_acc -= vup * ftmp;
 
-        ftmp = fric.dot(vup);
+        ftmp = dot(fric, vup);
         fric -= vup * ftmp;
     }
 
     // test to see if the particle has any more friction left?
-    penviro->is_slipping = fric.length_abs() > penviro->friction_hrz;
+    penviro->is_slipping = id::manhattan_norm(fric) > penviro->friction_hrz;
     if (penviro->is_slipping)
     {
         penviro->traction *= 0.5f;
         temp_friction_xy = std::sqrt(temp_friction_xy);
 
         fric_floor = floor_acc * ((1.0f - penviro->zlerp) * (1.0f - temp_friction_xy) * penviro->traction);
-        float ftmp = fric_floor.dot(vup);
+        float ftmp = dot(fric_floor, vup);
         fric_floor -= vup * ftmp;
     }
 
@@ -491,7 +491,7 @@ void ParticlePhysics::updateGravity()
             if(!object->canCollide()) continue;
 
             const Vector3f pull = _particle.getPosition() - object->getPosition();
-            const float distance = pull.length_2();
+            const float distance = id::squared_euclidean_norm(pull);
             if(distance > 10.0f) {
                 object->setVelocity(object->getVelocity() + (pull * _particle.getProfile()->getGravityPull()) * (1.0f/distance));
             }
@@ -516,7 +516,7 @@ void ParticlePhysics::updateGravity()
             if(!particle->canCollide()) continue;
 
             const Vector3f pull = _particle.getPosition() - particle->getPosition();
-            const float distance = pull.length_2();
+            const float distance = id::squared_euclidean_norm(pull);
             if(distance > 10.0f) {
                 particle->setVelocity(particle->getVelocity() + (pull * _particle.getProfile()->getGravityPull()) * (1.0f/distance));
             }
@@ -581,7 +581,7 @@ void ParticlePhysics::updateEnviroment()
         Vector3f platform_up;
 
         chr_getMatUp(platform.get(), platform_up);
-        platform_up.normalize();
+        platform_up = normalize(platform_up).first;
 
         penviro->traction = std::abs(platform_up.z()) * (1.0f - penviro->zlerp) + 0.25f * penviro->zlerp;
 

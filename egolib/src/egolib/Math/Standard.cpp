@@ -124,18 +124,18 @@ float fvec3_decompose(const Vector3f& A, const Vector3f& vnrm, Vector3f& vpara, 
     /// @details the normal (vnrm) is assumed to be normalized. Try to get this as optimized as possible.
 
     // if this is true, there is no reason to run this function
-    float dot = A.dot(vnrm);
+    float d = dot(A, vnrm);
 
-    if (0.0f == dot)
+    if (0.0f == d)
     {
-		vpara = Vector3f::zero();
+		vpara = id::zero<Vector3f>();
 		vperp = A;
     }
     else
     {
-		vpara = vnrm * dot;
+		vpara = vnrm * d;
 		vperp = A - vpara;
     }
 
-    return dot;
+    return d;
 }

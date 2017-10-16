@@ -561,7 +561,7 @@ uint8_t ObjectGraphics::getReflectionAlpha() const
     float alphaFade = (255.0f - altitudeAboveGround)*0.5f;
     alphaFade = Ego::Math::constrain(alphaFade, 0.0f, 255.0f);
 
-    return this->alpha * alphaFade * INV_FF<float>();
+    return this->alpha * alphaFade * id::fraction<float, 1, 255>();
 }
 
 void ObjectGraphics::setObjectProfile(const std::shared_ptr<ObjectProfile> &profile)
@@ -664,7 +664,7 @@ void ObjectGraphics::getTint(GLXvector4f tint, const bool reflection, const int 
             local_light = 0xFF;
         }
         else {
-            local_light = this->light * local_alpha * INV_FF<float>();
+            local_light = this->light * local_alpha * id::fraction<float, 1, 255>();
         }
 
 		local_sheen = this->sheen / 2; //half of normal sheen
@@ -696,14 +696,14 @@ void ObjectGraphics::getTint(GLXvector4f tint, const bool reflection, const int 
         case CHR_LIGHT:
         case CHR_ALPHA:
             // alpha characters are blended onto the canvas using the alpha channel
-            tint[AA] = local_alpha * INV_FF<float>();
+            tint[AA] = local_alpha * id::fraction<float, 1, 255>();
 
             // alpha characters are blended onto the canvas by adding their color
             // the more black the colors, the less visible the character
             // the alpha channel is not important
-            tint[RR] = local_light * INV_FF<float>() / (1 << local_colorshift.red);
-            tint[GG] = local_light * INV_FF<float>() / (1 << local_colorshift.green);
-            tint[BB] = local_light * INV_FF<float>() / (1 << local_colorshift.blue);
+            tint[RR] = local_light * id::fraction<float, 1, 255>() / (1 << local_colorshift.red);
+            tint[GG] = local_light * id::fraction<float, 1, 255>() / (1 << local_colorshift.green);
+            tint[BB] = local_light * id::fraction<float, 1, 255>() / (1 << local_colorshift.blue);
         break;
 
         case CHR_PHONG:
@@ -725,7 +725,7 @@ void ObjectGraphics::getTint(GLXvector4f tint, const bool reflection, const int 
 
 void ObjectGraphics::flash(uint8_t value)
 {
-	const float flash_val = value * INV_FF<float>();
+	const float flash_val = value * id::fraction<float, 1, 255>();
 
 	// flash the ambient color
 	_ambientColour = flash_val;
@@ -1135,12 +1135,12 @@ void ObjectGraphics::updateAnimationRate()
     if ( _object.isFlying() )
     {
         // for flying objects, the speed is the actual speed
-        speed = _object.getVelocity().length();
+        speed = id::euclidean_norm(_object.getVelocity());
     }
     else
     {
         // For non-flying objects, we use the intended speed.
-        speed = std::max(std::sqrt(_object.getVelocity().x()*_object.getVelocity().x() + _object.getVelocity().y()*_object.getVelocity().y()), _object.getObjectPhysics().getDesiredVelocity().length());
+        speed = std::max(id::euclidean_norm(xy(_object.getVelocity())), id::euclidean_norm(_object.getObjectPhysics().getDesiredVelocity()));
         if (_object.getObjectPhysics().floorIsSlippy())
         {
             // The character is slipping as on ice.

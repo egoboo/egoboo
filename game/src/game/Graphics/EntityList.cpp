@@ -113,7 +113,7 @@ void EntityList::sort(Camera& cam, const bool do_reflect) {
 
         // If theangle between this vector and the camera vector is greater than 90 degrees,
         // then set the distance to positive infinity.
-        float dist = vtmp.dot(vcam);
+        float dist = dot(vtmp, vcam);
         if (dist > 0) {
             list[count].iobj = list[i].iobj;
             list[count].iprt = list[i].iprt;
@@ -169,8 +169,8 @@ bool EntityList::test(::Camera& camera, const Ego::Particle& particle) {
     // both its bounding sphere and its reflected bounding sphere
     // are outside of the frustum.
     const auto& frustum = camera.getFrustum();
-    const Sphere3f sphere(Point3f::toPoint(particle.getPosition()), particle.bump_real.size_big);
-    const Sphere3f reflectedSphere(Point3f::toPoint(particle.inst.ref_pos), particle.bump_real.size_big);
+    const Sphere3f sphere(id::semantic_cast<Point3f>(particle.getPosition()), particle.bump_real.size_big);
+    const Sphere3f reflectedSphere(id::semantic_cast<Point3f>(particle.inst.ref_pos), particle.bump_real.size_big);
     if (Ego::Math::Relation::outside == frustum.intersects(sphere, false) &&
         Ego::Math::Relation::outside == frustum.intersects(reflectedSphere, false)) {
         return false;

@@ -18,15 +18,15 @@ ParticleGraphics::ParticleGraphics() :
     light(0),
 
     // position info
-    pos(Vector3f::zero()),
+    pos(id::zero<Vector3f>()),
     size(0.0f),
     scale(0.0f),
 
     // billboard info
     orientation(prt_ori_t::ORIENTATION_B),
-    up(Vector3f::zero()),
-    right(Vector3f::zero()),
-    nrm(Vector3f::zero()),
+    up(id::zero<Vector3f>()),
+    right(id::zero<Vector3f>()),
+    nrm(id::zero<Vector3f>()),
 
     // lighting info
     famb(0.0f),
@@ -37,9 +37,9 @@ ParticleGraphics::ParticleGraphics() :
 
     // pre-compute some values for the reflected particle posisions
     ref_valid(false),
-    ref_up(Vector3f::zero()),
-    ref_right(Vector3f::zero()),
-    ref_pos(Vector3f::zero())
+    ref_up(id::zero<Vector3f>()),
+    ref_right(id::zero<Vector3f>()),
+    ref_pos(id::zero<Vector3f>())
 {
     //ctor   
 }
@@ -79,42 +79,42 @@ gfx_rv ParticleGraphics::update_vertices(ParticleGraphics& inst, ::Camera& camer
 
     // get the vector from the camera to the particle
     Vector3f vfwd = inst.pos - camera.getPosition();
-    vfwd.normalize();
+    vfwd = normalize(vfwd).first;
 
     Vector3f vfwd_ref = inst.ref_pos - camera.getPosition();
-    vfwd_ref.normalize();
+    vfwd_ref = normalize(vfwd_ref).first;
 
     // Set the up and right vectors.
     Vector3f vup = Vector3f(0.0f, 0.0f, 1.0f), vright;
     Vector3f vup_ref = Vector3f(0.0f, 0.0f, 1.0f), vright_ref;
-    if (ppip->rotatetoface && !pprt->isAttached() && (pprt->getVelocity().length_abs() > 0))
+    if (ppip->rotatetoface && !pprt->isAttached() && (id::manhattan_norm(pprt->getVelocity()) > 0))
     {
         // The particle points along its direction of travel.
 
         vup = pprt->getVelocity();
-        vup.normalize();
+        vup = normalize(vup).first;
 
         // Get the correct "right" vector.
-        vright = vfwd.cross(vup);
-        vright.normalize();
+        vright = cross(vfwd, vup);
+        vright = normalize(vright).first;
 
         vup_ref = vup;
-        vright_ref = vfwd_ref.cross(vup);
-        vright_ref.normalize();
+        vright_ref = cross(vfwd_ref, vup);
+        vright_ref = normalize(vright_ref).first;
     }
     else if (prt_ori_t::ORIENTATION_B == inst.orientation)
     {
         // Use the camera up vector.
         vup = camera.getUp();
-        vup.normalize();
+        vup = normalize(vup).first;
 
         // Get the correct "right" vector.
-        vright = vfwd.cross(vup);
-        vright.normalize();
+        vright = cross(vfwd, vup);
+        vright = normalize(vright).first;
 
         vup_ref = vup;
-        vright_ref = vfwd_ref.cross(vup);
-        vright_ref.normalize();
+        vright_ref = cross(vfwd_ref, vup);
+        vright_ref = normalize(vright_ref).first;
     }
     else if (prt_ori_t::ORIENTATION_V == inst.orientation)
     {
@@ -135,33 +135,33 @@ gfx_rv ParticleGraphics::update_vertices(ParticleGraphics& inst, ::Camera& camer
         if (vup_cam[kZ] < 0) weight *= -1;
 
         vup += vup_cam * weight;
-        vup.normalize();
+        vup = normalize(vup).first;
 
         // Get the correct "right" vector.
-        vright = vfwd.cross(vup);
-        vright.normalize();
+        vright = cross(vfwd, vup);
+        vright = normalize(vright).first;
 
-        vright_ref = vfwd.cross(vup_ref);
-        vright_ref.normalize();
+        vright_ref = cross(vfwd, vup_ref);
+        vright_ref = normalize(vright_ref).first;
 
         vup_ref = vup;
-        vright_ref = vfwd_ref.cross(vup);
-        vright_ref.normalize();
+        vright_ref = cross(vfwd_ref, vup);
+        vright_ref = normalize(vright_ref).first;
     }
     else if (prt_ori_t::ORIENTATION_H == inst.orientation)
     {
         Vector3f vert = Vector3f(0.0f, 0.0f, 1.0f);
 
         // Force right to be horizontal.
-        vright = vfwd.cross(vert);
+        vright = cross(vfwd, vert);
 
         // Force "up" to be close to the camera forward, but horizontal.
-        vup = vert.cross(vright);
+        vup = cross(vert, vright);
         //vup_ref = vert.cross(vright_ref); //TODO: JJ> is this needed?
 
         // Normalize them.
-        vright.normalize();
-        vup.normalize();
+        vright = normalize(vright).first;
+        vup = normalize(vup).first;
 
         vright_ref = vright;
         vup_ref = vup;
@@ -184,7 +184,7 @@ gfx_rv ParticleGraphics::update_vertices(ParticleGraphics& inst, ::Camera& camer
                 case prt_ori_t::ORIENTATION_Z: vup = mat_getChrUp(cinst.getMatrix());      break;
             }
 
-            vup.normalize();
+            vup = normalize(vup).first;
         }
         else
         {
@@ -199,29 +199,29 @@ gfx_rv ParticleGraphics::update_vertices(ParticleGraphics& inst, ::Camera& camer
             }
         }
 
-        vup.normalize();
+        vup = normalize(vup).first;
 
         // Get the correct "right" vector.
-        vright = vfwd.cross(vup);
-        vright.normalize();
+        vright = cross(vfwd, vup);
+        vright = normalize(vright).first;
 
         vup_ref = vup;
-        vright_ref = vfwd_ref.cross(vup);
-        vright_ref.normalize();
+        vright_ref = cross(vfwd_ref, vup);
+        vright_ref = normalize(vright_ref).first;
     }
     else
     {
         // Use the camera up vector.
         vup = camera.getUp();
-        vup.normalize();
+        vup = normalize(vup).first;
 
         // Get the correct "right" vector.
-        vright = vfwd.cross(vup);
-        vright.normalize();
+        vright = cross(vfwd, vup);
+        vright = normalize(vright).first;
 
         vup_ref = vup;
-        vright_ref = vfwd_ref.cross(vup);
-        vright_ref.normalize();
+        vright_ref = cross(vfwd_ref, vup);
+        vright_ref = normalize(vright_ref).first;
     }
 
     // Calculate the actual vectors using the particle rotation.
@@ -253,10 +253,10 @@ gfx_rv ParticleGraphics::update_vertices(ParticleGraphics& inst, ::Camera& camer
     }
 
     // Calculate the billboard normal.
-    inst.nrm = inst.right.cross(inst.up);
+    inst.nrm = cross(inst.right, inst.up);
 
     // Flip the normal so that the front front of the quad is toward the camera.
-    if (vfwd.dot(inst.nrm) < 0)
+    if (dot(vfwd, inst.nrm) < 0)
     {
         inst.nrm *= -1;
     }
@@ -284,7 +284,7 @@ gfx_rv ParticleGraphics::update_vertices(ParticleGraphics& inst, ::Camera& camer
         // The dot product between the normal vector and the world up vector:
         // The following statement could be optimized
         // since we know the only non-zero component of the world up vector is z.
-        float ndot = inst.nrm.dot(world_up);
+        float ndot = dot(inst.nrm, world_up);
 
         // Do nothing if the quad is basically horizontal.
         if (ndot < 1.0f - 1e-6)
@@ -294,7 +294,7 @@ gfx_rv ParticleGraphics::update_vertices(ParticleGraphics& inst, ::Camera& camer
                 // The dot product between the right vector and the world up:
                 // The following statement could be optimized
                 // since we know the only non-zero component of the world up vector is z.
-                float zdot = inst.ref_right.dot(world_up);
+                float zdot = dot(inst.ref_right, world_up);
 
                 if (std::abs(zdot) > 1e-6)
                 {
@@ -308,7 +308,7 @@ gfx_rv ParticleGraphics::update_vertices(ParticleGraphics& inst, ::Camera& camer
                 // The dot product between the up vector and the world up:
                 // The following statement could be optimized
                 // since we know the only non-zero component of the world up vector is z.
-                float zdot = inst.ref_up.dot(world_up);
+                float zdot = dot(inst.ref_up, world_up);
 
                 if (std::abs(zdot) > 1e-6)
                 {
@@ -394,15 +394,15 @@ gfx_rv ParticleGraphics::update_lighting(ParticleGraphics& pinst, Particle *pprt
     pinst.fdir = 0.9f * pinst.fdir + 0.1f * dir;
 
     // determine the overall lighting
-    pinst.fintens = pinst.fdir * INV_FF<float>();
+    pinst.fintens = pinst.fdir * id::fraction<float, 1, 255>();
     if (do_lighting)
     {
-        pinst.fintens += pinst.famb * INV_FF<float>();
+        pinst.fintens += pinst.famb * id::fraction<float, 1, 255>();
     }
     pinst.fintens = Ego::Math::constrain(pinst.fintens, 0.0f, 1.0f);
 
     // determine the alpha component
-    pinst.falpha = (alpha * INV_FF<float>()) * (pinst.alpha * INV_FF<float>());
+    pinst.falpha = (alpha * id::fraction<float, 1, 255>()) * (pinst.alpha * id::fraction<float, 1, 255>());
     pinst.falpha = Ego::Math::constrain(pinst.falpha, 0.0f, 1.0f);
 
     return gfx_success;

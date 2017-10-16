@@ -88,7 +88,7 @@ void BackgroundRenderPass::doRun(::Camera& camera, const TileList& tl, const Ent
     }
 
     float light = _currentModule->getWater()._light ? 1.0f : 0.0f;
-    float alpha = ilayer->_alpha * INV_FF<float>();
+    float alpha = ilayer->_alpha * id::fraction<float, 1, 255>();
 
     float intens = 1.0f;
 

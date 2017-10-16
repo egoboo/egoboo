@@ -9,11 +9,8 @@
 #include "egolib/Math/Line.hpp"
 #include "egolib/Math/Matrix.hpp"
 #include "egolib/Math/Plane.hpp"
-#include "egolib/Math/Point.hpp"
-#include "egolib/Math/Interval.hpp"
 #include "egolib/Math/Ray.hpp"
 #include "egolib/Math/Sphere.hpp"
-#include "egolib/Math/Vector.hpp"
 #include "egolib/Math/VectorSpace.hpp"
 
 
@@ -26,6 +23,26 @@
 enum {
     kX = 0, kY, kZ, kW
 };
+
+/// @brief Project a vector (x,y,z) to a vector (x,y).
+/// @tparam S the scalar typedef
+/// @param v the vector (x,y,z)
+/// @return the vector (x,y)
+template <typename S>
+auto xy(const id::vector<S, 3>& v)
+{ return id::vector<S, 2>(v.x(), v.y()); }
+
+template <typename V, typename W>
+auto dot(V&& v, W&& w)
+{ return id::dot_product(std::forward<V>(v), std::forward<W>(w)); }
+
+template <typename V, typename W>
+auto cross(V&& v, W&& w)
+{ return id::cross_product(std::forward<V>(v), std::forward<W>(w)); }
+
+template <typename V>
+auto normalize(V&& v)
+{ return id::normalize(std::forward<V>(v), id::euclidean_norm_functor<std::decay_t<V>>()); }
 
 /// discrete ring
 using Ringi = Ego::Math::OrderedRing<int>;
@@ -62,20 +79,19 @@ using EuclideanSpace4f = Ego::Math::EuclideanSpace<VectorSpace4f>;
 
 
 /// single-precision floating-point 2d vector.
-using Vector2f = Ego::Math::Vector<OrderedFieldf, 2>;
+using Vector2f = id::vector<float, 2>;
 /// single-precision floating-point 3d vector.
-using Vector3f = Ego::Math::Vector<OrderedFieldf, 3>;
+using Vector3f = id::vector<float, 3>;
 /// single-precision floating-point 4d vector.
-using Vector4f = Ego::Math::Vector<OrderedFieldf, 4>;
-
+using Vector4f = id::vector<float, 4>;
 
 
 /// single-precision floating-point 2d point.
-using Point2f = Ego::Math::Point<VectorSpace2f>;
+using Point2f = id::point<Vector2f>;
 /// single-precision floating-point 3d point.
-using Point3f = Ego::Math::Point<VectorSpace3f>;
+using Point3f = id::point<Vector3f>;
 /// single-precision floating-point 4d point.
-using Point4f = Ego::Math::Point<VectorSpace4f>;
+using Point4f = id::point<Vector4f>;
 
 
 
@@ -121,17 +137,11 @@ using Cone3f = Ego::Math::Cone3<EuclideanSpace3f>;
 /// A 3D axis aligned cube.
 using AxisAlignedCube3f = Ego::Math::AxisAlignedCube<EuclideanSpace3f>;
 
-
-
-namespace Ego {
-namespace Math {
-
-/// An interval with single-precision floating-point components.
-using Intervalf = Interval<float>;
+namespace Ego { namespace Math {
 
 /// A colour in RGB colour space with single-precision floating-point components each within the range from 0 (inclusive) to 1 (inclusive).
 /// A component value of 0 indicates minimal intensity of the component and 1 indicates maximal intensity of the component.
-using Colour3f =  id::color<id::RGBf>;
+using Colour3f = id::color<id::RGBf>;
 
 /// A colour in RGBA colour space with single-precision floating-point components each within the range from 0 (inclusive) to 1 (inclusive).
 /// A component value of 0 indicates minimal intensity of the component and 1 indicates maximal intensity of the component.
@@ -145,9 +155,19 @@ using Colour3b = id::color<id::RGBb>;
 /// A component value of 0 indicates minimal intensity of the component and 255 indicates maximal intensity of the component.
 using Colour4b = id::color<id::RGBAb>;
 
-} // namespace Math
-} // namespace Ego
+/// The type of an angle in degrees.
+/// See id::degrees for more information.
+using Degrees = id::angle<float, id::degrees>;
 
+/// The type of an angle in radians.
+/// See id::radians for more information.
+using Radians = id::angle<float, id::radians>;
+
+/// The type of an angle in turns.
+/// See id::turns for more information.
+using Turns = id::angle<float, id::turns>;
+
+} } // namespace Ego::Math
 
 namespace Ego {
 /**
@@ -254,7 +274,7 @@ namespace Debug {
 template <>
 struct Validate<float> {
     void operator()(const char *file, int line, float object) const {
-        if (float_bad(object)) {
+        if (id::is_bad(object)) {
             auto e = Log::Entry::create(Log::Level::Error, file, line, "invalid floating point value", Log::EndOfEntry);
             Log::get() << e;
             throw std::runtime_error(e.getText());
@@ -262,20 +282,20 @@ struct Validate<float> {
     }
 };
 
-template <typename EuclideanSpaceType>
-struct Validate<Ego::Math::Point<EuclideanSpaceType>> {
-    void operator()(const char *file, int line, const Ego::Math::Point<EuclideanSpaceType>& object) const {
-        static const Validate<typename EuclideanSpaceType::ScalarType> validate{};
-        for (size_t i = 0; i < EuclideanSpaceType::dimensionality(); ++i) {
+template <typename VectorType>
+struct Validate<id::point<VectorType>> {
+    void operator()(const char *file, int line, const id::point<VectorType>& object) const {
+        static const Validate<typename VectorType::ScalarType> validate{};
+        for (size_t i = 0; i < VectorType::dimensionality(); ++i) {
             validate(file, line, object[i]);
         }
     }
 };
 
-template <typename ScalarFieldType, size_t Dimensionality>
-struct Validate<Ego::Math::Vector<ScalarFieldType, Dimensionality>> {
-    void operator()(const char *file, int line, const Ego::Math::Vector<ScalarFieldType, Dimensionality>& object) const {
-        static const Validate<typename ScalarFieldType::ScalarType> validate{};
+template <typename ScalarType, size_t Dimensionality>
+struct Validate<id::vector<ScalarType, Dimensionality>> {
+    void operator()(const char *file, int line, const id::vector<ScalarType, Dimensionality>& object) const {
+        static const Validate<ScalarType> validate{};
         for (size_t i = 0; i < Dimensionality; ++i) {
             validate(file, line, object[i]);
         }
@@ -455,9 +475,9 @@ struct Utilities {
         Vector3f vUp = up - ori;
         Vector3f vFor = frw - ori;
 
-        vWid.normalize();
-        vUp.normalize();
-        vFor.normalize();
+        vWid = normalize(vWid).first;
+        vUp = normalize(vUp).first;
+        vFor = normalize(vFor).first;
 
         Matrix4f4f dst;
         dst(0, 0) = -scale * vWid[kX];  // HUK
