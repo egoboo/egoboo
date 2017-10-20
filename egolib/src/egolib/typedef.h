@@ -203,8 +203,6 @@ enum DamageModifier : uint8_t
     NONE = (0),                 ///< 00000000 Do no conversion.
 };
 
-#include "egolib/Ref.hpp"
-
 using ObjectRef = Ref<size_t, std::numeric_limits<size_t>::min(), std::numeric_limits<size_t>::max(), RefKind::Object>;
 namespace std {
     template <>

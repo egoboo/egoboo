@@ -169,7 +169,7 @@ public:
     }
     
     void setupPaths() {
-        setup_init_module_vfs_paths(_moduleName.c_str());
+        setup_init_module_vfs_paths(_moduleName);
     }
     
     std::vector<std::shared_ptr<ObjectGUIContainer>> getObjectList() {

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "egolib/Script/EnumDescriptor.hpp"
-#include "egolib/Script/Conversion.hpp"
 
 namespace Ego {
 namespace Configuration {

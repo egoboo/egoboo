@@ -27,20 +27,20 @@ namespace Ego {
 namespace Script {
 
 PDLToken::PDLToken()
-    : id::token<PDLTokenKind,PDLTokenKind::Unknown>(PDLTokenKind::Unknown, id::location("<unknown>", 1), std::string()), m_endLocation("<unknown>", 1), m_value(0)
+    : id::c::token<PDLTokenKind,PDLTokenKind::Unknown>(PDLTokenKind::Unknown, id::c::location("<unknown>", 1), std::string()), m_endLocation("<unknown>", 1), m_value(0)
 {}
 
-PDLToken::PDLToken(PDLTokenKind kind, const id::location& startLocation,
-                   const id::location& endLocation, const std::string& lexeme)
-    : id::token<PDLTokenKind, PDLTokenKind::Unknown>(kind, startLocation, lexeme), m_endLocation(endLocation), m_value(0)
+PDLToken::PDLToken(PDLTokenKind kind, const id::c::location& startLocation,
+                   const id::c::location& endLocation, const std::string& lexeme)
+    : id::c::token<PDLTokenKind, PDLTokenKind::Unknown>(kind, startLocation, lexeme), m_endLocation(endLocation), m_value(0)
 {}
 
 PDLToken::PDLToken(const PDLToken& other)
-    : id::token<PDLTokenKind, PDLTokenKind::Unknown>(other), m_endLocation(other.m_endLocation), m_value(other.m_value)
+    : id::c::token<PDLTokenKind, PDLTokenKind::Unknown>(other), m_endLocation(other.m_endLocation), m_value(other.m_value)
 {}
 
 PDLToken::PDLToken(PDLToken&& other)
-    : id::token<PDLTokenKind, PDLTokenKind::Unknown>(std::move(other)), m_endLocation(std::move(other.m_endLocation)), m_value(std::move(other.m_value))
+    : id::c::token<PDLTokenKind, PDLTokenKind::Unknown>(std::move(other)), m_endLocation(std::move(other.m_endLocation)), m_value(std::move(other.m_value))
 {}
 
 PDLToken::~PDLToken()

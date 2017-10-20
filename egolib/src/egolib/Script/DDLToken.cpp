@@ -27,16 +27,16 @@
 namespace Ego {
 namespace Script {
 
-DDLToken::DDLToken(DDLTokenKind kind, const id::location& startLocation, const std::string& lexeme)
-    : id::token<DDLTokenKind, DDLTokenKind::Unknown>(kind, startLocation, lexeme)
+DDLToken::DDLToken(DDLTokenKind kind, const id::c::location& startLocation, const std::string& lexeme)
+    : id::c::token<DDLTokenKind, DDLTokenKind::Unknown>(kind, startLocation, lexeme)
 {}
 
 DDLToken::DDLToken(const DDLToken& other)
-    : id::token<DDLTokenKind, DDLTokenKind::Unknown>(other)
+    : id::c::token<DDLTokenKind, DDLTokenKind::Unknown>(other)
 {}
 
 DDLToken::DDLToken(DDLToken&& other)
-    : id::token<DDLTokenKind, DDLTokenKind::Unknown>(std::move(other))
+    : id::c::token<DDLTokenKind, DDLTokenKind::Unknown>(std::move(other))
 {}
 
 DDLToken& DDLToken::operator=(DDLToken other)

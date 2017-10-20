@@ -511,7 +511,7 @@ void setup_init_base_vfs_paths();
 void setup_clear_base_vfs_paths();
 
 /// Set in the VFS the module specific mount points/search path.
-bool setup_init_module_vfs_paths(const char *mod_path);
+bool setup_init_module_vfs_paths(const std::string& mod_path);
 
 /// Remove from the VFS the module specific mount points/search paths.
 void setup_clear_module_vfs_paths();

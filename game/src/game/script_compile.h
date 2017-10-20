@@ -67,26 +67,26 @@ public:
 
 private:
     void emit(const Ego::Script::PDLToken& token);
-    void emit(Ego::Script::PDLTokenKind kind, const id::location& start, const id::location& end);
-    void emit(Ego::Script::PDLTokenKind kind, const id::location& start, const id::location& end,
+    void emit(Ego::Script::PDLTokenKind kind, const id::c::location& start, const id::c::location& end);
+    void emit(Ego::Script::PDLTokenKind kind, const id::c::location& start, const id::c::location& end,
               const std::string& lexeme);
-    void emit(Ego::Script::PDLTokenKind kind, const id::location& start, const id::location& end,
+    void emit(Ego::Script::PDLTokenKind kind, const id::c::location& start, const id::c::location& end,
               int value);
     Ego::Script::PDLToken m_token;
-    id::location m_location;
+    id::c::location m_location;
     size_t m_inputPosition;
     Ego::Script::Buffer *m_inputBuffer;
     Ego::Script::Buffer m_lexemeBuffer;
 
 public:
-    line_scanner_state_t(Ego::Script::Buffer *inputBuffer, const id::location& location);
+    line_scanner_state_t(Ego::Script::Buffer *inputBuffer, const id::c::location& location);
 
 public:
     line_scanner_state_t(const line_scanner_state_t& other) = delete;
     line_scanner_state_t& operator=(const line_scanner_state_t&) = delete;
 
 public:
-    id::location getLocation() const;
+    id::c::location getLocation() const;
 
     void next();
     void write(int symbol);

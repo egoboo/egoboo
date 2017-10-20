@@ -42,8 +42,8 @@ bool SpawnFileReaderImpl::read(ReadContext& ctxt, spawn_file_info_t& info)
         } while (!ctxt.is(':') && !ctxt.ise(ctxt.NEW_LINE()) && !ctxt.ise(ctxt.END_OF_INPUT()) && !ctxt.ise(ctxt.ERROR()));
         if (ctxt.ise(ctxt.ERROR()))
         {
-            throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, ctxt.get_location(),
-                                        "read error");
+            throw id::c::compilation_error(__FILE__, __LINE__, id::c::compilation_error_kind::lexical, ctxt.get_location(),
+                                           "read error");
         }
         if (ctxt.ise(ctxt.END_OF_INPUT()))
         {
@@ -51,8 +51,8 @@ bool SpawnFileReaderImpl::read(ReadContext& ctxt, spawn_file_info_t& info)
         }
         if (!ctxt.is(':'))
         {
-            throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, ctxt.get_location(),
-                                        "expected `:`");
+            throw id::c::compilation_error(__FILE__, __LINE__, id::c::compilation_error_kind::lexical, ctxt.get_location(),
+                                           "expected `:`");
         }
         ctxt.next();
 
@@ -83,8 +83,8 @@ bool SpawnFileReaderImpl::read(ReadContext& ctxt, spawn_file_info_t& info)
             case 'I': info.attach = ATTACH_INVENTORY; break;
             default:
             {
-                throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::syntactical, ctxt.get_location(),
-                                            "invalid enumeration element");
+                throw id::c::compilation_error(__FILE__, __LINE__, id::c::compilation_error_kind::syntactical, ctxt.get_location(),
+                                               "invalid enumeration element");
             }
         };
         info.money = ctxt.readIntegerLiteral();
@@ -121,8 +121,8 @@ bool SpawnFileReaderImpl::read(ReadContext& ctxt, spawn_file_info_t& info)
         std::string what = ctxt.readName();
         if (what != "dependency")
         {
-            throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::syntactical, ctxt.get_location(),
-                                        "syntax error");
+            throw id::c::compilation_error(__FILE__, __LINE__, id::c::compilation_error_kind::syntactical, ctxt.get_location(),
+                                           "syntax error");
         }
         std::string who;
         ctxt.skipWhiteSpaces();
@@ -136,8 +136,8 @@ bool SpawnFileReaderImpl::read(ReadContext& ctxt, spawn_file_info_t& info)
         }
         if (who.empty()) /// @todo Verify that this is unnecessary based on the definition of readName.
         {
-            throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::syntactical, ctxt.get_location(),
-                                        "syntax error");
+            throw id::c::compilation_error(__FILE__, __LINE__, id::c::compilation_error_kind::syntactical, ctxt.get_location(),
+                                           "syntax error");
         }
         int slot = ctxt.readIntegerLiteral();
         // Store the data.
@@ -147,8 +147,8 @@ bool SpawnFileReaderImpl::read(ReadContext& ctxt, spawn_file_info_t& info)
     }
     else if (!ctxt.ise(ctxt.END_OF_INPUT()))
     {
-        throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, ctxt.get_location(),
-                                    "junk after end of spawn file");
+        throw id::c::compilation_error(__FILE__, __LINE__, id::c::compilation_error_kind::lexical, ctxt.get_location(),
+                                       "junk after end of spawn file");
     }
     return false;
 }

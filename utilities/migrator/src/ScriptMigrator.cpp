@@ -85,7 +85,7 @@ void ScriptMigrator::run(const std::string& pathname)
     std::vector<char> buffer;
     buffer.reserve(source_fd.size());
     std::copy(source_fd.data(), source_fd.data() + source_fd.size(), std::back_inserter(buffer));
-    scanner s(id::location(pathname, 1), buffer.data(), buffer.data() + buffer.size(), buffer.data());
+    scanner s(id::c::location(pathname, 1), buffer.data(), buffer.data() + buffer.size(), buffer.data());
     parser p(&s);
     p.run();
     id::file_system::mapped_file_descriptor target_fd;

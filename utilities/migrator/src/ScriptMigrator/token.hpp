@@ -22,7 +22,7 @@ enum class token_kind
 }; // enum class token_kind
 
 /// @brief A token.
-using token = id::token<token_kind, token_kind::error>;
+using token = id::c::token<token_kind, token_kind::error>;
 
 static_assert(std::is_nothrow_move_constructible<token>::value, "token should be nothrow move constructible");
 #if !defined(__GNUC__) || __GNUC__ > 6

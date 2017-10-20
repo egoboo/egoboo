@@ -465,7 +465,7 @@ bool load_module( const std::string& modname, cartman_mpd_t * pmesh )
 
     std::string mod_path = std::string("/modules/") + modname;
 
-    if (!setup_init_module_vfs_paths(modname.c_str()))
+    if (!setup_init_module_vfs_paths(modname))
     {
         return false;
     }
@@ -1898,19 +1898,17 @@ void cartman_create_mesh( cartman_mpd_t * pmesh )
 
 void cartman_save_mesh( const char * modname, cartman_mpd_t * pmesh )
 {
-    STRING newloadname;
-
     if ( NULL == pmesh ) pmesh = &mesh;
 
     numwritten = 0;
     numattempt = 0;
 
-    sprintf( newloadname, "%s" SLASH_STR "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "plan.bmp", egoboo_path.c_str(), modname );
-
+	std::string newloadname = egoboo_path + SLASH_STR + "modules" + SLASH_STR + modname + SLASH_STR + "gamedat" + SLASH_STR + "plan.bmp";
+	
     make_planmap( pmesh );
     if (Resources::get().bmphitemap )
     {
-        SDL_SaveBMP_RW(Resources::get().bmphitemap.get(), vfs_openRWopsWrite(newloadname), 1 );
+        SDL_SaveBMP_RW(Resources::get().bmphitemap.get(), vfs_openRWopsWrite(newloadname.c_str()), 1 );
     }
 
     //  make_newloadname(modname, SLASH_STR "gamedat" SLASH_STR "level.png", newloadname);

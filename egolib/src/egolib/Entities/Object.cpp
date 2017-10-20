@@ -54,7 +54,6 @@ constexpr float Object::DROPZVEL;
 constexpr float Object::DISMOUNTZVEL;
 
 Object::Object(ObjectProfileRef proRef, ObjectRef objRef) : 
-    spawn_data(),
     ai(),
     gender(Gender::Male),
     experience(0),
@@ -110,6 +109,7 @@ Object::Object(ObjectProfileRef proRef, ObjectRef objRef) :
     shadow_size_save(0),
     is_overlay(false),
     skin(0),
+	skin_stt(0),
     basemodel_ref(proRef),
 
     bump_stt(),
@@ -752,7 +752,7 @@ void Object::update()
         if (!inwater)
         {
             // Splash
-            ParticleHandler::get().spawnGlobalParticle({getPosX(), getPosY(), _currentModule->getWater().get_level() + 10}, Facing::ATK_FRONT, LocalParticleProfileRef(PIP_SPLASH), 0);
+            ParticleHandler::get().spawnGlobalParticle({getPosX(), getPosY(), _currentModule->getWater().get_level() + 10}, ATK_FRONT, LocalParticleProfileRef(PIP_SPLASH), 0);
 
             if ( _currentModule->getWater()._is_water )
             {
@@ -790,7 +790,7 @@ void Object::update()
 
                     if ( 0 == ( (update_wld + getObjRef().get()) & ripand ))
                     {
-                        ParticleHandler::get().spawnGlobalParticle({getPosX(), getPosY(), _currentModule->getWater().get_level()}, Facing::ATK_FRONT, LocalParticleProfileRef(PIP_RIPPLE), 0);
+                        ParticleHandler::get().spawnGlobalParticle({getPosX(), getPosY(), _currentModule->getWater().get_level()}, ATK_FRONT, LocalParticleProfileRef(PIP_RIPPLE), 0);
                     }
                 }
             }
@@ -1201,7 +1201,7 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
     //Throw us forward if we can collide with the holder (for example the Stool)
     //This prevents us from being dropped into the collision box of the holder
     if(bump.size > 0) {
-        Ego::Math::Radians angle = FacingToRadian(Facing(ori.facing_z) + Facing::ATK_BEHIND);
+        Ego::Math::Radians angle = FacingToRadian(Facing(ori.facing_z) + ATK_BEHIND);
         setVelocity(getVelocity() + Vector3f(std::cos(angle) * DROPXYVEL * 0.5f,
                                              std::sin(angle) * DROPXYVEL * 0.5f,
                                              0.0f));
@@ -2827,7 +2827,7 @@ void Object::dropMoney(int amount)
 
         for (size_t i = 0; i < count; i++)
         {
-            ParticleHandler::get().spawnGlobalParticle(pos, Facing::ATK_FRONT, LocalParticleProfileRef(pips[cnt]), i);
+            ParticleHandler::get().spawnGlobalParticle(pos, ATK_FRONT, LocalParticleProfileRef(pips[cnt]), i);
         }
     }
 }
@@ -2866,7 +2866,7 @@ void Object::dropKeys()
         // fix some flags
         pkey->hitready               = true;
         pkey->isequipped             = false;
-        pkey->ori.facing_z           = Facing(FACING_T(direction + Facing::ATK_BEHIND));
+        pkey->ori.facing_z           = Facing(FACING_T(direction + ATK_BEHIND));
         pkey->team                   = pkey->team_base;
 
         // fix the current velocity
@@ -2905,7 +2905,7 @@ void Object::dropAllItems()
     const FACING_T diradd = (std::numeric_limits<FACING_T>::max()/2) / pack_count;
 
     // now drop each item in turn
-    Facing direction = ori.facing_z + Facing::ATK_BEHIND - Facing(diradd * (pack_count/2));
+    Facing direction = ori.facing_z + ATK_BEHIND - Facing(diradd * (pack_count/2));
     for(const std::shared_ptr<Object> &pitem : getInventory().iterate())
     {
         //remove it from inventory
@@ -2922,7 +2922,7 @@ void Object::dropAllItems()
 
         // fix some flags
         pitem->hitready               = true;
-        pitem->ori.facing_z           = Facing(FACING_T(Facing(direction) + Facing::ATK_BEHIND));
+        pitem->ori.facing_z           = Facing(FACING_T(Facing(direction) + ATK_BEHIND));
         pitem->team                   = pitem->team_base;
 
         // fix the current velocity

@@ -21,5 +21,7 @@
 
 #pragma once
 
-bool input_settings_load_vfs(const char *szFilename);
-bool input_settings_save_vfs(const char* szFilename);
+#include "egolib/platform.h"
+
+bool input_settings_load_vfs(const std::string& filename);
+bool input_settings_save_vfs(const std::string& filename);

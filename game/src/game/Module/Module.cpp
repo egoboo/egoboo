@@ -70,7 +70,7 @@ GameModule::GameModule(const std::shared_ptr<ModuleProfile> &profile, const uint
     Log::get() << Log::Entry::create(Log::Level::Info, __FILE__, __LINE__, "loading module ", "`", profile->getPath(), "`", Log::EndOfEntry);
 
     // set up the virtual file system for the module (Do before loading the module)
-    if (!setup_init_module_vfs_paths(getPath().c_str())) {
+    if (!setup_init_module_vfs_paths(getPath())) {
         throw id::runtime_error(__FILE__, __LINE__, "Failed to setup module vfs");
     }
 
@@ -372,13 +372,7 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, ObjectProfi
     }
 
     // just set the spawn info
-    pchr->spawn_data.pos = pos;
-    pchr->spawn_data.profile  = profile;
-    pchr->spawn_data.team     = team;
-    pchr->spawn_data.skin     = skin;
-    pchr->spawn_data.facing   = Facing(FACING_T(facing));
-    strncpy( pchr->spawn_data.name, name.c_str(), SDL_arraysize( pchr->spawn_data.name ) );
-    pchr->spawn_data.override = override;
+    pchr->skin_stt  = skin;
 
     // download all the values from the character spawn_ptr->profile
     // Set up model stuff
@@ -518,11 +512,11 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, ObjectProfi
     // for the "random skin marker" even if that function is called
     if (ppro->getSkinOverride() != ObjectProfile::NO_SKIN_OVERRIDE)
     {
-        pchr->spawn_data.skin = ppro->getSkinOverride();
+        pchr->skin_stt = ppro->getSkinOverride();
     }
 
     //Negative skin number means random skin
-    if (pchr->spawn_data.skin < 0 || !ppro->isValidSkin(pchr->spawn_data.skin))
+    if (pchr->skin_stt < 0 || !ppro->isValidSkin(pchr->skin_stt))
     {
         // This is a "random" skin.
         // Force it to some specific value so it will go back to the same skin every respawn
@@ -530,11 +524,11 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, ObjectProfi
         // is no need to count the skin graphics loaded into the profile.
         // Limiting the available skins to ones that had unique graphics may have been a mistake since
         // the skin-dependent properties in data.txt may exist even if there are no unique graphics.
-        pchr->spawn_data.skin = ppro->getRandomSkinID();
+        pchr->skin_stt = ppro->getRandomSkinID();
     }
 
     // actually set the character skin
-    pchr->setSkin(pchr->spawn_data.skin);
+    pchr->setSkin(pchr->skin_stt);
 
     // override the default behavior for an "easy" game
     if (egoboo_config_t::get().game_difficulty.getValue() < Ego::GameDifficulty::Normal)
@@ -840,15 +834,15 @@ void GameModule::loadTeamAlliances()
     {
         std::string buffer = vfs_read_string_lit(*ctxt);
         if (buffer.length() < 1) {
-            throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::syntactical, ctxt->get_location(),
-                                        "empty string literal");
+            throw id::c::compilation_error(__FILE__, __LINE__, id::c::compilation_error_kind::syntactical, ctxt->get_location(),
+                                           "empty string literal");
         }
         TEAM_REF teama = (buffer[0] - 'A') % Team::TEAM_MAX;
 
         buffer = vfs_read_string_lit(*ctxt);
         if (buffer.length() < 1) {
-            throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::syntactical, ctxt->get_location(),
-                                        "empty string literal");
+            throw id::c::compilation_error(__FILE__, __LINE__, id::c::compilation_error_kind::syntactical, ctxt->get_location(),
+                                           "empty string literal");
         }
         TEAM_REF teamb = (buffer[0] - 'A') % Team::TEAM_MAX;
         _teamList[teama].makeAlliance(_teamList[teamb]);

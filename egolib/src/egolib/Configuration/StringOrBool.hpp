@@ -30,13 +30,13 @@ public:
 
     virtual bool encodeValue(std::string& target) const override
     {
-        return Script::Encoder<ValueType>()(this->getValue(), target);
+        return id::c::encoder<ValueType>()(this->getValue(), target);
     }
 
     virtual bool decodeValue(const std::string& source) override
     {
         ValueType temporary;
-        if (!Script::Decoder<ValueType>()(source, temporary))
+        if (!id::c::decoder<ValueType>()(source, temporary))
         {
             return false;
         }

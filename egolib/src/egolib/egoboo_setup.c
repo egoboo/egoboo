@@ -281,38 +281,37 @@ void setup_clear_base_vfs_paths()
 }
 
 //--------------------------------------------------------------------------------------------
-bool setup_init_module_vfs_paths(const char *mod_path)
+bool setup_init_module_vfs_paths(const std::string& mod_path)
 {
     const char * path_seperator_1, * path_seperator_2;
     const char * mod_dir_ptr;
-    STRING mod_dir_string;
 
-    STRING tmpDir;
 
-    if ( INVALID_CSTR( mod_path ) ) return false;
+    if (mod_path  == "") return false;
 
     // revert to the program's basic mount points
     setup_clear_module_vfs_paths();
 
-    path_seperator_1 = strrchr( mod_path, SLASH_CHR );
-    path_seperator_2 = strrchr( mod_path, NET_SLASH_CHR );
+    path_seperator_1 = strrchr( mod_path.c_str(), SLASH_CHR );
+    path_seperator_2 = strrchr( mod_path.c_str(), NET_SLASH_CHR );
     path_seperator_1 = std::max( path_seperator_1, path_seperator_2 );
 
     if ( NULL == path_seperator_1 )
     {
-        mod_dir_ptr = mod_path;
+        mod_dir_ptr = &(mod_path[0]);
     }
     else
     {
         mod_dir_ptr = path_seperator_1 + 1;
     }
 
-    strncpy( mod_dir_string, mod_dir_ptr, SDL_arraysize( mod_dir_string ) );
+	std::string mod_dir_string = mod_dir_ptr;
 
+	std::string tmpDir;
     //==== set the module-dependent mount points
 
     //---- add the "/modules/*.mod/objects" directories to mp_objects
-    snprintf( tmpDir, SDL_arraysize( tmpDir ), "modules" SLASH_STR "%s" SLASH_STR "objects", mod_dir_string );
+	tmpDir = std::string("modules") + SLASH_STR + mod_dir_string + SLASH_STR + "objects";
 
     // mount the user's module objects directory at the beginning of the mount point list
     vfs_add_mount_point( fs_getDataDirectory(), Ego::FsPath(tmpDir), Ego::VfsPath("mp_objects"), 1 );
@@ -338,7 +337,7 @@ bool setup_init_module_vfs_paths(const char *mod_path)
     vfs_add_mount_point( fs_getDataDirectory(), Ego::FsPath("basicdat" SLASH_STR "globalobjects" SLASH_STR "armor"),            Ego::VfsPath("mp_objects"), 1 );
 
     //---- add the "/modules/*.mod/gamedat" directory to mp_data
-    snprintf( tmpDir, SDL_arraysize( tmpDir ), "modules" SLASH_STR "%s" SLASH_STR "gamedat",  mod_dir_string );
+    tmpDir = std::string("modules") + SLASH_STR + mod_dir_string + SLASH_STR  + "gamedat";
 
     // mount the user's module gamedat directory at the beginning of the mount point list
     vfs_add_mount_point( fs_getUserDirectory(), Ego::FsPath(tmpDir), Ego::VfsPath("mp_data"), 1 );

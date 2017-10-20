@@ -16,7 +16,7 @@ private:
     const char *m_current;
 
     /// @brief The source location before the first Byte of the input
-    id::location m_location;
+    id::c::location m_location;
 
     /// @brief The lexeme buffer.
     std::vector<char> m_buffer;
@@ -29,7 +29,7 @@ public:
     /// @param current a pointer to the address before the current Byte of the input
     /// @throw id::null_error @a start is null
     /// @throw id::null_error @a end is null
-    scanner(const id::location& location, const char *start, const char *end, const char *current);
+    scanner(const id::c::location& location, const char *start, const char *end, const char *current);
 
     /// @brief Destruct this scanner.
     ~scanner();

@@ -118,9 +118,9 @@ public:
 
     /// @brief Get the location.
     /// @return the location
-    id::location get_location() const
+    id::c::location get_location() const
     {
-        return id::location(get_file_name(), get_line_number());
+        return id::c::location(get_file_name(), get_line_number());
     }
 
     /// @brief Get the lexeme text.

@@ -78,14 +78,14 @@ const std::string& ConfigCommentLine::getText() const
 
 //--------------------------------------------------------------------------------------------
 
-ConfigEntry::ConfigEntry(const id::qualified_name& qualifiedName, const std::string& value) :
+ConfigEntry::ConfigEntry(const id::c::qualified_name& qualifiedName, const std::string& value) :
     m_qualifiedName(qualifiedName), m_value(value), m_commentLines()
 {}
 
 ConfigEntry::~ConfigEntry()
 {}
 
-const id::qualified_name& ConfigEntry::getQualifiedName() const
+const id::c::qualified_name& ConfigEntry::getQualifiedName() const
 {
     return m_qualifiedName;
 }
@@ -232,7 +232,7 @@ bool ConfigFileParser::parseQualifiedName()
             return false;
         }
     }
-    _currentQualifiedName.reset(new id::qualified_name(get_lexeme_text()));
+    _currentQualifiedName.reset(new id::c::qualified_name(get_lexeme_text()));
 
     return true;
 }
@@ -318,7 +318,7 @@ bool ConfigFileUnParser::unparse(std::shared_ptr<ConfigFile> source)
         std::sort(entries.begin(), entries.end(),
              [] (const std::shared_ptr<ConfigEntry>& a, const std::shared_ptr<ConfigEntry>& b)
                 {
-                    return std::less<id::qualified_name>()(a->getQualifiedName(), b->getQualifiedName());
+                    return std::less<id::c::qualified_name>()(a->getQualifiedName(), b->getQualifiedName());
                 }
             );
         for (const auto& entry : entries)

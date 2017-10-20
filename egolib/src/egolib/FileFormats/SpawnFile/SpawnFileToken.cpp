@@ -3,8 +3,8 @@
 SpawnFileToken::SpawnFileToken
     (
         SpawnFileTokenKind kind,
-        const id::location& startLocation,
+        const id::c::location& startLocation,
         const std::string& lexeme
     ) :
-    id::token<SpawnFileTokenKind, SpawnFileTokenKind::Unknown>(kind, startLocation, lexeme)
+    id::c::token<SpawnFileTokenKind, SpawnFileTokenKind::Unknown>(kind, startLocation, lexeme)
 {}

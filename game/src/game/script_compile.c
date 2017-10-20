@@ -208,12 +208,12 @@ size_t parser_state_t::load_one_line( size_t read, script_info_t& script )
 
 //--------------------------------------------------------------------------------------------
 
-line_scanner_state_t::line_scanner_state_t(Ego::Script::Buffer *inputBuffer, const id::location& location)
+line_scanner_state_t::line_scanner_state_t(Ego::Script::Buffer *inputBuffer, const id::c::location& location)
     : m_token(Ego::Script::PDLTokenKind::StartOfLine, location, location), m_inputPosition(0),
       m_inputBuffer(inputBuffer), m_location(location), m_lexemeBuffer()
 {}
 
-id::location line_scanner_state_t::getLocation() const
+id::c::location line_scanner_state_t::getLocation() const
 {
     return m_location;
 }
@@ -317,18 +317,18 @@ void line_scanner_state_t::emit(const Ego::Script::PDLToken& token)
     m_token = token;
 }
 
-void line_scanner_state_t::emit(Ego::Script::PDLTokenKind kind, const id::location& start, const id::location& end)
+void line_scanner_state_t::emit(Ego::Script::PDLTokenKind kind, const id::c::location& start, const id::c::location& end)
 {
     m_token = Ego::Script::PDLToken(kind, start, end);
 }
 
-void line_scanner_state_t::emit(Ego::Script::PDLTokenKind kind, const id::location& start, const id::location& end,
+void line_scanner_state_t::emit(Ego::Script::PDLTokenKind kind, const id::c::location& start, const id::c::location& end,
                                 const std::string& lexeme)
 {
     m_token = Ego::Script::PDLToken(kind, start, end, lexeme);
 }
 
-void line_scanner_state_t::emit(Ego::Script::PDLTokenKind kind, const id::location& start, const id::location& end,
+void line_scanner_state_t::emit(Ego::Script::PDLTokenKind kind, const id::c::location& start, const id::c::location& end,
                                 int value)
 {
     m_token = Ego::Script::PDLToken(kind, start, end);
@@ -371,7 +371,7 @@ Ego::Script::PDLToken line_scanner_state_t::scanNewLines()
         {
             next();
         }
-        m_location = id::location(m_location.file_name(), m_location.line_number() + 1);
+        m_location = id::c::location(m_location.file_name(), m_location.line_number() + 1);
         numberOfNewLines++;
     }
     auto endLocation = getLocation();
@@ -454,7 +454,7 @@ Ego::Script::PDLToken line_scanner_state_t::scanStringOrReference()
     }
     else /* if (isNewline() || isEndOfInput()) */
     {
-        throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, getLocation(), "unclosed string literal");
+        throw id::c::compilation_error(__FILE__, __LINE__, id::c::compilation_error_kind::lexical, getLocation(), "unclosed string literal");
     }
     auto endLocation = getLocation();
     emit(isReference ? Ego::Script::PDLTokenKind::ReferenceLiteral : Ego::Script::PDLTokenKind::StringLiteral,
@@ -475,13 +475,13 @@ Ego::Script::PDLToken line_scanner_state_t::scanIDSZ()
     {
         if (!isDigit() && !isAlphabetic())
         {
-            throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, getLocation(), "invalid IDSZ");
+            throw id::c::compilation_error(__FILE__, __LINE__, id::c::compilation_error_kind::lexical, getLocation(), "invalid IDSZ");
         }
         saveAndNext();
     }
     if (!is(']'))
     {
-        throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, getLocation(), "invalid IDSZ");
+        throw id::c::compilation_error(__FILE__, __LINE__, id::c::compilation_error_kind::lexical, getLocation(), "invalid IDSZ");
     }
     saveAndNext();
     auto endLocation = getLocation();
@@ -696,13 +696,13 @@ Ego::Script::PDLToken parser_state_t::parse_token(ObjectProfile *ppro, script_in
         // We couldn't figure out what this is, throw out an error code
         if (it == Opcodes.cend())
         {
-            throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, state.getLocation(), "not an opcode");
+            throw id::c::compilation_error(__FILE__, __LINE__, id::c::compilation_error_kind::lexical, state.getLocation(), "not an opcode");
         }
         token.setValue((*it).iValue);
         token.category((*it)._kind);
         return token;
     } else {
-        throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, state.getLocation(), "unexpected symbol");
+        throw id::c::compilation_error(__FILE__, __LINE__, id::c::compilation_error_kind::lexical, state.getLocation(), "unexpected symbol");
     }
 }
 
@@ -732,7 +732,7 @@ void parser_state_t::emit_opcode(const Ego::Script::PDLToken& token, const BIT_F
     else
     {
         /** @todo This is not an error of the syntactical analysis. */
-        throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::syntactical, token.get_start_location(), "unsupported token");
+        throw id::c::compilation_error(__FILE__, __LINE__, id::c::compilation_error_kind::syntactical, token.get_start_location(), "unsupported token");
     }
 }
 
@@ -765,7 +765,7 @@ void parser_state_t::raise(bool raiseException, Log::Level level, const Ego::Scr
     Log::get() << e;
     if (raiseException)
     {
-        throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::syntactical, received.get_start_location(), e.getText());
+        throw id::c::compilation_error(__FILE__, __LINE__, id::c::compilation_error_kind::syntactical, received.get_start_location(), e.getText());
     }
 }
 

@@ -3,8 +3,8 @@
 ConfigFileToken::ConfigFileToken
     (
         ConfigFileTokenKind kind,
-        const id::location& startLocation,
+        const id::c::location& startLocation,
         const std::string& lexeme
     ) :
-    id::token<ConfigFileTokenKind, ConfigFileTokenKind::Unknown>(kind, startLocation, lexeme)
+    id::c::token<ConfigFileTokenKind, ConfigFileTokenKind::Unknown>(kind, startLocation, lexeme)
 {}

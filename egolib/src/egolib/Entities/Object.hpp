@@ -54,30 +54,6 @@ enum turn_mode_t : uint8_t
     TURNMODE_COUNT
 };
 
-/// the data used to define the spawning of a character
-struct chr_spawn_data_t
-{
-    chr_spawn_data_t() :
-        pos(),
-        profile(),
-        team(0),
-        skin(0),
-        facing(0),
-        name(),
-        override()
-    {
-        //ctor
-    }
-
-    Vector3f    pos;
-    ObjectProfileRef     profile;
-    TEAM_REF    team;
-    int         skin;
-    Facing      facing;
-    STRING      name;
-    ObjectRef   override;
-};
-
 //--------------------------------------------------------------------------------------------
 
 /// The offsets of Bits identifying in-game actions in a Bit set.
@@ -848,8 +824,6 @@ private:
     void updateLatchButtons();
 
 public:
-    chr_spawn_data_t  spawn_data;
-
     // character state
     ai_state_t     ai;              ///< ai data
 
@@ -928,6 +902,7 @@ public:
     // model info
     bool         is_overlay;                    ///< Is this an overlay? Track aitarget...
     SKIN_T         skin;                          ///< Character's skin
+	SKIN_T         skin_stt;                      ///< Character's initial skin
     ObjectProfileRef        basemodel_ref;                     ///< The true form
 
     // collision info
