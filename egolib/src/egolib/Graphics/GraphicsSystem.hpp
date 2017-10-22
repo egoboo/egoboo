@@ -12,11 +12,8 @@ class GraphicsWindow;
 class GraphicsContext;
 class WindowProperties;
 
-struct GraphicsSystem : public Core::Singleton<GraphicsSystem> {
-public:
-    int gfx_width;
-    int gfx_height;
-       
+struct GraphicsSystem : public Core::Singleton<GraphicsSystem>
+{
     /// @brief A pointer to the (single) SDL window if it exists, a null pointer otherwise.
     GraphicsWindow *window;
     

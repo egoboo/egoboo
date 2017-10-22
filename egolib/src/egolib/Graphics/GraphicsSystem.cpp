@@ -33,8 +33,8 @@ std::pair<GraphicsWindow *, GraphicsContext *> CreateWindowAndContext()
     }
     else
     {
-        window->setSize(Size2i(configuration.graphic_resolution_horizontal.getValue(),
-                               configuration.graphic_resolution_vertical.getValue()));
+		window->setSize({ configuration.graphic_resolution_horizontal.getValue(),
+						  configuration.graphic_resolution_vertical.getValue() });
         window->center();
         context = graphicsSystem.createContext(window);
         if (!context)
@@ -70,7 +70,6 @@ std::pair<GraphicsWindow *, GraphicsContext *> CreateWindowAndContext()
 
 
 GraphicsSystem::GraphicsSystem() :
-    gfx_width(800), gfx_height(600),
     window(nullptr), context(nullptr)
 {
     // Initialize the NEW graphics system.
@@ -111,10 +110,6 @@ GraphicsSystem::GraphicsSystem() :
     {
         window = p.first;
         context = p.second;
-        auto& configuration = egoboo_config_t::get();
-        int horizontal = configuration.graphic_resolution_horizontal.getValue(),
-            vertical = configuration.graphic_resolution_vertical.getValue();
-        gfx_width = (float)gfx_height / (float)vertical * (float)horizontal;
     }
 }
 

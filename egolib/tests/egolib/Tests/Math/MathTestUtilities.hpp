@@ -1,7 +1,7 @@
 #pragma once
 
-#include "gtest/gtest.h"
 #include "egolib/egolib.h"
+#include "gtest/gtest.h"
 
 namespace ego { namespace math { namespace test {
 

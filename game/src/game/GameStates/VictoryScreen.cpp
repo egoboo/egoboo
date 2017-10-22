@@ -35,7 +35,7 @@ VictoryScreen::VictoryScreen(PlayingState *playingState, const bool forceExit) :
 	_playingState(playingState)
 {
 	//Add the buttons
-	int yOffset = Ego::GraphicsSystem::get().gfx_height-80;
+	int yOffset = Ego::GraphicsSystem::get().window->getSize().y() - 80;
 	auto exitButton = std::make_shared<Ego::GUI::Button>(_currentModule->isExportValid() ? "Save and Exit" : "Exit Game", SDLK_SPACE);
 	exitButton->setSize(Vector2f(200, 30));
 	exitButton->setPosition(Point2f(20, yOffset));

@@ -320,7 +320,22 @@ bool GameEngine::initialize()
 	ParticleHandler::initialize();
 
 	// Initialize the console.
-	Ego::Core::ConsoleHandler::initialize();
+	auto rectangle = Rectangle2f(id::zero<Point2f>(), { Ego::GraphicsSystem::get().window->getDrawableSize()(0),
+		                                                Ego::GraphicsSystem::get().window->getDrawableSize()(1) * 0.25 });
+
+	Ego::Core::Console::initialize(rectangle);
+	Ego::Core::Console::get().ExecuteCommand.subscribe([this](std::string command) {
+		if (command == "grog()" || command == "daze()")
+		{
+			auto activePlayingState = getActivePlayingState();
+			if (nullptr == activePlayingState)
+			{
+				Ego::Core::Console::get().add_output(command + " can only be invoked when playing\n");
+			}
+		}
+		if (command == "exit()")
+		{}
+	});
 
 
     // load the bitmapped font (must be done after gfx_system_init_all_graphics())
@@ -448,7 +463,7 @@ void GameEngine::uninitialize()
     ProfileSystem::uninitialize();
 
     // Uninitialize the console.
-    Ego::Core::ConsoleHandler::uninitialize();
+    Ego::Core::Console::uninitialize();
 
 	// Uninitialize the particle handler.
 	ParticleHandler::uninitialize();
@@ -498,7 +513,7 @@ void GameEngine::pollEvents()
         // Console has first say in events.
         if (egoboo_config_t::get().debug_developerMode_enable.getValue())
         {
-            if (!Ego::Core::ConsoleHandler::get().handle_event(&event))
+            if (!Ego::Core::Console::get().handle_event(&event))
             {
                 continue;
             }
@@ -572,7 +587,12 @@ int GameEngine::getFrameSkip() const
 
 std::shared_ptr<PlayingState> GameEngine::getActivePlayingState() const
 {
-    return std::dynamic_pointer_cast<PlayingState>(_currentGameState);
+    return std::dynamic_pointer_cast<PlayingState>(getActiveGameState());
+}
+
+std::shared_ptr<GameState> GameEngine::getActiveGameState() const
+{
+	return _currentGameState;
 }
 
 uint32_t GameEngine::getCurrentUpdateFrame() const

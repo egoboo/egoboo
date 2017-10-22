@@ -41,7 +41,7 @@ InGameMenuState::InGameMenuState(GameState &gameState) :
     _backgroundState(gameState)
 {
     // Add the buttons
-    int yOffset = Ego::GraphicsSystem::get().gfx_height-80;
+    int yOffset = Ego::GraphicsSystem::get().window->getSize().y() - 80;
     auto exitButton = std::make_shared<Ego::GUI::Button>(_currentModule->isExportValid() ? "Save and Exit" : "Abort and Exit", SDLK_q);
     exitButton->setPosition(Point2f(20, yOffset));
     exitButton->setSize(Vector2f(200, 30));

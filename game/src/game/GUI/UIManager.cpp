@@ -92,13 +92,13 @@ void UIManager::beginRenderUI() {
 
     /// Set the viewport rectangle.
     auto drawableSize = GraphicsSystem::get().window->getDrawableSize();
-    renderer.setViewportRectangle(0, 0, drawableSize.width(), drawableSize.height());
+    renderer.setViewportRectangle(0, 0, drawableSize.x(), drawableSize.y());
 
     // Set up an ortho projection for the gui to use.  Controls are free to modify this
     // later, but most of them will need this, so it's done by default at the beginning
     // of a frame.
     auto windowSize = GraphicsSystem::get().window->getSize();
-    Matrix4f4f projection = Math::Transform::ortho(0.0f, windowSize.width(), windowSize.height(), 0.0f, -1.0f, +1.0f);
+    Matrix4f4f projection = Math::Transform::ortho(0.0f, windowSize.x(), windowSize.y(), 0.0f, -1.0f, +1.0f);
     renderer.setProjectionMatrix(projection);
     renderer.setViewMatrix(Matrix4f4f::identity());
     renderer.setWorldMatrix(Matrix4f4f::identity());
@@ -117,11 +117,11 @@ void UIManager::endRenderUI() {
 }
 
 int UIManager::getScreenWidth() const {
-    return GraphicsSystem::get().window->getSize().width();
+    return GraphicsSystem::get().window->getSize().x();
 }
 
 int UIManager::getScreenHeight() const {
-    return GraphicsSystem::get().window->getSize().height();
+    return GraphicsSystem::get().window->getSize().y();
 }
 
 void UIManager::drawImage(const Point2f& position, const Vector2f& size, const std::shared_ptr<const Material>& material) {
@@ -178,7 +178,7 @@ bool UIManager::dumpScreenshot() {
             // create a SDL surface
             const auto& pixelFormatDescriptor = PixelFormatDescriptor::get<PixelFormat::R8G8B8>();
             auto drawableSize = GraphicsSystem::get().window->getDrawableSize();
-            temp = SDL_CreateRGBSurface(0, drawableSize.width(), drawableSize.height(),
+            temp = SDL_CreateRGBSurface(0, drawableSize.x(), drawableSize.y(),
                                         pixelFormatDescriptor.getColourDepth().getDepth(),
                                         pixelFormatDescriptor.getRedMask(),
                                         pixelFormatDescriptor.getGreenMask(),
@@ -193,7 +193,7 @@ bool UIManager::dumpScreenshot() {
 
             //Now lock the surface so that we can read it
             if (-1 != SDL_LockSurface(temp)) {
-                SDL_Rect rect = {0, 0, drawableSize.width(), drawableSize.height()};
+                SDL_Rect rect = {0, 0, drawableSize.x(), drawableSize.y()};
 
                 int y;
                 uint8_t * pixels;

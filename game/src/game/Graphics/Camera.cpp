@@ -97,7 +97,7 @@ Camera::Camera(const CameraOptions &options) :
     resetView();
 
     // Assume that the camera is fullscreen.
-    setScreen(0, 0, Ego::GraphicsSystem::get().window->getSize().width(), Ego::GraphicsSystem::get().window->getSize().height());
+    setScreen(0, 0, Ego::GraphicsSystem::get().window->getSize().x(), Ego::GraphicsSystem::get().window->getSize().y());
 }
 
 Camera::~Camera()

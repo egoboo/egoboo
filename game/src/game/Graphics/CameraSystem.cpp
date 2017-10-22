@@ -182,7 +182,7 @@ void CameraSystem::endCameraMode()
 {
     // make the viewport the entire screen
     auto drawableSize = Ego::GraphicsSystem::get().window->getDrawableSize();;
-    Ego::Renderer::get().setViewportRectangle(0, 0, drawableSize.width(), drawableSize.height());
+    Ego::Renderer::get().setViewportRectangle(0, 0, drawableSize.x(), drawableSize.y());
 
     // turn off the scissor mode
     Ego::Renderer::get().setScissorTestEnabled(false);
@@ -195,10 +195,10 @@ void CameraSystem::beginCameraMode( const std::shared_ptr<Camera> &camera)
     auto drawableSize = Ego::GraphicsSystem::get().window->getDrawableSize();
     // scissor the output to the this area
     renderer.setScissorTestEnabled(true);
-    renderer.setScissorRectangle(camera->getViewport().getLeftPixels(), drawableSize.height() - (camera->getViewport().getTopPixels() + camera->getViewport().getHeightPixels()), camera->getViewport().getWidthPixels(), camera->getViewport().getHeightPixels());
+    renderer.setScissorRectangle(camera->getViewport().getLeftPixels(), drawableSize.y() - (camera->getViewport().getTopPixels() + camera->getViewport().getHeightPixels()), camera->getViewport().getWidthPixels(), camera->getViewport().getHeightPixels());
 
     // set the viewport
-    renderer.setViewportRectangle(camera->getViewport().getLeftPixels(), drawableSize.height() - (camera->getViewport().getTopPixels() + camera->getViewport().getHeightPixels()), camera->getViewport().getWidthPixels(), camera->getViewport().getHeightPixels());
+    renderer.setViewportRectangle(camera->getViewport().getLeftPixels(), drawableSize.y() - (camera->getViewport().getTopPixels() + camera->getViewport().getHeightPixels()), camera->getViewport().getWidthPixels(), camera->getViewport().getHeightPixels());
 }
 
 void CameraSystem::autoFormatTargets()
@@ -211,7 +211,7 @@ void CameraSystem::autoFormatTargets()
     // 1/2 of border between panes in pixels
     static const int border = 1;
     auto windowSize = Ego::GraphicsSystem::get().window->getSize();
-    float aspect_ratio = static_cast<float>(windowSize.width()) / static_cast<float>(windowSize.height());
+    float aspect_ratio = windowSize.x() / windowSize.y();
     bool widescreen = ( aspect_ratio > ( 4.0f / 3.0f ) );
 
     if ( widescreen )
@@ -221,28 +221,28 @@ void CameraSystem::autoFormatTargets()
             default:
             case 1:
                 // fullscreen
-                _cameraList[0]->setScreen(0.0f, 0.0f, windowSize.width(), windowSize.height());
+                _cameraList[0]->setScreen(0.0f, 0.0f, windowSize.x(), windowSize.y());
                 break;
 
             case 2:
                 // wider than tall, so windows are side-by side
-                _cameraList[0]->setScreen(0.0f, 0.0f, windowSize.width() * 0.5f - border, windowSize.height());
-                _cameraList[1]->setScreen(windowSize.width() * 0.5f + border, 0.0f, windowSize.width(), windowSize.height());
+                _cameraList[0]->setScreen(0.0f, 0.0f, windowSize.x() * 0.5f - border, windowSize.y());
+                _cameraList[1]->setScreen(windowSize.x() * 0.5f + border, 0.0f, windowSize.x(), windowSize.y());
                 break;
 
             case 3:
                 // wider than tall, so windows are side-by side
-                _cameraList[0]->setScreen(0.0f, 0.0f, windowSize.width() / 3.0f - border, windowSize.height());
-                _cameraList[1]->setScreen(windowSize.width() / 3.0f + border, 0.0f, 2.0f * windowSize.width() / 3.0f - border, windowSize.height());
-                _cameraList[2]->setScreen(2.0f * windowSize.width() / 3.0f + border, 0.0f, windowSize.width(), windowSize.height());
+                _cameraList[0]->setScreen(0.0f, 0.0f, windowSize.x() / 3.0f - border, windowSize.y());
+                _cameraList[1]->setScreen(windowSize.x() / 3.0f + border, 0.0f, 2.0f * windowSize.x() / 3.0f - border, windowSize.y());
+                _cameraList[2]->setScreen(2.0f * windowSize.x() / 3.0f + border, 0.0f, windowSize.x(), windowSize.y());
                 break;
 
             case 4:
                 // 4 panes
-                _cameraList[0]->setScreen(0.0f, 0.0f, windowSize.width() * 0.5f - border, windowSize.height() * 0.5f - border);
-                _cameraList[1]->setScreen(windowSize.width() * 0.5f + border, 0.0f, windowSize.width(), windowSize.height() * 0.5f - border);
-                _cameraList[2]->setScreen(0.0f, windowSize.height() * 0.5f + border, windowSize.width() * 0.5f - border, windowSize.height());
-                _cameraList[3]->setScreen(windowSize.width() * 0.5f + border, windowSize.height() * 0.5f + border, windowSize.width(), windowSize.height());
+                _cameraList[0]->setScreen(0.0f, 0.0f, windowSize.x() * 0.5f - border, windowSize.y() * 0.5f - border);
+                _cameraList[1]->setScreen(windowSize.x() * 0.5f + border, 0.0f, windowSize.x(), windowSize.y() * 0.5f - border);
+                _cameraList[2]->setScreen(0.0f, windowSize.y() * 0.5f + border, windowSize.x() * 0.5f - border, windowSize.y());
+                _cameraList[3]->setScreen(windowSize.x() * 0.5f + border, windowSize.y() * 0.5f + border, windowSize.x(), windowSize.y());
                 break;
         }
     }
@@ -253,38 +253,38 @@ void CameraSystem::autoFormatTargets()
             default:
             case 1:
                 // fullscreen
-                _cameraList[0]->setScreen(0.0f, 0.0f, windowSize.width(), windowSize.height());
+                _cameraList[0]->setScreen(0.0f, 0.0f, windowSize.x(), windowSize.y());
                 break;
 
             case 2:
-                if (windowSize.width() >= windowSize.height())
+                if (windowSize.x() >= windowSize.y())
                 {
                     // wider than tall, so windows are side-by side
-                    _cameraList[0]->setScreen(0.0f, 0.0f, windowSize.width() * 0.5f - border, windowSize.height());
-                    _cameraList[1]->setScreen(windowSize.width() * 0.5f + border, 0.0f, windowSize.width(), windowSize.height());
+                    _cameraList[0]->setScreen(0.0f, 0.0f, windowSize.x() * 0.5f - border, windowSize.y());
+                    _cameraList[1]->setScreen(windowSize.x() * 0.5f + border, 0.0f, windowSize.x(), windowSize.y());
                 }
                 else
                 {
                     // taller than wide so, windows are one-over-the-other
-                    _cameraList[0]->setScreen(0.0f, 0.0f, windowSize.width(), windowSize.height() * 0.5f - border);
-                    _cameraList[1]->setScreen(0.0f, windowSize.height() * 0.5f + border, windowSize.width(), windowSize.height());
+                    _cameraList[0]->setScreen(0.0f, 0.0f, windowSize.x(), windowSize.y() * 0.5f - border);
+                    _cameraList[1]->setScreen(0.0f, windowSize.y() * 0.5f + border, windowSize.x(), windowSize.y());
                 }
                 break;
 
             case 3:
                 // more square, so 4 panes, but one is blank
-            	_cameraList[0]->setScreen(0.0f, 0.0f, windowSize.width() * 0.5f - border, windowSize.height() * 0.5f - border);
-            	_cameraList[1]->setScreen(windowSize.width() * 0.5f + border, 0.0f, windowSize.width(), windowSize.height() * 0.5f - border);
-            	_cameraList[2]->setScreen(0.0f, windowSize.height() * 0.5f + border, windowSize.width(), windowSize.height());
+            	_cameraList[0]->setScreen(0.0f, 0.0f, windowSize.x() * 0.5f - border, windowSize.y() * 0.5f - border);
+            	_cameraList[1]->setScreen(windowSize.x() * 0.5f + border, 0.0f, windowSize.x(), windowSize.y() * 0.5f - border);
+            	_cameraList[2]->setScreen(0.0f, windowSize.y() * 0.5f + border, windowSize.x(), windowSize.y());
             	//_cameraList[3] does not exist, so blank
                 break;
 
             case 4:
                 // 4 panes
-            	_cameraList[0]->setScreen(0.0f, 0.0f, windowSize.width() * 0.5f - border, windowSize.height() * 0.5f - border);
-            	_cameraList[1]->setScreen(windowSize.width() * 0.5f + border, 0.0f, windowSize.width(), windowSize.height() * 0.5f - border);
-            	_cameraList[2]->setScreen(0.0f, windowSize.height() * 0.5f + border, windowSize.width() * 0.5f - border, windowSize.height());
-            	_cameraList[3]->setScreen(windowSize.width() * 0.5f + border, windowSize.height() * 0.5f + border, windowSize.width(), windowSize.height());
+            	_cameraList[0]->setScreen(0.0f, 0.0f, windowSize.x() * 0.5f - border, windowSize.y() * 0.5f - border);
+            	_cameraList[1]->setScreen(windowSize.x() * 0.5f + border, 0.0f, windowSize.x(), windowSize.y() * 0.5f - border);
+            	_cameraList[2]->setScreen(0.0f, windowSize.y() * 0.5f + border, windowSize.x() * 0.5f - border, windowSize.y());
+            	_cameraList[3]->setScreen(windowSize.x() * 0.5f + border, windowSize.y() * 0.5f + border, windowSize.x(), windowSize.y());
                 break;
         }
     }

@@ -58,19 +58,19 @@ public:
 
     /// @brief Get the size of this window.
     /// @return the size of this window
-    virtual Size2i getSize() const = 0;
+    virtual Vector2f getSize() const = 0;
 
     /// @brief Set the size of this window.
     /// @param size the size of this window
-    virtual void setSize(const Size2i& size) = 0;
+    virtual void setSize(const Vector2f& size) = 0;
 
     /// @brief Get the position, in screen coordinates, of the left/top corner of this window.
     /// @return the position, in screen coordinates, of the left/top corner of this window
-    virtual Point2i getPosition() const = 0;
+    virtual Point2f getPosition() const = 0;
 
     /// @brief Set the position, in screen coordinates, of the left/top corner of this window.
     /// @param position the position, in screen coordinates, of the left/top corner of this window
-    virtual void setPosition(const Point2i& position) = 0;
+    virtual void setPosition(const Point2f& position) = 0;
 
     /// @brief Get a pointer to the backend windo.
     /// @return a pointer to the backend window
@@ -85,7 +85,7 @@ public:
 
     /// @brief Get the size of the drawable of this window.
     /// @return the size of the drawable of this window
-    virtual Size2i getDrawableSize() const = 0;
+    virtual Vector2f getDrawableSize() const = 0;
 
     /// @brief Update this window.
     virtual void update() = 0;

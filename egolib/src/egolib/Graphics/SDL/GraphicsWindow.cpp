@@ -168,26 +168,26 @@ bool GraphicsWindow::isGrabEnabled() const
     return SDL_TRUE == SDL_GetWindowGrab(window);
 }
 
-Size2i GraphicsWindow::getSize() const
+Vector2f GraphicsWindow::getSize() const
 {
     int width, height;
     SDL_GetWindowSize(window, &width, &height);
-    return Size2i(width, height);
+    return Vector2f(width, height);
 }
 
-void GraphicsWindow::setSize(const Size2i& size)
+void GraphicsWindow::setSize(const Vector2f& size)
 {
-    SDL_SetWindowSize(window, size.width(), size.height());
+    SDL_SetWindowSize(window, size.x(), size.y());
 }
 
-Point2i GraphicsWindow::getPosition() const
+Point2f GraphicsWindow::getPosition() const
 {
     int x, y;
     SDL_GetWindowPosition(window, &x, &y);
-    return Point2i(x, y);
+    return Point2f(x, y);
 }
 
-void GraphicsWindow::setPosition(const Point2i& position)
+void GraphicsWindow::setPosition(const Point2f& position)
 {
     SDL_SetWindowPosition(window, position.x(), position.y());
 }
@@ -204,7 +204,7 @@ void GraphicsWindow::setIcon(SDL_Surface *icon)
 #endif
 }
 
-Size2i GraphicsWindow::getDrawableSize() const
+Vector2f GraphicsWindow::getDrawableSize() const
 {
     int width, height;
 #if SDL_VERSION_ATLEAST(2, 0, 1)
@@ -219,7 +219,7 @@ Size2i GraphicsWindow::getDrawableSize() const
 #else
     SDL_GetWindowSize(window, &width, &height);
 #endif
-    return Size2i(width, height);
+    return Vector2f(width, height);
 }
 
 void GraphicsWindow::update()

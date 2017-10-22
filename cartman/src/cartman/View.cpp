@@ -27,7 +27,7 @@ void View::beginRender(Cartman::Gui::Window& window, float zoom_hrz, float zoom_
     auto& renderer = Ego::Renderer::get();
     // Compute left, bottom, width, height in pixels.
     int left = window.position.x();
-    int bottom = Ego::GraphicsSystem::get().window->getDrawableSize().height() - (window.position.y() + window.size.height());
+    int bottom = Ego::GraphicsSystem::get().window->getDrawableSize().y() - (window.position.y() + window.size.height());
     int width = window.size.width();
     int height = window.size.height();
     // Set viewport.

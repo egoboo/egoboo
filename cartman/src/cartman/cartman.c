@@ -502,7 +502,7 @@ void Cartman::Gui::Window::render()
         auto& renderer = Ego::Renderer::get();
 		renderer.setScissorTestEnabled(true);
         auto drawableSize = Ego::GraphicsSystem::get().window->getDrawableSize();
-        renderer.setScissorRectangle(position.x(), drawableSize.height() - ( position.y() + size.height() ),
+        renderer.setScissorRectangle(position.x(), drawableSize.y() - ( position.y() + size.height() ),
                                      size.width(), size.height());
 
         make_onscreen( pmesh );
@@ -565,8 +565,8 @@ void unbound_mouse()
     {
         Input::get()._mouse.tlx = 0;
         Input::get()._mouse.tly = 0;
-        Input::get()._mouse.brx = Ego::GraphicsSystem::get().window->getSize().width() - 1;
-        Input::get()._mouse.bry = Ego::GraphicsSystem::get().window->getSize().height() - 1;
+        Input::get()._mouse.brx = Ego::GraphicsSystem::get().window->getSize().x() - 1;
+        Input::get()._mouse.bry = Ego::GraphicsSystem::get().window->getSize().y() - 1;
     }
 }
 
@@ -1608,7 +1608,7 @@ void draw_lotsa_stuff( cartman_mpd_t * pmesh )
 #endif
 
     // Tell user what keys are important
-    int y = Ego::GraphicsSystem::get().window->getSize().height() - 120, step = 8;
+    int y = Ego::GraphicsSystem::get().window->getSize().y() - 120, step = 8;
     gfx_font_ptr->drawText("O = Overlay (Water)", 0, y); y -= step;
     gfx_font_ptr->drawText("R = Reflective", 0, y); y -= step;
     gfx_font_ptr->drawText("D = Draw Reflection", 0, y); y -= step;
@@ -1753,7 +1753,7 @@ void draw_main( cartman_mpd_t * pmesh )
         mesh_calc_vrta( pmesh );
     }
 
-    Ego::Core::ConsoleHandler::get().draw_all();
+    Ego::Core::Console::get().draw();
 
     dunframe++;
     secframe++;
@@ -1818,7 +1818,10 @@ int SDL_main( int argcnt, char* argtext[] )
     Resources::initialize();
 
     // Initialize the console.
-    Ego::Core::ConsoleHandler::initialize();
+	auto rectangle = Rectangle2f(id::zero<Point2f>(), { Ego::GraphicsSystem::get().window->getDrawableSize()(0),
+		                                                Ego::GraphicsSystem::get().window->getDrawableSize()(1) * 0.25 });
+
+    Ego::Core::Console::initialize(rectangle);
 
     // Load the module
     if (!load_module(modulename, &mesh))
@@ -1848,7 +1851,7 @@ int SDL_main( int argcnt, char* argtext[] )
         Clocks::update();
     }
     Cartman::Gui::Manager::uninitialize();
-    Ego::Core::ConsoleHandler::uninitialize();
+    Ego::Core::Console::uninitialize();
     Resources::uninitialize();
     GFX::uninitialize();
     Cartman::Input::uninitialize();

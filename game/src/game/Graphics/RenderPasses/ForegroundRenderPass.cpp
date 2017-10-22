@@ -40,8 +40,9 @@ void ForegroundRenderPass::doRun(::Camera& camera, const TileList& tl, const Ent
     {
         // Figure out the screen coordinates of its corners
         auto windowSize = GraphicsSystem::get().window->getSize();
-        float x = windowSize.width() << 6;
-        float y = windowSize.height() << 6;
+		static const float p = std::pow(2, 6);
+        float x = windowSize.x() * p;
+        float y = windowSize.y() * p;
         float z = 0;
         float size = x + y + 1;
         static const Facing default_turn = Facing((3 * 2047) << 2);
@@ -49,7 +50,7 @@ void ForegroundRenderPass::doRun(::Camera& camera, const TileList& tl, const Ent
         float cossize = std::cos(default_turn) * size;
         // TODO: Shouldn't this be std::min(x / windowSize.width(), y / windowSize.height())?
         float loc_foregroundrepeat = _currentModule->getWater()._foregroundrepeat *
-            std::min(x / windowSize.width(), y / windowSize.height());
+            std::min(x / windowSize.x(), y / windowSize.y());
 
         {
             BufferScopedLock lock(_vertexBuffer);

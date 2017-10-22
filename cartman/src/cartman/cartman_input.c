@@ -75,7 +75,7 @@ void Cartman::Input::checkInput()
 
     while (SDL_PollEvent(&evt))
     {
-        if (!Ego::Core::ConsoleHandler::get().handle_event(&evt))
+        if (!Ego::Core::Console::get().handle_event(&evt))
         {
             _keyboard.override = true;
             continue;

@@ -40,17 +40,17 @@ public:
 
 public:
     /// @copydoc Ego::GraphicsWindow::getSize
-    Size2i getSize() const override;
+    Vector2f getSize() const override;
 
     /// @copydoc Ego::GraphicsWindow::setSize
-    void setSize(const Size2i& size) override;
+    void setSize(const Vector2f& size) override;
 
 public:
     /// @copydoc Ego::GraphicsWindow::getPosition
-    virtual Point2i getPosition() const override;
+    virtual Point2f getPosition() const override;
 
     /// @copydoc Ego::GraphicsWindow::setPosition
-    virtual void setPosition(const Point2i& position) override;
+    virtual void setPosition(const Point2f& position) override;
 	
 public:
     /// @copydoc Ego::GraphicsWindow::center
@@ -60,7 +60,7 @@ public:
     void setIcon(SDL_Surface *icon) override;
 
     /// @copydoc Ego::GraphicsWindow::getDrawableSize
-    Size2i getDrawableSize() const override;
+    Vector2f getDrawableSize() const override;
 
     /// @brief Update this window.
     void update() override;

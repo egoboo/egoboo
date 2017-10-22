@@ -1151,7 +1151,7 @@ void gfx_do_clear_screen()
 //--------------------------------------------------------------------------------------------
 void gfx_do_flip_pages()
 {
-    Ego::Core::ConsoleHandler::get().draw_all();
+    Ego::Core::Console::get().draw();
     SDL_GL_SwapWindow(Ego::GraphicsSystem::get().window->get());
 }
 

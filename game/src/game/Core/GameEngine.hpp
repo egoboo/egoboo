@@ -176,13 +176,15 @@ public:
         return _startupTimestamp;
     }
 
-    /**
-    * @brief
-    *   Gets the current GameState as a PlayingState instance
-    * @return
-    *   the current GameState if it is a PlayingState or nullptr otherwise
-    **/
+    /// @brief Gets the current GameState as a PlayingState instance.
+	/// @return the current GameState if it is a PlayingState or nullptr otherwise
+	/// @remark There is always a GameState instance.
+	/// However, this instance is not necessarily a PlayingState instance.
     std::shared_ptr<PlayingState> getActivePlayingState() const;
+
+	/// @brief Gets the current GameState instance.
+	/// @return the current GameState
+	std::shared_ptr<GameState> getActiveGameState() const;
 
     /**
     * @brief

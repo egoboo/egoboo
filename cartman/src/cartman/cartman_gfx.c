@@ -895,13 +895,13 @@ void ogl_beginFrame()
     renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
 
     auto drawableSize = Ego::GraphicsSystem::get().window->getDrawableSize();
-    renderer.setViewportRectangle(0, 0, drawableSize.width(), drawableSize.height());
+    renderer.setViewportRectangle(0, 0, drawableSize.x(), drawableSize.y());
 
     // Set up an ortho projection for the gui to use.  Controls are free to modify this
     // later, but most of them will need this, so it's done by default at the beginning
     // of a frame
     auto windowSize = Ego::GraphicsSystem::get().window->getSize();
-	Matrix4f4f projection = Ego::Math::Transform::ortho(0, windowSize.width(), windowSize.height(), 0, -1, 1);
+	Matrix4f4f projection = Ego::Math::Transform::ortho(0, windowSize.x(), windowSize.y(), 0, -1, 1);
     renderer.setProjectionMatrix(projection);
     renderer.setWorldMatrix(Matrix4f4f::identity());
     renderer.setViewMatrix(Matrix4f4f::identity());
@@ -1051,7 +1051,7 @@ void cartman_end_ortho_camera()
 {
     auto &renderer = Ego::Renderer::get();
     auto windowSize = Ego::GraphicsSystem::get().window->getSize();
-    Matrix4f4f projection = Ego::Math::Transform::ortho(0, windowSize.width(), windowSize.height(), 0, -1, 1);
+    Matrix4f4f projection = Ego::Math::Transform::ortho(0, windowSize.x(), windowSize.y(), 0, -1, 1);
     renderer.setProjectionMatrix(projection);
     renderer.setWorldMatrix(Matrix4f4f::identity());
     renderer.setViewMatrix(Matrix4f4f::identity());
