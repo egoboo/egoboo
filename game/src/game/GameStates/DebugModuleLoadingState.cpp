@@ -266,7 +266,7 @@ void DebugModuleLoadingState::loadModuleData()
 
         // set up the cameras *after* game_begin_module() or the player devices will not be initialized
         // and camera_system_begin() will not set up thte correct view
-        CameraSystem::get().initialize(local_stats.player_count);
+        CameraSystem::get().setNumberOfCameras(local_stats.player_count);
 
         //Fade out music when finished loading
         AudioSystem::get().stopMusic();

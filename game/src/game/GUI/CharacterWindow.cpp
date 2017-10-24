@@ -29,7 +29,7 @@ CharacterWindow::CharacterWindow(const std::shared_ptr<Object> &object) : Intern
     setSize(Vector2f(WindowWidth + 2 * BorderPadding, 400));
 
     const float xoffset = BorderPadding;
-    const float yoffset = _titleBar->getBounds().getSize().y() + Spacing;
+    const float yoffset = _titleBar->getBounds().get_size().y() + Spacing;
 
     _characterStatisticsTab = std::make_shared<Tab>("Character");
     _characterStatisticsTab->setWidth(WindowWidth);
@@ -59,7 +59,7 @@ CharacterWindow::CharacterWindow(const std::shared_ptr<Object> &object) : Intern
 
     JoinBounds joinBounds;
     joinBounds({_activeEnchantsTab, _characterStatisticsTab, _knownPerksTab});
-    float y = yoffset + joinBounds({_activeEnchantsTab, _characterStatisticsTab, _knownPerksTab}).getSize().y();
+    float y = yoffset + joinBounds({_activeEnchantsTab, _characterStatisticsTab, _knownPerksTab}).get_size().y();
 
     //float y = getHeight();
     const float tabButtonWidth = 120;
@@ -310,7 +310,7 @@ void CharacterWindow::buildCharacterStatisticTab(std::shared_ptr<Tab> target) {
     JoinBounds joinBounds;
     auto bounds = joinBounds(slots.cbegin(), slots.cend());
 
-    yPos = bounds.getMax().y() + 5;
+    yPos = bounds.get_max().y() + 5;
     //LevelUp button
     if (_character->isPlayer()) {
         _levelUpButton = std::make_shared<Button>("LEVEL UP");

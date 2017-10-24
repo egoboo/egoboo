@@ -29,7 +29,7 @@ namespace Ego
 namespace Physics
 {
 
-class CollisionSystem : public Core::Singleton<CollisionSystem>
+class CollisionSystem : public id::singleton<CollisionSystem>
 {
 public:
     /**
@@ -100,8 +100,8 @@ private:
     bool handleMountingCollision(const std::shared_ptr<Object> &character, const std::shared_ptr<Object> &mount);
 
 private:
-    friend Core::Singleton<CollisionSystem>::CreateFunctorType;
-    friend Core::Singleton<CollisionSystem>::DestroyFunctorType;
+    friend id::default_new_functor<CollisionSystem>;
+    friend id::default_delete_functor<CollisionSystem>;
     CollisionSystem();
     ~CollisionSystem();
 };

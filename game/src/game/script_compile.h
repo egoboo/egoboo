@@ -164,11 +164,11 @@ public:
 };
 
 // the current state of the parser
-struct parser_state_t : public Ego::Core::Singleton<parser_state_t>
+struct parser_state_t : public id::singleton<parser_state_t>
 {
 protected:
-    friend Ego::Core::Singleton<parser_state_t>::CreateFunctorType;
-    friend Ego::Core::Singleton<parser_state_t>::DestroyFunctorType;
+    friend id::default_new_functor<parser_state_t>;
+    friend id::default_delete_functor<parser_state_t>;
 	/// @brief Construct this parser.
 	/// @remark Intentionally protected.
 	parser_state_t();

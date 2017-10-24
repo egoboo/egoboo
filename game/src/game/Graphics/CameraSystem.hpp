@@ -33,11 +33,11 @@ static constexpr size_t MAX_CAMERAS = MAX_LOCAL_PLAYERS;
  *  A multi-camera system consisting of 1 to @a n cameras with indices @a 0 to <tt>n-1</tt>.
  *  The camera at index @a 0 is called the "main camera".
  */
-class CameraSystem : public Ego::Core::Singleton<CameraSystem>
+class CameraSystem : public id::singleton<CameraSystem>
 {
 protected:
-    friend Ego::Core::Singleton<CameraSystem>::CreateFunctorType;
-    friend Ego::Core::Singleton<CameraSystem>::DestroyFunctorType;
+    friend id::default_new_functor<CameraSystem>;
+    friend id::default_delete_functor<CameraSystem>;
     /**
      * @brief Construct this texture atlas manager.
      */

@@ -1,7 +1,6 @@
 #pragma once
 
-#include "egolib/Math/AxisAlignedBox.hpp"
-#include "egolib/Math/AxisAlignedCube.hpp"
+#include "egolib/platform.h"
 
 namespace id {
 
@@ -13,23 +12,23 @@ namespace id {
 /// - \f$X_{max_k} < Y_{min_k}\f$
 /// Otherwise \f$X\f$ and \f$Y\f$ intersect.
 /// This is a variant of the Separating Axis Theorem (aka SAT).
-template <typename E>
-struct is_intersecting_functor<Ego::Math::AxisAlignedBox<E>,
-                               Ego::Math::AxisAlignedCube<E>>
+/// @tparam P the point type of the geometry types
+template <typename P>
+struct is_intersecting_functor<axis_aligned_box<P>, axis_aligned_cube<P>>
 {
-    bool operator()(const Ego::Math::AxisAlignedBox<E>& a, 
-		            const Ego::Math::AxisAlignedCube<E>& b) const
+    bool operator()(const axis_aligned_box<P>& a, const axis_aligned_cube<P>& b) const
 	{
-        for (size_t i = 0; i < E::dimensionality();  ++i) {
+        for (size_t i = 0; i < P::dimensionality();  ++i)
+		{
             // If the minimum of a is greater than the maximum of b along one axis,
             // then they can not intersect.
-            if (a.getMin()[i] > b.getMax()[i])
+            if (a.get_min()[i] > b.get_max()[i])
 			{
                 return false;
             }
             // If the maximum of a is smaller than the minimum of b along one axis,
             // then they can not intersect.
-            if (a.getMax()[i] < b.getMin()[i])
+            if (a.get_max()[i] < b.get_min()[i])
 			{
                 return false;
             }
@@ -42,15 +41,12 @@ struct is_intersecting_functor<Ego::Math::AxisAlignedBox<E>,
 /// Determines if an axis aligned cube and an axis aligned box intersect.
 /// @remark The method which determines wether an axis aligned box and
 /// an axis aligned cube intersect is re-used.
-template <typename E>
-struct is_intersecting_functor<Ego::Math::AxisAlignedCube<E>,
-	                           Ego::Math::AxisAlignedBox<E>>
+/// @tparam P the point type of the geometry types
+template <typename P>
+struct is_intersecting_functor<axis_aligned_cube<P>, axis_aligned_box<P>>
 {
-	bool operator()(const Ego::Math::AxisAlignedCube<E>& a,
-		            const Ego::Math::AxisAlignedBox<E>& b) const
-	{
-		return is_intersecting(b, a);
-	}
+	bool operator()(const axis_aligned_cube<P>& a, const axis_aligned_box<P>& b) const
+	{ return is_intersecting(b, a); }
 }; // is_intersecting_functor
 
 } // namespace id

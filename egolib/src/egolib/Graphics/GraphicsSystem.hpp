@@ -1,7 +1,6 @@
 #pragma once
 
 #include "egolib/platform.h"
-#include "egolib/Core/Singleton.hpp"
 #include "egolib/Graphics/GraphicsSystemNew.hpp"
 #include "egolib/Extensions/ogl_extensions.h"
 
@@ -12,7 +11,7 @@ class GraphicsWindow;
 class GraphicsContext;
 class WindowProperties;
 
-struct GraphicsSystem : public Core::Singleton<GraphicsSystem>
+struct GraphicsSystem : public id::singleton<GraphicsSystem>
 {
     /// @brief A pointer to the (single) SDL window if it exists, a null pointer otherwise.
     GraphicsWindow *window;

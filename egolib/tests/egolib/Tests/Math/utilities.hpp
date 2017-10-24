@@ -89,8 +89,8 @@ public:
     // center \f$\mathbf{c}' = \mathbf{c} + \delta^+(2r)\vec{1}\f$ and radius \f$r'=r\f$
     // does not intersect with \f$a\f$.
     static Sphere3f getNonOverlappingSphere3f(const Sphere3f& a) {
-        auto c = a.getCenter() + unit() * pdelta(2.0f * a.getRadius());
-        auto r = a.getRadius();
+        auto c = a.get_center() + unit() * pdelta(2.0f * a.get_radius());
+        auto r = a.get_radius();
         return Sphere3f(c, r);
     }
 
@@ -101,7 +101,7 @@ public:
     // \f$b = c + \delta^+(r) \vec{1}\f$
     // does not intersect \f$a\f$.
     static Point3f getNonOverlappingPoint3f(const Sphere3f& a) {
-        return a.getCenter() + unit() * pdelta(a.getRadius());
+        return a.get_center() + unit() * pdelta(a.get_radius());
     }
 
     // Get a sphere which intersects with the specified sphere.
@@ -111,7 +111,7 @@ public:
     // center \f$c' = c + r \vec{1}\f$ and radius \f$r\f$
     // intersects with \f$a\f$.
     static Sphere3f getOverlappingSphere3f(const Sphere3f& a) {
-        return Sphere3f(a.getCenter() + unit() * a.getRadius(), a.getRadius());
+        return Sphere3f(a.get_center() + unit() * a.get_radius(), a.get_radius());
     }
     // Get a point which intersects with the specified sphere.
     //
@@ -120,7 +120,7 @@ public:
     // \f$b = c + ndelta(r) \vec{1}\f$
     // intersects with \f$a\f$.
     static Point3f getOverlappingPoint3f(const Sphere3f& a) {
-        return a.getCenter() + unit() * ndelta(a.getRadius());
+        return a.get_center() + unit() * ndelta(a.get_radius());
     }
 
     // Get a point which is not contained in the specified sphere.
@@ -130,7 +130,7 @@ public:
     // \f$b = c + \delta^+(r) \vec{1}\f$
     // does not intersect with \f$a\f$.
     static Point3f getNonContainedPoint3f(const Sphere3f& a) {
-        return a.getCenter() + unit() * pdelta(a.getRadius());
+        return a.get_center() + unit() * pdelta(a.get_radius());
     }
     // Get a sphere which is not contained in the specified sphere.
     //
@@ -139,7 +139,7 @@ public:
     // center \f$c' = c + \delta^+(r) \vec{1}\f$ and radius \f$r' = r\f$
     // is not contained in \f$a\f$.
     static Sphere3f getNonContainedSphere3f(const Sphere3f& a) {
-        return Sphere3f(a.getCenter() + unit() * pdelta(a.getRadius()), a.getRadius());
+        return Sphere3f(a.get_center() + unit() * pdelta(a.get_radius()), a.get_radius());
     }
 
     // Get a point which is contained in the specified sphere.
@@ -149,7 +149,7 @@ public:
     // \f$b = c + \delta^-(r) \vec{1}\f$
     // intersects with \f$a\f$.
     static Point3f getContainedPoint3f(const Sphere3f& a) {
-        return a.getCenter() + unit() * ndelta(a.getRadius());
+        return a.get_center() + unit() * ndelta(a.get_radius());
     }
     // Get a sphere which is contained in the specified sphere.
     //
@@ -158,7 +158,7 @@ public:
     // center \f$c' = c + \frac{1}{2}r\vec{1}\f$ and radius \f$r' = \frac{1}{2}r\f$
     // is contained in \f$a\f$.
     static Sphere3f getContainedSphere3f(const Sphere3f& a) {
-        return Sphere3f(a.getCenter() + unit() * (0.5 * a.getRadius()), 0.5 * a.getRadius());
+        return Sphere3f(a.get_center() + unit() * (0.5 * a.get_radius()), 0.5 * a.get_radius());
     }
 
 public:
@@ -171,8 +171,8 @@ public:
     // and edge lengths \f$\vec{l}' = \vec{l}\f$ does not overlap with \f$a\f$.
     static AxisAlignedBox3f getNonOverlappingAxisAlignedBox3f(const AxisAlignedBox3f& x) {
         auto t = pdelta(0.0f);
-        auto d = unit() * t + x.getSize();
-        return AxisAlignedBox3f(x.getMin() + d, x.getMax() + d);
+        auto d = unit() * t + x.get_size();
+        return AxisAlignedBox3f(x.get_min() + d, x.get_max() + d);
     }
 
     // Get an axis-aligned bounding box which intersects with the specified axis-aligned bounding box.
@@ -181,13 +181,13 @@ public:
     // and edge lengths \f$\vec{l}\f$. The axis-aligned bounding box \f$b\f$ with
     // minimum point \f$m' = m + \frac{1}{4}\vec{l}\f$ and edge lengths \f$\vec{l}\f$ intersects with \f$a\f$.
     static AxisAlignedBox3f getOverlappingAxisAlignedBox3f(const AxisAlignedBox3f& a) {
-        auto d = a.getSize() * 0.25f;
-        return AxisAlignedBox3f(a.getMin() + d, a.getMax() + d);
+        auto d = a.get_size() * 0.25f;
+        return AxisAlignedBox3f(a.get_min() + d, a.get_max() + d);
     }
 
     // Get a point which overlaps with the specified AABB.
     static Point3f getOverlappingPoint3f(const AxisAlignedBox3f& x) {
-        return x.getCenter();
+        return x.get_center();
     }
 
     // Get a point which does not overlap with the specified axis-aligned bounding box.
@@ -196,7 +196,7 @@ public:
     // and edge lengths \f$\vec{l}\f$. The point \f$b = min + l + \delta^+(0) \vec{1}\f$
     // does not intersect \f$a\f$.
     static Point3f getNonOverlappingPoint3f(const AxisAlignedBox3f& a) {
-        return a.getMin() + a.getSize() + unit() * pdelta(0.0f);
+        return a.get_min() + a.get_size() + unit() * pdelta(0.0f);
     }
 
     // Get an axis-aligned bounding box which is not contained in the specified axis-aligned bounding box.
@@ -205,8 +205,8 @@ public:
     // and edge lengths \f$\vec{l}\f$. The axis-aligned bounding box \f$b\f$ with
     // minimum point \f$m' = m + \frac{1}{4}\vec{l}\f$ and edge lengths \f$\vec{l}\f$ is not contained in \f$a\f$.
     static AxisAlignedBox3f getNonContainedAxisAlignedBox3f(const AxisAlignedBox3f& a) {
-        auto d = a.getSize() * 0.25f;
-        return AxisAlignedBox3f(a.getMin() + d, a.getMax() + d);
+        auto d = a.get_size() * 0.25f;
+        return AxisAlignedBox3f(a.get_min() + d, a.get_max() + d);
     }
 
     // Get a point which is not contained in the specified axis-aligned bounding box.
@@ -216,7 +216,7 @@ public:
     // \f$b = a_{max} + \delta^+(0)\vec{1}\f$
     // is not contained in \f$a\f$.
     static Point3f getNonContainedPoint3f(const AxisAlignedBox3f& a) {
-        return a.getMax() + unit() * pdelta(0.0f);
+        return a.get_max() + unit() * pdelta(0.0f);
     }
 
     // Get an AABB which is contained in the specified AABB.
@@ -229,8 +229,8 @@ public:
     // is contained in \f$a\f$.
     static AxisAlignedBox3f getContainedAxisAlignedBox3f(const AxisAlignedBox3f& a) {
         auto s = ndelta(1.0f);
-        auto min = a.getCenter() + (a.getMin() - a.getCenter())*s;
-        auto max = a.getCenter() + (a.getMax() - a.getCenter())*s;
+        auto min = a.get_center() + (a.get_min() - a.get_center())*s;
+        auto max = a.get_center() + (a.get_max() - a.get_center())*s;
         return AxisAlignedBox3f(min, max);
     }
 
@@ -238,7 +238,7 @@ public:
     // Let \f$a\f$ be the specified axis-aligned bounding box with center \f$c\f$.
     // The point \f$b = c\f$ is contained in \f$a\f$.
     static Point3f getContainedPoint3f(const AxisAlignedBox3f& a) {
-        return a.getCenter();
+        return a.get_center();
     }
 
 public:
@@ -250,8 +250,8 @@ public:
     // \f$\mathbf{m}' = \mathbf{m} + \delta^+(l)\vec{1}\f$
     // and edge length \f$l' = l\f$ does not overlap with \f$a\f$.
     static AxisAlignedCube3f getNonOverlappingAxisAlignedCube3f(const AxisAlignedCube3f& a) {
-        auto d = Vector3f(1.0f, 1.0f, 1.0f) * pdelta(a.getSize());
-        return AxisAlignedCube3f(a.getCenter() + d, a.getSize());
+        auto d = Vector3f(1.0f, 1.0f, 1.0f) * pdelta(a.get_size());
+        return AxisAlignedCube3f(a.get_center() + d, a.get_size());
     }
 
     // Get an axis-aligned cube which intersects with the specified axis-aligned cube.
@@ -261,13 +261,13 @@ public:
     // minimum point \f$m' = m + \frac{1}{4}l\vec{1}\f$ and edge length \f$l' = l\f$
     // intersects with \f$a\f$.
     static AxisAlignedCube3f getOverlappingAxisAlignedCube3f(const AxisAlignedCube3f& a) {
-        auto d = unit() * (a.getSize() * 0.25f);
-        return AxisAlignedCube3f(a.getMin() + d, a.getSize());
+        auto d = unit() * (a.get_size() * 0.25f);
+        return AxisAlignedCube3f(a.get_min() + d, a.get_size());
     }
 
     // Get a point which overlaps with the specified axis-aligned cube.
     static Point3f getOverlappingPoint3f(const AxisAlignedCube3f& a) {
-        return a.getCenter();
+        return a.get_center();
     }
 
     // Get a point which does not overlap with the specified axis-aligned cube.
@@ -276,7 +276,7 @@ public:
     // and edge length \f$l\f$. The point \f$b = min + \delta^+(l) \vec{1}\f$
     // does not intersect \f$a\f$.
     static Point3f getNonOverlappingPoint3f(const AxisAlignedCube3f& a) {
-        return a.getMin() + unit() * a.getSize() + unit() * pdelta(a.getSize());
+        return a.get_min() + unit() * a.get_size() + unit() * pdelta(a.get_size());
     }
 
     // Get a point which is not contained in the specified axis-aligned cube.
@@ -286,7 +286,7 @@ public:
     // \f$b = a_{max} + \delta^+(0.0f)\vec{1}\f$
     // is not contained in \f$a\f$.
     static Point3f getNonContainedPoint3f(const AxisAlignedCube3f& a) {
-        return a.getMax() + unit() * pdelta(0.0f);
+        return a.get_max() + unit() * pdelta(0.0f);
     }
 
 	// Add basis vectors (1,0,0), (0,1,0), (0,0,1).

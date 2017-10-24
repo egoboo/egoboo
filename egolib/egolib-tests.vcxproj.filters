@@ -29,9 +29,6 @@
     <ClCompile Include="tests\egolib\Tests\StringUtilities.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="tests\egolib\Tests\Singleton.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="tests\egolib\Tests\QuadTree.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

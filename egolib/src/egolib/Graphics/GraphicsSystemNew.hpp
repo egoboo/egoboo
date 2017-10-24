@@ -1,6 +1,5 @@
 #pragma once
 
-#include "egolib/Core/Singleton.hpp"
 #include "egolib/Log/_Include.hpp"
 
 namespace Ego {
@@ -12,23 +11,19 @@ class GraphicsWindow;
 class GraphicsContext;
 class WindowProperties;
 
-namespace Core {
+/// @brief new functor creating the back-end.
+struct GraphicsSystemNewNewFunctor
+{ GraphicsSystemNew *operator()() const; };
 
-/// @brief Creator functor creating the back-end.
-template <>
-struct CreateFunctor<GraphicsSystemNew>
-{
-    GraphicsSystemNew *operator()() const;
-};
+/// @brief delete functor creating the back-end.
+struct GraphicsSystemNewDeleteFunctor
+{ void operator()(GraphicsSystemNew *p) const; };
 
-} // namespace Core
-
-
-class GraphicsSystemNew : public Core::Singleton<GraphicsSystemNew>
+class GraphicsSystemNew : public id::singleton<GraphicsSystemNew, GraphicsSystemNewNewFunctor, GraphicsSystemNewDeleteFunctor>
 {
 protected:
-    friend Core::Singleton<GraphicsSystemNew>::CreateFunctorType;
-    friend Core::Singleton<GraphicsSystemNew>::DestroyFunctorType;
+    friend GraphicsSystemNewNewFunctor;
+    friend GraphicsSystemNewDeleteFunctor;
 
 protected:
     /// @brief List of displays.

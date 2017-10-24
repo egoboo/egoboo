@@ -143,7 +143,7 @@ bool phys_warp_normal(const float exponent, Vector3f& nrm)
     nrm[kZ] = nrm[kZ] * std::pow( length_vrt_2, 0.5f * ( exponent - 1.0f ) );
 
     // normalize the normal
-	nrm = normalize(nrm).first;
+	nrm = normalize(nrm).get_vector();
     return id::euclidean_norm(nrm) >= 0.0f;
 }
 
@@ -161,7 +161,7 @@ bool phys_estimate_depth(const oct_vec_v2_t& odepth, const float exponent, Vecto
 
     if ( 1.0f == exponent )
     {
-        nrm_aa = normalize(nrm_aa).first; /// @todo Divide-by-zero ...
+        nrm_aa = normalize(nrm_aa).get_vector();
     }
     else
     {
@@ -203,7 +203,7 @@ bool phys_estimate_depth(const oct_vec_v2_t& odepth, const float exponent, Vecto
 
     if (1.0f == exponent)
     {
-        nrm_diag = normalize(nrm_diag).first;
+        nrm_diag = normalize(nrm_diag).get_vector();
     }
     else
     {
@@ -253,7 +253,7 @@ bool phys_estimate_depth(const oct_vec_v2_t& odepth, const float exponent, Vecto
     }
 
     // normalize this normal
-	nrm = normalize(nrm).first;
+	nrm = normalize(nrm).get_vector();
     bool result = id::euclidean_norm(nrm) > 0.0f;
 
     // find the depth in the direction of the normal, if possible

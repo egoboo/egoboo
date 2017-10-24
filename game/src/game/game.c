@@ -375,7 +375,7 @@ ObjectRef prt_find_target( const Vector3f& pos, Facing facing,
     ObjectRef besttarget = ObjectRef::Invalid;
     float  longdist2 = max_dist2;
 
-    facing = Facing(FACING_T(facing));
+    facing = id::canonicalize(facing);
 
     if ( !LOADED_PIP( particletype ) ) return ObjectRef::Invalid;
     ppip = ProfileSystem::get().ParticleProfileSystem.get_ptr( particletype );
@@ -917,7 +917,7 @@ int reaffirm_attached_particles(ObjectRef objectRef) {
     int number_added = 0;
     for (int attempts = 0; attempts < amount && number_attached < amount; ++attempts) {
         std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnParticle( 
-			object->getPosition(), Facing(FACING_T(object->ori.facing_z)), object->getProfile()->getSlotNumber(),
+			object->getPosition(), id::canonicalize(object->ori.facing_z), object->getProfile()->getSlotNumber(),
 			object->getProfile()->getAttachedParticleProfile(), objectRef, GRIP_LAST + number_attached,
 			object->getTeam().toRef(), objectRef, ParticleRef::Invalid, number_attached);
 
@@ -2197,7 +2197,7 @@ void character_swipe( ObjectRef ichr, slot_t slot )
                     // make the weapon's holder the owner of the attack particle?
                     // will this mess up wands?
                     std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnParticle(pweapon->getPosition(), 
-                        Facing(FACING_T(pchr->ori.facing_z)), weaponProfile->getSlotNumber(), 
+                        id::canonicalize(pchr->ori.facing_z), weaponProfile->getSlotNumber(), 
                         attackParticle, weaponProfile->hasAttachParticleToWeapon() ? iweapon : ObjectRef::Invalid,  
                         spawn_vrt_offset, pholder->getTeam().toRef(), iholder);
 

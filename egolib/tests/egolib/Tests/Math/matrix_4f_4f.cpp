@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-#include "egolib/Tests/Math/MathTestUtilities.hpp"
+#include "egolib/Tests/Math/utilities.hpp"
 
 namespace ego { namespace math { namespace test {
 
@@ -55,7 +55,7 @@ TEST(matrix_3f_3f, trace) {
 	m33.trace();
 }
 
-TEST(Matrix, matrix_scalar_multiplication) {
+TEST(matrix_4f_4f, matrix_scalar_multiplication) {
 	Matrix4f4f a, b;
     float s;
     do

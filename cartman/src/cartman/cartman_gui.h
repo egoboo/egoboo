@@ -121,10 +121,10 @@ struct Window {
 
 namespace Cartman { namespace Gui {
 
-struct Manager : public Ego::Core::Singleton<Manager> {
+struct Manager : public id::singleton<Manager> {
 protected:
-    friend struct Ego::Core::CreateFunctor<Manager>;
-    friend struct Ego::Core::DestroyFunctor<Manager>;
+    friend id::default_new_functor<Manager>;
+    friend id::default_delete_functor<Manager>;
     Manager();
     ~Manager();
 public:

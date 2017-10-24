@@ -217,7 +217,7 @@ ObjectProfile::ObjectProfile() :
 ObjectProfile::~ObjectProfile()
 {
     // Don't try to release particles if we're in the process of cleaning up
-    if (!ProfileSystem::isInitialized()) return;
+    if (!ProfileSystem::is_initialized()) return;
     
     //Release particle profiles
     for(const auto &element : _particleProfiles)

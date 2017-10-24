@@ -17,7 +17,7 @@ Panel::Panel() : Container() {
 
 Vector2f Panel::getDesiredSize() {
     JoinBounds joinBounds;
-    return joinBounds(*this).getSize();
+    return joinBounds(*this).get_size();
 }
 
 } // namespace GUI

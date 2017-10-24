@@ -25,6 +25,12 @@
 #include "game/Module/Module.hpp"
 #include "egolib/Entities/_Include.hpp"
 
+AudioSystem *AudioSystemCreateFunctor::operator()() const
+{ return new AudioSystem(); }
+
+void AudioSystemDestroyFunctor::operator()(AudioSystem *p) const
+{ delete p; }
+
 //Compatability fix for older versions of SDL
 #if SDL_VERSIONNUM(SDL_MIXER_MAJOR_VERSION, SDL_MIXER_MINOR_VERSION, SDL_MIXER_PATCHLEVEL) < SDL_VERSIONNUM(1, 2, 12)
 Mix_Music *Mix_LoadMUSType_RW(SDL_RWops *rw, Mix_MusicType, int freesrc) {

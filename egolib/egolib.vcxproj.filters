@@ -704,9 +704,6 @@
     <ClInclude Include="src\egolib\Renderer\OpenGL\Renderer.hpp">
       <Filter>Header Files\Renderer\OpenGL</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\math\Plane.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Renderer\TextureFilter.hpp">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
@@ -911,17 +908,11 @@
     <ClInclude Include="src\egolib\AI\WaypointList.h">
       <Filter>Header Files\AI</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Math\Scalar.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Math\Standard.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Logic\Team.hpp">
       <Filter>Header Files\Logic</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Math\VectorSpace.hpp">
-      <Filter>Header Files\Math</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Math\Cone3.hpp">
       <Filter>Header Files\Math</Filter>
@@ -952,15 +943,6 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Logic\PerkHandler.hpp">
       <Filter>Header Files\Logic</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Math\OrderedIntegralDomain.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Math\OrderedRing.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Math\OrderedField.hpp">
-      <Filter>Header Files\Math</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Math\Matrix.hpp">
       <Filter>Header Files\Math</Filter>
@@ -1055,9 +1037,6 @@
     <ClInclude Include="src\egolib\Logic\TreasureTables.hpp">
       <Filter>Header Files\Logic</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Core\Singleton.hpp">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Renderer\RendererInfo.hpp">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
@@ -1076,9 +1055,6 @@
     <ClInclude Include="src\egolib\AI\AStar.hpp">
       <Filter>Header Files\AI</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Math\Line.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Graphics\ColourDepth.hpp">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
@@ -1091,9 +1067,6 @@
     <ClInclude Include="src\egolib\Math\VectorRejection.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Math\EuclideanSpace.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Graphics\VertexDescriptor.hpp">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
@@ -1103,29 +1076,14 @@
     <ClInclude Include="src\egolib\Graphics\IndexBuffer.hpp">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Math\Ray.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\TrigonometricTable.hpp">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\math\Sphere.hpp">
-      <Filter>Header Files\Math</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Graphics\GraphicsWindow.hpp">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\App.hpp">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Math\Discrete.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Math\AxisAlignedBox.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\math\AxisAlignedCube.hpp">
-      <Filter>Header Files\Math</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Events\MouseMovedEventArgs.hpp">
       <Filter>Header Files\Events</Filter>

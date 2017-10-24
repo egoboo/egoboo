@@ -135,14 +135,14 @@ namespace Cartman
 
 namespace Cartman
 {
-    struct Input : Ego::Core::Singleton<Input>
+    struct Input : id::singleton<Input>
     {
     public:
         Mouse _mouse;
         Keyboard _keyboard;
     private:
-        friend Ego::Core::Singleton<Input>::CreateFunctorType;
-        friend Ego::Core::Singleton<Input>::DestroyFunctorType;
+        friend id::default_new_functor<Input>;
+        friend id::default_delete_functor<Input>;
         Input();
         virtual ~Input();
     public:

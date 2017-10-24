@@ -148,7 +148,7 @@ void MapEditorState::loadModuleData(std::shared_ptr<ModuleProfile> module)
 
     // set up the cameras *after* game_begin_module() or the player devices will not be initialized
     // and camera_system_begin() will not set up the correct view
-    CameraSystem::get().initialize(1);
+    CameraSystem::get().setNumberOfCameras(1);
     CameraSystem::get().getMainCamera()->setCameraMovementMode(CameraMovementMode::Free);
 
     // make sure the per-module configuration settings are correct

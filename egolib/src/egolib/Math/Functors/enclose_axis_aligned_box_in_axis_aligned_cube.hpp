@@ -23,8 +23,7 @@
 
 #pragma once
 
-#include "egolib/Math/AxisAlignedBox.hpp"
-#include "egolib/Math/AxisAlignedCube.hpp"
+#include "egolib/platform.h"
 
 namespace id {
 
@@ -35,23 +34,20 @@ namespace id {
 /// computed as follows:
 /// - The center \f$c'\f$ of the cube is the center of the box i.e. \f$c' := c\f$.
 /// - The edge length of the cube \f$l'\f$ is the maximum edge length of the box i.e. \f$l' := \max_{i=0}^{n-1} l_i\f$
-template <typename E>
-struct enclose_functor<Ego::Math::AxisAlignedCube<E>,
-	                   Ego::Math::AxisAlignedBox<E>>
+template <typename P>
+struct enclose_functor<axis_aligned_cube<P>, axis_aligned_box<P>>
 {
-    auto operator()(const Ego::Math::AxisAlignedBox<E>& source) const
+    auto operator()(const axis_aligned_box<P>& source) const
 	{
 		// Get the edge lengths of the box.
-		auto edge_lengths = source.getSize();
+		auto edge_lengths = source.get_size();
 		// Get the center of the box.
-		auto center = source.getCenter();
+		auto center = source.get_center();
 		// Get the maximal edge length of the box.
-		auto maximal_edge_length = id::max_element(edge_lengths);
+		auto maximal_edge_length = max_element(edge_lengths);
 		// Create the cube.
-        return Ego::Math::AxisAlignedCube<E>(center, maximal_edge_length);
+        return axis_aligned_cube<P>(center, maximal_edge_length);
     }
-private:
-	using VectorType = typename E::VectorType;
 }; // struct enclose_functor
 
 } // namespace id

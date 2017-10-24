@@ -271,10 +271,10 @@ void Console::draw()
     {
         BufferScopedLock lock(vertexBuffer);
         Vertex *vertex = lock.get<Vertex>();
-        vertex->x = rectangle.getMin().x();  vertex->y = rectangle.getMin().y(); ++vertex;
-        vertex->x = rectangle.getMax().x();  vertex->y = rectangle.getMin().y(); ++vertex;
-        vertex->x = rectangle.getMax().x();  vertex->y = rectangle.getMax().y(); ++vertex;
-        vertex->x = rectangle.getMin().x();  vertex->y = rectangle.getMax().y();
+        vertex->x = rectangle.get_min().x();  vertex->y = rectangle.get_min().y(); ++vertex;
+        vertex->x = rectangle.get_max().x();  vertex->y = rectangle.get_min().y(); ++vertex;
+        vertex->x = rectangle.get_max().x();  vertex->y = rectangle.get_max().y(); ++vertex;
+        vertex->x = rectangle.get_min().x();  vertex->y = rectangle.get_max().y();
     }
     renderer.render(vertexBuffer, vertexDescriptor, PrimitiveType::LineLoop, 0, 4);
     renderer.setLineWidth(1);
@@ -287,12 +287,12 @@ void Console::draw()
 
     // clip the viewport
     renderer.setScissorTestEnabled(true);
-    renderer.setScissorRectangle(rectangle.getMin().x(),
-		                         windowHeight - rectangle.getMax().y(),
-		                         rectangle.getSize().x(),
-		                         rectangle.getSize().y());
+    renderer.setScissorRectangle(rectangle.get_min().x(),
+		                         windowHeight - rectangle.get_max().y(),
+		                         rectangle.get_size().x(),
+		                         rectangle.get_size().y());
 
-    height = rectangle.getSize().y();
+    height = rectangle.get_size().y();
 
     char buffer[ConsoleSettings::InputSettings::Length];
 
@@ -305,7 +305,7 @@ void Console::draw()
 	int text_width, text_height;
     this->pfont->getTextSize(buffer, &text_width, &text_height);
     height -= text_height;
-    this->pfont->drawText(buffer, rectangle.getMin().x(), height - text_height, white);
+    this->pfont->drawText(buffer, rectangle.get_min().x(), height - text_height, white);
 
     if (m_document.get_text().empty())
 	{
@@ -343,7 +343,7 @@ void Console::draw()
 		auto txt = temporary.substr(l.get_range().get_start(),
 			                        l.get_range().get_length());
         height -= l.get_height();
-        this->pfont->drawText(txt, rectangle.getMin().x(), height - l.get_height(), white);
+        this->pfont->drawText(txt, rectangle.get_min().x(), height - l.get_height(), white);
     }
 
 	renderer.setDepthTestEnabled(true);
@@ -406,13 +406,12 @@ void Console::hide()
 }
 
 ConsoleHistory& Console::getHistory()
-{
-    return history;
-}
+{ return history; }
 
-Console *CreateFunctor<Console>::operator()(const Rectangle2f& rectangle) const
-{
-	return new Console(rectangle);
-}
+Console *ConsoleCreateFunctor::operator()(const Rectangle2f& rectangle) const
+{ return new Console(rectangle); }
+
+void ConsoleDestroyFunctor::operator()(Console *p) const
+{ delete p; }
 
 } } // namespace Ego::Core

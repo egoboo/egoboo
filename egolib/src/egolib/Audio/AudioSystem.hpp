@@ -24,7 +24,6 @@
 #include <SDL_mixer.h>
 #include "egolib/egoboo_setup.h"
 #include "egolib/Math/_Include.hpp"
-#include "egolib/Core/Singleton.hpp"
 
 typedef int MusicID;
 typedef int SoundID;
@@ -100,7 +99,19 @@ enum GlobalSound : uint8_t
     GSND_COUNT
 };
 
-class AudioSystem : public Ego::Core::Singleton<AudioSystem>
+class AudioSystem;
+
+struct AudioSystemCreateFunctor
+{
+	AudioSystem *operator()() const;
+};
+
+struct AudioSystemDestroyFunctor
+{
+	void operator()(AudioSystem *p) const;
+};
+
+class AudioSystem : public id::singleton<AudioSystem, AudioSystemCreateFunctor, AudioSystemDestroyFunctor>
 {
 public:
     static constexpr int MIX_HIGH_QUALITY = 44100;
@@ -111,8 +122,8 @@ public:
 	static const float DEFAULT_MAX_DISTANCE;    ///< Default max hearing distance (10 tiles)
 
 protected:
-    friend Ego::Core::Singleton<AudioSystem>::CreateFunctorType;
-    friend Ego::Core::Singleton<AudioSystem>::DestroyFunctorType;
+    friend AudioSystemCreateFunctor;
+    friend AudioSystemDestroyFunctor;
     AudioSystem();
     virtual ~AudioSystem();
 

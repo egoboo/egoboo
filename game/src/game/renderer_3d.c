@@ -257,8 +257,8 @@ void Renderer3D::renderAxisAlignedBox(const AxisAlignedBox3f& bv, const Ego::Mat
         renderer.getTextureUnit().setActivated(nullptr);
         renderer.setColour(colour);
 
-        const auto& pmin = (bv.getMin());
-        const auto& pmax = (bv.getMax());
+        const auto& pmin = (bv.get_min());
+        const auto& pmax = (bv.get_max());
 
         // !!!! there must be an optimized way of doing this !!!!
 

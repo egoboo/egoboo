@@ -79,10 +79,10 @@ gfx_rv ParticleGraphics::update_vertices(ParticleGraphics& inst, ::Camera& camer
 
     // get the vector from the camera to the particle
     Vector3f vfwd = inst.pos - camera.getPosition();
-    vfwd = normalize(vfwd).first;
+    vfwd = normalize(vfwd).get_vector();
 
     Vector3f vfwd_ref = inst.ref_pos - camera.getPosition();
-    vfwd_ref = normalize(vfwd_ref).first;
+    vfwd_ref = normalize(vfwd_ref).get_vector();
 
     // Set the up and right vectors.
     Vector3f vup = Vector3f(0.0f, 0.0f, 1.0f), vright;
@@ -92,29 +92,29 @@ gfx_rv ParticleGraphics::update_vertices(ParticleGraphics& inst, ::Camera& camer
         // The particle points along its direction of travel.
 
         vup = pprt->getVelocity();
-        vup = normalize(vup).first;
+        vup = normalize(vup).get_vector();
 
         // Get the correct "right" vector.
         vright = cross(vfwd, vup);
-        vright = normalize(vright).first;
+        vright = normalize(vright).get_vector();
 
         vup_ref = vup;
         vright_ref = cross(vfwd_ref, vup);
-        vright_ref = normalize(vright_ref).first;
+        vright_ref = normalize(vright_ref).get_vector();
     }
     else if (prt_ori_t::ORIENTATION_B == inst.orientation)
     {
         // Use the camera up vector.
         vup = camera.getUp();
-        vup = normalize(vup).first;
+        vup = normalize(vup).get_vector();
 
         // Get the correct "right" vector.
         vright = cross(vfwd, vup);
-        vright = normalize(vright).first;
+        vright = normalize(vright).get_vector();
 
         vup_ref = vup;
         vright_ref = cross(vfwd_ref, vup);
-        vright_ref = normalize(vright_ref).first;
+        vright_ref = normalize(vright_ref).get_vector();
     }
     else if (prt_ori_t::ORIENTATION_V == inst.orientation)
     {
@@ -135,18 +135,18 @@ gfx_rv ParticleGraphics::update_vertices(ParticleGraphics& inst, ::Camera& camer
         if (vup_cam[kZ] < 0) weight *= -1;
 
         vup += vup_cam * weight;
-        vup = normalize(vup).first;
+        vup = normalize(vup).get_vector();
 
         // Get the correct "right" vector.
         vright = cross(vfwd, vup);
-        vright = normalize(vright).first;
+        vright = normalize(vright).get_vector();
 
         vright_ref = cross(vfwd, vup_ref);
-        vright_ref = normalize(vright_ref).first;
+        vright_ref = normalize(vright_ref).get_vector();
 
         vup_ref = vup;
         vright_ref = cross(vfwd_ref, vup);
-        vright_ref = normalize(vright_ref).first;
+        vright_ref = normalize(vright_ref).get_vector();
     }
     else if (prt_ori_t::ORIENTATION_H == inst.orientation)
     {
@@ -160,8 +160,8 @@ gfx_rv ParticleGraphics::update_vertices(ParticleGraphics& inst, ::Camera& camer
         //vup_ref = vert.cross(vright_ref); //TODO: JJ> is this needed?
 
         // Normalize them.
-        vright = normalize(vright).first;
-        vup = normalize(vup).first;
+        vright = normalize(vright).get_vector();
+        vup = normalize(vup).get_vector();
 
         vright_ref = vright;
         vup_ref = vup;
@@ -184,7 +184,7 @@ gfx_rv ParticleGraphics::update_vertices(ParticleGraphics& inst, ::Camera& camer
                 case prt_ori_t::ORIENTATION_Z: vup = mat_getChrUp(cinst.getMatrix());      break;
             }
 
-            vup = normalize(vup).first;
+            vup = normalize(vup).get_vector();
         }
         else
         {
@@ -199,29 +199,29 @@ gfx_rv ParticleGraphics::update_vertices(ParticleGraphics& inst, ::Camera& camer
             }
         }
 
-        vup = normalize(vup).first;
+        vup = normalize(vup).get_vector();
 
         // Get the correct "right" vector.
         vright = cross(vfwd, vup);
-        vright = normalize(vright).first;
+        vright = normalize(vright).get_vector();
 
         vup_ref = vup;
         vright_ref = cross(vfwd_ref, vup);
-        vright_ref = normalize(vright_ref).first;
+        vright_ref = normalize(vright_ref).get_vector();
     }
     else
     {
         // Use the camera up vector.
         vup = camera.getUp();
-        vup = normalize(vup).first;
+        vup = normalize(vup).get_vector();
 
         // Get the correct "right" vector.
         vright = cross(vfwd, vup);
-        vright = normalize(vright).first;
+        vright = normalize(vright).get_vector();
 
         vup_ref = vup;
         vright_ref = cross(vfwd_ref, vup);
-        vright_ref = normalize(vright_ref).first;
+        vright_ref = normalize(vright_ref).get_vector();
     }
 
     // Calculate the actual vectors using the particle rotation.

@@ -65,16 +65,6 @@ Ego::Math::Relation plane_intersects_aab(const Plane3f& plane, const AxisAligned
 
 /**
  * @brief
- *  Get if two spheres intersect.
- * @param lhs
- *  a sphere
- * @param rhs
- *  the other sphere
- */
-Ego::Math::Relation sphere_intersects_sphere(const Sphere3f& lhs, const Sphere3f& rhs);
-
-/**
- * @brief
  *	Get if a cone and a point intersect.
  * @param lhs
  *	a cone

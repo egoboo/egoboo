@@ -23,7 +23,6 @@
 #pragma once
 
 #include "egolib/text/document.hpp"
-#include "egolib/Core/Singleton.hpp"
 #include "egolib/Math/Standard.hpp"
 
 namespace Ego {
@@ -95,21 +94,25 @@ struct ConsoleHistory {
 
 struct Console;
 
-template <>
-struct CreateFunctor<Console>
+struct ConsoleCreateFunctor
 {
 	Console *operator()(const Rectangle2f& rectangle) const;
 };
 
+struct ConsoleDestroyFunctor
+{
+	void operator()(Console *p) const;
+};
+
 /// The encapsulation of the data necessary to run a generic Quake-like console in Egoboo
-struct Console : public Singleton<Console>
+struct Console : public id::singleton<Console, ConsoleCreateFunctor, ConsoleDestroyFunctor>
 {
 protected:
 	// Befriend with the create functor.
-	friend Singleton<Console>::CreateFunctorType;
+	friend ConsoleCreateFunctor;
 
 	// Befriend with the destroy functor.
-	friend Singleton<Console>::DestroyFunctorType;
+	friend ConsoleDestroyFunctor;
 
 public:
     template <size_t CapacityArg>

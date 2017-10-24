@@ -23,8 +23,7 @@
 
 #pragma once
 
-#include "egolib/Math/AxisAlignedBox.hpp"
-#include "egolib/Math/Sphere.hpp"
+#include "egolib/platform.h"
 
 namespace id {
 
@@ -33,16 +32,15 @@ namespace id {
 /// @detail A sphere \f$b\f$ enclosing an axis aligned box \f$a\f$ has the center \f$c\f$
 /// of the axis aligned box. Its radius is given by \f$r:=|x - c|\f$ where \x\f$ is the
 /// minimum point of the axis aligned box and \f$|.|\f$ is the Euclidean length of a vector.
-/// @tparam E the Euclidean space type of the geometries
-template <typename E>
-struct enclose_functor<Ego::Math::Sphere<E>,
-	                   Ego::Math::AxisAlignedBox<E>>
+/// @tparam P the point type of the geometries
+template <typename P>
+struct enclose_functor<sphere<P>, axis_aligned_box<P>>
 {
-    auto operator()(const Ego::Math::AxisAlignedBox<E>& source) const
+    auto operator()(const axis_aligned_box<P>& source) const
 	{
-		const auto center = source.getCenter();
-		const auto radius = id::euclidean_norm(source.getMin() - center);
-        return Ego::Math::Sphere<E>(center, radius);
+		const auto center = source.get_center();
+		const auto radius = euclidean_norm(source.get_min() - center);
+        return sphere<P>(center, radius);
     }
 }; // struct enclose_functor
 

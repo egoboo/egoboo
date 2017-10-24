@@ -159,11 +159,11 @@ private:
     **/
     void subdivide()
     {
-        float topLeftX = _bounds.getMin()[kX];
-        float topLeftY = _bounds.getMin()[kY];
+        float topLeftX = _bounds.get_min()[kX];
+        float topLeftY = _bounds.get_min()[kY];
 
-        float bottomRightX = _bounds.getMax()[kX];
-        float bottomRightY = _bounds.getMax()[kY];
+        float bottomRightX = _bounds.get_max()[kX];
+        float bottomRightY = _bounds.get_max()[kY];
 
         float midX = (topLeftX + bottomRightX) * 0.5f;
         float midY = (topLeftY + bottomRightY) * 0.5f;

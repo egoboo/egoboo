@@ -175,13 +175,13 @@ void Camera::makeMatrix()
 
     // Pre-compute some camera vectors.
     m_forward = mat_getCamForward(m_viewMatrix);
-    m_forward = normalize(m_forward).first;
+    m_forward = normalize(m_forward).get_vector();
 
     m_up = mat_getCamUp(m_viewMatrix);
-    m_up = normalize(m_up).first;
+    m_up = normalize(m_up).get_vector();
 
     m_right = mat_getCamRight(m_viewMatrix);
-    m_right = normalize(m_right).first;
+    m_right = normalize(m_right).get_vector();
 }
 
 void Camera::updateZoom()
@@ -204,7 +204,7 @@ void Camera::updateZoom()
     {
         //Make it wrap around
         int32_t newAngle = static_cast<int32_t>(static_cast<float>(FACING_T(_ori.facing_z)) +_turnZAdd);
-        _ori.facing_z = Facing(uint16_t(Facing(newAngle)));
+        _ori.facing_z = id::canonicalize(Facing(newAngle));
 
         _turnZ_turns = FacingToTurn(Facing(_ori.facing_z));
         _turnZ_radians = id::semantic_cast<Ego::Math::Radians>(_turnZ_turns);
@@ -238,10 +238,10 @@ void Camera::updateCenter()
 
         // Get 2d versions of the camera's right and up vectors.
         Vector2f vrt(m_right.x(), m_right.y());
-        vrt = normalize(vrt).first;
+        vrt = normalize(vrt).get_vector();
 
         Vector2f vup(m_up.x(), m_up.y());
-        vup = normalize(vup).first;
+        vup = normalize(vup).get_vector();
 
         // project the diff vector into this space
         float diff_rt = dot(vrt, diff);

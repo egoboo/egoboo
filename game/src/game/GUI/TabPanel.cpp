@@ -26,7 +26,7 @@ void Tab::setTitle(const std::string& title) {
 
 Vector2f Tab::getDesiredSize() {
     JoinBounds joinBounds;
-    return joinBounds(*this).getSize();
+    return joinBounds(*this).get_size();
 }
 
 } // namespace GUI

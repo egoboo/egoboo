@@ -43,6 +43,9 @@ class RendererInfo;
 class Renderer : public Ego::Renderer
 {
 public:
+	// Befriend with the create functor.
+	friend RendererCreateFunctor;
+
     /// @brief Unique pointer to the 1D default texture.
     std::unique_ptr<DefaultTexture> m_defaultTexture1d;
 

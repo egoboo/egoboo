@@ -818,7 +818,7 @@ bool Particle::initialize(const ParticleRef particleID, const Vector3f& spawnPos
     // In cpp, will be passed by reference, so we do not want to alter the
     // components of the original vector.
 	Vector3f tmp_pos = spawnPos;
-    Facing loc_facing = Facing(FACING_T(spawnFacing));
+    Facing loc_facing = id::canonicalize(spawnFacing);
 
     // try to get an idea of who our owner is even if we are
     // given bogus info
@@ -876,7 +876,7 @@ bool Particle::initialize(const ParticleRef particleID, const Vector3f& spawnPos
 
             // Find a target
             Facing targetAngle;
-            _target = prt_find_target(spawnPos, Facing(FACING_T(loc_facing)), _particleProfileID, spawnTeam, owner_ref, spawnTarget, &targetAngle);
+            _target = prt_find_target(spawnPos, id::canonicalize(loc_facing), _particleProfileID, spawnTeam, owner_ref, spawnTarget, &targetAngle);
             const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[_target];
 
             if (target && !getProfile()->homing)
@@ -1202,7 +1202,7 @@ bool Particle::attach(const ObjectRef attach)
     // Correct facing so swords knock characters in the right direction...
     if (getProfile()->hasBit(DAMFX_TURN))
     {
-        facing = Facing(FACING_T(pchr->ori.facing_z));
+        facing = id::canonicalize(pchr->ori.facing_z);
     }
 
     return true;

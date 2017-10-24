@@ -25,7 +25,6 @@
 
 #include "egolib/Math/_Include.hpp"
 #include "egolib/egoboo_setup.h"
-#include "egolib/Core/Singleton.hpp"
 #include "egolib/Renderer/BlendFunction.hpp"
 #include "egolib/Renderer/CompareFunction.hpp"
 #include "egolib/Renderer/RasterizationMode.hpp"
@@ -183,23 +182,17 @@ public:
 
 class Renderer;
 
-namespace Core {
-
 /// @brief Creator functor creating the back-end.
-template <>
-struct CreateFunctor<Renderer> {
-    Renderer *operator()() const;
-};
+struct RendererCreateFunctor
+{ Renderer *operator()() const; };
 
-} // namespace Core
+struct RendererDestroyFunctor
+{ void operator()(Renderer *p) const; };
 
-class Renderer : public Core::Singleton<Renderer> {
+class Renderer : public id::singleton<Renderer, RendererCreateFunctor, RendererDestroyFunctor> {
 protected:
-    // Befriend with the create functor.
-    friend Core::Singleton<Renderer>::CreateFunctorType;
-
     // Befriend with the destroy functor.
-    friend Core::Singleton<Renderer>::DestroyFunctorType;
+    friend RendererDestroyFunctor;
 
     /// @brief Construct this renderer.
     /// @remark Intentionally protected.

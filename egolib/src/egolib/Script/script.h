@@ -22,7 +22,6 @@
 #pragma once
 
 #include "egolib/typedef.h"
-#include "egolib/Core/Singleton.hpp"
 #include "egolib/Logic/Damage.hpp"
 #include "egolib/IDSZ.hpp"
 #include "egolib/Clock.hpp"
@@ -595,10 +594,10 @@ enum ScriptOperators {
 };
 
 /// @brief The runtime (environment) for the scripts.
-struct Runtime : public Core::Singleton<Runtime> {
+struct Runtime : public id::singleton<Runtime> {
 protected:
-    friend Core::Singleton<Runtime>::CreateFunctorType;
-    friend Core::Singleton<Runtime>::DestroyFunctorType;
+    friend id::default_new_functor<Runtime>;
+	friend id::default_delete_functor<Runtime>;
 
     /// @brief Construct this runtime.
 	/// @remarks Intentionally protected.

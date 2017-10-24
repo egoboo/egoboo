@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-#include "egolib/Tests/Math/MathTestUtilities.hpp"
+#include "egolib/Tests/Math/utilities.hpp"
 
 namespace ego { namespace math { namespace test {
 

@@ -342,23 +342,23 @@ void UIManager::drawQuad2d(const Rectangle2f& target, const Rectangle2f& source)
         VertexBufferScopedLock vblck(_textureQuadVertexBuffer);
         Vertex *v = vblck.get<Vertex>();
         // left/bottom
-        v->x = target.getMin().x(); v->y = target.getMax().y();
-        v->s = source.getMin().x(); v->t = source.getMax().y();
+        v->x = target.get_min().x(); v->y = target.get_max().y();
+        v->s = source.get_min().x(); v->t = source.get_max().y();
         v++;
 
         // right/bottom
-        v->x = target.getMax().x(); v->y = target.getMax().y();
-        v->s = source.getMax().x(); v->t = source.getMax().y();
+        v->x = target.get_max().x(); v->y = target.get_max().y();
+        v->s = source.get_max().x(); v->t = source.get_max().y();
         v++;
 
         // right/top
-        v->x = target.getMax().x(); v->y = target.getMin().y();
-        v->s = source.getMax().x(); v->t = source.getMin().y();
+        v->x = target.get_max().x(); v->y = target.get_min().y();
+        v->s = source.get_max().x(); v->t = source.get_min().y();
         v++;
 
         // left/top
-        v->x = target.getMin().x(); v->y = target.getMin().y();
-        v->s = source.getMin().x(); v->t = source.getMin().y();
+        v->x = target.get_min().x(); v->y = target.get_min().y();
+        v->s = source.get_min().x(); v->t = source.get_min().y();
         v++;
     }
     renderer.render(_textureQuadVertexBuffer, _textureQuadVertexDescriptor, PrimitiveType::Quadriliterals, 0, 4);

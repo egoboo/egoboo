@@ -6,13 +6,7 @@
 #include "egolib/Math/Matrix.hpp"
 
 //
-#include "egolib/Math/AxisAlignedBox.hpp"
 #include "egolib/Math/Cone3.hpp"
-#include "egolib/Math/AxisAlignedCube.hpp"
-#include "egolib/Math/Line.hpp"
-#include "egolib/Math/Plane.hpp"
-#include "egolib/Math/Ray.hpp"
-#include "egolib/Math/Sphere.hpp"
 
 //
 #include "egolib/Math/Math.hpp"
@@ -30,8 +24,5 @@
 #include "egolib/Math/Functors/enclose_sphere_in_axis_aligned_box.hpp"
 #include "egolib/Math/Functors/enclose_axis_aligned_box_in_axis_aligned_cube.hpp"
 #include "egolib/Math/Functors/enclose_axis_aligned_box_in_sphere.hpp"
-
-//
-#include "egolib/Math/Discrete.hpp"
 
 #undef EGOLIB_MATH_PRIVATE

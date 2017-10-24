@@ -416,10 +416,10 @@ uint8_t FindTileInPassage( const int x0, const int y0, const int tiletype, const
     const std::shared_ptr<Passage> &passage = _currentModule->getPassageByID(passageID);
     if ( !passage ) return false;
 
-    int x = std::max<int>(x0, passage->getAxisAlignedBox2f().getMin().x()) / Info<int>::Grid::Size();
-    int y = std::max<int>(y0, passage->getAxisAlignedBox2f().getMin().y()) / Info<int>::Grid::Size();
-    int right = passage->getAxisAlignedBox2f().getMax().x() / Info<int>::Grid::Size();
-    int bottom = passage->getAxisAlignedBox2f().getMax().y() / Info<int>::Grid::Size();
+    int x = std::max<int>(x0, passage->getAxisAlignedBox2f().get_min().x()) / Info<int>::Grid::Size();
+    int y = std::max<int>(y0, passage->getAxisAlignedBox2f().get_min().y()) / Info<int>::Grid::Size();
+    int right = passage->getAxisAlignedBox2f().get_max().x() / Info<int>::Grid::Size();
+    int bottom = passage->getAxisAlignedBox2f().get_max().y() / Info<int>::Grid::Size();
 
     // Do the first row
     if (y < bottom)
@@ -442,7 +442,7 @@ uint8_t FindTileInPassage( const int x0, const int y0, const int tiletype, const
     // Do all remaining rows
     for ( /* nothing */; y <= bottom; y++ )
     {
-        for ( x = passage->getAxisAlignedBox2f().getMin().x() / Info<int>::Grid::Size(); x <= right; x++ )
+        for ( x = passage->getAxisAlignedBox2f().get_min().x() / Info<int>::Grid::Size(); x <= right; x++ )
         {
             Index1D fan = _currentModule->getMeshPointer()->getTileIndex(Index2D(x, y));
 

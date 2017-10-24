@@ -20,8 +20,8 @@ public:
     }
 
     void draw(DrawingContext& drawingContext) override {
-        int shakeEffectX = getDerivedBounds().getMin().x();
-        int shakeEffectY = getDerivedBounds().getMin().y();
+        int shakeEffectX = getDerivedBounds().get_min().x();
+        int shakeEffectY = getDerivedBounds().get_min().y();
 
         //Apply shake effect when mouse is over
         if (_mouseOver) {

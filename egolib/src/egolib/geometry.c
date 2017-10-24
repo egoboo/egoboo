@@ -24,8 +24,6 @@
 #include "egolib/geometry.h"
 
 #include "egolib/_math.h"
-#include "egolib/Math/Plane.hpp"
-#include "egolib/Math/Sphere.hpp"
 #include "egolib/frustum.h"
 
 //--------------------------------------------------------------------------------------------
@@ -38,10 +36,10 @@ Ego::Math::Relation plane_intersects_aab_max(const Plane3f& plane, const Point3f
     float dist = 0.0f;
     for (int j = 0; j < 3; j++)
     {
-        float tmp = (plane.getNormal()[j] > 0.0f) ? maxs[j] : mins[j];
-        dist += tmp * plane.getNormal()[j];
+        float tmp = (plane.get_normal()[j] > 0.0f) ? maxs[j] : mins[j];
+        dist += tmp * plane.get_normal()[j];
     }
-    dist += plane.getDistance();
+    dist += plane.get_distance();
 
     if (dist > 0.0f)
     {
@@ -63,10 +61,10 @@ Ego::Math::Relation plane_intersects_aab_min(const Plane3f& plane, const Point3f
     float dist = 0.0f;
     for (int j = 0; j < 3; j++)
     {
-        float tmp = (plane.getNormal()[j] > 0.0f) ? mins[j] : maxs[j];
-        dist += tmp * plane.getNormal()[j];
+        float tmp = (plane.get_normal()[j] > 0.0f) ? mins[j] : maxs[j];
+        dist += tmp * plane.get_normal()[j];
     }
-    dist += plane.getDistance();
+    dist += plane.get_distance();
 
     if (dist > 0.0f)
     {
@@ -85,8 +83,8 @@ Ego::Math::Relation plane_intersects_aab_min(const Plane3f& plane, const Point3f
 Ego::Math::Relation plane_intersects_aab(const Plane3f& plane, const AxisAlignedBox3f& aab)
 {
 	Ego::Math::Relation retval = Ego::Math::Relation::inside;
-    const auto mins = aab.getMin(),
-               maxs = aab.getMax();
+    const auto mins = aab.get_min(),
+               maxs = aab.get_max();
 	if (Ego::Math::Relation::outside == plane_intersects_aab_max(plane, mins, maxs))
     {
 		retval = Ego::Math::Relation::outside;
@@ -107,15 +105,15 @@ Done:
 bool two_plane_intersection(Vector3f& p, Vector3f& d, const Plane3f& p0, const Plane3f& p1)
 {
     // Compute \f$\vec{d} = \hat{n}_0 \times \hat{n}_1\f$
-    const Vector3f &n0 = p0.getNormal();
-    const Vector3f &n1 = p1.getNormal();
+    const Vector3f &n0 = p0.get_normal();
+    const Vector3f &n1 = p1.get_normal();
     d = cross(n0, n1);
     
     // If \f$\vec{v}\f$ is the zero vector, then the planes do not intersect.
     if (id::zero<Vector3f>() == d) {
         return false;
     }
-    d = normalize(d).first;
+    d = normalize(d).get_vector();
     if (0.0f != d[kZ])
     {
         p[kX] = (n0[kY] * n1[kW] - n0[kW] * n1[kY]) / d[kZ];
@@ -131,12 +129,12 @@ bool two_plane_intersection(Vector3f& p, Vector3f& d, const Plane3f& p0, const P
 
 bool three_plane_intersection(Point3f& dst_pos, const Plane3f& p0, const Plane3f& p1, const Plane3f& p2)
 {
-	Vector3f n0 = p0.getNormal(),
-             n1 = p1.getNormal(),
-             n2 = p2.getNormal();
-    float d0 = p0.getDistance(),
-          d1 = p1.getDistance(),
-          d2 = p2.getDistance();
+	Vector3f n0 = p0.get_normal(),
+             n1 = p1.get_normal(),
+             n2 = p2.get_normal();
+    float d0 = p0.get_distance(),
+          d1 = p1.get_distance(),
+          d2 = p2.get_distance();
     // the determinant of the matrix
     float det =
         n0[kX] * (n1[kY] * n2[kZ] - n1[kZ] * n2[kY]) -
@@ -177,48 +175,17 @@ bool three_plane_intersection(Point3f& dst_pos, const Plane3f& p0, const Plane3f
 // sphere functions
 //--------------------------------------------------------------------------------------------
 
-Ego::Math::Relation sphere_intersects_sphere(const Sphere3f& lhs, const Sphere3f& rhs)
-{
-    // Get the separating axis
-    Vector3f vdiff = lhs.getCenter() - rhs.getCenter();
-
-    // Get the distance squared.
-    float dist2 = id::squared_euclidean_norm(vdiff);
-
-    if (rhs.getRadius() < lhs.getRadius())
-    {
-        if (dist2 < lhs.getRadius() * lhs.getRadius())
-        {
-			return Ego::Math::Relation::inside;
-        }
-    }
-
-    // Get the sum of the radii.
-    float fRadiiSum = lhs.getRadius() + rhs.getRadius();
-
-    // If the distance between the centers is less than the sum of the radii,
-    // then we have an intersection we calculate lhs using the squared lengths for speed.
-    if (dist2 < fRadiiSum * fRadiiSum)
-    {
-		return Ego::Math::Relation::intersect;
-    }
-    else
-    {
-		return Ego::Math::Relation::outside;
-    }
-}
-
 Ego::Math::Relation cone_intersects_point(const Cone3f& K, const Point3f& P)
 {
     // If \f$\hat{d} \cdot \left(P-O\right) = \left|P-O\right|\cos \theta\f$ then the point
     // is on the cone and if \$\hat{d} \cdot \left(P-O\right) > \left|P-O\right|\cos \theta\f$
     // then it is in the cone. Otherwise it is outside the cone.
     // Compute \$t = P - O\f$.
-	const auto t = P - K.getOrigin();
+	const auto t = P - K.get_origin();
     // Compute \$\left|t\right|\cos\theta\f$.
-    const auto rhs = id::euclidean_norm(t) * std::cos(K.getAngle());
+    const auto rhs = id::euclidean_norm(t) * std::cos(K.get_angle());
     // Compute \f$\hat{d} \cdot \left(t\right)\f$.
-    const auto lhs = dot(K.getAxis(), t);
+    const auto lhs = id::dot_product(K.get_axis(), t);
     if (lhs > rhs) {
         return Ego::Math::Relation::inside;
     } else if (lhs < rhs) {
@@ -230,20 +197,20 @@ Ego::Math::Relation cone_intersects_point(const Cone3f& K, const Point3f& P)
 
 bool sphere_intersects_cone(const Sphere3f& S, const Cone3f& K) {
     // \$\sin\left(\theta\right)\f$
-    const float s = std::sin(K.getAngle());
+    const float s = std::sin(K.get_angle());
     // \f$\cos\left(\theta\right)\f$
-    const float c = std::cos(K.getAngle());
+    const float c = std::cos(K.get_angle());
     // The reciprocal of \f$\sin\left(\theta\right)\f$: \f$\frac{1}{\sin\left(\theta\right)}\f$.
     const float s_r = 1.0f / s;
 
     // Compute the forward cone.
-    auto origin_p = K.getOrigin() - K.getAxis() * (S.getRadius() * s_r);
-    auto direction_p = K.getAxis();
+    auto origin_p = K.get_origin() - K.get_axis() * (S.get_radius() * s_r);
+    auto direction_p = K.get_axis();
 
     Vector3f t; float lhs, rhs;
 
     // Determine the relation of the center to the forward cone.
-    t = S.getCenter() - origin_p;
+    t = S.get_center() - origin_p;
     rhs = id::euclidean_norm(t) * c;
     lhs = dot(direction_p, t);
     if (lhs < rhs) {
@@ -252,18 +219,18 @@ bool sphere_intersects_cone(const Sphere3f& S, const Cone3f& K) {
     }
     // (At this point, the sphere is either inside or on the forward cone).
     // Compute the backward cone.
-    auto origin_m = K.getOrigin();
-    auto direction_m = -K.getAxis();
+    auto origin_m = K.get_origin();
+    auto direction_m = -K.get_axis();
     // Determine the relation of the center to the backward cone.
-    t = S.getCenter() - origin_m;
+    t = S.get_center() - origin_m;
     rhs = id::euclidean_norm(t) * s; // \f$\cos\left(90-\theta\right) = \sin(\theta)\f$
     lhs = dot(direction_m, t);
     if (lhs < rhs) {
         // The sphere does not intersect the backward cone is inside (on) the cone
         // if and only if \f$\left|C - V\right| < r\f$ (\f$\left|C - V\right | = r\f$).
-        t = S.getCenter() - K.getOrigin();
+        t = S.get_center() - K.get_origin();
         // We use the squared length and the squared radius.
-        float l2 = id::squared_euclidean_norm(t), r2 = S.getRadius() * S.getRadius();
+        float l2 = id::squared_euclidean_norm(t), r2 = S.get_radius() * S.get_radius();
         return l2 <= r2;
     } else {
         // The sphere and the forward cone and the sphere and the backward cone intersect.

@@ -364,8 +364,8 @@ private:
     // creating the circles \f$\langle c, r \rangle> \cup
     // \langle c, \frac{1}{2}g \rangle\f$.
     static AxisAlignedBox2f leastClosure(const Circle2f& circle) {
-        auto circle0 = Circle2f(circle.getCenter(),
-                                std::max(circle.getRadius(), Info<float>::Grid::Size() * 0.5f));
+        auto circle0 = Circle2f(circle.get_center(),
+                                std::max(circle.get_radius(), Info<float>::Grid::Size() * 0.5f));
         return id::enclose<AxisAlignedBox2f>(circle0);
     }
 };

@@ -23,6 +23,16 @@
 namespace Ego {
 namespace Core {
 
+System *SystemCreateFunctor::operator()(const std::string& x) const
+{
+	return new System(x);
+}
+
+System *SystemCreateFunctor::operator()(const std::string& x, const std::string& y) const
+{
+	return new System(x, y);
+}
+
 const std::string SystemService::VERSION = "0.1.9";
 
 SystemService::SystemService(const std::string& binaryPath) {

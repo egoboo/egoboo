@@ -293,7 +293,7 @@ bool GameEngine::initialize()
     Ego::Input::InputSystem::initialize();
 
     // camera options
-    CameraSystem::Singleton::initialize();
+    CameraSystem::initialize();
     CameraSystem::get().getCameraOptions().turnMode = egoboo_config_t::get().camera_control.getValue();
 
     // renderer options

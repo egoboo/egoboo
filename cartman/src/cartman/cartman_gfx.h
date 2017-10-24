@@ -21,7 +21,6 @@
 
 #include "cartman/cartman_typedef.h"
 #include "cartman/cartman_math.h"
-#include "egolib/Core/Singleton.hpp"
 
 //--------------------------------------------------------------------------------------------
 
@@ -77,7 +76,7 @@ inline uint32_t make_rgba(const std::shared_ptr<const SDL_Surface>& surface, con
 
 extern camera_t cam;
 
-struct Resources : Ego::Core::Singleton<Resources> {
+struct Resources : id::singleton<Resources> {
     std::shared_ptr<SDL_Surface> bmphitemap;     // Heightmap image
     std::shared_ptr<Ego::Texture> tx_point;      // Vertex image
     std::shared_ptr<Ego::Texture> tx_pointon;    // Vertex image ( select_vertsed )

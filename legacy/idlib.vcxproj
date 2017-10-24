@@ -19,7 +19,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\idlib\library\src\idlib\color\instantiations.cpp" />
+    <ClCompile Include="..\idlib\library\src\idlib\color\instantiations.cpp">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)/color/instantiations.o</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)/color/instantiations.o</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)/color/instantiations.o</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)/color/instantiations.o</ObjectFileName>
+    </ClCompile>
     <ClCompile Include="..\idlib\library\src\idlib\file_system\directory_separator.cpp" />
     <ClCompile Include="..\idlib\library\src\idlib\file_system\file.cpp" />
     <ClCompile Include="..\idlib\library\src\idlib\file_system\file_linux.cpp" />
@@ -36,6 +41,12 @@
     <ClCompile Include="..\idlib\library\src\idlib\math\angle-degrees-radians-turns.cpp" />
     <ClCompile Include="..\idlib\library\src\idlib\math\arithmetic_tuple.cpp" />
     <ClCompile Include="..\idlib\library\src\idlib\math\floating_point.cpp" />
+    <ClCompile Include="..\idlib\library\src\idlib\math\geometry\instantiations.cpp">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)/math/geometry/instantiations.o</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)/math/geometry/instantiations.o</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)/math/geometry/instantiations.o</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)/math/geometry/instantiations.o</ObjectFileName>
+    </ClCompile>
     <ClCompile Include="..\idlib\library\src\idlib\math\interpolate.cpp" />
     <ClCompile Include="..\idlib\library\src\idlib\math\interval.cpp" />
     <ClCompile Include="..\idlib\library\src\idlib\math\mu.cpp" />

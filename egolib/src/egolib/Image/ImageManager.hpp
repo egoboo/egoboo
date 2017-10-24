@@ -23,7 +23,6 @@
 
 #pragma once
 
-#include "egolib/Core/Singleton.hpp"
 #include "egolib/Graphics/PixelFormat.hpp"
 
 namespace Ego {
@@ -35,7 +34,7 @@ class ImageLoader;
 /// @todo
 /// The image manager currently abstracts away the SDL_image/SDL image loading facilities.
 /// It is - in the end - just a minor improvement over the previous code, just enough to get going.
-class ImageManager : public Core::Singleton<ImageManager>
+class ImageManager : public id::singleton<ImageManager>
 {
 private:
     using Loaders = std::vector<std::unique_ptr<ImageLoader>>;
@@ -84,8 +83,8 @@ private:
     void registerImageLoaders();
 
 public:
-    friend Singleton<ImageManager>::CreateFunctorType;
-    friend Singleton<ImageManager>::DestroyFunctorType;
+    friend id::default_new_functor<ImageManager>;
+    friend id::default_delete_functor<ImageManager>;
     
     /// @brief Get an iterator pointing to the first loader supporting one of the specified extensions
     /// if such a loader exists, <tt>end()</tt> otherwise. The search range is <tt>[start, end())</tt>.

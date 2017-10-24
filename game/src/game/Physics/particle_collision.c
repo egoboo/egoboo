@@ -449,7 +449,7 @@ bool do_chr_prt_collision_deflect(chr_prt_collision_data_t& pdata)
     }
 
     // find the "attack direction" of the particle
-    Facing direction = Facing(FACING_T(vec_to_facing(pdata.pchr->getPosX() - pdata.pprt->getPosX(), pdata.pchr->getPosY() - pdata.pprt->getPosY())));
+    Facing direction = id::canonicalize(vec_to_facing(pdata.pchr->getPosX() - pdata.pprt->getPosX(), pdata.pchr->getPosY() - pdata.pprt->getPosY()));
     direction = pdata.pchr->ori.facing_z - Facing(direction) + ATK_BEHIND;
 
     // shield block?
@@ -1379,8 +1379,8 @@ int spawn_bump_particles(ObjectRef character, const ParticleRef particle)
 
                 // clear the occupied list
                 float z = pprt->getPosZ() - pchr->getPosZ();
-                FACING_T facing = FACING_T(pprt->facing - pchr->ori.facing_z);
-                Facing turn = Facing(facing);
+                Facing facing = id::canonicalize(pprt->facing - pchr->ori.facing_z);
+                Facing turn = facing;
                 float fsin = std::sin(turn);
                 float fcos = std::cos(turn);
                 float x = dist * fcos;
@@ -1429,7 +1429,7 @@ int spawn_bump_particles(ObjectRef character, const ParticleRef particle)
                         }
 
                         std::shared_ptr<Ego::Particle> bs_part = 
-                            ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), Facing(FACING_T(pchr->ori.facing_z)), ObjectProfileRef(pprt->getSpawnerProfile()), ppip->bumpspawn._lpip,
+                            ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), id::canonicalize(pchr->ori.facing_z), ObjectProfileRef(pprt->getSpawnerProfile()), ppip->bumpspawn._lpip,
                                                                       character, bestvertex + 1, pprt->team, pprt->owner_ref, particle, cnt, character);
 
                         if (bs_part)

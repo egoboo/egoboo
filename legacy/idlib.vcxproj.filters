@@ -114,5 +114,8 @@
     <ClCompile Include="..\idlib\library\src\idlib\text\range.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="..\idlib\library\src\idlib\math\geometry\instantiations.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

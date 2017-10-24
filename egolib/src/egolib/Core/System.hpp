@@ -26,7 +26,7 @@
 
 #pragma once
 
-#include "egolib/Core/Singleton.hpp"
+#include "egolib/platform.h"
 
 namespace Ego {
 namespace Core {
@@ -71,10 +71,16 @@ protected:
 	virtual ~InputService();
 };
 
-class System : public Singleton<System> {
+struct SystemCreateFunctor
+{
+	System *operator()(const std::string& x) const;
+	System *operator()(const std::string& x, const std::string& y) const;
+};
+
+class System : public id::singleton<System, SystemCreateFunctor> {
 protected:
-    friend Singleton<System>::CreateFunctorType;
-    friend Singleton<System>::DestroyFunctorType;
+    friend SystemCreateFunctor;
+    friend id::default_delete_functor<System>;
     /// @brief Construct this system.
     /// @remark Intentionally protected.
     System(const std::string& binaryPath, const std::string& egobooPath);
@@ -104,16 +110,6 @@ public:
 	InputService& getInputService() {
 		return *inputService;
 	}
-};
-
-template <>
-struct CreateFunctor<System> {
-    System *operator()(const std::string& x) const {
-        return new System(x);
-    }
-    System *operator()(const std::string& x, const std::string& y) const {
-        return new System(x, y);
-    }
 };
 
 } // namespace Core

@@ -58,7 +58,7 @@ const Facing FACE_SOUTH = Facing(0xC000);
 
 Facing vec_to_facing( const float dx, const float dy )
 {
-    return Facing(FACING_T(RadianToFacing(id::angle<float, id::radians>(std::atan2(dy, dx) + id::pi<float>()))));
+    return id::canonicalize(RadianToFacing(id::angle<float, id::radians>(std::atan2(dy, dx) + id::pi<float>())));
 }
 
 //--------------------------------------------------------------------------------------------
@@ -81,7 +81,7 @@ void facing_to_vec( const Facing& facing, float * dx, float * dy )
 // ROTATION FUNCTIONS
 //--------------------------------------------------------------------------------------------
 Facing rotate(const Facing& source, const Facing& target, const float weight) {
-    int32_t delta = static_cast<int32_t>(target) - static_cast<int32_t>(source);
+    int32_t delta = target.get_value() - source.get_value();
 
     //Figure out if it is faster to wrap around the other direction
     if(std::abs(delta) > (std::numeric_limits<uint16_t>::max() / 2)) {
@@ -90,7 +90,7 @@ Facing rotate(const Facing& source, const Facing& target, const float weight) {
 
     int32_t weightedDelta = static_cast<float>(delta) / weight;
 
-    return Facing(static_cast<int32_t>(source) + weightedDelta);
+    return Facing(source.get_value() + weightedDelta);
 }
 
 //--------------------------------------------------------------------------------------------

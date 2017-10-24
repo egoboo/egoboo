@@ -45,10 +45,13 @@ typedef uint16_t FACING_T;
 
 namespace id {
 
+// An angle with syntax uint16_t and semantics facings.
+// n := std::numeric_limits<uint16_t>::min() corresponds to 0 degrees,
+// m := std::numeric_limits<uint16_t>::max() corresponds to 360 degrees.
+// The canonical range is [n, m).
 template <>
 struct angle<uint16_t, facings> {
 private:
-    // The canonical range of unit facing is 0 = UINT16_MIN, 360 = 2^16-1 = UINT16_MAX.
     int32_t m_angle;
 
     static void constrain(int32_t& angle) {
@@ -100,6 +103,10 @@ public:
         }
         return x;
     }
+
+	int32_t get_value() const
+	{ return m_angle; }
+
     // Explicit cast.
     explicit operator int32_t() const {
         return m_angle;
@@ -180,6 +187,32 @@ public:
     }
 };
 
+template <typename T>
+struct canonicalize_functor;
+
+template <typename T>
+auto canonicalize(const T& v) -> decltype(canonicalize_functor<T>()(v))
+{ return canonicalize_functor<T>()(v); }
+
+/// @brief Specialization of id::canonicalize for id::angle<uint16_t, id::facings>.
+/// Maps an angle x to the canonical range [n, m) where
+/// n := std::numeric_limits<uint16_t>::min() and
+/// m := std::numeric_limits<uint16_t>::max().
+template <>
+struct canonicalize_functor<angle<uint16_t, facings>>
+{
+	auto operator()(const angle<uint16_t, facings>& x) const
+	{
+		static const int32_t c = static_cast<int32_t>(std::numeric_limits<uint16_t>::max());
+		int32_t v = x.get_value();
+		while (v < 0)
+		{ v += c; }
+		while (v >= c)
+		{ v -= c; }
+		return angle<uint16_t, facings>(v);
+	}
+}; // struct canonicalize_functor
+
 } // namespace id
 
 using Facing = id::angle<uint16_t, id::facings>;
@@ -206,7 +239,7 @@ using EulerFacing = id::euler_angle<id::angle<uint16_t, id::facings>>;
 
 template <>
 inline int sgn<Facing>(const Facing& x) {
-    return sgn(int32_t(x));
+    return sgn(x.get_value());
 }
 
 //--------------------------------------------------------------------------------------------

@@ -23,8 +23,7 @@
 
 #pragma once
 
-#include "egolib/Math/AxisAlignedBox.hpp"
-#include "egolib/Math/Sphere.hpp"
+#include "egolib/platform.h"
 
 namespace id {
 
@@ -33,20 +32,17 @@ namespace id {
 /// @detail The axis aligned box \f$b\f$ enclosing a sphere \f$a\f$ with
 /// center \f$c\f$ and radius \f$r\f$ has the minimal point \f$min = c -
 /// \vec{1} \cdot r\f$ and the maximal point \f$c + \vec{1} \cdot  r\f$.
-/// @tparam E the Euclidean space type of the geometries
-template <typename E>
-struct enclose_functor<Ego::Math::AxisAlignedBox<E>, 
-	                   Ego::Math::Sphere<E>>
+/// @tparam P the point type of the geometry types
+template <typename P>
+struct enclose_functor<axis_aligned_box<P>, sphere<P>>
 {
-    auto operator()(const Ego::Math::Sphere<E>& source) const
+    auto operator()(const sphere<P>& source) const
 	{
-		const auto center = source.getCenter();
-		const auto radius = source.getRadius();
-        const auto extend = one<VectorType>() * radius;
-        return Ego::Math::AxisAlignedBox<E>(center - extend, center + extend);
+		const auto center = source.get_center();
+		const auto radius = source.get_radius();
+        const auto extend = one<typename P::vector_type>() * radius;
+        return axis_aligned_box<P>(center - extend, center + extend);
     }
-private:
-	using VectorType = typename E::VectorType;
 }; // struct enclose_functor
 
 } // namespace id

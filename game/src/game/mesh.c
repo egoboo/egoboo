@@ -405,7 +405,7 @@ void ego_mesh_t::make_normals()
                     }
                 }
 
-				vec_sum = normalize(vec_sum).first;
+				vec_sum = normalize(vec_sum).get_vector();
 
                 _tmem.get(fan0)._ncache[i][XX] = vec_sum[kX];
                 _tmem.get(fan0)._ncache[i][YY] = vec_sum[kY];
@@ -602,18 +602,18 @@ float ego_mesh_t::get_pressure(const Vector3f& pos, float radius, const BIT_FIEL
 		_mesh = mesh;
 		// Limit the coordinate rectangle to be in bounds.
         {
-            auto min = Point2f(std::max(_f.getMin().x(), 0.0f),
-                               std::max(_f.getMin().y(), 0.0f));
-            auto max = Point2f(std::min(_f.getMax().x(), _mesh->_tmem._edge_x),
-                               std::min(_f.getMax().y(), _mesh->_tmem._edge_y));
+            auto min = Point2f(std::max(_f.get_min().x(), 0.0f),
+                               std::max(_f.get_min().y(), 0.0f));
+            auto max = Point2f(std::min(_f.get_max().x(), _mesh->_tmem._edge_x),
+                               std::min(_f.get_max().y(), _mesh->_tmem._edge_y));
             _f = AxisAlignedBox2f(min, max);
         }
         // Limit the index rectangle to be in bounds.
         {
-            auto min = Index2D(std::floor(_f.getMin().x() / Info<float>::Grid::Size()),
-                               std::floor(_f.getMin().y() / Info<float>::Grid::Size()));
-            auto max = Index2D(std::floor(_f.getMax().x() / Info<float>::Grid::Size()),
-                               std::floor(_f.getMax().y() / Info<float>::Grid::Size()));
+            auto min = Index2D(std::floor(_f.get_min().x() / Info<float>::Grid::Size()),
+                               std::floor(_f.get_min().y() / Info<float>::Grid::Size()));
+            auto max = Index2D(std::floor(_f.get_max().x() / Info<float>::Grid::Size()),
+                               std::floor(_f.get_max().y() / Info<float>::Grid::Size()));
             _i = IndexRect(min, max);
         }
 	}
@@ -1253,7 +1253,7 @@ BIT_FIELD ego_mesh_t::hit_wall(const Vector3f& pos, float radius, const BIT_FIEL
 			}
 			else
 			{
-				nrm = normalize(nrm).first;
+				nrm = normalize(nrm).get_vector();
 			}
 		}
 

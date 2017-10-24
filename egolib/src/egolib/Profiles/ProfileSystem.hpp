@@ -25,7 +25,6 @@
 #endif
 
 #include "egolib/typedef.h"
-#include "egolib/Core/Singleton.hpp"
 #include "egolib/Profiles/LocalParticleProfileRef.hpp"
 
 //Forward declarations
@@ -58,10 +57,10 @@ struct pro_import_t
 #include "egolib/Profiles/EnchantProfile.hpp"
 #include "egolib/Profiles/ParticleProfile.hpp"
 
-class ProfileSystem : public Ego::Core::Singleton<ProfileSystem> {
+class ProfileSystem : public id::singleton<ProfileSystem> {
 protected:
-    friend Ego::Core::Singleton<ProfileSystem>::CreateFunctorType;
-    friend Ego::Core::Singleton<ProfileSystem>::DestroyFunctorType;
+    friend id::default_new_functor<ProfileSystem>;
+    friend id::default_delete_functor<ProfileSystem>;
 
     ProfileSystem();
     ~ProfileSystem();

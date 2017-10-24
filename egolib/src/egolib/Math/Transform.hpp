@@ -26,11 +26,11 @@ struct Transform {
         Vector3f f = center - eye;
         Vector3f u = up;
 
-        f = id::normalize(f, id::euclidean_norm_functor<Vector3f>()).first;
-        u = id::normalize(u, id::euclidean_norm_functor<Vector3f>()).first;
+        f = id::normalize(f, id::euclidean_norm_functor<Vector3f>()).get_vector();
+        u = id::normalize(u, id::euclidean_norm_functor<Vector3f>()).get_vector();
 
         Vector3f s = id::cross_product(f, u);
-        s = id::normalize(s, id::euclidean_norm_functor<Vector3f>()).first;
+        s = id::normalize(s, id::euclidean_norm_functor<Vector3f>()).get_vector();
 
         u = id::cross_product(s, f);
 

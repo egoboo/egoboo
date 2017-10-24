@@ -120,7 +120,7 @@ float CharacterStatus::draw_one_bar(uint8_t bartype, float x_stt, float y_stt, i
     tx_rect = Rectangle2f(Point2f(0.0f / tx_width, tick_height * (tmp_bartype + 0) / tx_height),
                           Point2f(tab_width / tx_width, tick_height * (tmp_bartype + 1) / tx_height));
 
-    size = tx_rect.getSize() * scale;
+    size = tx_rect.get_size() * scale;
     size = Vector2f(size.x() * tx_width, size.y() * tx_height);
     
     sc_rect = Rectangle2f(Point2f(x, y),
@@ -140,7 +140,7 @@ float CharacterStatus::draw_one_bar(uint8_t bartype, float x_stt, float y_stt, i
         tx_rect = Rectangle2f(Point2f(tab_width / tx_width, tick_height * (tmp_bartype + 0) / tx_height),
                               Point2f(img_width / tx_width, tick_height * (tmp_bartype + 1) / tx_height));
 
-        size = tx_rect.getSize() * scale;
+        size = tx_rect.get_size() * scale;
         size = Vector2f(size.x() * tx_width, size.y() * tx_height);
 
         sc_rect = Rectangle2f(Point2f(x, y),
@@ -162,7 +162,7 @@ float CharacterStatus::draw_one_bar(uint8_t bartype, float x_stt, float y_stt, i
         tx_rect = Rectangle2f(Point2f(tab_width / tx_width, tick_height * (tmp_bartype + 0) / tx_height),
                               Point2f((img_width - tick_width * full_ticks) / tx_width, tick_height * (tmp_bartype + 1) / tx_height));
 
-        size = tx_rect.getSize() * scale;
+        size = tx_rect.get_size() * scale;
         size = Vector2f(size.x() * tx_width, size.y() * tx_height);
 
         sc_rect = Rectangle2f(Point2f(x, y),
@@ -179,7 +179,7 @@ float CharacterStatus::draw_one_bar(uint8_t bartype, float x_stt, float y_stt, i
         tx_rect = Rectangle2f(Point2f(tab_width / tx_width, tick_height * (tmp_bartype + 0) / tx_height),
                               Point2f((img_width - tick_width * empty_ticks) / tx_width, tick_height * (tmp_bartype + 1) / tx_height));
 
-        size = tx_rect.getSize() * scale;
+        size = tx_rect.get_size() * scale;
         size = Vector2f(size.x() * tx_width, size.y() * tx_height);
 
         sc_rect = Rectangle2f(Point2f(x, y),
@@ -202,7 +202,7 @@ float CharacterStatus::draw_one_bar(uint8_t bartype, float x_stt, float y_stt, i
         tx_rect = Rectangle2f(Point2f(tab_width / tx_width, tick_height * (tmp_bartype + 0) / tx_height),
                               Point2f(img_width / tx_width, tick_height * (tmp_bartype + 1) / tx_height));
 
-        size = tx_rect.getSize() * scale;
+        size = tx_rect.get_size() * scale;
         size = Vector2f(size.x() * tx_width, size.y() * tx_height);
 
         sc_rect = Rectangle2f(Point2f(x, y),
@@ -225,7 +225,7 @@ float CharacterStatus::draw_one_bar(uint8_t bartype, float x_stt, float y_stt, i
         tx_rect = Rectangle2f(Point2f(tab_width / tx_width, tick_height * (tmp_bartype + 0) / tx_height),
                               Point2f((img_width - tick_width * remaining) / tx_width, tick_height * (tmp_bartype + 1) / tx_height));
 
-        size = tx_rect.getSize() * scale;
+        size = tx_rect.get_size() * scale;
         size = Vector2f(size.x() * tx_width, size.y() * tx_height);
 
         sc_rect = Rectangle2f(Point2f(x, y),

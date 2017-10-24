@@ -179,8 +179,8 @@ public:
 struct GFX : public GameApp<GFX>
 {
 private:
-    friend Ego::Core::Singleton<GFX>::CreateFunctorType;
-    friend Ego::Core::Singleton<GFX>::DestroyFunctorType;
+    friend id::default_new_functor<GFX>;
+	friend id::default_delete_functor<GFX>;
     GFX();
     ~GFX();
 

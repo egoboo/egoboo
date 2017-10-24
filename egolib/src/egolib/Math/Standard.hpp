@@ -1,17 +1,7 @@
 #pragma once
 
-#include "egolib/Math/AxisAlignedBox.hpp"
 #include "egolib/Math/Cone3.hpp"
-#include "egolib/Math/AxisAlignedCube.hpp"
-#include "egolib/Math/Discrete.hpp"
-#include "egolib/Math/OrderedField.hpp"
-#include "egolib/Math/OrderedRing.hpp"
-#include "egolib/Math/Line.hpp"
 #include "egolib/Math/Matrix.hpp"
-#include "egolib/Math/Plane.hpp"
-#include "egolib/Math/Ray.hpp"
-#include "egolib/Math/Sphere.hpp"
-#include "egolib/Math/VectorSpace.hpp"
 
 
 /**
@@ -44,47 +34,12 @@ template <typename V>
 auto normalize(V&& v)
 { return id::normalize(std::forward<V>(v), id::euclidean_norm_functor<std::decay_t<V>>()); }
 
-/// discrete ring
-using Ringi = Ego::Math::OrderedRing<int>;
-/// discrete size
-using Size2i = Ego::Math::Discrete::Size2<int>;
-/// discrete point
-using Point2i = Ego::Math::Discrete::Point2<int>;
-/// discrete vector
-using Vector2i = Ego::Math::Discrete::Vector2<int>;
-
-
-
-/// single-precision floating-point field
-using OrderedFieldf = Ego::Math::OrderedField<float>;
-
-
-
-/// single-precision floating-point 2d vector space
-using VectorSpace2f = Ego::Math::VectorSpace<OrderedFieldf, 2>;
-/// single-precision floating-point 3d vector space
-using VectorSpace3f = Ego::Math::VectorSpace<OrderedFieldf, 3>;
-/// single-precision floating-point 4d vector space
-using VectorSpace4f = Ego::Math::VectorSpace<OrderedFieldf, 4>;
-
-
-
-/// single-precision floating-point 2d Euclidean space
-using EuclideanSpace2f = Ego::Math::EuclideanSpace<VectorSpace2f>;
-/// single-precision floating-point 3d Euclidean space
-using EuclideanSpace3f = Ego::Math::EuclideanSpace<VectorSpace3f>;
-/// single-precision floating-point 4d Euclidean space
-using EuclideanSpace4f = Ego::Math::EuclideanSpace<VectorSpace4f>;
-
-
-
 /// single-precision floating-point 2d vector.
 using Vector2f = id::vector<float, 2>;
 /// single-precision floating-point 3d vector.
 using Vector3f = id::vector<float, 3>;
 /// single-precision floating-point 4d vector.
 using Vector4f = id::vector<float, 4>;
-
 
 /// single-precision floating-point 2d point.
 using Point2f = id::point<Vector2f>;
@@ -93,49 +48,37 @@ using Point3f = id::point<Vector3f>;
 /// single-precision floating-point 4d point.
 using Point4f = id::point<Vector4f>;
 
-
-
 /// single-precision floating-point 2d axis aligned box.
-using AxisAlignedBox2f = Ego::Math::AxisAlignedBox<EuclideanSpace2f>;
+using AxisAlignedBox2f = id::axis_aligned_box<Point2f>;
 /// single-precision floating-point rectangle (i.e. an axis aligned box in 2d),
 using Rectangle2f = AxisAlignedBox2f;
 /// A 3D axis aligned box.
-using AxisAlignedBox3f = Ego::Math::AxisAlignedBox<EuclideanSpace3f>;
-
-
+using AxisAlignedBox3f = id::axis_aligned_box<Point3f>;
 
 /// single-precision floating-point 2d sphere.
-using Sphere2f = Ego::Math::Sphere<EuclideanSpace2f>;
+using Sphere2f = id::sphere<Point2f>;
 /// single-precision floating-point circle (i.e. a sphere in 2d).
 using Circle2f = Sphere2f;
 /// single-precision floating-point 3d sphere.
-using Sphere3f = Ego::Math::Sphere<EuclideanSpace3f>;
-
-
+using Sphere3f = id::sphere<Point3f>;
 
 /// single-precision floating-point 2d line.
-using Line2f = Ego::Math::Line<EuclideanSpace2f>;
+using Line2f = id::line<Point2f>;
 /// single-precision floating-point 3d line.
-using Line3f = Ego::Math::Line<EuclideanSpace3f>;
-
-
+using Line3f = id::line<Point3f>;
 
 /// single-precision floating-point 2d ray.
-using Ray2f = Ego::Math::Ray<EuclideanSpace2f>;
+using Ray2f = id::ray<Point2f>;
 /// single-precision floating-point 3d ray.
-using Ray3f = Ego::Math::Ray<EuclideanSpace3f>;
+using Ray3f = id::ray<Point3f>;
 
-
-
-/// single-precision floating-point 2d plane.
-using Plane3f = Ego::Math::Plane3<EuclideanSpace3f>;
-
-
+/// single-precision floating-point 3d plane.
+using Plane3f = id::plane<Point3f>;
 
 /// A 3D cone.
-using Cone3f = Ego::Math::Cone3<EuclideanSpace3f>;
+using Cone3f = id::cone<Point3f>;
 /// A 3D axis aligned cube.
-using AxisAlignedCube3f = Ego::Math::AxisAlignedCube<EuclideanSpace3f>;
+using AxisAlignedCube3f = id::axis_aligned_cube<Point3f>;
 
 namespace Ego { namespace Math {
 
@@ -302,36 +245,6 @@ struct Validate<id::vector<ScalarType, Dimensionality>> {
     }
 };
 
-template <typename EuclidianSpaceType>
-struct Validate<Ego::Math::AxisAlignedBox<EuclidianSpaceType>> {
-    void operator()(const char *file, int line, const Ego::Math::AxisAlignedBox<EuclidianSpaceType>& object) const {
-        static const MakeValidate<decltype(object.getMin())> validateMin;
-        static const MakeValidate<decltype(object.getMax())> validateMax;
-        validateMin(file, line, object.getMin());
-        validateMax(file, line, object.getMax());
-    }
-};
-
-template <typename EuclidianSpaceType>
-struct Validate<Ego::Math::Sphere<EuclidianSpaceType>> {
-    void operator()(const char *file, int line, const Ego::Math::Sphere<EuclidianSpaceType>& object) const {
-        static const MakeValidate<decltype(object.getCenter())> validateCenter;
-        static const MakeValidate<decltype(object.getRadius())> validateRadius;
-        validateCenter(file, line, object.getCenter());
-        validateRadius(file, line, object.getRadius());
-    }
-};
-
-template <typename EuclidianSpaceType>
-struct Validate<Ego::Math::AxisAlignedCube<EuclidianSpaceType>> {
-    void operator()(const char *file, int line, const Ego::Math::AxisAlignedCube<EuclidianSpaceType>& object) const {
-        static const MakeValidate<decltype(object.getCenter())> validateCenter;
-        static const MakeValidate<decltype(object.getSize())> validateSize;
-        validateCenter(file, line, object.getCenter());
-        validateSize(file, line, object.getSize());
-    }
-};
-
 } // namespace Debug
 } // namespace Ego
 #endif
@@ -471,13 +384,9 @@ struct Utilities {
     // Calculate matrix based on positions of grip points
     static inline Matrix4f4f fromFourPoints(const Vector3f& ori, const Vector3f& wid, const Vector3f& frw, const Vector3f& up, const float scale)
     {
-        Vector3f vWid = wid - ori;
-        Vector3f vUp = up - ori;
-        Vector3f vFor = frw - ori;
-
-        vWid = normalize(vWid).first;
-        vUp = normalize(vUp).first;
-        vFor = normalize(vFor).first;
+        auto vWid = normalize(wid - ori).get_vector();
+		auto vUp = normalize(up - ori).get_vector();
+		auto vFor = normalize(frw - ori).get_vector();
 
         Matrix4f4f dst;
         dst(0, 0) = -scale * vWid[kX];  // HUK

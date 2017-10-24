@@ -206,9 +206,9 @@ void lighting_cache_t::lighting_project_cache( lighting_cache_t& dst, const ligh
     Vector3f right = mat_getChrRight(mat);
     Vector3f up = mat_getChrUp(mat);
 
-    fwd = normalize(fwd).first;
-    right = normalize(right).first;
-    up = normalize(up).first;
+    fwd = normalize(fwd).get_vector();
+    right = normalize(right).get_vector();
+    up = normalize(up).get_vector();
 
     // split the lighting cache up
     lighting_sum_project( dst, src, right, 0 );
@@ -456,7 +456,7 @@ float lighting_cache_t::lighting_evaluate_cache( const lighting_cache_t& src, co
     if ( NULL == light_dir ) light_dir = &loc_light_dir;
 
     // determine the weighting
-    hgh_wt = ( z - bbox.getMin()[kZ] ) / ( bbox.getMax()[kZ] - bbox.getMin()[kZ] );
+    hgh_wt = ( z - bbox.get_min()[kZ] ) / ( bbox.get_max()[kZ] - bbox.get_min()[kZ] );
     hgh_wt = Ego::Math::constrain( hgh_wt, 0.0f, 1.0f );
     low_wt = 1.0f - hgh_wt;
 

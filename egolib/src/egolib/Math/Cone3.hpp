@@ -23,10 +23,12 @@
 
 #pragma once
 
-#include "egolib/Math/EuclideanSpace.hpp"
+#include "egolib/platform.h"
 
-namespace Ego {
-namespace Math {
+namespace id {
+
+template <typename P>
+struct cone;
 
 /**
  * @brief
@@ -66,197 +68,145 @@ namespace Math {
  *  and is inside the cone if \f$\hat{d} \cdot (P-O) > |P-O|\cos \theta\$. Otherwise it is
  *  outside of the cone.
  */
-template <typename _EuclideanSpaceType, typename _EnabledType = std::enable_if_t<_EuclideanSpaceType::dimensionality() == 3>>
-struct Cone3 : public id::equal_to_expr<Cone3<_EuclideanSpaceType>> {
+template <typename S>
+struct cone<point<vector<S, 3>>> : public equal_to_expr<cone<point<vector<S, 3>>>>
+{
 public:
-    Ego_Math_EuclideanSpace_CommonDefinitions(Cone3);
+	/// @brief The point type of this cone type.
+	using point_type = point<vector<S, 3>>;
 
-public:
-    /** @brief The origin point \f$P\f$ of the cone. */
-    PointType origin;
-    /** @brief The unit axis vector \f$\hat{a}\f$ of the cone. */
-    VectorType axis;
-    /** @brief The angle, in degrees, \f$\theta \in \left(0,90\right)\f$. */
-    id::angle<float, id::degrees> angle;
+	/// @brief The vector type of this cone type.
+	using vector_type = typename point_type::vector_type;
 
-public:
-    /**
-     * @brief Construct this cone with default values.
-     * @remark The default values of a cone are
-     * \f$O=\left(0,0,0\right)\f$,
-     * \f$\hat{a}=\left(0,0,1\right)$, and
-     * \f$\theta=60\f$.
-     */
-    Cone3() :
-        origin(0, 0, 0), axis(0, 0, 1), angle(60.0f) {
-        /* Intentionally empty. */
-    }
+	/// @brief The scalar type of this cone type.
+	using scalar_type = typename point_type::scalar_type;
 
-    /**
-     * @brief Construct this cone.
-     * @param origin the origin point \f$O\f$ of this cone
-     * @param axis the axis vector \f$\vec{a},\vec{a} \neq \vec{0}\f$ of this cone
-     * @param angle the acute angle \f$\theta\f$, in degrees
-     * @throw id::runtime_error \f$\vec{a} = \vec{0}\f$
-     * @throw id::runtime_error \f$\theta\f$ is not an acute angle 
-     */
-    Cone3(const PointType& origin, const VectorType& axis, const id::angle<float, id::degrees>& angle)
-        : origin(origin), axis(axis), angle(angle) {
-        this->axis = normalize(axis).first;
-        if (!angle.isAcute()) {
-            throw id::runtime_error(__FILE__, __LINE__, "the angle is not an acute angle");
+	/// @brief The angle type of this cone type.
+	using angle_type = angle<float, degrees>;
+
+	/// @brief Construct this cone with default values.
+	/// @remark The default values of a cone are
+	/// - origin point \f$O=\left(0,0,0\right)\f$,
+	/// - axis vector \f$\hat{a}=\left(0,0,1\right)$, and
+	/// - angle \f$\theta=60\f$.
+    cone()
+		: m_origin(zero<point_type>()), 
+		  m_axis(zero<scalar_type>(), zero<scalar_type>(), one<scalar_type>()), 
+		  m_angle(60.0f)
+	{}
+
+    /// @brief Construct this cone.
+	/// @param origin the origin point \f$O\f$ of this cone
+	/// @param axis the axis vector \f$\vec{a},\vec{a} \neq \vec{0}\f$ of this cone
+    /// @param angle the acute angle \f$\theta\f$, in degrees
+    /// @throw id::runtime_error \f$\vec{a} = \vec{0}\f$
+    /// @throw id::runtime_error \f$\theta\f$ is not an acute angle 
+    cone(const point_type& origin, const vector_type& axis, const angle<float, degrees>& angle)
+        : m_origin(origin), m_axis(axis), m_angle(angle) 
+	{
+		m_axis = normalize(axis, euclidean_norm_functor<vector_type>{}).get_vector();
+        if (!m_angle.is_acute())
+		{
+            throw runtime_error(__FILE__, __LINE__, "the angle is not an acute angle");
         }
     }
 
-    /**
-     * @brief
-     *  Assign this cone the values of another cone.
-     * @param other
-     *  the other cone
-     * @post
-     *  This cone was assigned the values of the other cone.
-     */
-    void assign(const MyType& other) {
-        origin = other.origin;
-        axis = other.axis;
-        angle = other.angle;
-    }
+	cone(const cone&) = default;
+	cone& operator=(const cone&) = default;
 
-    /**
-     * @brief
-     *  Assign this cone the values of another cone.
-     * @param other
-     *  the other cone
-     * @return
-     *  this cone
-     * @post
-     *  This cone was assigned the values of the other cone.
-     */
-    MyType& operator=(const MyType& other) {
-        assign(other);
-        return *this;
-    }
+    /// @brief Get the origin of this cone.
+    /// @return the origin of this cone
+    const point_type& get_origin() const
+	{ return m_origin; }
 
-    /**
-     * @brief
-     *  Get the origin of this cone.
-     * @return
-     *  the origin of this cone
-     */
-    const PointType& getOrigin() const {
-        return origin;
-    }
+    /// @brief Get the unit axis vector \f$\hat{a}\f$ of this cone.
+    /// @return the unit axis vector of \f$\hat{a}\f$ of this cone
+    const vector_type& get_axis() const
+	{ return m_axis; }
 
-    /**
-     * @brief
-     *  Get the unit axis vector \f$\hat{a}\f$ of this cone.
-     * @return
-     *  the unit axis vector of \f$\hat{a}\f$ of this cone
-     */
-    const VectorType& getAxis() const {
-        return axis;
-    }
+    /// @brief Get the angle, in degrees, \f$\theta \in \left(0,90\right)\f$ of this cone
+    /// @return the angle, in degrees, \f$\theta \in \left(0,90\right)\f$ of this cone
+    const angle_type& get_angle() const
+	{ return m_angle; }
 
-    /**
-     * @brief
-     *  Get the angle, in degrees, \f$\theta \in \left(0,90\right)\f$ of this cone
-     * @return
-     *  the angle, in degrees, \f$\theta \in \left(0,90\right)\f$ of this cone
-     */
-    const id::angle<float, id::degrees>& getAngle() const {
-        return angle;
-    }
+    /// @brief Get the radius of this cone at the specified height \f$h \in \left[0,+\infty\right)\f$.
+    /// @param height the height \f$h \in \left[0,+\infty\right)\f$.
+    /// @return the radius at the specified height
+    /// @throw id::runtime_error the height is negative
+    /// @remark
+    /// Given a right triangle, it is known that \f$\tan\alpha=
+    /// \frac{\mathit{opposite}}{\mathit{adjacent}}\f$.
+    ///
+    /// The height \f$h\f$ is the adjacent, the radius \f$r\f$  is
+    /// the opposite and the angle is \f$\theta\f$, one    obtains
+    /// \f$\tan\alpha = \frac{r}{h}\f$, hence \f$r=h \tan\alpha\f$.
+    scalar_type get_radius_at(scalar_type height) const
+	{ return height * std::tan(m_angle); }
 
-    /**
-     * @brief
-     *  Get the radius of this cone at the specified height \f$h \in \left[0,+\infty\right)\f$.
-     * @param height
-     *   the height \f$h \in \left[0,+\infty\right)\f$.
-     * @return
-     *  the radius at the specified height
-     * @throw id::runtime_error
-     *  if the height is negative
-     * @remark
-     *  Given a right triangle, it is known that \f$\tan\alpha=
-     *  \frac{\mathit{opposite}}{\mathit{adjacent}}\f$.
-     *
-     *  The height \f$h\f$ is the adjacent, the radius \f$r\f$ is
-     *  the opposite and the angle is \f$\theta\f$, one   obtains
-     *  \f$\tan\alpha = \frac{r}{h}\f$, hence \f$r=h \tan\alpha\f$.
-     */
-    ScalarType getRadiusAt(ScalarType height) const {
-        return height * std::tan(angle);
-    }
+    /// @brief Get the slant height of this cone at the specified height \f$h \in \left[0,+\infty\right)\f$.
+    /// @param height the height \f$h \in \left[0,+\infty\right)\f$.
+    /// @return the slant height at the specified height
+    /// @throw id::runtime_error the height is negative
+    /// @remark
+    /// Given a right triangle, it is known that \f$\cos\alpha=
+    /// \frac{\mathit{adjacent}}{\mathit{hypotenuse}}\f$.
+    ///
+    /// The height \f$h\f$ is the adjacent, the slant height \f$s\f$ is
+    /// the hypotenuse and the angle is \f$\theta\f$,    one   obtains
+    /// \f$\cos\alpha = \frac{h}{s}\f$, hence \f$s = \frac{h}{\cos\alpha}\f$.
+    /// @remark
+    /// The Pythagorean theorem provides is with \f$s=\sqrt{r^2+h^2}\f$,
+    /// however, squaring two numbers and taking the square root seems
+    /// more expensive than just taking the cosine.
+    scalar_type get_slant_height(scalar_type height) const
+	{ return height / std::cos(m_angle); }
 
-    /**
-     * @brief
-     *  Get the slant height of this cone at the specified height \f$h \in \left[0,+\infty\right)\f$.
-     * @param height
-     *   the height \f$h \in \left[0,+\infty\right)\f$.
-     * @return
-     *  the slant height at the specified height
-     * @throw id::runtime_error
-     *  if the height is negative
-     * @remark
-     *  Given a right triangle, it is known that \f$\cos\alpha=
-     *  \frac{\mathit{adjacent}}{\mathit{hypotenuse}}\f$.
-     *
-     *  The height \f$h\f$ is the adjacent, the slant height \f$s\f$ is
-     *  the hypotenuse and the angle is \f$\theta\f$,    one   obtains
-     *  \f$\cos\alpha = \frac{h}{s}\f$, hence \f$s = \frac{h}{\cos\alpha}\f$.
-     * @remark
-     *  The Pythagorean theorem provides is with \f$s=\sqrt{r^2+h^2}\f$,
-     *  however, squaring two numbers and taking the square root seems
-     *  more expensive than just taking the cosine.
-     */
-    ScalarType getSlantHeight(ScalarType height) const {
-        return height / std::cos(angle);
-    }
-
-public:
 	// CRTP
-    bool equal_to(const MyType& other) const {
-        return origin == other.origin
-            && axis == other.axis
-            && angle == other.angle;
+    bool equal_to(const cone& other) const
+	{
+        return m_origin == other.m_origin
+            && m_axis == other.m_axis
+            && m_angle == other.m_angle;
     }
 
 protected:
-    struct Cookie {};
-    friend struct id::translate_functor<MyType, VectorType>;
-    Cone3(Cookie cookie, const PointType& origin, const VectorType& axis, const id::angle<float, id::degrees>& angle)
-        : origin(origin), axis(axis), angle(angle) {
-    }
+    struct cookie {};
+    friend struct translate_functor<cone, vector_type>;
+    cone(cookie cookie, const point_type& origin, const vector_type& axis, const angle<float, degrees>& angle)
+        : m_origin(origin), m_axis(axis), m_angle(angle)
+	{}
 
-}; // struct Cone3
+private:
+	/// @brief The origin point \f$P\f$ of the cone.
+	point_type m_origin;
+	
+	/// @brief The unit axis vector \f$\hat{a}\f$ of the cone.
+	vector_type m_axis;
+	
+	/// @brief The angle, in degrees, \f$\theta \in \left(0,90\right)\f$.
+	id::angle<float, id::degrees> m_angle;
 
-} // namespace Math
-} // namespace Ego
-
-namespace id {
+}; // struct cone
 
  /// @brief Specialization of id::enclose_functor enclosing a cone into a cone.
  /// @details The cone \f$b\f$ enclosing a cone \f$a\f$ is \f$a\f$ itself i.e. \f$a = b\f$.
- /// @tparam E the Euclidean space type of the geometries
-template <typename E>
-struct enclose_functor<Ego::Math::Cone3<E, void>,
-	                   Ego::Math::Cone3<E, void>>
+ /// @tparam P the point type of the cone type
+template <typename P>
+struct enclose_functor<cone<P>, cone<P>>
 {
-	auto operator()(const Ego::Math::Cone3<E, void>& source) const
+	auto operator()(const cone<P>& source) const
 	{ return source; }
 }; // struct enclose_functor
 
 /// @brief Specialization of id::translate_functor.
 /// Translates a cone.
-/// @tparam E the Euclidean space type of the geometry
-template <typename E>
-struct translate_functor<Ego::Math::Cone3<E, void>,
-                         typename E::VectorType>
+/// @tparam P the point type of the cone type
+template <typename P>
+struct translate_functor<cone<P>, typename P::vector_type>
 {
-	auto operator()(const Ego::Math::Cone3<E, void>& x,
-		            const typename E::VectorType& t) const
+	auto operator()(const cone<P>& x, const typename P::vector_type& t) const
 	{
-		return Ego::Math::Cone3<E, void>(typename Ego::Math::Cone3<E, void>::Cookie(), x.getOrigin() + t, x.getAxis(), x.getAngle());
+		return cone<P>(typename cone<P>::cookie(), x.get_origin() + t, x.get_axis(), x.get_angle());
 	}
 }; // struct translate_functor
 

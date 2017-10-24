@@ -202,10 +202,10 @@ void Passage::flashColor(uint8_t color)
 
 bool Passage::isPointInside(float xpos, float ypos) const
 {
-    return xpos >= _area.getMin().x() && 
-           xpos <= _area.getMax().x() &&
-           ypos >= _area.getMin().y() && 
-           ypos <= _area.getMax().y();
+    return xpos >= _area.get_min().x() && 
+           xpos <= _area.get_max().x() &&
+           ypos >= _area.get_min().y() && 
+           ypos <= _area.get_max().y();
 }
 
 bool Passage::checkPassageMusic(const std::shared_ptr<Object> &pchr) const

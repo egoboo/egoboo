@@ -406,7 +406,7 @@ void ObjectPhysics::updateFacing()
                 {
                     //Every Agility increases turn speed by 2%
                     const float turnSpeed = std::max(2.0f, 8.0f * (1.0f - _object.getAttribute(Ego::Attribute::AGILITY) / 50.0f)); //turn delay is 8.0f -2% per Agility
-                    _object.ori.facing_z = Facing(FACING_T(rotate(_object.ori.facing_z, vec_to_facing(_desiredVelocity.x(), _desiredVelocity.y()), turnSpeed)));
+                    _object.ori.facing_z = id::canonicalize(rotate(_object.ori.facing_z, vec_to_facing(_desiredVelocity.x(), _desiredVelocity.y()), turnSpeed));
                 }
             }
             break;
@@ -416,7 +416,7 @@ void ObjectPhysics::updateFacing()
             {
                 if (id::manhattan_norm(_desiredVelocity) > WATCHMIN )
                 {
-                    _object.ori.facing_z = Facing(FACING_T(rotate(_object.ori.facing_z, vec_to_facing(_desiredVelocity.x(), _desiredVelocity.y()), 8.0f)));
+                    _object.ori.facing_z = id::canonicalize(rotate(_object.ori.facing_z, vec_to_facing(_desiredVelocity.x(), _desiredVelocity.y()), 8.0f));
                 }
             }
             break;
@@ -428,7 +428,7 @@ void ObjectPhysics::updateFacing()
                 std::shared_ptr<Object> aiTarget = _currentModule->getObjectHandler()[_object.ai.getTarget()];
                 if (aiTarget != nullptr && aiTarget->getObjRef() != _object.getObjRef())
                 {
-                    _object.ori.facing_z = Facing(FACING_T(rotate(_object.ori.facing_z, vec_to_facing(aiTarget->getPosX() - _object.getPosX(), aiTarget->getPosY() - _object.getPosY()), 8.0f)));
+                    _object.ori.facing_z = id::canonicalize(rotate(_object.ori.facing_z, vec_to_facing(aiTarget->getPosX() - _object.getPosX(), aiTarget->getPosY() - _object.getPosY()), 8.0f));
                 }
             }
             break;
@@ -631,8 +631,8 @@ void ObjectPhysics::updateMeshCollision()
 
         if (fnew > 0) {
             const uint8_t floorTwist = _currentModule->getMeshPointer()->get_twist(_object.getTile());
-            _object.ori.map_twist_facing_x = Facing(FACING_T(_object.ori.map_twist_facing_x * fkeep + g_meshLookupTables.twist_facing_x[floorTwist] * fnew));
-            _object.ori.map_twist_facing_y = Facing(FACING_T(_object.ori.map_twist_facing_y * fkeep + g_meshLookupTables.twist_facing_y[floorTwist] * fnew));
+            _object.ori.map_twist_facing_x = id::canonicalize(_object.ori.map_twist_facing_x * fkeep + g_meshLookupTables.twist_facing_x[floorTwist] * fnew);
+            _object.ori.map_twist_facing_y = id::canonicalize(_object.ori.map_twist_facing_y * fkeep + g_meshLookupTables.twist_facing_y[floorTwist] * fnew);
         }
     }
 }

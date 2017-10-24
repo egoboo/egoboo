@@ -188,7 +188,7 @@ void ParticlePhysics::updateMovement()
             float vdot;
             Vector3f vpara, vperp;
 
-            nrm_total = normalize(nrm_total).first;
+            nrm_total = normalize(nrm_total).get_vector();
 
             vdot = dot(nrm_total, _particle.getVelocity());
 
@@ -581,7 +581,7 @@ void ParticlePhysics::updateEnviroment()
         Vector3f platform_up;
 
         chr_getMatUp(platform.get(), platform_up);
-        platform_up = normalize(platform_up).first;
+        platform_up = normalize(platform_up).get_vector();
 
         penviro->traction = std::abs(platform_up.z()) * (1.0f - penviro->zlerp) + 0.25f * penviro->zlerp;
 

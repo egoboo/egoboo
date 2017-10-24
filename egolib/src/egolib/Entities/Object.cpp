@@ -695,11 +695,11 @@ bool Object::teleport(const Vector3f& position, Facing facing_z)
         // Yeah!  It worked!
 
         // update the old position
-        ori_old.facing_z = Facing(uint16_t(facing_z));
+        ori_old.facing_z = id::canonicalize(facing_z);
 
         // update the new position
         setPosition(newPosition);
-        ori.facing_z = Facing(uint16_t(facing_z));
+        ori.facing_z = id::canonicalize(facing_z);
 
         if (!detatchFromHolder(true, false))
         {
@@ -1107,9 +1107,9 @@ void Object::requestTerminate()
 
  bool Object::isFacingLocation(const float x, const float y) const
  {
-    FACING_T facing = FACING_T(vec_to_facing(x - getPosX(), y - getPosY()));
-    facing -= FACING_T(ori.facing_z);
-    return (facing > 55535 || facing < 10000);
+    auto facing = id::canonicalize(vec_to_facing(x - getPosX(), y - getPosY()));
+    facing -= id::canonicalize(ori.facing_z);
+    return (facing.get_value() > 55535 || facing.get_value() < 10000);
  }
 
 bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
@@ -2866,7 +2866,7 @@ void Object::dropKeys()
         // fix some flags
         pkey->hitready               = true;
         pkey->isequipped             = false;
-        pkey->ori.facing_z           = Facing(FACING_T(direction + ATK_BEHIND));
+        pkey->ori.facing_z           = id::canonicalize(direction + ATK_BEHIND);
         pkey->team                   = pkey->team_base;
 
         // fix the current velocity
@@ -2922,7 +2922,7 @@ void Object::dropAllItems()
 
         // fix some flags
         pitem->hitready               = true;
-        pitem->ori.facing_z           = Facing(FACING_T(Facing(direction) + ATK_BEHIND));
+        pitem->ori.facing_z           = id::canonicalize(direction + ATK_BEHIND);
         pitem->team                   = pitem->team_base;
 
         // fix the current velocity

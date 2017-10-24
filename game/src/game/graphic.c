@@ -834,10 +834,10 @@ void draw_passages(Camera& cam)
 
         //AABB2f to octagonal collision box
         oct_bb_t bb;
-        bb._mins[OCT_X] = passageABB.getMin().x();
-        bb._maxs[OCT_X] = passageABB.getMax().x();
-        bb._mins[OCT_Y] = passageABB.getMin().y();
-        bb._maxs[OCT_Y] = passageABB.getMax().y();
+        bb._mins[OCT_X] = passageABB.get_min().x();
+        bb._maxs[OCT_X] = passageABB.get_max().x();
+        bb._mins[OCT_Y] = passageABB.get_min().y();
+        bb._maxs[OCT_Y] = passageABB.get_max().y();
 
         bb._mins[OCT_XY] = bb._mins[OCT_X];
         bb._maxs[OCT_XY] = bb._maxs[OCT_X];
@@ -1042,7 +1042,7 @@ void GridIllumination::test_one_corner(const ego_mesh_t& mesh, GLXvector3f pos, 
 
 	// determine the weighting
 	float hgh_wt, low_wt;
-	hgh_wt = (pos[ZZ] - mesh._tmem._bbox.getMin()[kZ]) / (mesh._tmem._bbox.getMax()[kZ] - mesh._tmem._bbox.getMin()[kZ]);
+	hgh_wt = (pos[ZZ] - mesh._tmem._bbox.get_min()[kZ]) / (mesh._tmem._bbox.get_max()[kZ] - mesh._tmem._bbox.get_min()[kZ]);
 	hgh_wt = Ego::Math::constrain(hgh_wt, 0.0f, 1.0f);
 	low_wt = 1.0f - hgh_wt;
 
@@ -1850,10 +1850,10 @@ gfx_rv GridIllumination::do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_
 
                         nrm[kX] = pdyna->pos[kX] - x0;
                         nrm[kY] = pdyna->pos[kY] - y0;
-                        nrm[kZ] = pdyna->pos[kZ] - tmem._bbox.getMin()[ZZ];
+                        nrm[kZ] = pdyna->pos[kZ] - tmem._bbox.get_min()[ZZ];
                         sum_dyna_lighting(pdyna, cache_new.low._lighting, nrm);
 
-                        nrm[kZ] = pdyna->pos[kZ] - tmem._bbox.getMax()[ZZ];
+                        nrm[kZ] = pdyna->pos[kZ] - tmem._bbox.get_max()[ZZ];
                         sum_dyna_lighting(pdyna, cache_new.hgh._lighting, nrm);
                     }
                 }

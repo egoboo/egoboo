@@ -20,11 +20,11 @@ void Component::setEnabled(const bool enabled) {
 }
 
 Point2f Component::getPosition() const {
-    return _bounds.getMin();
+    return _bounds.get_min();
 }
 
 Vector2f Component::getSize() const {
-    return _bounds.getSize();
+    return _bounds.get_size();
 }
 
 float Component::getX() const {
@@ -52,7 +52,7 @@ void Component::setHeight(float height) {
 }
 
 void Component::setSize(const Vector2f& size) {
-    _bounds = Rectangle2f(_bounds.getMin(), _bounds.getMin() + size);
+    _bounds = Rectangle2f(_bounds.get_min(), _bounds.get_min() + size);
 }
 
 void Component::setX(float x) {
@@ -65,7 +65,7 @@ void Component::setY(float y) {
 
 void Component::setPosition(const Point2f& position) {
     // Translate such that the top/left corner is at (x,y).
-    _bounds = id::translate(_bounds, Vector2f(-_bounds.getMin().x() + position.x(), -_bounds.getMin().y() + position.y()));
+    _bounds = id::translate(_bounds, Vector2f(-_bounds.get_min().x() + position.x(), -_bounds.get_min().y() + position.y()));
 }
 
 void Component::setCenterPosition(const Point2f& position, const bool onlyHorizontal) {

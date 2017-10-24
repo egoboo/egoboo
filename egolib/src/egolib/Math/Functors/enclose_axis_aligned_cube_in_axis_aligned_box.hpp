@@ -23,8 +23,7 @@
 
 #pragma once
 
-#include "egolib/Math/AxisAlignedBox.hpp"
-#include "egolib/Math/AxisAlignedCube.hpp"
+#include "egolib/platform.h"
 
 namespace id {
 
@@ -32,13 +31,12 @@ namespace id {
 /// Encloses an axis aligned cube in an axis aligned box.
 /// @detail Let \$a\f$ be an axis aligned cube and \f$min\f$ its minimal point and \f$max\f$ its maximal point.
 /// The axis aligned box \f$b\f$ enclosing \f$a\f$ has the same minimal and maximal and maximal point.
-/// @tparam E the Euclidean space type of the geometries
-template <typename E>
-struct enclose_functor<Ego::Math::AxisAlignedBox<E>,
-	                   Ego::Math::AxisAlignedCube<E>>
+/// @tparam P the point type of the geometry types
+template <typename P>
+struct enclose_functor<axis_aligned_box<P>, axis_aligned_cube<P>>
 {
-    auto operator()(const Ego::Math::AxisAlignedCube<E>& source) const
-	{ return Ego::Math::AxisAlignedBox<E>(source.getMin(), source.getMax()); }
+    auto operator()(const axis_aligned_cube<P>& source) const
+	{ return axis_aligned_box<P>(source.get_min(), source.get_max()); }
 }; // struct enclose_functor
 
 } // namespace id

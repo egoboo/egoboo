@@ -118,7 +118,7 @@ static const char * script_error_classname = "UNKNOWN";
 //--------------------------------------------------------------------------------------------
 void scripting_system_begin()
 {
-    if (!Ego::Script::Runtime::isInitialized())
+    if (!Ego::Script::Runtime::is_initialized())
     {
         Ego::Script::Runtime::initialize();
     }
@@ -126,7 +126,7 @@ void scripting_system_begin()
 
 void scripting_system_end()
 {
-    if (Ego::Script::Runtime::isInitialized())
+    if (Ego::Script::Runtime::is_initialized())
     {
         Ego::Script::Runtime::get().getStatistics().append("/debug/script_function_timing.txt");
         Ego::Script::Runtime::uninitialize();
@@ -199,7 +199,7 @@ void scr_run_chr_script(Object *pchr)
         vfs_printf(scr_file, "\tupdate_wld == %d\n", update_wld);
 
         // ai memory from the last event
-        vfs_printf(scr_file, "\tdirectionlast  == %d\n", uint16_t(aiState.directionlast));
+        vfs_printf(scr_file, "\tdirectionlast  == %" PRId32 "\n", aiState.directionlast.get_value());
         vfs_printf(scr_file, "\tbumped         == %" PRIuZ "\n", aiState.getBumped().get());
         vfs_printf(scr_file, "\tlast attacker  == %" PRIuZ "\n", aiState.getLastAttacker().get());
         vfs_printf(scr_file, "\thitlast        == %" PRIuZ "\n", aiState.hitlast.get());
