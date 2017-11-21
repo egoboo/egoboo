@@ -28,28 +28,28 @@
 #include "egolib/Entities/_Include.hpp"
 
 CameraSystem::CameraSystem() :
-	_initialized(false),
 	_cameraList(),
     _mainCamera(nullptr),
     _cameraOptions()
 {
-    //ctor
+	//Add 1 camera by default
+	_cameraList.push_back(std::make_shared<Camera>(_cameraOptions));
+	//Set camera 1 as main camera by default
+	_mainCamera = _cameraList[0];
+
 }
 
 CameraSystem::~CameraSystem()
 {
     _cameraList.clear();
-    _initialized = false;
     _mainCamera = nullptr;
 }
 
-void CameraSystem::initialize(const size_t numberOfCameras)
+void CameraSystem::setNumberOfCameras(const size_t numberOfCameras)
 {
-    // we're initialized.
-    _initialized = true;
-
-    //Create cameras
+    //Clear cameras
     _cameraList.clear();
+	//Add cameras
     for(size_t i = 0; i < Ego::Math::constrain<size_t>(numberOfCameras, 1, MAX_CAMERAS); ++i) {
         _cameraList.push_back(std::make_shared<Camera>(_cameraOptions));
     }
@@ -72,19 +72,10 @@ void CameraSystem::initialize(const size_t numberOfCameras)
     resetAllTargets(_currentModule->getMeshPointer().get());
 }
 
-bool CameraSystem::isInitialized()
-{
-	return _initialized;
-}
-
 void CameraSystem::updateAll( const ego_mesh_t * mesh )
 {
-	if(!isInitialized()) {
-		return;
-	}
-
     // update each camera
-    for(const std::shared_ptr<Camera> &camera : _cameraList)
+    for(const auto& camera : _cameraList)
     {
     	camera->update(mesh);
     }
@@ -92,12 +83,8 @@ void CameraSystem::updateAll( const ego_mesh_t * mesh )
 
 void CameraSystem::resetAllTargets( const ego_mesh_t * mesh )
 {
-	if(!isInitialized()) {
-		return;
-	}
-
     // update each camera
-    for(const std::shared_ptr<Camera> &camera : _cameraList)
+    for(const auto& camera : _cameraList)
     {
     	camera->resetTarget(mesh);
     }
@@ -109,14 +96,10 @@ egolib_rv CameraSystem::renderAll(std::function<void(std::shared_ptr<Camera>, st
         return rv_error;
     }
 
-    if ( !isInitialized() ) {
-        return rv_fail;
-    }
-
     //Store main camera to restore
-    std::shared_ptr<Camera> storeMainCam = _mainCamera;
+    auto storeMainCam = _mainCamera;
 
-    for(const std::shared_ptr<Camera> &camera : _cameraList) 
+    for(const auto &camera : _cameraList) 
     {
         // set the "global" camera pointer to this camera
         _mainCamera = camera;

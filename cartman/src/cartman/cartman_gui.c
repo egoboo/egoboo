@@ -77,7 +77,7 @@ Manager::~Manager() {
 std::shared_ptr<Window> Manager::findWindow(int x, int y) {
     std::shared_ptr<Window> result = nullptr;
     for (auto& window : windowList) {
-        if (window->isOver(Point2i(x, y))) {
+        if (window->isOver(Point2f(x, y))) {
             continue;
         }
         result = window;
@@ -100,7 +100,7 @@ void Manager::render() {
 
 namespace Cartman { namespace Gui {
 
-Border::Border(Size2i size)
+Border::Border(Vector2f size)
     : texture(Ego::Renderer::get().createTexture()), size(size) {}
 
 void Border::loadTexture(const std::string& textureFileName) {
@@ -118,7 +118,7 @@ namespace Cartman { namespace Gui {
 
 Window::Window() : on(false), border() {}
 
-void Window::load_window(int id, const std::string& loadname, Point2i position, Size2i borderSize, Size2i size, uint16_t mode, cartman_mpd_t * pmesh) {
+void Window::load_window(int id, const std::string& loadname, Point2f position, Vector2f borderSize, Vector2f size, uint16_t mode, cartman_mpd_t * pmesh) {
     if (NULL == pmesh) pmesh = &mesh;
 
     this->border.loadTexture(loadname);
@@ -133,20 +133,20 @@ void Window::load_window(int id, const std::string& loadname, Point2i position, 
     this->pmesh = pmesh;
 }
 
-bool Window::isOver(Point2i p) const {
+bool Window::isOver(Point2f p) const {
     if (!on) {
         return false;
     }
     /// @todo Shouldn't this be <tt>position.x() + border.size.width()</tt> (and
     /// <tt>position.x() + size.width() - 2 * borderSize.width()</tt>?
-    if (p.x() < this->position.x() + this->border.size.width() ||
-        p.x() > this->position.x() + 2 * this->border.size.width() + this->size.width()) {
+    if (p.x() < this->position.x() + this->border.size.x() ||
+        p.x() > this->position.x() + 2 * this->border.size.x() + this->size.x()) {
         return false;
     }
     /// @todo Shouldn't this be <tt>position.y() + border.size.height()</tt> (and
     /// <tt>position.y() + size.height() - 2 * borderSize.height()</tt>?
-    if (p.y() < this->position.y() + this->border.size.height() ||
-        p.y() > this->position.y() + 2 * this->border.size.height() + this->size.height()) {
+    if (p.y() < this->position.y() + this->border.size.y() ||
+        p.y() > this->position.y() + 2 * this->border.size.y() + this->size.y()) {
         return false;
     }
     return true;
@@ -154,7 +154,7 @@ bool Window::isOver(Point2i p) const {
 
 void Window::renderBackground() const {
     if (!on) return;
-    ogl_draw_sprite_2d(border.texture, position.x(), position.y(), size.width(), size.height());
+    ogl_draw_sprite_2d(border.texture, position.x(), position.y(), size.x(), size.y());
 }
 
 } } // namespace Cartman::Gui

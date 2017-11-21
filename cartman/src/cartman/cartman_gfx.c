@@ -964,8 +964,8 @@ void cartman_begin_ortho_camera_hrz(Cartman::Gui::Window& pwin, camera_t * pcam,
     using namespace Cartman::Gui;
     static const float factor_x = (float)DEFAULT_RESOLUTION * Info<float>::Grid::Size() / (float)Window::defaultWidth,
         factor_y = (float)DEFAULT_RESOLUTION * Info<float>::Grid::Size() / (float)Window::defaultHeight;
-    float w = (float)pwin.size.width() * factor_x / zoom_x;
-    float h = (float)pwin.size.height() * factor_y / zoom_y;
+    float w = (float)pwin.size.x() * factor_x / zoom_x;
+    float h = (float)pwin.size.y() * factor_y / zoom_y;
     float d = DEFAULT_Z_SIZE;
 
     pcam->w = w;
@@ -1007,9 +1007,9 @@ void cartman_begin_ortho_camera_vrt(Cartman::Gui::Window& pwin, camera_t * pcam,
 
     static const float factor_x = (float)DEFAULT_RESOLUTION * Info<float>::Grid::Size() / (float)Window::defaultWidth,
         factor_y = (float)DEFAULT_RESOLUTION * Info<float>::Grid::Size() / (float)Window::defaultHeight;
-    float w = pwin.size.width() * factor_x / zoom_x;
+    float w = pwin.size.x() * factor_x / zoom_x;
     float h = w;
-    float d = pwin.size.height() * factor_y / zoom_z;
+    float d = pwin.size.y() * factor_y / zoom_z;
 
     pcam->w = w;
     pcam->h = h;

@@ -48,11 +48,6 @@ protected:
     virtual ~CameraSystem();
 
 public:
-	/**
-	 * @return true if the camera system has been initialized and can be used
-	 */
-	bool isInitialized();
-
 	void updateAll( const ego_mesh_t * mesh );
 	void resetAllTargets( const ego_mesh_t * mesh );
 
@@ -93,7 +88,7 @@ public:
 	* @brief
 	*	Initialize camera system with the specified number of cameras
 	**/
-	void initialize(size_t numberOfCameras);
+	void setNumberOfCameras(size_t numberOfCameras);
 
 private:
 
@@ -112,7 +107,6 @@ private:
     void autoSetTargets();
 
 private:
-	bool _initialized;
 	std::vector<std::shared_ptr<Camera>> _cameraList;
 	std::shared_ptr<Camera> _mainCamera;
 	CameraOptions _cameraOptions;

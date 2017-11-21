@@ -1714,7 +1714,7 @@ BIT_FIELD Object::hit_wall(const Vector3f& pos, Vector2f& nrm, float *pressure)
 
 	// Calculate the radius based on whether the character is on camera.
 	float radius = 0.0f;
-	if (CameraSystem::get().isInitialized() && CameraSystem::get().getMainCamera()->getTileList()->inRenderList(getTile()))
+	if (CameraSystem::get().getMainCamera()->getTileList()->inRenderList(getTile()))
 	{
 		radius = bump_1.size;
 	}
@@ -1738,7 +1738,7 @@ BIT_FIELD Object::hit_wall(const Vector3f& pos, Vector2f& nrm, float * pressure,
 
     // Calculate the radius based on whether the character is on camera.
 	float radius = 0.0f;
-	if (CameraSystem::get().isInitialized() && CameraSystem::get().getMainCamera()->getTileList()->inRenderList(getTile()))
+	if (CameraSystem::get().getMainCamera()->getTileList()->inRenderList(getTile()))
 	{
 		radius = bump_1.size;
 	}

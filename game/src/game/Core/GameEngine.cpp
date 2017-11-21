@@ -292,20 +292,20 @@ bool GameEngine::initialize()
     // Initialize the input system and enable mouse and keyboard.
     Ego::Input::InputSystem::initialize();
 
-    // camera options
-    CameraSystem::initialize();
-    CameraSystem::get().getCameraOptions().turnMode = egoboo_config_t::get().camera_control.getValue();
-
     // renderer options
     gfx_config_t::download(gfx, egoboo_config_t::get());
 
     // <<<
     /* ********************************************************************************** */
 
-
     // Initialize the GFX system.
     GFX::initialize();
-    
+
+	// camera options
+	CameraSystem::initialize();
+	CameraSystem::get().getCameraOptions().turnMode = egoboo_config_t::get().camera_control.getValue();
+
+
     // Subscribe to window events.
     subscribe();
 

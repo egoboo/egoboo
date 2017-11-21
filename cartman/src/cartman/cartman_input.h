@@ -29,8 +29,8 @@ namespace Cartman
     {
         bool on;
 
-		Point2i position;
-		Point2i positionOld;
+		Point2f position;
+		Point2f positionOld;
         int   b;
 
         bool relative;

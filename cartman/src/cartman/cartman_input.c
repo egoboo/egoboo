@@ -201,7 +201,7 @@ bool Cartman::Input::onMouse(SDL_Event *event)
             }
             else
             {
-                _mouse.position = Point2i(event->motion.x, event->motion.y);
+                _mouse.position = Point2f(event->motion.x, event->motion.y);
             }
             break;
     }
