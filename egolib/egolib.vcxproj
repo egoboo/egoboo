@@ -22,7 +22,7 @@
     <ProjectName>egolib</ProjectName>
     <ProjectGuid>{0F32DD35-A264-4906-8FC9-2D0FE0613230}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -139,7 +139,7 @@
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <FloatingPointModel>Fast</FloatingPointModel>
       <BufferSecurityCheck>false</BufferSecurityCheck>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(TargetFileName)</OutputFile>
@@ -186,7 +186,7 @@
       <WarningLevel>Level4</WarningLevel>
       <FloatingPointExceptions>false</FloatingPointExceptions>
       <ControlFlowGuard>false</ControlFlowGuard>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
     </ClCompile>
     <Lib>
@@ -254,7 +254,7 @@
       <WarningLevel>Level4</WarningLevel>
       <FloatingPointExceptions>false</FloatingPointExceptions>
       <ControlFlowGuard>false</ControlFlowGuard>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
     </ClCompile>
     <Lib />
@@ -300,7 +300,7 @@
       <WarningLevel>Level4</WarningLevel>
       <FloatingPointModel>Fast</FloatingPointModel>
       <BufferSecurityCheck>false</BufferSecurityCheck>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Lib>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -893,12 +893,6 @@
     </ProjectReference>
     <ProjectReference Include="..\external\SDL2_ttf-2.0.12\VisualC\SDL_ttf.vcxproj">
       <Project>{d114a863-1bdc-4979-a61e-cb6b7ca5f1bb}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\idlib\idlib.vcxproj">
-      <Project>{f59e5a93-844c-4c7f-bffa-c0e59785b9a2}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\idlib\legacy\idlib.vcxproj">
-      <Project>{1af1ead3-b754-426e-96df-6c9075782b5e}</Project>
     </ProjectReference>
     <ProjectReference Include="..\legacy\idlib.vcxproj">
       <Project>{1af1ead3-b754-426e-96df-6c9075782b5e}</Project>
