@@ -2,7 +2,6 @@
 
 #include "egolib/Graphics/ColourDepth.hpp"
 #include "egolib/Renderer/TextureAddressMode.hpp"
-#include "egolib/Renderer/PrimitiveType.hpp"
 #include "egolib/Renderer/TextureFilter.hpp"
 #include "egolib/Renderer/TextureType.hpp"
 #include "egolib/Renderer/TextureSampler.hpp"
@@ -75,14 +74,14 @@ public:
     /// @param primitive type the internal primitive type
     /// @return the OpenGL primitive type
     /// @remark The mapping from internal primitive types to OpenGL primiive types is depicted in the table below:
-    /// internal                               | OpenGL
-    /// ---------------------------------------| -----------------
-    /// Ego::PrimitiveType::Triangles          | GL_TRIANGLES
-    /// Ego::PrimitiveType::Quadriliterals     | GL_QUADS
-    /// Ego::PrimitiveType::TriangleFan        | GL_TRIANGLE_FAN
-    /// Ego::PrimitiveType::TriangleStrip      | GL_TRIANGLE_STRIP
-    /// Ego::PrimitiveType::QuadriliteralStrip | GL_QUAD_STRIP
-    static GLenum toOpenGL(PrimitiveType primitiveType);
+    /// internal                                | OpenGL
+    /// --------------------------------------- | -----------------
+    /// id::primitive_typee::triangles          | GL_TRIANGLES
+    /// id::primitive_type::quadriliterals      | GL_QUADS
+    /// id::primitive_type::triangle_Fan        | GL_TRIANGLE_FAN
+    /// id::primitive_type::triangle_strip      | GL_TRIANGLE_STRIP
+    /// id::primitive_type::quadriliteral_strip | GL_QUAD_STRIP
+    static GLenum toOpenGL(id::primitive_type primitiveType);
 
     /// @brief Get if anisotropy is supported.
     /// @return @a true if anisotropy is supported, @a false otherwise

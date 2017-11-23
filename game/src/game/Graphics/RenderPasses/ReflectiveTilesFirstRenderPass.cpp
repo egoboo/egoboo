@@ -31,7 +31,7 @@ void ReflectiveTilesFirstRenderPass::doRun(::Camera& camera, const TileList& tl,
         // black out any backgound, but allow the background to show through any holes in the floor
         renderer.setBlendingEnabled(true);
         // use the alpha channel to modulate the transparency
-        renderer.setBlendFunction(BlendFunction::Zero, BlendFunction::OneMinusSourceAlpha);
+        renderer.setBlendFunction(id::blend_function::zero, id::blend_function::one_minus_source_alpha);
         // do not display the completely transparent portion
         // use alpha test to allow the thatched roof tiles to look like thatch
         renderer.setAlphaTestEnabled(true);

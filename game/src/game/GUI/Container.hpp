@@ -78,16 +78,16 @@ public:
     virtual void removeComponent(const std::shared_ptr<Component>& component);
 
 public:
-    /// @copydoc InputListener::notifyMouseMoved
-    virtual bool notifyMouseMoved(const Events::MouseMovedEventArgs& e) override;
+    /// @copydoc InputListener::notifyMousePointerMoved
+    virtual bool notifyMousePointerMoved(const Events::MousePointerMovedEvent& e) override;
     /// @copydoc InputListener::notifyKeyboardKeyPressed
-    virtual bool notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEventArgs& ee) override;
+    virtual bool notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEvent& ee) override;
     /// @copydoc InputListener::notifyMouseButtonReleased
-    virtual bool notifyMouseButtonReleased(const Events::MouseButtonReleasedEventArgs& e) override;
+    virtual bool notifyMouseButtonReleased(const Events::MouseButtonReleasedEvent& e) override;
     /// @copydoc InputListener::notifyMouseButtonPressed
-    virtual bool notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs& e) override;
+    virtual bool notifyMouseButtonPressed(const Events::MouseButtonPressedEvent& e) override;
     /// @copydoc InputListener::notifyMouseWheelTurned
-    virtual bool notifyMouseWheelTurned(const Events::MouseWheelTurnedEventArgs& e) override;
+    virtual bool notifyMouseWheelTurned(const Events::MouseWheelTurnedEvent& e) override;
 
     /// @brief Bring a GUI component to the front of this container, so that it is drawn on top of all others and consumes input events first.
     /// @param component the component

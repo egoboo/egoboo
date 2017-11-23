@@ -27,7 +27,7 @@ public:
 
     void beginState() override;
 
-    bool notifyKeyboardKeyPressed(const Ego::Events::KeyboardKeyPressedEventArgs& e) override;
+    bool notifyKeyboardKeyPressed(const Ego::Events::KeyboardKeyPressedEvent& e) override;
 
     void draw(Ego::GUI::DrawingContext& drawingContext) override {
         drawContainer(drawingContext);

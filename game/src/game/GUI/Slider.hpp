@@ -41,9 +41,9 @@ public:
 
     bool isEnabled() const override;
 
-    bool notifyMouseMoved(const Events::MouseMovedEventArgs& e) override;
-    bool notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs& e) override;
-    bool notifyMouseButtonReleased(const Events::MouseButtonReleasedEventArgs& e) override;
+    bool notifyMousePointerMoved(const Events::MousePointerMovedEvent& e) override;
+    bool notifyMouseButtonPressed(const Events::MouseButtonPressedEvent& e) override;
+    bool notifyMouseButtonReleased(const Events::MouseButtonReleasedEvent& e) override;
 
 private:
     DeferredTexture _sliderBarTexture;

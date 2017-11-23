@@ -118,7 +118,7 @@ void Font::LaidTextRenderer::render(int x, int y, const Math::Colour4f &colour) 
     renderer.setBlendingEnabled(true);
     renderer.setColour(colour);
     renderer.getTextureUnit().setActivated(_atlas.get());
-    renderer.render(*(_vertexBuffer.get()), _vertexDescriptor, PrimitiveType::Quadriliterals, 0, _vertexBuffer->getNumberOfVertices());
+    renderer.render(*(_vertexBuffer.get()), _vertexDescriptor, id::primitive_type::quadriliterals, 0, _vertexBuffer->getNumberOfVertices());
 }
 
 Font::Font(const std::string &fileName, int pointSize) :

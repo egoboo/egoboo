@@ -114,14 +114,14 @@ public:
     virtual void setBlendingEnabled(bool enabled) override;
 
     /** @copydoc Ego::Renderer::setSourceBlendFunction */
-    virtual void setBlendFunction(BlendFunction sourceColour, BlendFunction sourceAlpha,
-                                  BlendFunction destinationColour, BlendFunction destinationAlpha) override;
+    virtual void setBlendFunction(id::blend_function sourceColour, id::blend_function sourceAlpha,
+		                          id::blend_function destinationColour, id::blend_function destinationAlpha) override;
 
     /** @copydoc Ego::Renderer::setColour */
     virtual void setColour(const Colour4f& colour) override;
 
     /** @copydoc Ego::Renderer::setCullingMode */
-    virtual void setCullingMode(CullingMode mode) override;
+    virtual void setCullingMode(id::culling_mode mode) override;
 
     /** @copydoc Ego::Renderer::setDepthFunction */
     virtual void setDepthFunction(CompareFunction function) override;
@@ -151,7 +151,7 @@ public:
     virtual void setViewportRectangle(float left, float bottom, float width, float height) override;
 
     /** @copydoc Ego::Renderer::setWindingMode */
-    virtual void setWindingMode(WindingMode mode) override;
+    virtual void setWindingMode(id::winding_mode mode) override;
 
     /** @copydoc Ego::Renderer::multMatrix */
     virtual void multiplyMatrix(const Matrix4f4f& matrix) override;
@@ -190,7 +190,7 @@ public:
     virtual void setGouraudShadingEnabled(bool enabled) override;
 
     /** @copydoc Ego::Renderer::render */
-    virtual void render(VertexBuffer& vertexBuffer, const VertexDescriptor& vertexDescriptor, PrimitiveType primitiveType, size_t index, size_t length) override;
+    virtual void render(VertexBuffer& vertexBuffer, const VertexDescriptor& vertexDescriptor, id::primitive_type primitiveType, size_t index, size_t length) override;
 
     /** @copydoc Ego::Renderer::createTexture */
     virtual std::shared_ptr<Ego::Texture> createTexture() override;
@@ -207,7 +207,7 @@ public:
 
 private:
     std::array<float, 16> toOpenGL(const Matrix4f4f& source);
-    GLenum toOpenGL(BlendFunction source);
+    GLenum toOpenGL(id::blend_function source);
 
 }; // class Renderer
 

@@ -48,7 +48,7 @@ public:
 
     void notifyModuleListUpdated();
 
-    bool notifyMouseWheelTurned(const Events::MouseWheelTurnedEventArgs& e) override;
+    bool notifyMouseWheelTurned(const Events::MouseWheelTurnedEvent& e) override;
 
     const std::shared_ptr<ModuleProfile>& getSelectedModule() const;
 

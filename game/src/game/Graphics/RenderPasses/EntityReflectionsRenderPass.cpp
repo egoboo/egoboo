@@ -51,14 +51,14 @@ void EntityReflectionsRenderPass::doRun(::Camera& camera, const TileList& tl, co
 
                 // cull backward facing polygons
                 // use couter-clockwise orientation to determine backfaces
-                renderer.setCullingMode(CullingMode::Back);
+                renderer.setCullingMode(id::culling_mode::back);
                 renderer.setWindingMode(MAP_REF_CULL);
 
                 // allow transparent objects
                 renderer.setBlendingEnabled(true);
 
                 // use the alpha channel to modulate the transparency
-                renderer.setBlendFunction(BlendFunction::SourceAlpha, BlendFunction::OneMinusSourceAlpha);
+                renderer.setBlendFunction(id::blend_function::source_alpha, id::blend_function::one_minus_source_alpha);
                 Index1D itile = object->getTile();
 
                 if (mesh->grid_is_valid(itile) && (0 != mesh->test_fx(itile, MAPFX_REFLECTIVE)))
@@ -71,13 +71,13 @@ void EntityReflectionsRenderPass::doRun(::Camera& camera, const TileList& tl, co
             else if (ObjectRef::Invalid == el.get(i).iobj && ParticleRef::Invalid != el.get(i).iprt)
             {
                 // draw draw front and back faces of polygons
-                renderer.setCullingMode(CullingMode::None);
+                renderer.setCullingMode(id::culling_mode::none);
 
                 // render_one_prt_ref() actually sets its own blend function, but just to be safe
                 // allow transparent objects
                 renderer.setBlendingEnabled(true);
                 // set the default particle blending
-                renderer.setBlendFunction(BlendFunction::SourceAlpha, BlendFunction::OneMinusSourceAlpha);
+                renderer.setBlendFunction(id::blend_function::source_alpha, id::blend_function::one_minus_source_alpha);
                 ParticleRef iprt = el.get(i).iprt;
                 Index1D itile = ParticleHandler::get()[iprt]->getTile();
 

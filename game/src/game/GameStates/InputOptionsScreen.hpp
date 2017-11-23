@@ -43,7 +43,7 @@ public:
 
     void beginState() override;
 
-    virtual bool notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEventArgs& e) override;
+    virtual bool notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEvent& e) override;
 
     void draw(Ego::GUI::DrawingContext& drawingContext) override {
         drawContainer(drawingContext);

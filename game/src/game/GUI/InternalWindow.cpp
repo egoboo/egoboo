@@ -106,32 +106,32 @@ void InternalWindow::drawContainer(DrawingContext& drawingContext) {
     _closeButton->draw(drawingContext);
 }
 
-bool InternalWindow::notifyMouseMoved(const Events::MouseMovedEventArgs& e) {
-    auto newe = Events::MouseMovedEventArgs(e.position() - id::semantic_cast<Vector2f>(getPosition()));
+bool InternalWindow::notifyMousePointerMoved(const Events::MousePointerMovedEvent& e) {
+    auto newe = Events::MousePointerMovedEvent(e.get_position() - id::semantic_cast<Vector2f>(getPosition()));
     if (_isDragging) {
-        setPosition(Point2f(Math::constrain<int>(e.position().x() + _mouseDragOffset[0], 0,
+        setPosition(Point2f(Math::constrain<int>(e.get_position().x() + _mouseDragOffset[0], 0,
                                                  _gameEngine->getUIManager()->getScreenWidth() - getWidth()),
-                            Math::constrain<int>(e.position().y() + _mouseDragOffset[1], _titleBar->getHeight() / 2,
+                            Math::constrain<int>(e.get_position().y() + _mouseDragOffset[1], _titleBar->getHeight() / 2,
                                                  _gameEngine->getUIManager()->getScreenHeight() - getHeight())));
         return true;
     } else {
-        _mouseOver = InternalWindow::contains(newe.position())
-            || _titleBar->contains(newe.position());
+        _mouseOver = InternalWindow::contains(newe.get_position())
+            || _titleBar->contains(newe.get_position());
 
-        if (_closeButton->contains(newe.position())) {
+        if (_closeButton->contains(newe.get_position())) {
             _closeButton->setTint(Math::Colour4f::white());
         } else {
             _closeButton->setTint(Math::Colour4f(0.8f, 0.8f, 0.8f, 1.0f));
         }
     }
 
-    return Container::notifyMouseMoved(e);
+    return Container::notifyMousePointerMoved(e);
 }
 
-bool InternalWindow::notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs& e) {
-    auto newe = Events::MouseButtonPressedEventArgs(e.position() - id::semantic_cast<Vector2f>(getPosition()), e.getButton());
-    if (_mouseOver && e.getButton() == SDL_BUTTON_LEFT) {
-        if (!_isDragging && _closeButton->contains(newe.position())) {
+bool InternalWindow::notifyMouseButtonPressed(const Events::MouseButtonPressedEvent& e) {
+    auto newe = Events::MouseButtonPressedEvent(e.get_position() - id::semantic_cast<Vector2f>(getPosition()), e.get_button());
+    if (_mouseOver && e.get_button() == SDL_BUTTON_LEFT) {
+        if (!_isDragging && _closeButton->contains(newe.get_position())) {
             AudioSystem::get().playSoundFull(AudioSystem::get().getGlobalSound(GSND_BUTTON_CLICK));
             destroy();
             return true;
@@ -141,24 +141,24 @@ bool InternalWindow::notifyMouseButtonPressed(const Events::MouseButtonPressedEv
         bringToFront();
 
         // Only the top title bar triggers dragging
-        if (_titleBar->contains(newe.position())) {
+        if (_titleBar->contains(newe.get_position())) {
             _isDragging = true;
-            _mouseDragOffset[0] = getX() - e.position().x();
-            _mouseDragOffset[1] = getY() - e.position().y();
+            _mouseDragOffset[0] = getX() - e.get_position().x();
+            _mouseDragOffset[1] = getY() - e.get_position().y();
 
             // Move the window immediatly
-            return notifyMouseMoved(Events::MouseMovedEventArgs(e.position()));
+            return notifyMousePointerMoved(Events::MousePointerMovedEvent(e.get_position()));
         } else {
             _isDragging = false;
         }
-    } else if (e.getButton() == SDL_BUTTON_RIGHT) {
+    } else if (e.get_button() == SDL_BUTTON_RIGHT) {
         _isDragging = false;
     }
 
     return Container::notifyMouseButtonPressed(e);
 }
 
-bool InternalWindow::notifyMouseButtonReleased(const Events::MouseButtonReleasedEventArgs& e) {
+bool InternalWindow::notifyMouseButtonReleased(const Events::MouseButtonReleasedEvent& e) {
     _isDragging = false;
     return false;
 }

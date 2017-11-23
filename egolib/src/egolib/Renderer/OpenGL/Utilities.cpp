@@ -172,27 +172,27 @@ GLint Utilities2::toOpenGL(TextureAddressMode textureAddressMode)
     }
 }
 
-GLenum Utilities2::toOpenGL(PrimitiveType primitiveType)
+GLenum Utilities2::toOpenGL(id::primitive_type primitiveType)
 {
     switch (primitiveType)
     {
-        case PrimitiveType::Points:
+        case id::primitive_type::points:
             return GL_POINTS;
-        case PrimitiveType::Lines:
+        case id::primitive_type::lines:
             return GL_LINES;
-        case PrimitiveType::LineLoop:
+        case id::primitive_type::line_loop:
             return GL_LINE_LOOP;
-        case PrimitiveType::LineStrip:
+        case id::primitive_type::line_strip:
             return GL_LINE_STRIP;
-        case PrimitiveType::Triangles:
+        case id::primitive_type::triangles:
             return GL_TRIANGLES;
-        case PrimitiveType::TriangleFan:
+        case id::primitive_type::triangle_fan:
             return GL_TRIANGLE_FAN;
-        case PrimitiveType::TriangleStrip:
+        case id::primitive_type::triangle_strip:
             return GL_TRIANGLE_STRIP;
-        case PrimitiveType::Quadriliterals:
+        case id::primitive_type::quadriliterals:
             return GL_QUADS;
-        case PrimitiveType::QuadriliteralStrip:
+        case id::primitive_type::quadriliteral_strip:
             return GL_QUAD_STRIP;
         default:
             throw id::unhandled_switch_case_error(__FILE__, __LINE__);

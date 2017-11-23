@@ -103,9 +103,9 @@ void ScrollableList::draw(DrawingContext& drawingContext) {
     }
 }
 
-bool ScrollableList::notifyMouseWheelTurned(const Events::MouseWheelTurnedEventArgs& e) {
+bool ScrollableList::notifyMouseWheelTurned(const Events::MouseWheelTurnedEvent& e) {
     if (_mouseOver) {
-        if (e.delta().y() > 0) {
+        if (e.get_delta().y() > 0) {
             _upButton->doClick();
         } else {
             _downButton->doClick();
@@ -114,16 +114,16 @@ bool ScrollableList::notifyMouseWheelTurned(const Events::MouseWheelTurnedEventA
     return _mouseOver;
 }
 
-bool ScrollableList::notifyMouseMoved(const Events::MouseMovedEventArgs& e) {
-    _mouseOver = contains(e.position());
+bool ScrollableList::notifyMousePointerMoved(const Events::MousePointerMovedEvent& e) {
+    _mouseOver = contains(e.get_position());
 
-    if (_downButton->notifyMouseMoved(e)) return true;
-    if (_upButton->notifyMouseMoved(e)) return true;
+    if (_downButton->notifyMousePointerMoved(e)) return true;
+    if (_upButton->notifyMousePointerMoved(e)) return true;
 
-    return Container::notifyMouseMoved(e);
+    return Container::notifyMousePointerMoved(e);
 }
 
-bool ScrollableList::notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs& e) {
+bool ScrollableList::notifyMouseButtonPressed(const Events::MouseButtonPressedEvent& e) {
     if (_downButton->notifyMouseButtonPressed(e)) return true;
     if (_upButton->notifyMouseButtonPressed(e)) return true;
     return Container::notifyMouseButtonPressed(e);

@@ -94,12 +94,12 @@ gfx_rv ParticleGraphicsRenderer::render_one_prt_solid(const ParticleRef iprt)
             renderer.setDepthWriteEnabled(true);
 
             // draw draw front and back faces of polygons
-            renderer.setCullingMode(Ego::CullingMode::None);
+            renderer.setCullingMode(id::culling_mode::none);
 
             // Since the textures are probably mipmapped or minified with some kind of
             // interpolation, we can never really turn blending off.
             renderer.setBlendingEnabled(true);
-            renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
+            renderer.setBlendFunction(id::blend_function::source_alpha, id::blend_function::one_minus_source_alpha);
 
             // only display the portion of the particle that is 100% solid
             renderer.setAlphaTestEnabled(true);
@@ -115,7 +115,7 @@ gfx_rv ParticleGraphicsRenderer::render_one_prt_solid(const ParticleRef iprt)
             auto vb = std::make_shared<Ego::VertexBuffer>(4, vd.getVertexSize());
             calc_billboard_verts(*texture, *vb, pinst, pinst.size, false);
 
-            renderer.render(*vb, vd, Ego::PrimitiveType::TriangleFan, 0, 4);
+            renderer.render(*vb, vd, id::primitive_type::triangle_fan, 0, 4);
         }
     }
 
@@ -157,7 +157,7 @@ gfx_rv ParticleGraphicsRenderer::render_one_prt_trans(const ParticleRef iprt)
             renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
 
             // Draw front-facing and back-facing polygons.
-            renderer.setCullingMode(Ego::CullingMode::None);
+            renderer.setCullingMode(id::culling_mode::none);
 
             Ego::Math::Colour4f particleColour;
             std::shared_ptr<const Ego::Texture> texture = nullptr;
@@ -173,7 +173,7 @@ gfx_rv ParticleGraphicsRenderer::render_one_prt_trans(const ParticleRef iprt)
                     renderer.setAlphaFunction(Ego::CompareFunction::Less, 1.0f);
 
                     renderer.setBlendingEnabled(true);
-                    renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
+                    renderer.setBlendFunction(id::blend_function::source_alpha, id::blend_function::one_minus_source_alpha);
 
                     particleColour = Ego::Math::Colour4f(inst.fintens, inst.fintens, inst.fintens, 1.0f);
 
@@ -192,7 +192,7 @@ gfx_rv ParticleGraphicsRenderer::render_one_prt_trans(const ParticleRef iprt)
 
                     renderer.setAlphaTestEnabled(false);
                     renderer.setBlendingEnabled(true);
-                    renderer.setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::One);
+                    renderer.setBlendFunction(id::blend_function::one, id::blend_function::one);
 
                     particleColour = Ego::Math::Colour4f(1.0f, 1.0f, 1.0f, inst.fintens * inst.falpha);
 
@@ -214,7 +214,7 @@ gfx_rv ParticleGraphicsRenderer::render_one_prt_trans(const ParticleRef iprt)
                     renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
 
                     renderer.setBlendingEnabled(true);
-                    renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
+                    renderer.setBlendFunction(id::blend_function::source_alpha, id::blend_function::one_minus_source_alpha);
 
                     particleColour = Ego::Math::Colour4f(inst.fintens, inst.fintens, inst.fintens, inst.falpha);
 
@@ -236,7 +236,7 @@ gfx_rv ParticleGraphicsRenderer::render_one_prt_trans(const ParticleRef iprt)
             renderer.setColour(particleColour);
 
             // Go on and draw it
-            renderer.render(*vb, vd, Ego::PrimitiveType::TriangleFan, 0, 4);
+            renderer.render(*vb, vd, id::primitive_type::triangle_fan, 0, 4);
         }
     }
 
@@ -284,14 +284,14 @@ gfx_rv ParticleGraphicsRenderer::render_one_prt_ref(const ParticleRef iprt)
                 renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
 
                 // draw draw front and back faces of polygons
-                renderer.setCullingMode(Ego::CullingMode::None);
+                renderer.setCullingMode(id::culling_mode::none);
 
                 // do not display the completely transparent portion
                 renderer.setAlphaTestEnabled(true);
                 renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
 
                 renderer.setBlendingEnabled(true);
-                renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
+                renderer.setBlendFunction(id::blend_function::source_alpha, id::blend_function::one_minus_source_alpha);
 
                 switch(pprt->type) 
                 {
@@ -346,7 +346,7 @@ gfx_rv ParticleGraphicsRenderer::render_one_prt_ref(const ParticleRef iprt)
 
                 renderer.setColour(particle_colour); // GL_CURRENT_BIT
 
-                renderer.render(*vb, vd, Ego::PrimitiveType::TriangleFan, 0, 4);
+                renderer.render(*vb, vd, id::primitive_type::triangle_fan, 0, 4);
             }
         }
     }

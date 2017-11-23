@@ -242,25 +242,25 @@ void GraphicsWindow::update()
         switch (event.window.event)
         {
             case SDL_WINDOWEVENT_ENTER:
-                this->MouseEntered(Events::WindowMousePointerEnteredEventArgs());
+                this->MousePointerEntered(Events::MousePointerEnteredEvent());
                 break;
             case SDL_WINDOWEVENT_LEAVE:
-                this->MouseLeft(Events::WindowMousePointerLeftEventArgs());
+                this->MousePointerExited(Events::MousePointerExitedEvent());
                 break;
             case SDL_WINDOWEVENT_FOCUS_GAINED:
-                this->KeyboardFocusReceived(Events::WindowReceivedKeyboardInputFocusEventArgs());
+                this->KeyboardFocusReceived(Events::KeyboardInputFocusReceivedEvent());
                 break;
             case SDL_WINDOWEVENT_FOCUS_LOST:
-                this->KeyboardFocusLost(Events::WindowLostKeyboardInputFocusEventArgs());
+                this->KeyboardFocusLost(Events::KeyboardInputFocusLostEvent());
                 break;
             case SDL_WINDOWEVENT_RESIZED:
-                this->Resized(Events::WindowResizedEventArgs());
+                this->WindowResized(Events::WindowResizedEvent());
                 break;
             case SDL_WINDOWEVENT_SHOWN:
-                this->Shown(Events::WindowShownEventArgs());
+                this->WindowShown(Events::WindowShownEvent());
                 break;
             case SDL_WINDOWEVENT_HIDDEN:
-                this->Hidden(Events::WindowHiddenEventArgs());
+                this->WindowHidden(Events::WindowHiddenEvent());
                 break;
             case SDL_WINDOWEVENT_EXPOSED:
                 break;

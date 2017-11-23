@@ -71,14 +71,14 @@ void Button::draw(DrawingContext& drawingContext) {
     }
 }
 
-bool Button::notifyMouseMoved(const Events::MouseMovedEventArgs& e) {
-    _mouseOver = contains(e.position());
+bool Button::notifyMousePointerMoved(const Events::MousePointerMovedEvent& e) {
+    _mouseOver = contains(e.get_position());
 
     return false;
 }
 
-bool Button::notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs& e) {
-    if (_mouseOver && e.getButton() == SDL_BUTTON_LEFT) {
+bool Button::notifyMouseButtonPressed(const Events::MouseButtonPressedEvent& e) {
+    if (_mouseOver && e.get_button() == SDL_BUTTON_LEFT) {
         doClick();
         return true;
     }
@@ -96,12 +96,12 @@ void Button::setOnClickFunction(const std::function<void()> onClick) {
     Clicked.subscribe(onClick);
 }
 
-bool Button::notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEventArgs& e) {
+bool Button::notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEvent& e) {
     //No hotkey assigned to this button
     if (_hotkey == SDLK_UNKNOWN) return false;
 
     //Hotkey pressed?
-    if (e.key() == _hotkey) {
+    if (e.get_key() == _hotkey) {
         doClick();
         return true;
     }

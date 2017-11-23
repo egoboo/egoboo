@@ -1,6 +1,5 @@
 #pragma once
 
-#include "egolib/Events/_Include.hpp"
 #include "egolib/Math/_Include.hpp"
 
 namespace Ego {
@@ -9,25 +8,25 @@ class GraphicsWindow
 {
 public:
     /// Raised if the window was resized.
-    id::signal<void(const Events::WindowResizedEventArgs&)> Resized;
+    id::signal<void(const Events::WindowResizedEvent&)> WindowResized;
 
     /// Raised if the mouse pointer entered the window.
-    id::signal<void(const Events::WindowMousePointerEnteredEventArgs&)> MouseEntered;
+    id::signal<void(const Events::MousePointerEnteredEvent&)> MousePointerEntered;
 
     /// Raised if the mouse pointer left the window.
-    id::signal<void(const Events::WindowMousePointerLeftEventArgs&)> MouseLeft;
+    id::signal<void(const Events::MousePointerExitedEvent&)> MousePointerExited;
 
     /// Raised if the the window received the keyboard input focus.
-    id::signal<void(const Events::WindowReceivedKeyboardInputFocusEventArgs&)> KeyboardFocusReceived;
+    id::signal<void(const Events::KeyboardInputFocusReceivedEvent&)> KeyboardFocusReceived;
 
     /// Raised if the window lost the keyboard input focus.
-    id::signal<void(const Events::WindowLostKeyboardInputFocusEventArgs&)> KeyboardFocusLost;
+    id::signal<void(const Events::KeyboardInputFocusLostEvent&)> KeyboardFocusLost;
 
     /// Raised if the window was shown.
-    id::signal<void(const Events::WindowShownEventArgs&)> Shown;
+    id::signal<void(const Events::WindowShownEvent&)> WindowShown;
 
     /// Raised if the window was hidden.
-    id::signal<void(const Events::WindowHiddenEventArgs&)> Hidden;
+    id::signal<void(const Events::WindowHiddenEvent&)> WindowHidden;
 
 protected:
     /// @brief Construct this graphics window with the specified window properties.

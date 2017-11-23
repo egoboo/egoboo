@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "idlib/idlib.hpp"
+#include "egolib/integrations/idlib.hpp"
 
 #if defined(ID_IOS) || defined(ID_IOSSIMULATOR)
     #error iOS or iOS simulator are not yet supported
@@ -36,6 +36,7 @@
 #include <SDL_mixer.h>
 #include <SDL_opengl.h>
 #include <SDL_ttf.h>
+#include <SDL_events.h>
 
 
 #if defined(__cplusplus)

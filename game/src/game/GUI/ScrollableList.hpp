@@ -53,9 +53,9 @@ public:
      */
     void forceUpdate();
 
-    bool notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs& e) override;
-    bool notifyMouseWheelTurned(const Events::MouseWheelTurnedEventArgs& e) override;
-    bool notifyMouseMoved(const Events::MouseMovedEventArgs& e) override;
+    bool notifyMouseButtonPressed(const Events::MouseButtonPressedEvent& e) override;
+    bool notifyMouseWheelTurned(const Events::MouseWheelTurnedEvent& e) override;
+    bool notifyMousePointerMoved(const Events::MousePointerMovedEvent& e) override;
 
     void setWidth(float width) override;
     void setHeight(float height) override;

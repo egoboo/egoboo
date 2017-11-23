@@ -5,6 +5,7 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "game", "game\game.vcxproj", "{E9988340-E474-4C0A-8496-EFF3296DE056}"
 	ProjectSection(ProjectDependencies) = postProject
 		{0F32DD35-A264-4906-8FC9-2D0FE0613230} = {0F32DD35-A264-4906-8FC9-2D0FE0613230}
+		{8BA6CBFE-EFDE-414C-867C-4A238C8803B2} = {8BA6CBFE-EFDE-414C-867C-4A238C8803B2}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "egolib", "egolib\egolib.vcxproj", "{0F32DD35-A264-4906-8FC9-2D0FE0613230}"
@@ -46,6 +47,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gtest_main", "external\googletest\googletest\msvc\gtest_main.vcxproj", "{3AF54C8A-10BF-4332-9147-F68ED9862032}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "idlib", "legacy\idlib.vcxproj", "{1AF1EAD3-B754-426E-96DF-6C9075782B5E}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "idlib-game-engine", "legacy\idlib-game-engine.vcxproj", "{8BA6CBFE-EFDE-414C-867C-4A238C8803B2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -183,6 +186,14 @@ Global
 		{1AF1EAD3-B754-426E-96DF-6C9075782B5E}.Release|x64.Build.0 = Release|x64
 		{1AF1EAD3-B754-426E-96DF-6C9075782B5E}.Release|x86.ActiveCfg = Release|Win32
 		{1AF1EAD3-B754-426E-96DF-6C9075782B5E}.Release|x86.Build.0 = Release|Win32
+		{8BA6CBFE-EFDE-414C-867C-4A238C8803B2}.Debug|x64.ActiveCfg = Debug|x64
+		{8BA6CBFE-EFDE-414C-867C-4A238C8803B2}.Debug|x64.Build.0 = Debug|x64
+		{8BA6CBFE-EFDE-414C-867C-4A238C8803B2}.Debug|x86.ActiveCfg = Debug|Win32
+		{8BA6CBFE-EFDE-414C-867C-4A238C8803B2}.Debug|x86.Build.0 = Debug|Win32
+		{8BA6CBFE-EFDE-414C-867C-4A238C8803B2}.Release|x64.ActiveCfg = Release|x64
+		{8BA6CBFE-EFDE-414C-867C-4A238C8803B2}.Release|x64.Build.0 = Release|x64
+		{8BA6CBFE-EFDE-414C-867C-4A238C8803B2}.Release|x86.ActiveCfg = Release|Win32
+		{8BA6CBFE-EFDE-414C-867C-4A238C8803B2}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

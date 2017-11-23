@@ -209,13 +209,13 @@ void CharacterWindow::draw(DrawingContext& drawingContext) {
     drawAll(drawingContext);
 }
 
-bool CharacterWindow::notifyMouseMoved(const Events::MouseMovedEventArgs& e) {
+bool CharacterWindow::notifyMousePointerMoved(const Events::MousePointerMovedEvent& e) {
     //Make level up button visible if needed
     if (_character->isPlayer()) {
         _levelUpButton->setVisible(_levelUpWindow.expired() && _currentModule->getPlayer(_character->is_which_player)->hasUnspentLevel());
     }
 
-    return InternalWindow::notifyMouseMoved(e);
+    return InternalWindow::notifyMousePointerMoved(e);
 }
 
 void CharacterWindow::buildCharacterStatisticTab(std::shared_ptr<Tab> target) {

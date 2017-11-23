@@ -127,9 +127,6 @@
     <Filter Include="Header Files\Math\Functors">
       <UniqueIdentifier>{0b01a8e7-fe6d-438a-8459-bd880b264074}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Events">
-      <UniqueIdentifier>{6a8ec327-4d9c-4158-8d0a-3b457c46b627}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Graphics\SDL">
       <UniqueIdentifier>{d53e3288-889c-4583-bfc1-951f3aa4d996}</UniqueIdentifier>
     </Filter>
@@ -162,6 +159,9 @@
     </Filter>
     <Filter Include="Source Files\text">
       <UniqueIdentifier>{e1ec9d0f-406e-4fc2-b07c-159de415cc78}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\integrations">
+      <UniqueIdentifier>{dfc51d3f-1107-410f-b7e3-0f4083874db2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -788,12 +788,6 @@
     <ClInclude Include="src\egolib\Math\Math.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Renderer\CullingMode.hpp">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Renderer\WindingMode.hpp">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Image\Image.hpp">
       <Filter>Header Files\Image</Filter>
     </ClInclude>
@@ -856,9 +850,6 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Graphics\VertexBuffer.hpp">
       <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Renderer\PrimitiveType.hpp">
-      <Filter>Header Files\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Core\System.hpp">
       <Filter>Header Files\Core</Filter>
@@ -954,9 +945,6 @@
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Renderer\CompareFunction.hpp">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Renderer\BlendFunction.hpp">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Console\Console.hpp">
@@ -1084,24 +1072,6 @@
     </ClInclude>
     <ClInclude Include="src\egolib\App.hpp">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Events\MouseMovedEventArgs.hpp">
-      <Filter>Header Files\Events</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Events\WindowEventArgs.hpp">
-      <Filter>Header Files\Events</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Events\MouseButtonEventArgs.hpp">
-      <Filter>Header Files\Events</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Events\_Include.hpp">
-      <Filter>Header Files\Events</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Events\KeyboardKeyEventArgs.hpp">
-      <Filter>Header Files\Events</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Events\MouseWheelTurnedEventArgs.hpp">
-      <Filter>Header Files\Events</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Graphics\SDL\DisplayMode.hpp">
       <Filter>Header Files\Graphics\SDL</Filter>
@@ -1309,6 +1279,9 @@
     </ClInclude>
     <ClInclude Include="src\egolib\text\document.hpp">
       <Filter>Header Files\text</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\integrations\idlib.hpp">
+      <Filter>Header Files\integrations</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -195,14 +195,14 @@ void ModuleSelector::ModuleButton::draw(DrawingContext& drawingContext) {
     _gameEngine->getUIManager()->drawImage(getDerivedPosition() + Vector2f(5,5), getSize() - Vector2f(10,10), material);
 }
 
-bool ModuleSelector::notifyMouseWheelTurned(const Events::MouseWheelTurnedEventArgs& e) {
-    if (e.delta().y() < 0 && _startIndex == 0) {
+bool ModuleSelector::notifyMouseWheelTurned(const Events::MouseWheelTurnedEvent& e) {
+    if (e.get_delta().y() < 0 && _startIndex == 0) {
         return false;
     }
-    if (e.delta().y() > 0 && _startIndex >= _modules.size() - 3) {
+    if (e.get_delta().y() > 0 && _startIndex >= _modules.size() - 3) {
         return false;
     }
-    _startIndex = Math::constrain<int>(_startIndex + e.delta().y(), 0, _modules.size() - 3);
+    _startIndex = Math::constrain<int>(_startIndex + e.get_delta().y(), 0, _modules.size() - 3);
     AudioSystem::get().playSoundFull(AudioSystem::get().getGlobalSound(GSND_BUTTON_CLICK));
     _nextModuleButton->setEnabled(_startIndex < _modules.size() - 3);
     _previousModuleButton->setEnabled(_startIndex > 0);

@@ -120,9 +120,9 @@ void MapEditorState::beginState()
     Ego::GraphicsSystem::get().window->setGrabEnabled(egoboo_config_t::get().debug_grabMouse.getValue());
 }
 
-bool MapEditorState::notifyKeyboardKeyPressed(const Ego::Events::KeyboardKeyPressedEventArgs& e)
+bool MapEditorState::notifyKeyboardKeyPressed(const Ego::Events::KeyboardKeyPressedEvent& e)
 {
-    switch(e.key())
+    switch(e.get_key())
     {
         case SDLK_ESCAPE:
             _gameEngine->pushGameState(std::make_shared<InGameMenuState>(*this));

@@ -185,7 +185,7 @@ bool BillboardSystem::render_one(Billboard& billboard, const Vector3f& cameraUp,
         renderer.getTextureUnit().setActivated(texture);
 
         // Go on and draw it
-        renderer.render(vertexBuffer, vertexDescriptor, PrimitiveType::Quadriliterals, 0, 4);
+        renderer.render(vertexBuffer, vertexDescriptor, id::primitive_type::quadriliterals, 0, 4);
     }
 
     return true;
@@ -208,10 +208,10 @@ void BillboardSystem::render_all(::Camera& camera)
             renderer.setGouraudShadingEnabled(false);
 
             // Draw only front-facing polygons.
-            renderer.setCullingMode(Ego::CullingMode::Back);
+            renderer.setCullingMode(id::culling_mode::back);
 
             renderer.setBlendingEnabled(true);
-            renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
+            renderer.setBlendFunction(id::blend_function::source_alpha, id::blend_function::one_minus_source_alpha);
 
             // This drops 100% transparent fragments i.e. in order to pass, alpha has to be greater than 0.
             renderer.setAlphaTestEnabled(true);

@@ -24,7 +24,6 @@
 #include "game/GUI/MiniMap.hpp"
 #include "game/Core/GameEngine.hpp"
 #include "egolib/Logic/Team.hpp"
-#include "egolib/Events/MouseMovedEventArgs.hpp"
 #include "game/Module/Module.hpp"
 #include "game/GUI/Material.hpp"
 #include "egolib/Entities/_Include.hpp"
@@ -140,30 +139,30 @@ void MiniMap::addBlip(const float x, const float y, const std::shared_ptr<Object
     _blips.push_back(Blip(x, y, object->getIcon()));
 }
 
-bool MiniMap::notifyMouseMoved(const Events::MouseMovedEventArgs& e) {
+bool MiniMap::notifyMousePointerMoved(const Events::MousePointerMovedEvent& e) {
     if (_isDragging) {
-        int x = Math::constrain<int>(e.position().x() + _mouseDragOffset[0], 0, _gameEngine->getUIManager()->getScreenWidth() - getWidth()),
-            y = Math::constrain<int>(e.position().y() + _mouseDragOffset[1], 0, _gameEngine->getUIManager()->getScreenHeight() - getHeight());
+        int x = Math::constrain<int>(e.get_position().x() + _mouseDragOffset[0], 0, _gameEngine->getUIManager()->getScreenWidth() - getWidth()),
+            y = Math::constrain<int>(e.get_position().y() + _mouseDragOffset[1], 0, _gameEngine->getUIManager()->getScreenHeight() - getHeight());
         setPosition(Point2f(x, y));
     } else {
-        _mouseOver = contains(e.position());
+        _mouseOver = contains(e.get_position());
     }
 
     return false;
 }
 
-bool MiniMap::notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs& e) {
-    if (_mouseOver && e.getButton() == SDL_BUTTON_LEFT) {
+bool MiniMap::notifyMouseButtonPressed(const Events::MouseButtonPressedEvent& e) {
+    if (_mouseOver && e.get_button() == SDL_BUTTON_LEFT) {
         // Bring the window in front of all other windows.
         bringToFront();
 
         _isDragging = true;
-        _mouseDragOffset[0] = getX() - e.position().x();
-        _mouseDragOffset[1] = getY() - e.position().y();
+        _mouseDragOffset[0] = getX() - e.get_position().x();
+        _mouseDragOffset[1] = getY() - e.get_position().y();
 
         // Move the window immediatly.
-        return notifyMouseMoved(Events::MouseMovedEventArgs(e.position()));
-    } else if (e.getButton() == SDL_BUTTON_RIGHT) {
+        return notifyMousePointerMoved(Events::MousePointerMovedEvent(e.get_position()));
+    } else if (e.get_button() == SDL_BUTTON_RIGHT) {
         _isDragging = false;
         return true;
     }
@@ -171,9 +170,9 @@ bool MiniMap::notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs
     return false;
 }
 
-bool MiniMap::notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEventArgs& e) {
+bool MiniMap::notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEvent& e) {
     // Enlarge minimap
-    if (e.key() == SDLK_m) {
+    if (e.get_key() == SDLK_m) {
         if (isVisible()) {
             const float HALF_SCREEN_WIDTH = _gameEngine->getUIManager()->getScreenWidth() / 2;
             const float HALF_SCREEN_HEIGHT = _gameEngine->getUIManager()->getScreenHeight() / 2;
@@ -201,7 +200,7 @@ bool MiniMap::notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEventArgs
     return false;
 }
 
-bool MiniMap::notifyMouseButtonReleased(const Events::MouseButtonReleasedEventArgs& e) {
+bool MiniMap::notifyMouseButtonReleased(const Events::MouseButtonReleasedEvent& e) {
     _isDragging = false;
     return false;
 }

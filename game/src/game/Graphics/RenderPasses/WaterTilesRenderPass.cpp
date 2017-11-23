@@ -119,7 +119,7 @@ gfx_rv WaterTilesRenderPass::render_water_fan(ego_mesh_t& mesh, const Index1D& t
     }
 
     // draw draw front and back faces of polygons
-    Renderer::get().setCullingMode(CullingMode::None);
+    Renderer::get().setCullingMode(id::culling_mode::none);
 
     struct Vertex
     {
@@ -215,23 +215,23 @@ gfx_rv WaterTilesRenderPass::render_water_fan(ego_mesh_t& mesh, const Index1D& t
 
         // cull backward facing polygons
         // use clockwise orientation to determine backfaces
-        renderer.setCullingMode(CullingMode::Back);
+        renderer.setCullingMode(id::culling_mode::back);
         renderer.setWindingMode(MAP_NRM_CULL);
 
         // set the blending mode
         renderer.setBlendingEnabled(true);
         if (_currentModule->getWater()._light)
         {
-            renderer.setBlendFunction(BlendFunction::One, BlendFunction::OneMinusSourceColour);
+            renderer.setBlendFunction(id::blend_function::one, id::blend_function::one_minus_source_color);
         }
         else
         {
-            renderer.setBlendFunction(BlendFunction::SourceAlpha, BlendFunction::OneMinusSourceAlpha);
+            renderer.setBlendFunction(id::blend_function::source_alpha, id::blend_function::one_minus_source_alpha);
         }
 
         // per-vertex coloring
         renderer.setGouraudShadingEnabled(true);
-        renderer.render(*vb, vd, PrimitiveType::TriangleFan, 0, 4);
+        renderer.render(*vb, vd, id::primitive_type::triangle_fan, 0, 4);
     }
 
     return gfx_success;

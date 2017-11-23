@@ -46,10 +46,10 @@ public:
         _gameEngine->getUIManager()->drawImage(Point2f(shakeEffectX, shakeEffectY), Vector2f(getWidth(), getHeight()), material);
     }
 
-    bool notifyMouseMoved(const Events::MouseMovedEventArgs& e) override {
+    bool notifyMousePointerMoved(const Events::MousePointerMovedEvent& e) override {
         //Change perk description if mouse moves
         if (_mouseOver) {
-            if (!contains(e.position())) {
+            if (!contains(e.get_position())) {
                 _mouseOver = false;
 
                 LevelUpWindow *parentWindow = dynamic_cast<LevelUpWindow*>(getParent());
@@ -60,7 +60,7 @@ public:
                 return true;
             }
         } else {
-            if (contains(e.position())) {
+            if (contains(e.get_position())) {
                 _mouseOver = true;
 
                 LevelUpWindow *parentWindow = dynamic_cast<LevelUpWindow*>(getParent());
@@ -74,8 +74,8 @@ public:
         return false;
     }
 
-    bool notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs& e) override {
-        if (_mouseOver && e.getButton() == SDL_BUTTON_LEFT) {
+    bool notifyMouseButtonPressed(const Events::MouseButtonPressedEvent& e) override {
+        if (_mouseOver && e.get_button() == SDL_BUTTON_LEFT) {
             static_cast<LevelUpWindow*>(getParent())->doLevelUp(this);
             AudioSystem::get().playSoundFull(AudioSystem::get().getGlobalSound(GSND_PERK_SELECT));
             return true;

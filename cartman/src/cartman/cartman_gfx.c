@@ -888,11 +888,11 @@ void ogl_beginFrame()
     auto& renderer = Ego::Renderer::get();
     glPushAttrib( GL_ENABLE_BIT );
 	renderer.setDepthTestEnabled(false);
-    renderer.setCullingMode(Ego::CullingMode::None);
+    renderer.setCullingMode(id::culling_mode::none);
     glEnable( GL_TEXTURE_2D );
 
     renderer.setBlendingEnabled(true);
-    renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
+    renderer.setBlendFunction(id::blend_function::source_alpha, id::blend_function::one_minus_source_alpha);
 
     auto drawableSize = Ego::GraphicsSystem::get().window->getDrawableSize();
     renderer.setViewportRectangle(0, 0, drawableSize.x(), drawableSize.y());

@@ -36,7 +36,7 @@ void OpaqueEntitiesRenderPass::doRun(::Camera& camera, const TileList& tl, const
             else if (ObjectRef::Invalid == el.get(i).iobj && ParticleHandler::get()[el.get(i).iprt] != nullptr)
             {
                 // draw draw front and back faces of polygons
-                renderer.setCullingMode(CullingMode::None);
+                renderer.setCullingMode(id::culling_mode::none);
 
                 ParticleGraphicsRenderer::render_one_prt_solid(el.get(i).iprt);
             }

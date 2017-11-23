@@ -94,7 +94,7 @@ void LineSegmentList::draw_all(Camera& camera)
                 renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
 
                 // draw draw front and back faces of polygons
-                renderer.setCullingMode(Ego::CullingMode::None);
+                renderer.setCullingMode(id::culling_mode::none);
 
                 renderer.setBlendingEnabled(false);
 
@@ -187,7 +187,7 @@ void PointList::draw_all(Camera& camera)
             renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
 
             // draw draw front and back faces of polygons
-			renderer.setCullingMode(Ego::CullingMode::None);
+			renderer.setCullingMode(id::culling_mode::none);
 
             renderer.setBlendingEnabled(false);
 
@@ -245,11 +245,11 @@ void Renderer3D::renderAxisAlignedBox(const AxisAlignedBox3f& bv, const Ego::Mat
         renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
 
         // draw draw front and back faces of polygons
-        renderer.setCullingMode(Ego::CullingMode::None); // GL_ENABLE_BIT
+        renderer.setCullingMode(id::culling_mode::none); // GL_ENABLE_BIT
 
         // make them transparent
         renderer.setBlendingEnabled(true);
-        renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
+        renderer.setBlendFunction(id::blend_function::source_alpha, id::blend_function::one_minus_source_alpha);
         renderer.setAlphaTestEnabled(true);
         renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
 
@@ -324,11 +324,11 @@ void Renderer3D::renderOctBB(const oct_bb_t &bb, bool drawSquare, bool drawDiamo
 
         // fix the poorly chosen normals...
         // draw draw front and back faces of polygons
-		renderer.setCullingMode(Ego::CullingMode::None); // GL_ENABLE_BIT
+		renderer.setCullingMode(id::culling_mode::none); // GL_ENABLE_BIT
 
         // make them transparent
         renderer.setBlendingEnabled(true);
-		renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
+		renderer.setBlendFunction(id::blend_function::source_alpha, id::blend_function::one_minus_source_alpha);
         renderer.setAlphaTestEnabled(true);
         renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
 

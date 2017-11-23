@@ -16,7 +16,7 @@ void NonReflectiveTilesRenderPass::doRun(::Camera& camera, const TileList& tl, c
     {
         auto& renderer = Renderer::get();
         // draw draw front and back faces of polygons
-        renderer.setCullingMode(CullingMode::None);
+        renderer.setCullingMode(id::culling_mode::none);
         // Write to the depth buffer.
         renderer.setDepthWriteEnabled(true);
         // Do not draw hidden surfaces.

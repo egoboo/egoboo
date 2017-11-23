@@ -46,8 +46,8 @@ void InventorySlot::draw(DrawingContext& drawingContext) {
     }
 }
 
-bool InventorySlot::notifyMouseMoved(const Events::MouseMovedEventArgs& e) {
-    bool mouseOver = contains(e.position());
+bool InventorySlot::notifyMousePointerMoved(const Events::MousePointerMovedEvent& e) {
+    bool mouseOver = contains(e.get_position());
 
     if (mouseOver) {
         if (_player) {
@@ -60,19 +60,19 @@ bool InventorySlot::notifyMouseMoved(const Events::MouseMovedEventArgs& e) {
 }
 
 
-bool InventorySlot::notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs& e) {
-    if (!_player || !contains(e.position())) {
+bool InventorySlot::notifyMouseButtonPressed(const Events::MouseButtonPressedEvent& e) {
+    if (!_player || !contains(e.get_position())) {
         return false;
     }
 
-    if (e.getButton() != SDL_BUTTON_LEFT && e.getButton() != SDL_BUTTON_RIGHT) {
+    if (e.get_button() != SDL_BUTTON_LEFT && e.get_button() != SDL_BUTTON_RIGHT) {
         return false;
     }
 
     const std::shared_ptr<Object> &pchr = _player->getObject();
     if (pchr->isAlive() && pchr->inst.canBeInterrupted() && 0 == pchr->reload_timer) {
         //put it away and swap with any existing item
-        Inventory::swap_item(pchr->getObjRef(), _slotNumber, e.getButton() == SDL_BUTTON_LEFT ? SLOT_LEFT : SLOT_RIGHT, false);
+        Inventory::swap_item(pchr->getObjRef(), _slotNumber, e.get_button() == SDL_BUTTON_LEFT ? SLOT_LEFT : SLOT_RIGHT, false);
 
         // Make it take a little time
         pchr->inst.playAction(ACTION_MG, false);

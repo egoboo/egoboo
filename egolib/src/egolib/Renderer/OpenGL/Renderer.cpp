@@ -170,8 +170,8 @@ void Renderer::setBlendingEnabled(bool enabled) {
     Utilities::isError();
 }
 
-void Renderer::setBlendFunction(BlendFunction sourceColour, BlendFunction sourceAlpha,
-                                BlendFunction destinationColour, BlendFunction destinationAlpha) {
+void Renderer::setBlendFunction(id::blend_function sourceColour, id::blend_function sourceAlpha,
+                                id::blend_function destinationColour, id::blend_function destinationAlpha) {
     glBlendFuncSeparate(toOpenGL(sourceColour), toOpenGL(destinationColour),
                         toOpenGL(sourceAlpha), toOpenGL(destinationAlpha));
     Utilities::isError();
@@ -183,20 +183,20 @@ void Renderer::setColour(const Colour4f& colour) {
     Utilities::isError();
 }
 
-void Renderer::setCullingMode(CullingMode mode) {
+void Renderer::setCullingMode(id::culling_mode mode) {
     switch (mode) {
-        case CullingMode::None:
+		case id::culling_mode::none:
             glDisable(GL_CULL_FACE);
             break;
-        case CullingMode::Front:
+		case id::culling_mode::front:
             glEnable(GL_CULL_FACE);
             glCullFace(GL_FRONT);
             break;
-        case CullingMode::Back:
+		case id::culling_mode::back:
             glEnable(GL_CULL_FACE);
             glCullFace(GL_BACK);
             break;
-        case CullingMode::BackAndFront:
+		case id::culling_mode::back_and_front:
             glEnable(GL_CULL_FACE);
             glCullFace(GL_FRONT_AND_BACK);
             break;
@@ -304,12 +304,12 @@ void Renderer::setViewportRectangle(float left, float bottom, float width, float
     Utilities::isError();
 }
 
-void Renderer::setWindingMode(WindingMode mode) {
+void Renderer::setWindingMode(id::winding_mode mode) {
     switch (mode) {
-        case WindingMode::Clockwise:
+		case id::winding_mode::clockwise:
             glFrontFace(GL_CW);
             break;
-        case WindingMode::AntiClockwise:
+		case id::winding_mode::anti_clockwise:
             glFrontFace(GL_CCW);
             break;
         default:
@@ -443,7 +443,7 @@ void Renderer::setGouraudShadingEnabled(bool enabled) {
     Utilities::isError();
 }
 
-void Renderer::render(VertexBuffer& vertexBuffer, const VertexDescriptor& vertexDescriptor, PrimitiveType primitiveType, size_t index, size_t length) {
+void Renderer::render(VertexBuffer& vertexBuffer, const VertexDescriptor& vertexDescriptor, id::primitive_type primitiveType, size_t index, size_t length) {
     if (vertexDescriptor.getVertexSize() != vertexBuffer.getVertexSize())
     {
         throw std::invalid_argument("vertex size mismatch");
@@ -591,23 +591,23 @@ std::array<float, 16> Renderer::toOpenGL(const Matrix4f4f& source) {
     return target;
 }
 
-GLenum Renderer::toOpenGL(BlendFunction source) {
+GLenum Renderer::toOpenGL(id::blend_function source) {
     switch (source) {
-        case BlendFunction::Zero: return GL_ZERO;
-        case BlendFunction::One:  return GL_ONE;
-        case BlendFunction::SourceColour: return GL_SRC_COLOR;
-        case BlendFunction::OneMinusSourceColour: return GL_ONE_MINUS_SRC_COLOR;
-        case BlendFunction::DestinationColour: return GL_DST_COLOR;
-        case BlendFunction::OneMinusDestinationColour: return GL_ONE_MINUS_DST_COLOR;
-        case BlendFunction::SourceAlpha: return GL_SRC_ALPHA;
-        case BlendFunction::OneMinusSourceAlpha: return GL_ONE_MINUS_SRC_ALPHA;
-        case BlendFunction::DestinationAlpha: return GL_DST_ALPHA;
-        case BlendFunction::OneMinusDestinationAlpha: return GL_ONE_MINUS_DST_ALPHA;
-        case BlendFunction::ConstantColour: return GL_CONSTANT_COLOR;
-        case BlendFunction::OneMinusConstantColour: return GL_ONE_MINUS_CONSTANT_COLOR;
-        case BlendFunction::ConstantAlpha: return GL_CONSTANT_ALPHA;
-        case BlendFunction::OneMinusConstantAlpha: return GL_ONE_MINUS_CONSTANT_ALPHA;
-        case BlendFunction::SourceAlphaSaturate: return GL_SRC_ALPHA_SATURATE;
+        case id::blend_function::zero: return GL_ZERO;
+        case id::blend_function::one:  return GL_ONE;
+        case id::blend_function::source_color: return GL_SRC_COLOR;
+        case id::blend_function::one_minus_source_color: return GL_ONE_MINUS_SRC_COLOR;
+        case id::blend_function::destination_color: return GL_DST_COLOR;
+        case id::blend_function::one_minus_destination_color: return GL_ONE_MINUS_DST_COLOR;
+        case id::blend_function::source_alpha: return GL_SRC_ALPHA;
+        case id::blend_function::one_minus_source_alpha: return GL_ONE_MINUS_SRC_ALPHA;
+        case id::blend_function::destination_alpha: return GL_DST_ALPHA;
+        case id::blend_function::one_minus_destination_alpha: return GL_ONE_MINUS_DST_ALPHA;
+		case id::blend_function::constant_color: return GL_CONSTANT_COLOR;
+        case id::blend_function::one_minus_constant_color: return GL_ONE_MINUS_CONSTANT_COLOR;
+        case id::blend_function::constant_alpha: return GL_CONSTANT_ALPHA;
+        case id::blend_function::one_minus_constant_alpha: return GL_ONE_MINUS_CONSTANT_ALPHA;
+        case id::blend_function::source_alpha_saturate: return GL_SRC_ALPHA_SATURATE;
         default:
             throw id::unhandled_switch_case_error(__FILE__, __LINE__);
     };

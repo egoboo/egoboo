@@ -122,7 +122,7 @@ void BackgroundRenderPass::doRun(::Camera& camera, const TileList& tl, const Ent
             renderer.setDepthFunction(CompareFunction::AlwaysPass);
 
             // draw draw front and back faces of polygons
-            renderer.setCullingMode(CullingMode::None);
+            renderer.setCullingMode(id::culling_mode::none);
 
             if (alpha > 0.0f)
             {
@@ -138,10 +138,10 @@ void BackgroundRenderPass::doRun(::Camera& camera, const TileList& tl, const Ent
                         else
                         {
                             renderer.setBlendingEnabled(true);
-                            renderer.setBlendFunction(BlendFunction::SourceAlpha, BlendFunction::OneMinusSourceAlpha);
+                            renderer.setBlendFunction(id::blend_function::source_alpha, id::blend_function::one_minus_source_alpha);
                         }
 
-                        renderer.render(_vertexBuffer, _vertexDescriptor, PrimitiveType::TriangleFan, 0, 4);
+                        renderer.render(_vertexBuffer, _vertexDescriptor, id::primitive_type::triangle_fan, 0, 4);
                     }
                 }
             }
@@ -155,7 +155,7 @@ void BackgroundRenderPass::doRun(::Camera& camera, const TileList& tl, const Ent
 
                         renderer.setColour(Math::Colour4f(light, light, light, 1.0f));
 
-                        renderer.render(_vertexBuffer, _vertexDescriptor, PrimitiveType::TriangleFan, 0, 4);
+                        renderer.render(_vertexBuffer, _vertexDescriptor, id::primitive_type::triangle_fan, 0, 4);
                     }
                 }
             }

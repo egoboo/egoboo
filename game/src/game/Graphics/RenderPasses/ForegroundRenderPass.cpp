@@ -101,7 +101,7 @@ void ForegroundRenderPass::doRun(::Camera& camera, const TileList& tl, const Ent
                 renderer.setDepthFunction(CompareFunction::AlwaysPass);
 
                 // draw draw front and back faces of polygons
-                renderer.setCullingMode(CullingMode::None);
+                renderer.setCullingMode(id::culling_mode::none);
 
                 // do not display the completely transparent portion
                 renderer.setAlphaTestEnabled(true);
@@ -109,12 +109,12 @@ void ForegroundRenderPass::doRun(::Camera& camera, const TileList& tl, const Ent
 
                 // make the texture a filter
                 renderer.setBlendingEnabled(true);
-                renderer.setBlendFunction(BlendFunction::SourceAlpha, BlendFunction::OneMinusSourceColour);
+                renderer.setBlendFunction(id::blend_function::source_alpha, id::blend_function::one_minus_source_color);
 
                 renderer.getTextureUnit().setActivated(_currentModule->getWaterTexture(1).get());
 
                 renderer.setColour(Math::Colour4f(1.0f, 1.0f, 1.0f, 1.0f - std::abs(alpha)));
-                renderer.render(_vertexBuffer, _vertexDescriptor, PrimitiveType::TriangleFan, 0, 4);
+                renderer.render(_vertexBuffer, _vertexDescriptor, id::primitive_type::triangle_fan, 0, 4);
             }
         }
     }

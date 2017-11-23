@@ -61,22 +61,22 @@ void Container::drawAll(DrawingContext& drawingContext) {
     _gameEngine->getUIManager()->endRenderUI();
 }
 
-bool Container::notifyMouseMoved(const Events::MouseMovedEventArgs& e) {
+bool Container::notifyMousePointerMoved(const Events::MousePointerMovedEvent& e) {
     // Iterate over GUI components in reverse order so GUI components added last (i.e on top) consume events first.
     auto it = iterator();
-    auto newEventArgs = Events::MouseMovedEventArgs(e.position() - id::semantic_cast<Vector2f>(getPosition()));
+    auto newEventArgs = Events::MousePointerMovedEvent(e.get_position() - id::semantic_cast<Vector2f>(getPosition()));
     for (auto i = it.rbegin(); i != it.rend(); ++i) {
         std::shared_ptr<Component> component = *i;
         if (!component->isEnabled()) continue;
-        if (component->notifyMouseMoved(newEventArgs)) return true;
+        if (component->notifyMousePointerMoved(newEventArgs)) return true;
     }
     return false;
 }
 
-bool Container::notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEventArgs& e) {
+bool Container::notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEvent& e) {
     // Iterate over GUI components in reverse order so GUI components added last (i.e on top) consume events first.
     auto it = iterator();
-    auto newEventArgs = Events::KeyboardKeyPressedEventArgs(e.key());
+    auto newEventArgs = Events::KeyboardKeyPressedEvent(e.get_key());
     for (auto i = it.rbegin(); i != it.rend(); ++i) {
         std::shared_ptr<Component> component = *i;
         if (!component->isEnabled()) continue;
@@ -85,9 +85,9 @@ bool Container::notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEventAr
     return false;
 }
 
-bool Container::notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs& e) {
+bool Container::notifyMouseButtonPressed(const Events::MouseButtonPressedEvent& e) {
     // Iterate over GUI components in reverse order so GUI components added last (i.e on top) consume events first
-    auto newEventArgs = Events::MouseButtonPressedEventArgs(e.position() - id::semantic_cast<Vector2f>(getPosition()), e.getButton());
+    auto newEventArgs = Events::MouseButtonPressedEvent(e.get_position() - id::semantic_cast<Vector2f>(getPosition()), e.get_button());
     auto it = iterator();
     for (auto i = it.rbegin(); i != it.rend(); ++i) {
         std::shared_ptr<Component> component = *i;
@@ -97,10 +97,10 @@ bool Container::notifyMouseButtonPressed(const Events::MouseButtonPressedEventAr
     return false;
 }
 
-bool Container::notifyMouseButtonReleased(const Events::MouseButtonReleasedEventArgs& e) {
+bool Container::notifyMouseButtonReleased(const Events::MouseButtonReleasedEvent& e) {
     // Iterate over GUI components in reverse order so GUI components added last (i.e on top) consume events first.
     auto it = iterator();
-    auto newEventArgs = Events::MouseButtonReleasedEventArgs(e.position() - id::semantic_cast<Vector2f>(getPosition()), e.getButton());
+    auto newEventArgs = Events::MouseButtonReleasedEvent(e.get_position() - id::semantic_cast<Vector2f>(getPosition()), e.get_button());
     for (auto i = it.rbegin(); i != it.rend(); ++i) {
         std::shared_ptr<Component> component = *i;
         if (!component->isEnabled()) continue;
@@ -109,10 +109,10 @@ bool Container::notifyMouseButtonReleased(const Events::MouseButtonReleasedEvent
     return false;
 }
 
-bool Container::notifyMouseWheelTurned(const Events::MouseWheelTurnedEventArgs& e) {
+bool Container::notifyMouseWheelTurned(const Events::MouseWheelTurnedEvent& e) {
     // Iterate over GUI components in reverse order so GUI components added last (i.e on top) consume events first.
     auto it = iterator();
-    auto newEventArgs = Events::MouseWheelTurnedEventArgs(e.delta());
+    auto newEventArgs = Events::MouseWheelTurnedEvent(e.get_delta());
     for (auto i = it.rbegin(); i != it.rend(); ++i) {
         std::shared_ptr<Component> component = *i;
         if (!component->isEnabled()) continue;

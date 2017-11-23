@@ -26,9 +26,9 @@ public:
     void setText(const std::string& text);
 
 public:
-    bool notifyMouseMoved(const Events::MouseMovedEventArgs& e) override;
-    bool notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs& e) override;
-    bool notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEventArgs& e) override;
+    bool notifyMousePointerMoved(const Events::MousePointerMovedEvent& e) override;
+    bool notifyMouseButtonPressed(const Events::MouseButtonPressedEvent& e) override;
+    bool notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEvent& e) override;
 
     void doClick();
 

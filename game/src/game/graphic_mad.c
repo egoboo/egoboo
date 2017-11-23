@@ -407,14 +407,14 @@ gfx_rv ObjectGraphicsRenderer::render_ref( Camera& cam, const std::shared_ptr<Ob
             auto& renderer = Ego::Renderer::get();
             // cull backward facing polygons
             // use couter-clockwise orientation to determine backfaces
-            renderer.setCullingMode(Ego::CullingMode::Back);
+            renderer.setCullingMode(id::culling_mode::back);
             renderer.setWindingMode(MAD_REF_CULL);
             Ego::OpenGL::Utilities::isError();
 
             //Transparent
             if (pchr->inst.getReflectionAlpha() != 0xFF && pchr->inst.light == 0xFF) {
                 renderer.setBlendingEnabled(true);
-                renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
+                renderer.setBlendFunction(id::blend_function::source_alpha, id::blend_function::one_minus_source_alpha);
 
                 GLXvector4f tint;
                 pchr->inst.getTint(tint, true, CHR_ALPHA);
@@ -427,7 +427,7 @@ gfx_rv ObjectGraphicsRenderer::render_ref( Camera& cam, const std::shared_ptr<Ob
             //Glowing
             if (pchr->inst.light != 0xFF) {
                 renderer.setBlendingEnabled(true);
-                renderer.setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::One);
+                renderer.setBlendFunction(id::blend_function::one, id::blend_function::one);
 
                 GLXvector4f tint;
                 pchr->inst.getTint(tint, true, CHR_LIGHT);
@@ -441,7 +441,7 @@ gfx_rv ObjectGraphicsRenderer::render_ref( Camera& cam, const std::shared_ptr<Ob
             //Render shining effect on top of model
             if (pchr->inst.getReflectionAlpha() == 0xFF && gfx.phongon && pchr->inst.sheen > 0) {
                 renderer.setBlendingEnabled(true);
-                renderer.setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::One);
+                renderer.setBlendFunction(id::blend_function::one, id::blend_function::one);
 
                 GLXvector4f tint;
                 pchr->inst.getTint(tint, true, CHR_PHONG);
@@ -475,7 +475,7 @@ gfx_rv ObjectGraphicsRenderer::render_trans(Camera& cam, const std::shared_ptr<O
 
                 // cull backward facing polygons
                 // use clockwise orientation to determine backfaces
-                renderer.setCullingMode(Ego::CullingMode::Back);
+                renderer.setCullingMode(id::culling_mode::back);
                 renderer.setWindingMode(MAD_NRM_CULL);
 
                 // get a speed-up by not displaying completely transparent portions of the skin
@@ -483,7 +483,7 @@ gfx_rv ObjectGraphicsRenderer::render_trans(Camera& cam, const std::shared_ptr<O
                 renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
 
                 renderer.setBlendingEnabled(true);
-                renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::One);
+                renderer.setBlendFunction(id::blend_function::source_alpha, id::blend_function::one);
 
                 GLXvector4f tint;
                 pchr->inst.getTint(tint, false, CHR_ALPHA);
@@ -495,13 +495,13 @@ gfx_rv ObjectGraphicsRenderer::render_trans(Camera& cam, const std::shared_ptr<O
 
             else if (pchr->inst.light < 0xFF) {
                 // light effects should show through transparent objects
-                renderer.setCullingMode(Ego::CullingMode::None);
+                renderer.setCullingMode(id::culling_mode::none);
 
                 // the alpha test can only mess us up here
                 renderer.setAlphaTestEnabled(false);
 
                 renderer.setBlendingEnabled(true);
-                renderer.setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::One);
+                renderer.setBlendFunction(id::blend_function::one, id::blend_function::one);
 
                 GLXvector4f tint;
                 pchr->inst.getTint(tint, false, CHR_LIGHT);
@@ -514,7 +514,7 @@ gfx_rv ObjectGraphicsRenderer::render_trans(Camera& cam, const std::shared_ptr<O
             // Render shining effect on top of model
             if (pchr->inst.getReflectionAlpha() == 0xFF && gfx.phongon && pchr->inst.sheen > 0) {
                 renderer.setBlendingEnabled(true);
-                renderer.setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::One);
+                renderer.setBlendFunction(id::blend_function::one, id::blend_function::one);
 
                 GLXvector4f tint;
                 pchr->inst.getTint(tint, false, CHR_PHONG);
@@ -557,16 +557,16 @@ gfx_rv ObjectGraphicsRenderer::render_solid( Camera& cam, const std::shared_ptr<
 
             // can I turn this off?
             renderer.setBlendingEnabled(true);
-            renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
+            renderer.setBlendFunction(id::blend_function::source_alpha, id::blend_function::one_minus_source_alpha);
 
             // allow the dont_cull_backfaces to keep solid objects from culling backfaces
             if (pchr->getProfile()->isDontCullBackfaces()) {
                 // stop culling backward facing polugons
-                renderer.setCullingMode(Ego::CullingMode::None);
+                renderer.setCullingMode(id::culling_mode::none);
             } else {
                 // cull backward facing polygons
                 // use couter-clockwise orientation to determine backfaces
-                renderer.setCullingMode(Ego::CullingMode::Back);
+                renderer.setCullingMode(id::culling_mode::back);
                 renderer.setWindingMode(MAD_NRM_CULL);
             }
 

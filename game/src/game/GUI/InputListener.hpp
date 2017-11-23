@@ -19,7 +19,7 @@ public:
      * @param e the event arguments
      * @return @a true if the event was processed, @a false otherwise
      */
-    virtual bool notifyMouseMoved(const Events::MouseMovedEventArgs& e);
+    virtual bool notifyMousePointerMoved(const Events::MousePointerMovedEvent& e);
 
 public:
     /**
@@ -27,7 +27,7 @@ public:
      * @param e the event arguments
      * @retrn @a true if th event was processed, @a false otherwise
      */
-    virtual bool notifyMouseWheelTurned(const Events::MouseWheelTurnedEventArgs& e);
+    virtual bool notifyMouseWheelTurned(const Events::MouseWheelTurnedEvent& e);
 
 public:
     /**
@@ -35,21 +35,21 @@ public:
      * @param e the event arguments
      * @return @a true if the event was processed, @a false otherwise
      */
-    virtual bool notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs& e);
+    virtual bool notifyMouseButtonPressed(const Events::MouseButtonPressedEvent& e);
 
     /**
      * @brief Invoked if a mouse button released event occurred.
      * @param e the event arguments
      * @return @a true if the event was processed, @a false otherwise
      */
-    virtual bool notifyMouseButtonReleased(const Events::MouseButtonReleasedEventArgs& e);
+    virtual bool notifyMouseButtonReleased(const Events::MouseButtonReleasedEvent& e);
 
     /**
      * @brief Invoked if a mouse button clicked event occurred.
      * @param e the event arguments
      * @return @a true if the event was processed, @a false otherwise
      */
-    virtual bool notifyMouseButtonClicked(const Events::MouseButtonClickedEventArgs& e);
+    virtual bool notifyMouseButtonClicked(const Events::MouseButtonClickedEvent& e);
 
 public:
     /**
@@ -57,21 +57,21 @@ public:
      * @param e the event arguments
      * @return @a true if the event was processed, @a false otherwise
      */
-    virtual bool notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEventArgs& e);
+    virtual bool notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEvent& e);
 
     /**
      * @brief Invoked if a keyboard key released event occurred.
      * @param e the event arguments
      * @return @a true if the event was processed, @a false otherwise
      */
-    virtual bool notifyKeyboardKeyReleased(const Events::KeyboardKeyReleasedEventArgs& e);
+    virtual bool notifyKeyboardKeyReleased(const Events::KeyboardKeyReleasedEvent& e);
 
     /**
      * @brief Invoked if a keyboard key typed event occurred.
      * @param e the event arguments
      * @return @a true if the event was processed, @a false otherwise
      */
-    virtual bool notifyKeyboardKeyTyped(const Events::KeyboardKeyTypedEventArgs& e);
+    virtual bool notifyKeyboardKeyTyped(const Events::KeyboardKeyTypedEvent& e);
   
 };
 

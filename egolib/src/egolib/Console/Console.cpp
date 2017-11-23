@@ -230,10 +230,10 @@ void Console::draw()
     renderer.setDepthTestEnabled(false);
 
     // draw draw front and back faces of polygons
-    renderer.setCullingMode(CullingMode::None);
+    renderer.setCullingMode(id::culling_mode::none);
 
     renderer.setBlendingEnabled(true);
-    renderer.setBlendFunction(BlendFunction::SourceAlpha, BlendFunction::OneMinusSourceAlpha);
+    renderer.setBlendFunction(id::blend_function::source_alpha, id::blend_function::one_minus_source_alpha);
 
     auto drawableSize = GraphicsSystem::get().window->getDrawableSize();
     renderer.setViewportRectangle(0, 0, drawableSize(0), drawableSize(1));
@@ -276,11 +276,11 @@ void Console::draw()
         vertex->x = rectangle.get_max().x();  vertex->y = rectangle.get_max().y(); ++vertex;
         vertex->x = rectangle.get_min().x();  vertex->y = rectangle.get_max().y();
     }
-    renderer.render(vertexBuffer, vertexDescriptor, PrimitiveType::LineLoop, 0, 4);
+    renderer.render(vertexBuffer, vertexDescriptor, id::primitive_type::line_loop, 0, 4);
     renderer.setLineWidth(1);
 
     renderer.setColour(black);
-    renderer.render(vertexBuffer, vertexDescriptor, PrimitiveType::Quadriliterals, 0, 4);
+    renderer.render(vertexBuffer, vertexDescriptor, id::primitive_type::quadriliterals, 0, 4);
 
 
     int height;

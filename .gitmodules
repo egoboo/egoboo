@@ -7,3 +7,6 @@
 [submodule "idlib"]
 	path = idlib
     url = https://github.com/primordialmachine/idlib
+[submodule "idlib-game-engine"]
+	path = idlib-game-engine
+	url = https://github.com/egoboo/idlib-game-engine.git

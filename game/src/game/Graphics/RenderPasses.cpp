@@ -276,7 +276,7 @@ gfx_rv TileListV2::render_heightmap_fan(ego_mesh_t& mesh, const Index1D& tileInd
     renderer.setDepthTestEnabled(false);
     renderer.setDepthFunction(CompareFunction::AlwaysPass);
     renderer.getTextureUnit().setActivated(nullptr);
-    renderer.setCullingMode(CullingMode::None);
+    renderer.setCullingMode(id::culling_mode::none);
     renderer.setRasterizationMode(RasterizationMode::Line);
 
     // Render each command

@@ -25,12 +25,8 @@
 
 #include "egolib/Math/_Include.hpp"
 #include "egolib/egoboo_setup.h"
-#include "egolib/Renderer/BlendFunction.hpp"
 #include "egolib/Renderer/CompareFunction.hpp"
 #include "egolib/Renderer/RasterizationMode.hpp"
-#include "egolib/Renderer/CullingMode.hpp"
-#include "egolib/Renderer/WindingMode.hpp"
-#include "egolib/Renderer/PrimitiveType.hpp"
 #include "egolib/Renderer/TextureSampler.hpp"
 #include "egolib/Renderer/RendererInfo.hpp"
 #include "egolib/Graphics/VertexBuffer.hpp"
@@ -298,45 +294,10 @@ public:
      *  the destination alpha blend function
      *  the source blend function
      * @remark
-     *  In the following text,                        first source, second source and destination color components are referred to as
-     *  \f$\left(R_{s_0}, G_{s_0}, B_{s_0}, A_{s_0}\right)\f$,     \f$\left(R_{s_1}, G_{s_1}, B_{s_1}, A_{s_1}\right)\f$ and \f$\left
-     *  (R_d, G_d, B_d, A_d\right)\f$, respectively. The color specified by Ego::Renderer::setBlendColour(const Ego::Math::Colour4f&)
-     *  is referred to as \f$\left(R_c, G_c, B_c, A_c\right)\f$. The first column in the following table denotes the parameter value,
-     *  the second and third column the semantics of that value if assigned to the colour and alpha parameter       (either source or
-     *  destination), respectively.
-     *  <table>
-     *  <tr><td>Parameter                                </td><td>RGB                                      </td> <td>A                </td></tr>
-     *
-     *  <tr><td>Ego::BlendFunc::Zero                     </td><td>\f$(0,0,0)\f$                            </td> <td>\f$0\f$          </td></tr>
-     *  <tr><td>Ego::BlendFunc::One                      </td><td>\f$(1,1,1)\f$                            </td> <td>\f$1\f$          </td></tr>
-     *
-     *  <tr><td>Ego::BlendFunc::SourceColour             </td><td>\f$(R_{s_0},G_{s_0},B_{s_0})\f$          </td> <td>\f$A_{s_0}\f$    </td></tr>
-     *  <tr><td>Ego::BlendFunc::OneMinusSourceColour     </td><td>\f$(1, 1, 1) - (R_{s_0},G_{s_0}, B_{s_0})</td> <td>\f$1 - A_{s_0}\f$</td></tr>
-     *
-     *  <tr><td>Ego::BlendFunc::DestinationColour        </td><td>\f$(R_d, G_d, B_d)\f$                    </td> <td>\f$A_d\f$        </td></tr>
-     *  <tr><td>Ego::BlendFunc::OneMinusDestinationColour</td><td>\f$(1, 1, 1) - (R_d, G_d, B_d)\f$        </td> <td>\f$1 - A_d\f$    </td></tr>
-     *
-     *  <tr><td>Ego::BlendFunc::SourceAlpha              </td><td>\f$(A_{s_0}, A_{s_0}, A_{s_0})\f$         </td><td>\f$A_{s_0}\f$    </td></tr>
-     *  <tr><td>Ego::BlendFunc::OneMinusSourceAlpha      </td><td>\f$(1, 1, 1) - (A_{s_0}, A_{s_0}, A_{s_0})</td><td>\f$1 - A_{s_0}\f$</td></tr>
-     *
-     *  <tr><td>Ego::BlendFunc::DestinationAlpha         </td><td>\f$(A_d, A_d, A_d)\f$                     </td><td>\f$A_d\f$        </td></tr>
-     *  <tr><td>Ego::BlendFunc::OneMinusDestinationAlpha </td><td>\f$(1, 1, 1) - (A_d, A_d, A_d)\f$         </td><td>\f$1 - A_d\f$    </td></tr>
-     *
-     *  <tr><td>Ego::BlendFunc::ConstantColour           </td><td>\f$(R_c, G_c, B_c\f$)                     </td><td>\f$A_c\f$        </td></tr>
-     *  <tr><td>Ego::BlendFunc::OneMinusConstantColour   </td><td>\f$(1, 1, 1) - (R_c, G_c, B_c)\f$         </td><td>\f$1 - A_c\f$    </td></tr>
-     *
-     *  <tr><td>Ego::BlendFunc::ConstantAlpha            </td><td>\f$(A_c, A_c, A_c)\f$                     </td><td>\f$A_c\f$        </td></tr>
-     *  <tr><td>Ego::Blendfunc::OneMinusConstantAlpha    </td><td>\f$(1, 1, 1) - (A_c, A_c, A_c)\f$         </td><td>\f$1 - A_c\f$    </td></tr>
-     *
-     *  <tr><td>Ego::BlendFunc::SourceAlphaSaturate      </td><td>\f$(i, i, i)\f$                           </td><td>\f$1\f$          </td></tr>
-     *  </table>
-     *  where
-     *  \f{align*}{
-     *  i = \min\left(A_{s_0}, 1 - A_d\right)
-     *  \f}
+     *  See id::blend_function for more information.
      */
-    virtual void setBlendFunction(BlendFunction sourceColour, BlendFunction sourceAlpha,
-                                  BlendFunction destinationColour, BlendFunction destinationAlpha) = 0;
+    virtual void setBlendFunction(id::blend_function sourceColour, id::blend_function sourceAlpha,
+                                  id::blend_function destinationColour, id::blend_function destinationAlpha) = 0;
     /**
      * @brief
      *  Set the blend function.
@@ -354,7 +315,7 @@ public:
      *  o.setBlendFunction(x, x, y, y)
      *  @endcode
      */
-    virtual void setBlendFunction(BlendFunction source, BlendFunction destination) {
+    virtual void setBlendFunction(id::blend_function source, id::blend_function destination) {
         setBlendFunction(source, source, destination, destination);
     }
 
@@ -364,7 +325,7 @@ public:
 
     /// @brief Set the culling mode.
     /// @param mode the culling mode
-    virtual void setCullingMode(CullingMode mode) = 0;
+    virtual void setCullingMode(id::culling_mode mode) = 0;
 
     /**
      * @brief
@@ -461,7 +422,7 @@ public:
 
     /// @brief Set the winding mode.
     /// @param mode the winding mode
-    virtual void setWindingMode(WindingMode mode) = 0;
+    virtual void setWindingMode(id::winding_mode mode) = 0;
 
     /// @brief Multiply the current matrix with the given matrix.
     /// @param matrix the matrix
@@ -534,7 +495,7 @@ public:
     ///  @a length is non-zero and
     ///  - is not disible by 3 for the triangles primitive type or
     ///  - is not divisible by 4 for the quadriliterals primitive type.
-    virtual void render(VertexBuffer& vertexBuffer, const VertexDescriptor& vertexDescriptor, PrimitiveType primitiveType, size_t index, size_t length) = 0;
+    virtual void render(VertexBuffer& vertexBuffer, const VertexDescriptor& vertexDescriptor, id::primitive_type primitiveType, size_t index, size_t length) = 0;
 
     /// @brief Create a texture.
     /// @return the texture

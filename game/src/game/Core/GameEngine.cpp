@@ -23,7 +23,6 @@
 #include "game/Graphics/CameraSystem.hpp"
 #include "game/GameStates/MainMenuState.hpp"
 #include "game/GameStates/PlayingState.hpp"
-#include "egolib/Events/MouseMovedEventArgs.hpp"
 #include "egolib/Profiles/_Include.hpp"
 #include "egolib/FileFormats/Globals.hpp"
 #include "egolib/InputControl/ControlSettingsFile.hpp"
@@ -397,13 +396,13 @@ bool GameEngine::initialize()
 
 void GameEngine::subscribe() {
     auto window = Ego::GraphicsSystem::get().window;
-    shown = window->Shown.subscribe([](const Ego::Events::WindowShownEventArgs& e) {
+    shown = window->WindowShown.subscribe([](const Ego::Events::WindowShownEvent& e) {
         /// @todo Is this still needed?
         gfx_system_reload_all_textures();
     });
-    hidden = window->Hidden.subscribe([](const Ego::Events::WindowHiddenEventArgs& e) {
+    hidden = window->WindowHidden.subscribe([](const Ego::Events::WindowHiddenEvent& e) {
     });
-    resized = window->Resized.subscribe([](const Ego::Events::WindowResizedEventArgs& e) {
+    resized = window->WindowResized.subscribe([](const Ego::Events::WindowResizedEvent& e) {
     });
 #if 0
     mouseEntered = window->MouseEntered.subscribe([](const Ego::Events::WindowMouseEnteredEventArgs& e) {
@@ -528,41 +527,41 @@ void GameEngine::pollEvents()
                 return;
             case SDL_MOUSEWHEEL:
             {
-                auto e = Ego::Events::MouseWheelTurnedEventArgs(Vector2f(event.wheel.x, event.wheel.y));
+                auto e = Ego::Events::MouseWheelTurnedEvent(Vector2f(event.wheel.x, event.wheel.y));
                 _currentGameState->notifyMouseWheelTurned(e);
             }
             break;
                 
             case SDL_MOUSEBUTTONDOWN:
             {
-                auto e = Ego::Events::MouseButtonPressedEventArgs(Point2f(event.button.x, event.button.y), event.button.button);
+                auto e = Ego::Events::MouseButtonPressedEvent(Point2f(event.button.x, event.button.y), event.button.button);
                 _currentGameState->notifyMouseButtonPressed(e);
             }
             break;
 
             case SDL_MOUSEBUTTONUP:
             {
-                auto e = Ego::Events::MouseButtonReleasedEventArgs(Point2f(event.button.x, event.button.y), event.button.button);
+                auto e = Ego::Events::MouseButtonReleasedEvent(Point2f(event.button.x, event.button.y), event.button.button);
                 _currentGameState->notifyMouseButtonReleased(e);
             }
             break;
                 
             case SDL_MOUSEMOTION:
             {
-                auto e = Ego::Events::MouseMovedEventArgs(Point2f(event.motion.x, event.motion.y));
-                _currentGameState->notifyMouseMoved(e);
+                auto e = Ego::Events::MousePointerMovedEvent(Point2f(event.motion.x, event.motion.y));
+                _currentGameState->notifyMousePointerMoved(e);
             }
             break;
                 
             case SDL_KEYUP:
             {
-                auto e = Ego::Events::KeyboardKeyReleasedEventArgs(event.key.keysym.sym);
+                auto e = Ego::Events::KeyboardKeyReleasedEvent(event.key.keysym.sym);
                 _currentGameState->notifyKeyboardKeyReleased(e);
             }
             break;
             case SDL_KEYDOWN:
             {
-                auto e = Ego::Events::KeyboardKeyPressedEventArgs(event.key.keysym.sym);
+                auto e = Ego::Events::KeyboardKeyPressedEvent(event.key.keysym.sym);
                 _currentGameState->notifyKeyboardKeyPressed(e);
             }
             break;

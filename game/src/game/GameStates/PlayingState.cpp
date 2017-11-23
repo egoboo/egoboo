@@ -146,9 +146,9 @@ void PlayingState::beginState()
     Ego::GraphicsSystem::get().window->setGrabEnabled(egoboo_config_t::get().debug_grabMouse.getValue());
 }
 
-bool PlayingState::notifyKeyboardKeyPressed(const Ego::Events::KeyboardKeyPressedEventArgs& e)
+bool PlayingState::notifyKeyboardKeyPressed(const Ego::Events::KeyboardKeyPressedEvent& e)
 {
-    switch(e.key())
+    switch(e.get_key())
     {
         case SDLK_ESCAPE:
 
@@ -193,7 +193,7 @@ bool PlayingState::notifyKeyboardKeyPressed(const Ego::Events::KeyboardKeyPresse
         case SDLK_8:
         {
             //Ensure that the same character cannot open more than 1 character window
-            const size_t statusNumber = e.key() - SDLK_1;
+            const size_t statusNumber = e.get_key() - SDLK_1;
             displayCharacterWindow(statusNumber);
         }
         return true;

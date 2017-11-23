@@ -127,7 +127,7 @@
       <UndefinePreprocessorDefinitions>__cplusplus;</UndefinePreprocessorDefinitions>
       <DisableSpecificWarnings>
       </DisableSpecificWarnings>
-      <AdditionalIncludeDirectories>$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/idlib-game-engine/library/src;$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <SDLCheck>false</SDLCheck>
       <StringPooling>true</StringPooling>
@@ -172,7 +172,7 @@
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
       <UndefinePreprocessorDefinitions>_DEBUG;%(UndefinePreprocessorDefinitions)</UndefinePreprocessorDefinitions>
       <StringPooling>true</StringPooling>
-      <AdditionalIncludeDirectories>$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/idlib-game-engine/library/src;$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
@@ -247,7 +247,7 @@
       <MinimalRebuild>false</MinimalRebuild>
       <SDLCheck>false</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/idlib-game-engine/library/src;$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <UseFullPaths>false</UseFullPaths>
       <CompileAsWinRT>false</CompileAsWinRT>
       <FloatingPointModel>Fast</FloatingPointModel>
@@ -277,7 +277,7 @@
       <OmitFramePointers>false</OmitFramePointers>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <CompileAs>CompileAsCpp</CompileAs>
-      <AdditionalIncludeDirectories>$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/idlib-game-engine/library/src;$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MinimalRebuild>false</MinimalRebuild>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <SDLCheck>false</SDLCheck>
@@ -608,6 +608,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\integrations\idlib.hpp" />
     <ClInclude Include="src\egolib\Math\euler_angle.hpp" />
     <ClInclude Include="src\egolib\Entities\Common.hpp" />
     <ClInclude Include="src\egolib\Entities\Enchant.hpp" />
@@ -670,16 +671,10 @@
     <ClInclude Include="src\egolib\InputControl\ModifierKeys.hpp" />
     <ClInclude Include="src\egolib\Graphics\DisplayMode.hpp" />
     <ClInclude Include="src\egolib\Graphics\SDL\DisplayMode.hpp" />
-    <ClInclude Include="src\egolib\Events\MouseWheelTurnedEventArgs.hpp" />
-    <ClInclude Include="src\egolib\Events\MouseButtonEventArgs.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\enclose_axis_aligned_cube_in_axis_aligned_box.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\enclose_sphere_in_axis_aligned_box.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\enclose_axis_aligned_box_in_axis_aligned_cube.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\enclose_axis_aligned_box_in_sphere.hpp" />
-    <ClInclude Include="src\egolib\Events\WindowEventArgs.hpp" />
-    <ClInclude Include="src\egolib\Events\KeyboardKeyEventArgs.hpp" />
-    <ClInclude Include="src\egolib\Events\_Include.hpp" />
-    <ClInclude Include="src\egolib\Events\MouseMovedEventArgs.hpp" />
     <ClInclude Include="src\egolib\Math\Functors\is_intersecting_axis_aligned_box_axis_aligned_cube.hpp" />
     <ClInclude Include="src\egolib\App.hpp" />
     <ClInclude Include="src\egolib\Graphics\GraphicsWindow.hpp" />
@@ -722,7 +717,6 @@
     <ClInclude Include="src\egolib\Mesh\Info.hpp" />
     <ClInclude Include="src\egolib\FileFormats\Globals.hpp" />
     <ClInclude Include="src\egolib\Console\Console.hpp" />
-    <ClInclude Include="src\egolib\Renderer\BlendFunction.hpp" />
     <ClInclude Include="src\egolib\Graphics\Camera.hpp" />
     <ClInclude Include="src\egolib\Math\Transform.hpp" />
     <ClInclude Include="src\egolib\Math\Matrix.hpp" />
@@ -755,7 +749,6 @@
     <ClInclude Include="src\egolib\Math\TemplateUtilities.hpp" />
     <ClInclude Include="src\egolib\Logic\Action.hpp" />
     <ClInclude Include="src\egolib\Core\System.hpp" />
-    <ClInclude Include="src\egolib\Renderer\PrimitiveType.hpp" />
     <ClInclude Include="src\egolib\Graphics\VertexBuffer.hpp" />
     <ClInclude Include="src\egolib\Graphics\PixelFormat.hpp" />
     <ClInclude Include="src\egolib\Graphics\VertexFormat.hpp" />
@@ -776,8 +769,6 @@
     <ClInclude Include="src\egolib\Graphics\Font.hpp" />
     <ClInclude Include="src\egolib\Graphics\FontManager.hpp" />
     <ClInclude Include="src\egolib\Image\Image.hpp" />
-    <ClInclude Include="src\egolib\Renderer\CullingMode.hpp" />
-    <ClInclude Include="src\egolib\Renderer\WindingMode.hpp" />
     <ClInclude Include="src\egolib\FileFormats\id_md2.h" />
     <ClInclude Include="src\egolib\FileFormats\map_file-v1.h" />
     <ClInclude Include="src\egolib\FileFormats\map_file-v2.h" />
@@ -893,6 +884,9 @@
     </ProjectReference>
     <ProjectReference Include="..\external\SDL2_ttf-2.0.12\VisualC\SDL_ttf.vcxproj">
       <Project>{d114a863-1bdc-4979-a61e-cb6b7ca5f1bb}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\legacy\idlib-game-engine.vcxproj">
+      <Project>{8ba6cbfe-efde-414c-867c-4a238c8803b2}</Project>
     </ProjectReference>
     <ProjectReference Include="..\legacy\idlib.vcxproj">
       <Project>{1af1ead3-b754-426e-96df-6c9075782b5e}</Project>

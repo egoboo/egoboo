@@ -2142,7 +2142,7 @@ void TileRenderer::bind(const ego_tile_info_t& tile)
 		{
 			// MH: Enable alpha blending if the texture requires it.
 			Ego::Renderer::get().setBlendingEnabled(true);
-			Ego::Renderer::get().setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::OneMinusSourceAlpha);
+			Ego::Renderer::get().setBlendFunction(id::blend_function::one, id::blend_function::one_minus_source_alpha);
 		}
 	}
 }

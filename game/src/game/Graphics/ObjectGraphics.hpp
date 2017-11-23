@@ -17,12 +17,12 @@ namespace Ego { namespace Graphics { class ObjectGraphics; } }
 
 #if defined(MAD_CULL_RIGHT)
 // this worked with the old camera
-#    define MAD_REF_CULL   Ego::WindingMode::AntiClockwise
-#    define MAD_NRM_CULL   Ego::WindingMode::Clockwise
+#    define MAD_REF_CULL   id::winding_mode::anti_clockwise
+#    define MAD_NRM_CULL   id::winding_mode::clockwise
 #else
 // they had to be reversed with the new camera
-#    define MAD_REF_CULL   Ego::WindingMode::Clockwise
-#    define MAD_NRM_CULL   Ego::WindingMode::AntiClockwise
+#    define MAD_REF_CULL   id::winding_mode::clockwise
+#    define MAD_NRM_CULL   id::winding_mode::anti_clockwise
 #endif
 
 //--------------------------------------------------------------------------------------------

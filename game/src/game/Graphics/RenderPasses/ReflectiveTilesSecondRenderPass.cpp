@@ -19,7 +19,7 @@ void ReflectiveTilesSecondRenderPass::doRun(::Camera& camera, const TileList& tl
     // Set world matrix.
     renderer.setWorldMatrix(Matrix4f4f::identity());
     // Disable culling.
-    renderer.setCullingMode(CullingMode::None);
+    renderer.setCullingMode(id::culling_mode::none);
     // Perform less-or-equal depth testing.
     renderer.setDepthTestEnabled(true);
     renderer.setDepthFunction(CompareFunction::LessOrEqual);
@@ -43,7 +43,7 @@ void ReflectiveTilesSecondRenderPass::doReflectionsEnabled(::Camera& camera, con
         auto& renderer = Renderer::get();
         // Enable blending.
         renderer.setBlendingEnabled(true);
-        renderer.setBlendFunction(BlendFunction::SourceAlpha, BlendFunction::One);
+        renderer.setBlendFunction(id::blend_function::source_alpha, id::blend_function::one);
 
         // reduce texture hashing by loading up each texture only once
         Internal::TileListV2::render(*tl.getMesh(), tl._reflective);

@@ -27,7 +27,7 @@ void EntityShadowsRenderPass::doRun(::Camera& camera, const TileList& tl, const 
     renderer.setDepthTestEnabled(true);
     // Enable blending.
     renderer.setBlendingEnabled(true);
-    renderer.setBlendFunction(BlendFunction::Zero, BlendFunction::OneMinusSourceColour);
+    renderer.setBlendFunction(id::blend_function::zero, id::blend_function::one_minus_source_color);
 
     // Keep track of the number of rendered shadows.
     size_t count = 0;
@@ -281,7 +281,7 @@ void EntityShadowsRenderPass::doShadowSprite(float intensity, VertexBuffer& vert
     auto& renderer = Renderer::get();
     renderer.setColour(Math::Colour4f(intensity, intensity, intensity, 1.0f));
 
-    renderer.render(vertexBuffer, vertexDescriptor, PrimitiveType::TriangleFan, 0, 4);
+    renderer.render(vertexBuffer, vertexDescriptor, id::primitive_type::triangle_fan, 0, 4);
 }
 
 } // namespace Graphics	

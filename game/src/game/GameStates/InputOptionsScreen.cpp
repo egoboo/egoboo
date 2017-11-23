@@ -83,13 +83,13 @@ void InputOptionsScreen::drawContainer(Ego::GUI::DrawingContext& drawingContext)
 
 }
 
-bool InputOptionsScreen::notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEventArgs& e)
+bool InputOptionsScreen::notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEvent& e)
 {
     if(_activeButton == nullptr) {
         return Container::notifyKeyboardKeyPressed(e);
     }
     else {
-        getActiveInputDevice().setInputMapping(_activeBinding, e.key());
+        getActiveInputDevice().setInputMapping(_activeBinding, e.get_key());
         _activeButton->setText(getActiveInputDevice().getMappedInputName(_activeBinding));
         _activeBinding = Ego::Input::InputDevice::InputButton::COUNT;
         _activeButton->setEnabled(true);

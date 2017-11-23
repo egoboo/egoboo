@@ -61,9 +61,9 @@ void Slider::setValue(const int value) {
     _sliderPosition = (1.0f / (_maxValue - _minValue)) * (constrainedValue - _minValue);
 }
 
-bool Slider::notifyMouseMoved(const Events::MouseMovedEventArgs& e) {
+bool Slider::notifyMousePointerMoved(const Events::MousePointerMovedEvent& e) {
     if (_isDragging) {
-        _sliderPosition = (1.0f / getWidth()) * (e.position().x() - getX());
+        _sliderPosition = (1.0f / getWidth()) * (e.get_position().x() - getX());
         _sliderPosition = Math::constrain(_sliderPosition, 0.0f, 1.0f);
         return true;
     }
@@ -75,10 +75,10 @@ int Slider::getValue() const {
     return _minValue + (_maxValue - _minValue) * _sliderPosition;
 }
 
-bool Slider::notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs& e) {
-    if (e.getButton() == SDL_BUTTON_LEFT && contains(e.position())) {
+bool Slider::notifyMouseButtonPressed(const Events::MouseButtonPressedEvent& e) {
+    if (e.get_button() == SDL_BUTTON_LEFT && contains(e.get_position())) {
         _isDragging = true;
-        notifyMouseMoved(Events::MouseMovedEventArgs(e.position()));
+        notifyMousePointerMoved(Events::MousePointerMovedEvent(e.get_position()));
     } else {
         _isDragging = false;
     }
@@ -86,8 +86,8 @@ bool Slider::notifyMouseButtonPressed(const Events::MouseButtonPressedEventArgs&
     return _isDragging;
 }
 
-bool Slider::notifyMouseButtonReleased(const Events::MouseButtonReleasedEventArgs& e) {
-    if (_isDragging && e.getButton() == SDL_BUTTON_LEFT) {
+bool Slider::notifyMouseButtonReleased(const Events::MouseButtonReleasedEvent& e) {
+    if (_isDragging && e.get_button() == SDL_BUTTON_LEFT) {
         _isDragging = false;
         if (_onChangeFunction) {
             _onChangeFunction(getValue());

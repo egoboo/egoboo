@@ -47,7 +47,7 @@ public:
     void drawContainer(DrawingContext& drawingContext) override;
     void draw(DrawingContext& drawingContext) override;
     void drawAll(DrawingContext& drawingContext) override;
-    bool notifyMouseMoved(const Events::MouseMovedEventArgs& e) override;
+    bool notifyMousePointerMoved(const Events::MousePointerMovedEvent& e) override;
 
 private:
     int addResistanceLabel(std::shared_ptr<Tab> target, const Point2f& position, const DamageType type);

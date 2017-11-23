@@ -42,7 +42,7 @@ void Material::apply() const {
 	// (3) alpha
 	if (_isAlphaBlendingEnabled) {
 		renderer.setBlendingEnabled(true);
-		renderer.setBlendFunction(BlendFunction::SourceAlpha, BlendFunction::OneMinusSourceAlpha);
+		renderer.setBlendFunction(id::blend_function::source_alpha, id::blend_function::one_minus_source_alpha);
 
 		renderer.setAlphaTestEnabled(true);
 		renderer.setAlphaFunction(CompareFunction::Greater, 0.0f);
