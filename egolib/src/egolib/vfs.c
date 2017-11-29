@@ -1483,9 +1483,7 @@ SearchContext::SearchContext(const Ego::VfsPath& searchPath, const Ego::Extensio
     path_2 = vfs_convert_fname(searchPath);
     file_list_2 = enumerateFiles(path_2);
     // Filter by extension?
-    if (!searchExtension.empty()) {
-        predicates.push_back(makePredicate(searchExtension.toString()));
-    }
+    predicates.push_back(makePredicate(searchExtension.to_string()));
     // Begin iteration.
     file_list_iterator_2 = file_list_2.begin();
     // Search the first acceptable filename.

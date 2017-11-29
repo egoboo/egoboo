@@ -1911,7 +1911,7 @@ void cartman_save_mesh( const char * modname, cartman_mpd_t * pmesh )
     make_planmap( pmesh );
     if (Resources::get().bmphitemap )
     {
-        SDL_SaveBMP_RW(Resources::get().bmphitemap.get(), vfs_openRWopsWrite(newloadname.c_str()), 1 );
+        Ego::ImageManager::get().save_as_bmp(Resources::get().bmphitemap, newloadname);
     }
 
     //  make_newloadname(modname, SLASH_STR "gamedat" SLASH_STR "level.png", newloadname);
@@ -1924,7 +1924,7 @@ void cartman_save_mesh( const char * modname, cartman_mpd_t * pmesh )
 
     cartman_mpd_save_vfs( /*modname,*/ pmesh );
 
-    show_name( newloadname, WHITE );
+    show_name( newloadname, Ego::Math::Colour4f::white() );
 }
 
 //--------------------------------------------------------------------------------------------

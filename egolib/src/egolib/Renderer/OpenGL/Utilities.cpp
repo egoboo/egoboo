@@ -121,51 +121,19 @@ uint8_t Utilities2::getStencilBufferDepth()
     return depth;
 }
 
-ColourDepth Utilities2::getColourBufferColourDepth()
-{
-    // Get the colour buffer colour depth.
-    GLint redDepth, greenDepth, blueDepth, alphaDepth;
-    glGetIntegerv(GL_RED_BITS, &redDepth);
-    glGetIntegerv(GL_GREEN_BITS, &greenDepth);
-    glGetIntegerv(GL_BLUE_BITS, &blueDepth);
-    glGetIntegerv(GL_ALPHA_BITS, &alphaDepth);
-    if (Utilities::isError())
-    {
-        throw id::runtime_error(__FILE__, __LINE__, "unable to acquire renderer back-end information");
-    }
-    return ColourDepth(redDepth + greenDepth + blueDepth + alphaDepth,
-                       redDepth, greenDepth, blueDepth, alphaDepth);
-}
-
-ColourDepth Utilities2::getAccumulationBufferColourDepth()
-{
-    // Get the accumulation buffer colour depth.
-    GLint redDepth, greenDepth, blueDepth, alphaDepth;
-    glGetIntegerv(GL_ACCUM_RED_BITS, &redDepth);
-    glGetIntegerv(GL_ACCUM_GREEN_BITS, &greenDepth);
-    glGetIntegerv(GL_ACCUM_BLUE_BITS, &blueDepth);
-    glGetIntegerv(GL_ACCUM_ALPHA_BITS, &alphaDepth);
-    if (Utilities::isError())
-    {
-        throw id::runtime_error(__FILE__, __LINE__, "unable to acquire renderer back-end information");
-    }
-    return ColourDepth(redDepth + greenDepth + blueDepth + alphaDepth,
-                       redDepth, greenDepth, blueDepth, alphaDepth);
-}
-
-GLint Utilities2::toOpenGL(TextureAddressMode textureAddressMode)
+GLint Utilities2::toOpenGL(id::texture_address_mode textureAddressMode)
 {
     switch (textureAddressMode)
     {
-        case TextureAddressMode::Clamp:
+        case id::texture_address_mode::clamp:
             return GL_CLAMP;
-        case TextureAddressMode::ClampToBorder:
+        case id::texture_address_mode::clamp_to_border:
             return GL_CLAMP_TO_BORDER;
-        case TextureAddressMode::ClampToEdge:
+        case id::texture_address_mode::clamp_to_edge:
             return GL_CLAMP_TO_EDGE;
-        case TextureAddressMode::Repeat:
+        case id::texture_address_mode::repeat:
             return GL_REPEAT;
-        case TextureAddressMode::RepeatMirrored:
+        case id::texture_address_mode::repeat_mirrored:
             return GL_MIRRORED_REPEAT;
         default:
             throw id::unhandled_switch_case_error(__FILE__, __LINE__);
@@ -231,7 +199,7 @@ float Utilities2::getMinimumSupportedAnisotropy()
     return 1.0f;
 }
 
-void Utilities2::upload_1d(const PixelFormatDescriptor& pfd, GLsizei w, const void *data)
+void Utilities2::upload_1d(const pixel_descriptor& pfd, GLsizei w, const void *data)
 {
     GLenum internalFormat_gl, format_gl, type_gl;
     Utilities2::toOpenGL(pfd, internalFormat_gl, format_gl, type_gl);
@@ -241,7 +209,7 @@ void Utilities2::upload_1d(const PixelFormatDescriptor& pfd, GLsizei w, const vo
     glTexImage1D(GL_TEXTURE_1D, 0, internalFormat_gl, w, 0, format_gl, type_gl, data);
 }
 
-void Utilities2::upload_2d(const PixelFormatDescriptor& pfd, GLsizei w, GLsizei h, const void *data)
+void Utilities2::upload_2d(const pixel_descriptor& pfd, GLsizei w, GLsizei h, const void *data)
 {
     GLenum internalFormat_gl, format_gl, type_gl;
     Utilities2::toOpenGL(pfd, internalFormat_gl, format_gl, type_gl);
@@ -251,7 +219,7 @@ void Utilities2::upload_2d(const PixelFormatDescriptor& pfd, GLsizei w, GLsizei 
     glTexImage2D(GL_TEXTURE_2D, 0, internalFormat_gl, w, h, 0, format_gl, type_gl, data);
 }
 
-void Utilities2::upload_2d_mipmap(const PixelFormatDescriptor& pfd, GLsizei w, GLsizei h, const void *data)
+void Utilities2::upload_2d_mipmap(const pixel_descriptor& pfd, GLsizei w, GLsizei h, const void *data)
 {
     GLenum internalFormat_gl, format_gl, type_gl;
     Utilities2::toOpenGL(pfd, internalFormat_gl, format_gl, type_gl);
@@ -262,11 +230,11 @@ void Utilities2::upload_2d_mipmap(const PixelFormatDescriptor& pfd, GLsizei w, G
 
     if (w == 1 && h == 1) return;
 
-    uint32_t alphaMask = pfd.getAlphaMask(),
-        redMask = pfd.getRedMask(),
-        greenMask = pfd.getGreenMask(),
-        blueMask = pfd.getBlueMask();
-    int bpp = pfd.getColourDepth().getDepth();
+    uint32_t alphaMask = pfd.get_alpha().get_mask(),
+             redMask = pfd.get_red().get_mask(),
+             greenMask = pfd.get_green().get_mask(),
+             blueMask = pfd.get_blue().get_mask();
+    int bpp = pfd.get_color_depth().depth();
 
     SDL_Surface *surf = SDL_CreateRGBSurfaceFrom((void *)data, w, h, bpp, w * bpp / 8, redMask, greenMask, blueMask, alphaMask);
     SDL_assert(surf != nullptr);
@@ -294,38 +262,38 @@ void Utilities2::upload_2d_mipmap(const PixelFormatDescriptor& pfd, GLsizei w, G
     SDL_FreeSurface(surf);
 }
 
-void Utilities2::toOpenGL(TextureFilter minFilter, TextureFilter magFilter, TextureFilter mipMapFilter, GLint& minFilter_gl, GLint& magFilter_gl)
+void Utilities2::toOpenGL(id::texture_filter_method minFilter, id::texture_filter_method magFilter, id::texture_filter_method mipMapFilter, GLint& minFilter_gl, GLint& magFilter_gl)
 {
     switch (minFilter)
     {
         // In OpenGL for the minification filter, "none" and "nearest" coincide.
-        case TextureFilter::None:
-        case TextureFilter::Nearest:
+        case id::texture_filter_method::none:
+        case id::texture_filter_method::nearest:
             switch (mipMapFilter)
             {
-                case TextureFilter::None:
+                case id::texture_filter_method::none:
                     minFilter_gl = GL_NEAREST;
                     break;
-                case TextureFilter::Nearest:
+                case id::texture_filter_method::nearest:
                     minFilter_gl = GL_NEAREST_MIPMAP_NEAREST;
                     break;
-                case TextureFilter::Linear:
+                case id::texture_filter_method::linear:
                     minFilter_gl = GL_NEAREST_MIPMAP_LINEAR;
                     break;
                 default:
                     throw id::unhandled_switch_case_error(__FILE__, __LINE__);
             }
             break;
-        case TextureFilter::Linear:
+        case id::texture_filter_method::linear:
             switch (mipMapFilter)
             {
-                case TextureFilter::None:
+                case id::texture_filter_method::none:
                     minFilter_gl = GL_LINEAR;
                     break;
-                case TextureFilter::Nearest:
+                case id::texture_filter_method::nearest:
                     minFilter_gl = GL_LINEAR_MIPMAP_NEAREST;
                     break;
-                case TextureFilter::Linear:
+                case id::texture_filter_method::linear:
                     minFilter_gl = GL_LINEAR_MIPMAP_LINEAR;
                     break;
                 default:
@@ -338,11 +306,11 @@ void Utilities2::toOpenGL(TextureFilter minFilter, TextureFilter magFilter, Text
     switch (magFilter)
     {
         // In OpenGL for the magnification filter, "none" and "nearest" coincide.
-        case TextureFilter::None:
-        case TextureFilter::Nearest:
+        case id::texture_filter_method::none:
+        case id::texture_filter_method::nearest:
             magFilter_gl = GL_NEAREST;
             break;
-        case TextureFilter::Linear:
+        case id::texture_filter_method::linear:
             magFilter_gl = GL_LINEAR;
             break;
         default:
@@ -351,26 +319,26 @@ void Utilities2::toOpenGL(TextureFilter minFilter, TextureFilter magFilter, Text
 }
 
 
-void Utilities2::toOpenGL(const PixelFormatDescriptor& pfd, GLenum& internalFormat_gl, GLenum& format_gl, GLenum& type_gl)
+void Utilities2::toOpenGL(const pixel_descriptor& pfd, GLenum& internalFormat_gl, GLenum& format_gl, GLenum& type_gl)
 {
-    switch (pfd.getPixelFormat())
+    switch (pfd.get_pixel_format())
     {
-        case PixelFormat::R8G8B8:
+        case id::pixel_format::R8G8B8:
             internalFormat_gl = GL_RGB;
             format_gl = GL_RGB;
             type_gl = GL_UNSIGNED_BYTE;
             break;
-        case PixelFormat::R8G8B8A8:
+        case id::pixel_format::R8G8B8A8:
             internalFormat_gl = GL_RGBA;
             format_gl = GL_RGBA;
             type_gl = GL_UNSIGNED_BYTE;
             break;
-        case PixelFormat::B8G8R8:
+        case id::pixel_format::B8G8R8:
             internalFormat_gl = GL_BGR;
             format_gl = GL_BGR;
             type_gl = GL_UNSIGNED_BYTE;
             break;
-        case PixelFormat::B8G8R8A8:
+        case id::pixel_format::B8G8R8A8:
             internalFormat_gl = GL_BGRA;
             format_gl = GL_BGRA;
             type_gl = GL_UNSIGNED_BYTE;
@@ -380,16 +348,16 @@ void Utilities2::toOpenGL(const PixelFormatDescriptor& pfd, GLenum& internalForm
     };
 }
 
-void Utilities2::setSampler(const std::shared_ptr<RendererInfo>& info, TextureType target, const TextureSampler& sampler)
+void Utilities2::setSampler(const std::shared_ptr<RendererInfo>& info, id::texture_type target, const id::texture_sampler& sampler)
 {
     Utilities::clearError();
     GLenum target_gl;
     switch (target)
     {
-        case TextureType::_2D:
+        case id::texture_type::_2D:
             target_gl = GL_TEXTURE_2D;
             break;
-        case TextureType::_1D:
+        case id::texture_type::_1D:
             target_gl = GL_TEXTURE_1D;
             break;
         default:
@@ -400,8 +368,8 @@ void Utilities2::setSampler(const std::shared_ptr<RendererInfo>& info, TextureTy
         return;
     }
 
-    GLint addressModeS_gl = Utilities2::toOpenGL(sampler.getAddressModeS()),
-          addressModeT_gl = Utilities2::toOpenGL(sampler.getAddressModeT());
+    GLint addressModeS_gl = Utilities2::toOpenGL(sampler.address_mode_s()),
+          addressModeT_gl = Utilities2::toOpenGL(sampler.address_mode_t());
     glTexParameteri(target_gl, GL_TEXTURE_WRAP_S, addressModeS_gl);
     glTexParameteri(target_gl, GL_TEXTURE_WRAP_T, addressModeT_gl);
     if (Utilities::isError())
@@ -410,7 +378,7 @@ void Utilities2::setSampler(const std::shared_ptr<RendererInfo>& info, TextureTy
     }
 
     GLint minFilter_gl, magFilter_gl;
-    Utilities2::toOpenGL(sampler.getMinFilter(), sampler.getMagFilter(), sampler.getMipMapFilter(),
+    Utilities2::toOpenGL(sampler.min_filter_method(), sampler.mag_filter_method(), sampler.mip_filter_method(),
                          minFilter_gl, magFilter_gl);
     glTexParameteri(target_gl, GL_TEXTURE_MIN_FILTER, minFilter_gl);
     glTexParameteri(target_gl, GL_TEXTURE_MAG_FILTER, magFilter_gl);
@@ -419,9 +387,9 @@ void Utilities2::setSampler(const std::shared_ptr<RendererInfo>& info, TextureTy
         return;
     }
 
-    if (TextureType::_2D == target && info->isAnisotropySupported() && info->isAnisotropyDesired())
+    if (id::texture_type::_2D == target && info->isAnisotropySupported() && info->isAnisotropyDesired())
     {
-        float anisotropyLevel = Math::constrain(sampler.getAnisotropyLevels(),
+        float anisotropyLevel = Math::constrain(sampler.anisotropy_levels(),
                                                 info->getMinimumSupportedAnisotropy(),
                                                 info->getMaximumSupportedAnisotropy());
         glTexParameterf(target_gl, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropyLevel);

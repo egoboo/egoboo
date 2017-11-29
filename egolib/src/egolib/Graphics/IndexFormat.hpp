@@ -17,42 +17,45 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/Graphics/IndexDescriptor.cpp
-/// @brief Descriptors of indices.
+/// @file egolib/Graphics/VertexFormat.hpp
+/// @brief Canonical identifiers for index format descriptors.
 /// @author Michael Heilmann
 
-#include "egolib/Graphics/IndexDescriptor.hpp"
+#pragma once
+
+#include "egolib/integrations/idlib.hpp"
 
 namespace Ego {
 
-IndexDescriptor::IndexDescriptor(IndexDescriptor::Syntax syntax) :
-    syntax(syntax) {
-}
+struct IndexFormatFactory {
+    /// @brief Get the index descriptor for an index format.
+    /// @param indexFormat the index format
+    /// @return the index descriptor for the index format
+    static const IndexDescriptor& get(id::index_format indexFormat);
+};
 
-IndexDescriptor::IndexDescriptor(const IndexDescriptor& other) noexcept : syntax(other.syntax) {
-}
+template <id::index_format F>
+struct descriptor_factory;
 
-IndexDescriptor::Syntax IndexDescriptor::getSyntax() const {
-    return syntax;
-}
+template <>
+struct descriptor_factory<id::index_format::IU8>
+{
+    descriptor_factory() = default;
+    const IndexDescriptor& operator()() const;
+};
 
-size_t IndexDescriptor::getIndexSize() const {
-    switch (syntax) {
-        case Syntax::U16:
-            return sizeof(uint16_t); // 16 / 8
-        case Syntax::U32:
-            return sizeof(uint32_t); // 32 / 8
-    }
-    throw id::unhandled_switch_case_error(__FILE__, __LINE__);
-}
+template <>
+struct descriptor_factory<id::index_format::IU16>
+{
+    descriptor_factory() = default;
+    const IndexDescriptor& operator()() const;
+};
 
-const IndexDescriptor& IndexDescriptor::operator=(const IndexDescriptor& other) noexcept {
-    syntax = other.syntax;
-    return *this;
-}
-
-bool IndexDescriptor::equal_to(const IndexDescriptor& other) const noexcept {
-    return syntax == other.syntax;
-}
+template <>
+struct descriptor_factory<id::index_format::IU32>
+{
+    descriptor_factory() = default;
+    const IndexDescriptor& operator()() const;
+};
 
 } // namespace Ego

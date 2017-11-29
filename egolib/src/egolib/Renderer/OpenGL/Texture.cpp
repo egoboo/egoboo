@@ -48,8 +48,9 @@ Texture::Texture(Renderer *renderer) :
 {}
 
 Texture::Texture(Renderer *renderer, GLuint id, const std::string& name,
-                 TextureType type, const TextureSampler& sampler,
-                 int width, int height, int sourceWidth, int sourceHeight, std::shared_ptr<SDL_Surface> source,
+                 id::texture_type type, const id::texture_sampler& sampler,
+                 int width, int height, int sourceWidth, int sourceHeight,
+				 std::shared_ptr<SDL_Surface> source,
                  bool hasAlpha) :
     Ego::Texture
     (
@@ -80,7 +81,7 @@ void Texture::setId(GLuint id)
     m_id = id;
 }
 
-void Texture::load(const std::string& name, const std::shared_ptr<SDL_Surface>& surface, TextureType type, const TextureSampler& sampler)
+void Texture::load(const std::string& name, const std::shared_ptr<SDL_Surface>& surface, id::texture_type type, const id::texture_sampler& sampler)
 {
     // Bind this texture to the backing error texture.
     release();
@@ -94,13 +95,13 @@ void Texture::load(const std::string& name, const std::shared_ptr<SDL_Surface>& 
     std::shared_ptr<SDL_Surface> newSurface = surface;
 
     // Convert to RGBA if the image has non-opaque alpha values or alpha modulation and convert to RGB otherwise.
-    bool hasAlpha = SDL::testAlpha(newSurface);
-    const auto& pixelFormatDescriptor = hasAlpha ? PixelFormatDescriptor::get<PixelFormat::R8G8B8A8>()
-        : PixelFormatDescriptor::get<PixelFormat::R8G8B8>();
-    newSurface = SDL::convertPixelFormat(newSurface, pixelFormatDescriptor);
+    bool hasAlpha = SDL::testAlpha(newSurface.get());
+    const auto& pixel_format = hasAlpha ? pixel_descriptor::get<id::pixel_format::R8G8B8A8>()
+                                        : pixel_descriptor::get<id::pixel_format::R8G8B8>();
+    newSurface = convert(newSurface, pixel_format);
 
     // Convert to power of two.
-    newSurface = SDL::convertPowerOfTwo(newSurface);
+    newSurface = power_of_two(newSurface);
 
     // (1)Generate a new OpenGL texture ID.
     Utilities::clearError();
@@ -114,10 +115,10 @@ void Texture::load(const std::string& name, const std::shared_ptr<SDL_Surface>& 
     GLenum target_gl;
     switch (type)
     {
-        case TextureType::_1D:
+        case id::texture_type::_1D:
             target_gl = GL_TEXTURE_1D;
             break;
-        case TextureType::_2D:
+        case id::texture_type::_2D:
             target_gl = GL_TEXTURE_2D;
             break;
         default:
@@ -145,21 +146,21 @@ void Texture::load(const std::string& name, const std::shared_ptr<SDL_Surface>& 
     // (4) Upload the texture data.
     switch (type)
     {
-        case TextureType::_2D:
+        case id::texture_type::_2D:
         {
-            if (TextureFilter::None != sampler.getMipMapFilter())
+            if (id::texture_filter_method::none != sampler.mip_filter_method())
             {
-                Utilities2::upload_2d_mipmap(pixelFormatDescriptor, newSurface->w, newSurface->h, newSurface->pixels);
+                Utilities2::upload_2d_mipmap(pixel_format, newSurface->w, newSurface->h, newSurface->pixels);
             }
             else
             {
-                Utilities2::upload_2d(pixelFormatDescriptor, newSurface->w, newSurface->h, newSurface->pixels);
+                Utilities2::upload_2d(pixel_format, newSurface->w, newSurface->h, newSurface->pixels);
             }
         }
         break;
-        case TextureType::_1D:
+        case id::texture_type::_1D:
         {
-            Utilities2::upload_1d(pixelFormatDescriptor, newSurface->w, newSurface->pixels);
+            Utilities2::upload_1d(pixel_format, newSurface->w, newSurface->pixels);
         }
         break;
         default:
@@ -187,13 +188,13 @@ bool Texture::load(const std::string& name, const std::shared_ptr<SDL_Surface>& 
 {
     auto info = Ego::Renderer::get().getInfo();
     // Determine the texture sampler.
-    TextureSampler sampler(info->getDesiredMinimizationFilter(),
-                           info->getDesiredMaximizationFilter(),
-                           info->getDesiredMipMapFilter(),
-                           TextureAddressMode::Repeat, TextureAddressMode::Repeat,
-                           info->getDesiredAnisotropy());
+    id::texture_sampler sampler(info->getDesiredMinimizationFilter(),
+                                info->getDesiredMaximizationFilter(),
+                                info->getDesiredMipMapFilter(),
+                                id::texture_address_mode::repeat, id::texture_address_mode::repeat,
+                                info->getDesiredAnisotropy());
     // Determine the texture type.
-    auto type = ((1 == source->h) && (source->w > 1)) ? TextureType::_1D : TextureType::_2D;
+    auto type = ((1 == source->h) && (source->w > 1)) ? id::texture_type::_1D : id::texture_type::_2D;
     load(name, source, type, sampler);
     return true;
 }

@@ -1,6 +1,9 @@
 #include "egolib/Graphics/SDL/GraphicsWindow.hpp"
 
 #include "egolib/egoboo_setup.h"
+#include "egolib/Image/SDL_Image_Extensions.h"
+#include "egolib/Image/ImageManager.hpp"
+#include "egolib/Extensions/ogl_extensions.h"
 
 namespace Ego {
 namespace SDL {
@@ -283,5 +286,74 @@ SDL_Window *GraphicsWindow::get()
     return window;
 }
 
+std::shared_ptr<SDL_Surface> GraphicsWindow::getContents() const
+{ 
+    SDL_Surface *surface = nullptr;
+    if (HAS_NO_BITS(SDL_GetWindowFlags(window), SDL_WINDOW_OPENGL))
+    {
+        surface = SDL_GetWindowSurface(window);
+        if (!surface)
+        {
+            throw id::environment_error(__FILE__, __LINE__, "SDL", "unable to get window contents");
+        }
+    }
+    else
+    {
+        Ego::OpenGL::PushClientAttrib pca(GL_CLIENT_PIXEL_STORE_BIT);
+        {
+            // create a SDL surface
+            const auto& pixel_descriptor = pixel_descriptor::get<id::pixel_format::R8G8B8>();
+            auto drawableSize = getDrawableSize();
+            surface =
+                SDL_CreateRGBSurface(SDL_SWSURFACE, drawableSize.x(), drawableSize.y(),
+                                     pixel_descriptor.get_color_depth().depth(),
+                                     pixel_descriptor.get_red().get_mask(),
+                                     pixel_descriptor.get_green().get_mask(),
+                                     pixel_descriptor.get_blue().get_mask(),
+                                     pixel_descriptor.get_alpha().get_mask());
+            if (!surface)
+            {
+                throw id::environment_error(__FILE__, __LINE__, "SDL OpenGL", "unable to get window contents");
+            }
+
+            // Now lock the surface so that we can read it
+            if (-1 == SDL_LockSurface(surface))
+            {
+                SDL_FreeSurface(surface);
+                throw id::environment_error(__FILE__, __LINE__, "SDL OpenGL", "unable to get window contents");
+            }
+            SDL_Rect rect = { 0, 0, drawableSize.x(), drawableSize.y() };
+            // Must copy the pixels row-by-row,
+            // since the OpenGL video memory is flipped vertically relative to the SDL Screen memory.
+            uint8_t *pixels = (uint8_t *)surface->pixels;
+            for (auto y = rect.y; y < rect.y + rect.h; y++)
+            {
+                if (id::get_byte_order() == id::byte_order::big_endian)
+                    glReadPixels(rect.x, (rect.h - y) - 1, rect.w, 1, GL_RGB, GL_UNSIGNED_BYTE, pixels);
+                else
+                    glReadPixels(rect.x, (rect.h - y) - 1, rect.w, 1, GL_BGR, GL_UNSIGNED_BYTE, pixels);
+                pixels += surface->pitch;
+            }
+            if (Ego::OpenGL::Utilities::isError())
+            {
+                SDL_UnlockSurface(surface);
+                SDL_FreeSurface(surface);
+                throw id::environment_error(__FILE__, __LINE__, "SDL OpenGL", "unable to get window contents");
+            }
+            SDL_UnlockSurface(surface);
+        }
+    }
+    try
+    {
+        auto pixel_format = Ego::SDL::getPixelFormat(surface);
+        auto pixel_descriptor = Ego::pixel_descriptor::get(pixel_format);
+        return ImageManager::get().createImage((size_t)surface->w, (size_t)surface->h, (size_t)surface->pitch, pixel_descriptor, surface->pixels);
+    }
+    catch (...)
+    {
+        SDL_FreeSurface(surface);
+        std::rethrow_exception(std::current_exception());
+    }
+}
 } // namespace SDL
 } // namespace Ego

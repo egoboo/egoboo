@@ -314,6 +314,7 @@
     <ClCompile Include="src\egolib\Entities\ObjectHandler.cpp" />
     <ClCompile Include="src\egolib\Entities\Particle.cpp" />
     <ClCompile Include="src\egolib\Entities\ParticleHandler.cpp" />
+    <ClCompile Include="src\egolib\Graphics\IndexFormat.cpp" />
     <ClCompile Include="src\egolib\text\document.cpp" />
     <ClCompile Include="src\egolib\text\text_erased_event.cpp" />
     <ClCompile Include="src\egolib\text\text_inserted_event.cpp" />
@@ -435,8 +436,6 @@
     <ClCompile Include="src\egolib\App.cpp" />
     <ClCompile Include="src\egolib\Graphics\GraphicsWindow.cpp" />
     <ClCompile Include="src\egolib\Graphics\IndexBuffer.cpp" />
-    <ClCompile Include="src\egolib\Graphics\IndexDescriptor.cpp" />
-    <ClCompile Include="src\egolib\Graphics\VertexDescriptor.cpp" />
     <ClCompile Include="src\egolib\AI\AStar.cpp" />
     <ClCompile Include="src\egolib\Graphics\Buffer.cpp">
       <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)Graphics\Buffer.asm</AssemblerListingLocation>
@@ -448,12 +447,9 @@
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)Graphics\Buffer.o</ObjectFileName>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)Graphics\Buffer.o</ObjectFileName>
     </ClCompile>
-    <ClCompile Include="src\egolib\Graphics\VertexElementDescriptor.cpp" />
     <ClCompile Include="src\egolib\Graphics\GraphicsSystem.cpp" />
     <ClCompile Include="src\egolib\Renderer\OpenGL\StencilBuffer.cpp" />
     <ClCompile Include="src\egolib\Renderer\RendererInfo.cpp" />
-    <ClCompile Include="src\egolib\Graphics\ColourDepth.cpp" />
-    <ClCompile Include="src\egolib\Renderer\TextureSampler.cpp" />
     <ClCompile Include="src\egolib\Logic\TreasureTables.cpp" />
     <ClCompile Include="src\egolib\Logic\MissileTreatment.cpp" />
     <ClCompile Include="src\egolib\Script\Interpreter\SafeCast.cpp" />
@@ -608,6 +604,15 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Graphics\descriptor_factory.hpp" />
+    <ClInclude Include="src\egolib\Graphics\IndexFormat.hpp" />
+    <ClInclude Include="src\egolib\Image\blit.hpp" />
+    <ClInclude Include="src\egolib\Image\convert.hpp" />
+    <ClInclude Include="src\egolib\Image\fill.hpp" />
+    <ClInclude Include="src\egolib\Image\get_pixel.hpp" />
+    <ClInclude Include="src\egolib\Image\pad.hpp" />
+    <ClInclude Include="src\egolib\Image\power_of_two.hpp" />
+    <ClInclude Include="src\egolib\Image\set_pixel.hpp" />
     <ClInclude Include="src\egolib\integrations\idlib.hpp" />
     <ClInclude Include="src\egolib\Math\euler_angle.hpp" />
     <ClInclude Include="src\egolib\Entities\Common.hpp" />
@@ -680,21 +685,16 @@
     <ClInclude Include="src\egolib\Graphics\GraphicsWindow.hpp" />
     <ClInclude Include="src\egolib\TrigonometricTable.hpp" />
     <ClInclude Include="src\egolib\Graphics\IndexBuffer.hpp" />
-    <ClInclude Include="src\egolib\Graphics\IndexDescriptor.hpp" />
-    <ClInclude Include="src\egolib\Graphics\VertexDescriptor.hpp" />
     <ClInclude Include="src\egolib\Math\VectorProjection.hpp" />
     <ClInclude Include="src\egolib\Math\VectorRejection.hpp" />
     <ClInclude Include="src\egolib\Profiles\GenderProfile.hpp" />
     <ClInclude Include="src\egolib\AI\AStar.hpp" />
     <ClInclude Include="src\egolib\Graphics\Buffer.hpp" />
-    <ClInclude Include="src\egolib\Graphics\VertexElementDescriptor.hpp" />
     <ClInclude Include="src\egolib\Graphics\GraphicsSystem.hpp" />
     <ClInclude Include="src\egolib\Renderer\OpenGL\StencilBuffer.hpp" />
     <ClInclude Include="src\egolib\Renderer\RendererInfo.hpp" />
-    <ClInclude Include="src\egolib\Graphics\ColourDepth.hpp" />
     <ClInclude Include="src\egolib\Logic\TreasureTables.hpp" />
     <ClInclude Include="src\egolib\Logic\MissileTreatment.hpp" />
-    <ClInclude Include="src\egolib\Renderer\TextureSampler.hpp" />
     <ClInclude Include="src\egolib\Script\Interpreter\SafeCast.hpp" />
     <ClInclude Include="src\egolib\Script\Interpreter\Configuration.hpp" />
     <ClInclude Include="src\egolib\Script\Interpreter\InvalidCastException.hpp" />
@@ -724,13 +724,13 @@
     <ClInclude Include="src\egolib\Logic\Perk.hpp" />
     <ClInclude Include="src\egolib\Logic\PerkHandler.hpp" />
     <ClInclude Include="src\egolib\Renderer\DeferredTexture.hpp" />
-    <ClInclude Include="src\egolib\Renderer\RasterizationMode.hpp" />
     <ClInclude Include="src\egolib\Core\QuadTree.hpp" />
     <ClInclude Include="src\egolib\Time\LocalTime.hpp" />
     <ClInclude Include="src\egolib\Time\SlidingWindow.hpp" />
     <ClInclude Include="src\egolib\Time\Stopwatch.hpp" />
     <ClInclude Include="src\egolib\Logic\Team.hpp" />
     <ClInclude Include="src\egolib\Math\Standard.hpp" />
+    <ClInclude Include="src\egolib\VFS\internal.hpp" />
     <ClInclude Include="src\egolib\VFS\VfsPath.hpp" />
     <ClInclude Include="src\egolib\AI\WaypointList.h" />
     <ClInclude Include="src\egolib\Graphics\ModelDescriptor.hpp" />
@@ -756,7 +756,6 @@
     <ClInclude Include="src\egolib\Logic\Damage.hpp" />
     <ClInclude Include="src\egolib\Logic\Gender.hpp" />
     <ClInclude Include="src\egolib\Graphics\TextureManager.hpp" />
-    <ClInclude Include="src\egolib\Renderer\TextureType.hpp" />
     <ClInclude Include="src\egolib\Image\ImageLoader.hpp" />
     <ClInclude Include="src\egolib\Image\ImageLoader_SDL.hpp" />
     <ClInclude Include="src\egolib\Image\ImageLoader_SDL_image.hpp" />
@@ -781,7 +780,6 @@
     <ClInclude Include="src\egolib\Math\Cone3.hpp" />
     <ClInclude Include="src\egolib\Math\Math.hpp" />
     <ClInclude Include="src\egolib\Core\StringUtilities.hpp" />
-    <ClInclude Include="src\egolib\Renderer\TextureAddressMode.hpp" />
     <ClInclude Include="src\egolib\Profiles\_AbstractProfileSystem.hpp" />
     <ClInclude Include="src\egolib\IDSZ.hpp" />
     <ClInclude Include="src\egolib\Profiles\AbstractProfile.hpp" />
@@ -797,8 +795,6 @@
     <ClInclude Include="src\egolib\Ref.hpp" />
     <ClInclude Include="src\egolib\Debug.hpp" />
     <ClInclude Include="src\egolib\Float.hpp" />
-    <ClInclude Include="src\egolib\Renderer\CompareFunction.hpp" />
-    <ClInclude Include="src\egolib\Renderer\TextureFilter.hpp" />
     <ClInclude Include="src\egolib\Renderer\OpenGL\Renderer.hpp" />
     <ClInclude Include="src\egolib\Renderer\Renderer.hpp" />
     <ClInclude Include="src\egolib\math\Random.hpp" />
@@ -857,7 +853,6 @@
     <None Include="src\egolib\Script\Functions.in" />
     <None Include="src\egolib\Script\Operators.in" />
     <None Include="src\egolib\Script\Variables.in" />
-    <None Include="src\egolib\Platform\CurrentFunction.inline" />
     <None Include="src\egolib\FileFormats\id_normals.inl" />
     <None Include="src\egolib\platform\file_mac.m">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>

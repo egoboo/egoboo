@@ -1,11 +1,22 @@
 #pragma once
 
-#include "egolib/Graphics/ColourDepth.hpp"
-#include "egolib/Renderer/TextureAddressMode.hpp"
-#include "egolib/Renderer/TextureFilter.hpp"
-#include "egolib/Renderer/TextureType.hpp"
-#include "egolib/Renderer/TextureSampler.hpp"
+#include "egolib/integrations/idlib.hpp"
 #include "egolib/Graphics/PixelFormat.hpp"
+
+#if defined (ID_WINDOWS) && 1 == ID_WINDOWS
+extern "C" {
+#if !defined(WIN32_LEAN_AND_MEAN)
+    #define WIN32_LEAN_AND_MEAN
+#endif
+#if !defined (NOMINMAX)
+    #define NOMINMAX
+#endif
+#include <Windows.h>
+}
+#endif
+extern "C" {
+#include <gl/GL.h>
+}
 
 namespace Ego {
 namespace OpenGL {
@@ -48,27 +59,18 @@ public:
     /// @return the stencil buffer depth
     static uint8_t getStencilBufferDepth();
 
-    /// @brief Get the colour buffer colour depth.
-    /// @return the colour buffer colour depth
-    static ColourDepth getColourBufferColourDepth();
-
-    /// @brief Get the accumulation colour depth.
-    /// @return the accumulation colour depth
-    static ColourDepth getAccumulationBufferColourDepth();
-
     /// @brief Map an internal texture address mode to an OpenGL texture address mode.
     /// @param textureAddressMode the internal texture address mode
     /// @return the OpenGL texture address mode
     /// @remark The mapping from internal texture address modes to OpenGL texture address modes is depicted in the table below: 
-    /// internal                                | OpenGL
-    /// --------------------------------------- | ------------------
-    /// Ego::TextureAddressMode::Clamp          | GL_CLAMP
-    /// Ego::TextureAddressMode::Cleamp         | GL_CLAMP
-    /// Ego::TextureAddressMode::ClampToBorder  | GL_CLAMP_TO_BORDER
-    /// Ego::TextureAddressMode::ClampToEdge    | GL_CLAMP_TO_EDGE
-    /// Ego::TextureAddressMode::Repeat         | GL_REPEAT
-    /// Ego::TextureAddressMode::RepeatMirrored | GL_MIRRORED_REPEAT
-    static GLint toOpenGL(TextureAddressMode textureAddressMode);
+    /// internal                                  | OpenGL
+    /// ----------------------------------------- | ------------------
+    /// id::texture_address_mode::clamp           | GL_CLAMP
+    /// id::texture_address_mode::clamp_to_border | GL_CLAMP_TO_BORDER
+    /// id::texture_address_mode::clamp_to_edge   | GL_CLAMP_TO_EDGE
+    /// id::texture_address_mode::repeat          | GL_REPEAT
+    /// id::texture_address_mode::repeat_mirrored | GL_MIRRORED_REPEAT
+    static GLint toOpenGL(id::texture_address_mode textureAddressMode);
 
     /// @brief Map an internal primitive type to an OpenGL primitive type.
     /// @param primitive type the internal primitive type
@@ -103,25 +105,25 @@ public:
     /// @param pdf the pixel descriptor describing the format of a pixels
     /// @param w the width of the pixel rectangle
     /// @param data a pointer to the pixels
-    static void upload_1d(const PixelFormatDescriptor& pfd, GLsizei w, const void *data);
+    static void upload_1d(const pixel_descriptor& pfd, GLsizei w, const void *data);
     
     /// @brief Upload a 2D texture.
     /// @param pdf the pixel descriptor describing the format of a pixels
     /// @param w, h the width and height of the pixel rectangle
     /// @param data a pointer to the pixels
-    static void upload_2d(const PixelFormatDescriptor& pfd, GLsizei w, GLsizei h, const void *data);
+    static void upload_2d(const pixel_descriptor& pfd, GLsizei w, GLsizei h, const void *data);
     
     /// @brief Upload a 2D texture generating the mipmaps.
     /// @param pdf the pixel descriptor describing the format of a pixels
     /// @param w, h the width and height of the pixel rectangle
     /// @param data a pointer to the pixels
-    static void upload_2d_mipmap(const PixelFormatDescriptor& pfd, GLsizei w, GLsizei h, const void *data);
+    static void upload_2d_mipmap(const pixel_descriptor& pfd, GLsizei w, GLsizei h, const void *data);
 
-    static void toOpenGL(TextureFilter minFilter, TextureFilter magFilter, TextureFilter mipMapFilter, GLint& minFilter_gl, GLint& magFilter_gl);
+    static void toOpenGL(id::texture_filter_method minFilter, id::texture_filter_method magFilter, id::texture_filter_method mipMapFilter, GLint& minFilter_gl, GLint& magFilter_gl);
 
-    static void toOpenGL(const PixelFormatDescriptor& pfd, GLenum& internalFormat_gl, GLenum& format_gl, GLenum& type_gl);
+    static void toOpenGL(const pixel_descriptor& pfd, GLenum& internalFormat_gl, GLenum& format_gl, GLenum& type_gl);
 
-    static void setSampler(const std::shared_ptr<RendererInfo>& info, TextureType type, const TextureSampler& sampler);
+    static void setSampler(const std::shared_ptr<RendererInfo>& info, id::texture_type type, const id::texture_sampler& sampler);
 };
 
 } // namespace OpenGL

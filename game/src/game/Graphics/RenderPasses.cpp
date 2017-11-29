@@ -274,10 +274,10 @@ gfx_rv TileListV2::render_heightmap_fan(ego_mesh_t& mesh, const Index1D& tileInd
     auto& renderer = Renderer::get();
 
     renderer.setDepthTestEnabled(false);
-    renderer.setDepthFunction(CompareFunction::AlwaysPass);
+    renderer.setDepthFunction(id::compare_function::always_pass);
     renderer.getTextureUnit().setActivated(nullptr);
     renderer.setCullingMode(id::culling_mode::none);
-    renderer.setRasterizationMode(RasterizationMode::Line);
+    renderer.setRasterizationMode(id::rasterization_mode::line);
 
     // Render each command
     GL_DEBUG(glBegin)(GL_TRIANGLE_FAN);
@@ -290,7 +290,7 @@ gfx_rv TileListV2::render_heightmap_fan(ego_mesh_t& mesh, const Index1D& tileInd
     }
     GL_DEBUG_END();
 
-    renderer.setRasterizationMode(RasterizationMode::Solid);
+    renderer.setRasterizationMode(id::rasterization_mode::solid);
 
     return gfx_success;
 }

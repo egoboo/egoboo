@@ -30,7 +30,7 @@ void NonOpaqueEntitiesRenderPass::doRun(::Camera& camera, const TileList& tl, co
 
         // do not draw hidden surfaces
         renderer.setDepthTestEnabled(true);
-        renderer.setDepthFunction(CompareFunction::LessOrEqual);
+        renderer.setDepthFunction(id::compare_function::less_or_equal);
 
         // Now render all transparent and light objects
         for (size_t i = el.getSize(); i > 0; --i)

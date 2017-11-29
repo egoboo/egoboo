@@ -52,6 +52,16 @@ using KeyboardInputFocusLostEvent = id::events::keyboard_input_focus_lost_event;
 
 } } // namespace Ego::Events
 
+namespace Ego {
+
+using IndexDescriptor = id::index_descriptor;
+using VertexElementDescriptor = id::vertex_component_descriptor;
+using VertexDescriptor = id::vertex_descriptor;
+
+using Extension = id::file_system::extension<char>;
+
+} // namespace Ego
+
 /// @brief Project a vector (x,y,z) to a vector (x,y).
 /// @tparam S the scalar typedef
 /// @param v the vector (x,y,z)

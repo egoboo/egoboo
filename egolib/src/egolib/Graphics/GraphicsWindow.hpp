@@ -93,6 +93,9 @@ public:
     /// @return the display index
     virtual int getDisplayIndex() const = 0;
 
+    /// @brief Get a copy the contents of the window.
+    /// @return the copy of the contents of the window
+    virtual std::shared_ptr<SDL_Surface> getContents() const = 0;
 }; // class GraphicsWindow
 
 } // namespace Ego

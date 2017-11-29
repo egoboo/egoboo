@@ -7,8 +7,8 @@ namespace Graphics {
 
 ForegroundRenderPass::ForegroundRenderPass() :
     RenderPass("foreground"),
-    _vertexDescriptor(VertexFormatFactory::get<VertexFormat::P3FT2F>()),
-    _vertexBuffer(4, _vertexDescriptor.getVertexSize())
+    _vertexDescriptor(Ego::descriptor_factory<id::vertex_format::P3FT2F>()()),
+    _vertexBuffer(4, _vertexDescriptor.get_size())
 {}
 
 void ForegroundRenderPass::doRun(::Camera& camera, const TileList& tl, const EntityList& el)
@@ -98,18 +98,18 @@ void ForegroundRenderPass::doRun(::Camera& camera, const TileList& tl, const Ent
                 // Essentially disable the depth test without calling
                 // renderer.setDepthTestEnabled(false).
                 renderer.setDepthTestEnabled(true);
-                renderer.setDepthFunction(CompareFunction::AlwaysPass);
+                renderer.setDepthFunction(id::compare_function::always_pass);
 
                 // draw draw front and back faces of polygons
                 renderer.setCullingMode(id::culling_mode::none);
 
                 // do not display the completely transparent portion
                 renderer.setAlphaTestEnabled(true);
-                renderer.setAlphaFunction(CompareFunction::Greater, 0.0f);
+                renderer.setAlphaFunction(id::compare_function::greater, 0.0f);
 
                 // make the texture a filter
                 renderer.setBlendingEnabled(true);
-                renderer.setBlendFunction(id::blend_function::source_alpha, id::blend_function::one_minus_source_color);
+                renderer.setBlendFunction(id::color_blend_parameter::source0_alpha, id::color_blend_parameter::one_minus_source0_color);
 
                 renderer.getTextureUnit().setActivated(_currentModule->getWaterTexture(1).get());
 

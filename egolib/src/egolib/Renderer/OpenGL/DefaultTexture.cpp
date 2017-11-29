@@ -6,20 +6,20 @@
 namespace Ego {
 namespace OpenGL {
 
-DefaultTexture::DefaultTexture(std::shared_ptr<RendererInfo> info, const std::string& name, TextureType type) :
+DefaultTexture::DefaultTexture(std::shared_ptr<RendererInfo> info, const std::string& name, id::texture_type type) :
     m_name(name), m_type(type), m_image(ImageManager::get().getDefaultImage()),
-    m_sampler(TextureFilter::Nearest, TextureFilter::Nearest,
-              TextureFilter::None, TextureAddressMode::Repeat,
-              TextureAddressMode::Repeat, 1.0f),
+    m_sampler(id::texture_filter_method::nearest, id::texture_filter_method::nearest,
+              id::texture_filter_method::none, id::texture_address_mode::repeat,
+              id::texture_address_mode::repeat, 1.0f),
     m_info(info)
 {
     GLenum target_gl;
     switch (type)
     {
-        case TextureType::_1D:
+        case id::texture_type::_1D:
             target_gl = GL_TEXTURE_1D;
             break;
-        case TextureType::_2D:
+        case id::texture_type::_2D:
             target_gl = GL_TEXTURE_2D;
             break;
         default:
@@ -51,14 +51,14 @@ DefaultTexture::DefaultTexture(std::shared_ptr<RendererInfo> info, const std::st
     }
 
     // (4) Upload the image data.
-    if (type == TextureType::_1D)
+    if (type == id::texture_type::_1D)
     {
-        static const auto pfd = PixelFormatDescriptor::get<PixelFormat::R8G8B8A8>();
+        static const auto pfd = pixel_descriptor::get<id::pixel_format::R8G8B8A8>();
         Utilities2::upload_1d(pfd, m_image->w, m_image->pixels);
     }
     else
     {
-        static const auto pfd = PixelFormatDescriptor::get<PixelFormat::R8G8B8A8>();
+        static const auto pfd = pixel_descriptor::get<id::pixel_format::R8G8B8A8>();
         Utilities2::upload_2d(pfd, m_image->w, m_image->h, m_image->pixels);
     }
     if (Utilities2::isError())
@@ -74,7 +74,7 @@ DefaultTexture::~DefaultTexture()
 }
 
 
-const TextureSampler& DefaultTexture::getSampler() const
+const id::texture_sampler& DefaultTexture::getSampler() const
 {
     return m_sampler;
 }
@@ -84,7 +84,7 @@ GLuint DefaultTexture::getId() const
     return m_id;
 }
 
-TextureType DefaultTexture::getType() const
+id::texture_type DefaultTexture::getType() const
 {
     return m_type;
 }
@@ -119,5 +119,4 @@ int DefaultTexture::getHeight() const
     return getSourceHeight();
 }
 
-} // namespace OpenGL
-} // namespace Ego
+} } // namespace Ego::OpenGL

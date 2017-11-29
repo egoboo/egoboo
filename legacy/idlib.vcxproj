@@ -25,14 +25,37 @@
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)/color/instantiations.o</ObjectFileName>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)/color/instantiations.o</ObjectFileName>
     </ClCompile>
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\create_directory.cpp" />
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\create_directory_posix.cpp" />
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\create_directory_windows.cpp" />
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\delete_directory.cpp" />
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\delete_directory_posix.cpp" />
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\delete_directory_windows.cpp" />
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\delete_regular.cpp" />
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\delete_regular_posix.cpp" />
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\delete_regular_windows.cpp" />
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\directory_iterator.cpp" />
     <ClCompile Include="..\idlib\library\src\idlib\file_system\directory_separator.cpp" />
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\executable_directory.cpp" />
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\executable_directory_windows.cpp" />
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\exists.cpp" />
     <ClCompile Include="..\idlib\library\src\idlib\file_system\file.cpp" />
-    <ClCompile Include="..\idlib\library\src\idlib\file_system\file_linux.cpp" />
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\file_posix.cpp" />
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\file_status.cpp" />
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\file_type.cpp" />
     <ClCompile Include="..\idlib\library\src\idlib\file_system\file_windows.cpp" />
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\is_directory.cpp" />
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\is_regular.cpp" />
     <ClCompile Include="..\idlib\library\src\idlib\file_system\mapped_file.cpp" />
-    <ClCompile Include="..\idlib\library\src\idlib\file_system\mapped_file_linux.cpp" />
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\mapped_file_posix.cpp" />
     <ClCompile Include="..\idlib\library\src\idlib\file_system\mapped_file_windows.cpp" />
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\status.cpp" />
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\status_posix.cpp" />
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\status_windows.cpp" />
     <ClCompile Include="..\idlib\library\src\idlib\file_system\working_directory.cpp" />
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\working_directory_linux.cpp" />
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\working_directory_osx.cpp" />
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\working_directory_windows.cpp" />
     <ClCompile Include="..\idlib\library\src\idlib\idlib.cpp" />
     <ClCompile Include="..\idlib\library\src\idlib\language\decoder-integer.cpp" />
     <ClCompile Include="..\idlib\library\src\idlib\language\decoder-natural.cpp" />

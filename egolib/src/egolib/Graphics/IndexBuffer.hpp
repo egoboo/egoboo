@@ -24,7 +24,6 @@
 #pragma once
 
 #include "egolib/Graphics/Buffer.hpp"
-#include "egolib/Graphics/IndexDescriptor.hpp"
 
 namespace Ego {
     

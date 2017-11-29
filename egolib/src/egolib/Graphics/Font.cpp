@@ -72,12 +72,12 @@ struct Font::SizedTextCache : private id::non_copyable {
 
 struct Font::FontAtlas {
     std::shared_ptr<Texture> texture;
-    std::unordered_map<uint16_t, SDL_Rect> glyphs;
+    std::unordered_map<uint16_t, Rectangle2f> glyphs;
 };
 
 struct Font::LaidOutText {
     std::vector<uint16_t> codepoints;
-    std::vector<SDL_Rect> positions;
+    std::vector<Rectangle2f> positions;
     const FontAtlas &atlas;
 
     LaidOutText(const FontAtlas &a) :
@@ -198,12 +198,12 @@ void Font::getTextBoxSize(const std::string &text, int spacing, int *width, int 
 void Font::drawTextToTexture(Texture *tex, const std::string &text, const Math::Colour3f &colour) {
     LayoutOptions options;
 
-    std::shared_ptr<SDL_Surface> surface = layoutToTexture(text, options, colour);
+    auto surface = layoutToTexture(text, options, colour);
 
     std::string name = "Font text '" + text + "'";
     tex->load(name, surface);
-    tex->setAddressModeS(TextureAddressMode::Clamp);
-    tex->setAddressModeT(TextureAddressMode::Clamp);
+    tex->setAddressModeS(id::texture_address_mode::clamp);
+    tex->setAddressModeT(id::texture_address_mode::clamp);
 }
 
 void Font::drawTextBoxToTexture(Texture *tex, const std::string &text, int width, int height, int spacing,
@@ -213,12 +213,12 @@ void Font::drawTextBoxToTexture(Texture *tex, const std::string &text, int width
     options.maxHeight = height;
     options.spacing = spacing;
 
-    std::shared_ptr<SDL_Surface> surface = layoutToTexture(text, options, colour);
+    auto surface = layoutToTexture(text, options, colour);
 
     std::string name = "Font textbox '" + text + "'";
     tex->load(name, surface);
-    tex->setAddressModeS(TextureAddressMode::Clamp);
-    tex->setAddressModeT(TextureAddressMode::Clamp);
+    tex->setAddressModeS(id::texture_address_mode::clamp);
+    tex->setAddressModeT(id::texture_address_mode::clamp);
 }
 
 void Font::drawText(const std::string &text, int x, int y, const Math::Colour4f &colour) {
@@ -304,7 +304,7 @@ void Font::layoutLine(const std::vector<uint16_t> &codepoints, size_t pos, int m
         uint16_t codepoint = codepoints[currentPos];
         if (codepoint != '\n' && !TTF_GlyphIsProvided(_ttfFont, codepoint))
             continue;
-        SDL_Rect rect = {0, 0, 0, 0};
+        Rectangle2f rect;
         if (codepoint != '\n') {
             auto glyph = atlas.glyphs.find(codepoint);
             SDL_assert(glyph != atlas.glyphs.end());
@@ -315,7 +315,7 @@ void Font::layoutLine(const std::vector<uint16_t> &codepoints, size_t pos, int m
             lastWordStartPosInUsedChars = usedChars.size() + 1;
         }
 
-        if ((useNewlines && codepoint == '\n') || (useWidth && maxWidth - x < rect.w)) {
+        if ((useNewlines && codepoint == '\n') || (useWidth && maxWidth - x < rect.get_size().x())) {
             if (codepoint != '\n' && codepoint != ' ' && lastWordStartPosInUsedChars > 0) {
                 currentPos = lastWordStartPosInChars;
                 auto wordStart = usedChars.begin();
@@ -331,11 +331,11 @@ void Font::layoutLine(const std::vector<uint16_t> &codepoints, size_t pos, int m
                     uint16_t ch = usedChars[i];
                     auto glyph = atlas.glyphs.find(ch);
                     SDL_Rect pos = positions[i];
-                    SDL_Rect r = glyph->second;
-                    if (maxLineHeight < r.h)
-                        maxLineHeight = r.h;
-                    if (maxLineWidth < pos.x + r.w)
-                        maxLineWidth = pos.x + r.w;
+                    auto r = glyph->second;
+                    if (maxLineHeight < r.get_size().y())
+                        maxLineHeight = r.get_size().y();
+                    if (maxLineWidth < pos.x + r.get_size().x())
+                        maxLineWidth = pos.x + r.get_size().x();
                 }
             } else if (useNewlines && codepoint == '\n') {
                 currentPos++;
@@ -345,16 +345,16 @@ void Font::layoutLine(const std::vector<uint16_t> &codepoints, size_t pos, int m
         if (codepoint == '\n')
             continue;
 
-        if (maxLineWidth < x + rect.w)
-            maxLineWidth = x + rect.w;
-        if (maxLineHeight < rect.h)
-            maxLineHeight = rect.h;
+        if (maxLineWidth < x + rect.get_size().x())
+            maxLineWidth = x + rect.get_size().x();
+        if (maxLineHeight < rect.get_size().y())
+            maxLineHeight = rect.get_size().y();
 
         int minx, advance;
         TTF_GlyphMetrics(_ttfFont, codepoint, &minx, nullptr, nullptr, nullptr, &advance);
         x += getFontKerning(lastCodepoint, codepoint);
         SDL_assert(x >= 0);
-        SDL_Rect dst = {x, 0, rect.w, rect.h};
+        SDL_Rect dst = {x, 0, rect.get_size().x(), rect.get_size().y()};
         if (minx < 0)
             dst.x += minx;
         positions.push_back(dst);
@@ -424,7 +424,9 @@ Font::LaidOutText Font::layout(const std::string &text, const LayoutOptions &opt
         for (const SDL_Rect &rect : linePos) {
             SDL_Rect newRect = rect;
             newRect.y += y;
-            laidText.positions.push_back(newRect);
+            laidText.positions.push_back(Rectangle2f(Point2f(newRect.x, newRect.y),
+                                                     Point2f(newRect.x + newRect.w,
+                                                             newRect.y + newRect.h)));
         }
 
         int ourHeight = y + lineHeight;
@@ -450,8 +452,8 @@ std::shared_ptr<Font::LaidTextRenderer> Font::layoutToBuffer(const std::string &
 
     LaidOutText laidText = layout(text, options);
 
-    const auto &vertexDesc = VertexFormatFactory::get(VertexFormat::P3FT2F);
-    std::shared_ptr<VertexBuffer> buffer = std::make_shared<VertexBuffer>(4 * laidText.codepoints.size(), vertexDesc.getVertexSize());
+    const auto &vertexDesc = VertexFormatFactory::get(id::vertex_format::P3FT2F);
+    std::shared_ptr<VertexBuffer> buffer = std::make_shared<VertexBuffer>(4 * laidText.codepoints.size(), vertexDesc.get_size());
 
     TextVertex *vertices = reinterpret_cast<TextVertex *>(buffer->lock());
     float texWidth = laidText.atlas.texture->getWidth();
@@ -459,18 +461,18 @@ std::shared_ptr<Font::LaidTextRenderer> Font::layoutToBuffer(const std::string &
 
     for (size_t i = 0; i < laidText.codepoints.size(); i++) {
         uint16_t chr = laidText.codepoints[i];
-        SDL_Rect charPos = laidText.positions[i];
-        SDL_Rect glyphPos = laidText.atlas.glyphs.at(chr);
+        auto charPos = laidText.positions[i];
+        auto glyphPos = laidText.atlas.glyphs.at(chr);
 
-        float xMin = charPos.x;
-        float xMax = charPos.x + charPos.w;
-        float yMin = charPos.y;
-        float yMax = charPos.y + charPos.h;
+        float xMin = charPos.get_min().x();
+        float xMax = charPos.get_max().x();
+        float yMin = charPos.get_min().y();
+        float yMax = charPos.get_max().y();
 
-        float uMin = (glyphPos.x) / texWidth;
-        float uMax = (glyphPos.x + glyphPos.w) / texWidth;
-        float vMin = (glyphPos.y) / texHeight;
-        float vMax = (glyphPos.y + glyphPos.h) / texHeight;
+        float uMin = (glyphPos.get_min().x()) / texWidth;
+        float uMax = (glyphPos.get_max().x()) / texWidth;
+        float vMin = (glyphPos.get_min().y()) / texHeight;
+        float vMax = (glyphPos.get_max().y()) / texHeight;
 
         vertices[i * 4 + 0].x = xMin;
         vertices[i * 4 + 0].y = yMin;
@@ -501,7 +503,8 @@ std::shared_ptr<Font::LaidTextRenderer> Font::layoutToBuffer(const std::string &
 }
 
 std::shared_ptr<SDL_Surface> Font::layoutToTexture(const std::string &text, const LayoutOptions &options,
-                                                   const Math::Colour3f &colour) {
+                                                   const Math::Colour3f &colour)
+{
     LayoutOptions ourOptions = options;
     int surfWidth, surfHeight;
     ourOptions.textWidth = &surfWidth;
@@ -512,26 +515,30 @@ std::shared_ptr<SDL_Surface> Font::layoutToTexture(const std::string &text, cons
     if (options.textWidth) *(options.textWidth) = surfWidth;
     if (options.textHeight) *(options.textHeight) = surfHeight;
 
-    auto pfd = PixelFormatDescriptor::get<PixelFormat::R8G8B8A8>();
+    auto pfd = pixel_descriptor::get<id::pixel_format::R8G8B8A8>();
 
     auto colorByte = Math::Colour3b(colour);
 
     auto surf = ImageManager::get().createImage(surfWidth, surfHeight, pfd);
-    SDL::fillSurface(*surf, Math::Colour4b(colorByte, 0));
-    SDL::setBlendMode(*surf, SDL::BlendMode::NoBlending);
+    Ego::fill(surf.get(), Math::Colour4b(colorByte, 0));
+    SDL::setBlendMode(surf.get(), SDL::BlendMode::NoBlending);
 
     auto atlasSurf = laidText.atlas.texture->m_source;
-    auto oldMod = SDL::getColourMod(*atlasSurf);
-    SDL::setColourMod(*atlasSurf, colorByte);
+    auto oldMod = SDL::getColourMod(atlasSurf.get());
+    SDL::setColourMod(atlasSurf.get(), colorByte);
 
     for (size_t i = 0; i < laidText.codepoints.size(); i++) {
         uint16_t chr = laidText.codepoints[i];
-        SDL_Rect charPos = laidText.positions[i];
-        SDL_Rect glyphPos = laidText.atlas.glyphs.at(chr);
-        SDL_BlitSurface(atlasSurf.get(), &glyphPos, surf.get(), &charPos);
+        auto charPos = laidText.positions[i];
+        auto glyphPos = laidText.atlas.glyphs.at(chr);
+        Ego::blit(atlasSurf.get(),
+                  Rectangle2f(glyphPos.get_min(),
+                              glyphPos.get_max()),
+                  surf.get(),
+                  charPos.get_min());
     }
 
-    SDL::setColourMod(*atlasSurf, oldMod);
+    SDL::setColourMod(atlasSurf.get(), oldMod);
 
     return surf;
 }
@@ -543,45 +550,47 @@ Font::FontAtlas Font::createFontAtlas(const std::vector<std::string> &chars) con
     return createFontAtlas(codepoints);
 }
 
-Font::FontAtlas Font::createFontAtlas(const std::vector<uint16_t> &codepoints) const {
-    SDL_Color white = {255, 255, 255, 255};
-    std::vector<SDL_Surface *> images;
-    std::vector<SDL_Rect> pos;
+Font::FontAtlas Font::createFontAtlas(const std::vector<uint16_t> &codepoints) const
+{
+    static const auto WHITE = Math::Colour4b::white();
+    std::vector<std::shared_ptr<SDL_Surface>> images;
+    std::vector<Rectangle2f> pos;
 
-    for (uint16_t cp : codepoints) {
-        SDL_Surface *surf = nullptr;
-        if (TTF_GlyphIsProvided(_ttfFont, cp))
-            surf = TTF_RenderGlyph_Blended(_ttfFont, cp, white);
+    for (uint16_t cp : codepoints)
+    {
+        auto surf = SDL::render_glyph(_ttfFont, cp, WHITE);
         images.push_back(surf);
     }
 
     int currentMaxSize = 128;
-    int maxTextureSize = Ego::Renderer::get().getInfo()->getMaximumTextureSize();
+    int maxTextureSize = Renderer::get().getInfo()->getMaximumTextureSize();
     std::shared_ptr<SDL_Surface> atlas = nullptr;
 
-    auto pfd = PixelFormatDescriptor::get<PixelFormat::R8G8B8A8>();
+    auto pfd = pixel_descriptor::get<id::pixel_format::R8G8B8A8>();
 
     while (currentMaxSize <= maxTextureSize) {
         atlas = ImageManager::get().createImage(currentMaxSize, currentMaxSize, pfd);
-        SDL::fillSurface(*atlas, Math::Colour4b(Math::Colour3b::white(), 0));
-        SDL::setBlendMode(*atlas, SDL::BlendMode::NoBlending);
+        Ego::fill(atlas.get(), Math::Colour4b(Math::Colour3b::white(), 0));
+        SDL::setBlendMode(atlas.get(), SDL::BlendMode::NoBlending);
 
         int x = 0, y = 0;
         int currentHeight = 0;
         bool fits = true;
 
-        for (SDL_Surface *surf : images) {
+        for (const auto& surf : images) {
             if (surf == nullptr) {
-                pos.push_back({0, 0, 0, 0});
+                pos.push_back(Rectangle2f());
                 continue;
             }
 
-            if (currentMaxSize < surf->w || currentMaxSize < surf->h) {
+            if (currentMaxSize < surf->w || currentMaxSize < surf->h)
+            {
                 fits = false;
                 break;
             }
 
-            if (currentMaxSize - x < surf->w) {
+            if (currentMaxSize - x < surf->w)
+            {
                 y += currentHeight + 1;
                 x = 0;
                 currentHeight = 0;
@@ -595,8 +604,8 @@ Font::FontAtlas Font::createFontAtlas(const std::vector<uint16_t> &codepoints) c
                 break;
             }
 
-            SDL_Rect dst = {x, y, surf->w, surf->h};
-            SDL_BlitSurface(surf, nullptr, atlas.get(), &dst);
+            auto dst = Rectangle2f(Point2f(x, y), Point2f(x + surf->w, y + surf->h));
+            Ego::blit(surf.get(), atlas.get(), Point2f(x, y));
             pos.push_back(dst);
             x += surf->w + 1;
         }
@@ -620,13 +629,12 @@ Font::FontAtlas Font::createFontAtlas(const std::vector<uint16_t> &codepoints) c
         if (images[i] == nullptr)
             continue;
         retval.glyphs.insert(std::make_pair(codepoints[i], pos[i]));
-        SDL_FreeSurface(images[i]);
     }
 
     retval.texture = Renderer::get().createTexture();
     retval.texture->load("font atlas", atlas);
-    retval.texture->setAddressModeS(TextureAddressMode::Clamp);
-    retval.texture->setAddressModeT(TextureAddressMode::Clamp);
+    retval.texture->setAddressModeS(id::texture_address_mode::clamp);
+    retval.texture->setAddressModeT(id::texture_address_mode::clamp);
     return retval;
 }
 

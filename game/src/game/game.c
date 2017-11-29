@@ -2438,5 +2438,6 @@ int DisplayMsg_printf( const char *format, ... )
 
 void DisplayMsg_print(const std::string &text)
 {
-    _gameEngine->getActivePlayingState()->getMessageLog()->addMessage(text);
+    auto state = _gameEngine->getActivePlayingState();
+    if (state) state->getMessageLog()->addMessage(text);
 }

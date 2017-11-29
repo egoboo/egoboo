@@ -36,7 +36,7 @@ void EntityReflectionsRenderPass::doRun(::Camera& camera, const TileList& tl, co
         // do not draw hidden surfaces
         renderer.setDepthTestEnabled(true);
         // surfaces must be closer to the camera to be drawn
-        renderer.setDepthFunction(CompareFunction::LessOrEqual);
+        renderer.setDepthFunction(id::compare_function::less_or_equal);
 
         for (size_t j = el.getSize(); j > 0; --j)
         {
@@ -58,7 +58,7 @@ void EntityReflectionsRenderPass::doRun(::Camera& camera, const TileList& tl, co
                 renderer.setBlendingEnabled(true);
 
                 // use the alpha channel to modulate the transparency
-                renderer.setBlendFunction(id::blend_function::source_alpha, id::blend_function::one_minus_source_alpha);
+                renderer.setBlendFunction(id::color_blend_parameter::source0_alpha, id::color_blend_parameter::one_minus_source0_alpha);
                 Index1D itile = object->getTile();
 
                 if (mesh->grid_is_valid(itile) && (0 != mesh->test_fx(itile, MAPFX_REFLECTIVE)))
@@ -77,7 +77,7 @@ void EntityReflectionsRenderPass::doRun(::Camera& camera, const TileList& tl, co
                 // allow transparent objects
                 renderer.setBlendingEnabled(true);
                 // set the default particle blending
-                renderer.setBlendFunction(id::blend_function::source_alpha, id::blend_function::one_minus_source_alpha);
+                renderer.setBlendFunction(id::color_blend_parameter::source0_alpha, id::color_blend_parameter::one_minus_source0_alpha);
                 ParticleRef iprt = el.get(i).iprt;
                 Index1D itile = ParticleHandler::get()[iprt]->getTile();
 

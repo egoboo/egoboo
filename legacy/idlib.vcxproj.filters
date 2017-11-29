@@ -27,16 +27,10 @@
     <ClCompile Include="..\idlib\library\src\idlib\file_system\file.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="..\idlib\library\src\idlib\file_system\file_linux.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
     <ClCompile Include="..\idlib\library\src\idlib\file_system\file_windows.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="..\idlib\library\src\idlib\file_system\mapped_file.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="..\idlib\library\src\idlib\file_system\mapped_file_linux.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="..\idlib\library\src\idlib\file_system\mapped_file_windows.cpp">
@@ -115,6 +109,81 @@
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="..\idlib\library\src\idlib\math\geometry\instantiations.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\delete_regular_windows.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\working_directory_windows.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\create_directory_windows.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\create_directory.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\delete_regular.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\is_directory.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\delete_directory.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\delete_directory_windows.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\directory_iterator.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\create_directory_posix.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\delete_directory_posix.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\delete_regular_posix.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\exists.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\file_posix.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\file_status.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\file_type.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\is_regular.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\mapped_file_posix.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\status.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\status_posix.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\status_windows.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\working_directory_linux.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\working_directory_osx.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\executable_directory.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\executable_directory_windows.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>

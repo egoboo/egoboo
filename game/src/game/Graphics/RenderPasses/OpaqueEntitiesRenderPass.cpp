@@ -24,10 +24,10 @@ void OpaqueEntitiesRenderPass::doRun(::Camera& camera, const TileList& tl, const
 
             // do not draw hidden surfaces
             renderer.setDepthTestEnabled(true);
-            renderer.setDepthFunction(CompareFunction::Less);
+            renderer.setDepthFunction(id::compare_function::less);
 
             renderer.setAlphaTestEnabled(true);
-            renderer.setAlphaFunction(CompareFunction::Greater, 0.0f);
+            renderer.setAlphaFunction(id::compare_function::greater, 0.0f);
 
             if (ParticleRef::Invalid == el.get(i).iprt && ObjectRef::Invalid != el.get(i).iobj)
             {

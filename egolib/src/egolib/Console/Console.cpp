@@ -233,7 +233,7 @@ void Console::draw()
     renderer.setCullingMode(id::culling_mode::none);
 
     renderer.setBlendingEnabled(true);
-    renderer.setBlendFunction(id::blend_function::source_alpha, id::blend_function::one_minus_source_alpha);
+    renderer.setBlendFunction(id::color_blend_parameter::source0_alpha, id::color_blend_parameter::one_minus_source0_alpha);
 
     auto drawableSize = GraphicsSystem::get().window->getDrawableSize();
     renderer.setViewportRectangle(0, 0, drawableSize(0), drawableSize(1));
@@ -262,12 +262,12 @@ void Console::draw()
     static const auto black = Math::Colour4f::black();
     // The vertex data structure and the vertex descriptor.
     struct Vertex { float x, y; };
-    static const VertexDescriptor vertexDescriptor({VertexElementDescriptor(0, VertexElementDescriptor::Syntax::F2, VertexElementDescriptor::Semantics::Position)});
+    static const VertexDescriptor vertexDescriptor({VertexElementDescriptor(0, id::vertex_component_syntactics::SINGLE_2, id::vertex_component_semantics::POSITION)});
 
 
     renderer.setColour(white);
     renderer.setLineWidth(5);
-    VertexBuffer vertexBuffer(4, vertexDescriptor.getVertexSize());
+    VertexBuffer vertexBuffer(4, vertexDescriptor.get_size());
     {
         BufferScopedLock lock(vertexBuffer);
         Vertex *vertex = lock.get<Vertex>();

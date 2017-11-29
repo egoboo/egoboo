@@ -26,17 +26,17 @@ void ReflectiveTilesFirstRenderPass::doRun(::Camera& camera, const TileList& tl,
 
         // do not draw hidden surfaces
         renderer.setDepthTestEnabled(true);
-        renderer.setDepthFunction(CompareFunction::LessOrEqual);
+        renderer.setDepthFunction(id::compare_function::less_or_equal);
 
         // black out any backgound, but allow the background to show through any holes in the floor
         renderer.setBlendingEnabled(true);
         // use the alpha channel to modulate the transparency
-        renderer.setBlendFunction(id::blend_function::zero, id::blend_function::one_minus_source_alpha);
+        renderer.setBlendFunction(id::color_blend_parameter::zero, id::color_blend_parameter::one_minus_source0_alpha);
         // do not display the completely transparent portion
         // use alpha test to allow the thatched roof tiles to look like thatch
         renderer.setAlphaTestEnabled(true);
         // speed-up drawing of surfaces with alpha == 0.0f sections
-        renderer.setAlphaFunction(CompareFunction::Greater, 0.0f);
+        renderer.setAlphaFunction(id::compare_function::greater, 0.0f);
         // reduce texture hashing by loading up each texture only once
         Internal::TileListV2::render(*tl.getMesh(), tl._reflective);
     }

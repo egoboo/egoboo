@@ -27,14 +27,12 @@
 #include "cartman/cartman_select.h"
 #include "cartman/cartman_math.h"
 #include "egolib/FileFormats/Globals.hpp"
+#include "egolib/Image/ImageManager.hpp"
 #include "egolib/Image/SDL_Image_Extensions.h"
 #include "egolib/Graphics/GraphicsSystem.hpp"
 #include "cartman/Clocks.h"
 
 //--------------------------------------------------------------------------------------------
-
-const Ego::Math::Colour4f WHITE = Ego::Math::Colour4f::white();
-const Ego::Math::Colour4f BLACK = Ego::Math::Colour4f::black();
 
 std::shared_ptr<Ego::Font> gfx_font_ptr = NULL;
 
@@ -203,7 +201,7 @@ void make_hitemap( cartman_mpd_t * pmesh )
 {
     if ( NULL == pmesh ) pmesh = &mesh;
 
-    Resources::get().bmphitemap = Ego::SDL::createSurface( pmesh->info.getTileCountX() << 2, pmesh->info.getTileCountY() << 2 );
+    Resources::get().bmphitemap = Ego::ImageManager::get().createImage( pmesh->info.getTileCountX() << 2, pmesh->info.getTileCountY() << 2 );
     if ( NULL == Resources::get().bmphitemap ) return;
 
     for (int pixy = 0, y = 16; pixy < ( pmesh->info.getTileCountY() << 2 ); pixy++, y += 32 )
@@ -220,7 +218,7 @@ void make_hitemap( cartman_mpd_t * pmesh )
             if ( HAS_BITS( pfan->fx, MAPFX_IMPASS ) ) level = 254;   // Impass
             if ( HAS_BITS( pfan->fx, MAPFX_WALL ) && HAS_BITS( pfan->fx, MAPFX_IMPASS ) ) level = 255;   // Both
 
-            Ego::SDL::putPixel(Resources::get().bmphitemap, pixx, pixy, level );
+            Ego::set_pixel(Resources::get().bmphitemap.get(), Ego::Math::Colour3b((uint8_t)level, (uint8_t)level, (uint8_t)level), { pixx, pixy });
         }
     }
 }
@@ -230,16 +228,12 @@ void make_hitemap( cartman_mpd_t * pmesh )
 void make_planmap( cartman_mpd_t * pmesh )
 {
     int x, y, putx, puty;
-    //SDL_Surface* bmptemp;
-
-    //bmptemp = SDL_GL_createSurface(64, 64);
-    //if(NULL != bmptemp)  return;
 
     if ( NULL == pmesh ) pmesh = &mesh;
 
-    Resources::get().bmphitemap = Ego::SDL::createSurface( pmesh->info.getTileCountX() * TINYXY, pmesh->info.getTileCountY() * TINYXY );
+    Resources::get().bmphitemap = Ego::ImageManager::get().createImage( pmesh->info.getTileCountX() * TINYXY, pmesh->info.getTileCountY() * TINYXY );
 
-    SDL_FillRect( Resources::get().bmphitemap.get(), NULL, make_rgb(Resources::get().bmphitemap, Ego::Math::Colour3b::black()) );
+    Ego::fill( Resources::get().bmphitemap.get(), Ego::Math::Colour3b::black());
 
     puty = 0;
     for ( y = 0; y < pmesh->info.getTileCountY(); y++ )
@@ -252,8 +246,7 @@ void make_planmap( cartman_mpd_t * pmesh )
 
             if ( NULL != tx_tile )
             {
-                SDL_Rect dst = {static_cast<int16_t>(putx), static_cast<int16_t>(puty), TINYXY, TINYXY};
-                cartman_BlitSurface(tx_tile->m_source.get(), nullptr, Resources::get().bmphitemap.get(), &dst);
+                Ego::blit(tx_tile->m_source.get(), Resources::get().bmphitemap.get(), Point2f(static_cast<int16_t>(putx), static_cast<int16_t>(puty)));
             }
             putx += TINYXY;
         }
@@ -892,7 +885,7 @@ void ogl_beginFrame()
     glEnable( GL_TEXTURE_2D );
 
     renderer.setBlendingEnabled(true);
-    renderer.setBlendFunction(id::blend_function::source_alpha, id::blend_function::one_minus_source_alpha);
+    renderer.setBlendFunction(id::color_blend_parameter::source0_alpha, id::color_blend_parameter::one_minus_source0_alpha);
 
     auto drawableSize = Ego::GraphicsSystem::get().window->getDrawableSize();
     renderer.setViewportRectangle(0, 0, drawableSize.x(), drawableSize.y());
@@ -912,27 +905,6 @@ void ogl_endFrame()
 {
     // Re-enable any states disabled by gui_beginFrame
     glPopAttrib();
-}
-
-//--------------------------------------------------------------------------------------------
-void draw_sprite( SDL_Surface * dst, SDL_Surface * sprite, int x, int y )
-{
-    SDL_Rect rdst;
-
-    if ( NULL == dst || NULL == sprite ) return;
-
-    rdst.x = x;
-    rdst.y = y;
-    rdst.w = sprite->w;
-    rdst.h = sprite->h;
-
-    cartman_BlitSurface( sprite, NULL, dst, &rdst );
-}
-
-//--------------------------------------------------------------------------------------------
-int cartman_BlitSurface( SDL_Surface *src, ::SDL_Rect *srcrect, SDL_Surface *dst, ::SDL_Rect *dstrect )
-{
-    return SDL_BlitSurface( src, srcrect, dst, dstrect );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1079,7 +1051,7 @@ void load_img()
     }
     
     fileName = "editor/ref.png";
-    Resources::get().tx_ref = Ego::Renderer::get().createTexture();;
+    Resources::get().tx_ref = Ego::Renderer::get().createTexture();
     if (!Resources::get().tx_ref->load(fileName, gfx_loadImage(fileName)))
     {
 		Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to load image ",
@@ -1087,7 +1059,7 @@ void load_img()
     }
     
     fileName = "editor/drawref.png";
-    Resources::get().tx_drawref = Ego::Renderer::get().createTexture();;
+    Resources::get().tx_drawref = Ego::Renderer::get().createTexture();
     if (!Resources::get().tx_drawref->load(fileName, gfx_loadImage(fileName)))
     {
 		Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to load image ",
@@ -1095,7 +1067,7 @@ void load_img()
     }
     
     fileName = "editor/anim.png";
-    Resources::get().tx_anim = Ego::Renderer::get().createTexture();;
+    Resources::get().tx_anim = Ego::Renderer::get().createTexture();
     if (!Resources::get().tx_anim->load(fileName, gfx_loadImage(fileName)))
     {
 		Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to load image ",
@@ -1103,7 +1075,7 @@ void load_img()
     }
     
     fileName = "editor/water.png";
-    Resources::get().tx_water = Ego::Renderer::get().createTexture();;
+    Resources::get().tx_water = Ego::Renderer::get().createTexture();
     if (!Resources::get().tx_water->load(fileName, gfx_loadImage(fileName)))
     {
 		Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to load image ",
@@ -1111,7 +1083,7 @@ void load_img()
     }
     
     fileName = "editor/slit.png";
-    Resources::get().tx_wall = Ego::Renderer::get().createTexture();;
+    Resources::get().tx_wall = Ego::Renderer::get().createTexture();
     if (!Resources::get().tx_wall->load(fileName, gfx_loadImage(fileName)))
     {
         Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to load image ",
@@ -1119,7 +1091,7 @@ void load_img()
     }
     
     fileName = "editor/impass.png";
-    Resources::get().tx_impass = Ego::Renderer::get().createTexture();;
+    Resources::get().tx_impass = Ego::Renderer::get().createTexture();
     if (!Resources::get().tx_impass->load(fileName, gfx_loadImage(fileName)))
     {
         Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to load image ",
@@ -1127,7 +1099,7 @@ void load_img()
     }
     
     fileName = "editor/damage.png";
-    Resources::get().tx_damage = Ego::Renderer::get().createTexture();;
+    Resources::get().tx_damage = Ego::Renderer::get().createTexture();
     if (!Resources::get().tx_damage->load(fileName, gfx_loadImage(fileName)))
     {
         Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to load image ",
@@ -1165,12 +1137,12 @@ void get_small_tiles( SDL_Surface* bmpload )
 
             Resources::get().tx_smalltile[numsmalltile] = Ego::Renderer::get().createTexture();
 
-            image = Ego::SDL::createSurface( SMALLXY, SMALLXY );
+            image = Ego::ImageManager::get().createImage( SMALLXY, SMALLXY );
             if (!image)
             {
                 throw std::runtime_error("unable to create surface");
             }
-            SDL_FillRect( image.get(), NULL, make_rgb( image, Ego::Math::Colour3b::black() ) );
+            Ego::fill(image.get(), Ego::Math::Colour3b::black());
             SDL_SoftStretch( bmpload, &src1, image.get(), NULL );
 
             Resources::get().tx_smalltile[numsmalltile]->load(image);
@@ -1215,13 +1187,12 @@ void get_big_tiles( SDL_Surface* bmpload )
 
             Resources::get().tx_bigtile[numbigtile] = Ego::Renderer::get().createTexture();
 
-            image = Ego::SDL::createSurface( SMALLXY, SMALLXY );
+            image = Ego::ImageManager::get().createImage( SMALLXY, SMALLXY );
             if (!image)
             {
                 throw std::runtime_error("unable to create surface");
             }
-            SDL_FillRect( image.get(), NULL, make_rgb( image, Ego::Math::Colour3b::black() ) );
-
+            Ego::fill(image.get(), Ego::Math::Colour3b::black());
             SDL_SoftStretch( bmpload, &src1, image.get(), NULL );
 
             Resources::get().tx_bigtile[numbigtile]->load(image);

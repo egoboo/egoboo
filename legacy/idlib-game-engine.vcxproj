@@ -35,9 +35,23 @@
     <ClInclude Include="..\idlib-game-engine\library\src\idlib\game-engine\events\mouse_wheel_event_kind.hpp" />
     <ClInclude Include="..\idlib-game-engine\library\src\idlib\game-engine\events\window_event.hpp" />
     <ClInclude Include="..\idlib-game-engine\library\src\idlib\game-engine\events\window_event_kind.hpp" />
-    <ClInclude Include="..\idlib-game-engine\library\src\idlib\game-engine\video\blend_function.hpp" />
+    <ClInclude Include="..\idlib-game-engine\library\src\idlib\game-engine\video\color_blend\color_blend_equation.hpp" />
+    <ClInclude Include="..\idlib-game-engine\library\src\idlib\game-engine\video\color_blend\color_blend_parameter.hpp" />
+    <ClInclude Include="..\idlib-game-engine\library\src\idlib\game-engine\video\color_depth\rgba_depth.hpp" />
+    <ClInclude Include="..\idlib-game-engine\library\src\idlib\game-engine\video\color_depth\rgb_depth.hpp" />
     <ClInclude Include="..\idlib-game-engine\library\src\idlib\game-engine\video\culling_mode.hpp" />
+    <ClInclude Include="..\idlib-game-engine\library\src\idlib\game-engine\video\index_descriptor.hpp" />
+    <ClInclude Include="..\idlib-game-engine\library\src\idlib\game-engine\video\index_syntactics.hpp" />
+    <ClInclude Include="..\idlib-game-engine\library\src\idlib\game-engine\video\index_format.hpp" />
+    <ClInclude Include="..\idlib-game-engine\library\src\idlib\game-engine\video\pixel_component_descriptor.hpp" />
+    <ClInclude Include="..\idlib-game-engine\library\src\idlib\game-engine\video\pixel_component_semantics.hpp" />
+    <ClInclude Include="..\idlib-game-engine\library\src\idlib\game-engine\video\pixel_format.hpp" />
     <ClInclude Include="..\idlib-game-engine\library\src\idlib\game-engine\video\primitive_type.hpp" />
+    <ClInclude Include="..\idlib-game-engine\library\src\idlib\game-engine\video\vertex_component_descriptor.hpp" />
+    <ClInclude Include="..\idlib-game-engine\library\src\idlib\game-engine\video\vertex_component_semantics.hpp" />
+    <ClInclude Include="..\idlib-game-engine\library\src\idlib\game-engine\video\vertex_component_syntactics.hpp" />
+    <ClInclude Include="..\idlib-game-engine\library\src\idlib\game-engine\video\vertex_descriptor.hpp" />
+    <ClInclude Include="..\idlib-game-engine\library\src\idlib\game-engine\video\vertex_format.hpp" />
     <ClInclude Include="..\idlib-game-engine\library\src\idlib\game-engine\video\video.hpp" />
     <ClInclude Include="..\idlib-game-engine\library\src\idlib\game-engine\video\winding_mode.hpp" />
   </ItemGroup>
@@ -45,9 +59,14 @@
     <ClCompile Include="..\idlib-game-engine\library\src\idlib\game-engine\common.cpp" />
     <ClCompile Include="..\idlib-game-engine\library\src\idlib\game-engine\events\event.cpp" />
     <ClCompile Include="..\idlib-game-engine\library\src\idlib\game-engine\events\events.cpp" />
-    <ClCompile Include="..\idlib-game-engine\library\src\idlib\game-engine\video\blend_function.cpp" />
-    <ClCompile Include="..\idlib-game-engine\library\src\idlib\game-engine\video\culling_mode.cpp" />
+    <ClCompile Include="..\idlib-game-engine\library\src\idlib\game-engine\video\color_depth\rgba_depth.cpp" />
+    <ClCompile Include="..\idlib-game-engine\library\src\idlib\game-engine\video\color_depth\rgb_depth.cpp" />
+    <ClCompile Include="..\idlib-game-engine\library\src\idlib\game-engine\video\index_descriptor.cpp" />
+    <ClCompile Include="..\idlib-game-engine\library\src\idlib\game-engine\video\pixel_component_descriptor.cpp" />
     <ClCompile Include="..\idlib-game-engine\library\src\idlib\game-engine\video\primitive_type.cpp" />
+    <ClCompile Include="..\idlib-game-engine\library\src\idlib\game-engine\video\texture_sampler.cpp" />
+    <ClCompile Include="..\idlib-game-engine\library\src\idlib\game-engine\video\vertex_component_descriptor.cpp" />
+    <ClCompile Include="..\idlib-game-engine\library\src\idlib\game-engine\video\vertex_descriptor.cpp" />
     <ClCompile Include="..\idlib-game-engine\library\src\idlib\game-engine\video\video.cpp" />
     <ClCompile Include="..\idlib-game-engine\library\src\idlib\game-engine\video\winding_mode.cpp" />
   </ItemGroup>

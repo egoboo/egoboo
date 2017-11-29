@@ -108,14 +108,14 @@ public:
     virtual void setAlphaTestEnabled(bool enabled) override;
 
     /** @copydoc Ego::Renderer::setAlphaFunction */
-    virtual void setAlphaFunction(CompareFunction function, float value) override;
+    virtual void setAlphaFunction(id::compare_function function, float value) override;
 
     /** @copydoc Ego::Renderer::setBlendingEnabled */
     virtual void setBlendingEnabled(bool enabled) override;
 
     /** @copydoc Ego::Renderer::setSourceBlendFunction */
-    virtual void setBlendFunction(id::blend_function sourceColour, id::blend_function sourceAlpha,
-		                          id::blend_function destinationColour, id::blend_function destinationAlpha) override;
+    virtual void setBlendFunction(id::color_blend_parameter sourceColour, id::color_blend_parameter sourceAlpha,
+		                          id::color_blend_parameter destinationColour, id::color_blend_parameter destinationAlpha) override;
 
     /** @copydoc Ego::Renderer::setColour */
     virtual void setColour(const Colour4f& colour) override;
@@ -124,7 +124,7 @@ public:
     virtual void setCullingMode(id::culling_mode mode) override;
 
     /** @copydoc Ego::Renderer::setDepthFunction */
-    virtual void setDepthFunction(CompareFunction function) override;
+    virtual void setDepthFunction(id::compare_function function) override;
 
     /** @copydoc Ego::Renderer::setDepthTestEnabled */
     virtual void setDepthTestEnabled(bool enabled) override;
@@ -184,7 +184,7 @@ public:
     virtual void setLightingEnabled(bool enabled) override;
 
     /** @copydoc Ego::Renderer::setRasterizationMode */
-    virtual void setRasterizationMode(RasterizationMode mode) override;
+    virtual void setRasterizationMode(id::rasterization_mode mode) override;
 
     /** @copydoc Ego::Renderer::setGouraudShadingEnabled */
     virtual void setGouraudShadingEnabled(bool enabled) override;
@@ -207,7 +207,7 @@ public:
 
 private:
     std::array<float, 16> toOpenGL(const Matrix4f4f& source);
-    GLenum toOpenGL(id::blend_function source);
+    GLenum toOpenGL(id::color_blend_parameter source);
 
 }; // class Renderer
 

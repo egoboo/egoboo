@@ -85,17 +85,17 @@ float RendererInfo::getDesiredAnisotropy() const noexcept
     return m_desiredAnisotropy;
 }
 
-TextureFilter RendererInfo::getDesiredMinimizationFilter() const noexcept
+id::texture_filter_method RendererInfo::getDesiredMinimizationFilter() const noexcept
 {
     return m_desiredMinimizationFilter;
 }
 
-TextureFilter RendererInfo::getDesiredMaximizationFilter() const noexcept
+id::texture_filter_method RendererInfo::getDesiredMaximizationFilter() const noexcept
 {
     return m_desiredMaximizationFilter;
 }
 
-TextureFilter RendererInfo::getDesiredMipMapFilter() const noexcept
+id::texture_filter_method RendererInfo::getDesiredMipMapFilter() const noexcept
 {
     return m_desiredMipMapFilter;
 }

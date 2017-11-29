@@ -26,8 +26,7 @@
 #include "egolib/Renderer/Texture.hpp"
 #include "egolib/Extensions/ogl_extensions.h"
 
-namespace Ego {
-namespace OpenGL {
+namespace Ego { namespace OpenGL {
 
 class Renderer;
 class RendererInfo;
@@ -42,13 +41,12 @@ protected:
     GLuint m_id;
 
 public:
-    void load(const std::string& name, const std::shared_ptr<SDL_Surface>& surface, TextureType type, const TextureSampler& sampler);
-    
+	void load(const std::string& name, const std::shared_ptr<SDL_Surface>& surface, id::texture_type type, const id::texture_sampler& sampler);
     /** @override Ego::Texture::load(const String& name, const SharedPtr<SDL_Surface>&) */
-    bool load(const std::string& name, const std::shared_ptr<SDL_Surface>& surface) override;
+	bool load(const std::string& name, const std::shared_ptr<SDL_Surface>& surface) override;
 
     /** @override Ego::Texture::load(const std::shared_ptr<SDL_Surface>&) */
-    bool load(const std::shared_ptr<SDL_Surface>& surface) override;
+	bool load(const std::shared_ptr<SDL_Surface>& surface) override;
 
     /** @override Ego::Texture::release */
     void release() override;
@@ -63,8 +61,9 @@ public:
 
     /// @brief Construct this texture.
     Texture(Renderer *renderer, GLuint id, const std::string& name,
-            TextureType type, const TextureSampler& sampler,
-            int width, int height, int sourceWidth, int sourceHeight, std::shared_ptr<SDL_Surface> source,
+            id::texture_type type, const id::texture_sampler& sampler,
+            int width, int height, int sourceWidth, int sourceHeight,
+			std::shared_ptr<SDL_Surface> source,
             bool hasAlpha);
 
     /// @brief Destruct this texture.
@@ -75,5 +74,4 @@ public:
     void setId(GLuint id);
 };
 
-} // namespace OpenGL
-} // namespace Ego
+} } // namespace Ego::OpenGL

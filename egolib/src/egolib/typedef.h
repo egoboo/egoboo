@@ -28,6 +28,8 @@
 #include "egolib/Debug.hpp"
 #include "egolib/Log/_Include.hpp"
 #include "egolib/Ref.hpp"
+#include <cstdint>
+#include <limits>
 
 //--------------------------------------------------------------------------------------------
 // place the definition of the lambda operator in a macro

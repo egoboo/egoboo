@@ -126,7 +126,7 @@ public:
     void decreaseMorale();
 
 	// CRTP
-	bool equal_to(const Team& other) const EGO_NOEXCEPT { return _teamID == other._teamID; }
+	bool equal_to(const Team& other) const noexcept { return _teamID == other._teamID; }
 
     inline TEAM_REF toRef() const {return _teamID;}
 

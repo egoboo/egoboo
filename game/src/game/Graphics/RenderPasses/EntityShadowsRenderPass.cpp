@@ -8,8 +8,8 @@ namespace Graphics {
 
 EntityShadowsRenderPass::EntityShadowsRenderPass() :
     RenderPass("entity shadows"),
-    _vertexDescriptor(VertexFormatFactory::get<VertexFormat::P3FT2F>()),
-    _vertexBuffer(4, _vertexDescriptor.getVertexSize())
+    _vertexDescriptor(descriptor_factory<id::vertex_format::P3FT2F>()()),
+    _vertexBuffer(4, _vertexDescriptor.get_size())
 {}
 
 void EntityShadowsRenderPass::doRun(::Camera& camera, const TileList& tl, const EntityList& el)
@@ -27,7 +27,7 @@ void EntityShadowsRenderPass::doRun(::Camera& camera, const TileList& tl, const 
     renderer.setDepthTestEnabled(true);
     // Enable blending.
     renderer.setBlendingEnabled(true);
-    renderer.setBlendFunction(id::blend_function::zero, id::blend_function::one_minus_source_color);
+    renderer.setBlendFunction(id::color_blend_parameter::zero, id::color_blend_parameter::one_minus_source0_color);
 
     // Keep track of the number of rendered shadows.
     size_t count = 0;

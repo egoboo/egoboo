@@ -26,9 +26,8 @@
 #include "egolib/Log/_Include.hpp"
 #include "egolib/Image/ImageLoader_SDL.hpp"
 #include "egolib/Image/ImageLoader_SDL_image.hpp"
+#include "egolib/Image/SDL_Image_Extensions.h"
 #include "egolib/Graphics/PixelFormat.hpp"
-#include "egolib/platform.h"
-#include "egolib/vfs.h"
 #include "egolib/Image/ImageLoader.hpp"
 
 namespace Ego {
@@ -190,7 +189,7 @@ ImageManager::Iterator ImageManager::end() const
 std::shared_ptr<SDL_Surface> ImageManager::getDefaultImage()
 {
     /// Create a surface of 8 x 8 blocks each of 16 x 16 pixels.
-    const auto& pixelFormatDescriptor = Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8A8>();
+    const auto& pixelFormatDescriptor = pixel_descriptor::get<id::pixel_format::R8G8B8A8>();
     auto surface = createImage(8 * 16, 8 * 16, pixelFormatDescriptor);
     if (!surface)
     {
@@ -202,35 +201,49 @@ std::shared_ptr<SDL_Surface> ImageManager::getDefaultImage()
     {
         for (size_t x = 0; x < 8; ++x)
         {
-            SDL_Rect rect;
-            rect.x = x * 16;
-            rect.y = y * 16;
-            rect.w = 16;
-            rect.h = 16;
-            uint32_t color;
+            auto rect = Rectangle2f({x * 16, y * 16}, {x * 16 + 16, y * 16 + 16});
             if (z % 2 != 0)
             {
-                color = SDL_MapRGBA(surface->format, 0, 0, 0, 255);      // black
+                Ego::fill(surface.get(), Math::Colour3b::black(), rect); // black
             }
             else
             {
-                color = SDL_MapRGBA(surface->format, 255, 255, 255, 255); // white
+                Ego::fill(surface.get(), Math::Colour3b::white(), rect); // white
             }
-            SDL_FillRect(surface.get(), &rect, color);
             z++;
         }
     }
     return surface;
 }
 
-std::shared_ptr<SDL_Surface> ImageManager::createImage(size_t width, size_t height, const Ego::PixelFormatDescriptor& pixelFormatDescriptor)
+std::shared_ptr<SDL_Surface> ImageManager::createImage(size_t width, size_t height, size_t pitch, const pixel_descriptor& pixel_descriptor, void *pixels)
+{
+    SDL_Surface* surface = SDL_CreateRGBSurfaceFrom(pixels,
+                                                    width,
+                                                    height,
+                                                    pixel_descriptor.get_color_depth().depth(),
+                                                    pitch,
+                                                    pixel_descriptor.get_red().get_mask(),
+                                                    pixel_descriptor.get_green().get_mask(),
+                                                    pixel_descriptor.get_blue().get_mask(),
+                                                    pixel_descriptor.get_alpha().get_mask());
+    if (!surface)
+    {
+        throw id::environment_error(__FILE__, __LINE__, "SDL image", "unable to create surface");
+    }
+    // Note: According to C++ documentation, the deleter is invoked if the std::shared_ptr constructor
+    //       raises an exception.
+    return std::shared_ptr<SDL_Surface>(surface, [](SDL_Surface *surface) { SDL_FreeSurface(surface); });
+}
+
+std::shared_ptr<SDL_Surface> ImageManager::createImage(size_t width, size_t height, const pixel_descriptor& pixel_descriptor)
 {
     SDL_Surface *surface = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height,
-                                                pixelFormatDescriptor.getColourDepth().getDepth(),
-                                                pixelFormatDescriptor.getRedMask(),
-                                                pixelFormatDescriptor.getGreenMask(),
-                                                pixelFormatDescriptor.getBlueMask(),
-                                                pixelFormatDescriptor.getAlphaMask());
+                                                pixel_descriptor.get_color_depth().depth(),
+                                                pixel_descriptor.get_red().get_mask(),
+                                                pixel_descriptor.get_green().get_mask(),
+                                                pixel_descriptor.get_blue().get_mask(),
+                                                pixel_descriptor.get_alpha().get_mask());
     if (!surface)
     {
         return nullptr;
@@ -240,4 +253,27 @@ std::shared_ptr<SDL_Surface> ImageManager::createImage(size_t width, size_t heig
     return std::shared_ptr<SDL_Surface>(surface, [](SDL_Surface *surface) { SDL_FreeSurface(surface); });
 }
 
+std::shared_ptr<SDL_Surface> ImageManager::createImage(size_t width, size_t height)
+{
+    return createImage(width, height, pixel_descriptor::get<id::pixel_format::R8G8B8A8>());
+}
+
+void ImageManager::save_as_bmp(const std::shared_ptr<SDL_Surface>& pixels, const std::string& pathname)
+{
+    SDL_SaveBMP_RW(pixels.get(), vfs_openRWopsWrite(pathname.c_str()), 1);
+}
+void ImageManager::save_as_png(const std::shared_ptr<SDL_Surface>& pixels, const std::string& pathname)
+{
+    IMG_SavePNG_RW(pixels.get(), vfs_openRWopsWrite(pathname.c_str()), 1);
+}
 } // namespace Ego
+
+std::shared_ptr<SDL_Surface> gfx_loadImage(const std::string& pathname)
+{
+	SDL_Surface *image = IMG_Load_RW(vfs_openRWopsRead(pathname.c_str()), 1);
+	if (!image)
+	{
+		return nullptr;
+	}
+	return std::shared_ptr<SDL_Surface>(image, [](SDL_Surface *surface) { SDL_FreeSurface(surface); });
+}

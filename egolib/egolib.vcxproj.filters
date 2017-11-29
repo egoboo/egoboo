@@ -438,9 +438,6 @@
     <ClCompile Include="src\egolib\Logic\TreasureTables.cpp">
       <Filter>Source Files\Logic</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\Renderer\TextureSampler.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\Renderer\RendererInfo.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
@@ -453,20 +450,8 @@
     <ClCompile Include="src\egolib\Graphics\Buffer.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\Graphics\VertexElementDescriptor.cpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\AI\AStar.cpp">
       <Filter>Source Files\AI</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\Graphics\ColourDepth.cpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\Graphics\VertexDescriptor.cpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\Graphics\IndexDescriptor.cpp">
-      <Filter>Source Files\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="src\egolib\Graphics\IndexBuffer.cpp">
       <Filter>Source Files\Graphics</Filter>
@@ -639,6 +624,9 @@
     <ClCompile Include="src\egolib\text\text_set_event.cpp">
       <Filter>Source Files\text</Filter>
     </ClCompile>
+    <ClCompile Include="src\egolib\Graphics\IndexFormat.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\egolib\vfs.h">
@@ -704,9 +692,6 @@
     <ClInclude Include="src\egolib\Renderer\OpenGL\Renderer.hpp">
       <Filter>Header Files\Renderer\OpenGL</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Renderer\TextureFilter.hpp">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Debug.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -751,9 +736,6 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Profiles\_AbstractProfileSystem.hpp">
       <Filter>Header Files\Profiles</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Renderer\TextureAddressMode.hpp">
-      <Filter>Header Files\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Core\StringUtilities.hpp">
       <Filter>Header Files\Core</Filter>
@@ -826,9 +808,6 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Image\ImageManager.hpp">
       <Filter>Header Files\Image</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Renderer\TextureType.hpp">
-      <Filter>Header Files\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Graphics\TextureManager.hpp">
       <Filter>Header Files\Graphics</Filter>
@@ -920,9 +899,6 @@
     <ClInclude Include="src\egolib\Core\QuadTree.hpp">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Renderer\RasterizationMode.hpp">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Graphics\ModelDescriptor.hpp">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
@@ -943,9 +919,6 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Graphics\Camera.hpp">
       <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Renderer\CompareFunction.hpp">
-      <Filter>Header Files\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Console\Console.hpp">
       <Filter>Header Files\Console</Filter>
@@ -1016,9 +989,6 @@
     <ClInclude Include="src\egolib\Script\Interpreter\SafeCast.hpp">
       <Filter>Header Files\Script\Interpreter</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Renderer\TextureSampler.hpp">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Logic\MissileTreatment.hpp">
       <Filter>Header Files\Logic</Filter>
     </ClInclude>
@@ -1037,14 +1007,8 @@
     <ClInclude Include="src\egolib\Graphics\Buffer.hpp">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Graphics\VertexElementDescriptor.hpp">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\AI\AStar.hpp">
       <Filter>Header Files\AI</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Graphics\ColourDepth.hpp">
-      <Filter>Header Files\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Profiles\GenderProfile.hpp">
       <Filter>Header Files\Profiles</Filter>
@@ -1054,12 +1018,6 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Math\VectorRejection.hpp">
       <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Graphics\VertexDescriptor.hpp">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Graphics\IndexDescriptor.hpp">
-      <Filter>Header Files\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Graphics\IndexBuffer.hpp">
       <Filter>Header Files\Graphics</Filter>
@@ -1283,6 +1241,36 @@
     <ClInclude Include="src\egolib\integrations\idlib.hpp">
       <Filter>Header Files\integrations</Filter>
     </ClInclude>
+    <ClInclude Include="src\egolib\Image\fill.hpp">
+      <Filter>Header Files\Image</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Image\set_pixel.hpp">
+      <Filter>Header Files\Image</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Image\get_pixel.hpp">
+      <Filter>Header Files\Image</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Image\blit.hpp">
+      <Filter>Header Files\Image</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Image\convert.hpp">
+      <Filter>Header Files\Image</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Image\power_of_two.hpp">
+      <Filter>Header Files\Image</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Image\pad.hpp">
+      <Filter>Header Files\Image</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\VFS\internal.hpp">
+      <Filter>Header Files\VFS</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Graphics\IndexFormat.hpp">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Graphics\descriptor_factory.hpp">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\egolib\platform\NSFileManager+DirectoryLocations.m">
@@ -1293,9 +1281,6 @@
     </None>
     <None Include="src\egolib\FileFormats\id_normals.inl">
       <Filter>File Formats</Filter>
-    </None>
-    <None Include="src\egolib\Platform\CurrentFunction.inline">
-      <Filter>Platforms</Filter>
     </None>
     <None Include="src\egolib\Script\Functions.in">
       <Filter>Header Files\Script</Filter>

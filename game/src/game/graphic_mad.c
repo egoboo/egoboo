@@ -414,7 +414,7 @@ gfx_rv ObjectGraphicsRenderer::render_ref( Camera& cam, const std::shared_ptr<Ob
             //Transparent
             if (pchr->inst.getReflectionAlpha() != 0xFF && pchr->inst.light == 0xFF) {
                 renderer.setBlendingEnabled(true);
-                renderer.setBlendFunction(id::blend_function::source_alpha, id::blend_function::one_minus_source_alpha);
+                renderer.setBlendFunction(id::color_blend_parameter::source0_alpha, id::color_blend_parameter::one_minus_source0_alpha);
 
                 GLXvector4f tint;
                 pchr->inst.getTint(tint, true, CHR_ALPHA);
@@ -427,7 +427,7 @@ gfx_rv ObjectGraphicsRenderer::render_ref( Camera& cam, const std::shared_ptr<Ob
             //Glowing
             if (pchr->inst.light != 0xFF) {
                 renderer.setBlendingEnabled(true);
-                renderer.setBlendFunction(id::blend_function::one, id::blend_function::one);
+                renderer.setBlendFunction(id::color_blend_parameter::one, id::color_blend_parameter::one);
 
                 GLXvector4f tint;
                 pchr->inst.getTint(tint, true, CHR_LIGHT);
@@ -441,7 +441,7 @@ gfx_rv ObjectGraphicsRenderer::render_ref( Camera& cam, const std::shared_ptr<Ob
             //Render shining effect on top of model
             if (pchr->inst.getReflectionAlpha() == 0xFF && gfx.phongon && pchr->inst.sheen > 0) {
                 renderer.setBlendingEnabled(true);
-                renderer.setBlendFunction(id::blend_function::one, id::blend_function::one);
+                renderer.setBlendFunction(id::color_blend_parameter::one, id::color_blend_parameter::one);
 
                 GLXvector4f tint;
                 pchr->inst.getTint(tint, true, CHR_PHONG);
@@ -480,10 +480,10 @@ gfx_rv ObjectGraphicsRenderer::render_trans(Camera& cam, const std::shared_ptr<O
 
                 // get a speed-up by not displaying completely transparent portions of the skin
                 renderer.setAlphaTestEnabled(true);
-                renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
+                renderer.setAlphaFunction(id::compare_function::greater, 0.0f);
 
                 renderer.setBlendingEnabled(true);
-                renderer.setBlendFunction(id::blend_function::source_alpha, id::blend_function::one);
+                renderer.setBlendFunction(id::color_blend_parameter::source0_alpha, id::color_blend_parameter::one);
 
                 GLXvector4f tint;
                 pchr->inst.getTint(tint, false, CHR_ALPHA);
@@ -501,7 +501,7 @@ gfx_rv ObjectGraphicsRenderer::render_trans(Camera& cam, const std::shared_ptr<O
                 renderer.setAlphaTestEnabled(false);
 
                 renderer.setBlendingEnabled(true);
-                renderer.setBlendFunction(id::blend_function::one, id::blend_function::one);
+                renderer.setBlendFunction(id::color_blend_parameter::one, id::color_blend_parameter::one);
 
                 GLXvector4f tint;
                 pchr->inst.getTint(tint, false, CHR_LIGHT);
@@ -514,7 +514,7 @@ gfx_rv ObjectGraphicsRenderer::render_trans(Camera& cam, const std::shared_ptr<O
             // Render shining effect on top of model
             if (pchr->inst.getReflectionAlpha() == 0xFF && gfx.phongon && pchr->inst.sheen > 0) {
                 renderer.setBlendingEnabled(true);
-                renderer.setBlendFunction(id::blend_function::one, id::blend_function::one);
+                renderer.setBlendFunction(id::color_blend_parameter::one, id::color_blend_parameter::one);
 
                 GLXvector4f tint;
                 pchr->inst.getTint(tint, false, CHR_PHONG);
@@ -553,11 +553,11 @@ gfx_rv ObjectGraphicsRenderer::render_solid( Camera& cam, const std::shared_ptr<
             // which will enable the display of the partially transparent portion of the skin
 
             renderer.setAlphaTestEnabled(true);
-            renderer.setAlphaFunction(Ego::CompareFunction::Equal, 1.0f);
+            renderer.setAlphaFunction(id::compare_function::equal, 1.0f);
 
             // can I turn this off?
             renderer.setBlendingEnabled(true);
-            renderer.setBlendFunction(id::blend_function::source_alpha, id::blend_function::one_minus_source_alpha);
+            renderer.setBlendFunction(id::color_blend_parameter::source0_alpha, id::color_blend_parameter::one_minus_source0_alpha);
 
             // allow the dont_cull_backfaces to keep solid objects from culling backfaces
             if (pchr->getProfile()->isDontCullBackfaces()) {

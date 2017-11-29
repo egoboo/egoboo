@@ -42,19 +42,19 @@ void oglx_caps_t::report() {
         // Print the colour buffer colour depth.
         const auto colourDepth = renderer.getColourBuffer().getColourDepth();
         e << "  Colour Buffer Colour Depth:" << Log::EndOfLine
-            << "    " << "red bits = " << colourDepth.getRedDepth() << Log::EndOfLine
-            << "    " << "green bits = " << colourDepth.getGreenDepth() << Log::EndOfLine
-            << "    " << "blue bits = " << colourDepth.getBlueDepth() << Log::EndOfLine
-            << "    " << "alpha bits = " << colourDepth.getAlphaDepth() << Log::EndOfLine;
+            << "    " << "red bits = " << colourDepth.rgb().r() << Log::EndOfLine
+            << "    " << "green bits = " << colourDepth.rgb().g() << Log::EndOfLine
+            << "    " << "blue bits = " << colourDepth.rgb().b() << Log::EndOfLine
+            << "    " << "alpha bits = " << colourDepth.a() << Log::EndOfLine;
     }
     {
         // Print the accumulation buffer colour depth.
         const auto colourDepth = renderer.getAccumulationBuffer().getColourDepth();
         e << "  Accumulation Buffer Colour Depth:" << Log::EndOfLine
-            << "    " << "red bits = " << colourDepth.getRedDepth() << Log::EndOfLine
-            << "    " << "green bits = " << colourDepth.getGreenDepth() << Log::EndOfLine
-            << "    " << "blue bits = " << colourDepth.getBlueDepth() << Log::EndOfLine
-            << "    " << "alpha bits = " << colourDepth.getAlphaDepth() << Log::EndOfLine;
+            << "    " << "red bits = " << colourDepth.rgb().r() << Log::EndOfLine
+            << "    " << "green bits = " << colourDepth.rgb().g() << Log::EndOfLine
+            << "    " << "blue bits = " << colourDepth.rgb().b() << Log::EndOfLine
+            << "    " << "alpha bits = " << colourDepth.a() << Log::EndOfLine;
     }
     {
         // Print depth buffer and stencil buffer depth.

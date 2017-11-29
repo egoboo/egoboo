@@ -66,10 +66,10 @@ Renderer::Renderer(const std::shared_ptr<RendererInfo>& info) :
     try
     {
         OpenGL::link();
-        m_defaultTexture1d = std::make_unique<DefaultTexture>(m_info, "<default texture 1D>", TextureType::_1D);
+        m_defaultTexture1d = std::make_unique<DefaultTexture>(m_info, "<default texture 1D>", id::texture_type::_1D);
         try
         {
-            m_defaultTexture2d = std::make_unique<DefaultTexture>(m_info, "<default texture 2D>", TextureType::_2D);
+            m_defaultTexture2d = std::make_unique<DefaultTexture>(m_info, "<default texture 2D>", id::texture_type::_2D);
         }
         catch (...)
         {
@@ -126,33 +126,33 @@ void Renderer::setAlphaTestEnabled(bool enabled) {
     Utilities::isError();
 }
 
-void Renderer::setAlphaFunction(CompareFunction function, float value) {
+void Renderer::setAlphaFunction(id::compare_function function, float value) {
     if (value < 0.0f || value > 1.0f) {
         throw std::invalid_argument("reference alpha value out of bounds");
     }
     switch (function) {
-        case CompareFunction::AlwaysFail:
+        case id::compare_function::always_fail:
             glAlphaFunc(GL_NEVER, value);
             break;
-        case CompareFunction::AlwaysPass:
+        case id::compare_function::always_pass:
             glAlphaFunc(GL_ALWAYS, value);
             break;
-        case CompareFunction::Equal:
+        case id::compare_function::equal:
             glAlphaFunc(GL_EQUAL, value);
             break;
-        case CompareFunction::NotEqual:
+        case id::compare_function::not_equal:
             glAlphaFunc(GL_NOTEQUAL, value);
             break;
-        case CompareFunction::Less:
+        case id::compare_function::less:
             glAlphaFunc(GL_LESS, value);
             break;
-        case CompareFunction::LessOrEqual:
+        case id::compare_function::less_or_equal:
             glAlphaFunc(GL_LEQUAL, value);
             break;
-        case CompareFunction::Greater:
+        case id::compare_function::greater:
             glAlphaFunc(GL_GREATER, value);
             break;
-        case CompareFunction::GreaterOrEqual:
+        case id::compare_function::greater_or_equal:
             glAlphaFunc(GL_GEQUAL, value);
             break;
         default:
@@ -170,8 +170,8 @@ void Renderer::setBlendingEnabled(bool enabled) {
     Utilities::isError();
 }
 
-void Renderer::setBlendFunction(id::blend_function sourceColour, id::blend_function sourceAlpha,
-                                id::blend_function destinationColour, id::blend_function destinationAlpha) {
+void Renderer::setBlendFunction(id::color_blend_parameter sourceColour, id::color_blend_parameter sourceAlpha,
+                                id::color_blend_parameter destinationColour, id::color_blend_parameter destinationAlpha) {
     glBlendFuncSeparate(toOpenGL(sourceColour), toOpenGL(destinationColour),
                         toOpenGL(sourceAlpha), toOpenGL(destinationAlpha));
     Utilities::isError();
@@ -206,30 +206,30 @@ void Renderer::setCullingMode(id::culling_mode mode) {
     Utilities::isError();
 }
 
-void Renderer::setDepthFunction(CompareFunction function) {
+void Renderer::setDepthFunction(id::compare_function function) {
     switch (function) {
-        case CompareFunction::AlwaysFail:
+        case id::compare_function::always_fail:
             glDepthFunc(GL_NEVER);
             break;
-        case CompareFunction::AlwaysPass:
+        case id::compare_function::always_pass:
             glDepthFunc(GL_ALWAYS);
             break;
-        case CompareFunction::Less:
+        case id::compare_function::less:
             glDepthFunc(GL_LESS);
             break;
-        case CompareFunction::LessOrEqual:
+        case id::compare_function::less_or_equal:
             glDepthFunc(GL_LEQUAL);
             break;
-        case CompareFunction::Equal:
+        case id::compare_function::equal:
             glDepthFunc(GL_EQUAL);
             break;
-        case CompareFunction::NotEqual:
+        case id::compare_function::not_equal:
             glDepthFunc(GL_NOTEQUAL);
             break;
-        case CompareFunction::GreaterOrEqual:
+        case id::compare_function::greater_or_equal:
             glDepthFunc(GL_GEQUAL);
             break;
-        case CompareFunction::Greater:
+        case id::compare_function::greater:
             glDepthFunc(GL_GREATER);
             break;
         default:
@@ -419,15 +419,15 @@ void Renderer::setLightingEnabled(bool enabled) {
     Utilities::isError();
 }
 
-void Renderer::setRasterizationMode(RasterizationMode mode) {
+void Renderer::setRasterizationMode(id::rasterization_mode mode) {
     switch (mode) {
-        case RasterizationMode::Point:
+        case id::rasterization_mode::point:
             glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
             break;
-        case RasterizationMode::Line:
+        case id::rasterization_mode::line:
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
             break;
-        case RasterizationMode::Solid:
+        case id::rasterization_mode::solid:
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             break;
     }
@@ -444,7 +444,7 @@ void Renderer::setGouraudShadingEnabled(bool enabled) {
 }
 
 void Renderer::render(VertexBuffer& vertexBuffer, const VertexDescriptor& vertexDescriptor, id::primitive_type primitiveType, size_t index, size_t length) {
-    if (vertexDescriptor.getVertexSize() != vertexBuffer.getVertexSize())
+    if (vertexDescriptor.get_size() != vertexBuffer.getVertexSize())
     {
         throw std::invalid_argument("vertex size mismatch");
     }
@@ -455,113 +455,113 @@ void Renderer::render(VertexBuffer& vertexBuffer, const VertexDescriptor& vertex
     const char *vertices = static_cast<char *>(vertexBuffer.lock());
     for (auto it = vertexDescriptor.begin(); it != vertexDescriptor.end(); ++it) {
         const auto& vertexElementDescriptor = (*it);
-        switch (vertexElementDescriptor.getSemantics()) {
-            case VertexElementDescriptor::Semantics::Position:
+        switch (vertexElementDescriptor.get_semantics()) {
+        case id::vertex_component_semantics::POSITION:
             {
                 // Enable the required client-side capabilities.
                 glEnableClientState(GL_VERTEX_ARRAY);
                 // Set the pointers.
                 GLint size;
                 GLenum type;
-                switch (vertexElementDescriptor.getSyntax())
+                switch (vertexElementDescriptor.get_syntactics())
                 {
-                    case VertexElementDescriptor::Syntax::F2:
+                    case id::vertex_component_syntactics::SINGLE_2:
                         size = 2;
                         type = GL_FLOAT;
                         break;
-                    case VertexElementDescriptor::Syntax::F3:
+                    case id::vertex_component_syntactics::SINGLE_3:
                         size = 3;
                         type = GL_FLOAT;
                         break;
-                    case VertexElementDescriptor::Syntax::F4:
+                    case id::vertex_component_syntactics::SINGLE_4:
                         size = 4;
                         type = GL_FLOAT;
                         break;
-                    case VertexElementDescriptor::Syntax::F1:
+                    case id::vertex_component_syntactics::SINGLE_1:
                         throw id::runtime_error(__FILE__, __LINE__, "vertex format not supported");
                     default:
                         throw id::unhandled_switch_case_error(__FILE__, __LINE__);
                 };
-                glVertexPointer(size, type, vertexDescriptor.getVertexSize(),
-                                vertices + vertexElementDescriptor.getOffset());
+                glVertexPointer(size, type, vertexDescriptor.get_size(),
+                                vertices + vertexElementDescriptor.get_offset());
             }
             break;
-            case VertexElementDescriptor::Semantics::Colour:
+            case id::vertex_component_semantics::COLOR:
             {
                 // Enable required client-side capabilities.
                 glEnableClientState(GL_COLOR_ARRAY);
                 // Set the pointers.
                 GLint size;
                 GLenum type;
-                switch (vertexElementDescriptor.getSyntax()) {
-                    case VertexElementDescriptor::Syntax::F3:
+                switch (vertexElementDescriptor.get_syntactics()) {
+                case id::vertex_component_syntactics::SINGLE_3:
                         size = 3;
                         type = GL_FLOAT;
                         break;
-                    case VertexElementDescriptor::Syntax::F4:
+                case id::vertex_component_syntactics::SINGLE_4:
                         size = 4;
                         type = GL_FLOAT;
                         break;
-                    case VertexElementDescriptor::Syntax::F1:
-                    case VertexElementDescriptor::Syntax::F2:
+                case id::vertex_component_syntactics::SINGLE_1:
+                case id::vertex_component_syntactics::SINGLE_2:
                         throw id::runtime_error(__FILE__, __LINE__, "vertex format not supported");
                     default:
                         throw id::unhandled_switch_case_error(__FILE__, __LINE__);
                 };
-                glColorPointer(size, type, vertexDescriptor.getVertexSize(),
-                               vertices + vertexElementDescriptor.getOffset());
+                glColorPointer(size, type, vertexDescriptor.get_size(),
+                               vertices + vertexElementDescriptor.get_offset());
             }
             break;
-            case VertexElementDescriptor::Semantics::Normal:
+            case id::vertex_component_semantics::NORMAL:
             {
                 // Enable the required client-side capabilities.
                 glEnableClientState(GL_NORMAL_ARRAY);
                 // Set the pointers.
                 GLenum type;
-                switch (vertexElementDescriptor.getSyntax()) {
-                    case VertexElementDescriptor::Syntax::F3:
+                switch (vertexElementDescriptor.get_syntactics()) {
+                    case id::vertex_component_syntactics::SINGLE_3:
                         type = GL_FLOAT;
                         break;
-                    case VertexElementDescriptor::Syntax::F1:
-                    case VertexElementDescriptor::Syntax::F2:
-                    case VertexElementDescriptor::Syntax::F4:
+                    case id::vertex_component_syntactics::SINGLE_1:
+                    case id::vertex_component_syntactics::SINGLE_2:
+                    case id::vertex_component_syntactics::SINGLE_4:
                         throw id::runtime_error(__FILE__, __LINE__, "vertex format not supported");
                     default:
                         throw id::unhandled_switch_case_error(__FILE__, __LINE__);
                 };
-                glNormalPointer(type, vertexDescriptor.getVertexSize(),
-                                vertices + vertexElementDescriptor.getOffset());
+                glNormalPointer(type, vertexDescriptor.get_size(),
+                                vertices + vertexElementDescriptor.get_offset());
             }
             break;
-            case VertexElementDescriptor::Semantics::Texture:
+            case id::vertex_component_semantics::TEXTURE:
             {
                 // Enable the required client-side capabilities.
                 glEnableClientState(GL_TEXTURE_COORD_ARRAY);
                 // Set the pointers.
                 GLint size;
                 GLenum type;
-                switch (vertexElementDescriptor.getSyntax()) {
-                    case VertexElementDescriptor::Syntax::F1:
+                switch (vertexElementDescriptor.get_syntactics()) {
+                    case id::vertex_component_syntactics::SINGLE_1:
                         size = 1;
                         type = GL_FLOAT;
                         break;
-                    case VertexElementDescriptor::Syntax::F2:
+                    case id::vertex_component_syntactics::SINGLE_2:
                         size = 2;
                         type = GL_FLOAT;
                         break;
-                    case VertexElementDescriptor::Syntax::F3:
+                    case id::vertex_component_syntactics::SINGLE_3:
                         size = 3;
                         type = GL_FLOAT;
                         break;
-                    case VertexElementDescriptor::Syntax::F4:
+                    case id::vertex_component_syntactics::SINGLE_4:
                         size = 4;
                         type = GL_FLOAT;
                         break;
                     default:
                         throw id::unhandled_switch_case_error(__FILE__, __LINE__);
                 };
-                glTexCoordPointer(size, type, vertexDescriptor.getVertexSize(),
-                                  vertices + vertexElementDescriptor.getOffset());
+                glTexCoordPointer(size, type, vertexDescriptor.get_size(),
+                                  vertices + vertexElementDescriptor.get_offset());
             }
             break;
             default:
@@ -591,23 +591,26 @@ std::array<float, 16> Renderer::toOpenGL(const Matrix4f4f& source) {
     return target;
 }
 
-GLenum Renderer::toOpenGL(id::blend_function source) {
+GLenum Renderer::toOpenGL(id::color_blend_parameter source) {
     switch (source) {
-        case id::blend_function::zero: return GL_ZERO;
-        case id::blend_function::one:  return GL_ONE;
-        case id::blend_function::source_color: return GL_SRC_COLOR;
-        case id::blend_function::one_minus_source_color: return GL_ONE_MINUS_SRC_COLOR;
-        case id::blend_function::destination_color: return GL_DST_COLOR;
-        case id::blend_function::one_minus_destination_color: return GL_ONE_MINUS_DST_COLOR;
-        case id::blend_function::source_alpha: return GL_SRC_ALPHA;
-        case id::blend_function::one_minus_source_alpha: return GL_ONE_MINUS_SRC_ALPHA;
-        case id::blend_function::destination_alpha: return GL_DST_ALPHA;
-        case id::blend_function::one_minus_destination_alpha: return GL_ONE_MINUS_DST_ALPHA;
-		case id::blend_function::constant_color: return GL_CONSTANT_COLOR;
-        case id::blend_function::one_minus_constant_color: return GL_ONE_MINUS_CONSTANT_COLOR;
-        case id::blend_function::constant_alpha: return GL_CONSTANT_ALPHA;
-        case id::blend_function::one_minus_constant_alpha: return GL_ONE_MINUS_CONSTANT_ALPHA;
-        case id::blend_function::source_alpha_saturate: return GL_SRC_ALPHA_SATURATE;
+        case id::color_blend_parameter::zero: return GL_ZERO;
+        case id::color_blend_parameter::one:  return GL_ONE;
+        case id::color_blend_parameter::source0_color: return GL_SRC_COLOR;
+        case id::color_blend_parameter::source1_color: return GL_SRC1_COLOR;
+        case id::color_blend_parameter::one_minus_source0_color: return GL_ONE_MINUS_SRC_COLOR;
+        case id::color_blend_parameter::one_minus_source1_color: return GL_ONE_MINUS_SRC1_COLOR;
+        case id::color_blend_parameter::destination_color: return GL_DST_COLOR;
+        case id::color_blend_parameter::one_minus_destination_color: return GL_ONE_MINUS_DST_COLOR;
+        case id::color_blend_parameter::source0_alpha: return GL_SRC_ALPHA;
+        case id::color_blend_parameter::one_minus_source0_alpha: return GL_ONE_MINUS_SRC_ALPHA;
+        case id::color_blend_parameter::one_minus_source1_alpha: return GL_ONE_MINUS_SRC1_ALPHA;
+        case id::color_blend_parameter::destination_alpha: return GL_DST_ALPHA;
+        case id::color_blend_parameter::one_minus_destination_alpha: return GL_ONE_MINUS_DST_ALPHA;
+		case id::color_blend_parameter::constant_color: return GL_CONSTANT_COLOR;
+        case id::color_blend_parameter::one_minus_constant_color: return GL_ONE_MINUS_CONSTANT_COLOR;
+        case id::color_blend_parameter::constant_alpha: return GL_CONSTANT_ALPHA;
+        case id::color_blend_parameter::one_minus_constant_alpha: return GL_ONE_MINUS_CONSTANT_ALPHA;
+        case id::color_blend_parameter::source0_alpha_saturate: return GL_SRC_ALPHA_SATURATE;
         default:
             throw id::unhandled_switch_case_error(__FILE__, __LINE__);
     };

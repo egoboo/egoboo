@@ -31,6 +31,14 @@
 
 //--------------------------------------------------------------------------------------------
 // SDL.
+#if defined (ID_WINDOWS) && 1 == ID_WINDOWS
+    #if !defined(NOMINMAX)
+        #define NOMINMAX
+    #endif
+    #if !defined(WIN32_LEAN_AND_MEAN)
+        #define WIN32_LEAN_AND_MEAN
+    #endif
+#endif
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_mixer.h>
@@ -109,18 +117,6 @@ extern "C"
 
 #define SLASH_STR SYSTEM_SLASH_STR
 #define SLASH_CHR SYSTEM_SLASH_CHR
-
-
-//--------------------------------------------------------------------------------------------
-
-// Compiler-specific definitions
-
-// MSVC does not support noexcept yet.
-#if defined(_MSC_VER)
-    #define EGO_NOEXCEPT throw()
-#else
-    #define EGO_NOEXCEPT noexcept
-#endif
 
 //--------------------------------------------------------------------------------------------
 // Turn off warnings that we don't care about.

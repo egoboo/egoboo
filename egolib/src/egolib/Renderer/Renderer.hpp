@@ -25,9 +25,7 @@
 
 #include "egolib/Math/_Include.hpp"
 #include "egolib/egoboo_setup.h"
-#include "egolib/Renderer/CompareFunction.hpp"
-#include "egolib/Renderer/RasterizationMode.hpp"
-#include "egolib/Renderer/TextureSampler.hpp"
+#include "egolib/integrations/idlib.hpp"
 #include "egolib/Renderer/RendererInfo.hpp"
 #include "egolib/Graphics/VertexBuffer.hpp"
 #include "egolib/Renderer/Texture.hpp"
@@ -82,7 +80,7 @@ protected:
 public:
     /// @brief Get the colour depth of this accumulation buffer.
     /// @return the colour depth of this accumulation buffer
-    virtual const ColourDepth& getColourDepth() = 0;
+    virtual const id::rgba_depth& getColourDepth() = 0;
 
 };
 
@@ -101,7 +99,7 @@ protected:
 public:
     /// @brief Get the colour depth of this colour buffer.
     /// @return the colour depth of this colour buffer
-    virtual const ColourDepth& getColourDepth() = 0;
+    virtual const id::rgba_depth& getColourDepth() = 0;
 
 };
 
@@ -275,7 +273,7 @@ public:
      * @throw std::invalid_argument
      *  if @a value is not within the bounds of @a 0.0f (inclusive) and @a 1.0f (inclusive).
      */
-    virtual void setAlphaFunction(CompareFunction function, float value) = 0;
+    virtual void setAlphaFunction(id::compare_function function, float value) = 0;
 
     /// @brief Enable/disable blending.
     /// @param enabled @a true enables blending, @a false disables it
@@ -296,8 +294,8 @@ public:
      * @remark
      *  See id::blend_function for more information.
      */
-    virtual void setBlendFunction(id::blend_function sourceColour, id::blend_function sourceAlpha,
-                                  id::blend_function destinationColour, id::blend_function destinationAlpha) = 0;
+    virtual void setBlendFunction(id::color_blend_parameter sourceColour, id::color_blend_parameter sourceAlpha,
+                                  id::color_blend_parameter destinationColour, id::color_blend_parameter destinationAlpha) = 0;
     /**
      * @brief
      *  Set the blend function.
@@ -315,7 +313,7 @@ public:
      *  o.setBlendFunction(x, x, y, y)
      *  @endcode
      */
-    virtual void setBlendFunction(id::blend_function source, id::blend_function destination) {
+    virtual void setBlendFunction(id::color_blend_parameter source, id::color_blend_parameter destination) {
         setBlendFunction(source, source, destination, destination);
     }
 
@@ -366,7 +364,7 @@ public:
      *  To unconditionally write to the depth buffer, depth testing should be set to enabled and the depth test
      *  function to always pass.
      */
-    virtual void setDepthFunction(CompareFunction function) = 0;
+    virtual void setDepthFunction(id::compare_function function) = 0;
 
     /// @brief Enable/disable depth testss.
     /// @param enabled @a true enables depth tests, @a false disables them
@@ -475,7 +473,7 @@ public:
 
     /// @brief Set the rasterization mode (for front- and back-facing polygons).
     /// @param mode the rasterization mode
-    virtual void setRasterizationMode(RasterizationMode mode) = 0;
+    virtual void setRasterizationMode(id::rasterization_mode mode) = 0;
 
     /// @brief Enable/disable Gouraud shading.
     /// @param enable @a true enables Gouraud shading, @a false disables it

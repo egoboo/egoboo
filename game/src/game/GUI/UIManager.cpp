@@ -34,9 +34,9 @@ UIManager::UIManager() :
     _fonts(),
     _renderSemaphore(0),
     _bitmapFontTexture(TextureManager::get().getTexture("mp_data/font_new_shadow")),
-    _vertexDescriptor(VertexFormatFactory::get<VertexFormat::P2F>()),
-    _textureQuadVertexDescriptor(VertexFormatFactory::get<VertexFormat::P2FT2F>()),
-    _textureQuadVertexBuffer(4, _textureQuadVertexDescriptor.getVertexSize()) {
+    _vertexDescriptor(descriptor_factory<id::vertex_format::P2F>()()),
+    _textureQuadVertexDescriptor(descriptor_factory<id::vertex_format::P2FT2F>()()),
+    _textureQuadVertexBuffer(4, _textureQuadVertexDescriptor.get_size()) {
     //Load fonts from true-type files
     _fonts[FONT_DEFAULT] = FontManager::get().loadFont("mp_data/Bo_Chen.ttf", 24);
     _fonts[FONT_FLOATING_TEXT] = FontManager::get().loadFont("mp_data/FrostysWinterland.ttf", 24);
@@ -53,7 +53,7 @@ UIManager::UIManager() :
         }
     }
 #endif
-    _vertexBuffer = std::make_shared<VertexBuffer>(4, _vertexDescriptor.getVertexSize());
+    _vertexBuffer = std::make_shared<VertexBuffer>(4, _vertexDescriptor.get_size());
 }
 
 UIManager::~UIManager() {
@@ -83,12 +83,12 @@ void UIManager::beginRenderUI() {
     renderer.setCullingMode(id::culling_mode::none);
 
     // Use normal alpha blending.
-    renderer.setBlendFunction(id::blend_function::source_alpha, id::blend_function::one_minus_source_alpha);
+    renderer.setBlendFunction(id::color_blend_parameter::source0_alpha, id::color_blend_parameter::one_minus_source0_alpha);
     renderer.setBlendingEnabled(true);
 
     // Do not display the completely transparent portion.
     renderer.setAlphaTestEnabled(true);
-    renderer.setAlphaFunction(CompareFunction::Greater, 0.0f);
+    renderer.setAlphaFunction(id::compare_function::greater, 0.0f);
 
     /// Set the viewport rectangle.
     auto drawableSize = GraphicsSystem::get().window->getDrawableSize();
@@ -140,94 +140,34 @@ void UIManager::drawImage(const Point2f& position, const Vector2f& size, const s
 }
 
 bool UIManager::dumpScreenshot() {
-    int i;
-    bool saved = false;
-    std::string szFilename, szResolvedFilename;
-
-    // find a valid file name
-    bool savefound = false;
-    i = 0;
-    while (!savefound && (i < 100)) {
+    auto make_filename = [](size_t i) {
         std::stringstream stream;
         stream << "ego" << std::setfill('0') << std::setw(2) << i << ".png";
-        szFilename = stream.str();
+        return stream.str();
+    };
 
-        // lame way of checking if the file already exists...
-        savefound = !vfs_exists(szFilename);
-        if (!savefound) {
-            i++;
-        }
+    auto file = make_filename(0);
+    auto file_exists = vfs_exists(file);
+
+    for (auto i = 1; file_exists && i < 100; ++i) {
+        file = make_filename(i);
+        file_exists = vfs_exists(file);
     }
 
-    if (!savefound) return false;
+    if (file_exists) return false;
 
-    // convert the file path to the correct write path
-    szResolvedFilename = szFilename;
-
-    // if we are not using OpenGL, use SDL to dump the screen
-    if (HAS_NO_BITS(SDL_GetWindowFlags(Ego::GraphicsSystem::get().window->get()), SDL_WINDOW_OPENGL)) {
-        return IMG_SavePNG_RW(SDL_GetWindowSurface(Ego::GraphicsSystem::get().window->get()), vfs_openRWopsWrite(szResolvedFilename), 1);
-    }
-
-    // we ARE using OpenGL
+    try
     {
-        OpenGL::PushClientAttrib pca(GL_CLIENT_PIXEL_STORE_BIT);
-        {
-            SDL_Surface *temp;
-
-            // create a SDL surface
-            const auto& pixelFormatDescriptor = PixelFormatDescriptor::get<PixelFormat::R8G8B8>();
-            auto drawableSize = GraphicsSystem::get().window->getDrawableSize();
-            temp = SDL_CreateRGBSurface(0, drawableSize.x(), drawableSize.y(),
-                                        pixelFormatDescriptor.getColourDepth().getDepth(),
-                                        pixelFormatDescriptor.getRedMask(),
-                                        pixelFormatDescriptor.getGreenMask(),
-                                        pixelFormatDescriptor.getBlueMask(),
-                                        pixelFormatDescriptor.getAlphaMask());
-
-            if (NULL == temp) {
-                //Something went wrong
-                SDL_FreeSurface(temp);
-                return false;
-            }
-
-            //Now lock the surface so that we can read it
-            if (-1 != SDL_LockSurface(temp)) {
-                SDL_Rect rect = {0, 0, drawableSize.x(), drawableSize.y()};
-
-                int y;
-                uint8_t * pixels;
-
-                GL_DEBUG(glGetError)();
-
-                // ARGH! Must copy the pixels row-by-row, since the OpenGL video memory is flipped vertically
-                // relative to the SDL Screen memory
-
-                // this is supposed to be a DirectX thing, so it needs to be tested out on glx
-                // there should probably be [SCREENSHOT_INVERT] and [SCREENSHOT_VALID] keys in setup.txt
-                pixels = (uint8_t *)temp->pixels;
-                for (y = rect.y; y < rect.y + rect.h; y++) {
-                    GL_DEBUG(glReadPixels)(rect.x, (rect.h - y) - 1, rect.w, 1, GL_RGB, GL_UNSIGNED_BYTE, pixels);
-                    pixels += temp->pitch;
-                }
-                EGOBOO_ASSERT(GL_NO_ERROR == GL_DEBUG(glGetError)());
-
-                SDL_UnlockSurface(temp);
-
-                // Save the file as a .png
-                saved = (-1 != IMG_SavePNG_RW(temp, vfs_openRWopsWrite(szResolvedFilename), 1));
-            }
-
-            // free the SDL surface
-            SDL_FreeSurface(temp);
-            if (saved) {
-                // tell the user what we did
-                DisplayMsg_printf("Saved to %s", szFilename.c_str());
-            }
-        }
+        auto screenshot = GraphicsSystem::get().window->getContents();
+        ImageManager::get().save_as_png(screenshot, file);
     }
-
-    return savefound && saved;
+    catch (...)
+    {
+        DisplayMsg_printf("failed to save screenshot to %s", file.c_str());
+        return false;
+    }
+    DisplayMsg_printf("screenshot saved to %s", file.c_str());
+    return true;
 }
 
 float UIManager::drawBitmapFontString(const Vector2f& start, const std::string &text, const uint32_t maxWidth, const float alpha) {

@@ -31,6 +31,18 @@
     <Filter Include="Quelldateien\game-engine\video">
       <UniqueIdentifier>{22a71e37-0724-4d78-a633-56e0e4b04167}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Headerdateien\game-engine\video\color_depth">
+      <UniqueIdentifier>{46ad9e0d-96e4-411d-9f87-d9501bfa2ad6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Quelldateien\game-engine\video\color_depth">
+      <UniqueIdentifier>{b4c87e0b-cb5d-4015-89e9-1d3739d7316e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Quelldateien\game-engine\video\color_blend">
+      <UniqueIdentifier>{45f2d2e8-8dbb-4327-89a8-e06b4f720469}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headerdateien\game-engine\video\color_blend">
+      <UniqueIdentifier>{025adbed-aa1c-4910-a6ca-fd88d7b5f454}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\idlib-game-engine\library\src\idlib\game-engine\events\event.hpp">
@@ -81,9 +93,6 @@
     <ClInclude Include="..\idlib-game-engine\library\src\idlib\game-engine.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="..\idlib-game-engine\library\src\idlib\game-engine\video\blend_function.hpp">
-      <Filter>Headerdateien\game-engine\video</Filter>
-    </ClInclude>
     <ClInclude Include="..\idlib-game-engine\library\src\idlib\game-engine\video\culling_mode.hpp">
       <Filter>Headerdateien\game-engine\video</Filter>
     </ClInclude>
@@ -95,6 +104,51 @@
     </ClInclude>
     <ClInclude Include="..\idlib-game-engine\library\src\idlib\game-engine\video\winding_mode.hpp">
       <Filter>Headerdateien\game-engine\video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\idlib-game-engine\library\src\idlib\game-engine\video\index_format.hpp">
+      <Filter>Headerdateien\game-engine\video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\idlib-game-engine\library\src\idlib\game-engine\video\pixel_format.hpp">
+      <Filter>Headerdateien\game-engine\video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\idlib-game-engine\library\src\idlib\game-engine\video\vertex_format.hpp">
+      <Filter>Headerdateien\game-engine\video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\idlib-game-engine\library\src\idlib\game-engine\video\vertex_component_semantics.hpp">
+      <Filter>Headerdateien\game-engine\video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\idlib-game-engine\library\src\idlib\game-engine\video\index_syntactics.hpp">
+      <Filter>Headerdateien\game-engine\video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\idlib-game-engine\library\src\idlib\game-engine\video\vertex_component_syntactics.hpp">
+      <Filter>Headerdateien\game-engine\video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\idlib-game-engine\library\src\idlib\game-engine\video\index_descriptor.hpp">
+      <Filter>Headerdateien\game-engine\video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\idlib-game-engine\library\src\idlib\game-engine\video\vertex_component_descriptor.hpp">
+      <Filter>Headerdateien\game-engine\video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\idlib-game-engine\library\src\idlib\game-engine\video\pixel_component_descriptor.hpp">
+      <Filter>Headerdateien\game-engine\video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\idlib-game-engine\library\src\idlib\game-engine\video\vertex_descriptor.hpp">
+      <Filter>Headerdateien\game-engine\video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\idlib-game-engine\library\src\idlib\game-engine\video\pixel_component_semantics.hpp">
+      <Filter>Headerdateien\game-engine\video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\idlib-game-engine\library\src\idlib\game-engine\video\color_depth\rgb_depth.hpp">
+      <Filter>Headerdateien\game-engine\video\color_depth</Filter>
+    </ClInclude>
+    <ClInclude Include="..\idlib-game-engine\library\src\idlib\game-engine\video\color_depth\rgba_depth.hpp">
+      <Filter>Headerdateien\game-engine\video\color_depth</Filter>
+    </ClInclude>
+    <ClInclude Include="..\idlib-game-engine\library\src\idlib\game-engine\video\color_blend\color_blend_equation.hpp">
+      <Filter>Headerdateien\game-engine\video\color_blend</Filter>
+    </ClInclude>
+    <ClInclude Include="..\idlib-game-engine\library\src\idlib\game-engine\video\color_blend\color_blend_parameter.hpp">
+      <Filter>Headerdateien\game-engine\video\color_blend</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -110,16 +164,31 @@
     <ClCompile Include="..\idlib-game-engine\library\src\idlib\game-engine\video\video.cpp">
       <Filter>Quelldateien\game-engine\video</Filter>
     </ClCompile>
-    <ClCompile Include="..\idlib-game-engine\library\src\idlib\game-engine\video\blend_function.cpp">
-      <Filter>Quelldateien\game-engine\video</Filter>
-    </ClCompile>
-    <ClCompile Include="..\idlib-game-engine\library\src\idlib\game-engine\video\culling_mode.cpp">
-      <Filter>Quelldateien\game-engine\video</Filter>
-    </ClCompile>
     <ClCompile Include="..\idlib-game-engine\library\src\idlib\game-engine\video\primitive_type.cpp">
       <Filter>Quelldateien\game-engine\video</Filter>
     </ClCompile>
     <ClCompile Include="..\idlib-game-engine\library\src\idlib\game-engine\video\winding_mode.cpp">
+      <Filter>Quelldateien\game-engine\video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\idlib-game-engine\library\src\idlib\game-engine\video\index_descriptor.cpp">
+      <Filter>Quelldateien\game-engine\video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\idlib-game-engine\library\src\idlib\game-engine\video\vertex_component_descriptor.cpp">
+      <Filter>Quelldateien\game-engine\video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\idlib-game-engine\library\src\idlib\game-engine\video\pixel_component_descriptor.cpp">
+      <Filter>Quelldateien\game-engine\video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\idlib-game-engine\library\src\idlib\game-engine\video\vertex_descriptor.cpp">
+      <Filter>Quelldateien\game-engine\video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\idlib-game-engine\library\src\idlib\game-engine\video\color_depth\rgb_depth.cpp">
+      <Filter>Quelldateien\game-engine\video\color_depth</Filter>
+    </ClCompile>
+    <ClCompile Include="..\idlib-game-engine\library\src\idlib\game-engine\video\color_depth\rgba_depth.cpp">
+      <Filter>Quelldateien\game-engine\video\color_depth</Filter>
+    </ClCompile>
+    <ClCompile Include="..\idlib-game-engine\library\src\idlib\game-engine\video\texture_sampler.cpp">
       <Filter>Quelldateien\game-engine\video</Filter>
     </ClCompile>
   </ItemGroup>

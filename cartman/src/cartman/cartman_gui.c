@@ -21,6 +21,7 @@
 #include "cartman/cartman_input.h"
 #include "cartman/cartman_math.h"
 #include "cartman/cartman_gfx.h"
+#include "egolib/Image/ImageManager.hpp"
 #include "egolib/Image/SDL_Image_Extensions.h"
 
 //--------------------------------------------------------------------------------------------
@@ -32,23 +33,18 @@ ui_state_t ui;
 namespace Cartman { namespace Gui {
 
 Cursor::Cursor() :
-    _surface(Ego::SDL::createSurface(8, 8)) {
-    uint32_t col = make_rgb(_surface, Ego::Math::Colour3b::white()); // opaque (255) white (255,255,255)
-    uint32_t loc = make_rgb(_surface, Ego::Math::Colour3b(24, 24, 24)); // opaque (255) black-grey (24,24,24)
-    uint32_t clr = make_rgba(_surface, Ego::Math::Colour4b(0, 0, 0, 64)); // almost transparent (64) black (0,0,0)
+    _surface(Ego::ImageManager::get().createImage(8, 8)) {
+	auto col = Ego::Math::Colour3b::white(); // opaque (255) white (255, 255, 255)
+	auto loc = Ego::Math::Colour3b(24, 24, 24); // opaque (255) black-grey (24, 24, 24)
+	auto clr = Ego::Math::Colour4b(Ego::Math::Colour3b::black(), 64); // almost transparent (64) black (0, 0, 0)
 
-    // Simple triangle
-    SDL_Rect rtmp;
-    rtmp.x = 0;
-    rtmp.y = 0;
-    rtmp.w = 8;
-    rtmp.h = 1;
-    SDL_FillRect(_surface.get(), &rtmp, loc);
+	auto rtmp = Rectangle2f(Point2f(0, 0), Point2f(8, 1));
+    Ego::fill(_surface.get(), Ego::Math::Colour3b(24, 24, 24), rtmp);
 
     for (int y = 0; y < 8; y++) {
         for (int x = 0; x < 8; x++) {
-            if (x + y < 8) Ego::SDL::putPixel(_surface, x, y, col);
-            else Ego::SDL::putPixel(_surface, x, y, clr);
+            if (x + y < 8) Ego::set_pixel(_surface.get(), col, { x, y });
+            else Ego::set_pixel(_surface.get(), clr, { x, y });
         }
     }
 }

@@ -1,11 +1,8 @@
 #pragma once
 
-#include "egolib/Renderer/TextureType.hpp"
-#include "egolib/Renderer/TextureSampler.hpp"
 #include "egolib/Image/SDL_Image_Extensions.h"
 
-namespace Ego {
-namespace OpenGL {
+namespace Ego { namespace OpenGL {
 
 class RendererInfo;
 
@@ -19,10 +16,10 @@ private:
     std::shared_ptr<SDL_Surface> m_image;
 
     /// The texture sampler.
-    TextureSampler m_sampler;
+    id::texture_sampler m_sampler;
     
     /// The type.
-    TextureType m_type;
+    id::texture_type m_type;
     
     /// The OpenGL texture ID.
     GLuint m_id;
@@ -32,16 +29,16 @@ private:
 
 public:
     // Construct this default texture.
-    DefaultTexture(std::shared_ptr<RendererInfo> info, const std::string& name, TextureType type);
+    DefaultTexture(std::shared_ptr<RendererInfo> info, const std::string& name, id::texture_type type);
     
     // Destruct this default texture.
     ~DefaultTexture();
 
-    const TextureSampler& getSampler() const;
+    const id::texture_sampler& getSampler() const;
 
     GLuint getId() const;
 
-    TextureType getType() const;
+    id::texture_type getType() const;
 
     bool hasAlpha() const;
 
@@ -56,5 +53,4 @@ public:
     int getHeight() const;
 };
 
-} // namespace OpenGL
-} // namespace Ego
+} } // namespace Ego::OpenGL

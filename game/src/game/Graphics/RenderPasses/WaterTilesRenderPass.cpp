@@ -127,8 +127,8 @@ gfx_rv WaterTilesRenderPass::render_water_fan(ego_mesh_t& mesh, const Index1D& t
         float r, g, b, a;
         float s, t;
     };
-    auto vd = VertexFormatFactory::get<VertexFormat::P3FC4FT2F>();
-    auto vb = std::make_shared<VertexBuffer>(4, vd.getVertexSize());
+    auto vd = Ego::descriptor_factory<id::vertex_format::P3FC4FT2F>()();
+    auto vb = std::make_shared<VertexBuffer>(4, vd.get_size());
     Vertex *v = static_cast<Vertex *>(vb->lock());
 
     // Original points
@@ -208,7 +208,7 @@ gfx_rv WaterTilesRenderPass::render_water_fan(ego_mesh_t& mesh, const Index1D& t
 
         // do not draw hidden surfaces
         renderer.setDepthTestEnabled(true);
-        renderer.setDepthFunction(CompareFunction::LessOrEqual);
+        renderer.setDepthFunction(id::compare_function::less_or_equal);
 
         // only use the depth mask if the tile is NOT transparent
         renderer.setDepthWriteEnabled(use_depth_mask);
@@ -222,11 +222,11 @@ gfx_rv WaterTilesRenderPass::render_water_fan(ego_mesh_t& mesh, const Index1D& t
         renderer.setBlendingEnabled(true);
         if (_currentModule->getWater()._light)
         {
-            renderer.setBlendFunction(id::blend_function::one, id::blend_function::one_minus_source_color);
+            renderer.setBlendFunction(id::color_blend_parameter::one, id::color_blend_parameter::one_minus_source0_color);
         }
         else
         {
-            renderer.setBlendFunction(id::blend_function::source_alpha, id::blend_function::one_minus_source_alpha);
+            renderer.setBlendFunction(id::color_blend_parameter::source0_alpha, id::color_blend_parameter::one_minus_source0_alpha);
         }
 
         // per-vertex coloring

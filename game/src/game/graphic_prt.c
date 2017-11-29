@@ -88,7 +88,7 @@ gfx_rv ParticleGraphicsRenderer::render_one_prt_solid(const ParticleRef iprt)
             std::shared_ptr<const Ego::Texture> texture = nullptr;
             // Use the depth test to eliminate hidden portions of the particle
             renderer.setDepthTestEnabled(true);
-            renderer.setDepthFunction(Ego::CompareFunction::Less);                                   // GL_DEPTH_BUFFER_BIT
+            renderer.setDepthFunction(id::compare_function::less);                                   // GL_DEPTH_BUFFER_BIT
 
             // enable the depth mask for the solid portion of the particles
             renderer.setDepthWriteEnabled(true);
@@ -99,11 +99,11 @@ gfx_rv ParticleGraphicsRenderer::render_one_prt_solid(const ParticleRef iprt)
             // Since the textures are probably mipmapped or minified with some kind of
             // interpolation, we can never really turn blending off.
             renderer.setBlendingEnabled(true);
-            renderer.setBlendFunction(id::blend_function::source_alpha, id::blend_function::one_minus_source_alpha);
+            renderer.setBlendFunction(id::color_blend_parameter::source0_alpha, id::color_blend_parameter::one_minus_source0_alpha);
 
             // only display the portion of the particle that is 100% solid
             renderer.setAlphaTestEnabled(true);
-            renderer.setAlphaFunction(Ego::CompareFunction::Equal, 1.0f);
+            renderer.setAlphaFunction(id::compare_function::equal, 1.0f);
 
             texture = ParticleHandler::get().getTransparentParticleTexture();
             renderer.getTextureUnit().setActivated(texture.get());
@@ -111,8 +111,8 @@ gfx_rv ParticleGraphicsRenderer::render_one_prt_solid(const ParticleRef iprt)
             renderer.setColour(Ego::Math::Colour4f(pinst.fintens, pinst.fintens, pinst.fintens, 1.0f));
 
             // billboard for the particle
-            auto vd = Ego::VertexFormatFactory::get<Ego::VertexFormat::P3FT2F>();
-            auto vb = std::make_shared<Ego::VertexBuffer>(4, vd.getVertexSize());
+            auto vd = Ego::descriptor_factory<id::vertex_format::P3FT2F>()();
+            auto vb = std::make_shared<Ego::VertexBuffer>(4, vd.get_size());
             calc_billboard_verts(*texture, *vb, pinst, pinst.size, false);
 
             renderer.render(*vb, vd, id::primitive_type::triangle_fan, 0, 4);
@@ -154,7 +154,7 @@ gfx_rv ParticleGraphicsRenderer::render_one_prt_trans(const ParticleRef iprt)
 
             // Enable depth test: Incoming fragment's depth value must be less or equal.
             renderer.setDepthTestEnabled(true);
-            renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
+            renderer.setDepthFunction(id::compare_function::less_or_equal);
 
             // Draw front-facing and back-facing polygons.
             renderer.setCullingMode(id::culling_mode::none);
@@ -170,10 +170,10 @@ gfx_rv ParticleGraphicsRenderer::render_one_prt_trans(const ParticleRef iprt)
                     // Do the alpha blended edge ("anti-aliasing") of the solid particle.
                     // Only display the alpha-edge of the particle.
                     renderer.setAlphaTestEnabled(true);
-                    renderer.setAlphaFunction(Ego::CompareFunction::Less, 1.0f);
+                    renderer.setAlphaFunction(id::compare_function::less, 1.0f);
 
                     renderer.setBlendingEnabled(true);
-                    renderer.setBlendFunction(id::blend_function::source_alpha, id::blend_function::one_minus_source_alpha);
+                    renderer.setBlendFunction(id::color_blend_parameter::source0_alpha, id::color_blend_parameter::one_minus_source0_alpha);
 
                     particleColour = Ego::Math::Colour4f(inst.fintens, inst.fintens, inst.fintens, 1.0f);
 
@@ -192,7 +192,7 @@ gfx_rv ParticleGraphicsRenderer::render_one_prt_trans(const ParticleRef iprt)
 
                     renderer.setAlphaTestEnabled(false);
                     renderer.setBlendingEnabled(true);
-                    renderer.setBlendFunction(id::blend_function::one, id::blend_function::one);
+                    renderer.setBlendFunction(id::color_blend_parameter::one, id::color_blend_parameter::one);
 
                     particleColour = Ego::Math::Colour4f(1.0f, 1.0f, 1.0f, inst.fintens * inst.falpha);
 
@@ -211,10 +211,10 @@ gfx_rv ParticleGraphicsRenderer::render_one_prt_trans(const ParticleRef iprt)
 
                     // do not display the completely transparent portion
                     renderer.setAlphaTestEnabled(true);
-                    renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
+                    renderer.setAlphaFunction(id::compare_function::greater, 0.0f);
 
                     renderer.setBlendingEnabled(true);
-                    renderer.setBlendFunction(id::blend_function::source_alpha, id::blend_function::one_minus_source_alpha);
+                    renderer.setBlendFunction(id::color_blend_parameter::source0_alpha, id::color_blend_parameter::one_minus_source0_alpha);
 
                     particleColour = Ego::Math::Colour4f(inst.fintens, inst.fintens, inst.fintens, inst.falpha);
 
@@ -229,8 +229,8 @@ gfx_rv ParticleGraphicsRenderer::render_one_prt_trans(const ParticleRef iprt)
                 break;
             }
 
-            auto vd = Ego::VertexFormatFactory::get<Ego::VertexFormat::P3FT2F>();
-            auto vb = std::make_shared<Ego::VertexBuffer>(4, vd.getVertexSize());
+            auto vd = Ego::descriptor_factory<id::vertex_format::P3FT2F>()();
+            auto vb = std::make_shared<Ego::VertexBuffer>(4, vd.get_size());
             calc_billboard_verts(*texture, *vb, inst, inst.size, false);
 
             renderer.setColour(particleColour);
@@ -281,17 +281,17 @@ gfx_rv ParticleGraphicsRenderer::render_one_prt_ref(const ParticleRef iprt)
 
                 // do not draw hidden surfaces
                 renderer.setDepthTestEnabled(true);
-                renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
+                renderer.setDepthFunction(id::compare_function::less_or_equal);
 
                 // draw draw front and back faces of polygons
                 renderer.setCullingMode(id::culling_mode::none);
 
                 // do not display the completely transparent portion
                 renderer.setAlphaTestEnabled(true);
-                renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
+                renderer.setAlphaFunction(id::compare_function::greater, 0.0f);
 
                 renderer.setBlendingEnabled(true);
-                renderer.setBlendFunction(id::blend_function::source_alpha, id::blend_function::one_minus_source_alpha);
+                renderer.setBlendFunction(id::color_blend_parameter::source0_alpha, id::color_blend_parameter::one_minus_source0_alpha);
 
                 switch(pprt->type) 
                 {
@@ -340,8 +340,8 @@ gfx_rv ParticleGraphicsRenderer::render_one_prt_ref(const ParticleRef iprt)
 
                 // Calculate the position of the four corners of the billboard
                 // used to display the particle.
-                auto vd = Ego::VertexFormatFactory::get<Ego::VertexFormat::P3FT2F>();
-                auto vb = std::make_shared<Ego::VertexBuffer>(4, vd.getVertexSize());
+                auto vd = Ego::descriptor_factory<id::vertex_format::P3FT2F>()();
+                auto vb = std::make_shared<Ego::VertexBuffer>(4, vd.get_size());
                 calc_billboard_verts(*texture, *vb, inst, inst.size, true);
 
                 renderer.setColour(particle_colour); // GL_CURRENT_BIT

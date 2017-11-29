@@ -109,8 +109,8 @@ std::shared_ptr<Billboard> BillboardSystem::makeBillboard(::Time::Seconds lifeti
 
 BillboardSystem::BillboardSystem() :
     _billboardList(),
-    vertexDescriptor(Ego::VertexFormatFactory::get<Ego::VertexFormat::P3FT2F>()),
-    vertexBuffer(4, vertexDescriptor.getVertexSize())
+    vertexDescriptor(Ego::descriptor_factory<id::vertex_format::P3FT2F>()()),
+    vertexBuffer(4, vertexDescriptor.get_size())
 {}
 
 BillboardSystem::~BillboardSystem()
@@ -211,11 +211,11 @@ void BillboardSystem::render_all(::Camera& camera)
             renderer.setCullingMode(id::culling_mode::back);
 
             renderer.setBlendingEnabled(true);
-            renderer.setBlendFunction(id::blend_function::source_alpha, id::blend_function::one_minus_source_alpha);
+            renderer.setBlendFunction(id::color_blend_parameter::source0_alpha, id::color_blend_parameter::one_minus_source0_alpha);
 
             // This drops 100% transparent fragments i.e. in order to pass, alpha has to be greater than 0.
             renderer.setAlphaTestEnabled(true);
-            renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
+            renderer.setAlphaFunction(id::compare_function::greater, 0.0f);
 
             for (const auto &billboard : _billboardList)
             {

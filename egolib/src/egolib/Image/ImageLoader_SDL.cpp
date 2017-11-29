@@ -19,14 +19,14 @@
 
 #include "egolib/Image/ImageLoader_SDL.hpp"
 
-namespace Ego {
-namespace Internal {
+namespace Ego { namespace Internal {
 
 ImageLoader_SDL::ImageLoader_SDL(const std::unordered_set<std::string>& extensions)
-    : ImageLoader(extensions) {
-}
+    : ImageLoader(extensions)
+{}
 
-std::shared_ptr<SDL_Surface> ImageLoader_SDL::load(vfs_FILE *file) const {
+std::shared_ptr<SDL_Surface> ImageLoader_SDL::load(vfs_FILE *file) const
+{
     SDL_Surface *surface = SDL_LoadBMP_RW(vfs_openRWops(file, false), 1);
     if (!surface) {
         return nullptr;
@@ -34,5 +34,4 @@ std::shared_ptr<SDL_Surface> ImageLoader_SDL::load(vfs_FILE *file) const {
     return std::shared_ptr<SDL_Surface>(surface, [ ](SDL_Surface *pSurface) { SDL_FreeSurface(pSurface); });
 }
 
-} // namespace Internal
-} // namespace Ego
+} } // namespace Ego::Internal

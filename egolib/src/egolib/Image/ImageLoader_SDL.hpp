@@ -21,8 +21,7 @@
 
 #include "egolib/Image/ImageLoader.hpp"
 
-namespace Ego {
-namespace Internal {
+namespace Ego { namespace Internal {
 
 struct ImageLoader_SDL : public ImageLoader
 {
@@ -31,6 +30,4 @@ public:
     virtual std::shared_ptr<SDL_Surface> load(vfs_FILE *file) const override;
 };
 
-} // namespace Internal
-} // namespace Ego
-
+} } // namespace Ego::Internal

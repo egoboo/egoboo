@@ -6,7 +6,7 @@ namespace Graphics {
 
 DefaultMd2ModelRenderer::DefaultMd2ModelRenderer()
     : m_vertices(new Vertex[0]), m_size(0),
-      vertexDescriptor(VertexFormatFactory::get<VertexFormat::P3FC4FT2FN3F>())
+      vertexDescriptor(descriptor_factory<id::vertex_format::P3FC4FT2FN3F>()())
 {}
 
 DefaultMd2ModelRenderer::~DefaultMd2ModelRenderer()

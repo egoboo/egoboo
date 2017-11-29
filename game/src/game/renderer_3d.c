@@ -91,7 +91,7 @@ void LineSegmentList::draw_all(Camera& camera)
 
                 // do not draw hidden surfaces
                 renderer.setDepthTestEnabled(true);
-                renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
+                renderer.setDepthFunction(id::compare_function::less_or_equal);
 
                 // draw draw front and back faces of polygons
                 renderer.setCullingMode(id::culling_mode::none);
@@ -184,7 +184,7 @@ void PointList::draw_all(Camera& camera)
 
             // do not draw hidden surfaces
             renderer.setDepthTestEnabled(true);
-            renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
+            renderer.setDepthFunction(id::compare_function::less_or_equal);
 
             // draw draw front and back faces of polygons
 			renderer.setCullingMode(id::culling_mode::none);
@@ -242,16 +242,16 @@ void Renderer3D::renderAxisAlignedBox(const AxisAlignedBox3f& bv, const Ego::Mat
 
         // do not draw hidden surfaces
         renderer.setDepthTestEnabled(true);
-        renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
+        renderer.setDepthFunction(id::compare_function::less_or_equal);
 
         // draw draw front and back faces of polygons
         renderer.setCullingMode(id::culling_mode::none); // GL_ENABLE_BIT
 
         // make them transparent
         renderer.setBlendingEnabled(true);
-        renderer.setBlendFunction(id::blend_function::source_alpha, id::blend_function::one_minus_source_alpha);
+        renderer.setBlendFunction(id::color_blend_parameter::source0_alpha, id::color_blend_parameter::one_minus_source0_alpha);
         renderer.setAlphaTestEnabled(true);
-        renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
+        renderer.setAlphaFunction(id::compare_function::greater, 0.0f);
 
         // deactivate texturing
         renderer.getTextureUnit().setActivated(nullptr);
@@ -320,7 +320,7 @@ void Renderer3D::renderOctBB(const oct_bb_t &bb, bool drawSquare, bool drawDiamo
 
         // do not draw hidden surfaces
         renderer.setDepthTestEnabled(true);
-        renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
+        renderer.setDepthFunction(id::compare_function::less_or_equal);
 
         // fix the poorly chosen normals...
         // draw draw front and back faces of polygons
@@ -328,9 +328,9 @@ void Renderer3D::renderOctBB(const oct_bb_t &bb, bool drawSquare, bool drawDiamo
 
         // make them transparent
         renderer.setBlendingEnabled(true);
-		renderer.setBlendFunction(id::blend_function::source_alpha, id::blend_function::one_minus_source_alpha);
+		renderer.setBlendFunction(id::color_blend_parameter::source0_alpha, id::color_blend_parameter::one_minus_source0_alpha);
         renderer.setAlphaTestEnabled(true);
-        renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
+        renderer.setAlphaFunction(id::compare_function::greater, 0.0f);
 
         // deactivate texturing
 		renderer.getTextureUnit().setActivated(nullptr);

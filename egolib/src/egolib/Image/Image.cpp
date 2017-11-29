@@ -19,8 +19,6 @@
 //********************************************************************************************
 
 #include "egolib/Image/Image.hpp"
-#include "egolib/vfs.h"
-#include "egolib/Log/_Include.hpp"
 #include "egolib/Image/SDL_Image_Extensions.h"
 
 #if !SDL_VERSION_ATLEAST(2, 0, 0)
@@ -41,180 +39,9 @@ int SDL_GetColorKey(SDL_Surface *surface, uint32_t *key)
 
 namespace Ego {
 
-bool testAlpha(SDL_Surface *surface)
-{
-    // test to see whether an image requires alpha blending
-
-    if (!surface)
-    {
-        throw id::invalid_argument_error(__FILE__, __LINE__, "nullptr == surface");
-    }
-
-    // Alias.
-    SDL_PixelFormat *format = surface->format;
-
-    // (1)
-    // If the surface has a per-surface color key,
-    // it is partially transparent.
-    uint32_t colorKey;
-    int rslt = SDL_GetColorKey(surface, &colorKey);
-    if (rslt < -1)
-    {
-        // If a value smaller than -1 is returned, an error occured.
-        throw std::invalid_argument("SDL_GetColorKey failed");
-    }
-    else if (rslt >= 0)
-    {
-        // If a value greater or equal than 0 is returned, the surface has a color key.
-        return true;
-    } 
-#if 0
-    else if (rslt == -1)
-    {
-      // If a value of -1 is returned, the surface has no color key: Continue.
-    }
-#endif
-    // (2)
-    // If the image is alpha modded with a non-opaque alpha value,
-    // it is partially transparent.
-    uint8_t alpha;
-    SDL_GetSurfaceAlphaMod(surface, &alpha);
-    if (0xff != alpha)
-    {
-        return true;
-    }
-
-    // (3)
-    // If the image is palettized and has non-opaque colors in the color,
-    // it is partially transparent.
-    if (nullptr != format->palette)
-    {
-        for (int i = 0; i < format->palette->ncolors; ++i)
-        {
-            SDL_Color& color = format->palette->colors[i];
-            if (0xff != color.a)
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    // (The image is not palettized.)
-    // (4)
-    // If the image has no alpha channel,
-    // then it is NOT partially transparent.
-    if (0x00 == format->Amask)
-    {
-        return false;
-    }
-
-    // (The image is not palettized and has an alpha channel.)
-    // If the image has an alpha channel and has non-opaque pixels,
-    // then it is partially transparent.
-    uint32_t bitMask = format->Rmask | format->Gmask | format->Bmask | format->Amask;
-    int bytesPerPixel = format->BytesPerPixel;
-    int width = surface->w;
-    int height = surface->h;
-    int pitch = surface->pitch;
-
-    const char *row_ptr = static_cast<const char *>(surface->pixels);
-    for (int y = 0; y < height; ++y)
-    {
-        const char *char_ptr = row_ptr;
-        for (int x = 0; x < width; ++x)
-        {
-            const uint32_t *ui32_ptr = reinterpret_cast<const uint32_t*>(char_ptr);
-            uint32_t pixel = (*ui32_ptr) & bitMask;
-            uint8_t r, g, b, a;
-            SDL_GetRGBA(pixel, format, &r, &g, &b, &a);
-
-            if (0xFF != a)
-            {
-                return true;
-            }
-            char_ptr += bytesPerPixel;
-        }
-        row_ptr += pitch;
-    }
-
-    return false;
-}
-
-uint32_t getPixel(SDL_Surface& surface, int x, int y)
-{
-    int bpp = surface.format->BytesPerPixel;
-    /* Here p is the address to the pixel we want to get. */
-    uint8_t *p = (uint8_t *)surface.pixels + y * surface.pitch + x * bpp;
-
-    switch (bpp)
-    {
-        case 1:
-            return *p;
-
-        case 2:
-            return *reinterpret_cast<uint16_t*>(p);
-
-        case 3:
-            if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
-            {
-                return p[0] << 16 | p[1] << 8 | p[2];
-            }
-            else
-            {
-                return p[0] | p[1] << 8 | p[2] << 16;
-            }
-            break;
-
-        case 4:
-            return *reinterpret_cast<uint32_t*>(p);
-
-        default:
-            throw id::unhandled_switch_case_error(__FILE__, __LINE__, "unreachable code reached"); /* shouldn't happen, but avoids warnings */
-    }
-}
-
-void putPixel(SDL_Surface& surface, int x, int y, uint32_t pixel)
-{
-    int bpp = surface.format->BytesPerPixel;
-    /* Here p is the address to the pixel we want to set. */
-    uint8_t *p = (uint8_t *)surface.pixels + y * surface.pitch + x * bpp;
-
-    switch (bpp)
-    {
-        case 1:
-            *p = pixel;
-            break;
-
-        case 2:
-            *reinterpret_cast<uint16_t*>(p) = pixel;
-            break;
-
-        case 3:
-        #if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
-            p[0] = (pixel >> 16) & 0xff;
-            p[1] = (pixel >> 8) & 0xff;
-            p[2] = pixel & 0xff;
-        #else
-            p[0] = pixel & 0xff;
-            p[1] = (pixel >> 8) & 0xff;
-            p[2] = (pixel >> 16) & 0xff;
-        #endif
-            break;
-
-        case 4:
-            *reinterpret_cast<uint32_t*>(p) = pixel;
-            break;
-
-        default:
-            throw id::unhandled_switch_case_error(__FILE__, __LINE__, "unreachable code reached"); /* shouldn't happen, but avoids warnings */
-    }
-}
-
 Image::Image(SDL_Surface *surface) :
     m_surface(surface),
-    m_hasAlpha(testAlpha(surface)),
-    m_pixelFormat(Ego::SDL::getPixelFormat(*surface))
+    m_pixel_format(SDL::getPixelFormat(surface))
 {}
 
 Image::~Image()
@@ -223,9 +50,9 @@ Image::~Image()
     m_surface = nullptr;
 }
 
-PixelFormat Image::getPixelFormat() const
+id::pixel_format Image::get_pixel_format() const
 {
-    return m_pixelFormat;
+    return m_pixel_format;
 }
 
 int Image::getBytesPerPixel() const
@@ -235,11 +62,13 @@ int Image::getBytesPerPixel() const
 
 int Image::getWidth() const
 {
+    assert(m_surface->w > 0);
     return m_surface->w;
 }
 
 int Image::getHeight() const
 {
+    assert(m_surface->h > 0);
     return m_surface->h;
 }
 
@@ -250,30 +79,116 @@ int Image::getPitch() const
 
 bool Image::hasAlpha() const
 {
-    return m_hasAlpha;
+    return SDL::testAlpha(m_surface);
 }
 
-void Image::pad(int left, int top, int right, int bottom)
+SDL_Surface *Image::getSurface()
 {
-    if (left < 0) throw id::invalid_argument_error(__FILE__, __LINE__, "left < 0");
-    if (top < 0) throw id::invalid_argument_error(__FILE__, __LINE__, "top < 0");
-    if (right < 0) throw id::invalid_argument_error(__FILE__, __LINE__, "right < 0");
-    if (bottom < 0) throw id::invalid_argument_error(__FILE__, __LINE__, "bottom < 0");
+	return m_surface;
+}
 
-    // Alias old surface.
-    auto *oldSurface = m_surface;
+const SDL_Surface *Image::getSurface() const
+{
+	return m_surface;
+}
 
+std::shared_ptr<Image> Image::clone() const
+{
+    static_assert(SDL_VERSION_ATLEAST(2, 0, 0), "SDL 2.x required");
+    auto cloned_surface = SDL_ConvertSurface(m_surface, m_surface->format, 0);
+    if (!cloned_surface)
+    {
+        throw id::runtime_error(__FILE__, __LINE__, "SDL_ConvertSurface failed");
+    }
+    std::shared_ptr<Image> cloned_image = nullptr;
+    try
+    {
+        cloned_image = std::make_shared<Image>(cloned_surface);
+    }
+    catch (...)
+    {
+        SDL_FreeSurface(cloned_surface);
+        throw std::current_exception();
+    }
+    return cloned_image;
+}
+
+std::shared_ptr<Image> convert_functor<Image>::operator()(const std::shared_ptr<Image>& image, const pixel_descriptor& format) const
+{ 
+    uint32_t alphaMask = format.get_alpha().get_mask(),
+             blueMask = format.get_blue().get_mask(),
+             greenMask = format.get_green().get_mask(),
+             redMask = format.get_red().get_mask();
+    int bpp = format.get_color_depth().depth();
+
+    uint32_t newFormat = SDL_MasksToPixelFormatEnum(bpp, redMask, greenMask, blueMask, alphaMask);
+    if (newFormat == SDL_PIXELFORMAT_UNKNOWN)
+    {
+        throw id::invalid_argument_error(__FILE__, __LINE__, "pixelFormatDescriptor doesn't correspond with a SDL_PixelFormat");
+    }
+    SDL_Surface *newSurface = SDL_ConvertSurfaceFormat(image->getSurface(), newFormat, 0);
+    if (!newSurface)
+    {
+        throw id::runtime_error(__FILE__, __LINE__, "unable to convert surface");
+    }
+
+    try
+    {
+        return std::make_shared<Image>(newSurface);
+    }
+    catch (...)
+    {
+        SDL_FreeSurface(newSurface);
+        throw std::current_exception();
+    }
+}
+
+std::shared_ptr<Image> power_of_two_functor<Image>::operator()(const std::shared_ptr<Image>& image) const
+{
     // Alias old width and old height.
-    auto oldWidth = oldSurface->w,
-        oldHeight = oldSurface->h;
+    int oldWidth = image->getWidth(),
+        oldHeight = image->getHeight();
 
     // Compute new width and new height.
-    auto newWidth = oldWidth + left + right,
-        newHeight = oldHeight + top + bottom;
+    int newWidth = Math::powerOfTwo(oldWidth),
+        newHeight = Math::powerOfTwo(oldHeight);
+
+    // Only if the new dimension differ from the old dimensions, perform the scaling.
+    if (newWidth != oldWidth || newHeight != oldHeight)
+    {
+        padding padding;
+        padding.left = 0;
+        padding.top = 0;
+        padding.right = newWidth - oldWidth;
+        padding.bottom = newHeight - oldHeight;
+        return pad(image, padding);
+    }
+    else
+    {
+        return image->clone();
+    }
+}
+
+std::shared_ptr<Image> pad_functor<Image>::operator()(const std::shared_ptr<Image>& image, const padding& padding) const
+{
+    // Alias old surface.
+    auto *oldSurface = image->getSurface();
+
+    // Alias old width and old height.
+    auto oldWidth = image->getWidth(),
+        oldHeight = image->getHeight();
+
+    // Compute new width and new height.
+    auto newWidth = oldWidth + padding.left + padding.right,
+        newHeight = oldHeight + padding.top + padding.bottom;
 
     // Create the copy.
-    auto *newSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, newWidth, newHeight, oldSurface->format->BitsPerPixel,
-                                            oldSurface->format->Rmask, oldSurface->format->Gmask, oldSurface->format->Bmask,
+    auto *newSurface = SDL_CreateRGBSurface(SDL_SWSURFACE,
+                                            newWidth, newHeight,
+                                            oldSurface->format->BitsPerPixel,
+                                            oldSurface->format->Rmask,
+                                            oldSurface->format->Gmask,
+                                            oldSurface->format->Bmask,
                                             oldSurface->format->Amask);
     if (!newSurface)
     {
@@ -290,40 +205,81 @@ void Image::pad(int left, int top, int right, int bottom)
     {
         for (size_t x = 0; x < oldWidth; ++x)
         {
-            uint32_t p = getPixel(*oldSurface, x, y);
-            uint8_t r, g, b, a;
-            SDL_GetRGBA(p, oldSurface->format, &r, &g, &b, &a);
-            uint32_t q = SDL_MapRGBA(newSurface->format, r, g, b, a);
-            putPixel(*newSurface, left + x, top + y, q);
+            auto c = get_pixel(oldSurface, { x, y });
+            set_pixel(newSurface, c, { padding.left + x, padding.top + y });
         }
     }
-    SDL_FreeSurface(m_surface);
-    m_surface = newSurface;
-}
-
-void Image::powerOfTwo()
-{
-    // Alias old width and old height.
-    int oldWidth = m_surface->w,
-        oldHeight = m_surface->h;
-
-    // Compute new width and new height.
-    int newWidth = Math::powerOfTwo(oldWidth),
-        newHeight = Math::powerOfTwo(oldHeight);
-
-    // Only if the new dimension differ from the old dimensions, perform the scaling.
-    if (newWidth != oldWidth || newHeight != oldHeight)
+    try
     {
-        pad(0, 0, newWidth - oldWidth, newHeight - oldHeight);
+        return std::make_shared<Image>(newSurface);
+    }
+    catch (...)
+    {
+        SDL_FreeSurface(newSurface);
+        throw std::current_exception();
     }
 }
 
-void Image::fill(Math::Colour4b& colour)
+void blit_functor<Image>::operator()(Image *source, Image *target) const
 {
-    SDL_FillRect(m_surface, nullptr, SDL_MapRGBA(m_surface->format, colour.get_r(), 
-                                                                    colour.get_g(),
-                                                                    colour.get_b(), 
-                                                                    colour.get_a()));
+    blit(source->getSurface(), target->getSurface());
+}
+
+void blit_functor<Image>::operator()(Image *source, const Rectangle2f& source_rectangle, Image *target) const
+{
+    blit(source->getSurface(), source_rectangle, target->getSurface());
+}
+
+void blit_functor<Image>::operator()(Image *source, Image *target, const Point2f& target_position) const
+{
+    blit(source->getSurface(), target->getSurface(), target_position);
+}
+
+void blit_functor<Image>::operator()(Image *source, const Rectangle2f& source_rectangle, Image *target, const Point2f& target_position) const
+{
+    blit(source->getSurface(), source_rectangle, target->getSurface(), target_position);
+}
+
+void fill_functor<Image>::operator()(Image *image, const Math::Colour3b& color) const
+{
+    if (!image) throw id::null_error(__FILE__, __LINE__, "image");
+    fill(image->getSurface(), color);
+}
+
+void fill_functor<Image>::operator()(Image *image, const Math::Colour3b& color, const Rectangle2f& rectangle) const
+{
+    if (!image) throw id::null_error(__FILE__, __LINE__, "image");
+    fill(image->getSurface(), color, rectangle);
+}
+
+void fill_functor<Image>::operator()(Image *image, const Math::Colour4b& color) const
+{
+    if (!image) throw id::null_error(__FILE__, __LINE__, "image");
+    fill(image->getSurface(), color);
+}
+
+void fill_functor<Image>::operator()(Image *image, const Math::Colour4b& color, const Rectangle2f& rectangle) const
+{
+    if (!image) throw id::null_error(__FILE__, __LINE__, "image");
+    fill(image->getSurface(), color, rectangle);
+}
+
+Math::Colour4b get_pixel_functor<Image>::operator()(const Image *image, const Point2f& point) const
+{
+    if (!image) throw id::null_error(__FILE__, __LINE__, "image");
+    return get_pixel(image->getSurface(), point);
+}
+
+void set_pixel_functor<Image>::operator()(Image *image, const Math::Colour3b& color, const Point2f& point) const
+{
+    if (!image) throw id::null_error(__FILE__, __LINE__, "image");
+    set_pixel(image->getSurface(), color, point);
+}
+
+void set_pixel_functor<Image>::operator()(Image *image, const Math::Colour4b& color, const Point2f& point) const
+{
+    if (!image) throw id::null_error(__FILE__, __LINE__, "image");
+    set_pixel(image->getSurface(), color, point);
 }
 
 } // namespace Ego

@@ -1,10 +1,10 @@
 #include "game/Graphics/TextureAtlasManager.hpp"
 #include "game/Core/GameEngine.hpp"
 #include "game/Module/Module.hpp"
+#include "egolib/Image/SDL_Image_Extensions.h"
 #include "game/graphic.h" //only for MESH_IMG_COUNT constant
 
-namespace Ego {
-namespace Graphics {
+namespace Ego { namespace Graphics {
 
 TextureAtlasManager::TextureAtlasManager() :
     _smallTiles(),
@@ -42,7 +42,7 @@ void TextureAtlasManager::decimate(const std::shared_ptr<const Ego::Texture>& so
 
     // how large a step every time through the mesh?
     float stepX = static_cast<float>(sourceImage->w) / static_cast<float>(SUB_TEXTURES),
-        stepY = static_cast<float>(sourceImage->h) / static_cast<float>(SUB_TEXTURES);
+          stepY = static_cast<float>(sourceImage->h) / static_cast<float>(SUB_TEXTURES);
 
     SDL_Rect rectangle;
     rectangle.w = std::ceil(stepX * minification);
@@ -61,17 +61,17 @@ void TextureAtlasManager::decimate(const std::shared_ptr<const Ego::Texture>& so
             rectangle.x = std::floor(x);
 
             // Create the destination texture.
-            auto targetTexture = Ego::Renderer::get().createTexture();
+            auto targetTexture = Renderer::get().createTexture();
 
             // Create the destination surface.
-            const auto& pfd = Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8A8>();
+            const auto& pfd = pixel_descriptor::get<id::pixel_format::R8G8B8A8>();
             auto targetImage = ImageManager::get().createImage(rectangle.w, rectangle.h, pfd);
             if (!targetImage) {
                 continue;
             }
 
             // Copy the pixels.
-            SDL_BlitSurface(sourceImage.get(), &rectangle, targetImage.get(), nullptr);
+            Ego::blit(sourceImage.get(), Rectangle2f(Point2f(rectangle.x, rectangle.y), Point2f(rectangle.x + rectangle.w, rectangle.y + rectangle.h)), targetImage.get());
 
             // upload the SDL_Surface into OpenGL
             targetTexture->load(targetImage);
@@ -108,5 +108,4 @@ void TextureAtlasManager::reupload() {
     }
 }
 
-} //namespace Graphics
-} //namespace Ego
+} } //namespace Ego::Graphics

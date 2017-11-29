@@ -26,7 +26,6 @@
 
 #include "egolib/Log/_Include.hpp"
 #include "idlib/idlib.hpp"
-#include "egolib/Renderer/TextureFilter.hpp"
 
 namespace Ego {
 
@@ -41,13 +40,13 @@ protected:
     float m_desiredAnisotropy;
 
     /// @brief The desired minimization filter.
-    TextureFilter m_desiredMinimizationFilter;
+    id::texture_filter_method m_desiredMinimizationFilter;
 
     /// @brief The desired maximization filter.
-    TextureFilter m_desiredMaximizationFilter;
+    id::texture_filter_method m_desiredMaximizationFilter;
 
     /// @brief The desired MipMap filter.
-    TextureFilter m_desiredMipMapFilter;
+    id::texture_filter_method m_desiredMipMapFilter;
 
     /// @brief List of connections.
     std::vector<id::connection> m_connections;
@@ -102,17 +101,17 @@ public:
 
     /// @brief Get the desired minimization filter.
     /// @return the desired minimization filter
-    TextureFilter getDesiredMinimizationFilter() const noexcept;
+    id::texture_filter_method getDesiredMinimizationFilter() const noexcept;
     id::signal<void()> DesiredMinimizationFilterChanged;
 
     /// @brief Get the desired maximization filter.
     /// @return the desired maximization filter
-    TextureFilter getDesiredMaximizationFilter() const noexcept;
+    id::texture_filter_method getDesiredMaximizationFilter() const noexcept;
     id::signal<void()> DesiredMaximizationFilterChanged;
 
     /// @brief Get the desired mipmap filter.
     /// @return the desired mipmap filter
-    TextureFilter getDesiredMipMapFilter() const noexcept;
+    id::texture_filter_method getDesiredMipMapFilter() const noexcept;
     id::signal<void()> DesiredMipMapFilterChanged;
 
     /// @brief Get the maximum texture size.

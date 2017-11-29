@@ -22,7 +22,7 @@ void ReflectiveTilesSecondRenderPass::doRun(::Camera& camera, const TileList& tl
     renderer.setCullingMode(id::culling_mode::none);
     // Perform less-or-equal depth testing.
     renderer.setDepthTestEnabled(true);
-    renderer.setDepthFunction(CompareFunction::LessOrEqual);
+    renderer.setDepthFunction(id::compare_function::less_or_equal);
     // Write to depth buffer.
     renderer.setDepthWriteEnabled(true);
     if (gfx.refon)
@@ -43,7 +43,7 @@ void ReflectiveTilesSecondRenderPass::doReflectionsEnabled(::Camera& camera, con
         auto& renderer = Renderer::get();
         // Enable blending.
         renderer.setBlendingEnabled(true);
-        renderer.setBlendFunction(id::blend_function::source_alpha, id::blend_function::one);
+        renderer.setBlendFunction(id::color_blend_parameter::source0_alpha, id::color_blend_parameter::one);
 
         // reduce texture hashing by loading up each texture only once
         Internal::TileListV2::render(*tl.getMesh(), tl._reflective);
@@ -61,7 +61,7 @@ void ReflectiveTilesSecondRenderPass::doReflectionsDisabled(::Camera& camera, co
         // Use alpha test to allow the thatched roof tiles to look like thatch.
         renderer.setAlphaTestEnabled(true);
         // Speed-up drawing of surfaces with alpha = 0.0f sections
-        renderer.setAlphaFunction(CompareFunction::Greater, 0.0f);
+        renderer.setAlphaFunction(id::compare_function::greater, 0.0f);
 
         // reduce texture hashing by loading up each texture only once
         Internal::TileListV2::render(*tl.getMesh(), tl._reflective);

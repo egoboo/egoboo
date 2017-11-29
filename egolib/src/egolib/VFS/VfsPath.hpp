@@ -1,15 +1,12 @@
 #pragma once
 
 #include "egolib/platform.h"
+#include "egolib/VFS/internal.hpp"
 
 namespace Ego {
 
 /// @brief Represents a path in the virtual file system.
 struct VfsPath {
-
-private:
-    std::string m_string;
-
 public:
     /// @brief Get the default path separator.
     /// @return the default path separator.
@@ -79,8 +76,6 @@ public:
     };
     std::string string(Kind kind) const;
 
-
-
     /// @brief Get the extension of this path.
     /// @return the extension of this path if this path has one, the empty string otherwise
     /// @remark 
@@ -130,18 +125,9 @@ public:
     /// @param other the other string
     /// @return @a true if this path is lexicographically greater than or equal to the other string, @a false otherwise
     bool operator>=(const VfsPath& other) const noexcept;
-};
 
-/// @brief The types Ego::VFS::Path and Ego::VFS::Extension aid polymorphism.
-/// Without them, it would be impossible to distinguish between the polymorphic methods
-/// <c>(path, extension)</c>, <c>(extension, path)</c>, <c>(path)</c>, and <c>(extension)</c>.
-struct Extension {
+private:
     std::string m_string;
-    explicit Extension(const std::string& string) : m_string(string) {}
-    bool empty() const { return m_string.empty(); }
-    bool operator==(const Extension& other) const { return m_string == other.m_string; }
-    bool operator!=(const Extension& other) const { return m_string != other.m_string; }
-    const std::string& toString() const { return m_string; }
 };
 
 } // namespace Ego

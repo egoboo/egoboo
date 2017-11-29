@@ -72,6 +72,8 @@ public:
     /// @copydoc Ego::GraphicsWindow::getDisplayIndex
     int getDisplayIndex() const override;
 
+    /// @copydoc Ego::GraphicsWindow::getContents
+    std::shared_ptr<SDL_Surface> getContents() const override;
 }; // class GraphicsWindow
 	
 } // namespace SDL
