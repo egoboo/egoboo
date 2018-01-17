@@ -25,11 +25,15 @@
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)/color/instantiations.o</ObjectFileName>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)/color/instantiations.o</ObjectFileName>
     </ClCompile>
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\copy_regular_file.cpp" />
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\copy_regular_file_posix.cpp" />
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\copy_regular_file_windows.cpp" />
     <ClCompile Include="..\idlib\library\src\idlib\file_system\create_directory.cpp" />
     <ClCompile Include="..\idlib\library\src\idlib\file_system\create_directory_posix.cpp" />
     <ClCompile Include="..\idlib\library\src\idlib\file_system\create_directory_windows.cpp" />
     <ClCompile Include="..\idlib\library\src\idlib\file_system\delete_directory.cpp" />
     <ClCompile Include="..\idlib\library\src\idlib\file_system\delete_directory_posix.cpp" />
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\delete_directory_recursive.cpp" />
     <ClCompile Include="..\idlib\library\src\idlib\file_system\delete_directory_windows.cpp" />
     <ClCompile Include="..\idlib\library\src\idlib\file_system\delete_regular.cpp" />
     <ClCompile Include="..\idlib\library\src\idlib\file_system\delete_regular_posix.cpp" />

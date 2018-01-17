@@ -186,5 +186,17 @@
     <ClCompile Include="..\idlib\library\src\idlib\file_system\executable_directory_windows.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\delete_directory_recursive.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\copy_regular_file.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\copy_regular_file_posix.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="..\idlib\library\src\idlib\file_system\copy_regular_file_windows.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
