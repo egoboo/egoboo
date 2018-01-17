@@ -156,15 +156,6 @@ int fs_createDirectory(const std::string& dirname)
     return (0 != CreateDirectory(dirname.c_str(), NULL)) ? 0 : 1;
 }
 
-int fs_removeDirectory(const std::string& dirname)
-{
-    if (dirname.empty())
-    {
-        return 1;
-    }
-    return (0 != RemoveDirectory(dirname.c_str())) ? 0 : 1;
-}
-
 bool fs_copyFile(const std::string& source, const std::string& target)
 {
     if (source.empty() || target.empty())

@@ -129,16 +129,6 @@ int fs_createDirectory(const std::string& pathname)
     return 0;
 }
 
-int fs_removeDirectory(const std::string& pathname)
-{
-    if (0 != rmdir(pathname.c_str()))
-    {
-        errno = 0; // Clear errno.
-        return 1;
-    }
-    return 0;
-}
-
 bool fs_copyFile(const std::string& source, const std::string& target)
 {  
     char buf[4096] = EMPTY_CSTR;

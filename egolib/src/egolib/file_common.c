@@ -104,6 +104,12 @@ void fs_removeDirectoryAndContents(const char *dirname)
 }
 
 //--------------------------------------------------------------------------------------------
+void fs_removeDirectory(const std::string& pathname)
+{
+    id::file_system::delete_directory(pathname);
+}
+
+//--------------------------------------------------------------------------------------------
 void fs_deleteFile(const std::string& pathname)
 {
     id::file_system::delete_regular(pathname);

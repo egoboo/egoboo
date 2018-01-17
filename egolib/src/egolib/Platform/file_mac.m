@@ -91,19 +91,6 @@ int fs_createDirectory(const char *dirName)
     }
 }
 
-int fs_removeDirectory(const char *dirName)
-{
-    @autoreleasepool {
-        BOOL ok;
-        NSString *path = [[NSString alloc] initWithUTF8String:dirName];
-        ok = [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
-        [path release];
-
-        if (ok == YES) return 1;
-        return 0;
-    }
-}
-
 bool fs_copyFile(const std::string& source, const std::string& target)
 {
     @autoreleasepool {

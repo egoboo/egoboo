@@ -150,7 +150,7 @@ int fs_createDirectory(const std::string& pathname);
  * @remark
  *  This function will only remove the final directory in the path.
  */
-int fs_removeDirectory(const std::string& pathname);
+void fs_removeDirectory(const std::string& pathname);
 /**
  * @brief
  *  Delete a file.
