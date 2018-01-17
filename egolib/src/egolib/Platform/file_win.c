@@ -165,14 +165,6 @@ int fs_removeDirectory(const std::string& dirname)
     return (0 != RemoveDirectory(dirname.c_str())) ? 0 : 1;
 }
 
-void fs_deleteFile( const std::string& filename )
-{
-    if (!filename.empty())
-    {
-        DeleteFile(filename.c_str());
-    }
-}
-
 bool fs_copyFile(const std::string& source, const std::string& target)
 {
     if (source.empty() || target.empty())

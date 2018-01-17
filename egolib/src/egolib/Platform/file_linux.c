@@ -139,11 +139,6 @@ int fs_removeDirectory(const std::string& pathname)
     return 0;
 }
 
-void fs_deleteFile(const std::string& pathname)
-{
-    unlink(pathname.c_str());
-}
-
 bool fs_copyFile(const std::string& source, const std::string& target)
 {  
     char buf[4096] = EMPTY_CSTR;
