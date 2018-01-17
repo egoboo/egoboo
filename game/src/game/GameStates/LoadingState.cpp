@@ -148,7 +148,7 @@ bool LoadingState::loadPlayers()
         }
         else {
             // erase the data in the import folder
-            vfs_removeDirectoryAndContents( "import", VFS_TRUE );
+            vfs_removeDirectoryAndContents( "import" );
             return false;
         }
     }

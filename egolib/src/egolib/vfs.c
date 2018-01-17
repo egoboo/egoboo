@@ -1616,7 +1616,8 @@ void SearchContext::nextData()
 }
 
 //--------------------------------------------------------------------------------------------
-int vfs_removeDirectoryAndContents(const char * dirname, int recursive) {
+int vfs_removeDirectoryAndContents(const char * dirname) {
+    static const int recursive = VFS_TRUE;
     // buffer the directory delete through PHYSFS, so that we so not access functions that
     // we have no right to! :)
 
@@ -1823,8 +1824,8 @@ void vfs_empty_temp_directories()
 {
     BAIL_IF_NOT_INIT();
 
-    vfs_removeDirectoryAndContents("import", VFS_TRUE);
-    vfs_removeDirectoryAndContents("remote", VFS_TRUE);
+    vfs_removeDirectoryAndContents("import");
+    vfs_removeDirectoryAndContents("remote");
 }
 
 //--------------------------------------------------------------------------------------------

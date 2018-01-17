@@ -351,7 +351,7 @@ void         vfs_empty_temp_directories();
 int          vfs_copyFile(const std::string& source, const std::string& target);
 int          vfs_copyDirectory(const char *sourceDir, const char *destDir);
 
-int    vfs_removeDirectoryAndContents(const char * dirname, int recursive);
+int    vfs_removeDirectoryAndContents(const char * dirname);
 
 // @brief Resolve the specified filename.
 // @param filename the filename

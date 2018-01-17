@@ -133,7 +133,7 @@ egolib_rv export_one_character( ObjectRef character, ObjectRef owner, int chr_ob
     // Remove all the original info
     if ( chr_obj_index < 0 )
     {
-        vfs_removeDirectoryAndContents( todir.c_str(), VFS_TRUE );
+        vfs_removeDirectoryAndContents( todir.c_str() );
         if ( !vfs_mkdir( todir ) )
         {
 			Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to create object directory ", "`", todir, "`", Log::EndOfEntry);
@@ -992,7 +992,7 @@ bool game_finish_module()
     }
 
     // erase the data in the import folder
-    vfs_removeDirectoryAndContents( "import", VFS_TRUE );
+    vfs_removeDirectoryAndContents( "import" );
 
     // copy the import data back into the import folder
     game_copy_imports( &g_importList );
@@ -1681,7 +1681,7 @@ egolib_rv game_copy_imports( import_list_t * imp_lst )
     retval = rv_success;
 
     // delete the data in the directory
-    vfs_removeDirectoryAndContents( "import", VFS_TRUE );
+    vfs_removeDirectoryAndContents( "import" );
     vfs_remove_mount_point(Ego::VfsPath("import"));
 
     // make sure the directory exists
