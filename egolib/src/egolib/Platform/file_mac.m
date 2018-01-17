@@ -205,9 +205,3 @@ const char *fs_findFirstFile(const char *path, const char *extension, fs_find_co
         return fs_findNextFile(fs_search);
     }
 }
-
-void empty_import_directory()
-{
-    fs_removeDirectory("./import");
-    fs_createDirectory("./import");
-}
