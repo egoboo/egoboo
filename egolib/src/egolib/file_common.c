@@ -87,6 +87,12 @@ void fs_deleteFile(const std::string& pathname)
 }
 
 //--------------------------------------------------------------------------------------------
+int fs_createDirectory(const std::string& pathname)
+{
+    return id::file_system::create_directory(pathname) ? 0 : 1;
+}
+
+//--------------------------------------------------------------------------------------------
 void fs_copyDirectory(const char *sourceDir, const char *targetDir)
 {
     fs_find_context_t fs_search;

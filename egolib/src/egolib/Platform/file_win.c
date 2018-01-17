@@ -146,16 +146,6 @@ std::string fs_getConfigDirectory()
     return _configPath;
 }
 
-// Had to revert back to prog x code to prevent import/skin bug
-int fs_createDirectory(const std::string& dirname)
-{
-    if (dirname.empty())
-    {
-        return 1;
-    }
-    return (0 != CreateDirectory(dirname.c_str(), NULL)) ? 0 : 1;
-}
-
 bool fs_copyFile(const std::string& source, const std::string& target)
 {
     if (source.empty() || target.empty())

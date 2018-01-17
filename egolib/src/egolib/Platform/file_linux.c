@@ -119,16 +119,6 @@ int sys_fs_init(const char *root_dir)
     return 0;
 }
 
-int fs_createDirectory(const std::string& pathname)
-{
-    if (0 != mkdir(pathname.c_str(), 0755))
-    {
-        errno = 0; /// Clear errno.
-        return 1;
-    }
-    return 0;
-}
-
 bool fs_copyFile(const std::string& source, const std::string& target)
 {  
     char buf[4096] = EMPTY_CSTR;
