@@ -71,36 +71,7 @@ int fs_init(const char *argv0)
 //--------------------------------------------------------------------------------------------
 void fs_removeDirectoryAndContents(const char *dirname)
 {
-    /// @author ZZ
-    /// @details This function deletes all files in a directory,
-    ///    and the directory itself
-
-    char filePath[MAX_PATH] = EMPTY_CSTR;
-    const char *fileName;
-    fs_find_context_t fs_search;
-
-    // List all the files in the directory
-    fileName = fs_findFirstFile(dirname, NULL, &fs_search);
-    while (NULL != fileName)
-    {
-        // Ignore files that start with a ., like .svn for example.
-        if ('.' != fileName[0])
-        {
-            snprintf(filePath, MAX_PATH, "%s" SLASH_STR "%s", dirname, fileName);
-            if (fs_fileIsDirectory(filePath))
-            {
-                fs_removeDirectoryAndContents(filePath);
-            }
-            else
-            {
-                fs_deleteFile(filePath);
-            }
-        }
-        fileName = fs_findNextFile(&fs_search);
-    }
-    fs_findClose(&fs_search);
-
-    fs_removeDirectory(dirname);
+    id::file_system::delete_directory_recursive(dirname);
 }
 
 //--------------------------------------------------------------------------------------------
