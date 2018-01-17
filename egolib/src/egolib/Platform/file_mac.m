@@ -130,25 +130,6 @@ bool fs_copyFile(const std::string& source, const std::string& target)
     }
 }
 
-int fs_fileIsDirectory(const char *filename)
-{
-    // Returns 1 if this file is a directory
-    @autoreleasepool {
-        BOOL fileExists;
-        BOOL isDir = NO;
-        NSString *path;
-        NSFileManager *manager;
-
-        path = [[NSString alloc] initWithUTF8String: filename];
-        manager = [NSFileManager defaultManager];
-
-        fileExists = [manager fileExistsAtPath:path isDirectory:&isDir];
-        [path release];
-
-        return fileExists && isDir;
-    }
-}
-
 //---------------------------------------------------------------------------------------------
 //Directory Functions--------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------------

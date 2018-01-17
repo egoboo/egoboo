@@ -134,6 +134,12 @@ void fs_copyDirectory(const char *sourceDir, const char *targetDir)
 }
 
 //--------------------------------------------------------------------------------------------
+int fs_fileIsDirectory(const std::string& pathname)
+{
+    return id::file_system::is_directory(pathname) ? 1 : 0;
+}
+
+//--------------------------------------------------------------------------------------------
 int fs_fileExists(const std::string& filename)
 {
     if (filename.empty())

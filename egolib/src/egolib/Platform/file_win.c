@@ -146,17 +146,6 @@ std::string fs_getConfigDirectory()
     return _configPath;
 }
 
-int fs_fileIsDirectory(const std::string& filename)
-{
-    if (filename.empty())
-    {
-        return -1;
-    }
-    DWORD fileAttrs = GetFileAttributes(filename.c_str());
-
-    return HAS_ATTRIBS(FILE_ATTRIBUTE_DIRECTORY, fileAttrs);
-}
-
 // Had to revert back to prog x code to prevent import/skin bug
 int fs_createDirectory(const std::string& dirname)
 {

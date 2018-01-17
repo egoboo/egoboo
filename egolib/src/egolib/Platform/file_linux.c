@@ -119,16 +119,6 @@ int sys_fs_init(const char *root_dir)
     return 0;
 }
 
-int fs_fileIsDirectory(const std::string& pathname)
-{
-    struct stat stats;
-    if (!stat(pathname.c_str(), &stats))
-    {
-        return S_ISDIR(stats.st_mode);
-    }
-    return 0;
-}
-
 int fs_createDirectory(const std::string& pathname)
 {
     if (0 != mkdir(pathname.c_str(), 0755))
