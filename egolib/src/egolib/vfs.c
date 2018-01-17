@@ -1617,7 +1617,6 @@ void SearchContext::nextData()
 
 //--------------------------------------------------------------------------------------------
 int vfs_removeDirectoryAndContents(const char * dirname) {
-    static const int recursive = VFS_TRUE;
     // buffer the directory delete through PHYSFS, so that we so not access functions that
     // we have no right to! :)
 
@@ -1628,7 +1627,7 @@ int vfs_removeDirectoryAndContents(const char * dirname) {
     if (!resolvedWriteFilename.first) return VFS_FALSE;
     if (!fs_fileIsDirectory(resolvedWriteFilename.second.c_str())) return VFS_FALSE;
 
-    fs_removeDirectoryAndContents(resolvedWriteFilename.second.c_str(), recursive);
+    fs_removeDirectoryAndContents(resolvedWriteFilename.second.c_str());
 
     return VFS_TRUE;
 }

@@ -159,7 +159,7 @@ int fs_removeDirectory(const std::string& pathname);
  */
 void fs_deleteFile(const std::string& pathname);
 bool fs_copyFile(const std::string& source, const std::string& target);
-void fs_removeDirectoryAndContents(const char *pathname, int recursive);
+void fs_removeDirectoryAndContents(const char *pathname);
 /**
  * @brief
  *  Copy all files in a directory into another directory.

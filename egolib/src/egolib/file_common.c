@@ -69,7 +69,7 @@ int fs_init(const char *argv0)
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void fs_removeDirectoryAndContents(const char *dirname, int recursive)
+void fs_removeDirectoryAndContents(const char *dirname)
 {
     /// @author ZZ
     /// @details This function deletes all files in a directory,
@@ -89,14 +89,7 @@ void fs_removeDirectoryAndContents(const char *dirname, int recursive)
             snprintf(filePath, MAX_PATH, "%s" SLASH_STR "%s", dirname, fileName);
             if (fs_fileIsDirectory(filePath))
             {
-                if (recursive)
-                {
-                    fs_removeDirectoryAndContents(filePath, recursive);
-                }
-                else
-                {
-                    fs_removeDirectory(filePath);
-                }
+                fs_removeDirectoryAndContents(filePath);
             }
             else
             {
