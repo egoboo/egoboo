@@ -119,35 +119,6 @@ int sys_fs_init(const char *root_dir)
     return 0;
 }
 
-bool fs_copyFile(const std::string& source, const std::string& target)
-{  
-    char buf[4096] = EMPTY_CSTR;
-    int bytes_read;
-
-    // Open source file descriptor.
-    FILE *sourcefd = fopen(source.c_str(), "rb");
-    if (!sourcefd)
-    {
-        return false;
-    }
-    // Open target file descriptor.
-    FILE *targetfd = fopen(target.c_str(), "wb");
-    if (!targetfd)
-    {
-        fclose(sourcefd);
-        return false;
-    }
-    // Read Bytes from the target source file and write them into the target file.
-    while ((bytes_read = fread(buf, 1, sizeof(buf), sourcefd)))
-    {
-        fwrite(buf, 1, bytes_read, targetfd);
-    }
-    // Finish file descriptors.
-    fclose(sourcefd);
-    fclose(targetfd);
-    return true;
-}
-
 const char *fs_findFirstFile(const char *directory, const char *extension, fs_find_context_t *fs_search)
 {
     char pattern[PATH_MAX] = EMPTY_CSTR;

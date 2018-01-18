@@ -146,15 +146,6 @@ std::string fs_getConfigDirectory()
     return _configPath;
 }
 
-bool fs_copyFile(const std::string& source, const std::string& target)
-{
-    if (source.empty() || target.empty())
-    {
-        return false;
-    }
-    return (TRUE == CopyFile(source.c_str(), target.c_str(), false));
-}
-
 //--------------------------------------------------------------------------------------------
 // Directory Functions
 //--------------------------------------------------------------------------------------------

@@ -74,23 +74,6 @@ std::string fs_getConfigDirectory()
     return [dataPath UTF8String];
 }
 
-bool fs_copyFile(const std::string& source, const std::string& target)
-{
-    @autoreleasepool {
-        BOOL didCopy;
-        NSString *sourcePath, *targetPath;
-
-        sourcePath = [[NSString alloc] initWithUTF8String:source.c_str()];
-        targetPath = [[NSString alloc] initWithUTF8String:target.c_str()];
-
-        didCopy = [[NSFileManager defaultManager] copyItemAtPath:sourcePath toPath:targetPath error:nil];
-
-        [sourcePath release];
-        [targetPath release];
-        return didCopy;
-    }
-}
-
 //---------------------------------------------------------------------------------------------
 //Directory Functions--------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------------

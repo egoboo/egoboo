@@ -129,6 +129,12 @@ int fs_fileIsDirectory(const std::string& pathname)
 }
 
 //--------------------------------------------------------------------------------------------
+bool fs_copyFile(const std::string& source, const std::string& target)
+{
+    return id::file_system::copy_regular_file(source, target, false);
+}
+
+//--------------------------------------------------------------------------------------------
 int fs_fileExists(const std::string& filename)
 {
     if (filename.empty())
