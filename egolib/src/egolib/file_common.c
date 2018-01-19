@@ -135,19 +135,9 @@ bool fs_copyFile(const std::string& source, const std::string& target)
 }
 
 //--------------------------------------------------------------------------------------------
-int fs_fileExists(const std::string& filename)
+int fs_fileExists(const std::string& pathname)
 {
-    if (filename.empty())
-    {
-        return -1;
-    }
-    FILE *ptmp = fopen(filename.c_str(), "rb");
-    if (ptmp)
-    {
-        fclose(ptmp);
-        return 1;
-    }
-    return 0;
+    return id::file_system::exists(pathname) ? 1 : 0;
 }
 
 //--------------------------------------------------------------------------------------------
