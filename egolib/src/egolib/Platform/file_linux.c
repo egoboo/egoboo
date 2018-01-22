@@ -39,12 +39,6 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-struct s_linux_find_context;
-typedef struct s_linux_find_context linux_find_context_t;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
 extern int sys_fs_init(const char *root_dir);
 
 //--------------------------------------------------------------------------------------------
@@ -53,12 +47,6 @@ extern int sys_fs_init(const char *root_dir);
 static char _dataPath[PATH_MAX]     = EMPTY_CSTR;
 static char _userPath[PATH_MAX] = EMPTY_CSTR;
 static char _configPath[PATH_MAX]   = EMPTY_CSTR;
-
-struct s_linux_find_context
-{
-    glob_t last_find;
-    size_t find_index;
-};
 
 int sys_fs_init(const char *root_dir)
 {
@@ -117,82 +105,6 @@ int sys_fs_init(const char *root_dir)
         fs_createDirectory(_userPath); /// @todo Error handling.
     }
     return 0;
-}
-
-const char *fs_findFirstFile(const char *directory, const char *extension, fs_find_context_t *fs_search)
-{
-    char pattern[PATH_MAX] = EMPTY_CSTR;
-
-    if (INVALID_CSTR(directory) || NULL == fs_search)
-    {
-        return NULL;
-    }
-    linux_find_context_t *pcnt = new linux_find_context_t();
-    fs_search->type = linux_find;
-    fs_search->ptr.l = pcnt;
-
-    if (extension) {
-        snprintf(pattern, PATH_MAX, "%s" SLASH_STR "*.%s", directory, extension);
-    } else {
-        snprintf(pattern, PATH_MAX, "%s" SLASH_STR "*", directory);
-    }
- 
-    pcnt->last_find.gl_offs = 0;
-    glob(pattern, GLOB_NOSORT, NULL, &pcnt->last_find);
-    if (!pcnt->last_find.gl_pathc) {
-        return nullptr;
-    }
-    pcnt->find_index = 0;
-    char *last_slash = strrchr(pcnt->last_find.gl_pathv[pcnt->find_index], C_SLASH_CHR);
-    if (last_slash) {
-        return last_slash + 1;
-    }
-    return nullptr; /* should never happen */
-}
-
-const char *fs_findNextFile(fs_find_context_t *fs_search)
-{
-    if (!fs_search || fs_search->type != linux_find)
-    {
-        return NULL;
-    }
-    linux_find_context_t *pcnt = fs_search->ptr.l;
-    if (!pcnt)
-    {
-        return NULL;
-    }
-
-    ++pcnt->find_index;
-    if (pcnt->find_index >= pcnt->last_find.gl_pathc)
-    {
-        return NULL;
-    }
-    char *last_slash = strrchr(pcnt->last_find.gl_pathv[pcnt->find_index], C_SLASH_CHR);
-    if (last_slash)
-    {
-        return last_slash + 1;
-    }
-
-    return NULL; /* should never happen */
-}
-
-void fs_findClose(fs_find_context_t *fs_search)
-{
-    if (NULL == fs_search || fs_search->type != linux_find)
-    {
-        return;
-    }
-    linux_find_context_t *pcnt = fs_search->ptr.l;
-    if (NULL == pcnt)
-    {
-        return;
-    }
-    globfree(&(pcnt->last_find));
-
-    delete pcnt;
-
-	fs_search->type = unknown_find;
-	fs_search->ptr.v = nullptr;
 }
 
 std::string fs_getDataDirectory()

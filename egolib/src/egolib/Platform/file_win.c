@@ -42,12 +42,6 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-struct s_win32_find_context;
-typedef struct s_win32_find_context win32_find_context_t;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
 extern int sys_fs_init(const char *argv0);
 
 //--------------------------------------------------------------------------------------------
@@ -144,90 +138,4 @@ std::string fs_getUserDirectory()
 std::string fs_getConfigDirectory()
 {
     return _configPath;
-}
-
-//--------------------------------------------------------------------------------------------
-// Directory Functions
-//--------------------------------------------------------------------------------------------
-struct s_win32_find_context
-{
-    WIN32_FIND_DATA wfdData;
-    HANDLE          hFind;
-};
-
-const char *fs_findFirstFile(const char *searchDir, const char *searchExtension, fs_find_context_t *fs_search)
-{
-    char searchSpec[MAX_PATH] = EMPTY_CSTR;
-
-    if (INVALID_CSTR(searchDir) || !fs_search)
-    {
-        return nullptr;
-    }
-
-	win32_find_context_t *pcnt = new win32_find_context_t();
-    fs_search->type = win32_find;
-    fs_search->ptr.w = pcnt;
-
-    size_t len = strlen(searchDir) + 1;
-    if (C_SLASH_CHR != searchDir[len] || C_BACKSLASH_CHR != searchDir[len]) {
-        _snprintf(searchSpec, MAX_PATH, "%s" SLASH_STR, searchDir);
-    } else {
-        strncpy(searchSpec, searchDir, MAX_PATH);
-    }
-    if (nullptr != searchExtension) {
-        _snprintf(searchSpec, MAX_PATH, "%s*.%s", searchSpec, searchExtension);
-    } else {
-        strncat(searchSpec, "*", MAX_PATH);
-    }
-
-    pcnt->hFind = FindFirstFile( searchSpec, &pcnt->wfdData );
-	if (pcnt->hFind == INVALID_HANDLE_VALUE) {
-		return nullptr;
-	}
-
-    return pcnt->wfdData.cFileName;
-}
-
-const char *fs_findNextFile(fs_find_context_t *fs_search)
-{
-    if (!fs_search || win32_find != fs_search->type)
-    {
-        return NULL;
-    }
-    win32_find_context_t *pcnt = fs_search->ptr.w;
-    if (!pcnt)
-    {
-        return NULL;
-    }
-    if (NULL == pcnt->hFind || INVALID_HANDLE_VALUE == pcnt->hFind)
-    {
-        return NULL;
-    }
-    if (!FindNextFile( pcnt->hFind, &pcnt->wfdData))
-    {
-        return NULL;
-    }
-    return pcnt->wfdData.cFileName;
-}
-
-void fs_findClose(fs_find_context_t *fs_search)
-{
-    if (NULL == fs_search || win32_find != fs_search->type)
-    {
-        return;
-    }
-    win32_find_context_t *pcnt = fs_search->ptr.w;
-    if (NULL == pcnt)
-    {
-        return;
-    }
-    if (NULL != pcnt->hFind)
-    {
-        FindClose(pcnt->hFind);
-        pcnt->hFind = NULL;
-    }
-    delete pcnt;
-
-	fs_search->type = unknown_find;
-	fs_search->ptr.v = nullptr;
 }

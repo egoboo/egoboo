@@ -9,21 +9,10 @@
 
 #include "egolib/file_common.h"
 
-struct s_mac_find_context : Id::NonCopyable
-{
-    NSDirectoryEnumerator *dirEnum;
-    NSString *dirEnumExtension;
-    NSString *dirEnumPath;
-    std::string currentFile;
-};
-
 static NSString *dataPath = nil;
 static NSString *userPath = nil;
 //static NSString *configPath = nil;
 
-//---------------------------------------------------------------------------------------------
-//File Routines-------------------------------------------------------------------------------
-//---------------------------------------------------------------------------------------------
 int sys_fs_init(const char *root_path)
 {
     // JF> This function determines the temporary, import,
@@ -72,119 +61,4 @@ std::string fs_getUserDirectory()
 std::string fs_getConfigDirectory()
 {
     return [dataPath UTF8String];
-}
-
-//---------------------------------------------------------------------------------------------
-//Directory Functions--------------------------------------------------------------------------
-//---------------------------------------------------------------------------------------------
-
-// Return the next file in the directory that matches the criteria specified in fs_findFirstFile
-const char *fs_findNextFile(fs_find_context_t *fs_search)
-{
-    @autoreleasepool {
-        NSString *fileName;
-        NSString *pathName;
-
-        if (fs_search == nullptr || fs_search->ptr.m == nullptr || fs_search->type != mac_find)
-            return nullptr;
-
-        s_mac_find_context *context = fs_search->ptr.m;
-
-        while (fileName = [context->dirEnum nextObject])
-        {
-            // Also, don't go down directories recursively.
-            pathName = [NSString stringWithFormat:@"%@/%@", context->dirEnumPath, fileName];
-            if (fs_fileIsDirectory([pathName UTF8String]))
-            {
-                [context->dirEnum skipDescendents];
-            }
-
-            if (context->dirEnumExtension != nil)
-            {
-                if ([[fileName pathExtension] isEqualToString: context->dirEnumExtension])
-                {
-                    context->currentFile = [fileName UTF8String];
-                    return context->currentFile.c_str();
-                }
-            }
-            else
-            {
-                context->currentFile = [fileName UTF8String];
-                return context->currentFile.c_str();
-            }
-        }
-
-        return nullptr;
-    }
-}
-
-// Stop the current find operation
-void fs_findClose(fs_find_context_t *fs_search)
-{
-    @autoreleasepool {
-        if (fs_search == nullptr || fs_search->ptr.m == nullptr || fs_search->type != mac_find)
-            return;
-
-        s_mac_find_context *context = fs_search->ptr.m;
-        
-        [context->dirEnum release];
-        [context->dirEnumPath release];
-        [context->dirEnumExtension release];
-    
-        delete context;
-        
-        fs_search->type = unknown_find;
-        fs_search->ptr.v = nullptr;
-    }
-}
-
-// Begin enumerating files in a directory.  The enumeration is not recursive; subdirectories
-// won't be searched.  If 'extension' is not nullptr, only files with the given extension will
-// be returned.
-const char *fs_findFirstFile(const char *path, const char *extension, fs_find_context_t *fs_search)
-{
-    @autoreleasepool {
-        NSString *searchPath;
-
-        if (fs_search == nullptr)
-            return nullptr;
-
-        fs_search->type = mac_find;
-        fs_search->ptr.m = new s_mac_find_context();
-        if (fs_search->ptr.m == nullptr)
-            return nullptr;
-
-        s_mac_find_context *context = fs_search->ptr.m;
-
-        // If the path given is a relative one, we need to derive the full path
-        // for it by appending the current working directory
-        if (path[0] != '/')
-        {
-            searchPath = [[NSString alloc] initWithFormat:@"%@/%s", dataPath, path];
-        }
-        else
-        {
-            searchPath = [[NSString alloc] initWithUTF8String:path];
-        }
-
-        context->dirEnum = [[NSFileManager defaultManager] enumeratorAtPath:searchPath];
-        if (context->dirEnum == nil)
-        {
-            [searchPath release];
-            delete context;
-            fs_search->type = unknown_find;
-            return nullptr;
-        }
-        
-        [context->dirEnum retain];
-
-        if (extension != nullptr)
-        {
-            context->dirEnumExtension = [[NSString alloc] initWithUTF8String:extension];
-        }
-
-        context->dirEnumPath = searchPath;
-
-        return fs_findNextFile(fs_search);
-    }
 }

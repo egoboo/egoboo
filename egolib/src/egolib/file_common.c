@@ -24,22 +24,11 @@
 
 #include "egolib/file_common.h"
 
-#include "egolib/Log/_Include.hpp"
-
 #include "egolib/strutil.h"
 #include "egolib/vfs.h"
-#include "egolib/platform.h"
 
-#if !defined(MAX_PATH)
-#define MAX_PATH 260  // Same value that Windows uses...
-#endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 static bool _fs_initialized = false;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 /**
  * @brief
  *  Initialize the platform file system.
@@ -68,7 +57,6 @@ int fs_init(const char *argv0)
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 void fs_removeDirectoryAndContents(const char *dirname)
 {
     id::file_system::delete_directory_recursive(dirname);
@@ -90,36 +78,6 @@ void fs_deleteFile(const std::string& pathname)
 int fs_createDirectory(const std::string& pathname)
 {
     return id::file_system::create_directory(pathname) ? 0 : 1;
-}
-
-//--------------------------------------------------------------------------------------------
-void fs_copyDirectory(const char *sourceDir, const char *targetDir)
-{
-    fs_find_context_t fs_search;
-
-    // List all the files in the directory
-    const char *filename = fs_findFirstFile(sourceDir, NULL, &fs_search);
-    if (filename)
-    {
-        // Make sure the destination directory exists.
-        fs_createDirectory(targetDir); /// @todo Error handling here - if the directory does not exist, we can stop.
-
-        while (filename)
-        {
-            // Ignore files that begin with a `'.'`.
-            if ('.' != filename[0])
-            {
-                char sourcePath[MAX_PATH] = EMPTY_CSTR, targetPath[MAX_PATH] = EMPTY_CSTR;
-                snprintf(sourcePath, MAX_PATH, "%s" SLASH_STR "%s", sourceDir, filename);
-                snprintf(targetPath, MAX_PATH, "%s" SLASH_STR "%s", targetDir, filename);
-                fs_copyFile(sourcePath, targetPath);
-            }
-
-            filename = fs_findNextFile(&fs_search);
-        }
-    }
-
-    fs_findClose(&fs_search);
 }
 
 //--------------------------------------------------------------------------------------------
