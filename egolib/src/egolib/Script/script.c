@@ -26,15 +26,15 @@
 #include "egolib/AI/AStar.hpp"
 #include "egolib/Script/IRuntimeStatistics.hpp"
 
-#include "game/script_compile.h"
-#include "game/script_implementation.h"
-#include "game/script_functions.h"
-#include "game/script_variables.h"
-#include "game/game.h"
+#include "egolib/game/script_compile.h"
+#include "egolib/game/script_implementation.h"
+#include "egolib/game/script_functions.h"
+#include "egolib/game/script_variables.h"
+#include "egolib/game/game.h"
 #include "egolib/Entities/_Include.hpp"
-#include "game/Core/GameEngine.hpp"
-#include "game/Graphics/CameraSystem.hpp"
-#include "game/Module/Module.hpp"
+#include "egolib/game/Core/GameEngine.hpp"
+#include "egolib/game/Graphics/CameraSystem.hpp"
+#include "egolib/game/Module/Module.hpp"
 
 
 namespace Ego {

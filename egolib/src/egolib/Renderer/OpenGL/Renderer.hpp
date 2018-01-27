@@ -32,6 +32,7 @@
 #include "egolib/Renderer/OpenGL/TextureUnit.hpp"
 #include "egolib/platform.h"
 #include "egolib/Math/_Include.hpp"
+#include <GL/glew.h>
 
 namespace Ego {
 namespace OpenGL {

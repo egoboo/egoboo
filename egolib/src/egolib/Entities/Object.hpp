@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file game/Entities/Object.hpp
+/// @file egolib/game/Entities/Object.hpp
 /// @details An object representing instances of in-game egoboo objects (Object)
 /// @author Johan Jansen
 
@@ -30,16 +30,16 @@
 #include "egolib/Logic/Team.hpp"
 #include "egolib/InputControl/InputDevice.hpp"
 
-#include "game/egoboo.h"
-#include "game/Module/Module.hpp"
-#include "game/physics.h"
-#include "game/graphic_mad.h"
+#include "egolib/game/egoboo.h"
+#include "egolib/game/Module/Module.hpp"
+#include "egolib/game/physics.h"
+#include "egolib/game/graphic_mad.h"
 #include "egolib/Entities/Common.hpp"
-#include "game/Graphics/BillboardSystem.hpp"
-#include "game/Inventory.hpp"
-#include "game/Physics/Collidable.hpp"
-#include "game/Physics/ObjectPhysics.hpp"
-#include "game/Graphics/ObjectGraphics.hpp"
+#include "egolib/game/Graphics/BillboardSystem.hpp"
+#include "egolib/game/Inventory.hpp"
+#include "egolib/game/Physics/Collidable.hpp"
+#include "egolib/game/Physics/ObjectPhysics.hpp"
+#include "egolib/game/Graphics/ObjectGraphics.hpp"
 
 //Forward declarations
 namespace Ego { class Enchantment; }

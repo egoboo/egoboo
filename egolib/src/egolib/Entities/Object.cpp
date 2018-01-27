@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file game/Entities/Object.hpp
+/// @file egolib/game/Entities/Object.hpp
 /// @details An object representing instances of in-game egoboo objects (Object)
 /// @author Johan Jansen
 
@@ -28,19 +28,19 @@
 #include "egolib/Entities/ObjectHandler.hpp"
 #include "egolib/Entities/ParticleHandler.hpp"
 #include "egolib/Entities/Enchant.hpp"
-#include "game/Logic/Player.hpp"
-#include "game/game.h"
+#include "egolib/game/Logic/Player.hpp"
+#include "egolib/game/game.h"
 #include "egolib/Graphics/ModelDescriptor.hpp"
-#include "game/script_implementation.h" //for stealth
-#include "game/CharacterMatrix.h"
-#include "game/Graphics/CameraSystem.hpp"
-#include "game/Graphics/TileList.hpp"
-#include "game/Graphics/Billboard.hpp"
+#include "egolib/game/script_implementation.h" //for stealth
+#include "egolib/game/CharacterMatrix.h"
+#include "egolib/game/Graphics/CameraSystem.hpp"
+#include "egolib/game/Graphics/TileList.hpp"
+#include "egolib/game/Graphics/Billboard.hpp"
 
 //For the minimap
-#include "game/Core/GameEngine.hpp"
-#include "game/GameStates/PlayingState.hpp"
-#include "game/GUI/MiniMap.hpp"
+#include "egolib/game/Core/GameEngine.hpp"
+#include "egolib/game/GameStates/PlayingState.hpp"
+#include "egolib/game/GUI/MiniMap.hpp"
 
 //Declare class static constants
 const std::shared_ptr<Object> Object::INVALID_OBJECT = nullptr;

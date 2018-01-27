@@ -20,9 +20,9 @@
 
 #include "egolib/Audio/AudioSystem.hpp"
 
-#include "game/Graphics/CameraSystem.hpp"
-#include "game/game.h"
-#include "game/Module/Module.hpp"
+#include "egolib/game/Graphics/CameraSystem.hpp"
+#include "egolib/game/game.h"
+#include "egolib/game/Module/Module.hpp"
 #include "egolib/Entities/_Include.hpp"
 
 AudioSystem *AudioSystemCreateFunctor::operator()() const

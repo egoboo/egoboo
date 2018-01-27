@@ -25,7 +25,7 @@
 #pragma once
 
 #include "egolib/platform.h"
-#include "game/egoboo.h"
+#include "egolib/game/egoboo.h"
 
 /// The description of a single team
 class Team : public id::equal_to_expr<Team>

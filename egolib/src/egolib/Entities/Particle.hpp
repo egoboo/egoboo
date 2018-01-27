@@ -26,13 +26,13 @@
 #error(do not include directly, include `game/Entities/_Include.hpp` instead)
 #endif
 
-#include "game/egoboo.h"
-#include "game/graphic_prt.h"
+#include "egolib/game/egoboo.h"
+#include "egolib/game/graphic_prt.h"
 #include "egolib/Entities/Common.hpp"
-#include "game/Graphics/ParticleGraphics.hpp"
+#include "egolib/game/Graphics/ParticleGraphics.hpp"
 #include "egolib/Graphics/Animation2D.hpp"
-#include "game/Physics/Collidable.hpp"
-#include "game/Physics/ParticlePhysics.hpp"
+#include "egolib/game/Physics/Collidable.hpp"
+#include "egolib/game/Physics/ParticlePhysics.hpp"
 
 namespace Ego
 {

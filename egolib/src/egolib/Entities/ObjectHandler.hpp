@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file game/Entities/ObjectHandler.hpp
+/// @file egolib/game/Entities/ObjectHandler.hpp
 /// @details Memory and access managment for instances of in-game egoboo objects (Object)
 /// @author Johan Jansen
 
@@ -26,7 +26,7 @@
 #error(do not include directly, include `game/Entities/_Include.hpp` instead)
 #endif
 
-#include "game/egoboo.h"
+#include "egolib/game/egoboo.h"
 #include "egolib/Core/QuadTree.hpp"
 
 //Forward declarations

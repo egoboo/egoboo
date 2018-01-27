@@ -2,6 +2,7 @@
 
 #include "egolib/Graphics/SDL/GraphicsWindow.hpp"
 #include "egolib/egoboo_setup.h"
+#include <GL/glew.h>
 
 namespace Ego {
 namespace SDL {

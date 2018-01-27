@@ -26,10 +26,10 @@
 #include "egolib/Profiles/ProfileSystem.hpp"
 #include "egolib/Profiles/ObjectProfile.hpp"
 #include "egolib/Profiles/ModuleProfile.hpp"
-#include "game/GameStates/LoadPlayerElement.hpp"
+#include "egolib/game/GameStates/LoadPlayerElement.hpp"
 #include "egolib/Entities/_Include.hpp"
-#include "game/game.h"
-#include "game/script_compile.h"
+#include "egolib/game/game.h"
+#include "egolib/game/script_compile.h"
 
 AbstractProfileSystem<EnchantProfile, EnchantProfileRef> EnchantProfileSystem("enchant", "/debug/enchant_profile_usage.txt");
 AbstractProfileSystem<ParticleProfile, ParticleProfileRef> ParticleProfileSystem("particle", "/debug/particle_profile_usage.txt");

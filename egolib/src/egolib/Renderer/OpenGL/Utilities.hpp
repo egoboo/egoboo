@@ -2,21 +2,7 @@
 
 #include "egolib/integrations/idlib.hpp"
 #include "egolib/Graphics/PixelFormat.hpp"
-
-#if defined (ID_WINDOWS) && 1 == ID_WINDOWS
-extern "C" {
-#if !defined(WIN32_LEAN_AND_MEAN)
-    #define WIN32_LEAN_AND_MEAN
-#endif
-#if !defined (NOMINMAX)
-    #define NOMINMAX
-#endif
-#include <Windows.h>
-}
-#endif
-extern "C" {
-#include <gl/GL.h>
-}
+#include <GL/glew.h>
 
 namespace Ego {
 namespace OpenGL {

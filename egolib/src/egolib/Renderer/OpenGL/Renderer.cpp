@@ -28,35 +28,6 @@
 #include "egolib/Renderer/OpenGL/RendererInfo.hpp"
 #include "egolib/Renderer/OpenGL/DefaultTexture.hpp"
 
-// The following code ensures that for each OpenGL function variable static PF...PROC gl... = NULL; is declared/defined.
-#define GLPROC(variable,type,name) \
-    static type variable = NULL;
-#include "egolib/Renderer/OpenGL/OpenGL.inl"
-#undef GLPROC
-
-namespace Ego {
-namespace OpenGL {
-
-// The following function dynamically links the OpenGL function.
-static bool link() {
-    static bool linked = false;
-    if (!linked) {
-#define GLPROC(variable,type,name) \
-        variable = (type)SDL_GL_GetProcAddress(name); \
-        if (!variable) \
-        { \
-            return false; \
-        }
-#include "egolib/Renderer/OpenGL/OpenGL.inl"
-#undef GLPROC
-    }
-    linked = true;
-    return true;
-}
-
-} // namespace OpenGL
-} // namespace Ego
-
 namespace Ego {
 namespace OpenGL {
 
@@ -65,7 +36,6 @@ Renderer::Renderer(const std::shared_ptr<RendererInfo>& info) :
 {
     try
     {
-        OpenGL::link();
         m_defaultTexture1d = std::make_unique<DefaultTexture>(m_info, "<default texture 1D>", id::texture_type::_1D);
         try
         {

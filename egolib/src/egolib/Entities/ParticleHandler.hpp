@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file  game/Entities/ParticleHandler.hpp
+/// @file egolib/game/Entities/ParticleHandler.hpp
 /// @brief Handler of particle entities.
 
 #pragma once
@@ -25,7 +25,7 @@
 #error(do not include directly, include `game/Entities/_Include.hpp` instead)
 #endif
 
-#include "game/egoboo.h"
+#include "egolib/game/egoboo.h"
 #include "egolib/Entities/Particle.hpp"
 
 class ParticleHandler : public id::singleton<ParticleHandler>

@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file  game/Entities/Enchant.hpp
+/// @file egolib/game/Entities/Enchant.hpp
 /// @brief Enchantment entities.
 
 #pragma once

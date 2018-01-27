@@ -19,7 +19,7 @@
 
 #include "egolib/AI/LineOfSight.hpp"
 #include "egolib/Mesh/Info.hpp"
-#include "game/mesh.h"
+#include "egolib/game/mesh.h"
 
 bool line_of_sight_info_t::blocked(line_of_sight_info_t& self, std::shared_ptr<const ego_mesh_t> mesh) {
     bool mesh_hit = with_mesh(self, mesh);

@@ -17,13 +17,13 @@
 //*
 //********************************************************************************************
 
-/// @file  game/Entities/Enchant.cpp
+/// @file egolib/game/Entities/Enchant.cpp
 /// @brief Enchantment entities.
 
 #define GAME_ENTITIES_PRIVATE 1
 #include "egolib/Entities/Enchant.hpp"
 #include "egolib/Graphics/ModelDescriptor.hpp"
-#include "game/Core/GameEngine.hpp"
+#include "egolib/game/Core/GameEngine.hpp"
 
 namespace Ego
 {

@@ -24,7 +24,7 @@
 
 #define EGOLIB_PROFILES_PRIVATE 1
 #include "egolib/Profiles/ObjectProfile.hpp"
-#include "game/Core/GameEngine.hpp"
+#include "egolib/game/Core/GameEngine.hpp"
 #include "egolib/Entities/_Include.hpp"
 #include "egolib/Graphics/ModelDescriptor.hpp"
 #include "egolib/Audio/AudioSystem.hpp"

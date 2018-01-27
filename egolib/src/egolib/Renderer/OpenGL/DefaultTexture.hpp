@@ -1,6 +1,7 @@
 #pragma once
 
 #include "egolib/Image/SDL_Image_Extensions.h"
+#include <GL/glew.h>
 
 namespace Ego { namespace OpenGL {
 
