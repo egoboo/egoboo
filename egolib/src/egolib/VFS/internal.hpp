@@ -3,7 +3,7 @@
 #include <string>
 #include <regex>
 
-namespace id { namespace file_system { namespace internal {
+namespace idlib { namespace file_system { namespace internal {
 
 template <typename C>
 struct path_parser
@@ -15,4 +15,4 @@ struct path_parser
     }
 }; // struct path_parser
 
-} } } // namespace id::file_system::internal
+} } } // namespace idlib::file_system::internal

@@ -26,105 +26,105 @@
 
 namespace Ego {
 
-const VertexDescriptor& descriptor_factory<id::vertex_format::P2F>::operator()() const
+const VertexDescriptor& descriptor_factory<idlib::vertex_format::P2F>::operator()() const
 {
-    static const VertexElementDescriptor position(0, id::vertex_component_syntactics::SINGLE_2, id::vertex_component_semantics::POSITION);
+    static const VertexElementDescriptor position(0, idlib::vertex_component_syntactics::SINGLE_2, idlib::vertex_component_semantics::POSITION);
     static const VertexDescriptor descriptor({ position });
     return descriptor;
 }
 
-const VertexDescriptor& descriptor_factory<id::vertex_format::P2FT2F>::operator()() const
+const VertexDescriptor& descriptor_factory<idlib::vertex_format::P2FT2F>::operator()() const
 {
-    static const VertexElementDescriptor position(0, id::vertex_component_syntactics::SINGLE_2, id::vertex_component_semantics::POSITION);
-    static const VertexElementDescriptor texture(position.get_offset() + position.get_size(), id::vertex_component_syntactics::SINGLE_2, id::vertex_component_semantics::TEXTURE);
+    static const VertexElementDescriptor position(0, idlib::vertex_component_syntactics::SINGLE_2, idlib::vertex_component_semantics::POSITION);
+    static const VertexElementDescriptor texture(position.get_offset() + position.get_size(), idlib::vertex_component_syntactics::SINGLE_2, idlib::vertex_component_semantics::TEXTURE);
     static const VertexDescriptor descriptor({ position, texture });
     return descriptor;
 }
 
-const VertexDescriptor& descriptor_factory<id::vertex_format::P3F>::operator()() const
+const VertexDescriptor& descriptor_factory<idlib::vertex_format::P3F>::operator()() const
 {
-    static const VertexElementDescriptor position(0, id::vertex_component_syntactics::SINGLE_3, id::vertex_component_semantics::POSITION);
+    static const VertexElementDescriptor position(0, idlib::vertex_component_syntactics::SINGLE_3, idlib::vertex_component_semantics::POSITION);
     static const VertexDescriptor descriptor({ position });
     return descriptor;
 }
 
-const VertexDescriptor& descriptor_factory<id::vertex_format::P3FC4F>::operator()() const
+const VertexDescriptor& descriptor_factory<idlib::vertex_format::P3FC4F>::operator()() const
 {
-    static const VertexElementDescriptor position(0, id::vertex_component_syntactics::SINGLE_3, id::vertex_component_semantics::POSITION);
-    static const VertexElementDescriptor colour(position.get_offset() + position.get_size(), id::vertex_component_syntactics::SINGLE_4, id::vertex_component_semantics::COLOR);
+    static const VertexElementDescriptor position(0, idlib::vertex_component_syntactics::SINGLE_3, idlib::vertex_component_semantics::POSITION);
+    static const VertexElementDescriptor colour(position.get_offset() + position.get_size(), idlib::vertex_component_syntactics::SINGLE_4, idlib::vertex_component_semantics::COLOR);
     static const VertexDescriptor descriptor({ position, colour });
     return descriptor;
 }
 
-const VertexDescriptor& descriptor_factory<id::vertex_format::P3FT2F>::operator()() const
+const VertexDescriptor& descriptor_factory<idlib::vertex_format::P3FT2F>::operator()() const
 {
-    static const VertexElementDescriptor position(0, id::vertex_component_syntactics::SINGLE_3, id::vertex_component_semantics::POSITION);
-    static const VertexElementDescriptor texture(position.get_offset() + position.get_size(), id::vertex_component_syntactics::SINGLE_2, id::vertex_component_semantics::TEXTURE);
+    static const VertexElementDescriptor position(0, idlib::vertex_component_syntactics::SINGLE_3, idlib::vertex_component_semantics::POSITION);
+    static const VertexElementDescriptor texture(position.get_offset() + position.get_size(), idlib::vertex_component_syntactics::SINGLE_2, idlib::vertex_component_semantics::TEXTURE);
     static const VertexDescriptor descriptor({ position, texture });
     return descriptor;
 }
 
-const VertexDescriptor& descriptor_factory<id::vertex_format::P3FC4FN3F>::operator()() const
+const VertexDescriptor& descriptor_factory<idlib::vertex_format::P3FC4FN3F>::operator()() const
 {
-    static const VertexElementDescriptor position(0, id::vertex_component_syntactics::SINGLE_3, id::vertex_component_semantics::POSITION);
-    static const VertexElementDescriptor colour(position.get_offset() + position.get_size(), id::vertex_component_syntactics::SINGLE_4, id::vertex_component_semantics::COLOR);
-    static const VertexElementDescriptor normal(colour.get_offset() + colour.get_size(), id::vertex_component_syntactics::SINGLE_3, id::vertex_component_semantics::NORMAL);
+    static const VertexElementDescriptor position(0, idlib::vertex_component_syntactics::SINGLE_3, idlib::vertex_component_semantics::POSITION);
+    static const VertexElementDescriptor colour(position.get_offset() + position.get_size(), idlib::vertex_component_syntactics::SINGLE_4, idlib::vertex_component_semantics::COLOR);
+    static const VertexElementDescriptor normal(colour.get_offset() + colour.get_size(), idlib::vertex_component_syntactics::SINGLE_3, idlib::vertex_component_semantics::NORMAL);
     static const VertexDescriptor descriptor({ position, colour, normal });
     return descriptor;
 }
 
-const VertexDescriptor& descriptor_factory<id::vertex_format::P3FC4FT2F>::operator()() const
+const VertexDescriptor& descriptor_factory<idlib::vertex_format::P3FC4FT2F>::operator()() const
 {
-    static const VertexElementDescriptor position(0, id::vertex_component_syntactics::SINGLE_3, id::vertex_component_semantics::POSITION);
-    static const VertexElementDescriptor colour(position.get_offset() + position.get_size(), id::vertex_component_syntactics::SINGLE_4, id::vertex_component_semantics::COLOR);
-    static const VertexElementDescriptor texture(colour.get_offset() + colour.get_size(), id::vertex_component_syntactics::SINGLE_2, id::vertex_component_semantics::TEXTURE);
+    static const VertexElementDescriptor position(0, idlib::vertex_component_syntactics::SINGLE_3, idlib::vertex_component_semantics::POSITION);
+    static const VertexElementDescriptor colour(position.get_offset() + position.get_size(), idlib::vertex_component_syntactics::SINGLE_4, idlib::vertex_component_semantics::COLOR);
+    static const VertexElementDescriptor texture(colour.get_offset() + colour.get_size(), idlib::vertex_component_syntactics::SINGLE_2, idlib::vertex_component_semantics::TEXTURE);
     static const VertexDescriptor descriptor({ position, colour, texture });
     return descriptor;
 }
 
-const VertexDescriptor& descriptor_factory<id::vertex_format::P3FC4FT2FN3F>::operator()() const
+const VertexDescriptor& descriptor_factory<idlib::vertex_format::P3FC4FT2FN3F>::operator()() const
 {
-    static const VertexElementDescriptor position(0, id::vertex_component_syntactics::SINGLE_3, id::vertex_component_semantics::POSITION);
-    static const VertexElementDescriptor colour(position.get_offset() + position.get_size(), id::vertex_component_syntactics::SINGLE_4, id::vertex_component_semantics::COLOR);
-    static const VertexElementDescriptor texture(colour.get_offset() + colour.get_size(), id::vertex_component_syntactics::SINGLE_2, id::vertex_component_semantics::TEXTURE);
-    static const VertexElementDescriptor normal(texture.get_offset() + texture.get_size(), id::vertex_component_syntactics::SINGLE_3, id::vertex_component_semantics::NORMAL);
+    static const VertexElementDescriptor position(0, idlib::vertex_component_syntactics::SINGLE_3, idlib::vertex_component_semantics::POSITION);
+    static const VertexElementDescriptor colour(position.get_offset() + position.get_size(), idlib::vertex_component_syntactics::SINGLE_4, idlib::vertex_component_semantics::COLOR);
+    static const VertexElementDescriptor texture(colour.get_offset() + colour.get_size(), idlib::vertex_component_syntactics::SINGLE_2, idlib::vertex_component_semantics::TEXTURE);
+    static const VertexElementDescriptor normal(texture.get_offset() + texture.get_size(), idlib::vertex_component_syntactics::SINGLE_3, idlib::vertex_component_semantics::NORMAL);
     static const VertexDescriptor descriptor({ position, colour, texture, normal });
     return descriptor;
 }
 
-const VertexDescriptor& descriptor_factory<id::vertex_format::P3FC3FT2F>::operator()() const
+const VertexDescriptor& descriptor_factory<idlib::vertex_format::P3FC3FT2F>::operator()() const
 {
-    static const VertexElementDescriptor position(0, id::vertex_component_syntactics::SINGLE_3, id::vertex_component_semantics::POSITION);
-    static const VertexElementDescriptor colour(position.get_offset() + position.get_size(), id::vertex_component_syntactics::SINGLE_3, id::vertex_component_semantics::COLOR);
-    static const VertexElementDescriptor texture(colour.get_offset() + colour.get_size(), id::vertex_component_syntactics::SINGLE_2, id::vertex_component_semantics::TEXTURE);
+    static const VertexElementDescriptor position(0, idlib::vertex_component_syntactics::SINGLE_3, idlib::vertex_component_semantics::POSITION);
+    static const VertexElementDescriptor colour(position.get_offset() + position.get_size(), idlib::vertex_component_syntactics::SINGLE_3, idlib::vertex_component_semantics::COLOR);
+    static const VertexElementDescriptor texture(colour.get_offset() + colour.get_size(), idlib::vertex_component_syntactics::SINGLE_2, idlib::vertex_component_semantics::TEXTURE);
     static const VertexDescriptor descriptor({ position, colour, texture });
     return descriptor;
 }
 
-const VertexDescriptor& VertexFormatFactory::get(id::vertex_format vertexFormat)
+const VertexDescriptor& VertexFormatFactory::get(idlib::vertex_format vertexFormat)
 {
     switch (vertexFormat)
     {
-    case id::vertex_format::P2F:
-    { return descriptor_factory<id::vertex_format::P2F>()(); }
-    case id::vertex_format::P2FT2F:
-    { return descriptor_factory<id::vertex_format::P2FT2F>()(); }
-    case id::vertex_format::P3F:
-    { return descriptor_factory<id::vertex_format::P3F>()(); }
-    case id::vertex_format::P3FT2F:
-    { return descriptor_factory<id::vertex_format::P3FT2F>()(); }
-    case id::vertex_format::P3FC4F:
-    { return descriptor_factory<id::vertex_format::P3FC4F>()(); }
-    case id::vertex_format::P3FC4FN3F:
-    { return descriptor_factory<id::vertex_format::P3FC4FN3F>()(); }
-    case id::vertex_format::P3FC4FT2F:
-    { return descriptor_factory<id::vertex_format::P3FC4FT2F>()(); }
-    case id::vertex_format::P3FC4FT2FN3F:
-    { return descriptor_factory<id::vertex_format::P3FC4FT2FN3F>()(); }
-    case id::vertex_format::P3FC3FT2F:
-    { return descriptor_factory<id::vertex_format::P3FC3FT2F>()(); }
+    case idlib::vertex_format::P2F:
+    { return descriptor_factory<idlib::vertex_format::P2F>()(); }
+    case idlib::vertex_format::P2FT2F:
+    { return descriptor_factory<idlib::vertex_format::P2FT2F>()(); }
+    case idlib::vertex_format::P3F:
+    { return descriptor_factory<idlib::vertex_format::P3F>()(); }
+    case idlib::vertex_format::P3FT2F:
+    { return descriptor_factory<idlib::vertex_format::P3FT2F>()(); }
+    case idlib::vertex_format::P3FC4F:
+    { return descriptor_factory<idlib::vertex_format::P3FC4F>()(); }
+    case idlib::vertex_format::P3FC4FN3F:
+    { return descriptor_factory<idlib::vertex_format::P3FC4FN3F>()(); }
+    case idlib::vertex_format::P3FC4FT2F:
+    { return descriptor_factory<idlib::vertex_format::P3FC4FT2F>()(); }
+    case idlib::vertex_format::P3FC4FT2FN3F:
+    { return descriptor_factory<idlib::vertex_format::P3FC4FT2FN3F>()(); }
+    case idlib::vertex_format::P3FC3FT2F:
+    { return descriptor_factory<idlib::vertex_format::P3FC3FT2F>()(); }
     default:
-        throw id::unhandled_switch_case_error(__FILE__, __LINE__);
+        throw idlib::unhandled_switch_case_error(__FILE__, __LINE__);
     };
 }
 

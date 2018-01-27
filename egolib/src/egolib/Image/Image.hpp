@@ -43,7 +43,7 @@ protected:
     SDL_Surface *m_surface;
 
     /// @brief The pixel format.
-    id::pixel_format m_pixel_format;
+    idlib::pixel_format m_pixel_format;
 
 public:
     /// @brief Construct this image.
@@ -64,7 +64,7 @@ public:
 
     /// @brief Get the pixel format of this image.
     /// @return the pixel format of this image
-    id::pixel_format get_pixel_format() const;
+    idlib::pixel_format get_pixel_format() const;
 
     /// @brief Get the size, in Bytes, of a pixel.
     /// @return the size, in Bytes, of a pixel

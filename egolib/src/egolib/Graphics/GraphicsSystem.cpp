@@ -104,7 +104,7 @@ GraphicsSystem::GraphicsSystem() :
     {
         auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "unable to set any video mode", Log::EndOfEntry);
         Log::get() << e;
-        throw id::runtime_error(__FILE__, __LINE__, e.getText());
+        throw idlib::runtime_error(__FILE__, __LINE__, e.getText());
     }
     else
     {

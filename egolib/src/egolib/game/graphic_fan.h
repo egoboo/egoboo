@@ -40,12 +40,12 @@ namespace Graphics
 
 #if defined(MAP_CULL_RIGHT)
 // this worked with the old camera
-#    define MAP_REF_CULL   id::winding_mode::anti_clockwise
-#    define MAP_NRM_CULL   id::winding_mode::clockwise
+#    define MAP_REF_CULL   idlib::winding_mode::anti_clockwise
+#    define MAP_NRM_CULL   idlib::winding_mode::clockwise
 #else
 // they had to be reversed with the new camera
-#    define MAP_REF_CULL   id::winding_mode::clockwise
-#    define MAP_NRM_CULL   id::winding_mode::anti_clockwise
+#    define MAP_REF_CULL   idlib::winding_mode::clockwise
+#    define MAP_NRM_CULL   idlib::winding_mode::anti_clockwise
 #endif
 
 //--------------------------------------------------------------------------------------------

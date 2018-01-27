@@ -161,7 +161,7 @@ int CharacterWindow::addResistanceLabel(std::shared_ptr<Tab> target, const Point
         case DAMAGE_ICE:   damageName = "Ice"; break;
         case DAMAGE_EVIL:  damageName = "Evil"; break;
         case DAMAGE_HOLY:  damageName = "Holy"; break;
-        default: throw id::unhandled_switch_case_error(__FILE__, __LINE__);
+        default: throw idlib::unhandled_switch_case_error(__FILE__, __LINE__);
     }
 
     //Label
@@ -463,7 +463,7 @@ void CharacterWindow::describeEnchantEffects(const std::vector<std::shared_ptr<E
             label->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
             label->setColour(element.second > 0 ? Math::Colour4f::green() : Math::Colour4f::red());
             list->addComponent(label);
-        } catch (id::unhandled_switch_case_error &ex) {
+        } catch (idlib::unhandled_switch_case_error &ex) {
             //Simply ignore effects that cannot be translated into a description
             continue;
         }

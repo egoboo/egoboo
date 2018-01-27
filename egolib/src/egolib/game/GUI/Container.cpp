@@ -13,7 +13,7 @@ Container::~Container()
 
 void Container::addComponent(const std::shared_ptr<Component>& component) {
     if (!component) {
-        throw id::invalid_argument_error(__FILE__, __LINE__, "nullptr == component");
+        throw idlib::null_error(__FILE__, __LINE__, "component");
     }
     std::lock_guard<std::mutex> lock(_mutex);
     _components.push_back(component);
@@ -22,7 +22,7 @@ void Container::addComponent(const std::shared_ptr<Component>& component) {
 
 void Container::removeComponent(const std::shared_ptr<Component>& component) {
     if (!component) {
-        throw id::invalid_argument_error(__FILE__, __LINE__, "nullptr == component");
+        throw idlib::null_error(__FILE__, __LINE__, "component");
     }
     std::lock_guard<std::mutex> lock(_mutex);
     _components.erase(std::remove(_components.begin(), _components.end(), component), _components.end());
@@ -64,7 +64,7 @@ void Container::drawAll(DrawingContext& drawingContext) {
 bool Container::notifyMousePointerMoved(const Events::MousePointerMovedEvent& e) {
     // Iterate over GUI components in reverse order so GUI components added last (i.e on top) consume events first.
     auto it = iterator();
-    auto newEventArgs = Events::MousePointerMovedEvent(e.get_position() - id::semantic_cast<Vector2f>(getPosition()));
+    auto newEventArgs = Events::MousePointerMovedEvent(e.get_position() - idlib::semantic_cast<Vector2f>(getPosition()));
     for (auto i = it.rbegin(); i != it.rend(); ++i) {
         std::shared_ptr<Component> component = *i;
         if (!component->isEnabled()) continue;
@@ -87,7 +87,7 @@ bool Container::notifyKeyboardKeyPressed(const Events::KeyboardKeyPressedEvent& 
 
 bool Container::notifyMouseButtonPressed(const Events::MouseButtonPressedEvent& e) {
     // Iterate over GUI components in reverse order so GUI components added last (i.e on top) consume events first
-    auto newEventArgs = Events::MouseButtonPressedEvent(e.get_position() - id::semantic_cast<Vector2f>(getPosition()), e.get_button());
+    auto newEventArgs = Events::MouseButtonPressedEvent(e.get_position() - idlib::semantic_cast<Vector2f>(getPosition()), e.get_button());
     auto it = iterator();
     for (auto i = it.rbegin(); i != it.rend(); ++i) {
         std::shared_ptr<Component> component = *i;
@@ -100,7 +100,7 @@ bool Container::notifyMouseButtonPressed(const Events::MouseButtonPressedEvent& 
 bool Container::notifyMouseButtonReleased(const Events::MouseButtonReleasedEvent& e) {
     // Iterate over GUI components in reverse order so GUI components added last (i.e on top) consume events first.
     auto it = iterator();
-    auto newEventArgs = Events::MouseButtonReleasedEvent(e.get_position() - id::semantic_cast<Vector2f>(getPosition()), e.get_button());
+    auto newEventArgs = Events::MouseButtonReleasedEvent(e.get_position() - idlib::semantic_cast<Vector2f>(getPosition()), e.get_button());
     for (auto i = it.rbegin(); i != it.rend(); ++i) {
         std::shared_ptr<Component> component = *i;
         if (!component->isEnabled()) continue;

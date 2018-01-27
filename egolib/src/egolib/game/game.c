@@ -375,7 +375,7 @@ ObjectRef prt_find_target( const Vector3f& pos, Facing facing,
     ObjectRef besttarget = ObjectRef::Invalid;
     float  longdist2 = max_dist2;
 
-    facing = id::canonicalize(facing);
+    facing = idlib::canonicalize(facing);
 
     if ( !LOADED_PIP( particletype ) ) return ObjectRef::Invalid;
     ppip = ProfileSystem::get().ParticleProfileSystem.get_ptr( particletype );
@@ -410,7 +410,7 @@ ObjectRef prt_find_target( const Vector3f& pos, Facing facing,
             // Only proceed if we are facing the target
             if ( angle < Facing(ppip->targetangle) || angle > Facing( 0xFFFF - ppip->targetangle ))
             {
-                float dist2 = id::squared_euclidean_norm(pchr->getPosition() - pos);
+                float dist2 = idlib::squared_euclidean_norm(pchr->getPosition() - pos);
 
                 if ( dist2 < longdist2 && dist2 <= max_dist2 )
                 {
@@ -531,7 +531,7 @@ ObjectRef chr_find_target( Object * psrc, float max_dist, const IDSZ2& idsz, con
             if(player) {
 
                 //Within range?
-                float distance = id::euclidean_norm(object->getPosition() - psrc->getPosition());
+                float distance = idlib::euclidean_norm(object->getPosition() - psrc->getPosition());
                 if(max_dist == NEAREST || distance < max_dist) {
                     searchList.push_back(object);
                 }
@@ -570,7 +570,7 @@ ObjectRef chr_find_target( Object * psrc, float max_dist, const IDSZ2& idsz, con
 
         if (!chr_check_target(psrc, ptst, idsz, targeting_bits)) continue;
 
-		float dist2 = id::squared_euclidean_norm(psrc->getPosition() - ptst->getPosition());
+		float dist2 = idlib::squared_euclidean_norm(psrc->getPosition() - ptst->getPosition());
         if (dist2 < best_dist2)
         {
             //Invictus chars do not need a line of sight
@@ -917,7 +917,7 @@ int reaffirm_attached_particles(ObjectRef objectRef) {
     int number_added = 0;
     for (int attempts = 0; attempts < amount && number_attached < amount; ++attempts) {
         std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnParticle( 
-			object->getPosition(), id::canonicalize(object->ori.facing_z), object->getProfile()->getSlotNumber(),
+			object->getPosition(), idlib::canonicalize(object->ori.facing_z), object->getProfile()->getSlotNumber(),
 			object->getProfile()->getAttachedParticleProfile(), objectRef, GRIP_LAST + number_attached,
 			object->getTeam().toRef(), objectRef, ParticleRef::Invalid, number_attached);
 
@@ -1307,9 +1307,9 @@ void Upload::upload_light_data(const wawalite_data_t& data)
     light_nrm = data.light.light_d;
     light_a = data.light.light_a;
 
-    if (id::euclidean_norm(light_nrm) > 0.0f)
+    if (idlib::euclidean_norm(light_nrm) > 0.0f)
     {
-        float length = id::euclidean_norm(light_nrm);
+        float length = idlib::euclidean_norm(light_nrm);
 
         // Get the extra magnitude of the direct light.
         if (gfx.usefaredge)
@@ -1411,7 +1411,7 @@ bool wawalite_finalize(wawalite_data_t *data)
     else
     {
         std::string weather_name = data->weather.weather_name;
-        id::to_lower_in_situ(weather_name);
+        idlib::to_lower_in_situ(weather_name);
 
         // Compute load paths.
         std::string prt_file = "mp_data/weather_" + weather_name + ".txt";
@@ -1434,10 +1434,10 @@ bool wawalite_finalize(wawalite_data_t *data)
     }
 
     int windspeed_count = 0;
-    Ego::Physics::g_environment.windspeed = id::zero<Vector3f>();
+    Ego::Physics::g_environment.windspeed = idlib::zero<Vector3f>();
 
     int waterspeed_count = 0;
-    Ego::Physics::g_environment.waterspeed = id::zero<Vector3f>();
+    Ego::Physics::g_environment.waterspeed = idlib::zero<Vector3f>();
 
     wawalite_water_layer_t *ilayer = wawalite_data.water.layer + 0;
     if (wawalite_data.water.background_req)
@@ -1547,10 +1547,10 @@ float get_mesh_max_vertex_2( ego_mesh_t *mesh, Object *object)
     /// @details the object does not overlap a single grid corner. Check the 4 corners of the collision volume
 
 	if (nullptr == mesh) {
-		throw id::runtime_error(__FILE__, __LINE__, "nullptr == mesh");
+		throw idlib::null_error(__FILE__, __LINE__, "mesh");
 	}
 	if (nullptr == object) {
-		throw id::runtime_error(__FILE__, __LINE__, "nullptr == object");
+		throw idlib::null_error(__FILE__, __LINE__, "object");
 	}
 	
     int corner;
@@ -1601,7 +1601,7 @@ float get_chr_level( ego_mesh_t *mesh, Object *object )
 
     // otherwise, use the small collision volume to determine which tiles the object overlaps
     // move the collision volume so that it surrounds the object
-    bump = id::translate(object->chr_min_cv, object->getPosition());
+    bump = idlib::translate(object->chr_min_cv, object->getPosition());
 
     // determine the size of this object in tiles
     ixmin = bump._mins[OCT_X] / Info<float>::Grid::Size(); ixmin = Ego::Math::constrain( ixmin, 0, int(mesh->_info.getTileCountX()) - 1 );
@@ -1802,7 +1802,7 @@ bool CheckTime(Time time) {
 
     // Unhandled check.
     default:
-        throw id::unhandled_switch_case_error(__FILE__, __LINE__);
+        throw idlib::unhandled_switch_case_error(__FILE__, __LINE__);
     }
 }
 }
@@ -2197,7 +2197,7 @@ void character_swipe( ObjectRef ichr, slot_t slot )
                     // make the weapon's holder the owner of the attack particle?
                     // will this mess up wands?
                     std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnParticle(pweapon->getPosition(), 
-                        id::canonicalize(pchr->ori.facing_z), weaponProfile->getSlotNumber(), 
+                        idlib::canonicalize(pchr->ori.facing_z), weaponProfile->getSlotNumber(), 
                         attackParticle, weaponProfile->hasAttachParticleToWeapon() ? iweapon : ObjectRef::Invalid,  
                         spawn_vrt_offset, pholder->getTeam().toRef(), iholder);
 

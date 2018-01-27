@@ -29,8 +29,7 @@
 
 float light_a = 0.0f,
       light_d = 0.0f;
-Vector3f light_nrm = id::zero<Vector3f>();
-
+Vector3f light_nrm = idlib::zero<Vector3f>();
 
 //--------------------------------------------------------------------------------------------
 
@@ -510,7 +509,7 @@ bool sum_dyna_lighting( const dynalight_data_t * pdyna, LightingVector& lighting
     if ( 0.0f == level ) return true;
 
     // allow negative lighting, or blind spots will not work properly
-	float rad_sqr = id::squared_euclidean_norm(nrm);
+	float rad_sqr = idlib::squared_euclidean_norm(nrm);
 
     // make a local copy of the normal so we do not normalize the data in the calling function
 	Vector3f local_nrm = nrm;
@@ -537,5 +536,5 @@ void dynalight_data_t::init(dynalight_data_t& self)
 	self.distance = 1000.0f;
 	self.falloff = 255.0f;
 	self.level = 0.0f;
-	self.pos = id::zero<Vector3f>();
+	self.pos = idlib::zero<Vector3f>();
 }

@@ -23,17 +23,9 @@
 
 #include <unistd.h>
 #include <pwd.h>
-#include <grp.h>
-#include <glob.h>
 #include <sys/types.h>
-#include <sys/stat.h>
-
-#ifdef __linux__
-#include <linux/limits.h>
-#endif
-
+#include <limits.h>
 #include "egolib/file_common.h"
-#include "egolib/Log/_Include.hpp"
 #include "egolib/strutil.h"
 
 //--------------------------------------------------------------------------------------------

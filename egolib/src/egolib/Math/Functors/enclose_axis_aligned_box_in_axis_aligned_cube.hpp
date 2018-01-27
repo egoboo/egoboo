@@ -25,9 +25,9 @@
 
 #include "egolib/platform.h"
 
-namespace id {
+namespace idlib {
 
-/// @brief Specialization of id::enclose_functor.
+/// @brief Specialization of idlib::enclose_functor.
 /// Encloses an axis aligned box in an axis aligned cube.
 /// @detail Given an axis aligned box \f$a\f$ with edge lengths \f$l_0, \ldots, l_{n-1}\f$ and
 /// a center \f$c\f$, an axis aligned cube \f$b\f$ enclosing the axis aligned box can be
@@ -50,4 +50,4 @@ struct enclose_functor<axis_aligned_cube<P>, axis_aligned_box<P>>
     }
 }; // struct enclose_functor
 
-} // namespace id
+} // namespace idlib

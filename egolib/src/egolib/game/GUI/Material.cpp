@@ -42,10 +42,10 @@ void Material::apply() const {
 	// (3) alpha
 	if (_isAlphaBlendingEnabled) {
 		renderer.setBlendingEnabled(true);
-		renderer.setBlendFunction(id::color_blend_parameter::source0_alpha, id::color_blend_parameter::one_minus_source0_alpha);
+		renderer.setBlendFunction(idlib::color_blend_parameter::source0_alpha, idlib::color_blend_parameter::one_minus_source0_alpha);
 
 		renderer.setAlphaTestEnabled(true);
-		renderer.setAlphaFunction(id::compare_function::greater, 0.0f);
+		renderer.setAlphaFunction(idlib::compare_function::greater, 0.0f);
 	} else {
 		renderer.setBlendingEnabled(false);
 		renderer.setAlphaTestEnabled(false);

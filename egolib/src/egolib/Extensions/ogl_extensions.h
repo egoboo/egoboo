@@ -26,6 +26,7 @@
 #pragma once
 
 #include "egolib/platform.h"
+#define GLEW_STATIC
 #include <GL/glew.h>
 
 //--------------------------------------------------------------------------------------------

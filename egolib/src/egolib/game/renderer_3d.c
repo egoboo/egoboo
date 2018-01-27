@@ -91,10 +91,10 @@ void LineSegmentList::draw_all(Camera& camera)
 
                 // do not draw hidden surfaces
                 renderer.setDepthTestEnabled(true);
-                renderer.setDepthFunction(id::compare_function::less_or_equal);
+                renderer.setDepthFunction(idlib::compare_function::less_or_equal);
 
                 // draw draw front and back faces of polygons
-                renderer.setCullingMode(id::culling_mode::none);
+                renderer.setCullingMode(idlib::culling_mode::none);
 
                 renderer.setBlendingEnabled(false);
 
@@ -184,10 +184,10 @@ void PointList::draw_all(Camera& camera)
 
             // do not draw hidden surfaces
             renderer.setDepthTestEnabled(true);
-            renderer.setDepthFunction(id::compare_function::less_or_equal);
+            renderer.setDepthFunction(idlib::compare_function::less_or_equal);
 
             // draw draw front and back faces of polygons
-			renderer.setCullingMode(id::culling_mode::none);
+			renderer.setCullingMode(idlib::culling_mode::none);
 
             renderer.setBlendingEnabled(false);
 
@@ -242,16 +242,16 @@ void Renderer3D::renderAxisAlignedBox(const AxisAlignedBox3f& bv, const Ego::Mat
 
         // do not draw hidden surfaces
         renderer.setDepthTestEnabled(true);
-        renderer.setDepthFunction(id::compare_function::less_or_equal);
+        renderer.setDepthFunction(idlib::compare_function::less_or_equal);
 
         // draw draw front and back faces of polygons
-        renderer.setCullingMode(id::culling_mode::none); // GL_ENABLE_BIT
+        renderer.setCullingMode(idlib::culling_mode::none); // GL_ENABLE_BIT
 
         // make them transparent
         renderer.setBlendingEnabled(true);
-        renderer.setBlendFunction(id::color_blend_parameter::source0_alpha, id::color_blend_parameter::one_minus_source0_alpha);
+        renderer.setBlendFunction(idlib::color_blend_parameter::source0_alpha, idlib::color_blend_parameter::one_minus_source0_alpha);
         renderer.setAlphaTestEnabled(true);
-        renderer.setAlphaFunction(id::compare_function::greater, 0.0f);
+        renderer.setAlphaFunction(idlib::compare_function::greater, 0.0f);
 
         // deactivate texturing
         renderer.getTextureUnit().setActivated(nullptr);
@@ -320,17 +320,17 @@ void Renderer3D::renderOctBB(const oct_bb_t &bb, bool drawSquare, bool drawDiamo
 
         // do not draw hidden surfaces
         renderer.setDepthTestEnabled(true);
-        renderer.setDepthFunction(id::compare_function::less_or_equal);
+        renderer.setDepthFunction(idlib::compare_function::less_or_equal);
 
         // fix the poorly chosen normals...
         // draw draw front and back faces of polygons
-		renderer.setCullingMode(id::culling_mode::none); // GL_ENABLE_BIT
+		renderer.setCullingMode(idlib::culling_mode::none); // GL_ENABLE_BIT
 
         // make them transparent
         renderer.setBlendingEnabled(true);
-		renderer.setBlendFunction(id::color_blend_parameter::source0_alpha, id::color_blend_parameter::one_minus_source0_alpha);
+		renderer.setBlendFunction(idlib::color_blend_parameter::source0_alpha, idlib::color_blend_parameter::one_minus_source0_alpha);
         renderer.setAlphaTestEnabled(true);
-        renderer.setAlphaFunction(id::compare_function::greater, 0.0f);
+        renderer.setAlphaFunction(idlib::compare_function::greater, 0.0f);
 
         // deactivate texturing
 		renderer.getTextureUnit().setActivated(nullptr);

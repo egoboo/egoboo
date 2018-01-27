@@ -83,11 +83,11 @@ struct Matrix;
 template <typename _ElementType, size_t _NumberOfRows, size_t _NumberOfColumns>
 struct Matrix<_ElementType, _NumberOfRows, _NumberOfColumns,
               std::enable_if_t<Internal::MatrixEnable<_ElementType, _NumberOfRows, _NumberOfColumns>::value>>
-    : public id::equal_to_expr<Matrix<_ElementType, _NumberOfRows, _NumberOfColumns>>,
-      public id::plus_expr<Matrix<_ElementType, _NumberOfRows, _NumberOfColumns>, Matrix<_ElementType, _NumberOfRows, _NumberOfColumns>>,
-      public id::minus_expr<Matrix<_ElementType, _NumberOfRows, _NumberOfColumns>, Matrix<_ElementType, _NumberOfRows, _NumberOfColumns>>,
-      public id::unary_plus_expr<Matrix<_ElementType, _NumberOfRows, _NumberOfColumns>>,
-      public id::unary_minus_expr<Matrix<_ElementType, _NumberOfRows, _NumberOfColumns>> {
+    : public idlib::equal_to_expr<Matrix<_ElementType, _NumberOfRows, _NumberOfColumns>>,
+      public idlib::plus_expr<Matrix<_ElementType, _NumberOfRows, _NumberOfColumns>, Matrix<_ElementType, _NumberOfRows, _NumberOfColumns>>,
+      public idlib::minus_expr<Matrix<_ElementType, _NumberOfRows, _NumberOfColumns>, Matrix<_ElementType, _NumberOfRows, _NumberOfColumns>>,
+      public idlib::unary_plus_expr<Matrix<_ElementType, _NumberOfRows, _NumberOfColumns>>,
+      public idlib::unary_minus_expr<Matrix<_ElementType, _NumberOfRows, _NumberOfColumns>> {
     /**
      * @brief
      *  Get if this matrix type is square matrix type.

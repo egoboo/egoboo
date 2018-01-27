@@ -2,7 +2,7 @@
 
 #include "egolib/platform.h"
 
-namespace id {
+namespace idlib {
 
 /// @brief Event raised if text was inserted.
 /// @a get_index() gets the index of the inserted subtext (in the new text).

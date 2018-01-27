@@ -5,11 +5,11 @@
 #include "egolib/text/text_replaced_event.hpp"
 #include "egolib/text/text_set_event.hpp"
 
-namespace id {
+namespace idlib {
 
 document::document()
 	: m_text(),
-	  m_trim_policy(id::document_trim_policy::trailing),
+	  m_trim_policy(idlib::document_trim_policy::trailing),
 	  m_max_length(std::numeric_limits<size_t>::max())
 {}
 
@@ -97,7 +97,7 @@ void document::insert_text(const std::string& text, size_t index)
 	if (index > m_text.size())
 	{
 		// if index is greater than the text size, then raise an error.
-		throw id::out_of_bounds_error(__FILE__, __LINE__, "index");
+		throw idlib::out_of_bounds_error(__FILE__, __LINE__, "index");
 	}
 	if (text.empty())
 	{
@@ -149,12 +149,12 @@ void document::insert_text(const std::string& text, size_t index)
 	signal_text_inserted(actual_index, actual_length, text_old, text_new);
 }
 
-id::document_trim_policy document::get_trim_policy() const
+idlib::document_trim_policy document::get_trim_policy() const
 {
 	return m_trim_policy;
 }
 
-void document::set_trim_policy(id::document_trim_policy trim_policy)
+void document::set_trim_policy(idlib::document_trim_policy trim_policy)
 {
 	m_trim_policy = trim_policy;
 }
@@ -174,13 +174,13 @@ void document::set_max_length(size_t max_length)
 			size_t to_trim = m_text.size() - m_max_length;
 			switch (m_trim_policy)
 			{
-			case id::document_trim_policy::leading:
+			case idlib::document_trim_policy::leading:
 				{
 					auto old_text = m_text;
 					m_text.erase(0, to_trim);
 					signal_text_erased(0, to_trim, old_text, m_text);
 				} break;
-			case id::document_trim_policy::trailing:
+			case idlib::document_trim_policy::trailing:
 				{
 					auto old_text = m_text;
 					m_text.erase(m_text.size() - to_trim);

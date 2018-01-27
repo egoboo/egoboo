@@ -45,7 +45,7 @@ void template_put_action( vfs_FILE* filetemp, vfs_FILE* filewrite, uint8_t actio
 void template_put_gender(vfs_FILE* filetemp, vfs_FILE* filewrite, Gender gender);
 void template_put_gender_profile( vfs_FILE* filetemp, vfs_FILE* filewrite, GenderProfile gender );
 void template_put_pair( vfs_FILE* filetemp, vfs_FILE* filewrite, IPair val );
-void template_put_range( vfs_FILE* filetemp, vfs_FILE* filewrite, id::interval<float> val );
+void template_put_range( vfs_FILE* filetemp, vfs_FILE* filewrite, idlib::interval<float> val );
 void template_put_string_under( vfs_FILE* filetemp, vfs_FILE* filewrite, const char* usename );
 void template_put_idsz( vfs_FILE* filetemp, vfs_FILE* filewrite, const IDSZ2 &idsz );
 void template_put_damage_modifier( vfs_FILE* filetemp, vfs_FILE* filewrite, uint8_t mod );

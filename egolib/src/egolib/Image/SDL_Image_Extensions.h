@@ -98,7 +98,7 @@ BlendMode getBlendMode(SDL_Surface *surface);
 
 void setBlendMode(SDL_Surface *surface, BlendMode blendMode);
 
-id::pixel_format getPixelFormat(SDL_Surface *surface);
+idlib::pixel_format getPixelFormat(SDL_Surface *surface);
 
 uint32_t make_rgb(SDL_Surface *surface, const Math::Colour3b& colour);
 

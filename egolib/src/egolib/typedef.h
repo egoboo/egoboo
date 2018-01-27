@@ -65,7 +65,7 @@
 #   define UINT_TO_UFP8(V1)   ( ((unsigned)(V1)) << 8 )
 
     /// version of V1 / 256.0f
-#   define FP8_TO_FLOAT(V1)   ( (float)(V1) * id::fraction<float, 1, 256>() )
+#   define FP8_TO_FLOAT(V1)   ( (float)(V1) * idlib::fraction<float, 1, 256>() )
     /// version of V1 * 256.0f
 #   define FLOAT_TO_FP8(V1)   ( (uint32_t)((V1) * (float)(0x0100) ) )
 
@@ -147,8 +147,8 @@
     /// Specifies a value between "base" and "base + rand"
     using IPair = Pair<int>;
 
-    id::interval<float> pair_to_range(const IPair& source);
-    IPair range_to_pair(const id::interval<float>& source);
+    idlib::interval<float> pair_to_range(const IPair& source);
+    IPair range_to_pair(const idlib::interval<float>& source);
 
 //--------------------------------------------------------------------------------------------
 // STRING

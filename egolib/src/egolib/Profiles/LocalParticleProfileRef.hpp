@@ -2,9 +2,9 @@
 
 #include "egolib/platform.h"
 
-struct LocalParticleProfileRef : public id::equal_to_expr<LocalParticleProfileRef>,
-                                 public id::lower_than_expr<LocalParticleProfileRef>,
-                                 public id::increment_expr<LocalParticleProfileRef> {
+struct LocalParticleProfileRef : public idlib::equal_to_expr<LocalParticleProfileRef>,
+                                 public idlib::lower_than_expr<LocalParticleProfileRef>,
+                                 public idlib::increment_expr<LocalParticleProfileRef> {
 private:
     int _value;
 public:

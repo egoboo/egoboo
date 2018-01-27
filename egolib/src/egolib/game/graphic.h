@@ -179,8 +179,8 @@ public:
 struct GFX : public GameApp<GFX>
 {
 private:
-    friend id::default_new_functor<GFX>;
-	friend id::default_delete_functor<GFX>;
+    friend idlib::default_new_functor<GFX>;
+	friend idlib::default_delete_functor<GFX>;
     GFX();
     ~GFX();
 

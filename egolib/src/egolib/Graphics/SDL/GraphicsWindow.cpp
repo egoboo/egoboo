@@ -111,9 +111,9 @@ GraphicsWindow::GraphicsWindow()
     if (config.graphic_fullscreen.getValue() &&
         config.graphic_window_fullscreenDesktop.getValue())
     {
-        throw id::runtime_error(__FILE__, __LINE__,
-                                config.graphic_fullscreen.getName() + " and " +
-                                config.graphic_window_fullscreenDesktop.getName() + " are mutually exclusive");
+        throw idlib::runtime_error(__FILE__, __LINE__,
+                                   config.graphic_fullscreen.getName() + " and " +
+                                   config.graphic_window_fullscreenDesktop.getName() + " are mutually exclusive");
     }
     if (config.graphic_window_fullscreenDesktop.getValue())
     {
@@ -128,7 +128,7 @@ GraphicsWindow::GraphicsWindow()
         Log::get() << Log::Entry::create(Log::Level::Error, __FILE__, __LINE__,
                                          "unable to create SDL window: ",
                                          SDL_GetError(), Log::EndOfEntry);
-        throw id::runtime_error(__FILE__, __LINE__, "unable to create SDL window");
+        throw idlib::runtime_error(__FILE__, __LINE__, "unable to create SDL window");
     }
     displayIndex = SDL_GetWindowDisplayIndex(window);
     if (displayIndex < 0)
@@ -138,7 +138,7 @@ GraphicsWindow::GraphicsWindow()
         Log::get() << Log::Entry::create(Log::Level::Error, __FILE__, __LINE__,
                                          "unable to create SDL window: ",
                                          SDL_GetError(), Log::EndOfEntry);
-        throw id::runtime_error(__FILE__, __LINE__, "unable to create SDL window");
+        throw idlib::runtime_error(__FILE__, __LINE__, "unable to create SDL window");
     }
 }
 
@@ -294,7 +294,7 @@ std::shared_ptr<SDL_Surface> GraphicsWindow::getContents() const
         surface = SDL_GetWindowSurface(window);
         if (!surface)
         {
-            throw id::environment_error(__FILE__, __LINE__, "SDL", "unable to get window contents");
+            throw idlib::environment_error(__FILE__, __LINE__, "SDL", "unable to get window contents");
         }
     }
     else
@@ -302,7 +302,7 @@ std::shared_ptr<SDL_Surface> GraphicsWindow::getContents() const
         Ego::OpenGL::PushClientAttrib pca(GL_CLIENT_PIXEL_STORE_BIT);
         {
             // create a SDL surface
-            const auto& pixel_descriptor = pixel_descriptor::get<id::pixel_format::R8G8B8>();
+            const auto& pixel_descriptor = pixel_descriptor::get<idlib::pixel_format::R8G8B8>();
             auto drawableSize = getDrawableSize();
             surface =
                 SDL_CreateRGBSurface(SDL_SWSURFACE, drawableSize.x(), drawableSize.y(),
@@ -313,22 +313,22 @@ std::shared_ptr<SDL_Surface> GraphicsWindow::getContents() const
                                      pixel_descriptor.get_alpha().get_mask());
             if (!surface)
             {
-                throw id::environment_error(__FILE__, __LINE__, "SDL OpenGL", "unable to get window contents");
+                throw idlib::environment_error(__FILE__, __LINE__, "SDL OpenGL", "unable to get window contents");
             }
 
             // Now lock the surface so that we can read it
             if (-1 == SDL_LockSurface(surface))
             {
                 SDL_FreeSurface(surface);
-                throw id::environment_error(__FILE__, __LINE__, "SDL OpenGL", "unable to get window contents");
+                throw idlib::environment_error(__FILE__, __LINE__, "SDL OpenGL", "unable to get window contents");
             }
-            SDL_Rect rect = { 0, 0, drawableSize.x(), drawableSize.y() };
+            SDL_Rect rect = { 0, 0, (int)drawableSize.x(), (int)drawableSize.y() };
             // Must copy the pixels row-by-row,
             // since the OpenGL video memory is flipped vertically relative to the SDL Screen memory.
             uint8_t *pixels = (uint8_t *)surface->pixels;
             for (auto y = rect.y; y < rect.y + rect.h; y++)
             {
-                if (id::get_byte_order() == id::byte_order::big_endian)
+                if (idlib::get_byte_order() == idlib::byte_order::big_endian)
                     glReadPixels(rect.x, (rect.h - y) - 1, rect.w, 1, GL_RGB, GL_UNSIGNED_BYTE, pixels);
                 else
                     glReadPixels(rect.x, (rect.h - y) - 1, rect.w, 1, GL_BGR, GL_UNSIGNED_BYTE, pixels);
@@ -338,7 +338,7 @@ std::shared_ptr<SDL_Surface> GraphicsWindow::getContents() const
             {
                 SDL_UnlockSurface(surface);
                 SDL_FreeSurface(surface);
-                throw id::environment_error(__FILE__, __LINE__, "SDL OpenGL", "unable to get window contents");
+                throw idlib::environment_error(__FILE__, __LINE__, "SDL OpenGL", "unable to get window contents");
             }
             SDL_UnlockSurface(surface);
         }

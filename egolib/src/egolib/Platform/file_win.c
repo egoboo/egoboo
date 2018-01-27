@@ -62,7 +62,7 @@ static bool computeUserDataPath()
     // The save path goes into the user's ApplicationData directory,
     // according to Microsoft's standards.  Will people like this, or
     // should I stick saves someplace easier to find, like My Documents?
-    SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, _userPath);
+    SHGetFolderPathA(NULL, CSIDL_APPDATA, NULL, 0, _userPath);
     strncat(_userPath, SLASH_STR "Egoboo", MAX_PATH);
     return true;
 }
@@ -74,9 +74,9 @@ static bool computeBasicDataPath()
     char temporary[MAX_PATH];
     // (1) Check for data in the working directory
     char workingDirectory[MAX_PATH] = EMPTY_CSTR;
-    GetCurrentDirectory(MAX_PATH, workingDirectory);
+    GetCurrentDirectoryA(MAX_PATH, workingDirectory);
     snprintf(temporary, MAX_PATH, "%s" SLASH_STR "basicdat", workingDirectory);
-    DWORD attrib = GetFileAttributes(temporary);
+    DWORD attrib = GetFileAttributesA(temporary);
     if (HAS_ATTRIBS(FILE_ATTRIBUTE_DIRECTORY, attrib))
     {
         strncpy(_dataPath, workingDirectory, MAX_PATH);
@@ -85,11 +85,11 @@ static bool computeBasicDataPath()
     // IF (1) failed
     // THEN check for data in the binary directory
     char binaryPath[MAX_PATH];
-    GetModuleFileName(NULL, binaryPath, MAX_PATH);
-    PathRemoveFileSpec(binaryPath);
+    GetModuleFileNameA(NULL, binaryPath, MAX_PATH);
+    PathRemoveFileSpecA(binaryPath);
 
     snprintf(temporary, MAX_PATH, "%s" SLASH_STR "basicdat", binaryPath);
-    attrib = GetFileAttributes(temporary);
+    attrib = GetFileAttributesA(temporary);
     if (HAS_ATTRIBS(FILE_ATTRIBUTE_DIRECTORY, attrib))
     {
         strncpy(_dataPath, binaryPath, MAX_PATH);

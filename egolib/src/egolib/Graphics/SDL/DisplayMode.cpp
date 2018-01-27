@@ -8,7 +8,7 @@ DisplayMode::DisplayMode(GraphicsSystemNew *graphicsSystem, SDL_DisplayMode& dis
 {
     if (!graphicsSystem)
     {
-        throw id::runtime_error(__FILE__, __LINE__, "nullptr == graphicsSystem");
+        throw idlib::null_error(__FILE__, __LINE__, "graphicsSystem");
     }
 }
 

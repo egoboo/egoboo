@@ -45,7 +45,7 @@ namespace Ego { class Player; }
 namespace Ego { namespace Input { class InputDevice; } }
 
 /// The module data that the game needs.
-class GameModule : private id::non_copyable
+class GameModule : private idlib::non_copyable
 {
 public:
     static constexpr float PITDEPTH = -60;  ///< Depth to kill character

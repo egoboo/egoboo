@@ -52,8 +52,8 @@ void water_instance_t::make(const wawalite_water_t& source)
             for (size_t point = 0; point < (size_t)WATERPOINTS; ++point)
             {
                 using namespace Ego::Math;
-                float temp = (frame * id::two_pi<float>() / MAXWATERFRAME)
-                    + (id::two_pi<float>() * point / WATERPOINTS) + (id::pi_over<float, 2>() * layer / MAXWATERLAYER);
+                float temp = (frame * idlib::two_pi<float>() / MAXWATERFRAME)
+                    + (idlib::two_pi<float>() * point / WATERPOINTS) + (idlib::pi_over<float, 2>() * layer / MAXWATERLAYER);
                 temp = std::sin(temp);
                 _layer_z_add[layer][frame][point] = temp * source.layer[layer].amp;
             }
@@ -106,11 +106,11 @@ void water_instance_t::upload(const wawalite_water_t& source)
     if (!egoboo_config_t::get().graphic_twoLayerWater_enable.getValue() && _layer_count > 1)
     {
         int iTmp = source.layer[0].light_add;
-        iTmp = (source.layer[1].light_add * iTmp * id::fraction<float, 1, 255>()) + iTmp;
+        iTmp = (source.layer[1].light_add * iTmp * idlib::fraction<float, 1, 255>()) + iTmp;
         if (iTmp > 255) iTmp = 255;
 
         _layer_count = 1;
-        _layers[0]._light_add = iTmp * id::fraction<float, 1, 255>();
+        _layers[0]._light_add = iTmp * idlib::fraction<float, 1, 255>();
     }
 }
 

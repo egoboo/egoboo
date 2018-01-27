@@ -11,7 +11,7 @@ class GraphicsWindow;
 class GraphicsContext;
 class WindowProperties;
 
-struct GraphicsSystem : public id::singleton<GraphicsSystem>
+struct GraphicsSystem : public idlib::singleton<GraphicsSystem>
 {
     /// @brief A pointer to the (single) SDL window if it exists, a null pointer otherwise.
     GraphicsWindow *window;

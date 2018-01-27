@@ -43,7 +43,7 @@ int sgn(const Type& x) {
 
 typedef uint16_t FACING_T;
 
-namespace id {
+namespace idlib {
 
 // An angle with syntax uint16_t and semantics facings.
 // n := std::numeric_limits<uint16_t>::min() corresponds to 0 degrees,
@@ -69,10 +69,10 @@ public:
         this->m_angle = int32_t(float(other) * s);
         constrain(this->m_angle);
     }
-    explicit angle(const angle<float, id::degrees>& x) : angle(semantic_cast<angle<float, id::turns>>(x)) {
+    explicit angle(const angle<float, idlib::degrees>& x) : angle(semantic_cast<angle<float, idlib::turns>>(x)) {
         /* Intentionally left empty. */
     }
-    explicit angle(const angle<float, id::radians>& x) : angle(semantic_cast<angle<float, id::turns>>(x)) {
+    explicit angle(const angle<float, idlib::radians>& x) : angle(semantic_cast<angle<float, idlib::turns>>(x)) {
         /* Intentionally left empty. */
     }
     // int32_t always fits into int32_t.
@@ -83,7 +83,7 @@ public:
     }
     // uint16_t always fits into int32_t.
     // uint16_t is always in the correct range of 0 and 2^16-1.
-    explicit angle(uint16_t angle) : angle(static_cast<int32_t>(angle)) {
+    explicit angle(uint16_t x) : angle(static_cast<int32_t>(x)) {
         /* Intentionally left empty. */
     }
     angle() : angle(0) {
@@ -194,7 +194,7 @@ template <typename T>
 auto canonicalize(const T& v) -> decltype(canonicalize_functor<T>()(v))
 { return canonicalize_functor<T>()(v); }
 
-/// @brief Specialization of id::canonicalize for id::angle<uint16_t, id::facings>.
+/// @brief Specialization of idlib::canonicalize for idlib::angle<uint16_t, idlib::facings>.
 /// Maps an angle x to the canonical range [n, m) where
 /// n := std::numeric_limits<uint16_t>::min() and
 /// m := std::numeric_limits<uint16_t>::max().
@@ -213,9 +213,9 @@ struct canonicalize_functor<angle<uint16_t, facings>>
 	}
 }; // struct canonicalize_functor
 
-} // namespace id
+} // namespace idlib
 
-using Facing = id::angle<uint16_t, id::facings>;
+using Facing = idlib::angle<uint16_t, idlib::facings>;
 
 /// Directional alias for "an attack from front".
 extern const Facing ATK_FRONT;
@@ -235,7 +235,7 @@ extern const Facing FACE_EAST;
 /// Facing alias for "south".
 extern const Facing FACE_SOUTH;
 
-using EulerFacing = id::euler_angle<id::angle<uint16_t, id::facings>>;
+using EulerFacing = idlib::euler_angle<idlib::angle<uint16_t, idlib::facings>>;
 
 template <>
 inline int sgn<Facing>(const Facing& x) {
@@ -254,7 +254,7 @@ inline int sgn<Facing>(const Facing& x) {
  * @return
  *  the angle in "facing"
  */
-inline Facing TurnToFacing(const id::angle<float, id::turns>& x) {
+inline Facing TurnToFacing(const idlib::angle<float, idlib::turns>& x) {
     return Facing(x);
 }
 
@@ -266,8 +266,8 @@ inline Facing TurnToFacing(const id::angle<float, id::turns>& x) {
  * @return
  *  the angle in turns
  */
-inline id::angle<float, id::turns> FacingToTurn(const Facing& x) {
-    return static_cast<id::angle<float, id::turns>>(x);
+inline idlib::angle<float, idlib::turns> FacingToTurn(const Facing& x) {
+    return static_cast<idlib::angle<float, idlib::turns>>(x);
 }
 
 
@@ -279,8 +279,8 @@ inline id::angle<float, id::turns> FacingToTurn(const Facing& x) {
  * @return
  *  the angle in radians
  */
-inline id::angle<float, id::radians> FacingToRadian(const Facing& x) {
-    return static_cast<id::angle<float, id::radians>>(x);
+inline idlib::angle<float, idlib::radians> FacingToRadian(const Facing& x) {
+    return static_cast<idlib::angle<float, idlib::radians>>(x);
 }
 
 /**
@@ -291,8 +291,8 @@ inline id::angle<float, id::radians> FacingToRadian(const Facing& x) {
  * @return
  *  the angle in "facing"
  */
-inline Facing RadianToFacing(const id::angle<float, id::radians>& x) {
-    return TurnToFacing(id::semantic_cast<id::angle<float, id::turns>>(x));
+inline Facing RadianToFacing(const idlib::angle<float, idlib::radians>& x) {
+    return TurnToFacing(idlib::semantic_cast<idlib::angle<float, idlib::turns>>(x));
 }
 
 // conversion functions
@@ -321,9 +321,9 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 // FAST CONVERSIONS
 
-#define FF_TO_FLOAT( V1 )  ( (float)(V1) * id::fraction<float,1,255>() )
+#define FF_TO_FLOAT( V1 )  ( (float)(V1) * idlib::fraction<float,1,255>() )
 
-#define FFFF_TO_FLOAT( V1 )  ( (float)(V1) * id::fraction<float, 1, 65535>() )
+#define FFFF_TO_FLOAT( V1 )  ( (float)(V1) * idlib::fraction<float, 1, 65535>() )
 #define FLOAT_TO_FFFF( V1 )  ( (int)((V1) * 0xFFFF) )
 
 //--------------------------------------------------------------------------------------------
@@ -334,7 +334,7 @@ extern "C"
 
 // random functions
     int generate_irand_pair( const IPair num );
-    int generate_irand_range( const id::interval<float> num );
+    int generate_irand_range( const idlib::interval<float> num );
 
 //--------------------------------------------------------------------------------------------
 

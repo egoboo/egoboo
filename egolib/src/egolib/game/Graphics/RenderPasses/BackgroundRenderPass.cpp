@@ -7,7 +7,7 @@ namespace Graphics {
 
 BackgroundRenderPass::BackgroundRenderPass() :
     RenderPass("background"),
-    _vertexDescriptor(descriptor_factory<id::vertex_format::P3FT2F>()()),
+    _vertexDescriptor(descriptor_factory<idlib::vertex_format::P3FT2F>()()),
     _vertexBuffer(4, _vertexDescriptor.get_size())
 {}
 
@@ -88,7 +88,7 @@ void BackgroundRenderPass::doRun(::Camera& camera, const TileList& tl, const Ent
     }
 
     float light = _currentModule->getWater()._light ? 1.0f : 0.0f;
-    float alpha = ilayer->_alpha * id::fraction<float, 1, 255>();
+    float alpha = ilayer->_alpha * idlib::fraction<float, 1, 255>();
 
     float intens = 1.0f;
 
@@ -119,10 +119,10 @@ void BackgroundRenderPass::doRun(::Camera& camera, const TileList& tl, const Ent
             // Essentially disable the depth test without calling
             // renderer.setDepthTestEnabled(false).
             renderer.setDepthTestEnabled(true);
-            renderer.setDepthFunction(id::compare_function::always_pass);
+            renderer.setDepthFunction(idlib::compare_function::always_pass);
 
             // draw draw front and back faces of polygons
-            renderer.setCullingMode(id::culling_mode::none);
+            renderer.setCullingMode(idlib::culling_mode::none);
 
             if (alpha > 0.0f)
             {
@@ -138,10 +138,10 @@ void BackgroundRenderPass::doRun(::Camera& camera, const TileList& tl, const Ent
                         else
                         {
                             renderer.setBlendingEnabled(true);
-                            renderer.setBlendFunction(id::color_blend_parameter::source0_alpha, id::color_blend_parameter::one_minus_source0_alpha);
+                            renderer.setBlendFunction(idlib::color_blend_parameter::source0_alpha, idlib::color_blend_parameter::one_minus_source0_alpha);
                         }
 
-                        renderer.render(_vertexBuffer, _vertexDescriptor, id::primitive_type::triangle_fan, 0, 4);
+                        renderer.render(_vertexBuffer, _vertexDescriptor, idlib::primitive_type::triangle_fan, 0, 4);
                     }
                 }
             }
@@ -155,7 +155,7 @@ void BackgroundRenderPass::doRun(::Camera& camera, const TileList& tl, const Ent
 
                         renderer.setColour(Math::Colour4f(light, light, light, 1.0f));
 
-                        renderer.render(_vertexBuffer, _vertexDescriptor, id::primitive_type::triangle_fan, 0, 4);
+                        renderer.render(_vertexBuffer, _vertexDescriptor, idlib::primitive_type::triangle_fan, 0, 4);
                     }
                 }
             }

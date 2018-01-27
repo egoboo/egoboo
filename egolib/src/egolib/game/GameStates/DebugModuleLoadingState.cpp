@@ -251,7 +251,7 @@ void DebugModuleLoadingState::loadModuleData()
         {
             singleThreadRedrawHack("Loading players...");
             if(!loadPlayers()) {
-                throw id::runtime_error(__FILE__, __LINE__, "unable to load players");
+                throw idlib::runtime_error(__FILE__, __LINE__, "unable to load players");
             }
         }
 
@@ -259,7 +259,7 @@ void DebugModuleLoadingState::loadModuleData()
         singleThreadRedrawHack("Loading module data...");
         if (!game_begin_module(_loadModule))
         {
-            throw id::runtime_error(__FILE__, __LINE__, "unable to load module");
+            throw idlib::runtime_error(__FILE__, __LINE__, "unable to load module");
         }
 
         singleThreadRedrawHack("Almost done...");
@@ -274,7 +274,7 @@ void DebugModuleLoadingState::loadModuleData()
         //Complete!
         singleThreadRedrawHack("Finished!");
     }
-    catch (id::exception &ex)
+    catch (idlib::exception &ex)
     {
         std::string out = std::string("Ego::Exception: ") + ex.to_string();
         singleThreadRedrawHack(out);

@@ -25,7 +25,7 @@
 
 #include "egolib/platform.h"
 
-namespace id {
+namespace idlib {
 
 template <typename P>
 struct cone;
@@ -99,8 +99,8 @@ public:
 	/// @param origin the origin point \f$O\f$ of this cone
 	/// @param axis the axis vector \f$\vec{a},\vec{a} \neq \vec{0}\f$ of this cone
     /// @param angle the acute angle \f$\theta\f$, in degrees
-    /// @throw id::runtime_error \f$\vec{a} = \vec{0}\f$
-    /// @throw id::runtime_error \f$\theta\f$ is not an acute angle 
+    /// @throw idlib::runtime_error \f$\vec{a} = \vec{0}\f$
+    /// @throw idlib::runtime_error \f$\theta\f$ is not an acute angle 
     cone(const point_type& origin, const vector_type& axis, const angle<float, degrees>& angle)
         : m_origin(origin), m_axis(axis), m_angle(angle) 
 	{
@@ -132,7 +132,7 @@ public:
     /// @brief Get the radius of this cone at the specified height \f$h \in \left[0,+\infty\right)\f$.
     /// @param height the height \f$h \in \left[0,+\infty\right)\f$.
     /// @return the radius at the specified height
-    /// @throw id::runtime_error the height is negative
+    /// @throw idlib::runtime_error the height is negative
     /// @remark
     /// Given a right triangle, it is known that \f$\tan\alpha=
     /// \frac{\mathit{opposite}}{\mathit{adjacent}}\f$.
@@ -146,7 +146,7 @@ public:
     /// @brief Get the slant height of this cone at the specified height \f$h \in \left[0,+\infty\right)\f$.
     /// @param height the height \f$h \in \left[0,+\infty\right)\f$.
     /// @return the slant height at the specified height
-    /// @throw id::runtime_error the height is negative
+    /// @throw idlib::runtime_error the height is negative
     /// @remark
     /// Given a right triangle, it is known that \f$\cos\alpha=
     /// \frac{\mathit{adjacent}}{\mathit{hypotenuse}}\f$.
@@ -184,11 +184,11 @@ private:
 	vector_type m_axis;
 	
 	/// @brief The angle, in degrees, \f$\theta \in \left(0,90\right)\f$.
-	id::angle<float, id::degrees> m_angle;
+	idlib::angle<float, idlib::degrees> m_angle;
 
 }; // struct cone
 
- /// @brief Specialization of id::enclose_functor enclosing a cone into a cone.
+ /// @brief Specialization of idlib::enclose_functor enclosing a cone into a cone.
  /// @details The cone \f$b\f$ enclosing a cone \f$a\f$ is \f$a\f$ itself i.e. \f$a = b\f$.
  /// @tparam P the point type of the cone type
 template <typename P>
@@ -198,7 +198,7 @@ struct enclose_functor<cone<P>, cone<P>>
 	{ return source; }
 }; // struct enclose_functor
 
-/// @brief Specialization of id::translate_functor.
+/// @brief Specialization of idlib::translate_functor.
 /// Translates a cone.
 /// @tparam P the point type of the cone type
 template <typename P>
@@ -210,4 +210,4 @@ struct translate_functor<cone<P>, typename P::vector_type>
 	}
 }; // struct translate_functor
 
-} // namespace id
+} // namespace idlib

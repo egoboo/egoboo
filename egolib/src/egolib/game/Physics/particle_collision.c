@@ -346,13 +346,13 @@ bool do_chr_prt_collision_get_details(chr_prt_collision_data_t& pdata, const flo
     bool handled = false;
 
     // shift the source bounding boxes to be centered on the given positions
-    cv_chr = id::translate(pdata.pchr->chr_min_cv, pdata.pchr->getPosition());
+    cv_chr = idlib::translate(pdata.pchr->chr_min_cv, pdata.pchr->getPosition());
 
     // the smallest particle collision volume
-    cv_prt_min = id::translate(pdata.pprt->prt_min_cv, pdata.pprt->getPosition());
+    cv_prt_min = idlib::translate(pdata.pprt->prt_min_cv, pdata.pprt->getPosition());
 
     // the largest particle collision volume (the hit-box)
-    cv_prt_max = id::translate(pdata.pprt->prt_max_cv, pdata.pprt->getPosition());
+    cv_prt_max = idlib::translate(pdata.pprt->prt_max_cv, pdata.pprt->getPosition());
 
     if ( tmin <= 0.0f || std::abs( tmin ) > 1e6 || std::abs( tmax ) > 1e6 )
     {
@@ -449,7 +449,7 @@ bool do_chr_prt_collision_deflect(chr_prt_collision_data_t& pdata)
     }
 
     // find the "attack direction" of the particle
-    Facing direction = id::canonicalize(vec_to_facing(pdata.pchr->getPosX() - pdata.pprt->getPosX(), pdata.pchr->getPosY() - pdata.pprt->getPosY()));
+    Facing direction = idlib::canonicalize(vec_to_facing(pdata.pchr->getPosX() - pdata.pprt->getPosX(), pdata.pchr->getPosY() - pdata.pprt->getPosY()));
     direction = pdata.pchr->ori.facing_z - Facing(direction) + ATK_BEHIND;
 
     // shield block?
@@ -1001,7 +1001,7 @@ void do_chr_prt_collision_knockback(chr_prt_collision_data_t &pdata)
     **/
 
     //No knocback applicable?
-    if(id::manhattan_norm(pdata.pprt->getVelocity()) == 0.0f) {
+    if(idlib::manhattan_norm(pdata.pprt->getVelocity()) == 0.0f) {
         return;
     }
 
@@ -1082,7 +1082,7 @@ void do_chr_prt_collision_knockback(chr_prt_collision_data_t &pdata)
 
         // all other damage types are in the middle
         default:
-            knockbackFactor *= id::inv_sqrt_two<float>();
+            knockbackFactor *= idlib::inv_sqrt_two<float>();
         break;
     }
 
@@ -1096,7 +1096,7 @@ void do_chr_prt_collision_knockback(chr_prt_collision_data_t &pdata)
     //knockbackVelocity *= Ego::Math::constrain(knockbackFactor, 0.0f, 3.0f);
 
     //Limit total knockback velocity to MAX_KNOCKBACK_VELOCITY
-    const float magnitudeVelocity = id::euclidean_norm(knockbackVelocity);
+    const float magnitudeVelocity = idlib::euclidean_norm(knockbackVelocity);
     if(magnitudeVelocity > MAX_KNOCKBACK_VELOCITY) {
         knockbackVelocity *= MAX_KNOCKBACK_VELOCITY / magnitudeVelocity;
     }
@@ -1375,11 +1375,11 @@ int spawn_bump_particles(ObjectRef character, const ParticleRef particle)
 
                 // this could be done more easily with a quicksort....
                 // but I guess it doesn't happen all the time
-                float dist = id::manhattan_norm(pprt->getPosition() - pchr->getPosition());
+                float dist = idlib::manhattan_norm(pprt->getPosition() - pchr->getPosition());
 
                 // clear the occupied list
                 float z = pprt->getPosZ() - pchr->getPosZ();
-                Facing facing = id::canonicalize(pprt->facing - pchr->ori.facing_z);
+                Facing facing = idlib::canonicalize(pprt->facing - pchr->ori.facing_z);
                 Facing turn = facing;
                 float fsin = std::sin(turn);
                 float fcos = std::cos(turn);
@@ -1429,7 +1429,7 @@ int spawn_bump_particles(ObjectRef character, const ParticleRef particle)
                         }
 
                         std::shared_ptr<Ego::Particle> bs_part = 
-                            ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), id::canonicalize(pchr->ori.facing_z), ObjectProfileRef(pprt->getSpawnerProfile()), ppip->bumpspawn._lpip,
+                            ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), idlib::canonicalize(pchr->ori.facing_z), ObjectProfileRef(pprt->getSpawnerProfile()), ppip->bumpspawn._lpip,
                                                                       character, bestvertex + 1, pprt->team, pprt->owner_ref, particle, cnt, character);
 
                         if (bs_part)

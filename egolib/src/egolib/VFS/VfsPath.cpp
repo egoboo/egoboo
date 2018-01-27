@@ -24,7 +24,7 @@ const std::string& VfsPath::getSystemPathSeparator() {
 VfsPath::VfsPath() : m_string() {}
 
 VfsPath::VfsPath(const std::string& string)
-    : m_string(id::file_system::internal::path_parser<char>()(string)) {
+    : m_string(idlib::file_system::internal::path_parser<char>()(string)) {
 }
 
 VfsPath::VfsPath(VfsPath&& other) noexcept : m_string(std::move(other.m_string)) {}

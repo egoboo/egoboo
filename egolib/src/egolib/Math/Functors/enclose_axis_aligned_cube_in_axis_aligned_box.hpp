@@ -25,9 +25,9 @@
 
 #include "egolib/platform.h"
 
-namespace id {
+namespace idlib {
 
-/// @brief Specialization of id::enclose_functor.
+/// @brief Specialization of idlib::enclose_functor.
 /// Encloses an axis aligned cube in an axis aligned box.
 /// @detail Let \$a\f$ be an axis aligned cube and \f$min\f$ its minimal point and \f$max\f$ its maximal point.
 /// The axis aligned box \f$b\f$ enclosing \f$a\f$ has the same minimal and maximal and maximal point.
@@ -39,4 +39,4 @@ struct enclose_functor<axis_aligned_box<P>, axis_aligned_cube<P>>
 	{ return axis_aligned_box<P>(source.get_min(), source.get_max()); }
 }; // struct enclose_functor
 
-} // namespace id
+} // namespace idlib

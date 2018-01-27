@@ -29,13 +29,13 @@
 
 namespace Ego {
 
-class FontManager : public id::singleton<FontManager> {
+class FontManager : public idlib::singleton<FontManager> {
 public:
     std::shared_ptr<Font> loadFont(const std::string &fileName, int pointSize);
 
 protected:
-	friend id::default_new_functor<FontManager>;
-	friend id::default_delete_functor<FontManager>;
+	friend idlib::default_new_functor<FontManager>;
+	friend idlib::default_delete_functor<FontManager>;
 
     FontManager();
     ~FontManager();

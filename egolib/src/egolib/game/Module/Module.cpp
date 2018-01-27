@@ -71,7 +71,7 @@ GameModule::GameModule(const std::shared_ptr<ModuleProfile> &profile, const uint
 
     // set up the virtual file system for the module (Do before loading the module)
     if (!setup_init_module_vfs_paths(getPath())) {
-        throw id::runtime_error(__FILE__, __LINE__, "Failed to setup module vfs");
+        throw idlib::runtime_error(__FILE__, __LINE__, "Failed to setup module vfs");
     }
 
     //Initialize random seeds
@@ -737,7 +737,7 @@ void GameModule::updatePits()
                 }
                 else {
                     // Stop movement
-                    pchr->setVelocity(id::zero<Vector3f>());
+                    pchr->setVelocity(idlib::zero<Vector3f>());
 
                     // Play sound effect
                     if (pchr->isPlayer()) {
@@ -834,15 +834,15 @@ void GameModule::loadTeamAlliances()
     {
         std::string buffer = vfs_read_string_lit(*ctxt);
         if (buffer.length() < 1) {
-            throw id::c::compilation_error(__FILE__, __LINE__, id::c::compilation_error_kind::syntactical, ctxt->get_location(),
-                                           "empty string literal");
+            throw idlib::c::compilation_error(__FILE__, __LINE__, idlib::c::compilation_error_kind::syntactical, ctxt->get_location(),
+                                              "empty string literal");
         }
         TEAM_REF teama = (buffer[0] - 'A') % Team::TEAM_MAX;
 
         buffer = vfs_read_string_lit(*ctxt);
         if (buffer.length() < 1) {
-            throw id::c::compilation_error(__FILE__, __LINE__, id::c::compilation_error_kind::syntactical, ctxt->get_location(),
-                                           "empty string literal");
+            throw idlib::c::compilation_error(__FILE__, __LINE__, idlib::c::compilation_error_kind::syntactical, ctxt->get_location(),
+                                              "empty string literal");
         }
         TEAM_REF teamb = (buffer[0] - 'A') % Team::TEAM_MAX;
         _teamList[teama].makeAlliance(_teamList[teamb]);

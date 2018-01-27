@@ -47,7 +47,7 @@ const Facing FACE_SOUTH = Facing(0xC000);
 
 // random functions
     int generate_irand_pair( const IPair num );
-    int generate_irand_range( const id::interval<float> num );
+    int generate_irand_range( const idlib::interval<float> num );
 
 // matrix functions
 
@@ -58,7 +58,7 @@ const Facing FACE_SOUTH = Facing(0xC000);
 
 Facing vec_to_facing( const float dx, const float dy )
 {
-    return id::canonicalize(RadianToFacing(id::angle<float, id::radians>(std::atan2(dy, dx) + id::pi<float>())));
+    return idlib::canonicalize(RadianToFacing(idlib::angle<float, idlib::radians>(std::atan2(dy, dx) + idlib::pi<float>())));
 }
 
 //--------------------------------------------------------------------------------------------
@@ -142,7 +142,7 @@ int generate_irand_pair( const IPair num )
 }
 
 //--------------------------------------------------------------------------------------------
-int generate_irand_range( const id::interval<float> num )
+int generate_irand_range( const idlib::interval<float> num )
 {
     /// @author ZZ
     /// @details This function generates a random number

@@ -18,15 +18,15 @@ ParticleGraphics::ParticleGraphics() :
     light(0),
 
     // position info
-    pos(id::zero<Vector3f>()),
+    pos(idlib::zero<Vector3f>()),
     size(0.0f),
     scale(0.0f),
 
     // billboard info
     orientation(prt_ori_t::ORIENTATION_B),
-    up(id::zero<Vector3f>()),
-    right(id::zero<Vector3f>()),
-    nrm(id::zero<Vector3f>()),
+    up(idlib::zero<Vector3f>()),
+    right(idlib::zero<Vector3f>()),
+    nrm(idlib::zero<Vector3f>()),
 
     // lighting info
     famb(0.0f),
@@ -37,9 +37,9 @@ ParticleGraphics::ParticleGraphics() :
 
     // pre-compute some values for the reflected particle posisions
     ref_valid(false),
-    ref_up(id::zero<Vector3f>()),
-    ref_right(id::zero<Vector3f>()),
-    ref_pos(id::zero<Vector3f>())
+    ref_up(idlib::zero<Vector3f>()),
+    ref_right(idlib::zero<Vector3f>()),
+    ref_pos(idlib::zero<Vector3f>())
 {
     //ctor   
 }
@@ -87,7 +87,7 @@ gfx_rv ParticleGraphics::update_vertices(ParticleGraphics& inst, ::Camera& camer
     // Set the up and right vectors.
     Vector3f vup = Vector3f(0.0f, 0.0f, 1.0f), vright;
     Vector3f vup_ref = Vector3f(0.0f, 0.0f, 1.0f), vright_ref;
-    if (ppip->rotatetoface && !pprt->isAttached() && (id::manhattan_norm(pprt->getVelocity()) > 0))
+    if (ppip->rotatetoface && !pprt->isAttached() && (idlib::manhattan_norm(pprt->getVelocity()) > 0))
     {
         // The particle points along its direction of travel.
 
@@ -366,7 +366,7 @@ gfx_rv ParticleGraphics::update_lighting(ParticleGraphics& pinst, Particle *pprt
     auto mesh = _currentModule->getMeshPointer();
     if (!mesh)
     {
-        throw id::runtime_error(__FILE__, __LINE__, "nullptr == mesh");
+        throw idlib::null_error(__FILE__, __LINE__, "mesh");
     }
     lighting_cache_t global_light;
     GridIllumination::grid_lighting_interpolate(*mesh, global_light, Vector2f(pinst.pos[kX], pinst.pos[kY]));
@@ -394,15 +394,15 @@ gfx_rv ParticleGraphics::update_lighting(ParticleGraphics& pinst, Particle *pprt
     pinst.fdir = 0.9f * pinst.fdir + 0.1f * dir;
 
     // determine the overall lighting
-    pinst.fintens = pinst.fdir * id::fraction<float, 1, 255>();
+    pinst.fintens = pinst.fdir * idlib::fraction<float, 1, 255>();
     if (do_lighting)
     {
-        pinst.fintens += pinst.famb * id::fraction<float, 1, 255>();
+        pinst.fintens += pinst.famb * idlib::fraction<float, 1, 255>();
     }
     pinst.fintens = Ego::Math::constrain(pinst.fintens, 0.0f, 1.0f);
 
     // determine the alpha component
-    pinst.falpha = (alpha * id::fraction<float, 1, 255>()) * (pinst.alpha * id::fraction<float, 1, 255>());
+    pinst.falpha = (alpha * idlib::fraction<float, 1, 255>()) * (pinst.alpha * idlib::fraction<float, 1, 255>());
     pinst.falpha = Ego::Math::constrain(pinst.falpha, 0.0f, 1.0f);
 
     return gfx_success;

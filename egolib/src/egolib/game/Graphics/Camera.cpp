@@ -60,10 +60,10 @@ Camera::Camera(const CameraOptions &options) :
     _zadd(CAM_ZADD_AVG),
     _zaddGoto(CAM_ZADD_AVG),
     _zGoto(CAM_ZADD_AVG),
-    _pitch(id::pi_over<float, 2>()),
+    _pitch(idlib::pi_over<float, 2>()),
 
-    _turnZ_radians(-id::pi_over<float,4>()),
-    _turnZ_turns(id::semantic_cast<Ego::Math::Turns>(_turnZ_radians)),
+    _turnZ_radians(-idlib::pi_over<float,4>()),
+    _turnZ_turns(idlib::semantic_cast<Ego::Math::Turns>(_turnZ_radians)),
     _turnZAdd(0.0f),
 
     m_viewMatrix(),
@@ -92,7 +92,7 @@ Camera::Camera(const CameraOptions &options) :
     _trackPos = _center;
     m_position = _center + Vector3f(_zoom * std::sin(_turnZ_radians), _zoom * std::cos(_turnZ_radians), CAM_ZADD_MAX);
 
-    _turnZ_turns = id::semantic_cast<Ego::Math::Turns>(_turnZ_radians);
+    _turnZ_turns = idlib::semantic_cast<Ego::Math::Turns>(_turnZ_radians);
     _ori.facing_z = TurnToFacing(_turnZ_turns);
     resetView();
 
@@ -158,7 +158,7 @@ void Camera::updatePosition()
     // Update the camera position.
     Vector3f pos_new = _center + Vector3f(_zoom * std::sin(_ori.facing_z), _zoom * std::cos(_ori.facing_z), _zGoto);
 
-    if(id::euclidean_norm(m_position-pos_new) < Info<float>::Grid::Size()*8.0f) {
+    if(idlib::euclidean_norm(m_position-pos_new) < Info<float>::Grid::Size()*8.0f) {
         // Make the camera motion smooth using a low-pass filter
         m_position = m_position * 0.9f + pos_new * 0.1f; /// @todo Use Ego::Math::lerp.
     }
@@ -204,10 +204,10 @@ void Camera::updateZoom()
     {
         //Make it wrap around
         int32_t newAngle = static_cast<int32_t>(static_cast<float>(FACING_T(_ori.facing_z)) +_turnZAdd);
-        _ori.facing_z = id::canonicalize(Facing(newAngle));
+        _ori.facing_z = idlib::canonicalize(Facing(newAngle));
 
         _turnZ_turns = FacingToTurn(Facing(_ori.facing_z));
-        _turnZ_radians = id::semantic_cast<Ego::Math::Radians>(_turnZ_turns);
+        _turnZ_radians = idlib::semantic_cast<Ego::Math::Radians>(_turnZ_turns);
     }
     _turnZAdd *= TURN_Z_SUSTAIN;
 }
@@ -227,7 +227,7 @@ void Camera::updateCenter()
 
         // Determine the size of the dead zone.
         Ego::Math::Degrees track_fov = DEFAULT_FOV * 0.25f;
-        float track_dist = id::euclidean_norm(trackError);
+        float track_dist = idlib::euclidean_norm(trackError);
         float track_size = track_dist * std::tan(track_fov);
         float track_size_x = track_size;
         float track_size_y = track_size;  /// @todo adjust this based on the camera viewing angle
@@ -301,12 +301,12 @@ void Camera::updateFreeControl()
     
     //Left and right
     if (inputSystem.isKeyDown(SDLK_KP_4) || inputSystem.isKeyDown(SDLK_LEFT)) {
-        _center.x() -= std::sin(_turnZ_radians + Ego::Math::Radians(id::pi<float>() * 0.5f)) * moveSpeed;
-        _center.y() -= std::cos(_turnZ_radians + Ego::Math::Radians(id::pi<float>() * 0.5f)) * moveSpeed;
+        _center.x() -= std::sin(_turnZ_radians + Ego::Math::Radians(idlib::pi<float>() * 0.5f)) * moveSpeed;
+        _center.y() -= std::cos(_turnZ_radians + Ego::Math::Radians(idlib::pi<float>() * 0.5f)) * moveSpeed;
     }
     else if (inputSystem.isKeyDown(SDLK_KP_6) || inputSystem.isKeyDown(SDLK_RIGHT)) {
-        _center.x() += std::sin(_turnZ_radians + Ego::Math::Radians(id::pi<float>() * 0.5f)) * moveSpeed;
-        _center.y() += std::cos(_turnZ_radians + Ego::Math::Radians(id::pi<float>() * 0.5f)) * moveSpeed;
+        _center.x() += std::sin(_turnZ_radians + Ego::Math::Radians(idlib::pi<float>() * 0.5f)) * moveSpeed;
+        _center.y() += std::cos(_turnZ_radians + Ego::Math::Radians(idlib::pi<float>() * 0.5f)) * moveSpeed;
     }
     
     //Rotate left or right
@@ -334,7 +334,7 @@ void Camera::updateFreeControl()
     }
 
     //Constrain between 0 and 90 degrees pitch (and a little extra to avoid singularities)
-    _pitch = Ego::Math::constrain(_pitch, 0.05f, id::pi<float>() - 0.05f);
+    _pitch = Ego::Math::constrain(_pitch, 0.05f, idlib::pi<float>() - 0.05f);
 
     //Prevent the camera target from being below the mesh
     _center.z() = std::max(_center.z(), _currentModule->getMeshPointer()->getElevation(Vector2f(_center.x(), _center.y())));
@@ -366,7 +366,7 @@ void Camera::updateTrack()
         {
             float sum_wt    = 0.0f;
             float sum_level = 0.0f;
-            Vector3f sum_pos = id::zero<Vector3f>();
+            Vector3f sum_pos = idlib::zero<Vector3f>();
 
             for(ObjectRef objectRef : _trackList)
             {
@@ -418,7 +418,7 @@ void Camera::updateTrack()
                 // Use the characer's "activity" to average the position the camera is viewing.
                 float sum_wt    = 0.0f;
                 float sum_level = 0.0f;
-                Vector3f sum_pos = id::zero<Vector3f>();
+                Vector3f sum_pos = idlib::zero<Vector3f>();
 
                 for(const std::shared_ptr<Object> &pchr : trackedPlayers)
                 {
@@ -625,7 +625,7 @@ void Camera::reset(const ego_mesh_t *mesh)
     _zadd = CAM_ZADD_AVG;
     _zaddGoto = CAM_ZADD_AVG;
     _zGoto = CAM_ZADD_AVG;
-    _turnZ_radians = Ego::Math::Radians(-id::pi_over<float, 4>());
+    _turnZ_radians = Ego::Math::Radians(-idlib::pi_over<float, 4>());
     _turnZAdd = 0.0f;
     _roll = 0.0f;
 
@@ -641,7 +641,7 @@ void Camera::reset(const ego_mesh_t *mesh)
     m_position.y() += _zoom * std::cos(_turnZ_radians);
     m_position.z() += CAM_ZADD_MAX;
 
-    _turnZ_turns = id::semantic_cast<Ego::Math::Turns>(_turnZ_radians);
+    _turnZ_turns = idlib::semantic_cast<Ego::Math::Turns>(_turnZ_radians);
     _ori.facing_z = TurnToFacing(_turnZ_turns);
 
     // Get optional parameters.
@@ -759,7 +759,7 @@ void Camera::setScreen( float xmin, float ymin, float xmax, float ymax )
     // The nearest we will have to worry about is 1/2 of a tile.
     float frustum_near = Info<int>::Grid::Size() * 0.25f;
     // Set the maximum depth to be the "largest possible size" of a mesh.
-    float frustum_far  = Info<int>::Grid::Size() * 256 * id::sqrt_two<float>();
+    float frustum_far  = Info<int>::Grid::Size() * 256 * idlib::sqrt_two<float>();
     updateProjection(DEFAULT_FOV, aspect_ratio, frustum_near, frustum_far);
 }
 

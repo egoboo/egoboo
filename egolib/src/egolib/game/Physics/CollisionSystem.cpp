@@ -277,7 +277,7 @@ void CollisionSystem::updateObjectCollisions()
         if(platform)
         {
             //If we are no longer colliding in the horizontal plane, then we are disconnected
-            if(!id::is_intersecting(object->getAxisAlignedBox2D(), platform->getAxisAlignedBox2D()))
+            if(!idlib::is_intersecting(object->getAxisAlignedBox2D(), platform->getAxisAlignedBox2D()))
             {
                 object->getObjectPhysics().detachFromPlatform();
             }
@@ -441,7 +441,7 @@ void CollisionSystem::handleCollision(const std::shared_ptr<Object> &objectA, co
 bool CollisionSystem::handleMountingCollision(const std::shared_ptr<Object> &character, const std::shared_ptr<Object> &mount)
 {
     //Do some collision checks
-	bool collideXY = id::euclidean_norm(xy(character->getPosition()) - xy(mount->getPosition())) < MOUNTTOLERANCE;
+	bool collideXY = idlib::euclidean_norm(xy(character->getPosition()) - xy(mount->getPosition())) < MOUNTTOLERANCE;
 
 	bool collideZ = (mount->getPosZ() + mount->chr_min_cv._maxs[OCT_Z]) < character->getPosZ();
 
@@ -649,8 +649,8 @@ bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::sha
     float interaction_strength = 0.1f + (0.9f-objectA->phys.bumpdampen) * (0.9f-objectB->phys.bumpdampen);
     
     //ZF> This was supposed to make ghosts more insubstantial, but it also affects invisible characters
-    //interaction_strength *= objectA->inst.alpha * id::fraction<float,1,255>();
-    //interaction_strength *= objectB->inst.alpha * id::fraction<float,1,255>();
+    //interaction_strength *= objectA->inst.alpha * idlib::fraction<float,1,255>();
+    //interaction_strength *= objectB->inst.alpha * idlib::fraction<float,1,255>();
 
     // reduce your interaction strength if you have just detached from an object
     if ( objectA->dismount_object == ichr_b )
@@ -713,8 +713,8 @@ bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::sha
 	oct_bb_t map_bb_a, map_bb_b;
 
     // shift the character bounding boxes to be centered on their positions
-    map_bb_a = id::translate(objectA->chr_min_cv, objectA->getPosition());
-    map_bb_b = id::translate(objectB->chr_min_cv, objectB->getPosition());
+    map_bb_a = idlib::translate(objectA->chr_min_cv, objectA->getPosition());
+    map_bb_b = idlib::translate(objectB->chr_min_cv, objectB->getPosition());
 
     // make the object more like a table if there is a platform-like interaction
     float exponent = 1.0f;
@@ -799,7 +799,7 @@ bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::sha
         if ( depth_min <= 0.0f || collision )
         {
             need_displacement = false;
-            pdiff_a = id::zero<Vector3f>();
+            pdiff_a = idlib::zero<Vector3f>();
         }
         else
         {
@@ -814,7 +814,7 @@ bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::sha
         vdiff_a = objectB->getVelocity() - objectA->getVelocity();
 
         need_velocity = false;
-        if (id::manhattan_norm(vdiff_a) > 1e-6)
+        if (idlib::manhattan_norm(vdiff_a) > 1e-6)
         {
             need_velocity = (recoil_a > 0.0f) || (recoil_b > 0.0f);
         }
@@ -865,7 +865,7 @@ bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::sha
 
                 // use pressure to push them appart. reduce their relative velocities.
 
-                float distance = id::euclidean_norm(objectA->getPosition() - objectB->getPosition());
+                float distance = idlib::euclidean_norm(objectA->getPosition() - objectB->getPosition());
                 distance /= std::max(objectA->bump.size, objectB->bump.size);
                 if(distance > 0.0f)
                 {

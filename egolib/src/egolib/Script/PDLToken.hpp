@@ -29,11 +29,11 @@ namespace Ego {
 namespace Script {
 
 /// @brief A token of the PDL (Program Definition Language) of EgoScript.
-struct PDLToken : public id::c::token<PDLTokenKind, PDLTokenKind::Unknown>
+struct PDLToken : public idlib::c::token<PDLTokenKind, PDLTokenKind::Unknown>
 {
 private:
     /// @brief The end location of this token.
-    id::c::location m_endLocation;
+    idlib::c::location m_endLocation;
 
     /// @brief The value of this token.
     int m_value;
@@ -48,8 +48,8 @@ public:
     /// @param startLocation the start location of the token
     /// @param endLocation the end location of the token
     /// @param lexeme the lexeme of this token. Default is the empty string.
-    PDLToken(PDLTokenKind kind, const id::c::location& startLocation,
-             const id::c::location& endLocation,
+    PDLToken(PDLTokenKind kind, const idlib::c::location& startLocation,
+             const idlib::c::location& endLocation,
              const std::string& lexeme = std::string());
 
     /// @brief Copy-construct this token from another token.
@@ -71,7 +71,7 @@ public:
     friend void swap(PDLToken& x, PDLToken& y)
     {
         using std::swap;
-        swap(static_cast<id::c::token<PDLTokenKind, PDLTokenKind::Unknown>&>(x), static_cast<id::c::token<PDLTokenKind, PDLTokenKind::Unknown>&>(y));
+        swap(static_cast<idlib::c::token<PDLTokenKind, PDLTokenKind::Unknown>&>(x), static_cast<idlib::c::token<PDLTokenKind, PDLTokenKind::Unknown>&>(y));
         swap(x.m_endLocation, y.m_endLocation);
         swap(x.m_value, y.m_value);
     }
@@ -119,7 +119,7 @@ public:
     /// @return the end location of this token
     /// @see setEndLocation
     /// @remark The end location is the location at which the lexeme of this token ends at.
-    const id::c::location& getEndLocation() const
+    const idlib::c::location& getEndLocation() const
     {
         return m_endLocation;
     }
@@ -127,7 +127,7 @@ public:
     /// @brief Set the end location of this token.
     /// @param endLocation the end location of this token
     /// @see getEndlocation
-    void setEndLocation(const id::c::location& endLocation)
+    void setEndLocation(const idlib::c::location& endLocation)
     {
         m_endLocation = endLocation;
     }

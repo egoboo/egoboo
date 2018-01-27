@@ -49,12 +49,12 @@ void TextureUnit::setActivated(Texture *texture)
         GLenum target_gl;
         switch (texture->getType())
         {
-            case id::texture_type::_2D:
+            case idlib::texture_type::_2D:
                 glEnable(GL_TEXTURE_2D);
                 glDisable(GL_TEXTURE_1D);
                 target_gl = GL_TEXTURE_2D;
                 break;
-            case id::texture_type::_1D:
+            case idlib::texture_type::_1D:
                 glEnable(GL_TEXTURE_1D);
                 glDisable(GL_TEXTURE_2D);
                 target_gl = GL_TEXTURE_1D;

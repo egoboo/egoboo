@@ -25,9 +25,9 @@
 
 #include "egolib/platform.h"
 
-namespace id {
+namespace idlib {
 
-/// @brief Specialization of id::enclose_functor.
+/// @brief Specialization of idlib::enclose_functor.
 /// Encloses an axis aligned box in a sphere.
 /// @detail A sphere \f$b\f$ enclosing an axis aligned box \f$a\f$ has the center \f$c\f$
 /// of the axis aligned box. Its radius is given by \f$r:=|x - c|\f$ where \x\f$ is the
@@ -44,4 +44,4 @@ struct enclose_functor<sphere<P>, axis_aligned_box<P>>
     }
 }; // struct enclose_functor
 
-} // namespace id
+} // namespace idlib

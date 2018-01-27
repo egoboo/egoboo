@@ -48,13 +48,13 @@ public:
 
     virtual bool encodeValue(std::string& target) const override
     {
-        return id::c::encoder<ValueType>()(this->getValue(), target);
+        return idlib::c::encoder<ValueType>()(this->getValue(), target);
     }
 
     virtual bool decodeValue(const std::string& source) override
     {
         ValueType temporary = {};
-        if (!id::c::decoder<ValueType>()(source, temporary))
+        if (!idlib::c::decoder<ValueType>()(source, temporary))
         {
             return false;
         }

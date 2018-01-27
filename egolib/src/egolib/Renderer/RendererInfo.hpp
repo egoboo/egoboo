@@ -40,16 +40,16 @@ protected:
     float m_desiredAnisotropy;
 
     /// @brief The desired minimization filter.
-    id::texture_filter_method m_desiredMinimizationFilter;
+    idlib::texture_filter_method m_desiredMinimizationFilter;
 
     /// @brief The desired maximization filter.
-    id::texture_filter_method m_desiredMaximizationFilter;
+    idlib::texture_filter_method m_desiredMaximizationFilter;
 
     /// @brief The desired MipMap filter.
-    id::texture_filter_method m_desiredMipMapFilter;
+    idlib::texture_filter_method m_desiredMipMapFilter;
 
     /// @brief List of connections.
-    std::vector<id::connection> m_connections;
+    std::vector<idlib::connection> m_connections;
 
 public:
     /// @brief Construct this renderer information.
@@ -92,27 +92,27 @@ public:
     /// @brief Get if an anisotropy is desired.
     /// @return @a true if anisotropy is desired
     bool isAnisotropyDesired() const noexcept;
-    id::signal<void()> AnisotropyDesiredChanged;
+    idlib::signal<void()> AnisotropyDesiredChanged;
 
     /// @brief Get the desired anisotropy.
     /// @return the desired anisotropy
     float getDesiredAnisotropy() const noexcept;
-    id::signal<void()> DesiredAnisotropyChanged;
+    idlib::signal<void()> DesiredAnisotropyChanged;
 
     /// @brief Get the desired minimization filter.
     /// @return the desired minimization filter
-    id::texture_filter_method getDesiredMinimizationFilter() const noexcept;
-    id::signal<void()> DesiredMinimizationFilterChanged;
+    idlib::texture_filter_method getDesiredMinimizationFilter() const noexcept;
+    idlib::signal<void()> DesiredMinimizationFilterChanged;
 
     /// @brief Get the desired maximization filter.
     /// @return the desired maximization filter
-    id::texture_filter_method getDesiredMaximizationFilter() const noexcept;
-    id::signal<void()> DesiredMaximizationFilterChanged;
+    idlib::texture_filter_method getDesiredMaximizationFilter() const noexcept;
+    idlib::signal<void()> DesiredMaximizationFilterChanged;
 
     /// @brief Get the desired mipmap filter.
     /// @return the desired mipmap filter
-    id::texture_filter_method getDesiredMipMapFilter() const noexcept;
-    id::signal<void()> DesiredMipMapFilterChanged;
+    idlib::texture_filter_method getDesiredMipMapFilter() const noexcept;
+    idlib::signal<void()> DesiredMipMapFilterChanged;
 
     /// @brief Get the maximum texture size.
     /// @return the maximum texture size. Always positive.

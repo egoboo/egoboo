@@ -32,7 +32,7 @@ namespace Ego {
 namespace Core {
 
 /// @brief A virtual file system, timer, an event threading service.
-class SystemService : private id::non_copyable {
+class SystemService : private idlib::non_copyable {
 protected:
     friend class System;
     explicit SystemService(const std::string& binaryPath);
@@ -48,7 +48,7 @@ public:
 };
 
 /// @brief A video service.
-class VideoService : private id::non_copyable {
+class VideoService : private idlib::non_copyable {
 protected:
 	friend class System;
 	explicit VideoService();
@@ -56,7 +56,7 @@ protected:
 };
 
 /// @brief An audio service.
-class AudioService : private id::non_copyable {
+class AudioService : private idlib::non_copyable {
 protected:
 	friend class System;
     explicit AudioService();
@@ -64,12 +64,14 @@ protected:
 };
 
 /// @brief An input service.
-class InputService : private id::non_copyable {
+class InputService : private idlib::non_copyable {
 protected:
 	friend class System;
     explicit InputService();
 	virtual ~InputService();
 };
+
+class System;
 
 struct SystemCreateFunctor
 {
@@ -77,10 +79,10 @@ struct SystemCreateFunctor
 	System *operator()(const std::string& x, const std::string& y) const;
 };
 
-class System : public id::singleton<System, SystemCreateFunctor> {
+class System : public idlib::singleton<System, SystemCreateFunctor> {
 protected:
     friend SystemCreateFunctor;
-    friend id::default_delete_functor<System>;
+    friend idlib::default_delete_functor<System>;
     /// @brief Construct this system.
     /// @remark Intentionally protected.
     System(const std::string& binaryPath, const std::string& egobooPath);

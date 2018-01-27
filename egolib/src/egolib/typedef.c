@@ -26,7 +26,7 @@
 #include "egolib/Log/_Include.hpp"
 #include "egolib/_math.h"
 
-id::interval<float> pair_to_range(const IPair& source) {
+idlib::interval<float> pair_to_range(const IPair& source) {
     /// @author ZZ
     /// @details convert from a pair to a range
 
@@ -44,10 +44,10 @@ id::interval<float> pair_to_range(const IPair& source) {
     float b = FP8_TO_FLOAT(source.base + source.rand);
     float l = std::min(a, b);
     float u = std::max(a, b);
-    return id::interval<float>(l, u);
+    return idlib::interval<float>(l, u);
 }
 
-IPair range_to_pair(const id::interval<float>& source) {
+IPair range_to_pair(const idlib::interval<float>& source) {
     float a = source.lower();
     float b = source.length();
     return IPair(FLOAT_TO_FP8(a), FLOAT_TO_FP8(b));

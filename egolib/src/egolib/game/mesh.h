@@ -366,7 +366,7 @@ private:
     static AxisAlignedBox2f leastClosure(const Circle2f& circle) {
         auto circle0 = Circle2f(circle.get_center(),
                                 std::max(circle.get_radius(), Info<float>::Grid::Size() * 0.5f));
-        return id::enclose<AxisAlignedBox2f>(circle0);
+        return idlib::enclose<AxisAlignedBox2f>(circle0);
     }
 };
 

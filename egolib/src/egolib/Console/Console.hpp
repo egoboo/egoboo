@@ -105,7 +105,7 @@ struct ConsoleDestroyFunctor
 };
 
 /// The encapsulation of the data necessary to run a generic Quake-like console in Egoboo
-struct Console : public id::singleton<Console, ConsoleCreateFunctor, ConsoleDestroyFunctor>
+struct Console : public idlib::singleton<Console, ConsoleCreateFunctor, ConsoleDestroyFunctor>
 {
 protected:
 	// Befriend with the create functor.
@@ -184,7 +184,7 @@ public:
 	Console(const Rectangle2f& rectangle);
 	virtual ~Console();
 
-	id::signal<void(std::string)> ExecuteCommand;
+	idlib::signal<void(std::string)> ExecuteCommand;
 
     void draw();
 
@@ -207,7 +207,7 @@ public:
 private:
 	Buffer<ConsoleSettings::LineSettings::Length> input;
 
-	id::document m_document;
+	idlib::document m_document;
 
 	std::shared_ptr<Ego::Font> pfont;
 

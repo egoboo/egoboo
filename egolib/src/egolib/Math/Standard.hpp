@@ -15,7 +15,7 @@ enum {
 };
 
 /// A 3D cone.
-using Cone3f = id::cone<Point3f>;
+using Cone3f = idlib::cone<Point3f>;
 
 namespace Ego {
 /**
@@ -122,7 +122,7 @@ namespace Debug {
 template <>
 struct Validate<float> {
     void operator()(const char *file, int line, float object) const {
-        if (id::is_bad(object)) {
+        if (idlib::is_bad(object)) {
             auto e = Log::Entry::create(Log::Level::Error, file, line, "invalid floating point value", Log::EndOfEntry);
             Log::get() << e;
             throw std::runtime_error(e.getText());
@@ -131,8 +131,8 @@ struct Validate<float> {
 };
 
 template <typename VectorType>
-struct Validate<id::point<VectorType>> {
-    void operator()(const char *file, int line, const id::point<VectorType>& object) const {
+struct Validate<idlib::point<VectorType>> {
+    void operator()(const char *file, int line, const idlib::point<VectorType>& object) const {
         static const Validate<typename VectorType::ScalarType> validate{};
         for (size_t i = 0; i < VectorType::dimensionality(); ++i) {
             validate(file, line, object[i]);
@@ -141,8 +141,8 @@ struct Validate<id::point<VectorType>> {
 };
 
 template <typename ScalarType, size_t Dimensionality>
-struct Validate<id::vector<ScalarType, Dimensionality>> {
-    void operator()(const char *file, int line, const id::vector<ScalarType, Dimensionality>& object) const {
+struct Validate<idlib::vector<ScalarType, Dimensionality>> {
+    void operator()(const char *file, int line, const idlib::vector<ScalarType, Dimensionality>& object) const {
         static const Validate<ScalarType> validate{};
         for (size_t i = 0; i < Dimensionality; ++i) {
             validate(file, line, object[i]);

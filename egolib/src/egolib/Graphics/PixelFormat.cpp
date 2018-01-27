@@ -25,83 +25,83 @@
 
 namespace Ego {
 
-pixel_descriptor::pixel_descriptor(id::pixel_format pixel_format,
-                                   const id::pixel_component_descriptor& red,
-                                   const id::pixel_component_descriptor& green,
-                                   const id::pixel_component_descriptor& blue,
-                                   const id::pixel_component_descriptor& alpha,
-                                   const id::rgba_depth& color_depth)
+pixel_descriptor::pixel_descriptor(idlib::pixel_format pixel_format,
+                                   const idlib::pixel_component_descriptor& red,
+                                   const idlib::pixel_component_descriptor& green,
+                                   const idlib::pixel_component_descriptor& blue,
+                                   const idlib::pixel_component_descriptor& alpha,
+                                   const idlib::rgba_depth& color_depth)
     : m_pixel_format(pixel_format),
       m_red(red), m_green(green), m_blue(blue), m_alpha(alpha),
       m_color_depth(color_depth)
 {}
 
-const id::pixel_component_descriptor& pixel_descriptor::get_alpha() const
+const idlib::pixel_component_descriptor& pixel_descriptor::get_alpha() const
 {
     return m_alpha;
 }
 
-const id::pixel_component_descriptor& pixel_descriptor::get_blue() const
+const idlib::pixel_component_descriptor& pixel_descriptor::get_blue() const
 {
     return m_blue;
 }
 
-const id::pixel_component_descriptor& pixel_descriptor::get_green() const
+const idlib::pixel_component_descriptor& pixel_descriptor::get_green() const
 {
     return m_green;
 }
 
-const id::pixel_component_descriptor& pixel_descriptor::get_red() const
+const idlib::pixel_component_descriptor& pixel_descriptor::get_red() const
 {
     return m_red;
 }
 
-const id::rgba_depth& pixel_descriptor::get_color_depth() const
+const idlib::rgba_depth& pixel_descriptor::get_color_depth() const
 {
     return m_color_depth;
 }
 
-id::pixel_format pixel_descriptor::get_pixel_format() const
+idlib::pixel_format pixel_descriptor::get_pixel_format() const
 {
     return m_pixel_format;
 }
 
-const pixel_descriptor& pixel_descriptor::get(id::pixel_format pixel_format)
+const pixel_descriptor& pixel_descriptor::get(idlib::pixel_format pixel_format)
 {
     switch (pixel_format)
     {
-        case id::pixel_format::B8G8R8:
+        case idlib::pixel_format::B8G8R8:
         {
-            return get<id::pixel_format::B8G8R8>();
+            return get<idlib::pixel_format::B8G8R8>();
         }
         break;
-        case id::pixel_format::B8G8R8A8:
+        case idlib::pixel_format::B8G8R8A8:
         {
-            return get<id::pixel_format::B8G8R8A8>();
+            return get<idlib::pixel_format::B8G8R8A8>();
         }
         break;
-        case id::pixel_format::R8G8B8:
+        case idlib::pixel_format::R8G8B8:
         {
-            return get<id::pixel_format::R8G8B8>();
+            return get<idlib::pixel_format::R8G8B8>();
         }
         break;
-        case id::pixel_format::R8G8B8A8:
+        case idlib::pixel_format::R8G8B8A8:
         {
-            return get<id::pixel_format::R8G8B8A8>();
+            return get<idlib::pixel_format::R8G8B8A8>();
         }
         break;
         default:
         {
-            throw id::unhandled_switch_case_error(__FILE__, __LINE__);
+            throw idlib::unhandled_switch_case_error(__FILE__, __LINE__);
         }
     };
 }
 
 static constexpr uint32_t shift(uint32_t little_endian, uint32_t big_endian)
 {
-    if (id::get_byte_order() == id::byte_order::little_endian)
+    if (idlib::get_byte_order() == idlib::byte_order::little_endian)
         return little_endian;
-    else if (id::get_byte_order() == id::byte_order::big_endian)
+    else if (idlib::get_byte_order() == idlib::byte_order::big_endian)
         return big_endian;
 }
 
@@ -111,7 +111,7 @@ static constexpr uint32_t mask(uint32_t shift)
 }
 
 template <>
-const pixel_descriptor& pixel_descriptor::get<id::pixel_format::B8G8R8>()
+const pixel_descriptor& pixel_descriptor::get<idlib::pixel_format::B8G8R8>()
 {
     static const uint32_t blueShift =
         shift(0, 16); // 0x00.00.ff, 0xff.00.00
@@ -133,18 +133,18 @@ const pixel_descriptor& pixel_descriptor::get<id::pixel_format::B8G8R8>()
 
     static const pixel_descriptor INSTANCE
     (
-        id::pixel_format::R8G8B8A8,
-        { id::pixel_component_semantics::RED, redMask, redShift },
-        { id::pixel_component_semantics::GREEN, greenMask, greenShift },
-        { id::pixel_component_semantics::BLUE, blueMask, blueShift },
-        { id::pixel_component_semantics::ALPHA, alphaMask, alphaShift },
-        id::rgba_depth({ 8, 8, 8 }, 0)
+        idlib::pixel_format::R8G8B8A8,
+        { idlib::pixel_component_semantics::RED, redMask, redShift },
+        { idlib::pixel_component_semantics::GREEN, greenMask, greenShift },
+        { idlib::pixel_component_semantics::BLUE, blueMask, blueShift },
+        { idlib::pixel_component_semantics::ALPHA, alphaMask, alphaShift },
+        idlib::rgba_depth({ 8, 8, 8 }, 0)
     );
     return INSTANCE;
 }
 
 template <>
-const pixel_descriptor& pixel_descriptor::get<id::pixel_format::B8G8R8A8>()
+const pixel_descriptor& pixel_descriptor::get<idlib::pixel_format::B8G8R8A8>()
 {
     static const uint32_t blueShift =
         shift(0, 24); // 0x00.00.00.ff, 0xff.00.00.00
@@ -166,18 +166,18 @@ const pixel_descriptor& pixel_descriptor::get<id::pixel_format::B8G8R8A8>()
 
     static const pixel_descriptor INSTANCE
     (
-        id::pixel_format::B8G8R8A8,
-        { id::pixel_component_semantics::RED, redMask, redShift },
-        { id::pixel_component_semantics::GREEN, greenMask, greenShift },
-        { id::pixel_component_semantics::BLUE, blueMask, blueShift },
-        { id::pixel_component_semantics::ALPHA, alphaMask, alphaShift },
-        id::rgba_depth({ 8, 8, 8 }, 8)
+        idlib::pixel_format::B8G8R8A8,
+        { idlib::pixel_component_semantics::RED, redMask, redShift },
+        { idlib::pixel_component_semantics::GREEN, greenMask, greenShift },
+        { idlib::pixel_component_semantics::BLUE, blueMask, blueShift },
+        { idlib::pixel_component_semantics::ALPHA, alphaMask, alphaShift },
+        idlib::rgba_depth({ 8, 8, 8 }, 8)
     );
     return INSTANCE;
 }
 
 template <>
-const pixel_descriptor& pixel_descriptor::get<id::pixel_format::R8G8B8>()
+const pixel_descriptor& pixel_descriptor::get<idlib::pixel_format::R8G8B8>()
 {
     static const uint32_t redShift =
         shift(0, 16); // 0x00.00.ff, 0xff.00.00
@@ -198,18 +198,18 @@ const pixel_descriptor& pixel_descriptor::get<id::pixel_format::R8G8B8>()
         ((uint32_t)0x00) << alphaShift;
     static const pixel_descriptor INSTANCE
     (
-        id::pixel_format::R8G8B8,
-        { id::pixel_component_semantics::RED, redMask, redShift },
-        { id::pixel_component_semantics::GREEN, greenMask, greenShift },
-        { id::pixel_component_semantics::BLUE, blueMask, blueShift },
-        { id::pixel_component_semantics::ALPHA, alphaMask, alphaShift },
-        id::rgba_depth({ 8, 8, 8 }, 0)
+        idlib::pixel_format::R8G8B8,
+        { idlib::pixel_component_semantics::RED, redMask, redShift },
+        { idlib::pixel_component_semantics::GREEN, greenMask, greenShift },
+        { idlib::pixel_component_semantics::BLUE, blueMask, blueShift },
+        { idlib::pixel_component_semantics::ALPHA, alphaMask, alphaShift },
+        idlib::rgba_depth({ 8, 8, 8 }, 0)
     );
     return INSTANCE;
 }
 
 template <>
-const pixel_descriptor& pixel_descriptor::get<id::pixel_format::R8G8B8A8>()
+const pixel_descriptor& pixel_descriptor::get<idlib::pixel_format::R8G8B8A8>()
 {
     static const uint32_t redShift =
         shift(0, 24); // 0x00.00.00.ff, 0xff.00.00.00
@@ -231,18 +231,18 @@ const pixel_descriptor& pixel_descriptor::get<id::pixel_format::R8G8B8A8>()
 
     static const pixel_descriptor INSTANCE
     (
-        id::pixel_format::R8G8B8A8,
-        { id::pixel_component_semantics::RED, redMask, redShift },
-        { id::pixel_component_semantics::GREEN, greenMask, greenShift },
-        { id::pixel_component_semantics::BLUE, blueMask, blueShift },
-        { id::pixel_component_semantics::ALPHA, alphaMask, alphaShift },
-        id::rgba_depth({ 8, 8, 8 }, 8)
+        idlib::pixel_format::R8G8B8A8,
+        { idlib::pixel_component_semantics::RED, redMask, redShift },
+        { idlib::pixel_component_semantics::GREEN, greenMask, greenShift },
+        { idlib::pixel_component_semantics::BLUE, blueMask, blueShift },
+        { idlib::pixel_component_semantics::ALPHA, alphaMask, alphaShift },
+        idlib::rgba_depth({ 8, 8, 8 }, 8)
     );
     return INSTANCE;
 }
 
 template <>
-const pixel_descriptor& pixel_descriptor::get<id::pixel_format::A8B8G8R8>()
+const pixel_descriptor& pixel_descriptor::get<idlib::pixel_format::A8B8G8R8>()
 {
     static const uint32_t alphaShift =
         shift(0, 24); // 0x00.00.00.ff, 0xff.00.00.00
@@ -264,18 +264,18 @@ const pixel_descriptor& pixel_descriptor::get<id::pixel_format::A8B8G8R8>()
 
     static const pixel_descriptor INSTANCE
     (
-        id::pixel_format::A8B8G8R8,
-        { id::pixel_component_semantics::RED, redMask, redShift },
-        { id::pixel_component_semantics::GREEN, greenMask, greenShift },
-        { id::pixel_component_semantics::BLUE, blueMask, blueShift },
-        { id::pixel_component_semantics::ALPHA, alphaMask, alphaShift },
-        id::rgba_depth({ 8, 8, 8 }, 8)
+        idlib::pixel_format::A8B8G8R8,
+        { idlib::pixel_component_semantics::RED, redMask, redShift },
+        { idlib::pixel_component_semantics::GREEN, greenMask, greenShift },
+        { idlib::pixel_component_semantics::BLUE, blueMask, blueShift },
+        { idlib::pixel_component_semantics::ALPHA, alphaMask, alphaShift },
+        idlib::rgba_depth({ 8, 8, 8 }, 8)
     );
     return INSTANCE;
 }
 
 template <>
-const pixel_descriptor& pixel_descriptor::get<id::pixel_format::A8R8G8B8>()
+const pixel_descriptor& pixel_descriptor::get<idlib::pixel_format::A8R8G8B8>()
 {
     static const uint32_t alphaShift =
         shift(0, 24); // 0x00.00.00.ff, 0xff.00.00.00
@@ -297,12 +297,12 @@ const pixel_descriptor& pixel_descriptor::get<id::pixel_format::A8R8G8B8>()
 
     static const pixel_descriptor INSTANCE
     (
-        id::pixel_format::A8R8G8B8,
-        { id::pixel_component_semantics::RED, redMask, redShift },
-        { id::pixel_component_semantics::GREEN, greenMask, greenShift },
-        { id::pixel_component_semantics::BLUE, blueMask, blueShift },
-        { id::pixel_component_semantics::ALPHA, alphaMask, alphaShift },
-        id::rgba_depth({ 8, 8, 8 }, 8)
+        idlib::pixel_format::A8R8G8B8,
+        { idlib::pixel_component_semantics::RED, redMask, redShift },
+        { idlib::pixel_component_semantics::GREEN, greenMask, greenShift },
+        { idlib::pixel_component_semantics::BLUE, blueMask, blueShift },
+        { idlib::pixel_component_semantics::ALPHA, alphaMask, alphaShift },
+        idlib::rgba_depth({ 8, 8, 8 }, 8)
     );
     return INSTANCE;
 }

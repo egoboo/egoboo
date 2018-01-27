@@ -128,7 +128,7 @@ float fvec3_decompose(const Vector3f& A, const Vector3f& vnrm, Vector3f& vpara, 
 
     if (0.0f == d)
     {
-		vpara = id::zero<Vector3f>();
+		vpara = idlib::zero<Vector3f>();
 		vperp = A;
     }
     else

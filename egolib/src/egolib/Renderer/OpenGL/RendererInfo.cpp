@@ -22,7 +22,7 @@ RendererInfo::RendererInfo() :
         glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &temporary);
         if (Utilities::isError())
         {
-            throw id::runtime_error(__FILE__, __LINE__, "unable to acquire renderer back-end information");
+            throw idlib::runtime_error(__FILE__, __LINE__, "unable to acquire renderer back-end information");
         }
         m_maximumSupportedAnisotropy = temporary;
         m_minimumSupportedAnisotropy = 1.0f;
@@ -32,7 +32,7 @@ RendererInfo::RendererInfo() :
         glGetIntegerv(GL_MAX_TEXTURE_SIZE, &temporary);
         if (Utilities::isError())
         {
-            throw id::runtime_error(__FILE__, __LINE__, "unable to acquire renderer back-end information");
+            throw idlib::runtime_error(__FILE__, __LINE__, "unable to acquire renderer back-end information");
         }
         m_maximumTextureSize = temporary;
     }

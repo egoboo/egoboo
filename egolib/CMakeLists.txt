@@ -4,54 +4,64 @@ cmake_minimum_required(VERSION 3.6)
 # Project name and language.
 project(egolib-library CXX)
 
+# Project compiles against C++ 17.
+if (NOT MSVC)
+  set(CMAKE_CXX_STANDARD 17)
+endif()
+
 # Set the default properties.
 set_project_default_properties()
 
-# Include directories for "egolib".
+set(SOURCE_FILES "")
+
+# Include directories for project.
 include_directories(${PROJECT_SOURCE_DIR}/src)
 
-# Determine source files and compile them as C++.
-#file(GLOB_RECURSE SOURCE_FILES ${PROJECT_SOURCE_DIR}/src/*.cpp)
-
-# Compute source files.
-
-# Exclude OS specific files.
+# Enumerate cpp and c files.
 file(GLOB_RECURSE CPP_FILES ${PROJECT_SOURCE_DIR}/src/*.cpp)
-#file(GLOB_RECURSE C_FILES ${PROJECT_SOURCE_DIR}/src/*.c)
-set(SOURCE_FILES ${CPP_FILES} ${C_FILES})
-list(REMOVE_ITEM SOURCE_FILES "${PROJECT_SOURCE_DIR}/src/egolib/Platform/file_win.cpp")
-list(REMOVE_ITEM SOURCE_FILES "${PROJECT_SOURCE_DIR}/src/egolib/Platform/file_linux.cpp")
+list(APPEND SOURCE_FILES ${CPP_FILES})
+
+file(GLOB_RECURSE C_FILES ${PROJECT_SOURCE_DIR}/src/*.c)
+SET_SOURCE_FILES_PROPERTIES(${C_FILES} PROPERTIES LANGUAGE CXX)
+list(APPEND SOURCE_FILES ${C_FILES})
+
+# Exclude OS specific cpp and c files.
+list(REMOVE_ITEM SOURCE_FILES "${PROJECT_SOURCE_DIR}/src/egolib/Platform/file_win.c")
+list(REMOVE_ITEM SOURCE_FILES "${PROJECT_SOURCE_DIR}/src/egolib/Platform/file_linux.c")
+
+# Enumerate hpp and h files.
+file(GLOB_RECURSE HPP_FILES ${PROJECT_SOURCE_DIR}/src/*.hpp)
+set_source_files_properties(${HPP_FILES} PROPERTIES HEADER_FILE_ONLY TRUE)
+set_source_files_properties(${HPP_FILES} PROPERTIES LANGUAGE CXX)
+list(APPEND SOURCE_FILES ${HPP_FILES})
+
+file(GLOB_RECURSE H_FILES ${PROJECT_SOURCE_DIR}/src/*.h)
+set_source_files_properties(${H_FILES} PROPERTIES HEADER_FILE_ONLY TRUE)
+set_source_files_properties(${H_FILES} PROPERTIES LANGUAGE CXX)
+list(APPEND SOURCE_FILES ${H_FILES})
 
 # Add OS specific files.
-if (UNIX)
-  set(SOURCE_FILES ${SOURCE_FILES} ${PROJECT_SOURCE_DIR}/src/egolib/Platform/file_linux.cpp)
+if (UNIX AND NOT APPLE)
+  set(SOURCE_FILES ${SOURCE_FILES} ${PROJECT_SOURCE_DIR}/src/egolib/Platform/file_linux.c)
 endif()
 
 if (APPLE)
-  set(SOURCE_FILES ${SOURCE_FILES} ${PROJECT_SOURCE_DIR}/src/egolib/Platform/file_mac.m)
+  file(GLOB_RECURSE MM_FILES ${PROJECT_SOURCE_DIR}/src/*.mm)
+  list(APPEND SOURCE_FILES ${MM_FILES})
+  SET_SOURCE_FILES_PROPERTIES(${MM_FILES} PROPERTIES COMPILE_FLAGS "-x objective-c++")
 endif()
 
 if (WIN32)
-  set(SOURCE_FILES ${SOURCE_FILES} ${PROJECT_SOURCE_DIR}/src/egolib/Platform/file_win.cpp)
+  set(SOURCE_FILES ${SOURCE_FILES} ${PROJECT_SOURCE_DIR}/src/egolib/Platform/file_win.c)
 endif()
 
-#message("SDL 2 include directories ${SDL2_INCLUDE_DIRS}")
-#message("SDL 2 mixer include directories ${SDL2_MIXER_INCLUDE_DIRS}")
-#message("SDL 2 ttf include directories ${SDL2_TTF_INCLUDE_DIRS}")
-#message("SDL 2 image include directories ${SDL2_IMAGE_INCLUDE_DIRS}")
-
-# Define executable.
+# Define product.
 add_library(egolib-library STATIC ${SOURCE_FILES})
-# idlib.
-include_directories(${CMAKE_BINARY_DIR}/idlib/library/src)
-target_link_libraries(egolib-library idlib-library)
-# physfs.
-include_directories(${PHYSFS_INCLUDE_DIR})
-TARGET_LINK_LIBRARIES(egolib-library ${PHYSFS_LIBRARY})
-
-include_directories(${PHYSFS_INCLUDE_DIR})
-INCLUDE_DIRECTORIES(${SDL2_INCLUDE_DIRS} ${SDL2_IMAGE_INCLUDE_DIRS} ${SDL2_MIXER_INCLUDE_DIRS} ${SDL2_TTF_INCLUDE_DIRS})
-TARGET_LINK_LIBRARIES(egolib-library ${SDL2_LIBRARIES} ${SDL2_IMAGE_LIBRARIES} ${SDL2_MIXER_LIBRARIES} ${SDL2_TTF_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${OPENGL_gl_LIBRARY})
+target_include_directories(egolib-library INTERFACE "${PROJECT_SOURCE_DIR}/src/")
+target_link_libraries(egolib-library idlib-game-engine-library)
+if (WIN32)
+  target_link_libraries(egolib-library Shlwapi.lib)
+endif()
 
 # == Doxygen ==================================================================================== #
 

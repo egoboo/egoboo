@@ -18,8 +18,8 @@ private:
 public:
     /// @brief Construct this graphics context with the specified window and the specified graphics context properties.
     /// @param window a pointer to the window
-    /// @throw id::runtime_error @a window is a null pointer
-    /// @throw id::runtime_error context creation failed
+    /// @throw idlib::runtime_error @a window is a null pointer
+    /// @throw idlib::runtime_error context creation failed
     GraphicsContext(GraphicsWindow *window);
 
     /// @brief Destruct this graphics context.

@@ -55,7 +55,7 @@ VideoOptionsScreen::VideoOptionsScreen() :
     auto displayIt = std::find_if(displays.cbegin(), displays.cend(), [](const auto& display) { return display->isPrimaryDisplay(); });
     if (displayIt == displays.cend())
     {
-        throw id::runtime_error(__FILE__, __LINE__, "unable to get primary display");
+        throw idlib::runtime_error(__FILE__, __LINE__, "unable to get primary display");
     }
     for (const auto &displayMode : (*displayIt)->getDisplayModes())
     {
@@ -121,33 +121,33 @@ VideoOptionsScreen::VideoOptionsScreen() :
         
         //String description of current state
         []{ 
-            if(egoboo_config_t::get().graphic_textureFilter_mipMapFilter.getValue() == id::texture_filter_method::linear) return "High";
-            if(egoboo_config_t::get().graphic_textureFilter_minFilter.getValue() == id::texture_filter_method::linear) return "Medium";
-            if(egoboo_config_t::get().graphic_textureFilter_minFilter.getValue() == id::texture_filter_method::nearest) return "Low";
+            if(egoboo_config_t::get().graphic_textureFilter_mipMapFilter.getValue() == idlib::texture_filter_method::linear) return "High";
+            if(egoboo_config_t::get().graphic_textureFilter_minFilter.getValue() == idlib::texture_filter_method::linear) return "Medium";
+            if(egoboo_config_t::get().graphic_textureFilter_minFilter.getValue() == idlib::texture_filter_method::nearest) return "Low";
             return "Unknown";
         },
 
         //Change option effect
         []{
             //Medium (Trilinear filtering)
-            if(egoboo_config_t::get().graphic_textureFilter_minFilter.getValue() == id::texture_filter_method::nearest) {
-                egoboo_config_t::get().graphic_textureFilter_minFilter.setValue(id::texture_filter_method::linear);
-                egoboo_config_t::get().graphic_textureFilter_magFilter.setValue(id::texture_filter_method::linear);
-                egoboo_config_t::get().graphic_textureFilter_mipMapFilter.setValue(id::texture_filter_method::none);
+            if(egoboo_config_t::get().graphic_textureFilter_minFilter.getValue() == idlib::texture_filter_method::nearest) {
+                egoboo_config_t::get().graphic_textureFilter_minFilter.setValue(idlib::texture_filter_method::linear);
+                egoboo_config_t::get().graphic_textureFilter_magFilter.setValue(idlib::texture_filter_method::linear);
+                egoboo_config_t::get().graphic_textureFilter_mipMapFilter.setValue(idlib::texture_filter_method::none);
             }
 
             //High (Trilinear mipmap filtering)
-            else if(egoboo_config_t::get().graphic_textureFilter_mipMapFilter.getValue() == id::texture_filter_method::none) {
-                egoboo_config_t::get().graphic_textureFilter_minFilter.setValue(id::texture_filter_method::linear);
-                egoboo_config_t::get().graphic_textureFilter_magFilter.setValue(id::texture_filter_method::linear);
-                egoboo_config_t::get().graphic_textureFilter_mipMapFilter.setValue(id::texture_filter_method::linear);
+            else if(egoboo_config_t::get().graphic_textureFilter_mipMapFilter.getValue() == idlib::texture_filter_method::none) {
+                egoboo_config_t::get().graphic_textureFilter_minFilter.setValue(idlib::texture_filter_method::linear);
+                egoboo_config_t::get().graphic_textureFilter_magFilter.setValue(idlib::texture_filter_method::linear);
+                egoboo_config_t::get().graphic_textureFilter_mipMapFilter.setValue(idlib::texture_filter_method::linear);
             }
 
             //Low - linear filtering filtering
             else {
-                egoboo_config_t::get().graphic_textureFilter_minFilter.setValue(id::texture_filter_method::nearest);
-                egoboo_config_t::get().graphic_textureFilter_magFilter.setValue(id::texture_filter_method::nearest);
-                egoboo_config_t::get().graphic_textureFilter_mipMapFilter.setValue(id::texture_filter_method::none);
+                egoboo_config_t::get().graphic_textureFilter_minFilter.setValue(idlib::texture_filter_method::nearest);
+                egoboo_config_t::get().graphic_textureFilter_magFilter.setValue(idlib::texture_filter_method::nearest);
+                egoboo_config_t::get().graphic_textureFilter_mipMapFilter.setValue(idlib::texture_filter_method::none);
             }
         }
     );

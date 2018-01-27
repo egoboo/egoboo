@@ -57,10 +57,10 @@ struct pro_import_t
 #include "egolib/Profiles/EnchantProfile.hpp"
 #include "egolib/Profiles/ParticleProfile.hpp"
 
-class ProfileSystem : public id::singleton<ProfileSystem> {
+class ProfileSystem : public idlib::singleton<ProfileSystem> {
 protected:
-    friend id::default_new_functor<ProfileSystem>;
-    friend id::default_delete_functor<ProfileSystem>;
+    friend idlib::default_new_functor<ProfileSystem>;
+    friend idlib::default_delete_functor<ProfileSystem>;
 
     ProfileSystem();
     ~ProfileSystem();

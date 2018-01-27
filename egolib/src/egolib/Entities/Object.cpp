@@ -185,7 +185,7 @@ Object::Object(ObjectProfileRef proRef, ObjectRef objRef) :
 
     //Initialize primary attributes
     for(size_t i = 0; i < Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES; ++i) {
-        const id::interval<float>& baseRange = _profile->getAttributeBase(static_cast<Ego::Attribute::AttributeType>(i));
+        const idlib::interval<float>& baseRange = _profile->getAttributeBase(static_cast<Ego::Attribute::AttributeType>(i));
         _baseAttribute[i] = Random::next(baseRange);
     }
 
@@ -695,11 +695,11 @@ bool Object::teleport(const Vector3f& position, Facing facing_z)
         // Yeah!  It worked!
 
         // update the old position
-        ori_old.facing_z = id::canonicalize(facing_z);
+        ori_old.facing_z = idlib::canonicalize(facing_z);
 
         // update the new position
         setPosition(newPosition);
-        ori.facing_z = id::canonicalize(facing_z);
+        ori.facing_z = idlib::canonicalize(facing_z);
 
         if (!detatchFromHolder(true, false))
         {
@@ -963,7 +963,7 @@ void Object::update()
                 chance -= target->getAttribute(Ego::Attribute::AGILITY)*0.5f;
 
                 //-5% per tile distance
-                chance -= 5 * (id::euclidean_norm(getPosition()-target->getPosition()) / Info<float>::Grid::Size());
+                chance -= 5 * (idlib::euclidean_norm(getPosition()-target->getPosition()) / Info<float>::Grid::Size());
 
                 //Perceptive Perk doubles chance
                 if(target->hasPerk(Ego::Perks::PERCEPTIVE)) {
@@ -1054,7 +1054,7 @@ std::string Object::getName(bool prefixArticle, bool prefixDefinite, bool capita
         // capitalize the name ?
         if (capitalLetter)
         {
-            result[0] = id::to_upper(result[0]);
+            result[0] = idlib::to_upper(result[0]);
         }
     }
     else
@@ -1081,7 +1081,7 @@ std::string Object::getName(bool prefixArticle, bool prefixDefinite, bool capita
             }
             else
             {
-                char lTmp = id::to_upper(result[0]);
+                char lTmp = idlib::to_upper(result[0]);
 
                 if ( 'A' == lTmp || 'E' == lTmp || 'I' == lTmp || 'O' == lTmp || 'U' == lTmp )
                 {
@@ -1107,8 +1107,8 @@ void Object::requestTerminate()
 
  bool Object::isFacingLocation(const float x, const float y) const
  {
-    auto facing = id::canonicalize(vec_to_facing(x - getPosX(), y - getPosY()));
-    facing -= id::canonicalize(ori.facing_z);
+    auto facing = idlib::canonicalize(vec_to_facing(x - getPosX(), y - getPosY()));
+    facing -= idlib::canonicalize(ori.facing_z);
     return (facing.get_value() > 55535 || facing.get_value() < 10000);
  }
 
@@ -1274,7 +1274,7 @@ bool Object::canSeeObject(const std::shared_ptr<Object> &target) const
     }
 
     //Too Dark?
-    int enviro_light = ( target->inst.alpha * target->inst.getMaxLight() ) * id::fraction<float, 1, 255>();
+    int enviro_light = ( target->inst.alpha * target->inst.getMaxLight() ) * idlib::fraction<float, 1, 255>();
     int self_light   = ( target->inst.light == 255 ) ? 0 : target->inst.light;
     int light        = std::max(enviro_light, self_light);
     light *= expf(0.32f * getAttribute(Ego::Attribute::DARKVISION));
@@ -1862,7 +1862,7 @@ void Object::respawn()
     _currentLife = getAttribute(Ego::Attribute::MAX_LIFE);
     _currentMana = getAttribute(Ego::Attribute::MAX_MANA);
     setPosition(getSpawnPosition());
-    setVelocity(id::zero<Vector3f>());
+    setVelocity(idlib::zero<Vector3f>());
     team = team_base;
     canbecrushed = false;
     ori.map_twist_facing_y = orientation_t::MAP_TURN_OFFSET;  // These two mean on level surface
@@ -2268,7 +2268,7 @@ const std::shared_ptr<ObjectProfile>& Object::getProfile() const
 
 void Object::resetInputCommands()
 {
-    _objectPhysics.setDesiredVelocity(id::zero<Vector2f>());
+    _objectPhysics.setDesiredVelocity(idlib::zero<Vector2f>());
     _inputLatchesPressed.reset();    
 }
 
@@ -2866,7 +2866,7 @@ void Object::dropKeys()
         // fix some flags
         pkey->hitready               = true;
         pkey->isequipped             = false;
-        pkey->ori.facing_z           = id::canonicalize(direction + ATK_BEHIND);
+        pkey->ori.facing_z           = idlib::canonicalize(direction + ATK_BEHIND);
         pkey->team                   = pkey->team_base;
 
         // fix the current velocity
@@ -2922,7 +2922,7 @@ void Object::dropAllItems()
 
         // fix some flags
         pitem->hitready               = true;
-        pitem->ori.facing_z           = id::canonicalize(direction + ATK_BEHIND);
+        pitem->ori.facing_z           = idlib::canonicalize(direction + ATK_BEHIND);
         pitem->team                   = pitem->team_base;
 
         // fix the current velocity

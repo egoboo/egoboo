@@ -33,20 +33,20 @@ AppImpl::AppImpl(const std::string& title, const std::string& version)
 
     // Enable depth test. Incoming fragment's depth value must be less.
     renderer.setDepthTestEnabled(true);
-    renderer.setDepthFunction(id::compare_function::less);
+    renderer.setDepthFunction(idlib::compare_function::less);
 
     // Disable blending.
     renderer.setBlendingEnabled(false);
 
     // Enable alpha testing: Hide fully transparent parts.
     renderer.setAlphaTestEnabled(true);
-    renderer.setAlphaFunction(id::compare_function::greater, 0.0f);
+    renderer.setAlphaFunction(idlib::compare_function::greater, 0.0f);
 
     // disable OpenGL lighting
     renderer.setLightingEnabled(false);
 
     // fill mode
-    renderer.setRasterizationMode(id::rasterization_mode::solid);
+    renderer.setRasterizationMode(idlib::rasterization_mode::solid);
 
     // set up environment mapping
     /// @todo: this isn't used anywhere

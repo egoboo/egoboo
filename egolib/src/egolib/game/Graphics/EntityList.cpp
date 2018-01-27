@@ -169,8 +169,8 @@ bool EntityList::test(::Camera& camera, const Ego::Particle& particle) {
     // both its bounding sphere and its reflected bounding sphere
     // are outside of the frustum.
     const auto& frustum = camera.getFrustum();
-    const Sphere3f sphere(id::semantic_cast<Point3f>(particle.getPosition()), particle.bump_real.size_big);
-    const Sphere3f reflectedSphere(id::semantic_cast<Point3f>(particle.inst.ref_pos), particle.bump_real.size_big);
+    const Sphere3f sphere(idlib::semantic_cast<Point3f>(particle.getPosition()), particle.bump_real.size_big);
+    const Sphere3f reflectedSphere(idlib::semantic_cast<Point3f>(particle.inst.ref_pos), particle.bump_real.size_big);
     if (Ego::Math::Relation::outside == frustum.intersects(sphere, false) &&
         Ego::Math::Relation::outside == frustum.intersects(reflectedSphere, false)) {
         return false;

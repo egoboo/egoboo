@@ -230,10 +230,10 @@ void Console::draw()
     renderer.setDepthTestEnabled(false);
 
     // draw draw front and back faces of polygons
-    renderer.setCullingMode(id::culling_mode::none);
+    renderer.setCullingMode(idlib::culling_mode::none);
 
     renderer.setBlendingEnabled(true);
-    renderer.setBlendFunction(id::color_blend_parameter::source0_alpha, id::color_blend_parameter::one_minus_source0_alpha);
+    renderer.setBlendFunction(idlib::color_blend_parameter::source0_alpha, idlib::color_blend_parameter::one_minus_source0_alpha);
 
     auto drawableSize = GraphicsSystem::get().window->getDrawableSize();
     renderer.setViewportRectangle(0, 0, drawableSize(0), drawableSize(1));
@@ -262,7 +262,7 @@ void Console::draw()
     static const auto black = Math::Colour4f::black();
     // The vertex data structure and the vertex descriptor.
     struct Vertex { float x, y; };
-    static const VertexDescriptor vertexDescriptor({VertexElementDescriptor(0, id::vertex_component_syntactics::SINGLE_2, id::vertex_component_semantics::POSITION)});
+    static const VertexDescriptor vertexDescriptor({VertexElementDescriptor(0, idlib::vertex_component_syntactics::SINGLE_2, idlib::vertex_component_semantics::POSITION)});
 
 
     renderer.setColour(white);
@@ -276,11 +276,11 @@ void Console::draw()
         vertex->x = rectangle.get_max().x();  vertex->y = rectangle.get_max().y(); ++vertex;
         vertex->x = rectangle.get_min().x();  vertex->y = rectangle.get_max().y();
     }
-    renderer.render(vertexBuffer, vertexDescriptor, id::primitive_type::line_loop, 0, 4);
+    renderer.render(vertexBuffer, vertexDescriptor, idlib::primitive_type::line_loop, 0, 4);
     renderer.setLineWidth(1);
 
     renderer.setColour(black);
-    renderer.render(vertexBuffer, vertexDescriptor, id::primitive_type::quadriliterals, 0, 4);
+    renderer.render(vertexBuffer, vertexDescriptor, idlib::primitive_type::quadriliterals, 0, 4);
 
 
     int height;
@@ -313,10 +313,10 @@ void Console::draw()
     }
 
     // grab the line offsets
-    //std::vector<id::text_line> console_lines;
+    //std::vector<idlib::text_line> console_lines;
 	auto temporary = m_document.get_text();
-	id::text_parser<char> parser;
-	std::vector<id::text_line> console_lines;
+	idlib::text_parser<char> parser;
+	std::vector<idlib::text_line> console_lines;
 	parser(temporary,
 		   [](auto character) {
 				return '\n' == character; 
@@ -324,9 +324,9 @@ void Console::draw()
 		   [this, temporary, &console_lines](auto string_start, auto string_end, auto substring_begin, auto substring_end) {
 				auto x = std::string(substring_begin, substring_end);
 				if (x != "\n") {
-					auto r = id::text_range(std::distance(string_start, substring_begin),
-						                    std::distance(substring_begin, substring_end));
-					auto l = id::text_line(r);
+					auto r = idlib::text_range(std::distance(string_start, substring_begin),
+						                       std::distance(substring_begin, substring_end));
+					auto l = idlib::text_line(r);
 					int w, h;
 					this->pfont->getTextSize(x, &w, &h);
 					l.set_width(w);
@@ -363,7 +363,7 @@ Console::Console(const Rectangle2f& rectangle)
     : history(), input(), m_document()
 {
 	m_document.set_max_length(ConsoleSettings::OutputSettings::Length);
-	m_document.set_trim_policy(id::document_trim_policy::leading);
+	m_document.set_trim_policy(idlib::document_trim_policy::leading);
 
     // reset all the console data
     this->on = false;

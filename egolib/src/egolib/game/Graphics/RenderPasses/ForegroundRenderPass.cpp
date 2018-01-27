@@ -7,7 +7,7 @@ namespace Graphics {
 
 ForegroundRenderPass::ForegroundRenderPass() :
     RenderPass("foreground"),
-    _vertexDescriptor(Ego::descriptor_factory<id::vertex_format::P3FT2F>()()),
+    _vertexDescriptor(Ego::descriptor_factory<idlib::vertex_format::P3FT2F>()()),
     _vertexBuffer(4, _vertexDescriptor.get_size())
 {}
 
@@ -34,7 +34,7 @@ void ForegroundRenderPass::doRun(::Camera& camera, const TileList& tl, const Ent
     // make the texture begin to disappear if you are not looking straight down
     float ftmp = dot(vforw_wind, vforw_cam);
 
-    float alpha = (1.0f - ftmp * ftmp) * (ilayer->_alpha * id::fraction<float, 1, 255>());
+    float alpha = (1.0f - ftmp * ftmp) * (ilayer->_alpha * idlib::fraction<float, 1, 255>());
 
     if (alpha != 0.0f)
     {
@@ -98,23 +98,23 @@ void ForegroundRenderPass::doRun(::Camera& camera, const TileList& tl, const Ent
                 // Essentially disable the depth test without calling
                 // renderer.setDepthTestEnabled(false).
                 renderer.setDepthTestEnabled(true);
-                renderer.setDepthFunction(id::compare_function::always_pass);
+                renderer.setDepthFunction(idlib::compare_function::always_pass);
 
                 // draw draw front and back faces of polygons
-                renderer.setCullingMode(id::culling_mode::none);
+                renderer.setCullingMode(idlib::culling_mode::none);
 
                 // do not display the completely transparent portion
                 renderer.setAlphaTestEnabled(true);
-                renderer.setAlphaFunction(id::compare_function::greater, 0.0f);
+                renderer.setAlphaFunction(idlib::compare_function::greater, 0.0f);
 
                 // make the texture a filter
                 renderer.setBlendingEnabled(true);
-                renderer.setBlendFunction(id::color_blend_parameter::source0_alpha, id::color_blend_parameter::one_minus_source0_color);
+                renderer.setBlendFunction(idlib::color_blend_parameter::source0_alpha, idlib::color_blend_parameter::one_minus_source0_color);
 
                 renderer.getTextureUnit().setActivated(_currentModule->getWaterTexture(1).get());
 
                 renderer.setColour(Math::Colour4f(1.0f, 1.0f, 1.0f, 1.0f - std::abs(alpha)));
-                renderer.render(_vertexBuffer, _vertexDescriptor, id::primitive_type::triangle_fan, 0, 4);
+                renderer.render(_vertexBuffer, _vertexDescriptor, idlib::primitive_type::triangle_fan, 0, 4);
             }
         }
     }

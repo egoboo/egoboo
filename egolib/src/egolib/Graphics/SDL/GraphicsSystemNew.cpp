@@ -15,7 +15,7 @@ GraphicsSystemNew::GraphicsSystemNew()
     int numVideoDisplays = SDL_GetNumVideoDisplays();
     if (numVideoDisplays < 0)
     {
-        throw id::runtime_error(__FILE__, __LINE__, "unable to get number of video displays");
+        throw idlib::runtime_error(__FILE__, __LINE__, "unable to get number of video displays");
     }
     for (int i = 0, n = numVideoDisplays; i < n; ++i)
     {
@@ -31,7 +31,7 @@ void GraphicsSystemNew::setCursorVisibility(bool visibility)
     int result = SDL_ShowCursor(visibility ? SDL_ENABLE : SDL_DISABLE);
     if (result < 0)
     {
-        throw id::environment_error(__FILE__, __LINE__, "SDL", std::string("SDL_ShowCursor(") + (visibility ? "SDL_ENABLE" : "SDL_DISABLE") + ") failed - reason `" + SDL_GetError() + "`");
+        throw idlib::environment_error(__FILE__, __LINE__, "SDL", std::string("SDL_ShowCursor(") + (visibility ? "SDL_ENABLE" : "SDL_DISABLE") + ") failed - reason `" + SDL_GetError() + "`");
     }
 }
 
@@ -40,7 +40,7 @@ bool GraphicsSystemNew::getCursorVisibility() const
     int result = SDL_ShowCursor(SDL_QUERY);
     if (result < 0)
     {
-        throw id::environment_error(__FILE__, __LINE__, "SDL", std::string("SDL_GetShowCursor(SDL_Query) failed - reason `") + SDL_GetError() + "`");
+        throw idlib::environment_error(__FILE__, __LINE__, "SDL", std::string("SDL_GetShowCursor(SDL_Query) failed - reason `") + SDL_GetError() + "`");
     }
     return result == SDL_ENABLE;
 }

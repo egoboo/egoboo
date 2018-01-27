@@ -183,7 +183,7 @@ bool AddWaypoint( waypoint_list_t& wplst, ObjectRef ichr, float pos_x, float pos
                          plst->head,
                          loc_pos.x / GRID_FSIZE, loc_pos.y / GRID_FSIZE,
                          nrm.x, nrm.y,
-                         id::sqrt(pressure) / GRID_FSIZE );
+                         idlib::sqrt(pressure) / GRID_FSIZE );
         }
     }
 #else
@@ -320,7 +320,7 @@ uint8_t BreakPassage( int mesh_fx_or, const uint16_t become, const int frames, c
 
 	auto mesh = _currentModule->getMeshPointer();
 	if (!mesh) {
-		throw id::runtime_error(__FILE__, __LINE__, "nullptr == mesh");
+		throw idlib::null_error(__FILE__, __LINE__, "mesh");
 	}
 
     const std::shared_ptr<Passage> &passage = _currentModule->getPassageByID(passageID);
@@ -488,12 +488,12 @@ ObjectRef FindWeapon( Object * pchr, float max_distance, const IDSZ2& weap_idsz,
     line_of_sight_info_t los;
 
     if (nullptr == pchr) {
-        throw id::runtime_error(__FILE__, __LINE__, "nullptr == pchr");
+        throw idlib::null_error(__FILE__, __LINE__, "pchr");
     }
 
     // set up the target
     best_target = ObjectRef::Invalid;
-    best_dist   = id::sq(max_distance);
+    best_dist   = idlib::sq(max_distance);
 
     //setup line of sight data
     los.x0 = pchr->getPosX();
@@ -524,7 +524,7 @@ ObjectRef FindWeapon( Object * pchr, float max_distance, const IDSZ2& weap_idsz,
 
         //check distance
 		Vector3f diff = pchr->getPosition() - pweapon->getPosition();
-        float dist = id::squared_euclidean_norm(diff);
+        float dist = idlib::squared_euclidean_norm(diff);
         if ( dist < best_dist )
         {
             //finally, check line of sight. we only care for weapons we can see

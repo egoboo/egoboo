@@ -52,7 +52,7 @@ prt_environment_t::prt_environment_t() :
     traction(0.0f),
     //
     inwater(false),
-    acc(id::zero<Vector3f>())
+    acc(idlib::zero<Vector3f>())
 {}
 
 void prt_environment_t::reset()
@@ -100,8 +100,8 @@ void Particle::reset(ParticleRef ref)
     facing = Facing(0);
     team = 0;
 
-    vel_stt = id::zero<Vector3f>();
-    offset = id::zero<Vector3f>();
+    vel_stt = idlib::zero<Vector3f>();
+    offset = idlib::zero<Vector3f>();
 
     PhysicsData::reset(this);
 
@@ -239,7 +239,7 @@ void Particle::setSize(int setSize)
         {
             // just set the size, assuming a spherical particle
             bump_real.size = realSize;
-            bump_real.size_big = realSize * id::sqrt_two<float>();
+            bump_real.size_big = realSize * idlib::sqrt_two<float>();
             bump_real.height = realSize;
         }
         else
@@ -254,7 +254,7 @@ void Particle::setSize(int setSize)
 
         // make sure that the virtual bumper size is at least as big as what is in the pip file
         bump_padded.size     = std::max<float>(bump_real.size, getProfile()->bump_size);
-        bump_padded.size_big = std::max<float>(bump_real.size_big, getProfile()->bump_size * id::sqrt_two<float>());
+        bump_padded.size_big = std::max<float>(bump_real.size_big, getProfile()->bump_size * idlib::sqrt_two<float>());
         bump_padded.height   = std::max<float>(bump_real.height, getProfile()->bump_height);
     }
 
@@ -818,7 +818,7 @@ bool Particle::initialize(const ParticleRef particleID, const Vector3f& spawnPos
     // In cpp, will be passed by reference, so we do not want to alter the
     // components of the original vector.
 	Vector3f tmp_pos = spawnPos;
-    Facing loc_facing = id::canonicalize(spawnFacing);
+    Facing loc_facing = idlib::canonicalize(spawnFacing);
 
     // try to get an idea of who our owner is even if we are
     // given bogus info
@@ -876,7 +876,7 @@ bool Particle::initialize(const ParticleRef particleID, const Vector3f& spawnPos
 
             // Find a target
             Facing targetAngle;
-            _target = prt_find_target(spawnPos, id::canonicalize(loc_facing), _particleProfileID, spawnTeam, owner_ref, spawnTarget, &targetAngle);
+            _target = prt_find_target(spawnPos, idlib::canonicalize(loc_facing), _particleProfileID, spawnTeam, owner_ref, spawnTarget, &targetAngle);
             const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[_target];
 
             if (target && !getProfile()->homing)
@@ -1202,7 +1202,7 @@ bool Particle::attach(const ObjectRef attach)
     // Correct facing so swords knock characters in the right direction...
     if (getProfile()->hasBit(DAMFX_TURN))
     {
-        facing = id::canonicalize(pchr->ori.facing_z);
+        facing = idlib::canonicalize(pchr->ori.facing_z);
     }
 
     return true;

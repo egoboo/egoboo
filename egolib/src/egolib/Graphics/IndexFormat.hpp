@@ -31,28 +31,28 @@ struct IndexFormatFactory {
     /// @brief Get the index descriptor for an index format.
     /// @param indexFormat the index format
     /// @return the index descriptor for the index format
-    static const IndexDescriptor& get(id::index_format indexFormat);
+    static const IndexDescriptor& get(idlib::index_format indexFormat);
 };
 
-template <id::index_format F>
+template <idlib::index_format F>
 struct descriptor_factory;
 
 template <>
-struct descriptor_factory<id::index_format::IU8>
+struct descriptor_factory<idlib::index_format::IU8>
 {
     descriptor_factory() = default;
     const IndexDescriptor& operator()() const;
 };
 
 template <>
-struct descriptor_factory<id::index_format::IU16>
+struct descriptor_factory<idlib::index_format::IU16>
 {
     descriptor_factory() = default;
     const IndexDescriptor& operator()() const;
 };
 
 template <>
-struct descriptor_factory<id::index_format::IU32>
+struct descriptor_factory<idlib::index_format::IU32>
 {
     descriptor_factory() = default;
     const IndexDescriptor& operator()() const;

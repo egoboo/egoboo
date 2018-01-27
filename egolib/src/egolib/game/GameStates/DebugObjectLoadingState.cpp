@@ -341,7 +341,7 @@ void DebugObjectLoadingState::loadObjectData()
         //Complete!
         singleThreadRedrawHack("Finished!");
     }
-    catch (id::exception &ex)
+    catch (idlib::exception &ex)
     {
         std::string out = std::string("Ego::Exception: ") + ex.to_string();
         singleThreadRedrawHack(out);

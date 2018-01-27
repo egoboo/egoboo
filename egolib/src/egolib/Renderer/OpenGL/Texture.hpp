@@ -41,7 +41,7 @@ protected:
     GLuint m_id;
 
 public:
-	void load(const std::string& name, const std::shared_ptr<SDL_Surface>& surface, id::texture_type type, const id::texture_sampler& sampler);
+	void load(const std::string& name, const std::shared_ptr<SDL_Surface>& surface, idlib::texture_type type, const idlib::texture_sampler& sampler);
     /** @override Ego::Texture::load(const String& name, const SharedPtr<SDL_Surface>&) */
 	bool load(const std::string& name, const std::shared_ptr<SDL_Surface>& surface) override;
 
@@ -61,7 +61,7 @@ public:
 
     /// @brief Construct this texture.
     Texture(Renderer *renderer, GLuint id, const std::string& name,
-            id::texture_type type, const id::texture_sampler& sampler,
+            idlib::texture_type type, const idlib::texture_sampler& sampler,
             int width, int height, int sourceWidth, int sourceHeight,
 			std::shared_ptr<SDL_Surface> source,
             bool hasAlpha);

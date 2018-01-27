@@ -17,12 +17,12 @@ namespace Ego { namespace Graphics { class ObjectGraphics; } }
 
 #if defined(MAD_CULL_RIGHT)
 // this worked with the old camera
-#    define MAD_REF_CULL   id::winding_mode::anti_clockwise
-#    define MAD_NRM_CULL   id::winding_mode::clockwise
+#    define MAD_REF_CULL   idlib::winding_mode::anti_clockwise
+#    define MAD_NRM_CULL   idlib::winding_mode::clockwise
 #else
 // they had to be reversed with the new camera
-#    define MAD_REF_CULL   id::winding_mode::clockwise
-#    define MAD_NRM_CULL   id::winding_mode::anti_clockwise
+#    define MAD_REF_CULL   idlib::winding_mode::clockwise
+#    define MAD_NRM_CULL   idlib::winding_mode::anti_clockwise
 #endif
 
 //--------------------------------------------------------------------------------------------
@@ -102,7 +102,7 @@ namespace Graphics
 {
 
 /// All the data that the renderer needs to draw the character
-class ObjectGraphics : private id::non_copyable
+class ObjectGraphics : private idlib::non_copyable
 {
 public:
     // position info

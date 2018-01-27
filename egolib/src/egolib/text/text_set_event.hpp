@@ -2,7 +2,7 @@
 
 #include "egolib/platform.h"
 
-namespace id {
+namespace idlib {
 
 /// @brief Event raised if text was set.
 /// @a get_old_text() gets the old text and @a get_new_text() gets the new text. 

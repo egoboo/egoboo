@@ -25,9 +25,9 @@
 
 #include "egolib/platform.h"
 
-namespace id {
+namespace idlib {
 
-/// @brief Specialization of id::enclose_functor.
+/// @brief Specialization of idlib::enclose_functor.
 /// Encloses a sphere in an axis aligned box.
 /// @detail The axis aligned box \f$b\f$ enclosing a sphere \f$a\f$ with
 /// center \f$c\f$ and radius \f$r\f$ has the minimal point \f$min = c -
@@ -45,4 +45,4 @@ struct enclose_functor<axis_aligned_box<P>, sphere<P>>
     }
 }; // struct enclose_functor
 
-} // namespace id
+} // namespace idlib

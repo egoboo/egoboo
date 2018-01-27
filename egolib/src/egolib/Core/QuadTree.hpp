@@ -69,7 +69,7 @@ public:
     bool insert(const std::shared_ptr<T> &element)
     {
         //Element does not belong in this tree
-        if(!id::is_intersecting(_bounds, element->getAxisAlignedBox2D())) {
+        if(!idlib::is_intersecting(_bounds, element->getAxisAlignedBox2D())) {
             return false;
         }
 
@@ -105,7 +105,7 @@ public:
     void find(const AxisAlignedBox2f &searchArea, std::vector<std::shared_ptr<T>> &result) const
     {
         //Search grid is not part of our bounds
-        if(!id::is_intersecting(_bounds, searchArea)) {
+        if(!idlib::is_intersecting(_bounds, searchArea)) {
             return;
         }
 
@@ -122,7 +122,7 @@ public:
                 }
 
                 //Check if element is within search area
-                if(id::is_intersecting(element->getAxisAlignedBox2D(), searchArea)) {
+                if(idlib::is_intersecting(element->getAxisAlignedBox2D(), searchArea)) {
                     result.push_back(element);
                 }
             }

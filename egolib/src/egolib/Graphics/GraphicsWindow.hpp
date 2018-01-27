@@ -8,29 +8,29 @@ class GraphicsWindow
 {
 public:
     /// Raised if the window was resized.
-    id::signal<void(const Events::WindowResizedEvent&)> WindowResized;
+    idlib::signal<void(const Events::WindowResizedEvent&)> WindowResized;
 
     /// Raised if the mouse pointer entered the window.
-    id::signal<void(const Events::MousePointerEnteredEvent&)> MousePointerEntered;
+    idlib::signal<void(const Events::MousePointerEnteredEvent&)> MousePointerEntered;
 
     /// Raised if the mouse pointer left the window.
-    id::signal<void(const Events::MousePointerExitedEvent&)> MousePointerExited;
+    idlib::signal<void(const Events::MousePointerExitedEvent&)> MousePointerExited;
 
     /// Raised if the the window received the keyboard input focus.
-    id::signal<void(const Events::KeyboardInputFocusReceivedEvent&)> KeyboardFocusReceived;
+    idlib::signal<void(const Events::KeyboardInputFocusReceivedEvent&)> KeyboardFocusReceived;
 
     /// Raised if the window lost the keyboard input focus.
-    id::signal<void(const Events::KeyboardInputFocusLostEvent&)> KeyboardFocusLost;
+    idlib::signal<void(const Events::KeyboardInputFocusLostEvent&)> KeyboardFocusLost;
 
     /// Raised if the window was shown.
-    id::signal<void(const Events::WindowShownEvent&)> WindowShown;
+    idlib::signal<void(const Events::WindowShownEvent&)> WindowShown;
 
     /// Raised if the window was hidden.
-    id::signal<void(const Events::WindowHiddenEvent&)> WindowHidden;
+    idlib::signal<void(const Events::WindowHiddenEvent&)> WindowHidden;
 
 protected:
     /// @brief Construct this graphics window with the specified window properties.
-    /// @throw id::runtime_error window creation failed
+    /// @throw idlib::runtime_error window creation failed
     GraphicsWindow();
 
 public:

@@ -340,14 +340,14 @@ void template_put_pair( vfs_FILE* filetemp, vfs_FILE* filewrite, IPair val )
 {
     if ( template_copy_to_marker( filetemp, filewrite, "#%" ) )
     {
-        id::interval<float> loc_range = pair_to_range( val );
+        idlib::interval<float> loc_range = pair_to_range( val );
 
         vfs_printf( filewrite, "%4.2f-%4.2f", loc_range.lower(), loc_range.upper() );
     }
 }
 
 //--------------------------------------------------------------------------------------------
-void template_put_range( vfs_FILE* filetemp, vfs_FILE* filewrite, id::interval<float> val )
+void template_put_range( vfs_FILE* filetemp, vfs_FILE* filewrite, idlib::interval<float> val )
 {
     if ( template_copy_to_marker( filetemp, filewrite, "#%" ) )
     {

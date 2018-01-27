@@ -167,7 +167,7 @@ std::shared_ptr<ego_mesh_t> MeshLoader::operator()(const std::string& moduleName
         Log::Entry entry(Log::Level::Error, __FILE__, __LINE__);
 	    entry << "unable to load mesh of module `" << moduleName << "`" << Log::EndOfEntry;
         Log::get() << entry;
-		throw id::runtime_error(__FILE__, __LINE__, entry.getText());
+		throw idlib::runtime_error(__FILE__, __LINE__, entry.getText());
 	}
 	// Create the mesh from map.
 	std::shared_ptr<ego_mesh_t> mesh = convert(map);
@@ -176,7 +176,7 @@ std::shared_ptr<ego_mesh_t> MeshLoader::operator()(const std::string& moduleName
         auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "unable to convert mesh of module ", "`",
                                     moduleName, "`", Log::EndOfEntry);
         Log::get() << e;
-		throw id::runtime_error(__FILE__, __LINE__, e.getText());
+		throw idlib::runtime_error(__FILE__, __LINE__, e.getText());
 	}
 	mesh->finalize();
 	return mesh;
@@ -187,7 +187,7 @@ std::shared_ptr<ego_mesh_t> MeshLoader::operator()(const std::string& moduleName
 MeshLookupTables g_meshLookupTables;
 
 MeshLookupTables::MeshLookupTables() {
-	Vector3f grav = id::zero<Vector3f>();
+	Vector3f grav = idlib::zero<Vector3f>();
 
 	grav[kZ] = Ego::Physics::g_environment.gravity;
 
@@ -263,7 +263,7 @@ void ego_mesh_t::make_bbox()
                             std::abs(poct._maxs[OCT_Z] - poct._mins[OCT_Z])) < std::numeric_limits<float>::epsilon())
         {
             ovec[OCT_X] = ovec[OCT_Y] = ovec[OCT_Z] = 0.1;
-            ovec[OCT_XY] = ovec[OCT_YX] = id::sqrt_two<float>() * ovec[OCT_X];
+            ovec[OCT_XY] = ovec[OCT_YX] = idlib::sqrt_two<float>() * ovec[OCT_X];
             oct_bb_t::self_grow(poct, ovec);
         }
 
@@ -369,7 +369,7 @@ void ego_mesh_t::make_normals()
 
                     vdot = dot(nrm_lst[j], nrm_lst[m]);
 
-                    edge_is_crease[j] = (vdot < id::inv_sqrt_two<float>());
+                    edge_is_crease[j] = (vdot < idlib::inv_sqrt_two<float>());
 
                     weight_lst[j] = dot(nrm_lst[j], nrm_lst[0]);
                 }
@@ -587,7 +587,7 @@ float ego_mesh_t::get_pressure(const Vector3f& pos, float radius, const BIT_FIEL
 		: _mesh(mesh), _f(f), _i(i)
 	{
 		if (nullptr == _mesh) {
-			throw std::runtime_error("nullptr == mesh");
+			throw idlib::null_error(__FILE__, __LINE__, "mesh");
 		}
 	}
 
@@ -597,7 +597,7 @@ float ego_mesh_t::get_pressure(const Vector3f& pos, float radius, const BIT_FIEL
 		  _i(Index2D(0, 0), Index2D(0, 0))
 	{
 		if (nullptr == mesh) {
-			throw std::runtime_error("nullptr == mesh");
+			throw idlib::null_error(__FILE__, __LINE__, "mesh");
 		}
 		_mesh = mesh;
 		// Limit the coordinate rectangle to be in bounds.
@@ -1081,7 +1081,7 @@ Vector3f ego_mesh_t::get_diff(const Vector3f& pos, float radius, float center_pr
 	const float jitter_size = Info<float>::Grid::Size() * 0.5f;
 	std::array<float, 9> pressure_ary = {};
 	float fx, fy;
-	Vector3f diff = id::zero<Vector3f>();
+	Vector3f diff = idlib::zero<Vector3f>();
 	float   sum_diff = 0.0f;
 	float   dpressure;
 
@@ -1157,7 +1157,7 @@ BIT_FIELD ego_mesh_t::hit_wall(const Vector3f& pos, float radius, const BIT_FIEL
 	if (NULL == pressure) pressure = &loc_pressure;
 	*pressure = 0.0f;
 
-	nrm = id::zero<Vector2f>();
+	nrm = idlib::zero<Vector2f>();
 
 
 	// ego_mesh_test_wall() clamps pdata->ix_* and pdata->iy_* to valid values
@@ -1230,7 +1230,7 @@ BIT_FIELD ego_mesh_t::hit_wall(const Vector3f& pos, float radius, const BIT_FIEL
 	if (0 == pass)
 	{
 		// if there is no impact at all, there is no normal and no pressure
-		nrm = id::zero<Vector2f>();
+		nrm = idlib::zero<Vector2f>();
 		*pressure = 0.0f;
 	}
 	else

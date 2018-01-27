@@ -18,7 +18,7 @@ private:
 
 public:
     /// @brief Construct this graphics window with the specified window properties.
-    /// @throw id::runtime_error window creation failed
+    /// @throw idlib::runtime_error window creation failed
 	GraphicsWindow();
 	
 	/// @brief Destruct this graphics window.

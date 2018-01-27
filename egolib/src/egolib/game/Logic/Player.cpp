@@ -83,8 +83,8 @@ void Player::updateLatches()
     bool fast_camera_turn = ( 1 == local_stats.player_count ) && ( CameraTurnMode::Good == pcam->getTurnMode() );
 
     // Clear the player's latch buffers
-    Vector2f movementInput = id::zero<Vector2f>();
-    Vector2f joy_pos = id::zero<Vector2f>();
+    Vector2f movementInput = idlib::zero<Vector2f>();
+    Vector2f joy_pos = idlib::zero<Vector2f>();
 
     // generate the transforms relative to the camera
     // this needs to be changed for multicamera

@@ -6,7 +6,7 @@
 namespace Ego {
 namespace Input {
 
-class InputSystem : public id::singleton<InputSystem>
+class InputSystem : public idlib::singleton<InputSystem>
 {
 public:
     static constexpr float MOUSE_SENSITIVITY = 12.0f; //TODO: make configurable in settings.txt

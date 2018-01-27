@@ -37,7 +37,7 @@ uint32_t getEnumeratedPixelFormat(const pixel_descriptor& pixel_descriptor)
     uint32_t pixelFormatEnum_sdl = SDL_MasksToPixelFormatEnum(bitsPerPixel, redMask, greenMask, blueMask, alphaMask);
     if (SDL_PIXELFORMAT_UNKNOWN == pixelFormatEnum_sdl)
     {
-        throw id::runtime_error(__FILE__, __LINE__, "pixel format descriptor has no corresponding SDL pixel format");
+        throw idlib::runtime_error(__FILE__, __LINE__, "pixel format descriptor has no corresponding SDL pixel format");
     }
     return pixelFormatEnum_sdl;
 }
@@ -51,7 +51,7 @@ std::shared_ptr<const SDL_PixelFormat> getPixelFormat(const pixel_descriptor& pi
     );
     if (!pixelFormat_sdl)
     {
-        throw id::environment_error(__FILE__, __LINE__, "SDL", "internal error");
+        throw idlib::environment_error(__FILE__, __LINE__, "SDL", "internal error");
     }
     return pixelFormat_sdl;
 }
@@ -61,14 +61,14 @@ std::shared_ptr<SDL_Surface> cloneSurface(const std::shared_ptr<const SDL_Surfac
     static_assert(SDL_VERSION_ATLEAST(2, 0, 0), "SDL 2.x required");
     if (!surface)
     {
-        throw id::null_error(__FILE__, __LINE__, "surface");
+        throw idlib::null_error(__FILE__, __LINE__, "surface");
     }
     // TODO: The signature SDL_ConvertSurface(SDL_Surface *, const SDL_PixelFormat *, uint32_t) might be considered as a bug.
     //       It should be SDL_ConvertSurface(const SDL_Surface *, const SDL_PixelFormat *, uint32_t).
     auto clone = std::shared_ptr<SDL_Surface>(SDL_ConvertSurface((SDL_Surface *)surface.get(), surface->format, 0), [](SDL_Surface *pSurface) { SDL_FreeSurface(pSurface); });
     if (!clone)
     {
-        throw id::runtime_error(__FILE__, __LINE__, "SDL_ConvertSurface failed");
+        throw idlib::runtime_error(__FILE__, __LINE__, "SDL_ConvertSurface failed");
     }
     return clone;
 }
@@ -79,7 +79,7 @@ bool testAlpha(SDL_Surface *surface)
 
     if (!surface)
     {
-        throw id::null_error(__FILE__, __LINE__, "surface");
+        throw idlib::null_error(__FILE__, __LINE__, "surface");
     }
 
     // Alias.
@@ -174,7 +174,7 @@ Math::Colour3b getColourMod(SDL_Surface *surface)
 {
     if (!surface)
     {
-        throw id::null_error(__FILE__, __LINE__, "surface");
+        throw idlib::null_error(__FILE__, __LINE__, "surface");
     }
     uint8_t r, g, b;
     SDL_GetSurfaceColorMod(surface, &r, &g, &b);
@@ -185,7 +185,7 @@ void setColourMod(SDL_Surface *surface, const Math::Colour3b& colourMod)
 {
     if (!surface)
     {
-        throw id::null_error(__FILE__, __LINE__, "surface");
+        throw idlib::null_error(__FILE__, __LINE__, "surface");
     }
     SDL_SetSurfaceColorMod(surface, colourMod.get_r(), colourMod.get_g(), colourMod.get_b());
 }
@@ -203,7 +203,7 @@ BlendMode blendModeToInternal(SDL_BlendMode blendMode)
     case SDL_BLENDMODE_MOD:
         return BlendMode::ModulativeBlending;
     default:
-        throw id::unhandled_switch_case_error(__FILE__, __LINE__);
+        throw idlib::unhandled_switch_case_error(__FILE__, __LINE__);
     };
 }
 
@@ -220,7 +220,7 @@ SDL_BlendMode blendModeToExternal(BlendMode blendMode)
     case BlendMode::ModulativeBlending:
         return SDL_BLENDMODE_MOD;
     default:
-        throw id::unhandled_switch_case_error(__FILE__, __LINE__);
+        throw idlib::unhandled_switch_case_error(__FILE__, __LINE__);
     };
 }
 
@@ -228,7 +228,7 @@ BlendMode getBlendMode(SDL_Surface *surface)
 {
     if (!surface)
     {
-        throw id::null_error(__FILE__, __LINE__, "surface");
+        throw idlib::null_error(__FILE__, __LINE__, "surface");
     }
     SDL_BlendMode blendMode;
     SDL_GetSurfaceBlendMode(surface, &blendMode);
@@ -239,43 +239,43 @@ void setBlendMode(SDL_Surface *surface, BlendMode blendMode)
 {
     if (!surface)
     {
-        throw id::null_error(__FILE__, __LINE__, "surface");
+        throw idlib::null_error(__FILE__, __LINE__, "surface");
     }
     SDL_SetSurfaceBlendMode(surface, blendModeToExternal(blendMode));
 }
 
-id::pixel_format getPixelFormat(SDL_Surface *surface)
+idlib::pixel_format getPixelFormat(SDL_Surface *surface)
 {
     if (!surface)
     {
-        throw id::invalid_argument_error(__FILE__, __LINE__, "nullptr == surface");
+        throw idlib::null_error(__FILE__, __LINE__, "surface");
     }
     switch (surface->format->format)
     {
     case SDL_PIXELFORMAT_RGB888:
-        return id::pixel_format::R8G8B8;
+        return idlib::pixel_format::R8G8B8;
     case SDL_PIXELFORMAT_RGBA8888:
-        return id::pixel_format::R8G8B8A8;
+        return idlib::pixel_format::R8G8B8A8;
     case SDL_PIXELFORMAT_BGR888:
-        return id::pixel_format::B8G8R8;
+        return idlib::pixel_format::B8G8R8;
     case SDL_PIXELFORMAT_BGRA8888:
-        return id::pixel_format::B8G8R8A8;
+        return idlib::pixel_format::B8G8R8A8;
     case SDL_PIXELFORMAT_ABGR8888:
-        return id::pixel_format::A8B8G8R8;
+        return idlib::pixel_format::A8B8G8R8;
     case SDL_PIXELFORMAT_ARGB8888:
-        return id::pixel_format::A8R8G8B8;
+        return idlib::pixel_format::A8R8G8B8;
     case SDL_PIXELFORMAT_RGB24:
-        if (id::get_byte_order() == id::byte_order::big_endian)
-            return id::pixel_format::R8G8B8;
+        if (idlib::get_byte_order() == idlib::byte_order::big_endian)
+            return idlib::pixel_format::R8G8B8;
         else
-            return id::pixel_format::B8G8R8;
+            return idlib::pixel_format::B8G8R8;
     case SDL_PIXELFORMAT_BGR24:
-        if (id::get_byte_order() == id::byte_order::big_endian)
-            return id::pixel_format::B8G8R8;
+        if (idlib::get_byte_order() == idlib::byte_order::big_endian)
+            return idlib::pixel_format::B8G8R8;
         else
-            return id::pixel_format::R8G8B8;
+            return idlib::pixel_format::R8G8B8;
     default:
-        throw id::runtime_error(__FILE__, __LINE__, "unsupported/unknown pixel format");
+        throw idlib::runtime_error(__FILE__, __LINE__, "unsupported/unknown pixel format");
     };
 }
 
@@ -283,7 +283,7 @@ uint32_t make_rgb(SDL_Surface *surface, const Ego::Math::Colour3b& colour)
 {
     if (!surface)
     {
-        throw id::null_error(__FILE__, __LINE__, "surface");
+        throw idlib::null_error(__FILE__, __LINE__, "surface");
     }
     return SDL_MapRGB(surface->format, colour.get_r(), colour.get_g(), colour.get_b());
 }
@@ -292,7 +292,7 @@ uint32_t make_rgba(SDL_Surface *surface, const Ego::Math::Colour4b& colour)
 {
     if (!surface)
     {
-        throw id::null_error(__FILE__, __LINE__, "surface");
+        throw idlib::null_error(__FILE__, __LINE__, "surface");
     }
     return SDL_MapRGBA(surface->format, colour.get_r(), colour.get_g(), colour.get_b(), colour.get_a());
 }
@@ -318,7 +318,7 @@ std::shared_ptr<SDL_Surface> convert_functor<SDL_Surface>::operator()(const std:
 {
     if (!pixels)
     {
-        throw id::null_error(__FILE__, __LINE__, "surface");
+        throw idlib::null_error(__FILE__, __LINE__, "surface");
     }
 
     uint32_t alphaMask = pixel_descriptor.get_alpha().get_mask(),
@@ -330,12 +330,12 @@ std::shared_ptr<SDL_Surface> convert_functor<SDL_Surface>::operator()(const std:
     uint32_t newFormat = SDL_MasksToPixelFormatEnum(bpp, redMask, greenMask, blueMask, alphaMask);
     if (newFormat == SDL_PIXELFORMAT_UNKNOWN)
     {
-        throw id::invalid_argument_error(__FILE__, __LINE__, "pixelFormatDescriptor doesn't correspond with a SDL_PixelFormat");
+        throw idlib::invalid_argument_error(__FILE__, __LINE__, "pixelFormatDescriptor doesn't correspond with a SDL_PixelFormat");
     }
     SDL_Surface *newPixels = SDL_ConvertSurfaceFormat(pixels.get(), newFormat, 0);
     if (!newPixels)
     {
-        throw id::runtime_error(__FILE__, __LINE__, "unable to convert surface");
+        throw idlib::runtime_error(__FILE__, __LINE__, "unable to convert surface");
     }
 
     return std::shared_ptr<SDL_Surface>(newPixels, [](SDL_Surface *pSurface) { SDL_FreeSurface(pSurface); });
@@ -370,16 +370,16 @@ std::shared_ptr<SDL_Surface> power_of_two_functor<SDL_Surface>::operator()(const
 std::shared_ptr<SDL_Surface> pad_functor<SDL_Surface>::operator()(const std::shared_ptr<SDL_Surface>& pixels, const padding& padding) const
 {
     if (!pixels)
-        throw id::null_error(__FILE__, __LINE__, "pixels");
+        throw idlib::null_error(__FILE__, __LINE__, "pixels");
 
     if (padding.left < 0)
-        throw id::invalid_argument_error(__FILE__, __LINE__, "left < 0");
+        throw idlib::invalid_argument_error(__FILE__, __LINE__, "left < 0");
     if (padding.top < 0)
-        throw id::invalid_argument_error(__FILE__, __LINE__, "top < 0");
+        throw idlib::invalid_argument_error(__FILE__, __LINE__, "top < 0");
     if (padding.right < 0)
-        throw id::invalid_argument_error(__FILE__, __LINE__, "right < 0");
+        throw idlib::invalid_argument_error(__FILE__, __LINE__, "right < 0");
     if (padding.bottom < 0)
-        throw id::invalid_argument_error(__FILE__, __LINE__, "bottom < 0");
+        throw idlib::invalid_argument_error(__FILE__, __LINE__, "bottom < 0");
 
     if (!padding.left && !padding.top && !padding.right && !padding.bottom)
     {
@@ -406,7 +406,7 @@ std::shared_ptr<SDL_Surface> pad_functor<SDL_Surface>::operator()(const std::sha
                                                                         [](SDL_Surface *pSurface) { SDL_FreeSurface(pSurface); });
     if (!newSurface)
     {
-        throw id::runtime_error(__FILE__, __LINE__, "SDL_CreateRGBSurface failed");
+        throw idlib::runtime_error(__FILE__, __LINE__, "SDL_CreateRGBSurface failed");
     }
     // Fill the copy with transparent black.
     SDL_FillRect(newSurface.get(), nullptr, SDL_MapRGBA(newSurface->format, 0, 0, 0, 0));
@@ -426,15 +426,15 @@ Math::Colour4b get_pixel_functor<SDL_Surface>::operator()(const SDL_Surface *sur
 {
     if (!surface)
     {
-        throw id::null_error(__FILE__, __LINE__, "surface");
+        throw idlib::null_error(__FILE__, __LINE__, "surface");
     }
 
     int32_t x = std::round(point.x()),
             y = std::round(point.y());
-    if (x < 0) throw id::out_of_bounds_error(__FILE__, __LINE__, "x");
-    if (x >= surface->w) throw id::out_of_bounds_error(__FILE__, __LINE__, "x");
-    if (y < 0) throw id::out_of_bounds_error(__FILE__, __LINE__, "y");
-    if (y >= surface->h) throw id::out_of_bounds_error(__FILE__, __LINE__, "y");
+    if (x < 0) throw idlib::out_of_bounds_error(__FILE__, __LINE__, "x");
+    if (x >= surface->w) throw idlib::out_of_bounds_error(__FILE__, __LINE__, "x");
+    if (y < 0) throw idlib::out_of_bounds_error(__FILE__, __LINE__, "y");
+    if (y >= surface->h) throw idlib::out_of_bounds_error(__FILE__, __LINE__, "y");
 
     int bpp = surface->format->BytesPerPixel;
     // Here p is the address to the pixel we want to get.
@@ -481,7 +481,7 @@ Math::Colour4b get_pixel_functor<SDL_Surface>::operator()(const SDL_Surface *sur
         return Ego::Math::Colour4b(r, g, b, a);
     }
     default:
-        throw id::unhandled_switch_case_error(__FILE__, __LINE__, "unreachable code reached"); /* shouldn't happen, but avoids warnings */
+        throw idlib::unhandled_switch_case_error(__FILE__, __LINE__, "unreachable code reached"); /* shouldn't happen, but avoids warnings */
     }
 }
 
@@ -489,11 +489,11 @@ void blit_functor<SDL_Surface>::operator()(SDL_Surface *source, SDL_Surface *tar
 {
     if (!source)
     {
-        throw id::null_error(__FILE__, __LINE__, "source");
+        throw idlib::null_error(__FILE__, __LINE__, "source");
     }
     if (!target)
     {
-        throw id::null_error(__FILE__, __LINE__, "target");
+        throw idlib::null_error(__FILE__, __LINE__, "target");
     }
     SDL_BlitSurface(source, nullptr, target, nullptr);
 }
@@ -502,11 +502,11 @@ void blit_functor<SDL_Surface>::operator()(SDL_Surface *source, const Rectangle2
 {
     if (!source)
     {
-        throw id::null_error(__FILE__, __LINE__, "source");
+        throw idlib::null_error(__FILE__, __LINE__, "source");
     }
     if (!target)
     {
-        throw id::null_error(__FILE__, __LINE__, "target");
+        throw idlib::null_error(__FILE__, __LINE__, "target");
     }
     SDL_Rect sdl_source_rectangle;
     sdl_source_rectangle.x = source_rectangle.get_min().x();
@@ -520,11 +520,11 @@ void blit_functor<SDL_Surface>::operator()(SDL_Surface *source, SDL_Surface *tar
 {
     if (!source)
     {
-        throw id::null_error(__FILE__, __LINE__, "source");
+        throw idlib::null_error(__FILE__, __LINE__, "source");
     }
     if (!target)
     {
-        throw id::null_error(__FILE__, __LINE__, "target");
+        throw idlib::null_error(__FILE__, __LINE__, "target");
     }
     SDL_Rect sdl_target_rectangle;
     sdl_target_rectangle.x = target_position.x();
@@ -538,11 +538,11 @@ void blit_functor<SDL_Surface>::operator()(SDL_Surface *source, const Rectangle2
 {
     if (!source)
     {
-        throw id::null_error(__FILE__, __LINE__, "source");
+        throw idlib::null_error(__FILE__, __LINE__, "source");
     }
     if (!target)
     {
-        throw id::null_error(__FILE__, __LINE__, "target");
+        throw idlib::null_error(__FILE__, __LINE__, "target");
     }
     SDL_Rect sdl_source_rectangle;
     sdl_source_rectangle.x = source_rectangle.get_min().x();
@@ -561,7 +561,7 @@ void fill_functor<SDL_Surface>::operator()(SDL_Surface *surface, const Math::Col
 {
     if (!surface)
     {
-        throw id::null_error(__FILE__, __LINE__, "surface");
+        throw idlib::null_error(__FILE__, __LINE__, "surface");
     }
     SDL_FillRect(surface, nullptr, SDL::make_rgb(surface, color));
 }
@@ -570,7 +570,7 @@ void fill_functor<SDL_Surface>::operator()(SDL_Surface *surface, const Math::Col
 {
     if (!surface)
     {
-        throw id::null_error(__FILE__, __LINE__, "surface");
+        throw idlib::null_error(__FILE__, __LINE__, "surface");
     }
     SDL_FillRect(surface, nullptr, SDL::make_rgba(surface, color));
 }
@@ -579,7 +579,7 @@ void fill_functor<SDL_Surface>::operator()(SDL_Surface *surface, const Math::Col
 {
     if (!surface)
     {
-        throw id::null_error(__FILE__, __LINE__, "surface");
+        throw idlib::null_error(__FILE__, __LINE__, "surface");
     }
     SDL_Rect sdl_rectangle;
     sdl_rectangle.x = rectangle.get_min().x();
@@ -593,7 +593,7 @@ void fill_functor<SDL_Surface>::operator()(SDL_Surface *surface, const Math::Col
 {
     if (!surface)
     {
-        throw id::null_error(__FILE__, __LINE__, "surface");
+        throw idlib::null_error(__FILE__, __LINE__, "surface");
     }
     SDL_Rect sdl_rectangle;
     sdl_rectangle.x = rectangle.get_min().x();
@@ -607,7 +607,7 @@ void set_pixel_functor<SDL_Surface>::operator()(SDL_Surface *surface, const Math
 {
     if (!surface)
     {
-        throw id::null_error(__FILE__, __LINE__, "surface");
+        throw idlib::null_error(__FILE__, __LINE__, "surface");
     }
     uint32_t coded_color = SDL::make_rgb(surface, color);
     (*this)(surface, coded_color, point);
@@ -617,7 +617,7 @@ void set_pixel_functor<SDL_Surface>::operator()(SDL_Surface *surface, const Math
 {
     if (!surface)
     {
-        throw id::null_error(__FILE__, __LINE__, "surface");
+        throw idlib::null_error(__FILE__, __LINE__, "surface");
     }
     uint32_t coded_color = SDL::make_rgba(surface, color);
     (*this)(surface, coded_color, point);
@@ -627,7 +627,7 @@ void set_pixel_functor<SDL_Surface>::operator()(SDL_Surface *surface, uint32_t c
 {
     if (!surface)
     {
-        throw id::null_error(__FILE__, __LINE__, "surface");
+        throw idlib::null_error(__FILE__, __LINE__, "surface");
     }
     int32_t x = std::round(point.x()),
             y = std::round(point.y());
@@ -669,7 +669,7 @@ void set_pixel_functor<SDL_Surface>::operator()(SDL_Surface *surface, uint32_t c
         break;
 
     default:
-        throw id::unhandled_switch_case_error(__FILE__, __LINE__, "unreachable code reached"); /* shouldn't happen, but avoids warnings */
+        throw idlib::unhandled_switch_case_error(__FILE__, __LINE__, "unreachable code reached"); /* shouldn't happen, but avoids warnings */
     }
 }
 

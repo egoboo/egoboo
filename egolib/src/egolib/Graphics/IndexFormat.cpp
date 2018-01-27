@@ -26,36 +26,36 @@
 
 namespace Ego {
 
-const IndexDescriptor& descriptor_factory<id::index_format::IU8>::operator()() const
+const IndexDescriptor& descriptor_factory<idlib::index_format::IU8>::operator()() const
 {
-    static const IndexDescriptor descriptor(id::index_syntactics::NATURAL_8);
+    static const IndexDescriptor descriptor(idlib::index_syntactics::NATURAL_8);
     return descriptor;
 }
 
-const IndexDescriptor& descriptor_factory<id::index_format::IU16>::operator()() const
+const IndexDescriptor& descriptor_factory<idlib::index_format::IU16>::operator()() const
 {
-    static const IndexDescriptor descriptor(id::index_syntactics::NATURAL_16);
+    static const IndexDescriptor descriptor(idlib::index_syntactics::NATURAL_16);
     return descriptor;
 }
 
-const IndexDescriptor& descriptor_factory<id::index_format::IU32>::operator()() const
+const IndexDescriptor& descriptor_factory<idlib::index_format::IU32>::operator()() const
 {
-    static const IndexDescriptor descriptor(id::index_syntactics::NATURAL_32);
+    static const IndexDescriptor descriptor(idlib::index_syntactics::NATURAL_32);
     return descriptor;
 }
 
-const IndexDescriptor& IndexFormatFactory::get(id::index_format indexFormat)
+const IndexDescriptor& IndexFormatFactory::get(idlib::index_format indexFormat)
 {
     switch (indexFormat)
     {
-    case id::index_format::IU32:
-    { return descriptor_factory<id::index_format::IU32>()(); }
-    case id::index_format::IU16:
-    { return descriptor_factory<id::index_format::IU16>()(); }
-    case id::index_format::IU8:
-    { return descriptor_factory<id::index_format::IU8>()(); }
+    case idlib::index_format::IU32:
+    { return descriptor_factory<idlib::index_format::IU32>()(); }
+    case idlib::index_format::IU16:
+    { return descriptor_factory<idlib::index_format::IU16>()(); }
+    case idlib::index_format::IU8:
+    { return descriptor_factory<idlib::index_format::IU8>()(); }
     default:
-        throw id::unhandled_switch_case_error(__FILE__, __LINE__);
+        throw idlib::unhandled_switch_case_error(__FILE__, __LINE__);
     };
 }
 

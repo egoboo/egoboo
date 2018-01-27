@@ -199,7 +199,7 @@ public:
     uint32_t bump_height;              ///< Bounding box height
 
     // Hitting.
-    id::interval<float> damage;                    ///< Damage
+    idlib::interval<float> damage;                    ///< Damage
     DamageType damageType;            ///< Damage type
     uint32_t dazeTime;            ///< How long is an Object "dazed" if hit by this particle.
     uint32_t grogTime;            ///< How long is an Object "grogged" if hit by this particle.

@@ -52,7 +52,7 @@ std::string toString(Tag tag) {
 			return "ObjectProfileRef";
 #endif
         default:
-            throw id::unhandled_switch_case_error(__FILE__, __LINE__);
+            throw idlib::unhandled_switch_case_error(__FILE__, __LINE__);
     }
 }
 

@@ -76,8 +76,8 @@ bool phys_get_collision_depth(const oct_bb_t& bb_a, const oct_bb_t& bb_b, oct_ve
 
         odepth[i] = (fdiff < 0.0f) ? -fdepth : fdepth;
     }
-    odepth[OCT_XY] *= id::inv_sqrt_two<float>();
-    odepth[OCT_YX] *= id::inv_sqrt_two<float>();
+    odepth[OCT_XY] *= idlib::inv_sqrt_two<float>();
+    odepth[OCT_YX] *= idlib::inv_sqrt_two<float>();
 
     return retval;
 }
@@ -133,10 +133,10 @@ bool phys_warp_normal(const float exponent, Vector3f& nrm)
 
     if (1.0f == exponent) return true;
 
-    if (0.0f == id::manhattan_norm(nrm)) return false;
+    if (0.0f == idlib::manhattan_norm(nrm)) return false;
 
-    float length_hrz_2 = id::squared_euclidean_norm(Vector2f(nrm[kX],nrm[kY]));
-    float length_vrt_2 = id::squared_euclidean_norm(nrm) - length_hrz_2;
+    float length_hrz_2 = idlib::squared_euclidean_norm(Vector2f(nrm[kX],nrm[kY]));
+    float length_vrt_2 = idlib::squared_euclidean_norm(nrm) - length_hrz_2;
 
     nrm[kX] = nrm[kX] * std::pow( length_hrz_2, 0.5f * ( exponent - 1.0f ) );
     nrm[kY] = nrm[kY] * std::pow( length_hrz_2, 0.5f * ( exponent - 1.0f ) );
@@ -144,7 +144,7 @@ bool phys_warp_normal(const float exponent, Vector3f& nrm)
 
     // normalize the normal
 	nrm = normalize(nrm).get_vector();
-    return id::euclidean_norm(nrm) >= 0.0f;
+    return idlib::euclidean_norm(nrm) >= 0.0f;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -195,10 +195,10 @@ bool phys_estimate_depth(const oct_vec_v2_t& odepth, const float exponent, Vecto
     if (tmin_aa <= 0.0f || tmin_aa >= 1e6) return false;
 
     // Next do the diagonal axes.
-	Vector3f nrm_diag = id::zero<Vector3f>();
+	Vector3f nrm_diag = idlib::zero<Vector3f>();
 
-    if (0.0f != odepth[OCT_XY]) nrm_diag[kX] = 1.0f / (odepth[OCT_XY] * id::inv_sqrt_two<float>());
-    if (0.0f != odepth[OCT_YX]) nrm_diag[kY] = 1.0f / (odepth[OCT_YX] * id::inv_sqrt_two<float>());
+    if (0.0f != odepth[OCT_XY]) nrm_diag[kX] = 1.0f / (odepth[OCT_XY] * idlib::inv_sqrt_two<float>());
+    if (0.0f != odepth[OCT_YX]) nrm_diag[kY] = 1.0f / (odepth[OCT_YX] * idlib::inv_sqrt_two<float>());
     if (0.0f != odepth[OCT_Z ]) nrm_diag[kZ] = 1.0f / odepth[OCT_Z];
 
     if (1.0f == exponent)
@@ -215,14 +215,14 @@ bool phys_estimate_depth(const oct_vec_v2_t& odepth, const float exponent, Vecto
 
     if (nrm_diag[kX] != 0.0f)
     {
-        float ftmp = id::inv_sqrt_two<float>() * odepth[OCT_XY] / nrm_diag[kX];
+        float ftmp = idlib::inv_sqrt_two<float>() * odepth[OCT_XY] / nrm_diag[kX];
         ftmp = std::max(0.0f, ftmp);
         tmin_diag = std::min(tmin_diag, ftmp);
     }
 
     if (nrm_diag[kY] != 0.0f)
     {
-        float ftmp = id::inv_sqrt_two<float>() * odepth[OCT_YX] / nrm_diag[kY];
+        float ftmp = idlib::inv_sqrt_two<float>() * odepth[OCT_YX] / nrm_diag[kY];
         ftmp = std::max(0.0f, ftmp);
         tmin_diag = std::min(tmin_diag, ftmp);
     }
@@ -247,14 +247,14 @@ bool phys_estimate_depth(const oct_vec_v2_t& odepth, const float exponent, Vecto
         tmin = tmin_diag;
 
         // !!!! rotate the diagonal axes onto the axis aligned ones !!!!!
-        nrm[kX] = (nrm_diag[kX] - nrm_diag[kY]) * id::inv_sqrt_two<float>();
-        nrm[kY] = (nrm_diag[kX] + nrm_diag[kY]) * id::inv_sqrt_two<float>();
+        nrm[kX] = (nrm_diag[kX] - nrm_diag[kY]) * idlib::inv_sqrt_two<float>();
+        nrm[kY] = (nrm_diag[kX] + nrm_diag[kY]) * idlib::inv_sqrt_two<float>();
         nrm[kZ] = nrm_diag[kZ];
     }
 
     // normalize this normal
 	nrm = normalize(nrm).get_vector();
-    bool result = id::euclidean_norm(nrm) > 0.0f;
+    bool result = idlib::euclidean_norm(nrm) > 0.0f;
 
     // find the depth in the direction of the normal, if possible
     if (result)
@@ -319,11 +319,11 @@ egolib_rv phys_intersect_oct_bb_index(int index, const oct_bb_t& src1, const oct
 {
     if (!tmin)
     {
-        throw std::invalid_argument("nullptr == tmin");
+        throw idlib::null_error(__FILE__, __LINE__, "tmin");
     }
     if (!tmax)
     {
-        throw std::invalid_argument("nullptr == tmax");
+        throw idlib::null_error(__FILE__, __LINE__, "tmax");
     }
     if (index < 0)
     {
@@ -461,8 +461,8 @@ egolib_rv phys_intersect_oct_bb_index(int index, const oct_bb_t& src1, const oct
     // Normalize the results for the diagonal directions.
     if (OCT_XY == index || OCT_YX == index)
     {
-        *tmin *= id::inv_sqrt_two<float>();
-        *tmax *= id::inv_sqrt_two<float>();
+        *tmin *= idlib::inv_sqrt_two<float>();
+        *tmax *= idlib::inv_sqrt_two<float>();
     }
 
     if (*tmax <= *tmin) return rv_fail;
@@ -488,15 +488,15 @@ bool phys_intersect_oct_bb(const oct_bb_t& src1_orig, const Vector3f& pos1, cons
                  ovel1(vel1), ovel2(vel2);
 
     // shift the bounding boxes to their starting positions
-    auto src1 = id::translate(src1_orig, opos1),
-		 src2 = id::translate(src2_orig, opos2);
+    auto src1 = idlib::translate(src1_orig, opos1),
+		 src2 = idlib::translate(src2_orig, opos2);
 
     bool found = false;
     *tmin = +1.0e6;
     *tmax = -1.0e6;
 
     int failure_count = 0;
-    if (id::manhattan_norm(vel1-vel2) < 1.0e-6)
+    if (idlib::manhattan_norm(vel1-vel2) < 1.0e-6)
     {
         // No relative motion, so avoid the loop to save time.
         failure_count = OCT_COUNT;
@@ -519,7 +519,7 @@ bool phys_intersect_oct_bb(const oct_bb_t& src1_orig, const Vector3f& pos1, cons
                 retval = phys_intersect_oct_bb_index(index, src1, ovel1, src2, ovel2, test_platform, &tmp_min, &tmp_max);
 
                 // check for overflow
-                if (id::is_bad(tmp_min) || id::is_bad(tmp_max))
+                if (idlib::is_bad(tmp_min) || idlib::is_bad(tmp_max))
                 {
                     retval = rv_fail;
                 }
@@ -602,11 +602,11 @@ egolib_rv phys_intersect_oct_bb_close_index(int index, const oct_bb_t& src1, con
 {
     if (!tmin)
     {
-        throw std::invalid_argument("nullptr == tmin");
+        throw idlib::null_error(__FILE__, __LINE__, "tmin");
     }
     if (!tmax)
     {
-        throw std::invalid_argument("nullptr == tmax");
+        throw idlib::null_error(__FILE__, __LINE__, "tmax");
     }
     if (index < 0)
     {
@@ -772,8 +772,8 @@ egolib_rv phys_intersect_oct_bb_close_index(int index, const oct_bb_t& src1, con
     // Normalize the results for the diagonal directions.
     if (OCT_XY == index || OCT_YX == index)
     {
-        *tmin *= id::inv_sqrt_two<float>();
-        *tmax *= id::inv_sqrt_two<float>();
+        *tmin *= idlib::inv_sqrt_two<float>();
+        *tmax *= idlib::inv_sqrt_two<float>();
     }
 
     if (*tmax < *tmin) return rv_fail;
@@ -784,7 +784,7 @@ egolib_rv phys_intersect_oct_bb_close_index(int index, const oct_bb_t& src1, con
 //--------------------------------------------------------------------------------------------
 bool phys_expand_oct_bb(const oct_bb_t& src, const Vector3f& vel, const float tmin, const float tmax, oct_bb_t& dst)
 {
-    if (0.0f == id::manhattan_norm(vel))
+    if (0.0f == idlib::manhattan_norm(vel))
     {
         dst = src;
         return true;
@@ -800,7 +800,7 @@ bool phys_expand_oct_bb(const oct_bb_t& src, const Vector3f& vel, const float tm
     {
 		Vector3f tmp_diff = vel * tmin;
         // Adjust the bounding box to take in the position at the next step.
-        tmp_min = id::translate(src, tmp_diff);
+        tmp_min = idlib::translate(src, tmp_diff);
     }
 
     // Determine the bounding volume at t == tmax.
@@ -812,7 +812,7 @@ bool phys_expand_oct_bb(const oct_bb_t& src, const Vector3f& vel, const float tm
     {
 		Vector3f tmp_diff = vel * tmax;
         // Adjust the bounding box to take in the position at the next step.
-		tmp_max = id::translate(src, tmp_diff);
+		tmp_max = idlib::translate(src, tmp_diff);
 	}
 
     // Determine bounding box for the range of times.
@@ -825,7 +825,7 @@ bool phys_expand_oct_bb(const oct_bb_t& src, const Vector3f& vel, const float tm
 bool phys_expand_chr_bb(Object *pchr, float tmin, float tmax, oct_bb_t& dst)
 {
     // add in the current position to the bounding volume
-    auto tmp_oct2 = id::translate(pchr->chr_max_cv, pchr->getPosition());
+    auto tmp_oct2 = idlib::translate(pchr->chr_max_cv, pchr->getPosition());
 
     // streach the bounding volume to cover the path of the object
     return phys_expand_oct_bb(tmp_oct2, pchr->getVelocity(), tmin, tmax, dst);
@@ -843,7 +843,7 @@ bool phys_expand_prt_bb(Ego::Particle *pprt, float tmin, float tmax, oct_bb_t& d
     auto tmp_oct1 = pprt->prt_max_cv;
 
     // add in the current position to the bounding volume
-    auto tmp_oct2 = id::translate(tmp_oct1, pprt->getPosition());
+    auto tmp_oct2 = idlib::translate(tmp_oct1, pprt->getPosition());
 
     // streach the bounging volume to cover the path of the object
     return phys_expand_oct_bb(tmp_oct2, pprt->getVelocity(), tmin, tmax, dst);
@@ -876,7 +876,7 @@ void phys_data_t::clear()
 {
 	aplat = apos_t();
 	acoll = apos_t();
-	avel = id::zero<Vector3f>();
+	avel = idlib::zero<Vector3f>();
     /// @todo Seems like dynamic and loaded data are mixed here;
     /// We may not blank bumpdampen, weight or dampen for now.
 #if 0

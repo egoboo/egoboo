@@ -87,7 +87,7 @@ static constexpr float CAM_ZOOM_FACTOR = 0.5f;
  *  - "center" the position the camera is focused on
  *  - "position" the position the camera is located at
  */
-class Camera : private id::non_copyable, public Ego::Graphics::Camera
+class Camera : private idlib::non_copyable, public Ego::Graphics::Camera
 {
 
 public:

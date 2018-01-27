@@ -42,7 +42,7 @@ public:
      * @param interval the interval
      * @return a random floating-point value within the bounds of <c>interval.getLowerbound()</c> (inclusive) and <c>interval.getUpperbound()</c> (inclusive)
      */
-    static float next(const id::interval<float>& interval)
+    static float next(const idlib::interval<float>& interval)
     {
         float min = interval.lower();
         float max = std::nextafter(interval.upper(), std::numeric_limits<float>::max());

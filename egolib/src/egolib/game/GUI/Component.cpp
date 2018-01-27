@@ -65,7 +65,7 @@ void Component::setY(float y) {
 
 void Component::setPosition(const Point2f& position) {
     // Translate such that the top/left corner is at (x,y).
-    _bounds = id::translate(_bounds, Vector2f(-_bounds.get_min().x() + position.x(), -_bounds.get_min().y() + position.y()));
+    _bounds = idlib::translate(_bounds, Vector2f(-_bounds.get_min().x() + position.x(), -_bounds.get_min().y() + position.y()));
 }
 
 void Component::setCenterPosition(const Point2f& position, const bool onlyHorizontal) {
@@ -78,7 +78,7 @@ const Rectangle2f& Component::getBounds() const {
 }
 
 bool Component::contains(const Point2f& point) const {
-    return id::is_enclosing(_bounds, point);
+    return idlib::is_enclosing(_bounds, point);
 }
 
 void Component::setParent(Container *parent) {
@@ -92,7 +92,7 @@ Container *Component::getParent() const {
 Rectangle2f Component::getDerivedBounds() const {
     auto bounds = getBounds();
     if (nullptr != this->_parent) {
-        return id::translate(bounds, id::semantic_cast<Vector2f>(this->_parent->getDerivedPosition()));
+        return idlib::translate(bounds, idlib::semantic_cast<Vector2f>(this->_parent->getDerivedPosition()));
     } else {
         return bounds;
     }
@@ -100,7 +100,7 @@ Rectangle2f Component::getDerivedBounds() const {
 
 Point2f Component::getDerivedPosition() const {
     if (nullptr != this->_parent) {
-        return getPosition() + id::semantic_cast<Vector2f>(this->_parent->getDerivedPosition());
+        return getPosition() + idlib::semantic_cast<Vector2f>(this->_parent->getDerivedPosition());
     } else {
         return getPosition();
     }

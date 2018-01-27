@@ -168,14 +168,14 @@ void gfx_system_render_world(std::shared_ptr<Camera> camera, std::shared_ptr<Ego
 {
     if (!camera)
     {
-        throw std::invalid_argument("nullptr == camera");
+        throw idlib::null_error(__FILE__, __LINE__, "camera");
     }
     if (!tileList) {
-        throw std::invalid_argument("nullptr == tileList");
+        throw idlib::null_error(__FILE__, __LINE__, "tileList");
     }
 
     if (!entityList) {
-        throw std::invalid_argument("nullptr == entityList");
+        throw idlib::null_error(__FILE__, __LINE__, "entityList");
     }
 
     Renderer3D::begin3D(*camera);
@@ -246,7 +246,7 @@ void gfx_system_make_enviro()
     {
         float x = MD2Model::getMD2Normal(i, 0);
         float y = MD2Model::getMD2Normal(i, 1);
-        indextoenvirox[i] = std::atan2(y, x) * id::inv_two_pi<float>();
+        indextoenvirox[i] = std::atan2(y, x) * idlib::inv_two_pi<float>();
     }
 }
 
@@ -688,7 +688,7 @@ gfx_rv render_scene_init(Ego::Graphics::TileList& tl, Ego::Graphics::EntityList&
     auto mesh = tl.getMesh();
     if (!mesh)
     {
-		throw id::runtime_error(__FILE__, __LINE__, "tile list is not attached to a mesh");
+		throw idlib::runtime_error(__FILE__, __LINE__, "tile list is not attached to a mesh");
     }
 
     {
@@ -1164,7 +1164,7 @@ gfx_rv GridIllumination::light_fans_throttle_update(ego_mesh_t * mesh, ego_tile_
 
     if (!mesh)
     {
-		throw id::runtime_error(__FILE__, __LINE__, "nullptr == mesh");
+		throw idlib::null_error(__FILE__, __LINE__, "mesh");
     }
 	tile_mem_t& tmem = mesh->_tmem;
 
@@ -1212,7 +1212,7 @@ void GridIllumination::light_fans_update_lcache(Ego::Graphics::TileList& tl)
 	auto mesh = tl.getMesh();
 	if (!mesh)
 	{
-		throw id::runtime_error(__FILE__, __LINE__, "tile list not attached to a mesh");
+		throw idlib::runtime_error(__FILE__, __LINE__, "tile list not attached to a mesh");
 	}
 
 #if defined(CLIP_ALL_LIGHT_FANS)
@@ -1360,7 +1360,7 @@ void GridIllumination::light_fans_update_clst(Ego::Graphics::TileList& tl)
     auto mesh = tl.getMesh();
     if (!mesh)
     {
-		throw id::runtime_error(__FILE__, __LINE__, "tile list is not attached to a mesh");
+		throw idlib::runtime_error(__FILE__, __LINE__, "tile list is not attached to a mesh");
     }
 
     // alias the tile memory
@@ -1400,7 +1400,7 @@ void GridIllumination::light_fans_update_clst(Ego::Graphics::TileList& tl)
             GLXvector3f& color = ptmem._clst[vertex];
             float light = ptile._lightingCache._contents[index];
 			color[RR] = color[GG] = color[BB] 
-				= id::fraction<float, 1, 255>() * Ego::Math::constrain(light, 0.0f, 255.0f);
+				= idlib::fraction<float, 1, 255>() * Ego::Math::constrain(light, 0.0f, 255.0f);
         }
 
         for ( /* Intentionall left empty. */; index < numberOfVertices; index++, vertex++)
@@ -1409,7 +1409,7 @@ void GridIllumination::light_fans_update_clst(Ego::Graphics::TileList& tl)
 			const GLXvector3f& position = ptmem._plst[vertex];
 			float light = ego_mesh_interpolate_vertex(ptile, position);
 			color[RR] = color[GG] = color[BB] 
-				= id::fraction<float, 1, 255>() * Ego::Math::constrain(light, 0.0f, 255.0f);
+				= idlib::fraction<float, 1, 255>() * Ego::Math::constrain(light, 0.0f, 255.0f);
         }
 
         // clear out the deltas
@@ -1546,7 +1546,7 @@ gfx_rv gfx_make_dynalist(dynalist_t& dyl, Camera& cam)
 
         // find the distance to the camera
         vdist = particle->getPosition() - cam.getTrackPosition();
-        distance = id::squared_euclidean_norm(vdist);
+        distance = idlib::squared_euclidean_norm(vdist);
 
         // insert the dynalight
         if (dyl.size < gfx.dynalist_max && dyl.size < TOTAL_MAX_DYNA)
@@ -1625,7 +1625,7 @@ gfx_rv GridIllumination::do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_
 	auto mesh = tl.getMesh();
     if (!mesh)
     {
-		throw id::runtime_error(__FILE__, __LINE__, "tile list not attached to a mesh");
+		throw idlib::runtime_error(__FILE__, __LINE__, "tile list not attached to a mesh");
     }
 
 	Ego::MeshInfo& pinfo = mesh->_info;
@@ -2142,7 +2142,7 @@ void TileRenderer::bind(const ego_tile_info_t& tile)
 		{
 			// MH: Enable alpha blending if the texture requires it.
 			Ego::Renderer::get().setBlendingEnabled(true);
-			Ego::Renderer::get().setBlendFunction(id::color_blend_parameter::one, id::color_blend_parameter::one_minus_source0_alpha);
+			Ego::Renderer::get().setBlendFunction(idlib::color_blend_parameter::one, idlib::color_blend_parameter::one_minus_source0_alpha);
 		}
 	}
 }

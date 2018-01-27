@@ -11,7 +11,7 @@ struct JoinBounds {
     template <typename InputIteratorType>
     Rectangle2f compute(InputIteratorType start, InputIteratorType end) const {
         if (start == end) {
-            throw id::invalid_argument_error(__FILE__, __LINE__, "empty component list");
+            throw idlib::invalid_argument_error(__FILE__, __LINE__, "empty component list");
         }
         auto current = start;
         auto bounds = (*current)->getBounds();

@@ -39,13 +39,13 @@ class FontManager;
  * @brief
  *  A representation of a TrueType font.
  */
-class Font final : private id::non_copyable {
+class Font final : private idlib::non_copyable {
 public:
 
     /**
      * @brief A container and renderer for laid out text.
      */
-    class LaidTextRenderer final : private id::non_copyable {
+    class LaidTextRenderer final : private idlib::non_copyable {
     public:
         /**
          * @brief

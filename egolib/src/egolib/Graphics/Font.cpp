@@ -37,7 +37,7 @@
 //--------------------------------------------------------------------------------------------
 namespace Ego {
 
-struct Font::RenderedTextCache : private id::non_copyable {
+struct Font::RenderedTextCache : private idlib::non_copyable {
     std::shared_ptr<Font::LaidTextRenderer> cache;
     uint32_t lastUseInTicks;
     std::string text;
@@ -54,7 +54,7 @@ struct Font::RenderedTextCache : private id::non_copyable {
     }
 };
 
-struct Font::SizedTextCache : private id::non_copyable {
+struct Font::SizedTextCache : private idlib::non_copyable {
     uint32_t lastUseInTicks;
     std::string text;
     int width;
@@ -118,7 +118,7 @@ void Font::LaidTextRenderer::render(int x, int y, const Math::Colour4f &colour) 
     renderer.setBlendingEnabled(true);
     renderer.setColour(colour);
     renderer.getTextureUnit().setActivated(_atlas.get());
-    renderer.render(*(_vertexBuffer.get()), _vertexDescriptor, id::primitive_type::quadriliterals, 0, _vertexBuffer->getNumberOfVertices());
+    renderer.render(*(_vertexBuffer.get()), _vertexDescriptor, idlib::primitive_type::quadriliterals, 0, _vertexBuffer->getNumberOfVertices());
 }
 
 Font::Font(const std::string &fileName, int pointSize) :
@@ -128,7 +128,7 @@ Font::Font(const std::string &fileName, int pointSize) :
     _ttfFont = TTF_OpenFontRW(vfs_openRWopsRead(fileName), 1, pointSize);
 
     if (_ttfFont == nullptr) {
-        throw id::environment_error(__FILE__, __LINE__, "SDL_ttf", TTF_GetError());
+        throw idlib::environment_error(__FILE__, __LINE__, "SDL_ttf", TTF_GetError());
     }
 
     // Create an texture atlas for ASCII characters
@@ -202,8 +202,8 @@ void Font::drawTextToTexture(Texture *tex, const std::string &text, const Math::
 
     std::string name = "Font text '" + text + "'";
     tex->load(name, surface);
-    tex->setAddressModeS(id::texture_address_mode::clamp);
-    tex->setAddressModeT(id::texture_address_mode::clamp);
+    tex->setAddressModeS(idlib::texture_address_mode::clamp);
+    tex->setAddressModeT(idlib::texture_address_mode::clamp);
 }
 
 void Font::drawTextBoxToTexture(Texture *tex, const std::string &text, int width, int height, int spacing,
@@ -217,8 +217,8 @@ void Font::drawTextBoxToTexture(Texture *tex, const std::string &text, int width
 
     std::string name = "Font textbox '" + text + "'";
     tex->load(name, surface);
-    tex->setAddressModeS(id::texture_address_mode::clamp);
-    tex->setAddressModeT(id::texture_address_mode::clamp);
+    tex->setAddressModeS(idlib::texture_address_mode::clamp);
+    tex->setAddressModeT(idlib::texture_address_mode::clamp);
 }
 
 void Font::drawText(const std::string &text, int x, int y, const Math::Colour4f &colour) {
@@ -354,7 +354,7 @@ void Font::layoutLine(const std::vector<uint16_t> &codepoints, size_t pos, int m
         TTF_GlyphMetrics(_ttfFont, codepoint, &minx, nullptr, nullptr, nullptr, &advance);
         x += getFontKerning(lastCodepoint, codepoint);
         SDL_assert(x >= 0);
-        SDL_Rect dst = {x, 0, rect.get_size().x(), rect.get_size().y()};
+        SDL_Rect dst = {x, 0, (int)rect.get_size().x(), (int)rect.get_size().y()};
         if (minx < 0)
             dst.x += minx;
         positions.push_back(dst);
@@ -452,7 +452,7 @@ std::shared_ptr<Font::LaidTextRenderer> Font::layoutToBuffer(const std::string &
 
     LaidOutText laidText = layout(text, options);
 
-    const auto &vertexDesc = VertexFormatFactory::get(id::vertex_format::P3FT2F);
+    const auto &vertexDesc = VertexFormatFactory::get(idlib::vertex_format::P3FT2F);
     std::shared_ptr<VertexBuffer> buffer = std::make_shared<VertexBuffer>(4 * laidText.codepoints.size(), vertexDesc.get_size());
 
     TextVertex *vertices = reinterpret_cast<TextVertex *>(buffer->lock());
@@ -515,7 +515,7 @@ std::shared_ptr<SDL_Surface> Font::layoutToTexture(const std::string &text, cons
     if (options.textWidth) *(options.textWidth) = surfWidth;
     if (options.textHeight) *(options.textHeight) = surfHeight;
 
-    auto pfd = pixel_descriptor::get<id::pixel_format::R8G8B8A8>();
+    auto pfd = pixel_descriptor::get<idlib::pixel_format::R8G8B8A8>();
 
     auto colorByte = Math::Colour3b(colour);
 
@@ -566,7 +566,7 @@ Font::FontAtlas Font::createFontAtlas(const std::vector<uint16_t> &codepoints) c
     int maxTextureSize = Renderer::get().getInfo()->getMaximumTextureSize();
     std::shared_ptr<SDL_Surface> atlas = nullptr;
 
-    auto pfd = pixel_descriptor::get<id::pixel_format::R8G8B8A8>();
+    auto pfd = pixel_descriptor::get<idlib::pixel_format::R8G8B8A8>();
 
     while (currentMaxSize <= maxTextureSize) {
         atlas = ImageManager::get().createImage(currentMaxSize, currentMaxSize, pfd);
@@ -633,8 +633,8 @@ Font::FontAtlas Font::createFontAtlas(const std::vector<uint16_t> &codepoints) c
 
     retval.texture = Renderer::get().createTexture();
     retval.texture->load("font atlas", atlas);
-    retval.texture->setAddressModeS(id::texture_address_mode::clamp);
-    retval.texture->setAddressModeT(id::texture_address_mode::clamp);
+    retval.texture->setAddressModeS(idlib::texture_address_mode::clamp);
+    retval.texture->setAddressModeT(idlib::texture_address_mode::clamp);
     return retval;
 }
 

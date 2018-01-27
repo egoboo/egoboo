@@ -8,7 +8,7 @@ namespace Graphics {
 
 EntityShadowsRenderPass::EntityShadowsRenderPass() :
     RenderPass("entity shadows"),
-    _vertexDescriptor(descriptor_factory<id::vertex_format::P3FT2F>()()),
+    _vertexDescriptor(descriptor_factory<idlib::vertex_format::P3FT2F>()()),
     _vertexBuffer(4, _vertexDescriptor.get_size())
 {}
 
@@ -27,7 +27,7 @@ void EntityShadowsRenderPass::doRun(::Camera& camera, const TileList& tl, const 
     renderer.setDepthTestEnabled(true);
     // Enable blending.
     renderer.setBlendingEnabled(true);
-    renderer.setBlendFunction(id::color_blend_parameter::zero, id::color_blend_parameter::one_minus_source0_color);
+    renderer.setBlendFunction(idlib::color_blend_parameter::zero, idlib::color_blend_parameter::one_minus_source0_color);
 
     // Keep track of the number of rendered shadows.
     size_t count = 0;
@@ -71,7 +71,7 @@ void EntityShadowsRenderPass::doLowQualityShadow(const ObjectRef character)
     }
 
     // No shadow if completely transparent or completely glowing.
-    float alpha = (255 == pchr->inst.light) ? pchr->inst.alpha  * id::fraction<float, 1, 255>() : (pchr->inst.alpha - pchr->inst.light) * id::fraction<float, 1, 255>();
+    float alpha = (255 == pchr->inst.light) ? pchr->inst.alpha  * idlib::fraction<float, 1, 255>() : (pchr->inst.alpha - pchr->inst.light) * idlib::fraction<float, 1, 255>();
 
     /// @test ZF@> previous test didn't work, but this one does
     //if ( alpha * 255 < 1 ) return;
@@ -83,7 +83,7 @@ void EntityShadowsRenderPass::doLowQualityShadow(const ObjectRef character)
     {
         alpha *= 0.1f;
     }
-    if (alpha < id::fraction<float, 1, 255>()) return;
+    if (alpha < idlib::fraction<float, 1, 255>()) return;
 
     // Original points
     float level = pchr->getObjectPhysics().getGroundElevation() + SHADOWRAISE;
@@ -93,7 +93,7 @@ void EntityShadowsRenderPass::doLowQualityShadow(const ObjectRef character)
 
     // how much transparency from height
     alpha *= height_factor * 0.5f + 0.25f;
-    if (alpha < id::fraction<float, 1, 255>()) return;
+    if (alpha < idlib::fraction<float, 1, 255>()) return;
 
     float x = pchr->inst.getMatrix()(0, 3); ///< @todo MH: This should be the x/y position of the model.
     float y = pchr->inst.getMatrix()(1, 3); ///<           Use a more self-descriptive method to describe this.
@@ -153,7 +153,7 @@ void EntityShadowsRenderPass::doHighQualityShadow(const ObjectRef character)
     if (pchr->isHidden() || 0 == pchr->shadow_size) return;
 
     // no shadow if completely transparent
-    float alpha = (255 == pchr->inst.light) ? pchr->inst.alpha  * id::fraction<float, 1, 255>() : (pchr->inst.alpha - pchr->inst.light) * id::fraction<float, 1, 255>();
+    float alpha = (255 == pchr->inst.light) ? pchr->inst.alpha  * idlib::fraction<float, 1, 255>() : (pchr->inst.alpha - pchr->inst.light) * idlib::fraction<float, 1, 255>();
 
     /// @test ZF@> The previous test didn't work, but this one does
     //if ( alpha * 255 < 1 ) return;
@@ -165,7 +165,7 @@ void EntityShadowsRenderPass::doHighQualityShadow(const ObjectRef character)
     {
         alpha *= 0.1f;
     }
-    if (alpha < id::fraction<float, 1, 255>()) return;
+    if (alpha < idlib::fraction<float, 1, 255>()) return;
 
     // Original points
     float level = pchr->getObjectPhysics().getGroundElevation() + SHADOWRAISE;
@@ -281,7 +281,7 @@ void EntityShadowsRenderPass::doShadowSprite(float intensity, VertexBuffer& vert
     auto& renderer = Renderer::get();
     renderer.setColour(Math::Colour4f(intensity, intensity, intensity, 1.0f));
 
-    renderer.render(vertexBuffer, vertexDescriptor, id::primitive_type::triangle_fan, 0, 4);
+    renderer.render(vertexBuffer, vertexDescriptor, idlib::primitive_type::triangle_fan, 0, 4);
 }
 
 } // namespace Graphics	

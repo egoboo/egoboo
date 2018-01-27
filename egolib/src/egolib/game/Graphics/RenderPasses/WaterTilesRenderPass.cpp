@@ -15,7 +15,7 @@ void WaterTilesRenderPass::doRun(::Camera& camera, const TileList& tl, const Ent
 {
     if (!tl.getMesh())
     {
-        throw id::runtime_error(__FILE__, __LINE__, "tile list not bound to a mesh");
+        throw idlib::runtime_error(__FILE__, __LINE__, "tile list not bound to a mesh");
     }
 
     auto& renderer = Renderer::get();
@@ -119,7 +119,7 @@ gfx_rv WaterTilesRenderPass::render_water_fan(ego_mesh_t& mesh, const Index1D& t
     }
 
     // draw draw front and back faces of polygons
-    Renderer::get().setCullingMode(id::culling_mode::none);
+    Renderer::get().setCullingMode(idlib::culling_mode::none);
 
     struct Vertex
     {
@@ -127,7 +127,7 @@ gfx_rv WaterTilesRenderPass::render_water_fan(ego_mesh_t& mesh, const Index1D& t
         float r, g, b, a;
         float s, t;
     };
-    auto vd = Ego::descriptor_factory<id::vertex_format::P3FC4FT2F>()();
+    auto vd = Ego::descriptor_factory<idlib::vertex_format::P3FC4FT2F>()();
     auto vb = std::make_shared<VertexBuffer>(4, vd.get_size());
     Vertex *v = static_cast<Vertex *>(vb->lock());
 
@@ -169,9 +169,9 @@ gfx_rv WaterTilesRenderPass::render_water_fan(ego_mesh_t& mesh, const Index1D& t
             }
 
             // take the v[cnt].color from the tnc vertices so that it is oriented properly
-            v0.r = Math::constrain(dlight * id::fraction<float, 1, 255>() + alight, 0.0f, 1.0f);
-            v0.g = Math::constrain(dlight * id::fraction<float, 1, 255>() + alight, 0.0f, 1.0f);
-            v0.b = Math::constrain(dlight * id::fraction<float, 1, 255>() + alight, 0.0f, 1.0f);
+            v0.r = Math::constrain(dlight * idlib::fraction<float, 1, 255>() + alight, 0.0f, 1.0f);
+            v0.g = Math::constrain(dlight * idlib::fraction<float, 1, 255>() + alight, 0.0f, 1.0f);
+            v0.b = Math::constrain(dlight * idlib::fraction<float, 1, 255>() + alight, 0.0f, 1.0f);
 
             // the application of alpha to the tile depends on the blending mode
             if (_currentModule->getWater()._light)
@@ -208,30 +208,30 @@ gfx_rv WaterTilesRenderPass::render_water_fan(ego_mesh_t& mesh, const Index1D& t
 
         // do not draw hidden surfaces
         renderer.setDepthTestEnabled(true);
-        renderer.setDepthFunction(id::compare_function::less_or_equal);
+        renderer.setDepthFunction(idlib::compare_function::less_or_equal);
 
         // only use the depth mask if the tile is NOT transparent
         renderer.setDepthWriteEnabled(use_depth_mask);
 
         // cull backward facing polygons
         // use clockwise orientation to determine backfaces
-        renderer.setCullingMode(id::culling_mode::back);
+        renderer.setCullingMode(idlib::culling_mode::back);
         renderer.setWindingMode(MAP_NRM_CULL);
 
         // set the blending mode
         renderer.setBlendingEnabled(true);
         if (_currentModule->getWater()._light)
         {
-            renderer.setBlendFunction(id::color_blend_parameter::one, id::color_blend_parameter::one_minus_source0_color);
+            renderer.setBlendFunction(idlib::color_blend_parameter::one, idlib::color_blend_parameter::one_minus_source0_color);
         }
         else
         {
-            renderer.setBlendFunction(id::color_blend_parameter::source0_alpha, id::color_blend_parameter::one_minus_source0_alpha);
+            renderer.setBlendFunction(idlib::color_blend_parameter::source0_alpha, idlib::color_blend_parameter::one_minus_source0_alpha);
         }
 
         // per-vertex coloring
         renderer.setGouraudShadingEnabled(true);
-        renderer.render(*vb, vd, id::primitive_type::triangle_fan, 0, 4);
+        renderer.render(*vb, vd, idlib::primitive_type::triangle_fan, 0, 4);
     }
 
     return gfx_success;

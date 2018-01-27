@@ -246,7 +246,7 @@ void LoadingState::loadModuleData()
         //Hide the progress bar
         _progressBar->setVisible(false);
     }
-    catch (const id::exception& ex)
+    catch (const idlib::exception& ex)
     {
         //Display a sensible error so that players understand why it failed
         Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "module loading error (", ex.to_string(), ")", Log::EndOfEntry);        

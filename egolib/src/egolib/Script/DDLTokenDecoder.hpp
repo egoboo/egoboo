@@ -40,14 +40,14 @@ struct DDLTokenDecoder
 
 /// @brief Specialization for EgoScript boolean types.
 template <typename TargetType>
-struct DDLTokenDecoder<TargetType, std::enable_if_t<id::c::internal::is_boolean<TargetType>::value>>
+struct DDLTokenDecoder<TargetType, std::enable_if_t<idlib::c::internal::is_boolean<TargetType>::value>>
 {
     TargetType operator()(const DDLToken& token) const
     {
         TargetType temporary;
-        if (!id::c::decoder<TargetType>()(token.get_lexeme(), temporary))
+        if (!idlib::c::decoder<TargetType>()(token.get_lexeme(), temporary))
         {
-            throw id::c::compilation_error(__FILE__, __LINE__, id::c::compilation_error_kind::lexical, token.get_start_location(),
+            throw idlib::c::compilation_error(__FILE__, __LINE__, idlib::c::compilation_error_kind::lexical, token.get_start_location(),
                                            "unable to convert literal `" + token.get_lexeme() +
                                            "` into a value of EgoScript boolean type `" + typeid(TargetType).name() + "`");
         }
@@ -57,14 +57,14 @@ struct DDLTokenDecoder<TargetType, std::enable_if_t<id::c::internal::is_boolean<
 
 /// @brief Specialization for EgoScript character types.
 template <typename TargetType>
-struct DDLTokenDecoder<TargetType, std::enable_if_t<id::c::internal::is_character<TargetType>::value>>
+struct DDLTokenDecoder<TargetType, std::enable_if_t<idlib::c::internal::is_character<TargetType>::value>>
 {
     TargetType operator()(const DDLToken& token) const
     {
         TargetType temporary;
-        if (!id::c::decoder<TargetType>()(token.get_lexeme(), temporary))
+        if (!idlib::c::decoder<TargetType>()(token.get_lexeme(), temporary))
         {
-            throw id::c::compilation_error(__FILE__, __LINE__, id::c::compilation_error_kind::lexical, token.get_start_location(),
+            throw idlib::c::compilation_error(__FILE__, __LINE__, idlib::c::compilation_error_kind::lexical, token.get_start_location(),
                                            "unable to convert literal `" + token.get_lexeme() +
                                            "` into a value of EgoScript character type `" + typeid(TargetType).name() + "`");
         }
@@ -74,14 +74,14 @@ struct DDLTokenDecoder<TargetType, std::enable_if_t<id::c::internal::is_characte
 
 /// @brief Specialization for EgoScript real types.
 template <typename TargetType>
-struct DDLTokenDecoder<TargetType, std::enable_if_t<id::c::internal::is_real<TargetType>::value>>
+struct DDLTokenDecoder<TargetType, std::enable_if_t<idlib::c::internal::is_real<TargetType>::value>>
 {
     TargetType operator()(const DDLToken& token) const
     {
         TargetType temporary;
-        if (!id::c::decoder<TargetType>()(token.get_lexeme(), temporary))
+        if (!idlib::c::decoder<TargetType>()(token.get_lexeme(), temporary))
         {
-            throw id::c::compilation_error(__FILE__, __LINE__, id::c::compilation_error_kind::lexical, token.get_start_location(),
+            throw idlib::c::compilation_error(__FILE__, __LINE__, idlib::c::compilation_error_kind::lexical, token.get_start_location(),
                                            "unable to convert literal `" + token.get_lexeme() +
                                            "` into a value of EgoScript real type " + "`" + typeid(TargetType).name() + "`");
         }
@@ -91,14 +91,14 @@ struct DDLTokenDecoder<TargetType, std::enable_if_t<id::c::internal::is_real<Tar
 
 /// @brief Specialization for EgoScript integer types.
 template <typename TargetType>
-struct DDLTokenDecoder<TargetType, std::enable_if_t<id::c::internal::is_integer<TargetType>::value>>
+struct DDLTokenDecoder<TargetType, std::enable_if_t<idlib::c::internal::is_integer<TargetType>::value>>
 {
     TargetType operator()(const DDLToken& token) const
     {
         TargetType temporary;
-        if (!id::c::decoder<TargetType>()(token.get_lexeme(), temporary))
+        if (!idlib::c::decoder<TargetType>()(token.get_lexeme(), temporary))
         {
-            throw id::c::compilation_error(__FILE__, __LINE__, id::c::compilation_error_kind::lexical, token.get_start_location(),
+            throw idlib::c::compilation_error(__FILE__, __LINE__, idlib::c::compilation_error_kind::lexical, token.get_start_location(),
                                            "unable to convert literal `" + token.get_lexeme() +
                                            "` into a value of EgoScript integer type " + "`" + typeid(TargetType).name() + "`");
         }
@@ -108,14 +108,14 @@ struct DDLTokenDecoder<TargetType, std::enable_if_t<id::c::internal::is_integer<
 
 /// @brief Specialization for EgoScript natural types.
 template<typename TargetType>
-struct DDLTokenDecoder<TargetType, std::enable_if_t<id::c::internal::is_natural<TargetType>::value>>
+struct DDLTokenDecoder<TargetType, std::enable_if_t<idlib::c::internal::is_natural<TargetType>::value>>
 {
     TargetType operator()(const DDLToken& token) const
     {
         TargetType temporary;
-        if (!id::c::decoder<TargetType>()(token.get_lexeme(), temporary))
+        if (!idlib::c::decoder<TargetType>()(token.get_lexeme(), temporary))
         {
-            throw id::c::compilation_error(__FILE__, __LINE__, id::c::compilation_error_kind::lexical, token.get_start_location(),
+            throw idlib::c::compilation_error(__FILE__, __LINE__, idlib::c::compilation_error_kind::lexical, token.get_start_location(),
                                            "unable to convert literal `" + token.get_lexeme() +
                                            "` into a value of EgoScript natural type " + "`" + typeid(int).name() + "`");
         }
@@ -125,14 +125,14 @@ struct DDLTokenDecoder<TargetType, std::enable_if_t<id::c::internal::is_natural<
 
 /// @brief Specialization for EgoScript string types.
 template <typename TargetType>
-struct DDLTokenDecoder<TargetType, std::enable_if_t<id::c::internal::is_string<TargetType>::value>>
+struct DDLTokenDecoder<TargetType, std::enable_if_t<idlib::c::internal::is_string<TargetType>::value>>
 {
     TargetType operator()(const DDLToken& token) const
     {
         TargetType temporary;
-        if (!id::c::decoder<TargetType>()(token.get_lexeme(), temporary))
+        if (!idlib::c::decoder<TargetType>()(token.get_lexeme(), temporary))
         {
-            throw id::c::compilation_error(__FILE__, __LINE__, id::c::compilation_error_kind::lexical, token.get_start_location(),
+            throw idlib::c::compilation_error(__FILE__, __LINE__, idlib::c::compilation_error_kind::lexical, token.get_start_location(),
                                            "unable to convert literal `" + token.get_lexeme() +
                                         "` into a value of EgoScript string type " + "`" + typeid(TargetType).name() + "`");
         }

@@ -36,7 +36,7 @@ void EntityReflectionsRenderPass::doRun(::Camera& camera, const TileList& tl, co
         // do not draw hidden surfaces
         renderer.setDepthTestEnabled(true);
         // surfaces must be closer to the camera to be drawn
-        renderer.setDepthFunction(id::compare_function::less_or_equal);
+        renderer.setDepthFunction(idlib::compare_function::less_or_equal);
 
         for (size_t j = el.getSize(); j > 0; --j)
         {
@@ -51,14 +51,14 @@ void EntityReflectionsRenderPass::doRun(::Camera& camera, const TileList& tl, co
 
                 // cull backward facing polygons
                 // use couter-clockwise orientation to determine backfaces
-                renderer.setCullingMode(id::culling_mode::back);
+                renderer.setCullingMode(idlib::culling_mode::back);
                 renderer.setWindingMode(MAP_REF_CULL);
 
                 // allow transparent objects
                 renderer.setBlendingEnabled(true);
 
                 // use the alpha channel to modulate the transparency
-                renderer.setBlendFunction(id::color_blend_parameter::source0_alpha, id::color_blend_parameter::one_minus_source0_alpha);
+                renderer.setBlendFunction(idlib::color_blend_parameter::source0_alpha, idlib::color_blend_parameter::one_minus_source0_alpha);
                 Index1D itile = object->getTile();
 
                 if (mesh->grid_is_valid(itile) && (0 != mesh->test_fx(itile, MAPFX_REFLECTIVE)))
@@ -71,13 +71,13 @@ void EntityReflectionsRenderPass::doRun(::Camera& camera, const TileList& tl, co
             else if (ObjectRef::Invalid == el.get(i).iobj && ParticleRef::Invalid != el.get(i).iprt)
             {
                 // draw draw front and back faces of polygons
-                renderer.setCullingMode(id::culling_mode::none);
+                renderer.setCullingMode(idlib::culling_mode::none);
 
                 // render_one_prt_ref() actually sets its own blend function, but just to be safe
                 // allow transparent objects
                 renderer.setBlendingEnabled(true);
                 // set the default particle blending
-                renderer.setBlendFunction(id::color_blend_parameter::source0_alpha, id::color_blend_parameter::one_minus_source0_alpha);
+                renderer.setBlendFunction(idlib::color_blend_parameter::source0_alpha, idlib::color_blend_parameter::one_minus_source0_alpha);
                 ParticleRef iprt = el.get(i).iprt;
                 Index1D itile = ParticleHandler::get()[iprt]->getTile();
 

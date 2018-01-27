@@ -109,7 +109,7 @@ std::shared_ptr<Billboard> BillboardSystem::makeBillboard(::Time::Seconds lifeti
 
 BillboardSystem::BillboardSystem() :
     _billboardList(),
-    vertexDescriptor(Ego::descriptor_factory<id::vertex_format::P3FT2F>()()),
+    vertexDescriptor(Ego::descriptor_factory<idlib::vertex_format::P3FT2F>()()),
     vertexBuffer(4, vertexDescriptor.get_size())
 {}
 
@@ -185,7 +185,7 @@ bool BillboardSystem::render_one(Billboard& billboard, const Vector3f& cameraUp,
         renderer.getTextureUnit().setActivated(texture);
 
         // Go on and draw it
-        renderer.render(vertexBuffer, vertexDescriptor, id::primitive_type::quadriliterals, 0, 4);
+        renderer.render(vertexBuffer, vertexDescriptor, idlib::primitive_type::quadriliterals, 0, 4);
     }
 
     return true;
@@ -208,14 +208,14 @@ void BillboardSystem::render_all(::Camera& camera)
             renderer.setGouraudShadingEnabled(false);
 
             // Draw only front-facing polygons.
-            renderer.setCullingMode(id::culling_mode::back);
+            renderer.setCullingMode(idlib::culling_mode::back);
 
             renderer.setBlendingEnabled(true);
-            renderer.setBlendFunction(id::color_blend_parameter::source0_alpha, id::color_blend_parameter::one_minus_source0_alpha);
+            renderer.setBlendFunction(idlib::color_blend_parameter::source0_alpha, idlib::color_blend_parameter::one_minus_source0_alpha);
 
             // This drops 100% transparent fragments i.e. in order to pass, alpha has to be greater than 0.
             renderer.setAlphaTestEnabled(true);
-            renderer.setAlphaFunction(id::compare_function::greater, 0.0f);
+            renderer.setAlphaFunction(idlib::compare_function::greater, 0.0f);
 
             for (const auto &billboard : _billboardList)
             {

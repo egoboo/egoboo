@@ -91,7 +91,7 @@ public:
         auto it = enumDescriptor.find(name);
         if (it == enumDescriptor.end())
         {
-            throw id::c::compilation_error(__FILE__, __LINE__, id::c::compilation_error_kind::lexical, get_location(), "invalid enum");
+            throw idlib::c::compilation_error(__FILE__, __LINE__, idlib::c::compilation_error_kind::lexical, get_location(), "invalid enum");
         }
         return it->second;
     }
@@ -313,7 +313,7 @@ public:
 
 // Utility functions.
 std::string vfs_get_next_name(ReadContext& ctxt);
-id::interval<float> vfs_get_next_range(ReadContext& ctxt);
+idlib::interval<float> vfs_get_next_range(ReadContext& ctxt);
 IDSZ2 vfs_get_next_idsz(ReadContext& ctxt);
 bool vfs_get_next_bool(ReadContext& ctxt);
 int32_t vfs_get_next_int32(ReadContext& ctxt);
@@ -365,7 +365,7 @@ std::string vfs_read_string_lit(ReadContext& ctxt);
  *  range := real ('-' real)?
  *  @endcode
  */
-id::interval<float> vfs_get_range(ReadContext& ctxt);
+idlib::interval<float> vfs_get_range(ReadContext& ctxt);
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
@@ -388,7 +388,7 @@ void vfs_put_bool(vfs_FILE* filewrite, const char* text, bool value);
 void vfs_put_damage_type(vfs_FILE* filewrite, const char* text, uint8_t value);
 void vfs_put_action(vfs_FILE* filewrite, const char* text, uint8_t value);
 void vfs_put_gender_profile(vfs_FILE* filewrite, const char* text, GenderProfile value);
-void vfs_put_range(vfs_FILE* filewrite, const char* text, id::interval<float> value);
+void vfs_put_range(vfs_FILE* filewrite, const char* text, idlib::interval<float> value);
 void vfs_put_pair(vfs_FILE* filewrite, const char* text, IPair value);
 void vfs_put_string_under(vfs_FILE* filewrite, const char* text, const char* usename);
 void vfs_put_idsz(vfs_FILE* filewrite, const char* text, const IDSZ2& idsz);
@@ -396,5 +396,5 @@ void vfs_put_expansion(vfs_FILE *filewrite, const char *text, const IDSZ2& idsz,
 void vfs_put_expansion(vfs_FILE *filewrite, const char *text, const IDSZ2& idsz, const LocalParticleProfileRef& lppref);
 void vfs_put_expansion_float(vfs_FILE* filewrite, const char* text, const IDSZ2& idsz, float value);
 void vfs_put_expansion_string(vfs_FILE* filewrite, const char* text, const IDSZ2& idsz, const char * value);
-void vfs_put_range_raw(vfs_FILE* filewrite, id::interval<float> val);
+void vfs_put_range_raw(vfs_FILE* filewrite, idlib::interval<float> val);
 void vfs_put_local_particle_profile_ref(vfs_FILE *filewrite, const char *text, const LocalParticleProfileRef& lppref);

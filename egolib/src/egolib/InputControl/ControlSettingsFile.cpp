@@ -145,5 +145,5 @@ std::string controlInputToString(const Ego::Input::InputDevice::InputButton &but
         case Ego::Input::InputDevice::InputButton::COUNT:             return "UNKNOWN";
     }
 
-    throw id::unhandled_switch_case_error(__FILE__, __LINE__, "unreachable code reached");
+    throw idlib::unhandled_switch_case_error(__FILE__, __LINE__, "unreachable code reached");
 }

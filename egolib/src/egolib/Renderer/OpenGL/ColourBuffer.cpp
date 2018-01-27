@@ -33,9 +33,9 @@ struct utilities {
         GLint v;
         glGetIntegerv(GL_RED_BITS, &v);
         if (v < 0)
-            throw id::environment_error(__FILE__, __LINE__, "OpenGL", "negative number of red bits");
+            throw idlib::environment_error(__FILE__, __LINE__, "OpenGL", "negative number of red bits");
         else if (v > std::numeric_limits<uint8_t>::max())
-            throw id::runtime_error(__FILE__, __LINE__, "number of red bits exceed support maximum");
+            throw idlib::environment_error(__FILE__, __LINE__, "OpenGL", "number of red bits exceed support maximum");
         return (uint8_t)v;
     }
 
@@ -44,9 +44,9 @@ struct utilities {
         GLint v;
         glGetIntegerv(GL_GREEN_BITS, &v);
         if (v < 0)
-            throw id::environment_error(__FILE__, __LINE__, "OpenGL", "negative number of green bits");
+            throw idlib::environment_error(__FILE__, __LINE__, "OpenGL", "negative number of green bits");
         else if (v > std::numeric_limits<uint8_t>::max())
-            throw id::runtime_error(__FILE__, __LINE__, "number of green bits exceed support maximum");
+            throw idlib::environment_error(__FILE__, __LINE__, "OpenGL", "number of green bits exceed support maximum");
         return (uint8_t)v;
     }
 
@@ -55,9 +55,9 @@ struct utilities {
         GLint v;
         glGetIntegerv(GL_BLUE_BITS, &v);
         if (v < 0)
-            throw id::environment_error(__FILE__, __LINE__, "OpenGL", "negative number of blue bits");
+            throw idlib::environment_error(__FILE__, __LINE__, "OpenGL", "negative number of blue bits");
         else if (v > std::numeric_limits<uint8_t>::max())
-            throw id::runtime_error(__FILE__, __LINE__, "number of blue bits exceed support maximum");
+            throw idlib::environment_error(__FILE__, __LINE__, "OpenGL", "number of blue bits exceed support maximum");
         return (uint8_t)v;
     }
 
@@ -66,9 +66,9 @@ struct utilities {
         GLint v;
         glGetIntegerv(GL_ALPHA_BITS, &v);
         if (v < 0)
-            throw id::environment_error(__FILE__, __LINE__, "OpenGL", "negative number of alpha bits");
+            throw idlib::environment_error(__FILE__, __LINE__, "OpenGL", "negative number of alpha bits");
         else if (v > std::numeric_limits<uint8_t>::max())
-            throw id::runtime_error(__FILE__, __LINE__, "number of alpha bits exceed support maximum");
+            throw idlib::environment_error(__FILE__, __LINE__, "OpenGL", "number of alpha bits exceed support maximum");
         return (uint8_t)v;
     }
 };
@@ -92,7 +92,7 @@ void ColourBuffer::setClearValue(const Colour4f& value) {
     Utilities2::isError();
 }
 
-const id::rgba_depth& ColourBuffer::getColourDepth() {
+const idlib::rgba_depth& ColourBuffer::getColourDepth() {
     return colourDepth;
 }
 

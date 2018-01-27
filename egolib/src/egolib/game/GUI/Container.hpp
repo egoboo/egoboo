@@ -7,7 +7,7 @@ namespace GUI {
 /// A container is a component which may contain other components.
 class Container : public Component {
 public:
-    class ContainerIterator : private id::non_copyable {
+    class ContainerIterator : private idlib::non_copyable {
     public:
 
         inline std::vector<std::shared_ptr<Component>>::const_iterator cbegin() const {
@@ -70,11 +70,11 @@ public:
     ~Container();
     /// Add a component to this container.
     /// @param component the component
-    /// @throw id::invalid_argument_error @a component is a null pointer
+    /// @throw idlib::invalid_argument_error @a component is a null pointer
     virtual void addComponent(const std::shared_ptr<Component>& component);
     /// Remove a component from this container.
     /// @param component the component
-    /// @throw id::invalid_argument_error @a component is a null pointer
+    /// @throw idlib::invalid_argument_error @a component is a null pointer
     virtual void removeComponent(const std::shared_ptr<Component>& component);
 
 public:

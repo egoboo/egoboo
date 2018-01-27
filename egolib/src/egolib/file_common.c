@@ -59,43 +59,43 @@ int fs_init(const char *argv0)
 //--------------------------------------------------------------------------------------------
 void fs_removeDirectoryAndContents(const char *dirname)
 {
-    id::file_system::delete_directory_recursive(dirname);
+    idlib::file_system::delete_directory_recursive(dirname);
 }
 
 //--------------------------------------------------------------------------------------------
 void fs_removeDirectory(const std::string& pathname)
 {
-    id::file_system::delete_directory(pathname);
+    idlib::file_system::delete_directory(pathname);
 }
 
 //--------------------------------------------------------------------------------------------
 void fs_deleteFile(const std::string& pathname)
 {
-    id::file_system::delete_regular(pathname);
+    idlib::file_system::delete_regular(pathname);
 }
 
 //--------------------------------------------------------------------------------------------
 int fs_createDirectory(const std::string& pathname)
 {
-    return id::file_system::create_directory(pathname) ? 0 : 1;
+    return idlib::file_system::create_directory(pathname) ? 0 : 1;
 }
 
 //--------------------------------------------------------------------------------------------
 int fs_fileIsDirectory(const std::string& pathname)
 {
-    return id::file_system::is_directory(pathname) ? 1 : 0;
+    return idlib::file_system::is_directory(pathname) ? 1 : 0;
 }
 
 //--------------------------------------------------------------------------------------------
 bool fs_copyFile(const std::string& source, const std::string& target)
 {
-    return id::file_system::copy_regular_file(source, target, false);
+    return idlib::file_system::copy_regular_file(source, target, false);
 }
 
 //--------------------------------------------------------------------------------------------
 int fs_fileExists(const std::string& pathname)
 {
-    return id::file_system::exists(pathname) ? 1 : 0;
+    return idlib::file_system::exists(pathname) ? 1 : 0;
 }
 
 //--------------------------------------------------------------------------------------------

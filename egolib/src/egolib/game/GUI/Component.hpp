@@ -12,7 +12,7 @@ namespace GUI {
 // Forward declarations.
 class Container;
 
-class Component : public InputListener, public std::enable_shared_from_this<Component>, private id::non_copyable {
+class Component : public InputListener, public std::enable_shared_from_this<Component>, private idlib::non_copyable {
 public:
     Component();
 

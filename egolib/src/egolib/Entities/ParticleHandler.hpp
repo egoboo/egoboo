@@ -28,7 +28,7 @@
 #include "egolib/game/egoboo.h"
 #include "egolib/Entities/Particle.hpp"
 
-class ParticleHandler : public id::singleton<ParticleHandler>
+class ParticleHandler : public idlib::singleton<ParticleHandler>
 {
 public:
 

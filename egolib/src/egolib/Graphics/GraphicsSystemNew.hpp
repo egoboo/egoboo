@@ -19,7 +19,7 @@ struct GraphicsSystemNewNewFunctor
 struct GraphicsSystemNewDeleteFunctor
 { void operator()(GraphicsSystemNew *p) const; };
 
-class GraphicsSystemNew : public id::singleton<GraphicsSystemNew, GraphicsSystemNewNewFunctor, GraphicsSystemNewDeleteFunctor>
+class GraphicsSystemNew : public idlib::singleton<GraphicsSystemNew, GraphicsSystemNewNewFunctor, GraphicsSystemNewDeleteFunctor>
 {
 protected:
     friend GraphicsSystemNewNewFunctor;
@@ -42,12 +42,12 @@ protected:
 public:
     /// @brief Set the cursor visibility.
     /// @param visibility @a true shows the cursor, @a false hides the cursor
-    /// @throw id::environment_error the environment failed
+    /// @throw idlib::environment_error the environment failed
     virtual void setCursorVisibility(bool visibility) = 0;
 
     /// @brief Get the cursor visibility.
     /// @return @a true if the cursor is shown, @a false otherwise
-    /// @throw id::environment_error the environment failed
+    /// @throw idlib::environment_error the environment failed
     virtual bool getCursorVisibility() const = 0;
 
     /// @brief Get the list of displays.

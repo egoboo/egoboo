@@ -94,7 +94,7 @@ void ImageManager::registerImageLoaders()
             auto e = Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "[image manager]: SDL_image does not "
                                         "support PNG file format: ", SDL_GetError(), Log::EndOfLine);
             Log::get() << e;
-            throw id::environment_error(__FILE__, __LINE__, "font manager", e.getText());
+            throw idlib::environment_error(__FILE__, __LINE__, "font manager", e.getText());
         }
         // WEBP support is optional and available in SDL_image 1.2.11 or higher.
     #if SDL_VERSIONNUM(SDL_IMAGE_MAJOR_VERSION, SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL) >= SDL_VERSIONNUM(1, 2, 11)
@@ -189,7 +189,7 @@ ImageManager::Iterator ImageManager::end() const
 std::shared_ptr<SDL_Surface> ImageManager::getDefaultImage()
 {
     /// Create a surface of 8 x 8 blocks each of 16 x 16 pixels.
-    const auto& pixelFormatDescriptor = pixel_descriptor::get<id::pixel_format::R8G8B8A8>();
+    const auto& pixelFormatDescriptor = pixel_descriptor::get<idlib::pixel_format::R8G8B8A8>();
     auto surface = createImage(8 * 16, 8 * 16, pixelFormatDescriptor);
     if (!surface)
     {
@@ -229,7 +229,7 @@ std::shared_ptr<SDL_Surface> ImageManager::createImage(size_t width, size_t heig
                                                     pixel_descriptor.get_alpha().get_mask());
     if (!surface)
     {
-        throw id::environment_error(__FILE__, __LINE__, "SDL image", "unable to create surface");
+        throw idlib::environment_error(__FILE__, __LINE__, "SDL image", "unable to create surface");
     }
     // Note: According to C++ documentation, the deleter is invoked if the std::shared_ptr constructor
     //       raises an exception.
@@ -255,7 +255,7 @@ std::shared_ptr<SDL_Surface> ImageManager::createImage(size_t width, size_t heig
 
 std::shared_ptr<SDL_Surface> ImageManager::createImage(size_t width, size_t height)
 {
-    return createImage(width, height, pixel_descriptor::get<id::pixel_format::R8G8B8A8>());
+    return createImage(width, height, pixel_descriptor::get<idlib::pixel_format::R8G8B8A8>());
 }
 
 void ImageManager::save_as_bmp(const std::shared_ptr<SDL_Surface>& pixels, const std::string& pathname)

@@ -67,26 +67,26 @@ public:
 
 private:
     void emit(const Ego::Script::PDLToken& token);
-    void emit(Ego::Script::PDLTokenKind kind, const id::c::location& start, const id::c::location& end);
-    void emit(Ego::Script::PDLTokenKind kind, const id::c::location& start, const id::c::location& end,
+    void emit(Ego::Script::PDLTokenKind kind, const idlib::c::location& start, const idlib::c::location& end);
+    void emit(Ego::Script::PDLTokenKind kind, const idlib::c::location& start, const idlib::c::location& end,
               const std::string& lexeme);
-    void emit(Ego::Script::PDLTokenKind kind, const id::c::location& start, const id::c::location& end,
+    void emit(Ego::Script::PDLTokenKind kind, const idlib::c::location& start, const idlib::c::location& end,
               int value);
     Ego::Script::PDLToken m_token;
-    id::c::location m_location;
+    idlib::c::location m_location;
     size_t m_inputPosition;
     Ego::Script::Buffer *m_inputBuffer;
     Ego::Script::Buffer m_lexemeBuffer;
 
 public:
-    line_scanner_state_t(Ego::Script::Buffer *inputBuffer, const id::c::location& location);
+    line_scanner_state_t(Ego::Script::Buffer *inputBuffer, const idlib::c::location& location);
 
 public:
     line_scanner_state_t(const line_scanner_state_t& other) = delete;
     line_scanner_state_t& operator=(const line_scanner_state_t&) = delete;
 
 public:
-    id::c::location getLocation() const;
+    idlib::c::location getLocation() const;
 
     void next();
     void write(int symbol);
@@ -164,11 +164,11 @@ public:
 };
 
 // the current state of the parser
-struct parser_state_t : public id::singleton<parser_state_t>
+struct parser_state_t : public idlib::singleton<parser_state_t>
 {
 protected:
-    friend id::default_new_functor<parser_state_t>;
-    friend id::default_delete_functor<parser_state_t>;
+    friend idlib::default_new_functor<parser_state_t>;
+    friend idlib::default_delete_functor<parser_state_t>;
 	/// @brief Construct this parser.
 	/// @remark Intentionally protected.
 	parser_state_t();

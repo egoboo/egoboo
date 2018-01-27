@@ -2,9 +2,9 @@
 
 #include "egolib/platform.h"
 
-namespace id {
+namespace idlib {
 
-/// @brief Specialization of id::is_intersecting_functor.
+/// @brief Specialization of idlib::is_intersecting_functor.
 /// Determines if an axis aligned bounding box intersects an axis aligned cube.
 /// @remark An axis-aligned bounding box \f$X\f$ does not intersect a cube \f$Y\f$
 /// if for at least one axis \f$k\f$ one of the following conditions is true:
@@ -37,7 +37,7 @@ struct is_intersecting_functor<axis_aligned_box<P>, axis_aligned_cube<P>>
     }
 }; // struct is_intersecting_functor
 
-/// @brief Specialization of id::is_intersecting_functor
+/// @brief Specialization of idlib::is_intersecting_functor
 /// Determines if an axis aligned cube and an axis aligned box intersect.
 /// @remark The method which determines wether an axis aligned box and
 /// an axis aligned cube intersect is re-used.
@@ -49,4 +49,4 @@ struct is_intersecting_functor<axis_aligned_cube<P>, axis_aligned_box<P>>
 	{ return is_intersecting(b, a); }
 }; // is_intersecting_functor
 
-} // namespace id
+} // namespace idlib

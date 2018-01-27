@@ -208,12 +208,12 @@ size_t parser_state_t::load_one_line( size_t read, script_info_t& script )
 
 //--------------------------------------------------------------------------------------------
 
-line_scanner_state_t::line_scanner_state_t(Ego::Script::Buffer *inputBuffer, const id::c::location& location)
+line_scanner_state_t::line_scanner_state_t(Ego::Script::Buffer *inputBuffer, const idlib::c::location& location)
     : m_token(Ego::Script::PDLTokenKind::StartOfLine, location, location), m_inputPosition(0),
       m_inputBuffer(inputBuffer), m_location(location), m_lexemeBuffer()
 {}
 
-id::c::location line_scanner_state_t::getLocation() const
+idlib::c::location line_scanner_state_t::getLocation() const
 {
     return m_location;
 }
@@ -279,17 +279,32 @@ bool line_scanner_state_t::isEndOfInput() const
 
 bool line_scanner_state_t::isWhiteSpace() const
 {
-    return Ego::isspace(getCurrent());
+	auto x = getCurrent();
+	if (x < std::numeric_limits<char>::min() || x > std::numeric_limits<char>::max())
+	{
+		return false;
+	}
+	return Ego::isspace((char)x);              
 }
 
 bool line_scanner_state_t::isDigit() const
 {
-    return Ego::isdigit(getCurrent());
+	auto x = getCurrent();
+	if (x < std::numeric_limits<char>::min() || x > std::numeric_limits<char>::max())
+	{
+		return false;
+	}
+	return Ego::isdigit((char)x);
 }
 
 bool line_scanner_state_t::isAlphabetic() const
 {
-    return Ego::isalpha(getCurrent());
+	auto x = getCurrent();
+	if (x < std::numeric_limits<char>::min() || x > std::numeric_limits<char>::max())
+	{
+		return false;
+	}
+	return Ego::isalpha((char)x);
 }
 
 bool line_scanner_state_t::isNewLine() const
@@ -309,7 +324,12 @@ bool line_scanner_state_t::isOperator() const
 
 bool line_scanner_state_t::isControl() const
 {
-    return Ego::iscntrl(getCurrent());
+	auto x = getCurrent();
+	if (x < std::numeric_limits<char>::min() || x > std::numeric_limits<char>::max())
+	{
+		return false;
+	}
+    return Ego::iscntrl((char)x);
 }
 
 void line_scanner_state_t::emit(const Ego::Script::PDLToken& token)
@@ -317,18 +337,18 @@ void line_scanner_state_t::emit(const Ego::Script::PDLToken& token)
     m_token = token;
 }
 
-void line_scanner_state_t::emit(Ego::Script::PDLTokenKind kind, const id::c::location& start, const id::c::location& end)
+void line_scanner_state_t::emit(Ego::Script::PDLTokenKind kind, const idlib::c::location& start, const idlib::c::location& end)
 {
     m_token = Ego::Script::PDLToken(kind, start, end);
 }
 
-void line_scanner_state_t::emit(Ego::Script::PDLTokenKind kind, const id::c::location& start, const id::c::location& end,
+void line_scanner_state_t::emit(Ego::Script::PDLTokenKind kind, const idlib::c::location& start, const idlib::c::location& end,
                                 const std::string& lexeme)
 {
     m_token = Ego::Script::PDLToken(kind, start, end, lexeme);
 }
 
-void line_scanner_state_t::emit(Ego::Script::PDLTokenKind kind, const id::c::location& start, const id::c::location& end,
+void line_scanner_state_t::emit(Ego::Script::PDLTokenKind kind, const idlib::c::location& start, const idlib::c::location& end,
                                 int value)
 {
     m_token = Ego::Script::PDLToken(kind, start, end);
@@ -371,7 +391,7 @@ Ego::Script::PDLToken line_scanner_state_t::scanNewLines()
         {
             next();
         }
-        m_location = id::c::location(m_location.file_name(), m_location.line_number() + 1);
+        m_location = idlib::c::location(m_location.file_name(), m_location.line_number() + 1);
         numberOfNewLines++;
     }
     auto endLocation = getLocation();
@@ -385,7 +405,7 @@ Ego::Script::PDLToken line_scanner_state_t::scanNumericLiteral()
     auto startLocation = getLocation();
     if (!isDigit())
     {
-        throw id::runtime_error(__FILE__, __LINE__, "<internal error>");
+        throw idlib::runtime_error(__FILE__, __LINE__, "<internal error>");
     }
     do
     {
@@ -403,7 +423,7 @@ Ego::Script::PDLToken line_scanner_state_t::scanName()
     auto startLocation = getLocation();
     if (!is('_') && !isAlphabetic())
     {
-        throw id::runtime_error(__FILE__, __LINE__, "<internal error>");
+        throw idlib::runtime_error(__FILE__, __LINE__, "<internal error>");
     }
     do
     {
@@ -421,7 +441,7 @@ Ego::Script::PDLToken line_scanner_state_t::scanStringOrReference()
     auto startLocation = getLocation();
     if (!isDoubleQuote())
     {
-        throw id::runtime_error(__FILE__, __LINE__, "<internal error>");
+        throw idlib::runtime_error(__FILE__, __LINE__, "<internal error>");
     }
 
     next(); // Skip leading quotation mark.
@@ -454,7 +474,7 @@ Ego::Script::PDLToken line_scanner_state_t::scanStringOrReference()
     }
     else /* if (isNewline() || isEndOfInput()) */
     {
-        throw id::c::compilation_error(__FILE__, __LINE__, id::c::compilation_error_kind::lexical, getLocation(), "unclosed string literal");
+        throw idlib::c::compilation_error(__FILE__, __LINE__, idlib::c::compilation_error_kind::lexical, getLocation(), "unclosed string literal");
     }
     auto endLocation = getLocation();
     emit(isReference ? Ego::Script::PDLTokenKind::ReferenceLiteral : Ego::Script::PDLTokenKind::StringLiteral,
@@ -468,20 +488,20 @@ Ego::Script::PDLToken line_scanner_state_t::scanIDSZ()
     auto startLocation = getLocation();
     if (!is('['))
     {
-        throw id::runtime_error(__FILE__, __LINE__, "<internal error>");
+        throw idlib::runtime_error(__FILE__, __LINE__, "<internal error>");
     }
     saveAndNext();
     for (auto i = 0; i < 4; ++i)
     {
         if (!isDigit() && !isAlphabetic())
         {
-            throw id::c::compilation_error(__FILE__, __LINE__, id::c::compilation_error_kind::lexical, getLocation(), "invalid IDSZ");
+            throw idlib::c::compilation_error(__FILE__, __LINE__, idlib::c::compilation_error_kind::lexical, getLocation(), "invalid IDSZ");
         }
         saveAndNext();
     }
     if (!is(']'))
     {
-        throw id::c::compilation_error(__FILE__, __LINE__, id::c::compilation_error_kind::lexical, getLocation(), "invalid IDSZ");
+        throw idlib::c::compilation_error(__FILE__, __LINE__, idlib::c::compilation_error_kind::lexical, getLocation(), "invalid IDSZ");
     }
     saveAndNext();
     auto endLocation = getLocation();
@@ -496,7 +516,7 @@ Ego::Script::PDLToken line_scanner_state_t::scanOperator()
     auto startLocation = getLocation();
     if (!isOperator())
     {
-        throw id::runtime_error(__FILE__, __LINE__, "<internal error>");
+        throw idlib::runtime_error(__FILE__, __LINE__, "<internal error>");
     }
     auto current = getCurrent();
     saveAndNext();
@@ -540,7 +560,7 @@ Ego::Script::PDLToken line_scanner_state_t::scanOperator()
                  m_lexemeBuffer.toString());
             break;
         default:
-            throw id::runtime_error(__FILE__, __LINE__, "internal error");
+            throw idlib::runtime_error(__FILE__, __LINE__, "internal error");
     }
     return m_token;
 }
@@ -550,11 +570,11 @@ Ego::Script::PDLToken parser_state_t::parse_indention(script_info_t& script, lin
     auto source = state.scanWhiteSpaces();
     if (source.category() != Ego::Script::PDLTokenKind::Whitespace)
     {
-        throw id::runtime_error(__FILE__, __LINE__, "internal error");
+        throw idlib::runtime_error(__FILE__, __LINE__, "internal error");
     }
 
     size_t indent = source.getValue();
-    if (id::is_odd(indent))
+    if (idlib::is_odd(indent))
     {
         Ego::Script::CLogEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, _token.get_start_location());
         e << "invalid indention - number of spaces must be even - \n"
@@ -616,7 +636,7 @@ Ego::Script::PDLToken parser_state_t::parse_token(ObjectProfile *ppro, script_in
                 const auto& profile = element.second;
                 if (profile == nullptr) continue;
                 // Is this the object we are looking for?
-                if (id::is_suffix(profile->getPathname(), token.get_lexeme()))
+                if (idlib::is_suffix(profile->getPathname(), token.get_lexeme()))
                 {
                     token.setValue(profile->getSlotNumber().get());
                     break;
@@ -674,7 +694,7 @@ Ego::Script::PDLToken parser_state_t::parse_token(ObjectProfile *ppro, script_in
             case Ego::Script::PDLTokenKind::Divide: token.setValue(Ego::Script::ScriptOperators::OPDIV); break;
             case Ego::Script::PDLTokenKind::Modulus: token.setValue(Ego::Script::ScriptOperators::OPMOD); break;
             case Ego::Script::PDLTokenKind::Assign: token.setValue(-1); break;
-            default: throw id::runtime_error(__FILE__, __LINE__, "internal error");
+            default: throw idlib::runtime_error(__FILE__, __LINE__, "internal error");
         };
         return token;
     } else if (state.is('[')) {
@@ -696,13 +716,13 @@ Ego::Script::PDLToken parser_state_t::parse_token(ObjectProfile *ppro, script_in
         // We couldn't figure out what this is, throw out an error code
         if (it == Opcodes.cend())
         {
-            throw id::c::compilation_error(__FILE__, __LINE__, id::c::compilation_error_kind::lexical, state.getLocation(), "not an opcode");
+            throw idlib::c::compilation_error(__FILE__, __LINE__, idlib::c::compilation_error_kind::lexical, state.getLocation(), "not an opcode");
         }
         token.setValue((*it).iValue);
         token.category((*it)._kind);
         return token;
     } else {
-        throw id::c::compilation_error(__FILE__, __LINE__, id::c::compilation_error_kind::lexical, state.getLocation(), "unexpected symbol");
+        throw idlib::c::compilation_error(__FILE__, __LINE__, idlib::c::compilation_error_kind::lexical, state.getLocation(), "unexpected symbol");
     }
 }
 
@@ -732,7 +752,7 @@ void parser_state_t::emit_opcode(const Ego::Script::PDLToken& token, const BIT_F
     else
     {
         /** @todo This is not an error of the syntactical analysis. */
-        throw id::c::compilation_error(__FILE__, __LINE__, id::c::compilation_error_kind::syntactical, token.get_start_location(), "unsupported token");
+        throw idlib::c::compilation_error(__FILE__, __LINE__, idlib::c::compilation_error_kind::syntactical, token.get_start_location(), "unsupported token");
     }
 }
 
@@ -765,7 +785,7 @@ void parser_state_t::raise(bool raiseException, Log::Level level, const Ego::Scr
     Log::get() << e;
     if (raiseException)
     {
-        throw id::c::compilation_error(__FILE__, __LINE__, id::c::compilation_error_kind::syntactical, received.get_start_location(), e.getText());
+        throw idlib::c::compilation_error(__FILE__, __LINE__, idlib::c::compilation_error_kind::syntactical, received.get_start_location(), e.getText());
     }
 }
 

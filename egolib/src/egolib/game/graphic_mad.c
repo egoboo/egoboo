@@ -115,9 +115,9 @@ gfx_rv ObjectGraphicsRenderer::render_enviro( Camera& cam, const std::shared_ptr
                     targetVertex->normal.z = pvrt.nrm[ZZ];
 
                     // normalize the color so it can be modulated by the phong/environment map
-                    targetVertex->colour.r = pvrt.color_dir * id::fraction<float, 1, 255>();
-                    targetVertex->colour.g = pvrt.color_dir * id::fraction<float, 1, 255>();
-                    targetVertex->colour.b = pvrt.color_dir * id::fraction<float, 1, 255>();
+                    targetVertex->colour.r = pvrt.color_dir * idlib::fraction<float, 1, 255>();
+                    targetVertex->colour.g = pvrt.color_dir * idlib::fraction<float, 1, 255>();
+                    targetVertex->colour.b = pvrt.color_dir * idlib::fraction<float, 1, 255>();
                     targetVertex->colour.a = 1.0f;
 
                     float cmax = std::max({targetVertex->colour.r, targetVertex->colour.g, targetVertex->colour.b});
@@ -212,15 +212,15 @@ gfx_rv ObjectGraphicsRenderer::render_tex(Camera& camera, const std::shared_ptr<
     // To make life easier
     std::shared_ptr<const Ego::Texture> ptex = pchr->getSkinTexture();
 
-    float uoffset = pchr->inst.uoffset * id::fraction<float, 1, 65535>();
-    float voffset = pchr->inst.voffset * id::fraction<float, 1, 65535>();
+    float uoffset = pchr->inst.uoffset * idlib::fraction<float, 1, 65535>();
+    float voffset = pchr->inst.voffset * idlib::fraction<float, 1, 65535>();
 
     float base_amb = 0.0f;
     if (0 == (bits & CHR_LIGHT))
     {
         // Convert the "light" parameter to self-lighting for
         // every object that is not being rendered using CHR_LIGHT.
-        base_amb = (0xFF == pchr->inst.light) ? 0 : (pchr->inst.light * id::fraction<float, 1, 255>());
+        base_amb = (0xFF == pchr->inst.light) ? 0 : (pchr->inst.light * idlib::fraction<float, 1, 255>());
     }
 
     // Get the maximum number of vertices per command.
@@ -268,7 +268,7 @@ gfx_rv ObjectGraphicsRenderer::render_tex(Camera& camera, const std::shared_ptr<
                     // Perform lighting.
                     if (HAS_NO_BITS(bits, CHR_LIGHT) && HAS_NO_BITS(bits, CHR_ALPHA)) {
                         // The directional lighting.
-                        float fcol = pvrt.color_dir * id::fraction<float, 1, 255>();
+                        float fcol = pvrt.color_dir * idlib::fraction<float, 1, 255>();
 
                         targetVertex->colour.r = fcol;
                         targetVertex->colour.g = fcol;
@@ -280,7 +280,7 @@ gfx_rv ObjectGraphicsRenderer::render_tex(Camera& camera, const std::shared_ptr<
                             // Convert the "light" parameter to self-lighting for
                             // every object that is not being rendered using CHR_LIGHT.
 
-                            float acol = base_amb + pchr->inst.getAmbientColour() * id::fraction<float, 1, 255>();
+                            float acol = base_amb + pchr->inst.getAmbientColour() * idlib::fraction<float, 1, 255>();
 
                             targetVertex->colour.r += acol;
                             targetVertex->colour.g += acol;
@@ -407,14 +407,14 @@ gfx_rv ObjectGraphicsRenderer::render_ref( Camera& cam, const std::shared_ptr<Ob
             auto& renderer = Ego::Renderer::get();
             // cull backward facing polygons
             // use couter-clockwise orientation to determine backfaces
-            renderer.setCullingMode(id::culling_mode::back);
+            renderer.setCullingMode(idlib::culling_mode::back);
             renderer.setWindingMode(MAD_REF_CULL);
             Ego::OpenGL::Utilities::isError();
 
             //Transparent
             if (pchr->inst.getReflectionAlpha() != 0xFF && pchr->inst.light == 0xFF) {
                 renderer.setBlendingEnabled(true);
-                renderer.setBlendFunction(id::color_blend_parameter::source0_alpha, id::color_blend_parameter::one_minus_source0_alpha);
+                renderer.setBlendFunction(idlib::color_blend_parameter::source0_alpha, idlib::color_blend_parameter::one_minus_source0_alpha);
 
                 GLXvector4f tint;
                 pchr->inst.getTint(tint, true, CHR_ALPHA);
@@ -427,7 +427,7 @@ gfx_rv ObjectGraphicsRenderer::render_ref( Camera& cam, const std::shared_ptr<Ob
             //Glowing
             if (pchr->inst.light != 0xFF) {
                 renderer.setBlendingEnabled(true);
-                renderer.setBlendFunction(id::color_blend_parameter::one, id::color_blend_parameter::one);
+                renderer.setBlendFunction(idlib::color_blend_parameter::one, idlib::color_blend_parameter::one);
 
                 GLXvector4f tint;
                 pchr->inst.getTint(tint, true, CHR_LIGHT);
@@ -441,7 +441,7 @@ gfx_rv ObjectGraphicsRenderer::render_ref( Camera& cam, const std::shared_ptr<Ob
             //Render shining effect on top of model
             if (pchr->inst.getReflectionAlpha() == 0xFF && gfx.phongon && pchr->inst.sheen > 0) {
                 renderer.setBlendingEnabled(true);
-                renderer.setBlendFunction(id::color_blend_parameter::one, id::color_blend_parameter::one);
+                renderer.setBlendFunction(idlib::color_blend_parameter::one, idlib::color_blend_parameter::one);
 
                 GLXvector4f tint;
                 pchr->inst.getTint(tint, true, CHR_PHONG);
@@ -475,15 +475,15 @@ gfx_rv ObjectGraphicsRenderer::render_trans(Camera& cam, const std::shared_ptr<O
 
                 // cull backward facing polygons
                 // use clockwise orientation to determine backfaces
-                renderer.setCullingMode(id::culling_mode::back);
+                renderer.setCullingMode(idlib::culling_mode::back);
                 renderer.setWindingMode(MAD_NRM_CULL);
 
                 // get a speed-up by not displaying completely transparent portions of the skin
                 renderer.setAlphaTestEnabled(true);
-                renderer.setAlphaFunction(id::compare_function::greater, 0.0f);
+                renderer.setAlphaFunction(idlib::compare_function::greater, 0.0f);
 
                 renderer.setBlendingEnabled(true);
-                renderer.setBlendFunction(id::color_blend_parameter::source0_alpha, id::color_blend_parameter::one);
+                renderer.setBlendFunction(idlib::color_blend_parameter::source0_alpha, idlib::color_blend_parameter::one);
 
                 GLXvector4f tint;
                 pchr->inst.getTint(tint, false, CHR_ALPHA);
@@ -495,13 +495,13 @@ gfx_rv ObjectGraphicsRenderer::render_trans(Camera& cam, const std::shared_ptr<O
 
             else if (pchr->inst.light < 0xFF) {
                 // light effects should show through transparent objects
-                renderer.setCullingMode(id::culling_mode::none);
+                renderer.setCullingMode(idlib::culling_mode::none);
 
                 // the alpha test can only mess us up here
                 renderer.setAlphaTestEnabled(false);
 
                 renderer.setBlendingEnabled(true);
-                renderer.setBlendFunction(id::color_blend_parameter::one, id::color_blend_parameter::one);
+                renderer.setBlendFunction(idlib::color_blend_parameter::one, idlib::color_blend_parameter::one);
 
                 GLXvector4f tint;
                 pchr->inst.getTint(tint, false, CHR_LIGHT);
@@ -514,7 +514,7 @@ gfx_rv ObjectGraphicsRenderer::render_trans(Camera& cam, const std::shared_ptr<O
             // Render shining effect on top of model
             if (pchr->inst.getReflectionAlpha() == 0xFF && gfx.phongon && pchr->inst.sheen > 0) {
                 renderer.setBlendingEnabled(true);
-                renderer.setBlendFunction(id::color_blend_parameter::one, id::color_blend_parameter::one);
+                renderer.setBlendFunction(idlib::color_blend_parameter::one, idlib::color_blend_parameter::one);
 
                 GLXvector4f tint;
                 pchr->inst.getTint(tint, false, CHR_PHONG);
@@ -553,20 +553,20 @@ gfx_rv ObjectGraphicsRenderer::render_solid( Camera& cam, const std::shared_ptr<
             // which will enable the display of the partially transparent portion of the skin
 
             renderer.setAlphaTestEnabled(true);
-            renderer.setAlphaFunction(id::compare_function::equal, 1.0f);
+            renderer.setAlphaFunction(idlib::compare_function::equal, 1.0f);
 
             // can I turn this off?
             renderer.setBlendingEnabled(true);
-            renderer.setBlendFunction(id::color_blend_parameter::source0_alpha, id::color_blend_parameter::one_minus_source0_alpha);
+            renderer.setBlendFunction(idlib::color_blend_parameter::source0_alpha, idlib::color_blend_parameter::one_minus_source0_alpha);
 
             // allow the dont_cull_backfaces to keep solid objects from culling backfaces
             if (pchr->getProfile()->isDontCullBackfaces()) {
                 // stop culling backward facing polugons
-                renderer.setCullingMode(id::culling_mode::none);
+                renderer.setCullingMode(idlib::culling_mode::none);
             } else {
                 // cull backward facing polygons
                 // use couter-clockwise orientation to determine backfaces
-                renderer.setCullingMode(id::culling_mode::back);
+                renderer.setCullingMode(idlib::culling_mode::back);
                 renderer.setWindingMode(MAD_NRM_CULL);
             }
 
@@ -596,17 +596,17 @@ void ObjectGraphicsRenderer::draw_chr_bbox(const std::shared_ptr<Object>& pchr)
 
         if (drawLeftSlot)
         {
-            auto bb = id::translate(pchr->slot_cv[SLOT_LEFT], pchr->getPosition());
+            auto bb = idlib::translate(pchr->slot_cv[SLOT_LEFT], pchr->getPosition());
             Renderer3D::renderOctBB(bb, true, true);
         }
         if (drawRightSlot)
         {
-            auto bb = id::translate(pchr->slot_cv[SLOT_RIGHT], pchr->getPosition());
+            auto bb = idlib::translate(pchr->slot_cv[SLOT_RIGHT], pchr->getPosition());
             Renderer3D::renderOctBB(bb, true, true);
         }
         if (drawCharacter)
         {
-            auto bb = id::translate(pchr->chr_min_cv, pchr->getPosition());
+            auto bb = idlib::translate(pchr->chr_min_cv, pchr->getPosition());
             Renderer3D::renderOctBB(bb, true, true);
         }
     }

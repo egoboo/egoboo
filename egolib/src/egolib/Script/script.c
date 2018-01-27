@@ -408,7 +408,7 @@ uint8_t script_state_t::run_function(ai_state_t& aiState, script_info_t& script)
         const auto& result = runtime._functionValueCodeToFunctionPointer.find(functionIndex);
         if (runtime._functionValueCodeToFunctionPointer.cend() == result)
         {
-            throw id::runtime_error(__FILE__, __LINE__, "function not found");
+            throw idlib::runtime_error(__FILE__, __LINE__, "function not found");
         }
         returnCode = result->second(*this, aiState);
     }
@@ -562,7 +562,7 @@ void script_state_t::onVariableNotDefinedError(uint8_t variableIndex)
     Log::Entry e(Log::Level::Warning, __FILE__, __LINE__);
     e << "variable " << variableName << "/" << (uint16_t)variableIndex << " not defined" << Log::EndOfEntry;
     Log::get() << e;
-    throw id::runtime_error(__FILE__, __LINE__, e.getText());
+    throw idlib::runtime_error(__FILE__, __LINE__, e.getText());
 }
 
 void script_state_t::run_operand(ai_state_t& aiState, script_info_t& script)

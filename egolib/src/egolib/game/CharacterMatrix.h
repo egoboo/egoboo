@@ -39,7 +39,7 @@ enum matrix_cache_type_t
 
 
 /// the data necessary to cache the last values required to create the character matrix
-struct matrix_cache_t : public id::equal_to_expr<matrix_cache_t>
+struct matrix_cache_t : public idlib::equal_to_expr<matrix_cache_t>
 {
     matrix_cache_t() :
         valid(false),

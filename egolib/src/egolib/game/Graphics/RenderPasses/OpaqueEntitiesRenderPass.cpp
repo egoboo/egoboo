@@ -24,10 +24,10 @@ void OpaqueEntitiesRenderPass::doRun(::Camera& camera, const TileList& tl, const
 
             // do not draw hidden surfaces
             renderer.setDepthTestEnabled(true);
-            renderer.setDepthFunction(id::compare_function::less);
+            renderer.setDepthFunction(idlib::compare_function::less);
 
             renderer.setAlphaTestEnabled(true);
-            renderer.setAlphaFunction(id::compare_function::greater, 0.0f);
+            renderer.setAlphaFunction(idlib::compare_function::greater, 0.0f);
 
             if (ParticleRef::Invalid == el.get(i).iprt && ObjectRef::Invalid != el.get(i).iobj)
             {
@@ -36,7 +36,7 @@ void OpaqueEntitiesRenderPass::doRun(::Camera& camera, const TileList& tl, const
             else if (ObjectRef::Invalid == el.get(i).iobj && ParticleHandler::get()[el.get(i).iprt] != nullptr)
             {
                 // draw draw front and back faces of polygons
-                renderer.setCullingMode(id::culling_mode::none);
+                renderer.setCullingMode(idlib::culling_mode::none);
 
                 ParticleGraphicsRenderer::render_one_prt_solid(el.get(i).iprt);
             }

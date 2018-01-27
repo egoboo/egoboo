@@ -28,7 +28,7 @@
 namespace Ego {
 
 /// @brief The abstract base class of all vertex- and index buffers.
-class Buffer : private id::non_copyable {
+class Buffer : private idlib::non_copyable {
 private:
     /// @brief The size, in Bytes, of this buffer.
     size_t size;

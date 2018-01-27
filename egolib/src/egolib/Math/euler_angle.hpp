@@ -21,12 +21,14 @@
 /// @brief Euler angles.
 /// @author Michael Heilmann
 
+#include "egolib/integrations/idlib.hpp"
+
 #pragma once
 
-namespace id {
+namespace idlib {
 
 /// @brief An Euler angle.
-/// @tparam Angle a specialization of id::angle
+/// @tparam Angle a specialization of idlib::angle
 template <typename Angle>
 struct euler_angle
 {
@@ -52,7 +54,7 @@ struct euler_angle
             case 2:
                 return m_z;
             default:
-                throw id::out_of_bounds_error(__FILE__, __LINE__, "index out of range");
+                throw idlib::out_of_bounds_error(__FILE__, __LINE__, "index out of range");
         };
     }
 	
@@ -67,7 +69,7 @@ struct euler_angle
             case 2:
                 return m_z;
             default:
-                throw id::out_of_bounds_error(__FILE__, __LINE__, "index out of range");
+                throw idlib::out_of_bounds_error(__FILE__, __LINE__, "index out of range");
         };
     }
 
@@ -76,4 +78,4 @@ private:
 
 }; // struct euler_angle
 
-} // namespace id
+} // namespace idlib

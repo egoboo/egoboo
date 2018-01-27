@@ -25,6 +25,7 @@
 
 #include "egolib/Graphics/PixelFormat.hpp"
 #include <SDL.h>
+#undef main
 
 namespace Ego {
 
@@ -35,7 +36,7 @@ class ImageLoader;
 /// @todo
 /// The image manager currently abstracts away the SDL_image/SDL image loading facilities.
 /// It is - in the end - just a minor improvement over the previous code, just enough to get going.
-class ImageManager : public id::singleton<ImageManager>
+class ImageManager : public idlib::singleton<ImageManager>
 {
 private:
     using Loaders = std::vector<std::unique_ptr<ImageLoader>>;
@@ -44,8 +45,8 @@ private:
     Loaders loaders;
 
     struct Iterator : public std::iterator<std::forward_iterator_tag, ImageLoader>,
-                      public id::increment_expr<Iterator>,
-                      public id::equal_to_expr<Iterator>
+                      public idlib::increment_expr<Iterator>,
+                      public idlib::equal_to_expr<Iterator>
     {
         ImageManager::Loaders::const_iterator m_inner;
     public:
@@ -84,8 +85,8 @@ private:
     void registerImageLoaders();
 
 public:
-    friend id::default_new_functor<ImageManager>;
-    friend id::default_delete_functor<ImageManager>;
+    friend idlib::default_new_functor<ImageManager>;
+    friend idlib::default_delete_functor<ImageManager>;
     
     /// @brief Get an iterator pointing to the first loader supporting one of the specified extensions
     /// if such a loader exists, <tt>end()</tt> otherwise. The search range is <tt>[start, end())</tt>.

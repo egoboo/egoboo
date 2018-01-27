@@ -9,7 +9,7 @@ Display::Display(GraphicsSystemNew *graphicsSystem, int displayIndex) :
 {
     if (!graphicsSystem)
     {
-        throw id::runtime_error(__FILE__, __LINE__, "nullptr == graphicsSystem");
+        throw idlib::null_error(__FILE__, __LINE__, "graphicsSystem");
     }
     for (int i = 0, n = SDL_GetNumDisplayModes(displayIndex); i < n; ++i)
     {
@@ -19,7 +19,7 @@ Display::Display(GraphicsSystemNew *graphicsSystem, int displayIndex) :
     }
     if (-1 == SDL_GetDisplayBounds(displayIndex, &displayBounds))
     {
-        throw id::environment_error(__FILE__, __LINE__, "[SDL]", "unable to get display bounds");
+        throw idlib::environment_error(__FILE__, __LINE__, "[SDL]", "unable to get display bounds");
     }
 }
 
@@ -57,7 +57,7 @@ void Display::update()
     }
     if (-1 == SDL_GetDisplayBounds(displayIndex, &displayBounds))
     {
-        throw id::environment_error(__FILE__, __LINE__, "[SDL]", "unable to get display bounds");
+        throw idlib::environment_error(__FILE__, __LINE__, "[SDL]", "unable to get display bounds");
     }
 }
 

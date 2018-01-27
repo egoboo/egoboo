@@ -2,7 +2,7 @@
 
 #include "egolib/platform.h"
 
-namespace id {
+namespace idlib {
 
 /// @brief Event raised if text was erased.
 /// @a get_index() gets the starting index of the replaced subtext (in the old text) and the index of the replacing subtext (in the new text)

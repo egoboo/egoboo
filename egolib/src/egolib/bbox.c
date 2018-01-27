@@ -302,7 +302,7 @@ void oct_bb_t::points_to_oct_bb(oct_bb_t& self, const Vector4f points[], const s
 {
     if (!points)
     {
-        throw std::invalid_argument("nullptr == points");
+        throw idlib::null_error(__FILE__, __LINE__, "points");
     }
     if (!numberOfPoints)
     {

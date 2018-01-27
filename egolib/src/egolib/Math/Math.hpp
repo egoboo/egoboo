@@ -111,7 +111,7 @@ int clipBits(const T &value) {
 template<typename T>
 inline T degToRad(const T &x) {
     static_assert(std::is_floating_point<T>::value, "T must be of floating point type");
-    return (x * id::pi<T>()) / static_cast<T>(180);
+    return (x * idlib::pi<T>()) / static_cast<T>(180);
 }
 
 /**
@@ -125,7 +125,7 @@ inline T degToRad(const T &x) {
 template<typename T>
 inline T radToDeg(const T &x) {
     static_assert(std::is_floating_point<T>::value, "T must be of floating point type");
-    return (x * static_cast<T>(180)) / id::pi<T>();
+    return (x * static_cast<T>(180)) / idlib::pi<T>();
 }
 
 } // namespace Math

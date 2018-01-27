@@ -36,7 +36,7 @@ class Material;
 namespace Ego {
 namespace GUI {
 
-class UIManager : private id::non_copyable {
+class UIManager : private idlib::non_copyable {
 public:
     UIManager();
 

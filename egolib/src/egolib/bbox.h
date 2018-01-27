@@ -264,7 +264,7 @@
             _maxs() {
         }
 
-		friend id::translate_functor<oct_bb_t, oct_vec_v2_t>;
+		friend idlib::translate_functor<oct_bb_t, oct_vec_v2_t>;
 
 	protected:
 		oct_bb_t(bool empty, const oct_vec_v2_t& min, const oct_vec_v2_t& max) :
@@ -482,7 +482,7 @@
 		static bool empty(const oct_bb_t& self);
     };
 
-namespace id {
+namespace idlib {
 
 template <>
 struct translate_functor<oct_bb_t, oct_vec_v2_t>
@@ -498,4 +498,4 @@ struct translate_functor<oct_bb_t, Vector3f>
 	{ return translate(x, oct_vec_v2_t(t)); }
 }; // struct translate_functor
 
-} // namespace id
+} // namespace idlib

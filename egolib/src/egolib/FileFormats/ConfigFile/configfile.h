@@ -52,7 +52,7 @@ protected:
     std::vector<ConfigCommentLine> m_commentLines;
 
     /// @brief The qualified name of this entry.
-    id::c::qualified_name m_qualifiedName;
+    idlib::c::qualified_name m_qualifiedName;
 
     /// @brief The value of this entry.
     std::string m_value;
@@ -61,14 +61,14 @@ public:
     /// @brief Construct this entry.
     /// @param qualifiedName the qualified name
     /// @param value the value
-    ConfigEntry(const id::c::qualified_name& qualifiedName, const std::string& value);
+    ConfigEntry(const idlib::c::qualified_name& qualifiedName, const std::string& value);
 
     /// @brief Destruct this entry.
     virtual ~ConfigEntry();
 
     /// @brief Get the qualified name of this entry.
     /// @return the qualified name of this entry
-    const id::c::qualified_name& getQualifiedName() const;
+    const idlib::c::qualified_name& getQualifiedName() const;
 
     /// @brief Get the value of this entry.
     /// @return the value of this entry
@@ -85,7 +85,7 @@ struct AbstractConfigFile
 {
 public:
 
-    using MapTy = std::unordered_map<id::c::qualified_name, std::shared_ptr<ConfigEntry>>;
+    using MapTy = std::unordered_map<idlib::c::qualified_name, std::shared_ptr<ConfigEntry>>;
     using ConstMapIteratorTy = MapTy::const_iterator;
 
     /// @internal Custom iterator.
@@ -185,7 +185,7 @@ public:
      * @brief
      *  A map of qualified names (keys) to shared pointers of entries (values).
      */
-    std::unordered_map<id::c::qualified_name,std::shared_ptr<ConfigEntry>> _map;
+    std::unordered_map<idlib::c::qualified_name,std::shared_ptr<ConfigEntry>> _map;
 
 public:
 
@@ -269,7 +269,7 @@ public:
      * @return
      *  @a true on success, @a false on failure
      */
-    bool set(const id::c::qualified_name& qn, const std::string& v)
+    bool set(const idlib::c::qualified_name& qn, const std::string& v)
     {
         try
         {
@@ -294,7 +294,7 @@ public:
      *  If @a true is returned, the value was stored @a v.
      *  the value if it exists, @a nullptr otherwise
      */
-    bool get(const id::c::qualified_name& qn, std::string& v) const
+    bool get(const idlib::c::qualified_name& qn, std::string& v) const
     {
         auto it = _map.find(qn);
         if (it != _map.end())
@@ -404,7 +404,7 @@ protected:
      * @brief
      *  The current qualified name or @a nullptr.
      */
-    std::unique_ptr<id::c::qualified_name> _currentQualifiedName;
+    std::unique_ptr<idlib::c::qualified_name> _currentQualifiedName;
     /**
      * @brief
      *  The current value or @a nullptr.

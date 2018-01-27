@@ -34,7 +34,7 @@ public:
         } else if (!_mouseOver && _hoverFadeEffect > 0.0f) {
             _hoverFadeEffect -= 4.0f / GameEngine::GAME_TARGET_FPS;
         }
-        auto material = std::make_shared<Material>(nullptr, id::brighten(_perk.getColour(), _hoverFadeEffect), true);
+        auto material = std::make_shared<Material>(nullptr, idlib::brighten(_perk.getColour(), _hoverFadeEffect), true);
 
         // Draw backdrop
         material->apply();

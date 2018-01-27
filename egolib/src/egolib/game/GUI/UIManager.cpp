@@ -34,8 +34,8 @@ UIManager::UIManager() :
     _fonts(),
     _renderSemaphore(0),
     _bitmapFontTexture(TextureManager::get().getTexture("mp_data/font_new_shadow")),
-    _vertexDescriptor(descriptor_factory<id::vertex_format::P2F>()()),
-    _textureQuadVertexDescriptor(descriptor_factory<id::vertex_format::P2FT2F>()()),
+    _vertexDescriptor(descriptor_factory<idlib::vertex_format::P2F>()()),
+    _textureQuadVertexDescriptor(descriptor_factory<idlib::vertex_format::P2FT2F>()()),
     _textureQuadVertexBuffer(4, _textureQuadVertexDescriptor.get_size()) {
     //Load fonts from true-type files
     _fonts[FONT_DEFAULT] = FontManager::get().loadFont("mp_data/Bo_Chen.ttf", 24);
@@ -80,15 +80,15 @@ void UIManager::beginRenderUI() {
     renderer.setDepthTestEnabled(false);
 
     // Draw draw front and back faces of polygons.
-    renderer.setCullingMode(id::culling_mode::none);
+    renderer.setCullingMode(idlib::culling_mode::none);
 
     // Use normal alpha blending.
-    renderer.setBlendFunction(id::color_blend_parameter::source0_alpha, id::color_blend_parameter::one_minus_source0_alpha);
+    renderer.setBlendFunction(idlib::color_blend_parameter::source0_alpha, idlib::color_blend_parameter::one_minus_source0_alpha);
     renderer.setBlendingEnabled(true);
 
     // Do not display the completely transparent portion.
     renderer.setAlphaTestEnabled(true);
-    renderer.setAlphaFunction(id::compare_function::greater, 0.0f);
+    renderer.setAlphaFunction(idlib::compare_function::greater, 0.0f);
 
     /// Set the viewport rectangle.
     auto drawableSize = GraphicsSystem::get().window->getDrawableSize();
@@ -301,7 +301,7 @@ void UIManager::drawQuad2d(const Rectangle2f& target, const Rectangle2f& source)
         v->s = source.get_min().x(); v->t = source.get_min().y();
         v++;
     }
-    renderer.render(_textureQuadVertexBuffer, _textureQuadVertexDescriptor, id::primitive_type::quadriliterals, 0, 4);
+    renderer.render(_textureQuadVertexBuffer, _textureQuadVertexDescriptor, idlib::primitive_type::quadriliterals, 0, 4);
 }
 
 void UIManager::drawQuad2d(const Rectangle2f& target) {

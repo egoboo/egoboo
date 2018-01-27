@@ -1,6 +1,6 @@
 #include "egolib/text/text_replaced_event.hpp"
 
-namespace id {
+namespace idlib {
 
 text_replaced_event::text_replaced_event(size_t index, size_t length, const std::string& old_text, const std::string& new_text)
 	: m_index(index), m_length(length), m_old_text(old_text), m_new_text(new_text)

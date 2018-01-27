@@ -34,7 +34,7 @@ namespace Ego {
 
 /// @brief A facade for internal buffers like the accumulation buffer, the colour buffer or the depth buffer.
 template <typename DataType>
-class BufferFacade : private id::non_copyable
+class BufferFacade : private idlib::non_copyable
 {
 protected:
     /// @brief Construct this buffer (facade).
@@ -80,7 +80,7 @@ protected:
 public:
     /// @brief Get the colour depth of this accumulation buffer.
     /// @return the colour depth of this accumulation buffer
-    virtual const id::rgba_depth& getColourDepth() = 0;
+    virtual const idlib::rgba_depth& getColourDepth() = 0;
 
 };
 
@@ -99,7 +99,7 @@ protected:
 public:
     /// @brief Get the colour depth of this colour buffer.
     /// @return the colour depth of this colour buffer
-    virtual const id::rgba_depth& getColourDepth() = 0;
+    virtual const idlib::rgba_depth& getColourDepth() = 0;
 
 };
 
@@ -183,7 +183,7 @@ struct RendererCreateFunctor
 struct RendererDestroyFunctor
 { void operator()(Renderer *p) const; };
 
-class Renderer : public id::singleton<Renderer, RendererCreateFunctor, RendererDestroyFunctor> {
+class Renderer : public idlib::singleton<Renderer, RendererCreateFunctor, RendererDestroyFunctor> {
 protected:
     // Befriend with the destroy functor.
     friend RendererDestroyFunctor;
@@ -273,7 +273,7 @@ public:
      * @throw std::invalid_argument
      *  if @a value is not within the bounds of @a 0.0f (inclusive) and @a 1.0f (inclusive).
      */
-    virtual void setAlphaFunction(id::compare_function function, float value) = 0;
+    virtual void setAlphaFunction(idlib::compare_function function, float value) = 0;
 
     /// @brief Enable/disable blending.
     /// @param enabled @a true enables blending, @a false disables it
@@ -292,10 +292,10 @@ public:
      *  the destination alpha blend function
      *  the source blend function
      * @remark
-     *  See id::blend_function for more information.
+     *  See idlib::blend_function for more information.
      */
-    virtual void setBlendFunction(id::color_blend_parameter sourceColour, id::color_blend_parameter sourceAlpha,
-                                  id::color_blend_parameter destinationColour, id::color_blend_parameter destinationAlpha) = 0;
+    virtual void setBlendFunction(idlib::color_blend_parameter sourceColour, idlib::color_blend_parameter sourceAlpha,
+                                  idlib::color_blend_parameter destinationColour, idlib::color_blend_parameter destinationAlpha) = 0;
     /**
      * @brief
      *  Set the blend function.
@@ -313,7 +313,7 @@ public:
      *  o.setBlendFunction(x, x, y, y)
      *  @endcode
      */
-    virtual void setBlendFunction(id::color_blend_parameter source, id::color_blend_parameter destination) {
+    virtual void setBlendFunction(idlib::color_blend_parameter source, idlib::color_blend_parameter destination) {
         setBlendFunction(source, source, destination, destination);
     }
 
@@ -323,7 +323,7 @@ public:
 
     /// @brief Set the culling mode.
     /// @param mode the culling mode
-    virtual void setCullingMode(id::culling_mode mode) = 0;
+    virtual void setCullingMode(idlib::culling_mode mode) = 0;
 
     /**
      * @brief
@@ -364,7 +364,7 @@ public:
      *  To unconditionally write to the depth buffer, depth testing should be set to enabled and the depth test
      *  function to always pass.
      */
-    virtual void setDepthFunction(id::compare_function function) = 0;
+    virtual void setDepthFunction(idlib::compare_function function) = 0;
 
     /// @brief Enable/disable depth testss.
     /// @param enabled @a true enables depth tests, @a false disables them
@@ -420,7 +420,7 @@ public:
 
     /// @brief Set the winding mode.
     /// @param mode the winding mode
-    virtual void setWindingMode(id::winding_mode mode) = 0;
+    virtual void setWindingMode(idlib::winding_mode mode) = 0;
 
     /// @brief Multiply the current matrix with the given matrix.
     /// @param matrix the matrix
@@ -473,7 +473,7 @@ public:
 
     /// @brief Set the rasterization mode (for front- and back-facing polygons).
     /// @param mode the rasterization mode
-    virtual void setRasterizationMode(id::rasterization_mode mode) = 0;
+    virtual void setRasterizationMode(idlib::rasterization_mode mode) = 0;
 
     /// @brief Enable/disable Gouraud shading.
     /// @param enable @a true enables Gouraud shading, @a false disables it
@@ -493,7 +493,7 @@ public:
     ///  @a length is non-zero and
     ///  - is not disible by 3 for the triangles primitive type or
     ///  - is not divisible by 4 for the quadriliterals primitive type.
-    virtual void render(VertexBuffer& vertexBuffer, const VertexDescriptor& vertexDescriptor, id::primitive_type primitiveType, size_t index, size_t length) = 0;
+    virtual void render(VertexBuffer& vertexBuffer, const VertexDescriptor& vertexDescriptor, idlib::primitive_type primitiveType, size_t index, size_t length) = 0;
 
     /// @brief Create a texture.
     /// @return the texture

@@ -319,8 +319,8 @@ bool GameEngine::initialize()
 	ParticleHandler::initialize();
 
 	// Initialize the console.
-	auto rectangle = Rectangle2f(id::zero<Point2f>(), { Ego::GraphicsSystem::get().window->getDrawableSize()(0),
-		                                                Ego::GraphicsSystem::get().window->getDrawableSize()(1) * 0.25 });
+	auto rectangle = Rectangle2f(idlib::zero<Point2f>(), { Ego::GraphicsSystem::get().window->getDrawableSize()(0),
+		                                                   Ego::GraphicsSystem::get().window->getDrawableSize()(1) * 0.25 });
 
 	Ego::Core::Console::initialize(rectangle);
 	Ego::Core::Console::get().ExecuteCommand.subscribe([this](std::string command) {

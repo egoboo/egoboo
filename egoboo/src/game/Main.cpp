@@ -19,8 +19,8 @@
 /// @author Johan Jansen
 /// @author Michael Heilmann
 
-#include "game/Core/GameEngine.hpp"
-#include "game/GUI/UIManager.hpp"
+#include "egolib/game/Core/GameEngine.hpp"
+#include "egolib/game/GUI/UIManager.hpp"
 
 /**
  * @brief
@@ -32,7 +32,7 @@
  * @return
  *  EXIT_SUCCESS upon regular termination, EXIT_FAILURE otherwise
  */
-int SDL_main(int argc, char **argv)
+int main(int argc, char **argv)
 {
     try
     {
@@ -50,7 +50,7 @@ int SDL_main(int argc, char **argv)
 		}
 		Ego::Core::System::uninitialize();
     }
-    catch (const id::exception& ex)
+    catch (const idlib::exception& ex)
     {
         std::cerr << "unhandled exception: " << std::endl
                   << ex.to_string() << std::endl;

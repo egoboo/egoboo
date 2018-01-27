@@ -31,8 +31,8 @@
 namespace Ego {
 
 Texture::Texture(const std::string& name,
-                 id::texture_type type,
-                 const id::texture_sampler& sampler,
+                 idlib::texture_type type,
+                 const idlib::texture_sampler& sampler,
 	             int width, int height, int sourceWidth, int sourceHeight,
 				 std::shared_ptr<SDL_Surface> source,
                  bool hasAlpha) :
@@ -48,17 +48,17 @@ Texture::Texture(const std::string& name,
 Texture::~Texture()
 {}
 
-id::texture_type Texture::getType() const
+idlib::texture_type Texture::getType() const
 {
     return m_type;
 }
 
-id::texture_filter_method Texture::getMipMapFilter() const
+idlib::texture_filter_method Texture::getMipMapFilter() const
 {
     return m_sampler.mip_filter_method();
 }
 
-void Texture::setMipMapFilter(id::texture_filter_method mipMapFilter)
+void Texture::setMipMapFilter(idlib::texture_filter_method mipMapFilter)
 {
     if (mipMapFilter != m_sampler.mip_filter_method())
     {
@@ -67,12 +67,12 @@ void Texture::setMipMapFilter(id::texture_filter_method mipMapFilter)
     m_sampler.mip_filter_method(mipMapFilter);
 }
 
-id::texture_filter_method Texture::getMinFilter() const
+idlib::texture_filter_method Texture::getMinFilter() const
 {
     return m_sampler.min_filter_method();
 }
 
-void Texture::setMinFilter(id::texture_filter_method minFilter)
+void Texture::setMinFilter(idlib::texture_filter_method minFilter)
 {
     if (minFilter != m_sampler.min_filter_method())
     {
@@ -81,12 +81,12 @@ void Texture::setMinFilter(id::texture_filter_method minFilter)
     m_sampler.min_filter_method(minFilter);
 }
 
-id::texture_filter_method Texture::getMagFilter() const
+idlib::texture_filter_method Texture::getMagFilter() const
 {
     return m_sampler.mag_filter_method();
 }
 
-void Texture::setMagFilter(id::texture_filter_method magFilter)
+void Texture::setMagFilter(idlib::texture_filter_method magFilter)
 {
     if (magFilter != m_sampler.mag_filter_method())
     {
@@ -95,12 +95,12 @@ void Texture::setMagFilter(id::texture_filter_method magFilter)
     m_sampler.mag_filter_method(magFilter);
 }
 
-id::texture_address_mode Texture::getAddressModeS() const
+idlib::texture_address_mode Texture::getAddressModeS() const
 {
     return m_sampler.address_mode_s();
 }
 
-void Texture::setAddressModeS(id::texture_address_mode addressModeS)
+void Texture::setAddressModeS(idlib::texture_address_mode addressModeS)
 {
     if (addressModeS != m_sampler.address_mode_s())
     {
@@ -109,12 +109,12 @@ void Texture::setAddressModeS(id::texture_address_mode addressModeS)
     m_sampler.address_mode_s(addressModeS);
 }
 
-id::texture_address_mode Texture::getAddressModeT() const
+idlib::texture_address_mode Texture::getAddressModeT() const
 {
     return m_sampler.address_mode_t();
 }
 
-void Texture::setAddressModeT(id::texture_address_mode addressModeT)
+void Texture::setAddressModeT(idlib::texture_address_mode addressModeT)
 {
     if (addressModeT != m_sampler.address_mode_t())
     {
@@ -158,7 +158,7 @@ const std::string& Texture::getName() const
     return m_name;
 }
 
-const id::texture_sampler& Texture::getSampler() const
+const idlib::texture_sampler& Texture::getSampler() const
 {
     return m_sampler;
 }

@@ -32,11 +32,11 @@ namespace Ego
 namespace Perks
 {
 
-class PerkHandler : public id::singleton<PerkHandler>
+class PerkHandler : public idlib::singleton<PerkHandler>
 {
 protected:
-    friend id::default_new_functor<PerkHandler>;
-    friend id::default_delete_functor<PerkHandler>;
+    friend idlib::default_new_functor<PerkHandler>;
+    friend idlib::default_delete_functor<PerkHandler>;
 
     /**
     * @brief

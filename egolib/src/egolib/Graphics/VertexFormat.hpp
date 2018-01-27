@@ -31,70 +31,70 @@ struct VertexFormatFactory {
     /// @brief Get the vertex descriptor for a vertex format.
     /// @param vertexFormat the vertex format
     /// @return the vertex descriptor for the vertex format
-    static const VertexDescriptor& get(id::vertex_format vertexFormat);
+    static const VertexDescriptor& get(idlib::vertex_format vertexFormat);
 };
 
-template <id::vertex_format>
+template <idlib::vertex_format>
 struct descriptor_factory;
 
 template <>
-struct descriptor_factory<id::vertex_format::P2F>
+struct descriptor_factory<idlib::vertex_format::P2F>
 {
     descriptor_factory() = default;
     const VertexDescriptor& operator()() const;
 };
 
 template <>
-struct descriptor_factory<id::vertex_format::P2FT2F>
+struct descriptor_factory<idlib::vertex_format::P2FT2F>
 {
     descriptor_factory() = default;
     const VertexDescriptor& operator()() const;
 };
 
 template <>
-struct descriptor_factory<id::vertex_format::P3F>
+struct descriptor_factory<idlib::vertex_format::P3F>
 {
     descriptor_factory() = default;
     const VertexDescriptor& operator()() const;
 };
 
 template <>
-struct descriptor_factory<id::vertex_format::P3FC4F>
+struct descriptor_factory<idlib::vertex_format::P3FC4F>
 {
     descriptor_factory() = default;
     const VertexDescriptor& operator()() const;
 };
 
 template <>
-struct descriptor_factory<id::vertex_format::P3FT2F>
+struct descriptor_factory<idlib::vertex_format::P3FT2F>
 {
     descriptor_factory() = default;
     const VertexDescriptor& operator()() const;
 };
 
 template <>
-struct descriptor_factory<id::vertex_format::P3FC4FN3F>
+struct descriptor_factory<idlib::vertex_format::P3FC4FN3F>
 {
     descriptor_factory() = default;
     const VertexDescriptor& operator()() const;
 };
 
 template <>
-struct descriptor_factory<id::vertex_format::P3FC4FT2F>
+struct descriptor_factory<idlib::vertex_format::P3FC4FT2F>
 {
     descriptor_factory() = default;
     const VertexDescriptor& operator()() const;
 };
 
 template <>
-struct descriptor_factory<id::vertex_format::P3FC4FT2FN3F>
+struct descriptor_factory<idlib::vertex_format::P3FC4FT2FN3F>
 {
     descriptor_factory() = default;
     const VertexDescriptor& operator()() const;
 };
 
 template <>
-struct descriptor_factory<id::vertex_format::P3FC3FT2F>
+struct descriptor_factory<idlib::vertex_format::P3FC3FT2F>
 {
     descriptor_factory() = default;
     const VertexDescriptor& operator()() const;

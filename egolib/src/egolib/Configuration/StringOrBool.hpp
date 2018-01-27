@@ -8,10 +8,10 @@ namespace Configuration {
 
 /// @brief A variable storing either a @a bool or and @a std::string value.
 template <class ValueType>
-class Variable<ValueType, std::enable_if_t<id::is_any_of<ValueType, std::string, bool>::value>>
+class Variable<ValueType, std::enable_if_t<idlib::is_any_of<ValueType, std::string, bool>::value>>
     : public VariableBase<ValueType>
 {
-    static_assert(id::is_any_of<ValueType, std::string, bool>::value, "ValueType must be std::string or bool type");
+    static_assert(idlib::is_any_of<ValueType, std::string, bool>::value, "ValueType must be std::string or bool type");
 
 public:
 
@@ -30,13 +30,13 @@ public:
 
     virtual bool encodeValue(std::string& target) const override
     {
-        return id::c::encoder<ValueType>()(this->getValue(), target);
+        return idlib::c::encoder<ValueType>()(this->getValue(), target);
     }
 
     virtual bool decodeValue(const std::string& source) override
     {
         ValueType temporary;
-        if (!id::c::decoder<ValueType>()(source, temporary))
+        if (!idlib::c::decoder<ValueType>()(source, temporary))
         {
             return false;
         }

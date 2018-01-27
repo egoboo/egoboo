@@ -58,7 +58,7 @@ std::unordered_set<std::string> Utilities2::getExtensions()
     const GLubyte *bytes = glGetString(GL_EXTENSIONS);
     if (Utilities::isError())
     {
-        throw id::runtime_error(__FILE__, __LINE__, "unable to acquire renderer back-end information");
+        throw idlib::runtime_error(__FILE__, __LINE__, "unable to acquire renderer back-end information");
     }
     auto tokens = Ego::split(std::string((const char *)bytes), std::string(" "));
     return std::unordered_set<std::string>(tokens.cbegin(), tokens.cend());
@@ -70,7 +70,7 @@ std::string Utilities2::getRenderer()
     const GLubyte *bytes = glGetString(GL_RENDERER);
     if (Utilities::isError())
     {
-        throw id::runtime_error(__FILE__, __LINE__, "unable to acquire renderer back-end information");
+        throw idlib::runtime_error(__FILE__, __LINE__, "unable to acquire renderer back-end information");
     }
     return (const char *)bytes;
 }
@@ -81,7 +81,7 @@ std::string Utilities2::getVendor()
     const GLubyte *bytes = glGetString(GL_VENDOR);
     if (Utilities::isError())
     {
-        throw id::runtime_error(__FILE__, __LINE__, "unable to acquire renderer back-end information");
+        throw idlib::runtime_error(__FILE__, __LINE__, "unable to acquire renderer back-end information");
     }
     return (const char *)bytes;
 }
@@ -92,7 +92,7 @@ std::string Utilities2::getVersion()
     const GLubyte *bytes = glGetString(GL_VERSION);
     if (Utilities::isError())
     {
-        throw id::runtime_error(__FILE__, __LINE__, "unable to acquire renderer back-end information");
+        throw idlib::runtime_error(__FILE__, __LINE__, "unable to acquire renderer back-end information");
     }
     return (const char *)bytes;
 }
@@ -104,7 +104,7 @@ uint8_t Utilities2::getDepthBufferDepth()
     glGetIntegerv(GL_DEPTH_BITS, &depth);
     if (Utilities::isError())
     {
-        throw id::runtime_error(__FILE__, __LINE__, "unable to acquire renderer back-end information");
+        throw idlib::runtime_error(__FILE__, __LINE__, "unable to acquire renderer back-end information");
     }
     return depth;
 }
@@ -116,54 +116,54 @@ uint8_t Utilities2::getStencilBufferDepth()
     glGetIntegerv(GL_STENCIL_BITS, &depth);
     if (Utilities::isError())
     {
-        throw id::runtime_error(__FILE__, __LINE__, "unable to acquire renderer back-end information");
+        throw idlib::runtime_error(__FILE__, __LINE__, "unable to acquire renderer back-end information");
     }
     return depth;
 }
 
-GLint Utilities2::toOpenGL(id::texture_address_mode textureAddressMode)
+GLint Utilities2::toOpenGL(idlib::texture_address_mode textureAddressMode)
 {
     switch (textureAddressMode)
     {
-        case id::texture_address_mode::clamp:
+        case idlib::texture_address_mode::clamp:
             return GL_CLAMP;
-        case id::texture_address_mode::clamp_to_border:
+        case idlib::texture_address_mode::clamp_to_border:
             return GL_CLAMP_TO_BORDER;
-        case id::texture_address_mode::clamp_to_edge:
+        case idlib::texture_address_mode::clamp_to_edge:
             return GL_CLAMP_TO_EDGE;
-        case id::texture_address_mode::repeat:
+        case idlib::texture_address_mode::repeat:
             return GL_REPEAT;
-        case id::texture_address_mode::repeat_mirrored:
+        case idlib::texture_address_mode::repeat_mirrored:
             return GL_MIRRORED_REPEAT;
         default:
-            throw id::unhandled_switch_case_error(__FILE__, __LINE__);
+            throw idlib::unhandled_switch_case_error(__FILE__, __LINE__);
     }
 }
 
-GLenum Utilities2::toOpenGL(id::primitive_type primitiveType)
+GLenum Utilities2::toOpenGL(idlib::primitive_type primitiveType)
 {
     switch (primitiveType)
     {
-        case id::primitive_type::points:
+        case idlib::primitive_type::points:
             return GL_POINTS;
-        case id::primitive_type::lines:
+        case idlib::primitive_type::lines:
             return GL_LINES;
-        case id::primitive_type::line_loop:
+        case idlib::primitive_type::line_loop:
             return GL_LINE_LOOP;
-        case id::primitive_type::line_strip:
+        case idlib::primitive_type::line_strip:
             return GL_LINE_STRIP;
-        case id::primitive_type::triangles:
+        case idlib::primitive_type::triangles:
             return GL_TRIANGLES;
-        case id::primitive_type::triangle_fan:
+        case idlib::primitive_type::triangle_fan:
             return GL_TRIANGLE_FAN;
-        case id::primitive_type::triangle_strip:
+        case idlib::primitive_type::triangle_strip:
             return GL_TRIANGLE_STRIP;
-        case id::primitive_type::quadriliterals:
+        case idlib::primitive_type::quadriliterals:
             return GL_QUADS;
-        case id::primitive_type::quadriliteral_strip:
+        case idlib::primitive_type::quadriliteral_strip:
             return GL_QUAD_STRIP;
         default:
-            throw id::unhandled_switch_case_error(__FILE__, __LINE__);
+            throw idlib::unhandled_switch_case_error(__FILE__, __LINE__);
     }
 }
 
@@ -178,13 +178,13 @@ float Utilities2::getMaximumSupportedAnisotropy()
 {
     if (!isAnisotropySupported())
     {
-        throw id::runtime_error(__FILE__, __LINE__, "anisotropy is not supported");
+        throw idlib::runtime_error(__FILE__, __LINE__, "anisotropy is not supported");
     }
     float maxAnisotropy;
     glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAnisotropy);
     if (Utilities::isError())
     {
-        throw id::runtime_error(__FILE__, __LINE__, "unable to determine maximum supported anisotropy levels");
+        throw idlib::runtime_error(__FILE__, __LINE__, "unable to determine maximum supported anisotropy levels");
     }
     return maxAnisotropy;
 }
@@ -193,7 +193,7 @@ float Utilities2::getMinimumSupportedAnisotropy()
 {
     if (!isAnisotropySupported())
     {
-        throw id::runtime_error(__FILE__, __LINE__, "anisotropy is not supported");
+        throw idlib::runtime_error(__FILE__, __LINE__, "anisotropy is not supported");
 
     }
     return 1.0f;
@@ -262,59 +262,59 @@ void Utilities2::upload_2d_mipmap(const pixel_descriptor& pfd, GLsizei w, GLsize
     SDL_FreeSurface(surf);
 }
 
-void Utilities2::toOpenGL(id::texture_filter_method minFilter, id::texture_filter_method magFilter, id::texture_filter_method mipMapFilter, GLint& minFilter_gl, GLint& magFilter_gl)
+void Utilities2::toOpenGL(idlib::texture_filter_method minFilter, idlib::texture_filter_method magFilter, idlib::texture_filter_method mipMapFilter, GLint& minFilter_gl, GLint& magFilter_gl)
 {
     switch (minFilter)
     {
         // In OpenGL for the minification filter, "none" and "nearest" coincide.
-        case id::texture_filter_method::none:
-        case id::texture_filter_method::nearest:
+        case idlib::texture_filter_method::none:
+        case idlib::texture_filter_method::nearest:
             switch (mipMapFilter)
             {
-                case id::texture_filter_method::none:
+                case idlib::texture_filter_method::none:
                     minFilter_gl = GL_NEAREST;
                     break;
-                case id::texture_filter_method::nearest:
+                case idlib::texture_filter_method::nearest:
                     minFilter_gl = GL_NEAREST_MIPMAP_NEAREST;
                     break;
-                case id::texture_filter_method::linear:
+                case idlib::texture_filter_method::linear:
                     minFilter_gl = GL_NEAREST_MIPMAP_LINEAR;
                     break;
                 default:
-                    throw id::unhandled_switch_case_error(__FILE__, __LINE__);
+                    throw idlib::unhandled_switch_case_error(__FILE__, __LINE__);
             }
             break;
-        case id::texture_filter_method::linear:
+        case idlib::texture_filter_method::linear:
             switch (mipMapFilter)
             {
-                case id::texture_filter_method::none:
+                case idlib::texture_filter_method::none:
                     minFilter_gl = GL_LINEAR;
                     break;
-                case id::texture_filter_method::nearest:
+                case idlib::texture_filter_method::nearest:
                     minFilter_gl = GL_LINEAR_MIPMAP_NEAREST;
                     break;
-                case id::texture_filter_method::linear:
+                case idlib::texture_filter_method::linear:
                     minFilter_gl = GL_LINEAR_MIPMAP_LINEAR;
                     break;
                 default:
-                    throw id::unhandled_switch_case_error(__FILE__, __LINE__);
+                    throw idlib::unhandled_switch_case_error(__FILE__, __LINE__);
             }
             break;
         default:
-            throw id::unhandled_switch_case_error(__FILE__, __LINE__);
+            throw idlib::unhandled_switch_case_error(__FILE__, __LINE__);
     };
     switch (magFilter)
     {
         // In OpenGL for the magnification filter, "none" and "nearest" coincide.
-        case id::texture_filter_method::none:
-        case id::texture_filter_method::nearest:
+        case idlib::texture_filter_method::none:
+        case idlib::texture_filter_method::nearest:
             magFilter_gl = GL_NEAREST;
             break;
-        case id::texture_filter_method::linear:
+        case idlib::texture_filter_method::linear:
             magFilter_gl = GL_LINEAR;
             break;
         default:
-            throw id::unhandled_switch_case_error(__FILE__, __LINE__);
+            throw idlib::unhandled_switch_case_error(__FILE__, __LINE__);
     };
 }
 
@@ -323,45 +323,45 @@ void Utilities2::toOpenGL(const pixel_descriptor& pfd, GLenum& internalFormat_gl
 {
     switch (pfd.get_pixel_format())
     {
-        case id::pixel_format::R8G8B8:
+        case idlib::pixel_format::R8G8B8:
             internalFormat_gl = GL_RGB;
             format_gl = GL_RGB;
             type_gl = GL_UNSIGNED_BYTE;
             break;
-        case id::pixel_format::R8G8B8A8:
+        case idlib::pixel_format::R8G8B8A8:
             internalFormat_gl = GL_RGBA;
             format_gl = GL_RGBA;
             type_gl = GL_UNSIGNED_BYTE;
             break;
-        case id::pixel_format::B8G8R8:
+        case idlib::pixel_format::B8G8R8:
             internalFormat_gl = GL_BGR;
             format_gl = GL_BGR;
             type_gl = GL_UNSIGNED_BYTE;
             break;
-        case id::pixel_format::B8G8R8A8:
+        case idlib::pixel_format::B8G8R8A8:
             internalFormat_gl = GL_BGRA;
             format_gl = GL_BGRA;
             type_gl = GL_UNSIGNED_BYTE;
             break;
         default:
-            throw id::unhandled_switch_case_error(__FILE__, __LINE__, "pixel format not supported");
+            throw idlib::unhandled_switch_case_error(__FILE__, __LINE__, "pixel format not supported");
     };
 }
 
-void Utilities2::setSampler(const std::shared_ptr<RendererInfo>& info, id::texture_type target, const id::texture_sampler& sampler)
+void Utilities2::setSampler(const std::shared_ptr<RendererInfo>& info, idlib::texture_type target, const idlib::texture_sampler& sampler)
 {
     Utilities::clearError();
     GLenum target_gl;
     switch (target)
     {
-        case id::texture_type::_2D:
+        case idlib::texture_type::_2D:
             target_gl = GL_TEXTURE_2D;
             break;
-        case id::texture_type::_1D:
+        case idlib::texture_type::_1D:
             target_gl = GL_TEXTURE_1D;
             break;
         default:
-            throw id::unhandled_switch_case_error(__FILE__, __LINE__);
+            throw idlib::unhandled_switch_case_error(__FILE__, __LINE__);
     }
     if (Utilities::isError())
     {
@@ -387,7 +387,7 @@ void Utilities2::setSampler(const std::shared_ptr<RendererInfo>& info, id::textu
         return;
     }
 
-    if (id::texture_type::_2D == target && info->isAnisotropySupported() && info->isAnisotropyDesired())
+    if (idlib::texture_type::_2D == target && info->isAnisotropySupported() && info->isAnisotropyDesired())
     {
         float anisotropyLevel = Math::constrain(sampler.anisotropy_levels(),
                                                 info->getMinimumSupportedAnisotropy(),

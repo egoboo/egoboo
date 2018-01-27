@@ -719,7 +719,7 @@ void ModelDescriptor::healActions(const std::string &filePath)
 
 ModelAction ModelDescriptor::charToAction(char cTmp)
 {
-    switch ( id::to_upper( cTmp ) )
+    switch ( idlib::to_upper( cTmp ) )
     {
         case 'D': return ACTION_DA;
         case 'U': return ACTION_UA;

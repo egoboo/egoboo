@@ -143,7 +143,7 @@ VideoService::VideoService()
     {
         auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "unable to initialize SDL video: ", SDL_GetError(), Log::EndOfEntry);
         Log::get() << e;
-        throw id::environment_error(__FILE__, __LINE__, "[SDL]", e.getText());
+        throw idlib::environment_error(__FILE__, __LINE__, "[SDL]", e.getText());
     }
 }
 
@@ -159,7 +159,7 @@ AudioService::AudioService()
     {
         auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "unable to initialize SDL audio: ", SDL_GetError(), Log::EndOfEntry);
         Log::get() << e;
-        throw id::environment_error(__FILE__, __LINE__, "[SDL]", e.getText());
+        throw idlib::environment_error(__FILE__, __LINE__, "[SDL]", e.getText());
     }
 }
 

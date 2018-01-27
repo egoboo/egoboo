@@ -34,10 +34,10 @@ class Texture
 {
 protected:
     /// @brief The type of this texture.
-    id::texture_type m_type;
+    idlib::texture_type m_type;
 
     /// @brief The sampler of this texture.
-    id::texture_sampler m_sampler;
+    idlib::texture_sampler m_sampler;
 
     /// @brief The name of the texture.
     /// @remark
@@ -75,7 +75,7 @@ public:
 protected:
     /// @brief Construct this texture.
     /// @remark Intentionally protected.
-    Texture(const std::string& name, id::texture_type type, const id::texture_sampler& sampler,
+    Texture(const std::string& name, idlib::texture_type type, const idlib::texture_sampler& sampler,
             int width, int height, int sourceWidth, int sourceHeight,
 			std::shared_ptr<SDL_Surface> source,
             bool hasAlpha);
@@ -86,47 +86,47 @@ public:
 
     /// @brief Get the type of this texture.
     /// @return the type of this texture
-    id::texture_type getType() const;
+    idlib::texture_type getType() const;
 
     /// @brief Get the mipmap filter of this texture.
     /// @return the mipmap filter
-    id::texture_filter_method getMipMapFilter() const;
+    idlib::texture_filter_method getMipMapFilter() const;
 
     /// @brief Set the mipmap filter of this texture.
     /// @param mipMapFilter the mipmap filter
-    void setMipMapFilter(id::texture_filter_method minFilter);
+    void setMipMapFilter(idlib::texture_filter_method minFilter);
 
     /// @brief Get the minification filter of this texture.
     /// @return the minification filter
-    id::texture_filter_method getMinFilter() const;
+    idlib::texture_filter_method getMinFilter() const;
 
     /// @brief Set the minification filter of this texture.
     /// @param minFilter the minification filter
-    void setMinFilter(id::texture_filter_method minFilter);
+    void setMinFilter(idlib::texture_filter_method minFilter);
 
     /// @brief Get the magnification filter of this texture.
     /// @return the magnification filter
-    id::texture_filter_method getMagFilter() const;
+    idlib::texture_filter_method getMagFilter() const;
 
     /// @brief Set the magnification filter of this texture.
     /// @param magFilter the magnification filter
-    void setMagFilter(id::texture_filter_method magFilter);
+    void setMagFilter(idlib::texture_filter_method magFilter);
 
     /// @brief Get the address mode of this texture along the s-axis.
     /// @return the address mode of this texture along the s-axis.
-    id::texture_address_mode getAddressModeS() const;
+    idlib::texture_address_mode getAddressModeS() const;
 
     /// @brief Set the address mode of this texture along the s-axis.
     /// @param addressMode the address mode of this texture along the s-axis
-    void setAddressModeS(id::texture_address_mode addressModeS);
+    void setAddressModeS(idlib::texture_address_mode addressModeS);
 
     /// @brief Get the address mode of this texture along the t-axis.
     /// @return the address mode of this texture along the t-axis.
-    id::texture_address_mode getAddressModeT() const;
+    idlib::texture_address_mode getAddressModeT() const;
 
     /// @brief Set the address mode of this texture along the t-axis.
     /// @param addressMode the address mode of this texture along the t-axis
-    void setAddressModeT(id::texture_address_mode addressModeT);
+    void setAddressModeT(idlib::texture_address_mode addressModeT);
 
     /// @brief Get the width, in pixels, of this texture.
     /// @return the width, in pixels of this texture
@@ -168,7 +168,7 @@ public:
 
     /// @brief Get the texture sampler.
     /// @return the texture sampler
-    const id::texture_sampler& getSampler() const;
+    const idlib::texture_sampler& getSampler() const;
 
     /// @brief Get the source.
     /// @return the source

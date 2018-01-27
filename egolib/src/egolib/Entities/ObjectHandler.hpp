@@ -40,7 +40,7 @@ bool INGAME_PCHR(const Object *pobj);
 /**
 * @brief A completely recursive loop safe container for accessing instances of in-game objects
 **/
-class ObjectHandler : private id::non_copyable
+class ObjectHandler : private idlib::non_copyable
 {
 public:
 

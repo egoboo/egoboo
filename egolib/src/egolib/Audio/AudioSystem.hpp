@@ -111,7 +111,7 @@ struct AudioSystemDestroyFunctor
 	void operator()(AudioSystem *p) const;
 };
 
-class AudioSystem : public id::singleton<AudioSystem, AudioSystemCreateFunctor, AudioSystemDestroyFunctor>
+class AudioSystem : public idlib::singleton<AudioSystem, AudioSystemCreateFunctor, AudioSystemDestroyFunctor>
 {
 public:
     static constexpr int MIX_HIGH_QUALITY = 44100;

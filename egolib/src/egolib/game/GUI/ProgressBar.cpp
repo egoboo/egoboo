@@ -29,7 +29,7 @@ void ProgressBar::draw(DrawingContext& drawingContext) {
     v->x = getX() + getWidth(); v->y = getY() + getHeight(); v++;
     v->x = getX() + getWidth(); v->y = getY();
     vb->unlock();
-    renderer.render(*vb, vd, id::primitive_type::quadriliterals, 0, 4);
+    renderer.render(*vb, vd, idlib::primitive_type::quadriliterals, 0, 4);
 
     //Draw progress
     const int BAR_EDGE = 2;
@@ -43,7 +43,7 @@ void ProgressBar::draw(DrawingContext& drawingContext) {
     v->x = getX() + BAR_EDGE + progressWidth; v->y = getY() + BAR_EDGE + getHeight() - BAR_EDGE * 2; v++;
     v->x = getX() + BAR_EDGE + progressWidth; v->y = getY() + BAR_EDGE;
     vb->unlock();
-    renderer.render(*vb, vd, id::primitive_type::quadriliterals, 0, 4);
+    renderer.render(*vb, vd, idlib::primitive_type::quadriliterals, 0, 4);
 
     //Draw ticks if needed
     if (_tickWidth > 0.0f) {
@@ -59,7 +59,7 @@ void ProgressBar::draw(DrawingContext& drawingContext) {
             v->x = getX() + BAR_EDGE + actualTickWidth*i + BAR_EDGE; v->y = getY() + getHeight(); v++;
             v->x = getX() + BAR_EDGE + actualTickWidth*i + BAR_EDGE; v->y = getY();
             vb->unlock();
-            renderer.render(*vb, vd, id::primitive_type::quadriliterals, 0, 4);
+            renderer.render(*vb, vd, idlib::primitive_type::quadriliterals, 0, 4);
         }
     }
 }

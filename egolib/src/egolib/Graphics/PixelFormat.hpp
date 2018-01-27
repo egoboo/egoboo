@@ -35,86 +35,86 @@ class pixel_descriptor
 {
 private:
     /// @brief The pixel format.
-    id::pixel_format m_pixel_format;
+    idlib::pixel_format m_pixel_format;
 
     /// @brief The pixel component descriptor for the alpha component.
-    id::pixel_component_descriptor m_alpha;
+    idlib::pixel_component_descriptor m_alpha;
 
     /// @brief The pixel component descriptor for the blue component.
-    id::pixel_component_descriptor m_blue;
+    idlib::pixel_component_descriptor m_blue;
 
     /// @brief The pixel component descriptor for the green component.
-    id::pixel_component_descriptor m_green;
+    idlib::pixel_component_descriptor m_green;
 
     /// @brief The pixel component descriptor for the red component.
-    id::pixel_component_descriptor m_red;
+    idlib::pixel_component_descriptor m_red;
 
     /// @brief The colour depth of this pixel format.
-    id::rgba_depth m_color_depth;
+    idlib::rgba_depth m_color_depth;
 
 protected:
     /// @brief Construct this pixel descriptor.
     /// @param pixel_format the pixel format
     /// @param red, green, blue, alpha the pixel component descriptors of the red, green, blue, and alpha components
     /// @param color_depth the color depth
-    pixel_descriptor(id::pixel_format pixel_format,
-                     const id::pixel_component_descriptor& red,
-                     const id::pixel_component_descriptor& green,
-                     const id::pixel_component_descriptor& blue,
-                     const id::pixel_component_descriptor& alpha,
-                     const id::rgba_depth& color_depth);
+    pixel_descriptor(idlib::pixel_format pixel_format,
+                     const idlib::pixel_component_descriptor& red,
+                     const idlib::pixel_component_descriptor& green,
+                     const idlib::pixel_component_descriptor& blue,
+                     const idlib::pixel_component_descriptor& alpha,
+                     const idlib::rgba_depth& color_depth);
 
 public:
     /// @brief Get the pixel component descriptor of the alpha component.
     /// @return the pixel component descriptor of the alpha component
-    const id::pixel_component_descriptor& get_alpha() const;
+    const idlib::pixel_component_descriptor& get_alpha() const;
 
     /// @brief Get the pixel component descriptor of the blue component.
     /// @return the pixel component descriptor of the blue component
-    const id::pixel_component_descriptor& get_blue() const;
+    const idlib::pixel_component_descriptor& get_blue() const;
 
     /// @brief Get the pixel component descriptor of the green component.
     /// @return the pixel component descriptor of the green component
-    const id::pixel_component_descriptor& get_green() const;
+    const idlib::pixel_component_descriptor& get_green() const;
 
     /// @brief Get the pixel component descriptor of the red component.
     /// @return the pixel component descriptor of the red component
-    const id::pixel_component_descriptor& get_red() const;
+    const idlib::pixel_component_descriptor& get_red() const;
 
     /// @brief Get the colour depth of this pixel format.
     /// @return the colour depth of this pixel format
-    const id::rgba_depth& get_color_depth() const;
+    const idlib::rgba_depth& get_color_depth() const;
 
     /// @brief Get the pixel format.
     /// @return the pixel format
-    id::pixel_format get_pixel_format() const;
+    idlib::pixel_format get_pixel_format() const;
 
-    template<id::pixel_format pixel_format>
+    template<idlib::pixel_format pixel_format>
     static const pixel_descriptor& get();
 
     /// @brief Get the pixel format descriptor for a pixel format.
     /// @param pixelFormat the pixel format
     /// @return the pixel format descriptor for the pixel format
-    static const pixel_descriptor& get(id::pixel_format pixel_format);
+    static const pixel_descriptor& get(idlib::pixel_format pixel_format);
 
 };
 
 template <>
-const pixel_descriptor& pixel_descriptor::get<id::pixel_format::B8G8R8>();
+const pixel_descriptor& pixel_descriptor::get<idlib::pixel_format::B8G8R8>();
 
 template <>
-const pixel_descriptor& pixel_descriptor::get<id::pixel_format::B8G8R8A8>();
+const pixel_descriptor& pixel_descriptor::get<idlib::pixel_format::B8G8R8A8>();
 
 template <>
-const pixel_descriptor& pixel_descriptor::get<id::pixel_format::R8G8B8>();
+const pixel_descriptor& pixel_descriptor::get<idlib::pixel_format::R8G8B8>();
 
 template <>
-const pixel_descriptor& pixel_descriptor::get<id::pixel_format::R8G8B8A8>();
+const pixel_descriptor& pixel_descriptor::get<idlib::pixel_format::R8G8B8A8>();
 
 template <>
-const pixel_descriptor& pixel_descriptor::get<id::pixel_format::A8B8G8R8>();
+const pixel_descriptor& pixel_descriptor::get<idlib::pixel_format::A8B8G8R8>();
 
 template <>
-const pixel_descriptor& pixel_descriptor::get<id::pixel_format::A8R8G8B8>();
+const pixel_descriptor& pixel_descriptor::get<idlib::pixel_format::A8R8G8B8>();
 
 } // namespace Ego

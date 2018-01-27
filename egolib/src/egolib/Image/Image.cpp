@@ -50,7 +50,7 @@ Image::~Image()
     m_surface = nullptr;
 }
 
-id::pixel_format Image::get_pixel_format() const
+idlib::pixel_format Image::get_pixel_format() const
 {
     return m_pixel_format;
 }
@@ -98,7 +98,7 @@ std::shared_ptr<Image> Image::clone() const
     auto cloned_surface = SDL_ConvertSurface(m_surface, m_surface->format, 0);
     if (!cloned_surface)
     {
-        throw id::runtime_error(__FILE__, __LINE__, "SDL_ConvertSurface failed");
+        throw idlib::runtime_error(__FILE__, __LINE__, "SDL_ConvertSurface failed");
     }
     std::shared_ptr<Image> cloned_image = nullptr;
     try
@@ -124,12 +124,12 @@ std::shared_ptr<Image> convert_functor<Image>::operator()(const std::shared_ptr<
     uint32_t newFormat = SDL_MasksToPixelFormatEnum(bpp, redMask, greenMask, blueMask, alphaMask);
     if (newFormat == SDL_PIXELFORMAT_UNKNOWN)
     {
-        throw id::invalid_argument_error(__FILE__, __LINE__, "pixelFormatDescriptor doesn't correspond with a SDL_PixelFormat");
+        throw idlib::invalid_argument_error(__FILE__, __LINE__, "pixelFormatDescriptor doesn't correspond with a SDL_PixelFormat");
     }
     SDL_Surface *newSurface = SDL_ConvertSurfaceFormat(image->getSurface(), newFormat, 0);
     if (!newSurface)
     {
-        throw id::runtime_error(__FILE__, __LINE__, "unable to convert surface");
+        throw idlib::runtime_error(__FILE__, __LINE__, "unable to convert surface");
     }
 
     try
@@ -192,13 +192,13 @@ std::shared_ptr<Image> pad_functor<Image>::operator()(const std::shared_ptr<Imag
                                             oldSurface->format->Amask);
     if (!newSurface)
     {
-        throw id::runtime_error(__FILE__, __LINE__, "SDL_CreateRGBSurface failed");
+        throw idlib::runtime_error(__FILE__, __LINE__, "SDL_CreateRGBSurface failed");
     }
     // Fill the copy with transparent black.
     if (-1 == SDL_FillRect(newSurface, nullptr, SDL_MapRGBA(newSurface->format, 0, 0, 0, 0)))
     {
         SDL_FreeSurface(newSurface);
-        throw id::runtime_error(__FILE__, __LINE__, "SDL_FillRect failed");
+        throw idlib::runtime_error(__FILE__, __LINE__, "SDL_FillRect failed");
     }
     // Copy the old surface into the new surface.
     for (size_t y = 0; y < oldHeight; ++y)
@@ -242,43 +242,43 @@ void blit_functor<Image>::operator()(Image *source, const Rectangle2f& source_re
 
 void fill_functor<Image>::operator()(Image *image, const Math::Colour3b& color) const
 {
-    if (!image) throw id::null_error(__FILE__, __LINE__, "image");
+    if (!image) throw idlib::null_error(__FILE__, __LINE__, "image");
     fill(image->getSurface(), color);
 }
 
 void fill_functor<Image>::operator()(Image *image, const Math::Colour3b& color, const Rectangle2f& rectangle) const
 {
-    if (!image) throw id::null_error(__FILE__, __LINE__, "image");
+    if (!image) throw idlib::null_error(__FILE__, __LINE__, "image");
     fill(image->getSurface(), color, rectangle);
 }
 
 void fill_functor<Image>::operator()(Image *image, const Math::Colour4b& color) const
 {
-    if (!image) throw id::null_error(__FILE__, __LINE__, "image");
+    if (!image) throw idlib::null_error(__FILE__, __LINE__, "image");
     fill(image->getSurface(), color);
 }
 
 void fill_functor<Image>::operator()(Image *image, const Math::Colour4b& color, const Rectangle2f& rectangle) const
 {
-    if (!image) throw id::null_error(__FILE__, __LINE__, "image");
+    if (!image) throw idlib::null_error(__FILE__, __LINE__, "image");
     fill(image->getSurface(), color, rectangle);
 }
 
 Math::Colour4b get_pixel_functor<Image>::operator()(const Image *image, const Point2f& point) const
 {
-    if (!image) throw id::null_error(__FILE__, __LINE__, "image");
+    if (!image) throw idlib::null_error(__FILE__, __LINE__, "image");
     return get_pixel(image->getSurface(), point);
 }
 
 void set_pixel_functor<Image>::operator()(Image *image, const Math::Colour3b& color, const Point2f& point) const
 {
-    if (!image) throw id::null_error(__FILE__, __LINE__, "image");
+    if (!image) throw idlib::null_error(__FILE__, __LINE__, "image");
     set_pixel(image->getSurface(), color, point);
 }
 
 void set_pixel_functor<Image>::operator()(Image *image, const Math::Colour4b& color, const Point2f& point) const
 {
-    if (!image) throw id::null_error(__FILE__, __LINE__, "image");
+    if (!image) throw idlib::null_error(__FILE__, __LINE__, "image");
     set_pixel(image->getSurface(), color, point);
 }
 

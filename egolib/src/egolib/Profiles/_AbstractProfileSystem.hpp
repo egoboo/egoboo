@@ -34,7 +34,7 @@
 /// and remove.
 /// @remark The size of a profile system is its number of entries.
 template <typename TypeArg, typename RefTypeArg>
-struct AbstractProfileSystem : private id::non_copyable
+struct AbstractProfileSystem : private idlib::non_copyable
 {
 public:
     using Type = TypeArg;

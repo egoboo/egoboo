@@ -43,11 +43,11 @@ template<class T>
 typename std::enable_if_t<std::is_floating_point<T>::value, bool>
 float_equal_to_ulp(T x, T y, size_t ulp)
 {
-	switch (id::equal_to(x, y))
+	switch (idlib::equal_to(x, y))
 	{
-		case id::equality_check_result::equal:
+		case idlib::equality_check_result::equal:
 			return true;
-		case id::equality_check_result::not_equal:
+		case idlib::equality_check_result::not_equal:
 			return false;
 	};
 	// Some black magic.
@@ -69,11 +69,11 @@ template<class T>
 typename std::enable_if_t<std::is_floating_point<T>::value, bool>
 float_equal_to_tolerance(T x, T y, T t)
 {
-	switch (id::equal_to(x, y))
+	switch (idlib::equal_to(x, y))
 	{
-	case id::equality_check_result::equal:
+	case idlib::equality_check_result::equal:
 		return true;
-	case id::equality_check_result::not_equal:
+	case idlib::equality_check_result::not_equal:
 		return false;
 	};
 	// Some black magic.

@@ -252,16 +252,16 @@ public:
     Ego::Configuration::Variable<bool> graphic_doubleBuffering_enable;
 
     /// @brief The texture filter used for minification.
-    /// @remark Default value is id::texture_filter_method::linear.
-    Ego::Configuration::Variable<id::texture_filter_method> graphic_textureFilter_minFilter;
+    /// @remark Default value is idlib::texture_filter_method::linear.
+    Ego::Configuration::Variable<idlib::texture_filter_method> graphic_textureFilter_minFilter;
 
     /// @brief The texture filter used for magnification.
-    /// @remark Default value is id::texture_filter_method::linear.
-    Ego::Configuration::Variable<id::texture_filter_method> graphic_textureFilter_magFilter;
+    /// @remark Default value is idlib::texture_filter_method::linear.
+    Ego::Configuration::Variable<idlib::texture_filter_method> graphic_textureFilter_magFilter;
 
     /// @brief The filter applied used for mip map selection.
-    /// @remark Default value is id::texture_filter_method::linear.
-    Ego::Configuration::Variable<id::texture_filter_method> graphic_textureFilter_mipMapFilter;
+    /// @remark Default value is idlib::texture_filter_method::linear.
+    Ego::Configuration::Variable<idlib::texture_filter_method> graphic_textureFilter_mipMapFilter;
 
     /// @brief Inclusive upper bound of number of simultaneous dynamic lights.
     /// @remark Default value is @a 32.

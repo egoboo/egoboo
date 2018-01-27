@@ -64,7 +64,7 @@ void TextureAtlasManager::decimate(const std::shared_ptr<const Ego::Texture>& so
             auto targetTexture = Renderer::get().createTexture();
 
             // Create the destination surface.
-            const auto& pfd = pixel_descriptor::get<id::pixel_format::R8G8B8A8>();
+            const auto& pfd = pixel_descriptor::get<idlib::pixel_format::R8G8B8A8>();
             auto targetImage = ImageManager::get().createImage(rectangle.w, rectangle.h, pfd);
             if (!targetImage) {
                 continue;

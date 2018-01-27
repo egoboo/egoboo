@@ -38,13 +38,13 @@ namespace Math {
  * proj(\vec{v},\vec{w}) = \frac{\vec{v} \cdot \vec{w}}{|\vec{w}|^2} \vec{w}
  * \f}
  * which is the definition this implementation is using.
- * @throw id::runtime_error the vector \f$\vec{w}\f$ is the zero vector
+ * @throw idlib::runtime_error the vector \f$\vec{w}\f$ is the zero vector
  */
 template <typename _VectorType>
 inline _VectorType Projection(const _VectorType& v, const _VectorType& w) {
     _VectorType l = w.length_2();
     if (l == _VectorType::ScalarType()) {
-        id::runtime_error(__FILE__, __LINE__, "vector w must not be the zero vector");
+        idlib::runtime_error(__FILE__, __LINE__, "vector w must not be the zero vector");
     }
     return w * (w.dot(v) / l);
 }

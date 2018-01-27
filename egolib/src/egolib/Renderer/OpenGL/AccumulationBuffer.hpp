@@ -33,7 +33,7 @@ using namespace Math;
 class AccumulationBuffer : public Ego::AccumulationBuffer
 {
 private:
-    id::rgba_depth colourDepth;
+    idlib::rgba_depth colourDepth;
 
 public:
     /// @brief Construct this accumulation buffer facade.
@@ -50,7 +50,7 @@ public:
     virtual void setClearValue(const Colour4f& value) override;
 
     /** @copydoc Ego::AccumulationBuffer::getColourDepth */
-    virtual const id::rgba_depth& getColourDepth() override;
+    virtual const idlib::rgba_depth& getColourDepth() override;
 
 }; // class AccumulationBuffer
 

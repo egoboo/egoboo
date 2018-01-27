@@ -4,11 +4,11 @@ namespace Ego {
 namespace Script {
 
 CLogEntry::CLogEntry(Log::Level level, const std::string& fileName, int lineNumber,
-                     const std::string& functionName, const id::c::location& location)
+                     const std::string& functionName, const idlib::c::location& location)
     : Entry(level, fileName, lineNumber, functionName), m_location(location)
 {}
 
-const id::c::location& CLogEntry::getLocation() const
+const idlib::c::location& CLogEntry::getLocation() const
 {
     return m_location;
 }
