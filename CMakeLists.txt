@@ -1,74 +1,20 @@
-cmake_minimum_required(VERSION 3.8)
-project(egoboo CXX)
+cmake_minimum_required(VERSION 3.6)
 
-#Enable ccache if it is available
-find_program(CCACHE_FOUND ccache)
-if(CCACHE_FOUND)
-    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
-    set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
-endif(CCACHE_FOUND)
+project(egoboo)
 
-#Set compile flags
-set(CMAKE_CXX_STANDARD 17)
-add_definitions("-std=c++17 -Wall -Wextra")
-#add_definitions("-O3 -flto -fuse-ld=gold")
-add_definitions(-ggdb3 -Og)
+# Add Idlib.
+add_subdirectory(idlib)
 
-#Disable some warnings
-add_definitions("-Wno-reorder -Wno-sign-compare -Wno-missing-braces -Wno-unused-parameter ")
+include(${CMAKE_CURRENT_SOURCE_DIR}/idlib/buildsystem/set_project_default_properties.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/idlib-game-engine/buildsystem/download_and_unpack.cmake)
 
-#Include directory locations
-INCLUDE_DIRECTORIES(
-        game/src
-        egolib/src
-        idlib/src)
+# Add Idlib: Game Engine.
+set(idlib-with-tests OFF CACHE BOOL "enable/disable compilation of tests. ON enables compilation of tests, OFF disables compilation of tests. Initial value is OFF." FORCE)
+set(IDLIB_PATH ${CMAKE_CURRENT_SOURCE_DIR}/idlib)
+add_subdirectory(idlib-game-engine)
 
-#TODO: Tests
-file(GLOB_RECURSE IDLIB_SOURCE_FILES idlib/src/idlib/*.cpp)
-file(GLOB_RECURSE EGOLIB_SOURCE_FILES egolib/src/egolib/*.cpp egolib/src/egolib/*.c)
-file(GLOB_RECURSE GAME_SOURCE_FILES game/src/game/*.cpp game/src/game/*.c)
+# Add Egolib.
+add_subdirectory(egolib)
 
-#Exclude OS specific files, they are added later
-list(REMOVE_ITEM EGOLIB_SOURCE_FILES "${PROJECT_SOURCE_DIR}/egolib/src/egolib/Platform/file_win.c")
-list(REMOVE_ITEM EGOLIB_SOURCE_FILES "${PROJECT_SOURCE_DIR}/egolib/src/egolib/Platform/file_linux.c")
-
-set(EGOBOO_SOURCE_FILES ${GAME_SOURCE_FILES})
-
-#OS specific files
-if (UNIX)
-    set(EGOBOO_SOURCE_FILES ${EGOBOO_SOURCE_FILES} unix/main.cpp egolib/src/egolib/Platform/file_linux.c)
-endif (UNIX)
-if (APPLE)
-    set(EGOBOO_SOURCE_FILES ${EGOBOO_SOURCE_FILES} egolib/src/egolib/Platform/file_mac.m)
-endif (APPLE)
-if (WINDOWS)
-    set(EGOBOO_SOURCE_FILES ${EGOBOO_SOURCE_FILES} egolib/src/egolib/Platform/file_win.c)
-endif (WINDOWS)
-
-#Compile everything as C++
-SET_SOURCE_FILES_PROPERTIES(${IDLIB_SOURCE_FILES} PROPERTIES LANGUAGE CXX )
-SET_SOURCE_FILES_PROPERTIES(${EGOBLIB_SOURCE_FILES} PROPERTIES LANGUAGE CXX )
-SET_SOURCE_FILES_PROPERTIES(${EGOBOO_SOURCE_FILES} PROPERTIES LANGUAGE CXX )
-
-#Define compilation output
-add_library(idlib STATIC ${IDLIB_SOURCE_FILES})
-add_library(egolib STATIC ${EGOLIB_SOURCE_FILES})
-add_executable(egoboo ${EGOBOO_SOURCE_FILES})
-
-#Include dependency on SDL
-INCLUDE(FindPkgConfig)
-
-PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2)
-PKG_SEARCH_MODULE(SDL2_IMAGE REQUIRED SDL2_image>=2.0.0)
-PKG_SEARCH_MODULE(SDL2_MIXER REQUIRED SDL2_mixer>=2.0.0)
-PKG_SEARCH_MODULE(SDL2_TTF REQUIRED SDL2_ttf>=2.0.0)
-#PKG_SEARCH_MODULE(PHYSFS REQUIRED PHYSFS>=2.0.0)
-FIND_PACKAGE(Threads REQUIRED)
-FIND_PACKAGE(OpenGL REQUIRED)
-FIND_PACKAGE(PhysFS REQUIRED)
-
-INCLUDE_DIRECTORIES(${PHYSFS_INCLUDE_DIR} ${SDL2_INCLUDE_DIRS} ${SDL2_IMAGE_INCLUDE_DIRS} ${SDL2_MIXER_INCLUDE_DIRS} ${SDL2_TTF_INCLUDE_DIRS})
-TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${SDL2_LIBRARIES} ${SDL2_IMAGE_LIBRARIES} ${SDL2_MIXER_LIBRARIES} ${SDL2_TTF_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${OPENGL_gl_LIBRARY})
-TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${PHYSFS_LIBRARY})
-# Link "game" to "egolib" and "idlib".
-TARGET_LINK_LIBRARIES(egoboo idlib egolib)
+# Add Egoboo.
+add_subdirectory(egoboo)

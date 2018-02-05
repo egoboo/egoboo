@@ -32,7 +32,7 @@
  * @brief
  *  The base class of EnchantProfile, ObjectProfile and ParticleProfiles.
  */
-class AbstractProfile : private id::non_copyable
+class AbstractProfile : private idlib::non_copyable
 {
 
 public:

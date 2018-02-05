@@ -1,6 +1,6 @@
 #pragma once
 
-#include "egolib/Core/Singleton.hpp"
+#include "egolib/platform.h"
 
 namespace Ego {
 
@@ -21,7 +21,7 @@ public:
 /// Derive from this class for your own game, editor, tool, ...
 /// The App class has lots of dependencies and uses the PIMPL pattern to avoid including headers into this header file.
 template <typename T>
-struct App : public Ego::Core::Singleton<T>
+struct App : public idlib::singleton<T>
 {
 private:
     /// @brief The PIMPL pointer.

@@ -32,6 +32,8 @@
 #include "egolib/Renderer/OpenGL/TextureUnit.hpp"
 #include "egolib/platform.h"
 #include "egolib/Math/_Include.hpp"
+#define GLEW_STATIC
+#include <GL/glew.h>
 
 namespace Ego {
 namespace OpenGL {
@@ -43,6 +45,9 @@ class RendererInfo;
 class Renderer : public Ego::Renderer
 {
 public:
+	// Befriend with the create functor.
+	friend RendererCreateFunctor;
+
     /// @brief Unique pointer to the 1D default texture.
     std::unique_ptr<DefaultTexture> m_defaultTexture1d;
 
@@ -105,23 +110,23 @@ public:
     virtual void setAlphaTestEnabled(bool enabled) override;
 
     /** @copydoc Ego::Renderer::setAlphaFunction */
-    virtual void setAlphaFunction(CompareFunction function, float value) override;
+    virtual void setAlphaFunction(idlib::compare_function function, float value) override;
 
     /** @copydoc Ego::Renderer::setBlendingEnabled */
     virtual void setBlendingEnabled(bool enabled) override;
 
     /** @copydoc Ego::Renderer::setSourceBlendFunction */
-    virtual void setBlendFunction(BlendFunction sourceColour, BlendFunction sourceAlpha,
-                                  BlendFunction destinationColour, BlendFunction destinationAlpha) override;
+    virtual void setBlendFunction(idlib::color_blend_parameter sourceColour, idlib::color_blend_parameter sourceAlpha,
+		                          idlib::color_blend_parameter destinationColour, idlib::color_blend_parameter destinationAlpha) override;
 
     /** @copydoc Ego::Renderer::setColour */
     virtual void setColour(const Colour4f& colour) override;
 
     /** @copydoc Ego::Renderer::setCullingMode */
-    virtual void setCullingMode(CullingMode mode) override;
+    virtual void setCullingMode(idlib::culling_mode mode) override;
 
     /** @copydoc Ego::Renderer::setDepthFunction */
-    virtual void setDepthFunction(CompareFunction function) override;
+    virtual void setDepthFunction(idlib::compare_function function) override;
 
     /** @copydoc Ego::Renderer::setDepthTestEnabled */
     virtual void setDepthTestEnabled(bool enabled) override;
@@ -148,7 +153,7 @@ public:
     virtual void setViewportRectangle(float left, float bottom, float width, float height) override;
 
     /** @copydoc Ego::Renderer::setWindingMode */
-    virtual void setWindingMode(WindingMode mode) override;
+    virtual void setWindingMode(idlib::winding_mode mode) override;
 
     /** @copydoc Ego::Renderer::multMatrix */
     virtual void multiplyMatrix(const Matrix4f4f& matrix) override;
@@ -181,13 +186,13 @@ public:
     virtual void setLightingEnabled(bool enabled) override;
 
     /** @copydoc Ego::Renderer::setRasterizationMode */
-    virtual void setRasterizationMode(RasterizationMode mode) override;
+    virtual void setRasterizationMode(idlib::rasterization_mode mode) override;
 
     /** @copydoc Ego::Renderer::setGouraudShadingEnabled */
     virtual void setGouraudShadingEnabled(bool enabled) override;
 
     /** @copydoc Ego::Renderer::render */
-    virtual void render(VertexBuffer& vertexBuffer, const VertexDescriptor& vertexDescriptor, PrimitiveType primitiveType, size_t index, size_t length) override;
+    virtual void render(VertexBuffer& vertexBuffer, const VertexDescriptor& vertexDescriptor, idlib::primitive_type primitiveType, size_t index, size_t length) override;
 
     /** @copydoc Ego::Renderer::createTexture */
     virtual std::shared_ptr<Ego::Texture> createTexture() override;
@@ -204,7 +209,7 @@ public:
 
 private:
     std::array<float, 16> toOpenGL(const Matrix4f4f& source);
-    GLenum toOpenGL(BlendFunction source);
+    GLenum toOpenGL(idlib::color_blend_parameter source);
 
 }; // class Renderer
 

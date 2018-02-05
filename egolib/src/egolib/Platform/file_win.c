@@ -42,12 +42,6 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-struct s_win32_find_context;
-typedef struct s_win32_find_context win32_find_context_t;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
 extern int sys_fs_init(const char *argv0);
 
 //--------------------------------------------------------------------------------------------
@@ -68,7 +62,7 @@ static bool computeUserDataPath()
     // The save path goes into the user's ApplicationData directory,
     // according to Microsoft's standards.  Will people like this, or
     // should I stick saves someplace easier to find, like My Documents?
-    SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, _userPath);
+    SHGetFolderPathA(NULL, CSIDL_APPDATA, NULL, 0, _userPath);
     strncat(_userPath, SLASH_STR "Egoboo", MAX_PATH);
     return true;
 }
@@ -80,9 +74,9 @@ static bool computeBasicDataPath()
     char temporary[MAX_PATH];
     // (1) Check for data in the working directory
     char workingDirectory[MAX_PATH] = EMPTY_CSTR;
-    GetCurrentDirectory(MAX_PATH, workingDirectory);
+    GetCurrentDirectoryA(MAX_PATH, workingDirectory);
     snprintf(temporary, MAX_PATH, "%s" SLASH_STR "basicdat", workingDirectory);
-    DWORD attrib = GetFileAttributes(temporary);
+    DWORD attrib = GetFileAttributesA(temporary);
     if (HAS_ATTRIBS(FILE_ATTRIBUTE_DIRECTORY, attrib))
     {
         strncpy(_dataPath, workingDirectory, MAX_PATH);
@@ -91,11 +85,11 @@ static bool computeBasicDataPath()
     // IF (1) failed
     // THEN check for data in the binary directory
     char binaryPath[MAX_PATH];
-    GetModuleFileName(NULL, binaryPath, MAX_PATH);
-    PathRemoveFileSpec(binaryPath);
+    GetModuleFileNameA(NULL, binaryPath, MAX_PATH);
+    PathRemoveFileSpecA(binaryPath);
 
     snprintf(temporary, MAX_PATH, "%s" SLASH_STR "basicdat", binaryPath);
-    attrib = GetFileAttributes(temporary);
+    attrib = GetFileAttributesA(temporary);
     if (HAS_ATTRIBS(FILE_ATTRIBUTE_DIRECTORY, attrib))
     {
         strncpy(_dataPath, binaryPath, MAX_PATH);
@@ -144,142 +138,4 @@ std::string fs_getUserDirectory()
 std::string fs_getConfigDirectory()
 {
     return _configPath;
-}
-
-int fs_fileIsDirectory(const std::string& filename)
-{
-    if (filename.empty())
-    {
-        return -1;
-    }
-    DWORD fileAttrs = GetFileAttributes(filename.c_str());
-
-    return HAS_ATTRIBS(FILE_ATTRIBUTE_DIRECTORY, fileAttrs);
-}
-
-// Had to revert back to prog x code to prevent import/skin bug
-int fs_createDirectory(const std::string& dirname)
-{
-    if (dirname.empty())
-    {
-        return 1;
-    }
-    return (0 != CreateDirectory(dirname.c_str(), NULL)) ? 0 : 1;
-}
-
-int fs_removeDirectory(const std::string& dirname)
-{
-    if (dirname.empty())
-    {
-        return 1;
-    }
-    return (0 != RemoveDirectory(dirname.c_str())) ? 0 : 1;
-}
-
-void fs_deleteFile( const std::string& filename )
-{
-    if (!filename.empty())
-    {
-        DeleteFile(filename.c_str());
-    }
-}
-
-bool fs_copyFile(const std::string& source, const std::string& target)
-{
-    if (source.empty() || target.empty())
-    {
-        return false;
-    }
-    return (TRUE == CopyFile(source.c_str(), target.c_str(), false));
-}
-
-//--------------------------------------------------------------------------------------------
-// Directory Functions
-//--------------------------------------------------------------------------------------------
-struct s_win32_find_context
-{
-    WIN32_FIND_DATA wfdData;
-    HANDLE          hFind;
-};
-
-const char *fs_findFirstFile(const char *searchDir, const char *searchExtension, fs_find_context_t *fs_search)
-{
-    char searchSpec[MAX_PATH] = EMPTY_CSTR;
-
-    if (INVALID_CSTR(searchDir) || !fs_search)
-    {
-        return nullptr;
-    }
-
-	win32_find_context_t *pcnt = new win32_find_context_t();
-    fs_search->type = win32_find;
-    fs_search->ptr.w = pcnt;
-
-    size_t len = strlen(searchDir) + 1;
-    if (C_SLASH_CHR != searchDir[len] || C_BACKSLASH_CHR != searchDir[len]) {
-        _snprintf(searchSpec, MAX_PATH, "%s" SLASH_STR, searchDir);
-    } else {
-        strncpy(searchSpec, searchDir, MAX_PATH);
-    }
-    if (nullptr != searchExtension) {
-        _snprintf(searchSpec, MAX_PATH, "%s*.%s", searchSpec, searchExtension);
-    } else {
-        strncat(searchSpec, "*", MAX_PATH);
-    }
-
-    pcnt->hFind = FindFirstFile( searchSpec, &pcnt->wfdData );
-	if (pcnt->hFind == INVALID_HANDLE_VALUE) {
-		return nullptr;
-	}
-
-    return pcnt->wfdData.cFileName;
-}
-
-const char *fs_findNextFile(fs_find_context_t *fs_search)
-{
-    if (!fs_search || win32_find != fs_search->type)
-    {
-        return NULL;
-    }
-    win32_find_context_t *pcnt = fs_search->ptr.w;
-    if (!pcnt)
-    {
-        return NULL;
-    }
-    if (NULL == pcnt->hFind || INVALID_HANDLE_VALUE == pcnt->hFind)
-    {
-        return NULL;
-    }
-    if (!FindNextFile( pcnt->hFind, &pcnt->wfdData))
-    {
-        return NULL;
-    }
-    return pcnt->wfdData.cFileName;
-}
-
-void fs_findClose(fs_find_context_t *fs_search)
-{
-    if (NULL == fs_search || win32_find != fs_search->type)
-    {
-        return;
-    }
-    win32_find_context_t *pcnt = fs_search->ptr.w;
-    if (NULL == pcnt)
-    {
-        return;
-    }
-    if (NULL != pcnt->hFind)
-    {
-        FindClose(pcnt->hFind);
-        pcnt->hFind = NULL;
-    }
-    delete pcnt;
-
-	fs_search->type = unknown_find;
-	fs_search->ptr.v = nullptr;
-}
-
-int DirGetAttrib(const char *fromdir)
-{
-    return(GetFileAttributes(fromdir));
 }

@@ -75,7 +75,7 @@ void Cartman::Input::checkInput()
 
     while (SDL_PollEvent(&evt))
     {
-        if (!Ego::Core::ConsoleHandler::get().handle_event(&evt))
+        if (!Ego::Core::Console::get().handle_event(&evt))
         {
             _keyboard.override = true;
             continue;
@@ -201,7 +201,7 @@ bool Cartman::Input::onMouse(SDL_Event *event)
             }
             else
             {
-                _mouse.position = Point2i(event->motion.x, event->motion.y);
+                _mouse.position = Point2f(event->motion.x, event->motion.y);
             }
             break;
     }

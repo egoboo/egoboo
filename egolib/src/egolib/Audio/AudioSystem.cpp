@@ -20,10 +20,16 @@
 
 #include "egolib/Audio/AudioSystem.hpp"
 
-#include "game/Graphics/CameraSystem.hpp"
-#include "game/game.h"
-#include "game/Module/Module.hpp"
+#include "egolib/game/Graphics/CameraSystem.hpp"
+#include "egolib/game/game.h"
+#include "egolib/game/Module/Module.hpp"
 #include "egolib/Entities/_Include.hpp"
+
+AudioSystem *AudioSystemCreateFunctor::operator()() const
+{ return new AudioSystem(); }
+
+void AudioSystemDestroyFunctor::operator()(AudioSystem *p) const
+{ delete p; }
 
 //Compatability fix for older versions of SDL
 #if SDL_VERSIONNUM(SDL_MIXER_MAJOR_VERSION, SDL_MIXER_MINOR_VERSION, SDL_MIXER_PATCHLEVEL) < SDL_VERSIONNUM(1, 2, 12)
@@ -467,7 +473,7 @@ float AudioSystem::getSoundDistance(const Vector3f& soundPosition)
     float distance = std::numeric_limits<float>::max();
     for(const std::shared_ptr<Camera> &camera : CameraSystem::get().getCameraList()) {
         Vector3f cameraPosition = Vector3f(camera->getCenter().x(), camera->getCenter().y(), camera->getPosition().z());
-        distance = std::min(distance, (cameraPosition - soundPosition).length());
+		distance = std::min(distance, idlib::euclidean_norm(cameraPosition - soundPosition));
     }
 
     //Calculate distance between camera and sound origin
@@ -477,7 +483,7 @@ float AudioSystem::getSoundDistance(const Vector3f& soundPosition)
 void AudioSystem::mixAudioPosition3D(const int channel, float distance, const Vector3f& soundPosition)
 {
     //Calculate the average position and rotation of all cameras
-    Vector2f averageCameraPosition = Vector2f::zero();
+    Vector2f averageCameraPosition = idlib::zero<Vector2f>();
     auto averageRotation = Ego::Math::Turns(0.0f);
     for(const std::shared_ptr<Camera>& camera : CameraSystem::get().getCameraList()) {
         averageCameraPosition.x() += camera->getCenter().x();
@@ -494,13 +500,13 @@ void AudioSystem::mixAudioPosition3D(const int channel, float distance, const Ve
     auto angle = Ego::Math::Radians(std::atan2(averageCameraPosition.y() - soundPosition.y(), averageCameraPosition.x() - soundPosition.x()));
 
     //Adjust for camera rotation
-    angle += (Ego::Math::Radians)averageRotation;
+    angle += idlib::semantic_cast<Ego::Math::Radians>(averageRotation);
 
     //limited global sound volume
     Mix_Volume(channel, (128 * egoboo_config_t::get().sound_effects_volume.getValue()) / 100);
 
     //Do 3D sound mixing
-    Mix_SetPosition(channel, float(Ego::Math::Degrees(angle)), distance);
+    Mix_SetPosition(channel, float(idlib::semantic_cast<Ego::Math::Degrees>(angle)), distance);
 }
 
 void AudioSystem::playSoundLooped(const SoundID soundID, ObjectRef ownerRef)

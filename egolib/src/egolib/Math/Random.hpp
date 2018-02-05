@@ -24,7 +24,6 @@
 #pragma once
 
 #include "egolib/platform.h"
-#include "egolib/Math/Interval.hpp"
 #include "egolib/typedef.h"
 
 class Random
@@ -43,10 +42,10 @@ public:
      * @param interval the interval
      * @return a random floating-point value within the bounds of <c>interval.getLowerbound()</c> (inclusive) and <c>interval.getUpperbound()</c> (inclusive)
      */
-    static float next(const Ego::Math::Interval<float>& interval)
+    static float next(const idlib::interval<float>& interval)
     {
-        float min = interval.getLowerbound();
-        float max = std::nextafter(interval.getUpperbound(), std::numeric_limits<float>::max());
+        float min = interval.lower();
+        float max = std::nextafter(interval.upper(), std::numeric_limits<float>::max());
         std::uniform_real_distribution<float> distribution(min, max);
         return distribution(generator);
     }

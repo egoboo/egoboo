@@ -26,18 +26,17 @@
 #pragma once
 
 #include "egolib/Logic/Perk.hpp"
-#include "egolib/Core/Singleton.hpp"
 
 namespace Ego
 {
 namespace Perks
 {
 
-class PerkHandler : public Core::Singleton<PerkHandler>
+class PerkHandler : public idlib::singleton<PerkHandler>
 {
 protected:
-    friend Core::Singleton<PerkHandler>::CreateFunctorType;
-    friend Core::Singleton<PerkHandler>::DestroyFunctorType;
+    friend idlib::default_new_functor<PerkHandler>;
+    friend idlib::default_delete_functor<PerkHandler>;
 
     /**
     * @brief

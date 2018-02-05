@@ -24,22 +24,11 @@
 
 #include "egolib/file_common.h"
 
-#include "egolib/Log/_Include.hpp"
-
 #include "egolib/strutil.h"
 #include "egolib/vfs.h"
-#include "egolib/platform.h"
 
-#if !defined(MAX_PATH)
-#define MAX_PATH 260  // Same value that Windows uses...
-#endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 static bool _fs_initialized = false;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 /**
  * @brief
  *  Initialize the platform file system.
@@ -68,92 +57,45 @@ int fs_init(const char *argv0)
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void fs_removeDirectoryAndContents(const char *dirname, int recursive)
+void fs_removeDirectoryAndContents(const char *dirname)
 {
-    /// @author ZZ
-    /// @details This function deletes all files in a directory,
-    ///    and the directory itself
-
-    char filePath[MAX_PATH] = EMPTY_CSTR;
-    const char *fileName;
-    fs_find_context_t fs_search;
-
-    // List all the files in the directory
-    fileName = fs_findFirstFile(dirname, NULL, &fs_search);
-    while (NULL != fileName)
-    {
-        // Ignore files that start with a ., like .svn for example.
-        if ('.' != fileName[0])
-        {
-            snprintf(filePath, MAX_PATH, "%s" SLASH_STR "%s", dirname, fileName);
-            if (fs_fileIsDirectory(filePath))
-            {
-                if (recursive)
-                {
-                    fs_removeDirectoryAndContents(filePath, recursive);
-                }
-                else
-                {
-                    fs_removeDirectory(filePath);
-                }
-            }
-            else
-            {
-                fs_deleteFile(filePath);
-            }
-        }
-        fileName = fs_findNextFile(&fs_search);
-    }
-    fs_findClose(&fs_search);
-
-    fs_removeDirectory(dirname);
+    idlib::file_system::delete_directory_recursive(dirname);
 }
 
 //--------------------------------------------------------------------------------------------
-void fs_copyDirectory(const char *sourceDir, const char *targetDir)
+void fs_removeDirectory(const std::string& pathname)
 {
-    fs_find_context_t fs_search;
-
-    // List all the files in the directory
-    const char *filename = fs_findFirstFile(sourceDir, NULL, &fs_search);
-    if (filename)
-    {
-        // Make sure the destination directory exists.
-        fs_createDirectory(targetDir); /// @todo Error handling here - if the directory does not exist, we can stop.
-
-        while (filename)
-        {
-            // Ignore files that begin with a `'.'`.
-            if ('.' != filename[0])
-            {
-                char sourcePath[MAX_PATH] = EMPTY_CSTR, targetPath[MAX_PATH] = EMPTY_CSTR;
-                snprintf(sourcePath, MAX_PATH, "%s" SLASH_STR "%s", sourceDir, filename);
-                snprintf(targetPath, MAX_PATH, "%s" SLASH_STR "%s", targetDir, filename);
-                fs_copyFile(sourcePath, targetPath);
-            }
-
-            filename = fs_findNextFile(&fs_search);
-        }
-    }
-
-    fs_findClose(&fs_search);
+    idlib::file_system::delete_directory(pathname);
 }
 
 //--------------------------------------------------------------------------------------------
-int fs_fileExists(const std::string& filename)
+void fs_deleteFile(const std::string& pathname)
 {
-    if (filename.empty())
-    {
-        return -1;
-    }
-    FILE *ptmp = fopen(filename.c_str(), "rb");
-    if (ptmp)
-    {
-        fclose(ptmp);
-        return 1;
-    }
-    return 0;
+    idlib::file_system::delete_regular(pathname);
+}
+
+//--------------------------------------------------------------------------------------------
+int fs_createDirectory(const std::string& pathname)
+{
+    return idlib::file_system::create_directory(pathname) ? 0 : 1;
+}
+
+//--------------------------------------------------------------------------------------------
+int fs_fileIsDirectory(const std::string& pathname)
+{
+    return idlib::file_system::is_directory(pathname) ? 1 : 0;
+}
+
+//--------------------------------------------------------------------------------------------
+bool fs_copyFile(const std::string& source, const std::string& target)
+{
+    return idlib::file_system::copy_regular_file(source, target, false);
+}
+
+//--------------------------------------------------------------------------------------------
+int fs_fileExists(const std::string& pathname)
+{
+    return idlib::file_system::exists(pathname) ? 1 : 0;
 }
 
 //--------------------------------------------------------------------------------------------

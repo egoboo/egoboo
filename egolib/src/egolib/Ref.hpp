@@ -45,10 +45,10 @@ struct Ref;
 template <typename ValueTypeArg, ValueTypeArg MinimumValueArg, ValueTypeArg MaximumValueArg, RefKind KindArg>
 struct Ref < ValueTypeArg, MinimumValueArg, MaximumValueArg, KindArg,
              std::enable_if_t<::Internal::IsRefValue<ValueTypeArg>::value> >
-           : public id::equal_to_expr<Ref<ValueTypeArg, MinimumValueArg, MaximumValueArg, KindArg>>,
-             public id::lower_than_expr<Ref<ValueTypeArg, MinimumValueArg, MaximumValueArg, KindArg>>,
-             public id::increment_expr<Ref<ValueTypeArg, MinimumValueArg, MaximumValueArg, KindArg>>,
-             public id::decrement_expr<Ref<ValueTypeArg, MinimumValueArg, MaximumValueArg, KindArg>>
+           : public idlib::equal_to_expr<Ref<ValueTypeArg, MinimumValueArg, MaximumValueArg, KindArg>>,
+             public idlib::lower_than_expr<Ref<ValueTypeArg, MinimumValueArg, MaximumValueArg, KindArg>>,
+             public idlib::increment_expr<Ref<ValueTypeArg, MinimumValueArg, MaximumValueArg, KindArg>>,
+             public idlib::decrement_expr<Ref<ValueTypeArg, MinimumValueArg, MaximumValueArg, KindArg>>
 {
 public:
     using ValueType = ValueTypeArg;

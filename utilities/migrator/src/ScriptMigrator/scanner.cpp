@@ -1,6 +1,6 @@
 #include "ScriptMigrator/scanner.hpp"
 
-scanner::scanner(const id::location& location, const char *start, const char *end, const char *current) :
+scanner::scanner(const id::c::location& location, const char *start, const char *end, const char *current) :
     m_location(location), m_start(start), m_end(end), m_current(current)
 {
     if (nullptr == start) throw id::null_error(__FILE__, __LINE__, "start");

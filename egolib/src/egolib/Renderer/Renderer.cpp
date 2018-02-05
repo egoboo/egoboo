@@ -27,13 +27,11 @@
 namespace Ego
 {
 
-namespace Core {
+Renderer *RendererCreateFunctor::operator()() const
+{ return new Ego::OpenGL::Renderer(); }
 
-Renderer *CreateFunctor<Renderer>::operator()() const {
-    return new Ego::OpenGL::Renderer();
-}
-
-}
+void RendererDestroyFunctor::operator()(Renderer *p) const
+{ delete p; }
 
 AccumulationBuffer::AccumulationBuffer()
 {}

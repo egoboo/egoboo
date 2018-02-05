@@ -27,9 +27,9 @@ namespace Ego {
 
 IndexBuffer::IndexBuffer(size_t numberOfIndices,
                          const IndexDescriptor& indexDescriptor) :
-    Buffer(indexDescriptor.getIndexSize() * numberOfIndices),
+    Buffer(indexDescriptor.get_size() * numberOfIndices),
     numberOfIndices(numberOfIndices), indexDescriptor(indexDescriptor),
-    indices(new char[indexDescriptor.getIndexSize() * numberOfIndices]) {}
+    indices(new char[indexDescriptor.get_size() * numberOfIndices]) {}
 
 IndexBuffer::~IndexBuffer() {
     delete[] indices;

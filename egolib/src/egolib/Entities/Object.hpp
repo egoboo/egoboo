@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file game/Entities/Object.hpp
+/// @file egolib/game/Entities/Object.hpp
 /// @details An object representing instances of in-game egoboo objects (Object)
 /// @author Johan Jansen
 
@@ -30,16 +30,16 @@
 #include "egolib/Logic/Team.hpp"
 #include "egolib/InputControl/InputDevice.hpp"
 
-#include "game/egoboo.h"
-#include "game/Module/Module.hpp"
-#include "game/physics.h"
-#include "game/graphic_mad.h"
+#include "egolib/game/egoboo.h"
+#include "egolib/game/Module/Module.hpp"
+#include "egolib/game/physics.h"
+#include "egolib/game/graphic_mad.h"
 #include "egolib/Entities/Common.hpp"
-#include "game/Graphics/BillboardSystem.hpp"
-#include "game/Inventory.hpp"
-#include "game/Physics/Collidable.hpp"
-#include "game/Physics/ObjectPhysics.hpp"
-#include "game/Graphics/ObjectGraphics.hpp"
+#include "egolib/game/Graphics/BillboardSystem.hpp"
+#include "egolib/game/Inventory.hpp"
+#include "egolib/game/Physics/Collidable.hpp"
+#include "egolib/game/Physics/ObjectPhysics.hpp"
+#include "egolib/game/Graphics/ObjectGraphics.hpp"
 
 //Forward declarations
 namespace Ego { class Enchantment; }
@@ -52,30 +52,6 @@ enum turn_mode_t : uint8_t
     TURNMODE_SPIN,                               ///< For spinning objects
     TURNMODE_WATCHTARGET,                        ///< For combat intensive AI
     TURNMODE_COUNT
-};
-
-/// the data used to define the spawning of a character
-struct chr_spawn_data_t
-{
-    chr_spawn_data_t() :
-        pos(),
-        profile(),
-        team(0),
-        skin(0),
-        facing(0),
-        name(),
-        override()
-    {
-        //ctor
-    }
-
-    Vector3f    pos;
-    ObjectProfileRef     profile;
-    TEAM_REF    team;
-    int         skin;
-    Facing      facing;
-    STRING      name;
-    ObjectRef   override;
 };
 
 //--------------------------------------------------------------------------------------------
@@ -97,7 +73,7 @@ enum LatchButton
 
 
 /// The definition of the character object.
-class Object : public PhysicsData, private id::non_copyable, public Ego::Physics::Collidable,
+class Object : public PhysicsData, private idlib::non_copyable, public Ego::Physics::Collidable,
                public std::enable_shared_from_this<Object>
 {
 public:
@@ -848,8 +824,6 @@ private:
     void updateLatchButtons();
 
 public:
-    chr_spawn_data_t  spawn_data;
-
     // character state
     ai_state_t     ai;              ///< ai data
 
@@ -928,6 +902,7 @@ public:
     // model info
     bool         is_overlay;                    ///< Is this an overlay? Track aitarget...
     SKIN_T         skin;                          ///< Character's skin
+	SKIN_T         skin_stt;                      ///< Character's initial skin
     ObjectProfileRef        basemodel_ref;                     ///< The true form
 
     // collision info

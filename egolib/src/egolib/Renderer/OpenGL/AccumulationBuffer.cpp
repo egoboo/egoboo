@@ -26,9 +26,58 @@
 
 namespace Ego {
 namespace OpenGL {
+struct utilities
+{
+    static uint8_t get_r_depth()
+    {
+        GLint v;
+        glGetIntegerv(GL_ACCUM_RED_BITS, &v);
+        if (v < 0)
+            throw idlib::environment_error(__FILE__, __LINE__, "OpenGL", "negative number of red bits");
+        else if (v > std::numeric_limits<uint8_t>::max())
+            throw idlib::environment_error(__FILE__, __LINE__, "OpenGL", "number of red bits exceed support maximum");
+        return (uint8_t)v;
+    }
+
+    static uint8_t get_g_depth()
+    {
+        GLint v;
+        glGetIntegerv(GL_ACCUM_GREEN_BITS, &v);
+        if (v < 0)
+            throw idlib::environment_error(__FILE__, __LINE__, "OpenGL", "negative number of green bits");
+        else if (v > std::numeric_limits<uint8_t>::max())
+            throw idlib::environment_error(__FILE__, __LINE__, "OpenGL", "number of green bits exceed support maximum");
+        return (uint8_t)v;
+    }
+
+    static uint8_t get_b_depth()
+    {
+        GLint v;
+        glGetIntegerv(GL_ACCUM_BLUE_BITS, &v);
+        if (v < 0)
+            throw idlib::environment_error(__FILE__, __LINE__, "OpenGL", "negative number of blue bits");
+        else if (v > std::numeric_limits<uint8_t>::max())
+            throw idlib::environment_error(__FILE__, __LINE__, "OpenGL", "number of blue bits exceed support maximum");
+        return (uint8_t)v;
+    }
+
+    static uint8_t get_a_depth()
+    {
+        GLint v;
+        glGetIntegerv(GL_ACCUM_ALPHA_BITS, &v);
+        if (v < 0)
+            throw idlib::environment_error(__FILE__, __LINE__, "OpenGL", "negative number of alpha bits");
+        else if (v > std::numeric_limits<uint8_t>::max())
+            throw idlib::environment_error(__FILE__, __LINE__, "OpenGL", "number of alpha bits exceed support maximum");
+        return (uint8_t)v;
+    }
+};
 
 AccumulationBuffer::AccumulationBuffer() :
-    Ego::AccumulationBuffer(), colourDepth(Utilities2::getAccumulationBufferColourDepth())
+    Ego::AccumulationBuffer(), colourDepth({ utilities::get_r_depth(),
+                                             utilities::get_g_depth(),
+                                             utilities::get_b_depth() },
+                                             utilities::get_a_depth())
 {}
 
 AccumulationBuffer::~AccumulationBuffer()
@@ -44,8 +93,8 @@ void AccumulationBuffer::setClearValue(const Colour4f& value) {
     Utilities2::isError();
 }
 
-const ColourDepth& AccumulationBuffer::getColourDepth() {
-    return colourDepth;
+const idlib::rgba_depth& AccumulationBuffer::getColourDepth() {
+	return colourDepth;
 }
 
 } // namespace OpenGL

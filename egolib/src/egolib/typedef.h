@@ -27,6 +27,9 @@
 #include "egolib/egolib_config.h"
 #include "egolib/Debug.hpp"
 #include "egolib/Log/_Include.hpp"
+#include "egolib/Ref.hpp"
+#include <cstdint>
+#include <limits>
 
 //--------------------------------------------------------------------------------------------
 // place the definition of the lambda operator in a macro
@@ -62,7 +65,7 @@
 #   define UINT_TO_UFP8(V1)   ( ((unsigned)(V1)) << 8 )
 
     /// version of V1 / 256.0f
-#   define FP8_TO_FLOAT(V1)   ( (float)(V1) * INV_0100<float>() )
+#   define FP8_TO_FLOAT(V1)   ( (float)(V1) * idlib::fraction<float, 1, 256>() )
     /// version of V1 * 256.0f
 #   define FLOAT_TO_FP8(V1)   ( (uint32_t)((V1) * (float)(0x0100) ) )
 
@@ -144,10 +147,8 @@
     /// Specifies a value between "base" and "base + rand"
     using IPair = Pair<int>;
 
-#include "egolib/Math/Interval.hpp"
-
-    Ego::Math::Interval<float> pair_to_range(const IPair& source);
-    IPair range_to_pair(const Ego::Math::Interval<float>& source);
+    idlib::interval<float> pair_to_range(const IPair& source);
+    IPair range_to_pair(const idlib::interval<float>& source);
 
 //--------------------------------------------------------------------------------------------
 // STRING
@@ -203,8 +204,6 @@ enum DamageModifier : uint8_t
     DAMAGEINVERT = (1 << 2),    ///< 00000x00 Makes damage heal.
     NONE = (0),                 ///< 00000000 Do no conversion.
 };
-
-#include "egolib/Ref.hpp"
 
 using ObjectRef = Ref<size_t, std::numeric_limits<size_t>::min(), std::numeric_limits<size_t>::max(), RefKind::Object>;
 namespace std {

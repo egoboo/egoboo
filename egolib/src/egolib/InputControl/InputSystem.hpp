@@ -1,13 +1,12 @@
 #pragma once
 
 #include "egolib/Math/_Include.hpp"
-#include "egolib/Core/Singleton.hpp"
 #include "egolib/InputControl/ModifierKeys.hpp"
 
 namespace Ego {
 namespace Input {
 
-class InputSystem : public Core::Singleton<InputSystem>
+class InputSystem : public idlib::singleton<InputSystem>
 {
 public:
     static constexpr float MOUSE_SENSITIVITY = 12.0f; //TODO: make configurable in settings.txt

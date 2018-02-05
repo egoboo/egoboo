@@ -65,7 +65,7 @@ enum class ModifierKeys : int {
 
 } // namespace Ego
 
-namespace id {
+namespace idlib {
 
 /// 17.5.2.1.3 [bitmask.types] of the C++ Standard: 
 /// Bitmask types shall provide definitions for the operators |, &, ^, ~, |=, &= and ^= with the expected semantics.
@@ -78,4 +78,4 @@ struct enable_bitmask_operators<Ego::ModifierKeys> {
 	static constexpr bool enable=true;
 };
 
-} // namespace id
+} // namespace idlib

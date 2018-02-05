@@ -39,7 +39,7 @@ namespace Math {
  * rej(\vec{v},\vec{w}) = \vec{v} - proj(\vec{v},\vec{w}) 
  * \f}
  * where \f$proj(\vec{v},\vec{w})\f$ is the vector projection of the vector \f$\vec{v}\f$ onto the vector \f$\vec{w}\f$.
- * @throw id::runtime_error the vector \f$\vec{w}\f$ is the zero vector
+ * @throw idlib::runtime_error the vector \f$\vec{w}\f$ is the zero vector
  */
 template <typename _VectorType>
 inline _VectorType Rejection(const _VectorType& v, const _VectorType& w) {

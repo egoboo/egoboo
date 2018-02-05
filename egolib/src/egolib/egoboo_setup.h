@@ -25,7 +25,6 @@
 #include "egolib/Configuration/Configuration.hpp"
 #include "egolib/Logic/GameDifficulty.hpp"
 #include "egolib/Logic/FeedbackType.hpp"
-#include "egolib/Renderer/TextureFilter.hpp"
 
 //Forward declarations
 enum class CameraTurnMode : uint8_t;
@@ -253,16 +252,16 @@ public:
     Ego::Configuration::Variable<bool> graphic_doubleBuffering_enable;
 
     /// @brief The texture filter used for minification.
-    /// @remark Default value is Ego::TextureFilter::Linear.
-    Ego::Configuration::Variable<Ego::TextureFilter> graphic_textureFilter_minFilter;
+    /// @remark Default value is idlib::texture_filter_method::linear.
+    Ego::Configuration::Variable<idlib::texture_filter_method> graphic_textureFilter_minFilter;
 
     /// @brief The texture filter used for magnification.
-    /// @remark Default value is Ego::TextureFilter::Linear.
-    Ego::Configuration::Variable<Ego::TextureFilter> graphic_textureFilter_magFilter;
+    /// @remark Default value is idlib::texture_filter_method::linear.
+    Ego::Configuration::Variable<idlib::texture_filter_method> graphic_textureFilter_magFilter;
 
     /// @brief The filter applied used for mip map selection.
-    /// @remark Default value is Ego::TextureFilter::Linear.
-    Ego::Configuration::Variable<Ego::TextureFilter> graphic_textureFilter_mipMapFilter;
+    /// @remark Default value is idlib::texture_filter_method::linear.
+    Ego::Configuration::Variable<idlib::texture_filter_method> graphic_textureFilter_mipMapFilter;
 
     /// @brief Inclusive upper bound of number of simultaneous dynamic lights.
     /// @remark Default value is @a 32.
@@ -511,7 +510,7 @@ void setup_init_base_vfs_paths();
 void setup_clear_base_vfs_paths();
 
 /// Set in the VFS the module specific mount points/search path.
-bool setup_init_module_vfs_paths(const char *mod_path);
+bool setup_init_module_vfs_paths(const std::string& mod_path);
 
 /// Remove from the VFS the module specific mount points/search paths.
 void setup_clear_module_vfs_paths();

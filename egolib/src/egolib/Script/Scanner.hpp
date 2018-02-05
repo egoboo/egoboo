@@ -27,7 +27,7 @@ public:
     using Traits = TraitsArg;
     using SymbolType = typename Traits::Type;
     using ExtendedSymbolType = typename Traits::ExtendedType;
-	using iterator_type = id::transform_iterator<transform_functor, typename std::vector<char>::const_iterator>;
+	using iterator_type = idlib::transform_iterator<transform_functor, typename std::vector<char>::const_iterator>;
     
 private:
 	struct transform_functor
@@ -44,14 +44,14 @@ private:
     /// @brief The input buffer.
     std::vector<char> m_input_buffer;
     /// @brief Range wrapping the iterators pointing to the beginning and the end of the list of input symbols.
-	id::iterator_range<iterator_type> m_range;
+	idlib::iterator_range<iterator_type> m_range;
 	/// @brief Iterator pointing to the current input symbols in the list of input symbols.
 	iterator_type m_current;
 
 protected:
     /// @brief Construct this scanner.
     /// @param file_name the filename
-    /// @throw id::runtime_error the file can not be read
+    /// @throw idlib::runtime_error the file can not be read
     /// @post The scanner is in its initial state w.r.t. the specified input if no exception is raised.
     Scanner(const std::string& file_name) :
         m_file_name(file_name), m_line_number(1), m_input_buffer(),
@@ -69,7 +69,7 @@ protected:
 		auto begin = iterator_type(m_input_buffer.cbegin(), transform_functor{});
 		auto end = iterator_type(m_input_buffer.cend(), transform_functor{});
 		auto current = iterator_type(m_input_buffer.cbegin(), transform_functor{});
-		m_range = id::make_iterator_range(begin, end);
+		m_range = idlib::make_iterator_range(begin, end);
 		m_current = current;
     }
 
@@ -93,7 +93,7 @@ protected:
 		auto begin = iterator_type(m_input_buffer.cbegin(), transform_functor{});
 		auto end = iterator_type(m_input_buffer.cend(), transform_functor{});
 		auto current = iterator_type(m_input_buffer.cbegin(), transform_functor{});
-		m_range = id::make_iterator_range(begin, end);
+		m_range = idlib::make_iterator_range(begin, end);
 		m_current = current;
     }
 
@@ -118,9 +118,9 @@ public:
 
     /// @brief Get the location.
     /// @return the location
-    id::location get_location() const
+    idlib::c::location get_location() const
     {
-        return id::location(get_file_name(), get_line_number());
+        return idlib::c::location(get_file_name(), get_line_number());
     }
 
     /// @brief Get the lexeme text.
@@ -196,7 +196,7 @@ public:
 private:
 	static decltype(auto) make_sym(char c)
 	{
-		return id::parsing_expressions::sym<ExtendedSymbolType>(c);
+		return idlib::parsing_expressions::sym<ExtendedSymbolType>(c);
 	}
 
 public:
@@ -241,31 +241,31 @@ public:
 
     static decltype(auto) WHITE_SPACE()
     {
-        static const auto p = id::parsing_expressions::whitespace<ExtendedSymbolType>();
+        static const auto p = idlib::parsing_expressions::whitespace<ExtendedSymbolType>();
         return p;
     }
 
     static decltype(auto) NEW_LINE()
     {
-        static const auto p = id::parsing_expressions::newline<ExtendedSymbolType>();
+        static const auto p = idlib::parsing_expressions::newline<ExtendedSymbolType>();
         return p;
     }
 
     static decltype(auto) ALPHA()
     {
-        static const auto p = id::parsing_expressions::alpha<ExtendedSymbolType>();
+        static const auto p = idlib::parsing_expressions::alpha<ExtendedSymbolType>();
         return p;
     }
 
     static decltype(auto) DIGIT()
     {
-        static const auto p = id::parsing_expressions::digit<ExtendedSymbolType>();
+        static const auto p = idlib::parsing_expressions::digit<ExtendedSymbolType>();
         return p;
     }
 
     static decltype(auto) END_OF_INPUT()
     {
-        static const auto p = id::parsing_expressions::end_of_input<ExtendedSymbolType>();
+        static const auto p = idlib::parsing_expressions::end_of_input<ExtendedSymbolType>();
         return p;
     }
 

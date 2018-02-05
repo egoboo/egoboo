@@ -21,6 +21,7 @@
 #include "cartman/cartman_input.h"
 #include "cartman/cartman_math.h"
 #include "cartman/cartman_gfx.h"
+#include "egolib/Image/ImageManager.hpp"
 #include "egolib/Image/SDL_Image_Extensions.h"
 
 //--------------------------------------------------------------------------------------------
@@ -32,23 +33,18 @@ ui_state_t ui;
 namespace Cartman { namespace Gui {
 
 Cursor::Cursor() :
-    _surface(Ego::SDL::createSurface(8, 8)) {
-    uint32_t col = make_rgb(_surface, Ego::Math::Colour3b::white()); // opaque (255) white (255,255,255)
-    uint32_t loc = make_rgb(_surface, Ego::Math::Colour3b(24, 24, 24)); // opaque (255) black-grey (24,24,24)
-    uint32_t clr = make_rgba(_surface, Ego::Math::Colour4b(0, 0, 0, 64)); // almost transparent (64) black (0,0,0)
+    _surface(Ego::ImageManager::get().createImage(8, 8)) {
+	auto col = Ego::Math::Colour3b::white(); // opaque (255) white (255, 255, 255)
+	auto loc = Ego::Math::Colour3b(24, 24, 24); // opaque (255) black-grey (24, 24, 24)
+	auto clr = Ego::Math::Colour4b(Ego::Math::Colour3b::black(), 64); // almost transparent (64) black (0, 0, 0)
 
-    // Simple triangle
-    SDL_Rect rtmp;
-    rtmp.x = 0;
-    rtmp.y = 0;
-    rtmp.w = 8;
-    rtmp.h = 1;
-    SDL_FillRect(_surface.get(), &rtmp, loc);
+	auto rtmp = Rectangle2f(Point2f(0, 0), Point2f(8, 1));
+    Ego::fill(_surface.get(), Ego::Math::Colour3b(24, 24, 24), rtmp);
 
     for (int y = 0; y < 8; y++) {
         for (int x = 0; x < 8; x++) {
-            if (x + y < 8) Ego::SDL::putPixel(_surface, x, y, col);
-            else Ego::SDL::putPixel(_surface, x, y, clr);
+            if (x + y < 8) Ego::set_pixel(_surface.get(), col, { x, y });
+            else Ego::set_pixel(_surface.get(), clr, { x, y });
         }
     }
 }
@@ -77,7 +73,7 @@ Manager::~Manager() {
 std::shared_ptr<Window> Manager::findWindow(int x, int y) {
     std::shared_ptr<Window> result = nullptr;
     for (auto& window : windowList) {
-        if (window->isOver(Point2i(x, y))) {
+        if (window->isOver(Point2f(x, y))) {
             continue;
         }
         result = window;
@@ -100,7 +96,7 @@ void Manager::render() {
 
 namespace Cartman { namespace Gui {
 
-Border::Border(Size2i size)
+Border::Border(Vector2f size)
     : texture(Ego::Renderer::get().createTexture()), size(size) {}
 
 void Border::loadTexture(const std::string& textureFileName) {
@@ -118,7 +114,7 @@ namespace Cartman { namespace Gui {
 
 Window::Window() : on(false), border() {}
 
-void Window::load_window(int id, const std::string& loadname, Point2i position, Size2i borderSize, Size2i size, uint16_t mode, cartman_mpd_t * pmesh) {
+void Window::load_window(int id, const std::string& loadname, Point2f position, Vector2f borderSize, Vector2f size, uint16_t mode, cartman_mpd_t * pmesh) {
     if (NULL == pmesh) pmesh = &mesh;
 
     this->border.loadTexture(loadname);
@@ -133,20 +129,20 @@ void Window::load_window(int id, const std::string& loadname, Point2i position, 
     this->pmesh = pmesh;
 }
 
-bool Window::isOver(Point2i p) const {
+bool Window::isOver(Point2f p) const {
     if (!on) {
         return false;
     }
     /// @todo Shouldn't this be <tt>position.x() + border.size.width()</tt> (and
     /// <tt>position.x() + size.width() - 2 * borderSize.width()</tt>?
-    if (p.x() < this->position.x() + this->border.size.width() ||
-        p.x() > this->position.x() + 2 * this->border.size.width() + this->size.width()) {
+    if (p.x() < this->position.x() + this->border.size.x() ||
+        p.x() > this->position.x() + 2 * this->border.size.x() + this->size.x()) {
         return false;
     }
     /// @todo Shouldn't this be <tt>position.y() + border.size.height()</tt> (and
     /// <tt>position.y() + size.height() - 2 * borderSize.height()</tt>?
-    if (p.y() < this->position.y() + this->border.size.height() ||
-        p.y() > this->position.y() + 2 * this->border.size.height() + this->size.height()) {
+    if (p.y() < this->position.y() + this->border.size.y() ||
+        p.y() > this->position.y() + 2 * this->border.size.y() + this->size.y()) {
         return false;
     }
     return true;
@@ -154,7 +150,7 @@ bool Window::isOver(Point2i p) const {
 
 void Window::renderBackground() const {
     if (!on) return;
-    ogl_draw_sprite_2d(border.texture, position.x(), position.y(), size.width(), size.height());
+    ogl_draw_sprite_2d(border.texture, position.x(), position.y(), size.x(), size.y());
 }
 
 } } // namespace Cartman::Gui
@@ -165,8 +161,8 @@ void do_cursor() {
     bool left_press;
     auto windowSize = Ego::GraphicsSystem::get().window->getSize();
     // This function implements a mouse cursor
-    ui.cursorPosition.x() = Ego::Math::constrain(Cartman::Input::get()._mouse.position.x(), 6, windowSize.width() - 6);
-    ui.cursorPosition.y() = Ego::Math::constrain(Cartman::Input::get()._mouse.position.y(), 6, windowSize.height() - 6);
+    ui.cursorPosition.x() = Ego::Math::constrain((float)Cartman::Input::get()._mouse.position.x(), 6.0f, windowSize.x() - 6);
+    ui.cursorPosition.y() = Ego::Math::constrain((float)Cartman::Input::get()._mouse.position.y(), 6.0f, windowSize.y() - 6);
 
     left_press = CART_BUTTONDOWN(SDL_BUTTON_LEFT);
 
@@ -205,5 +201,5 @@ void draw_slider(int tlx, int tly, int brx, int bry, int* pvalue, int minvalue, 
 
 void show_name(const std::string& newLoadName, const Ego::Math::Colour4f& textColour) {
     auto windowSize = Ego::GraphicsSystem::get().window->getSize();
-    gfx_font_ptr->drawText(newLoadName, 0, windowSize.height() - 16, textColour);
+    gfx_font_ptr->drawText(newLoadName, 0, windowSize.y() - 16, textColour);
 }

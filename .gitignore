@@ -5,8 +5,34 @@
 *.suo
 *.VC.db
 *.VC.VC.opendb
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.sln
 /intermediate
-/product
+/products
+Win32/Debug
+Win32/Release
+egolib/Debug
+egolib/Release
+egoboo/Debug
+egoboo/Release
+
+# CMake.
+CMakeDoxyfile.in
+CMakeDoxygenDefaults.cmake
+cmake_install.cmake
+
+# Google Mock, Google Test.
+gmock.pc
+gmock_main.pc
+gtest.pc
+gtest_main.pc
+
+# CMake.
+*\.dir/
+CMakeFiles
+CMakeCache.txt
 
 # Code::Blocks.
 *.layout
@@ -28,10 +54,3 @@ xcuserdata
 
 # Doxygen.
 /doc/doxygen
-
-# Generated files.
-gen
-
-# CMake.
-CMakeFiles
-CMakeCache.txt

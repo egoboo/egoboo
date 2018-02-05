@@ -1,7 +1,5 @@
 #include "egolib/VFS/VfsPath.hpp"
 
-#include <regex>
-
 namespace Ego {
 
 const std::string& VfsPath::getDefaultPathSeparator() {
@@ -23,15 +21,10 @@ const std::string& VfsPath::getSystemPathSeparator() {
     return separator;
 }
 
-// Match sequences of slashes and backslashes.
-static const std::regex normalize_regexp("(/|\\\\)+");
-
 VfsPath::VfsPath() : m_string() {}
 
 VfsPath::VfsPath(const std::string& string)
-    : m_string(string) {
-    // Backslash to Slash. Slash Slash to Slash.
-    m_string = std::regex_replace(m_string, normalize_regexp, "/");
+    : m_string(idlib::file_system::internal::path_parser<char>()(string)) {
 }
 
 VfsPath::VfsPath(VfsPath&& other) noexcept : m_string(std::move(other.m_string)) {}

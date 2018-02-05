@@ -25,8 +25,8 @@
 
 /// Conversion from the "Ego File" Byte order to the "host" Byte order.
 #define Endian_FileToHost(x) \
-    id::convert_byte_order(x, id::get_byte_order(), id::byte_order::little_endian)
+    idlib::convert_byte_order(x, idlib::get_byte_order(), idlib::byte_order::little_endian)
 
 /// Conversion from the "host" Byte order to the "Ego file" Byte order.
 #define Endian_HostToFile(x) \
-    id::convert_byte_order(x, id::byte_order::little_endian, id::get_byte_order())
+    idlib::convert_byte_order(x, idlib::byte_order::little_endian, idlib::get_byte_order())

@@ -18,73 +18,64 @@
 //********************************************************************************************
 #pragma once
 
-#include "egolib/typedef.h"
-#include "egolib/Debug.hpp"
-#include "egolib/Log/_Include.hpp"
+#include "egolib/platform.h"
 
-#define IEEE32_FRACTION 0x007FFFFFL
-#define IEEE32_EXPONENT 0x7F800000L
-#define IEEE32_SIGN     0x80000000L
+/// @brief Get the raw bits of a @a float value.
+/// @param x the @a float value
+/// @return the @a uint32_t value
+uint32_t single_to_bits(float x);
 
-/**
- * @brief
- *	Get the raw bits of a @a float value.
- * @param x
- *	the @a float value
- * @return
- *	the @a uint32_t value
- */
-uint32_t float_toBits(float x);
+/// @brief Get the raw bits of a @a double value.
+/// @param x the @a double value
+/// @return the @a uint64_t value
+uint64_t double_to_bits(double x);
 
-float float_fromBits(uint32_t x);
-bool float_infinite(float x);
-bool float_nan(float x);
-bool float_bad(float x);
+float single_from_bits(uint32_t x);
+double double_from_bits(uint64_t x);
 
-/**
- * @brief
- *  "equal to"
- * @param x, y
- *  the scalars
- * @param ulp
- *  desired
- *  precision in ULPs (units in the last place) (size_t value)
- * @return
- *  @a true if <tt>x ~ y</tt>, @a false otherwise
- * @remark
- *	Only available if the type is a floating-point type.
- * @tparam _Type
- *  the type
- */
-template<class _Type>
-typename std::enable_if_t<std::is_floating_point<_Type>::value, bool>
-float_equalToUlp(_Type x, _Type y, size_t ulp) {
+/// @brief "equal to" for floating-point values.
+/// @param x, y the floating-point values
+/// @param ulp desired precision in ULP (units in the last place) (size_t value)
+/// @return @a true if <tt>x ~ y</tt>, @a false otherwise
+/// @remark Only available if @a T a floating-point type.
+/// @tparam T the type
+template<class T>
+typename std::enable_if_t<std::is_floating_point<T>::value, bool>
+float_equal_to_ulp(T x, T y, size_t ulp)
+{
+	switch (idlib::equal_to(x, y))
+	{
+		case idlib::equality_check_result::equal:
+			return true;
+		case idlib::equality_check_result::not_equal:
+			return false;
+	};
+	// Some black magic.
     // The machine epsilon has to be scaled to the magnitude of the values used
     // and multiplied by the desired precision in ULPs (units in the last place).
-    return std::abs(x - y) < std::numeric_limits<_Type>::epsilon() * std::abs(x + y) * ulp
+    return std::abs(x - y) < std::numeric_limits<T>::epsilon() * std::abs(x + y) * ulp
         // Unless the result is subnormal.
-        || std::abs(x - y) < std::numeric_limits<_Type>::min();
+        || std::abs(x - y) < std::numeric_limits<T>::min();
 }
 
-/**
- * @brief
- *  "equal to"
- * @param x, y
- *  the scalars
- * @param tolerance
- *  upper-bound (inclusive) for the acceptable error magnitude.
- *  The error magnitude is always non-negative,
- *  so if @a tolerance is negative then the outcome of any comparison operation is negative.
- * @return
- *  @a true if <tt>x ~ y</tt>, @a false otherwise.
- * @remark
- *	Only available if the type is a floating-point type.
- * @tparam _Type
- *  the type
- */
-template<class _Type>
-typename std::enable_if_t<std::is_floating_point<_Type>::value, bool>
-float_equalToTolerance(_Type x, _Type y, _Type tolerance) {
-    return std::abs(x - y) <= tolerance;
+/// @brief "equal to" for floating-point values.
+/// @param x, y the floating-point values
+/// @param t upper-bound (inclusive) for the acceptable error magnitude.
+/// The error magnitude is always non-negative, so if @a tolerance is negative then the outcome of any comparison operation is negative.
+/// @return @a true if <tt>x ~ y</tt>, @a false otherwise.
+/// @remark Only available if @a T is a floating-point type.
+/// @tparam T the type
+template<class T>
+typename std::enable_if_t<std::is_floating_point<T>::value, bool>
+float_equal_to_tolerance(T x, T y, T t)
+{
+	switch (idlib::equal_to(x, y))
+	{
+	case idlib::equality_check_result::equal:
+		return true;
+	case idlib::equality_check_result::not_equal:
+		return false;
+	};
+	// Some black magic.
+    return std::abs(x - y) <= t;
 }
-

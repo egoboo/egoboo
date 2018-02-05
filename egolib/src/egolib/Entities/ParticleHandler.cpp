@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file  game/Entities/ParticleHandler.cpp
+/// @file egolib/game/Entities/ParticleHandler.cpp
 /// @brief Handler of particle entities.
 
 #define GAME_ENTITIES_PRIVATE 1

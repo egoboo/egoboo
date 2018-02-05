@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "idlib/idlib.hpp"
+#include "egolib/integrations/idlib.hpp"
 
 #if defined(ID_IOS) || defined(ID_IOSSIMULATOR)
     #error iOS or iOS simulator are not yet supported
@@ -31,11 +31,20 @@
 
 //--------------------------------------------------------------------------------------------
 // SDL.
+#if defined (ID_WINDOWS) && 1 == ID_WINDOWS
+    #if !defined(NOMINMAX)
+        #define NOMINMAX
+    #endif
+    #if !defined(WIN32_LEAN_AND_MEAN)
+        #define WIN32_LEAN_AND_MEAN
+    #endif
+#endif
 #include <SDL.h>
+#undef main
 #include <SDL_image.h>
 #include <SDL_mixer.h>
-#include <SDL_opengl.h>
 #include <SDL_ttf.h>
+#include <SDL_events.h>
 
 
 #if defined(__cplusplus)
@@ -108,18 +117,6 @@ extern "C"
 
 #define SLASH_STR SYSTEM_SLASH_STR
 #define SLASH_CHR SYSTEM_SLASH_CHR
-
-
-//--------------------------------------------------------------------------------------------
-
-// Compiler-specific definitions
-
-// MSVC does not support noexcept yet.
-#if defined(_MSC_VER)
-    #define EGO_NOEXCEPT throw()
-#else
-    #define EGO_NOEXCEPT noexcept
-#endif
 
 //--------------------------------------------------------------------------------------------
 // Turn off warnings that we don't care about.

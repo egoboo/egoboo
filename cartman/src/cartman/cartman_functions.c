@@ -248,7 +248,7 @@ bool interpolate_coord( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, int gr
     int cnt, ivrt, idx;
 
     float   vweight = 0.0f;
-	Vector3f vsum    = Vector3f::zero();
+	Vector3f vsum    = id::zero<Vector3f>();
 
     Cartman::mpd_vertex_t * pvrt;
 
@@ -404,7 +404,7 @@ bool interpolate_coord( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, int gr
             pvrt = CART_MPD_VERTEX_PTR( pmesh, ivrt );
             if ( NULL != pvrt && VERTEXUNUSED != pvrt->a )
             {
-                float weight = expf( - SQR( gx - grid_ix ) - SQR( gy - grid_iy ) );
+                float weight = expf( - id::sq( gx - grid_ix ) - id::sq( gy - grid_iy ) );
                 vsum += Vector3f(pvrt->x, pvrt->y, pvrt->z) * weight;
                 vweight += weight;
             }

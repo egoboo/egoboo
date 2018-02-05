@@ -27,14 +27,14 @@
 #include "egolib/Math/_Include.hpp"
 #include "egolib/Image/ImageManager.hpp"
 #include "egolib/Image/Image.hpp"
-#include "egolib/Renderer/TextureSampler.hpp"
 
 namespace Ego {
 
 Texture::Texture(const std::string& name,
-                 TextureType type,
-                 const TextureSampler& sampler,
-                 int width, int height, int sourceWidth, int sourceHeight, std::shared_ptr<SDL_Surface> source,
+                 idlib::texture_type type,
+                 const idlib::texture_sampler& sampler,
+	             int width, int height, int sourceWidth, int sourceHeight,
+				 std::shared_ptr<SDL_Surface> source,
                  bool hasAlpha) :
     m_name(name),
     m_type(type),
@@ -48,79 +48,79 @@ Texture::Texture(const std::string& name,
 Texture::~Texture()
 {}
 
-TextureType Texture::getType() const
+idlib::texture_type Texture::getType() const
 {
     return m_type;
 }
 
-TextureFilter Texture::getMipMapFilter() const
+idlib::texture_filter_method Texture::getMipMapFilter() const
 {
-    return m_sampler.getMipMapFilter();
+    return m_sampler.mip_filter_method();
 }
 
-void Texture::setMipMapFilter(TextureFilter mipMapFilter)
+void Texture::setMipMapFilter(idlib::texture_filter_method mipMapFilter)
 {
-    if (mipMapFilter != m_sampler.getMipMapFilter())
+    if (mipMapFilter != m_sampler.mip_filter_method())
     {
         m_isSamplerDirty = true;
     }
-    m_sampler.setMipMapFilter(mipMapFilter);
+    m_sampler.mip_filter_method(mipMapFilter);
 }
 
-TextureFilter Texture::getMinFilter() const
+idlib::texture_filter_method Texture::getMinFilter() const
 {
-    return m_sampler.getMinFilter();
+    return m_sampler.min_filter_method();
 }
 
-void Texture::setMinFilter(TextureFilter minFilter)
+void Texture::setMinFilter(idlib::texture_filter_method minFilter)
 {
-    if (minFilter != m_sampler.getMinFilter())
+    if (minFilter != m_sampler.min_filter_method())
     {
         m_isSamplerDirty = true;
     }
-    m_sampler.setMinFilter(minFilter);
+    m_sampler.min_filter_method(minFilter);
 }
 
-TextureFilter Texture::getMagFilter() const
+idlib::texture_filter_method Texture::getMagFilter() const
 {
-    return m_sampler.getMagFilter();
+    return m_sampler.mag_filter_method();
 }
 
-void Texture::setMagFilter(TextureFilter magFilter)
+void Texture::setMagFilter(idlib::texture_filter_method magFilter)
 {
-    if (magFilter != m_sampler.getMagFilter())
+    if (magFilter != m_sampler.mag_filter_method())
     {
         m_isSamplerDirty = true;
     }
-    m_sampler.setMagFilter(magFilter);
+    m_sampler.mag_filter_method(magFilter);
 }
 
-TextureAddressMode Texture::getAddressModeS() const
+idlib::texture_address_mode Texture::getAddressModeS() const
 {
-    return m_sampler.getAddressModeS();
+    return m_sampler.address_mode_s();
 }
 
-void Texture::setAddressModeS(TextureAddressMode addressModeS)
+void Texture::setAddressModeS(idlib::texture_address_mode addressModeS)
 {
-    if (addressModeS != m_sampler.getAddressModeS())
+    if (addressModeS != m_sampler.address_mode_s())
     {
         m_isSamplerDirty = true;
     }
-    m_sampler.setAddressModeS(addressModeS);
+    m_sampler.address_mode_s(addressModeS);
 }
 
-TextureAddressMode Texture::getAddressModeT() const
+idlib::texture_address_mode Texture::getAddressModeT() const
 {
-    return m_sampler.getAddressModeT();
+    return m_sampler.address_mode_t();
 }
 
-void Texture::setAddressModeT(TextureAddressMode addressModeT)
+void Texture::setAddressModeT(idlib::texture_address_mode addressModeT)
 {
-    if (addressModeT != m_sampler.getAddressModeT())
+    if (addressModeT != m_sampler.address_mode_t())
     {
         m_isSamplerDirty = true;
     }
-    m_sampler.setAddressModeT(addressModeT);
+    m_sampler.address_mode_t(addressModeT);
 }
 
 int Texture::getSourceHeight() const
@@ -158,14 +158,12 @@ const std::string& Texture::getName() const
     return m_name;
 }
 
-const TextureSampler& Texture::getSampler() const
+const idlib::texture_sampler& Texture::getSampler() const
 {
     return m_sampler;
 }
 
 std::shared_ptr<SDL_Surface> Texture::getSource() const
-{
-    return m_source;
-}
+{ return m_source; }
 
 } // namespace Ego

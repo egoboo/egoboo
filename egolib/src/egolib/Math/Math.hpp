@@ -30,138 +30,6 @@ namespace Math {
 
 /**
  * @brief
- *  Get \f$\pi\f$.
- * @return
- *  \f$\pi\f$
- * @remark
- *  Overloads for @a float and @a double are provided.
- */
-template <typename Type>
-Type pi();
-
-template <>
-inline float pi<float>() {
-    return 3.1415926535897932384626433832795f;
-}
-
-template <>
-inline double pi<double>() {
-    return 3.1415926535897932384626433832795;
-}
-
-/**
- * @brief
- *  Get \f$\frac{1}{\pi}\f$.
- * @return
- *  \f$\frac{1}{\pi}\f$
- * @remark
- *  Specializations for @a float and @a double are provided.
- */
-template <typename Type>
-Type invPi();
-
-template <>
-inline float invPi<float>() {
-    return 0.31830988618379067153776752674503f;
-}
-
-template <>
-inline double invPi<double>() {
-    return 0.31830988618379067153776752674503;
-}
-
-/**
- * @brief
- *  Get \f$2 \cdot \pi\f$.
- * @return
- *  \f$2 \cdot \pi\f$
- * @remark
- *  Specializations for @a float and @a double are provided.
- */
-template <typename Type>
-Type twoPi();
-
-template <>
-inline float twoPi<float>() {
-    return 6.283185307179586476925286766559f;
-}
-
-template <>
-inline double twoPi<double>() {
-    return 6.283185307179586476925286766559;
-}
-
-/**
- * @brief
- *  Get \f$\frac{1}{2 \cdot \pi}\f$.
- * @return
- *  \f$\frac{1}{2 \cdot \pi}\f$
- * @remark
- *  Specializations for @a float and @a double are provided.
- */
-template <typename Type>
-Type invTwoPi();
-
-template <>
-inline float invTwoPi<float>() {
-    return 0.15915494309189533576888376337251f;
-}
-
-template <>
-inline double invTwoPi<double>() {
-    return 0.15915494309189533576888376337251;
-}
-
-/**
- * @brief
- *  Get \f$\frac{\pi}{2}\f$.
- * @return
- *  \f$\frac{\pi}{2}\f$
- * @remark
- *  Specializations for @a float and @a double are provided.
- */
-template <typename Type>
-Type piOverTwo();
-
-template <>
-inline float piOverTwo<float>() {
-    return 1.5707963267948966192313216916398f;
-}
-
-template <>
-inline double piOverTwo<double>() {
-    return 1.5707963267948966192313216916398;
-}
-
-/**
- * @brief
- *  Get \f$\frac{\pi}{4}\f$.
- * @return
- *  \f$\frac{\pi}{4}\f$
- * @remark
- *  Specializations for @a float and @a double are provided.
- */
-template <typename Type>
-Type piOverFour();
-
-template <>
-inline float piOverFour<float>() {
-    return 0.78539816339744830961566084581988f;
-}
-
-template <>
-inline double piOverFour<double>() {
-    return 0.78539816339744830961566084581988;
-}
-
-} // namespace Math
-} // namespace Ego
-
-namespace Ego {
-namespace Math {
-
-/**
- * @brief
  *  Get the smallest positive power of two greater than or equal to a given value.
  * @param x
  *  the value
@@ -201,11 +69,6 @@ inline int powerOfTwo<int>(int x) {
     return y;
 }
 
-} // namespace Math
-} // namespace Ego
-
-namespace Ego {
-namespace Math {
 /**
  * @brief
  *  Constrain a value within a specified range (same as clamping or clipping).
@@ -221,18 +84,6 @@ namespace Math {
 template <typename T>
 const T& constrain(const T& n, const T& lower, const T& upper) {
     return std::max(lower, std::min(n, upper));
-}
-
-/**
- * @brief
- *  Calculates the square of a number, this is same as X^2.
- *  This is much faster than using pow(val, 2)
- * @param val
- *  the number to square
- **/
-template <typename T>
-T sq(const T &value) {
-    return value * value;
 }
 
 /**
@@ -260,7 +111,7 @@ int clipBits(const T &value) {
 template<typename T>
 inline T degToRad(const T &x) {
     static_assert(std::is_floating_point<T>::value, "T must be of floating point type");
-    return (x * Ego::Math::pi<T>()) / static_cast<T>(180);
+    return (x * idlib::pi<T>()) / static_cast<T>(180);
 }
 
 /**
@@ -274,56 +125,7 @@ inline T degToRad(const T &x) {
 template<typename T>
 inline T radToDeg(const T &x) {
     static_assert(std::is_floating_point<T>::value, "T must be of floating point type");
-    return (x * static_cast<T>(180)) / Ego::Math::pi<T>();
-}
-
-} // namespace Math
-} // namespace Ego
-
-namespace Ego {
-namespace Math {
-/**
- * @brief
- *  Get \f$\sqrt{2}\f$.
- * @return
- *  \f$\sqrt{2}\f$
- * @remark
- *  Specializations for @a float and @a double are provided.
- */
-template <typename Type>
-Type sqrtTwo();
-
-template <>
-inline float sqrtTwo<float>() {
-    return 1.4142135623730950488016887242097f;
-}
-
-template <>
-inline double sqrtTwo<double>() {
-    return 1.4142135623730950488016887242097;
-}
-
-/**
- * @brief
- *  Get \f$\frac{1}{\sqrt{2}}\f$.
- * @return
- *  \f$\frac{1}{\sqrt{2}}\f$
- * @remark
- *  Specializations for @a float and @a double are provided.
- */
-template <typename Type>
-Type invSqrtTwo();
-
-template <>
-inline float invSqrtTwo() {
-    return 0.70710678118654752440084436210485f;
-}
-
-template <>
-inline double invSqrtTwo() {
-    //      .70710678118654757
-    //      .70710678118654752440
-    return 0.70710678118654752440084436210485;
+    return (x * static_cast<T>(180)) / idlib::pi<T>();
 }
 
 } // namespace Math

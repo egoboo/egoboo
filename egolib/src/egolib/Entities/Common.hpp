@@ -18,8 +18,8 @@
 //********************************************************************************************
 #pragma once
 
-#include "game/mesh.h"
-#include "game/physics.h"
+#include "egolib/game/mesh.h"
+#include "egolib/game/physics.h"
 
 /**
  * @brief

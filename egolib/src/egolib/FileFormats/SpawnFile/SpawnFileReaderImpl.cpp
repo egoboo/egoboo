@@ -42,8 +42,8 @@ bool SpawnFileReaderImpl::read(ReadContext& ctxt, spawn_file_info_t& info)
         } while (!ctxt.is(':') && !ctxt.ise(ctxt.NEW_LINE()) && !ctxt.ise(ctxt.END_OF_INPUT()) && !ctxt.ise(ctxt.ERROR()));
         if (ctxt.ise(ctxt.ERROR()))
         {
-            throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, ctxt.get_location(),
-                                        "read error");
+            throw idlib::c::compilation_error(__FILE__, __LINE__, idlib::c::compilation_error_kind::lexical, ctxt.get_location(),
+                                              "read error");
         }
         if (ctxt.ise(ctxt.END_OF_INPUT()))
         {
@@ -51,8 +51,8 @@ bool SpawnFileReaderImpl::read(ReadContext& ctxt, spawn_file_info_t& info)
         }
         if (!ctxt.is(':'))
         {
-            throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, ctxt.get_location(),
-                                        "expected `:`");
+            throw idlib::c::compilation_error(__FILE__, __LINE__, idlib::c::compilation_error_kind::lexical, ctxt.get_location(),
+                                           "expected `:`");
         }
         ctxt.next();
 
@@ -68,23 +68,23 @@ bool SpawnFileReaderImpl::read(ReadContext& ctxt, spawn_file_info_t& info)
         info.pos[kY] = ctxt.readRealLiteral() * Info<float>::Grid::Size();
         info.pos[kZ] = ctxt.readRealLiteral() * Info<float>::Grid::Size();
 
-        info.facing = Facing::FACE_NORTH;
+        info.facing = FACE_NORTH;
         info.attach = ATTACH_NONE;
         char chr = ctxt.readPrintable();
-        switch (id::to_upper(chr))
+        switch (idlib::to_upper(chr))
         {
-            case 'S': info.facing = Facing::FACE_SOUTH;       break;
-            case 'E': info.facing = Facing::FACE_EAST;        break;
-            case 'W': info.facing = Facing::FACE_WEST;        break;
-            case 'N': info.facing = Facing::FACE_NORTH;       break;
-            case '?': info.facing = Facing(FACE_RANDOM);      break;
+            case 'S': info.facing = FACE_SOUTH;       break;
+            case 'E': info.facing = FACE_EAST;        break;
+            case 'W': info.facing = FACE_WEST;        break;
+            case 'N': info.facing = FACE_NORTH;       break;
+			case '?': info.facing = Facing::random(); break;
             case 'L': info.attach = ATTACH_LEFT;      break;
             case 'R': info.attach = ATTACH_RIGHT;     break;
             case 'I': info.attach = ATTACH_INVENTORY; break;
             default:
             {
-                throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::syntactical, ctxt.get_location(),
-                                            "invalid enumeration element");
+                throw idlib::c::compilation_error(__FILE__, __LINE__, idlib::c::compilation_error_kind::syntactical, ctxt.get_location(),
+                                                  "invalid enumeration element");
             }
         };
         info.money = ctxt.readIntegerLiteral();
@@ -121,8 +121,8 @@ bool SpawnFileReaderImpl::read(ReadContext& ctxt, spawn_file_info_t& info)
         std::string what = ctxt.readName();
         if (what != "dependency")
         {
-            throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::syntactical, ctxt.get_location(),
-                                        "syntax error");
+            throw idlib::c::compilation_error(__FILE__, __LINE__, idlib::c::compilation_error_kind::syntactical, ctxt.get_location(),
+                                              "syntax error");
         }
         std::string who;
         ctxt.skipWhiteSpaces();
@@ -136,8 +136,8 @@ bool SpawnFileReaderImpl::read(ReadContext& ctxt, spawn_file_info_t& info)
         }
         if (who.empty()) /// @todo Verify that this is unnecessary based on the definition of readName.
         {
-            throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::syntactical, ctxt.get_location(),
-                                        "syntax error");
+            throw idlib::c::compilation_error(__FILE__, __LINE__, idlib::c::compilation_error_kind::syntactical, ctxt.get_location(),
+                                              "syntax error");
         }
         int slot = ctxt.readIntegerLiteral();
         // Store the data.
@@ -147,8 +147,8 @@ bool SpawnFileReaderImpl::read(ReadContext& ctxt, spawn_file_info_t& info)
     }
     else if (!ctxt.ise(ctxt.END_OF_INPUT()))
     {
-        throw id::compilation_error(__FILE__, __LINE__, id::compilation_error_kind::lexical, ctxt.get_location(),
-                                    "junk after end of spawn file");
+        throw idlib::c::compilation_error(__FILE__, __LINE__, idlib::c::compilation_error_kind::lexical, ctxt.get_location(),
+                                          "junk after end of spawn file");
     }
     return false;
 }

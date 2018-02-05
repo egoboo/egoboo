@@ -18,29 +18,31 @@
 //********************************************************************************************
 #include "egolib/Float.hpp"
 
-uint32_t float_toBits(float x) {
-	union { uint32_t i; float f; } val;
-	val.f = x;
-	return val.i;
+uint32_t single_to_bits(float x)
+{
+	union { uint32_t i; float f; } u;
+	u.f = x;
+	return u.i;
 }
 
-float float_fromBits(uint32_t x) {
-	union { uint32_t i; float f; } val;
-	val.i = x;
-	return val.f;
+float single_from_bits(uint32_t x)
+{
+	union { uint32_t i; float f; } u;
+	u.i = x;
+	return u.f;
 }
 
-bool float_infinite(float x) {
-	uint32_t u = float_toBits(x);
-	return (0 == (u & IEEE32_FRACTION)) && (IEEE32_EXPONENT == (u & IEEE32_EXPONENT));
+uint64_t double_to_bits(double x)
+{
+	union { uint32_t i; double f; } u;
+	u.f = x;
+	return u.i;
 }
 
-bool float_nan(float x) {
-    uint32_t u = float_toBits(x);
-	return (0 != (u&IEEE32_FRACTION)) && (IEEE32_EXPONENT == (u & IEEE32_EXPONENT));
-}
 
-bool float_bad(float x) {
-    uint32_t u = float_toBits(x);
-	return (IEEE32_EXPONENT == (u & IEEE32_EXPONENT)) ? true : false;
+double double_from_bits(uint64_t x)
+{
+	union { uint64_t i; float f; } u;
+	u.i = x;
+	return u.f;
 }

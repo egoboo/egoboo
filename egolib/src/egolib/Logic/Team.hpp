@@ -25,10 +25,10 @@
 #pragma once
 
 #include "egolib/platform.h"
-#include "game/egoboo.h"
+#include "egolib/game/egoboo.h"
 
 /// The description of a single team
-class Team : public id::equal_to_expr<Team>
+class Team : public idlib::equal_to_expr<Team>
 {
 public:
     enum TeamTypes : uint8_t
@@ -126,7 +126,7 @@ public:
     void decreaseMorale();
 
 	// CRTP
-	bool equal_to(const Team& other) const EGO_NOEXCEPT { return _teamID == other._teamID; }
+	bool equal_to(const Team& other) const noexcept { return _teamID == other._teamID; }
 
     inline TEAM_REF toRef() const {return _teamID;}
 

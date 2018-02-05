@@ -30,14 +30,14 @@ namespace Script {
 
 /// @brief A token of the DDL (Data Definition Language) of EgoScript.
 /// @todo Default token kind should be DDLTokenKind::Error.
-struct DDLToken : public id::token<DDLTokenKind, DDLTokenKind::Unknown>
+struct DDLToken : public idlib::c::token<DDLTokenKind, DDLTokenKind::Unknown>
 {
 public:
     /// @brief Construct this token with the specified values.
     /// @param kind the kind of this token
     /// @param startLocation the start location of this token
     /// @param lexeme the lexeme of this token. Default is the empty string.
-    DDLToken(DDLTokenKind kind, const id::location& startLocation, const std::string& lexeme = std::string());
+    DDLToken(DDLTokenKind kind, const idlib::c::location& startLocation, const std::string& lexeme = std::string());
 
     /// @brief Copy-construct this token from another token.
     /// @param other the other token
@@ -55,8 +55,8 @@ public:
     friend void swap(DDLToken& x, DDLToken& y)
     {
         using std::swap;
-        swap(static_cast<id::token<DDLTokenKind, DDLTokenKind::Unknown>&>(x),
-             static_cast<id::token<DDLTokenKind, DDLTokenKind::Unknown>&>(y));
+        swap(static_cast<idlib::c::token<DDLTokenKind, DDLTokenKind::Unknown>&>(x),
+             static_cast<idlib::c::token<DDLTokenKind, DDLTokenKind::Unknown>&>(y));
     }
 
     /// @brief Overloaded &lt;&lt; operator for a token.

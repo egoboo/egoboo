@@ -22,16 +22,15 @@
 
 #pragma once
 
-#include "egolib/typedef.h"
-#include "egolib/Core/Singleton.hpp"
+#include "egolib/text/document.hpp"
+#include "egolib/Math/Standard.hpp"
 
 namespace Ego {
 // Forward declaration.
 class Font;
 }
 
-namespace Ego {
-namespace Core {
+namespace Ego { namespace Core {
 
 struct ConsoleSettings {
 	/// The length: The maximum number of lines in a console.
@@ -93,24 +92,29 @@ struct ConsoleHistory {
 	void down();
 };
 
+struct Console;
+
+struct ConsoleCreateFunctor
+{
+	Console *operator()(const Rectangle2f& rectangle) const;
+};
+
+struct ConsoleDestroyFunctor
+{
+	void operator()(Console *p) const;
+};
+
 /// The encapsulation of the data necessary to run a generic Quake-like console in Egoboo
-struct Console {
-	/// console callback used to implement specializations of the egolib_console
-	typedef bool (*Callback)(Console *console, void *data);
-	Console *pnext;
+struct Console : public idlib::singleton<Console, ConsoleCreateFunctor, ConsoleDestroyFunctor>
+{
+protected:
+	// Befriend with the create functor.
+	friend ConsoleCreateFunctor;
 
-    Callback run_func;
-    void *run_data;
+	// Befriend with the destroy functor.
+	friend ConsoleDestroyFunctor;
 
-    std::shared_ptr<Ego::Font> pfont;
-
-    /// @brief Is the console visible?
-    bool on;
-
-    SDL_Rect rect;
-
-	ConsoleHistory history;
-
+public:
     template <size_t CapacityArg>
     struct Buffer
     {
@@ -177,63 +181,43 @@ struct Console {
         }
     };
 
-    Buffer<ConsoleSettings::LineSettings::Length> input;
-    Buffer<ConsoleSettings::OutputSettings::Length> output;
-
-	Console(SDL_Rect rectangle, Callback callback, void *data);
+	Console(const Rectangle2f& rectangle);
 	virtual ~Console();
+
+	idlib::signal<void(std::string)> ExecuteCommand;
 
     void draw();
 
     void show();
     void hide();
 
-    bool run();
-
-    void print(const char *format, ...) GCC_PRINTF_FUNC(2);
-    void printv(const char *format, va_list args);
-
 	ConsoleHistory& getHistory();
 
-    void add_output(const char *line);
-	
+	/// @brief Append text to the output.
+	/// @param text the text
+    void add_output(const std::string& text);
+
+	/// @return
+	/// @a nullptr if
+	/// - @a event is @a nullptr or
+	/// - @a event is not @a nullptr and the event was handled by the console.
+	/// @a event in all other cases.
+	SDL_Event *handle_event(SDL_Event *event);
+
+private:
+	Buffer<ConsoleSettings::LineSettings::Length> input;
+
+	idlib::document m_document;
+
+	std::shared_ptr<Ego::Font> pfont;
+
+	/// @brief Is the console visible?
+	bool on;
+
+	Rectangle2f rectangle;
+
+	ConsoleHistory history;
+
 };
 
-} // namespace Core
-} // namespace Ego
-
-namespace Ego {
-namespace Core {
-
-/// @brief The console handler.
-struct ConsoleHandler : public Singleton<ConsoleHandler> {
-protected:
-    friend Singleton<ConsoleHandler>::CreateFunctorType;
-    friend Singleton<ConsoleHandler>::DestroyFunctorType;
-    void draw_begin();
-    void draw_end();
-public:
-    void draw_all();
-    bool push_front(Console *console);
-
-    /// @brief Remove the console from the console stack.
-    /// @param console the console
-    /// @return @a true if the console was removed, @a false otherwise
-    bool unlink(Console *console);
-
-    /// @return
-    /// @a nullptr if
-    /// - @a event is @a nullptr or
-    /// - @a event is not @a nullptr and the event was handled by some console.
-    /// @a event in all other cases.
-    SDL_Event *handle_event(SDL_Event *event);
-
-    Console *top;
-
-protected:
-	ConsoleHandler();
-	~ConsoleHandler();
-};
-
-} // namespace Core
-} // namespace Ego
+} } // namespace Ego::Core

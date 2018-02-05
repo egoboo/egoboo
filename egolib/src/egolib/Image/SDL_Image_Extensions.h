@@ -25,76 +25,33 @@
 
 #include "egolib/Graphics/PixelFormat.hpp"
 #include "egolib/Math/_Include.hpp"
+#include "egolib/Image/blit.hpp"
+#include "egolib/Image/convert.hpp"
+#include "egolib/Image/fill.hpp"
+#include "egolib/Image/get_pixel.hpp"
+#include "egolib/Image/pad.hpp"
+#include "egolib/Image/power_of_two.hpp"
+#include "egolib/Image/set_pixel.hpp"
 
-namespace Ego {
-namespace SDL {
-
-/// @brief Specifies a padding.
-struct Padding
-{
-    size_t left, top, right, bottom;
-};
-
-/// @brief Get the corresponding pixel format of an SDL pixel format.
-/// @param source the SDL pixel format
-/// @return the pixel format
-/// @throw RuntimeErrorException if there is no pixel format for the given SDL pixel format
-PixelFormatDescriptor getPixelFormat(const SDL_PixelFormat& source);
+namespace Ego { namespace SDL {
 
 /// @brief Get the enumerated SDL pixel format for a specified pixel format descriptor.
 /// @param pixelFormatDescriptor the pixel format descriptor
 /// @return the enumerated SDL pixel format
 /// @throw RuntimeErrorException if the pixel format descriptor has no corresponding enumerated SDL pixel format
-uint32_t getEnumeratedPixelFormat(const PixelFormatDescriptor& pixelFormatDescriptor);
+uint32_t getEnumeratedPixelFormat(const pixel_descriptor& pixel_descriptor);
 
 /// @brief Get the SDL pixel format for a specified pixel format descriptor.
 /// @param pixelFormatDescriptor the pixel format descriptor
 /// @return the enumerated SDL pixel format
 /// @throw RuntimeErrorException if the pixel format descriptor has no corresponding enumerated SDL pixel format
 /// @throw EnvironmentErrorException if SDL does not behave according to its specification
-std::shared_ptr<const SDL_PixelFormat> getPixelFormat(const PixelFormatDescriptor& pixelFormatDescriptor);
-
-/// @brief Create an SDL surface of the specified size and pixel format.
-/// @param width, height the width and the height of the surface
-/// @param pixelFormatDescriptor the pixel format descriptor of the surface
-/// @return a pointer to the SDL surface
-/// @throw id::invalid_argument_error if @a width or @a height is negative
-/// @throw id::runtime_error if SDL fails
-std::shared_ptr<SDL_Surface> createSurface(int width, int height, const PixelFormatDescriptor& pixelFormatDescriptor = Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8A8>());
-
-/// @brief Create a padded surface.
-/// @param surface the original surface
-/// @param padding the padding
-/// @return the padded surface
-/// @remark The padding is black (if no alpha channel is present) or transparent black (if alpha channel is present).
-std::shared_ptr<SDL_Surface> padSurface(const std::shared_ptr<const SDL_Surface>& surface, const Padding& padding);
+std::shared_ptr<const SDL_PixelFormat> getPixelFormat(const pixel_descriptor& pixel_descriptor);
 
 /// @brief Clone a surface.
 /// @param surface the original surface
 /// @return the cloned surface
 std::shared_ptr<SDL_Surface> cloneSurface(const std::shared_ptr<const SDL_Surface>& surface);
-
-/// @brief Get a pixel in a surface.
-/// @param the surface
-/// @param x, y the position of the pixel
-/// @return the pixel
-uint32_t getPixel(const std::shared_ptr<const SDL_Surface>& surface, int x, int y);
-
-/// @brief Set a pixel in a surface
-/// @param the surface
-/// @param x, y the position of the pixel
-/// @param pixel the pixel
-void putPixel(const std::shared_ptr<SDL_Surface>& surface, int x, int y, uint32_t pixel);
-
-/// @brief Create a surface that is identicial to the original surface but is of the specified pixel format.
-/// @param surface the surface
-/// @param pixelFormatDescriptor the pixel format descriptor of the pixel format
-/// @return the resulting surface
-/// @throw id::runtime_error if the convesion fails
-/// @throw id::invalid_argument_error if @a a surface is @a nullptr
-std::shared_ptr<SDL_Surface> convertPixelFormat(const std::shared_ptr<SDL_Surface>& surface, const PixelFormatDescriptor& pixelFormatDescriptor);
-
-std::shared_ptr<SDL_Surface> convertPowerOfTwo(const std::shared_ptr<SDL_Surface>& surface);
 
 /**
  * @brief Test if a surface is non-opaque.
@@ -108,11 +65,11 @@ std::shared_ptr<SDL_Surface> convertPowerOfTwo(const std::shared_ptr<SDL_Surface
  *   TODO: Test if some pixel has the color of the palette entry
  * - the surface is not palettized, has an alpha channel, and there is a non-opaque pixel
  */
-bool testAlpha(const std::shared_ptr<SDL_Surface>& surface);
+bool testAlpha(SDL_Surface *surface);
 
-Math::Colour3b getColourMod(SDL_Surface& surface);
+Math::Colour3b getColourMod(SDL_Surface *surface);
 
-void setColourMod(SDL_Surface& surface, const Math::Colour3b& colourMod);
+void setColourMod(SDL_Surface *surface, const Math::Colour3b& colourMod);
 
 enum class BlendMode
 {
@@ -137,13 +94,96 @@ BlendMode blendModeToInternal(SDL_BlendMode blendMode);
 
 SDL_BlendMode blendModeToExternal(BlendMode blendMode);
 
-BlendMode getBlendMode(SDL_Surface& surface);
+BlendMode getBlendMode(SDL_Surface *surface);
 
-void setBlendMode(SDL_Surface& surface, BlendMode blendMode);
+void setBlendMode(SDL_Surface *surface, BlendMode blendMode);
 
-void fillSurface(SDL_Surface& surface, const Ego::Math::Colour4b& colour);
+idlib::pixel_format getPixelFormat(SDL_Surface *surface);
 
-PixelFormat getPixelFormat(SDL_Surface& surface);
+uint32_t make_rgb(SDL_Surface *surface, const Math::Colour3b& colour);
 
-} // namespace SDL
+uint32_t make_rgba(SDL_Surface *surface, const Math::Colour4b& colour);
+
+std::shared_ptr<SDL_Surface> render_glyph(TTF_Font *sdl_font, uint16_t code_point, const Math::Colour4b& color);
+
+} } // namespace Ego::SDL
+
+namespace Ego {
+
+template <>
+struct convert_functor<SDL_Surface>
+{
+    std::shared_ptr<SDL_Surface> operator()(const std::shared_ptr<SDL_Surface>& pixels, const pixel_descriptor& format) const;
+};
+
+template <>
+struct power_of_two_functor<SDL_Surface>
+{
+    std::shared_ptr<SDL_Surface> operator()(const std::shared_ptr<SDL_Surface>& pixels) const;
+};
+
+template <>
+struct pad_functor<SDL_Surface>
+{
+    std::shared_ptr<SDL_Surface> operator()(const std::shared_ptr<SDL_Surface>& pixels, const padding& padding) const;
+};
+
+template <>
+struct blit_functor<SDL_Surface>
+{
+    void operator()(SDL_Surface *source, SDL_Surface *target) const;
+    void operator()(SDL_Surface *source, const Rectangle2f& source_rectangle, SDL_Surface *target) const;
+    void operator()(SDL_Surface *source, SDL_Surface *target, const Point2f& target_position) const;
+    void operator()(SDL_Surface *source, const Rectangle2f& source_rectangle, SDL_Surface *target, const Point2f& target_position) const;
+};
+
+template <>
+struct fill_functor<SDL_Surface>
+{
+    /// @{
+    /// @brief Fill an SDL surface with the specified color.
+    /// @param surface a pointer to the SDL surface
+    /// @param color the fill color
+    void operator()(SDL_Surface *surface, const Math::Colour3b& color) const;
+    void operator()(SDL_Surface *surface, const Math::Colour4b& color) const;
+    /// @}
+
+    /// @{
+    /// @brief Fill a rectangle of an SDL surface with the specified color.
+    /// @param surface a pointer to the SDL surface
+    /// @param rectangle the rectangle of the SDL surface to fill. Clipped against the rectangle of the image.
+    /// @param color the fill color
+    void operator()(SDL_Surface *surface, const Math::Colour3b& color, const Rectangle2f& rectangle) const;
+    void operator()(SDL_Surface *surface, const Math::Colour4b& color, const Rectangle2f& rectangle) const;
+    /// @}
+};
+
+template <>
+struct get_pixel_functor<SDL_Surface>
+{
+    /// @{
+    /// @brief Get the color of a pixel of an SDL surface.
+    /// @param surface a pointer to the SDL surface
+    /// @param position the position of the pixel to fill
+    /// @return the color of the pixel of the SDL surface
+    Math::Colour4b operator()(const SDL_Surface *surface, const Point2f& point) const;
+    /// @}
+};
+
+template <>
+struct set_pixel_functor<SDL_Surface>
+{
+    /// @{
+    /// @brief Fill a pixel of an SDL surface with the specified colour.
+    /// @param surface a pointer to the SDL surface
+    /// @param position the position of the pixel to fill. Clipped against the rectangle of the SDL surface.
+    /// @param color the fill color
+    void operator()(SDL_Surface *surface, const Math::Colour3b& color, const Point2f& point) const;
+    void operator()(SDL_Surface *surface, const Math::Colour4b& color, const Point2f& point) const;
+    /// @}
+
+private:
+    void operator()(SDL_Surface *surface, uint32_t coded_color, const Point2f& point) const;
+};
+
 } // namespace Ego

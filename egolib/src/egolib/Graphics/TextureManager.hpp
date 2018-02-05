@@ -27,10 +27,10 @@
 
 namespace Ego {
 
-struct TextureManager : public Core::Singleton<TextureManager> {
+struct TextureManager : public idlib::singleton<TextureManager> {
 protected:
-    friend Core::Singleton<TextureManager>::CreateFunctorType;
-    friend Core::Singleton<TextureManager>::DestroyFunctorType;
+	friend idlib::default_new_functor<TextureManager>;
+    friend idlib::default_delete_functor<TextureManager>;
 protected:
     /**
      * @brief

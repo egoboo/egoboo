@@ -4,46 +4,50 @@ clone_depth: 1
 # Build worker image (VM template)
 image: Visual Studio 2017
 
+# Build branch "master" and "develop" only.
+branches:
+  only:
+    - master
+    - develop
+
 platform:
-    - x86
+    - Win32
     - x64
 configuration:
     - Debug
     - Release
 
 install:
-    # depth 32 should be enough.
-    git submodule update --init --recursive --depth 32
-    
-# Package artifacts and push packaged artifacts.
-after_build:
-    - ps: |
-        ./distribute -configuration ${env:configuration} -platform ${env:platform} -suffix ${env:suffix}
-        Push-AppveyorArtifact "${env:APPVEYOR_BUILD_FOLDER}/${env:artifactFileName}" -FileName "${env:artifactFileName}" -DeploymentName "${env:artifactName}"
+  # depth 32 should be enough.
+  - git submodule update --init --recursive --depth 32
+  # Download and install CMake.
+  - set CMAKE_URL="https://cmake.org/files/v3.8/cmake-3.8.0-win64-x64.zip"
+  - appveyor DownloadFile %CMAKE_URL% -FileName cmake.zip
+  - 7z x cmake.zip -oC:\projects\deps > nul
+  - move C:\projects\deps\cmake-* C:\projects\deps\cmake # Move to a version-agnostic directory
+  - set PATH=C:\projects\deps\cmake\bin;%PATH%
+  - cmake --version
 
 # Restore nuget packages and install dependencies.        
 # Furthermore, the artifact name and the artifact file name are computed.
 before_build:
-    - nuget restore
-    - ps: .\install-vsix-appveyor.ps1
-    - ps: |
-        $env:suffix = "nightly"
-        $env:artifactName = "egoboo-$(${env:configuration}.ToLower())-$env:platform-$env:suffix"
-        Write-Host "artifact name = $env:artifactName"
-        $env:artifactFileName = "${env:artifactName}.zip"
-        Write-Host "artifact file name = $env:artifactFileName"
+    #- nuget restore
+    - ps: .\idlib\ci\appveyor\install-googletest-vsix.ps1
+    - cmd: if "%platform%"=="Win32" set CMAKE_GENERATOR_NAME=Visual Studio 15 2017
+    - cmd: if "%platform%"=="x64"   set CMAKE_GENERATOR_NAME=Visual Studio 15 2017 Win64
+    - cmake -G "%CMAKE_GENERATOR_NAME%" CMakeLists.txt
+
 build:
     parallel: true                  # enable MSBuild parallel builds
     project: egoboo.sln             # path to Visual Studio solution or project
 
-test_script:
-    - ps: |
-        $platform = $env:platform
-        if ($platform -eq "Win32") { $platform = "x86" }
-        vstest.console /Logger:Appveyor /ListDiscoverers /UseVsixExtensions:true
-        vstest.console /Logger:Appveyor /ListExecutors /UseVsixExtensions:true
-        vstest.console /Logger:Appveyor /Platform:$platform /inIsolation /UseVsixExtensions:true "product\idlib-tests\$env:configuration\$env:platform\idlib-tests.exe"
-        vstest.console /Logger:Appveyor /Platform:$platform /inIsolation /UseVsixExtensions:true "product\egolib-tests\$env:configuration\$env:platform\egolib-tests.exe"
+#test_script:
+#    - ps: |
+#        $platformName = $env:platform
+#        if ($env:platform -eq "Win32") { $platformName = "x86" }
+#        vstest.console /Logger:Appveyor /ListDiscoverers /UseVsixExtensions:true
+#        vstest.console /Logger:Appveyor /ListExecutors /UseVsixExtensions:true
+#        vstest.console /Logger:Appveyor /Platform:$platformName /inIsolation /UseVsixExtensions:true "products\$env:configuration\$platformName\bin\idlib-game-engine-tests-executable.exe"
 
 # if one matrix entry fails, all entries fails
 # https://www.appveyor.com/docs/build-configuration#failing-strategy

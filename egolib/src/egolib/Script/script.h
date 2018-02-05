@@ -22,7 +22,6 @@
 #pragma once
 
 #include "egolib/typedef.h"
-#include "egolib/Core/Singleton.hpp"
 #include "egolib/Logic/Damage.hpp"
 #include "egolib/IDSZ.hpp"
 #include "egolib/Clock.hpp"
@@ -327,7 +326,7 @@ public:
     {
         if (isFull())
         {
-            throw id::runtime_error(__FILE__, __LINE__, "instruction list overflow");
+            throw idlib::runtime_error(__FILE__, __LINE__, "instruction list overflow");
         }
         instructions[numberOfInstructions++] = instruction;
     }
@@ -335,12 +334,12 @@ public:
     /// @brief Get the instruction at the specified index.
     /// @param index the index
     /// @return a constant reference to the instruction
-    /// @throw id::runtime_error @a index is out of bounds
+    /// @throw idlib::runtime_error @a index is out of bounds
 	const Instruction& operator[](Index index) const 
     {
         if (index >= getNumberOfInstructions())
         {
-            throw id::runtime_error(__FILE__, __LINE__, "instruction index out of bounds");
+            throw idlib::runtime_error(__FILE__, __LINE__, "instruction index out of bounds");
         }
 		return instructions[index];
 	}
@@ -348,12 +347,12 @@ public:
     /// @brief Get the instruction at the specified index.
     /// @param index the index
     /// @return a reference to the instruction
-    /// @throw id::runtime_error @a index is out of bounds
+    /// @throw idlib::runtime_error @a index is out of bounds
     Instruction& operator[](Index index)
     {
         if (index >= getNumberOfInstructions())
         {
-            throw id::runtime_error(__FILE__, __LINE__, "instruction index out of bounds");
+            throw idlib::runtime_error(__FILE__, __LINE__, "instruction index out of bounds");
         }
 		return instructions[index];
 	}
@@ -497,7 +496,7 @@ public:
 
 /// The state of the scripting system
 /// @details It is not persistent between one evaluation of a script and another
-struct script_state_t : private id::non_copyable
+struct script_state_t : private idlib::non_copyable
 {
     int x;
     int y;
@@ -511,9 +510,9 @@ struct script_state_t : private id::non_copyable
 	script_state_t();
 
     /// @brief Error handler for the error "variable not defined".
-    /// Writes a warning log messages and raises an id::runtime_error.
+    /// Writes a warning log messages and raises an idlib::runtime_error.
     /// @param variableIndex the variable index
-    /// @throw id::runtime_error
+    /// @throw idlib::runtime_error
     void onVariableNotDefinedError(uint8_t variableIndex);
 	// protected
 	uint8_t run_function(ai_state_t& aiState, script_info_t& script);
@@ -595,10 +594,10 @@ enum ScriptOperators {
 };
 
 /// @brief The runtime (environment) for the scripts.
-struct Runtime : public Core::Singleton<Runtime> {
+struct Runtime : public idlib::singleton<Runtime> {
 protected:
-    friend Core::Singleton<Runtime>::CreateFunctorType;
-    friend Core::Singleton<Runtime>::DestroyFunctorType;
+    friend idlib::default_new_functor<Runtime>;
+	friend idlib::default_delete_functor<Runtime>;
 
     /// @brief Construct this runtime.
 	/// @remarks Intentionally protected.

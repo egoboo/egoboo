@@ -56,7 +56,7 @@ void wawalite_water_t::read(ReadContext& ctxt, wawalite_water_t *profile)
 {
     if (!profile)
     {
-        throw std::invalid_argument("nullptr == profile");
+        throw idlib::null_error(__FILE__, __LINE__, "profile");
     }
 
     // Reset to defaults.
@@ -103,7 +103,7 @@ void wawalite_light_t::read(ReadContext& ctxt, wawalite_light_t *profile)
 {
     if (!profile)
     {
-        throw std::invalid_argument("nullptr == profile");
+        throw idlib::null_error(__FILE__, __LINE__, "profile");
     }
     *profile = wawalite_light_t::getDefaults();
 
@@ -116,7 +116,7 @@ void wawalite_physics_t::read(ReadContext& ctxt, wawalite_physics_t *profile)
 {
     if (!profile)
     {
-        throw std::invalid_argument("nullptr == profile");
+        throw idlib::null_error(__FILE__, __LINE__, "profile");
     }
     // Reset to defaults.
     *profile = wawalite_physics_t::getDefaults();
@@ -134,7 +134,7 @@ void wawalite_animtile_t::read(ReadContext& ctxt, wawalite_animtile_t *profile)
 {
     if (!profile)
     {
-        throw std::invalid_argument("nullptr == profile");
+        throw idlib::null_error(__FILE__, __LINE__, "profile");
     }
     // Reset to defaults.
     *profile = wawalite_animtile_t::getDefaults();
@@ -148,7 +148,7 @@ void wawalite_damagetile_t::read(ReadContext& ctxt, wawalite_damagetile_t *profi
 {
     if (!profile)
     {
-        throw std::invalid_argument("nullptr == profile");
+        throw idlib::null_error(__FILE__, __LINE__, "profile");
     }
     // Reset to defaults.
     *profile = wawalite_damagetile_t::getDefaults();
@@ -164,7 +164,7 @@ void wawalite_weather_t::read(ReadContext& ctxt, wawalite_data_t *enclosing, waw
 {
     if (!profile)
     {
-        throw std::invalid_argument("nullptr == profile");
+        throw idlib::null_error(__FILE__, __LINE__, "profile");
     }
     // Reset to defaults.
     *profile = wawalite_weather_t::getDefaults();
@@ -175,7 +175,7 @@ void wawalite_weather_t::read(ReadContext& ctxt, wawalite_data_t *enclosing, waw
     {
         //Parse the weather type line
         profile->weather_name = vfs_get_next_string_lit(ctxt);
-        id::to_upper_in_situ(profile->weather_name);
+        idlib::to_upper_in_situ(profile->weather_name);
     }
 
     profile->over_water = vfs_get_next_bool(ctxt);
@@ -203,7 +203,7 @@ wawalite_camera_t *wawalite_camera_t::read(ReadContext& ctxt, wawalite_camera_t 
 {
     if (!profile)
     {
-        throw std::invalid_argument("nullptr == profile");
+        throw idlib::null_error(__FILE__, __LINE__, "profile");
     }
     // Reset to defaults.
     *profile = wawalite_camera_t::getDefaults();
@@ -246,7 +246,7 @@ wawalite_data_t *wawalite_data_read(const std::string& filename, wawalite_data_t
      */
     if (!profile)
     {
-        throw std::invalid_argument("nullptr == profile");
+        throw idlib::null_error(__FILE__, __LINE__, "profile");
     }
     // Reset to defaults.
     *profile = wawalite_data_t::getDefaults();
@@ -456,7 +456,7 @@ bool wawalite_data_write(const std::string& filename,const wawalite_data_t *prof
 {
     if (!profile)
     {
-        throw std::invalid_argument("nullptr == profile");
+        throw idlib::null_error(__FILE__, __LINE__, "profile");
     }
     auto filewrite = std::shared_ptr<vfs_FILE>(vfs_openWrite(filename),
                                                [](vfs_FILE *file) {
@@ -511,7 +511,7 @@ wawalite_data_t *wawalite_limit(wawalite_data_t *profile)
 {
     if (!profile)
     {
-        throw std::invalid_argument("nullptr == profile");
+        throw idlib::null_error(__FILE__, __LINE__, "profile");
     }
 
     // Limit the sound index.

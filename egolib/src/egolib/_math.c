@@ -30,16 +30,16 @@
 
 // conversion functions
 
-const Facing Facing::ATK_FRONT = Facing(0x0000);
-const Facing Facing::ATK_RIGHT = Facing(0x4000);
-const Facing Facing::ATK_BEHIND = Facing(0x8000);
-const Facing Facing::ATK_LEFT = Facing(0xC000);
+const Facing ATK_FRONT = Facing(0x0000);
+const Facing ATK_RIGHT = Facing(0x4000);
+const Facing ATK_BEHIND = Facing(0x8000);
+const Facing ATK_LEFT = Facing(0xC000);
 
 /// pre defined directions
-const Facing Facing::FACE_WEST = Facing(0x0000); ///< Character facings
-const Facing Facing::FACE_NORTH = Facing(0x4000);
-const Facing Facing::FACE_EAST = Facing(0x8000);
-const Facing Facing::FACE_SOUTH = Facing(0xC000);
+const Facing FACE_WEST = Facing(0x0000); ///< Character facings
+const Facing FACE_NORTH = Facing(0x4000);
+const Facing FACE_EAST = Facing(0x8000);
+const Facing FACE_SOUTH = Facing(0xC000);
 
 
 // limiting functions
@@ -47,7 +47,7 @@ const Facing Facing::FACE_SOUTH = Facing(0xC000);
 
 // random functions
     int generate_irand_pair( const IPair num );
-    int generate_irand_range( const Ego::Math::Interval<float> num );
+    int generate_irand_range( const idlib::interval<float> num );
 
 // matrix functions
 
@@ -58,7 +58,7 @@ const Facing Facing::FACE_SOUTH = Facing(0xC000);
 
 Facing vec_to_facing( const float dx, const float dy )
 {
-    return Facing(FACING_T(RadianToFacing(Ego::Math::Radians(std::atan2(dy, dx) + Ego::Math::pi<float>()))));
+    return idlib::canonicalize(RadianToFacing(idlib::angle<float, idlib::radians>(std::atan2(dy, dx) + idlib::pi<float>())));
 }
 
 //--------------------------------------------------------------------------------------------
@@ -81,7 +81,7 @@ void facing_to_vec( const Facing& facing, float * dx, float * dy )
 // ROTATION FUNCTIONS
 //--------------------------------------------------------------------------------------------
 Facing rotate(const Facing& source, const Facing& target, const float weight) {
-    int32_t delta = static_cast<int32_t>(target) - static_cast<int32_t>(source);
+    int32_t delta = target.get_value() - source.get_value();
 
     //Figure out if it is faster to wrap around the other direction
     if(std::abs(delta) > (std::numeric_limits<uint16_t>::max() / 2)) {
@@ -90,7 +90,7 @@ Facing rotate(const Facing& source, const Facing& target, const float weight) {
 
     int32_t weightedDelta = static_cast<float>(delta) / weight;
 
-    return Facing(static_cast<int32_t>(source) + weightedDelta);
+    return Facing(source.get_value() + weightedDelta);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -142,7 +142,7 @@ int generate_irand_pair( const IPair num )
 }
 
 //--------------------------------------------------------------------------------------------
-int generate_irand_range( const Ego::Math::Interval<float> num )
+int generate_irand_range( const idlib::interval<float> num )
 {
     /// @author ZZ
     /// @details This function generates a random number

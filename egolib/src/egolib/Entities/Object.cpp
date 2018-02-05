@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file game/Entities/Object.hpp
+/// @file egolib/game/Entities/Object.hpp
 /// @details An object representing instances of in-game egoboo objects (Object)
 /// @author Johan Jansen
 
@@ -28,19 +28,19 @@
 #include "egolib/Entities/ObjectHandler.hpp"
 #include "egolib/Entities/ParticleHandler.hpp"
 #include "egolib/Entities/Enchant.hpp"
-#include "game/Logic/Player.hpp"
-#include "game/game.h"
+#include "egolib/game/Logic/Player.hpp"
+#include "egolib/game/game.h"
 #include "egolib/Graphics/ModelDescriptor.hpp"
-#include "game/script_implementation.h" //for stealth
-#include "game/CharacterMatrix.h"
-#include "game/Graphics/CameraSystem.hpp"
-#include "game/Graphics/TileList.hpp"
-#include "game/Graphics/Billboard.hpp"
+#include "egolib/game/script_implementation.h" //for stealth
+#include "egolib/game/CharacterMatrix.h"
+#include "egolib/game/Graphics/CameraSystem.hpp"
+#include "egolib/game/Graphics/TileList.hpp"
+#include "egolib/game/Graphics/Billboard.hpp"
 
 //For the minimap
-#include "game/Core/GameEngine.hpp"
-#include "game/GameStates/PlayingState.hpp"
-#include "game/GUI/MiniMap.hpp"
+#include "egolib/game/Core/GameEngine.hpp"
+#include "egolib/game/GameStates/PlayingState.hpp"
+#include "egolib/game/GUI/MiniMap.hpp"
 
 //Declare class static constants
 const std::shared_ptr<Object> Object::INVALID_OBJECT = nullptr;
@@ -54,7 +54,6 @@ constexpr float Object::DROPZVEL;
 constexpr float Object::DISMOUNTZVEL;
 
 Object::Object(ObjectProfileRef proRef, ObjectRef objRef) : 
-    spawn_data(),
     ai(),
     gender(Gender::Male),
     experience(0),
@@ -110,6 +109,7 @@ Object::Object(ObjectProfileRef proRef, ObjectRef objRef) :
     shadow_size_save(0),
     is_overlay(false),
     skin(0),
+	skin_stt(0),
     basemodel_ref(proRef),
 
     bump_stt(),
@@ -185,7 +185,7 @@ Object::Object(ObjectProfileRef proRef, ObjectRef objRef) :
 
     //Initialize primary attributes
     for(size_t i = 0; i < Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES; ++i) {
-        const Ego::Math::Interval<float>& baseRange = _profile->getAttributeBase(static_cast<Ego::Attribute::AttributeType>(i));
+        const idlib::interval<float>& baseRange = _profile->getAttributeBase(static_cast<Ego::Attribute::AttributeType>(i));
         _baseAttribute[i] = Random::next(baseRange);
     }
 
@@ -695,11 +695,11 @@ bool Object::teleport(const Vector3f& position, Facing facing_z)
         // Yeah!  It worked!
 
         // update the old position
-        ori_old.facing_z = Facing(uint16_t(facing_z));
+        ori_old.facing_z = idlib::canonicalize(facing_z);
 
         // update the new position
         setPosition(newPosition);
-        ori.facing_z = Facing(uint16_t(facing_z));
+        ori.facing_z = idlib::canonicalize(facing_z);
 
         if (!detatchFromHolder(true, false))
         {
@@ -752,7 +752,7 @@ void Object::update()
         if (!inwater)
         {
             // Splash
-            ParticleHandler::get().spawnGlobalParticle({getPosX(), getPosY(), _currentModule->getWater().get_level() + 10}, Facing::ATK_FRONT, LocalParticleProfileRef(PIP_SPLASH), 0);
+            ParticleHandler::get().spawnGlobalParticle({getPosX(), getPosY(), _currentModule->getWater().get_level() + 10}, ATK_FRONT, LocalParticleProfileRef(PIP_SPLASH), 0);
 
             if ( _currentModule->getWater()._is_water )
             {
@@ -790,7 +790,7 @@ void Object::update()
 
                     if ( 0 == ( (update_wld + getObjRef().get()) & ripand ))
                     {
-                        ParticleHandler::get().spawnGlobalParticle({getPosX(), getPosY(), _currentModule->getWater().get_level()}, Facing::ATK_FRONT, LocalParticleProfileRef(PIP_RIPPLE), 0);
+                        ParticleHandler::get().spawnGlobalParticle({getPosX(), getPosY(), _currentModule->getWater().get_level()}, ATK_FRONT, LocalParticleProfileRef(PIP_RIPPLE), 0);
                     }
                 }
             }
@@ -963,7 +963,7 @@ void Object::update()
                 chance -= target->getAttribute(Ego::Attribute::AGILITY)*0.5f;
 
                 //-5% per tile distance
-                chance -= 5 * ((getPosition()-target->getPosition()).length() / Info<float>::Grid::Size());
+                chance -= 5 * (idlib::euclidean_norm(getPosition()-target->getPosition()) / Info<float>::Grid::Size());
 
                 //Perceptive Perk doubles chance
                 if(target->hasPerk(Ego::Perks::PERCEPTIVE)) {
@@ -1054,7 +1054,7 @@ std::string Object::getName(bool prefixArticle, bool prefixDefinite, bool capita
         // capitalize the name ?
         if (capitalLetter)
         {
-            result[0] = id::to_upper(result[0]);
+            result[0] = idlib::to_upper(result[0]);
         }
     }
     else
@@ -1081,7 +1081,7 @@ std::string Object::getName(bool prefixArticle, bool prefixDefinite, bool capita
             }
             else
             {
-                char lTmp = id::to_upper(result[0]);
+                char lTmp = idlib::to_upper(result[0]);
 
                 if ( 'A' == lTmp || 'E' == lTmp || 'I' == lTmp || 'O' == lTmp || 'U' == lTmp )
                 {
@@ -1107,9 +1107,9 @@ void Object::requestTerminate()
 
  bool Object::isFacingLocation(const float x, const float y) const
  {
-    FACING_T facing = FACING_T(vec_to_facing(x - getPosX(), y - getPosY()));
-    facing -= FACING_T(ori.facing_z);
-    return (facing > 55535 || facing < 10000);
+    auto facing = idlib::canonicalize(vec_to_facing(x - getPosX(), y - getPosY()));
+    facing -= idlib::canonicalize(ori.facing_z);
+    return (facing.get_value() > 55535 || facing.get_value() < 10000);
  }
 
 bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
@@ -1201,7 +1201,7 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
     //Throw us forward if we can collide with the holder (for example the Stool)
     //This prevents us from being dropped into the collision box of the holder
     if(bump.size > 0) {
-        Ego::Math::Radians angle = FacingToRadian(Facing(ori.facing_z) + Facing::ATK_BEHIND);
+        Ego::Math::Radians angle = FacingToRadian(Facing(ori.facing_z) + ATK_BEHIND);
         setVelocity(getVelocity() + Vector3f(std::cos(angle) * DROPXYVEL * 0.5f,
                                              std::sin(angle) * DROPXYVEL * 0.5f,
                                              0.0f));
@@ -1274,7 +1274,7 @@ bool Object::canSeeObject(const std::shared_ptr<Object> &target) const
     }
 
     //Too Dark?
-    int enviro_light = ( target->inst.alpha * target->inst.getMaxLight() ) * INV_FF<float>();
+    int enviro_light = ( target->inst.alpha * target->inst.getMaxLight() ) * idlib::fraction<float, 1, 255>();
     int self_light   = ( target->inst.light == 255 ) ? 0 : target->inst.light;
     int light        = std::max(enviro_light, self_light);
     light *= expf(0.32f * getAttribute(Ego::Attribute::DARKVISION));
@@ -1714,7 +1714,7 @@ BIT_FIELD Object::hit_wall(const Vector3f& pos, Vector2f& nrm, float *pressure)
 
 	// Calculate the radius based on whether the character is on camera.
 	float radius = 0.0f;
-	if (CameraSystem::get().isInitialized() && CameraSystem::get().getMainCamera()->getTileList()->inRenderList(getTile()))
+	if (CameraSystem::get().getMainCamera()->getTileList()->inRenderList(getTile()))
 	{
 		radius = bump_1.size;
 	}
@@ -1738,7 +1738,7 @@ BIT_FIELD Object::hit_wall(const Vector3f& pos, Vector2f& nrm, float * pressure,
 
     // Calculate the radius based on whether the character is on camera.
 	float radius = 0.0f;
-	if (CameraSystem::get().isInitialized() && CameraSystem::get().getMainCamera()->getTileList()->inRenderList(getTile()))
+	if (CameraSystem::get().getMainCamera()->getTileList()->inRenderList(getTile()))
 	{
 		radius = bump_1.size;
 	}
@@ -1862,7 +1862,7 @@ void Object::respawn()
     _currentLife = getAttribute(Ego::Attribute::MAX_LIFE);
     _currentMana = getAttribute(Ego::Attribute::MAX_MANA);
     setPosition(getSpawnPosition());
-    setVelocity(Vector3f::zero());
+    setVelocity(idlib::zero<Vector3f>());
     team = team_base;
     canbecrushed = false;
     ori.map_twist_facing_y = orientation_t::MAP_TURN_OFFSET;  // These two mean on level surface
@@ -2268,7 +2268,7 @@ const std::shared_ptr<ObjectProfile>& Object::getProfile() const
 
 void Object::resetInputCommands()
 {
-    _objectPhysics.setDesiredVelocity(Vector2f::zero());
+    _objectPhysics.setDesiredVelocity(idlib::zero<Vector2f>());
     _inputLatchesPressed.reset();    
 }
 
@@ -2827,7 +2827,7 @@ void Object::dropMoney(int amount)
 
         for (size_t i = 0; i < count; i++)
         {
-            ParticleHandler::get().spawnGlobalParticle(pos, Facing::ATK_FRONT, LocalParticleProfileRef(pips[cnt]), i);
+            ParticleHandler::get().spawnGlobalParticle(pos, ATK_FRONT, LocalParticleProfileRef(pips[cnt]), i);
         }
     }
 }
@@ -2866,7 +2866,7 @@ void Object::dropKeys()
         // fix some flags
         pkey->hitready               = true;
         pkey->isequipped             = false;
-        pkey->ori.facing_z           = Facing(FACING_T(direction + Facing::ATK_BEHIND));
+        pkey->ori.facing_z           = idlib::canonicalize(direction + ATK_BEHIND);
         pkey->team                   = pkey->team_base;
 
         // fix the current velocity
@@ -2905,7 +2905,7 @@ void Object::dropAllItems()
     const FACING_T diradd = (std::numeric_limits<FACING_T>::max()/2) / pack_count;
 
     // now drop each item in turn
-    Facing direction = ori.facing_z + Facing::ATK_BEHIND - Facing(diradd * (pack_count/2));
+    Facing direction = ori.facing_z + ATK_BEHIND - Facing(diradd * (pack_count/2));
     for(const std::shared_ptr<Object> &pitem : getInventory().iterate())
     {
         //remove it from inventory
@@ -2922,7 +2922,7 @@ void Object::dropAllItems()
 
         // fix some flags
         pitem->hitready               = true;
-        pitem->ori.facing_z           = Facing(FACING_T(Facing(direction) + Facing::ATK_BEHIND));
+        pitem->ori.facing_z           = idlib::canonicalize(direction + ATK_BEHIND);
         pitem->team                   = pitem->team_base;
 
         // fix the current velocity

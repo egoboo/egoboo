@@ -34,11 +34,11 @@ LocalTime::LocalTimeType LocalTime::convert(const std::time_t& source) {
 	LocalTimeType target;
 #if defined(ID_WINDOWS)
 	if (0 != localtime_s(&target, &source)) {
-		throw id::environment_error(__FILE__, __LINE__, "Ego::Time", "localtime_s failed");
+		throw idlib::environment_error(__FILE__, __LINE__, "Windows", "localtime_s failed");
 	}
 #else
 	if (NULL == localtime_r(&source, &target)) {
-		throw id::environment_error(__FILE__, __LINE__, "Ego::Time", "localtime_r failed");
+		throw idlib::environment_error(__FILE__, __LINE__, "Posix", "localtime_r failed");
 	}
 #endif
 	return target;

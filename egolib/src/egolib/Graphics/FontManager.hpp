@@ -24,19 +24,18 @@
 
 #pragma once
 
-#include "egolib/Core/Singleton.hpp"
 #include "egolib/typedef.h"
 #include "egolib/Graphics/Font.hpp"
 
 namespace Ego {
 
-class FontManager : public Core::Singleton<FontManager> {
+class FontManager : public idlib::singleton<FontManager> {
 public:
     std::shared_ptr<Font> loadFont(const std::string &fileName, int pointSize);
 
 protected:
-    friend Core::Singleton<FontManager>::CreateFunctorType;
-    friend Core::Singleton<FontManager>::DestroyFunctorType;
+	friend idlib::default_new_functor<FontManager>;
+	friend idlib::default_delete_functor<FontManager>;
 
     FontManager();
     ~FontManager();

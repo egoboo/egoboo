@@ -24,211 +24,97 @@
 
 #pragma once
 
-#include "egolib/Graphics/ColourDepth.hpp"
+#include "egolib/integrations/idlib.hpp"
 
 namespace Ego {
-
-/// @brief Enumeration of canonical identifiers for a pixel formats.
-enum class PixelFormat
-{
-    /// @brief
-    /// A pixel consists of 3 Bytes \f$x_0\f$, \f$x_1\f$, and \f$x_2\f$
-    /// at consecutive addresses in memory such that if \f$a\f$ is the
-    /// address of the pixel then
-    /// the address of \f$x_0\f$ is \f$a(x_0) = a + 0\f$,
-    /// the address of \f$x_1\f$ is \f$a(x_1) = a + 1\f$, and
-    /// the address of \f$x_2\f$ is \f$a(x_2) = a + 2\f$.
-    /// The value of \f$x_0\f$ denotes the value of the blue component,
-    /// the value of \f$x_1\f$ the value of the green component, and
-    /// the value of \f$x_2\f$ the value of the red component.
-    /// All component values are within the range of \f$[0,255]\f$
-    /// where \f$0\f$ indicates the minimum intensity and \f$255\f$ the maximum intensity.
-    B8G8R8,
-
-    /// @brief
-    /// A pixel consists of 4 Bytes \f$x_0\f$, \f$x_1\f$, \f$x_2\f$, and \f$x_3\f$
-    /// at consecutive addresses in memory such that if \f$a\f$ is the
-    /// address of the pixels then
-    /// the address of \f$x_0\f$ is \f$a(x_0) = a + 0\f$,
-    /// the address of \f$x_1\f$ is \f$a(x_1) = a + 1\f$,
-    /// the address of \f$x_2\f$ is \f$a(x_2) = a + 2\f$, and
-    /// the address of \f$x_3\f$ is \f$a(x_3) = a + 3\f$.
-    /// The value of \f$x_0\f$ denotes the value of the blue component,
-    /// the value of \f$x_1\f$ the value of the green component,
-    /// the value of \f$x_2\f$ the value of the red component, and
-    /// the value of \f$x_3\f$ the value of the alpha component.
-    /// All component values are within the range of \f$[0,255]\f$
-    /// where \f$0\f$ indicates the minimum intensity and \f$255\f$ the maximum intensity.
-    B8G8R8A8,
-
-    /// @brief
-    /// A pixel consists of 3 Bytes \f$x_0\f$, \f$x_1\f$, and \f$x_2\f$
-    /// at consecutive addresses in memory such that if \f$a\f$ is the
-    /// address of the pixel then
-    /// the address of \f$x_0\f$ is \f$a(x_0) = a + 0\f$,
-    /// the address of \f$x_1\f$ is \f$a(x_1) = a + 1\f$, and
-    /// the address of \f$x_2\f$ is \f$a(x_2) = a + 2\f$.
-    /// The value of \f$x_0\f$ denotes the value of the red component,
-    /// the value of \f$x_1\f$ the value of the green component, and
-    /// the value of \f$x_2\f$ the value of the blue component.
-    /// All component values are within the range of \f$[0,255]\f$
-    /// where \f$0\f$ indicates the minimum intensity and \f$255\f$ the maximum intensity.
-    R8G8B8,
-
-    /// @brief
-    /// A pixel consists of 4 Bytes \f$x_0\f$, \f$x_1\f$, \f$x_2\f$, and \f$x_3\f$
-    /// at consecutive addresses in memory such that if \f$a\f$ is the
-    /// address of the pixels then
-    /// the address of \f$x_0\f$ is \f$a(x_0) = a + 0\f$,
-    /// the address of \f$x_1\f$ is \f$a(x_1) = a + 1\f$,
-    /// the address of \f$x_2\f$ is \f$a(x_2) = a + 2\f$, and
-    /// the address of \f$x_3\f$ is \f$a(x_3) = a + 3\f$.
-    /// The value of \f$x_0\f$ denotes the value of the red component,
-    /// the value of \f$x_1\f$ the value of the green component,
-    /// the value of \f$x_2\f$ the value of the blue component, and
-    /// the value of \f$x_3\f$ the value of the alpha component.
-    /// All component values are within the range of \f$[0,255]\f$
-    /// where \f$0\f$ indicates the minimum intensity and \f$255\f$ the maximum intensity.
-    R8G8B8A8,
-
-    /// @brief
-    /// A pixel consists of 4 Bytes \f$x_0\f$, \f$x_1\f$, \f$x_2\f$, and \f$x_3\f$
-    /// at consecutive addresses in memory such that if \f$a\f$ is the
-    /// address of the pixels then
-    /// the address of \f$x_0\f$ is \f$a(x_0) = a + 0\f$,
-    /// the address of \f$x_1\f$ is \f$a(x_1) = a + 1\f$,
-    /// the address of \f$x_2\f$ is \f$a(x_2) = a + 2\f$, and
-    /// the address of \f$x_3\f$ is \f$a(x_3) = a + 3\f$.
-    /// The value of \f$x_0\f$ denotes the value of alpha red component,
-    /// the value of \f$x_1\f$ the value of the blue component,
-    /// the value of \f$x_2\f$ the value of the green component, and
-    /// the value of \f$x_3\f$ the value of the red component.
-    /// All component values are within the range of \f$[0,255]\f$
-    /// where \f$0\f$ indicates the minimum intensity and \f$255\f$ the maximum intensity.
-    A8B8G8R8,
-};
 
 /// @brief A pixel format descriptor suitable to describe the pixel
 /// formats as specified by the Ego::PixelFormat enumeration.
 /// @remark The bitmasks are given w.r.t. the host byte order.
-class PixelFormatDescriptor
+class pixel_descriptor
 {
 private:
     /// @brief The pixel format.
-    PixelFormat pixelFormat;
+    idlib::pixel_format m_pixel_format;
 
-private:
-    /// @brief The mask for the alpha Bits.
-    uint32_t alphaMask;
+    /// @brief The pixel component descriptor for the alpha component.
+    idlib::pixel_component_descriptor m_alpha;
 
-    /// @brief The mask for the blue Bits.
-    uint32_t blueMask;
+    /// @brief The pixel component descriptor for the blue component.
+    idlib::pixel_component_descriptor m_blue;
 
-    /// @brief The mask for the green Bits.
-    uint32_t greenMask;
+    /// @brief The pixel component descriptor for the green component.
+    idlib::pixel_component_descriptor m_green;
 
-    /// @brief The mask for the red Bits.
-    uint32_t redMask;
+    /// @brief The pixel component descriptor for the red component.
+    idlib::pixel_component_descriptor m_red;
 
-private:
-    /// @brief The shift for the alpha bits.
-    uint32_t alphaShift;
-
-    /// @brief The shift for the blue Bits.
-    uint32_t blueShift;
-
-    /// @brief The shift for the green Bits.
-    uint32_t greenShift;
-
-    /// @brief The shift for the red Bits.
-    uint32_t redShift;
-
-private:
     /// @brief The colour depth of this pixel format.
-    ColourDepth colourDepth;
+    idlib::rgba_depth m_color_depth;
 
 protected:
     /// @brief Construct this pixel descriptor.
-    /// @param pixelFormat the pixel format
-    /// @param redShift, greenShift, blueShift, alphaShift
-    /// the shifts for Bits of the the red, green, blue and alpha components (w.r.t. the host Byte order)
-    /// @param redMask, greenMask, blueMask, alphaMask
-    /// the masks for Bits of the red, green, blue and alpha components (w.r.t. the host Byte order)
-    /// @param colourDepth the colour depth of this pixel format
-    PixelFormatDescriptor(PixelFormat pixelFormat,
-                          uint32_t redShift, uint32_t greenShift,
-                          uint32_t blueShift, uint32_t alphaShift,
-                          uint32_t redMask, uint32_t greenMask,
-                          uint32_t blueMask, uint32_t alphaMask,
-                          const ColourDepth& colourDepth);
+    /// @param pixel_format the pixel format
+    /// @param red, green, blue, alpha the pixel component descriptors of the red, green, blue, and alpha components
+    /// @param color_depth the color depth
+    pixel_descriptor(idlib::pixel_format pixel_format,
+                     const idlib::pixel_component_descriptor& red,
+                     const idlib::pixel_component_descriptor& green,
+                     const idlib::pixel_component_descriptor& blue,
+                     const idlib::pixel_component_descriptor& alpha,
+                     const idlib::rgba_depth& color_depth);
 
 public:
-    /// @brief Get the shift of the alpha Bits (w.r.t. host Byte order).
-    /// @return the shift of the alpha Bits (w.r.t. the host Byte order)
-    uint32_t getAlphaShift() const;
+    /// @brief Get the pixel component descriptor of the alpha component.
+    /// @return the pixel component descriptor of the alpha component
+    const idlib::pixel_component_descriptor& get_alpha() const;
 
-    /// @brief Get the shift of the blue Bits (w.r.t. host Byte order).
-    /// @return the shift of the blue Bits (w.r.t. host Byte order)
-    uint32_t getBlueShift() const;
+    /// @brief Get the pixel component descriptor of the blue component.
+    /// @return the pixel component descriptor of the blue component
+    const idlib::pixel_component_descriptor& get_blue() const;
 
-    /// @brief Get the shift of the green Bits (w.r.t. host Byte order).
-    /// @return the shift of the green Bits (w.r.t. host Byte order)
-    uint32_t getGreenShift() const;
+    /// @brief Get the pixel component descriptor of the green component.
+    /// @return the pixel component descriptor of the green component
+    const idlib::pixel_component_descriptor& get_green() const;
 
-    /// @brief Get the shift of the red Bits (w.r.t. host Byte order).
-    /// @return the shift of the red Bits (w.w.r.t. host Byte order)
-    uint32_t getRedShift() const;
+    /// @brief Get the pixel component descriptor of the red component.
+    /// @return the pixel component descriptor of the red component
+    const idlib::pixel_component_descriptor& get_red() const;
 
-public:
-    /// @brief The mask for the alpha Bits (w.r.t. the host Byte order).
-    /// @return the mask of the alpha Bits (w.r.t. the host Byte order)
-    uint32_t getAlphaMask() const;
-
-    /// @brief Get the mask for the blue Bits (w.r.t. the host Byte order).
-    /// @return the mask of the blue Bits (w.r.t. the host Byte order)
-    uint32_t getBlueMask() const;
-
-    /// @brief The mask for the green Bits (w.r.t. the host Byte order).
-    /// @return the mask of the green Bits (w.r.t. the host Byte order)
-    uint32_t getGreenMask() const;
-
-    /// @brief Get the mask for the red Bits (w.r.t. the host Byte order).
-    /// @return the mask of the red Bits (w.r.t. the host Byte order)
-    uint32_t getRedMask() const;
-
-public:
     /// @brief Get the colour depth of this pixel format.
     /// @return the colour depth of this pixel format
-    const ColourDepth& getColourDepth() const;
+    const idlib::rgba_depth& get_color_depth() const;
 
-public:
     /// @brief Get the pixel format.
     /// @return the pixel format
-    PixelFormat getPixelFormat() const;
+    idlib::pixel_format get_pixel_format() const;
 
-    template<PixelFormat _PixelFormat>
-    static const PixelFormatDescriptor& get();
+    template<idlib::pixel_format pixel_format>
+    static const pixel_descriptor& get();
 
     /// @brief Get the pixel format descriptor for a pixel format.
     /// @param pixelFormat the pixel format
     /// @return the pixel format descriptor for the pixel format
-    static const PixelFormatDescriptor& get(PixelFormat pixelFormat);
+    static const pixel_descriptor& get(idlib::pixel_format pixel_format);
 
 };
 
 template <>
-const PixelFormatDescriptor& PixelFormatDescriptor::get<PixelFormat::B8G8R8>();
+const pixel_descriptor& pixel_descriptor::get<idlib::pixel_format::B8G8R8>();
 
 template <>
-const PixelFormatDescriptor& PixelFormatDescriptor::get<PixelFormat::B8G8R8A8>();
+const pixel_descriptor& pixel_descriptor::get<idlib::pixel_format::B8G8R8A8>();
 
 template <>
-const PixelFormatDescriptor& PixelFormatDescriptor::get<PixelFormat::R8G8B8>();
+const pixel_descriptor& pixel_descriptor::get<idlib::pixel_format::R8G8B8>();
 
 template <>
-const PixelFormatDescriptor& PixelFormatDescriptor::get<PixelFormat::R8G8B8A8>();
+const pixel_descriptor& pixel_descriptor::get<idlib::pixel_format::R8G8B8A8>();
 
 template <>
-const PixelFormatDescriptor& PixelFormatDescriptor::get<PixelFormat::A8B8G8R8>();
+const pixel_descriptor& pixel_descriptor::get<idlib::pixel_format::A8B8G8R8>();
+
+template <>
+const pixel_descriptor& pixel_descriptor::get<idlib::pixel_format::A8R8G8B8>();
 
 } // namespace Ego

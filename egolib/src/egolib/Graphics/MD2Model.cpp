@@ -65,7 +65,7 @@ void MD2Model::scaleModel(const float scaleX, const float scaleY, const float sc
             std::copysign(vertex.nrm[kY], scaleY);
             std::copysign(vertex.nrm[kZ], scaleZ);
 
-			vertex.nrm.normalize();
+			vertex.nrm = normalize(vertex.nrm).get_vector();
 
             opos = oct_vec_v2_t(vertex.pos);
 

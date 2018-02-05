@@ -21,7 +21,6 @@
 
 #include "cartman/cartman_typedef.h"
 #include "cartman/cartman_math.h"
-#include "egolib/Core/Singleton.hpp"
 
 //--------------------------------------------------------------------------------------------
 
@@ -62,14 +61,6 @@ inline Ego::Math::Colour4f make_rgba(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
     return (Ego::Math::Colour4f)Ego::Math::Colour4b(r, g, b, a);
 }
 
-inline uint32_t make_rgb(const std::shared_ptr<const SDL_Surface>& surface, const Ego::Math::Colour3b& colour) {
-    return SDL_MapRGB(surface->format, colour.get_r(), colour.get_g(), colour.get_b());
-}
-
-inline uint32_t make_rgba(const std::shared_ptr<const SDL_Surface>& surface, const Ego::Math::Colour4b& colour) {
-    return SDL_MapRGBA(surface->format, colour.get_r(), colour.get_g(), colour.get_b(), colour.get_a());
-}
-
 #define POINT_SIZE(X) ( (X) * 0.5f + 4.0f )
 #define MAXPOINTSIZE 16.0f
 
@@ -77,7 +68,7 @@ inline uint32_t make_rgba(const std::shared_ptr<const SDL_Surface>& surface, con
 
 extern camera_t cam;
 
-struct Resources : Ego::Core::Singleton<Resources> {
+struct Resources : id::singleton<Resources> {
     std::shared_ptr<SDL_Surface> bmphitemap;     // Heightmap image
     std::shared_ptr<Ego::Texture> tx_point;      // Vertex image
     std::shared_ptr<Ego::Texture> tx_pointon;    // Vertex image ( select_vertsed )
@@ -114,9 +105,6 @@ extern uint16_t damagetilemindistance;
 extern int      damagetileamount;                       // Amount of damage
 extern uint8_t  damagetiletype;                         // Type of damage
 
-extern const Ego::Math::Colour4f WHITE;
-extern const Ego::Math::Colour4f BLACK;
-
 extern std::shared_ptr<Ego::Font> gfx_font_ptr;
 
 //--------------------------------------------------------------------------------------------
@@ -147,8 +135,6 @@ void ogl_endFrame();
 
 // SDL routines
 void draw_sprite( SDL_Surface * dst, SDL_Surface * sprite, int x, int y );
-int cartman_BlitScreen( SDL_Surface * bmp, SDL_Rect * prect );
-int cartman_BlitSurface( SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_Rect *dstrect );
 SDL_Surface * cartman_LoadIMG( const std::string& szName );
 
 // camera stuff
@@ -164,20 +150,6 @@ void get_tiles(SDL_Surface* bmpload);
 // misc
 std::shared_ptr<Ego::Texture> tiny_tile_at( cartman_mpd_t * pmesh, Index2D index2d );
 std::shared_ptr<Ego::Texture> tile_at( cartman_mpd_t * pmesh, int fan );
-
-/**
- * @todo
- *  This is by-passing the image loader, remove.
- */
-inline std::shared_ptr<SDL_Surface> gfx_loadImage(const std::string& pathname)
-{
-    SDL_Surface *image = IMG_Load_RW(vfs_openRWopsRead(pathname.c_str()), 1);
-    if (!image)
-    {
-        return nullptr;
-    }
-    return std::shared_ptr<SDL_Surface>(image, [ ](SDL_Surface *surface) { SDL_FreeSurface(surface); });
-}
 
 // initialization
 struct GFX : Ego::App<GFX>

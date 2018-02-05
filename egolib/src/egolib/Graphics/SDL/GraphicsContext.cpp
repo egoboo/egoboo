@@ -2,6 +2,8 @@
 
 #include "egolib/Graphics/SDL/GraphicsWindow.hpp"
 #include "egolib/egoboo_setup.h"
+#define GLEW_STATIC
+#include <GL/glew.h>
 
 namespace Ego {
 namespace SDL {
@@ -11,7 +13,7 @@ GraphicsContext::GraphicsContext(GraphicsWindow *window) :
 {
     if (!window)
     {
-        throw id::runtime_error(__FILE__, __LINE__, "window is null");
+        throw idlib::null_error(__FILE__, __LINE__, "window");
     }
     context = SDL_GL_CreateContext(window->get());
     if (!context)
@@ -19,9 +21,18 @@ GraphicsContext::GraphicsContext(GraphicsWindow *window) :
         Log::get() << Log::Entry::create(Log::Level::Error, __FILE__, __LINE__,
                                          "unable to create SDL/OpenGL context: ",
                                          SDL_GetError(), Log::EndOfEntry);
-        throw id::runtime_error(__FILE__, __LINE__, "unable to create SDL/OpenGL context");
+        throw idlib::runtime_error(__FILE__, __LINE__, "unable to create SDL/OpenGL context");
     }
 
+    if (GLEW_OK != glewInit())
+    {
+        SDL_GL_DeleteContext(context);
+        context = nullptr;
+        Log::get() << Log::Entry::create(Log::Level::Error, __FILE__, __LINE__,
+            "unable to create SDL/OpenGL context: ",
+            SDL_GetError(), Log::EndOfEntry);
+        throw idlib::runtime_error(__FILE__, __LINE__, "unable to create SDL/OpenGL context");
+    }
     auto& config = egoboo_config_t::get();
 
     // (1) Multisample antialiasing.

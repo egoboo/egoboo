@@ -2,13 +2,13 @@
 
 #include "egolib/FileFormats/SpawnFile/SpawnFileTokenKind.hpp"
 
-class SpawnFileToken : public id::token<SpawnFileTokenKind, SpawnFileTokenKind::Unknown>
+class SpawnFileToken : public idlib::c::token<SpawnFileTokenKind, SpawnFileTokenKind::Unknown>
 {
 public:
     SpawnFileToken
         (
             SpawnFileTokenKind kind,
-            const id::location& startLocation,
+            const idlib::c::location& startLocation,
             const std::string& lexeme = std::string()
         );
 };

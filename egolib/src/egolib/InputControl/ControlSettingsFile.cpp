@@ -27,15 +27,14 @@
 
 static std::string controlInputToString(const Ego::Input::InputDevice::InputButton &button);
 
+//--------------------------------------------------------------------------------------------
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-bool input_settings_load_vfs(const char* szFilename)
+bool input_settings_load_vfs(const std::string& filename)
 {
     /// @author ZZ
     /// @details This function reads the controls.txt file, version 3
 
-    ReadContext ctxt(szFilename);
+    ReadContext ctxt(filename);
 
     // Read input for each player
     for (size_t i = 0; i < Ego::Input::InputDevice::DeviceList.size(); i++)
@@ -62,14 +61,14 @@ bool input_settings_load_vfs(const char* szFilename)
 }
 
 //--------------------------------------------------------------------------------------------
-bool input_settings_save_vfs( const char* szFilename )
+bool input_settings_save_vfs( const std::string& filename )
 {
     /// @author ZF
     /// @details This function saves all current game settings to "controls.txt"
-    vfs_FILE* filewrite = vfs_openWrite( szFilename );
+    vfs_FILE* filewrite = vfs_openWrite( filename );
     if ( NULL == filewrite )
     {
-        Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to save input settings to file ", "`", szFilename, "`", Log::EndOfEntry);
+        Log::get() << Log::Entry::create(Log::Level::Warning, __FILE__, __LINE__, "unable to save input settings to file ", "`", filename, "`", Log::EndOfEntry);
         return false;
     }
 
@@ -146,5 +145,5 @@ std::string controlInputToString(const Ego::Input::InputDevice::InputButton &but
         case Ego::Input::InputDevice::InputButton::COUNT:             return "UNKNOWN";
     }
 
-    throw id::unhandled_switch_case_error(__FILE__, __LINE__, "unreachable code reached");
+    throw idlib::unhandled_switch_case_error(__FILE__, __LINE__, "unreachable code reached");
 }

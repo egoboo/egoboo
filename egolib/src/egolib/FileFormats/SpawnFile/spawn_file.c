@@ -30,9 +30,6 @@ spawn_file_info_t::spawn_file_info_t() :
     do_spawn(false),
     spawn_comment(),
     spawn_name(),
-#if 0
-    pname(nullptr),
-#endif
     slot(-1),
     pos(0.0f, 0.0f, 0.0f),
     passage(-1),
@@ -42,7 +39,7 @@ spawn_file_info_t::spawn_file_info_t() :
     skin(0),
     stat(false),
     team(Team::TEAM_NULL),
-    facing(Facing::FACE_NORTH),
+    facing(FACE_NORTH),
     attach(ATTACH_NONE)
 {
     //ctor

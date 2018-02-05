@@ -48,7 +48,7 @@ TaggedValue::TaggedValue(const TaggedValue& other) : tag(other.tag) {
         {
             tag = Tag::Void;
             voidValue = VoidValue();
-            throw id::unhandled_switch_case_error(__FILE__, __LINE__);
+            throw idlib::unhandled_switch_case_error(__FILE__, __LINE__);
         }
     };
 }
@@ -214,7 +214,7 @@ TaggedValue& TaggedValue::operator=(const TaggedValue& other) {
         {
             tag = Tag::Void;
             voidValue = VoidValue();
-            throw id::unhandled_switch_case_error(__FILE__, __LINE__);
+            throw idlib::unhandled_switch_case_error(__FILE__, __LINE__);
         }
     };
     tag = other.tag;
@@ -316,7 +316,7 @@ std::ostream& operator<<(std::ostream& os, const Ego::Script::Interpreter::Tagge
         case Ego::Script::Interpreter::Tag::ObjectProfileRef: os << taggedValue.objectProfileRefValue; break;
 #endif
         default: {
-            throw id::unhandled_switch_case_error(__FILE__, __LINE__);
+            throw idlib::unhandled_switch_case_error(__FILE__, __LINE__);
         }
     };
     return os;

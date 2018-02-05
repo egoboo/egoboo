@@ -23,8 +23,9 @@
 
 #pragma once
 
-#include "egolib/Core/Singleton.hpp"
 #include "egolib/Graphics/PixelFormat.hpp"
+#include <SDL.h>
+#undef main
 
 namespace Ego {
 
@@ -35,7 +36,7 @@ class ImageLoader;
 /// @todo
 /// The image manager currently abstracts away the SDL_image/SDL image loading facilities.
 /// It is - in the end - just a minor improvement over the previous code, just enough to get going.
-class ImageManager : public Core::Singleton<ImageManager>
+class ImageManager : public idlib::singleton<ImageManager>
 {
 private:
     using Loaders = std::vector<std::unique_ptr<ImageLoader>>;
@@ -44,8 +45,8 @@ private:
     Loaders loaders;
 
     struct Iterator : public std::iterator<std::forward_iterator_tag, ImageLoader>,
-                      public id::increment_expr<Iterator>,
-                      public id::equal_to_expr<Iterator>
+                      public idlib::increment_expr<Iterator>,
+                      public idlib::equal_to_expr<Iterator>
     {
         ImageManager::Loaders::const_iterator m_inner;
     public:
@@ -84,8 +85,8 @@ private:
     void registerImageLoaders();
 
 public:
-    friend Singleton<ImageManager>::CreateFunctorType;
-    friend Singleton<ImageManager>::DestroyFunctorType;
+    friend idlib::default_new_functor<ImageManager>;
+    friend idlib::default_delete_functor<ImageManager>;
     
     /// @brief Get an iterator pointing to the first loader supporting one of the specified extensions
     /// if such a loader exists, <tt>end()</tt> otherwise. The search range is <tt>[start, end())</tt>.
@@ -109,14 +110,40 @@ public:
     /// @remark The default image is a checkerboard texture consisting of
     /// 8 x 8 checkers each of a width and height of 16 x 16 pixels.
     /// The x,y-the checker is black if z = x + y * 8 is odd and is white otherwise.
-    std::shared_ptr<SDL_Surface> getDefaultImage();
+	std::shared_ptr<SDL_Surface> getDefaultImage();
 
-    /// @brief Create a software(!) surface of the specified width, height and pixel format.
+    /// @brief Create a software(!) surface of the specified width, height, and pixel format.
     /// @param width, height the width and the height
-    /// @param pixelFormatDescriptor the pixel format descriptor of the pixel format
-    /// @return a pointer to the surface on success, a null pointer on failure
-    std::shared_ptr<SDL_Surface> createImage(size_t width, size_t height, const Ego::PixelFormatDescriptor& pixelFormatDescriptor);
+    /// @param pixel_descriptor the pixel descriptor of the pixels
+    /// @param pixels a pointer to the pixels
+    std::shared_ptr<SDL_Surface> createImage(size_t width, size_t height, size_t pitch, const pixel_descriptor& pixel_descriptor, void *pixels);
 
+    /// @brief Create a software(!) surface of the specified width, height, and pixel format.
+    /// @param width, height the width and the height
+    /// @param pixel_descriptor the pixel descriptor of the pixels
+    std::shared_ptr<SDL_Surface> createImage(size_t width, size_t height, const pixel_descriptor& pixel_descriptor);
+
+    /// @brief Create a software(!) surface of the specified width and height.
+    /// The pixel format is <c>Ego::pixel_format::R8G8B8A8</c>.
+    /// @param width, height the width and the height
+    /// @return a pointer to the surface on success, a null pointer on failure
+    std::shared_ptr<SDL_Surface> createImage(size_t width, size_t height);
+
+    /// @brief Save pixels to a BMP file.
+    /// @param pixels the pixels to save
+    /// @param pathname the pathname (relative or absolute path, filename, and extension) to save the image to
+    void save_as_bmp(const std::shared_ptr<SDL_Surface>& pixels, const std::string& pathname);
+
+    /// @brief Save pixels to a PNG file.
+    /// @param pixels the pixels to save
+    /// @param pathname the pathname (relative or absolute path, filename, and extension) to save the image to
+    void save_as_png(const std::shared_ptr<SDL_Surface>& pixels, const std::string& pathname);
 };
 
 } // namespace Ego
+
+/**
+ * @todo
+ *  This is by-passing the image loader, remove.
+ */
+std::shared_ptr<SDL_Surface> gfx_loadImage(const std::string& pathname);

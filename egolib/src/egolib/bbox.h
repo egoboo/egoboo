@@ -264,6 +264,16 @@
             _maxs() {
         }
 
+		friend idlib::translate_functor<oct_bb_t, oct_vec_v2_t>;
+
+	protected:
+		oct_bb_t(bool empty, const oct_vec_v2_t& min, const oct_vec_v2_t& max) :
+			_empty(empty),
+			_mins(min),
+			_maxs(max)
+		{}
+
+	public:
 		oct_bb_t(const oct_vec_v2_t& other) :
 			_empty(false),
 			_mins(other),
@@ -365,29 +375,6 @@
 
         /**
          * @brief
-         *	Translate this bounding box.
-         * @param t
-         *	the 3D translation vector
-         */
-        void translate(const Vector3f& t)
-        {
-            translate(oct_vec_v2_t(t));
-        }
-
-        /**
-         * @brief
-         *  Translate this bounding box.
-         * @param t
-         *  the 2D translation vector
-         */
-        void translate(const oct_vec_v2_t& t)
-        {
-            _mins += t;
-            _maxs += t;
-        }
-
-        /**
-         * @brief
          *  Get if this bounding volume contains a point.
          * @param self
          *  this bounding volume
@@ -475,19 +462,6 @@
          */
         egolib_rv cut(const oct_bb_t& other, int index);
 
-		/**
-		 * @brief
-		 *	Translate this bounding box.
-		 * @param src
-		 *	the source bounding box
-		 * @param t
-		 *	the translation vector
-		 * @param dst
-		 *	the target bounding box
-		 */
-		static oct_bb_t translate(const oct_bb_t& src, const Vector3f& t);
-		static oct_bb_t translate(const oct_bb_t& src, const oct_vec_v2_t& t);
-
 		static egolib_rv downgrade(const oct_bb_t& psrc_bb, const bumper_t& bump_stt, const bumper_t& bump_base, oct_bb_t& pdst_bb);
 		static egolib_rv downgrade(const oct_bb_t& psrc_bb, const bumper_t& bump_stt, const bumper_t& bump_base, bumper_t& pdst_bump);
 
@@ -507,3 +481,21 @@
 		static void points_to_oct_bb(oct_bb_t& self, const Vector4f pos[], const size_t pos_count);
 		static bool empty(const oct_bb_t& self);
     };
+
+namespace idlib {
+
+template <>
+struct translate_functor<oct_bb_t, oct_vec_v2_t>
+{
+	oct_bb_t operator()(const oct_bb_t& x, const oct_vec_v2_t& t) const
+	{ return oct_bb_t(x._empty, x._mins + t, x._maxs + t); }
+}; // struct translate_functor
+
+template <>
+struct translate_functor<oct_bb_t, Vector3f>
+{
+	oct_bb_t operator()(const oct_bb_t& x, const ::Vector3f& t) const
+	{ return translate(x, oct_vec_v2_t(t)); }
+}; // struct translate_functor
+
+} // namespace idlib

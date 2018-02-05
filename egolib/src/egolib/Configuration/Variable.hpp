@@ -1,14 +1,13 @@
 #pragma once
 
 #include "egolib/Script/EnumDescriptor.hpp"
-#include "egolib/Script/Conversion.hpp"
 
 namespace Ego {
 namespace Configuration {
 
 /// @brief The base of all variables.
 template <typename ValueTypeArg>
-class VariableBase : private id::non_copyable
+class VariableBase : private idlib::non_copyable
 {
 public:
     using ValueType = ValueTypeArg;
@@ -90,7 +89,7 @@ public:
     virtual bool decodeValue(const std::string& source) = 0;
 
     /// @brief Event raised if the value of this variable has changed.
-    id::signal<void()> ValueChanged;
+    idlib::signal<void()> ValueChanged;
 };
 
 /// @brief The abstract base of all variables.

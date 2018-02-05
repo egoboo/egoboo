@@ -26,13 +26,13 @@
 #error(do not include directly, include `game/Entities/_Include.hpp` instead)
 #endif
 
-#include "game/egoboo.h"
-#include "game/graphic_prt.h"
+#include "egolib/game/egoboo.h"
+#include "egolib/game/graphic_prt.h"
 #include "egolib/Entities/Common.hpp"
-#include "game/Graphics/ParticleGraphics.hpp"
+#include "egolib/game/Graphics/ParticleGraphics.hpp"
 #include "egolib/Graphics/Animation2D.hpp"
-#include "game/Physics/Collidable.hpp"
-#include "game/Physics/ParticlePhysics.hpp"
+#include "egolib/game/Physics/Collidable.hpp"
+#include "egolib/game/Physics/ParticlePhysics.hpp"
 
 namespace Ego
 {
@@ -70,7 +70,7 @@ struct prt_environment_t
  * @brief
  *  The definition of the particle entity.
  */
-class Particle : public PhysicsData, private id::non_copyable, public Ego::Physics::Collidable
+class Particle : public PhysicsData, private idlib::non_copyable, public Ego::Physics::Collidable
 {
 public:
     Particle();

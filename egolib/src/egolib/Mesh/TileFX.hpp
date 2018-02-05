@@ -15,7 +15,7 @@ namespace Ego
 /// @code{=},
 /// @code{==},
 /// @code{!=}.
-struct TileFX : public id::equal_to_expr<TileFX>
+struct TileFX : public idlib::equal_to_expr<TileFX>
 {
 private:
     uint8_t fx;

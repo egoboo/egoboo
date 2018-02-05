@@ -33,7 +33,7 @@ using EnableIndex2 = std::enable_if_t<CoordinateSystem_ == CoordinateSystem::Gri
 /// @brief A "tile grid"/"2D" index.
 template <typename UnderlayingType_, CoordinateSystem CoordinateSystem_>
 struct Index<UnderlayingType_, CoordinateSystem_, Internal::EnableIndex2<UnderlayingType_, CoordinateSystem_>>
-    : public id::equal_to_expr<Index<UnderlayingType_, CoordinateSystem_>>
+    : public idlib::equal_to_expr<Index<UnderlayingType_, CoordinateSystem_>>
 {
 public:
     using UnderlayingType = UnderlayingType_;
@@ -96,9 +96,9 @@ using EnableIndex1 = std::enable_if_t<CoordinateSystem_ == CoordinateSystem::Lis
 /// @brief A "list"/"1D" index.
 template <typename UnderlayingType_, CoordinateSystem CoordinateSystem_>
 struct Index<UnderlayingType_, CoordinateSystem_, Internal::EnableIndex1<UnderlayingType_, CoordinateSystem_>>
-    : public id::equal_to_expr<Index<UnderlayingType_, CoordinateSystem_>>,
-      public id::lower_than_expr<Index<UnderlayingType_, CoordinateSystem_>>,
-      public id::increment_expr<Index<UnderlayingType_, CoordinateSystem_>>
+    : public idlib::equal_to_expr<Index<UnderlayingType_, CoordinateSystem_>>,
+      public idlib::lower_than_expr<Index<UnderlayingType_, CoordinateSystem_>>,
+      public idlib::increment_expr<Index<UnderlayingType_, CoordinateSystem_>>
 {
 public:
     using UnderlayingType = UnderlayingType_;

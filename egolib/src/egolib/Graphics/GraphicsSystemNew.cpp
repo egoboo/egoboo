@@ -5,14 +5,11 @@
 
 namespace Ego {
 
-namespace Core {
+Ego::GraphicsSystemNew *GraphicsSystemNewNewFunctor::operator()() const
+{ return new Ego::SDL::GraphicsSystemNew(); }
 
-Ego::GraphicsSystemNew *CreateFunctor<Ego::GraphicsSystemNew>::operator()() const
-{
-    return new Ego::SDL::GraphicsSystemNew();
-}
-
-} // namespace Core
+void GraphicsSystemNewDeleteFunctor::operator()(GraphicsSystemNew *p) const
+{ delete p; }
 
 GraphicsSystemNew::GraphicsSystemNew()
 {}

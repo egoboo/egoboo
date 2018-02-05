@@ -351,7 +351,7 @@ void         vfs_empty_temp_directories();
 int          vfs_copyFile(const std::string& source, const std::string& target);
 int          vfs_copyDirectory(const char *sourceDir, const char *destDir);
 
-int    vfs_removeDirectoryAndContents(const char * dirname, int recursive);
+int    vfs_removeDirectoryAndContents(const char * dirname);
 
 // @brief Resolve the specified filename.
 // @param filename the filename
@@ -393,7 +393,7 @@ void vfs_listSearchPaths();
 /// @brief Read the contents of a file.
 /// @param pathname the pathname of the file
 /// @param receive function invoked if bytes are received
-/// @throw id::runtime_error the file can not be opened for reading or an error occurs while reading.
+/// @throw idlib::runtime_error the file can not be opened for reading or an error occurs while reading.
 /// @throw any exception raised by @a receive
 void vfs_readEntireFile(const std::string& pathname, std::function<void(size_t, const char *)> receive);
 bool vfs_readEntireFile(const std::string& pathname, char **data, size_t *length);

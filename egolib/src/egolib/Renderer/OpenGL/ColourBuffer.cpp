@@ -26,9 +26,58 @@
 
 namespace Ego {
 namespace OpenGL {
+struct utilities {
+
+    static uint8_t get_r_depth()
+    {
+        GLint v;
+        glGetIntegerv(GL_RED_BITS, &v);
+        if (v < 0)
+            throw idlib::environment_error(__FILE__, __LINE__, "OpenGL", "negative number of red bits");
+        else if (v > std::numeric_limits<uint8_t>::max())
+            throw idlib::environment_error(__FILE__, __LINE__, "OpenGL", "number of red bits exceed support maximum");
+        return (uint8_t)v;
+    }
+
+    static uint8_t get_g_depth()
+    {
+        GLint v;
+        glGetIntegerv(GL_GREEN_BITS, &v);
+        if (v < 0)
+            throw idlib::environment_error(__FILE__, __LINE__, "OpenGL", "negative number of green bits");
+        else if (v > std::numeric_limits<uint8_t>::max())
+            throw idlib::environment_error(__FILE__, __LINE__, "OpenGL", "number of green bits exceed support maximum");
+        return (uint8_t)v;
+    }
+
+    static uint8_t get_b_depth()
+    {
+        GLint v;
+        glGetIntegerv(GL_BLUE_BITS, &v);
+        if (v < 0)
+            throw idlib::environment_error(__FILE__, __LINE__, "OpenGL", "negative number of blue bits");
+        else if (v > std::numeric_limits<uint8_t>::max())
+            throw idlib::environment_error(__FILE__, __LINE__, "OpenGL", "number of blue bits exceed support maximum");
+        return (uint8_t)v;
+    }
+
+    static uint8_t get_a_depth()
+    {
+        GLint v;
+        glGetIntegerv(GL_ALPHA_BITS, &v);
+        if (v < 0)
+            throw idlib::environment_error(__FILE__, __LINE__, "OpenGL", "negative number of alpha bits");
+        else if (v > std::numeric_limits<uint8_t>::max())
+            throw idlib::environment_error(__FILE__, __LINE__, "OpenGL", "number of alpha bits exceed support maximum");
+        return (uint8_t)v;
+    }
+};
 
 ColourBuffer::ColourBuffer() :
-    Ego::ColourBuffer(), colourDepth(Utilities2::getColourBufferColourDepth())
+    Ego::ColourBuffer(), colourDepth({ utilities::get_r_depth(),
+                                       utilities::get_g_depth(),
+                                       utilities::get_b_depth() },
+                                       utilities::get_a_depth())
 {}
 
 ColourBuffer::~ColourBuffer() {}
@@ -43,7 +92,7 @@ void ColourBuffer::setClearValue(const Colour4f& value) {
     Utilities2::isError();
 }
 
-const ColourDepth& ColourBuffer::getColourDepth() {
+const idlib::rgba_depth& ColourBuffer::getColourDepth() {
     return colourDepth;
 }
 

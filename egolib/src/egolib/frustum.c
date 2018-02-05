@@ -258,13 +258,13 @@ void Frustum::calculate(const Matrix4f4f& projection, const Matrix4f4f& view)
         float dist = _planes[Planes::BACK].distance(_origin);
 
         // calculate the center of the sphere
-        _sphere.setCenter(_origin + vlook * (dist * 0.5f));
+        _sphere.set_center(_origin + vlook * (dist * 0.5f));
 
         // the vector from p1 to the center of the sphere
-		Vector3f vDiff = _sphere.getCenter() - pt1;
+		Vector3f vDiff = _sphere.get_center() - pt1;
 
         // the radius becomes the length of this vector
-		_sphere.setRadius(vDiff.length());
+		_sphere.set_radius(idlib::euclidean_norm(vDiff));
     }
 }
 
@@ -291,8 +291,8 @@ Math::Relation Frustum::intersects(const Sphere3f& sphere, const bool doEnds) co
 	// In the case of the sphere radius being 0, the frustum - sphere (hence multiple
 	// plane - sphere) intersection test reduces to a frustum - point (hence multiple
 	// plane - point) intersection tests.
-	if (sphere.getRadius() == 0.0f) {
-		return intersects(sphere.getCenter(), doEnds);
+	if (sphere.get_radius() == 0.0f) {
+		return intersects(sphere.get_center(), doEnds);
 	}
 
 	// Assume the sphere is completely inside the frustum.
@@ -304,14 +304,14 @@ Math::Relation Frustum::intersects(const Sphere3f& sphere, const bool doEnds) co
 
 	// scan each plane
 	for (int i = start; i <= end; i++) {
-		float dist = _planes[i].distance(sphere.getCenter());
+		float dist = _planes[i].distance(sphere.get_center());
 
 		// If the sphere is completely behind the current plane, it is outside the frustum.
-		if (dist <= -sphere.getRadius()) {
+		if (dist <= -sphere.get_radius()) {
 			result = Math::Relation::outside;
 			break;
 		// If it is not completely in front of the current plane, it intersects the frustum.
-		} else if (dist < sphere.getRadius()) {
+		} else if (dist < sphere.get_radius()) {
 			result = Math::Relation::intersect;
 		}
 	}
@@ -332,12 +332,12 @@ Math::Relation Frustum::intersects(const AxisAlignedCube3f& aac, const bool doEn
 		Point3f vmin, vmax;
 		// find the most-positive and most-negative points of the aabb
 		for (int j = 0; j < 3; j++) {
-			if (plane.getNormal()[j] > 0.0f) {
-				vmin[j] = aac.getCenter()[j] - aac.getSize();
-				vmax[j] = aac.getCenter()[j] + aac.getSize();
+			if (plane.get_normal()[j] > 0.0f) {
+				vmin[j] = aac.get_center()[j] - aac.get_size();
+				vmax[j] = aac.get_center()[j] + aac.get_size();
 			} else {
-				vmin[j] = aac.getCenter()[j] + aac.getSize();
-				vmax[j] = aac.getCenter()[j] - aac.getSize();
+				vmin[j] = aac.get_center()[j] + aac.get_size();
+				vmax[j] = aac.get_center()[j] - aac.get_size();
 			}
 		}
 
@@ -360,7 +360,7 @@ Math::Relation Frustum::intersects(const AxisAlignedCube3f& aac, const bool doEn
 }
 
 Math::Relation Frustum::intersects(const AxisAlignedBox3f& aabb, bool doEnds) const {
-    return intersects_aab(aabb.getMin(), aabb.getMax(), doEnds);
+    return intersects_aab(aabb.get_min(), aabb.get_max(), doEnds);
 }
 
 Math::Relation Frustum::intersects_aab(const Point3f& mins, const Point3f& maxs, bool doEnds) const {
@@ -404,7 +404,7 @@ Math::Relation Frustum::intersects_aab(const Point3f& mins, const Point3f& maxs,
 
 bool Frustum::intersects(const oct_bb_t& oct, const bool doEnds) const {
 	auto aab = oct.toAxisAlignedBox();
-	Math::Relation result = intersects_aab(aab.getMin(), aab.getMax(), doEnds);
+	Math::Relation result = intersects_aab(aab.get_min(), aab.get_max(), doEnds);
 
 	return result > Math::Relation::outside;
 }

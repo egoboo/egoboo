@@ -52,9 +52,6 @@ public:
     std::string spawn_comment;
 
     std::string spawn_name;
-#if 0
-    std::string *pname;
-#endif
     int        slot;
 	Vector3f   pos;
     int        passage;

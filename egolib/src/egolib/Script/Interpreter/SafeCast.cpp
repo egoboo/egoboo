@@ -111,7 +111,7 @@ template<> targetType safeCast<targetType, sourceType>(const sourceType& v) { \
         std::ostringstream os; \
         os << "value outside of bounds of " << std::numeric_limits<targetType>::min() << " and " \
            << std::numeric_limits<targetType>::max(); \
-        throw id::out_of_bounds_error(__FILE__, __LINE__, os.str()); \
+        throw idlib::out_of_bounds_error(__FILE__, __LINE__, os.str()); \
     } \
     return static_cast<targetType>(v); \
 }
@@ -141,7 +141,7 @@ template<> targetType safeCast<targetType, sourceType>(const sourceType& v) { \
         std::ostringstream os; \
         os << "value outside of bounds of " << std::numeric_limits<targetType>::min() << " and " \
            << std::numeric_limits<targetType>::max(); \
-        throw id::out_of_bounds_error(__FILE__, __LINE__, os.str()); \
+        throw idlib::out_of_bounds_error(__FILE__, __LINE__, os.str()); \
     } \
     return static_cast<targetType>(v); \
 }
@@ -224,7 +224,7 @@ define(float, signed long long)
             std::ostringstream os; \
             os << "value outside of bounds of " << 0 << " and " \
                << std::numeric_limits<targetType>::max(); \
-            throw id::out_of_bounds_error(__FILE__, __LINE__, os.str()); \
+            throw idlib::out_of_bounds_error(__FILE__, __LINE__, os.str()); \
         } \
         return static_cast<targetType>(v); \
     }

@@ -124,7 +124,7 @@ void map_generate_tile_twist_data( map_t& mesh )
 }
 bool map_has_some_fx_itile( map_t * pmesh, int itile, uint8_t test_fx ) {
 	if (!pmesh) {
-		throw std::runtime_error("nullptr == pmesh");
+		throw idlib::null_error(__FILE__, __LINE__, "pmesh");
 	}
 	uint8_t tile_fx = (*pmesh)(itile).fx;
     return HAS_SOME_BITS( tile_fx, test_fx );
@@ -132,7 +132,7 @@ bool map_has_some_fx_itile( map_t * pmesh, int itile, uint8_t test_fx ) {
 
 bool map_has_some_fx_pos( map_t * pmesh, Index2D index2d, uint8_t test_fx ) {
 	if (!pmesh) {
-		throw std::runtime_error("nullptr == pmesh");
+		throw idlib::null_error(__FILE__, __LINE__, "pmesh");
 	}
     return map_has_some_fx_itile( pmesh, pmesh->getTileIndex( index2d ), test_fx );
 }

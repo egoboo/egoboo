@@ -212,7 +212,7 @@ const std::string& Entry::getAttribute(const std::string& name) const
     auto *attribute = impl->getAttribute(name);
     if (nullptr == attribute)
     {
-        throw id::runtime_error(__FILE__, __LINE__, "attribute `" + name + "` does not exist");
+        throw idlib::runtime_error(__FILE__, __LINE__, "attribute `" + name + "` does not exist");
     }
     return attribute->getValue();
 }

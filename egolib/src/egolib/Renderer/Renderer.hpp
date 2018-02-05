@@ -25,14 +25,7 @@
 
 #include "egolib/Math/_Include.hpp"
 #include "egolib/egoboo_setup.h"
-#include "egolib/Core/Singleton.hpp"
-#include "egolib/Renderer/BlendFunction.hpp"
-#include "egolib/Renderer/CompareFunction.hpp"
-#include "egolib/Renderer/RasterizationMode.hpp"
-#include "egolib/Renderer/CullingMode.hpp"
-#include "egolib/Renderer/WindingMode.hpp"
-#include "egolib/Renderer/PrimitiveType.hpp"
-#include "egolib/Renderer/TextureSampler.hpp"
+#include "egolib/integrations/idlib.hpp"
 #include "egolib/Renderer/RendererInfo.hpp"
 #include "egolib/Graphics/VertexBuffer.hpp"
 #include "egolib/Renderer/Texture.hpp"
@@ -41,7 +34,7 @@ namespace Ego {
 
 /// @brief A facade for internal buffers like the accumulation buffer, the colour buffer or the depth buffer.
 template <typename DataType>
-class BufferFacade : private id::non_copyable
+class BufferFacade : private idlib::non_copyable
 {
 protected:
     /// @brief Construct this buffer (facade).
@@ -87,7 +80,7 @@ protected:
 public:
     /// @brief Get the colour depth of this accumulation buffer.
     /// @return the colour depth of this accumulation buffer
-    virtual const ColourDepth& getColourDepth() = 0;
+    virtual const idlib::rgba_depth& getColourDepth() = 0;
 
 };
 
@@ -106,7 +99,7 @@ protected:
 public:
     /// @brief Get the colour depth of this colour buffer.
     /// @return the colour depth of this colour buffer
-    virtual const ColourDepth& getColourDepth() = 0;
+    virtual const idlib::rgba_depth& getColourDepth() = 0;
 
 };
 
@@ -183,23 +176,17 @@ public:
 
 class Renderer;
 
-namespace Core {
-
 /// @brief Creator functor creating the back-end.
-template <>
-struct CreateFunctor<Renderer> {
-    Renderer *operator()() const;
-};
+struct RendererCreateFunctor
+{ Renderer *operator()() const; };
 
-} // namespace Core
+struct RendererDestroyFunctor
+{ void operator()(Renderer *p) const; };
 
-class Renderer : public Core::Singleton<Renderer> {
+class Renderer : public idlib::singleton<Renderer, RendererCreateFunctor, RendererDestroyFunctor> {
 protected:
-    // Befriend with the create functor.
-    friend Core::Singleton<Renderer>::CreateFunctorType;
-
     // Befriend with the destroy functor.
-    friend Core::Singleton<Renderer>::DestroyFunctorType;
+    friend RendererDestroyFunctor;
 
     /// @brief Construct this renderer.
     /// @remark Intentionally protected.
@@ -286,7 +273,7 @@ public:
      * @throw std::invalid_argument
      *  if @a value is not within the bounds of @a 0.0f (inclusive) and @a 1.0f (inclusive).
      */
-    virtual void setAlphaFunction(CompareFunction function, float value) = 0;
+    virtual void setAlphaFunction(idlib::compare_function function, float value) = 0;
 
     /// @brief Enable/disable blending.
     /// @param enabled @a true enables blending, @a false disables it
@@ -305,45 +292,10 @@ public:
      *  the destination alpha blend function
      *  the source blend function
      * @remark
-     *  In the following text,                        first source, second source and destination color components are referred to as
-     *  \f$\left(R_{s_0}, G_{s_0}, B_{s_0}, A_{s_0}\right)\f$,     \f$\left(R_{s_1}, G_{s_1}, B_{s_1}, A_{s_1}\right)\f$ and \f$\left
-     *  (R_d, G_d, B_d, A_d\right)\f$, respectively. The color specified by Ego::Renderer::setBlendColour(const Ego::Math::Colour4f&)
-     *  is referred to as \f$\left(R_c, G_c, B_c, A_c\right)\f$. The first column in the following table denotes the parameter value,
-     *  the second and third column the semantics of that value if assigned to the colour and alpha parameter       (either source or
-     *  destination), respectively.
-     *  <table>
-     *  <tr><td>Parameter                                </td><td>RGB                                      </td> <td>A                </td></tr>
-     *
-     *  <tr><td>Ego::BlendFunc::Zero                     </td><td>\f$(0,0,0)\f$                            </td> <td>\f$0\f$          </td></tr>
-     *  <tr><td>Ego::BlendFunc::One                      </td><td>\f$(1,1,1)\f$                            </td> <td>\f$1\f$          </td></tr>
-     *
-     *  <tr><td>Ego::BlendFunc::SourceColour             </td><td>\f$(R_{s_0},G_{s_0},B_{s_0})\f$          </td> <td>\f$A_{s_0}\f$    </td></tr>
-     *  <tr><td>Ego::BlendFunc::OneMinusSourceColour     </td><td>\f$(1, 1, 1) - (R_{s_0},G_{s_0}, B_{s_0})</td> <td>\f$1 - A_{s_0}\f$</td></tr>
-     *
-     *  <tr><td>Ego::BlendFunc::DestinationColour        </td><td>\f$(R_d, G_d, B_d)\f$                    </td> <td>\f$A_d\f$        </td></tr>
-     *  <tr><td>Ego::BlendFunc::OneMinusDestinationColour</td><td>\f$(1, 1, 1) - (R_d, G_d, B_d)\f$        </td> <td>\f$1 - A_d\f$    </td></tr>
-     *
-     *  <tr><td>Ego::BlendFunc::SourceAlpha              </td><td>\f$(A_{s_0}, A_{s_0}, A_{s_0})\f$         </td><td>\f$A_{s_0}\f$    </td></tr>
-     *  <tr><td>Ego::BlendFunc::OneMinusSourceAlpha      </td><td>\f$(1, 1, 1) - (A_{s_0}, A_{s_0}, A_{s_0})</td><td>\f$1 - A_{s_0}\f$</td></tr>
-     *
-     *  <tr><td>Ego::BlendFunc::DestinationAlpha         </td><td>\f$(A_d, A_d, A_d)\f$                     </td><td>\f$A_d\f$        </td></tr>
-     *  <tr><td>Ego::BlendFunc::OneMinusDestinationAlpha </td><td>\f$(1, 1, 1) - (A_d, A_d, A_d)\f$         </td><td>\f$1 - A_d\f$    </td></tr>
-     *
-     *  <tr><td>Ego::BlendFunc::ConstantColour           </td><td>\f$(R_c, G_c, B_c\f$)                     </td><td>\f$A_c\f$        </td></tr>
-     *  <tr><td>Ego::BlendFunc::OneMinusConstantColour   </td><td>\f$(1, 1, 1) - (R_c, G_c, B_c)\f$         </td><td>\f$1 - A_c\f$    </td></tr>
-     *
-     *  <tr><td>Ego::BlendFunc::ConstantAlpha            </td><td>\f$(A_c, A_c, A_c)\f$                     </td><td>\f$A_c\f$        </td></tr>
-     *  <tr><td>Ego::Blendfunc::OneMinusConstantAlpha    </td><td>\f$(1, 1, 1) - (A_c, A_c, A_c)\f$         </td><td>\f$1 - A_c\f$    </td></tr>
-     *
-     *  <tr><td>Ego::BlendFunc::SourceAlphaSaturate      </td><td>\f$(i, i, i)\f$                           </td><td>\f$1\f$          </td></tr>
-     *  </table>
-     *  where
-     *  \f{align*}{
-     *  i = \min\left(A_{s_0}, 1 - A_d\right)
-     *  \f}
+     *  See idlib::blend_function for more information.
      */
-    virtual void setBlendFunction(BlendFunction sourceColour, BlendFunction sourceAlpha,
-                                  BlendFunction destinationColour, BlendFunction destinationAlpha) = 0;
+    virtual void setBlendFunction(idlib::color_blend_parameter sourceColour, idlib::color_blend_parameter sourceAlpha,
+                                  idlib::color_blend_parameter destinationColour, idlib::color_blend_parameter destinationAlpha) = 0;
     /**
      * @brief
      *  Set the blend function.
@@ -361,7 +313,7 @@ public:
      *  o.setBlendFunction(x, x, y, y)
      *  @endcode
      */
-    virtual void setBlendFunction(BlendFunction source, BlendFunction destination) {
+    virtual void setBlendFunction(idlib::color_blend_parameter source, idlib::color_blend_parameter destination) {
         setBlendFunction(source, source, destination, destination);
     }
 
@@ -371,7 +323,7 @@ public:
 
     /// @brief Set the culling mode.
     /// @param mode the culling mode
-    virtual void setCullingMode(CullingMode mode) = 0;
+    virtual void setCullingMode(idlib::culling_mode mode) = 0;
 
     /**
      * @brief
@@ -412,7 +364,7 @@ public:
      *  To unconditionally write to the depth buffer, depth testing should be set to enabled and the depth test
      *  function to always pass.
      */
-    virtual void setDepthFunction(CompareFunction function) = 0;
+    virtual void setDepthFunction(idlib::compare_function function) = 0;
 
     /// @brief Enable/disable depth testss.
     /// @param enabled @a true enables depth tests, @a false disables them
@@ -468,7 +420,7 @@ public:
 
     /// @brief Set the winding mode.
     /// @param mode the winding mode
-    virtual void setWindingMode(WindingMode mode) = 0;
+    virtual void setWindingMode(idlib::winding_mode mode) = 0;
 
     /// @brief Multiply the current matrix with the given matrix.
     /// @param matrix the matrix
@@ -521,7 +473,7 @@ public:
 
     /// @brief Set the rasterization mode (for front- and back-facing polygons).
     /// @param mode the rasterization mode
-    virtual void setRasterizationMode(RasterizationMode mode) = 0;
+    virtual void setRasterizationMode(idlib::rasterization_mode mode) = 0;
 
     /// @brief Enable/disable Gouraud shading.
     /// @param enable @a true enables Gouraud shading, @a false disables it
@@ -541,7 +493,7 @@ public:
     ///  @a length is non-zero and
     ///  - is not disible by 3 for the triangles primitive type or
     ///  - is not divisible by 4 for the quadriliterals primitive type.
-    virtual void render(VertexBuffer& vertexBuffer, const VertexDescriptor& vertexDescriptor, PrimitiveType primitiveType, size_t index, size_t length) = 0;
+    virtual void render(VertexBuffer& vertexBuffer, const VertexDescriptor& vertexDescriptor, idlib::primitive_type primitiveType, size_t index, size_t length) = 0;
 
     /// @brief Create a texture.
     /// @return the texture

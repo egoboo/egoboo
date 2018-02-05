@@ -30,7 +30,6 @@
 
 #include "egolib/Core/StringUtilities.hpp"
 #include "egolib/Core/System.hpp"
-#include "egolib/Core/Singleton.hpp"
 #include "egolib/Core/QuadTree.hpp"
 
 //--------------------------------------------------------------------------------------------
@@ -59,12 +58,6 @@
 //--------------------------------------------------------------------------------------------
 
 #include "egolib/InputControl/InputSystem.hpp"
-
-//--------------------------------------------------------------------------------------------
-
-#include "egolib/Events/MouseMovedEventArgs.hpp"
-#include "egolib/Events/_Include.hpp"
-#include "egolib/Events/WindowEventArgs.hpp"
 
 //--------------------------------------------------------------------------------------------
 

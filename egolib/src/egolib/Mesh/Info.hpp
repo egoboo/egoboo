@@ -25,8 +25,8 @@ protected:
 	size_t _tileCount;
 
 public:
-    struct Iterator : public id::equal_to_expr<Iterator>,
-                      public id::increment_expr<Iterator>
+    struct Iterator : public idlib::equal_to_expr<Iterator>,
+                      public idlib::increment_expr<Iterator>
     {
     private:
         size_t x, y;
@@ -121,25 +121,25 @@ public:
 
     /// @brief Assert that an index is valid and within bounds.
     /// @param index the index
-    /// @throw id::runtime_error the index is not valid or not within bounds
+    /// @throw idlib::runtime_error the index is not valid or not within bounds
     void assertValid(const Index1D& index) const {
         if (Index1D::Invalid == index) {
-            throw id::runtime_error(__FILE__, __LINE__, "invalid index");
+            throw idlib::runtime_error(__FILE__, __LINE__, "invalid index");
         }
         if (index >= getTileCount() || index < 0) {
-            throw id::runtime_error(__FILE__, __LINE__, "index out of bounds");
+            throw idlib::runtime_error(__FILE__, __LINE__, "index out of bounds");
         }
     }
 
     /// @brief Assert that an index is valid and within bounds.
     /// @param index the index
-    /// @throw id::runtime_error the index is not valid or not within bounds
+    /// @throw idlib::runtime_error the index is not valid or not within bounds
     void assertValid(const Index2D& index) const {
         if (index.x() >= getTileCountX() || index.x() < 0) {
-            throw id::runtime_error(__FILE__, __LINE__, "index out of bounds");
+            throw idlib::runtime_error(__FILE__, __LINE__, "index out of bounds");
         }
         if (index.y() >= getTileCountY() || index.y() < 0) {
-            throw id::runtime_error(__FILE__, __LINE__, "index out of bounds");
+            throw idlib::runtime_error(__FILE__, __LINE__, "index out of bounds");
         }
     }
 

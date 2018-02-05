@@ -34,7 +34,7 @@ std::string toString(PDLTokenKind kind)
     #include "egolib/Script/PDLTokenKind.in"
     #undef Define
         default:
-            throw id::unhandled_switch_case_error(__FILE__, __LINE__, "unknown token type");
+            throw idlib::unhandled_switch_case_error(__FILE__, __LINE__, "unknown token type");
     };
 }
 

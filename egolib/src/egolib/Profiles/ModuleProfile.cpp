@@ -142,7 +142,7 @@ std::shared_ptr<ModuleProfile> ModuleProfile::loadFromFile(const std::string &fo
     result->_rank = buffer.length();
 
     // convert the special ranks of "unranked" or "-" ("rank 0")
-    if ( '-' == buffer[0] || 'U' == id::to_upper(buffer[0]) )
+    if ( '-' == buffer[0] || 'U' == idlib::to_upper(buffer[0]) )
     {
         result->_rank = 0;
     }
@@ -166,7 +166,7 @@ std::shared_ptr<ModuleProfile> ModuleProfile::loadFromFile(const std::string &fo
         if ( idsz == IDSZ2('T', 'Y', 'P', 'E') )
         {
             // parse the expansion value
-            switch (id::to_upper(ctxt.readPrintable()))
+            switch (idlib::to_upper(ctxt.readPrintable()))
             {
                 case 'M': result->_moduleType = FILTER_MAIN; break;
                 case 'S': result->_moduleType = FILTER_SIDE_QUEST; break;

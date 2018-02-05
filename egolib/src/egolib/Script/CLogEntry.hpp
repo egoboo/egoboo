@@ -9,7 +9,7 @@ namespace Script {
 struct CLogEntry : Log::Entry
 {
 private:
-    id::location m_location;
+    idlib::c::location m_location;
 
 public:
     /// @brief Construct this compiler log entry.
@@ -19,11 +19,11 @@ public:
     /// @param functionName the C/C++ function name
     /// @param location the EgoScript location
     CLogEntry(Log::Level level, const std::string& fileName, int lineNumber,
-              const std::string& functionName, const id::location& location);
+              const std::string& functionName, const idlib::c::location& location);
 
     /// @brief Get the EgoScript location.
     /// @return the EgoScript location
-    const id::location& getLocation() const;
+    const idlib::c::location& getLocation() const;
 
     friend Log::Target& operator<<(Log::Target& target, const CLogEntry& entry);
 };

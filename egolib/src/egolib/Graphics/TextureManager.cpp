@@ -75,7 +75,7 @@ static bool ego_texture_load_vfs(std::shared_ptr<Ego::Texture> texture, const ch
                 continue;
             }
             // Create the texture from the surface.
-            retval = texture->load(fullFilename.c_str(), surface);
+            retval = texture->load(fullFilename, surface);
             if (retval) {
                 goto End;
             }

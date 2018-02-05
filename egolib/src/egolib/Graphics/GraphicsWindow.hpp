@@ -1,6 +1,5 @@
 #pragma once
 
-#include "egolib/Events/_Include.hpp"
 #include "egolib/Math/_Include.hpp"
 
 namespace Ego {
@@ -9,29 +8,29 @@ class GraphicsWindow
 {
 public:
     /// Raised if the window was resized.
-    id::signal<void(const Events::WindowResizedEventArgs&)> Resized;
+    idlib::signal<void(const Events::WindowResizedEvent&)> WindowResized;
 
     /// Raised if the mouse pointer entered the window.
-    id::signal<void(const Events::WindowMousePointerEnteredEventArgs&)> MouseEntered;
+    idlib::signal<void(const Events::MousePointerEnteredEvent&)> MousePointerEntered;
 
     /// Raised if the mouse pointer left the window.
-    id::signal<void(const Events::WindowMousePointerLeftEventArgs&)> MouseLeft;
+    idlib::signal<void(const Events::MousePointerExitedEvent&)> MousePointerExited;
 
     /// Raised if the the window received the keyboard input focus.
-    id::signal<void(const Events::WindowReceivedKeyboardInputFocusEventArgs&)> KeyboardFocusReceived;
+    idlib::signal<void(const Events::KeyboardInputFocusReceivedEvent&)> KeyboardFocusReceived;
 
     /// Raised if the window lost the keyboard input focus.
-    id::signal<void(const Events::WindowLostKeyboardInputFocusEventArgs&)> KeyboardFocusLost;
+    idlib::signal<void(const Events::KeyboardInputFocusLostEvent&)> KeyboardFocusLost;
 
     /// Raised if the window was shown.
-    id::signal<void(const Events::WindowShownEventArgs&)> Shown;
+    idlib::signal<void(const Events::WindowShownEvent&)> WindowShown;
 
     /// Raised if the window was hidden.
-    id::signal<void(const Events::WindowHiddenEventArgs&)> Hidden;
+    idlib::signal<void(const Events::WindowHiddenEvent&)> WindowHidden;
 
 protected:
     /// @brief Construct this graphics window with the specified window properties.
-    /// @throw id::runtime_error window creation failed
+    /// @throw idlib::runtime_error window creation failed
     GraphicsWindow();
 
 public:
@@ -58,19 +57,19 @@ public:
 
     /// @brief Get the size of this window.
     /// @return the size of this window
-    virtual Size2i getSize() const = 0;
+    virtual Vector2f getSize() const = 0;
 
     /// @brief Set the size of this window.
     /// @param size the size of this window
-    virtual void setSize(const Size2i& size) = 0;
+    virtual void setSize(const Vector2f& size) = 0;
 
     /// @brief Get the position, in screen coordinates, of the left/top corner of this window.
     /// @return the position, in screen coordinates, of the left/top corner of this window
-    virtual Point2i getPosition() const = 0;
+    virtual Point2f getPosition() const = 0;
 
     /// @brief Set the position, in screen coordinates, of the left/top corner of this window.
     /// @param position the position, in screen coordinates, of the left/top corner of this window
-    virtual void setPosition(const Point2i& position) = 0;
+    virtual void setPosition(const Point2f& position) = 0;
 
     /// @brief Get a pointer to the backend windo.
     /// @return a pointer to the backend window
@@ -85,7 +84,7 @@ public:
 
     /// @brief Get the size of the drawable of this window.
     /// @return the size of the drawable of this window
-    virtual Size2i getDrawableSize() const = 0;
+    virtual Vector2f getDrawableSize() const = 0;
 
     /// @brief Update this window.
     virtual void update() = 0;
@@ -94,6 +93,9 @@ public:
     /// @return the display index
     virtual int getDisplayIndex() const = 0;
 
+    /// @brief Get a copy the contents of the window.
+    /// @return the copy of the contents of the window
+    virtual std::shared_ptr<SDL_Surface> getContents() const = 0;
 }; // class GraphicsWindow
 
 } // namespace Ego

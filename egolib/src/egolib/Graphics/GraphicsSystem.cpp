@@ -33,8 +33,8 @@ std::pair<GraphicsWindow *, GraphicsContext *> CreateWindowAndContext()
     }
     else
     {
-        window->setSize(Size2i(configuration.graphic_resolution_horizontal.getValue(),
-                               configuration.graphic_resolution_vertical.getValue()));
+		window->setSize({ configuration.graphic_resolution_horizontal.getValue(),
+						  configuration.graphic_resolution_vertical.getValue() });
         window->center();
         context = graphicsSystem.createContext(window);
         if (!context)
@@ -70,7 +70,6 @@ std::pair<GraphicsWindow *, GraphicsContext *> CreateWindowAndContext()
 
 
 GraphicsSystem::GraphicsSystem() :
-    gfx_width(800), gfx_height(600),
     window(nullptr), context(nullptr)
 {
     // Initialize the NEW graphics system.
@@ -105,16 +104,12 @@ GraphicsSystem::GraphicsSystem() :
     {
         auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "unable to set any video mode", Log::EndOfEntry);
         Log::get() << e;
-        throw id::runtime_error(__FILE__, __LINE__, e.getText());
+        throw idlib::runtime_error(__FILE__, __LINE__, e.getText());
     }
     else
     {
         window = p.first;
         context = p.second;
-        auto& configuration = egoboo_config_t::get();
-        int horizontal = configuration.graphic_resolution_horizontal.getValue(),
-            vertical = configuration.graphic_resolution_vertical.getValue();
-        gfx_width = (float)gfx_height / (float)vertical * (float)horizontal;
     }
 }
 

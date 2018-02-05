@@ -39,13 +39,13 @@ struct Border {
     std::shared_ptr<Ego::Texture> texture;
 
     /// @brief The size of the border. Default is <tt>Size2i()</tt>.
-    Size2i size;
+    Vector2f size;
 
     /**
      * @brief Construct this border.
      * @param size the border size. Default is <tt>Size2i()</tt>.
      */
-    Border(Size2i size = Size2i());
+    Border(Vector2f size = Vector2f());
 
     /**
      * @brief Load a texture to be used as the border texture.
@@ -71,14 +71,13 @@ struct Window {
     uint8_t on;
 
     /// @brief The window position.
-    Point2i position;
+    Point2f position;
 
     /// @brief The window border.
     Border border;
 
     /// @brief The window size.
-    /// @todo Should be <tt>Size2i size</tt>.
-	Size2i size;
+	Vector2f size;
 
     /// @brief Unique ID of this window.
     int id;
@@ -103,9 +102,9 @@ struct Window {
      * @return
      *  @a true if the mouse is over this window and the window is "on", @a false otherwise
      */
-    bool isOver(Point2i p) const;
+    bool isOver(Point2f p) const;
 
-    void load_window(int id, const std::string& loadname, Point2i position, Size2i borderSize, Size2i size, uint16_t mode, cartman_mpd_t * pmesh);
+    void load_window(int id, const std::string& loadname, Point2f position, Vector2f borderSize, Vector2f size, uint16_t mode, cartman_mpd_t * pmesh);
     /**
      * @brief
      *  Render the window.
@@ -121,10 +120,10 @@ struct Window {
 
 namespace Cartman { namespace Gui {
 
-struct Manager : public Ego::Core::Singleton<Manager> {
+struct Manager : public id::singleton<Manager> {
 protected:
-    friend struct Ego::Core::CreateFunctor<Manager>;
-    friend struct Ego::Core::DestroyFunctor<Manager>;
+    friend id::default_new_functor<Manager>;
+    friend id::default_delete_functor<Manager>;
     Manager();
     ~Manager();
 public:
@@ -141,7 +140,7 @@ public:
 
 struct ui_state_t {
     /// @brief The cursor position.
-    Point2i cursorPosition;
+    Point2f cursorPosition;
 
     bool pressed;                //
     bool clicked;                //

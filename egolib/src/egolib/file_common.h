@@ -33,50 +33,7 @@
 
 #pragma once
 
-#include "egolib/typedef.h"
-
-//--------------------------------------------------------------------------------------------
-// TYPEDEFS
-//--------------------------------------------------------------------------------------------
-
-struct s_win32_find_context;
-struct s_linux_find_context;
-struct s_mac_find_context;
-
-//--------------------------------------------------------------------------------------------
-// struct s_fs_find_context
-//--------------------------------------------------------------------------------------------
-
-/// enum to label 3 typed of find data
-typedef enum fs_find_type
-{
-    unknown_find = 0,
-    win32_find,
-    linux_find,
-    mac_find
-} fs_find_type_t;
-
-//--------------------------------------------------------------------------------------------
-
-/// struct to alias the 3 types of find data
-typedef union fs_find_ptr_t
-{
-    void *v;
-    struct s_win32_find_context *w;
-    struct s_linux_find_context *l;
-    struct s_mac_find_context *m;
-} fs_find_ptr_t;
-
-//--------------------------------------------------------------------------------------------
-typedef struct fs_find_context_t
-{
-    fs_find_type_t type;
-    fs_find_ptr_t  ptr;
-} fs_find_context_t;
-
-//--------------------------------------------------------------------------------------------
-// GLOBAL FUNCTION PROTOTYPES
-//--------------------------------------------------------------------------------------------
+#include "egolib/platform.h"
 
 /**
  * @brief
@@ -150,7 +107,7 @@ int fs_createDirectory(const std::string& pathname);
  * @remark
  *  This function will only remove the final directory in the path.
  */
-int fs_removeDirectory(const std::string& pathname);
+void fs_removeDirectory(const std::string& pathname);
 /**
  * @brief
  *  Delete a file.
@@ -159,56 +116,6 @@ int fs_removeDirectory(const std::string& pathname);
  */
 void fs_deleteFile(const std::string& pathname);
 bool fs_copyFile(const std::string& source, const std::string& target);
-void fs_removeDirectoryAndContents(const char *pathname, int recursive);
-/**
- * @brief
- *  Copy all files in a directory into another directory.
- * @param sourceDir
- *  the pathname of the source directory
- * @param targetDir
- *  the pathname of the target directory
- * @remark
- *  If the target directory does not exist, it is created.
- */
-void fs_copyDirectory(const char *source, const char *target);
-
-/**
- * @brief
- *  Begin a search.
- * @param directory
- *  the pathname of the directory to search in. Must not be a null pointer.
- * @param extension
- *  the filename extension of the files to search for.
- *  Only files with filenames ending with a period followed by the specified file extension are seached.
- * @param fs_search
- *  the context
- * @return
- *  a pointer to a C string with the filename of the first file found.
- *  A null pointer is returned if no file was found or an error occurred.
- * @remark
- *  If a pointer to a C string is returned,
- *  then this string remains valid as long as the search context is not modified.
- */
-const char *fs_findFirstFile(const char *directory, const char *extension, fs_find_context_t *fs_search);
-/**
- * @brief
- *  Continue a search.
- * @param fs_search
- *  the search context
- * @return
- *  a pointer to a C string with the filename of the next file found.
- *  A null pointer is returned if no file was found or an error occurred.
- * @remark
- *  If a pointer to a C string is returned,
- *  then this string remains valid as long as the search context is not modified.
- */
-const char *fs_findNextFile(fs_find_context_t *fs_search);
-/**
- * @brief
- *  End a search.
- * @param fs_search
- *  the context
- */
-void fs_findClose(fs_find_context_t *fs_search);
+void fs_removeDirectoryAndContents(const char *pathname);
 
 bool fs_ensureUserFile(const char * relative_filename, bool required);

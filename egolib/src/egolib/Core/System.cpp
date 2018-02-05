@@ -23,6 +23,16 @@
 namespace Ego {
 namespace Core {
 
+System *SystemCreateFunctor::operator()(const std::string& x) const
+{
+	return new System(x);
+}
+
+System *SystemCreateFunctor::operator()(const std::string& x, const std::string& y) const
+{
+	return new System(x, y);
+}
+
 const std::string SystemService::VERSION = "0.1.9";
 
 SystemService::SystemService(const std::string& binaryPath) {
@@ -133,7 +143,7 @@ VideoService::VideoService()
     {
         auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "unable to initialize SDL video: ", SDL_GetError(), Log::EndOfEntry);
         Log::get() << e;
-        throw id::environment_error(__FILE__, __LINE__, "[SDL]", e.getText());
+        throw idlib::environment_error(__FILE__, __LINE__, "[SDL]", e.getText());
     }
 }
 
@@ -149,7 +159,7 @@ AudioService::AudioService()
     {
         auto e = Log::Entry::create(Log::Level::Error, __FILE__, __LINE__, "unable to initialize SDL audio: ", SDL_GetError(), Log::EndOfEntry);
         Log::get() << e;
-        throw id::environment_error(__FILE__, __LINE__, "[SDL]", e.getText());
+        throw idlib::environment_error(__FILE__, __LINE__, "[SDL]", e.getText());
     }
 }
 

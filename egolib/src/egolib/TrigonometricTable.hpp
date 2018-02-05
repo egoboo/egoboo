@@ -17,7 +17,7 @@ private:
 
 protected:
     TLT() {
-        const float step = Ego::Math::twoPi<float>() / float(size);
+        const float step = idlib::two_pi<float>() / float(size);
 
         for (size_t i = 0; i < size; ++i) {
             float x = i * step;

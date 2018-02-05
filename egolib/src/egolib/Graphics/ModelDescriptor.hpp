@@ -142,7 +142,7 @@ enum ActionLip : uint8_t
 namespace Ego
 {
 
-class ModelDescriptor : private id::non_copyable
+class ModelDescriptor : private idlib::non_copyable
 {
 public:
     static const size_t FRAMELIP_COUNT = 16;

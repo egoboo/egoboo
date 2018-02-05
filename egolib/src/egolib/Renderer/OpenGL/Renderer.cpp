@@ -28,35 +28,6 @@
 #include "egolib/Renderer/OpenGL/RendererInfo.hpp"
 #include "egolib/Renderer/OpenGL/DefaultTexture.hpp"
 
-// The following code ensures that for each OpenGL function variable static PF...PROC gl... = NULL; is declared/defined.
-#define GLPROC(variable,type,name) \
-    static type variable = NULL;
-#include "egolib/Renderer/OpenGL/OpenGL.inl"
-#undef GLPROC
-
-namespace Ego {
-namespace OpenGL {
-
-// The following function dynamically links the OpenGL function.
-static bool link() {
-    static bool linked = false;
-    if (!linked) {
-#define GLPROC(variable,type,name) \
-        variable = (type)SDL_GL_GetProcAddress(name); \
-        if (!variable) \
-        { \
-            return false; \
-        }
-#include "egolib/Renderer/OpenGL/OpenGL.inl"
-#undef GLPROC
-    }
-    linked = true;
-    return true;
-}
-
-} // namespace OpenGL
-} // namespace Ego
-
 namespace Ego {
 namespace OpenGL {
 
@@ -65,11 +36,10 @@ Renderer::Renderer(const std::shared_ptr<RendererInfo>& info) :
 {
     try
     {
-        OpenGL::link();
-        m_defaultTexture1d = std::make_unique<DefaultTexture>(m_info, "<default texture 1D>", TextureType::_1D);
+        m_defaultTexture1d = std::make_unique<DefaultTexture>(m_info, "<default texture 1D>", idlib::texture_type::_1D);
         try
         {
-            m_defaultTexture2d = std::make_unique<DefaultTexture>(m_info, "<default texture 2D>", TextureType::_2D);
+            m_defaultTexture2d = std::make_unique<DefaultTexture>(m_info, "<default texture 2D>", idlib::texture_type::_2D);
         }
         catch (...)
         {
@@ -126,37 +96,37 @@ void Renderer::setAlphaTestEnabled(bool enabled) {
     Utilities::isError();
 }
 
-void Renderer::setAlphaFunction(CompareFunction function, float value) {
+void Renderer::setAlphaFunction(idlib::compare_function function, float value) {
     if (value < 0.0f || value > 1.0f) {
         throw std::invalid_argument("reference alpha value out of bounds");
     }
     switch (function) {
-        case CompareFunction::AlwaysFail:
+        case idlib::compare_function::always_fail:
             glAlphaFunc(GL_NEVER, value);
             break;
-        case CompareFunction::AlwaysPass:
+        case idlib::compare_function::always_pass:
             glAlphaFunc(GL_ALWAYS, value);
             break;
-        case CompareFunction::Equal:
+        case idlib::compare_function::equal:
             glAlphaFunc(GL_EQUAL, value);
             break;
-        case CompareFunction::NotEqual:
+        case idlib::compare_function::not_equal:
             glAlphaFunc(GL_NOTEQUAL, value);
             break;
-        case CompareFunction::Less:
+        case idlib::compare_function::less:
             glAlphaFunc(GL_LESS, value);
             break;
-        case CompareFunction::LessOrEqual:
+        case idlib::compare_function::less_or_equal:
             glAlphaFunc(GL_LEQUAL, value);
             break;
-        case CompareFunction::Greater:
+        case idlib::compare_function::greater:
             glAlphaFunc(GL_GREATER, value);
             break;
-        case CompareFunction::GreaterOrEqual:
+        case idlib::compare_function::greater_or_equal:
             glAlphaFunc(GL_GEQUAL, value);
             break;
         default:
-            throw id::unhandled_switch_case_error(__FILE__, __LINE__);
+            throw idlib::unhandled_switch_case_error(__FILE__, __LINE__);
     };
     Utilities::isError();
 }
@@ -170,8 +140,8 @@ void Renderer::setBlendingEnabled(bool enabled) {
     Utilities::isError();
 }
 
-void Renderer::setBlendFunction(BlendFunction sourceColour, BlendFunction sourceAlpha,
-                                BlendFunction destinationColour, BlendFunction destinationAlpha) {
+void Renderer::setBlendFunction(idlib::color_blend_parameter sourceColour, idlib::color_blend_parameter sourceAlpha,
+                                idlib::color_blend_parameter destinationColour, idlib::color_blend_parameter destinationAlpha) {
     glBlendFuncSeparate(toOpenGL(sourceColour), toOpenGL(destinationColour),
                         toOpenGL(sourceAlpha), toOpenGL(destinationAlpha));
     Utilities::isError();
@@ -183,57 +153,57 @@ void Renderer::setColour(const Colour4f& colour) {
     Utilities::isError();
 }
 
-void Renderer::setCullingMode(CullingMode mode) {
+void Renderer::setCullingMode(idlib::culling_mode mode) {
     switch (mode) {
-        case CullingMode::None:
+		case idlib::culling_mode::none:
             glDisable(GL_CULL_FACE);
             break;
-        case CullingMode::Front:
+		case idlib::culling_mode::front:
             glEnable(GL_CULL_FACE);
             glCullFace(GL_FRONT);
             break;
-        case CullingMode::Back:
+		case idlib::culling_mode::back:
             glEnable(GL_CULL_FACE);
             glCullFace(GL_BACK);
             break;
-        case CullingMode::BackAndFront:
+		case idlib::culling_mode::back_and_front:
             glEnable(GL_CULL_FACE);
             glCullFace(GL_FRONT_AND_BACK);
             break;
         default:
-            throw id::unhandled_switch_case_error(__FILE__, __LINE__);
+            throw idlib::unhandled_switch_case_error(__FILE__, __LINE__);
     };
     Utilities::isError();
 }
 
-void Renderer::setDepthFunction(CompareFunction function) {
+void Renderer::setDepthFunction(idlib::compare_function function) {
     switch (function) {
-        case CompareFunction::AlwaysFail:
+        case idlib::compare_function::always_fail:
             glDepthFunc(GL_NEVER);
             break;
-        case CompareFunction::AlwaysPass:
+        case idlib::compare_function::always_pass:
             glDepthFunc(GL_ALWAYS);
             break;
-        case CompareFunction::Less:
+        case idlib::compare_function::less:
             glDepthFunc(GL_LESS);
             break;
-        case CompareFunction::LessOrEqual:
+        case idlib::compare_function::less_or_equal:
             glDepthFunc(GL_LEQUAL);
             break;
-        case CompareFunction::Equal:
+        case idlib::compare_function::equal:
             glDepthFunc(GL_EQUAL);
             break;
-        case CompareFunction::NotEqual:
+        case idlib::compare_function::not_equal:
             glDepthFunc(GL_NOTEQUAL);
             break;
-        case CompareFunction::GreaterOrEqual:
+        case idlib::compare_function::greater_or_equal:
             glDepthFunc(GL_GEQUAL);
             break;
-        case CompareFunction::Greater:
+        case idlib::compare_function::greater:
             glDepthFunc(GL_GREATER);
             break;
         default:
-            throw id::unhandled_switch_case_error(__FILE__, __LINE__);
+            throw idlib::unhandled_switch_case_error(__FILE__, __LINE__);
     };
     Utilities::isError();
 }
@@ -254,10 +224,10 @@ void Renderer::setDepthWriteEnabled(bool enabled) {
 
 void Renderer::setScissorRectangle(float left, float bottom, float width, float height) {
     if (width < 0) {
-        throw id::invalid_argument_error(__FILE__, __LINE__, "width < 0");
+        throw idlib::invalid_argument_error(__FILE__, __LINE__, "width < 0");
     }
     if (height < 0) {
-        throw id::invalid_argument_error(__FILE__, __LINE__, "height < 0");
+        throw idlib::invalid_argument_error(__FILE__, __LINE__, "height < 0");
     }
     glScissor(left, bottom, width, height);
     Utilities::isError();
@@ -304,16 +274,16 @@ void Renderer::setViewportRectangle(float left, float bottom, float width, float
     Utilities::isError();
 }
 
-void Renderer::setWindingMode(WindingMode mode) {
+void Renderer::setWindingMode(idlib::winding_mode mode) {
     switch (mode) {
-        case WindingMode::Clockwise:
+		case idlib::winding_mode::clockwise:
             glFrontFace(GL_CW);
             break;
-        case WindingMode::AntiClockwise:
+		case idlib::winding_mode::anti_clockwise:
             glFrontFace(GL_CCW);
             break;
         default:
-            throw id::unhandled_switch_case_error(__FILE__, __LINE__);
+            throw idlib::unhandled_switch_case_error(__FILE__, __LINE__);
     }
     Utilities::isError();
 }
@@ -419,15 +389,15 @@ void Renderer::setLightingEnabled(bool enabled) {
     Utilities::isError();
 }
 
-void Renderer::setRasterizationMode(RasterizationMode mode) {
+void Renderer::setRasterizationMode(idlib::rasterization_mode mode) {
     switch (mode) {
-        case RasterizationMode::Point:
+        case idlib::rasterization_mode::point:
             glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
             break;
-        case RasterizationMode::Line:
+        case idlib::rasterization_mode::line:
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
             break;
-        case RasterizationMode::Solid:
+        case idlib::rasterization_mode::solid:
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             break;
     }
@@ -443,8 +413,8 @@ void Renderer::setGouraudShadingEnabled(bool enabled) {
     Utilities::isError();
 }
 
-void Renderer::render(VertexBuffer& vertexBuffer, const VertexDescriptor& vertexDescriptor, PrimitiveType primitiveType, size_t index, size_t length) {
-    if (vertexDescriptor.getVertexSize() != vertexBuffer.getVertexSize())
+void Renderer::render(VertexBuffer& vertexBuffer, const VertexDescriptor& vertexDescriptor, idlib::primitive_type primitiveType, size_t index, size_t length) {
+    if (vertexDescriptor.get_size() != vertexBuffer.getVertexSize())
     {
         throw std::invalid_argument("vertex size mismatch");
     }
@@ -455,117 +425,117 @@ void Renderer::render(VertexBuffer& vertexBuffer, const VertexDescriptor& vertex
     const char *vertices = static_cast<char *>(vertexBuffer.lock());
     for (auto it = vertexDescriptor.begin(); it != vertexDescriptor.end(); ++it) {
         const auto& vertexElementDescriptor = (*it);
-        switch (vertexElementDescriptor.getSemantics()) {
-            case VertexElementDescriptor::Semantics::Position:
+        switch (vertexElementDescriptor.get_semantics()) {
+        case idlib::vertex_component_semantics::POSITION:
             {
                 // Enable the required client-side capabilities.
                 glEnableClientState(GL_VERTEX_ARRAY);
                 // Set the pointers.
                 GLint size;
                 GLenum type;
-                switch (vertexElementDescriptor.getSyntax())
+                switch (vertexElementDescriptor.get_syntactics())
                 {
-                    case VertexElementDescriptor::Syntax::F2:
+                    case idlib::vertex_component_syntactics::SINGLE_2:
                         size = 2;
                         type = GL_FLOAT;
                         break;
-                    case VertexElementDescriptor::Syntax::F3:
+                    case idlib::vertex_component_syntactics::SINGLE_3:
                         size = 3;
                         type = GL_FLOAT;
                         break;
-                    case VertexElementDescriptor::Syntax::F4:
+                    case idlib::vertex_component_syntactics::SINGLE_4:
                         size = 4;
                         type = GL_FLOAT;
                         break;
-                    case VertexElementDescriptor::Syntax::F1:
-                        throw id::runtime_error(__FILE__, __LINE__, "vertex format not supported");
+                    case idlib::vertex_component_syntactics::SINGLE_1:
+                        throw idlib::runtime_error(__FILE__, __LINE__, "vertex format not supported");
                     default:
-                        throw id::unhandled_switch_case_error(__FILE__, __LINE__);
+                        throw idlib::unhandled_switch_case_error(__FILE__, __LINE__);
                 };
-                glVertexPointer(size, type, vertexDescriptor.getVertexSize(),
-                                vertices + vertexElementDescriptor.getOffset());
+                glVertexPointer(size, type, vertexDescriptor.get_size(),
+                                vertices + vertexElementDescriptor.get_offset());
             }
             break;
-            case VertexElementDescriptor::Semantics::Colour:
+            case idlib::vertex_component_semantics::COLOR:
             {
                 // Enable required client-side capabilities.
                 glEnableClientState(GL_COLOR_ARRAY);
                 // Set the pointers.
                 GLint size;
                 GLenum type;
-                switch (vertexElementDescriptor.getSyntax()) {
-                    case VertexElementDescriptor::Syntax::F3:
+                switch (vertexElementDescriptor.get_syntactics()) {
+                case idlib::vertex_component_syntactics::SINGLE_3:
                         size = 3;
                         type = GL_FLOAT;
                         break;
-                    case VertexElementDescriptor::Syntax::F4:
+                case idlib::vertex_component_syntactics::SINGLE_4:
                         size = 4;
                         type = GL_FLOAT;
                         break;
-                    case VertexElementDescriptor::Syntax::F1:
-                    case VertexElementDescriptor::Syntax::F2:
-                        throw id::runtime_error(__FILE__, __LINE__, "vertex format not supported");
+                case idlib::vertex_component_syntactics::SINGLE_1:
+                case idlib::vertex_component_syntactics::SINGLE_2:
+                        throw idlib::runtime_error(__FILE__, __LINE__, "vertex format not supported");
                     default:
-                        throw id::unhandled_switch_case_error(__FILE__, __LINE__);
+                        throw idlib::unhandled_switch_case_error(__FILE__, __LINE__);
                 };
-                glColorPointer(size, type, vertexDescriptor.getVertexSize(),
-                               vertices + vertexElementDescriptor.getOffset());
+                glColorPointer(size, type, vertexDescriptor.get_size(),
+                               vertices + vertexElementDescriptor.get_offset());
             }
             break;
-            case VertexElementDescriptor::Semantics::Normal:
+            case idlib::vertex_component_semantics::NORMAL:
             {
                 // Enable the required client-side capabilities.
                 glEnableClientState(GL_NORMAL_ARRAY);
                 // Set the pointers.
                 GLenum type;
-                switch (vertexElementDescriptor.getSyntax()) {
-                    case VertexElementDescriptor::Syntax::F3:
+                switch (vertexElementDescriptor.get_syntactics()) {
+                    case idlib::vertex_component_syntactics::SINGLE_3:
                         type = GL_FLOAT;
                         break;
-                    case VertexElementDescriptor::Syntax::F1:
-                    case VertexElementDescriptor::Syntax::F2:
-                    case VertexElementDescriptor::Syntax::F4:
-                        throw id::runtime_error(__FILE__, __LINE__, "vertex format not supported");
+                    case idlib::vertex_component_syntactics::SINGLE_1:
+                    case idlib::vertex_component_syntactics::SINGLE_2:
+                    case idlib::vertex_component_syntactics::SINGLE_4:
+                        throw idlib::runtime_error(__FILE__, __LINE__, "vertex format not supported");
                     default:
-                        throw id::unhandled_switch_case_error(__FILE__, __LINE__);
+                        throw idlib::unhandled_switch_case_error(__FILE__, __LINE__);
                 };
-                glNormalPointer(type, vertexDescriptor.getVertexSize(),
-                                vertices + vertexElementDescriptor.getOffset());
+                glNormalPointer(type, vertexDescriptor.get_size(),
+                                vertices + vertexElementDescriptor.get_offset());
             }
             break;
-            case VertexElementDescriptor::Semantics::Texture:
+            case idlib::vertex_component_semantics::TEXTURE:
             {
                 // Enable the required client-side capabilities.
                 glEnableClientState(GL_TEXTURE_COORD_ARRAY);
                 // Set the pointers.
                 GLint size;
                 GLenum type;
-                switch (vertexElementDescriptor.getSyntax()) {
-                    case VertexElementDescriptor::Syntax::F1:
+                switch (vertexElementDescriptor.get_syntactics()) {
+                    case idlib::vertex_component_syntactics::SINGLE_1:
                         size = 1;
                         type = GL_FLOAT;
                         break;
-                    case VertexElementDescriptor::Syntax::F2:
+                    case idlib::vertex_component_syntactics::SINGLE_2:
                         size = 2;
                         type = GL_FLOAT;
                         break;
-                    case VertexElementDescriptor::Syntax::F3:
+                    case idlib::vertex_component_syntactics::SINGLE_3:
                         size = 3;
                         type = GL_FLOAT;
                         break;
-                    case VertexElementDescriptor::Syntax::F4:
+                    case idlib::vertex_component_syntactics::SINGLE_4:
                         size = 4;
                         type = GL_FLOAT;
                         break;
                     default:
-                        throw id::unhandled_switch_case_error(__FILE__, __LINE__);
+                        throw idlib::unhandled_switch_case_error(__FILE__, __LINE__);
                 };
-                glTexCoordPointer(size, type, vertexDescriptor.getVertexSize(),
-                                  vertices + vertexElementDescriptor.getOffset());
+                glTexCoordPointer(size, type, vertexDescriptor.get_size(),
+                                  vertices + vertexElementDescriptor.get_offset());
             }
             break;
             default:
-                throw id::unhandled_switch_case_error(__FILE__, __LINE__);
+                throw idlib::unhandled_switch_case_error(__FILE__, __LINE__);
         };
     }
     const GLenum primitiveType_gl = Utilities2::toOpenGL(primitiveType);
@@ -591,25 +561,28 @@ std::array<float, 16> Renderer::toOpenGL(const Matrix4f4f& source) {
     return target;
 }
 
-GLenum Renderer::toOpenGL(BlendFunction source) {
+GLenum Renderer::toOpenGL(idlib::color_blend_parameter source) {
     switch (source) {
-        case BlendFunction::Zero: return GL_ZERO;
-        case BlendFunction::One:  return GL_ONE;
-        case BlendFunction::SourceColour: return GL_SRC_COLOR;
-        case BlendFunction::OneMinusSourceColour: return GL_ONE_MINUS_SRC_COLOR;
-        case BlendFunction::DestinationColour: return GL_DST_COLOR;
-        case BlendFunction::OneMinusDestinationColour: return GL_ONE_MINUS_DST_COLOR;
-        case BlendFunction::SourceAlpha: return GL_SRC_ALPHA;
-        case BlendFunction::OneMinusSourceAlpha: return GL_ONE_MINUS_SRC_ALPHA;
-        case BlendFunction::DestinationAlpha: return GL_DST_ALPHA;
-        case BlendFunction::OneMinusDestinationAlpha: return GL_ONE_MINUS_DST_ALPHA;
-        case BlendFunction::ConstantColour: return GL_CONSTANT_COLOR;
-        case BlendFunction::OneMinusConstantColour: return GL_ONE_MINUS_CONSTANT_COLOR;
-        case BlendFunction::ConstantAlpha: return GL_CONSTANT_ALPHA;
-        case BlendFunction::OneMinusConstantAlpha: return GL_ONE_MINUS_CONSTANT_ALPHA;
-        case BlendFunction::SourceAlphaSaturate: return GL_SRC_ALPHA_SATURATE;
+        case idlib::color_blend_parameter::zero: return GL_ZERO;
+        case idlib::color_blend_parameter::one:  return GL_ONE;
+        case idlib::color_blend_parameter::source0_color: return GL_SRC_COLOR;
+        case idlib::color_blend_parameter::source1_color: return GL_SRC1_COLOR;
+        case idlib::color_blend_parameter::one_minus_source0_color: return GL_ONE_MINUS_SRC_COLOR;
+        case idlib::color_blend_parameter::one_minus_source1_color: return GL_ONE_MINUS_SRC1_COLOR;
+        case idlib::color_blend_parameter::destination_color: return GL_DST_COLOR;
+        case idlib::color_blend_parameter::one_minus_destination_color: return GL_ONE_MINUS_DST_COLOR;
+        case idlib::color_blend_parameter::source0_alpha: return GL_SRC_ALPHA;
+        case idlib::color_blend_parameter::one_minus_source0_alpha: return GL_ONE_MINUS_SRC_ALPHA;
+        case idlib::color_blend_parameter::one_minus_source1_alpha: return GL_ONE_MINUS_SRC1_ALPHA;
+        case idlib::color_blend_parameter::destination_alpha: return GL_DST_ALPHA;
+        case idlib::color_blend_parameter::one_minus_destination_alpha: return GL_ONE_MINUS_DST_ALPHA;
+		case idlib::color_blend_parameter::constant_color: return GL_CONSTANT_COLOR;
+        case idlib::color_blend_parameter::one_minus_constant_color: return GL_ONE_MINUS_CONSTANT_COLOR;
+        case idlib::color_blend_parameter::constant_alpha: return GL_CONSTANT_ALPHA;
+        case idlib::color_blend_parameter::one_minus_constant_alpha: return GL_ONE_MINUS_CONSTANT_ALPHA;
+        case idlib::color_blend_parameter::source0_alpha_saturate: return GL_SRC_ALPHA_SATURATE;
         default:
-            throw id::unhandled_switch_case_error(__FILE__, __LINE__);
+            throw idlib::unhandled_switch_case_error(__FILE__, __LINE__);
     };
 }
 

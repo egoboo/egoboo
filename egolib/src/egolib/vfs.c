@@ -1483,9 +1483,7 @@ SearchContext::SearchContext(const Ego::VfsPath& searchPath, const Ego::Extensio
     path_2 = vfs_convert_fname(searchPath);
     file_list_2 = enumerateFiles(path_2);
     // Filter by extension?
-    if (!searchExtension.empty()) {
-        predicates.push_back(makePredicate(searchExtension.toString()));
-    }
+    predicates.push_back(makePredicate(searchExtension.to_string()));
     // Begin iteration.
     file_list_iterator_2 = file_list_2.begin();
     // Search the first acceptable filename.
@@ -1618,7 +1616,7 @@ void SearchContext::nextData()
 }
 
 //--------------------------------------------------------------------------------------------
-int vfs_removeDirectoryAndContents(const char * dirname, int recursive) {
+int vfs_removeDirectoryAndContents(const char * dirname) {
     // buffer the directory delete through PHYSFS, so that we so not access functions that
     // we have no right to! :)
 
@@ -1629,7 +1627,7 @@ int vfs_removeDirectoryAndContents(const char * dirname, int recursive) {
     if (!resolvedWriteFilename.first) return VFS_FALSE;
     if (!fs_fileIsDirectory(resolvedWriteFilename.second.c_str())) return VFS_FALSE;
 
-    fs_removeDirectoryAndContents(resolvedWriteFilename.second.c_str(), recursive);
+    fs_removeDirectoryAndContents(resolvedWriteFilename.second.c_str());
 
     return VFS_TRUE;
 }
@@ -1825,8 +1823,8 @@ void vfs_empty_temp_directories()
 {
     BAIL_IF_NOT_INIT();
 
-    vfs_removeDirectoryAndContents("import", VFS_TRUE);
-    vfs_removeDirectoryAndContents("remote", VFS_TRUE);
+    vfs_removeDirectoryAndContents("import");
+    vfs_removeDirectoryAndContents("remote");
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2042,7 +2040,7 @@ std::pair<bool, std::string> vfs_mount_info_strip_path( const std::string& path 
     // Find the first mount point path that is a prefix of the specified path.
     // If such a path is discovered, return the specified path with the prefix removed.
     for (const auto& mount_info : _vfs_mount_infos) {
-        if (id::is_prefix(path_2, mount_info.mount)) {
+        if (idlib::is_prefix(path_2, mount_info.mount)) {
             return std::make_pair(true, path_2.substr(mount_info.mount.length()));
         }
     }
@@ -2186,14 +2184,14 @@ void vfs_readEntireFile(const std::string& pathname, std::function<void(size_t, 
     auto deleter = [](vfs_FILE *file) { if (file) vfs_close(file); };
     std::unique_ptr<vfs_FILE, decltype(deleter)> file(vfs_openRead(pathname), deleter);
     if (!file) {
-        throw id::runtime_error(__FILE__, __LINE__, "unable to open file `" + pathname + "` for reading");
+        throw idlib::runtime_error(__FILE__, __LINE__, "unable to open file `" + pathname + "` for reading");
     }
     // Read in 2048 Byte chunks.
     char buffer[2048];
     while (!vfs_eof(file.get())) {
         size_t read = vfs_read(buffer, 1, 2048, file.get());
         if (vfs_error(file.get())) {
-            throw id::runtime_error(__FILE__, __LINE__, "error while reading file `" + pathname + "`");
+            throw idlib::runtime_error(__FILE__, __LINE__, "error while reading file `" + pathname + "`");
         }
         // If not a short read, invoke receive.
         if (0 != read) {

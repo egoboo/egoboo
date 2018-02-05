@@ -1,6 +1,5 @@
 #pragma once
 
-#include "egolib/Core/Singleton.hpp"
 #include "egolib/Log/_Include.hpp"
 
 namespace Ego {
@@ -12,23 +11,19 @@ class GraphicsWindow;
 class GraphicsContext;
 class WindowProperties;
 
-namespace Core {
+/// @brief new functor creating the back-end.
+struct GraphicsSystemNewNewFunctor
+{ GraphicsSystemNew *operator()() const; };
 
-/// @brief Creator functor creating the back-end.
-template <>
-struct CreateFunctor<GraphicsSystemNew>
-{
-    GraphicsSystemNew *operator()() const;
-};
+/// @brief delete functor creating the back-end.
+struct GraphicsSystemNewDeleteFunctor
+{ void operator()(GraphicsSystemNew *p) const; };
 
-} // namespace Core
-
-
-class GraphicsSystemNew : public Core::Singleton<GraphicsSystemNew>
+class GraphicsSystemNew : public idlib::singleton<GraphicsSystemNew, GraphicsSystemNewNewFunctor, GraphicsSystemNewDeleteFunctor>
 {
 protected:
-    friend Core::Singleton<GraphicsSystemNew>::CreateFunctorType;
-    friend Core::Singleton<GraphicsSystemNew>::DestroyFunctorType;
+    friend GraphicsSystemNewNewFunctor;
+    friend GraphicsSystemNewDeleteFunctor;
 
 protected:
     /// @brief List of displays.
@@ -47,12 +42,12 @@ protected:
 public:
     /// @brief Set the cursor visibility.
     /// @param visibility @a true shows the cursor, @a false hides the cursor
-    /// @throw id::environment_error the environment failed
+    /// @throw idlib::environment_error the environment failed
     virtual void setCursorVisibility(bool visibility) = 0;
 
     /// @brief Get the cursor visibility.
     /// @return @a true if the cursor is shown, @a false otherwise
-    /// @throw id::environment_error the environment failed
+    /// @throw idlib::environment_error the environment failed
     virtual bool getCursorVisibility() const = 0;
 
     /// @brief Get the list of displays.
