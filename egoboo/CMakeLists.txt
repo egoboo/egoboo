@@ -1,15 +1,9 @@
 # Minimum required CMake version.
 cmake_minimum_required(VERSION 3.8)
 
-# Project name and language.
+# Project name and settings.
 project(egoboo CXX)
-
-# Project compiles against C++ 17.
-if (NOT MSVC)
-  set(CMAKE_CXX_STANDARD 17)
-endif()
-
-# Set the default properties.
+message("building Egoboo Executable")
 set_project_default_properties()
 
 set(SOURCE_FILES "")
@@ -42,23 +36,34 @@ add_executable(egoboo ${SOURCE_FILES})
 # Link libraries.
 target_link_libraries(egoboo egolib-library)
 
-if (${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
+# Copy runtime dependencies (e.g. SDL2 DLLs) of idlib-game-engine-library to the executable.
+if (${IDLIB_CXX_COMPILER_ID} EQUAL ${IDLIB_CXX_COMPILER_ID_MSVC})
   get_property(runtime-libraries TARGET idlib-game-engine-library PROPERTY runtime-libraries)
   foreach( runtime-library ${runtime-libraries} )
     get_filename_component(barename ${runtime-library} NAME)
-    message("copying ${runtime-library} to $<TARGET_FILE_DIR:egoboo>/${barename}")
+    #message("copying ${runtime-library} to $<TARGET_FILE_DIR:egoboo>/${barename}")
     add_custom_command(TARGET egoboo
                        PRE_LINK
                        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${runtime-library} $<TARGET_FILE_DIR:egoboo>/${barename})
-	set_target_properties(egoboo PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/data")
+  endforeach()
+  set_target_properties(egoboo PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/data")
+endif()
+
+# Install runtime dependencies (e.g. SDL2 DLLs) of idlib-game-engine-library with the executable.
+if (${IDLIB_CXX_COMPILER_ID} EQUAL ${IDLIB_CXX_COMPILER_ID_MSVC})
+  get_property(runtime-libraries TARGET idlib-game-engine-library PROPERTY runtime-libraries)
+  foreach( runtime-library ${runtime-libraries} )
+	install(FILES ${runtime-library}
+			DESTINATION bin
+			COMPONENT applications)
   endforeach()
 endif()
 
-# == Doxygen ==================================================================================== #
-
-FIND_PACKAGE(Doxygen)
 IF(DOXYGEN_FOUND)
     ADD_CUSTOM_TARGET(egoboo-doc ${DOXYGEN_EXECUTABLE} COMMENT "Building documentation")
-ELSE(DOXYGEN_FOUND)
-    MESSAGE(STATUS "Doxygen not found. You won't be able to build documentation.")
 ENDIF(DOXYGEN_FOUND)
+
+install(TARGETS egoboo
+        RUNTIME
+        DESTINATION bin
+        COMPONENT applications)
