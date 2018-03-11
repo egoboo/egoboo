@@ -1,38 +1,54 @@
-# Visual Studio 2017.
-\.vs
-*.sdf
-*.opensdf
-*.suo
-*.VC.db
-*.VC.VC.opendb
-*.vcxproj
-*.vcxproj.filters
-*.vcxproj.user
-*.sln
-/intermediate
-/products
-Win32/Debug
-Win32/Release
-egolib/Debug
-egolib/Release
-egoboo/Debug
-egoboo/Release
+# CMake/Doxygen.
+CMakeDoxyfile\.in
+CMakeDoxygenDefaults\.cmake
 
-# CMake.
-CMakeDoxyfile.in
-CMakeDoxygenDefaults.cmake
-cmake_install.cmake
-
-# Google Mock, Google Test.
+# CMake/CTest/Google test.
+CTestTestfile\.cmake
 gmock.pc
 gmock_main.pc
 gtest.pc
 gtest_main.pc
+DartConfiguration.tcl
 
-# CMake.
-*\.dir/
-CMakeFiles
-CMakeCache.txt
+# CMake/CPack.
+cmake_install.cmake
+install_manifest*.txt
+CPackConfig\.cmake
+CPackSourceConfig\.cmake
+_CPack_Packages
+
+# GNU Make.
+Makefile
+
+# CMake/Visual Studio.
+**/x64/Debug
+**/x64/MinSizeRel
+**/x64/Release
+**/x64/RelWithDebInfo
+**/Win32/Debug
+**/Win32/MinSizeRel
+**/Win32/Release
+**/Win32/RelWithDebInfo
+*\.dir
+
+# Visual Studio 2017.
+\.vs
+*.ilk
+*.pdb
+*.lib
+*.sdf
+*.opensdf
+*.suo
+*.vcxproj
+*.vcxproj.user
+*.vcxproj.filters
+*.VC.db
+*.VC.VC.opendb
+/intermediate
+/products
+*.sln
+*.exe.gta.testdurations
+**/Temporary
 
 # Code::Blocks.
 *.layout
@@ -54,3 +70,10 @@ xcuserdata
 
 # Doxygen.
 /doc/doxygen
+
+# Generated files.
+gen
+
+# CMake.
+CMakeFiles
+CMakeCache.txt
