@@ -23,16 +23,14 @@
 #pragma once
 
 #include "egolib/game/GUI/Container.hpp"
+#include "egolib/Renderer/DeferredTexture.hpp"
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 // Forward declarations.
 class Image;
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 
 class InternalWindow : public Container {
 protected:
@@ -85,5 +83,4 @@ protected:
     bool _firstDraw;
 };
 
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI

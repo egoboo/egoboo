@@ -24,20 +24,16 @@
 
 #include "egolib/game/GUI/InternalWindow.hpp"
 #include "egolib/game/GUI/TabPanel.hpp"
+#include "egolib/Entities/Forward.hpp"
+#include "egolib/Logic/Damage.hpp"
+#include "egolib/Logic/Attribute.hpp"
 
-// Forward declarations.
-class Object;
-
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 class Button;
 class ScrollableList;
-} // namespace GUI
-class Enchantment;
-} // namespace Ego
+} // namespace Ego::GUI
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 
 class CharacterWindow : public InternalWindow {
 public:
@@ -69,5 +65,4 @@ private:
     std::shared_ptr<Tab> _activeEnchantsTab;
 };
 
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI

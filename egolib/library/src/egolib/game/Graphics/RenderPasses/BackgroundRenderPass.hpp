@@ -2,8 +2,7 @@
 
 #include "egolib/game/Graphics/RenderPass.hpp"
 
-namespace Ego {
-namespace Graphics {
+namespace Ego::Graphics {
 
 /// The render pass for the world background.
 struct BackgroundRenderPass : public RenderPass
@@ -23,5 +22,4 @@ protected:
     void doRun(::Camera& cam, const TileList& tl, const EntityList& el) override;
 };
 
-} // namespace Graphics
-} // namespace Ego
+} // namespace Ego::Graphics

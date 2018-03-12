@@ -3,9 +3,7 @@
 #include "egolib/game/graphic.h"
 #include "egolib/game/game.h" //only for character_swipe()
 
-namespace Ego
-{
-namespace Graphics
+namespace Ego::Graphics
 {
 
 // the flip tolerance is the default flip increment / 2
@@ -1339,5 +1337,4 @@ oct_bb_t ObjectGraphics::getBoundingBox() const
     return oct_bb_t::interpolate(_object.inst.getLastFrame().bb, _object.inst.getNextFrame().bb, _animationProgress);
 }
 
-} //namespace Graphics
-} //namespace Ego
+} //namespace Ego::Graphics

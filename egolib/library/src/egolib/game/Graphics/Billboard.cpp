@@ -1,8 +1,7 @@
 #include "egolib/game/Graphics/Billboard.hpp"
 #include "egolib/Entities/_Include.hpp"
 
-namespace Ego {
-namespace Graphics {
+namespace Ego::Graphics {
 
 Billboard::Billboard(::Time::Ticks endTime, std::shared_ptr<Ego::Texture> texture, const float size) :
     _endTime(endTime),
@@ -53,5 +52,4 @@ bool Billboard::update(::Time::Ticks now)
     return true;
 }
 
-} // namespace Graphics
-} // namespace Ego
+} // namespace Ego::Graphics

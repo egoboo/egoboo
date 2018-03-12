@@ -26,9 +26,11 @@
 #include "egolib/game/GUI/ProgressBar.hpp"
 #include "egolib/game/GUI/Material.hpp"
 #include "egolib/game/game.h" //for update_wld
+#include "egolib/game/graphic.h"
+#include "egolib/game/Core/GameEngine.hpp"
+#include "egolib/deprecated/hud_colors.hpp"
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 
 CharacterStatus::CharacterStatus(const std::shared_ptr<Object> &object) :
     _object(object),
@@ -397,5 +399,4 @@ void CharacterStatus::draw(DrawingContext& drawingContext) {
     }
 }
 
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI

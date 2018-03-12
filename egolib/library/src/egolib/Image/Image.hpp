@@ -21,15 +21,13 @@
 #pragma once
 
 #include "egolib/Graphics/PixelFormat.hpp"
-#include "egolib/Math/_Include.hpp"
+#include <memory>
 #include "egolib/integrations/color.hpp"
-#include "egolib/Image/blit.hpp"
+#include "egolib/integrations/video.hpp"
 #include "egolib/Image/convert.hpp"
-#include "egolib/Image/fill.hpp"
-#include "egolib/Image/get_pixel.hpp"
 #include "egolib/Image/pad.hpp"
 #include "egolib/Image/power_of_two.hpp"
-#include "egolib/Image/set_pixel.hpp"
+#include <SDL.h>
 
 #if !SDL_VERSION_ATLEAST(2, 0, 0)
 int SDL_GetColorKey(SDL_Surface *surface, uint32_t *key);
@@ -37,7 +35,7 @@ int SDL_GetColorKey(SDL_Surface *surface, uint32_t *key);
 
 namespace Ego {
 
-class Image
+class Image : public idlib::image
 {
 protected:
     /// @brief The backing SDL surface.
@@ -54,45 +52,35 @@ public:
     /// @brief Destruct this image.
     virtual ~Image();
 
-    /// @brief Get a pointer to the pixels of this image.
-    /// @return a pointer to the pixels of this image
-    void *getPixels();
+    /// @copydoc idlib::image::get_pixels
+    void *get_pixels() override;
 
     /// @brief Get a pointer to the backing image.
     /// @return a pointer to the backing image
     SDL_Surface *getSurface();
-	const SDL_Surface *getSurface() const;
+    const SDL_Surface *getSurface() const;
 
-    /// @brief Get the pixel format of this image.
-    /// @return the pixel format of this image
-    idlib::pixel_format get_pixel_format() const;
+    /// @copydoc idlib::image::get_pixel_format
+    idlib::pixel_format get_pixel_format() const override;
 
-    /// @brief Get the size, in Bytes, of a pixel.
-    /// @return the size, in Bytes, of a pixel
-    int getBytesPerPixel() const;
+    /// @copydoc idlib::image::get_bytes_per_pixel
+    int get_bytes_per_pixel() const override;
 
-    /// @brief Get the width, in pixels, of this image.
-    /// @return the width
-    /// @remark The width is always non-negative.
-    int getWidth() const;
+    /// @copydoc idlib::image::get_width
+    int get_width() const override;
 
-    /// @brief Get the height, in pixels, of this image.
-    /// @return the height
-    /// @remark The height is always non-negative.
-    int getHeight() const;
+    /// @copydoc idlib::image::get_height
+    int get_height() const override;
 
-    /// @brief Get the pitch, in pixels, of this image.
-    /// @return the pitch
-    /// @remark The pitch is always non-negative.
-    int getPitch() const;
+    /// @copydoc idlib::image::get_pitch
+    int get_pitch() const override;
 
-    /// @brief Get if this image has an alpha component.
-    /// @return @a true if this image has an alpha component, @a false otherwise
-    bool hasAlpha() const;
+    /// @copydoc idlib::image::has_alpha
+    bool has_alpha() const override;
 
-	/// @brief Clone this image.
-	/// @return the clone of the image
-	std::shared_ptr<Image> clone() const;
+    /// @brief Clone this image.
+    /// @return the clone of the image
+    std::shared_ptr<Image> clone() const;
 
 }; // class Image
 
@@ -114,53 +102,41 @@ struct power_of_two_functor<Image>
     std::shared_ptr<Image> operator()(const std::shared_ptr<Image>& image) const;
 };
 
-template <>
-struct get_pixel_functor<Image>
-{
-    Colour4b operator()(const Image *image, const Point2f& point) const;
-};
-
-template <>
-struct blit_functor<Image>
-{
-    void operator()(Image *source, Image *target) const;
-    void operator()(Image *source, const Rectangle2f& source_rectangle, Image *target) const;
-    void operator()(Image *source, Image *target, const Point2f& target_position) const;
-    void operator()(Image *source, const Rectangle2f& source_rectangle, Image *target, const Point2f& target_position) const;
-};
-
-template <>
-struct fill_functor<Image>
-{
-    /// @{
-    /// @brief Fill an image with the specified color.
-    /// @param image a pointer to the image
-    /// @param color the fill color
-    void operator()(Image *image, const Colour3b& color) const;
-    void operator()(Image *image, const Colour4b& color) const;
-    /// @}
-
-    /// @{
-    /// @brief Fill a rectangle of an image with the specified color.
-    /// @param image a pointer to the image
-    /// @param rectangle the rectangle of the image to fill. Clipped against the rectangle of the image.
-    /// @param color the fill color
-    void operator()(Image *image, const Colour3b& color, const Rectangle2f& rectangle) const;
-    void operator()(Image *image, const Colour4b& color, const Rectangle2f& rectangle) const;
-    /// @}
-};
-
-template <>
-struct set_pixel_functor<Image>
-{
-    /// @{
-    /// @brief Fill a pixel of an image with the specified colour.
-    /// @param image a pointer to the image
-    /// @param position the position of the pixel to fill. Clipped against the rectangle of the image.
-    /// @param color the fill color
-    void operator()(Image *image, const Colour3b& color, const Point2f& point) const;
-    void operator()(Image *image, const Colour4b& color, const Point2f& point) const;
-    /// @}
-};
-
 } // namespace Ego
+
+namespace idlib {
+
+template <>
+struct get_pixel_functor<Ego::Image>
+{
+    color_4b operator()(const Ego::Image *pixels, const point_2s& point) const;
+};
+
+template <>
+struct blit_functor<Ego::Image>
+{
+    void operator()(Ego::Image *source_pixels, Ego::Image *target_pixels) const;
+    void operator()(Ego::Image *source_pixels, const rectangle_2s& source_rectangle, Ego::Image *target_pixels) const;
+    void operator()(Ego::Image *source_pixels, Ego::Image *target_pixels, const point_2s& target_point) const;
+    void operator()(Ego::Image *source_pixels, const rectangle_2s& source_rectangle, Ego::Image *target_pixels, const point_2s& target_point) const;
+};
+
+template <>
+struct fill_functor<Ego::Image>
+{
+    void operator()(Ego::Image *pixels, const color_3b& color) const;
+    void operator()(Ego::Image *pixels, const color_4b& color) const;
+
+    void operator()(Ego::Image *pixels, const color_3b& color, const rectangle_2s& rectangle) const;
+    void operator()(Ego::Image *pixels, const color_4b& color, const rectangle_2s& rectangle) const;
+};
+
+template <>
+struct set_pixel_functor<Ego::Image>
+{
+
+    void operator()(Ego::Image *pixels, const color_3b& color, const point_2s& point) const;
+    void operator()(Ego::Image *pixels, const color_4b& color, const point_2s& point) const;
+};
+
+} // namespace idlib

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "egolib/FileFormats/SpawnFile/SpawnFileToken.hpp"
-
+#include <vector>
 struct ReadContext;
 struct spawn_file_info_t;
 

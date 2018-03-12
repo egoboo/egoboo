@@ -6,8 +6,7 @@
 class Camera;
 namespace Ego { class Font; }
 
-namespace Ego {
-namespace Graphics {
+namespace Ego::Graphics {
 
 /// @todo Supposed to be a generic billboard.
 /// Currently, it merely shows a texture and allows for some flags for position, blending and motion.
@@ -70,5 +69,4 @@ struct Billboard
 
 };
 
-} // namespace Graphics
-} // namespace Ego
+} // namespace Ego::Graphics

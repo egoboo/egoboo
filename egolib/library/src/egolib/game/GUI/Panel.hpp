@@ -1,12 +1,8 @@
 #pragma once
 
-#include <unordered_map>
-#include <typeinfo>
-#include <typeindex>
 #include "egolib/game/GUI/Container.hpp"
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 
 /// A panel.
 class Panel : public Container {
@@ -18,5 +14,4 @@ public:
     Vector2f getDesiredSize();
 };
 
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI

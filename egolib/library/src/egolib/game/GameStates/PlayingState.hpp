@@ -24,16 +24,15 @@
 #pragma once
 
 #include "egolib/game/GameStates/GameState.hpp"
+#include "egolib/Entities/Forward.hpp"
 
 //Forward declarations
-class Object;
-
-namespace Ego { namespace GUI { 
+namespace Ego::GUI { 
 class CharacterWindow;
 class MiniMap;
 class CharacterStatus;
 class MessageLog;
-} }
+}
 
 class PlayingState : public GameState
 {

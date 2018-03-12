@@ -27,9 +27,7 @@
 #include <string>
 
 
-namespace Ego {
-namespace Script {
-namespace Interpreter {
+namespace Ego::Script::Interpreter {
 
 /**
 * @brief An enumeration of tags identifiying types.
@@ -80,6 +78,4 @@ enum class Tag {
 #endif
 std::string toString(Tag tag);
 
-} // namespace Interpreter
-} // namespace Script
-} // namespace Ego
+} // namespace Ego::Script::Interpreter

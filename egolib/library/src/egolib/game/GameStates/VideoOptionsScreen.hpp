@@ -26,11 +26,9 @@
 #include "egolib/game/GameStates/GameState.hpp"
 
 // Forward declarations.
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 class ScrollableList;
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI
 
 class VideoOptionsScreen : public GameState
 {

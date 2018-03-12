@@ -3,8 +3,7 @@
 #include "egolib/FileFormats/Globals.hpp"
 #include "egolib/game/graphic.h"
 
-namespace Ego {
-namespace Graphics {
+namespace Ego::Graphics {
 
 NonReflectiveTilesRenderPass::NonReflectiveTilesRenderPass() :
     RenderPass("non reflective tiles render pass")
@@ -37,5 +36,4 @@ void NonReflectiveTilesRenderPass::doRun(::Camera& camera, const TileList& tl, c
     OpenGL::Utilities::isError();
 }
 
-} // namespace Graphics
-} // namespace Ego
+} // namespace Ego::Graphics

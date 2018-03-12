@@ -1,13 +1,10 @@
 #pragma once
 
 #include "egolib/game/GUI/DrawingContext.hpp"
-#include "egolib/game/Core/GameEngine.hpp"
 #include "egolib/game/GUI/UIManager.hpp"
 #include "egolib/game/GUI/InputListener.hpp"
-#include "egolib/game/graphic.h"
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 
 // Forward declarations.
 class Container;
@@ -102,5 +99,4 @@ private:
     Container *_parent;
 };
 
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI

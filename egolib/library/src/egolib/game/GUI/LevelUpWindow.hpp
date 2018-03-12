@@ -24,22 +24,18 @@
 #pragma once
 
 #include "egolib/game/GUI/InternalWindow.hpp"
+#include "egolib/Entities/Forward.hpp"
+#include "egolib/Logic/Perk.hpp"
 
-// Forward declarations.
-class Object;
-
-namespace Ego {
-namespace GUI { 
+namespace Ego::GUI { 
 
 class Label;
 class Image;
 class PerkButton; 
 
-} // namespace GUI 
-} // namespace Ego
+} // namespace Ego::GUI
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 
 class LevelUpWindow : public InternalWindow {
 public:
@@ -75,5 +71,4 @@ private:
     friend class GUI::PerkButton;
 };
 
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI

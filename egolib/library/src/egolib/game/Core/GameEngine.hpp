@@ -29,11 +29,9 @@ class GameModule;
 class ObjectHandler;
 class ego_mesh_t;
 struct status_list_t;
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 class UIManager;
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI
 class PlayingState;
 
 class GameEngine

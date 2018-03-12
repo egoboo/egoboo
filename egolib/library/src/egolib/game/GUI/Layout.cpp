@@ -1,8 +1,7 @@
 #include "egolib/game/GUI/Layout.hpp"
 #include "egolib/game/GUI/Component.hpp"
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 
 LayoutColumns::LayoutColumns() : LayoutColumns(Point2f(0.0f, 0.0f), 1.0f, 0.0f, 0.0f) {}
 
@@ -41,11 +40,9 @@ void LayoutColumns::operator()(const std::vector<std::shared_ptr<Component>>& co
     }
 }
 
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 
 LayoutRows::LayoutRows() : LayoutRows(Point2f(0.0f, 0.0f), 1.0f, 0.0f, 0.0f)
 {}
@@ -86,5 +83,4 @@ void LayoutRows::operator()(const std::vector<std::shared_ptr<Component>>& compo
     }
 }
 
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI

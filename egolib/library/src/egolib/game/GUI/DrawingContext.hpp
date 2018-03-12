@@ -1,7 +1,6 @@
 #pragma once
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 
 struct DrawingContext {
     DrawingContext();
@@ -10,5 +9,4 @@ struct DrawingContext {
     bool useDerived;
 };
 
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI

@@ -3,8 +3,7 @@
 #include "egolib/game/graphic_prt.h"
 #include "egolib/Entities/_Include.hpp"
 
-namespace Ego {
-namespace Graphics {
+namespace Ego::Graphics {
 
 EntityList::EntityList()
     : list(), set() {}
@@ -80,7 +79,7 @@ void EntityList::sort(Camera& cam, const bool do_reflect) {
     ///    Order from closest to farthest
     assert(list.size() <= CAPACITY);
 
-    Vector3f vcam = mat_getCamForward(cam.getViewMatrix());
+    Vector3f vcam = mat_getCamForward(cam.view_matrix());
 
     // Figure the distance of each.
     size_t count = 0;
@@ -98,14 +97,14 @@ void EntityList::sort(Camera& cam, const bool do_reflect) {
                 pos_tmp = mat_getTranslate(_currentModule->getObjectHandler().get(iobj)->inst.getMatrix());
             }
 
-            vtmp = pos_tmp - cam.getPosition();
+            vtmp = pos_tmp - cam.position();
         } else if (ObjectRef::Invalid == list[i].iobj && list[i].iprt != ParticleRef::Invalid) {
             ParticleRef iprt = list[i].iprt;
 
             if (do_reflect) {
-                vtmp = ParticleHandler::get()[iprt]->inst.pos - cam.getPosition();
+                vtmp = ParticleHandler::get()[iprt]->inst.pos - cam.position();
             } else {
-                vtmp = ParticleHandler::get()[iprt]->inst.ref_pos - cam.getPosition();
+                vtmp = ParticleHandler::get()[iprt]->inst.ref_pos - cam.position();
             }
         } else {
             continue;
@@ -179,5 +178,4 @@ bool EntityList::test(::Camera& camera, const Ego::Particle& particle) {
     return set.find((void *)(&particle)) == set.cend();
 }
 
-} // namespace Graphics
-} // namespace Ego
+} // namespace Ego::Graphics

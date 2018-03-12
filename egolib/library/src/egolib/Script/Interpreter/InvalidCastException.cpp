@@ -25,9 +25,7 @@
 
 #include "egolib/Script/Interpreter/Tag.hpp"
 
-namespace Ego {
-namespace Script {
-namespace Interpreter {
+namespace Ego::Script::Interpreter {
 
 InvalidCastException::InvalidCastException(Tag sourceTypeTag, Tag targetTypeTag)
     : std::runtime_error("invalid cast of a value of type " + toString(sourceTypeTag) + " into a value of type " + toString(targetTypeTag)),
@@ -41,6 +39,4 @@ Tag InvalidCastException::getTargetTypeTag() const {
     return targetTypeTag;
 }
 
-} // namespace Interpreter
-} // namespace Script
-} // namespace Ego
+} // namespace Ego::Script::Interpreter

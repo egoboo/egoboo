@@ -2,8 +2,7 @@
 
 #include "idlib/exception.hpp"
 
-namespace Ego {
-namespace SDL {
+namespace Ego::SDL {
 
 DisplayMode::DisplayMode(GraphicsSystemNew *graphicsSystem, SDL_DisplayMode& displayMode) :
     graphicsSystem(graphicsSystem), displayMode(displayMode)
@@ -49,5 +48,4 @@ int DisplayMode::getRefreshRate() const
     return displayMode.refresh_rate;
 }
 
-} // namespace SDL
-} // namespace Ego
+} // namespace Ego::SDL

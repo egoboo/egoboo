@@ -26,6 +26,13 @@
 #include "egolib/game/GUI/Image.hpp"
 #include "egolib/game/GUI/Label.hpp"
 #include "egolib/game/GUI/ScrollableList.hpp"
+#include "egolib/egoboo_setup.h"
+#include "egolib/game/Core/GameEngine.hpp"
+#include "egolib/Graphics/GraphicsSystem.hpp"
+#include "egolib/Graphics/GraphicsSystemNew.hpp"
+#include "egolib/Graphics/Display.hpp"
+#include "egolib/Graphics/DisplayMode.hpp"
+#include "egolib/Graphics/GraphicsWindow.hpp"
 
 VideoOptionsScreen::VideoOptionsScreen() :
     _resolutionList(std::make_shared<Ego::GUI::ScrollableList>())

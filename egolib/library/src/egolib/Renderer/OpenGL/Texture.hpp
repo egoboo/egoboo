@@ -26,7 +26,7 @@
 #include "egolib/Renderer/Texture.hpp"
 #include "egolib/Extensions/ogl_extensions.h"
 
-namespace Ego { namespace OpenGL {
+namespace Ego::OpenGL {
 
 class Renderer;
 class RendererInfo;
@@ -74,4 +74,4 @@ public:
     void setId(GLuint id);
 };
 
-} } // namespace Ego::OpenGL
+} // namespace Ego::OpenGL

@@ -55,41 +55,41 @@ idlib::pixel_format Image::get_pixel_format() const
     return m_pixel_format;
 }
 
-int Image::getBytesPerPixel() const
+int Image::get_bytes_per_pixel() const
 {
     return m_surface->format->BytesPerPixel;
 }
 
-int Image::getWidth() const
+int Image::get_width() const
 {
     assert(m_surface->w > 0);
     return m_surface->w;
 }
 
-int Image::getHeight() const
+int Image::get_height() const
 {
     assert(m_surface->h > 0);
     return m_surface->h;
 }
 
-int Image::getPitch() const
+int Image::get_pitch() const
 {
     return m_surface->pitch;
 }
 
-bool Image::hasAlpha() const
+bool Image::has_alpha() const
 {
     return SDL::testAlpha(m_surface);
 }
 
 SDL_Surface *Image::getSurface()
 {
-	return m_surface;
+    return m_surface;
 }
 
 const SDL_Surface *Image::getSurface() const
 {
-	return m_surface;
+    return m_surface;
 }
 
 std::shared_ptr<Image> Image::clone() const
@@ -146,8 +146,8 @@ std::shared_ptr<Image> convert_functor<Image>::operator()(const std::shared_ptr<
 std::shared_ptr<Image> power_of_two_functor<Image>::operator()(const std::shared_ptr<Image>& image) const
 {
     // Alias old width and old height.
-    int oldWidth = image->getWidth(),
-        oldHeight = image->getHeight();
+    int oldWidth = image->get_width(),
+        oldHeight = image->get_height();
 
     // Compute new width and new height.
     int newWidth = Math::powerOfTwo(oldWidth),
@@ -175,8 +175,8 @@ std::shared_ptr<Image> pad_functor<Image>::operator()(const std::shared_ptr<Imag
     auto *oldSurface = image->getSurface();
 
     // Alias old width and old height.
-    auto oldWidth = image->getWidth(),
-        oldHeight = image->getHeight();
+    auto oldWidth = image->get_width(),
+        oldHeight = image->get_height();
 
     // Compute new width and new height.
     auto newWidth = oldWidth + padding.left + padding.right,
@@ -205,8 +205,8 @@ std::shared_ptr<Image> pad_functor<Image>::operator()(const std::shared_ptr<Imag
     {
         for (size_t x = 0; x < oldWidth; ++x)
         {
-            auto c = get_pixel(oldSurface, { x, y });
-            set_pixel(newSurface, c, { padding.left + x, padding.top + y });
+            auto c = idlib::get_pixel(oldSurface, { x, y });
+            idlib::set_pixel(newSurface, c, { padding.left + x, padding.top + y });
         }
     }
     try
@@ -220,66 +220,79 @@ std::shared_ptr<Image> pad_functor<Image>::operator()(const std::shared_ptr<Imag
     }
 }
 
-void blit_functor<Image>::operator()(Image *source, Image *target) const
-{
-    blit(source->getSurface(), target->getSurface());
-}
-
-void blit_functor<Image>::operator()(Image *source, const Rectangle2f& source_rectangle, Image *target) const
-{
-    blit(source->getSurface(), source_rectangle, target->getSurface());
-}
-
-void blit_functor<Image>::operator()(Image *source, Image *target, const Point2f& target_position) const
-{
-    blit(source->getSurface(), target->getSurface(), target_position);
-}
-
-void blit_functor<Image>::operator()(Image *source, const Rectangle2f& source_rectangle, Image *target, const Point2f& target_position) const
-{
-    blit(source->getSurface(), source_rectangle, target->getSurface(), target_position);
-}
-
-void fill_functor<Image>::operator()(Image *image, const Colour3b& color) const
-{
-    if (!image) throw idlib::argument_null_error(__FILE__, __LINE__, "image");
-    fill(image->getSurface(), color);
-}
-
-void fill_functor<Image>::operator()(Image *image, const Colour3b& color, const Rectangle2f& rectangle) const
-{
-    if (!image) throw idlib::argument_null_error(__FILE__, __LINE__, "image");
-    fill(image->getSurface(), color, rectangle);
-}
-
-void fill_functor<Image>::operator()(Image *image, const Colour4b& color) const
-{
-    if (!image) throw idlib::argument_null_error(__FILE__, __LINE__, "image");
-    fill(image->getSurface(), color);
-}
-
-void fill_functor<Image>::operator()(Image *image, const Colour4b& color, const Rectangle2f& rectangle) const
-{
-    if (!image) throw idlib::argument_null_error(__FILE__, __LINE__, "image");
-    fill(image->getSurface(), color, rectangle);
-}
-
-Colour4b get_pixel_functor<Image>::operator()(const Image *image, const Point2f& point) const
-{
-    if (!image) throw idlib::argument_null_error(__FILE__, __LINE__, "image");
-    return get_pixel(image->getSurface(), point);
-}
-
-void set_pixel_functor<Image>::operator()(Image *image, const Colour3b& color, const Point2f& point) const
-{
-    if (!image) throw idlib::argument_null_error(__FILE__, __LINE__, "image");
-    set_pixel(image->getSurface(), color, point);
-}
-
-void set_pixel_functor<Image>::operator()(Image *image, const Colour4b& color, const Point2f& point) const
-{
-    if (!image) throw idlib::argument_null_error(__FILE__, __LINE__, "image");
-    set_pixel(image->getSurface(), color, point);
-}
-
 } // namespace Ego
+
+namespace idlib {
+
+void blit_functor<Ego::Image>::operator()(Ego::Image *source_pixels, Ego::Image *target_pixels) const
+{
+    if (!source_pixels) throw argument_null_error(__FILE__, __LINE__, "source_pixels");
+    if (!target_pixels) throw argument_null_error(__FILE__, __LINE__, "target_pixels");
+    blit(source_pixels->getSurface(), target_pixels->getSurface());
+}
+
+void blit_functor<Ego::Image>::operator()(Ego::Image *source_pixels, const rectangle_2s& source_rectangle, Ego::Image *target_pixels) const
+{
+    if (!source_pixels) throw argument_null_error(__FILE__, __LINE__, "source_pixels");
+    if (!target_pixels) throw argument_null_error(__FILE__, __LINE__, "target_pixels");
+    blit(source_pixels->getSurface(), source_rectangle, target_pixels->getSurface());
+}
+
+void blit_functor<Ego::Image>::operator()(Ego::Image *source_pixels, Ego::Image *target_pixels, const point_2s& target_point) const
+{
+    if (!source_pixels) throw argument_null_error(__FILE__, __LINE__, "source_pixels");
+    if (!target_pixels) throw argument_null_error(__FILE__, __LINE__, "target_pixels");
+    blit(source_pixels->getSurface(), target_pixels->getSurface(), target_point);
+}
+
+void blit_functor<Ego::Image>::operator()(Ego::Image *source_pixels, const rectangle_2s& source_rectangle,
+                                          Ego::Image *target_pixels, const point_2s& target_point) const
+{
+    if (!source_pixels) throw argument_null_error(__FILE__, __LINE__, "source_pixels");
+    if (!target_pixels) throw argument_null_error(__FILE__, __LINE__, "target_pixels");
+    blit(source_pixels->getSurface(), source_rectangle, target_pixels->getSurface(), target_point);
+}
+
+void fill_functor<Ego::Image>::operator()(Ego::Image *pixels, const color_3b& color) const
+{
+    if (!pixels) throw argument_null_error(__FILE__, __LINE__, "pixels");
+    fill(pixels->getSurface(), color);
+}
+
+void fill_functor<Ego::Image>::operator()(Ego::Image *pixels, const color_3b& color, const rectangle_2s& rectangle) const
+{
+    if (!pixels) throw argument_null_error(__FILE__, __LINE__, "pixels");
+    fill(pixels->getSurface(), color, rectangle);
+}
+
+void fill_functor<Ego::Image>::operator()(Ego::Image *pixels, const color_4b& color) const
+{
+    if (!pixels) throw argument_null_error(__FILE__, __LINE__, "pixels");
+    fill(pixels->getSurface(), color);
+}
+
+void fill_functor<Ego::Image>::operator()(Ego::Image *pixels, const color_4b& color, const rectangle_2s& rectangle) const
+{
+    if (!pixels) throw argument_null_error(__FILE__, __LINE__, "pixels");
+    fill(pixels->getSurface(), color, rectangle);
+}
+
+color_4b get_pixel_functor<Ego::Image>::operator()(const Ego::Image *pixels, const point_2s& point) const
+{
+    if (!pixels) throw argument_null_error(__FILE__, __LINE__, "pixels");
+    return get_pixel(pixels->getSurface(), point);
+}
+
+void set_pixel_functor<Ego::Image>::operator()(Ego::Image *pixels, const color_3b& color, const point_2s& point) const
+{
+    if (!pixels) throw argument_null_error(__FILE__, __LINE__, "pixels");
+    set_pixel(pixels->getSurface(), color, point);
+}
+
+void set_pixel_functor<Ego::Image>::operator()(Ego::Image *pixels, const color_4b& color, const point_2s& point) const
+{
+    if (!pixels) throw argument_null_error(__FILE__, __LINE__, "pixels");
+    set_pixel(pixels->getSurface(), color, point);
+}
+
+} // namespace idlib

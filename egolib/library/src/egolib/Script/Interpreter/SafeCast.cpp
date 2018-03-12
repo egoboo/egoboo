@@ -26,9 +26,7 @@
 
 #include "egolib/Script/Interpreter/TaggedValue.hpp"
 
-namespace Ego {
-namespace Script {
-namespace Interpreter {
+namespace Ego::Script::Interpreter {
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 // Identity casts of fundamental types
@@ -237,6 +235,4 @@ define(unsigned long long, signed long long)
 
 #undef define
 
-} // namespace Interpreter
-} // namespace Script
-} // namespace Ego
+} // namespace Ego::Script::Interpreter

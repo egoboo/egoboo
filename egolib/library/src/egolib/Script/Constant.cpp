@@ -1,8 +1,6 @@
 #include "egolib/Script/Constant.hpp"
 
-namespace Ego
-{
-namespace Script
+namespace Ego::Script
 {
 	
 Constant::Constant()
@@ -112,5 +110,4 @@ bool Constant::operator==(const Constant& other) const
     };
 }
 	
-} // namespace Script
-} // namespace Ego
+} // namespace Ego::Script

@@ -1,10 +1,12 @@
 #pragma once
 
-#include "egolib/Math/_Include.hpp"
+#include "egolib/integrations/math.hpp"
+#include "idlib/singleton.hpp"
+#include <array>
+#include <SDL.h>
 #include "egolib/InputControl/ModifierKeys.hpp"
 
-namespace Ego {
-namespace Input {
+namespace Ego::Input {
 
 class InputSystem : public idlib::singleton<InputSystem>
 {
@@ -58,5 +60,4 @@ private:
     ModifierKeys modifierKeys;
 };
 
-} // namespace Input
-} // namespace Ego
+} // namespace Ego::Input

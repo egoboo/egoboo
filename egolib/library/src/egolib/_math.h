@@ -24,7 +24,11 @@
 
 #include "egolib/Math/euler_angle.hpp"
 #include "egolib/Math/Random.hpp"
+#include "egolib/typedef.h"
+#include "egolib/deprecated/lambda.hpp"
+#include "egolib/deprecated/facing.hpp"
 #include "egolib/Log/_Include.hpp"
+#include "egolib/integrations/math.hpp"
 
 //--------------------------------------------------------------------------------------------
 // IEEE 32-BIT FLOATING POINT NUMBER FUNCTIONS
@@ -40,8 +44,6 @@ int sgn(const Type& x) {
 #else
 #    define LOG_NAN(XX)
 #endif
-
-typedef uint16_t FACING_T;
 
 namespace idlib {
 
@@ -104,8 +106,8 @@ public:
         return x;
     }
 
-	int32_t get_value() const
-	{ return m_angle; }
+    int32_t get_value() const
+    { return m_angle; }
 
     // Explicit cast.
     explicit operator int32_t() const {
@@ -123,25 +125,25 @@ public:
     }
 
 public:
-	angle operator+() const {
+    angle operator+() const {
         return *this;
     }
-	angle operator-() const {
+    angle operator-() const {
         return angle(-m_angle);
     }
 
 public:
-	angle operator*(float other) const {
+    angle operator*(float other) const {
         return angle(int32_t(float(m_angle) * other));
     }
 
-	angle operator+(const angle& other) const {
+    angle operator+(const angle& other) const {
         // this.angle and other.angle are in the canonical range of 0 and 2^16-1.
         // (2^16 - 1) + (2^16-1) is always smaller than the maximum value of int32_t.
         return angle(m_angle + other.m_angle);
     }
 
-	angle operator-(const angle& other) const {
+    angle operator-(const angle& other) const {
         // this angle and other.angle are in the canonical range of 0 and 2^16-1.
         // 0         -    2^16-1 is always greater than the minimum value of int32_t.
         return angle(m_angle - other.m_angle);
@@ -158,29 +160,29 @@ public:
     }
 
     bool operator<(const angle& other) const
-	{ return m_angle < other.m_angle; }
+    { return m_angle < other.m_angle; }
 
     bool operator<=(const angle& other) const
-	{ return m_angle <= other.m_angle; }
+    { return m_angle <= other.m_angle; }
 
     bool operator>(const angle& other) const
-	{ return m_angle > other.m_angle; }
+    { return m_angle > other.m_angle; }
 
     bool operator>=(const angle& other) const
-	{ return m_angle >= other.m_angle; }
+    { return m_angle >= other.m_angle; }
 
     bool operator==(const angle& other) const
-	{ return m_angle == other.m_angle; }
+    { return m_angle == other.m_angle; }
 
     bool operator!=(const angle& other) const
-	{ return m_angle != other.m_angle; }
+    { return m_angle != other.m_angle; }
 
 public:
     static angle random(bool negative = false)
-	{
+    {
         int32_t x = static_cast<int32_t>(Random::next<uint16_t>(std::numeric_limits<uint16_t>::max()));
         if (negative)
-		{
+        {
             x = Random::nextBool() ? x : -x;
         }
         return angle(x);
@@ -201,16 +203,16 @@ auto canonicalize(const T& v) -> decltype(canonicalize_functor<T>()(v))
 template <>
 struct canonicalize_functor<angle<uint16_t, facings>>
 {
-	auto operator()(const angle<uint16_t, facings>& x) const
-	{
-		static const int32_t c = static_cast<int32_t>(std::numeric_limits<uint16_t>::max());
-		int32_t v = x.get_value();
-		while (v < 0)
-		{ v += c; }
-		while (v >= c)
-		{ v -= c; }
-		return angle<uint16_t, facings>(v);
-	}
+    auto operator()(const angle<uint16_t, facings>& x) const
+    {
+        static const int32_t c = static_cast<int32_t>(std::numeric_limits<uint16_t>::max());
+        int32_t v = x.get_value();
+        while (v < 0)
+        { v += c; }
+        while (v >= c)
+        { v -= c; }
+        return angle<uint16_t, facings>(v);
+    }
 }; // struct canonicalize_functor
 
 } // namespace idlib

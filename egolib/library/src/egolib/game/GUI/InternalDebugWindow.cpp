@@ -23,10 +23,10 @@
 
 #include "egolib/game/GUI/InternalDebugWindow.hpp"
 #include "egolib/game/GUI/Label.hpp"
+#include "egolib/game/Core/GameEngine.hpp"
 #include "egolib/game/GUI/JoinBounds.hpp"
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 
 VariablesDebugPanel::VariablesDebugPanel() : Container(),
     _variables(), _labels() {
@@ -94,5 +94,4 @@ void InternalDebugWindow::drawContainer(DrawingContext& drawingContext) {
     InternalWindow::drawContainer(drawingContext);
 }
 
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI

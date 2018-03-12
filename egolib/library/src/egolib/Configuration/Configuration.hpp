@@ -5,8 +5,7 @@
 #include "egolib/Configuration/StringOrBool.hpp"
 #include "egolib/FileFormats/ConfigFile/configfile.h"
 
-namespace Ego {
-namespace Configuration {
+namespace Ego::Configuration {
 /// @brief Base of any configuration.
 struct Configuration
 {
@@ -91,5 +90,4 @@ protected:
 
 };
 
-} // namespace Configuration
-} // namespace Ego
+} // namespace Ego::Configuration

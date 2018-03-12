@@ -472,7 +472,7 @@ float AudioSystem::getSoundDistance(const Ego::Vector3f& soundPosition)
     //Pick the camera that is nearest to the sound
     float distance = std::numeric_limits<float>::max();
     for(const std::shared_ptr<Camera> &camera : CameraSystem::get().getCameraList()) {
-        Ego::Vector3f cameraPosition = Ego::Vector3f(camera->getCenter().x(), camera->getCenter().y(), camera->getPosition().z());
+        Ego::Vector3f cameraPosition = Ego::Vector3f(camera->getCenter().x(), camera->getCenter().y(), camera->position().z());
 		distance = std::min(distance, idlib::euclidean_norm(cameraPosition - soundPosition));
     }
 

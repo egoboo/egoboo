@@ -24,10 +24,10 @@
 #pragma once
 
 #include "egolib/game/egoboo.h"
+#include "egolib/Entities/Forward.hpp"
 #include "egolib/Mesh/Info.hpp"
 
 //Forward declarations
-class Object;
 class GameModule;
 
 class Passage

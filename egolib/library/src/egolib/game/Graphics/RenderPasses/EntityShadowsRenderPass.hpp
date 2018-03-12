@@ -2,8 +2,7 @@
 
 #include "egolib/game/Graphics/RenderPass.hpp"
 
-namespace Ego {
-namespace Graphics {
+namespace Ego::Graphics {
 
 /// The render pass for entity shadows.
 struct EntityShadowsRenderPass : public RenderPass
@@ -30,5 +29,4 @@ private:
     void doShadowSprite(float intensity, idlib::vertex_buffer& vertexBuffer, idlib::vertex_descriptor& vertexDescriptor);
 };
 
-} // namespace Graphics
-} // namespace Ego
+} // namespace Ego::Graphics

@@ -32,8 +32,7 @@
 
 //--------------------------------------------------------------------------------------------
 
-namespace Ego {
-namespace OpenGL {
+namespace Ego::OpenGL {
 
 struct Utilities
 {
@@ -64,8 +63,7 @@ public:
     ~PushClientAttrib();
 }; // struct PushClientAttrib
 
-} // namespace OpenGL
-} // namespace Ego
+} // namespace Ego::OpenGL
 
 //--------------------------------------------------------------------------------------------
 

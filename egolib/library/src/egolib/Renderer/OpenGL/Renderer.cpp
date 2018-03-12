@@ -28,8 +28,7 @@
 #include "egolib/Renderer/OpenGL/RendererInfo.hpp"
 #include "egolib/Renderer/OpenGL/DefaultTexture.hpp"
 
-namespace Ego {
-namespace OpenGL {
+namespace Ego::OpenGL {
 
 Renderer::Renderer(const std::shared_ptr<RendererInfo>& info) :
     m_info(info), m_textureUnit(info)
@@ -96,7 +95,7 @@ void Renderer::setAlphaTestEnabled(bool enabled) {
     Utilities::isError();
 }
 
-void Renderer::setAlphaFunction(idlib::compare_function function, float value) {
+void Renderer::setAlphaFunction(idlib::compare_function function, single value) {
     if (value < 0.0f || value > 1.0f) {
         throw std::invalid_argument("reference alpha value out of bounds");
     }
@@ -222,7 +221,7 @@ void Renderer::setDepthWriteEnabled(bool enabled) {
     Utilities::isError();
 }
 
-void Renderer::setScissorRectangle(float left, float bottom, float width, float height) {
+void Renderer::setScissorRectangle(single left, single bottom, single width, single height) {
     if (width < 0) {
         throw idlib::invalid_argument_error(__FILE__, __LINE__, "width < 0");
     }
@@ -263,7 +262,7 @@ void Renderer::setStencilTestEnabled(bool enabled) {
     Utilities::isError();
 }
 
-void Renderer::setViewportRectangle(float left, float bottom, float width, float height) {
+void Renderer::setViewportRectangle(single left, single bottom, single width, single height) {
     if (width < 0) {
         throw std::invalid_argument("width < 0");
     }
@@ -288,9 +287,9 @@ void Renderer::setWindingMode(idlib::winding_mode mode) {
     Utilities::isError();
 }
 
-void Renderer::multiplyMatrix(const Matrix4f4f& matrix) {
-    // Convert from Matrix4f4f to an OpenGL matrix.
-    GLfloat t[16];
+void Renderer::multiplyMatrix(const idlib::matrix_4s4s& matrix) {
+    // Convert from idlib::matrix_4s4s to an OpenGL matrix.
+    single t[16];
     for (size_t i = 0; i < 4; ++i) {
         for (size_t j = 0; j < 4; ++j) {
             t[i * 4 + j] = matrix(j * 4 + i);
@@ -340,12 +339,12 @@ void Renderer::setLineSmoothEnabled(bool enabled) {
     Utilities::isError();
 }
 
-void Renderer::setLineWidth(float width) {
+void Renderer::setLineWidth(single width) {
     glLineWidth(width);
     Utilities::isError();
 }
 
-void Renderer::setPointSize(float size) {
+void Renderer::setPointSize(single size) {
     glPointSize(size);
     Utilities::isError();
 }
@@ -550,9 +549,9 @@ void Renderer::render(idlib::vertex_buffer& vertexBuffer, const idlib::vertex_de
     glDisableClientState(GL_NORMAL_ARRAY);
 }
 
-std::array<float, 16> Renderer::toOpenGL(const Matrix4f4f& source) {
-    // Convert from Matrix4f4f to an OpenGL matrix.
-    std::array<float, 16> target;
+std::array<single, 16> Renderer::toOpenGL(const idlib::matrix_4s4s& source) {
+    // Convert from idlib::matrix_4s4s to an OpenGL matrix.
+    std::array<single, 16> target;
     for (size_t i = 0; i < 4; ++i) {
         for (size_t j = 0; j < 4; ++j) {
             target[i * 4 + j] = source(j * 4 + i);
@@ -590,7 +589,7 @@ std::shared_ptr<Ego::Texture> Renderer::createTexture() {
     return std::make_shared<Texture>(this);
 }
 
-void Renderer::setProjectionMatrix(const Matrix4f4f& projectionMatrix) {
+void Renderer::setProjectionMatrix(const idlib::matrix_4s4s& projectionMatrix) {
     this->Ego::Renderer::setProjectionMatrix(projectionMatrix);
     glMatrixMode(GL_PROJECTION);
     auto matrix = projectionMatrix;
@@ -598,7 +597,7 @@ void Renderer::setProjectionMatrix(const Matrix4f4f& projectionMatrix) {
     Utilities::isError();
 }
 
-void Renderer::setViewMatrix(const Matrix4f4f& viewMatrix) {
+void Renderer::setViewMatrix(const idlib::matrix_4s4s& viewMatrix) {
     this->Ego::Renderer::setViewMatrix(viewMatrix);
     glMatrixMode(GL_MODELVIEW);
     // model -> world, world -> view
@@ -607,7 +606,7 @@ void Renderer::setViewMatrix(const Matrix4f4f& viewMatrix) {
     Utilities::isError();
 }
 
-void Renderer::setWorldMatrix(const Matrix4f4f& worldMatrix) {
+void Renderer::setWorldMatrix(const idlib::matrix_4s4s& worldMatrix) {
     this->Ego::Renderer::setWorldMatrix(worldMatrix);
     glMatrixMode(GL_MODELVIEW);
     // model -> world, world -> view
@@ -616,5 +615,4 @@ void Renderer::setWorldMatrix(const Matrix4f4f& worldMatrix) {
     Utilities::isError();
 }
 
-} // namespace OpenGL
-} // namespace Ego
+} // namespace Ego::OpenGL

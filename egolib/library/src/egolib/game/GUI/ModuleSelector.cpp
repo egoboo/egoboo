@@ -24,9 +24,10 @@
 #include "egolib/game/GUI/ModuleSelector.hpp"
 #include "egolib/game/GUI/Button.hpp"
 #include "egolib/game/GUI/Material.hpp"
+#include "egolib/game/Core/GameEngine.hpp"
+#include "egolib/game/graphic.h"
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 
 ModuleSelector::ModuleSelector(const std::vector<std::shared_ptr<ModuleProfile>> &modules) :
     _startIndex(0),
@@ -213,5 +214,4 @@ const std::shared_ptr<ModuleProfile>& ModuleSelector::getSelectedModule() const 
     return _selectedModule;
 }
 
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI

@@ -46,6 +46,7 @@
 #include "egolib/game/Physics/PhysicalConstants.hpp"
 #include "egolib/Script/Interpreter/SafeCast.hpp"
 #include "egolib/game/GUI/MiniMap.hpp"
+#include "egolib/game/graphic.h"
 
 /**
  * @brief Convert a value of type \f$Value\f$ value into a bit index.
@@ -78,16 +79,12 @@ std::enable_if_t<min <= max, int> getBitIndex(int value) {
     return bitIndex;
 }
 
-namespace Ego {
-namespace Script {
-namespace Interpreter {
+namespace Ego::Script::Interpreter {
 template <>
 IDSZ2 safeCast<IDSZ2, int>(const int& v) {
     return IDSZ2(safeCast<uint32_t>(v));
 }
-} // namespace Interpreter
-} // namespace Script
-} // namespace Ego
+} // namespace Ego.:Script::Interpreter
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

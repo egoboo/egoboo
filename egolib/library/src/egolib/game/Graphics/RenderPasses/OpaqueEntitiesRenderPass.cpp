@@ -4,8 +4,7 @@
 #include "egolib/game/graphic_prt.h"
 #include "egolib/Entities/_Include.hpp"
 
-namespace Ego {
-namespace Graphics {
+namespace Ego::Graphics {
 
 OpaqueEntitiesRenderPass::OpaqueEntitiesRenderPass() :
     RenderPass("opaque entities")
@@ -44,5 +43,4 @@ void OpaqueEntitiesRenderPass::doRun(::Camera& camera, const TileList& tl, const
     }
 }
 
-} // namespace Graphics
-} // namespace Ego
+} // namespace Ego::Graphics

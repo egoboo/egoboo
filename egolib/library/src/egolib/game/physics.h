@@ -23,14 +23,11 @@
 
 #include "egolib/game/egoboo.h"
 #include "egolib/bbox.h"
+#include "egolib/Entities/Forward.hpp"
 #include "egolib/game/Physics/PhysicalConstants.hpp"
 
 
 //--------------------------------------------------------------------------------------------
-
-class Object;
-namespace Ego { class Particle; }
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 

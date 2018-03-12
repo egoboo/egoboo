@@ -4,8 +4,7 @@
 #include "egolib/Graphics/SDL/GraphicsWindow.hpp"
 #include "egolib/Graphics/SDL/GraphicsContext.hpp"
 
-namespace Ego {
-namespace SDL {
+namespace Ego::SDL {
 
 GraphicsSystemNew::GraphicsSystemNew()
 {
@@ -81,5 +80,4 @@ Ego::GraphicsWindow *GraphicsSystemNew::createWindow()
     }
 }
 
-} // namespace SDL
-} // namespace Ego
+} // namespace Ego::SDL

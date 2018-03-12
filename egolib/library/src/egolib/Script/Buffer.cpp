@@ -23,8 +23,7 @@
 
 #include "egolib/Script/Buffer.hpp"
 
-namespace Ego {
-namespace Script {
+namespace Ego::Script {
 
 Buffer::Buffer() :
     elements()
@@ -91,5 +90,4 @@ void Buffer::swap(Buffer& other) noexcept
     std::swap(elements, other.elements);
 }
 
-} // namespace Script
-} // namespace Ego
+} // namespace Ego::Script

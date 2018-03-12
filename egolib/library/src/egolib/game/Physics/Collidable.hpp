@@ -20,9 +20,7 @@
 
 #include "egolib/game/Module/Module.hpp"
 
-namespace Ego
-{
-namespace Physics
+namespace Ego::Physics
 {
 
 class Collidable
@@ -241,5 +239,4 @@ private:
 
 };
 
-} //Physics
-} //Ego
+} //Ego::Physics

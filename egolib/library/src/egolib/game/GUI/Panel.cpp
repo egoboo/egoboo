@@ -1,8 +1,7 @@
 #include "egolib/game/GUI/Panel.hpp"
 #include "egolib/game/GUI/JoinBounds.hpp"
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 
 void Panel::draw(DrawingContext& drawingContext) {
     drawContainer(drawingContext);
@@ -20,5 +19,4 @@ Vector2f Panel::getDesiredSize() {
     return joinBounds(*this).get_size();
 }
 
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI

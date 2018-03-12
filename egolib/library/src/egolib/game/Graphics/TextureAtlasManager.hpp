@@ -1,10 +1,12 @@
 #pragma once
 
-#include "idlib/idlib.hpp"
-#include "egolib/egolib.h"
+#include "idlib/singleton.hpp"
+#include <memory>
+#include <vector>
 
-namespace Ego {
-namespace Graphics {
+namespace Ego { class Texture; }
+
+namespace Ego::Graphics {
 
 class TextureAtlasManager : public idlib::singleton<TextureAtlasManager> {
 protected:
@@ -48,5 +50,4 @@ private:
     std::vector<std::shared_ptr<Ego::Texture>> _bigTiles;
 };
 
-} //namespace Graphics
-} //namespace Ego
+} //namespace Ego::Graphics

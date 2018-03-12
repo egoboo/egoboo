@@ -65,7 +65,7 @@ TextureUnit::~TextureUnit()
 
 Renderer::Renderer()
     : m_projectionMatrix(idlib::perspective_projection_matrix(Degrees(45.0f), 4.0f/3.0f, +0.1f, +1.0f)),
-      m_viewMatrix(idlib::identity<Matrix4f4f>()), m_worldMatrix(idlib::identity<Matrix4f4f>())
+      m_viewMatrix(idlib::identity<idlib::matrix_4s4s>()), m_worldMatrix(idlib::identity<idlib::matrix_4s4s>())
 {
     idlib::video_buffer_manager::initialize();
 }
@@ -85,27 +85,27 @@ void Renderer::download(egoboo_config_t& cfg)
     /* Nothing to do. */
 }
 
-void Renderer::setProjectionMatrix(const Matrix4f4f& projectionMatrix) {
+void Renderer::setProjectionMatrix(const idlib::matrix_4s4s& projectionMatrix) {
     m_projectionMatrix = projectionMatrix;
 }
 
-Matrix4f4f Renderer::getProjectionMatrix() const {
+idlib::matrix_4s4s Renderer::getProjectionMatrix() const {
     return m_projectionMatrix;
 }
 
-void Renderer::setViewMatrix(const Matrix4f4f& viewMatrix) {
+void Renderer::setViewMatrix(const idlib::matrix_4s4s& viewMatrix) {
     m_viewMatrix = viewMatrix;
 }
 
-Matrix4f4f Renderer::getViewMatrix() const {
+idlib::matrix_4s4s Renderer::getViewMatrix() const {
     return m_viewMatrix;
 }
 
-void Renderer::setWorldMatrix(const Matrix4f4f& worldMatrix) {
+void Renderer::setWorldMatrix(const idlib::matrix_4s4s& worldMatrix) {
     m_worldMatrix = worldMatrix;
 }
 
-Matrix4f4f Renderer::getWorldMatrix() const {
+idlib::matrix_4s4s Renderer::getWorldMatrix() const {
     return m_worldMatrix;
 }
 

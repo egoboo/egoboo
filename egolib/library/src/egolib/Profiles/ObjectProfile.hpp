@@ -26,6 +26,7 @@
 #endif
 
 #include "egolib/Script/script.h"
+#include "egolib/Entities/Forward.hpp"
 #include "egolib/Profiles/_Include.hpp"
 #include "egolib/Renderer/DeferredTexture.hpp"
 #include "egolib/Logic/Gender.hpp"
@@ -37,7 +38,6 @@
 //--------------------------------------------------------------------------------------------
 //Forward declarations
 typedef int SoundID;
-class Object;
 namespace Ego { class ModelDescriptor; }
 
 //--------------------------------------------------------------------------------------------

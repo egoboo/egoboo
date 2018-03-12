@@ -28,14 +28,11 @@
 // Forward declarations.
 class ModuleProfile;
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 class Button;
 }
-}
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 
 class ModuleSelector : public Container {
 public:
@@ -81,5 +78,4 @@ private:
     std::shared_ptr<ModuleProfile> _selectedModule;
 };
 
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI

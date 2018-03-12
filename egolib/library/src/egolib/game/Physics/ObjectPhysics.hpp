@@ -22,15 +22,11 @@
 /// @author Johan Jansen aka Zefz
 #pragma once
 
-#include "idlib/idlib.hpp"
-#include "egolib/egolib.h"
+#include "egolib/Entities/Forward.hpp"
+#include "egolib/integrations/math.hpp"
+#include "egolib/Logic/ObjectSlot.hpp"
 
-//Forward declarations
-class Object;
-
-namespace Ego
-{
-namespace Physics
+namespace Ego::Physics
 {
 
 class ObjectPhysics
@@ -213,5 +209,4 @@ private:
     AxisAlignedBox2f _aabb2D;       //< 2-dimensional bounding box (for fast & rough collision detection)
 };
 
-} //Physics
-} //Ego
+} //Ego::Physics

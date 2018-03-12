@@ -2,8 +2,7 @@
 
 #include "egolib/game/Graphics/Md2ModelRenderer.hpp"
 
-namespace Ego {
-namespace Graphics {
+namespace Ego::Graphics {
 
 /// @brief Default renderer for MD2 models.
 class DefaultMd2ModelRenderer : public Md2ModelRenderer
@@ -63,5 +62,4 @@ public:
 
 }; // class DefaultMd2ModelRenderer
 
-} // namespace Graphics
-} // namespace Ego
+} // namespace Ego::Graphics

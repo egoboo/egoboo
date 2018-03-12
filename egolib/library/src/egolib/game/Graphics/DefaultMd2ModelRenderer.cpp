@@ -2,8 +2,7 @@
 #include "egolib/Graphics/MD2Model.hpp"
 #include "egolib/Graphics/VertexFormat.hpp"
 
-namespace Ego {
-namespace Graphics {
+namespace Ego::Graphics {
 
 DefaultMd2ModelRenderer::DefaultMd2ModelRenderer()
     : m_vertices(new Vertex[0]), m_size(0),
@@ -47,5 +46,4 @@ size_t DefaultMd2ModelRenderer::getRequiredVertexBufferCapacity(const MD2Model& 
     return capacity;
 }
 
-} // namespace Graphics
-} // namespace Ego
+} // namespace Ego::Graphics

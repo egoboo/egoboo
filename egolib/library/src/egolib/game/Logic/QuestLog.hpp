@@ -22,7 +22,8 @@
 
 #pragma once
 
-#include "idlib/idlib.hpp"
+#include <unordered_map>
+#include <string>
 #include "egolib/egolib.h"
 
 namespace Ego

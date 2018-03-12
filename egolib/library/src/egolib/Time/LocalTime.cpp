@@ -22,9 +22,9 @@
 /// @author Michael Heilmann
 
 #include "egolib/Time/LocalTime.hpp"
+#include "idlib/exception.hpp"
 
-namespace Ego {
-namespace Time {
+namespace Ego::Time {
 
 LocalTime::LocalTimeType LocalTime::convert(const LocalTime::SystemTimePoint& source) {
 	return convert(SystemClockType::to_time_t(source));
@@ -122,5 +122,4 @@ bool LocalTime::operator >= (const LocalTime& other) const {
 	return compare(_localTime, other._localTime) >= 0;
 }
 
-} // namespace Time
-} // namespace Ego
+} // namespace Ego::Time

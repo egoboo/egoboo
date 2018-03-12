@@ -3,9 +3,7 @@
 #include "egolib/game/Physics/PhysicalConstants.hpp"
 #include "egolib/game/CharacterMatrix.h"
 
-namespace Ego
-{
-namespace Physics
+namespace Ego::Physics
 {
 
 ParticlePhysics::ParticlePhysics(Ego::Particle &particle) :
@@ -640,5 +638,4 @@ void ParticlePhysics::detachFromPlatform()
     updateEnviroment();
 }
 
-} //Physics
-} //Ego
+} //Ego::Physics

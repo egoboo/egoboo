@@ -1,7 +1,7 @@
 #include "egolib/game/GUI/Label.hpp"
+#include "egolib/game/Core/GameEngine.hpp"
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 
 Label::Label() : Label(std::string()) {
 }
@@ -64,5 +64,4 @@ float Label::getAlpha() const {
     return _colour.get_alpha();
 }
 
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI

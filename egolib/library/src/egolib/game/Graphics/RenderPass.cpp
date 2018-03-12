@@ -23,8 +23,7 @@
 
 #include "egolib/game/Graphics/RenderPass.hpp"
 
-namespace Ego {
-namespace Graphics {
+namespace Ego::Graphics {
 
 RenderPass::RenderPass(const std::string& name) :
     clock(name, 512)
@@ -41,5 +40,4 @@ void RenderPass::run(::Camera& camera, const TileList& tileList, const EntityLis
     OpenGL::Utilities::isError();
 }
 
-} // namespace Graphics
-} // namespace Ego
+} // namespace Ego::Graphics

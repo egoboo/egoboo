@@ -25,16 +25,12 @@
 
 #include "egolib/Graphics/PixelFormat.hpp"
 #include "egolib/Math/_Include.hpp"
-#include "egolib/Image/blit.hpp"
 #include "egolib/Image/convert.hpp"
-#include "egolib/Image/fill.hpp"
-#include "egolib/Image/get_pixel.hpp"
 #include "egolib/Image/pad.hpp"
 #include "egolib/Image/power_of_two.hpp"
-#include "egolib/Image/set_pixel.hpp"
 #include "egolib/integrations/color.hpp"
 
-namespace Ego { namespace SDL {
+namespace Ego::SDL {
 
 /// @brief Get the enumerated SDL pixel format for a specified pixel format descriptor.
 /// @param pixelFormatDescriptor the pixel format descriptor
@@ -107,7 +103,7 @@ uint32_t make_rgba(SDL_Surface *surface, const Colour4b& colour);
 
 std::shared_ptr<SDL_Surface> render_glyph(TTF_Font *sdl_font, uint16_t code_point, const Colour4b& color);
 
-} } // namespace Ego::SDL
+} // namespace Ego::SDL
 
 namespace Ego {
 
@@ -129,62 +125,41 @@ struct pad_functor<SDL_Surface>
     std::shared_ptr<SDL_Surface> operator()(const std::shared_ptr<SDL_Surface>& pixels, const padding& padding) const;
 };
 
+} // namespace Ego
+
+namespace idlib {
+
 template <>
 struct blit_functor<SDL_Surface>
 {
-    void operator()(SDL_Surface *source, SDL_Surface *target) const;
-    void operator()(SDL_Surface *source, const Rectangle2f& source_rectangle, SDL_Surface *target) const;
-    void operator()(SDL_Surface *source, SDL_Surface *target, const Point2f& target_position) const;
-    void operator()(SDL_Surface *source, const Rectangle2f& source_rectangle, SDL_Surface *target, const Point2f& target_position) const;
+    void operator()(SDL_Surface *source_pixels, SDL_Surface *target_pixels) const;
+    void operator()(SDL_Surface *source_pixels, const rectangle_2s& source_rectangle, SDL_Surface *target_pixels) const;
+    void operator()(SDL_Surface *source_pixels, SDL_Surface *target, const point_2s& target_point) const;
+    void operator()(SDL_Surface *source_pixels, const rectangle_2s& source_rectangle, SDL_Surface *target_pixels, const point_2s& target_point) const;
 };
 
 template <>
 struct fill_functor<SDL_Surface>
 {
-    /// @{
-    /// @brief Fill an SDL surface with the specified color.
-    /// @param surface a pointer to the SDL surface
-    /// @param color the fill color
-    void operator()(SDL_Surface *surface, const Colour3b& color) const;
-    void operator()(SDL_Surface *surface, const Colour4b& color) const;
-    /// @}
-
-    /// @{
-    /// @brief Fill a rectangle of an SDL surface with the specified color.
-    /// @param surface a pointer to the SDL surface
-    /// @param rectangle the rectangle of the SDL surface to fill. Clipped against the rectangle of the image.
-    /// @param color the fill color
-    void operator()(SDL_Surface *surface, const Colour3b& color, const Rectangle2f& rectangle) const;
-    void operator()(SDL_Surface *surface, const Colour4b& color, const Rectangle2f& rectangle) const;
-    /// @}
+    void operator()(SDL_Surface *pixels, const color_3b& color) const;
+    void operator()(SDL_Surface *pixels, const color_4b& color) const;
+    void operator()(SDL_Surface *pixels, const color_3b& color, const rectangle_2s& rectangle) const;
+    void operator()(SDL_Surface *pixels, const color_4b& color, const rectangle_2s& rectangle) const;
 };
 
 template <>
 struct get_pixel_functor<SDL_Surface>
 {
-    /// @{
-    /// @brief Get the color of a pixel of an SDL surface.
-    /// @param surface a pointer to the SDL surface
-    /// @param position the position of the pixel to fill
-    /// @return the color of the pixel of the SDL surface
-    Colour4b operator()(const SDL_Surface *surface, const Point2f& point) const;
-    /// @}
+    color_4b operator()(const SDL_Surface *surface, const point_2s& point) const;
 };
 
 template <>
 struct set_pixel_functor<SDL_Surface>
 {
-    /// @{
-    /// @brief Fill a pixel of an SDL surface with the specified colour.
-    /// @param surface a pointer to the SDL surface
-    /// @param position the position of the pixel to fill. Clipped against the rectangle of the SDL surface.
-    /// @param color the fill color
-    void operator()(SDL_Surface *surface, const Colour3b& color, const Point2f& point) const;
-    void operator()(SDL_Surface *surface, const Colour4b& color, const Point2f& point) const;
-    /// @}
-
+    void operator()(SDL_Surface *pixels, const color_3b& color, const point_2s& point) const;
+    void operator()(SDL_Surface *pixels, const color_4b& color, const point_2s& point) const;
 private:
-    void operator()(SDL_Surface *surface, uint32_t coded_color, const Point2f& point) const;
+    void operator()(SDL_Surface *pixels, uint32_t coded_color, const point_2s& point) const;
 };
 
-} // namespace Ego
+} // namespace idlib

@@ -1,17 +1,13 @@
 #pragma once
 
-#include <idlib/idlib.hpp>
-//#include <vector>
-//#include <queue>
-//#include <memory>
-//#include <thread>
-//#include <mutex>
-//#include <condition_variable>
-//#include <future>
-//#include <functional>
-//#include <stdexcept>
+#include "idlib/singleton.hpp"
+#include <queue>
+#include <memory>
+#include <thread>
+#include <mutex>
+#include <functional>
 
-class ThreadPool /*: public Ego::Core::Singleton<ThreadPool>*/
+class ThreadPool /*: public idlib::singleton<ThreadPool>*/
 {
 public:
     ThreadPool(size_t threads) :

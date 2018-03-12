@@ -23,12 +23,12 @@
 #pragma once
 
 #include "egolib/game/GUI/Component.hpp"
+#include "egolib/Entities/Forward.hpp"
+#include "egolib/typedef.h"
 
-class Object;
-namespace Ego { namespace GUI { class ProgressBar; } }
+namespace Ego::GUI { class ProgressBar; }
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 
 class CharacterStatus : public Component {
 public:
@@ -39,7 +39,7 @@ public:
     std::shared_ptr<Object> getObject() const { return _object.lock(); }
 
 private:
-    float draw_one_xp_bar(float x, float y, Uint8 ticks);
+    float draw_one_xp_bar(float x, float y, uint8_t ticks);
     float draw_character_xp_bar(const ObjectRef character, float x, float y);
     float draw_one_bar(uint8_t bartype, float x, float y, int ticks, int maxticks);
     void  draw_one_character_icon(const ObjectRef item, float x, float y, bool draw_ammo, uint8_t sparkle_override);
@@ -47,5 +47,4 @@ private:
     std::shared_ptr<GUI::ProgressBar> _chargeBar;
 };
 
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI

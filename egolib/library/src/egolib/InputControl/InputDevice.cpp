@@ -90,7 +90,7 @@ Vector2f InputDevice::getInputMovement() const
         // Mouse routines
         case Ego::Input::InputDevice::InputDeviceType::MOUSE:
         {
-			const float dist = idlib::euclidean_norm(InputSystem::get().getMouseMovement());
+            const float dist = idlib::euclidean_norm(InputSystem::get().getMouseMovement());
             if (dist > 0)
             {
                 float scale = InputSystem::MOUSE_SENSITIVITY / dist;

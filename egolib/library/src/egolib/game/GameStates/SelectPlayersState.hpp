@@ -27,11 +27,9 @@
 
 // Forward declaration.
 class LoadPlayerElement;
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 class Button;
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI
 
 class SelectPlayersState : public GameState
 {

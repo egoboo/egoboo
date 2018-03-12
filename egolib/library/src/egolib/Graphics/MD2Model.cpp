@@ -24,6 +24,7 @@
 #include "egolib/_math.h"
 #include "egolib/bbox.h"
 #include "egolib/vfs.h"
+#include "idlib/idlib.hpp"
 
 static const float MD2_NORMALS[MD2Model::normalCount][3] =
 {

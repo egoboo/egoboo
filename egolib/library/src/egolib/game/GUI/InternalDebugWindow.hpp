@@ -27,8 +27,7 @@
 #include <typeindex>
 #include "egolib/game/GUI/InternalWindow.hpp"
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 
 class Label;
 
@@ -61,5 +60,4 @@ private:
     std::unordered_map<std::string, std::function<std::string()>> _watchedVariables;
 };
 
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI

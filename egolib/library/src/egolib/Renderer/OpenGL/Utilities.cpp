@@ -4,8 +4,7 @@
 #include "egolib/Core/StringUtilities.hpp"
 #include "egolib/Math/_Include.hpp"
 
-namespace Ego {
-namespace OpenGL {
+namespace Ego::OpenGL {
 
 void Utilities2::clearError()
 {
@@ -400,5 +399,4 @@ void Utilities2::setSampler(const std::shared_ptr<RendererInfo>& info, idlib::te
     }
 }
 
-} // namespace OpenGL
-} // namespace Ego
+} // namespace Ego::OpenGL

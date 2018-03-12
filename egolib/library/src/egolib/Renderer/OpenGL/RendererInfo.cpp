@@ -4,21 +4,20 @@
 #include "egolib/egoboo_setup.h"
 #include "egolib/Renderer/OpenGL/Utilities.hpp"
 
-namespace Ego {
-namespace OpenGL {
+namespace Ego::OpenGL {
 
 RendererInfo::RendererInfo() :
     m_renderer(Utilities2::getRenderer()),
     m_vendor(Utilities2::getVendor()),
     m_version(Utilities2::getVersion()),
     m_isAnisotropySupported(Utilities2::isAnisotropySupported()),
-    m_minimumSupportedAnisotropy(std::numeric_limits<float>::quiet_NaN()),
-    m_maximumSupportedAnisotropy(std::numeric_limits<float>::quiet_NaN()),
+    m_minimumSupportedAnisotropy(std::numeric_limits<single>::quiet_NaN()),
+    m_maximumSupportedAnisotropy(std::numeric_limits<single>::quiet_NaN()),
     m_extensions(Utilities2::getExtensions())
 {
     if (m_isAnisotropySupported)
     {
-        float temporary;
+        single temporary;
         glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &temporary);
         if (Utilities::isError())
         {
@@ -61,12 +60,12 @@ bool RendererInfo::isAnisotropySupported() const noexcept
     return m_isAnisotropySupported;
 }
 
-float RendererInfo::getMinimumSupportedAnisotropy() const noexcept
+single RendererInfo::getMinimumSupportedAnisotropy() const noexcept
 {
     return m_minimumSupportedAnisotropy;
 }
 
-float RendererInfo::getMaximumSupportedAnisotropy() const noexcept
+single RendererInfo::getMaximumSupportedAnisotropy() const noexcept
 {
     return m_maximumSupportedAnisotropy;
 }
@@ -104,5 +103,4 @@ std::string RendererInfo::toString() const
     return os.str();
 }
 
-} // namespace OpenGL
-} // namespace Ego
+} // namespace Ego::OpenGL

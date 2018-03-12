@@ -5,8 +5,7 @@
 // Forward declaration.
 class MD2Model;
 
-namespace Ego {
-namespace Graphics {
+namespace Ego::Graphics {
 
 /// @brief Abstract renderer for MD2 models.
 class Md2ModelRenderer
@@ -33,6 +32,5 @@ public:
 
 }; // class M2dModelRenderer
 
-} // namespace Graphics
-} // namespace Ego
+} // namespace Ego::Graphics
 

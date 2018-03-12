@@ -26,8 +26,7 @@
 #include "egolib/game/Graphics/RenderPass.hpp"
 #include "egolib/game/Graphics/Vertex.hpp"
 
-namespace Ego {
-namespace Graphics {
+namespace Ego::Graphics {
 
 namespace Internal {
 
@@ -76,5 +75,4 @@ private:
 
 }
 
-}
 }

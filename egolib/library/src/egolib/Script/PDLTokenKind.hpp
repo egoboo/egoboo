@@ -26,8 +26,7 @@
 #include "egolib/platform.h"
 #include <string>
 
-namespace Ego {
-namespace Script {
+namespace Ego::Script {
 
 /// @brief An enumeration of the token kinds of the PDL of EgoScript.
 enum class PDLTokenKind
@@ -48,5 +47,4 @@ std::string toString(PDLTokenKind kind);
 /// @return the output stream
 std::ostream& operator<<(std::ostream& os, const PDLTokenKind& kind);
 
-} // namespace Script
-} // namespace Ego
+} // namespace Ego::Script

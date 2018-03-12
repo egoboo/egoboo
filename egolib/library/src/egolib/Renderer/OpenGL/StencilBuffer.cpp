@@ -24,8 +24,7 @@
 #include "egolib/Renderer/OpenGL/StencilBuffer.hpp"
 #include "egolib/Renderer/OpenGL/Utilities.hpp"
 
-namespace Ego {
-namespace OpenGL {
+namespace Ego::OpenGL {
 
 StencilBuffer::StencilBuffer() :
     Ego::StencilBuffer(), depth(Utilities2::getStencilBufferDepth()) {}
@@ -37,7 +36,7 @@ void StencilBuffer::clear() {
     Utilities2::isError();
 }
 
-void StencilBuffer::setClearValue(const float& value) {
+void StencilBuffer::setClearValue(const single& value) {
     glClearStencil(value);
     Utilities2::isError();
 }
@@ -46,5 +45,4 @@ uint8_t StencilBuffer::getDepth() {
     return depth;
 }
 
-} // namespace OpenGL
-} // namespace Ego
+} // namespace Ego::OpenGL

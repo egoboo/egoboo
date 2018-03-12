@@ -24,11 +24,11 @@
 #pragma once
 
 #include "egolib/Time/LocalTime.hpp"
-#include "egolib/Time/Stopwatch.hpp"
 #include "egolib/Time/SlidingWindow.hpp"
+#include "idlib/chrono.hpp"
+#include <string>
 
-namespace Ego {
-namespace Time {
+namespace Ego::Time {
 
 /** 
  * @brief
@@ -141,7 +141,7 @@ protected:
 	 * @brief
 	 *	The stopwatch backing this clock.
 	 */
-	Stopwatch _stopwatch;
+	idlib::stopwatch _stopwatch;
 
 protected:
 
@@ -327,5 +327,4 @@ public:
 	}
 };
 
-} // namespace Time
-} // namespace Ego
+} // namespace Ego::Time

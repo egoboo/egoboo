@@ -21,8 +21,7 @@
 #include "egolib/platform.h"
 #include "idlib/hll.hpp"
 
-namespace Ego {
-namespace Script {
+namespace Ego::Script {
 
 /// @brief An exception to indicate a missing delimiter lexical error.
 /// @author Michael Heilmann
@@ -43,5 +42,4 @@ public:
     {}
 };
 
-} // namespace Script
-} // namespace Ego
+} // namespace Ego::Script

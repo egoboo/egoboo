@@ -24,14 +24,10 @@
 #pragma once
 
 #include "egolib/Script/Interpreter/Configuration.hpp"
+#include "egolib/Entities/Forward.hpp"
 #include "egolib/Math/_Include.hpp"
 
-// Forward declaration.
-class Object;
-
-namespace Ego {
-namespace Script {
-namespace Interpreter {
+namespace Ego::Script::Interpreter {
 
 // Foward declaration.
 enum class Tag;
@@ -234,9 +230,7 @@ public:
 
 }; // struct TaggedValue
 
-} // namespace Interpreter
-} // namespace Script
-} // namespace Ego
+} // namespace Ego::Script::Interpreter
 
 /// @brief Overloaded &lt;&lt; operator for a tagged values.
 /// @param ostream the output stream to write to

@@ -28,13 +28,11 @@
 #include "egolib/Profiles/_Include.hpp"
 
 // Forward declarations.
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 class Image;
 class Button;
 class ModuleSelector;
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI
 
 class SelectModuleState : public GameState {
 public:

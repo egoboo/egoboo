@@ -25,8 +25,7 @@
 
 #include "egolib/Script/DDLToken.hpp"
 
-namespace Ego {
-namespace Script {
+namespace Ego::Script {
 
 /// @brief Convert this token into a value of type @a type.
 /// @tparam Type the type of the value to convert the value of this token into
@@ -140,4 +139,4 @@ struct DDLTokenDecoder<TargetType, std::enable_if_t<idlib::hll::internal::is_str
     }
 };
 
-} } // namespace Ego::Script
+} // namespace Ego::Script

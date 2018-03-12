@@ -4,8 +4,7 @@
 #include "egolib/game/graphic_prt.h"
 #include "egolib/Entities/_Include.hpp"
 
-namespace Ego {
-namespace Graphics {
+namespace Ego::Graphics {
 
 NonOpaqueEntitiesRenderPass::NonOpaqueEntitiesRenderPass() :
     RenderPass("non opaque entities")
@@ -15,9 +14,9 @@ void NonOpaqueEntitiesRenderPass::doRun(::Camera& camera, const TileList& tl, co
 {
     auto& renderer = Renderer::get();
     // Set projection matrix.
-    renderer.setProjectionMatrix(camera.getProjectionMatrix());
+    renderer.setProjectionMatrix(camera.projection_matrix());
     // Set view matrix.
-    renderer.setViewMatrix(camera.getViewMatrix());
+    renderer.setViewMatrix(camera.view_matrix());
     // Set world matrix.
     renderer.setWorldMatrix(idlib::identity<Matrix4f4f>());
     OpenGL::PushAttrib pa(GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT);
@@ -50,5 +49,4 @@ void NonOpaqueEntitiesRenderPass::doRun(::Camera& camera, const TileList& tl, co
     }
 }
 
-} // namespace Graphics
-} // namespace Ego
+} // namespace Ego::Graphics

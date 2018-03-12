@@ -1,11 +1,11 @@
 #include "egolib/game/Graphics/RenderPasses/EntityShadowsRenderPass.hpp"
 #include "egolib/game/Module/Module.hpp"
 #include "egolib/game/graphic.h"
+#include "egolib/game/graphic_prt.h"
 #include "egolib/Entities/_Include.hpp"
 #include "egolib/Graphics/VertexFormat.hpp"
 
-namespace Ego {
-namespace Graphics {
+namespace Ego::Graphics {
 
 EntityShadowsRenderPass::EntityShadowsRenderPass() :
     RenderPass("entity shadows"),
@@ -285,5 +285,4 @@ void EntityShadowsRenderPass::doShadowSprite(float intensity, idlib::vertex_buff
     renderer.render(vertexBuffer, vertexDescriptor, idlib::primitive_type::triangle_fan, 0, 4);
 }
 
-} // namespace Graphics	
-} // namespace Ego
+} // namespace Ego::Graphics

@@ -3,8 +3,7 @@
 #include "egolib/Renderer/OpenGL/Utilities.hpp"
 #include "egolib/Image/ImageManager.hpp"
 
-namespace Ego {
-namespace OpenGL {
+namespace Ego::OpenGL {
 
 DefaultTexture::DefaultTexture(std::shared_ptr<RendererInfo> info, const std::string& name, idlib::texture_type type) :
     m_name(name), m_type(type), m_image(ImageManager::get().getDefaultImage()),
@@ -119,4 +118,4 @@ int DefaultTexture::getHeight() const
     return getSourceHeight();
 }
 
-} } // namespace Ego::OpenGL
+} // namespace Ego::OpenGL

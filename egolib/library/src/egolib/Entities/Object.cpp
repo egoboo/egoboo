@@ -36,6 +36,7 @@
 #include "egolib/game/Graphics/CameraSystem.hpp"
 #include "egolib/game/Graphics/TileList.hpp"
 #include "egolib/game/Graphics/Billboard.hpp"
+#include "egolib/game/graphic.h"
 
 //For the minimap
 #include "egolib/game/Core/GameEngine.hpp"

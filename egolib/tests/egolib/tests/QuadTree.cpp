@@ -20,7 +20,7 @@
 #include "gtest/gtest.h"
 #include "egolib/egolib.h"
 
-namespace Ego { namespace Test { namespace QuadTree {
+namespace Ego::Test::QuadTree {
 
 class QuadTreeElement {
 public:
@@ -120,4 +120,4 @@ TEST(quad_tree_testing, test_quad_tree) {
     ASSERT_TRUE(result.empty());
 }
 
-} } } // namespace Ego::Test::QuadTree
+} // namespace Ego::Test::QuadTree

@@ -31,9 +31,7 @@
 #error(Ego_Script_Interpreter_WithProfileRefs is not defined)
 #endif
 
-namespace Ego {
-namespace Script {
-namespace Interpreter {
+namespace Ego::Script::Interpreter {
 
 /**
  * @brief Enable implicit conversions of numeric types such that \f$Integer\f$
@@ -53,6 +51,4 @@ using RealValue = float;
  */
 using IntegerValue = int;
 
-} // namespace Interpreter
-} // namespace Script
-} // namespace Ego
+} // namespace Ego::Script::Interpreter

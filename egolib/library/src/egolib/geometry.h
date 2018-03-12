@@ -29,16 +29,16 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-namespace Ego {
-namespace Math {
+namespace Ego::Math {
+
 enum class Relation {
 	outside,
 	intersect,
 	inside,
     on,
 };
-} // namespace Math
-} // namespace Ego
+
+} // namespace Ego::Math
 
 //--------------------------------------------------------------------------------------------
 // intersection routines

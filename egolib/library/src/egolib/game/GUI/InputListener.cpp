@@ -1,7 +1,6 @@
 #include "egolib/game/GUI/InputListener.hpp"
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 
 InputListener::~InputListener() {
     //dtor
@@ -48,5 +47,4 @@ bool InputListener::notifyKeyboardKeyTyped(const Events::KeyboardKeyTypedEvent& 
     return false;
 }
 
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI

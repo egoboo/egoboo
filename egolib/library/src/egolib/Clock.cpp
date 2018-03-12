@@ -23,8 +23,7 @@
 
 #include "egolib/Clock.hpp"
 
-namespace Ego {
-namespace Time {
+namespace Ego::Time {
 
 Clock<ClockPolicy::NonRecursive>::Clock(const std::string& name, size_t slidingWindowCapacity)
 	: Internal::AbstractClock<ClockPolicy::NonRecursive>(name, slidingWindowCapacity) {
@@ -46,5 +45,4 @@ void Clock<ClockPolicy::Recursive>::leave() {
 	}
 }
 
-} // namespace Time
-} // namespace Ego
+} // namespace Ego::Time

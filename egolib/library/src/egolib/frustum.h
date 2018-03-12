@@ -26,8 +26,7 @@
 #include "egolib/bbox.h"
 #include "egolib/Math/_Include.hpp"
 
-namespace Ego {
-namespace Graphics {
+namespace Ego::Graphics {
 
 #pragma push_macro("far")
 #undef far
@@ -211,5 +210,4 @@ protected:
 #pragma pop_macro("FAR")
 #pragma pop_macro("far")
 
-} // namespace Graphics
-} // namespace Ego
+} // namespace Ego::Graphics

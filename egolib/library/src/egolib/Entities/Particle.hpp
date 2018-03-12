@@ -27,8 +27,9 @@
 #endif
 
 #include "egolib/game/egoboo.h"
-#include "egolib/game/graphic_prt.h"
 #include "egolib/Entities/Common.hpp"
+#include "egolib/typedef.h"
+#include "egolib/integrations/math.hpp"
 #include "egolib/game/Graphics/ParticleGraphics.hpp"
 #include "egolib/Graphics/Animation2D.hpp"
 #include "egolib/game/Physics/Collidable.hpp"
@@ -362,9 +363,9 @@ public:
     Facing facing;                          ///< Direction of the part
     TEAM_REF team;                          ///< Team
 
-	Vector3f vel_stt;                          ///< Starting/initial velocity.
+    Vector3f vel_stt;                          ///< Starting/initial velocity.
 
-	Vector3f offset;                           ///< The initial offset when spawning the particle
+    Vector3f offset;                           ///< The initial offset when spawning the particle
 
     Facing          rotate;                  ///< Rotation direction
     Facing          rotate_add;              ///< Rotation rate

@@ -178,10 +178,16 @@ void CameraSystem::beginCameraMode( const std::shared_ptr<Camera> &camera)
     auto drawableSize = Ego::GraphicsSystem::get().window->drawable_size();
     // scissor the output to the this area
     renderer.setScissorTestEnabled(true);
-    renderer.setScissorRectangle(camera->getViewport().getLeftPixels(), drawableSize.y() - (camera->getViewport().getTopPixels() + camera->getViewport().getHeightPixels()), camera->getViewport().getWidthPixels(), camera->getViewport().getHeightPixels());
+    renderer.setScissorRectangle(camera->getViewport().absolute_rectangle().get_min().x(),
+                                 drawableSize.y() - (camera->getViewport().absolute_rectangle().get_min().y() + camera->getViewport().absolute_rectangle().get_size().y()),
+                                 camera->getViewport().absolute_rectangle().get_size().x(),
+                                 camera->getViewport().absolute_rectangle().get_size().y());
 
     // set the viewport
-    renderer.setViewportRectangle(camera->getViewport().getLeftPixels(), drawableSize.y() - (camera->getViewport().getTopPixels() + camera->getViewport().getHeightPixels()), camera->getViewport().getWidthPixels(), camera->getViewport().getHeightPixels());
+    renderer.setViewportRectangle(camera->getViewport().absolute_rectangle().get_min().x(),
+                                  drawableSize.y() - (camera->getViewport().absolute_rectangle().get_min().y() + camera->getViewport().absolute_rectangle().get_size().y()),
+                                  camera->getViewport().absolute_rectangle().get_size().x(),
+                                  camera->getViewport().absolute_rectangle().get_size().y());
 }
 
 void CameraSystem::autoFormatTargets()

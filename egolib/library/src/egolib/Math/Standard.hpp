@@ -107,11 +107,6 @@ struct Rectangle {
 };
 };
 
-struct ego_frect_t {
-    float xmin, ymin;
-    float xmax, ymax;
-};
-
 #ifdef _DEBUG
 namespace Ego {
 namespace Debug {

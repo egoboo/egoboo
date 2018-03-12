@@ -23,7 +23,6 @@
 
 #pragma once
 
-#include "egolib/Math/_Include.hpp"
 #include "egolib/egoboo_setup.h"
 #include "egolib/integrations/video.hpp"
 #include "egolib/Renderer/RendererInfo.hpp"
@@ -85,7 +84,7 @@ public:
 };
 
 /// @brief A facade for a colour buffer.
-class ColourBuffer : public BufferFacade<Colour4f>
+class ColourBuffer : public BufferFacade<idlib::color_4s>
 {
 protected:
     /// @brief Construct this colour buffer (facade).
@@ -319,7 +318,7 @@ public:
 
     /// @brief Set the current colour.
     /// @param colour the current colour
-    virtual void setColour(const Colour4f& colour) = 0;
+    virtual void setColour(const idlib::color_4s& colour) = 0;
 
     /// @brief Set the culling mode.
     /// @param mode the culling mode
@@ -424,7 +423,7 @@ public:
 
     /// @brief Multiply the current matrix with the given matrix.
     /// @param matrix the matrix
-    virtual void multiplyMatrix(const Matrix4f4f& matrix) = 0;
+    virtual void multiplyMatrix(const idlib::matrix_4s4s& matrix) = 0;
 
     /// @brief Enable/disable perspective correction.
     /// @param enable @a true enables perspective correction, @a false disables it
@@ -501,14 +500,14 @@ public:
     virtual std::shared_ptr<Texture> createTexture() = 0;
 
 private:
-    Matrix4f4f m_projectionMatrix;
-    Matrix4f4f m_viewMatrix;
-    Matrix4f4f m_worldMatrix;
+    idlib::matrix_4s4s m_projectionMatrix;
+    idlib::matrix_4s4s m_viewMatrix;
+    idlib::matrix_4s4s m_worldMatrix;
 
 public:
     /// @brief Set the projection matrix.
     /// @param projectionMatrix the projection matrix
-    virtual void setProjectionMatrix(const Matrix4f4f& projectionMatrix);
+    virtual void setProjectionMatrix(const idlib::matrix_4s4s& projectionMatrix);
 
     /// @brief Get the projection matrix.
     /// @return the projection matrix
@@ -517,26 +516,26 @@ public:
     /// with a field of view angle in the y direction of 45 degrees, an
     /// aspect ratio in the x-direction of 4/3 with the near clipping
     /// plane in distance 0.1 and the far clipping plane in distance 1000.
-    virtual Matrix4f4f getProjectionMatrix() const;
+    virtual idlib::matrix_4s4s getProjectionMatrix() const;
 
     /// @brief Set the view matrix.
     /// @param viewMatrix the view matrix
-    virtual void setViewMatrix(const Matrix4f4f& viewMatrix);
+    virtual void setViewMatrix(const idlib::matrix_4s4s& viewMatrix);
 
     /// @brief Get the view matrix.
     /// @return the view matrix
     /// @remark
     /// The default view matrix is the identity matrix.
-    virtual Matrix4f4f getViewMatrix() const;
+    virtual idlib::matrix_4s4s getViewMatrix() const;
 
     /// @brief Set the world matrix.
     /// @param worldMatrix the world matrix
-    virtual void setWorldMatrix(const Matrix4f4f& worldMatrix);
+    virtual void setWorldMatrix(const idlib::matrix_4s4s& worldMatrix);
 
     /// @brief Get the world matrix.
     /// @return the world matrix
     /// @remark The default world matrix is the identity matrix.
-    virtual Matrix4f4f getWorldMatrix() const;
+    virtual idlib::matrix_4s4s getWorldMatrix() const;
 
 };
 

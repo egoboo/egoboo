@@ -1,7 +1,7 @@
 #include "egolib/game/GUI/Container.hpp"
+#include "egolib/game/Core/GameEngine.hpp"
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 
 Container::Container()
     : _components(),
@@ -121,5 +121,4 @@ bool Container::notifyMouseWheelTurned(const Events::MouseWheelTurnedEvent& e) {
     return false;
 }
 
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego:.GUI

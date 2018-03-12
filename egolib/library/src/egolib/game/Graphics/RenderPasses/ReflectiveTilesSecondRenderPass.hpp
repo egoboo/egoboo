@@ -2,8 +2,7 @@
 
 #include "egolib/game/Graphics/RenderPass.hpp"
 
-namespace Ego {
-namespace Graphics {
+namespace Ego::Graphics {
 
 /// @brief The 2nd pass for reflective tiles i.e. tiles which do reflect entities.
 /// Ran after the pass rendering the reflections of entities.
@@ -20,5 +19,4 @@ private:
     void doReflectionsDisabled(::Camera& cam, const TileList& tl, const EntityList& el);
 };
 
-} // namespace Graphics
-} // namespace Ego
+} // namespace Ego::Graphics

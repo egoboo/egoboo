@@ -26,8 +26,7 @@
 #include "egolib/Script/PDLTokenKind.hpp"
 #include "idlib/hll.hpp"
 
-namespace Ego {
-namespace Script {
+namespace Ego::Script {
 
 /// @brief A token of the PDL (Program Definition Language) of EgoScript.
 struct PDLToken : public idlib::hll::token<PDLTokenKind, PDLTokenKind::Unknown>
@@ -136,5 +135,4 @@ public:
 
 std::ostream& operator<<(std::ostream& os, const PDLToken& token);
 
-} // namespace Script
-} // namespace Ego
+} // namespace Ego::Script

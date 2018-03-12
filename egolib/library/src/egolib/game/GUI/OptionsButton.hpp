@@ -1,11 +1,9 @@
 #pragma once
 
-#include "egolib/game/Core/GameEngine.hpp"
 #include "egolib/game/GUI/Label.hpp"
 #include "egolib/game/GUI/Button.hpp"
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 
 class OptionsButton : public Button {
 public:
@@ -19,5 +17,4 @@ private:
     Label _label;
 };
 
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI

@@ -23,6 +23,7 @@
 
 #include "egolib/FileFormats/id_md2.h"
 #include "egolib/bbox.h"
+#include <forward_list>
 
 typedef id_md2_skin_t MD2_SkinName;
 typedef id_md2_triangle_t MD2_Triangle;

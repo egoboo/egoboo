@@ -1,12 +1,12 @@
 #pragma once
 
 #include "egolib/platform.h"
-#include "idlib/idlib.hpp"
+#include "idlib/crtp.hpp"
 
 enum class RefKind
 {
     Billboard,       ///< @see BillboardRef
-	Particle,        ///< @see ParticleRef
+    Particle,        ///< @see ParticleRef
     ParticleProfile, ///< @see ParticleProfileRef
     Enchant,         ///< @see EnchantRef
     EnchantProfile,  ///< @see EnchantProfileRef

@@ -22,9 +22,7 @@
 
 #include "particle_collision.h"
 
-namespace Ego
-{
-namespace Physics
+namespace Ego::Physics
 {
 //C function prototypes
 static bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::shared_ptr<Object> &objectB, float tmax, float tmin);
@@ -949,5 +947,4 @@ static void get_recoil_factors( float wta, float wtb, float * recoil_a, float * 
     }
 }
 
-} //namespace Physics
-} //namespace Ego
+} //namespace Ego::Physics

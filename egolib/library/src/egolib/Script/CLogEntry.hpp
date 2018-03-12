@@ -3,8 +3,7 @@
 #include "egolib/Log/_Include.hpp"
 #include "idlib/hll.hpp"
 
-namespace Ego {
-namespace Script {
+namespace Ego::Script {
 
 /// @brief A log entry of a compiler.
 struct CLogEntry : Log::Entry
@@ -31,5 +30,4 @@ public:
 
 Log::Target& operator<<(Log::Target& target, const CLogEntry& entry);
 
-} // namespace Script
-} // namespace Ego
+} // namespace Ego::Script

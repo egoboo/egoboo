@@ -21,9 +21,7 @@
 
 #include "egolib/platform.h"
 
-namespace Ego
-{
-namespace Script
+namespace Ego::Script
 {
 
 /**
@@ -111,5 +109,4 @@ public:
     }
 };
 
-} // namespace Script
-} // namespace Ego
+} // namespace Ego::Script

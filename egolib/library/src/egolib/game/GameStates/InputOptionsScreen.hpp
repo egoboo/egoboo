@@ -27,11 +27,9 @@
 #include "egolib/InputControl/InputDevice.hpp"
 
 //Forward declarations
-namespace Ego { namespace GUI { class Button; } }
+namespace Ego::GUI { class Button; }
 
-namespace Ego
-{
-namespace GameStates
+namespace Ego::GameStates
 {
 
 class InputOptionsScreen : public GameState
@@ -65,6 +63,4 @@ private:
 	Ego::Input::InputDevice::InputButton _activeBinding;
 };
 
-
-} //GameStates
-} //Ego
+} // namespace Ego::GameStates

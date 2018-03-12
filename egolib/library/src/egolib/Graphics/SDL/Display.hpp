@@ -2,8 +2,7 @@
 
 #include "egolib/Graphics/Display.hpp"
 
-namespace Ego {
-namespace SDL {
+namespace Ego::SDL {
 
 // Forward declaration.
 class GraphicsSystemNew;
@@ -41,5 +40,4 @@ protected:
     bool compare(const Ego::Display& other) const override;
 };
 
-} // namespace SDL
-} // namespace Ego
+} // namespace Ego::SDL

@@ -25,9 +25,7 @@
 
 #include "egolib/platform.h"
 
-namespace Ego {
-namespace Script {
-namespace Interpreter {
+namespace Ego::Script::Interpreter {
 
 // Forward declaration.
 struct TaggedValue;
@@ -234,6 +232,4 @@ inline unsigned long long safeCast<unsigned long long, int>(const int& v) {
     return safeCast<unsigned long long>(safeCast<unsigned int>(v));
 }
 
-} // namespace Interpreter
-} // namespace Script
-} // namespace Ego
+} // namespace Ego::Script::Interpreter

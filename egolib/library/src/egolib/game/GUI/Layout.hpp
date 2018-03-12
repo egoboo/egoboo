@@ -1,15 +1,10 @@
 #pragma once
 
-// Include directives and forward declarations.
-#include "egolib/egolib.h"
-namespace Ego {
-namespace GUI {
-class Component;
-} // GUI
-} // namespace Ego
+#include "egolib/integrations/math.hpp"
+#include "egolib/gui/forward.hpp"
+#include <vector>
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 
 #define EGO_GUI_WITH_ALIGNMENT (0)
 
@@ -89,5 +84,4 @@ public:
     void operator()(const std::vector<std::shared_ptr<Component>>& components) const;
 };
 
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI

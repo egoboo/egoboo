@@ -1,8 +1,7 @@
 #include "egolib/game/GUI/DrawingContext.hpp"
 #include "egolib/game/GUI/UIManager.hpp"
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 
 DrawingContext::DrawingContext()
     : DrawingContext(false)
@@ -15,5 +14,4 @@ DrawingContext::DrawingContext(bool useDerived)
 DrawingContext::~DrawingContext()
 {}
 
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI

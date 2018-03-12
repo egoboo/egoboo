@@ -1,13 +1,12 @@
 #pragma once
 
-#include "idlib/idlib.hpp"
+#include <array>
+#include <string>
 #include "egolib/platform.h"
 #include "egolib/egolib_config.h"
-#include "egolib/Math/_Include.hpp"
+#include "egolib/integrations/math.hpp"
 
-namespace Ego
-{
-namespace Input
+namespace Ego::Input
 {
 
 class InputDevice
@@ -68,5 +67,4 @@ private:
     std::array<SDL_Keycode, static_cast<size_t>(InputButton::COUNT)> _keyMap;
 };
 
-} //Input
-} //Ego
+} // namespace Ego::Input

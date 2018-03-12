@@ -2,8 +2,7 @@
 
 #include "egolib/Graphics/DisplayMode.hpp"
 
-namespace Ego {
-namespace SDL {
+namespace Ego::SDL {
 
 // Forward declaration.
 class GraphicsSystemNew;
@@ -35,5 +34,4 @@ public:
     int getRefreshRate() const override;
 };
 
-} // namespace SDL
-} // namespace Ego
+} // namespace Ego::SDL

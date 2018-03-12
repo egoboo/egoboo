@@ -1,7 +1,7 @@
 #include "egolib/Script/ConstantPool.hpp"
+#include <algorithm>
 
-namespace Ego {
-namespace Script {
+namespace Ego::Script {
 
 ConstantPool::ConstantPool()
 {}
@@ -100,5 +100,4 @@ void ConstantPool::clear()
     m_constants.clear();
 }
 
-} // namespace Script
-} // namespace Ego
+} // namespace Ego::Script

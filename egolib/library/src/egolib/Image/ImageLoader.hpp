@@ -24,6 +24,9 @@
 #pragma once
 
 #include "egolib/vfs.h"
+#include <unordered_set>
+#include <memory>
+#include <string>
 
 namespace Ego {
 

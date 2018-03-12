@@ -23,14 +23,14 @@
 #pragma once
 
 #include "egolib/typedef.h"
+#include <vector>
 #include "egolib/FileFormats/map_fx.hpp"
 
 // Forward declarations.
 struct ReadContext;
 
 
-namespace Ego {
-namespace FileFormats {
+namespace Ego::FileFormats {
 
 /// See <b>MapTileDefinitionsDictionary.html</b> for more information.
 namespace MapTileDefinitionsDictionary {
@@ -83,5 +83,5 @@ struct IndexList {
 }; // struct IndexList
 
 } // namespace MapTileDefinitionsDictionary
-} // namespace FileFormats
-} // namespace Ego
+
+} // namespace Ego::FileFormats

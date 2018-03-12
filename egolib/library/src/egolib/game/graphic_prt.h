@@ -22,13 +22,13 @@
 #pragma once
 
 #include "egolib/game/egoboo.h"
+#include "egolib/Entities/Forward.hpp"
 
 //--------------------------------------------------------------------------------------------
 
 // Forward declaration
 class Camera;
 namespace Ego {
-class Particle;
 namespace Graphics { 
 struct ParticleGraphics;
 class ObjectGraphics;

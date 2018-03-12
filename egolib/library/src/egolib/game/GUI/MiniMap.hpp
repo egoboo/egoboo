@@ -24,11 +24,12 @@
 #pragma once
 
 #include "egolib/game/GUI/Component.hpp"
+#include "egolib/deprecated/hud_colors.hpp"
+#include "egolib/Entities/Forward.hpp"
 
 namespace Ego { class DeferredTexture; }
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 
 class MiniMap : public Component {
 public:
@@ -88,5 +89,4 @@ private:
     std::shared_ptr<DeferredTexture> _minimapTexture;
 };
 
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI

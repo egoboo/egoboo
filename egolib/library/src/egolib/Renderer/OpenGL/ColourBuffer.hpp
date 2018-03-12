@@ -24,10 +24,7 @@
 
 #include "egolib/Renderer/Renderer.hpp"
 
-namespace Ego {
-namespace OpenGL {
-
-using namespace Math;
+namespace Ego::OpenGL {
 
 class ColourBuffer : public Ego::ColourBuffer
 {
@@ -53,5 +50,4 @@ public:
 
 }; // class ColourBuffer
 
-} // namespace OpenGL
-} // namespace Ego
+} // namespace Ego::OpenGL

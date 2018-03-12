@@ -23,9 +23,9 @@
 
 #include "egolib/game/GUI/Slider.hpp"
 #include "egolib/game/GUI/Material.hpp"
+#include "egolib/game/Core/GameEngine.hpp"
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 
 Slider::Slider(int minValue, int maxValue) :
     _sliderBarTexture("mp_data/gui-slider_bar"),
@@ -101,5 +101,4 @@ bool Slider::isEnabled() const {
     return _onChangeFunction != nullptr && Component::isEnabled();
 }
 
-} //GUI
-} //Ego
+} // namespace Ego::GUI

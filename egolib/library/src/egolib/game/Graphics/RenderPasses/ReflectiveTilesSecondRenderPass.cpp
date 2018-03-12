@@ -2,8 +2,7 @@
 #include "egolib/game/graphic.h"
 #include "egolib/game/Graphics/RenderPasses.hpp"
 
-namespace Ego {
-namespace Graphics {
+namespace Ego::Graphics {
 
 ReflectiveTilesSecondRenderPass::ReflectiveTilesSecondRenderPass() :
     RenderPass("reflective tiles second")
@@ -13,9 +12,9 @@ void ReflectiveTilesSecondRenderPass::doRun(::Camera& camera, const TileList& tl
 {
     auto& renderer = Renderer::get();
     // Set projection matrix.
-    renderer.setProjectionMatrix(camera.getProjectionMatrix());
+    renderer.setProjectionMatrix(camera.projection_matrix());
     // Set view matrix.
-    renderer.setViewMatrix(camera.getViewMatrix());
+    renderer.setViewMatrix(camera.view_matrix());
     // Set world matrix.
     renderer.setWorldMatrix(idlib::identity<Matrix4f4f>());
     // Disable culling.
@@ -68,5 +67,4 @@ void ReflectiveTilesSecondRenderPass::doReflectionsDisabled(::Camera& camera, co
     }
 }
 
-} // namespace Graphics
-} // namespace Ego
+} // namespace Ego::Graphics

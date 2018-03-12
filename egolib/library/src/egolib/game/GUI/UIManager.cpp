@@ -28,8 +28,7 @@
 #include "egolib/Graphics/VertexFormat.hpp"
 #include "egolib/game/game.h" //TODO: Remove only for DisplayMessagePrintf
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 
 UIManager::UIManager() :
     _fonts(),
@@ -309,5 +308,4 @@ void UIManager::drawQuad2d(const Rectangle2f& target) {
     drawQuad2d(target, Rectangle2f(Point2f(0.0f, 0.0), Point2f(1.0f, 1.0f)));
 }
 
-} // namespace GUI
-} // namepsace Ego
+} // namespace Ego::GUI

@@ -23,8 +23,7 @@
 
 #include "egolib/Renderer/Renderer.hpp"
 
-namespace Ego {
-namespace OpenGL {
+namespace Ego::OpenGL {
 
 class StencilBuffer : public Ego::StencilBuffer
 {
@@ -40,15 +39,14 @@ public:
 
 public:
 
-    /** @copydoc Ego::Buffer<float>::clear */
+    /** @copydoc Ego::Buffer<single>::clear */
     virtual void clear() override;
 
-    /** @copydoc Ego::Buffer<float>::setClearValue */
-    virtual void setClearValue(const float& value) override;
+    /** @copydoc Ego::Buffer<single>::setClearValue */
+    virtual void setClearValue(const single& value) override;
 
     /** @copydoc Ego::StencilBuffer::getDepth */
     virtual uint8_t getDepth() override;
 };
 
-} // namespace OpenGL
-} // namespace Ego
+} // namespace Ego::OpenGL

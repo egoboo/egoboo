@@ -2,8 +2,7 @@
 
 #include "egolib/game/Graphics/RenderPass.hpp"
 
-namespace Ego {
-namespace Graphics {
+namespace Ego::Graphics {
 
 /// The render pass for water tiles.
 struct WaterTilesRenderPass : public RenderPass
@@ -25,5 +24,4 @@ protected:
     static gfx_rv render_water_fan(ego_mesh_t& mesh, const Index1D& tileIndex, const Uint8 layer);
 };
 
-} // namespace Graphics
-} // namespace Ego
+} // namespace Ego::Graphics

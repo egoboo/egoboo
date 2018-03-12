@@ -21,10 +21,12 @@
 /// @author Johan Jansen
 
 #include "egolib/game/GUI/MessageLog.hpp"
+#include "egolib/egoboo_setup.h"
 #include "egolib/font_bmp.h"
+#include "egolib/Core/System.hpp"
+#include "egolib/game/Core/GameEngine.hpp"
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 
 MessageLog::MessageLog() :
     _messages() {}
@@ -51,5 +53,4 @@ void MessageLog::addMessage(const std::string &message) {
     }
 }
 
-} //GUI
-} //Ego
+} // namespace Ego::GUI

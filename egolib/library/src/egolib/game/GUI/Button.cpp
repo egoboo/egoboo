@@ -1,7 +1,9 @@
 #include "egolib/game/GUI/Button.hpp"
+#include "egolib/game/Core/GameEngine.hpp"
+#include "egolib/Renderer/Renderer.hpp"
+#include "egolib/Audio/AudioSystem.hpp"
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 
 const Colour4f Button::DEFAULT_BUTTON_COLOUR = {0.66f, 0.00f, 0.00f, 0.60f};
 const Colour4f Button::HOVER_BUTTON_COLOUR = {0.54f, 0.00f, 0.00f, 1.00f};
@@ -127,5 +129,4 @@ void Button::setEnabled(const bool enabled) {
     Component::setEnabled(enabled);
 }
 
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI

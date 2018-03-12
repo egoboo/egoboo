@@ -26,8 +26,7 @@
 
 #include "egolib/game/egoboo.h"
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 
 /// @brief A material definition for the GUI.
 /// @remark Materials are neither copy-constructible nor assignable.
@@ -79,5 +78,4 @@ protected:
 	const Material& operator=(const Material&) = delete;
 };
 
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI

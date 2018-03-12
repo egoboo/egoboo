@@ -22,6 +22,7 @@
 /// @author Johan Jansen
 
 #include "egolib/Math/Random.hpp"
+#include <ctime>
 
 // Static data initializer
 std::random_device rd;

@@ -26,8 +26,7 @@
 #include "egolib/Script/DDLTokenKind.hpp"
 #include "idlib/hll.hpp"
 
-namespace Ego {
-namespace Script {
+namespace Ego::Script {
 
 /// @brief A token of the DDL (Data Definition Language) of EgoScript.
 /// @todo Default token kind should be DDLTokenKind::Error.
@@ -69,5 +68,4 @@ public:
 
 std::ostream& operator<<(std::ostream& os, const DDLToken& token);
 
-} // namespace Script
-} // namespace Ego
+} // namespace Ego::Script

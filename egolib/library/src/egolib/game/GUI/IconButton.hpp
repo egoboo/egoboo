@@ -23,14 +23,12 @@
 
 #pragma once
 
-#include "egolib/game/Core/GameEngine.hpp"
 #include "egolib/game/GUI/Button.hpp"
 
 // Forward declarations.
 namespace Ego { class DeferredTexture; }
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 
 class IconButton : public Button {
 public:
@@ -45,5 +43,4 @@ private:
     Colour4f _iconTint;
 };
 
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI

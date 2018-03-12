@@ -25,8 +25,7 @@
 #include "idlib/platform.hpp"
 #include <type_traits>
 
-namespace Ego {
-namespace Debug {
+namespace Ego::Debug {
 #ifdef _DEBUG
 
 /**
@@ -55,5 +54,5 @@ using MakeValidate = Validate<typename std::remove_const<typename std::remove_re
 #else
     #define EGO_DEBUG_VALIDATE(_object_)
 #endif
-    }
+
 }

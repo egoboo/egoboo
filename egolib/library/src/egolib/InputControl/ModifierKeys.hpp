@@ -20,9 +20,9 @@
 /// @file egolib/Input/ModifierKeys.hpp
 /// @brief Modifier keys.
 
-#include "egolib/platform.h"
-
 #pragma once
+
+#include "idlib/idlib.hpp"
 
 namespace Ego {
 

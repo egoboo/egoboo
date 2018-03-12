@@ -27,15 +27,16 @@ install:
   - move C:\projects\deps\cmake-* C:\projects\deps\cmake # Move to a version-agnostic directory
   - set PATH=C:\projects\deps\cmake\bin;%PATH%
   - cmake --version
+  # Download and install GoogleTestAdapter.
+  - set GOOGLETESTADAPTER_URL="https://github.com/csoltenborn/GoogleTestAdapter/releases/download/v0.12.3/GoogleTestAdapter-0.12.3.vsix"
+  - appveyor DownloadFile %GOOGLETESTADAPTER_URL% -FileName GoogleTestAdapter-0.12.3.vsix
+  - 7z x GoogleTestAdapter-0.12.3.vsix -o"C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\GoogleTestAdapter-0.12.3" > nul
 
-# Restore nuget packages and install dependencies.        
-# Furthermore, the artifact name and the artifact file name are computed.
 before_build:
-    #- nuget restore
-    - ps: .\idlib\ci\appveyor\install-googletest-vsix.ps1
-    - cmd: if "%platform%"=="Win32" set CMAKE_GENERATOR_NAME=Visual Studio 15 2017
-    - cmd: if "%platform%"=="x64"   set CMAKE_GENERATOR_NAME=Visual Studio 15 2017 Win64
-    - cmake -G "%CMAKE_GENERATOR_NAME%" CMakeLists.txt
+  # Determine the CMake generator and invoke CMake.
+  - cmd: if "%platform%"=="Win32" set CMAKE_GENERATOR_NAME=Visual Studio 15 2017
+  - cmd: if "%platform%"=="x64"   set CMAKE_GENERATOR_NAME=Visual Studio 15 2017 Win64
+  - cmake -G "%CMAKE_GENERATOR_NAME%" CMakeLists.txt
 
 build:
     parallel: true                  # enable MSBuild parallel builds

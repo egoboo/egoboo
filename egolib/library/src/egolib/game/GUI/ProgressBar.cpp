@@ -1,7 +1,8 @@
 #include "ProgressBar.hpp"
+#include "egolib/Renderer/Renderer.hpp"
+#include "egolib/game/Core/GameEngine.hpp"
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 
 ProgressBar::ProgressBar() :
     _currentValue(0.0f),
@@ -79,5 +80,4 @@ void ProgressBar::setTickWidth(float value) {
     _tickWidth = value;
 }
 
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI

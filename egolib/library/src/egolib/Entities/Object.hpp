@@ -33,16 +33,13 @@
 #include "egolib/game/egoboo.h"
 #include "egolib/game/Module/Module.hpp"
 #include "egolib/game/physics.h"
-#include "egolib/game/graphic_mad.h"
 #include "egolib/Entities/Common.hpp"
 #include "egolib/game/Graphics/BillboardSystem.hpp"
 #include "egolib/game/Inventory.hpp"
 #include "egolib/game/Physics/Collidable.hpp"
 #include "egolib/game/Physics/ObjectPhysics.hpp"
 #include "egolib/game/Graphics/ObjectGraphics.hpp"
-
-//Forward declarations
-namespace Ego { class Enchantment; }
+#include "egolib/Entities/Forward.hpp"
 
 /// The possible methods for characters to determine what direction they are facing
 enum turn_mode_t : uint8_t

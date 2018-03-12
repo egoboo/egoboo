@@ -3,8 +3,7 @@
 #include "egolib/Configuration/Variable.hpp"
 #include "idlib/hll.hpp"
 
-namespace Ego {
-namespace Configuration {
+namespace Ego::Configuration {
 
 /// @brief A variable storing a numeric value.
 template <class ValueType>
@@ -72,5 +71,4 @@ public:
     ValueType getMinValue() const { return min; }
 };
 
-} // namespace Configuration
-} // namespace Ego
+} // namespace Ego::Configuration
