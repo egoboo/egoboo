@@ -1,7 +1,5 @@
 #pragma once
 
-#include "idlib/idlib.hpp"
-
 /// @brief The kinds of tokens in a configuration file.
 enum class ConfigFileTokenKind
 {

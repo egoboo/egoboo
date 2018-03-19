@@ -3,8 +3,7 @@
 #include "egolib/game/graphic.h"
 #include "egolib/Graphics/VertexFormat.hpp"
 
-namespace Ego {
-namespace Graphics {
+namespace Ego::Graphics {
 
 BackgroundRenderPass::BackgroundRenderPass() :
     RenderPass("background"),
@@ -15,9 +14,9 @@ BackgroundRenderPass::BackgroundRenderPass() :
 void BackgroundRenderPass::doRun(::Camera& camera, const TileList& tl, const EntityList& el)
 {
     auto& renderer = Renderer::get();
-    renderer.setProjectionMatrix(camera.getProjectionMatrix());
+    renderer.setProjectionMatrix(camera.projection_matrix());
     renderer.setWorldMatrix(idlib::identity<Matrix4f4f>());
-    renderer.setViewMatrix(camera.getViewMatrix());
+    renderer.setViewMatrix(camera.view_matrix());
 
     if (!gfx.draw_background || !_currentModule->getWater()._background_req)
     {
@@ -41,13 +40,13 @@ void BackgroundRenderPass::doRun(::Camera& camera, const TileList& tl, const Ent
 
     // determine the constants for the x-coordinate
     xmag = _currentModule->getWater()._backgroundrepeat / 4 / (1.0f + z0 * ilayer->_dist[XX]) / Info<float>::Grid::Size();
-    Cx_0 = xmag * (1.0f + camera.getPosition()[kZ] * ilayer->_dist[XX]);
-    Cx_1 = -xmag * (1.0f + (camera.getPosition()[kZ] - z0) * ilayer->_dist[XX]);
+    Cx_0 = xmag * (1.0f + camera.position()[kZ] * ilayer->_dist[XX]);
+    Cx_1 = -xmag * (1.0f + (camera.position()[kZ] - z0) * ilayer->_dist[XX]);
 
     // determine the constants for the y-coordinate
     ymag = _currentModule->getWater()._backgroundrepeat / 4 / (1.0f + z0 * ilayer->_dist[YY]) / Info<float>::Grid::Size();
-    Cy_0 = ymag * (1.0f + camera.getPosition()[kZ] * ilayer->_dist[YY]);
-    Cy_1 = -ymag * (1.0f + (camera.getPosition()[kZ] - z0) * ilayer->_dist[YY]);
+    Cy_0 = ymag * (1.0f + camera.position()[kZ] * ilayer->_dist[YY]);
+    Cy_1 = -ymag * (1.0f + (camera.position()[kZ] - z0) * ilayer->_dist[YY]);
 
     float Qx, Qy;
 
@@ -59,33 +58,33 @@ void BackgroundRenderPass::doRun(::Camera& camera, const TileList& tl, const Ent
         Qy = -tmem._edge_y;
         vertices[0].x = Qx;
         vertices[0].y = Qy;
-        vertices[0].z = camera.getPosition()[kZ] - z0;
-        vertices[0].s = Cx_0 * Qx + Cx_1 * camera.getPosition()[kX] + ilayer->_tx[XX];
-        vertices[0].t = Cy_0 * Qy + Cy_1 * camera.getPosition()[kY] + ilayer->_tx[YY];
+        vertices[0].z = camera.position()[kZ] - z0;
+        vertices[0].s = Cx_0 * Qx + Cx_1 * camera.position()[kX] + ilayer->_tx[XX];
+        vertices[0].t = Cy_0 * Qy + Cy_1 * camera.position()[kY] + ilayer->_tx[YY];
 
         Qx = 2 * tmem._edge_x;
         Qy = -tmem._edge_y;
         vertices[1].x = Qx;
         vertices[1].y = Qy;
-        vertices[1].z = camera.getPosition()[kZ] - z0;
-        vertices[1].s = Cx_0 * Qx + Cx_1 * camera.getPosition()[kX] + ilayer->_tx[XX];
-        vertices[1].t = Cy_0 * Qy + Cy_1 * camera.getPosition()[kY] + ilayer->_tx[YY];
+        vertices[1].z = camera.position()[kZ] - z0;
+        vertices[1].s = Cx_0 * Qx + Cx_1 * camera.position()[kX] + ilayer->_tx[XX];
+        vertices[1].t = Cy_0 * Qy + Cy_1 * camera.position()[kY] + ilayer->_tx[YY];
 
         Qx = 2 * tmem._edge_x;
         Qy = 2 * tmem._edge_y;
         vertices[2].x = Qx;
         vertices[2].y = Qy;
-        vertices[2].z = camera.getPosition()[kZ] - z0;
-        vertices[2].s = Cx_0 * Qx + Cx_1 * camera.getPosition()[kX] + ilayer->_tx[XX];
-        vertices[2].t = Cy_0 * Qy + Cy_1 * camera.getPosition()[kY] + ilayer->_tx[YY];
+        vertices[2].z = camera.position()[kZ] - z0;
+        vertices[2].s = Cx_0 * Qx + Cx_1 * camera.position()[kX] + ilayer->_tx[XX];
+        vertices[2].t = Cy_0 * Qy + Cy_1 * camera.position()[kY] + ilayer->_tx[YY];
 
         Qx = -tmem._edge_x;
         Qy = 2 * tmem._edge_y;
         vertices[3].x = Qx;
         vertices[3].y = Qy;
-        vertices[3].z = camera.getPosition()[kZ] - z0;
-        vertices[3].s = Cx_0 * Qx + Cx_1 * camera.getPosition()[kX] + ilayer->_tx[XX];
-        vertices[3].t = Cy_0 * Qy + Cy_1 * camera.getPosition()[kY] + ilayer->_tx[YY];
+        vertices[3].z = camera.position()[kZ] - z0;
+        vertices[3].s = Cx_0 * Qx + Cx_1 * camera.position()[kX] + ilayer->_tx[XX];
+        vertices[3].t = Cy_0 * Qy + Cy_1 * camera.position()[kY] + ilayer->_tx[YY];
     }
 
     float light = _currentModule->getWater()._light ? 1.0f : 0.0f;
@@ -164,5 +163,4 @@ void BackgroundRenderPass::doRun(::Camera& camera, const TileList& tl, const Ent
     }
 }
 
-} // namespace Graphics
-} // namespace Ego
+} // namespace Ego::Graphics

@@ -24,8 +24,7 @@
 
 #include "egolib/Renderer/Renderer.hpp"
 
-namespace Ego {
-namespace OpenGL {
+namespace Ego::OpenGL {
 
 class Texture;
 class RendererInfo;
@@ -49,5 +48,4 @@ public:
 
 }; // class TextureUnit
 
-} // namespace OpenGL
-} // namespace Ego
+} // namespace Ego::OpenGL

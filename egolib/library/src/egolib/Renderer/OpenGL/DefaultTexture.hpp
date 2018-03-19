@@ -4,7 +4,7 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
 
-namespace Ego { namespace OpenGL {
+namespace Ego::OpenGL {
 
 class RendererInfo;
 
@@ -55,4 +55,4 @@ public:
     int getHeight() const;
 };
 
-} } // namespace Ego::OpenGL
+} // namespace Ego::OpenGL

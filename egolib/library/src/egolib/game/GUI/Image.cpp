@@ -1,8 +1,8 @@
 #include "egolib/game/GUI/Image.hpp"
+#include "egolib/game/Core/GameEngine.hpp"
 #include "egolib/game/GUI/Material.hpp"
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 
 Image::Image() :
     _texture(""),
@@ -58,5 +58,4 @@ void Image::setTint(const Colour4f &colour) {
     _tint = colour;
 }
 
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI

@@ -2,8 +2,7 @@
 
 #include "egolib/game/GUI/Component.hpp"
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 
 /// Computes the bounds of list \f$C\f$ of components with \f$|C|>0\f$.
 /// This functor returns \f$\bigcup_{c \in C} b(c)\f$ where \f$b(c)\f$ are the bounds of the component \f$c\f$.
@@ -38,5 +37,4 @@ struct JoinBounds {
     }
 };
 
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI

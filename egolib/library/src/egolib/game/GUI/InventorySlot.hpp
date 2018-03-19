@@ -6,8 +6,7 @@
 // Forward declarations.
 namespace Ego { class Player; }
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 
 class InventorySlot : public Component {
 public:
@@ -24,6 +23,4 @@ private:
     std::shared_ptr<Player> _player;
 };
 
-} // namespace GUI
-} // namespace Ego
-
+} // namespace Ego::GUI

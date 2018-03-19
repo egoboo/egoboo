@@ -3,8 +3,7 @@
 #include "egolib/game/graphic.h"
 #include "egolib/Graphics/VertexFormat.hpp"
 
-namespace Ego {
-namespace Graphics {
+namespace Ego::Graphics {
 
 ForegroundRenderPass::ForegroundRenderPass() :
     RenderPass("foreground"),
@@ -20,16 +19,16 @@ void ForegroundRenderPass::doRun(::Camera& camera, const TileList& tl, const Ent
     }
 
     auto& renderer = Renderer::get();
-    renderer.setProjectionMatrix(camera.getProjectionMatrix());
+    renderer.setProjectionMatrix(camera.projection_matrix());
     renderer.setWorldMatrix(idlib::identity<Matrix4f4f>());
-    renderer.setViewMatrix(camera.getViewMatrix());
+    renderer.setViewMatrix(camera.view_matrix());
 
     water_instance_layer_t *ilayer = _currentModule->getWater()._layers + 1;
 
     Vector3f vforw_wind(ilayer->_tx_add[XX], ilayer->_tx_add[YY], 0.0f);
     vforw_wind = normalize(vforw_wind).get_vector();
 
-    Vector3f vforw_cam = mat_getCamForward(camera.getViewMatrix());
+    Vector3f vforw_cam = mat_getCamForward(camera.view_matrix());
     vforw_cam = normalize(vforw_cam).get_vector();
 
     // make the texture begin to disappear if you are not looking straight down
@@ -121,5 +120,4 @@ void ForegroundRenderPass::doRun(::Camera& camera, const TileList& tl, const Ent
     }
 }
 
-} // namespace Graphics
-} // namespace Ego
+} // namespace Ego::Graphics

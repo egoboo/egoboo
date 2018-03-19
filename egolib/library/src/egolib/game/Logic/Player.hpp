@@ -24,11 +24,9 @@
 
 #include "idlib/idlib.hpp"
 #include "egolib/IDSZ.hpp"
+#include "egolib/Entities/Forward.hpp"
 #include "egolib/InputControl/InputDevice.hpp"
 #include "egolib/game/Logic/QuestLog.hpp"
-
-//Forward declarations
-class Object;
 
 namespace Ego
 {

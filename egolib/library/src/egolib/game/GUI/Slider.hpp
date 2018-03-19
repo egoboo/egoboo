@@ -21,12 +21,12 @@
 /// @details GUI widget of a moveable slider ranging between minimum and maximum value
 /// @author Johan Jansen
 
-#include "egolib/game/GUI/Component.hpp"
-
 #pragma once
 
-namespace Ego {
-namespace GUI {
+#include "egolib/game/GUI/Component.hpp"
+#include "egolib/Renderer/DeferredTexture.hpp"
+
+namespace Ego::GUI {
 
 class Slider : public Component {
 public:
@@ -55,5 +55,4 @@ private:
     bool _isDragging;
 };
 
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI

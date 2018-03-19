@@ -35,6 +35,7 @@
 #include "egolib/game/Logic/Player.hpp"
 #include "egolib/game/Graphics/CameraSystem.hpp"
 #include "egolib/Graphics/Viewport.hpp"
+#include "egolib/Audio/AudioSystem.hpp"
 
 //For cheats
 #include "egolib/Entities/_Include.hpp"
@@ -225,8 +226,8 @@ void PlayingState::addStatusMonitor(const std::shared_ptr<Object> &object)
     auto status = std::make_shared<Ego::GUI::CharacterStatus>(object);
 
     status->setSize({ BARX, BARY });
-    status->setPosition({ camera->getViewport().getLeftPixels() + camera->getViewport().getWidthPixels() - status->getWidth(),
-                          camera->getViewport().getTopPixels() });
+    status->setPosition({ camera->getViewport().absolute_rectangle().get_min().x() + camera->getViewport().absolute_rectangle().get_size().x() - status->getWidth(),
+                          camera->getViewport().absolute_rectangle().get_min().y() });
 
     addComponent(status);
     _statusList.push_back(status);

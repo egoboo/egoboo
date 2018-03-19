@@ -23,14 +23,16 @@
 #pragma once
 
 #include "idlib/document.hpp"
-#include "egolib/Math/Standard.hpp"
+#include "idlib/singleton.hpp"
+#include "egolib/integrations/math.hpp"
+#include <SDL.h>
 
 namespace Ego {
 // Forward declaration.
 class Font;
 }
 
-namespace Ego { namespace Core {
+namespace Ego::Core {
 
 struct ConsoleSettings {
 	/// The length: The maximum number of lines in a console.
@@ -220,4 +222,4 @@ private:
 
 };
 
-} } // namespace Ego::Core
+} // namespace Ego::Core

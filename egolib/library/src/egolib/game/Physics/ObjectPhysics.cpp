@@ -26,9 +26,7 @@
 #include "egolib/game/Shop.hpp"
 #include "egolib/game/CharacterMatrix.h"
 
-namespace Ego
-{
-namespace Physics
+namespace Ego::Physics
 {
 
 ObjectPhysics::ObjectPhysics(Object &object) :
@@ -1066,5 +1064,4 @@ const AxisAlignedBox2f& ObjectPhysics::getAxisAlignedBox2D() const
     return _aabb2D;
 }
 
-} //Physics
-} //Ego
+} //Ego::Physics

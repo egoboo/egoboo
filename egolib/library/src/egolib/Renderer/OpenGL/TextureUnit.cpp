@@ -26,8 +26,7 @@
 #include "egolib/Renderer/OpenGL/Utilities.hpp"
 #include "egolib/Renderer/OpenGL/RendererInfo.hpp"
 
-namespace Ego {
-namespace OpenGL {
+namespace Ego::OpenGL {
 
 TextureUnit::TextureUnit(const std::shared_ptr<RendererInfo>& info) :
     m_info(info)
@@ -85,5 +84,4 @@ void TextureUnit::setActivated(const Ego::Texture *texture)
     setActivated(const_cast<Texture *>(static_cast<const Texture *>(texture)));
 }
 
-} // namespace OpenGL
-} // namespace Ego
+} // namespace Ego::OpenGL

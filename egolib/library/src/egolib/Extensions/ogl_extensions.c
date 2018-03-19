@@ -67,8 +67,7 @@ void oglx_caps_t::report() {
 
 //--------------------------------------------------------------------------------------------
 
-namespace Ego {
-namespace OpenGL {
+namespace Ego::OpenGL {
 
 void Utilities::clearError()
 {
@@ -134,13 +133,11 @@ const std::string& Utilities::toString(GLenum error)
     };
 }
 
-} // namespace OpenGL
-} // namespace Ego
+} // namespace Ego::OpenGL
 
 //--------------------------------------------------------------------------------------------
 
-namespace Ego {
-namespace OpenGL {
+namespace Ego::OpenGL {
 
 PushAttrib::PushAttrib(GLbitfield bitfield)
 {
@@ -164,5 +161,4 @@ PushClientAttrib::~PushClientAttrib()
     Utilities2::isError();
 }
 
-} // namespace OpenGL
-} // namespace Ego
+} // namespace Ego::OpenGL

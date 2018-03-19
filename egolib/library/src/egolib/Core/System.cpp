@@ -19,18 +19,18 @@
 
 #include "egolib/Core/System.hpp"
 #include "egolib/egoboo_setup.h"
+#include "egolib/Log/_Include.hpp"
 
-namespace Ego {
-namespace Core {
+namespace Ego::Core {
 
 System *SystemCreateFunctor::operator()(const std::string& x) const
 {
-	return new System(x);
+    return new System(x);
 }
 
 System *SystemCreateFunctor::operator()(const std::string& x, const std::string& y) const
 {
-	return new System(x, y);
+    return new System(x, y);
 }
 
 const std::string SystemService::VERSION = "0.1.9";
@@ -318,5 +318,4 @@ System::~System() {
     }
 }
 
-} // namespace Core
-} // namespace Ego
+} // namespace Ego::Core

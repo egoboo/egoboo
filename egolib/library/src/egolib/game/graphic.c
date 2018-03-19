@@ -23,6 +23,7 @@
 
 #include "egolib/game/graphic.h"
 
+#include "egolib/game/graphic_prt.h"
 #include "egolib/game/Core/GameEngine.hpp"
 #include "egolib/game/graphic_fan.h"
 #include "egolib/game/renderer_3d.h"
@@ -53,6 +54,8 @@
 #include "egolib/game/Graphics/TextureAtlasManager.hpp"
 #include "egolib/game/Module/Passage.hpp"
 #include "egolib/game/GUI/Material.hpp"
+#include "egolib/Graphics/Viewport.hpp"
+#include "egolib/deprecated/hud_colors.hpp"
 
 //--------------------------------------------------------------------------------------------
 
@@ -461,9 +464,9 @@ float draw_debug(float y)
         y = _gameEngine->getUIManager()->drawBitmapFontString(Ego::Vector2f(0, y), "!!!DEBUG MODE-5!!!");
         std::ostringstream os;
         os << "~~CAM"
-           << " " << CameraSystem::get().getMainCamera()->getPosition()[kX]
-           << " " << CameraSystem::get().getMainCamera()->getPosition()[kY]
-           << " " << CameraSystem::get().getMainCamera()->getPosition()[kZ];
+           << " " << CameraSystem::get().getMainCamera()->position()[kX]
+           << " " << CameraSystem::get().getMainCamera()->position()[kY]
+           << " " << CameraSystem::get().getMainCamera()->position()[kZ];
         y = _gameEngine->getUIManager()->drawBitmapFontString(Ego::Vector2f(0, y), os.str(), 0, 1.0f);
         if (_currentModule->getPlayerList().size() > 0)
         {
@@ -523,31 +526,31 @@ float draw_debug(float y)
         y = _gameEngine->getUIManager()->drawBitmapFontString(Ego::Vector2f(0, y), "!!!DEBUG MODE-7!!!");
 
         os.str(std::string()); os << "CAM <"
-            << camera->getViewMatrix()(0, 0) << ", "
-            << camera->getViewMatrix()(0, 1) << ", "
-            << camera->getViewMatrix()(0, 2) << ", "
-            << camera->getViewMatrix()(0, 3) << ">";
+            << camera->view_matrix()(0, 0) << ", "
+            << camera->view_matrix()(0, 1) << ", "
+            << camera->view_matrix()(0, 2) << ", "
+            << camera->view_matrix()(0, 3) << ">";
         y = _gameEngine->getUIManager()->drawBitmapFontString(Ego::Vector2f(0, y), os.str(), 0, 1.0f);
         
         os.str(std::string()); os << "CAM <"
-            << camera->getViewMatrix()(1, 0) << ", "
-            << camera->getViewMatrix()(1, 1) << ", "
-            << camera->getViewMatrix()(1, 2) << ", "
-            << camera->getViewMatrix()(1, 3) << ">";
+            << camera->view_matrix()(1, 0) << ", "
+            << camera->view_matrix()(1, 1) << ", "
+            << camera->view_matrix()(1, 2) << ", "
+            << camera->view_matrix()(1, 3) << ">";
         y = _gameEngine->getUIManager()->drawBitmapFontString(Ego::Vector2f(0, y), os.str(), 0, 1.0f);
         
         os.str(std::string()); os << "CAM <"
-            << camera->getViewMatrix()(2, 0) << ", "
-            << camera->getViewMatrix()(2, 1) << ", "
-            << camera->getViewMatrix()(2, 2) << ", "
-            << camera->getViewMatrix()(2, 3) << ">";
+            << camera->view_matrix()(2, 0) << ", "
+            << camera->view_matrix()(2, 1) << ", "
+            << camera->view_matrix()(2, 2) << ", "
+            << camera->view_matrix()(2, 3) << ">";
         y = _gameEngine->getUIManager()->drawBitmapFontString(Ego::Vector2f(0, y), os.str(), 0, 1.0f);
         
         os.str(std::string()); os << "CAM <"
-            << camera->getViewMatrix()(3, 0) << ", "
-            << camera->getViewMatrix()(3, 1) << ", "
-            << camera->getViewMatrix()(3, 2) << ", "
-            << camera->getViewMatrix()(3, 3) << ">";
+            << camera->view_matrix()(3, 0) << ", "
+            << camera->view_matrix()(3, 1) << ", "
+            << camera->view_matrix()(3, 2) << ", "
+            << camera->view_matrix()(3, 3) << ">";
         y = _gameEngine->getUIManager()->drawBitmapFontString(Ego::Vector2f(0, y), os.str(), 0, 1.0f);
         
         os.str(std::string()); os << "CAM center <"
@@ -825,8 +828,8 @@ void draw_passages(Camera& cam)
     *   this is unoptimized and renders stuff off-screen
     **/
 
-    Ego::Renderer::get().setProjectionMatrix(cam.getProjectionMatrix());
-    Ego::Renderer::get().setViewMatrix(cam.getViewMatrix());
+    Ego::Renderer::get().setProjectionMatrix(cam.projection_matrix());
+    Ego::Renderer::get().setViewMatrix(cam.view_matrix());
     Ego::Renderer::get().setWorldMatrix(idlib::identity<Ego::Matrix4f4f>());
 
     for(int i = 0; i < _currentModule->getPassageCount(); ++i) {

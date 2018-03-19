@@ -22,9 +22,7 @@
 
 #pragma once
 
-namespace Ego
-{
-namespace Physics
+namespace Ego::Physics
 {
 
 /// @brief The default gravity    amount and direction.
@@ -175,5 +173,4 @@ struct Environment
 
 extern Environment g_environment;
 
-} //namespace Physics
-} //namespace Ego
+} //namespace Ego::Physics

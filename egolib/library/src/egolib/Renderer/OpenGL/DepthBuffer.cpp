@@ -24,8 +24,7 @@
 #include "egolib/Renderer/OpenGL/DepthBuffer.hpp"
 #include "egolib/Renderer/OpenGL/Utilities.hpp"
 
-namespace Ego {
-namespace OpenGL {
+namespace Ego::OpenGL {
 
 DepthBuffer::DepthBuffer() :
     Ego::DepthBuffer(), depth(Utilities2::getDepthBufferDepth())
@@ -39,7 +38,7 @@ void DepthBuffer::clear() {
     Utilities2::isError();
 }
 
-void DepthBuffer::setClearValue(const float& value) {
+void DepthBuffer::setClearValue(const single& value) {
     glClearDepth(value);
     Utilities2::isError();
 }
@@ -48,5 +47,4 @@ uint8_t DepthBuffer::getDepth() {
     return depth;
 }
 
-} // namespace OpenGL
-} // namespace Ego
+} // namespace Ego::OpenGL

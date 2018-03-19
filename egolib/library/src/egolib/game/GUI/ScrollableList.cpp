@@ -1,8 +1,7 @@
 #include "egolib/game/GUI/ScrollableList.hpp"
 #include "egolib/game/GUI/Button.hpp"
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 
 const size_t ScrollableList::COMPONENT_LINE_SPACING = 5;
 
@@ -139,5 +138,4 @@ void ScrollableList::setPosition(const Point2f& position) {
     setScrollPosition(_currentIndex);
 }
 
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI

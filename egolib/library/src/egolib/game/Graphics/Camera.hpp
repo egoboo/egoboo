@@ -23,7 +23,7 @@
 
 #include "egolib/game/egoboo.h"
 #include "egolib/game/physics.h"			//for orientation_t
-#include "egolib/Graphics/Camera.hpp"
+#include "egolib/integrations/video.hpp"
 
 //Forward declarations
 class ego_mesh_t;
@@ -87,7 +87,7 @@ static constexpr float CAM_ZOOM_FACTOR = 0.5f;
  *  - "center" the position the camera is focused on
  *  - "position" the position the camera is located at
  */
-class Camera : private idlib::non_copyable, public Ego::Graphics::Camera
+class Camera : private idlib::non_copyable, public idlib::camera
 {
 
 public:
@@ -97,47 +97,52 @@ public:
 
 private:
 
-	/// @brief The forward vector of this camera.
-	Ego::Vector3f m_forward;
+    /// @brief The forward vector of this camera.
+    Ego::Vector3f m_forward;
 
-	/// @brief The up vector of this camera.
-	Ego::Vector3f m_up;
+    /// @brief The up vector of this camera.
+    Ego::Vector3f m_up;
 
-	/// @brief The right vector of this camera.
-	Ego::Vector3f m_right;
+    /// @brief The right vector of this camera.
+    Ego::Vector3f m_right;
 
-	/// @brief The view matrix (derived/cached from other attributes).
-	Ego::Matrix4f4f m_viewMatrix;
+    /// @brief The view matrix (derived/cached from other attributes).
+    Ego::Matrix4f4f m_viewMatrix;
 
-	/// @brief The projection matrices (derived/cached from other attributes).
-	Ego::Matrix4f4f m_projectionMatrix;
+    /// @brief The projection matrices (derived/cached from other attributes).
+    Ego::Matrix4f4f m_projectionMatrix;
 
-	/// @brief The position.
-	/// @invariant @a z must be within the interval <tt>[500,1000]</tt>.
-	Ego::Vector3f m_position;
+    /// @brief The position.
+    /// @invariant @a z must be within the interval <tt>[500,1000]</tt>.
+    Ego::Vector3f m_position;
 
     /// @brief The viewport.
     std::unique_ptr<Ego::Graphics::Viewport> m_viewport;
 
 public:
+    /** @copydoc idlib::camera::projection_matrix() */
+    inline const Ego::Matrix4f4f& projection_matrix() const override
+    { return m_projectionMatrix; }
 
-	/** @copydoc Ego::Graphics::Camera::getProjectionMatrix */
-	inline const Ego::Matrix4f4f& getProjectionMatrix() const override { return m_projectionMatrix; }
+    /** @copydoc idlib::camera::view_matrix() */
+    inline const Ego::Matrix4f4f& view_matrix() const override
+    { return m_viewMatrix; }
 
-	/** @copydoc Ego::Graphics::Camera::getViewMatrix */
-	inline const Ego::Matrix4f4f& getViewMatrix() const override { return m_viewMatrix; }
+    /** @copydoc idlib::camera::position() */
+    inline const Ego::Vector3f& position() const override
+    { return m_position; }
 
-	/** @copydoc Ego::Graphics::Camera::getPosition */
-	inline const Ego::Vector3f& getPosition() const override { return m_position; }
+    /** @copydoc idlib::camera::up */
+    inline const Ego::Vector3f& up() const override
+    { return m_up; }
 
-	/** @copydoc Ego::Graphics::Camera::getUp */
-	inline const Ego::Vector3f& getUp() const override { return m_up; }
-	
-	/** @copydoc Ego::Graphics::Camera::getRight */
-	inline const Ego::Vector3f& getRight() const override { return m_right; }
-	
-	/** @copydoc Ego::Graphics::Camera::getForward */
-	inline const Ego::Vector3f& getForward() const override { return m_forward; }
+    /** @copydoc idlib::camera::right */
+    inline const Ego::Vector3f& right() const override
+    { return m_right; }
+
+    /** @copydoc idlib::camera::forward() */
+    inline const Ego::Vector3f& forward() const override
+    { return m_forward; }
 
     /** @copydoc Ego::Graphics::Cmaera::getViewport */
     inline const Ego::Graphics::Viewport& getViewport() const { return *m_viewport; }

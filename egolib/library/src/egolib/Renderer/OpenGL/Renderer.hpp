@@ -35,8 +35,7 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
 
-namespace Ego {
-namespace OpenGL {
+namespace Ego::OpenGL {
 
 // Forward declaration.
 class DefaultTexture;
@@ -110,7 +109,7 @@ public:
     virtual void setAlphaTestEnabled(bool enabled) override;
 
     /** @copydoc Ego::Renderer::setAlphaFunction */
-    virtual void setAlphaFunction(idlib::compare_function function, float value) override;
+    virtual void setAlphaFunction(idlib::compare_function function, single value) override;
 
     /** @copydoc Ego::Renderer::setBlendingEnabled */
     virtual void setBlendingEnabled(bool enabled) override;
@@ -138,7 +137,7 @@ public:
     virtual void setScissorTestEnabled(bool enabled) override;
 
     /** @copydoc Ego::Renderer::setScissorRectangle */
-    virtual void setScissorRectangle(float left, float bottom, float width, float height) override;
+    virtual void setScissorRectangle(single left, single bottom, single width, single height) override;
 
     /** @copydoc Ego::Renderer::setStencilMaskBack */
     virtual void setStencilMaskBack(uint32_t mask) override;
@@ -150,13 +149,13 @@ public:
     virtual void setStencilTestEnabled(bool enabled) override;
 
     /** @copydoc Ego::Renderer::setViewportRectangle */
-    virtual void setViewportRectangle(float left, float bottom, float width, float height) override;
+    virtual void setViewportRectangle(single left, single bottom, single width, single height) override;
 
     /** @copydoc Ego::Renderer::setWindingMode */
     virtual void setWindingMode(idlib::winding_mode mode) override;
 
     /** @copydoc Ego::Renderer::multMatrix */
-    virtual void multiplyMatrix(const Matrix4f4f& matrix) override;
+    virtual void multiplyMatrix(const idlib::matrix_4s4s& matrix) override;
 
     /** @copydoc Ego::Renderer::setPerspectiveCorrectionEnabled */
     virtual void setPerspectiveCorrectionEnabled(bool enabled) override;
@@ -171,10 +170,10 @@ public:
     virtual void setLineSmoothEnabled(bool enabled) override;
 
     /** @copydoc Ego::Renderer::setLineWidth */
-    virtual void setLineWidth(float width) override;
+    virtual void setLineWidth(single width) override;
 
     /** @copydoc Ego::Renderer::setPointSize */
-    virtual void setPointSize(float size) override;
+    virtual void setPointSize(single size) override;
 
     /** @copydoc Ego::Renderer::setPolygonSmoothEnabled */
     virtual void setPolygonSmoothEnabled(bool enabled) override;
@@ -199,19 +198,18 @@ public:
 
 public:
     /** @copydoc Ego::Renderer::setProjectionMatrix */
-    void setProjectionMatrix(const Matrix4f4f& projectionMatrix) override;
+    void setProjectionMatrix(const idlib::matrix_4s4s& projectionMatrix) override;
 
     /** @copydoc Ego::Renderer::setViewMatrix */
-    void setViewMatrix(const Matrix4f4f& viewMatrix) override;
+    void setViewMatrix(const idlib::matrix_4s4s& viewMatrix) override;
 
     /** @copydoc Ego::Renderer::setWorldMatrix */
-    void setWorldMatrix(const Matrix4f4f& worldMatrix) override;
+    void setWorldMatrix(const idlib::matrix_4s4s& worldMatrix) override;
 
 private:
-    std::array<float, 16> toOpenGL(const Matrix4f4f& source);
+    std::array<single, 16> toOpenGL(const idlib::matrix_4s4s& source);
     GLenum toOpenGL(idlib::color_blend_parameter source);
 
 }; // class Renderer
 
-} // namespace OpenGL
-} // namespace Ego
+} // namespace Ego::OpenGL

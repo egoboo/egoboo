@@ -745,17 +745,14 @@ void Camera::updateEffects()
     _swing = ( _swing + _swingRate ) & 0x3FFF;
 }
 
-void Camera::setScreen( float xmin, float ymin, float xmax, float ymax )
+void Camera::setScreen(float xmin, float ymin, float xmax, float ymax)
 {
     // Set the screen rectangle.
-    m_viewport->setLeftPixels(xmin);
-    m_viewport->setTopPixels(ymin);
-    m_viewport->setWidthPixels(xmax - xmin);
-    m_viewport->setHeightPixels(ymax - ymin);
+    m_viewport->absolute_rectangle({ { xmin, ymin }, { xmax, ymax } });
 
     // Update projection after setting size.
-    float aspect_ratio = m_viewport->getWidthPixels()
-                       / m_viewport->getHeightPixels();
+    float aspect_ratio = m_viewport->absolute_rectangle().get_size().x()
+                       / m_viewport->absolute_rectangle().get_size().y();
     // The nearest we will have to worry about is 1/2 of a tile.
     float frustum_near = Info<int>::Grid::Size() * 0.25f;
     // Set the maximum depth to be the "largest possible size" of a mesh.

@@ -27,8 +27,7 @@
 #include "egolib/game/mesh.h"
 #include "egolib/game/Graphics/CameraSystem.hpp"
 
-namespace Ego {
-namespace Graphics {
+namespace Ego::Graphics {
 
 struct ClippingEntry
 {
@@ -117,5 +116,4 @@ private:
 	std::bitset<MAP_TILE_MAX> _lastRenderTiles; //index of all tiles that were rendered last frame
 };
 
-}
 }

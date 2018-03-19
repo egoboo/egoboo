@@ -23,7 +23,12 @@
 
 #include <SDL_mixer.h>
 #include "egolib/egoboo_setup.h"
-#include "egolib/Math/_Include.hpp"
+#include "egolib/typedef.h"
+#include "egolib/integrations/math.hpp"
+#include <unordered_map>
+#include <vector>
+#include <functional>
+#include <string>
 
 typedef int MusicID;
 typedef int SoundID;

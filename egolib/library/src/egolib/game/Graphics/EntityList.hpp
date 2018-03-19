@@ -27,8 +27,7 @@
 #include "egolib/game/mesh.h"
 #include "egolib/game/Graphics/CameraSystem.hpp"
 
-namespace Ego {
-namespace Graphics {
+namespace Ego::Graphics {
 /**
  * @brief
  *  List of object  and particle entities to be draw by a renderer.
@@ -128,5 +127,4 @@ public:
     size_t add(::Camera& camera, Ego::Particle& particle);
 };
 
-} // namespace Graphics
-} // namespace Ego
+} // namespace Ego::Graphics

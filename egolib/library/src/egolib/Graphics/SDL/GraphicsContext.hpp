@@ -2,9 +2,8 @@
 
 #include "egolib/Graphics/GraphicsContext.hpp"
 
-namespace Ego {
-namespace SDL {
-	
+namespace Ego::SDL {
+
 // Forward declaration.
 class GraphicsWindow;
 
@@ -27,5 +26,4 @@ public:
 
 }; // class GraphicsContext
 
-} // namespace SDL
-} // namespace Ego
+} // namespace Ego::SDL

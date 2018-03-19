@@ -23,12 +23,12 @@
 
 #include "egolib/game/GUI/InternalWindow.hpp"
 #include "egolib/game/GUI/Image.hpp"
+#include "egolib/game/Core/GameEngine.hpp"
 #include "egolib/game/GUI/Material.hpp"
 
 static constexpr int BORDER_PIXELS = 5;
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 
 InternalWindow::TitleBar::TitleBar(const std::string &title) :
     _titleBarTexture("mp_data/titlebar"),
@@ -185,6 +185,4 @@ void InternalWindow::setSize(const Vector2f& size) {
     Component::setSize(size);
 }
 
-} // namespace GUI
-} // namespace Ego
-
+} // namespace Ego::GUI

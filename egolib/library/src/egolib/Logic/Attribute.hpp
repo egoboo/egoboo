@@ -23,10 +23,9 @@
 #pragma once
 
 #include "egolib/Logic/Damage.hpp"
+#include <functional>
 
-namespace Ego
-{
-namespace Attribute
+namespace Ego::Attribute
 {
     enum AttributeType : uint8_t
     {
@@ -210,8 +209,7 @@ namespace Attribute
                 return false;
         }
     }
-}
-}
+} // namespace Ego::Attribute
 
 //Hash specialization to allow AttributeType to be hashed by std::containers
 namespace std

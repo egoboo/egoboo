@@ -2,8 +2,7 @@
 
 #include "egolib/game/Graphics/RenderPass.hpp"
 
-namespace Ego {
-namespace Graphics {
+namespace Ego::Graphics {
 
 /// The render pass for non-reflective tiles
 /// i.e. tiles which do not reflect entities.
@@ -16,5 +15,4 @@ protected:
 };
 
 
-} // namespace Graphics
-} // namespace Ego
+} // namespace Ego::Graphics

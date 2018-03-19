@@ -29,6 +29,8 @@
 #include "egolib/game/GUI/Button.hpp"
 #include "egolib/game/GUI/Image.hpp"
 #include "egolib/game/GUI/Label.hpp"
+#include "egolib/Graphics/GraphicsSystem.hpp"
+#include "egolib/Graphics/GraphicsWindow.hpp"
 
 OptionsScreen::OptionsScreen() :
 	_slidyButtons()

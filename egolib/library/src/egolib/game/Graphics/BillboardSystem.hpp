@@ -32,8 +32,7 @@ struct Billboard;
 }
 }
 
-namespace Ego {
-namespace Graphics {
+namespace Ego::Graphics {
 
 class BillboardSystem
 {
@@ -80,5 +79,4 @@ public:
     std::shared_ptr<Billboard> makeBillboard(ObjectRef obj_ref, const std::string& text, const Ego::Colour4f& textColor, const Ego::Colour4f& tint, int lifetime_secs, const BIT_FIELD opt_bits, const float size = 0.75f);
 };
 
-} // namespace Graphics
-} // namespace Ego
+} // namespace Ego::Graphics

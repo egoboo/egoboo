@@ -2,8 +2,7 @@
 #include "egolib/game/graphic.h"
 #include "egolib/game/Graphics/RenderPasses.hpp"
 
-namespace Ego {
-namespace Graphics {
+namespace Ego::Graphics {
 
 HeightmapRenderPass::HeightmapRenderPass() :
     RenderPass("heightmap")
@@ -24,5 +23,4 @@ void HeightmapRenderPass::doRun(::Camera& camera, const TileList& tl, const Enti
     }
 }
 
-} // namespace Graphics
-} // namespace Ego
+} // namespace Ego::Graphics

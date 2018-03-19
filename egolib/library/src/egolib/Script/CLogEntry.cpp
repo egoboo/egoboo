@@ -1,7 +1,6 @@
 #include "egolib/Script/CLogEntry.hpp"
 
-namespace Ego {
-namespace Script {
+namespace Ego::Script {
 
 CLogEntry::CLogEntry(Log::Level level, const std::string& fileName, int lineNumber,
                      const std::string& functionName, const idlib::hll::location& location)
@@ -34,5 +33,4 @@ Log::Target& operator<<(Log::Target& target, const CLogEntry& entry)
     return target;
 }
 
-} // namespace Script
-} // namespace Ego
+} // namespace Ego::Script

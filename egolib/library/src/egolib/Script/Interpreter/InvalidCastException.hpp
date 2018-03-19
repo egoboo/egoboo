@@ -23,11 +23,9 @@
 
 #pragma once
 
-#include "idlib/idlib.hpp"
+#include <stdexcept>
 
-namespace Ego {
-namespace Script {
-namespace Interpreter {
+namespace Ego::Script::Interpreter {
 
 // Forward declaration.
 enum class Tag;
@@ -70,6 +68,4 @@ public:
 
 }; // class InvalidCastException
 
-} // namespace Interpreter
-} // namespace Script
-} // namespace Ego
+} // namespace Ego::Script::Interpreter

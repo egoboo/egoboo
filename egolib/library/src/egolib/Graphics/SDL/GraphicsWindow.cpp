@@ -5,7 +5,7 @@
 #include "egolib/Image/ImageManager.hpp"
 #include "egolib/Extensions/ogl_extensions.h"
 
-namespace Ego { namespace SDL {
+namespace Ego::SDL {
 
 static void UploadColorBufferSettings()
 {
@@ -354,5 +354,5 @@ std::shared_ptr<SDL_Surface> GraphicsWindow::getContents() const
         std::rethrow_exception(std::current_exception());
     }
 }
-} // namespace SDL
-} // namespace Ego
+
+} // namespace Ego::SDL

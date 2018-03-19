@@ -112,4 +112,4 @@ bool QuestLog::exportToFile(const std::string& filePath) const
     return true;    
 }
 
-} //Ego
+} // namespace Ego

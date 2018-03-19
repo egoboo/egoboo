@@ -1,6 +1,7 @@
 #pragma once
 
-#include "idlib/idlib.hpp"
+#include <string>
+#include <cstdint>
 
 struct OpcodeInfo
 {

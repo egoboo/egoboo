@@ -4,8 +4,7 @@
 #include "egolib/game/graphic.h"
 #include "egolib/Entities/_Include.hpp"
 
-namespace Ego {
-namespace Graphics {
+namespace Ego::Graphics {
 
 ParticleGraphics::ParticleGraphics() :
     valid(false),
@@ -78,10 +77,10 @@ gfx_rv ParticleGraphics::update_vertices(ParticleGraphics& inst, ::Camera& camer
     inst.ref_pos[kZ] = 2 * pprt->enviro.floor_level - inst.pos[kZ];
 
     // get the vector from the camera to the particle
-    Vector3f vfwd = inst.pos - camera.getPosition();
+    Vector3f vfwd = inst.pos - camera.position();
     vfwd = normalize(vfwd).get_vector();
 
-    Vector3f vfwd_ref = inst.ref_pos - camera.getPosition();
+    Vector3f vfwd_ref = inst.ref_pos - camera.position();
     vfwd_ref = normalize(vfwd_ref).get_vector();
 
     // Set the up and right vectors.
@@ -105,7 +104,7 @@ gfx_rv ParticleGraphics::update_vertices(ParticleGraphics& inst, ::Camera& camer
     else if (prt_ori_t::ORIENTATION_B == inst.orientation)
     {
         // Use the camera up vector.
-        vup = camera.getUp();
+        vup = camera.up();
         vup = normalize(vup).get_vector();
 
         // Get the correct "right" vector.
@@ -124,7 +123,7 @@ gfx_rv ParticleGraphics::update_vertices(ParticleGraphics& inst, ::Camera& camer
         // is turned by 45 degrees to the camera (instead of 90 degrees which is invisible)
 
         // Use the camera up vector.
-        Vector3f vup_cam = camera.getUp();
+        Vector3f vup_cam = camera.up();
 
         // Use the global up vector.
         vup = Vector3f(0.0f, 0.0f, 1.0f);
@@ -191,11 +190,11 @@ gfx_rv ParticleGraphics::update_vertices(ParticleGraphics& inst, ::Camera& camer
             // Use the camera directions?
             switch (inst.orientation)
             {
-                case prt_ori_t::ORIENTATION_X: vup = camera.getForward(); break;
-                case prt_ori_t::ORIENTATION_Y: vup = camera.getRight(); break;
+                case prt_ori_t::ORIENTATION_X: vup = camera.forward(); break;
+                case prt_ori_t::ORIENTATION_Y: vup = camera.right(); break;
 
                 default:
-                case prt_ori_t::ORIENTATION_Z: vup = camera.getUp(); break;
+                case prt_ori_t::ORIENTATION_Z: vup = camera.up(); break;
             }
         }
 
@@ -212,7 +211,7 @@ gfx_rv ParticleGraphics::update_vertices(ParticleGraphics& inst, ::Camera& camer
     else
     {
         // Use the camera up vector.
-        vup = camera.getUp();
+        vup = camera.up();
         vup = normalize(vup).get_vector();
 
         // Get the correct "right" vector.
@@ -439,5 +438,4 @@ gfx_rv ParticleGraphics::update(::Camera& camera, const ParticleRef particle, ui
     return retval;
 }
 
-} // namespace Graphics
-} // namespace Ego
+} // namespace Ego::Graphics

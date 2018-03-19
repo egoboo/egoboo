@@ -2,11 +2,11 @@
 
 #include "egolib/Graphics/SDL/GraphicsWindow.hpp"
 #include "egolib/egoboo_setup.h"
+#include "egolib/Log/_Include.hpp"
 #define GLEW_STATIC
 #include <GL/glew.h>
 
-namespace Ego {
-namespace SDL {
+namespace Ego::SDL {
 
 GraphicsContext::GraphicsContext(GraphicsWindow *window) :
     Ego::GraphicsContext(window), window(window)
@@ -92,6 +92,5 @@ GraphicsContext::~GraphicsContext()
     }
     window = nullptr;
 }
-	
-} // namespace SDL
-} // namespace Ego
+
+} // namespace Ego::SDL

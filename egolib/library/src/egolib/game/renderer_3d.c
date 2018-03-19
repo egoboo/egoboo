@@ -220,9 +220,9 @@ LineSegmentList Renderer3D::lineSegmentList;
 
 void Renderer3D::begin3D(Camera& camera) {
     auto& renderer = Ego::Renderer::get();
-    renderer.setProjectionMatrix(camera.getProjectionMatrix());
+    renderer.setProjectionMatrix(camera.projection_matrix());
     renderer.setWorldMatrix(idlib::identity<Ego::Matrix4f4f>());
-    renderer.setViewMatrix(camera.getViewMatrix());
+    renderer.setViewMatrix(camera.view_matrix());
 }
 
 void Renderer3D::end3D() {}

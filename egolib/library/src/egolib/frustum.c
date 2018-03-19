@@ -24,8 +24,7 @@
 
 #include "egolib/frustum.h"
 
-namespace Ego {
-namespace Graphics {
+namespace Ego::Graphics {
 
 #pragma push_macro("far")
 #undef far
@@ -414,5 +413,4 @@ bool Frustum::intersects(const oct_bb_t& oct, const bool doEnds) const {
 #pragma pop_macro("FAR")
 #pragma pop_macro("far")
 
-} // namespace Graphics
-} // namespace Ego
+} // namespace Ego::Graphics

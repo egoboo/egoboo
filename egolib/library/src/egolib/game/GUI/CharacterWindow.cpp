@@ -9,10 +9,10 @@
 #include "egolib/Entities/_Include.hpp"
 #include "egolib/game/Logic/Player.hpp"
 #include "egolib/game/GUI/Layout.hpp"
+#include "egolib/game/Core/GameEngine.hpp"
 #include "egolib/game/GUI/JoinBounds.hpp"
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 
 static const float WindowWidth = 420;
 static const float BorderPadding = 32;
@@ -471,5 +471,4 @@ void CharacterWindow::describeEnchantEffects(const std::vector<std::shared_ptr<E
     list->forceUpdate();
 }
 
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI

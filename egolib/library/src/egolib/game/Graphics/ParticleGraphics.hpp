@@ -1,15 +1,12 @@
 #pragma once
 
 #include "egolib/game/egoboo.h"
+#include "egolib/Entities/Forward.hpp"
 
 // Forward declarations.
 class Camera;
-namespace Ego {
-class Particle;
-} // namespace Ego
 
-namespace Ego {
-namespace Graphics {
+namespace Ego::Graphics {
 
 /// All the data necessary to display a particle.
 struct ParticleGraphics
@@ -58,5 +55,4 @@ protected:
     static gfx_rv update_lighting(ParticleGraphics& inst, Ego::Particle *pprt, Uint8 trans, bool do_lighting);
 };
 
-} // namespace Graphics
-} // namespace Ego
+} // namespace Ego::Graphics

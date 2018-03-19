@@ -5,8 +5,7 @@
 #include "egolib/FileFormats/Globals.hpp"
 #include "egolib/Graphics/VertexFormat.hpp"
 
-namespace Ego {
-namespace Graphics {
+namespace Ego::Graphics {
 
 WaterTilesRenderPass::WaterTilesRenderPass() :
     RenderPass("water tiles")
@@ -21,9 +20,9 @@ void WaterTilesRenderPass::doRun(::Camera& camera, const TileList& tl, const Ent
 
     auto& renderer = Renderer::get();
     // Set projection matrix.
-    renderer.setProjectionMatrix(camera.getProjectionMatrix());
+    renderer.setProjectionMatrix(camera.projection_matrix());
     // Set view matrix.
-    renderer.setViewMatrix(camera.getViewMatrix());
+    renderer.setViewMatrix(camera.view_matrix());
     // Set world matrix.
     renderer.setWorldMatrix(idlib::identity<Matrix4f4f>());
 
@@ -238,5 +237,4 @@ gfx_rv WaterTilesRenderPass::render_water_fan(ego_mesh_t& mesh, const Index1D& t
     return gfx_success;
 }
 
-} // namespace Graphics
-} // namespace Ego
+} // namespace Ego::Graphics

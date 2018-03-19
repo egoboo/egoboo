@@ -20,7 +20,7 @@
 #include "gtest/gtest.h"
 #include "egolib/Mesh/Info.hpp"
 
-namespace Ego { namespace Test {
+namespace Ego::Test {
 
 TEST(mesh_info_iterator_test, test_zero_elements_1)
 {
@@ -52,4 +52,4 @@ TEST(mesh_info_iterator_test, test_one_element_1)
     }
 }
 
-} } // namespace Ego::Test
+} // namespace Ego::Test

@@ -24,8 +24,7 @@
 #include "egolib/Renderer/OpenGL/ColourBuffer.hpp"
 #include "egolib/Renderer/OpenGL/Utilities.hpp"
 
-namespace Ego {
-namespace OpenGL {
+namespace Ego::OpenGL {
 struct utilities {
 
     static uint8_t get_r_depth()
@@ -96,5 +95,4 @@ const idlib::rgba_depth& ColourBuffer::getColourDepth() {
     return colourDepth;
 }
 
-} // namespace OpenGL
-} // namespace Ego
+} // namespace Ego::OpenGL

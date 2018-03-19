@@ -29,12 +29,10 @@
 // Forward declarations.
 class ModuleProfile;
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 class Label;
 class ScrollableList;
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI
 
 class DebugObjectLoadingState : public GameState
 {

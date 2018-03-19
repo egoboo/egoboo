@@ -3,9 +3,10 @@
 #include "egolib/game/graphic.h"
 #include "egolib/Entities/_Include.hpp"
 #include "egolib/game/graphic_fan.h"
+#include "egolib/game/graphic_mad.h"
+#include "egolib/game/graphic_prt.h"
 
-namespace Ego {
-namespace Graphics {
+namespace Ego::Graphics {
 
 EntityReflectionsRenderPass::EntityReflectionsRenderPass() :
     RenderPass("entity reflections")
@@ -91,5 +92,4 @@ void EntityReflectionsRenderPass::doRun(::Camera& camera, const TileList& tl, co
     }
 }
 
-} // namespace Graphics
-} // namespace Ego
+} // namespace Ego::Graphics

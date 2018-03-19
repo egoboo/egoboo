@@ -3,8 +3,7 @@
 #include "egolib/Configuration/Variable.hpp"
 #include "egolib/Script/EnumDescriptor.hpp"
 
-namespace Ego {
-namespace Configuration {
+namespace Ego::Configuration {
 
 /// @brief A variable storing an enum class value.
 template <typename ValueType>
@@ -57,5 +56,4 @@ public:
     }
 };
 
-} // namespace Configuration
-} // namespace Ego
+} // namespace Ego::Configuration

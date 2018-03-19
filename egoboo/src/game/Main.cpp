@@ -20,6 +20,7 @@
 /// @author Michael Heilmann
 
 #include "egolib/game/Core/GameEngine.hpp"
+#include "egolib/Core/System.hpp"
 #include "egolib/game/GUI/UIManager.hpp"
 
 /**

@@ -1,7 +1,6 @@
 #include "egolib/game/GUI/OptionsButton.hpp"
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 
 OptionsButton::OptionsButton(const std::string &label) :
     _label(label) {
@@ -18,5 +17,4 @@ void OptionsButton::draw(DrawingContext& drawingContext) {
     Button::draw(drawingContext);
 }
 
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI

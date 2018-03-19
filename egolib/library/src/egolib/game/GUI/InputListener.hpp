@@ -2,8 +2,7 @@
 
 #include "egolib/integrations/events.hpp"
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 
 /**
  * This interface class allows the object to listen to any SDL events occuring. If any of the functions
@@ -75,5 +74,4 @@ public:
   
 };
 
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI

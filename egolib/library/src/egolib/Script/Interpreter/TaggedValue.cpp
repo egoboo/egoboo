@@ -26,9 +26,7 @@
 #include "egolib/Script/Interpreter/Tag.hpp"
 #include "egolib/Script/Interpreter/InvalidCastException.hpp"
 
-namespace Ego {
-namespace Script {
-namespace Interpreter {
+namespace Ego::Script::Interpreter {
 
 TaggedValue::TaggedValue(const TaggedValue& other) : tag(other.tag) {
     switch (tag) {
@@ -296,9 +294,7 @@ Tag TaggedValue::getTag() const {
     return tag;
 }
 
-} // namespace Interpreter
-} // namespace Script
-} // namespace Ego
+} // namespace Ego::Script::Interpreter
 
 std::ostream& operator<<(std::ostream& os, const Ego::Script::Interpreter::TaggedValue& taggedValue) {
     os << toString(taggedValue.getTag());

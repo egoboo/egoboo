@@ -37,8 +37,7 @@
 #include "egolib/game/Module/Module.hpp"
 
 
-namespace Ego {
-namespace Script {
+namespace Ego::Script {
 
 /// @brief An implementation of runtime statistics.
 struct RuntimeStatistics : IRuntimeStatistics<uint32_t>
@@ -105,8 +104,7 @@ Runtime::~Runtime()
     /* Intentionally empty. */
 }
 
-} // namespace Script
-} // namespace Ego
+} // namespace Ego::Script
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

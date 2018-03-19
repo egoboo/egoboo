@@ -27,8 +27,7 @@
 #include "egolib/game/Graphics/TileList.hpp"
 #include "egolib/game/Graphics/EntityList.hpp"
 
-namespace Ego {
-namespace Graphics {
+namespace Ego::Graphics {
 
 /// @brief An abstract render pass.
 struct RenderPass {
@@ -70,5 +69,4 @@ public:
     void run(::Camera& camera, const TileList& tileList, const EntityList& entityList);
 };
 
-} // namespace Graphics
-} // namespace Ego
+} // namespace Ego::Graphics

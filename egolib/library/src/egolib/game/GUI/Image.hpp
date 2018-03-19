@@ -1,10 +1,9 @@
 #pragma once
 
-#include "egolib/game/Core/GameEngine.hpp"
 #include "egolib/game/GUI/Component.hpp"
+#include "egolib/Renderer/DeferredTexture.hpp"
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 
 class Image : public Component {
 public:
@@ -30,5 +29,4 @@ private:
     Colour4f _tint;
 };
 
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI

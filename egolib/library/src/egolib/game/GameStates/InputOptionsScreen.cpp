@@ -2,11 +2,10 @@
 #include "egolib/game/GUI/Button.hpp"
 #include "egolib/game/GUI/Label.hpp"
 #include "egolib/InputControl/InputDevice.hpp"
+#include "egolib/game/Core/GameEngine.hpp"
 #include "egolib/InputControl/ControlSettingsFile.hpp"
 
-namespace Ego
-{
-namespace GameStates
+namespace Ego::GameStates
 {
 
 InputOptionsScreen::InputOptionsScreen() :
@@ -141,5 +140,4 @@ Ego::Input::InputDevice& InputOptionsScreen::getActiveInputDevice() const
     return Ego::Input::InputDevice::DeviceList[0];
 }
 
-} //GameStates
-} //Ego
+} // namespace Ego::GameStates

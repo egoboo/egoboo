@@ -27,8 +27,7 @@
 #include <string>
 #include <map>
 
-namespace Ego {
-namespace Script {
+namespace Ego::Script {
 
 /// @brief Collect statistics of a runtime.
 /// @remark
@@ -103,5 +102,4 @@ public:
     virtual void append(const std::string& pathname) = 0;
 };
 
-} // namespace Script
-} // namespace Ego
+} // namespace Ego::Script

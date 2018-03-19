@@ -23,18 +23,20 @@
 /// @author Johan Jansen
 #pragma once
 
-#include "egolib/game/egoboo.h"
+#include "idlib/non_copyable.hpp"
+#include "egolib/gui/forward.hpp"
+#include "egolib/integrations/math.hpp"
+#include "egolib/integrations/color.hpp"
+#include "egolib/integrations/video.hpp"
+#include "egolib/deprecated/frect.hpp"
 
 // Forward declarations.
 namespace Ego {
-class Font; 
-namespace GUI {
-class Material;
-}
+    class Font;
+    class Texture;
 }
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 
 class UIManager : private idlib::non_copyable {
 public:
@@ -172,5 +174,4 @@ private:
     std::shared_ptr<idlib::vertex_buffer> _textureQuadVertexBuffer;
 };
 
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI

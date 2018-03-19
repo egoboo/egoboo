@@ -1,10 +1,9 @@
 #pragma once
 
-#include "idlib/idlib.hpp"
+#include "idlib/exception.hpp"
+#include <string>
 
-namespace Ego
-{
-namespace Script
+namespace Ego::Script
 {
 
 /// @brief A constant in the in-memory representation of a compiled script.	
@@ -85,5 +84,4 @@ public:
     }
 };
 	
-} // namespace Script
-} // namespace Ego
+} // namespace Ego::Script

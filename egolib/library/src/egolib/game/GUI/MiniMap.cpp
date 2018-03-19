@@ -28,11 +28,11 @@
 #include "egolib/game/GUI/Material.hpp"
 #include "egolib/Entities/_Include.hpp"
 #include "egolib/game/Logic/Player.hpp"
+#include "egolib/game/graphic.h"
 
 static const uint32_t MINIMAP_BLINK_RATE = 500; //milliseconds between each minimap blink
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 
 const uint32_t MiniMap::MAPSIZE = 128;
 
@@ -205,5 +205,4 @@ bool MiniMap::notifyMouseButtonReleased(const Events::MouseButtonReleasedEvent& 
     return false;
 }
 
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI

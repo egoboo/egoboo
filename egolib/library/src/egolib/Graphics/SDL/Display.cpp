@@ -2,8 +2,7 @@
 #include "egolib/Graphics/SDL/DisplayMode.hpp"
 #include "idlib/exception.hpp"
 
-namespace Ego {
-namespace SDL {
+namespace Ego::SDL {
 
 Display::Display(GraphicsSystemNew *graphicsSystem, int displayIndex) :
     graphicsSystem(graphicsSystem), displayIndex(displayIndex)
@@ -62,5 +61,4 @@ void Display::update()
     }
 }
 
-} // namespace SDL
-} // namespace Ego
+} // namespace Ego::SDL

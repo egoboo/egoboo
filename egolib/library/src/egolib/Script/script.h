@@ -22,6 +22,7 @@
 #pragma once
 
 #include "egolib/typedef.h"
+#include "egolib/Entities/Forward.hpp"
 #include "egolib/Logic/Damage.hpp"
 #include "egolib/IDSZ.hpp"
 #include "egolib/Clock.hpp"
@@ -30,12 +31,10 @@
 #include "egolib/Script/ConstantPool.hpp"
 #include "egolib/Script/Interpreter/TaggedValue.hpp"
 #include "egolib/Script/OpcodeInfo.hpp"
+#include "idlib/singleton.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
-class Object;
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -534,8 +533,7 @@ void issue_order( const ObjectRef character, uint32_t order );
 void issue_special_order( uint32_t order, const IDSZ2& idsz );
 void set_alerts( const ObjectRef character );
 
-namespace Ego {
-namespace Script {
+namespace Ego::Script {
 
 // Forward declaration.
 template <typename FunctionType>
@@ -630,8 +628,7 @@ public:
     IRuntimeStatistics<uint32_t>& getStatistics() { return *_statistics; }
 };
 
-} // namespace Script
-} // namespace Ego
+} // namespace Ego::Script
 
 void scripting_system_begin();
 void scripting_system_end();

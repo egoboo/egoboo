@@ -4,18 +4,14 @@
 
 // Forward declarations.
 class CameraSystem;
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 class MiniMap;
 class Button;
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI
 class ModuleProfile;
 
 
-namespace Ego
-{
-namespace GameStates
+namespace Ego::GameStates
 {
 
 class MapEditorState : public GameState
@@ -56,5 +52,4 @@ private:
     EditorMode _editMode;
 };
 
-} //GameStates
-} //Ego
+} // namespace Ego::GameStates

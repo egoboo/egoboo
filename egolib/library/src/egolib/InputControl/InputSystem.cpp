@@ -1,7 +1,6 @@
-#include "InputSystem.hpp"
+#include "egolib/InputControl/InputSystem.hpp"
 
-namespace Ego {
-namespace Input {
+namespace Ego::Input {
 
 InputSystem::InputSystem() :
     mouseMovement(0.0f, 0.0f),
@@ -104,6 +103,5 @@ ModifierKeys InputSystem::getModifierKeys() const
     return modifierKeys;
 }
 
-} // namespace Input
-} // namespace Ego
+} // namespace Ego::Input
 

@@ -27,16 +27,12 @@
 
 // Forward declarations.
 class ModuleProfile;
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 class Button;
 class Label;
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI
 
-namespace Ego
-{
-namespace GameStates
+namespace Ego::GameStates
 {
 
 class MapEditorSelectModuleState : public GameState
@@ -66,5 +62,4 @@ private:
     std::shared_ptr<Ego::Font::LaidTextRenderer> _moduleDescription;
 };
 
-} //GameStates
-} //Ego
+} // namespace Ego::GameStates

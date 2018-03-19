@@ -23,10 +23,10 @@
 
 #include "egolib/game/GUI/IconButton.hpp"
 #include "egolib/game/GUI/Material.hpp"
+#include "egolib/game/Core/GameEngine.hpp"
 #include "egolib/Renderer/DeferredTexture.hpp"
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 
 IconButton::IconButton(const std::string &buttonText, const DeferredTexture& icon, int hotkey) : Button(buttonText, hotkey),
 _icon(icon),
@@ -68,5 +68,4 @@ void IconButton::setIconTint(const Colour4f &tint) {
     _iconTint = tint;
 }
 
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI

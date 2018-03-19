@@ -2,10 +2,12 @@
 #include "egolib/Entities/_Include.hpp"
 #include "egolib/Graphics/ModelDescriptor.hpp"  //for model action enum
 #include "egolib/game/game.h" //only for update_wld global var
+#include "egolib/game/graphic.h"
+#include "egolib/game/Core/GameEngine.hpp"
 #include "egolib/game/Logic/Player.hpp"
+#include "egolib/deprecated/hud_colors.hpp"
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 
 InventorySlot::InventorySlot(const Inventory &inventory, const size_t slotNumber, const std::shared_ptr<Player>& player) :
     _inventory(inventory),
@@ -83,5 +85,4 @@ bool InventorySlot::notifyMouseButtonPressed(const Events::MouseButtonPressedEve
     return false;
 }
 
-} //GUI
-} //Ego
+} // namespace Ego::GUI

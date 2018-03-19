@@ -26,6 +26,11 @@
 #include "egolib/game/GUI/Image.hpp"
 #include "egolib/game/GUI/Label.hpp"
 #include "egolib/game/GUI/Slider.hpp"
+#include "egolib/egoboo_setup.h"
+#include "egolib/game/Core/GameEngine.hpp"
+#include "egolib/Audio/AudioSystem.hpp"
+#include "egolib/Graphics/GraphicsSystem.hpp"
+#include "egolib/Graphics/GraphicsWindow.hpp"
 
 AudioOptionsScreen::AudioOptionsScreen()
 {

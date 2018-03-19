@@ -29,11 +29,9 @@
 // external types
 //--------------------------------------------------------------------------------------------
 
-namespace Ego {
-namespace OpenGL {
+namespace Ego::OpenGL {
 struct Texture;
-} // namespace OpenGL
-} // namespace Ego
+} // namespace Ego::OpenGL
 
 //--------------------------------------------------------------------------------------------
 

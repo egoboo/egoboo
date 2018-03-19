@@ -23,10 +23,10 @@
 
 #pragma once
 
-#include "egolib/typedef.h"
+#include "idlib/non_copyable.hpp"
+#include "idlib/exception.hpp"
 
-namespace Ego {
-namespace Time {
+namespace Ego::Time {
 
 /**
  * @remark
@@ -143,7 +143,7 @@ public:
         if (0 == capacity) {
 			delete[] _dataPoints;
 			_dataPoints = nullptr;
-            throw std::invalid_argument("capacity is 0");
+            throw idlib::invalid_argument_error(__FILE__, __LINE__, "capacity is 0");
         }
     }
     /** 
@@ -218,7 +218,7 @@ public:
 	 */
 	const _DataPointType& get(size_t index) const {
 		if (index >= _size) {
-			throw std::invalid_argument("index out of bounds");
+			throw idlib::invalid_argument_error(__FILE__, __LINE__, "index out of bounds");
 		}
 		return _dataPoints[(_old + index) % _capacity];
 
@@ -243,5 +243,4 @@ public:
     
 };
 
-} // namespace Time
-} // namespace Ego
+} // namespace Ego::Time

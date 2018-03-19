@@ -23,8 +23,7 @@
 
 #include "egolib/Script/PDLToken.hpp"
 
-namespace Ego {
-namespace Script {
+namespace Ego::Script {
 
 PDLToken::PDLToken()
     : idlib::hll::token<PDLTokenKind,PDLTokenKind::Unknown>(PDLTokenKind::Unknown, idlib::hll::location("<unknown>", 1), std::string()), m_endLocation("<unknown>", 1), m_value(0)
@@ -96,5 +95,4 @@ std::ostream& operator<<(std::ostream& os, const PDLToken& token)
     return os;
 }
 
-} // namespace Script
-} // namespace Ego
+} // namespace Ego::Script

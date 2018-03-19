@@ -1,11 +1,8 @@
 #pragma once
 
-//Forward declarations
-namespace Ego { class Particle; }
+#include "egolib/Entities/Forward.hpp"
 
-namespace Ego
-{
-namespace Physics
+namespace Ego::Physics
 {
 
 class ParticlePhysics
@@ -52,5 +49,4 @@ private:
 	Ego::Particle& _particle;
 };
 
-} //Physics
-} //Ego
+} //Ego::Physics

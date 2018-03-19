@@ -30,13 +30,12 @@
 #include "egolib/game/Graphics/TextureAtlasManager.hpp"
 #include "egolib/game/Graphics/TileList.hpp"
 #include "egolib/game/Graphics/CameraSystem.hpp"
+#include "egolib/game/graphic.h"
 
 #include "egolib/game/Module/Module.hpp"
 #include "egolib/Entities/_Include.hpp"
 
-namespace Ego
-{
-namespace GameStates
+namespace Ego::GameStates
 {
 
 MapEditorState::MapEditorState(std::shared_ptr<ModuleProfile> module) :
@@ -159,5 +158,4 @@ void MapEditorState::loadModuleData(std::shared_ptr<ModuleProfile> module)
 }
 
 
-} //GameStates
-} //Ego
+} // namespace Ego::GameStates

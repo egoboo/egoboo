@@ -2,8 +2,8 @@
 
 #include "egolib/game/GUI/Component.hpp"
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
+
 /// A container is a component which may contain other components.
 class Container : public Component {
 public:
@@ -129,5 +129,5 @@ private:
     /// @brief The mutex.
     std::mutex _mutex;
 };
-} // namespace GUI
-} // namespace Ego
+
+} // namespace Ego::GUI

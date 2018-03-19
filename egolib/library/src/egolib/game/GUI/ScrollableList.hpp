@@ -25,16 +25,9 @@
 #pragma once
 
 #include "egolib/game/GUI/Container.hpp"
+#include "egolib/gui/forward.hpp"
 
-// Forward declaration.
-namespace Ego {
-namespace GUI {
-class Button;
-} // namespace GUI
-} // namespace Ego
-
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 
 class ScrollableList : public Container {
 public:
@@ -75,5 +68,4 @@ private:
     std::shared_ptr<Button> _upButton;
 };
 
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI

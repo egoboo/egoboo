@@ -22,10 +22,9 @@
 /// @author Michael Heilmann
 
 #include "egolib/Script/DDLTokenKind.hpp"
-#include "idlib/idlib.hpp"
+#include "idlib/exception.hpp"
 
-namespace Ego {
-namespace Script {
+namespace Ego::Script {
 
 std::string toString(DDLTokenKind kind)
 {
@@ -45,5 +44,4 @@ std::ostream& operator<<(std::ostream& os, const DDLTokenKind& kind)
     return os;
 }
 
-} // namespace Script
-} // namespace Ego
+} // namespace Ego::Script

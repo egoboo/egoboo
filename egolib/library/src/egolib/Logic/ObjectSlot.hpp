@@ -18,6 +18,8 @@
 //********************************************************************************************
 #pragma once
 
+#include "egolib/Math/Math.hpp"
+
 #define GRIP_VERTS             4
 
 /// Where an item is being held

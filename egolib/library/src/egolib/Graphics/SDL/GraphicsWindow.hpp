@@ -3,8 +3,7 @@
 #include "egolib/Graphics/GraphicsWindow.hpp"
 #include "egolib/integrations/math.hpp"
 
-namespace Ego {
-namespace SDL {
+namespace Ego::SDL {
 
 /// @brief An SDL/OpenGL graphics window.
 class GraphicsWindow : public Ego::GraphicsWindow
@@ -72,5 +71,4 @@ public:
     std::shared_ptr<SDL_Surface> getContents() const override;
 }; // class GraphicsWindow
 
-} // namespace SDL
-} // namespace Ego
+} // namespace Ego::SDL

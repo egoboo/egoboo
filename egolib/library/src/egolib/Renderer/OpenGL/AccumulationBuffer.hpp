@@ -25,10 +25,7 @@
 
 #include "egolib/Renderer/Renderer.hpp"
 
-namespace Ego {
-namespace OpenGL {
-
-using namespace Math;
+namespace Ego::OpenGL {
 
 class AccumulationBuffer : public Ego::AccumulationBuffer
 {
@@ -43,16 +40,15 @@ public:
     virtual ~AccumulationBuffer();
 
 public:
-    /** @copydoc Ego::Buffer<Ego::Colour4f>::clear */
+    /** @copydoc Ego::Buffer<idlib::color_4s>::clear */
     virtual void clear() override;
 
-    /** @copydoc Ego::Buffer<Ego::Colour4f>::setClearValue */
-    virtual void setClearValue(const Colour4f& value) override;
+    /** @copydoc Ego::Buffer<idlib::color_4s>::setClearValue */
+    virtual void setClearValue(const idlib::color_4s& value) override;
 
     /** @copydoc Ego::AccumulationBuffer::getColourDepth */
     virtual const idlib::rgba_depth& getColourDepth() override;
 
 }; // class AccumulationBuffer
 
-} // namespace OpenGL
-} // namespace Ego
+} // namespace Ego::OpenGL

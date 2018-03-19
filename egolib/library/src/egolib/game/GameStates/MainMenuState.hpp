@@ -26,11 +26,9 @@
 #include "egolib/game/GameStates/GameState.hpp"
 
 // Forward declarations.
-namespace Ego {
-namespace GUI{
+namespace Ego::GUI{
 class Button;
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI
 
 class MainMenuState : public GameState
 {

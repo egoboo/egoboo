@@ -22,14 +22,20 @@
 
 #pragma once
 
-#include "egolib/typedef.h"
-#include "egolib/Renderer/Renderer.hpp"
+#include "idlib/singleton.hpp"
+#include <condition_variable>
+#include <forward_list>
+#include <unordered_map>
+#include <memory>
+#include <string>
+
+namespace Ego { class Texture; }
 
 namespace Ego {
 
 struct TextureManager : public idlib::singleton<TextureManager> {
 protected:
-	friend idlib::default_new_functor<TextureManager>;
+    friend idlib::default_new_functor<TextureManager>;
     friend idlib::default_delete_functor<TextureManager>;
 protected:
     /**

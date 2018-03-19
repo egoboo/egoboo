@@ -521,7 +521,7 @@ std::shared_ptr<SDL_Surface> Font::layoutToTexture(const std::string &text, cons
     auto colorByte = Colour3b(colour);
 
     auto surf = ImageManager::get().createImage(surfWidth, surfHeight, pfd);
-    Ego::fill(surf.get(), Colour4b(colorByte, 0));
+    idlib::fill(surf.get(), Colour4b(colorByte, 0));
     SDL::setBlendMode(surf.get(), SDL::BlendMode::NoBlending);
 
     auto atlasSurf = laidText.atlas.texture->m_source;
@@ -532,11 +532,11 @@ std::shared_ptr<SDL_Surface> Font::layoutToTexture(const std::string &text, cons
         uint16_t chr = laidText.codepoints[i];
         auto charPos = laidText.positions[i];
         auto glyphPos = laidText.atlas.glyphs.at(chr);
-        Ego::blit(atlasSurf.get(),
-                  Rectangle2f(glyphPos.get_min(),
-                              glyphPos.get_max()),
-                  surf.get(),
-                  charPos.get_min());
+        idlib::blit(atlasSurf.get(),
+                    Rectangle2f(glyphPos.get_min(),
+                                glyphPos.get_max()),
+                    surf.get(),
+                    charPos.get_min());
     }
 
     SDL::setColourMod(atlasSurf.get(), oldMod);
@@ -571,7 +571,7 @@ Font::FontAtlas Font::createFontAtlas(const std::vector<uint16_t> &codepoints) c
 
     while (currentMaxSize <= maxTextureSize) {
         atlas = ImageManager::get().createImage(currentMaxSize, currentMaxSize, pfd);
-        Ego::fill(atlas.get(), Colour4b(Colour3b::white(), 0));
+        idlib::fill(atlas.get(), Colour4b(Colour3b::white(), 0));
         SDL::setBlendMode(atlas.get(), SDL::BlendMode::NoBlending);
 
         int x = 0, y = 0;
@@ -606,7 +606,7 @@ Font::FontAtlas Font::createFontAtlas(const std::vector<uint16_t> &codepoints) c
             }
 
             auto dst = Rectangle2f(Point2f(x, y), Point2f(x + surf->w, y + surf->h));
-            Ego::blit(surf.get(), atlas.get(), Point2f(x, y));
+            idlib::blit(surf.get(), atlas.get(), Point2f(x, y));
             pos.push_back(dst);
             x += surf->w + 1;
         }

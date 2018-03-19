@@ -18,15 +18,11 @@
 //********************************************************************************************
 #pragma once
 
-#include "idlib/idlib.hpp"
+#include "idlib/singleton.hpp"
+#include "egolib/Entities/Forward.hpp"
 #include "egolib/egolib.h"
 
-//Forward declarations
-namespace Ego { class Particle; }
-
-namespace Ego
-{
-namespace Physics
+namespace Ego::Physics
 {
 
 class CollisionSystem : public idlib::singleton<CollisionSystem>
@@ -106,5 +102,4 @@ private:
     ~CollisionSystem();
 };
 
-} //namespace Physics
-} //namespace Ego
+} //namespace Ego::Physics

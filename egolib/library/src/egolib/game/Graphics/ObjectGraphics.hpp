@@ -1,6 +1,5 @@
 #pragma once
 
-#include "idlib/idlib.hpp"
 #include "egolib/game/CharacterMatrix.h"
 #include "egolib/game/Graphics/Vertex.hpp"
 
@@ -8,7 +7,7 @@
 #include "egolib/Graphics/MD2Model.hpp"
 
 //Forward declarations
-namespace Ego { namespace Graphics { class ObjectGraphics; } }
+namespace Ego::Graphics { class ObjectGraphics; }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -95,10 +94,7 @@ struct VertexListCache
     uint32_t vert_wld;          ///< the update_wld the last time the vertices were updated
 };
 
-namespace Ego
-{
-
-namespace Graphics
+namespace Ego::Graphics
 {
 
 /// All the data that the renderer needs to draw the character
@@ -355,5 +351,4 @@ private:
     ModelAction _nextAnimation;     //< The animation to play after current one is done
 };
 
-} //namespace Graphics
-} //namespace Ego
+} //namespace Ego::Graphics

@@ -23,10 +23,11 @@
 
 #pragma once
 
-#include "egolib/typedef.h"
+#include "idlib/non_copyable.hpp" // idlib::non_copyable
+#include <chrono>
+#include <ctime> // std::time_t
 
-namespace Ego {
-namespace Time {
+namespace Ego::Time {
 /**
  * @brief
  *	"local" (aka "calendar") time class . Essentially, this class
@@ -217,5 +218,4 @@ public:
 
 };
 
-} // Time
-} // Ego
+} // Ego::Time

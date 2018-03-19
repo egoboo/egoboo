@@ -1,9 +1,9 @@
 #pragma once
 
 #include "egolib/Script/Constant.hpp"
+#include <vector>
 
-namespace Ego {
-namespace Script {
+namespace Ego::Script {
 
 /// @brief A constant pool in the in-memory representation of a compiled script.
 /// A constant pool is a set of constants. Constants can only be added, they can
@@ -77,5 +77,4 @@ public:
     void clear();
 };
 
-} // namespace Script
-} // namespace Ego
+} // namespace Ego::Script

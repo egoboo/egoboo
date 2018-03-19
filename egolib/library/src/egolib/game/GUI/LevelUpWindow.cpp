@@ -4,9 +4,9 @@
 #include "egolib/game/GUI/Material.hpp"
 #include "egolib/Entities/_Include.hpp"
 #include "egolib/game/Logic/Player.hpp"
+#include "egolib/game/Core/GameEngine.hpp"
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 
 static const int PERK_THUMBNAIL_SIZE = 64;
 
@@ -513,5 +513,4 @@ Perks::PerkID LevelUpWindow::getCurrentPerk() const {
     return _currentPerk;
 }
 
-} //GUI
-} //Ego 
+} // namespace Ego::GUI

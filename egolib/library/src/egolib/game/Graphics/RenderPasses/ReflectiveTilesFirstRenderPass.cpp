@@ -2,8 +2,7 @@
 #include "egolib/game/graphic.h"
 #include "egolib/game/Graphics/RenderPasses.hpp"
 
-namespace Ego {
-namespace Graphics {
+namespace Ego::Graphics {
 
 ReflectiveTilesFirstRenderPass::ReflectiveTilesFirstRenderPass() :
     RenderPass("reflective tiles first")
@@ -42,5 +41,4 @@ void ReflectiveTilesFirstRenderPass::doRun(::Camera& camera, const TileList& tl,
     }
 }
 
-} // namespace Graphics
-} // namespace Ego
+} // namespace Ego::Graphics

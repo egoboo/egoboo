@@ -3,8 +3,7 @@
 #include "egolib/Configuration/Variable.hpp"
 #include "idlib/utility/is_any_of.hpp"
 
-namespace Ego {
-namespace Configuration {
+namespace Ego::Configuration {
 
 /// @brief A variable storing either a @a bool or and @a std::string value.
 template <class ValueType>
@@ -46,5 +45,4 @@ public:
 
 };
 
-} // namespace Configuration
-} // namespace Ego
+} // namespace Ego::Configuration

@@ -27,10 +27,10 @@
 #endif
 
 #include "egolib/game/egoboo.h"
+#include "egolib/Entities/Forward.hpp"
 #include "egolib/Core/QuadTree.hpp"
-
-//Forward declarations
-class Object;
+#include <unordered_set>
+#include <memory>
 
 //ZF> Some macros from C Egoboo (TODO: remove these macros)
 ObjectRef GET_INDEX_PCHR(const Object *pobj);

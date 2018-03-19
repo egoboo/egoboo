@@ -24,8 +24,7 @@
 #include "egolib/Script/DDLToken.hpp"
 
 
-namespace Ego {
-namespace Script {
+namespace Ego::Script {
 
 DDLToken::DDLToken(DDLTokenKind kind, const idlib::hll::location& startLocation, const std::string& lexeme)
     : idlib::hll::token<DDLTokenKind, DDLTokenKind::Unknown>(kind, startLocation, lexeme)
@@ -56,5 +55,4 @@ std::ostream& operator<<(std::ostream& os, const DDLToken& token)
     return os;
 }
 
-} // namespace Script
-} // namespace Ego
+} // namespace Ego::Script

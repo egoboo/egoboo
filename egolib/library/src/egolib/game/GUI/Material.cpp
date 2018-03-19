@@ -23,8 +23,7 @@
 
 #include "egolib/game/GUI/Material.hpp"
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 
 Material::Material(const std::shared_ptr<const Texture>& texture, const Colour4f& colour, bool isAlphaBlendingEnabled)
 	: _texture(texture), _colour(colour), _isAlphaBlendingEnabled(isAlphaBlendingEnabled)
@@ -76,5 +75,4 @@ void Material::setColour(const Colour4f& colour) {
     this->_colour = colour;
 }
 
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI

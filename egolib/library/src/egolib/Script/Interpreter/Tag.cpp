@@ -24,9 +24,7 @@
 #include "egolib/Script/Interpreter/Tag.hpp"
 #include "idlib/idlib.hpp"
 
-namespace Ego {
-namespace Script {
-namespace Interpreter {
+namespace Ego::Script::Interpreter {
 
 std::string toString(Tag tag) {
     switch (tag) {
@@ -57,6 +55,4 @@ std::string toString(Tag tag) {
     }
 }
 
-} // namespace Interpreter
-} // namespace Script
-} // namespace Ego
+} // namespace Ego::Script::Interpreter

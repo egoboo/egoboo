@@ -42,7 +42,7 @@ class ModuleProfile;
 class Passage;
 class Team;
 namespace Ego { class Player; }
-namespace Ego { namespace Input { class InputDevice; } }
+namespace Ego::Input { class InputDevice; }
 
 /// The module data that the game needs.
 class GameModule : private idlib::non_copyable

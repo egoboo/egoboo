@@ -5,8 +5,7 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
 
-namespace Ego {
-namespace OpenGL {
+namespace Ego::OpenGL {
 
 // Forward declaration.
 class RendererInfo;
@@ -113,5 +112,4 @@ public:
     static void setSampler(const std::shared_ptr<RendererInfo>& info, idlib::texture_type type, const idlib::texture_sampler& sampler);
 };
 
-} // namespace OpenGL
-} // namespace Ego
+} // namespace Ego::OpenGL

@@ -23,8 +23,9 @@
 
 #pragma once
 
-#include "egolib/platform.h"
-#include "egolib/typedef.h"
+#include <vector>
+#include <random>
+#include "egolib/integrations/math.hpp"
 
 class Random
 {

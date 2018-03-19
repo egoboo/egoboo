@@ -1,10 +1,9 @@
 #pragma once
 
-#include "egolib/game/Core/GameEngine.hpp"
 #include "egolib/game/GUI/Component.hpp"
+#include "egolib/Graphics/Font.hpp" /// @todo Can not forward declare nested class Font::LaidTextRenderer.
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 
 /// @brief A label is text enclosed in a rectangle.
 class Label : public Component {
@@ -78,5 +77,4 @@ private:
     std::shared_ptr<Font::LaidTextRenderer> _textRenderer;
 };
 
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI

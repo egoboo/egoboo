@@ -1,8 +1,7 @@
 #include "egolib/game/GUI/Component.hpp"
 #include "egolib/game/GUI/Container.hpp"
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 
 Component::Component() :
     _destroyed(false),
@@ -130,5 +129,4 @@ void Component::bringToFront() {
     _parent->bringComponentToFront(shared_from_this());
 }
 
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI

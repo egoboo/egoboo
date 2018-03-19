@@ -1,10 +1,9 @@
 #pragma once
 
-#include "egolib/game/Core/GameEngine.hpp"
 #include "egolib/game/GUI/Component.hpp"
+#include "egolib/Graphics/Font.hpp" /// @todo Can not forward declare nested class Font::LaidTextRenderer.
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 
 class Button : public Component {
 public:
@@ -56,5 +55,4 @@ private:
     float _slidyButtonCurrentX;
 };
 
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI

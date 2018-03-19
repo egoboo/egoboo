@@ -24,8 +24,7 @@
 #include "egolib/Script/PDLTokenKind.hpp"
 #include "idlib/idlib.hpp"
 
-namespace Ego {
-namespace Script {
+namespace Ego::Script {
 
 std::string toString(PDLTokenKind kind)
 {
@@ -45,5 +44,4 @@ std::ostream& operator<<(std::ostream& os, const PDLTokenKind& kind)
     return os;
 }
 
-} // namespace Script
-} // namespace Ego
+} // namespace Ego::Script

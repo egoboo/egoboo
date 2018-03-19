@@ -5,10 +5,10 @@
 #include "egolib/game/GUI/IconButton.hpp"
 #include "egolib/game/GUI/Label.hpp"
 #include "egolib/game/GUI/Material.hpp"
+#include "egolib/game/Core/GameEngine.hpp"
+#include "egolib/game/graphic.h"
 
-namespace Ego
-{
-namespace GameStates
+namespace Ego::GameStates
 {
 
 MapEditorSelectModuleState::MapEditorSelectModuleState() :
@@ -149,5 +149,4 @@ void MapEditorSelectModuleState::drawContainer(Ego::GUI::DrawingContext& drawing
     UI->endRenderUI();
 }
 
-} //GameStates
-} //Ego
+} // namespace Ego::GameStates

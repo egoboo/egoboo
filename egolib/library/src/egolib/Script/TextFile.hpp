@@ -25,9 +25,7 @@
 #include "egolib/Script/Traits.hpp"
 #include <string>
 
-namespace Ego
-{
-namespace Script
+namespace Ego::Script
 {
 
 /**
@@ -125,5 +123,4 @@ public:
 
 };
 
-} // namespace Script
-} // namespace Ego
+} // namespace Ego::Script

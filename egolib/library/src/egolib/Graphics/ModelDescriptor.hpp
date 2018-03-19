@@ -21,7 +21,11 @@
 /// @author Johan Jansen aka Zefz
 #pragma once
 
-#include "egolib/typedef.h"
+#include "idlib/non_copyable.hpp"
+#include "egolib/deprecated/bitfield.hpp"
+#include <array>
+#include <memory>
+#include <string>
 
 //Forward declarations
 class MD2Model;

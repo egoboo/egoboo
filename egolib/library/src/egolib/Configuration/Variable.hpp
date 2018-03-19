@@ -3,8 +3,7 @@
 #include "idlib/signal.hpp"
 #include "idlib/non_copyable.hpp"
 
-namespace Ego {
-namespace Configuration {
+namespace Ego::Configuration {
 
 /// @brief The base of all variables.
 template <typename ValueTypeArg>
@@ -98,5 +97,4 @@ public:
 template <typename ValueTypeArg, typename EnabledArg = void>
 class Variable;
 
-} // namespace Configuration
-} // namespace Ego
+} // namespace Ego::Configuration

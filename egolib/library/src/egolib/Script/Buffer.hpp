@@ -23,10 +23,11 @@
 
 #pragma once
 
-#include "idlib/idlib.hpp"
+#include "idlib/non_copyable.hpp"
+#include <deque>
+#include <string>
 
-namespace Ego {
-namespace Script {
+namespace Ego::Script {
 
 /// @brief A dynamically resizing buffer for bytes.
 class Buffer : private idlib::non_copyable
@@ -171,5 +172,4 @@ public:
     const_reverse_iterator crend() const { return elements.crend(); }
 };
 
-} // namespace Script
-} // namespace Ego
+} // namespace Ego::Script

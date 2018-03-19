@@ -26,8 +26,7 @@
 #include "egolib/game/Core/GameEngine.hpp" //only for _currentModule
 #include "egolib/game/Module/Module.hpp" //only for _currentModule
 
-namespace Ego {
-namespace Graphics {
+namespace Ego::Graphics {
 
 TileList::TileList() :
 	_all(), 
@@ -153,5 +152,4 @@ bool TileList::inRenderList(const Index1D& index) const
 	return _renderTiles[index.i()];
 }
 
-}
 }

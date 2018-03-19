@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "egolib/typedef.h"
+#include "idlib/idlib.hpp"
 
 /// Conversion from the "Ego File" Byte order to the "host" Byte order.
 #define Endian_FileToHost(x) \

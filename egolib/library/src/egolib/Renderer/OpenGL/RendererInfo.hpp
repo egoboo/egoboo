@@ -1,9 +1,9 @@
 #pragma once
 
 #include "egolib/Renderer/RendererInfo.hpp"
+#include <unordered_set>
 
-namespace Ego {
-namespace OpenGL {
+namespace Ego::OpenGL {
 
 class RendererInfo : public Ego::RendererInfo
 {
@@ -24,10 +24,10 @@ private:
     bool m_isAnisotropySupported;
 
     /// @see Ego::OpenGL::RendererInfo::getMinimumSupportedAnisotropy()
-    float m_minimumSupportedAnisotropy;
+    single m_minimumSupportedAnisotropy;
 
     /// @see Ego::OpenGL::RendererInfo::getMaximumSupportedAnisotropy()
-    float m_maximumSupportedAnisotropy;
+    single m_maximumSupportedAnisotropy;
 
 public:
     /// @brief Construct this renderer info.
@@ -49,10 +49,10 @@ public:
     bool isAnisotropySupported() const noexcept override;
 
     /// @copydoc Ego::RendererInfo::getMinimumSupportedAnisotropy
-    float getMinimumSupportedAnisotropy() const noexcept override;
+    single getMinimumSupportedAnisotropy() const noexcept override;
 
     /// @copydoc Ego::RendererInfo::getMaximumSupportedAnisostropy
-    float getMaximumSupportedAnisotropy() const noexcept override;
+    single getMaximumSupportedAnisotropy() const noexcept override;
 
     /// @copydoc Ego::RendererInfo::getMaximumTextureSize
     int getMaximumTextureSize() const noexcept override;
@@ -70,5 +70,4 @@ public:
     const std::unordered_set<std::string>& getExtensions() const;
 };
 
-} // namespace OpenGL
-} // namespace Ego
+} // namespace Ego::OpenGL

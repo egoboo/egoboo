@@ -29,8 +29,7 @@
 #include "egolib/Renderer/OpenGL/DefaultTexture.hpp"
 #include "egolib/Image/ImageManager.hpp"
 
-namespace Ego {
-namespace OpenGL {
+namespace Ego::OpenGL {
 
 Texture::Texture(Renderer *renderer) :
     Texture
@@ -251,5 +250,4 @@ bool Texture::isDefault() const
         || getId() == m_renderer->m_defaultTexture2d->getId();
 }
 
-} // namespace OpenGL
-} // namespace Ego
+} // namespace Ego::OpenGL

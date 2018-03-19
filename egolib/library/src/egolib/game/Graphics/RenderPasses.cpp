@@ -22,26 +22,13 @@
 /// @author Michael Heilmann
 
 #include "egolib/game/Graphics/RenderPasses.hpp"
-#include "egolib/game/graphic.h"
-#include "egolib/game/graphic_prt.h"
-#include "egolib/game/graphic_mad.h"
-#include "egolib/game/graphic_fan.h"
-#include "egolib/game/Graphics/BillboardSystem.hpp"
-#include "egolib/game/renderer_3d.h"
-#include "egolib/game/Logic/Player.hpp"
-#include "egolib/Script/script.h"
-#include "egolib/game/script_compile.h"
-#include "egolib/game/game.h"
-#include "egolib/game/lighting.h"
-#include "egolib/game/egoboo.h"
 #include "egolib/game/mesh.h"
+#include "egolib/game/graphic_mad.h"
 #include "egolib/game/Graphics/CameraSystem.hpp"
 #include "egolib/FileFormats/Globals.hpp"
-#include "egolib/game/Module/Module.hpp"
-#include "egolib/Entities/_Include.hpp"
+#include "egolib/game/graphic.h"
 
-namespace Ego {
-namespace Graphics {
+namespace Ego::Graphics {
 
 namespace Internal {
 
@@ -297,5 +284,4 @@ gfx_rv TileListV2::render_heightmap_fan(ego_mesh_t& mesh, const Index1D& tileInd
 
 }
 
-}
 }

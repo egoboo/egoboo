@@ -30,8 +30,7 @@
 #include "egolib/game/CharacterMatrix.h"
 #include "egolib/Graphics/VertexFormat.hpp"
 
-namespace Ego {
-namespace Graphics {
+namespace Ego::Graphics {
 
 void BillboardSystem::update()
 {
@@ -220,7 +219,7 @@ void BillboardSystem::render_all(::Camera& camera)
 
             for (const auto &billboard : _billboardList)
             {
-                render_one(*billboard, camera.getUp(), camera.getRight());
+                render_one(*billboard, camera.up(), camera.right());
             }
         }
     }
@@ -261,5 +260,4 @@ std::shared_ptr<Billboard> BillboardSystem::makeBillboard(ObjectRef obj_ref, con
     return billboard;
 }
 
-} // namespace Graphics
-} // namespace Ego
+} // namespace Ego::Graphics

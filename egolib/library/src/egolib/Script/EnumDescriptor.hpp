@@ -27,8 +27,7 @@
 #include <map>
 #include <string>
 
-namespace Ego {
-namespace Script {
+namespace Ego::Script {
 
 /**
  * @brief
@@ -169,5 +168,4 @@ public:
 
 };
 
-} // namespace Script
-} // namespace Ego
+} // namespace Ego::Script

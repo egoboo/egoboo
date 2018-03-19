@@ -24,9 +24,7 @@
 #include "egolib/Script/Interpreter/Configuration.hpp"
 #include <type_traits>
 
-namespace Ego {
-namespace Script {
-namespace Interpreter {
+namespace Ego::Script::Interpreter {
 
 static_assert(std::is_same<RealValue, float>::value || std::is_same<RealValue, double>::value,
               "Ego::Script::Interpreter::Real must be either float or double");
@@ -34,6 +32,4 @@ static_assert(std::is_same<RealValue, float>::value || std::is_same<RealValue, d
 static_assert(std::is_same<IntegerValue, int>::value || std::is_same<IntegerValue, long>::value,
               "Ego::Script::Interpreter::Integer must be either int or long");
 
-} // namespace Interpreter
-} // namespace Script
-} // namespace Ego
+} // namespace Ego::Script::Interpreter

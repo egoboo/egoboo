@@ -24,8 +24,7 @@
 
 #include "egolib/game/GUI/Component.hpp"
 
-namespace Ego {
-namespace GUI {
+namespace Ego::GUI {
 
 class MessageLog : public Component {
 public:
@@ -54,5 +53,4 @@ private:
     std::list<Message> _messages;
 };
 
-} // namespace GUI
-} // namespace Ego
+} // namespace Ego::GUI

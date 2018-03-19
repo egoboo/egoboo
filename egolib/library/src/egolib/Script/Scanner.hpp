@@ -4,11 +4,12 @@
 #include "idlib/parsing_expression.hpp"
 #include "egolib/Script/TextInputFile.hpp"
 #include "idlib/hll.hpp"
+#include "idlib/idlib.hpp"
 
 #pragma push_macro("ERROR")
 #undef ERROR
 
-namespace Ego { namespace Script {
+namespace Ego::Script {
 
 /// @brief A scanner.
 /// @tparam TraitsArg the type of the traits
@@ -324,6 +325,6 @@ public:
 
 };
 
-} } // namespace Ego::Script
+} // namespace Ego::Script
 
 #pragma pop_macro("ERROR")

@@ -23,20 +23,20 @@
 
 #include "egolib/Graphics/MD2Model.hpp"
 #include "egolib/game/lighting.h"
+#include "egolib/deprecated/frect.hpp"
 #include "egolib/Extensions/ogl_extensions.h"
 
 // Forward declaration.
 class Camera;
 class ego_mesh_t;
 class ego_tile_info_t;
-namespace Ego {
-namespace Graphics {
+namespace Ego::Graphics {
 class BillboardSystem;
 class Md2ModelRenderer;
 struct RenderPass;
 struct TileList;
 struct EntityList;
-} }
+}
 
 void  draw_hud();
 
@@ -68,26 +68,11 @@ void  draw_hud();
 
 #define SHADOWRAISE                       5
 
-/// The supported colors of bars and blips
-enum HUDColors : uint8_t
-{
-    COLOR_WHITE = 0,
-    COLOR_RED,
-    COLOR_YELLOW,
-    COLOR_GREEN,
-    COLOR_BLUE,
-    COLOR_PURPLE,
-    COLOR_MAX
-};
-
-namespace Ego 
-{
-namespace Graphics
+namespace Ego::Graphics
 {
     // The map file only supports 256 tile textures:
     // Four texture atlases each with 8 x 8 textures hence 4 * (8 * 8) = 256 different tile textures.
     static constexpr size_t MESH_IMG_COUNT = 256;
-}
 }
 
 //--------------------------------------------------------------------------------------------
