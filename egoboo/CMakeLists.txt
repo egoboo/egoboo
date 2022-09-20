@@ -1,9 +1,10 @@
 # Minimum required CMake version.
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.10)
 
-# Project name and settings.
+# Project name and programming language.
 project(egoboo CXX)
 message("building Egoboo Executable")
+
 set_project_default_properties()
 
 set(SOURCE_FILES "")
