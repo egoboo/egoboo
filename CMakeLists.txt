@@ -10,7 +10,7 @@ set(IDLIB_PATH ${CMAKE_CURRENT_SOURCE_DIR}/idlib)
 set(IDLIB_GAME_ENGINE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/idlib-game-engine)
 
 # Add Idlib.
-set(idlib-with-tests OFF CACHE BOOL
+set(idlib-with-tests ON CACHE BOOL
     "enable/disable compilation of tests. ON enables compilation of tests, OFF disables compilation of tests. Initial value is OFF." FORCE)
 set(idlib-with-demos OFF CACHE BOOL
     "enable/disable compilation of demos. ON enables compilation of demos, OFF disables compilation of demos. Initial value is OFF." FORCE)
@@ -19,7 +19,7 @@ set(idlib-with-documentation OFF CACHE BOOL
 add_subdirectory(${IDLIB_PATH})
 
 # Add Idlib: Game Engine.
-set(idlib-game-engine-with-tests OFF CACHE BOOL
+set(idlib-game-engine-with-tests ON CACHE BOOL
     "enable/disable compilation of tests. ON enables compilation of tests, OFF disables compilation of tests. Initial value is OFF." FORCE)
 set(idlib-game-engine-with-demos OFF CACHE BOOL
     "enable/disable compilation of demos. ON enables compilation of demos, OFF disables compilation of demos. Initial value is OFF." FORCE)

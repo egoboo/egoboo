@@ -9,6 +9,7 @@ gmock_main.pc
 gtest.pc
 gtest_main.pc
 DartConfiguration.tcl
+_deps/*
 
 # CMake/CPack.
 cmake_install.cmake

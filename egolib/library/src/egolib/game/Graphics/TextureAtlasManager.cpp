@@ -71,7 +71,7 @@ void TextureAtlasManager::decimate(const std::shared_ptr<const Ego::Texture>& so
             }
 
             // Copy the pixels.
-            Ego::blit(sourceImage.get(), Rectangle2f(Point2f(rectangle.x, rectangle.y), Point2f(rectangle.x + rectangle.w, rectangle.y + rectangle.h)), targetImage.get());
+            idlib::blit(sourceImage.get(), Rectangle2f(Point2f(rectangle.x, rectangle.y), Point2f(rectangle.x + rectangle.w, rectangle.y + rectangle.h)), targetImage.get());
 
             // upload the SDL_Surface into OpenGL
             targetTexture->load(targetImage);

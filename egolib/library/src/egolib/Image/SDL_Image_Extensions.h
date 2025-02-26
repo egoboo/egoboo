@@ -25,13 +25,8 @@
 
 #include "egolib/Graphics/PixelFormat.hpp"
 #include "egolib/Math/_Include.hpp"
-#include "egolib/Image/blit.hpp"
 #include "egolib/Image/convert.hpp"
-#include "egolib/Image/fill.hpp"
-#include "egolib/Image/get_pixel.hpp"
-#include "egolib/Image/pad.hpp"
-#include "egolib/Image/power_of_two.hpp"
-#include "egolib/Image/set_pixel.hpp"
+#include "idlib/game_engine.hpp"
 #include "egolib/integrations/color.hpp"
 
 namespace Ego { namespace SDL {
@@ -117,25 +112,29 @@ struct convert_functor<SDL_Surface>
     std::shared_ptr<SDL_Surface> operator()(const std::shared_ptr<SDL_Surface>& pixels, const pixel_descriptor& format) const;
 };
 
+} // namespace Ego
+
+namespace idlib {
+
 template <>
 struct power_of_two_functor<SDL_Surface>
 {
-    std::shared_ptr<SDL_Surface> operator()(const std::shared_ptr<SDL_Surface>& pixels) const;
+  std::shared_ptr<SDL_Surface> operator()(const std::shared_ptr<SDL_Surface>& pixels) const;
 };
 
 template <>
 struct pad_functor<SDL_Surface>
 {
-    std::shared_ptr<SDL_Surface> operator()(const std::shared_ptr<SDL_Surface>& pixels, const padding& padding) const;
+  std::shared_ptr<SDL_Surface> operator()(const std::shared_ptr<SDL_Surface>& pixels, const padding& padding) const;
 };
 
 template <>
 struct blit_functor<SDL_Surface>
 {
     void operator()(SDL_Surface *source, SDL_Surface *target) const;
-    void operator()(SDL_Surface *source, const Rectangle2f& source_rectangle, SDL_Surface *target) const;
-    void operator()(SDL_Surface *source, SDL_Surface *target, const Point2f& target_position) const;
-    void operator()(SDL_Surface *source, const Rectangle2f& source_rectangle, SDL_Surface *target, const Point2f& target_position) const;
+    void operator()(SDL_Surface *source, const Ego::Rectangle2f& source_rectangle, SDL_Surface *target) const;
+    void operator()(SDL_Surface *source, SDL_Surface *target, const Ego::Point2f& target_position) const;
+    void operator()(SDL_Surface *source, const Ego::Rectangle2f& source_rectangle, SDL_Surface *target, const Ego::Point2f& target_position) const;
 };
 
 template <>
@@ -145,8 +144,8 @@ struct fill_functor<SDL_Surface>
     /// @brief Fill an SDL surface with the specified color.
     /// @param surface a pointer to the SDL surface
     /// @param color the fill color
-    void operator()(SDL_Surface *surface, const Colour3b& color) const;
-    void operator()(SDL_Surface *surface, const Colour4b& color) const;
+    void operator()(SDL_Surface *surface, const Ego::Colour3b& color) const;
+    void operator()(SDL_Surface *surface, const Ego::Colour4b& color) const;
     /// @}
 
     /// @{
@@ -154,8 +153,8 @@ struct fill_functor<SDL_Surface>
     /// @param surface a pointer to the SDL surface
     /// @param rectangle the rectangle of the SDL surface to fill. Clipped against the rectangle of the image.
     /// @param color the fill color
-    void operator()(SDL_Surface *surface, const Colour3b& color, const Rectangle2f& rectangle) const;
-    void operator()(SDL_Surface *surface, const Colour4b& color, const Rectangle2f& rectangle) const;
+    void operator()(SDL_Surface *surface, const Ego::Colour3b& color, const Ego::Rectangle2f& rectangle) const;
+    void operator()(SDL_Surface *surface, const Ego::Colour4b& color, const Ego::Rectangle2f& rectangle) const;
     /// @}
 };
 
@@ -167,7 +166,7 @@ struct get_pixel_functor<SDL_Surface>
     /// @param surface a pointer to the SDL surface
     /// @param position the position of the pixel to fill
     /// @return the color of the pixel of the SDL surface
-    Colour4b operator()(const SDL_Surface *surface, const Point2f& point) const;
+  Ego::Colour4b operator()(const SDL_Surface *surface, const Ego::Point2f& point) const;
     /// @}
 };
 
@@ -179,12 +178,12 @@ struct set_pixel_functor<SDL_Surface>
     /// @param surface a pointer to the SDL surface
     /// @param position the position of the pixel to fill. Clipped against the rectangle of the SDL surface.
     /// @param color the fill color
-    void operator()(SDL_Surface *surface, const Colour3b& color, const Point2f& point) const;
-    void operator()(SDL_Surface *surface, const Colour4b& color, const Point2f& point) const;
+    void operator()(SDL_Surface *surface, const Ego::Colour3b& color, const Ego::Point2f& point) const;
+    void operator()(SDL_Surface *surface, const Ego::Colour4b& color, const Ego::Point2f& point) const;
     /// @}
 
 private:
-    void operator()(SDL_Surface *surface, uint32_t coded_color, const Point2f& point) const;
+    void operator()(SDL_Surface *surface, uint32_t coded_color, const Ego::Point2f& point) const;
 };
 
-} // namespace Ego
+} // namespace idlib

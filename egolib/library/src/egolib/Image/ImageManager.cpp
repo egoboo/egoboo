@@ -204,11 +204,11 @@ std::shared_ptr<SDL_Surface> ImageManager::getDefaultImage()
             auto rect = Rectangle2f({x * 16, y * 16}, {x * 16 + 16, y * 16 + 16});
             if (z % 2 != 0)
             {
-                Ego::fill(surface.get(), Colour3b::black(), rect); // black
+                idlib::fill(surface.get(), Colour3b::black(), rect); // black
             }
             else
             {
-                Ego::fill(surface.get(), Colour3b::white(), rect); // white
+                idlib::fill(surface.get(), Colour3b::white(), rect); // white
             }
             z++;
         }

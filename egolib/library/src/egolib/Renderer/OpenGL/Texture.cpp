@@ -101,7 +101,7 @@ void Texture::load(const std::string& name, const std::shared_ptr<SDL_Surface>& 
     newSurface = convert(newSurface, pixel_format);
 
     // Convert to power of two.
-    newSurface = power_of_two(newSurface);
+    newSurface = idlib::power_of_two(newSurface);
 
     // (1)Generate a new OpenGL texture ID.
     Utilities::clearError();
