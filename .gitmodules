@@ -6,9 +6,9 @@
 	url = https://github.com/egoboo/egoboo-external
 [submodule "idlib"]
 	path = idlib
-    url = https://github.com/primordialmachine/idlib
+  url = https://github.com/egoboo/idlib
 	branch = develop
 [submodule "idlib-game-engine"]
 	path = idlib-game-engine
-	url = https://github.com/egoboo/idlib-game-engine.git
+	url = https://github.com/egoboo/idlib-game-engine
 	branch = develop
