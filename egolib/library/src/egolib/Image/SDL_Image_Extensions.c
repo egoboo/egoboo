@@ -416,7 +416,7 @@ std::shared_ptr<SDL_Surface> pad_functor<SDL_Surface>::operator()(const std::sha
         for (size_t x = 0; x < oldWidth; ++x)
         {
             auto p = get_pixel(oldSurface.get(), { x, y });
-            set_pixel(newSurface.get(), p, { padding.left + x, padding.top + y });
+            Ego::set_pixel(newSurface.get(), p, { padding.left + x, padding.top + y });
         }
     }
     return newSurface;
