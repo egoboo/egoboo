@@ -21,7 +21,7 @@ install:
   # depth 32 should be enough.
   - git submodule update --init --recursive --depth 32
   # Download and install CMake.
-  - set CMAKE_URL="https://cmake.org/files/v3.8/cmake-3.8.0-win64-x64.zip"
+  - set CMAKE_URL="https://cmake.org/files/v3.30/cmake-3.30.0-windows-x86_64.zip"
   - appveyor DownloadFile %CMAKE_URL% -FileName cmake.zip
   - 7z x cmake.zip -oC:\projects\deps > nul
   - move C:\projects\deps\cmake-* C:\projects\deps\cmake # Move to a version-agnostic directory
@@ -32,7 +32,6 @@ install:
 # Furthermore, the artifact name and the artifact file name are computed.
 before_build:
     #- nuget restore
-    - ps: .\idlib\ci\appveyor\install-googletest-vsix.ps1
     - cmd: if "%platform%"=="Win32" set CMAKE_GENERATOR_NAME=Visual Studio 15 2017
     - cmd: if "%platform%"=="x64"   set CMAKE_GENERATOR_NAME=Visual Studio 15 2017 Win64
     - cmake -G "%CMAKE_GENERATOR_NAME%" CMakeLists.txt
@@ -41,13 +40,11 @@ build:
     parallel: true                  # enable MSBuild parallel builds
     project: egoboo.sln             # path to Visual Studio solution or project
 
-#test_script:
-#    - ps: |
-#        $platformName = $env:platform
-#        if ($env:platform -eq "Win32") { $platformName = "x86" }
-#        vstest.console /Logger:Appveyor /ListDiscoverers /UseVsixExtensions:true
-#        vstest.console /Logger:Appveyor /ListExecutors /UseVsixExtensions:true
-#        vstest.console /Logger:Appveyor /Platform:$platformName /inIsolation /UseVsixExtensions:true "products\$env:configuration\$platformName\bin\idlib-game-engine-tests-executable.exe"
+test_script:
+    - ps: ctest --output-junit test-results-${env:APPVEYOR_JOB_ID}.xml -C ${env:CONFIGURATION} 
+    - ps: |
+        $webClient = New-Object 'System.Net.WebClient'
+        $webClient.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\test-results-${env:APPVEYOR_JOB_ID}.xml))
 
 # if one matrix entry fails, all entries fails
 # https://www.appveyor.com/docs/build-configuration#failing-strategy
@@ -55,7 +52,7 @@ matrix:
     fast_finish: true
      
 notifications:
-    - provider: Webhook
-      url: https://webhooks.gitter.im/e/7743b26cbf1767e7b3a3
-      on_build_success: true
-      on_build_failure: true
+    #- provider: Webhook
+    #  url: https://webhooks.gitter.im/e/7743b26cbf1767e7b3a3
+    #  on_build_success: true
+    #  on_build_failure: true

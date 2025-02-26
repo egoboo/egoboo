@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 3.10)
 
 project(egoboo)
 
+enable_testing()
+
 # Set path to Idlib.
 set(IDLIB_PATH ${CMAKE_CURRENT_SOURCE_DIR}/idlib)
 

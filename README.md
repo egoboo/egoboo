@@ -30,11 +30,6 @@ cmake <path to source directory>
 where `<path to source directory>` is replaced by the actual path to your *source directory*.
 CMake will generate the environment specific build files (e.g., Visual Studio files, Make files, etc.) in the *build directory*.
 
-#### Travis CI Build Status
-Travis CI build status of [master](https://github.com/egoboo/egoboo/tree/master) branch:
-[![Build Status](https://travis-ci.org/egoboo/egoboo.svg?branch=master)](https://travis-ci.org/egoboo/egoboo)
-
 #### Appveyor CI Build Status
 Appveyor CI build status of [master](https://github.com/egoboo/egoboo/tree/master) branch:
-[![Build status](https://ci.appveyor.com/api/projects/status/dlhlmftwucu55lkt/branch/master?svg=true)](https://ci.appveyor.com/project/egoboo/egoboo/branch/master)
-
+[![Build status](https://ci.appveyor.com/api/projects/status/7sjmdgolmvmv3hc1/branch/master?svg=true)](https://ci.appveyor.com/project/michaelheilmann-com/egoboo/branch/master)
