@@ -23,13 +23,8 @@
 #include "egolib/Graphics/PixelFormat.hpp"
 #include "egolib/Math/_Include.hpp"
 #include "egolib/integrations/color.hpp"
-#include "egolib/Image/blit.hpp"
 #include "egolib/Image/convert.hpp"
-#include "egolib/Image/fill.hpp"
-#include "egolib/Image/get_pixel.hpp"
-#include "egolib/Image/pad.hpp"
-#include "egolib/Image/power_of_two.hpp"
-#include "egolib/Image/set_pixel.hpp"
+#include "idlib/game_engine.hpp"
 
 #if !SDL_VERSION_ATLEAST(2, 0, 0)
 int SDL_GetColorKey(SDL_Surface *surface, uint32_t *key);
@@ -102,65 +97,58 @@ struct convert_functor<Image>
     std::shared_ptr<Image> operator()(const std::shared_ptr<Image>& image, const pixel_descriptor& format) const;
 };
 
+} // namespace Ego
+
+namespace idlib {
+
 template <>
-struct pad_functor<Image>
+struct pad_functor<Ego::Image>
 {
-    std::shared_ptr<Image> operator()(const std::shared_ptr<Image>& image, const padding& padding) const;
+  std::shared_ptr<Ego::Image> operator()(const std::shared_ptr<Ego::Image>& image, const padding& padding) const;
 };
 
 template <>
-struct power_of_two_functor<Image>
+struct power_of_two_functor<Ego::Image>
 {
-    std::shared_ptr<Image> operator()(const std::shared_ptr<Image>& image) const;
+  std::shared_ptr<Ego::Image> operator()(const std::shared_ptr<Ego::Image>& image) const;
 };
 
 template <>
-struct get_pixel_functor<Image>
+struct get_pixel_functor<Ego::Image>
 {
-    Colour4b operator()(const Image *image, const Point2f& point) const;
+  Ego::Colour4b operator()(const Ego::Image* image, const Ego::Point2f& point) const;
 };
 
 template <>
-struct blit_functor<Image>
+struct blit_functor<Ego::Image>
 {
-    void operator()(Image *source, Image *target) const;
-    void operator()(Image *source, const Rectangle2f& source_rectangle, Image *target) const;
-    void operator()(Image *source, Image *target, const Point2f& target_position) const;
-    void operator()(Image *source, const Rectangle2f& source_rectangle, Image *target, const Point2f& target_position) const;
+    void operator()(Ego::Image *source, Ego::Image *target) const;
+    void operator()(Ego::Image *source, const Ego::Rectangle2f& source_rectangle, Ego::Image *target) const;
+    void operator()(Ego::Image *source, Ego::Image *target, const Ego::Point2f& target_position) const;
+    void operator()(Ego::Image *source, const Ego::Rectangle2f& source_rectangle, Ego::Image *target, const Ego::Point2f& target_position) const;
 };
 
 template <>
-struct fill_functor<Image>
+struct fill_functor<Ego::Image>
 {
-    /// @{
-    /// @brief Fill an image with the specified color.
-    /// @param image a pointer to the image
-    /// @param color the fill color
-    void operator()(Image *image, const Colour3b& color) const;
-    void operator()(Image *image, const Colour4b& color) const;
-    /// @}
+    void operator()(Ego::Image *image, const Ego::Colour3b& color) const;
+    void operator()(Ego::Image *image, const Ego::Colour4b& color) const;
 
-    /// @{
-    /// @brief Fill a rectangle of an image with the specified color.
-    /// @param image a pointer to the image
-    /// @param rectangle the rectangle of the image to fill. Clipped against the rectangle of the image.
-    /// @param color the fill color
-    void operator()(Image *image, const Colour3b& color, const Rectangle2f& rectangle) const;
-    void operator()(Image *image, const Colour4b& color, const Rectangle2f& rectangle) const;
-    /// @}
+    void operator()(Ego::Image *image, const Ego::Colour3b& color, const Ego::Rectangle2f& rectangle) const;
+    void operator()(Ego::Image *image, const Ego::Colour4b& color, const Ego::Rectangle2f& rectangle) const;
 };
 
 template <>
-struct set_pixel_functor<Image>
+struct set_pixel_functor<Ego::Image>
 {
     /// @{
     /// @brief Fill a pixel of an image with the specified colour.
     /// @param image a pointer to the image
     /// @param position the position of the pixel to fill. Clipped against the rectangle of the image.
     /// @param color the fill color
-    void operator()(Image *image, const Colour3b& color, const Point2f& point) const;
-    void operator()(Image *image, const Colour4b& color, const Point2f& point) const;
+    void operator()(Ego::Image *image, const Ego::Colour3b& color, const Ego::Point2f& point) const;
+    void operator()(Ego::Image *image, const Ego::Colour4b& color, const Ego::Point2f& point) const;
     /// @}
 };
 
-} // namespace Ego
+} // namespace idlib

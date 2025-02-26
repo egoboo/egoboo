@@ -143,15 +143,25 @@ std::shared_ptr<Image> convert_functor<Image>::operator()(const std::shared_ptr<
     }
 }
 
+} // namespace Ego
+
+namespace idlib {
+
+using Image = Ego::Image;
+using Rectangle2f = Ego::Rectangle2f;
+using Point2f = Ego::Point2f;
+using Colour3b = Ego::Colour3b;
+using Colour4b = Ego::Colour4b;
+
 std::shared_ptr<Image> power_of_two_functor<Image>::operator()(const std::shared_ptr<Image>& image) const
 {
     // Alias old width and old height.
     int oldWidth = image->getWidth(),
-        oldHeight = image->getHeight();
+       oldHeight = image->getHeight();
 
     // Compute new width and new height.
-    int newWidth = Math::powerOfTwo(oldWidth),
-        newHeight = Math::powerOfTwo(oldHeight);
+    int newWidth = Ego::Math::powerOfTwo(oldWidth),
+       newHeight = Ego::Math::powerOfTwo(oldHeight);
 
     // Only if the new dimension differ from the old dimensions, perform the scaling.
     if (newWidth != oldWidth || newHeight != oldHeight)
@@ -282,4 +292,4 @@ void set_pixel_functor<Image>::operator()(Image *image, const Colour4b& color, c
     set_pixel(image->getSurface(), color, point);
 }
 
-} // namespace Ego
+} // namespace idlib

@@ -341,30 +341,35 @@ std::shared_ptr<SDL_Surface> convert_functor<SDL_Surface>::operator()(const std:
     return std::shared_ptr<SDL_Surface>(newPixels, [](SDL_Surface *pSurface) { SDL_FreeSurface(pSurface); });
 }
 
-std::shared_ptr<SDL_Surface> power_of_two_functor<SDL_Surface>::operator()(const std::shared_ptr<SDL_Surface>& pixels) const
-{
+} // namespace Ego
+
+namespace idlib {
+
+using Rectangle2f = Ego::Rectangle2f;
+using Point2f = Ego::Point2f;
+using Colour3b = Ego::Colour3b;
+using Colour4b = Ego::Colour4b;
+
+std::shared_ptr<SDL_Surface> power_of_two_functor<SDL_Surface>::operator()(const std::shared_ptr<SDL_Surface>& pixels) const {
     // Alias old width and old height.
-    int oldWidth = pixels->w,
-        oldHeight = pixels->h;
+  int oldWidth = pixels->w,
+     oldHeight = pixels->h;
 
-    // Compute new width and new height.
-    int newWidth = Math::powerOfTwo(oldWidth),
-        newHeight = Math::powerOfTwo(oldHeight);
+// Compute new width and new height.
+  int newWidth = Ego::Math::powerOfTwo(oldWidth),
+     newHeight = Ego::Math::powerOfTwo(oldHeight);
 
-    // Only if the new dimension differ from the old dimensions, perform the scaling.
-    if (newWidth != oldWidth || newHeight != oldHeight)
-    {
-        padding padding;
-        padding.left = 0;
-        padding.top = 0;
-        padding.right = newWidth - oldWidth;
-        padding.bottom = newHeight - oldHeight;
-        return pad(pixels, padding);
-    }
-    else
-    {
-        return SDL::cloneSurface(pixels);
-    }
+// Only if the new dimension differ from the old dimensions, perform the scaling.
+  if (newWidth != oldWidth || newHeight != oldHeight) {
+    padding padding;
+    padding.left = 0;
+    padding.top = 0;
+    padding.right = newWidth - oldWidth;
+    padding.bottom = newHeight - oldHeight;
+    return pad(pixels, padding);
+  } else {
+    return Ego::SDL::cloneSurface(pixels);
+  }
 }
 
 std::shared_ptr<SDL_Surface> pad_functor<SDL_Surface>::operator()(const std::shared_ptr<SDL_Surface>& pixels, const padding& padding) const
@@ -391,11 +396,11 @@ std::shared_ptr<SDL_Surface> pad_functor<SDL_Surface>::operator()(const std::sha
 
     // Alias old width and old height.
     size_t oldWidth = pixels->w,
-        oldHeight = pixels->h;
+           oldHeight = pixels->h;
 
     // Compute new width and new height.
     size_t newWidth = oldWidth + padding.left + padding.right,
-        newHeight = oldHeight + padding.top + padding.bottom;
+           newHeight = oldHeight + padding.top + padding.bottom;
 
     // Create the copy.
     auto newSurface = std::shared_ptr<SDL_Surface>(SDL_CreateRGBSurface(SDL_SWSURFACE, newWidth, newHeight, oldSurface->format->BitsPerPixel,
@@ -415,8 +420,8 @@ std::shared_ptr<SDL_Surface> pad_functor<SDL_Surface>::operator()(const std::sha
     {
         for (size_t x = 0; x < oldWidth; ++x)
         {
-            auto p = get_pixel(oldSurface.get(), { x, y });
-            Ego::set_pixel(newSurface.get(), p, { padding.left + x, padding.top + y });
+            auto p = idlib::get_pixel(oldSurface.get(), { x, y });
+            idlib::set_pixel(newSurface.get(), p, { padding.left + x, padding.top + y });
         }
     }
     return newSurface;
@@ -563,7 +568,7 @@ void fill_functor<SDL_Surface>::operator()(SDL_Surface *surface, const Colour3b&
     {
         throw idlib::argument_null_error(__FILE__, __LINE__, "surface");
     }
-    SDL_FillRect(surface, nullptr, SDL::make_rgb(surface, color));
+    SDL_FillRect(surface, nullptr, Ego::SDL::make_rgb(surface, color));
 }
 
 void fill_functor<SDL_Surface>::operator()(SDL_Surface *surface, const Colour4b& color) const
@@ -572,7 +577,7 @@ void fill_functor<SDL_Surface>::operator()(SDL_Surface *surface, const Colour4b&
     {
         throw idlib::argument_null_error(__FILE__, __LINE__, "surface");
     }
-    SDL_FillRect(surface, nullptr, SDL::make_rgba(surface, color));
+    SDL_FillRect(surface, nullptr, Ego::SDL::make_rgba(surface, color));
 }
 
 void fill_functor<SDL_Surface>::operator()(SDL_Surface *surface, const Colour3b& color, const Rectangle2f& rectangle) const
@@ -586,7 +591,7 @@ void fill_functor<SDL_Surface>::operator()(SDL_Surface *surface, const Colour3b&
     sdl_rectangle.y = rectangle.get_min().y();
     sdl_rectangle.w = rectangle.get_size().x();
     sdl_rectangle.h = rectangle.get_size().y();
-    SDL_FillRect(surface, &sdl_rectangle, SDL::make_rgb(surface, color));
+    SDL_FillRect(surface, &sdl_rectangle, Ego::SDL::make_rgb(surface, color));
 }
 
 void fill_functor<SDL_Surface>::operator()(SDL_Surface *surface, const Colour4b& color, const Rectangle2f& rectangle) const
@@ -600,8 +605,9 @@ void fill_functor<SDL_Surface>::operator()(SDL_Surface *surface, const Colour4b&
     sdl_rectangle.y = rectangle.get_min().y();
     sdl_rectangle.w = rectangle.get_size().x();
     sdl_rectangle.h = rectangle.get_size().y();
-    SDL_FillRect(surface, &sdl_rectangle, SDL::make_rgba(surface, color));
+    SDL_FillRect(surface, &sdl_rectangle, Ego::SDL::make_rgba(surface, color));
 }
+
 
 void set_pixel_functor<SDL_Surface>::operator()(SDL_Surface *surface, const Colour3b& color, const Point2f& point) const
 {
@@ -609,7 +615,7 @@ void set_pixel_functor<SDL_Surface>::operator()(SDL_Surface *surface, const Colo
     {
         throw idlib::argument_null_error(__FILE__, __LINE__, "surface");
     }
-    uint32_t coded_color = SDL::make_rgb(surface, color);
+    uint32_t coded_color = Ego::SDL::make_rgb(surface, color);
     (*this)(surface, coded_color, point);
 }
 
@@ -619,7 +625,7 @@ void set_pixel_functor<SDL_Surface>::operator()(SDL_Surface *surface, const Colo
     {
         throw idlib::argument_null_error(__FILE__, __LINE__, "surface");
     }
-    uint32_t coded_color = SDL::make_rgba(surface, color);
+    uint32_t coded_color = Ego::SDL::make_rgba(surface, color);
     (*this)(surface, coded_color, point);
 }
 
@@ -673,4 +679,4 @@ void set_pixel_functor<SDL_Surface>::operator()(SDL_Surface *surface, uint32_t c
     }
 }
 
-} // namespace Ego
+} // namespace idlib
