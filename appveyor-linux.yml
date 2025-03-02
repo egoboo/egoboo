@@ -1,0 +1,48 @@
+# AppVeyor configuration for AppVeyor project "Egoboo Nightly".
+clone_depth: 1
+
+# Build worker image (VM template)
+image: Ubuntu
+    
+# Build on pushes to all branches.
+branches:
+  only:
+    - master
+    - develop
+
+install:
+  # Ubunut/AppVeyor/Google screwed up here.
+  - sh: wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+  # Update all packages.
+  - sh: sudo apt-get update
+  # Install libsdl2-dev.
+  - sh: sudo apt-get install libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev -y
+  # depth 32 should be enough.
+  - git submodule update --init --recursive --depth 32
+  # Download and install CMake.
+  #- set CMAKE_URL="https://cmake.org/files/v3.30/cmake-3.30.0-windows-x86_64.zip"
+  #- appveyor DownloadFile %CMAKE_URL% -FileName cmake.zip
+  #- 7z x cmake.zip -oC:\projects\deps > nul
+  #- move C:\projects\deps\cmake-* C:\projects\deps\cmake # Move to a version-agnostic directory
+  #- set PATH=C:\projects\deps\cmake\bin;%PATH%
+  #- cmake --version
+
+# Generate "make" files.
+before_build:
+    - ps: |
+        cmake CMakeLists.txt
+
+# Invoke "make".
+build_script:
+  - sh: make all
+
+test_script:
+    - ps: ctest --output-junit test-results-${env:APPVEYOR_JOB_ID}.xml -C ${env:CONFIGURATION} 
+    - ps: |
+        $webClient = New-Object 'System.Net.WebClient'
+        $webClient.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\test-results-${env:APPVEYOR_JOB_ID}.xml))
+
+# if one matrix entry fails, all entries fails
+# https://www.appveyor.com/docs/build-configuration#failing-strategy
+matrix:
+    fast_finish: true

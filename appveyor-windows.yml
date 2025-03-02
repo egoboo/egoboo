@@ -28,8 +28,7 @@ install:
   - set PATH=C:\projects\deps\cmake\bin;%PATH%
   - cmake --version
 
-# Restore nuget packages and install dependencies.        
-# Furthermore, the artifact name and the artifact file name are computed.
+# Generate Visual Studio solution and projects.
 before_build:
     #- nuget restore
     - cmd: if "%platform%"=="Win32" set CMAKE_GENERATOR_NAME=Visual Studio 15 2017
@@ -38,7 +37,7 @@ before_build:
 
 build:
     parallel: true                  # enable MSBuild parallel builds
-    project: egoboo.sln             # path to Visual Studio solution or project
+    project: egoboo.sln             # path to Visual Studio solution
 
 test_script:
     - ps: ctest --output-junit test-results-${env:APPVEYOR_JOB_ID}.xml -C ${env:CONFIGURATION} 
@@ -50,9 +49,3 @@ test_script:
 # https://www.appveyor.com/docs/build-configuration#failing-strategy
 matrix:
     fast_finish: true
-     
-notifications:
-    #- provider: Webhook
-    #  url: https://webhooks.gitter.im/e/7743b26cbf1767e7b3a3
-    #  on_build_success: true
-    #  on_build_failure: true
